@@ -40,7 +40,7 @@
 
     <scm>
         <connection>scm:svn:http://syncope.googlecode.com/svn/trunk/</connection>
-        <developerConnection>scm:svn:http://syncope.googlecode.com/svn/trunk/</developerConnection>
+        <developerConnection>scm:svn:https://syncope.googlecode.com/svn/trunk/</developerConnection>
         <url>http://syncope.googlecode.com/svn/trunk/</url>
     </scm>
 
