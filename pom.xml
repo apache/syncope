@@ -25,16 +25,78 @@
     <version>0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
+    <url>http://syncope.googlecode.com/</url>
+    <prerequisites>
+        <maven>[2.1.0,)</maven>
+    </prerequisites>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <connection>scm:svn:http://syncope.googlecode.com/svn/trunk/</connection>
+        <developerConnection>scm:svn:http://syncope.googlecode.com/svn/trunk/</developerConnection>
+        <url>http://syncope.googlecode.com/svn/trunk/</url>
+    </scm>
+
+    <issueManagement>
+        <system>Google Code</system>
+        <url>http://code.google.com/p/syncope/issues/</url>
+    </issueManagement>
+
+    <developers>
+        <developer>
+            <name>Francesco Chicchiriccò</name>
+            <id>ilgrosso</id>
+            <organization/>
+            <roles>
+                <role>Project Lead</role>
+            </roles>
+            <timezone>+1</timezone>
+        </developer>
+        <developer>
+            <name>Fabio Martelli</name>
+            <id>spallone</id>
+            <organization/>
+            <roles>
+                <role>Project Lead</role>
+            </roles>
+            <timezone>+1</timezone>
+        </developer>
+    </developers>
+
+    <contributors>
+    </contributors>
+
+    <mailingLists>
+        <mailingList>
+            <name>syncope-dev</name>
+            <post>syncope-dev@googlegroups.com</post>
+            <archive>http://groups.google.com/group/syncope-dev</archive>
+        </mailingList>
+        <mailingList>
+            <name>syncope-users</name>
+            <post>syncope-uses@googlegroups.com</post>
+            <archive>http://groups.google.com/group/syncope-users</archive>
+        </mailingList>
+    </mailingLists>
+
     <properties>
 
         <servlet-api.version>2.5</servlet-api.version>
         <openam.version>snapshot9</openam.version>
+        <osworkflow.version>2.8.0</osworkflow.version>
 
         <spring.version>2.5.6</spring.version>
 
         <hibernate.version>3.5.1-Final</hibernate.version>
         <javassist.version>3.8.0.GA</javassist.version>
-        
+
         <wicket.version>1.4.7</wicket.version>
 
         <org.slf4j.logback-classic.version>0.9.18</org.slf4j.logback-classic.version>
@@ -60,6 +122,12 @@
                 <groupId>com.forgerock.openam</groupId>
                 <artifactId>clientsdk</artifactId>
                 <version>${openam.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>opensymphony</groupId>
+                <artifactId>osworkflow</artifactId>
+                <version>${osworkflow.version}</version>
             </dependency>
 
             <!-- Hibernate -->
@@ -108,10 +176,17 @@
     </dependencyManagement>
 
     <repositories>
+
         <repository>
             <id>forgerock</id>
             <url>http://repo.forgerock.org</url>
         </repository>
+
+        <repository>
+            <id>atalassian</id>
+            <url>https://maven.atlassian.com/3rdparty/</url>
+        </repository>
+
         <repository>
             <id>jboss</id>
             <url>http://repository.jboss.com/maven2/</url>
@@ -122,6 +197,7 @@
                 <enabled>false</enabled>
             </snapshots>
         </repository>
+
     </repositories>
 
     <build>
@@ -137,9 +213,48 @@
                         <target>1.5</target>
                     </configuration>
                 </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-checkstyle-plugin</artifactId>
+                    <version>2.5</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jxr-plugin</artifactId>
+                    <version>2.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-site-plugin</artifactId>
+                    <version>2.1</version>
+                    <configuration>
+                        <locales>en,it</locales>
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
     </build>
+
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>2.5</version>
+                <configuration>
+                    <configLocation>config/sun_checks.xml</configLocation>
+                    <configLocation>config/maven_checks.xml</configLocation>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jxr-plugin</artifactId>
+                <configuration>
+                    <aggregate>true</aggregate>
+                </configuration>
+            </plugin>
+        </plugins>
+    </reporting>
 
     <modules>
         <module>core</module>

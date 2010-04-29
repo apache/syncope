@@ -36,6 +36,11 @@
             <groupId>com.forgerock.openam</groupId>
             <artifactId>clientsdk</artifactId>
         </dependency>
+        
+        <dependency>
+            <groupId>opensymphony</groupId>
+            <artifactId>osworkflow</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.hibernate</groupId>
