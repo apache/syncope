@@ -89,19 +89,23 @@
     <properties>
 
         <servlet-api.version>2.5</servlet-api.version>
+
         <openam.version>snapshot9</openam.version>
+
         <osworkflow.version>2.8.0</osworkflow.version>
 
-        <spring.version>2.5.6</spring.version>
+        <spring.version>2.5.6.SEC01</spring.version>
 
         <hibernate.version>3.5.1-Final</hibernate.version>
         <javassist.version>3.8.0.GA</javassist.version>
 
         <wicket.version>1.4.7</wicket.version>
 
+        <jersey-version>1.1.5.1</jersey-version>
+
         <org.slf4j.logback-classic.version>0.9.18</org.slf4j.logback-classic.version>
 
-        <junit.version>4.5</junit.version>
+        <junit.version>4.8.1</junit.version>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
@@ -136,7 +140,6 @@
                 <artifactId>hibernate-core</artifactId>
                 <version>${hibernate.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>javassist</groupId>
                 <artifactId>javassist</artifactId>
@@ -158,18 +161,44 @@
                 <version>${wicket.version}</version>
             </dependency>
 
+            <!-- Jersey -->
+            <dependency>
+                <groupId>com.sun.jersey</groupId>
+                <artifactId>jersey-server</artifactId>
+                <version>${jersey-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sun.jersey</groupId>
+                <artifactId>jersey-json</artifactId>
+                <version>${jersey-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sun.jersey.contribs</groupId>
+                <artifactId>jersey-spring</artifactId>
+                <version>${jersey-version}</version>
+            </dependency>
+            <!-- /Jersey -->
+
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>logback-classic</artifactId>
                 <version>${org.slf4j.logback-classic.version}</version>
             </dependency>
 
+            <!-- TEST -->
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>${junit.version}</version>
                 <scope>test</scope>
             </dependency>
+            <dependency>
+                <groupId>com.sun.jersey</groupId>
+                <artifactId>jersey-client</artifactId>
+                <version>${jersey-version}</version>
+                <scope>test</scope>
+            </dependency>
+            <!-- /TEST -->
 
         </dependencies>
 
@@ -196,6 +225,13 @@
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
+        </repository>
+
+        <repository>
+            <id>maven2-repository.dev.java.net</id>
+            <name>Java.net Maven 2 Repository</name>
+            <url>http://download.java.net/maven/2/</url>
+            <layout>default</layout>
         </repository>
 
     </repositories>
@@ -259,7 +295,7 @@
     <modules>
         <module>core</module>
         <module>console</module>
-        <!--<module>rest</module>-->
+        <module>rest</module>
     </modules>
 
 </project>

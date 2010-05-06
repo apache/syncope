@@ -24,10 +24,10 @@
         <version>0.1-SNAPSHOT</version>
     </parent>
 
-    <name>Syncope console</name>
-    <description>Syncope console</description>
+    <name>Syncope REST</name>
+    <description>Syncope RESTful interface</description>
     <groupId>org.syncope</groupId>
-    <artifactId>syncope-console</artifactId>
+    <artifactId>syncope-rest</artifactId>
     <packaging>war</packaging>
 
     <dependencies>
@@ -39,9 +39,30 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.wicket</groupId>
-            <artifactId>wicket</artifactId>
+            <groupId>com.sun.jersey</groupId>
+            <artifactId>jersey-server</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.sun.jersey</groupId>
+            <artifactId>jersey-json</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.jersey.contribs</groupId>
+            <artifactId>jersey-spring</artifactId>
+        </dependency>
+
+        <!-- TEST -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.jersey</groupId>
+            <artifactId>jersey-client</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- /TEST -->
 
     </dependencies>
 
