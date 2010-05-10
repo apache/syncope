@@ -14,22 +14,13 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.rest;
+package org.syncope.rest.user.jaxb;
 
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
+import javax.xml.bind.annotation.XmlRootElement;
 
-@Path("/createUser")
-@Component
-@Scope("request")
-public class CreateUser {
-
-    @POST
-    @Produces("text/plain")
-    public String createUser() {
-        return "new user created";
-    }
+/**
+ * TODO: implement
+ */
+@XmlRootElement
+public class SearchParameters {
 }

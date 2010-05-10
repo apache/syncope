@@ -48,11 +48,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>javassist</groupId>
             <artifactId>javassist</artifactId>
         </dependency>
