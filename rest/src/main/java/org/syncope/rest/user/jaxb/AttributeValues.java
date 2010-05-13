@@ -58,4 +58,19 @@ public class AttributeValues {
     public String toString() {
         return elements.toString();
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof AttributeValues)) {
+            return false;
+        }
+
+        AttributeValues other = (AttributeValues) obj;
+        return elements.equals(other.elements);
+    }
+
+    @Override
+    public int hashCode() {
+        return elements.hashCode();
+    }
 }

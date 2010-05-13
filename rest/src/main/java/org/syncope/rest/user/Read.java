@@ -18,10 +18,12 @@ package org.syncope.rest.user;
 
 import java.util.Collections;
 import java.util.logging.Logger;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import org.springframework.context.annotation.Scope;
@@ -36,17 +38,32 @@ public class Read {
 
     final static Logger logger = Logger.getLogger(Read.class.getName());
 
+    public static Attributes getTestValue(String userId) {
+        Attributes attributes = new Attributes();
+
+        attributes.addUserAttribute("userId",
+                new AttributeValues(Collections.singleton(userId)));
+
+        return attributes;
+    }
+
     /**
      * TODO: read actual values for the corresponding userId via syncope-core
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Attributes readUser(@PathParam("userId") String userId) {
+    public Attributes readUser(@PathParam("userId") String userId,
+            @DefaultValue("FALSE") @QueryParam("test") boolean test) {
+
         if ("error".equals(userId)) {
             logger.severe("Entered in the error condition, going ahead...");
 
             throw new WebApplicationException(
                     new Exception("Wrong userId: " + userId));
+        }
+
+        if (test) {
+            return getTestValue(userId);
         }
 
         logger.info("readUser called");

@@ -17,6 +17,7 @@
 package org.syncope.rest.user;
 
 import java.util.logging.Logger;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -35,19 +36,28 @@ public class PasswordReset {
 
     final static Logger logger = Logger.getLogger(PasswordReset.class.getName());
 
+    public static String getTestValue() {
+        return "passwordResetTokenId";
+    }
+
     /**
      * TODO: call syncope-core
      */
     @GET
     @Produces(MediaType.TEXT_PLAIN)
     public String getPasswordResetToken(@PathParam("userId") String userId,
-            @QueryParam("passwordResetFormURL") String passwordResetFormURL) {
+            @QueryParam("passwordResetFormURL") String passwordResetFormURL,
+            @DefaultValue("FALSE") @QueryParam("test") boolean test) {
 
         if ("error".equals(userId)) {
             logger.severe("Entered in the error condition, going ahead...");
 
             throw new WebApplicationException(
                     new Exception("Wrong userId: " + userId));
+        }
+
+        if (test) {
+            return getTestValue();
         }
 
         logger.info("getPasswordResetToken called: " + passwordResetFormURL);
@@ -62,13 +72,18 @@ public class PasswordReset {
     @Produces(MediaType.APPLICATION_JSON)
     public String passwordReset(@QueryParam("tokenId") String tokenId,
             @PathParam("userId") String userId,
-            @QueryParam("newPassword") String newPassword) {
+            @QueryParam("newPassword") String newPassword,
+            @DefaultValue("FALSE") @QueryParam("test") boolean test) {
 
         if ("error".equals(userId)) {
             logger.severe("Entered in the error condition, going ahead...");
 
             throw new WebApplicationException(
                     new Exception("Wrong userId: " + userId));
+        }
+
+        if (test) {
+            return Boolean.valueOf(tokenId.equals(getTestValue())).toString();
         }
 
         logger.info("passwordReset called: " + tokenId + " / " + newPassword);

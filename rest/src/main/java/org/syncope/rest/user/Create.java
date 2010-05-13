@@ -18,15 +18,18 @@ package org.syncope.rest.user;
 
 import java.util.logging.Logger;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.syncope.rest.user.jaxb.Attributes;
 
-@Path("/user/create")
+@Path("/user/create/{userId}")
 @Component
 @Scope("request")
 public class Create {
@@ -39,9 +42,15 @@ public class Create {
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
-    public String createUser(Attributes userAttributes) {
+    public String createUser(@PathParam("userId") String userId,
+            Attributes userAttributes,
+            @DefaultValue("FALSE") @QueryParam("test") boolean test) {
 
-        logger.info("searchUser() called with attributes " + userAttributes);
+        if (test) {
+            return userId;
+        }
+
+        logger.info("createUser() called with attributes " + userAttributes);
 
         return "userId";
     }

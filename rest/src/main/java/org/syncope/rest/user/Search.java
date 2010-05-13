@@ -16,17 +16,18 @@
  */
 package org.syncope.rest.user;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Logger;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.syncope.rest.user.jaxb.SearchParameters;
+import org.syncope.rest.user.jaxb.SearchResults;
 
 @Path("/user/search")
 @Component
@@ -35,20 +36,34 @@ public class Search {
 
     final static Logger logger = Logger.getLogger(Search.class.getName());
 
+    public static SearchResults getTestValue() {
+        SearchResults searchResults = new SearchResults();
+        searchResults.addResult("user1");
+        searchResults.addResult("user2");
+        searchResults.addResult("user3");
+
+        return searchResults;
+    }
+
     /**
      * TODO: call syncope-core
      */
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public List<String> searchUser(SearchParameters searchParameters) {
+    public SearchResults searchUser(SearchParameters searchParameters,
+            @DefaultValue("FALSE") @QueryParam("test") boolean test) {
 
         logger.info("searchUser() called with parameters " + searchParameters);
 
-        List<String> searchResults = new ArrayList<String>();
-        searchResults.add("user1");
-        searchResults.add("user2");
-        searchResults.add("user3");
+        if (test) {
+            return getTestValue();
+        }
+
+        SearchResults searchResults = new SearchResults();
+        searchResults.addResult("user1");
+        searchResults.addResult("user2");
+        searchResults.addResult("user3");
 
         return searchResults;
     }

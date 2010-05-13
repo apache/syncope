@@ -27,6 +27,7 @@ import javax.xml.bind.JAXBContext;
 import org.syncope.rest.user.jaxb.AttributeValues;
 import org.syncope.rest.user.jaxb.Attributes;
 import org.syncope.rest.user.jaxb.SearchParameters;
+import org.syncope.rest.user.jaxb.SearchResults;
 
 @Provider
 public final class JAXBContextResolver implements ContextResolver<JAXBContext> {
@@ -34,7 +35,7 @@ public final class JAXBContextResolver implements ContextResolver<JAXBContext> {
     private final JAXBContext context;
     private final Set<Class> types;
     private final Class[] cTypes = {AttributeValues.class,
-        Attributes.class, SearchParameters.class};
+        Attributes.class, SearchParameters.class, SearchResults.class};
 
     public JAXBContextResolver() throws Exception {
         this.types = new HashSet(Arrays.asList(cTypes));

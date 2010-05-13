@@ -18,9 +18,11 @@ package org.syncope.rest.user;
 
 import java.util.logging.Logger;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import org.springframework.context.annotation.Scope;
@@ -38,10 +40,16 @@ public class Delete {
      */
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
-    public String deleteUser(@PathParam("userId") String userId) {
+    public String deleteUser(@PathParam("userId") String userId,
+            @DefaultValue("FALSE") @QueryParam("test") boolean test) {
+
         if ("error".equals(userId)) {
             throw new WebApplicationException(
                     new Exception("Wrong userId: " + userId));
+        }
+
+        if (test) {
+            return Boolean.TRUE.toString();
         }
 
         logger.info("deleteUser() called for " + userId);

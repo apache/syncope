@@ -16,51 +16,41 @@
  */
 package org.syncope.rest.user.jaxb;
 
-import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-@XmlRootElement(name = "userAttributes")
-public class Attributes {
+/**
+ * TODO: implement
+ */
+@XmlRootElement
+public class SearchResults implements Iterable<String> {
 
-    @XmlJavaTypeAdapter(AttributeXmlAdapter.class)
-    @XmlElement(name = "attributes")
-    private HashMap<String, AttributeValues> elements;
+    @XmlElement(name = "result")
+    private Set<String> elements;
 
-    public Attributes() {
-        elements = new HashMap<String, AttributeValues>();
+    public SearchResults() {
+        elements = new HashSet<String>();
     }
 
-    public void addUserAttribute(String name, String value) {
-        elements.put(name, new AttributeValues(value));
-    }
-
-    public void addUserAttribute(String name, Set<String> values) {
-        elements.put(name, new AttributeValues(values));
-    }
-
-    public void addUserAttribute(String name, AttributeValues values) {
-        elements.put(name, values);
-    }
-
-    public AttributeValues getAttributeValues(String name) {
-        return elements.get(name);
+    public void addResult(String result) {
+        elements.add(result);
     }
 
     @Override
-    public String toString() {
-        return elements.toString();
+    public Iterator<String> iterator() {
+        return elements.iterator();
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof Attributes)) {
+        if (!(obj instanceof SearchResults)) {
             return false;
         }
 
-        Attributes other = (Attributes) obj;
+        SearchResults other = (SearchResults) obj;
         return elements.equals(other.elements);
     }
 
