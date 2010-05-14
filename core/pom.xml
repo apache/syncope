@@ -48,8 +48,8 @@
         </dependency>
 
         <dependency>
-            <groupId>javassist</groupId>
-            <artifactId>javassist</artifactId>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-annotations</artifactId>
         </dependency>
 
     </dependencies>

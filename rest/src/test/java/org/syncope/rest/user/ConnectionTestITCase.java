@@ -96,7 +96,7 @@ public class ConnectionTestITCase {
         WebResource webResource = jerseyClient.resource(
                 BASE_URL + "passwordReset/" + userId
                 + "?passwordResetFormURL=http%3A%2F%2Fcode.google.com"
-                + "%2Fp%2Fsyncope%2F&test=TRUE");
+                + "%2Fp%2Fsyncope%2F&gotoURL=http%3A%2F%2Fwww.google.com&test=TRUE");
 
         String reference1 = PasswordReset.getTestValue();
         String result1 = webResource.get(String.class);

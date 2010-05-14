@@ -30,7 +30,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.syncope.rest.user.jaxb.Attributes;
 
-@Path("/user/update/${userId}")
+@Path("/user/update/{userId}")
 @Component
 @Scope("request")
 public class Update {

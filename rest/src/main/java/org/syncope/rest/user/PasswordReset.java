@@ -47,6 +47,7 @@ public class PasswordReset {
     @Produces(MediaType.TEXT_PLAIN)
     public String getPasswordResetToken(@PathParam("userId") String userId,
             @QueryParam("passwordResetFormURL") String passwordResetFormURL,
+            @QueryParam("passwordResetFormURL") String gotoURL,
             @DefaultValue("FALSE") @QueryParam("test") boolean test) {
 
         if ("error".equals(userId)) {
