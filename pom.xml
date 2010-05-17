@@ -90,19 +90,29 @@
 
         <servlet-api.version>2.5</servlet-api.version>
 
+        <xerces.version>2.9.1</xerces.version>
+
         <openam.version>snapshot9</openam.version>
 
         <osworkflow.version>2.8.0</osworkflow.version>
 
         <spring.version>2.5.6.SEC01</spring.version>
 
-        <hibernate.version>3.5.1-Final</hibernate.version>
+        <hibernate.version>3.4.0.GA</hibernate.version>
 
         <wicket.version>1.4.7</wicket.version>
 
         <jersey.version>1.2</jersey.version>
 
+        <log4j.version>1.2.16</log4j.version>
+
+        <slf4j.version>1.5.2</slf4j.version>
+
         <junit.version>4.8.1</junit.version>
+
+        <dbunit.version>2.4.7</dbunit.version>
+
+        <hsqldb.version>1.8.0.7</hsqldb.version>
 
         <jetty.version>6.1.24</jetty.version>
 
@@ -122,6 +132,12 @@
             </dependency>
 
             <dependency>
+                <groupId>xerces</groupId>
+                <artifactId>xercesImpl</artifactId>
+                <version>${xerces.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>com.forgerock.openam</groupId>
                 <artifactId>clientsdk</artifactId>
                 <version>${openam.version}</version>
@@ -136,7 +152,7 @@
             <!-- Hibernate -->
             <dependency>
                 <groupId>org.hibernate</groupId>
-                <artifactId>hibernate-core</artifactId>
+                <artifactId>hibernate-entitymanager</artifactId>
                 <version>${hibernate.version}</version>
             </dependency>
             <dependency>
@@ -178,6 +194,17 @@
             </dependency>
             <!-- /Jersey -->
 
+            <dependency>
+                <groupId>log4j</groupId>
+                <artifactId>log4j</artifactId>
+                <version>${log4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-log4j12</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+
             <!-- TEST -->
             <dependency>
                 <groupId>junit</groupId>
@@ -189,6 +216,24 @@
                 <groupId>com.sun.jersey</groupId>
                 <artifactId>jersey-client</artifactId>
                 <version>${jersey.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>hsqldb</groupId>
+                <artifactId>hsqldb</artifactId>
+                <version>${hsqldb.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-test</artifactId>
+                <version>${spring.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.dbunit</groupId>
+                <artifactId>dbunit</artifactId>
+                <version>${dbunit.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -221,27 +266,10 @@
         </repository>
 
         <repository>
-            <id>jboss</id>
-            <url>http://repository.jboss.com/maven2/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-
-        <repository>
             <id>maven2-repository.dev.java.net</id>
             <name>Java.net Maven 2 Repository</name>
             <url>http://download.java.net/maven/2/</url>
             <layout>default</layout>
-        </repository>
-
-        <repository>
-            <id>com.springsource.repository.maven.release</id>
-            <url>http://maven.springframework.org/release/</url>
-            <snapshots><enabled>false</enabled></snapshots>
         </repository>
 
     </repositories>
@@ -294,6 +322,19 @@
                     <groupId>org.mortbay.jetty</groupId>
                     <artifactId>maven-jetty-plugin</artifactId>
                     <version>${jetty.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>hibernate3-maven-plugin</artifactId>
+                    <version>2.2</version>
+                    <executions>
+                        <execution>
+                            <phase>process-classes</phase>
+                            <goals>
+                                <goal>hbm2ddl</goal>
+                            </goals>
+                        </execution>
+                    </executions>
                 </plugin>
             </plugins>
         </pluginManagement>

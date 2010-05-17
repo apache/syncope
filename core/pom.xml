@@ -36,15 +36,20 @@
             <groupId>com.forgerock.openam</groupId>
             <artifactId>clientsdk</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>opensymphony</groupId>
             <artifactId>osworkflow</artifactId>
         </dependency>
 
         <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-core</artifactId>
+            <artifactId>hibernate-entitymanager</artifactId>
         </dependency>
 
         <dependency>
@@ -52,6 +57,76 @@
             <artifactId>hibernate-annotations</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
+        </dependency>
+
+        <!-- TEST -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>hsqldb</groupId>
+            <artifactId>hsqldb</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.dbunit</groupId>
+            <artifactId>dbunit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- /TEST -->
     </dependencies>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>hibernate3-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>hbm2ddl</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <components>
+                        <component>
+                            <name>hbm2ddl</name>
+                            <implementation>annotationconfiguration</implementation>
+                        </component>
+                    </components>
+                    <componentProperties>
+                        <implementation>jpaconfiguration</implementation>
+                        <persistenceunit>syncopePersistenceUnit</persistenceunit>
+                        <outputfilename>syncopeSchema.ddl</outputfilename>
+                        <propertyfile>${basedir}/src/main/resources/database.properties</propertyfile>
+                        <drop>false</drop>
+                        <create>true</create>
+                        <export>false</export>
+                        <format>true</format>
+                    </componentProperties>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

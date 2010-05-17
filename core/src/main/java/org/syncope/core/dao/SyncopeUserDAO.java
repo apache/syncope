@@ -12,13 +12,18 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.rest.user.jaxb;
+package org.syncope.core.dao;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import java.util.List;
+import org.syncope.core.beans.SyncopeUser;
 
-/**
- * TODO: implement
- */
-@XmlRootElement
-public class SearchParameters {
+public interface SyncopeUserDAO {
+
+    SyncopeUser find(long id);
+
+    List<SyncopeUser> findAll();
+
+    void save(SyncopeUser syncopeUser);
+
+    void delete(long id);
 }
