@@ -12,18 +12,19 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.dao;
+package org.syncope.core.dao.impl;
 
-import java.util.List;
-import org.syncope.core.beans.SyncopeUser;
+import javax.persistence.EntityManager;
 
-public interface SyncopeUserDAO extends DAO {
+public abstract class AbstractDAOImpl {
 
-    SyncopeUser find(long id);
+    protected EntityManager entityManager;
 
-    List<SyncopeUser> findAll();
+    public EntityManager getEntityManager() {
+        return entityManager;
+    }
 
-    SyncopeUser save(SyncopeUser syncopeUser);
-
-    void delete(long id);
+    public void setEntityManager(EntityManager entityManager) {
+        this.entityManager = entityManager;
+    }
 }

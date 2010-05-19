@@ -14,16 +14,5 @@
  */
 package org.syncope.core.dao;
 
-import java.util.List;
-import org.syncope.core.beans.SyncopeUser;
-
-public interface SyncopeUserDAO extends DAO {
-
-    SyncopeUser find(long id);
-
-    List<SyncopeUser> findAll();
-
-    SyncopeUser save(SyncopeUser syncopeUser);
-
-    void delete(long id);
+public interface DAO {
 }

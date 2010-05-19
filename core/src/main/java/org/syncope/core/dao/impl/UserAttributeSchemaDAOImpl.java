@@ -17,34 +17,35 @@ package org.syncope.core.dao.impl;
 import java.util.List;
 import javax.persistence.Query;
 import org.springframework.transaction.annotation.Transactional;
-import org.syncope.core.beans.SyncopeUser;
-import org.syncope.core.dao.SyncopeUserDAO;
+import org.syncope.core.beans.UserAttributeSchema;
+import org.syncope.core.dao.UserAttributeSchemaDAO;
 
-public class SyncopeUserDAOImpl extends AbstractDAOImpl
-        implements SyncopeUserDAO {
+public class UserAttributeSchemaDAOImpl extends AbstractDAOImpl
+        implements UserAttributeSchemaDAO {
 
     @Override
-    public SyncopeUser find(long id) {
-        return entityManager.find(SyncopeUser.class, id);
+    public UserAttributeSchema find(String name) {
+        return entityManager.find(UserAttributeSchema.class, name);
     }
 
     @Override
-    public List<SyncopeUser> findAll() {
-        Query query = entityManager.createQuery("SELECT e FROM SyncopeUser e");
+    public List<UserAttributeSchema> findAll() {
+        Query query = entityManager.createQuery(
+                "SELECT e FROM UserAttributeSchema e");
         return query.getResultList();
     }
 
     @Override
     @Transactional
-    public SyncopeUser save(SyncopeUser syncopeUser) {
-        SyncopeUser result = entityManager.merge(syncopeUser);
+    public UserAttributeSchema save(UserAttributeSchema userAttributeSchema) {
+        UserAttributeSchema result = entityManager.merge(userAttributeSchema);
         entityManager.flush();
         return result;
     }
 
     @Override
     @Transactional
-    public void delete(long id) {
-        entityManager.remove(find(id));
+    public void delete(String name) {
+        entityManager.remove(find(name));
     }
 }

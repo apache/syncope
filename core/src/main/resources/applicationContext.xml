@@ -34,7 +34,10 @@
     </bean>
 
     <!-- DAOs -->
-    <bean id="userDAO" class="org.syncope.core.dao.impl.SyncopeUserDAOImpl">
+    <bean id="syncopeUserDAO" class="org.syncope.core.dao.impl.SyncopeUserDAOImpl">
+        <property name="entityManager" ref="entityManager" />
+    </bean>
+    <bean id="userAttributeSchemaDAO" class="org.syncope.core.dao.impl.UserAttributeSchemaDAOImpl">
         <property name="entityManager" ref="entityManager" />
     </bean>
 

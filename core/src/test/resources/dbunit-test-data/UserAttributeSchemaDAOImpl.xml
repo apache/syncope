@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dataset>
+    <UserAttributeSchema name="username" type="String"
+                         conversionPattern="NULL"
+                         conversionClass="NULL"/>
+    <UserAttributeSchema name="birthdate" type="Date"
+                         conversionPattern="yyyy-MM-dd"
+                         conversionClass="java.text.SimpleDateFormat" />
+</dataset>

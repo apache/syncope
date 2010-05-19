@@ -15,15 +15,15 @@
 package org.syncope.core.dao;
 
 import java.util.List;
-import org.syncope.core.beans.SyncopeUser;
+import org.syncope.core.beans.UserAttributeSchema;
 
-public interface SyncopeUserDAO extends DAO {
+public interface UserAttributeSchemaDAO extends DAO {
 
-    SyncopeUser find(long id);
+    UserAttributeSchema find(String name);
 
-    List<SyncopeUser> findAll();
+    List<UserAttributeSchema> findAll();
 
-    SyncopeUser save(SyncopeUser syncopeUser);
+    UserAttributeSchema save(UserAttributeSchema userAttributeSchema);
 
-    void delete(long id);
+    void delete(String name);
 }

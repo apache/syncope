@@ -12,18 +12,13 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.dao;
+package org.syncope.core.enums;
 
-import java.util.List;
-import org.syncope.core.beans.SyncopeUser;
+public enum AttributeType {
 
-public interface SyncopeUserDAO extends DAO {
-
-    SyncopeUser find(long id);
-
-    List<SyncopeUser> findAll();
-
-    SyncopeUser save(SyncopeUser syncopeUser);
-
-    void delete(long id);
+    String,
+    Integer,
+    Long,
+    Boolean,
+    Date
 }

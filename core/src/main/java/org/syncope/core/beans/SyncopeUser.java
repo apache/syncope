@@ -23,10 +23,10 @@ import javax.persistence.Id;
 @Entity
 public class SyncopeUser implements Serializable {
 
-    private Long id;
-
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
+
     public Long getId() {
         return id;
     }
@@ -37,18 +37,29 @@ public class SyncopeUser implements Serializable {
 
     @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof SyncopeUser)) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
             return false;
         }
 
-        SyncopeUser other = (SyncopeUser) obj;
+        final SyncopeUser other = (SyncopeUser) obj;
+        if (this.id != other.id
+                && (this.id == null || !this.id.equals(other.id))) {
 
-        return id.equals(other.id);
+            return false;
+        }
+
+        return true;
     }
 
     @Override
     public int hashCode() {
-        return id.hashCode();
+        int hash = 5;
+        hash = 83 * hash + (this.id != null ? this.id.hashCode() : 0);
+
+        return hash;
     }
 
     @Override

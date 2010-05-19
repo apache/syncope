@@ -4,6 +4,7 @@
              http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd"
              version="1.0">
     <persistence-unit name="syncopePersistenceUnit" transaction-type="RESOURCE_LOCAL">
-        <!-- all this is configured via spring -->
+        <properties>
+        </properties>
     </persistence-unit>
 </persistence>
