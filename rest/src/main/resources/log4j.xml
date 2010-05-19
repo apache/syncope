@@ -21,22 +21,17 @@
         </layout>
     </appender>
 
-    <logger name="org.syncope.core" additivity="false">
+    <logger name="org.syncope.rest" additivity="false">
         <level value="INFO"/>
         <appender-ref ref="main"/>
     </logger>
 
-    <logger name="org.syncope.core.test" additivity="false">
+    <logger name="org.syncope.rest.test" additivity="false">
         <level value="DEBUG"/>
         <appender-ref ref="test"/>
     </logger>
 
     <logger name="org.springframework" additivity="false">
-        <level value="INFO"/>
-        <appender-ref ref="main"/>
-    </logger>
-
-    <logger name="org.hibernate" additivity="false">
         <level value="INFO"/>
         <appender-ref ref="main"/>
     </logger>

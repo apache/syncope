@@ -14,7 +14,6 @@
  */
 package org.syncope.rest.user;
 
-import java.util.logging.Logger;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.Path;
@@ -23,6 +22,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -31,7 +32,7 @@ import org.springframework.stereotype.Component;
 @Scope("request")
 public class Delete {
 
-    final static Logger logger = Logger.getLogger(Delete.class.getName());
+    private static final Logger log = LoggerFactory.getLogger(Delete.class);
 
     /**
      * TODO: call syncope-core
@@ -50,7 +51,7 @@ public class Delete {
             return Boolean.TRUE.toString();
         }
 
-        logger.info("deleteUser() called for " + userId);
+        log.info("deleteUser() called for " + userId);
 
         return Boolean.TRUE.toString();
     }

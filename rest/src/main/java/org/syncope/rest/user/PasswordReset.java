@@ -14,7 +14,6 @@
  */
 package org.syncope.rest.user;
 
-import java.util.logging.Logger;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -24,6 +23,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -32,7 +33,7 @@ import org.springframework.stereotype.Component;
 @Scope("request")
 public class PasswordReset {
 
-    final static Logger logger = Logger.getLogger(PasswordReset.class.getName());
+    private static final Logger log = LoggerFactory.getLogger(PasswordReset.class);
 
     public static String getTestValue() {
         return "passwordResetTokenId";
@@ -49,7 +50,7 @@ public class PasswordReset {
             @DefaultValue("FALSE") @QueryParam("test") boolean test) {
 
         if ("error".equals(userId)) {
-            logger.severe("Entered in the error condition, going ahead...");
+            log.warn("Entered in the error condition, going ahead...");
 
             throw new WebApplicationException(
                     new Exception("Wrong userId: " + userId));
@@ -59,7 +60,7 @@ public class PasswordReset {
             return getTestValue();
         }
 
-        logger.info("getPasswordResetToken called: " + passwordResetFormURL);
+        log.info("getPasswordResetToken called: " + passwordResetFormURL);
 
         return "passwordResetTokenId";
     }
@@ -75,7 +76,7 @@ public class PasswordReset {
             @DefaultValue("FALSE") @QueryParam("test") boolean test) {
 
         if ("error".equals(userId)) {
-            logger.severe("Entered in the error condition, going ahead...");
+            log.warn("Entered in the error condition, going ahead...");
 
             throw new WebApplicationException(
                     new Exception("Wrong userId: " + userId));
@@ -85,7 +86,7 @@ public class PasswordReset {
             return Boolean.valueOf(tokenId.equals(getTestValue())).toString();
         }
 
-        logger.info("passwordReset called: " + tokenId + " / " + newPassword);
+        log.info("passwordReset called: " + tokenId + " / " + newPassword);
 
         return Boolean.TRUE.toString();
     }

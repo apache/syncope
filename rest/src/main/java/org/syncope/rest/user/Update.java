@@ -14,7 +14,6 @@
  */
 package org.syncope.rest.user;
 
-import java.util.logging.Logger;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.POST;
@@ -24,6 +23,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.syncope.rest.user.jaxb.Attributes;
@@ -33,7 +34,7 @@ import org.syncope.rest.user.jaxb.Attributes;
 @Scope("request")
 public class Update {
 
-    final static Logger logger = Logger.getLogger(Update.class.getName());
+    private static final Logger log = LoggerFactory.getLogger(Update.class);
 
     /**
      * TODO: call syncope-core
@@ -54,7 +55,7 @@ public class Update {
             return Boolean.TRUE.toString();
         }
 
-        logger.info("searchUser() called with userId " + userId
+        log.info("searchUser() called with userId " + userId
                 + " and attributes " + userAttributes);
 
         return Boolean.TRUE.toString();

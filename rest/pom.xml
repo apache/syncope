@@ -32,6 +32,9 @@
 
     <properties>
         <jetty.port>8080</jetty.port>
+
+        <logfile>/tmp/syncope-rest.log</logfile>
+        <logfile.test>/tmp/syncope-rest-test.log</logfile.test>
     </properties>
 
     <dependencies>
@@ -40,6 +43,15 @@
             <groupId>org.syncope</groupId>
             <artifactId>syncope-core</artifactId>
             <version>${parent.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
         </dependency>
 
         <dependency>
@@ -131,6 +143,13 @@
                 </executions>
             </plugin>
         </plugins>
+
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
 
         <testResources>
             <testResource>

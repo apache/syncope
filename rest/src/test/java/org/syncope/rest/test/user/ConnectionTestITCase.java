@@ -12,32 +12,34 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.rest.user;
+package org.syncope.rest.test.user;
 
 import static org.junit.Assert.*;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
 import java.io.IOException;
-import java.lang.String;
 import java.net.URL;
 import java.util.Collections;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.syncope.rest.user.PasswordReset;
+import org.syncope.rest.user.Read;
+import org.syncope.rest.user.Search;
 import org.syncope.rest.user.jaxb.Attributes;
 import org.syncope.rest.user.jaxb.SearchParameters;
 import org.syncope.rest.user.jaxb.SearchResults;
 
 public class ConnectionTestITCase {
 
+    private static final Logger log = LoggerFactory.getLogger(ConnectionTestITCase.class);
     final private static String userId = "test";
-    final static Logger logger = Logger.getLogger(ConnectionTestITCase.class.getName());
     private static String BASE_URL;
     private static Client jerseyClient;
 
@@ -48,7 +50,7 @@ public class ConnectionTestITCase {
         try {
             fromMavenProperties.load(fromMavenPropertiesURL.openStream());
         } catch (IOException e) {
-            logger.log(Level.SEVERE, "When reading properties file", e);
+            log.error("When reading properties file", e);
         }
 
         String jettyPort = fromMavenProperties.getProperty("jetty.port", "8080");

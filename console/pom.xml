@@ -30,12 +30,26 @@
     <artifactId>syncope-console</artifactId>
     <packaging>war</packaging>
 
+    <properties>
+        <logfile>/tmp/syncope-console.log</logfile>
+        <logfile.test>/tmp/syncope-console-test.log</logfile.test>
+    </properties>
+
     <dependencies>
 
         <dependency>
             <groupId>org.syncope</groupId>
             <artifactId>syncope-core</artifactId>
             <version>${parent.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
         </dependency>
 
         <dependency>
@@ -54,6 +68,13 @@
                 <artifactId>maven-jetty-plugin</artifactId>
             </plugin>
         </plugins>
+
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
     </build>
 
 </project>

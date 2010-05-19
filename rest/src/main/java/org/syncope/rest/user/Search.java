@@ -14,7 +14,6 @@
  */
 package org.syncope.rest.user;
 
-import java.util.logging.Logger;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.POST;
@@ -22,6 +21,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.syncope.rest.user.jaxb.SearchParameters;
@@ -32,7 +33,7 @@ import org.syncope.rest.user.jaxb.SearchResults;
 @Scope("request")
 public class Search {
 
-    final static Logger logger = Logger.getLogger(Search.class.getName());
+    private static final Logger log = LoggerFactory.getLogger(Search.class);
 
     public static SearchResults getTestValue() {
         SearchResults searchResults = new SearchResults();
@@ -52,7 +53,7 @@ public class Search {
     public SearchResults searchUser(SearchParameters searchParameters,
             @DefaultValue("FALSE") @QueryParam("test") boolean test) {
 
-        logger.info("searchUser() called with parameters " + searchParameters);
+        log.info("searchUser() called with parameters " + searchParameters);
 
         if (test) {
             return getTestValue();

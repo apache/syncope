@@ -15,7 +15,6 @@
 package org.syncope.rest.user;
 
 import java.util.Collections;
-import java.util.logging.Logger;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -24,6 +23,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.syncope.rest.user.jaxb.AttributeValues;
@@ -34,7 +35,7 @@ import org.syncope.rest.user.jaxb.Attributes;
 @Scope("request")
 public class Read {
 
-    final static Logger logger = Logger.getLogger(Read.class.getName());
+    private static final Logger log = LoggerFactory.getLogger(Read.class);
 
     public static Attributes getTestValue(String userId) {
         Attributes attributes = new Attributes();
@@ -54,7 +55,7 @@ public class Read {
             @DefaultValue("FALSE") @QueryParam("test") boolean test) {
 
         if ("error".equals(userId)) {
-            logger.severe("Entered in the error condition, going ahead...");
+            log.warn("Entered in the error condition, going ahead...");
 
             throw new WebApplicationException(
                     new Exception("Wrong userId: " + userId));
@@ -64,7 +65,7 @@ public class Read {
             return getTestValue(userId);
         }
 
-        logger.info("readUser called");
+        log.info("readUser called");
 
         Attributes attributes = new Attributes();
 
