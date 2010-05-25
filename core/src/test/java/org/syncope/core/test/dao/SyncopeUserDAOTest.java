@@ -22,7 +22,7 @@ import org.syncope.core.dao.SyncopeUserDAO;
 public class SyncopeUserDAOTest extends AbstractDAOTest {
 
     public SyncopeUserDAOTest() {
-        super("syncopeUserDAO", "SyncopeUserDaoImpl");
+        super("syncopeUserDAO", "SyncopeUserDAOImpl");
     }
 
     @Override
