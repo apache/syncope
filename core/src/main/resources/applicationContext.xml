@@ -40,5 +40,8 @@
     <bean id="userAttributeSchemaDAO" class="org.syncope.core.dao.impl.UserAttributeSchemaDAOImpl">
         <property name="entityManager" ref="entityManager" />
     </bean>
-
+    <bean id="userAttributeValuesDAO" class="org.syncope.core.dao.impl.UserAttributeValuesDAOImpl">
+        <property name="entityManager" ref="entityManager" />
+    </bean>
+    
 </beans>

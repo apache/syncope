@@ -14,11 +14,40 @@
  */
 package org.syncope.core.enums;
 
+import java.text.DecimalFormat;
+import java.text.Format;
+import java.text.SimpleDateFormat;
+
 public enum AttributeType {
 
-    String,
-    Integer,
-    Long,
-    Boolean,
-    Date
+    String("java.lang.String"),
+    Long("java.lang.Long"),
+    Double("java.lang.Double"),
+    Boolean("java.lang.Boolean"),
+    Date("java.util.Date");
+    final private String className;
+    private Format formatter;
+
+    AttributeType(String className) {
+        this.className = className;
+        this.formatter = null;
+    }
+
+    public String getClassName() {
+        return className;
+    }
+
+    public Format getFormatter() {
+        if (formatter == null) {
+            switch (this) {
+                case Date:
+                    this.formatter = new SimpleDateFormat();
+                case Long:
+                case Double:
+                    this.formatter = new DecimalFormat();
+            }
+        }
+
+        return formatter;
+    }
 }

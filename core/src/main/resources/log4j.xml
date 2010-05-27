@@ -27,7 +27,7 @@
     </logger>
 
     <logger name="org.syncope.core.test" additivity="false">
-        <level value="DEBUG"/>
+        <level value="INFO"/>
         <appender-ref ref="test"/>
     </logger>
 

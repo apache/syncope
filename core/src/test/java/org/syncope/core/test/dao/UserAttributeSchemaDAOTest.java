@@ -35,7 +35,7 @@ public class UserAttributeSchemaDAOTest extends AbstractDAOTest {
     public final void testFindAll() {
         List<UserAttributeSchema> list = getDAO().findAll();
         assertEquals("did not get expected number of attribute schemas ",
-                2, list.size());
+                3, list.size());
     }
 
     @Test
@@ -53,11 +53,14 @@ public class UserAttributeSchemaDAOTest extends AbstractDAOTest {
         UserAttributeSchema userAttributeSchema = new UserAttributeSchema();
         userAttributeSchema.setName("email");
         userAttributeSchema.setType(AttributeType.String);
+        userAttributeSchema.setMandatory(false);
+        userAttributeSchema.setMultivalue(true);
 
         getDAO().save(userAttributeSchema);
 
         UserAttributeSchema actual = getDAO().find("email");
         assertNotNull("expected save to work", actual);
+        assertEquals(userAttributeSchema, actual);
     }
 
     @Test

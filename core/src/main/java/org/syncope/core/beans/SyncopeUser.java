@@ -15,10 +15,15 @@
 package org.syncope.core.beans;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 
 @Entity
 public class SyncopeUser implements Serializable {
@@ -26,6 +31,13 @@ public class SyncopeUser implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+    @OneToMany(cascade = CascadeType.ALL,
+    fetch = FetchType.EAGER)
+    private Set<UserAttributeValues> userAttributeValues;
+
+    public SyncopeUser() {
+        userAttributeValues = new HashSet<UserAttributeValues>();
+    }
 
     public Long getId() {
         return id;
@@ -33,6 +45,16 @@ public class SyncopeUser implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Set<UserAttributeValues> getUserAttributeValues() {
+        return userAttributeValues;
+    }
+
+    public void setUserAttributeValues(
+            Set<UserAttributeValues> userAttributeValues) {
+
+        this.userAttributeValues = userAttributeValues;
     }
 
     @Override
@@ -50,20 +72,31 @@ public class SyncopeUser implements Serializable {
 
             return false;
         }
+        if (this.userAttributeValues != other.userAttributeValues
+                && (this.userAttributeValues == null
+                || !this.userAttributeValues.equals(other.userAttributeValues))) {
+
+            return false;
+        }
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int hash = 5;
-        hash = 83 * hash + (this.id != null ? this.id.hashCode() : 0);
+        int hash = 7;
+        hash = 71 * hash + (this.id != null ? this.id.hashCode() : 0);
+        hash = 71 * hash + (this.userAttributeValues != null
+                ? this.userAttributeValues.hashCode() : 0);
 
         return hash;
     }
 
     @Override
     public String toString() {
-        return "(id = " + getId() + ")";
+        return "("
+                + "id=" + id + ","
+                + "userAttributeValues=" + userAttributeValues
+                + ")";
     }
 }

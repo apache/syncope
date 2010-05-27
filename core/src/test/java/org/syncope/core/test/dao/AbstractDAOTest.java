@@ -68,7 +68,9 @@ public abstract class AbstractDAOTest extends AbstractJpaTests {
                 + dataSetFileName + ".xml"));
 
         try {
-            DatabaseOperation.REFRESH.execute(dbUnitConn, dataSet);
+            DatabaseOperation.CLEAN_INSERT.execute(dbUnitConn, dataSet);
+        } catch (Throwable t) {
+            log.error("While executing tests", t);
         } finally {
             DataSourceUtils.releaseConnection(conn, dataSource);
         }

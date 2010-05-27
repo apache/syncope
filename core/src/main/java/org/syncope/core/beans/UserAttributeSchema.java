@@ -17,35 +17,35 @@ package org.syncope.core.beans;
 import static javax.persistence.EnumType.STRING;
 
 import java.io.Serializable;
+import java.text.DecimalFormat;
+import java.text.Format;
+import java.text.SimpleDateFormat;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.syncope.core.enums.AttributeType;
 
 @Entity
 public class UserAttributeSchema implements Serializable {
 
+    private static final Logger log = LoggerFactory.getLogger(
+            UserAttributeSchema.class);
     @Id
     private String name;
+    @Column(nullable = false)
     @Enumerated(STRING)
     private AttributeType type;
+    private Boolean mandatory;
+    private Boolean multivalue;
     private String conversionPattern;
-    private String conversionClass;
 
-    public String getConversionClass() {
-        return conversionClass;
-    }
-
-    public void setConversionClass(String conversionClass) {
-        this.conversionClass = conversionClass;
-    }
-
-    public String getConversionPattern() {
-        return conversionPattern;
-    }
-
-    public void setConversionPattern(String conversionPattern) {
-        this.conversionPattern = conversionPattern;
+    public UserAttributeSchema() {
+        type = AttributeType.String;
+        mandatory = false;
+        multivalue = false;
     }
 
     public String getName() {
@@ -64,6 +64,80 @@ public class UserAttributeSchema implements Serializable {
         this.type = type;
     }
 
+    public boolean isMandatory() {
+        return mandatory;
+    }
+
+    public void setMandatory(Boolean mandatory) {
+        this.mandatory = mandatory;
+    }
+
+    public Boolean isMultivalue() {
+        return multivalue;
+    }
+
+    public void setMultivalue(Boolean multivalue) {
+        this.multivalue = multivalue;
+    }
+
+    private boolean isConversionPatternNeeded() {
+        return type == AttributeType.Date
+                || type == AttributeType.Double
+                || type == AttributeType.Long;
+    }
+
+    public String getConversionPattern() {
+        if (!isConversionPatternNeeded()) {
+            log.warn("Conversion pattern is not needed: "
+                    + "this attribute type is "
+                    + getType());
+        }
+
+        return conversionPattern;
+    }
+
+    public void setConversionPattern(String conversionPattern) {
+        if (!isConversionPatternNeeded()) {
+            log.warn("Conversion pattern will be ignored: "
+                    + "this attribute type is "
+                    + getType());
+        }
+
+        this.conversionPattern = conversionPattern;
+    }
+
+    public <T extends Format> T getFormatter(Class<T> reference) {
+        T result = null;
+
+        switch (getType()) {
+            case Long:
+                DecimalFormat longFormatter =
+                        ((DecimalFormat) getType().getFormatter());
+                longFormatter.applyPattern(getConversionPattern());
+
+                result = (T) longFormatter;
+                break;
+
+            case Double:
+                DecimalFormat doubleFormatter =
+                        ((DecimalFormat) getType().getFormatter());
+                doubleFormatter.applyPattern(getConversionPattern());
+
+                result = (T) doubleFormatter;
+                break;
+
+            case Date:
+                SimpleDateFormat dateFormatter =
+                        (SimpleDateFormat) getType().getFormatter();
+                dateFormatter.applyPattern(getConversionPattern());
+
+                result = (T) dateFormatter;
+                break;
+        }
+
+        return result;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {
@@ -72,15 +146,26 @@ public class UserAttributeSchema implements Serializable {
         if (getClass() != obj.getClass()) {
             return false;
         }
-
         final UserAttributeSchema other = (UserAttributeSchema) obj;
-        if ((this.name == null)
-                ? (other.name != null) : !this.name.equals(other.name)) {
+        if ((this.name == null) ? (other.name != null)
+                : !this.name.equals(other.name)) {
 
             return false;
         }
         if (this.type != other.type
                 && (this.type == null || !this.type.equals(other.type))) {
+
+            return false;
+        }
+        if (this.mandatory != other.mandatory
+                && (this.mandatory == null
+                || !this.mandatory.equals(other.mandatory))) {
+
+            return false;
+        }
+        if (this.multivalue != other.multivalue
+                && (this.multivalue == null
+                || !this.multivalue.equals(other.multivalue))) {
 
             return false;
         }
@@ -90,26 +175,20 @@ public class UserAttributeSchema implements Serializable {
 
             return false;
         }
-        if ((this.conversionClass == null)
-                ? (other.conversionClass != null)
-                : !this.conversionClass.equals(other.conversionClass)) {
-
-            return false;
-        }
-
         return true;
     }
 
     @Override
     public int hashCode() {
         int hash = 7;
-
-        hash = 19 * hash + (this.name != null ? this.name.hashCode() : 0);
-        hash = 19 * hash + (this.type != null ? this.type.hashCode() : 0);
-        hash = 19 * hash + (this.conversionPattern != null
+        hash = 67 * hash + (this.name != null ? this.name.hashCode() : 0);
+        hash = 67 * hash + (this.type != null ? this.type.hashCode() : 0);
+        hash = 67 * hash + (this.mandatory != null
+                ? this.mandatory.hashCode() : 0);
+        hash = 67 * hash + (this.multivalue != null
+                ? this.multivalue.hashCode() : 0);
+        hash = 67 * hash + (this.conversionPattern != null
                 ? this.conversionPattern.hashCode() : 0);
-        hash = 19 * hash + (this.conversionClass != null
-                ? this.conversionClass.hashCode() : 0);
 
         return hash;
     }
@@ -119,8 +198,9 @@ public class UserAttributeSchema implements Serializable {
         return "("
                 + "name=" + name + ","
                 + "type=" + type + ","
-                + "conversionPattern=" + conversionPattern + ","
-                + "conversionClass=" + conversionClass + ","
+                + "mandatory=" + mandatory + ","
+                + "multivalue=" + multivalue + ","
+                + "conversionPattern=" + conversionPattern
                 + ")";
     }
 }

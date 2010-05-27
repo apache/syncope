@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dataset>
+    <UserAttributeSchema name="username" type="String"
+                         mandatory="true" multivalue="false"
+                         conversionPattern="NULL"/>
+    <UserAttributeSchema name="loginDate" type="Date"
+                         mandatory="false" multivalue="true"
+                         conversionPattern="yyyy-MM-dd"/>
+
+    <UserAttributeValues id="100" userAttributeSchema_name="username"/>
+    <UserAttributeValues id="200" userAttributeSchema_name="loginDate"/>
+
+    <UserAttributeValue id="10"/>
+    <UserAttributeValue id="20"/>
+    <UserAttributeValue id="21"/>
+
+    <UserAttributeValueAsString id="10" actualValue="chicchiricco"/>
+
+    <UserAttributeValueAsDate id="20" actualValue="2009-05-26"/>
+    <UserAttributeValueAsDate id="21" actualValue="2010-05-26 15:40:04"/>
+
+    <UserAttributeValues_UserAttributeValue
+        UserAttributeValues_id="100" attributeValues_id="10"/>
+    <UserAttributeValues_UserAttributeValue
+        UserAttributeValues_id="200" attributeValues_id="20"/>
+    <UserAttributeValues_UserAttributeValue
+        UserAttributeValues_id="200" attributeValues_id="21"/>
+</dataset>

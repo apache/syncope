@@ -1,9 +1,12 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <dataset>
     <UserAttributeSchema name="username" type="String"
-                         conversionPattern="NULL"
-                         conversionClass="NULL"/>
+                         mandatory="true" multivalue="false"
+                         conversionPattern="NULL"/>
     <UserAttributeSchema name="birthdate" type="Date"
-                         conversionPattern="yyyy-MM-dd"
-                         conversionClass="java.text.SimpleDateFormat" />
+                         mandatory="false" multivalue="false"
+                         conversionPattern="yyyy-MM-dd"/>
+    <UserAttributeSchema name="salaries" type="Double"
+                         mandatory="false" multivalue="true"
+                         conversionPattern="###,###.###"/>
 </dataset>
