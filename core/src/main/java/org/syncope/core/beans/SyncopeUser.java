@@ -43,10 +43,6 @@ public class SyncopeUser implements Serializable {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public Set<UserAttributeValues> getUserAttributeValues() {
         return userAttributeValues;
     }

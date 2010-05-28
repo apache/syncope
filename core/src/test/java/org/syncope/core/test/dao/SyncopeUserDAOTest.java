@@ -49,11 +49,10 @@ public class SyncopeUserDAOTest extends AbstractDAOTest {
     @Test
     public final void testSave() {
         SyncopeUser user = new SyncopeUser();
-        user.setId(4L);
 
-        getDAO().save(user);
+        user = getDAO().save(user);
 
-        SyncopeUser actual = getDAO().find(4L);
+        SyncopeUser actual = getDAO().find(user.getId());
         assertNotNull("expected save to work", actual);
     }
 

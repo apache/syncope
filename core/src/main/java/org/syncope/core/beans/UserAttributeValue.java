@@ -34,10 +34,6 @@ public abstract class UserAttributeValue implements Serializable {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {
