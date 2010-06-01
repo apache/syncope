@@ -38,6 +38,11 @@
     <dependencies>
 
         <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-jexl</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>com.forgerock.openam</groupId>
             <artifactId>clientsdk</artifactId>
         </dependency>

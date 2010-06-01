@@ -16,6 +16,8 @@ package org.syncope.core.beans;
 
 import java.io.Serializable;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -33,24 +35,54 @@ public class SyncopeUser implements Serializable {
     private Long id;
     @OneToMany(cascade = CascadeType.ALL,
     fetch = FetchType.EAGER)
-    private Set<UserAttributeValues> userAttributeValues;
+    private Set<UserAttribute> attributes;
+    @OneToMany(cascade = CascadeType.ALL,
+    fetch = FetchType.EAGER, mappedBy = "owner")
+    private Set<UserDerivedAttribute> derivedAttributes;
 
     public SyncopeUser() {
-        userAttributeValues = new HashSet<UserAttributeValues>();
+        attributes = new HashSet<UserAttribute>();
+        derivedAttributes = new HashSet<UserDerivedAttribute>();
     }
 
     public Long getId() {
         return id;
     }
 
-    public Set<UserAttributeValues> getUserAttributeValues() {
-        return userAttributeValues;
+    public UserAttribute getAttribute(String name)
+            throws NoSuchElementException {
+
+        UserAttribute result = null;
+        UserAttribute userAttribute = null;
+        for (Iterator<UserAttribute> itor = attributes.iterator();
+                result == null && itor.hasNext();) {
+
+            userAttribute = itor.next();
+
+            if (name.equals(userAttribute.getSchema().getName())) {
+                result = userAttribute;
+            }
+        }
+
+        return result;
     }
 
-    public void setUserAttributeValues(
-            Set<UserAttributeValues> userAttributeValues) {
+    public Set<UserAttribute> getAttributes() {
+        return attributes;
+    }
 
-        this.userAttributeValues = userAttributeValues;
+    public void setAttributes(Set<UserAttribute> attributes) {
+        this.attributes = attributes;
+    }
+
+    public Set<UserDerivedAttribute> getDerivedAttributes() {
+        return derivedAttributes;
+    }
+
+    public void setDerivedAttributes(
+            Set<UserDerivedAttribute> derivedAttributes) {
+
+        this.derivedAttributes = derivedAttributes;
     }
 
     @Override
@@ -68,12 +100,6 @@ public class SyncopeUser implements Serializable {
 
             return false;
         }
-        if (this.userAttributeValues != other.userAttributeValues
-                && (this.userAttributeValues == null
-                || !this.userAttributeValues.equals(other.userAttributeValues))) {
-
-            return false;
-        }
 
         return true;
     }
@@ -82,8 +108,6 @@ public class SyncopeUser implements Serializable {
     public int hashCode() {
         int hash = 7;
         hash = 71 * hash + (this.id != null ? this.id.hashCode() : 0);
-        hash = 71 * hash + (this.userAttributeValues != null
-                ? this.userAttributeValues.hashCode() : 0);
 
         return hash;
     }
@@ -92,7 +116,8 @@ public class SyncopeUser implements Serializable {
     public String toString() {
         return "("
                 + "id=" + id + ","
-                + "userAttributeValues=" + userAttributeValues
+                + "attributes=" + attributes
+                + "derivedAttributes=" + derivedAttributes
                 + ")";
     }
 }

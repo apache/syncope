@@ -26,7 +26,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.syncope.core.enums.AttributeType;
+import org.syncope.core.AttributeType;
 
 @Entity
 public class UserAttributeSchema implements Serializable {

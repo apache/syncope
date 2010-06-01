@@ -40,10 +40,11 @@
         <level value="INFO"/>
         <appender-ref ref="main"/>
     </logger>
-    
+
     <root>
-        <priority value="INFO" />
+        <priority value="INFO"/>
         <appender-ref ref="main"/>
+        <appender-ref ref="test"/>
     </root>
 </log4j:configuration>
 

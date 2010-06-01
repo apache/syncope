@@ -18,12 +18,12 @@ import java.util.List;
 import org.junit.Test;
 import org.syncope.core.beans.UserAttributeSchema;
 import org.syncope.core.dao.UserAttributeSchemaDAO;
-import org.syncope.core.enums.AttributeType;
+import org.syncope.core.AttributeType;
 
 public class UserAttributeSchemaDAOTest extends AbstractDAOTest {
 
     public UserAttributeSchemaDAOTest() {
-        super("userAttributeSchemaDAO", "UserAttributeSchemaDAOImpl");
+        super("userAttributeSchemaDAO");
     }
 
     @Override
@@ -35,15 +35,12 @@ public class UserAttributeSchemaDAOTest extends AbstractDAOTest {
     public final void testFindAll() {
         List<UserAttributeSchema> list = getDAO().findAll();
         assertEquals("did not get expected number of attribute schemas ",
-                3, list.size());
+                4, list.size());
     }
 
     @Test
     public final void testFindByName() {
         UserAttributeSchema userAttributeSchema = getDAO().find("username");
-        assertNotNull("did not find expected attribute schema",
-                userAttributeSchema);
-        userAttributeSchema = getDAO().find("birthdate");
         assertNotNull("did not find expected attribute schema",
                 userAttributeSchema);
     }

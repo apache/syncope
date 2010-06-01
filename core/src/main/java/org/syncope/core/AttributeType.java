@@ -12,7 +12,7 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.enums;
+package org.syncope.core;
 
 import java.text.DecimalFormat;
 import java.text.Format;

@@ -34,68 +34,67 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Entity
-public class UserAttributeValues implements Serializable {
+public class UserAttribute implements Serializable {
 
     private static final Logger log = LoggerFactory.getLogger(
-            UserAttributeValues.class);
+            UserAttribute.class);
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    @ManyToOne(cascade = CascadeType.REMOVE,
-    fetch = FetchType.EAGER)
-    private UserAttributeSchema userAttributeSchema;
+    @ManyToOne(fetch = FetchType.EAGER)
+    private UserAttributeSchema schema;
     @Transient
     private Class userAttributeClass;
     @OneToMany(cascade = CascadeType.ALL,
     fetch = FetchType.EAGER)
-    private Set<UserAttributeValue> attributeValues;
+    private Set<UserAttributeValue> values;
 
-    protected UserAttributeValues() {
-        attributeValues = new HashSet<UserAttributeValue>();
+    protected UserAttribute() {
+        values = new HashSet<UserAttributeValue>();
     }
 
-    public UserAttributeValues(UserAttributeSchema userAttributeSchema)
+    public UserAttribute(UserAttributeSchema schema)
             throws ClassNotFoundException {
 
         this();
-        this.setUserAttributeSchema(userAttributeSchema);
+        this.setSchema(schema);
     }
 
     public Long getId() {
         return id;
     }
 
-    public UserAttributeSchema getUserAttributeSchema() {
-        return userAttributeSchema;
+    public UserAttributeSchema getSchema() {
+        return schema;
     }
 
-    public void setUserAttributeSchema(UserAttributeSchema userAttributeSchema)
+    public void setSchema(UserAttributeSchema schema)
             throws ClassNotFoundException {
 
-        this.userAttributeSchema = userAttributeSchema;
+        this.schema = schema;
 
-        if (userAttributeSchema == null) {
+        if (schema == null) {
             throw new NullPointerException(
                     "Cannot set a NULL UserAttributeSchema!");
         }
 
-        this.userAttributeSchema = userAttributeSchema;
+        this.schema = schema;
         this.userAttributeClass = Class.forName(
-                userAttributeSchema.getType().getClassName());
+                schema.getType().getClassName());
     }
 
-    public Set<? extends UserAttributeValue> getAttributeValues() {
-        return attributeValues;
+    public Set<UserAttributeValue> getValues() {
+        return values;
     }
 
-    public void setAttributeValues(Set<UserAttributeValue> attributeValues) {
-        this.attributeValues = attributeValues;
+    public void setValues(Set<UserAttributeValue> values) {
+        this.values = values;
     }
 
-    public boolean addAttributeValue(String value) {
+    public boolean addValue(String value) {
         UserAttributeValue actualValue = null;
         try {
-            actualValue = getUserattributeValue(value);
+            actualValue = getValue(value);
         } catch (ParseException e) {
             log.error("While parsing '" + value + "' as "
                     + userAttributeClass.getClass().getName(), e);
@@ -103,16 +102,16 @@ public class UserAttributeValues implements Serializable {
 
         boolean result = false;
         if (actualValue != null) {
-            if (!userAttributeSchema.isMultivalue()) {
-                attributeValues.clear();
+            if (!schema.isMultivalue()) {
+                values.clear();
             }
-            result = attributeValues.add(actualValue);
+            result = values.add(actualValue);
         }
 
         return result;
     }
 
-    public boolean addAttributeValue(Object value)
+    public boolean addValue(Object value)
             throws ClassCastException {
 
         if (!userAttributeClass.isInstance(value)) {
@@ -122,17 +121,17 @@ public class UserAttributeValues implements Serializable {
             throw getClassCastException(value);
         }
 
-        if (!userAttributeSchema.isMultivalue()) {
-            attributeValues.clear();
+        if (!schema.isMultivalue()) {
+            values.clear();
         }
 
-        return attributeValues.add(getUserattributeValue(value));
+        return values.add(getValue(value));
     }
 
-    public boolean removeAttributeValue(String value) {
+    public boolean removeValue(String value) {
         UserAttributeValue actualValue = null;
         try {
-            actualValue = getUserattributeValue(value);
+            actualValue = getValue(value);
         } catch (ParseException e) {
             log.error("While parsing '" + value + "' as "
                     + userAttributeClass.getClass().getName(), e);
@@ -140,18 +139,18 @@ public class UserAttributeValues implements Serializable {
 
         boolean result = false;
         if (actualValue != null) {
-            result = attributeValues.remove(actualValue);
-            if (!attributeValues.isEmpty()
-                    && !userAttributeSchema.isMultivalue()) {
+            result = values.remove(actualValue);
+            if (!values.isEmpty()
+                    && !schema.isMultivalue()) {
 
-                attributeValues.clear();
+                values.clear();
             }
         }
 
         return result;
     }
 
-    public boolean removeAttributeValue(Object value)
+    public boolean removeValue(Object value)
             throws ClassCastException {
 
         if (!userAttributeClass.isInstance(value)) {
@@ -161,22 +160,22 @@ public class UserAttributeValues implements Serializable {
             throw getClassCastException(value);
         }
 
-        boolean result = attributeValues.remove(getUserattributeValue(value));
-        if (!attributeValues.isEmpty()
-                && !userAttributeSchema.isMultivalue()) {
+        boolean result = values.remove(getValue(value));
+        if (!values.isEmpty()
+                && !schema.isMultivalue()) {
 
-            attributeValues.clear();
+            values.clear();
         }
 
         return result;
     }
 
-    private UserAttributeValue getUserattributeValue(String value)
+    private UserAttributeValue getValue(String value)
             throws ParseException {
 
         UserAttributeValue result = null;
 
-        switch (userAttributeSchema.getType()) {
+        switch (schema.getType()) {
 
             case String:
                 result = new UserAttributeValueAsString(value);
@@ -189,19 +188,19 @@ public class UserAttributeValues implements Serializable {
 
             case Long:
                 result = new UserAttributeValueAsLong(
-                        Long.valueOf(userAttributeSchema.getFormatter(
+                        Long.valueOf(schema.getFormatter(
                         DecimalFormat.class).parse(value).longValue()));
                 break;
 
             case Double:
                 result = new UserAttributeValueAsDouble(
-                        Double.valueOf(userAttributeSchema.getFormatter(
+                        Double.valueOf(schema.getFormatter(
                         DecimalFormat.class).parse(value).doubleValue()));
                 break;
 
             case Date:
                 result = new UserAttributeValueAsDate(
-                        new Date(userAttributeSchema.getFormatter(
+                        new Date(schema.getFormatter(
                         SimpleDateFormat.class).parse(value).getTime()));
                 break;
         }
@@ -209,11 +208,11 @@ public class UserAttributeValues implements Serializable {
         return result;
     }
 
-    private UserAttributeValue getUserattributeValue(Object value) {
+    private UserAttributeValue getValue(Object value) {
 
         UserAttributeValue result = null;
 
-        switch (userAttributeSchema.getType()) {
+        switch (schema.getType()) {
 
             case String:
                 result = new UserAttributeValueAsString((String) value);
@@ -254,35 +253,27 @@ public class UserAttributeValues implements Serializable {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final UserAttributeValues other = (UserAttributeValues) obj;
+        final UserAttribute other = (UserAttribute) obj;
         if (this.id != other.id
                 && (this.id == null || !this.id.equals(other.id))) {
 
             return false;
         }
-        if (this.userAttributeSchema != other.userAttributeSchema
-                && (this.userAttributeSchema == null
-                || !this.userAttributeSchema.equals(other.userAttributeSchema))) {
+        if (this.schema != other.schema
+                && (this.schema == null
+                || !this.schema.equals(other.schema))) {
 
             return false;
         }
-        if (this.attributeValues != other.attributeValues
-                && (this.attributeValues == null
-                || !this.attributeValues.equals(other.attributeValues))) {
 
-            return false;
-        }
         return true;
     }
 
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 97 * hash + (this.id != null ? this.id.hashCode() : 0);
-        hash = 97 * hash + (this.userAttributeSchema != null
-                ? this.userAttributeSchema.hashCode() : 0);
-        hash = 97 * hash + (this.attributeValues != null
-                ? this.attributeValues.hashCode() : 0);
+        int hash = 5;
+        hash = 53 * hash + (this.id != null ? this.id.hashCode() : 0);
+        hash = 53 * hash + (this.schema != null ? this.schema.hashCode() : 0);
 
         return hash;
     }
@@ -291,8 +282,8 @@ public class UserAttributeValues implements Serializable {
     public String toString() {
         return "("
                 + "id=" + getId() + ","
-                + "userAttributeSchema=" + userAttributeSchema + ","
-                + "attributeValues=" + attributeValues
+                + "schema=" + schema + ","
+                + "values=" + values
                 + ")";
     }
 }

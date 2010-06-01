@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dataset>
+    <SyncopeUser id="1"/>
+    <SyncopeUser id="2"/>
+    <SyncopeUser id="3"/>
+
+    <UserAttributeSchema name="username" type="String"
+                         mandatory="true" multivalue="false"
+                         conversionPattern="NULL"/>
+    <UserAttributeSchema name="loginDate" type="Date"
+                         mandatory="false" multivalue="true"
+                         conversionPattern="yyyy-MM-dd"/>
+    <UserAttributeSchema name="firstname" type="String"
+                         mandatory="false" multivalue="false"
+                         conversionPattern="NULL"/>
+    <UserAttributeSchema name="surname" type="String"
+                         mandatory="true" multivalue="false"
+                         conversionPattern="NULL"/>
+
+    <UserAttribute id="100" schema_name="username"/>
+    <UserAttribute id="200" schema_name="loginDate"/>
+    <UserAttribute id="300" schema_name="username"/>
+    <UserAttribute id="400" schema_name="firstname"/>
+    <UserAttribute id="500" schema_name="surname"/>
+
+
+    <UserAttributeValue id="10"/>
+    <UserAttributeValue id="11"/>
+    <UserAttributeValue id="20"/>
+    <UserAttributeValue id="21"/>
+    <UserAttributeValue id="30"/>
+    <UserAttributeValue id="31"/>
+
+    <UserAttributeValueAsString id="10" actualValue="chicchiricco"/>
+    <UserAttributeValueAsString id="11" actualValue="fabio.martelli"/>
+
+    <UserAttributeValueAsDate id="20" actualValue="2009-05-26"/>
+    <UserAttributeValueAsDate id="21" actualValue="2010-05-26 15:40:04"/>
+
+    <UserAttributeValueAsString id="30" actualValue="John"/>
+    <UserAttributeValueAsString id="31" actualValue="Doe"/>
+
+    <UserAttribute_UserAttributeValue
+        UserAttribute_id="100" values_id="10"/>
+    <UserAttribute_UserAttributeValue
+        UserAttribute_id="200" values_id="20"/>
+    <UserAttribute_UserAttributeValue
+        UserAttribute_id="200" values_id="21"/>
+    <UserAttribute_UserAttributeValue
+        UserAttribute_id="300" values_id="11"/>
+    <UserAttribute_UserAttributeValue
+        UserAttribute_id="400" values_id="30"/>
+    <UserAttribute_UserAttributeValue
+        UserAttribute_id="500" values_id="31"/>
+
+    <SyncopeUser_UserAttribute SyncopeUser_id='1'
+                               attributes_id='100'/>
+    <SyncopeUser_UserAttribute SyncopeUser_id='1'
+                               attributes_id='200'/>
+    <SyncopeUser_UserAttribute SyncopeUser_id='2'
+                               attributes_id='300'/>
+    <SyncopeUser_UserAttribute SyncopeUser_id='3'
+                               attributes_id='400'/>
+    <SyncopeUser_UserAttribute SyncopeUser_id='3'
+                               attributes_id='500'/>
+
+    <UserDerivedAttributeSchema name="cn" expression="surname + ', ' + firstname"/>
+
+    <UserDerivedAttribute id="1000" owner_id="3" schema_name="cn"/>
+</dataset>

@@ -15,15 +15,15 @@
 package org.syncope.core.dao;
 
 import java.util.List;
-import org.syncope.core.beans.UserAttributeValues;
+import org.syncope.core.beans.UserDerivedAttribute;
 
-public interface UserAttributeValuesDAO extends DAO {
+public interface UserDerivedAttributeDAO extends DAO {
 
-    UserAttributeValues find(long id);
+    UserDerivedAttribute find(long id);
 
-    List<UserAttributeValues> findAll();
+    List<UserDerivedAttribute> findAll();
 
-    UserAttributeValues save(UserAttributeValues userAttributeValues);
+    UserDerivedAttribute save(UserDerivedAttribute attribute);
 
     void delete(long id);
 }

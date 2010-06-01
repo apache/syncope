@@ -15,14 +15,32 @@
 package org.syncope.core.test.dao;
 
 import java.util.List;
+import java.util.Set;
 import org.junit.Test;
+import org.springframework.context.ApplicationContext;
 import org.syncope.core.beans.SyncopeUser;
+import org.syncope.core.beans.UserAttributeSchema;
+import org.syncope.core.beans.UserAttribute;
 import org.syncope.core.dao.SyncopeUserDAO;
+import org.syncope.core.dao.UserAttributeSchemaDAO;
+import org.syncope.core.dao.UserAttributeDAO;
 
 public class SyncopeUserDAOTest extends AbstractDAOTest {
 
+    UserAttributeDAO userAttributeDAO;
+    UserAttributeSchemaDAO userAttributeSchemaDAO;
+
     public SyncopeUserDAOTest() {
-        super("syncopeUserDAO", "SyncopeUserDAOImpl");
+        super("syncopeUserDAO");
+        
+        ApplicationContext ctx = super.getApplicationContext();
+        userAttributeDAO =
+                (UserAttributeDAO) ctx.getBean("userAttributeDAO");
+        assertNotNull(userAttributeDAO);
+
+        userAttributeSchemaDAO =
+                (UserAttributeSchemaDAO) ctx.getBean("userAttributeSchemaDAO");
+        assertNotNull(userAttributeSchemaDAO);
     }
 
     @Override
@@ -58,11 +76,38 @@ public class SyncopeUserDAOTest extends AbstractDAOTest {
 
     @Test
     public final void testDelete() {
-        SyncopeUser user = getDAO().find(1L);
+        SyncopeUser user = getDAO().find(3L);
 
         getDAO().delete(user.getId());
 
-        SyncopeUser actual = getDAO().find(1L);
+        SyncopeUser actual = getDAO().find(3L);
         assertNull("delete did not work", actual);
+    }
+
+    @Test
+    public final void testRelationships() {
+        SyncopeUser user = getDAO().find(2L);
+        Set<UserAttribute> attributes =
+                user.getAttributes();
+        int originalAttributesSize = attributes.size();
+
+        UserAttribute attribute = attributes.iterator().next();
+        String attributeSchemaName =
+                attribute.getSchema().getName();
+
+        userAttributeDAO.delete(attribute.getId());
+        UserAttribute actualAttribute =
+                userAttributeDAO.find(attribute.getId());
+        assertNull("expected delete to work", actualAttribute);
+
+        user = getDAO().find(2L);
+        attributes = user.getAttributes();
+        assertEquals("number of attributes differs",
+                originalAttributesSize, attributes.size());
+
+        UserAttributeSchema userAttributeSchema =
+                userAttributeSchemaDAO.find(attributeSchemaName);
+        assertNotNull("user attribute schema deleted when deleting values",
+                userAttributeSchema);
     }
 }

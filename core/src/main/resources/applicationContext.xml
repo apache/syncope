@@ -40,8 +40,13 @@
     <bean id="userAttributeSchemaDAO" class="org.syncope.core.dao.impl.UserAttributeSchemaDAOImpl">
         <property name="entityManager" ref="entityManager" />
     </bean>
-    <bean id="userAttributeValuesDAO" class="org.syncope.core.dao.impl.UserAttributeValuesDAOImpl">
+    <bean id="userAttributeDAO" class="org.syncope.core.dao.impl.UserAttributeDAOImpl">
         <property name="entityManager" ref="entityManager" />
     </bean>
-    
+    <bean id="userDerivedAttributeSchemaDAO" class="org.syncope.core.dao.impl.UserDerivedAttributeSchemaDAOImpl">
+        <property name="entityManager" ref="entityManager" />
+    </bean>
+    <bean id="userDerivedAttributeDAO" class="org.syncope.core.dao.impl.UserDerivedAttributeDAOImpl">
+        <property name="entityManager" ref="entityManager" />
+    </bean>
 </beans>

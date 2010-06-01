@@ -92,6 +92,8 @@
 
         <xerces.version>2.9.1</xerces.version>
 
+        <commons-jexl.version>2.0.1</commons-jexl.version>
+
         <openam.version>snapshot9</openam.version>
 
         <osworkflow.version>2.8.0</osworkflow.version>
@@ -137,6 +139,12 @@
                 <version>${xerces.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-jexl</artifactId>
+                <version>${commons-jexl.version}</version>
+            </dependency>
+            
             <dependency>
                 <groupId>com.forgerock.openam</groupId>
                 <artifactId>clientsdk</artifactId>
