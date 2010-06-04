@@ -74,42 +74,29 @@ public class UserAttribute implements Serializable {
         this.values = values;
     }
 
-    public boolean addValue(Object value) {
-        UserAttributeValue actualValue = null;
-        try {
-            actualValue = getSchema().getValidator().getValue(value);
-        } catch (ValidationException e) {
-            log.error("While validating '" + value + "'", e);
+    public void addValue(Object value)
+            throws ValidationException {
+
+        UserAttributeValue actualValue =
+                getSchema().getValidator().getValue(value);
+
+        if (!schema.isMultivalue()) {
+            values.clear();
         }
 
-        boolean result = false;
-        if (actualValue != null) {
-            if (!schema.isMultivalue()) {
-                values.clear();
-            }
-            result = values.add(actualValue);
-        }
-
-        return result;
+        values.add(actualValue);
     }
 
-    public boolean removeValue(Object value) {
-        UserAttributeValue actualValue = null;
-        try {
-            actualValue = getSchema().getValidator().getValue(value);
-        } catch (ValidationException e) {
-            log.error("While validating '" + value + "'", e);
-        }
+    public void removeValue(Object value)
+            throws ValidationException {
 
-        boolean result = false;
-        if (actualValue != null) {
-            result = values.remove(actualValue);
-            if (!values.isEmpty() && !schema.isMultivalue()) {
-                values.clear();
-            }
-        }
+        UserAttributeValue actualValue =
+                getSchema().getValidator().getValue(value);
 
-        return result;
+        values.remove(actualValue);
+        if (!values.isEmpty() && !schema.isMultivalue()) {
+            values.clear();
+        }
     }
 
     @Override

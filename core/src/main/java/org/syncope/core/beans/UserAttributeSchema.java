@@ -95,7 +95,7 @@ public class UserAttributeSchema implements Serializable {
             return validator;
         }
 
-        if (getValidatorClass() != null && getValidatorClass().length() == 0) {
+        if (getValidatorClass() != null && getValidatorClass().length() > 0) {
             try {
                 Constructor validatorConstructor =
                         Class.forName(getValidatorClass()).getConstructor(

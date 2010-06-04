@@ -102,6 +102,8 @@
 
         <hibernate.version>3.4.0.GA</hibernate.version>
 
+        <postgresql.jdbc-driver.version>8.1-408.jdbc3</postgresql.jdbc-driver.version>
+
         <wicket.version>1.4.7</wicket.version>
 
         <jersey.version>1.2</jersey.version>
@@ -144,7 +146,7 @@
                 <artifactId>commons-jexl</artifactId>
                 <version>${commons-jexl.version}</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>com.forgerock.openam</groupId>
                 <artifactId>clientsdk</artifactId>
@@ -169,6 +171,12 @@
                 <version>${hibernate.version}</version>
             </dependency>
             <!-- /Hibernate -->
+
+            <dependency>
+                <groupId>postgresql</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>${postgresql.jdbc-driver.version}</version>
+            </dependency>
 
             <!-- Spring -->
             <dependency>
@@ -337,19 +345,6 @@
                     <groupId>org.mortbay.jetty</groupId>
                     <artifactId>maven-jetty-plugin</artifactId>
                     <version>${jetty.version}</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>hibernate3-maven-plugin</artifactId>
-                    <version>2.2</version>
-                    <executions>
-                        <execution>
-                            <phase>process-classes</phase>
-                            <goals>
-                                <goal>hbm2ddl</goal>
-                            </goals>
-                        </execution>
-                    </executions>
                 </plugin>
             </plugins>
         </pluginManagement>

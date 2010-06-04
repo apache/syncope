@@ -22,6 +22,7 @@ import org.syncope.core.beans.UserAttributeSchema;
 import org.syncope.core.beans.UserAttribute;
 import org.syncope.core.dao.UserAttributeSchemaDAO;
 import org.syncope.core.dao.UserAttributeDAO;
+import org.syncope.core.validation.ValidationException;
 
 public class UserAttributeDAOTest extends AbstractDAOTest {
 
@@ -63,6 +64,8 @@ public class UserAttributeDAOTest extends AbstractDAOTest {
         UserAttributeSchema emailSchema = new UserAttributeSchema();
         emailSchema.setName("email");
         emailSchema.setType(AttributeType.String);
+        emailSchema.setValidatorClass(
+                "org.syncope.core.validation.EmailAddressValidator");
         emailSchema.setMandatory(false);
         emailSchema.setMultivalue(true);
 
@@ -75,8 +78,22 @@ public class UserAttributeDAOTest extends AbstractDAOTest {
 
         UserAttribute attribute =
                 new UserAttribute(actualEmailSchema);
-        attribute.addValue("john.doe@gmail.com");
-        attribute.addValue("mario.rossi@gmail.com");
+
+        Exception thrown = null;
+        try {
+            attribute.addValue("john.doe@gmail.com");
+            attribute.addValue("mario.rossi@gmail.com");
+        } catch (ValidationException e) {
+            thrown = e;
+        }
+        assertNull("no validation exception expected here ", thrown);
+
+        try {
+            attribute.addValue("http://www.apache.org");
+        } catch (ValidationException e) {
+            thrown = e;
+        }
+        assertNotNull("validation exception expected here ", thrown);
 
         attribute = getDAO().save(attribute);
 
