@@ -16,10 +16,12 @@ package org.syncope.core.dao.impl;
 
 import java.util.List;
 import javax.persistence.Query;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.beans.UserDerivedAttribute;
 import org.syncope.core.dao.UserDerivedAttributeDAO;
 
+@Repository
 public class UserDerivedAttributeDAOImpl extends AbstractDAOImpl
         implements UserDerivedAttributeDAO {
 

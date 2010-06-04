@@ -14,6 +14,7 @@
  */
 package org.syncope.core.beans;
 
+import java.lang.reflect.Constructor;
 import static javax.persistence.EnumType.STRING;
 
 import java.io.Serializable;
@@ -24,9 +25,13 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
+import javax.persistence.Transient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.syncope.core.AttributeType;
+import org.syncope.core.validation.UserAttributeBasicValidator;
+import org.syncope.core.validation.UserAttributeValidator;
+import org.syncope.core.validation.ValidatorInstantiationException;
 
 @Entity
 public class UserAttributeSchema implements Serializable {
@@ -41,6 +46,9 @@ public class UserAttributeSchema implements Serializable {
     private Boolean mandatory;
     private Boolean multivalue;
     private String conversionPattern;
+    private String validatorClass;
+    @Transient
+    private UserAttributeValidator validator;
 
     public UserAttributeSchema() {
         type = AttributeType.String;
@@ -80,14 +88,46 @@ public class UserAttributeSchema implements Serializable {
         this.multivalue = multivalue;
     }
 
-    private boolean isConversionPatternNeeded() {
-        return type == AttributeType.Date
-                || type == AttributeType.Double
-                || type == AttributeType.Long;
+    public UserAttributeValidator getValidator()
+            throws ValidatorInstantiationException {
+
+        if (validator != null) {
+            return validator;
+        }
+
+        if (getValidatorClass() != null && getValidatorClass().length() == 0) {
+            try {
+                Constructor validatorConstructor =
+                        Class.forName(getValidatorClass()).getConstructor(
+                        new Class[]{getClass()});
+                validator = (UserAttributeValidator) validatorConstructor.newInstance(this);
+            } catch (Exception e) {
+                throw new ValidatorInstantiationException(
+                        "Could not instantiate validator of type "
+                        + getValidatorClass(), e);
+            }
+        } else {
+            try {
+                validator = new UserAttributeBasicValidator(this);
+            } catch (ClassNotFoundException cnfe) {
+                throw new ValidatorInstantiationException(
+                        "Could not instantiate basic validator", cnfe);
+            }
+        }
+
+        return validator;
+    }
+
+    public String getValidatorClass() {
+        return validatorClass;
+    }
+
+    public void setValidatorClass(String validatorClass) {
+        this.validatorClass = validatorClass;
     }
 
     public String getConversionPattern() {
-        if (!isConversionPatternNeeded()) {
+        if (!getType().isConversionPatternNeeded()) {
             log.warn("Conversion pattern is not needed: "
                     + "this attribute type is "
                     + getType());
@@ -97,7 +137,7 @@ public class UserAttributeSchema implements Serializable {
     }
 
     public void setConversionPattern(String conversionPattern) {
-        if (!isConversionPatternNeeded()) {
+        if (!getType().isConversionPatternNeeded()) {
             log.warn("Conversion pattern will be ignored: "
                     + "this attribute type is "
                     + getType());
@@ -112,7 +152,7 @@ public class UserAttributeSchema implements Serializable {
         switch (getType()) {
             case Long:
                 DecimalFormat longFormatter =
-                        ((DecimalFormat) getType().getFormatter());
+                        ((DecimalFormat) getType().getBasicFormatter());
                 longFormatter.applyPattern(getConversionPattern());
 
                 result = (T) longFormatter;
@@ -120,7 +160,7 @@ public class UserAttributeSchema implements Serializable {
 
             case Double:
                 DecimalFormat doubleFormatter =
-                        ((DecimalFormat) getType().getFormatter());
+                        ((DecimalFormat) getType().getBasicFormatter());
                 doubleFormatter.applyPattern(getConversionPattern());
 
                 result = (T) doubleFormatter;
@@ -128,7 +168,7 @@ public class UserAttributeSchema implements Serializable {
 
             case Date:
                 SimpleDateFormat dateFormatter =
-                        (SimpleDateFormat) getType().getFormatter();
+                        (SimpleDateFormat) getType().getBasicFormatter();
                 dateFormatter.applyPattern(getConversionPattern());
 
                 result = (T) dateFormatter;
@@ -175,6 +215,12 @@ public class UserAttributeSchema implements Serializable {
 
             return false;
         }
+        if ((this.validatorClass == null)
+                ? (other.validatorClass != null)
+                : !this.validatorClass.equals(other.validatorClass)) {
+
+            return false;
+        }
         return true;
     }
 
@@ -189,6 +235,8 @@ public class UserAttributeSchema implements Serializable {
                 ? this.multivalue.hashCode() : 0);
         hash = 67 * hash + (this.conversionPattern != null
                 ? this.conversionPattern.hashCode() : 0);
+        hash = 67 * hash + (this.validatorClass != null
+                ? this.validatorClass.hashCode() : 0);
 
         return hash;
     }
@@ -200,7 +248,8 @@ public class UserAttributeSchema implements Serializable {
                 + "type=" + type + ","
                 + "mandatory=" + mandatory + ","
                 + "multivalue=" + multivalue + ","
-                + "conversionPattern=" + conversionPattern
+                + "conversionPattern=" + conversionPattern + ","
+                + "validatorClass=" + validatorClass
                 + ")";
     }
 }

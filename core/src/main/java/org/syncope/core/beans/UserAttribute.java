@@ -15,10 +15,6 @@
 package org.syncope.core.beans;
 
 import java.io.Serializable;
-import java.text.DecimalFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.CascadeType;
@@ -29,9 +25,9 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.Transient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.syncope.core.validation.ValidationException;
 
 @Entity
 public class UserAttribute implements Serializable {
@@ -43,8 +39,6 @@ public class UserAttribute implements Serializable {
     private Long id;
     @ManyToOne(fetch = FetchType.EAGER)
     private UserAttributeSchema schema;
-    @Transient
-    private Class userAttributeClass;
     @OneToMany(cascade = CascadeType.ALL,
     fetch = FetchType.EAGER)
     private Set<UserAttributeValue> values;
@@ -68,19 +62,8 @@ public class UserAttribute implements Serializable {
         return schema;
     }
 
-    public void setSchema(UserAttributeSchema schema)
-            throws ClassNotFoundException {
-
+    public void setSchema(UserAttributeSchema schema) {
         this.schema = schema;
-
-        if (schema == null) {
-            throw new NullPointerException(
-                    "Cannot set a NULL UserAttributeSchema!");
-        }
-
-        this.schema = schema;
-        this.userAttributeClass = Class.forName(
-                schema.getType().getClassName());
     }
 
     public Set<UserAttributeValue> getValues() {
@@ -91,13 +74,12 @@ public class UserAttribute implements Serializable {
         this.values = values;
     }
 
-    public boolean addValue(String value) {
+    public boolean addValue(Object value) {
         UserAttributeValue actualValue = null;
         try {
-            actualValue = getValue(value);
-        } catch (ParseException e) {
-            log.error("While parsing '" + value + "' as "
-                    + userAttributeClass.getClass().getName(), e);
+            actualValue = getSchema().getValidator().getValue(value);
+        } catch (ValidationException e) {
+            log.error("While validating '" + value + "'", e);
         }
 
         boolean result = false;
@@ -111,138 +93,23 @@ public class UserAttribute implements Serializable {
         return result;
     }
 
-    public boolean addValue(Object value)
-            throws ClassCastException {
-
-        if (!userAttributeClass.isInstance(value)) {
-            log.error("'" + value + "' is not an instance of "
-                    + userAttributeClass.getClass().getName());
-
-            throw getClassCastException(value);
-        }
-
-        if (!schema.isMultivalue()) {
-            values.clear();
-        }
-
-        return values.add(getValue(value));
-    }
-
-    public boolean removeValue(String value) {
+    public boolean removeValue(Object value) {
         UserAttributeValue actualValue = null;
         try {
-            actualValue = getValue(value);
-        } catch (ParseException e) {
-            log.error("While parsing '" + value + "' as "
-                    + userAttributeClass.getClass().getName(), e);
+            actualValue = getSchema().getValidator().getValue(value);
+        } catch (ValidationException e) {
+            log.error("While validating '" + value + "'", e);
         }
 
         boolean result = false;
         if (actualValue != null) {
             result = values.remove(actualValue);
-            if (!values.isEmpty()
-                    && !schema.isMultivalue()) {
-
+            if (!values.isEmpty() && !schema.isMultivalue()) {
                 values.clear();
             }
         }
 
         return result;
-    }
-
-    public boolean removeValue(Object value)
-            throws ClassCastException {
-
-        if (!userAttributeClass.isInstance(value)) {
-            log.error("'" + value + "' is not an instance of "
-                    + userAttributeClass.getClass().getName());
-
-            throw getClassCastException(value);
-        }
-
-        boolean result = values.remove(getValue(value));
-        if (!values.isEmpty()
-                && !schema.isMultivalue()) {
-
-            values.clear();
-        }
-
-        return result;
-    }
-
-    private UserAttributeValue getValue(String value)
-            throws ParseException {
-
-        UserAttributeValue result = null;
-
-        switch (schema.getType()) {
-
-            case String:
-                result = new UserAttributeValueAsString(value);
-                break;
-
-            case Boolean:
-                result = new UserAttributeValueAsBoolean(
-                        Boolean.parseBoolean(value));
-                break;
-
-            case Long:
-                result = new UserAttributeValueAsLong(
-                        Long.valueOf(schema.getFormatter(
-                        DecimalFormat.class).parse(value).longValue()));
-                break;
-
-            case Double:
-                result = new UserAttributeValueAsDouble(
-                        Double.valueOf(schema.getFormatter(
-                        DecimalFormat.class).parse(value).doubleValue()));
-                break;
-
-            case Date:
-                result = new UserAttributeValueAsDate(
-                        new Date(schema.getFormatter(
-                        SimpleDateFormat.class).parse(value).getTime()));
-                break;
-        }
-
-        return result;
-    }
-
-    private UserAttributeValue getValue(Object value) {
-
-        UserAttributeValue result = null;
-
-        switch (schema.getType()) {
-
-            case String:
-                result = new UserAttributeValueAsString((String) value);
-                break;
-
-            case Boolean:
-                result = new UserAttributeValueAsBoolean((Boolean) value);
-                break;
-
-            case Long:
-                result = new UserAttributeValueAsLong((Long) value);
-                break;
-
-            case Double:
-                result = new UserAttributeValueAsDouble((Double) value);
-                break;
-
-            case Date:
-                result = new UserAttributeValueAsDate((Date) value);
-                break;
-        }
-
-        return result;
-    }
-
-    private ClassCastException getClassCastException(Object value) {
-        return new ClassCastException("Passed value is instance of "
-                + value.getClass().getName()
-                + ", while this attribute has type "
-                + userAttributeClass.getName());
     }
 
     @Override

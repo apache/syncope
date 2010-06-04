@@ -37,7 +37,7 @@ public enum AttributeType {
         return className;
     }
 
-    public Format getFormatter() {
+    public Format getBasicFormatter() {
         if (formatter == null) {
             switch (this) {
                 case Date:
@@ -50,4 +50,11 @@ public enum AttributeType {
 
         return formatter;
     }
+
+    public boolean isConversionPatternNeeded() {
+        return this == AttributeType.Date
+                || this == AttributeType.Double
+                || this == AttributeType.Long;
+    }
+
 }

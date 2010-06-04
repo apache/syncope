@@ -1,52 +1,65 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:amq="http://activemq.apache.org/schema/core"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
        xmlns:tx="http://www.springframework.org/schema/tx"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
-       http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/tx
+       http://www.springframework.org/schema/tx/spring-tx.xsd">
 
-    <bean id="hsqlMemoryDb" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+    <bean id="hsqlMemoryDb"
+          class="org.springframework.jdbc.datasource.DriverManagerDataSource">
         <property name="driverClassName" value="org.hsqldb.jdbcDriver" />
         <property name="url" value="jdbc:hsqldb:mem:syncopeTest" />
         <property name="username" value="sa" />
         <property name="password" value="" />
     </bean>
 
-    <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+    <bean id="entityManagerFactory"
+          class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
         <property name="persistenceUnitName" value="syncopePersistenceUnit"/>
         <property name="dataSource" ref="hsqlMemoryDb" />
         <property name="jpaVendorAdapter">
             <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
                 <property name="showSql" value="true" />
                 <property name="generateDdl" value="true" />
-                <property name="databasePlatform" value="org.hibernate.dialect.HSQLDialect" />
+                <property name="databasePlatform"
+                          value="org.hibernate.dialect.HSQLDialect" />
             </bean>
         </property>
     </bean>
 
-    <bean id="entityManager" class="org.springframework.orm.jpa.support.SharedEntityManagerBean">
+    <bean id="entityManager"
+          class="org.springframework.orm.jpa.support.SharedEntityManagerBean">
         <property name="entityManagerFactory" ref="entityManagerFactory"/>
     </bean>
 
-    <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
-        <property name="entityManagerFactory" ref="entityManagerFactory" />
+    <tx:annotation-driven/>
+    <bean id="transactionManager"
+          class="org.springframework.orm.jpa.JpaTransactionManager">
+        <property name="entityManagerFactory" ref="entityManagerFactory"/>
     </bean>
 
     <!-- DAOs -->
-    <bean id="syncopeUserDAO" class="org.syncope.core.dao.impl.SyncopeUserDAOImpl">
+    <bean id="syncopeUserDAO"
+          class="org.syncope.core.dao.impl.SyncopeUserDAOImpl">
         <property name="entityManager" ref="entityManager" />
     </bean>
-    <bean id="userAttributeSchemaDAO" class="org.syncope.core.dao.impl.UserAttributeSchemaDAOImpl">
+    <bean id="userAttributeSchemaDAO"
+          class="org.syncope.core.dao.impl.UserAttributeSchemaDAOImpl">
         <property name="entityManager" ref="entityManager" />
     </bean>
-    <bean id="userAttributeDAO" class="org.syncope.core.dao.impl.UserAttributeDAOImpl">
+    <bean id="userAttributeDAO"
+          class="org.syncope.core.dao.impl.UserAttributeDAOImpl">
         <property name="entityManager" ref="entityManager" />
     </bean>
-    <bean id="userDerivedAttributeSchemaDAO" class="org.syncope.core.dao.impl.UserDerivedAttributeSchemaDAOImpl">
+    <bean id="userDerivedAttributeSchemaDAO"
+          class="org.syncope.core.dao.impl.UserDerivedAttributeSchemaDAOImpl">
         <property name="entityManager" ref="entityManager" />
     </bean>
-    <bean id="userDerivedAttributeDAO" class="org.syncope.core.dao.impl.UserDerivedAttributeDAOImpl">
+    <bean id="userDerivedAttributeDAO"
+          class="org.syncope.core.dao.impl.UserDerivedAttributeDAOImpl">
         <property name="entityManager" ref="entityManager" />
     </bean>
 </beans>

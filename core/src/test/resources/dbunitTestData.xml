@@ -6,16 +6,16 @@
 
     <UserAttributeSchema name="username" type="String"
                          mandatory="true" multivalue="false"
-                         conversionPattern="NULL"/>
+                         conversionPattern="NULL" validatorClass="NULL"/>
     <UserAttributeSchema name="loginDate" type="Date"
                          mandatory="false" multivalue="true"
-                         conversionPattern="yyyy-MM-dd"/>
+                         conversionPattern="yyyy-MM-dd" validatorClass="NULL"/>
     <UserAttributeSchema name="firstname" type="String"
                          mandatory="false" multivalue="false"
-                         conversionPattern="NULL"/>
+                         conversionPattern="NULL" validatorClass="NULL"/>
     <UserAttributeSchema name="surname" type="String"
                          mandatory="true" multivalue="false"
-                         conversionPattern="NULL"/>
+                         conversionPattern="NULL" validatorClass="NULL"/>
 
     <UserAttribute id="100" schema_name="username"/>
     <UserAttribute id="200" schema_name="loginDate"/>

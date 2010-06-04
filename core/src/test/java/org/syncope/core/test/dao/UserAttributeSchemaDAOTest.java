@@ -50,6 +50,8 @@ public class UserAttributeSchemaDAOTest extends AbstractDAOTest {
         UserAttributeSchema userAttributeSchema = new UserAttributeSchema();
         userAttributeSchema.setName("email");
         userAttributeSchema.setType(AttributeType.String);
+        userAttributeSchema.setValidatorClass(
+                "org.syncope.core.validation.EmailAddressValidator");
         userAttributeSchema.setMandatory(false);
         userAttributeSchema.setMultivalue(true);
 
