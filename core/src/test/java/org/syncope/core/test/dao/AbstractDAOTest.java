@@ -51,6 +51,7 @@ public abstract class AbstractDAOTest extends AbstractJpaTests {
 
     @Override
     protected String[] getConfigLocations() {
+        setAutowireMode(AUTOWIRE_BY_NAME);
         return new String[]{"applicationContext.xml"};
     }
 

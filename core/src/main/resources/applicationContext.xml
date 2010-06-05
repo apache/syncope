@@ -18,7 +18,14 @@
         </property>
     </bean>
 
+    <!-- Use JNDI datasource as default but, when not available, revert to
+         local datasource, using different properties for execution and testing -->
     <bean id="dataSource"
+          class="org.springframework.jndi.JndiObjectFactoryBean">
+        <property name="jndiName" value="java:comp/env/jdbc/syncopeDataSource"/>
+        <property name="defaultObject" ref="localDataSource"/>
+    </bean>
+    <bean id="localDataSource"
           class="org.springframework.jdbc.datasource.DriverManagerDataSource">
         <property name="driverClassName" value="${db.driverClassName}"/>
         <property name="url" value="${db.url}"/>
