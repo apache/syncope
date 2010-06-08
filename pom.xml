@@ -376,6 +376,7 @@
     </reporting>
 
     <modules>
+        <module>client</module>
         <module>core</module>
         <module>rest</module>
         <module>console</module>

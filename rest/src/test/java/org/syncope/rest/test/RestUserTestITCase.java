@@ -28,9 +28,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
-import org.syncope.rest.to.AttributeTO;
-import org.syncope.rest.to.SearchParameters;
-import org.syncope.rest.to.UserTO;
+import org.syncope.client.to.AttributeTO;
+import org.syncope.client.to.SearchParameters;
+import org.syncope.client.to.UserTO;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"classpath:applicationContext.xml"})

@@ -12,7 +12,7 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.rest.to;
+package org.syncope.client.to;
 
 import java.io.Serializable;
 import java.util.Set;
