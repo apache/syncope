@@ -98,15 +98,15 @@
 
         <osworkflow.version>2.8.0</osworkflow.version>
 
-        <spring.version>2.5.6.SEC01</spring.version>
+        <org.springframework.version>3.0.2.RELEASE</org.springframework.version>
+        <jackson.version>1.5.2</jackson.version>
+        <xstream.version>1.3.1</xstream.version>
 
-        <hibernate.version>3.4.0.GA</hibernate.version>
+        <hibernate.version>3.5.1-Final</hibernate.version>
 
         <postgresql.jdbc-driver.version>8.1-408.jdbc3</postgresql.jdbc-driver.version>
 
         <wicket.version>1.4.7</wicket.version>
-
-        <jersey.version>1.2</jersey.version>
 
         <log4j.version>1.2.16</log4j.version>
 
@@ -159,19 +159,12 @@
                 <version>${osworkflow.version}</version>
             </dependency>
 
-            <!-- Hibernate -->
             <dependency>
                 <groupId>org.hibernate</groupId>
                 <artifactId>hibernate-entitymanager</artifactId>
                 <version>${hibernate.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.hibernate</groupId>
-                <artifactId>hibernate-annotations</artifactId>
-                <version>${hibernate.version}</version>
-            </dependency>
-            <!-- /Hibernate -->
-
+            
             <dependency>
                 <groupId>postgresql</groupId>
                 <artifactId>postgresql</artifactId>
@@ -181,34 +174,58 @@
             <!-- Spring -->
             <dependency>
                 <groupId>org.springframework</groupId>
-                <artifactId>spring</artifactId>
-                <version>${spring.version}</version>
+                <artifactId>spring-core</artifactId>
+                <version>${org.springframework.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context</artifactId>
+                <version>${org.springframework.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-jdbc</artifactId>
+                <version>${org.springframework.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-orm</artifactId>
+                <version>${org.springframework.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-webmvc</artifactId>
+                <version>${org.springframework.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-oxm</artifactId>
+                <version>${org.springframework.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-tx</artifactId>
+                <version>${org.springframework.version}</version>
             </dependency>
             <!-- /Spring -->
+
+            <dependency>
+                <groupId>org.codehaus.jackson</groupId>
+                <artifactId>jackson-mapper-lgpl</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.thoughtworks.xstream</groupId>
+                <artifactId>xstream</artifactId>
+                <version>${xstream.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.apache.wicket</groupId>
                 <artifactId>wicket</artifactId>
                 <version>${wicket.version}</version>
             </dependency>
-
-            <!-- Jersey -->
-            <dependency>
-                <groupId>com.sun.jersey</groupId>
-                <artifactId>jersey-server</artifactId>
-                <version>${jersey.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sun.jersey</groupId>
-                <artifactId>jersey-json</artifactId>
-                <version>${jersey.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sun.jersey.contribs</groupId>
-                <artifactId>jersey-spring</artifactId>
-                <version>${jersey.version}</version>
-            </dependency>
-            <!-- /Jersey -->
 
             <dependency>
                 <groupId>log4j</groupId>
@@ -229,12 +246,6 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>com.sun.jersey</groupId>
-                <artifactId>jersey-client</artifactId>
-                <version>${jersey.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
                 <groupId>hsqldb</groupId>
                 <artifactId>hsqldb</artifactId>
                 <version>${hsqldb.version}</version>
@@ -243,7 +254,7 @@
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-test</artifactId>
-                <version>${spring.version}</version>
+                <version>${org.springframework.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -279,13 +290,6 @@
         <repository>
             <id>atalassian</id>
             <url>https://maven.atlassian.com/3rdparty/</url>
-        </repository>
-
-        <repository>
-            <id>maven2-repository.dev.java.net</id>
-            <name>Java.net Maven 2 Repository</name>
-            <url>http://download.java.net/maven/2/</url>
-            <layout>default</layout>
         </repository>
 
     </repositories>
