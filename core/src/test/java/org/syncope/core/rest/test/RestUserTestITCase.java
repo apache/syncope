@@ -12,12 +12,12 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.rest.test;
+package org.syncope.core.rest.test;
+
+import static org.junit.Assert.*;
 
 import java.util.Collections;
 import java.util.List;
-import static org.junit.Assert.*;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -33,11 +33,11 @@ import org.syncope.client.to.SearchParameters;
 import org.syncope.client.to.UserTO;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath:applicationContext.xml"})
+@ContextConfiguration(locations = {"classpath:restContext.xml"})
 public class RestUserTestITCase {
 
     private static final Logger log = LoggerFactory.getLogger(RestUserTestITCase.class);
-    private static final String BASE_URL = "http://localhost:8080/syncope-rest/user/";
+    private static final String BASE_URL = "http://localhost:8080/syncope/user/";
     @Autowired
     private RestTemplate restTemplate;
 

@@ -10,6 +10,26 @@
             <param name="ConversionPattern" value="%-5p %d %C.%M:%L %m%n"/>
         </layout>
     </appender>
+    
+    <appender name="persistence" class="org.apache.log4j.RollingFileAppender">
+        <param name="File" value="${logfile.persistence}"/>
+        <param name="Append" value="true"/>
+        <param name="MaxFileSize" value="10240KB" />
+        <param name="MaxBackupIndex" value="10" />
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%-5p %d %C.%M:%L %m%n"/>
+        </layout>
+    </appender>
+
+    <appender name="rest" class="org.apache.log4j.RollingFileAppender">
+        <param name="File" value="${logfile.rest}"/>
+        <param name="Append" value="true"/>
+        <param name="MaxFileSize" value="10240KB" />
+        <param name="MaxBackupIndex" value="10" />
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%-5p %d %C.%M:%L %m%n"/>
+        </layout>
+    </appender>
 
     <appender name="test" class="org.apache.log4j.RollingFileAppender">
         <param name="File" value="${logfile.test}"/>
@@ -21,12 +41,22 @@
         </layout>
     </appender>
 
-    <logger name="org.syncope.core" additivity="false">
+    <logger name="org.syncope.core.persistence" additivity="false">
         <level value="INFO"/>
-        <appender-ref ref="main"/>
+        <appender-ref ref="persistence"/>
+    </logger>
+
+    <logger name="org.syncope.core.rest" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="rest"/>
     </logger>
 
     <logger name="org.syncope.core.persistence.test" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="test"/>
+    </logger>
+
+    <logger name="org.syncope.core.rest.test" additivity="false">
         <level value="INFO"/>
         <appender-ref ref="test"/>
     </logger>
@@ -36,14 +66,26 @@
         <appender-ref ref="main"/>
     </logger>
 
+    <logger name="org.springframework.orm" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="persistence"/>
+    </logger>
+
+    <logger name="org.springframework.test" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="test"/>
+    </logger>
+
     <logger name="org.hibernate" additivity="false">
         <level value="INFO"/>
-        <appender-ref ref="main"/>
+        <appender-ref ref="persistence"/>
     </logger>
 
     <root>
         <priority value="INFO"/>
         <appender-ref ref="main"/>
+        <appender-ref ref="persistence"/>
+        <appender-ref ref="rest"/>
         <appender-ref ref="test"/>
     </root>
 </log4j:configuration>

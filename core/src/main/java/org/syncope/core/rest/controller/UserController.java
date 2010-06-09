@@ -12,7 +12,7 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.rest.controller;
+package org.syncope.core.rest.controller;
 
 import java.io.IOException;
 import java.util.ArrayList;

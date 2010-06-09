@@ -12,7 +12,7 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.rest.jackson;
+package org.syncope.core.rest.jackson;
 
 import java.io.File;
 import java.io.IOException;
