@@ -30,22 +30,4 @@
     <artifactId>syncope-client</artifactId>
     <packaging>jar</packaging>
 
-    <build>
-        <extensions>
-            <extension>
-                <groupId>org.apache.maven.wagon</groupId>
-                <artifactId>wagon-webdav</artifactId>
-                <version>1.0-beta-2</version>
-            </extension>
-        </extensions>
-    </build>
-
-    <distributionManagement>
-        <repository>
-            <uniqueVersion>false</uniqueVersion>
-            <id>googlecode</id>
-            <url>dav:https://syncope.googlecode.com/svn/maven2/</url>
-        </repository>
-    </distributionManagement>
-
 </project>
