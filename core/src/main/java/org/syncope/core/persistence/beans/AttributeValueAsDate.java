@@ -15,27 +15,31 @@
 package org.syncope.core.persistence.beans;
 
 import java.io.Serializable;
+import java.util.Date;
 import javax.persistence.Entity;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 @Entity
-public class UserAttributeValueAsDouble
-        extends UserAttributeValue implements Serializable {
+public class AttributeValueAsDate
+        extends AttributeValue implements Serializable {
 
-    Double actualValue;
+    @Temporal(TemporalType.TIMESTAMP)
+    Date actualValue;
 
-    public UserAttributeValueAsDouble() {
+    public AttributeValueAsDate() {
     }
 
-    public UserAttributeValueAsDouble(Double actualValue) {
+    public AttributeValueAsDate(Date actualValue) {
         super();
         this.actualValue = actualValue;
     }
 
-    public Double getActualValue() {
+    public Date getActualValue() {
         return actualValue;
     }
 
-    public void setActualValue(Double actualValue) {
+    public void setActualValue(Date actualValue) {
         this.actualValue = actualValue;
     }
 
@@ -51,8 +55,7 @@ public class UserAttributeValueAsDouble
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final UserAttributeValueAsDouble other =
-                (UserAttributeValueAsDouble) obj;
+        final AttributeValueAsDate other = (AttributeValueAsDate) obj;
         if (this.actualValue != other.actualValue
                 && (this.actualValue == null
                 || !this.actualValue.equals(other.actualValue))) {
@@ -64,8 +67,8 @@ public class UserAttributeValueAsDouble
 
     @Override
     public int hashCode() {
-        int hash = 5;
-        hash = 97 * hash + (this.actualValue != null
+        int hash = 7;
+        hash = 61 * hash + (this.actualValue != null
                 ? this.actualValue.hashCode() : 0);
         return super.hashCode() + hash;
     }

@@ -18,15 +18,15 @@ import java.io.Serializable;
 import javax.persistence.Entity;
 
 @Entity
-public class UserAttributeValueAsBoolean
-        extends UserAttributeValue implements Serializable {
+public class AttributeValueAsBoolean
+        extends AttributeValue implements Serializable {
 
     Boolean actualValue;
 
-    public UserAttributeValueAsBoolean() {
+    public AttributeValueAsBoolean() {
     }
 
-    public UserAttributeValueAsBoolean(Boolean actualValue) {
+    public AttributeValueAsBoolean(Boolean actualValue) {
         super();
         this.actualValue = actualValue;
     }
@@ -51,8 +51,8 @@ public class UserAttributeValueAsBoolean
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final UserAttributeValueAsBoolean other =
-                (UserAttributeValueAsBoolean) obj;
+        final AttributeValueAsBoolean other =
+                (AttributeValueAsBoolean) obj;
         if (this.actualValue != other.actualValue
                 && (this.actualValue == null
                 || !this.actualValue.equals(other.actualValue))) {

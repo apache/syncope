@@ -18,29 +18,29 @@ import java.util.List;
 import javax.persistence.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import org.syncope.core.persistence.beans.UserAttribute;
-import org.syncope.core.persistence.dao.UserAttributeDAO;
+import org.syncope.core.persistence.beans.DerivedAttribute;
+import org.syncope.core.persistence.dao.DerivedAttributeDAO;
 
 @Repository
-public class UserAttributeDAOImpl extends AbstractDAOImpl
-        implements UserAttributeDAO {
+public class DerivedAttributeDAOImpl extends AbstractDAOImpl
+        implements DerivedAttributeDAO {
 
     @Override
-    public UserAttribute find(long id) {
-        return entityManager.find(UserAttribute.class, id);
+    public DerivedAttribute find(long id) {
+        return entityManager.find(DerivedAttribute.class, id);
     }
 
     @Override
-    public List<UserAttribute> findAll() {
+    public List<DerivedAttribute> findAll() {
         Query query = entityManager.createQuery(
-                "SELECT e FROM UserAttribute e");
+                "SELECT e FROM DerivedAttribute e");
         return query.getResultList();
     }
 
     @Override
     @Transactional
-    public UserAttribute save(UserAttribute attribute) {
-        UserAttribute result = entityManager.merge(attribute);
+    public DerivedAttribute save(DerivedAttribute attribute) {
+        DerivedAttribute result = entityManager.merge(attribute);
         entityManager.flush();
         return result;
     }

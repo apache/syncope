@@ -33,7 +33,7 @@ import org.apache.commons.jexl2.MapContext;
  * @see http://commons.apache.org/jexl/reference/index.html
  */
 @Entity
-public class UserDerivedAttribute implements Serializable {
+public class DerivedAttribute implements Serializable {
 
     private static final JexlEngine jexlEngine = new JexlEngine();
 
@@ -48,7 +48,7 @@ public class UserDerivedAttribute implements Serializable {
     @ManyToOne
     private SyncopeUser owner;
     @ManyToOne(fetch = FetchType.EAGER)
-    private UserDerivedAttributeSchema schema;
+    private DerivedAttributeSchema schema;
 
     /**
      * @see http://commons.apache.org/jexl/reference/index.html
@@ -59,39 +59,39 @@ public class UserDerivedAttribute implements Serializable {
                 schema.getExpression());
         JexlContext jexlContext = new MapContext();
 
-        Set<UserAttribute> attributes = owner.getAttributes();
-        Set<UserAttributeValue> attributeValues = null;
+        Set<Attribute> attributes = owner.getAttributes();
+        Set<AttributeValue> attributeValues = null;
         String expressionValue = null;
-        UserAttributeValue userAttributeValue = null;
-        for (UserAttribute attribute : attributes) {
+        AttributeValue attributeValue = null;
+        for (Attribute attribute : attributes) {
             attributeValues = attribute.getValues();
             if (attributeValues.isEmpty()) {
                 expressionValue = "";
             } else {
-                userAttributeValue = attributeValues.iterator().next();
+                attributeValue = attributeValues.iterator().next();
                 switch (attribute.getSchema().getType()) {
                     case Boolean:
                         expressionValue =
-                                ((UserAttributeValueAsBoolean) userAttributeValue).getActualValue().toString();
+                                ((AttributeValueAsBoolean) attributeValue).getActualValue().toString();
                         break;
                     case Date:
                         expressionValue = attribute.getSchema().getFormatter(
                                 SimpleDateFormat.class).format(
-                                ((UserAttributeValueAsDate) userAttributeValue).getActualValue());
+                                ((AttributeValueAsDate) attributeValue).getActualValue());
                         break;
                     case Double:
                         expressionValue = attribute.getSchema().getFormatter(
                                 DecimalFormat.class).format(
-                                ((UserAttributeValueAsDouble) userAttributeValue).getActualValue());
+                                ((AttributeValueAsDouble) attributeValue).getActualValue());
                         break;
                     case Long:
                         expressionValue = attribute.getSchema().getFormatter(
                                 DecimalFormat.class).format(
-                                ((UserAttributeValueAsDouble) userAttributeValue).getActualValue());
+                                ((AttributeValueAsDouble) attributeValue).getActualValue());
                         break;
                     case String:
                         expressionValue =
-                                ((UserAttributeValueAsString) userAttributeValue).getActualValue();
+                                ((AttributeValueAsString) attributeValue).getActualValue();
                         break;
                 }
             }
@@ -118,11 +118,11 @@ public class UserDerivedAttribute implements Serializable {
         this.owner = owner;
     }
 
-    public UserDerivedAttributeSchema getSchema() {
+    public DerivedAttributeSchema getSchema() {
         return schema;
     }
 
-    public void setSchema(UserDerivedAttributeSchema attributeSchema) {
+    public void setSchema(DerivedAttributeSchema attributeSchema) {
         this.schema = attributeSchema;
     }
 
@@ -134,7 +134,7 @@ public class UserDerivedAttribute implements Serializable {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final UserDerivedAttribute other = (UserDerivedAttribute) obj;
+        final DerivedAttribute other = (DerivedAttribute) obj;
         if (this.id != other.id
                 && (this.id == null || !this.id.equals(other.id))) {
 

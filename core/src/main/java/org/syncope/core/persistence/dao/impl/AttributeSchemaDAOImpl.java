@@ -18,36 +18,36 @@ import java.util.List;
 import javax.persistence.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import org.syncope.core.persistence.beans.UserDerivedAttribute;
-import org.syncope.core.persistence.dao.UserDerivedAttributeDAO;
+import org.syncope.core.persistence.beans.AttributeSchema;
+import org.syncope.core.persistence.dao.AttributeSchemaDAO;
 
 @Repository
-public class UserDerivedAttributeDAOImpl extends AbstractDAOImpl
-        implements UserDerivedAttributeDAO {
+public class AttributeSchemaDAOImpl extends AbstractDAOImpl
+        implements AttributeSchemaDAO {
 
     @Override
-    public UserDerivedAttribute find(long id) {
-        return entityManager.find(UserDerivedAttribute.class, id);
+    public AttributeSchema find(String name) {
+        return entityManager.find(AttributeSchema.class, name);
     }
 
     @Override
-    public List<UserDerivedAttribute> findAll() {
+    public List<AttributeSchema> findAll() {
         Query query = entityManager.createQuery(
-                "SELECT e FROM UserDerivedAttribute e");
+                "SELECT e FROM AttributeSchema e");
         return query.getResultList();
     }
 
     @Override
     @Transactional
-    public UserDerivedAttribute save(UserDerivedAttribute attribute) {
-        UserDerivedAttribute result = entityManager.merge(attribute);
+    public AttributeSchema save(AttributeSchema attributeSchema) {
+        AttributeSchema result = entityManager.merge(attributeSchema);
         entityManager.flush();
         return result;
     }
 
     @Override
     @Transactional
-    public void delete(long id) {
-        entityManager.remove(find(id));
+    public void delete(String name) {
+        entityManager.remove(find(name));
     }
 }

@@ -30,24 +30,24 @@ import org.slf4j.LoggerFactory;
 import org.syncope.core.persistence.validation.ValidationException;
 
 @Entity
-public class UserAttribute implements Serializable {
+public class Attribute implements Serializable {
 
     private static final Logger log = LoggerFactory.getLogger(
-            UserAttribute.class);
+            Attribute.class);
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     @ManyToOne(fetch = FetchType.EAGER)
-    private UserAttributeSchema schema;
+    private AttributeSchema schema;
     @OneToMany(cascade = CascadeType.ALL,
     fetch = FetchType.EAGER)
-    private Set<UserAttributeValue> values;
+    private Set<AttributeValue> values;
 
-    protected UserAttribute() {
-        values = new HashSet<UserAttributeValue>();
+    protected Attribute() {
+        values = new HashSet<AttributeValue>();
     }
 
-    public UserAttribute(UserAttributeSchema schema)
+    public Attribute(AttributeSchema schema)
             throws ClassNotFoundException {
 
         this();
@@ -58,26 +58,26 @@ public class UserAttribute implements Serializable {
         return id;
     }
 
-    public UserAttributeSchema getSchema() {
+    public AttributeSchema getSchema() {
         return schema;
     }
 
-    public void setSchema(UserAttributeSchema schema) {
+    public void setSchema(AttributeSchema schema) {
         this.schema = schema;
     }
 
-    public Set<UserAttributeValue> getValues() {
+    public Set<AttributeValue> getValues() {
         return values;
     }
 
-    public void setValues(Set<UserAttributeValue> values) {
+    public void setValues(Set<AttributeValue> values) {
         this.values = values;
     }
 
     public void addValue(Object value)
             throws ValidationException {
 
-        UserAttributeValue actualValue =
+        AttributeValue actualValue =
                 getSchema().getValidator().getValue(value);
 
         if (!schema.isMultivalue()) {
@@ -90,7 +90,7 @@ public class UserAttribute implements Serializable {
     public void removeValue(Object value)
             throws ValidationException {
 
-        UserAttributeValue actualValue =
+        AttributeValue actualValue =
                 getSchema().getValidator().getValue(value);
 
         values.remove(actualValue);
@@ -107,7 +107,7 @@ public class UserAttribute implements Serializable {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final UserAttribute other = (UserAttribute) obj;
+        final Attribute other = (Attribute) obj;
         if (this.id != other.id
                 && (this.id == null || !this.id.equals(other.id))) {
 

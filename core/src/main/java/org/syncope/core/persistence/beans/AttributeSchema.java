@@ -29,15 +29,15 @@ import javax.persistence.Transient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.syncope.core.persistence.AttributeType;
-import org.syncope.core.persistence.validation.UserAttributeBasicValidator;
-import org.syncope.core.persistence.validation.UserAttributeValidator;
+import org.syncope.core.persistence.validation.AttributeBasicValidator;
+import org.syncope.core.persistence.validation.AttributeValidator;
 import org.syncope.core.persistence.validation.ValidatorInstantiationException;
 
 @Entity
-public class UserAttributeSchema implements Serializable {
+public class AttributeSchema implements Serializable {
 
     private static final Logger log = LoggerFactory.getLogger(
-            UserAttributeSchema.class);
+            AttributeSchema.class);
     @Id
     private String name;
     @Column(nullable = false)
@@ -48,9 +48,9 @@ public class UserAttributeSchema implements Serializable {
     private String conversionPattern;
     private String validatorClass;
     @Transient
-    private UserAttributeValidator validator;
+    private AttributeValidator validator;
 
-    public UserAttributeSchema() {
+    public AttributeSchema() {
         type = AttributeType.String;
         mandatory = false;
         multivalue = false;
@@ -88,7 +88,7 @@ public class UserAttributeSchema implements Serializable {
         this.multivalue = multivalue;
     }
 
-    public UserAttributeValidator getValidator()
+    public AttributeValidator getValidator()
             throws ValidatorInstantiationException {
 
         if (validator != null) {
@@ -100,7 +100,7 @@ public class UserAttributeSchema implements Serializable {
                 Constructor validatorConstructor =
                         Class.forName(getValidatorClass()).getConstructor(
                         new Class[]{getClass()});
-                validator = (UserAttributeValidator) validatorConstructor.newInstance(this);
+                validator = (AttributeValidator) validatorConstructor.newInstance(this);
             } catch (Exception e) {
                 throw new ValidatorInstantiationException(
                         "Could not instantiate validator of type "
@@ -108,7 +108,7 @@ public class UserAttributeSchema implements Serializable {
             }
         } else {
             try {
-                validator = new UserAttributeBasicValidator(this);
+                validator = new AttributeBasicValidator(this);
             } catch (ClassNotFoundException cnfe) {
                 throw new ValidatorInstantiationException(
                         "Could not instantiate basic validator", cnfe);
@@ -186,7 +186,7 @@ public class UserAttributeSchema implements Serializable {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final UserAttributeSchema other = (UserAttributeSchema) obj;
+        final AttributeSchema other = (AttributeSchema) obj;
         if ((this.name == null) ? (other.name != null)
                 : !this.name.equals(other.name)) {
 

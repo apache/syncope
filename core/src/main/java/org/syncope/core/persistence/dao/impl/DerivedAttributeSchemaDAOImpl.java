@@ -18,31 +18,31 @@ import java.util.List;
 import javax.persistence.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import org.syncope.core.persistence.beans.UserDerivedAttributeSchema;
-import org.syncope.core.persistence.dao.UserDerivedAttributeSchemaDAO;
+import org.syncope.core.persistence.beans.DerivedAttributeSchema;
+import org.syncope.core.persistence.dao.DerivedAttributeSchemaDAO;
 
 @Repository
-public class UserDerivedAttributeSchemaDAOImpl extends AbstractDAOImpl
-        implements UserDerivedAttributeSchemaDAO {
+public class DerivedAttributeSchemaDAOImpl extends AbstractDAOImpl
+        implements DerivedAttributeSchemaDAO {
 
     @Override
-    public UserDerivedAttributeSchema find(String name) {
-        return entityManager.find(UserDerivedAttributeSchema.class, name);
+    public DerivedAttributeSchema find(String name) {
+        return entityManager.find(DerivedAttributeSchema.class, name);
     }
 
     @Override
-    public List<UserDerivedAttributeSchema> findAll() {
+    public List<DerivedAttributeSchema> findAll() {
         Query query = entityManager.createQuery(
-                "SELECT e FROM UserDerivedAttributeSchema e");
+                "SELECT e FROM DerivedAttributeSchema e");
         return query.getResultList();
     }
 
     @Override
     @Transactional
-    public UserDerivedAttributeSchema save(
-            UserDerivedAttributeSchema attributeSchema) {
+    public DerivedAttributeSchema save(
+            DerivedAttributeSchema attributeSchema) {
 
-        UserDerivedAttributeSchema result = entityManager.merge(attributeSchema);
+        DerivedAttributeSchema result = entityManager.merge(attributeSchema);
         entityManager.flush();
         return result;
     }

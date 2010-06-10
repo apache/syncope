@@ -15,31 +15,27 @@
 package org.syncope.core.persistence.beans;
 
 import java.io.Serializable;
-import java.util.Date;
 import javax.persistence.Entity;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 
 @Entity
-public class UserAttributeValueAsDate
-        extends UserAttributeValue implements Serializable {
+public class AttributeValueAsString
+        extends AttributeValue implements Serializable {
 
-    @Temporal(TemporalType.TIMESTAMP)
-    Date actualValue;
+    String actualValue;
 
-    public UserAttributeValueAsDate() {
+    public AttributeValueAsString() {
     }
 
-    public UserAttributeValueAsDate(Date actualValue) {
+    public AttributeValueAsString(String actualValue) {
         super();
         this.actualValue = actualValue;
     }
 
-    public Date getActualValue() {
+    public String getActualValue() {
         return actualValue;
     }
 
-    public void setActualValue(Date actualValue) {
+    public void setActualValue(String actualValue) {
         this.actualValue = actualValue;
     }
 
@@ -55,10 +51,11 @@ public class UserAttributeValueAsDate
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final UserAttributeValueAsDate other = (UserAttributeValueAsDate) obj;
-        if (this.actualValue != other.actualValue
-                && (this.actualValue == null
-                || !this.actualValue.equals(other.actualValue))) {
+        final AttributeValueAsString other =
+                (AttributeValueAsString) obj;
+        if ((this.actualValue == null)
+                ? (other.actualValue != null)
+                : !this.actualValue.equals(other.actualValue)) {
 
             return false;
         }
@@ -67,8 +64,8 @@ public class UserAttributeValueAsDate
 
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 61 * hash + (this.actualValue != null
+        int hash = 5;
+        hash = 71 * hash + (this.actualValue != null
                 ? this.actualValue.hashCode() : 0);
         return super.hashCode() + hash;
     }

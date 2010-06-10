@@ -24,7 +24,7 @@ import javax.persistence.InheritanceType;
 
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
-public abstract class UserAttributeValue implements Serializable {
+public abstract class AttributeValue implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -42,7 +42,7 @@ public abstract class UserAttributeValue implements Serializable {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final UserAttributeValue other = (UserAttributeValue) obj;
+        final AttributeValue other = (AttributeValue) obj;
         if (this.id != other.id
                 && (this.id == null || !this.id.equals(other.id))) {
 

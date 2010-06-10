@@ -16,27 +16,27 @@
  */
 package org.syncope.core.persistence.validation;
 
-import org.syncope.core.persistence.beans.UserAttributeSchema;
-import org.syncope.core.persistence.beans.UserAttributeValue;
-import org.syncope.core.persistence.beans.UserAttributeValueAsBoolean;
+import org.syncope.core.persistence.beans.AttributeSchema;
+import org.syncope.core.persistence.beans.AttributeValue;
+import org.syncope.core.persistence.beans.AttributeValueAsBoolean;
 
-public class AlwaysTrueValidator extends UserAttributeValidator {
+public class AlwaysTrueValidator extends AttributeValidator {
 
-    public AlwaysTrueValidator(UserAttributeSchema schema)
+    public AlwaysTrueValidator(AttributeSchema schema)
             throws ClassNotFoundException {
 
         super(schema);
     }
 
     @Override
-    protected void doValidate(UserAttributeValue userAttributeValue)
+    protected void doValidate(AttributeValue attributeValue)
             throws ValidationFailedException {
 
         Boolean value =
-                ((UserAttributeValueAsBoolean) userAttributeValue).getActualValue();
+                ((AttributeValueAsBoolean) attributeValue).getActualValue();
 
         if (!value) {
-            throw new ValidationFailedException(userAttributeValue);
+            throw new ValidationFailedException(attributeValue);
         }
     }
 }

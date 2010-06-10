@@ -18,15 +18,15 @@ import java.io.Serializable;
 import javax.persistence.Entity;
 
 @Entity
-public class UserAttributeValueAsLong
-        extends UserAttributeValue implements Serializable {
+public class AttributeValueAsLong
+        extends AttributeValue implements Serializable {
 
     Long actualValue;
 
-    public UserAttributeValueAsLong() {
+    public AttributeValueAsLong() {
     }
 
-    public UserAttributeValueAsLong(Long actualValue) {
+    public AttributeValueAsLong(Long actualValue) {
         super();
         this.actualValue = actualValue;
     }
@@ -51,7 +51,7 @@ public class UserAttributeValueAsLong
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final UserAttributeValueAsLong other = (UserAttributeValueAsLong) obj;
+        final AttributeValueAsLong other = (AttributeValueAsLong) obj;
         if (this.actualValue != other.actualValue
                 && (this.actualValue == null
                 || !this.actualValue.equals(other.actualValue))) {

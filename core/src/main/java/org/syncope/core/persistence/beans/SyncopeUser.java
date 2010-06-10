@@ -35,52 +35,52 @@ public class SyncopeUser implements Serializable {
     private Long id;
     @OneToMany(cascade = CascadeType.ALL,
     fetch = FetchType.EAGER)
-    private Set<UserAttribute> attributes;
+    private Set<Attribute> attributes;
     @OneToMany(cascade = CascadeType.ALL,
     fetch = FetchType.EAGER, mappedBy = "owner")
-    private Set<UserDerivedAttribute> derivedAttributes;
+    private Set<DerivedAttribute> derivedAttributes;
 
     public SyncopeUser() {
-        attributes = new HashSet<UserAttribute>();
-        derivedAttributes = new HashSet<UserDerivedAttribute>();
+        attributes = new HashSet<Attribute>();
+        derivedAttributes = new HashSet<DerivedAttribute>();
     }
 
     public Long getId() {
         return id;
     }
 
-    public UserAttribute getAttribute(String name)
+    public Attribute getAttribute(String name)
             throws NoSuchElementException {
 
-        UserAttribute result = null;
-        UserAttribute userAttribute = null;
-        for (Iterator<UserAttribute> itor = attributes.iterator();
+        Attribute result = null;
+        Attribute attribute = null;
+        for (Iterator<Attribute> itor = attributes.iterator();
                 result == null && itor.hasNext();) {
 
-            userAttribute = itor.next();
+            attribute = itor.next();
 
-            if (name.equals(userAttribute.getSchema().getName())) {
-                result = userAttribute;
+            if (name.equals(attribute.getSchema().getName())) {
+                result = attribute;
             }
         }
 
         return result;
     }
 
-    public Set<UserAttribute> getAttributes() {
+    public Set<Attribute> getAttributes() {
         return attributes;
     }
 
-    public void setAttributes(Set<UserAttribute> attributes) {
+    public void setAttributes(Set<Attribute> attributes) {
         this.attributes = attributes;
     }
 
-    public Set<UserDerivedAttribute> getDerivedAttributes() {
+    public Set<DerivedAttribute> getDerivedAttributes() {
         return derivedAttributes;
     }
 
     public void setDerivedAttributes(
-            Set<UserDerivedAttribute> derivedAttributes) {
+            Set<DerivedAttribute> derivedAttributes) {
 
         this.derivedAttributes = derivedAttributes;
     }

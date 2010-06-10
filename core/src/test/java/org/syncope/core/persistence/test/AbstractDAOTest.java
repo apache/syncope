@@ -100,13 +100,13 @@ public abstract class AbstractDAOTest {
 
             String[] tableNames = new String[]{
                 "SyncopeUser",
-                "UserAttributeSchema",
-                "UserAttribute",
-                "UserAttributeValue",
-                "UserAttributeValueAsString",
-                "UserAttributeValueAsDate",
-                "UserAttribute_UserAttributeValue",
-                "SyncopeUser_UserAttribute"};
+                "AttributeSchema",
+                "Attribute",
+                "AttributeValue",
+                "AttributeValueAsString",
+                "AttributeValueAsDate",
+                "Attribute_AttributeValue",
+                "SyncopeUser_Attribute"};
             for (int i = 0; i < tableNames.length; i++) {
                 logTableContent(conn, tableNames[i]);
             }

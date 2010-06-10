@@ -18,24 +18,24 @@ import java.io.Serializable;
 import javax.persistence.Entity;
 
 @Entity
-public class UserAttributeValueAsString
-        extends UserAttributeValue implements Serializable {
+public class AttributeValueAsDouble
+        extends AttributeValue implements Serializable {
 
-    String actualValue;
+    Double actualValue;
 
-    public UserAttributeValueAsString() {
+    public AttributeValueAsDouble() {
     }
 
-    public UserAttributeValueAsString(String actualValue) {
+    public AttributeValueAsDouble(Double actualValue) {
         super();
         this.actualValue = actualValue;
     }
 
-    public String getActualValue() {
+    public Double getActualValue() {
         return actualValue;
     }
 
-    public void setActualValue(String actualValue) {
+    public void setActualValue(Double actualValue) {
         this.actualValue = actualValue;
     }
 
@@ -51,11 +51,11 @@ public class UserAttributeValueAsString
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final UserAttributeValueAsString other =
-                (UserAttributeValueAsString) obj;
-        if ((this.actualValue == null)
-                ? (other.actualValue != null)
-                : !this.actualValue.equals(other.actualValue)) {
+        final AttributeValueAsDouble other =
+                (AttributeValueAsDouble) obj;
+        if (this.actualValue != other.actualValue
+                && (this.actualValue == null
+                || !this.actualValue.equals(other.actualValue))) {
 
             return false;
         }
@@ -65,7 +65,7 @@ public class UserAttributeValueAsString
     @Override
     public int hashCode() {
         int hash = 5;
-        hash = 71 * hash + (this.actualValue != null
+        hash = 97 * hash + (this.actualValue != null
                 ? this.actualValue.hashCode() : 0);
         return super.hashCode() + hash;
     }

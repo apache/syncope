@@ -19,7 +19,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 
 @Entity
-public class UserDerivedAttributeSchema implements Serializable {
+public class DerivedAttributeSchema implements Serializable {
 
     @Id
     private String name;
@@ -49,8 +49,8 @@ public class UserDerivedAttributeSchema implements Serializable {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final UserDerivedAttributeSchema other = 
-                (UserDerivedAttributeSchema) obj;
+        final DerivedAttributeSchema other =
+                (DerivedAttributeSchema) obj;
         
         if ((this.name == null)
                 ? (other.name != null) : !this.name.equals(other.name)) {

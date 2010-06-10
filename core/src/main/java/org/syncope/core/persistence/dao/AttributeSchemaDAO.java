@@ -12,21 +12,18 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.persistence.validation;
+package org.syncope.core.persistence.dao;
 
-import org.syncope.core.persistence.beans.UserAttributeSchema;
-import org.syncope.core.persistence.beans.UserAttributeValue;
+import java.util.List;
+import org.syncope.core.persistence.beans.AttributeSchema;
 
-public class UserAttributeBasicValidator extends UserAttributeValidator {
+public interface AttributeSchemaDAO extends DAO {
 
-    public UserAttributeBasicValidator(UserAttributeSchema schema) 
-            throws ClassNotFoundException {
-        
-        super(schema);
-    }
+    AttributeSchema find(String name);
 
-    @Override
-    protected void doValidate(UserAttributeValue userAttributeValue)
-            throws ValidationFailedException {
-    }
+    List<AttributeSchema> findAll();
+
+    AttributeSchema save(AttributeSchema attributeSchema);
+
+    void delete(String name);
 }

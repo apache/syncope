@@ -17,65 +17,65 @@ package org.syncope.core.persistence.validation;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import org.syncope.core.persistence.beans.UserAttributeSchema;
-import org.syncope.core.persistence.beans.UserAttributeValue;
-import org.syncope.core.persistence.beans.UserAttributeValueAsBoolean;
-import org.syncope.core.persistence.beans.UserAttributeValueAsDate;
-import org.syncope.core.persistence.beans.UserAttributeValueAsDouble;
-import org.syncope.core.persistence.beans.UserAttributeValueAsLong;
-import org.syncope.core.persistence.beans.UserAttributeValueAsString;
+import org.syncope.core.persistence.beans.AttributeSchema;
+import org.syncope.core.persistence.beans.AttributeValue;
+import org.syncope.core.persistence.beans.AttributeValueAsBoolean;
+import org.syncope.core.persistence.beans.AttributeValueAsDate;
+import org.syncope.core.persistence.beans.AttributeValueAsDouble;
+import org.syncope.core.persistence.beans.AttributeValueAsLong;
+import org.syncope.core.persistence.beans.AttributeValueAsString;
 
-public abstract class UserAttributeValidator {
+public abstract class AttributeValidator {
 
-    final protected UserAttributeSchema schema;
-    final protected Class userAttributeClass;
+    final protected AttributeSchema schema;
+    final protected Class attributeClass;
 
-    public UserAttributeValidator(UserAttributeSchema schema)
+    public AttributeValidator(AttributeSchema schema)
             throws ClassNotFoundException {
 
         this.schema = schema;
-        this.userAttributeClass = Class.forName(
+        this.attributeClass = Class.forName(
                 schema.getType().getClassName());
     }
 
-    public UserAttributeValue getValue(Object value)
+    public AttributeValue getValue(Object value)
             throws ValidationException {
 
-        if (!userAttributeClass.isInstance(value)) {
+        if (!attributeClass.isInstance(value)) {
             throw new ParseException(
                     new ClassCastException("Passed value is instance of "
                     + value.getClass().getName()
                     + ", while this attribute has type "
-                    + userAttributeClass.getName()));
+                    + attributeClass.getName()));
         }
 
-        UserAttributeValue result = value instanceof String
+        AttributeValue result = value instanceof String
                 ? parseValue((String) value) : parseValue(value);
         doValidate(result);
 
         return result;
     }
 
-    protected UserAttributeValue parseValue(String value)
+    protected AttributeValue parseValue(String value)
             throws ParseException {
 
-        UserAttributeValue result = null;
+        AttributeValue result = null;
         Exception exception = null;
 
         switch (schema.getType()) {
 
             case String:
-                result = new UserAttributeValueAsString(value);
+                result = new AttributeValueAsString(value);
                 break;
 
             case Boolean:
-                result = new UserAttributeValueAsBoolean(
+                result = new AttributeValueAsBoolean(
                         Boolean.parseBoolean(value));
                 break;
 
             case Long:
                 try {
-                    result = new UserAttributeValueAsLong(
+                    result = new AttributeValueAsLong(
                             Long.valueOf(schema.getFormatter(
                             DecimalFormat.class).parse(value).longValue()));
                 } catch (java.text.ParseException pe) {
@@ -85,7 +85,7 @@ public abstract class UserAttributeValidator {
 
             case Double:
                 try {
-                    result = new UserAttributeValueAsDouble(
+                    result = new AttributeValueAsDouble(
                             Double.valueOf(schema.getFormatter(
                             DecimalFormat.class).parse(value).doubleValue()));
                 } catch (java.text.ParseException pe) {
@@ -95,7 +95,7 @@ public abstract class UserAttributeValidator {
 
             case Date:
                 try {
-                    result = new UserAttributeValueAsDate(
+                    result = new AttributeValueAsDate(
                             new Date(schema.getFormatter(
                             SimpleDateFormat.class).parse(value).getTime()));
                 } catch (java.text.ParseException pe) {
@@ -112,31 +112,31 @@ public abstract class UserAttributeValidator {
         return result;
     }
 
-    protected UserAttributeValue parseValue(Object value)
+    protected AttributeValue parseValue(Object value)
             throws ParseException {
 
-        UserAttributeValue result = null;
+        AttributeValue result = null;
 
         switch (schema.getType()) {
 
             case String:
-                result = new UserAttributeValueAsString((String) value);
+                result = new AttributeValueAsString((String) value);
                 break;
 
             case Boolean:
-                result = new UserAttributeValueAsBoolean((Boolean) value);
+                result = new AttributeValueAsBoolean((Boolean) value);
                 break;
 
             case Long:
-                result = new UserAttributeValueAsLong((Long) value);
+                result = new AttributeValueAsLong((Long) value);
                 break;
 
             case Double:
-                result = new UserAttributeValueAsDouble((Double) value);
+                result = new AttributeValueAsDouble((Double) value);
                 break;
 
             case Date:
-                result = new UserAttributeValueAsDate((Date) value);
+                result = new AttributeValueAsDate((Date) value);
                 break;
         }
 
@@ -144,6 +144,6 @@ public abstract class UserAttributeValidator {
     }
 
     protected abstract void doValidate(
-            UserAttributeValue userAttributeValue)
+            AttributeValue attributeValue)
             throws ValidationFailedException;
 }

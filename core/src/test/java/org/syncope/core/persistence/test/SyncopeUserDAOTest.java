@@ -22,11 +22,11 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.SyncopeUser;
-import org.syncope.core.persistence.beans.UserAttributeSchema;
-import org.syncope.core.persistence.beans.UserAttribute;
+import org.syncope.core.persistence.beans.AttributeSchema;
+import org.syncope.core.persistence.beans.Attribute;
 import org.syncope.core.persistence.dao.SyncopeUserDAO;
-import org.syncope.core.persistence.dao.UserAttributeSchemaDAO;
-import org.syncope.core.persistence.dao.UserAttributeDAO;
+import org.syncope.core.persistence.dao.AttributeSchemaDAO;
+import org.syncope.core.persistence.dao.AttributeDAO;
 
 @Transactional
 public class SyncopeUserDAOTest extends AbstractDAOTest {
@@ -34,9 +34,9 @@ public class SyncopeUserDAOTest extends AbstractDAOTest {
     @Autowired
     SyncopeUserDAO syncopeUserDAO;
     @Autowired
-    UserAttributeDAO userAttributeDAO;
+    AttributeDAO attributeDAO;
     @Autowired
-    UserAttributeSchemaDAO userAttributeSchemaDAO;
+    AttributeSchemaDAO attributeSchemaDAO;
 
     @Test
     public final void testFindAll() {
@@ -77,17 +77,17 @@ public class SyncopeUserDAOTest extends AbstractDAOTest {
     @Test
     public final void testRelationships() {
         SyncopeUser user = syncopeUserDAO.find(2L);
-        Set<UserAttribute> attributes =
+        Set<Attribute> attributes =
                 user.getAttributes();
         int originalAttributesSize = attributes.size();
 
-        UserAttribute attribute = attributes.iterator().next();
+        Attribute attribute = attributes.iterator().next();
         String attributeSchemaName =
                 attribute.getSchema().getName();
 
-        userAttributeDAO.delete(attribute.getId());
-        UserAttribute actualAttribute =
-                userAttributeDAO.find(attribute.getId());
+        attributeDAO.delete(attribute.getId());
+        Attribute actualAttribute =
+                attributeDAO.find(attribute.getId());
         assertNull("expected delete to work", actualAttribute);
 
         user = syncopeUserDAO.find(2L);
@@ -95,9 +95,9 @@ public class SyncopeUserDAOTest extends AbstractDAOTest {
         assertEquals("number of attributes differs",
                 originalAttributesSize, attributes.size());
 
-        UserAttributeSchema userAttributeSchema =
-                userAttributeSchemaDAO.find(attributeSchemaName);
+        AttributeSchema attributeSchema =
+                attributeSchemaDAO.find(attributeSchemaName);
         assertNotNull("user attribute schema deleted when deleting values",
-                userAttributeSchema);
+                attributeSchema);
     }
 }

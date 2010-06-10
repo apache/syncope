@@ -4,67 +4,67 @@
     <SyncopeUser id="2"/>
     <SyncopeUser id="3"/>
 
-    <UserAttributeSchema name="username" type="String"
-                         mandatory="true" multivalue="false"
-                         conversionPattern="NULL" validatorClass="NULL"/>
-    <UserAttributeSchema name="loginDate" type="Date"
-                         mandatory="false" multivalue="true"
-                         conversionPattern="yyyy-MM-dd" validatorClass="NULL"/>
-    <UserAttributeSchema name="firstname" type="String"
-                         mandatory="false" multivalue="false"
-                         conversionPattern="NULL" validatorClass="NULL"/>
-    <UserAttributeSchema name="surname" type="String"
-                         mandatory="true" multivalue="false"
-                         conversionPattern="NULL" validatorClass="NULL"/>
+    <AttributeSchema name="username" type="String"
+                     mandatory="true" multivalue="false"
+                     conversionPattern="NULL" validatorClass="NULL"/>
+    <AttributeSchema name="loginDate" type="Date"
+                     mandatory="false" multivalue="true"
+                     conversionPattern="yyyy-MM-dd" validatorClass="NULL"/>
+    <AttributeSchema name="firstname" type="String"
+                     mandatory="false" multivalue="false"
+                     conversionPattern="NULL" validatorClass="NULL"/>
+    <AttributeSchema name="surname" type="String"
+                     mandatory="true" multivalue="false"
+                     conversionPattern="NULL" validatorClass="NULL"/>
 
-    <UserAttribute id="100" schema_name="username"/>
-    <UserAttribute id="200" schema_name="loginDate"/>
-    <UserAttribute id="300" schema_name="username"/>
-    <UserAttribute id="400" schema_name="firstname"/>
-    <UserAttribute id="500" schema_name="surname"/>
+    <Attribute id="100" schema_name="username"/>
+    <Attribute id="200" schema_name="loginDate"/>
+    <Attribute id="300" schema_name="username"/>
+    <Attribute id="400" schema_name="firstname"/>
+    <Attribute id="500" schema_name="surname"/>
 
 
-    <UserAttributeValue id="10"/>
-    <UserAttributeValue id="11"/>
-    <UserAttributeValue id="20"/>
-    <UserAttributeValue id="21"/>
-    <UserAttributeValue id="30"/>
-    <UserAttributeValue id="31"/>
+    <AttributeValue id="10"/>
+    <AttributeValue id="11"/>
+    <AttributeValue id="20"/>
+    <AttributeValue id="21"/>
+    <AttributeValue id="30"/>
+    <AttributeValue id="31"/>
 
-    <UserAttributeValueAsString id="10" actualValue="chicchiricco"/>
-    <UserAttributeValueAsString id="11" actualValue="fabio.martelli"/>
+    <AttributeValueAsString id="10" actualValue="chicchiricco"/>
+    <AttributeValueAsString id="11" actualValue="fabio.martelli"/>
 
-    <UserAttributeValueAsDate id="20" actualValue="2009-05-26"/>
-    <UserAttributeValueAsDate id="21" actualValue="2010-05-26 15:40:04"/>
+    <AttributeValueAsDate id="20" actualValue="2009-05-26"/>
+    <AttributeValueAsDate id="21" actualValue="2010-05-26 15:40:04"/>
 
-    <UserAttributeValueAsString id="30" actualValue="John"/>
-    <UserAttributeValueAsString id="31" actualValue="Doe"/>
+    <AttributeValueAsString id="30" actualValue="John"/>
+    <AttributeValueAsString id="31" actualValue="Doe"/>
 
-    <UserAttribute_UserAttributeValue
-        UserAttribute_id="100" values_id="10"/>
-    <UserAttribute_UserAttributeValue
-        UserAttribute_id="200" values_id="20"/>
-    <UserAttribute_UserAttributeValue
-        UserAttribute_id="200" values_id="21"/>
-    <UserAttribute_UserAttributeValue
-        UserAttribute_id="300" values_id="11"/>
-    <UserAttribute_UserAttributeValue
-        UserAttribute_id="400" values_id="30"/>
-    <UserAttribute_UserAttributeValue
-        UserAttribute_id="500" values_id="31"/>
+    <Attribute_AttributeValue
+        Attribute_id="100" values_id="10"/>
+    <Attribute_AttributeValue
+        Attribute_id="200" values_id="20"/>
+    <Attribute_AttributeValue
+        Attribute_id="200" values_id="21"/>
+    <Attribute_AttributeValue
+        Attribute_id="300" values_id="11"/>
+    <Attribute_AttributeValue
+        Attribute_id="400" values_id="30"/>
+    <Attribute_AttributeValue
+        Attribute_id="500" values_id="31"/>
 
-    <SyncopeUser_UserAttribute SyncopeUser_id='1'
-                               attributes_id='100'/>
-    <SyncopeUser_UserAttribute SyncopeUser_id='1'
-                               attributes_id='200'/>
-    <SyncopeUser_UserAttribute SyncopeUser_id='2'
-                               attributes_id='300'/>
-    <SyncopeUser_UserAttribute SyncopeUser_id='3'
-                               attributes_id='400'/>
-    <SyncopeUser_UserAttribute SyncopeUser_id='3'
-                               attributes_id='500'/>
+    <SyncopeUser_Attribute SyncopeUser_id='1'
+                           attributes_id='100'/>
+    <SyncopeUser_Attribute SyncopeUser_id='1'
+                           attributes_id='200'/>
+    <SyncopeUser_Attribute SyncopeUser_id='2'
+                           attributes_id='300'/>
+    <SyncopeUser_Attribute SyncopeUser_id='3'
+                           attributes_id='400'/>
+    <SyncopeUser_Attribute SyncopeUser_id='3'
+                           attributes_id='500'/>
 
-    <UserDerivedAttributeSchema name="cn" expression="surname + ', ' + firstname"/>
+    <DerivedAttributeSchema name="cn" expression="surname + ', ' + firstname"/>
 
-    <UserDerivedAttribute id="1000" owner_id="3" schema_name="cn"/>
+    <DerivedAttribute id="1000" owner_id="3" schema_name="cn"/>
 </dataset>

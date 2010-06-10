@@ -16,32 +16,32 @@ package org.syncope.core.persistence.validation;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.syncope.core.persistence.beans.UserAttributeSchema;
-import org.syncope.core.persistence.beans.UserAttributeValue;
-import org.syncope.core.persistence.beans.UserAttributeValueAsString;
+import org.syncope.core.persistence.beans.AttributeSchema;
+import org.syncope.core.persistence.beans.AttributeValue;
+import org.syncope.core.persistence.beans.AttributeValueAsString;
 
-public class EmailAddressValidator extends UserAttributeValidator {
+public class EmailAddressValidator extends AttributeValidator {
 
     final private static Pattern emailValidationPattern = Pattern.compile(
             "^[\\w\\-]([\\.\\w])+[\\w]+@([\\w\\-]+\\.)+[A-Z]{2,4}$",
             Pattern.CASE_INSENSITIVE);
 
-    public EmailAddressValidator(UserAttributeSchema schema) 
+    public EmailAddressValidator(AttributeSchema schema)
             throws ClassNotFoundException {
         
         super(schema);
     }
 
     @Override
-    protected void doValidate(UserAttributeValue userAttributeValue)
+    protected void doValidate(AttributeValue attributeValue)
             throws ValidationFailedException {
 
         CharSequence emailAddress =
-                ((UserAttributeValueAsString) userAttributeValue).getActualValue();
+                ((AttributeValueAsString) attributeValue).getActualValue();
         Matcher matcher = emailValidationPattern.matcher(emailAddress);
 
         if (!matcher.matches()) {
-            throw new ValidationFailedException(userAttributeValue);
+            throw new ValidationFailedException(attributeValue);
         }
     }
 }

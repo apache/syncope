@@ -15,15 +15,15 @@
 package org.syncope.core.persistence.dao;
 
 import java.util.List;
-import org.syncope.core.persistence.beans.UserDerivedAttributeSchema;
+import org.syncope.core.persistence.beans.DerivedAttributeSchema;
 
-public interface UserDerivedAttributeSchemaDAO extends DAO {
+public interface DerivedAttributeSchemaDAO extends DAO {
 
-    UserDerivedAttributeSchema find(String name);
+    DerivedAttributeSchema find(String name);
 
-    List<UserDerivedAttributeSchema> findAll();
+    List<DerivedAttributeSchema> findAll();
 
-    UserDerivedAttributeSchema save(UserDerivedAttributeSchema attributeSchema);
+    DerivedAttributeSchema save(DerivedAttributeSchema attributeSchema);
 
     void delete(String name);
 }
