@@ -125,6 +125,26 @@
             <artifactId>slf4j-log4j12</artifactId>
         </dependency>
 
+        <!-- IdentityConnectors -->
+        <dependency>
+            <groupId>org.syncope.core.identityconnectors</groupId>
+            <artifactId>framework</artifactId>
+            <version>${framework.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.syncope.core.identityconnectors</groupId>
+            <artifactId>framework-internal</artifactId>
+            <version>${framework-internal.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.syncope.core.identityconnectors</groupId>
+            <artifactId>test-common</artifactId>
+            <version>${test-common.version}</version>
+            <scope>test</scope>
+        </dependency>
+
         <!-- TEST -->
         <dependency>
             <groupId>junit</groupId>

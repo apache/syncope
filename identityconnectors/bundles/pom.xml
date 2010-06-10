@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <artifactId>identityconnectors</artifactId>
+        <groupId>org.syncope.core.identityconnectors</groupId>
+        <version>${identityconnectors.version}</version>
+    </parent>
+
+    <name>bundles</name>
+    <description>bundles</description>
+    <groupId>org.syncope.core.identityconnectors</groupId>
+    <artifactId>bundles</artifactId>
+
+    <version>${bundles.version}</version>
+    <packaging>pom</packaging>
+
+    <properties>
+        <WebServiceConnector.version>0.1-SNAPSHOT</WebServiceConnector.version>
+    </properties>
+    
+    <modules>
+
+    </modules>
+
+</project>

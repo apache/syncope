@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <artifactId>identityconnectors</artifactId>
+        <groupId>org.syncope.core.identityconnectors</groupId>
+        <version>${identityconnectors.version}</version>
+    </parent>
+
+    <groupId>org.syncope.core.identityconnectors</groupId>
+    <artifactId>framework-internal</artifactId>
+    <version>${framework-internal.version}</version>
+
+    <name>framework-internal</name>
+    <url>http://maven.apache.org</url>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>org.syncope.core.identityconnectors</groupId>
+            <artifactId>framework</artifactId>
+            <version>${framework.version}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.syncope.core.identityconnectors</groupId>
+            <artifactId>test-common</artifactId>
+            <version>${test-common.version}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-all</artifactId>
+            <version>${groovy-all.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+</project>
