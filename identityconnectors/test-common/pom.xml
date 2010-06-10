@@ -40,4 +40,17 @@
         </dependency>
         
     </dependencies>
+    <build>
+        <testResources>
+
+            <testResource>
+                <filtering>false</filtering>
+                <directory>src/test/java</directory>
+                <includes>
+                    <include>**/properties.groovy</include>
+                </includes>
+            </testResource>
+
+        </testResources>
+    </build>
 </project>

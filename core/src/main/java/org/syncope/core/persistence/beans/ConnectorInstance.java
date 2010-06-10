@@ -79,4 +79,44 @@ public class ConnectorInstance implements Serializable {
     public void setId(Long id) {
         this.id = id;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
+        final ConnectorInstance other = (ConnectorInstance) obj;
+        if (this.id != other.id && (this.id == null || !this.id.equals(other.id)))
+            return false;
+        if ((this.name == null) ? (other.name != null) : !this.name.equals(other.name))
+            return false;
+        if ((this.minorVersion == null) ? (other.minorVersion != null) : !this.minorVersion.equals(other.minorVersion))
+            return false;
+        if ((this.majorVersion == null) ? (other.majorVersion != null) : !this.majorVersion.equals(other.majorVersion))
+            return false;
+        if ((this.xmlConfiguration == null) ? (other.xmlConfiguration != null) : !this.xmlConfiguration.equals(other.xmlConfiguration))
+            return false;
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 83 * hash + (this.id != null ? this.id.hashCode() : 0);
+        hash = 83 * hash + (this.name != null ? this.name.hashCode() : 0);
+        hash = 83 * hash + (this.minorVersion != null ? this.minorVersion.hashCode() : 0);
+        hash = 83 * hash + (this.majorVersion != null ? this.majorVersion.hashCode() : 0);
+        hash = 83 * hash + (this.xmlConfiguration != null ? this.xmlConfiguration.hashCode() : 0);
+        return hash;
+    }
+
+    @Override
+    public String toString() {
+        return "(" +
+                "id=" + getId() + "," +
+                "name=" + getName() + "," +
+                "major version=" + getMajorVersion() + "," +
+                "minor version=" + getMinorVersion() + "," +
+                "configuration=" + getXmlConfiguration() +
+                ")";
+    }
 }

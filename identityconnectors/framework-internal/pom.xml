@@ -23,21 +23,21 @@
             <groupId>org.syncope.core.identityconnectors</groupId>
             <artifactId>framework</artifactId>
             <version>${framework.version}</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.syncope.core.identityconnectors</groupId>
             <artifactId>test-common</artifactId>
             <version>${test-common.version}</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy-all</artifactId>
             <version>${groovy-all.version}</version>
-            <scope>test</scope>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
