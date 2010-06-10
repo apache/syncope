@@ -9,7 +9,7 @@
         <version>0.1-SNAPSHOT</version>
     </parent>
 
-    <name>bundles</name>
+    <name>IdentityConnectors: bundles</name>
     <description>bundles</description>
     <groupId>org.syncope.identityconnectors</groupId>
     <artifactId>bundles</artifactId>

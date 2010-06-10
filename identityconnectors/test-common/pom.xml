@@ -6,18 +6,18 @@
 
     <parent>
         <artifactId>identityconnectors</artifactId>
-        <groupId>org.syncope.core.identityconnectors</groupId>
+        <groupId>org.syncope.identityconnectors</groupId>
         <version>0.1-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.syncope.core.identityconnectors</groupId>
+    <groupId>org.syncope.identityconnectors</groupId>
     <artifactId>test-common</artifactId>
-    <name>test-common</name>
+    <name>IdentityConnectors: test-common</name>
     <url>http://maven.apache.org</url>
 
     <dependencies>
         <dependency>
-            <groupId>org.syncope.core.identityconnectors</groupId>
+            <groupId>org.syncope.identityconnectors</groupId>
             <artifactId>framework</artifactId>
             <scope>compile</scope>
             <version>${parent.version}</version>

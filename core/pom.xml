@@ -127,12 +127,12 @@
 
         <!-- IdentityConnectors -->
         <dependency>
-            <groupId>org.syncope.core.identityconnectors</groupId>
+            <groupId>org.syncope.identityconnectors</groupId>
             <artifactId>framework</artifactId>
             <version>${parent.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.syncope.core.identityconnectors</groupId>
+            <groupId>org.syncope.identityconnectors</groupId>
             <artifactId>framework-internal</artifactId>
             <version>${parent.version}</version>
         </dependency>
@@ -164,7 +164,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.syncope.core.identityconnectors</groupId>
+            <groupId>org.syncope.identityconnectors</groupId>
             <artifactId>test-common</artifactId>
             <version>${parent.version}</version>
             <scope>test</scope>

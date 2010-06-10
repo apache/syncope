@@ -12,7 +12,7 @@
 
     <groupId>org.syncope.identityconnectors</groupId>
     <artifactId>framework</artifactId>
-    <name>framework</name>
+    <name>IdentityConnectors: framework</name>
     
     <url>http://maven.apache.org</url>
 
