@@ -398,6 +398,7 @@
         <module>client</module>
         <module>core</module>
         <module>console</module>
+        <module>identityconnectors</module>
     </modules>
 
 </project>
