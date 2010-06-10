@@ -128,13 +128,6 @@
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <!-- IdentityConnectors Properties -->
-        <framework.version>0.1-SNAPSHOT</framework.version>
-        <framework-internal.version>0.1-SNAPSHOT</framework-internal.version>
-        <test-common.version>0.1-SNAPSHOT</test-common.version>
-        <identityconnectors.version>0.1-SNAPSHOT</identityconnectors.version>
-        <bundles.version>0.1-SNAPSHOT</bundles.version>
-
     </properties>
 
     <dependencyManagement>

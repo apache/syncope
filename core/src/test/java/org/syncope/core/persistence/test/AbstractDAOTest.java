@@ -16,6 +16,7 @@ package org.syncope.core.persistence.test;
 
 import java.io.FileInputStream;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -98,17 +99,17 @@ public abstract class AbstractDAOTest {
         if (log.isDebugEnabled()) {
             conn = DataSourceUtils.getConnection(dataSource);
 
-            String[] tableNames = new String[]{
-                "SyncopeUser",
-                "AttributeSchema",
-                "Attribute",
-                "AttributeValue",
-                "AttributeValueAsString",
-                "AttributeValueAsDate",
-                "Attribute_AttributeValue",
-                "SyncopeUser_Attribute"};
-            for (int i = 0; i < tableNames.length; i++) {
-                logTableContent(conn, tableNames[i]);
+            DatabaseMetaData dbm = conn.getMetaData();
+            String[] types = {"TABLE"};
+            ResultSet rs = dbm.getTables(null, null, "%", types);
+            while (rs.next()) {
+                logTableContent(conn, rs.getString("TABLE_NAME"));
+            }
+
+            try {
+                rs.close();
+                conn.close();
+            } catch (SQLException e) {
             }
         }
     }

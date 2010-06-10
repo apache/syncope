@@ -4,6 +4,9 @@
     <SyncopeUser id="2"/>
     <SyncopeUser id="3"/>
 
+    <SyncopeRole name="root" parent="/"/>
+    <SyncopeRole name="child" parent="root"/>
+
     <AttributeSchema name="username" type="String"
                      mandatory="true" multivalue="false"
                      conversionPattern="NULL" validatorClass="NULL"/>
@@ -16,13 +19,21 @@
     <AttributeSchema name="surname" type="String"
                      mandatory="true" multivalue="false"
                      conversionPattern="NULL" validatorClass="NULL"/>
+    <AttributeSchema name="icon" type="String"
+                     mandatory="false" multivalue="false"
+                     conversionPattern="NULL" validatorClass="NULL"/>
+    <AttributeSchema name="show" type="Boolean"
+                     mandatory="false" multivalue="false"
+                     conversionPattern="NULL" validatorClass="NULL"/>
 
     <Attribute id="100" schema_name="username"/>
     <Attribute id="200" schema_name="loginDate"/>
     <Attribute id="300" schema_name="username"/>
     <Attribute id="400" schema_name="firstname"/>
     <Attribute id="500" schema_name="surname"/>
-
+    <Attribute id="600" schema_name="icon"/>
+    <Attribute id="700" schema_name="icon"/>
+    <Attribute id="800" schema_name="show"/>
 
     <AttributeValue id="10"/>
     <AttributeValue id="11"/>
@@ -30,6 +41,9 @@
     <AttributeValue id="21"/>
     <AttributeValue id="30"/>
     <AttributeValue id="31"/>
+    <AttributeValue id="40"/>
+    <AttributeValue id="41"/>
+    <AttributeValue id="42"/>
 
     <AttributeValueAsString id="10" actualValue="chicchiricco"/>
     <AttributeValueAsString id="11" actualValue="fabio.martelli"/>
@@ -39,6 +53,11 @@
 
     <AttributeValueAsString id="30" actualValue="John"/>
     <AttributeValueAsString id="31" actualValue="Doe"/>
+
+    <AttributeValueAsString id="40" actualValue="niceIcon"/>
+    <AttributeValueAsString id="41" actualValue="badIcon"/>
+
+    <AttributeValueAsBoolean id="42" actualValue="TRUE"/>
 
     <Attribute_AttributeValue
         Attribute_id="100" values_id="10"/>
@@ -52,6 +71,12 @@
         Attribute_id="400" values_id="30"/>
     <Attribute_AttributeValue
         Attribute_id="500" values_id="31"/>
+    <Attribute_AttributeValue
+        Attribute_id="600" values_id="40"/>
+    <Attribute_AttributeValue
+        Attribute_id="700" values_id="41"/>
+    <Attribute_AttributeValue
+        Attribute_id="800" values_id="42"/>
 
     <SyncopeUser_Attribute SyncopeUser_id='1'
                            attributes_id='100'/>
@@ -64,7 +89,17 @@
     <SyncopeUser_Attribute SyncopeUser_id='3'
                            attributes_id='500'/>
 
+    <SyncopeRole_Attribute SyncopeRole_name="root" SyncopeRole_parent="/"
+                           attributes_id="600"/>
+    <SyncopeRole_Attribute SyncopeRole_name="root" SyncopeRole_parent="/"
+                           attributes_id="800"/>
+    <SyncopeRole_Attribute SyncopeRole_name="child" SyncopeRole_parent="root"
+                           attributes_id="700"/>
+
     <DerivedAttributeSchema name="cn" expression="surname + ', ' + firstname"/>
 
-    <DerivedAttribute id="1000" owner_id="3" schema_name="cn"/>
+    <DerivedAttribute id="1000" schema_name="cn"/>
+
+    <SyncopeUser_DerivedAttribute SyncopeUser_id="3"
+                                  derivedAttributes_id="1000"/>
 </dataset>

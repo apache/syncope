@@ -5,22 +5,17 @@
 
     <parent>
         <artifactId>identityconnectors</artifactId>
-        <groupId>org.syncope.core.identityconnectors</groupId>
-        <version>${identityconnectors.version}</version>
+        <groupId>org.syncope.identityconnectors</groupId>
+        <version>0.1-SNAPSHOT</version>
     </parent>
 
     <name>bundles</name>
     <description>bundles</description>
-    <groupId>org.syncope.core.identityconnectors</groupId>
+    <groupId>org.syncope.identityconnectors</groupId>
     <artifactId>bundles</artifactId>
 
-    <version>${bundles.version}</version>
     <packaging>pom</packaging>
 
-    <properties>
-        <WebServiceConnector.version>0.1-SNAPSHOT</WebServiceConnector.version>
-    </properties>
-    
     <modules>
 
     </modules>

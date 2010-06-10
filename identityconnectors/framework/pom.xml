@@ -6,14 +6,12 @@
 
     <parent>
         <artifactId>identityconnectors</artifactId>
-        <groupId>org.syncope.core.identityconnectors</groupId>
-        <version>${identityconnectors.version}</version>
+        <groupId>org.syncope.identityconnectors</groupId>
+        <version>0.1-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.syncope.core.identityconnectors</groupId>
+    <groupId>org.syncope.identityconnectors</groupId>
     <artifactId>framework</artifactId>
-    <version>${framework.version}</version>
-
     <name>framework</name>
     
     <url>http://maven.apache.org</url>

@@ -71,7 +71,6 @@ public class DerivedAttributeDAOTest extends AbstractDAOTest {
 
         DerivedAttribute derivedAttribute = new DerivedAttribute();
         derivedAttribute.setSchema(derivedAttributeSchema);
-        derivedAttribute.setOwner(owner);
 
         derivedAttribute = derivedAttributeDAO.save(derivedAttribute);
 
@@ -89,7 +88,7 @@ public class DerivedAttributeDAOTest extends AbstractDAOTest {
         assertEquals("expected derived value",
                 firstnameAttribute.getActualValue() + " "
                 + surnameAttribute.getActualValue(),
-                derivedAttribute.getValue());
+                derivedAttribute.getValue(owner.getAttributes()));
     }
 
     @Test

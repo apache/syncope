@@ -34,7 +34,7 @@ public class AttributeSchemaDAOTest extends AbstractDAOTest {
     public final void testFindAll() {
         List<AttributeSchema> list = attributeSchemaDAO.findAll();
         assertEquals("did not get expected number of attribute schemas ",
-                4, list.size());
+                6, list.size());
     }
 
     @Test

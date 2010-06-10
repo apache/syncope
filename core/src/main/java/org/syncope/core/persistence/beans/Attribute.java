@@ -39,8 +39,7 @@ public class Attribute implements Serializable {
     private Long id;
     @ManyToOne(fetch = FetchType.EAGER)
     private AttributeSchema schema;
-    @OneToMany(cascade = CascadeType.ALL,
-    fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Set<AttributeValue> values;
 
     protected Attribute() {

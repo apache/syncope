@@ -32,7 +32,7 @@
 
     <properties>
         <jetty.port>8080</jetty.port>
-        
+
         <logfile>/tmp/syncope-core.log</logfile>
         <logfile.persistence>/tmp/syncope-core-persistence.log</logfile.persistence>
         <logfile.rest>/tmp/syncope-core-rest.log</logfile.rest>
@@ -129,20 +129,12 @@
         <dependency>
             <groupId>org.syncope.core.identityconnectors</groupId>
             <artifactId>framework</artifactId>
-            <version>${framework.version}</version>
+            <version>${parent.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.syncope.core.identityconnectors</groupId>
             <artifactId>framework-internal</artifactId>
-            <version>${framework-internal.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.syncope.core.identityconnectors</groupId>
-            <artifactId>test-common</artifactId>
-            <version>${test-common.version}</version>
-            <scope>test</scope>
+            <version>${parent.version}</version>
         </dependency>
 
         <!-- TEST -->
@@ -171,6 +163,12 @@
             <artifactId>jetty</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.syncope.core.identityconnectors</groupId>
+            <artifactId>test-common</artifactId>
+            <version>${parent.version}</version>
+            <scope>test</scope>
+        </dependency>
         <!-- /TEST -->
     </dependencies>
 
@@ -178,6 +176,40 @@
         <finalName>${parent.artifactId}</finalName>
 
         <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>hibernate3-maven-plugin</artifactId>
+                <version>2.2</version>
+                <configuration>
+                    <components>
+                        <component>
+                            <name>hbm2ddl</name>
+                            <implementation>jpaconfiguration</implementation>
+                        </component>
+                    </components>
+                    <componentProperties>
+                        <jdk5>true</jdk5>
+                        <propertyfile>src/test/resources/org/syncope/core/persistence/db.properties</propertyfile>
+                        <skip>${maven.test.skip}</skip>
+                        <format>true</format>
+                    </componentProperties>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>process-test-resources</phase>
+                        <goals>
+                            <goal>hbm2ddl</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>hsqldb</groupId>
+                        <artifactId>hsqldb</artifactId>
+                        <version>1.8.0.7</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>failsafe-maven-plugin</artifactId>

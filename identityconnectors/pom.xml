@@ -25,9 +25,8 @@
     <name>IdentityConnectors</name>
     <description>Identity Connectors</description>
 
-    <groupId>org.syncope.core.identityconnectors</groupId>
+    <groupId>org.syncope.identityconnectors</groupId>
     <artifactId>identityconnectors</artifactId>
-    <version>${identityconnectors.version}</version>
 
     <packaging>pom</packaging>
 

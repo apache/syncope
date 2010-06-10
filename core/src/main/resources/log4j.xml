@@ -10,7 +10,7 @@
             <param name="ConversionPattern" value="%-5p %d %C.%M:%L %m%n"/>
         </layout>
     </appender>
-    
+
     <appender name="persistence" class="org.apache.log4j.RollingFileAppender">
         <param name="File" value="${logfile.persistence}"/>
         <param name="Append" value="true"/>
@@ -79,6 +79,11 @@
     <logger name="org.hibernate" additivity="false">
         <level value="INFO"/>
         <appender-ref ref="persistence"/>
+    </logger>
+
+    <logger name="org.dbunit" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="test"/>
     </logger>
 
     <root>

@@ -6,14 +6,12 @@
 
     <parent>
         <artifactId>identityconnectors</artifactId>
-        <groupId>org.syncope.core.identityconnectors</groupId>
-        <version>${identityconnectors.version}</version>
+        <groupId>org.syncope.identityconnectors</groupId>
+        <version>0.1-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.syncope.core.identityconnectors</groupId>
+    <groupId>org.syncope.identityconnectors</groupId>
     <artifactId>framework-internal</artifactId>
-    <version>${framework-internal.version}</version>
-
     <name>framework-internal</name>
     <url>http://maven.apache.org</url>
 
@@ -22,14 +20,14 @@
         <dependency>
             <groupId>org.syncope.core.identityconnectors</groupId>
             <artifactId>framework</artifactId>
-            <version>${framework.version}</version>
+            <version>${parent.version}</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.syncope.core.identityconnectors</groupId>
             <artifactId>test-common</artifactId>
-            <version>${test-common.version}</version>
+            <version>${parent.version}</version>
             <scope>provided</scope>
         </dependency>
 

@@ -17,6 +17,7 @@ package org.syncope.core.persistence.beans;
 import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -24,6 +25,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import org.apache.commons.jexl2.Expression;
 import org.apache.commons.jexl2.JexlContext;
 import org.apache.commons.jexl2.JexlEngine;
@@ -45,8 +47,6 @@ public class DerivedAttribute implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     protected Long id;
-    @ManyToOne
-    private SyncopeUser owner;
     @ManyToOne(fetch = FetchType.EAGER)
     private DerivedAttributeSchema schema;
 
@@ -54,12 +54,11 @@ public class DerivedAttribute implements Serializable {
      * @see http://commons.apache.org/jexl/reference/index.html
      * @return
      */
-    public String getValue() {
+    public String getValue(Set<Attribute> attributes) {
         Expression jexlExpression = jexlEngine.createExpression(
                 schema.getExpression());
         JexlContext jexlContext = new MapContext();
 
-        Set<Attribute> attributes = owner.getAttributes();
         Set<AttributeValue> attributeValues = null;
         String expressionValue = null;
         AttributeValue attributeValue = null;
@@ -110,14 +109,6 @@ public class DerivedAttribute implements Serializable {
         this.id = id;
     }
 
-    public SyncopeUser getOwner() {
-        return owner;
-    }
-
-    public void setOwner(SyncopeUser owner) {
-        this.owner = owner;
-    }
-
     public DerivedAttributeSchema getSchema() {
         return schema;
     }
@@ -140,11 +131,6 @@ public class DerivedAttribute implements Serializable {
 
             return false;
         }
-        if (this.owner != other.owner
-                && (this.owner == null || !this.owner.equals(other.owner))) {
-
-            return false;
-        }
         if (this.schema != other.schema
                 && (this.schema == null
                 || !this.schema.equals(other.schema))) {
@@ -159,7 +145,6 @@ public class DerivedAttribute implements Serializable {
     public int hashCode() {
         int hash = 7;
         hash = 59 * hash + (this.id != null ? this.id.hashCode() : 0);
-        hash = 59 * hash + (this.owner != null ? this.owner.hashCode() : 0);
         hash = 59 * hash + (this.schema != null
                 ? this.schema.hashCode() : 0);
 
@@ -170,7 +155,6 @@ public class DerivedAttribute implements Serializable {
     public String toString() {
         return "("
                 + "id=" + getId() + ","
-                + "owner=" + getOwner().getId() + ","
                 + "schema=" + getSchema()
                 + ")";
     }

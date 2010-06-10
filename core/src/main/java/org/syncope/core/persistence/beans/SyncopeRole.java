@@ -1,4 +1,6 @@
 /*
+ *  Copyright 2010 ilgrosso.
+ * 
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
@@ -16,53 +18,26 @@ package org.syncope.core.persistence.beans;
 
 import java.io.Serializable;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
 import java.util.Set;
 import javax.persistence.CascadeType;
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
 @Entity
-public class SyncopeUser implements Serializable {
+public class SyncopeRole implements Serializable {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    @EmbeddedId
+    private SyncopeRolePK syncopeUserPK;
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Set<Attribute> attributes;
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Set<DerivedAttribute> derivedAttributes;
 
-    public SyncopeUser() {
+    public SyncopeRole() {
         attributes = new HashSet<Attribute>();
         derivedAttributes = new HashSet<DerivedAttribute>();
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public Attribute getAttribute(String name)
-            throws NoSuchElementException {
-
-        Attribute result = null;
-        Attribute attribute = null;
-        for (Iterator<Attribute> itor = attributes.iterator();
-                result == null && itor.hasNext();) {
-
-            attribute = itor.next();
-
-            if (name.equals(attribute.getSchema().getName())) {
-                result = attribute;
-            }
-        }
-
-        return result;
     }
 
     public Set<Attribute> getAttributes() {
@@ -77,10 +52,16 @@ public class SyncopeUser implements Serializable {
         return derivedAttributes;
     }
 
-    public void setDerivedAttributes(
-            Set<DerivedAttribute> derivedAttributes) {
-
+    public void setDerivedAttributes(Set<DerivedAttribute> derivedAttributes) {
         this.derivedAttributes = derivedAttributes;
+    }
+
+    public SyncopeRolePK getSyncopeRolePK() {
+        return syncopeUserPK;
+    }
+
+    public void setSyncopeRolePK(SyncopeRolePK syncopeRolePK) {
+        this.syncopeUserPK = syncopeRolePK;
     }
 
     @Override
@@ -91,29 +72,28 @@ public class SyncopeUser implements Serializable {
         if (getClass() != obj.getClass()) {
             return false;
         }
-
-        final SyncopeUser other = (SyncopeUser) obj;
-        if (this.id != other.id
-                && (this.id == null || !this.id.equals(other.id))) {
+        final SyncopeRole other = (SyncopeRole) obj;
+        if (this.syncopeUserPK != other.syncopeUserPK
+                && (this.syncopeUserPK == null
+                || !this.syncopeUserPK.equals(other.syncopeUserPK))) {
 
             return false;
         }
-
         return true;
     }
 
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 71 * hash + (this.id != null ? this.id.hashCode() : 0);
-
+        hash = 41 * hash + (this.syncopeUserPK != null
+                ? this.syncopeUserPK.hashCode() : 0);
         return hash;
     }
 
     @Override
     public String toString() {
         return "("
-                + "id=" + id + ","
+                + "syncopeUserPK=" + syncopeUserPK + ","
                 + "attributes=" + attributes + ","
                 + "derivedAttributes=" + derivedAttributes
                 + ")";
