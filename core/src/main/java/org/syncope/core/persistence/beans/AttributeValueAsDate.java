@@ -14,15 +14,13 @@
  */
 package org.syncope.core.persistence.beans;
 
-import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.Entity;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 @Entity
-public class AttributeValueAsDate
-        extends AttributeValue implements Serializable {
+public class AttributeValueAsDate extends AttributeValue {
 
     @Temporal(TemporalType.TIMESTAMP)
     Date actualValue;
@@ -71,13 +69,5 @@ public class AttributeValueAsDate
         hash = 61 * hash + (this.actualValue != null
                 ? this.actualValue.hashCode() : 0);
         return super.hashCode() + hash;
-    }
-
-    @Override
-    public String toString() {
-        return "("
-                + "id=" + getId() + ","
-                + "actualValue=" + actualValue
-                + ")";
     }
 }

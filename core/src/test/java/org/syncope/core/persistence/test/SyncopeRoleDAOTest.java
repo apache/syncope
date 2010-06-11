@@ -78,27 +78,22 @@ public class SyncopeRoleDAOTest extends AbstractDAOTest {
     @Test
     public final void testRelationships() {
         SyncopeRole role = syncopeRoleDAO.find("root", null);
-        Set<Attribute> attributes =
-                role.getAttributes();
+        Set<Attribute> attributes = role.getAttributes();
         int originalAttributesSize = attributes.size();
-
         Attribute attribute = attributes.iterator().next();
-        String attributeSchemaName =
-                attribute.getSchema().getName();
 
+        // Remove an attribute from its table: we expect not to find it
+        // associated with the user
         attributeDAO.delete(attribute.getId());
-        Attribute actualAttribute =
-                attributeDAO.find(attribute.getId());
-        assertNull("expected delete to work", actualAttribute);
+        assertNull(attributeDAO.find(attribute.getId()));
+        assertEquals("unexpected number of attributes",
+                originalAttributesSize - 1, role.getAttributes().size());
 
-        role = syncopeRoleDAO.find("root", null);
-        attributes = role.getAttributes();
-        assertEquals("number of attributes differs",
-                originalAttributesSize, attributes.size());
-
-        AttributeSchema attributeSchema =
-                attributeSchemaDAO.find(attributeSchemaName);
-        assertNotNull("user attribute schema deleted when deleting values",
-                attributeSchema);
+        // Remove an attribute association with a user: we expect not to
+        // have it on the db table as well
+        attribute = role.getAttributes().iterator().next();
+        role.removeAttribute(attribute);
+        syncopeRoleDAO.save(role);
+        assertNull(attributeDAO.find(attribute.getId()));
     }
 }

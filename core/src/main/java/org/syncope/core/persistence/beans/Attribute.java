@@ -14,7 +14,6 @@
  */
 package org.syncope.core.persistence.beans;
 
-import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.CascadeType;
@@ -25,19 +24,15 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.syncope.core.persistence.validation.ValidationException;
 
 @Entity
-public class Attribute implements Serializable {
+public class Attribute extends AbstractBaseBean {
 
-    private static final Logger log = LoggerFactory.getLogger(
-            Attribute.class);
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     private AttributeSchema schema;
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Set<AttributeValue> values;
@@ -129,14 +124,5 @@ public class Attribute implements Serializable {
         hash = 53 * hash + (this.schema != null ? this.schema.hashCode() : 0);
 
         return hash;
-    }
-
-    @Override
-    public String toString() {
-        return "("
-                + "id=" + getId() + ","
-                + "schema=" + schema + ","
-                + "values=" + values
-                + ")";
     }
 }

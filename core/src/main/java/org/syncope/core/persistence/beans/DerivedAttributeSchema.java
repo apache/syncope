@@ -14,12 +14,11 @@
  */
 package org.syncope.core.persistence.beans;
 
-import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
 @Entity
-public class DerivedAttributeSchema implements Serializable {
+public class DerivedAttributeSchema extends AbstractBaseBean {
 
     @Id
     private String name;
@@ -51,7 +50,7 @@ public class DerivedAttributeSchema implements Serializable {
         }
         final DerivedAttributeSchema other =
                 (DerivedAttributeSchema) obj;
-        
+
         if ((this.name == null)
                 ? (other.name != null) : !this.name.equals(other.name)) {
 
@@ -75,13 +74,5 @@ public class DerivedAttributeSchema implements Serializable {
                 ? this.expression.hashCode() : 0);
 
         return hash;
-    }
-
-    @Override
-    public String toString() {
-        return "("
-                + "name=" + getName() + ","
-                + "expression=" + getExpression()
-                + ")";
     }
 }

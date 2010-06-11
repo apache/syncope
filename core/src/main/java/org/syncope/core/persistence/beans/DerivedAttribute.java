@@ -14,10 +14,8 @@
  */
 package org.syncope.core.persistence.beans;
 
-import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -25,7 +23,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import org.apache.commons.jexl2.Expression;
 import org.apache.commons.jexl2.JexlContext;
 import org.apache.commons.jexl2.JexlEngine;
@@ -35,7 +32,7 @@ import org.apache.commons.jexl2.MapContext;
  * @see http://commons.apache.org/jexl/reference/index.html
  */
 @Entity
-public class DerivedAttribute implements Serializable {
+public class DerivedAttribute extends AbstractBaseBean {
 
     private static final JexlEngine jexlEngine = new JexlEngine();
 
@@ -149,13 +146,5 @@ public class DerivedAttribute implements Serializable {
                 ? this.schema.hashCode() : 0);
 
         return hash;
-    }
-
-    @Override
-    public String toString() {
-        return "("
-                + "id=" + getId() + ","
-                + "schema=" + getSchema()
-                + ")";
     }
 }

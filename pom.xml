@@ -99,6 +99,7 @@
         <servlet-api.version>2.5</servlet-api.version>
 
         <commons-jexl.version>2.0.1</commons-jexl.version>
+        <commons-lang.version>2.5</commons-lang.version>
 
         <openam.version>snapshot9</openam.version>
 
@@ -145,6 +146,12 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-jexl</artifactId>
                 <version>${commons-jexl.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>commons-lang</groupId>
+                <artifactId>commons-lang</artifactId>
+                <version>${commons-lang.version}</version>
             </dependency>
 
             <dependency>
@@ -302,7 +309,7 @@
                 <enabled>false</enabled>
             </snapshots>
         </repository>
-        
+
     </repositories>
 
     <build>

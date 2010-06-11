@@ -16,18 +16,33 @@ package org.syncope.core.persistence.dao.impl;
 
 import java.util.List;
 import javax.persistence.Query;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.Attribute;
+import org.syncope.core.persistence.beans.SyncopeRole;
+import org.syncope.core.persistence.beans.SyncopeUser;
 import org.syncope.core.persistence.dao.AttributeDAO;
+import org.syncope.core.persistence.dao.SyncopeRoleDAO;
+import org.syncope.core.persistence.dao.SyncopeUserDAO;
 
 @Repository
 public class AttributeDAOImpl extends AbstractDAOImpl
         implements AttributeDAO {
 
+    @Autowired
+    SyncopeUserDAO syncopeUserDAO;
+    @Autowired
+    SyncopeRoleDAO syncopeRoleDAO;
+
     @Override
     public Attribute find(long id) {
-        return entityManager.find(Attribute.class, id);
+        Attribute result = entityManager.find(Attribute.class, id);
+        if (isDeletedOrNotManaged(result)) {
+            result = null;
+        }
+
+        return result;
     }
 
     @Override
@@ -48,6 +63,33 @@ public class AttributeDAOImpl extends AbstractDAOImpl
     @Override
     @Transactional
     public void delete(long id) {
-        entityManager.remove(find(id));
+        Attribute attribute = find(id);
+        if (attribute == null) {
+            return;
+        }
+
+        Query userQuery = entityManager.createQuery(
+                "SELECT u FROM SyncopeUser u WHERE "
+                + ":attribute MEMBER OF u.attributes");
+        userQuery.setParameter("attribute", attribute);
+        List<SyncopeUser> users = userQuery.getResultList();
+        for (SyncopeUser user : users) {
+            user.removeAttribute(attribute);
+            syncopeUserDAO.save(user);
+        }
+
+        if (!isDeletedOrNotManaged(attribute)) {
+            Query roleQuery = entityManager.createQuery(
+                    "SELECT r FROM SyncopeRole r WHERE "
+                    + ":attribute MEMBER OF r.attributes");
+            roleQuery.setParameter("attribute", attribute);
+            List<SyncopeRole> roles = roleQuery.getResultList();
+            for (SyncopeRole role : roles) {
+                role.removeAttribute(attribute);
+                syncopeRoleDAO.save(role);
+            }
+        }
+
+        entityManager.remove(attribute);
     }
 }

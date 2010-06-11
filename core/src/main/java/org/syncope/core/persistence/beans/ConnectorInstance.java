@@ -16,25 +16,18 @@
  */
 package org.syncope.core.persistence.beans;
 
-import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
-/**
- *
- * @author fabio
- */
 @Entity
-public class ConnectorInstance implements Serializable {
+public class ConnectorInstance extends AbstractBaseBean {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-
     private String name;
-
     private String minorVersion;
 
     public String getMajorVersion() {
@@ -69,7 +62,6 @@ public class ConnectorInstance implements Serializable {
         this.xmlConfiguration = xmlConfiguration;
     }
     private String majorVersion;
-
     private String xmlConfiguration;
 
     public Long getId() {
@@ -82,19 +74,36 @@ public class ConnectorInstance implements Serializable {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
         final ConnectorInstance other = (ConnectorInstance) obj;
-        if (this.id != other.id && (this.id == null || !this.id.equals(other.id)))
+        if (this.id != other.id
+                && (this.id == null || !this.id.equals(other.id))) {
             return false;
-        if ((this.name == null) ? (other.name != null) : !this.name.equals(other.name))
+        }
+        if ((this.name == null)
+                ? (other.name != null) : !this.name.equals(other.name)) {
             return false;
-        if ((this.minorVersion == null) ? (other.minorVersion != null) : !this.minorVersion.equals(other.minorVersion))
+        }
+        if ((this.minorVersion == null)
+                ? (other.minorVersion != null)
+                : !this.minorVersion.equals(other.minorVersion)) {
             return false;
-        if ((this.majorVersion == null) ? (other.majorVersion != null) : !this.majorVersion.equals(other.majorVersion))
+        }
+        if ((this.majorVersion == null)
+                ? (other.majorVersion != null)
+                : !this.majorVersion.equals(other.majorVersion)) {
             return false;
-        if ((this.xmlConfiguration == null) ? (other.xmlConfiguration != null) : !this.xmlConfiguration.equals(other.xmlConfiguration))
+        }
+        if ((this.xmlConfiguration == null)
+                ? (other.xmlConfiguration != null)
+                : !this.xmlConfiguration.equals(other.xmlConfiguration)) {
             return false;
+        }
         return true;
     }
 
@@ -103,20 +112,12 @@ public class ConnectorInstance implements Serializable {
         int hash = 7;
         hash = 83 * hash + (this.id != null ? this.id.hashCode() : 0);
         hash = 83 * hash + (this.name != null ? this.name.hashCode() : 0);
-        hash = 83 * hash + (this.minorVersion != null ? this.minorVersion.hashCode() : 0);
-        hash = 83 * hash + (this.majorVersion != null ? this.majorVersion.hashCode() : 0);
-        hash = 83 * hash + (this.xmlConfiguration != null ? this.xmlConfiguration.hashCode() : 0);
+        hash = 83 * hash + (this.minorVersion != null
+                ? this.minorVersion.hashCode() : 0);
+        hash = 83 * hash + (this.majorVersion != null
+                ? this.majorVersion.hashCode() : 0);
+        hash = 83 * hash + (this.xmlConfiguration != null
+                ? this.xmlConfiguration.hashCode() : 0);
         return hash;
-    }
-
-    @Override
-    public String toString() {
-        return "(" +
-                "id=" + getId() + "," +
-                "name=" + getName() + "," +
-                "major version=" + getMajorVersion() + "," +
-                "minor version=" + getMinorVersion() + "," +
-                "configuration=" + getXmlConfiguration() +
-                ")";
     }
 }

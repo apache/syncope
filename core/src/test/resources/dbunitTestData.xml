@@ -7,6 +7,11 @@
     <SyncopeRole name="root" parent="/"/>
     <SyncopeRole name="child" parent="root"/>
 
+    <SyncopeUser_SyncopeRole users_id="1"
+                             roles_name="root" roles_parent="/"/>
+    <SyncopeUser_SyncopeRole users_id="2"
+                             roles_name="root" roles_parent="/"/>
+
     <AttributeSchema name="username" type="String"
                      mandatory="true" multivalue="false"
                      conversionPattern="NULL" validatorClass="NULL"/>
@@ -102,4 +107,14 @@
 
     <SyncopeUser_DerivedAttribute SyncopeUser_id="3"
                                   derivedAttributes_id="1000"/>
+
+    <Entitlement name="base" description="NULL"/>
+    <Entitlement name="advanced" description="Advanced entitlement"/>
+
+    <Entitlement_SyncopeRole entitlements_name="base"
+                             roles_name="root" roles_parent="/"/>
+    <Entitlement_SyncopeRole entitlements_name="advanced"
+                             roles_name="root" roles_parent="/"/>
+    <Entitlement_SyncopeRole entitlements_name="base"
+                             roles_name="child" roles_parent="root"/>
 </dataset>

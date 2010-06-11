@@ -14,7 +14,6 @@
  */
 package org.syncope.core.persistence.beans;
 
-import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -24,7 +23,7 @@ import javax.persistence.InheritanceType;
 
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
-public abstract class AttributeValue implements Serializable {
+public abstract class AttributeValue extends AbstractBaseBean {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

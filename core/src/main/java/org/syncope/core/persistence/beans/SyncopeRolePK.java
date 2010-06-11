@@ -16,11 +16,10 @@
  */
 package org.syncope.core.persistence.beans;
 
-import java.io.Serializable;
 import javax.persistence.Embeddable;
 
 @Embeddable
-public class SyncopeRolePK implements Serializable {
+public class SyncopeRolePK extends AbstractBaseBean {
 
     final public static String ROOT_ROLE = "/";
     private String name;
@@ -89,13 +88,5 @@ public class SyncopeRolePK implements Serializable {
         hash = 89 * hash + (this.parent != null ? this.parent.hashCode() : 0);
         hash = 89 * hash + (this.name != null ? this.name.hashCode() : 0);
         return hash;
-    }
-
-    @Override
-    public String toString() {
-        return "("
-                + "name=" + name + ","
-                + "parent=" + parent
-                + ")";
     }
 }

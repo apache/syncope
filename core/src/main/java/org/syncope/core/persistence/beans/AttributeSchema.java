@@ -17,7 +17,6 @@ package org.syncope.core.persistence.beans;
 import java.lang.reflect.Constructor;
 import static javax.persistence.EnumType.STRING;
 
-import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.text.Format;
 import java.text.SimpleDateFormat;
@@ -26,18 +25,14 @@ import javax.persistence.Entity;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.Transient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.syncope.core.persistence.AttributeType;
 import org.syncope.core.persistence.validation.AttributeBasicValidator;
 import org.syncope.core.persistence.validation.AttributeValidator;
 import org.syncope.core.persistence.validation.ValidatorInstantiationException;
 
 @Entity
-public class AttributeSchema implements Serializable {
+public class AttributeSchema extends AbstractBaseBean {
 
-    private static final Logger log = LoggerFactory.getLogger(
-            AttributeSchema.class);
     @Id
     private String name;
     @Column(nullable = false)
@@ -239,17 +234,5 @@ public class AttributeSchema implements Serializable {
                 ? this.validatorClass.hashCode() : 0);
 
         return hash;
-    }
-
-    @Override
-    public String toString() {
-        return "("
-                + "name=" + name + ","
-                + "type=" + type + ","
-                + "mandatory=" + mandatory + ","
-                + "multivalue=" + multivalue + ","
-                + "conversionPattern=" + conversionPattern + ","
-                + "validatorClass=" + validatorClass
-                + ")";
     }
 }

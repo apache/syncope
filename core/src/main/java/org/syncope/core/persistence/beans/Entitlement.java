@@ -1,4 +1,6 @@
 /*
+ *  Copyright 2010 ilgrosso.
+ * 
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
@@ -14,33 +16,37 @@
  */
 package org.syncope.core.persistence.beans;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
 import java.util.Set;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 
 @Entity
-public class SyncopeUser extends AbstractAttributableBean {
+public class Entitlement extends AbstractBaseBean {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
-    @ManyToMany(fetch = FetchType.EAGER)
+    private String name;
+    @Column(nullable = true)
+    private String description;
+    @ManyToMany(cascade = CascadeType.ALL)
     private Set<SyncopeRole> roles;
 
-    public SyncopeUser() {
-        attributes = new HashSet<Attribute>();
-        derivedAttributes = new HashSet<DerivedAttribute>();
+    public String getDescription() {
+        return description;
     }
 
-    public Long getId() {
-        return id;
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Set<SyncopeRole> getRoles() {
@@ -59,22 +65,27 @@ public class SyncopeUser extends AbstractAttributableBean {
         if (getClass() != obj.getClass()) {
             return false;
         }
-
-        final SyncopeUser other = (SyncopeUser) obj;
-        if (this.id != other.id
-                && (this.id == null || !this.id.equals(other.id))) {
+        final Entitlement other = (Entitlement) obj;
+        if ((this.name == null)
+                ? (other.name != null) : !this.name.equals(other.name)) {
 
             return false;
         }
+        if ((this.description == null)
+                ? (other.description != null)
+                : !this.description.equals(other.description)) {
 
+            return false;
+        }
         return true;
     }
 
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 71 * hash + (this.id != null ? this.id.hashCode() : 0);
-
+        hash = 79 * hash + (this.name != null ? this.name.hashCode() : 0);
+        hash = 79 * hash + (this.description != null
+                ? this.description.hashCode() : 0);
         return hash;
     }
 }

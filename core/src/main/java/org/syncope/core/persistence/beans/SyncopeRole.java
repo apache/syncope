@@ -16,52 +16,53 @@
  */
 package org.syncope.core.persistence.beans;
 
-import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.OneToMany;
+import javax.persistence.ManyToMany;
 
 @Entity
-public class SyncopeRole implements Serializable {
+public class SyncopeRole extends AbstractAttributableBean {
 
     @EmbeddedId
-    private SyncopeRolePK syncopeUserPK;
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private Set<Attribute> attributes;
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private Set<DerivedAttribute> derivedAttributes;
+    private SyncopeRolePK syncopeRolePK;
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER,
+    mappedBy = "roles")
+    private Set<SyncopeUser> users;
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER,
+    mappedBy = "roles")
+    private Set<Entitlement> entitlements;
 
     public SyncopeRole() {
-        attributes = new HashSet<Attribute>();
-        derivedAttributes = new HashSet<DerivedAttribute>();
-    }
-
-    public Set<Attribute> getAttributes() {
-        return attributes;
-    }
-
-    public void setAttributes(Set<Attribute> attributes) {
-        this.attributes = attributes;
-    }
-
-    public Set<DerivedAttribute> getDerivedAttributes() {
-        return derivedAttributes;
-    }
-
-    public void setDerivedAttributes(Set<DerivedAttribute> derivedAttributes) {
-        this.derivedAttributes = derivedAttributes;
+        users = new HashSet<SyncopeUser>();
+        entitlements = new HashSet<Entitlement>();
     }
 
     public SyncopeRolePK getSyncopeRolePK() {
-        return syncopeUserPK;
+        return syncopeRolePK;
     }
 
     public void setSyncopeRolePK(SyncopeRolePK syncopeRolePK) {
-        this.syncopeUserPK = syncopeRolePK;
+        this.syncopeRolePK = syncopeRolePK;
+    }
+
+    public Set<Entitlement> getEntitlements() {
+        return entitlements;
+    }
+
+    public void setEntitlements(Set<Entitlement> entitlements) {
+        this.entitlements = entitlements;
+    }
+
+    public Set<SyncopeUser> getUsers() {
+        return users;
+    }
+
+    public void setUsers(Set<SyncopeUser> users) {
+        this.users = users;
     }
 
     @Override
@@ -73,9 +74,9 @@ public class SyncopeRole implements Serializable {
             return false;
         }
         final SyncopeRole other = (SyncopeRole) obj;
-        if (this.syncopeUserPK != other.syncopeUserPK
-                && (this.syncopeUserPK == null
-                || !this.syncopeUserPK.equals(other.syncopeUserPK))) {
+        if (this.syncopeRolePK != other.syncopeRolePK
+                && (this.syncopeRolePK == null
+                || !this.syncopeRolePK.equals(other.syncopeRolePK))) {
 
             return false;
         }
@@ -85,17 +86,8 @@ public class SyncopeRole implements Serializable {
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 41 * hash + (this.syncopeUserPK != null
-                ? this.syncopeUserPK.hashCode() : 0);
+        hash = 41 * hash + (this.syncopeRolePK != null
+                ? this.syncopeRolePK.hashCode() : 0);
         return hash;
-    }
-
-    @Override
-    public String toString() {
-        return "("
-                + "syncopeUserPK=" + syncopeUserPK + ","
-                + "attributes=" + attributes + ","
-                + "derivedAttributes=" + derivedAttributes
-                + ")";
     }
 }

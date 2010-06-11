@@ -14,12 +14,10 @@
  */
 package org.syncope.core.persistence.beans;
 
-import java.io.Serializable;
 import javax.persistence.Entity;
 
 @Entity
-public class AttributeValueAsDouble
-        extends AttributeValue implements Serializable {
+public class AttributeValueAsDouble extends AttributeValue {
 
     Double actualValue;
 
@@ -68,13 +66,5 @@ public class AttributeValueAsDouble
         hash = 97 * hash + (this.actualValue != null
                 ? this.actualValue.hashCode() : 0);
         return super.hashCode() + hash;
-    }
-
-    @Override
-    public String toString() {
-        return "("
-                + "id=" + getId() + ","
-                + "actualValue=" + actualValue
-                + ")";
     }
 }
