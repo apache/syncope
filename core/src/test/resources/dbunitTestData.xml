@@ -107,6 +107,13 @@
 
     <SyncopeUser_DerivedAttribute SyncopeUser_id="3"
                                   derivedAttributes_id="1000"/>
+    <ConnectorInstance
+        id="100"
+        connectorName="OpenAM"
+        bundleName="org.syncope.core.persistence.test.util.openam"
+        version="1.0"
+        xmlConfiguration="%lt;xml ... " />
+
 
     <Entitlement name="base" description="NULL"/>
     <Entitlement name="advanced" description="Advanced entitlement"/>
@@ -117,4 +124,5 @@
                              roles_name="root" roles_parent="/"/>
     <Entitlement_SyncopeRole entitlements_name="base"
                              roles_name="child" roles_parent="root"/>
+
 </dataset>

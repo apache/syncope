@@ -16,10 +16,12 @@
  */
 package org.syncope.core.persistence.beans;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 
 @Entity
 public class ConnectorInstance extends AbstractBaseBean {
@@ -27,31 +29,58 @@ public class ConnectorInstance extends AbstractBaseBean {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    private String name;
-    private String minorVersion;
+    /**
+     * Connector class name prefix used to retrieve configuration bean
+     */
+    @Column(nullable = false)
+    private String connectorName;
+    /**
+     * ConnectorBundle-Name: Qualified name for the connector bundle.
+     * Within a given deployment, the pair (ConnectorBundle-Name,
+     * ConnectorBundle-Version) must be unique.
+     */
+    @Column(nullable = false)
+    private String bundleName;
 
-    public String getMajorVersion() {
-        return majorVersion;
+    /**
+     * ConnectorBundle-Version: The version of the bundle. Within a given
+     * deployment, the pair (ConnectorBundle-Name, ConnectorBundle-Version)
+     * must be unique.
+     */
+    @Column(nullable = false)
+    private String version;
+
+    /**
+     * The main configuration for the connector instance.
+     * This is directly implemented by the Configuration bean class which
+     * contains annotated ConfigurationProperties (@ConfigurationProperty).
+     */
+    @Lob
+    @Column(nullable = false)
+    private String xmlConfiguration;
+
+    public String getVersion() {
+        return version;
     }
 
-    public void setMajorVersion(String majorVersion) {
-        this.majorVersion = majorVersion;
+    public void setVersion(String majorVersion) {
+        this.version = majorVersion;
     }
 
-    public String getMinorVersion() {
-        return minorVersion;
+    public String getBundleName() {
+        return bundleName;
     }
 
-    public void setMinorVersion(String minorVersion) {
-        this.minorVersion = minorVersion;
+    public void setBundleName(String bundleName) {
+        this.bundleName = bundleName;
     }
 
-    public String getName() {
-        return name;
+    public String getConnectorName() {
+        return connectorName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setConnectorName(String connectorName) {
+        this.connectorName = connectorName;
     }
 
     public String getXmlConfiguration() {
@@ -61,9 +90,6 @@ public class ConnectorInstance extends AbstractBaseBean {
     public void setXmlConfiguration(String xmlConfiguration) {
         this.xmlConfiguration = xmlConfiguration;
     }
-    private String majorVersion;
-    private String xmlConfiguration;
-
     public Long getId() {
         return id;
     }
@@ -74,50 +100,30 @@ public class ConnectorInstance extends AbstractBaseBean {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
         final ConnectorInstance other = (ConnectorInstance) obj;
-        if (this.id != other.id
-                && (this.id == null || !this.id.equals(other.id))) {
+        if (this.id != other.id && (this.id == null || !this.id.equals(other.id)))
             return false;
-        }
-        if ((this.name == null)
-                ? (other.name != null) : !this.name.equals(other.name)) {
+        if ((this.connectorName == null) ? (other.connectorName != null) : !this.connectorName.equals(other.connectorName))
             return false;
-        }
-        if ((this.minorVersion == null)
-                ? (other.minorVersion != null)
-                : !this.minorVersion.equals(other.minorVersion)) {
+        if ((this.bundleName == null) ? (other.bundleName != null) : !this.bundleName.equals(other.bundleName))
             return false;
-        }
-        if ((this.majorVersion == null)
-                ? (other.majorVersion != null)
-                : !this.majorVersion.equals(other.majorVersion)) {
+        if ((this.version == null) ? (other.version != null) : !this.version.equals(other.version))
             return false;
-        }
-        if ((this.xmlConfiguration == null)
-                ? (other.xmlConfiguration != null)
-                : !this.xmlConfiguration.equals(other.xmlConfiguration)) {
+        if ((this.xmlConfiguration == null) ? (other.xmlConfiguration != null) : !this.xmlConfiguration.equals(other.xmlConfiguration))
             return false;
-        }
         return true;
     }
 
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 83 * hash + (this.id != null ? this.id.hashCode() : 0);
-        hash = 83 * hash + (this.name != null ? this.name.hashCode() : 0);
-        hash = 83 * hash + (this.minorVersion != null
-                ? this.minorVersion.hashCode() : 0);
-        hash = 83 * hash + (this.majorVersion != null
-                ? this.majorVersion.hashCode() : 0);
-        hash = 83 * hash + (this.xmlConfiguration != null
-                ? this.xmlConfiguration.hashCode() : 0);
+        int hash = 3;
+        hash = 79 * hash + (this.id != null ? this.id.hashCode() : 0);
+        hash = 79 * hash + (this.connectorName != null ? this.connectorName.hashCode() : 0);
+        hash = 79 * hash + (this.bundleName != null ? this.bundleName.hashCode() : 0);
+        hash = 79 * hash + (this.version != null ? this.version.hashCode() : 0);
+        hash = 79 * hash + (this.xmlConfiguration != null ? this.xmlConfiguration.hashCode() : 0);
         return hash;
     }
 }

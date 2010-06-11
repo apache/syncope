@@ -127,6 +127,8 @@
 
         <jetty.version>6.1.24</jetty.version>
 
+        <commons-digester.version>2.0</commons-digester.version>
+
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     </properties>
@@ -276,6 +278,12 @@
                 <version>${jetty.version}</version>
                 <scope>test</scope>
             </dependency>
+            <dependency>
+            <groupId>commons-digester</groupId>
+            <artifactId>commons-digester</artifactId>
+            <version>${commons-digester.version}</version>
+            <scope>test</scope>
+        </dependency>
             <!-- /TEST -->
 
         </dependencies>
