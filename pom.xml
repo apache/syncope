@@ -278,12 +278,6 @@
                 <version>${jetty.version}</version>
                 <scope>test</scope>
             </dependency>
-            <dependency>
-            <groupId>commons-digester</groupId>
-            <artifactId>commons-digester</artifactId>
-            <version>${commons-digester.version}</version>
-            <scope>test</scope>
-        </dependency>
             <!-- /TEST -->
 
         </dependencies>
