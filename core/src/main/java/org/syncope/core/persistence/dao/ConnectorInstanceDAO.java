@@ -1,6 +1,4 @@
 /*
- *  Copyright 2010 fabio.
- * 
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
@@ -16,15 +14,14 @@
  */
 package org.syncope.core.persistence.dao;
 
+import java.util.List;
 import org.syncope.core.persistence.beans.ConnectorInstance;
 
-/**
- *
- * @author fabio
- */
 public interface ConnectorInstanceDAO extends DAO {
 
     ConnectorInstance find(Long id);
+
+    List<ConnectorInstance> findAll();
 
     ConnectorInstance save(ConnectorInstance connector);
 

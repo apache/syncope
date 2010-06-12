@@ -17,31 +17,35 @@ package org.syncope.core.persistence.test;
 import static org.junit.Assert.*;
 
 import java.util.List;
+import java.util.Set;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.Entitlement;
+import org.syncope.core.persistence.beans.SyncopeRole;
 import org.syncope.core.persistence.dao.EntitlementDAO;
+import org.syncope.core.persistence.dao.SyncopeRoleDAO;
 
 @Transactional
 public class EntitlementDAOTest extends AbstractDAOTest {
 
     @Autowired
     EntitlementDAO entitlementDAO;
+    @Autowired
+    SyncopeRoleDAO syncopeRoleDAO;
 
     @Test
     public final void testFindAll() {
         List<Entitlement> list = entitlementDAO.findAll();
         assertEquals("did not get expected number of entitlements ",
-                2, list.size());
+                     2, list.size());
     }
 
     @Test
     public final void testFindByName() {
         Entitlement entitlement = entitlementDAO.find("base");
         assertNotNull("did not find expected entitlement",
-                entitlement);
-        assertFalse("expected some role", entitlement.getRoles().isEmpty());
+                      entitlement);
     }
 
     @Test
@@ -62,5 +66,19 @@ public class EntitlementDAOTest extends AbstractDAOTest {
 
         Entitlement actual = entitlementDAO.find("advanced");
         assertNull("delete did not work", actual);
+    }
+
+    @Test
+    public final void testRelationships() {
+        Entitlement entitlement = entitlementDAO.find("base");
+        assertNotNull("did not find expected entitlement",
+                      entitlement);
+
+        Set<SyncopeRole> roles = entitlement.getRoles();
+        assertEquals("expected two roles", 2, roles.size());
+
+        entitlementDAO.delete("base");
+        for (SyncopeRole role : roles)
+            assertFalse(role.getEntitlements().contains(entitlement));
     }
 }

@@ -1,24 +1,16 @@
 /*
- * ====================
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- * 
- * Copyright 2008-2009 Sun Microsystems, Inc. All rights reserved.     
- * 
- * The contents of this file are subject to the terms of the Common Development 
- * and Distribution License("CDDL") (the "License").  You may not use this file 
- * except in compliance with the License.
- * 
- * You can obtain a copy of the License at 
- * http://IdentityConnectors.dev.java.net/legal/license.txt
- * See the License for the specific language governing permissions and limitations 
- * under the License. 
- * 
- * When distributing the Covered Code, include this CDDL Header Notice in each file
- * and include the License file at identityconnectors/legal/license.txt.
- * If applicable, add the following below this CDDL Header, with the fields 
- * enclosed by brackets [] replaced by your own identifying information: 
- * "Portions Copyrighted [year] [name of copyright owner]"
- * ====================
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *  under the License.
  */
 package org.syncope.core.persistence.test.util;
 
@@ -33,10 +25,6 @@ import org.identityconnectors.common.StringUtil;
 /**
  * Extends the {@link AbstractConfiguration} class to provide all the necessary
  * parameters to initialize the WebService Connector.
- *
- * @author fabio
- * @version 1.0
- * @since 1.0
  */
 public class WebServiceConfiguration extends AbstractConfiguration {
 

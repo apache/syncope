@@ -32,8 +32,7 @@ public class SyncopeRole extends AbstractAttributableBean {
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER,
     mappedBy = "roles")
     private Set<SyncopeUser> users;
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER,
-    mappedBy = "roles")
+    @ManyToMany(fetch = FetchType.LAZY)
     private Set<Entitlement> entitlements;
 
     public SyncopeRole() {
@@ -47,6 +46,14 @@ public class SyncopeRole extends AbstractAttributableBean {
 
     public void setSyncopeRolePK(SyncopeRolePK syncopeRolePK) {
         this.syncopeRolePK = syncopeRolePK;
+    }
+
+    public boolean addEntitlement(Entitlement entitlement) {
+        return entitlements.add(entitlement);
+    }
+
+    public boolean removeEntitlement(Entitlement entitlement) {
+        return entitlements.remove(entitlement);
     }
 
     public Set<Entitlement> getEntitlements() {

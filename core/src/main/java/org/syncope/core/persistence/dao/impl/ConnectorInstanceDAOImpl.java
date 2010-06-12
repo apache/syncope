@@ -1,6 +1,4 @@
 /*
- *  Copyright 2010 fabio.
- * 
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
@@ -16,14 +14,12 @@
  */
 package org.syncope.core.persistence.dao.impl;
 
+import java.util.List;
+import javax.persistence.Query;
 import org.springframework.stereotype.Repository;
 import org.syncope.core.persistence.beans.ConnectorInstance;
 import org.syncope.core.persistence.dao.ConnectorInstanceDAO;
 
-/**
- *
- * @author fabio
- */
 @Repository
 public class ConnectorInstanceDAOImpl extends AbstractDAOImpl
         implements ConnectorInstanceDAO {
@@ -31,6 +27,13 @@ public class ConnectorInstanceDAOImpl extends AbstractDAOImpl
     @Override
     public ConnectorInstance find(Long id) {
         return entityManager.find(ConnectorInstance.class, id);
+    }
+
+    @Override
+    public List<ConnectorInstance> findAll() {
+        Query query = entityManager.createQuery(
+                "SELECT e FROM ConnectorInstance e");
+        return query.getResultList();
     }
 
     @Override

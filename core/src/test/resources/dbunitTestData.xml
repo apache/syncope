@@ -6,6 +6,11 @@
 
     <SyncopeRole name="root" parent="/"/>
     <SyncopeRole name="child" parent="root"/>
+    <SyncopeRole name="citizen" parent="/"/>
+    <SyncopeRole name="employee" parent="citizen"/>
+    <SyncopeRole name="secretary" parent="employee"/>
+    <SyncopeRole name="director" parent="employee"/>
+    <SyncopeRole name="managingDirector" parent="director"/>
 
     <SyncopeUser_SyncopeRole users_id="1"
                              roles_name="root" roles_parent="/"/>
@@ -118,11 +123,11 @@
     <Entitlement name="base" description="NULL"/>
     <Entitlement name="advanced" description="Advanced entitlement"/>
 
-    <Entitlement_SyncopeRole entitlements_name="base"
+    <SyncopeRole_Entitlement entitlements_name="base"
                              roles_name="root" roles_parent="/"/>
-    <Entitlement_SyncopeRole entitlements_name="advanced"
+    <SyncopeRole_Entitlement entitlements_name="advanced"
                              roles_name="root" roles_parent="/"/>
-    <Entitlement_SyncopeRole entitlements_name="base"
+    <SyncopeRole_Entitlement entitlements_name="base"
                              roles_name="child" roles_parent="root"/>
 
 </dataset>

@@ -22,7 +22,6 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.SyncopeRole;
-import org.syncope.core.persistence.beans.AttributeSchema;
 import org.syncope.core.persistence.beans.Attribute;
 import org.syncope.core.persistence.beans.SyncopeRolePK;
 import org.syncope.core.persistence.dao.AttributeSchemaDAO;
@@ -42,7 +41,7 @@ public class SyncopeRoleDAOTest extends AbstractDAOTest {
     @Test
     public final void testFindAll() {
         List<SyncopeRole> list = syncopeRoleDAO.findAll();
-        assertEquals("did not get expected number of roles ", 2, list.size());
+        assertEquals("did not get expected number of roles ", 7, list.size());
     }
 
     @Test
@@ -67,12 +66,16 @@ public class SyncopeRoleDAOTest extends AbstractDAOTest {
 
     @Test
     public final void testDelete() {
-        SyncopeRole role = syncopeRoleDAO.find("child", "root");
-
+        SyncopeRole role = syncopeRoleDAO.find("employee", "citizen");
         syncopeRoleDAO.delete(role.getSyncopeRolePK());
 
-        SyncopeRole actual = syncopeRoleDAO.find("child", "root");
+        SyncopeRole actual = syncopeRoleDAO.find("employee", "citizen");
         assertNull("delete did not work", actual);
+
+        SyncopeRole children = syncopeRoleDAO.find("managingDirector",
+                                                   "director");
+        assertNull("delete of successors did not work", children);
+
     }
 
     @Test
@@ -87,7 +90,7 @@ public class SyncopeRoleDAOTest extends AbstractDAOTest {
         attributeDAO.delete(attribute.getId());
         assertNull(attributeDAO.find(attribute.getId()));
         assertEquals("unexpected number of attributes",
-                originalAttributesSize - 1, role.getAttributes().size());
+                     originalAttributesSize - 1, role.getAttributes().size());
 
         // Remove an attribute association with a user: we expect not to
         // have it on the db table as well

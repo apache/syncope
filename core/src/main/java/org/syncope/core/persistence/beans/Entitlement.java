@@ -17,9 +17,9 @@
 package org.syncope.core.persistence.beans;
 
 import java.util.Set;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 
@@ -30,7 +30,7 @@ public class Entitlement extends AbstractBaseBean {
     private String name;
     @Column(nullable = true)
     private String description;
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(fetch=FetchType.EAGER, mappedBy="entitlements")
     private Set<SyncopeRole> roles;
 
     public String getDescription() {

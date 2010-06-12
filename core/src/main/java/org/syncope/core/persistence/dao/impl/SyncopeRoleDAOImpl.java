@@ -58,6 +58,17 @@ public class SyncopeRoleDAOImpl extends AbstractDAOImpl
     @Override
     @Transactional
     public void delete(SyncopeRolePK syncopeRolePK) {
+        Query query = entityManager.createQuery(
+                "SELECT r FROM SyncopeRole r WHERE "
+                + "parent=:role");
+        query.setParameter("role", syncopeRolePK.getName());
+        List<SyncopeRole> childrenRoles = query.getResultList();
+
+        if (!childrenRoles.isEmpty())
+            for (SyncopeRole child : childrenRoles)
+                delete(child.getSyncopeRolePK().getName(),
+                       syncopeRolePK.getName());
+
         entityManager.remove(find(syncopeRolePK));
     }
 }

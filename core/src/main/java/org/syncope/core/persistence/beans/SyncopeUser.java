@@ -15,8 +15,6 @@
 package org.syncope.core.persistence.beans;
 
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
 import java.util.Set;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;

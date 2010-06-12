@@ -38,9 +38,8 @@ public class AttributeDAOImpl extends AbstractDAOImpl
     @Override
     public Attribute find(long id) {
         Attribute result = entityManager.find(Attribute.class, id);
-        if (isDeletedOrNotManaged(result)) {
+        if (isDeletedOrNotManaged(result))
             result = null;
-        }
 
         return result;
     }
@@ -68,22 +67,22 @@ public class AttributeDAOImpl extends AbstractDAOImpl
             return;
         }
 
-        Query userQuery = entityManager.createQuery(
+        Query query = entityManager.createQuery(
                 "SELECT u FROM SyncopeUser u WHERE "
                 + ":attribute MEMBER OF u.attributes");
-        userQuery.setParameter("attribute", attribute);
-        List<SyncopeUser> users = userQuery.getResultList();
+        query.setParameter("attribute", attribute);
+        List<SyncopeUser> users = query.getResultList();
         for (SyncopeUser user : users) {
             user.removeAttribute(attribute);
             syncopeUserDAO.save(user);
         }
 
         if (!isDeletedOrNotManaged(attribute)) {
-            Query roleQuery = entityManager.createQuery(
+            query = entityManager.createQuery(
                     "SELECT r FROM SyncopeRole r WHERE "
                     + ":attribute MEMBER OF r.attributes");
-            roleQuery.setParameter("attribute", attribute);
-            List<SyncopeRole> roles = roleQuery.getResultList();
+            query.setParameter("attribute", attribute);
+            List<SyncopeRole> roles = query.getResultList();
             for (SyncopeRole role : roles) {
                 role.removeAttribute(attribute);
                 syncopeRoleDAO.save(role);
