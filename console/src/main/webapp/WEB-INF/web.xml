@@ -4,6 +4,20 @@
 	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 	version="2.5">
 
-	<display-name>Syncope console</display-name>
+    <display-name>Syncope console</display-name>
+
+    <filter>
+        <filter-name>wicket.console</filter-name>
+        <filter-class>org.apache.wicket.protocol.http.WicketFilter</filter-class>
+        <init-param>
+            <param-name>applicationClassName</param-name>
+            <param-value>org.syncope.console.SyncopeApplication</param-value>
+        </init-param>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>wicket.console</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
 
 </web-app>
