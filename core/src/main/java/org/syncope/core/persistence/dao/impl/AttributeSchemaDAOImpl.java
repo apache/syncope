@@ -16,18 +16,29 @@ package org.syncope.core.persistence.dao.impl;
 
 import java.util.List;
 import javax.persistence.Query;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.AttributeSchema;
+import org.syncope.core.persistence.dao.AttributeDAO;
 import org.syncope.core.persistence.dao.AttributeSchemaDAO;
 
 @Repository
 public class AttributeSchemaDAOImpl extends AbstractDAOImpl
         implements AttributeSchemaDAO {
 
+    @Autowired
+    AttributeDAO attributeDAO;
+
     @Override
     public AttributeSchema find(String name) {
-        return entityManager.find(AttributeSchema.class, name);
+        AttributeSchema result =
+                entityManager.find(AttributeSchema.class, name);
+        if (isDeletedOrNotManaged(result)) {
+            result = null;
+        }
+
+        return result;
     }
 
     @Override
@@ -48,6 +59,11 @@ public class AttributeSchemaDAOImpl extends AbstractDAOImpl
     @Override
     @Transactional
     public void delete(String name) {
-        entityManager.remove(find(name));
+        AttributeSchema schema = find(name);
+        if (schema == null) {
+            return;
+        }
+
+        entityManager.remove(schema);
     }
 }

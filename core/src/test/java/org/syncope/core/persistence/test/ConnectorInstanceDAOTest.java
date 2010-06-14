@@ -14,8 +14,6 @@
  */
 package org.syncope.core.persistence.test;
 
-import java.io.InputStream;
-
 import static org.junit.Assert.*;
 
 import org.junit.Test;
@@ -32,7 +30,7 @@ public class ConnectorInstanceDAOTest extends AbstractDAOTest {
     ConnectorInstanceDAO connectorInstanceDAO;
 
     @Test
-    public final void testFindById() {
+    public final void findById() {
         ConnectorInstance connectorInstance = connectorInstanceDAO.find(100L);
 
         assertNotNull("findById did not work", connectorInstance);
@@ -48,7 +46,7 @@ public class ConnectorInstanceDAOTest extends AbstractDAOTest {
     }
 
     @Test
-    public final void testSave() throws ClassNotFoundException {
+    public final void save() throws ClassNotFoundException {
         ConnectorInstance connectorInstance = new ConnectorInstance();
 
         // set connector version
@@ -93,9 +91,6 @@ public class ConnectorInstanceDAOTest extends AbstractDAOTest {
         assertEquals("save did not work for \"majorVersion\" attribute",
                 "1.0", connectorInstance.getVersion());
 
-
-        InputStream is = null;
-
         String xmlConfiguration = connectorInstance.getXmlConfiguration();
 
         assertNotNull("configuration not found", xmlConfiguration);
@@ -106,7 +101,7 @@ public class ConnectorInstanceDAOTest extends AbstractDAOTest {
         assertNotNull("configuration retrieving failed", conf);
 
         Throwable t = null;
-        
+
         try {
             conf.validate();
         } catch (IllegalArgumentException e) {
@@ -117,7 +112,7 @@ public class ConnectorInstanceDAOTest extends AbstractDAOTest {
     }
 
     @Test
-    public final void testDelete() {
+    public final void delete() {
         ConnectorInstance connectorInstance = connectorInstanceDAO.find(100L);
 
         assertNotNull("find to delete did not work", connectorInstance);

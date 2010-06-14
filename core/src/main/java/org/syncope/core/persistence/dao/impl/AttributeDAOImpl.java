@@ -38,8 +38,9 @@ public class AttributeDAOImpl extends AbstractDAOImpl
     @Override
     public Attribute find(long id) {
         Attribute result = entityManager.find(Attribute.class, id);
-        if (isDeletedOrNotManaged(result))
+        if (isDeletedOrNotManaged(result)) {
             result = null;
+        }
 
         return result;
     }

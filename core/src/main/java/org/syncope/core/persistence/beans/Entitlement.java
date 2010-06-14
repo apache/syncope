@@ -30,7 +30,7 @@ public class Entitlement extends AbstractBaseBean {
     private String name;
     @Column(nullable = true)
     private String description;
-    @ManyToMany(fetch=FetchType.EAGER, mappedBy="entitlements")
+    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "entitlements")
     private Set<SyncopeRole> roles;
 
     public String getDescription() {

@@ -36,14 +36,14 @@ public class AttributeDAOTest extends AbstractDAOTest {
     AttributeSchemaDAO attributeSchemaDAO;
 
     @Test
-    public final void testFindAll() {
+    public final void findAll() {
         List<Attribute> list = attributeDAO.findAll();
         assertEquals("did not get expected number of attributes ",
                 8, list.size());
     }
 
     @Test
-    public final void testFindById() {
+    public final void findById() {
         Attribute attribute = attributeDAO.find(100L);
         assertNotNull("did not find expected attribute schema",
                 attribute);
@@ -53,7 +53,7 @@ public class AttributeDAOTest extends AbstractDAOTest {
     }
 
     @Test
-    public final void testSave() throws ClassNotFoundException {
+    public final void save() throws ClassNotFoundException {
         AttributeSchema emailSchema = new AttributeSchema();
         emailSchema.setName("email");
         emailSchema.setType(AttributeType.String);
@@ -80,8 +80,9 @@ public class AttributeDAOTest extends AbstractDAOTest {
             thrown = e;
         }
         assertNull("no validation exception expected here ", thrown);
-        if (thrown != null)
+        if (thrown != null) {
             log.error("Validation exception for " + attribute, thrown);
+        }
 
         try {
             attribute.addValue("http://www.apache.org");
@@ -98,17 +99,7 @@ public class AttributeDAOTest extends AbstractDAOTest {
     }
 
     @Test
-    public final void testDelete() {
-        Attribute attribute = attributeDAO.find(100L);
-
-        attributeDAO.delete(attribute.getId());
-
-        Attribute actual = attributeDAO.find(100L);
-        assertNull("delete did not work", actual);
-    }
-
-    @Test
-    public final void testRelationships() {
+    public final void deleteAndRelationships() {
         Attribute attribute = attributeDAO.find(200L);
         String attributeSchemaName =
                 attribute.getSchema().getName();

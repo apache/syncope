@@ -39,21 +39,21 @@ public class DerivedAttributeDAOTest extends AbstractDAOTest {
     DerivedAttributeSchemaDAO derivedAttributeSchemaDAO;
 
     @Test
-    public final void testFindAll() {
+    public final void findAll() {
         List<DerivedAttribute> list = derivedAttributeDAO.findAll();
         assertEquals("did not get expected number of derived attributes ",
                 1, list.size());
     }
 
     @Test
-    public final void testFindById() {
+    public final void findById() {
         DerivedAttribute attribute = derivedAttributeDAO.find(1000L);
         assertNotNull("did not find expected attribute schema",
                 attribute);
     }
 
     @Test
-    public final void testSave() throws ClassNotFoundException {
+    public final void save() throws ClassNotFoundException {
         DerivedAttributeSchema derivedAttributeSchema =
                 new DerivedAttributeSchema();
         derivedAttributeSchema.setName("cn2");
@@ -92,7 +92,7 @@ public class DerivedAttributeDAOTest extends AbstractDAOTest {
     }
 
     @Test
-    public final void testDeleteAndRelationships() {
+    public final void deleteAndRelationships() {
         DerivedAttribute attribute = derivedAttributeDAO.find(1000L);
         String attributeSchemaName =
                 attribute.getSchema().getName();

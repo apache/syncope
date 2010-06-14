@@ -35,21 +35,21 @@ public class EntitlementDAOTest extends AbstractDAOTest {
     SyncopeRoleDAO syncopeRoleDAO;
 
     @Test
-    public final void testFindAll() {
+    public final void findAll() {
         List<Entitlement> list = entitlementDAO.findAll();
         assertEquals("did not get expected number of entitlements ",
-                     2, list.size());
+                2, list.size());
     }
 
     @Test
-    public final void testFindByName() {
+    public final void findByName() {
         Entitlement entitlement = entitlementDAO.find("base");
         assertNotNull("did not find expected entitlement",
-                      entitlement);
+                entitlement);
     }
 
     @Test
-    public final void testSave() {
+    public final void save() {
         Entitlement entitlement = new Entitlement();
         entitlement.setName("another");
 
@@ -61,7 +61,7 @@ public class EntitlementDAOTest extends AbstractDAOTest {
     }
 
     @Test
-    public final void testDelete() {
+    public final void delete() {
         entitlementDAO.delete("advanced");
 
         Entitlement actual = entitlementDAO.find("advanced");
@@ -69,16 +69,17 @@ public class EntitlementDAOTest extends AbstractDAOTest {
     }
 
     @Test
-    public final void testRelationships() {
+    public final void relationships() {
         Entitlement entitlement = entitlementDAO.find("base");
         assertNotNull("did not find expected entitlement",
-                      entitlement);
+                entitlement);
 
         Set<SyncopeRole> roles = entitlement.getRoles();
         assertEquals("expected two roles", 2, roles.size());
 
         entitlementDAO.delete("base");
-        for (SyncopeRole role : roles)
+        for (SyncopeRole role : roles) {
             assertFalse(role.getEntitlements().contains(entitlement));
+        }
     }
 }

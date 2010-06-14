@@ -23,9 +23,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.SyncopeRole;
 import org.syncope.core.persistence.beans.Attribute;
+import org.syncope.core.persistence.beans.Entitlement;
 import org.syncope.core.persistence.beans.SyncopeRolePK;
 import org.syncope.core.persistence.dao.AttributeSchemaDAO;
 import org.syncope.core.persistence.dao.AttributeDAO;
+import org.syncope.core.persistence.dao.EntitlementDAO;
 import org.syncope.core.persistence.dao.SyncopeRoleDAO;
 
 @Transactional
@@ -37,15 +39,17 @@ public class SyncopeRoleDAOTest extends AbstractDAOTest {
     AttributeDAO attributeDAO;
     @Autowired
     AttributeSchemaDAO attributeSchemaDAO;
+    @Autowired
+    EntitlementDAO entitlementDAO;
 
     @Test
-    public final void testFindAll() {
+    public final void findAll() {
         List<SyncopeRole> list = syncopeRoleDAO.findAll();
         assertEquals("did not get expected number of roles ", 7, list.size());
     }
 
     @Test
-    public final void testFind() {
+    public final void find() {
         SyncopeRole role = syncopeRoleDAO.find("root", null);
         assertNotNull("did not find expected role", role);
         role = syncopeRoleDAO.find(new SyncopeRolePK(null, null));
@@ -53,7 +57,7 @@ public class SyncopeRoleDAOTest extends AbstractDAOTest {
     }
 
     @Test
-    public final void testSave() {
+    public final void save() {
         SyncopeRolePK rolePK = new SyncopeRolePK("secondChild", "root");
         SyncopeRole role = new SyncopeRole();
         role.setSyncopeRolePK(rolePK);
@@ -65,7 +69,7 @@ public class SyncopeRoleDAOTest extends AbstractDAOTest {
     }
 
     @Test
-    public final void testDelete() {
+    public final void delete() {
         SyncopeRole role = syncopeRoleDAO.find("employee", "citizen");
         syncopeRoleDAO.delete(role.getSyncopeRolePK());
 
@@ -73,15 +77,15 @@ public class SyncopeRoleDAOTest extends AbstractDAOTest {
         assertNull("delete did not work", actual);
 
         SyncopeRole children = syncopeRoleDAO.find("managingDirector",
-                                                   "director");
+                "director");
         assertNull("delete of successors did not work", children);
 
     }
 
     @Test
-    public final void testRelationships() {
-        SyncopeRole role = syncopeRoleDAO.find("root", null);
-        Set<Attribute> attributes = role.getAttributes();
+    public final void relationships() {
+        SyncopeRole rootRole = syncopeRoleDAO.find("root", null);
+        Set<Attribute> attributes = rootRole.getAttributes();
         int originalAttributesSize = attributes.size();
         Attribute attribute = attributes.iterator().next();
 
@@ -90,13 +94,25 @@ public class SyncopeRoleDAOTest extends AbstractDAOTest {
         attributeDAO.delete(attribute.getId());
         assertNull(attributeDAO.find(attribute.getId()));
         assertEquals("unexpected number of attributes",
-                     originalAttributesSize - 1, role.getAttributes().size());
+                originalAttributesSize - 1, rootRole.getAttributes().size());
 
         // Remove an attribute association with a user: we expect not to
         // have it on the db table as well
-        attribute = role.getAttributes().iterator().next();
-        role.removeAttribute(attribute);
-        syncopeRoleDAO.save(role);
+        attribute = rootRole.getAttributes().iterator().next();
+        rootRole.removeAttribute(attribute);
+        syncopeRoleDAO.save(rootRole);
         assertNull(attributeDAO.find(attribute.getId()));
+
+        // Remove an entitlement: we expect that all the owning roles
+        // are updated as well
+        Entitlement entitlement = entitlementDAO.find("base");
+        assertNotNull("did not find expected entitlement",
+                entitlement);
+
+        Set<SyncopeRole> roles = entitlement.getRoles();
+        entitlementDAO.delete("base");
+        for (SyncopeRole role : roles) {
+            assertFalse(role.getEntitlements().contains(entitlement));
+        }
     }
 }

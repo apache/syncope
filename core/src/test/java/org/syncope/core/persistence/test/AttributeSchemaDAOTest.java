@@ -31,14 +31,14 @@ public class AttributeSchemaDAOTest extends AbstractDAOTest {
     AttributeSchemaDAO attributeSchemaDAO;
 
     @Test
-    public final void testFindAll() {
+    public final void findAll() {
         List<AttributeSchema> list = attributeSchemaDAO.findAll();
         assertEquals("did not get expected number of attribute schemas ",
                 6, list.size());
     }
 
     @Test
-    public final void testFindByName() {
+    public final void findByName() {
         AttributeSchema attributeSchema =
                 attributeSchemaDAO.find("username");
         assertNotNull("did not find expected attribute schema",
@@ -46,7 +46,7 @@ public class AttributeSchemaDAOTest extends AbstractDAOTest {
     }
 
     @Test
-    public final void testSave() {
+    public final void save() {
         AttributeSchema attributeSchema = new AttributeSchema();
         attributeSchema.setName("email");
         attributeSchema.setType(AttributeType.String);
@@ -63,11 +63,11 @@ public class AttributeSchemaDAOTest extends AbstractDAOTest {
     }
 
     @Test
-    public final void testDelete() {
-        AttributeSchema attributeSchema =
+    public final void deleteAndRelationships() {
+        AttributeSchema schema =
                 attributeSchemaDAO.find("username");
 
-        attributeSchemaDAO.delete(attributeSchema.getName());
+        attributeSchemaDAO.delete(schema.getName());
 
         AttributeSchema actual = attributeSchemaDAO.find("username");
         assertNull("delete did not work", actual);

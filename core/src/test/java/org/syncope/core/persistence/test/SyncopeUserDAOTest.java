@@ -41,13 +41,13 @@ public class SyncopeUserDAOTest extends AbstractDAOTest {
     SyncopeRoleDAO syncopeRoleDAO;
 
     @Test
-    public final void testFindAll() {
+    public final void findAll() {
         List<SyncopeUser> list = syncopeUserDAO.findAll();
         assertEquals("did not get expected number of users ", 3, list.size());
     }
 
     @Test
-    public final void testFindById() {
+    public final void findById() {
         SyncopeUser user = syncopeUserDAO.find(1L);
         assertNotNull("did not find expected user", user);
         user = syncopeUserDAO.find(3L);
@@ -57,7 +57,7 @@ public class SyncopeUserDAOTest extends AbstractDAOTest {
     }
 
     @Test
-    public final void testSave() {
+    public final void save() {
         SyncopeUser user = new SyncopeUser();
 
         user = syncopeUserDAO.save(user);
@@ -67,7 +67,7 @@ public class SyncopeUserDAOTest extends AbstractDAOTest {
     }
 
     @Test
-    public final void testDelete() {
+    public final void delete() {
         SyncopeUser user = syncopeUserDAO.find(3L);
 
         syncopeUserDAO.delete(user.getId());
@@ -77,7 +77,7 @@ public class SyncopeUserDAOTest extends AbstractDAOTest {
     }
 
     @Test
-    public final void testRelationships() {
+    public final void relationships() {
         SyncopeUser user = syncopeUserDAO.find(1L);
         Set<Attribute> attributes = user.getAttributes();
         int originalAttributesSize = attributes.size();

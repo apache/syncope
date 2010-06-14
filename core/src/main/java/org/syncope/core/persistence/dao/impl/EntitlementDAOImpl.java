@@ -17,6 +17,7 @@
 package org.syncope.core.persistence.dao.impl;
 
 import java.util.List;
+import java.util.Set;
 import javax.persistence.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -34,8 +35,9 @@ public class EntitlementDAOImpl extends AbstractDAOImpl implements EntitlementDA
     @Override
     public Entitlement find(String name) {
         Entitlement result = entityManager.find(Entitlement.class, name);
-        if (isDeletedOrNotManaged(result))
+        if (isDeletedOrNotManaged(result)) {
             result = null;
+        }
 
         return result;
     }
@@ -57,14 +59,11 @@ public class EntitlementDAOImpl extends AbstractDAOImpl implements EntitlementDA
     @Override
     public void delete(String name) {
         Entitlement entitlement = find(name);
-        if (entitlement == null)
+        if (entitlement == null) {
             return;
+        }
 
-        Query query = entityManager.createQuery(
-                "SELECT r FROM SyncopeRole r WHERE "
-                + ":entitlement MEMBER OF r.entitlements");
-        query.setParameter("entitlement", entitlement);
-        List<SyncopeRole> roles = query.getResultList();
+        Set<SyncopeRole> roles = entitlement.getRoles();
         for (SyncopeRole role : roles) {
             role.removeEntitlement(entitlement);
             syncopeRoleDAO.save(role);
