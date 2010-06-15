@@ -5,6 +5,7 @@ import org.apache.wicket.Response;
 import org.apache.wicket.Session;
 import org.apache.wicket.protocol.http.WebApplication;
 import org.syncope.console.pages.HomePage;
+import org.syncope.console.pages.Login;
 
 /**
  * SyncopeApplication class.
@@ -50,7 +51,7 @@ public class SyncopeApplication extends WebApplication
      */
     public Class getHomePage()
     {
-        return  HomePage.class;
+        return (user == null) ? Login.class :  HomePage.class;
     }
 
     /**

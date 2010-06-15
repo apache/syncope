@@ -1,0 +1,32 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="it" xml:lang="it">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+        <meta http-equiv="Content-Style-Type" content="text/css"/>
+
+        <title>Syncope - Login</title>
+
+        <link rel="stylesheet" href="css/stile_sy.css" type="text/css" media="all"/>
+
+    </head>
+    <body>
+        <div id="splash">
+            <img src="img/logo.png" alt="syncope" title="syncope" id="logo" />
+            <h2><wicket:message key="title"/></h2>
+            <form wicket:id="login">
+                <label for="username">
+                    <wicket:message key="username"/>
+                </label>
+                <input type="text" wicket:id="username" id="username" size="25" />
+                <br />
+                <label for="password" class="password">
+                    <wicket:message key="password"/>
+                </label>
+                <input type="password" wicket:id="password" id="password" size="25" />
+                <br />
+                <input type="submit" wicket:id="submit"/>
+                <input type="reset" wicket:id="reset"/>
+            </form>
+        </div>
+    </body>
+</html>

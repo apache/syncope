@@ -1,0 +1,62 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="it" xml:lang="it">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+            <meta http-equiv="Content-Style-Type" content="text/css"/>
+                <meta http-equiv="Content-Script-Type" content="text/javascript"/>
+
+                    <title>Syncope</title>
+
+                    <link rel="stylesheet" href="css/ui.tabs.css" type="text/css" media="all"/>
+                        <link rel="stylesheet" href="css/stile_sy.css" type="text/css" media="all"/>
+
+                            <script src="scripts/jquery-1.2.6.js" type="text/javascript"></script>
+                            <script src="scripts/ui.core.js" type="text/javascript"></script>
+                            <script src="scripts/ui.tabs.js" type="text/javascript"></script>
+                            <script type="text/javascript">
+                                $(function() {
+                                    $("#menuTab ul").tabs();
+                                });
+                            </script>
+                            </head>
+                            <body>
+                                <div id="testa">
+                                    <img src="img/logo.png" alt="syncope" title="syncope" id="logo" />
+                                    <ul>
+                                        <li>
+                                            <a href=#" wicket:id="users"><img src="img/menu/users.png" alt="Users" width="80" height="80" /><br />
+                                               <wicket:message key="users"/>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href=#" wicket:id="roles"><img src="img/menu/notsel/roles.png" alt="Roles" width="80" height="80" /><br />
+                                                <wicket:message key="roles"/>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="#" wicket:id="resources"><img src="img/menu/notsel/resources.png" alt="Resources" width="80" height="80" /><br />
+                                                <wicket:message key="resources"/>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="#" wicket:id="connectors"><img src="img/menu/notsel/connectors.png" alt="Connectors" width="80" height="80" /><br />
+                                                <wicket:message key="connectors"/>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="#" wicket:id="report"><img src="img/menu/notsel/reports.png" alt="Report" width="80" height="80" /><br />
+                                                <wicket:message key="report"/>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="#" wicket:id="configuration"><img src="img/menu/notsel/configuration.png" alt="Configuration" width="80" height="80" /><br />
+                                                <wicket:message key="configuration"/>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <wicket:child />
+
+                            </body>
+                            </html>

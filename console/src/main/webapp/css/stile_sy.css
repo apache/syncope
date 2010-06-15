@@ -27,17 +27,17 @@ body {
 	margin-top: 100px;
 	border: 1px solid #463;
 }
-	
+
 	#splash a {
 		color: #463;
 		text-decoration: none;
 		font-size: 14px;
 	}
-	
+
 	#splash a img {
 		border: none;
 	}
-	
+
 	#splash h2 {
 		color: #FFF;
 		margin: 0px;
@@ -46,36 +46,36 @@ body {
 		text-align: center;
 		font-weight: normal;
 	}
-	
+
 	#splash form {
 		margin: 6px auto;
-		width: 300px;
+		width: 100%;
 		text-align: center;
 	}
-	
+
 	#splash form label {
 		margin-right: 5px;
+		display: block;
 	}
-	
+
 	#splash form label.password {
-		margin-right: 31px;
 	}
-	
+
 	#splash form input {
 		margin-bottom: 15px;
 	}
-	
+
 	#splash p {
 		margin: 6px 16px;
 		border-top: 1px solid #463;
 		text-align: center;
 		padding-top: 8px;
 	}
-	
+
 	#splash ul {
 		height: 200px;
 	}
-	
+
 	#splash ul li {
 		float: left;
 		width: 105px;
@@ -87,37 +87,37 @@ body {
 #testa {
 	background: url(../img/sf_testa.png) top repeat-x #FFF;
 }
-	
+
 	#testa a img {
 		border: none;
 	}
-	
+
 	#testa {
 		height: 103px;
 	}
-	
+
 	#testa img#logo {
 		position: absolute;
 		left: 0px;
 		top: 0px;
 	}
-	
+
 	#testa a {
 		color: #FFF;
 		text-decoration: none;
 	}
-	
+
 	#testa a:hover {
 		color: #CCC;
 	}
-	
+
 	#testa ul {
 		clear: both;
 		padding: 0px;
 		margin: 0px;
 		margin-left: 280px;
 	}
-	
+
 	#testa ul li {
 		float: left;
 		width: 90px;
@@ -128,7 +128,7 @@ body {
 		list-style: none;
 		padding: 0px;
 	}
-	
+
 	#testa span {
 		font-size: 14px;
 	}
