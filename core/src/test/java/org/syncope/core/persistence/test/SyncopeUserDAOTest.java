@@ -59,6 +59,7 @@ public class SyncopeUserDAOTest extends AbstractDAOTest {
     @Test
     public final void save() {
         SyncopeUser user = new SyncopeUser();
+        user.setPassword("password");
 
         user = syncopeUserDAO.save(user);
 

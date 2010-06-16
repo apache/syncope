@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <dataset>
-    <SyncopeUser id="1"/>
-    <SyncopeUser id="2"/>
-    <SyncopeUser id="3"/>
+    <SyncopeUser id="1" password="XXX"/>
+    <SyncopeUser id="2" password="YYY"/>
+    <SyncopeUser id="3" password="ZZZ"/>
 
     <SyncopeRole name="root" parent="/"/>
     <SyncopeRole name="child" parent="root"/>

@@ -22,13 +22,20 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
+import javax.persistence.Transient;
+import org.jasypt.util.password.PasswordEncryptor;
+import org.jasypt.util.password.StrongPasswordEncryptor;
 
 @Entity
 public class SyncopeUser extends AbstractAttributableBean {
 
+    @Transient
+    final private static PasswordEncryptor passwordEncryptor =
+            new StrongPasswordEncryptor();
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+    private String password;
     @ManyToMany(fetch = FetchType.EAGER)
     private Set<SyncopeRole> roles;
 
@@ -47,6 +54,22 @@ public class SyncopeUser extends AbstractAttributableBean {
 
     public void setRoles(Set<SyncopeRole> roles) {
         this.roles = roles;
+    }
+
+    public boolean checkPassword(String cleanPassword) {
+        return passwordEncryptor.checkPassword(cleanPassword, password);
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    /**
+     * TODO: password policies
+     * @param password
+     */
+    public void setPassword(String password) {
+        this.password = passwordEncryptor.encryptPassword(password);
     }
 
     @Override
