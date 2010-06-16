@@ -20,10 +20,12 @@ import static javax.persistence.EnumType.STRING;
 import java.text.DecimalFormat;
 import java.text.Format;
 import java.text.SimpleDateFormat;
+import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 import org.syncope.core.persistence.AttributeType;
 import org.syncope.core.persistence.validation.AttributeBasicValidator;
@@ -42,6 +44,8 @@ public class AttributeSchema extends AbstractBaseBean {
     private Boolean multivalue;
     private String conversionPattern;
     private String validatorClass;
+    @OneToMany(orphanRemoval = true, mappedBy = "schema")
+    private Set<Attribute> attributes;
     @Transient
     private AttributeValidator validator;
 
@@ -139,6 +143,24 @@ public class AttributeSchema extends AbstractBaseBean {
         }
 
         this.conversionPattern = conversionPattern;
+    }
+
+    public boolean addAttribute(Attribute attribute) {
+        attribute.setSchema(this);
+        return attributes.add(attribute);
+    }
+
+    public boolean removeAttribute(Attribute attribute) {
+        attribute.setSchema(null);
+        return attributes.remove(attribute);
+    }
+
+    public Set<Attribute> getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(Set<Attribute> attributes) {
+        this.attributes = attributes;
     }
 
     public <T extends Format> T getFormatter(Class<T> reference) {

@@ -20,6 +20,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
+import javax.persistence.ManyToOne;
 
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
@@ -28,9 +29,19 @@ public abstract class AttributeValue extends AbstractBaseBean {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     protected Long id;
+    @ManyToOne
+    private Attribute attribute;
 
     public Long getId() {
         return id;
+    }
+
+    public Attribute getAttribute() {
+        return attribute;
+    }
+
+    public void setAttribute(Attribute Attribute) {
+        this.attribute = Attribute;
     }
 
     @Override

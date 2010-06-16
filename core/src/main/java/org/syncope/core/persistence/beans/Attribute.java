@@ -34,7 +34,8 @@ public class Attribute extends AbstractBaseBean {
     private Long id;
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     private AttributeSchema schema;
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER,
+    mappedBy = "attribute", orphanRemoval = true)
     private Set<AttributeValue> values;
 
     protected Attribute() {

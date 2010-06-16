@@ -45,16 +45,16 @@
     <Attribute id="700" schema_name="icon"/>
     <Attribute id="800" schema_name="show"/>
 
-    <AttributeValue id="10"/>
-    <AttributeValue id="11"/>
-    <AttributeValue id="20"/>
-    <AttributeValue id="21"/>
-    <AttributeValue id="30"/>
-    <AttributeValue id="31"/>
-    <AttributeValue id="40"/>
-    <AttributeValue id="41"/>
-    <AttributeValue id="42"/>
-
+    <AttributeValue attribute_id="100" id="10"/>
+    <AttributeValue attribute_id="200" id="20"/>
+    <AttributeValue attribute_id="200" id="21"/>
+    <AttributeValue attribute_id="300" id="11"/>
+    <AttributeValue attribute_id="400" id="30"/>
+    <AttributeValue attribute_id="500" id="31"/>
+    <AttributeValue attribute_id="600" id="40"/>
+    <AttributeValue attribute_id="700" id="41"/>
+    <AttributeValue attribute_id="800" id="42"/>
+        
     <AttributeValueAsString id="10" actualValue="chicchiricco"/>
     <AttributeValueAsString id="11" actualValue="fabio.martelli"/>
 
@@ -68,25 +68,6 @@
     <AttributeValueAsString id="41" actualValue="badIcon"/>
 
     <AttributeValueAsBoolean id="42" actualValue="TRUE"/>
-
-    <Attribute_AttributeValue
-        Attribute_id="100" values_id="10"/>
-    <Attribute_AttributeValue
-        Attribute_id="200" values_id="20"/>
-    <Attribute_AttributeValue
-        Attribute_id="200" values_id="21"/>
-    <Attribute_AttributeValue
-        Attribute_id="300" values_id="11"/>
-    <Attribute_AttributeValue
-        Attribute_id="400" values_id="30"/>
-    <Attribute_AttributeValue
-        Attribute_id="500" values_id="31"/>
-    <Attribute_AttributeValue
-        Attribute_id="600" values_id="40"/>
-    <Attribute_AttributeValue
-        Attribute_id="700" values_id="41"/>
-    <Attribute_AttributeValue
-        Attribute_id="800" values_id="42"/>
 
     <SyncopeUser_Attribute SyncopeUser_id='1'
                            attributes_id='100'/>
