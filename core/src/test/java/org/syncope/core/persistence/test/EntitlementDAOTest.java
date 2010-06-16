@@ -62,14 +62,6 @@ public class EntitlementDAOTest extends AbstractDAOTest {
 
     @Test
     public final void delete() {
-        entitlementDAO.delete("advanced");
-
-        Entitlement actual = entitlementDAO.find("advanced");
-        assertNull("delete did not work", actual);
-    }
-
-    @Test
-    public final void relationships() {
         Entitlement entitlement = entitlementDAO.find("base");
         assertNotNull("did not find expected entitlement",
                 entitlement);

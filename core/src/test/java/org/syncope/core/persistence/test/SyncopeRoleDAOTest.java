@@ -81,38 +81,4 @@ public class SyncopeRoleDAOTest extends AbstractDAOTest {
         assertNull("delete of successors did not work", children);
 
     }
-
-    @Test
-    public final void relationships() {
-        SyncopeRole rootRole = syncopeRoleDAO.find("root", null);
-        Set<Attribute> attributes = rootRole.getAttributes();
-        int originalAttributesSize = attributes.size();
-        Attribute attribute = attributes.iterator().next();
-
-        // Remove an attribute from its table: we expect not to find it
-        // associated with the user
-        attributeDAO.delete(attribute.getId());
-        assertNull(attributeDAO.find(attribute.getId()));
-        assertEquals("unexpected number of attributes",
-                originalAttributesSize - 1, rootRole.getAttributes().size());
-
-        // Remove an attribute association with a user: we expect not to
-        // have it on the db table as well
-        attribute = rootRole.getAttributes().iterator().next();
-        rootRole.removeAttribute(attribute);
-        syncopeRoleDAO.save(rootRole);
-        assertNull(attributeDAO.find(attribute.getId()));
-
-        // Remove an entitlement: we expect that all the owning roles
-        // are updated as well
-        Entitlement entitlement = entitlementDAO.find("base");
-        assertNotNull("did not find expected entitlement",
-                entitlement);
-
-        Set<SyncopeRole> roles = entitlement.getRoles();
-        entitlementDAO.delete("base");
-        for (SyncopeRole role : roles) {
-            assertFalse(role.getEntitlements().contains(entitlement));
-        }
-    }
 }

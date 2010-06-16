@@ -24,6 +24,7 @@ import org.syncope.core.persistence.beans.SyncopeUser;
 import org.syncope.core.persistence.beans.AttributeValueAsString;
 import org.syncope.core.persistence.beans.DerivedAttribute;
 import org.syncope.core.persistence.beans.DerivedAttributeSchema;
+import org.syncope.core.persistence.dao.AttributeSchemaDAO;
 import org.syncope.core.persistence.dao.SyncopeUserDAO;
 import org.syncope.core.persistence.dao.DerivedAttributeDAO;
 import org.syncope.core.persistence.dao.DerivedAttributeSchemaDAO;
@@ -37,6 +38,8 @@ public class DerivedAttributeDAOTest extends AbstractDAOTest {
     SyncopeUserDAO syncopeUserDAO;
     @Autowired
     DerivedAttributeSchemaDAO derivedAttributeSchemaDAO;
+    @Autowired
+    AttributeSchemaDAO attributeSchemaDAO;
 
     @Test
     public final void findAll() {
@@ -58,6 +61,10 @@ public class DerivedAttributeDAOTest extends AbstractDAOTest {
                 new DerivedAttributeSchema();
         derivedAttributeSchema.setName("cn2");
         derivedAttributeSchema.setExpression("firstname + \" \" + surname");
+        derivedAttributeSchema.addAttributeSchema(
+                attributeSchemaDAO.find("firstname"));
+        derivedAttributeSchema.addAttributeSchema(
+                attributeSchemaDAO.find("surname"));
 
         derivedAttributeSchemaDAO.save(derivedAttributeSchema);
 
@@ -92,7 +99,7 @@ public class DerivedAttributeDAOTest extends AbstractDAOTest {
     }
 
     @Test
-    public final void deleteAndRelationships() {
+    public final void delete() {
         DerivedAttribute attribute = derivedAttributeDAO.find(1000L);
         String attributeSchemaName =
                 attribute.getSchema().getName();
@@ -104,7 +111,8 @@ public class DerivedAttributeDAOTest extends AbstractDAOTest {
 
         DerivedAttributeSchema attributeSchema =
                 derivedAttributeSchemaDAO.find(attributeSchemaName);
-        assertNotNull("user derived attribute schema deleted when deleting values",
+        assertNotNull("user derived attribute schema deleted "
+                + "when deleting values",
                 attributeSchema);
     }
 }

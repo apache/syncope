@@ -99,7 +99,7 @@ public class AttributeDAOTest extends AbstractDAOTest {
     }
 
     @Test
-    public final void deleteAndRelationships() {
+    public final void delete() {
         Attribute attribute = attributeDAO.find(200L);
         String attributeSchemaName =
                 attribute.getSchema().getName();

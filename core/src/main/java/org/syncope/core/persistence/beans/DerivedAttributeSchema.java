@@ -14,8 +14,11 @@
  */
 package org.syncope.core.persistence.beans;
 
+import java.util.HashSet;
+import java.util.Set;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 
 @Entity
 public class DerivedAttributeSchema extends AbstractBaseBean {
@@ -23,6 +26,12 @@ public class DerivedAttributeSchema extends AbstractBaseBean {
     @Id
     private String name;
     private String expression;
+    @ManyToMany
+    private Set<AttributeSchema> attributeSchemas;
+
+    public DerivedAttributeSchema() {
+        attributeSchemas = new HashSet<AttributeSchema>();
+    }
 
     public String getName() {
         return name;
@@ -38,6 +47,22 @@ public class DerivedAttributeSchema extends AbstractBaseBean {
 
     public void setExpression(String expression) {
         this.expression = expression;
+    }
+
+    public boolean addAttributeSchema(AttributeSchema attributeSchema) {
+        return attributeSchemas.add(attributeSchema);
+    }
+
+    public boolean removeAttributeSchema(AttributeSchema attributeSchema) {
+        return attributeSchemas.remove(attributeSchema);
+    }
+
+    public Set<AttributeSchema> getAttributeSchemas() {
+        return attributeSchemas;
+    }
+
+    public void setAttributeSchemas(Set<AttributeSchema> attributeSchemas) {
+        this.attributeSchemas = attributeSchemas;
     }
 
     @Override

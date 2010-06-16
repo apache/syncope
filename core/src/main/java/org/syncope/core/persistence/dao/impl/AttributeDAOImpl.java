@@ -16,24 +16,14 @@ package org.syncope.core.persistence.dao.impl;
 
 import java.util.List;
 import javax.persistence.Query;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.Attribute;
-import org.syncope.core.persistence.beans.SyncopeRole;
-import org.syncope.core.persistence.beans.SyncopeUser;
 import org.syncope.core.persistence.dao.AttributeDAO;
-import org.syncope.core.persistence.dao.SyncopeRoleDAO;
-import org.syncope.core.persistence.dao.SyncopeUserDAO;
 
 @Repository
 public class AttributeDAOImpl extends AbstractDAOImpl
         implements AttributeDAO {
-
-    @Autowired
-    SyncopeUserDAO syncopeUserDAO;
-    @Autowired
-    SyncopeRoleDAO syncopeRoleDAO;
 
     @Override
     public Attribute find(long id) {
@@ -66,28 +56,6 @@ public class AttributeDAOImpl extends AbstractDAOImpl
         Attribute attribute = find(id);
         if (attribute == null) {
             return;
-        }
-
-        Query query = entityManager.createQuery(
-                "SELECT u FROM SyncopeUser u WHERE "
-                + ":attribute MEMBER OF u.attributes");
-        query.setParameter("attribute", attribute);
-        List<SyncopeUser> users = query.getResultList();
-        for (SyncopeUser user : users) {
-            user.removeAttribute(attribute);
-            syncopeUserDAO.save(user);
-        }
-
-        if (!isDeletedOrNotManaged(attribute)) {
-            query = entityManager.createQuery(
-                    "SELECT r FROM SyncopeRole r WHERE "
-                    + ":attribute MEMBER OF r.attributes");
-            query.setParameter("attribute", attribute);
-            List<SyncopeRole> roles = query.getResultList();
-            for (SyncopeRole role : roles) {
-                role.removeAttribute(attribute);
-                syncopeRoleDAO.save(role);
-            }
         }
 
         entityManager.remove(attribute);

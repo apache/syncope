@@ -14,17 +14,19 @@
  */
 package org.syncope.core.persistence.beans;
 
-import java.lang.reflect.Constructor;
 import static javax.persistence.EnumType.STRING;
 
+import java.lang.reflect.Constructor;
 import java.text.DecimalFormat;
 import java.text.Format;
 import java.text.SimpleDateFormat;
+import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 import org.syncope.core.persistence.AttributeType;
@@ -44,16 +46,21 @@ public class AttributeSchema extends AbstractBaseBean {
     private Boolean multivalue;
     private String conversionPattern;
     private String validatorClass;
+    @Transient
+    private AttributeValidator validator;
     @OneToMany(mappedBy = "schema")
     @org.hibernate.annotations.Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
     private Set<Attribute> attributes;
-    @Transient
-    private AttributeValidator validator;
+    @ManyToMany(mappedBy = "attributeSchemas")
+    private Set<DerivedAttributeSchema> derivedAttributeSchemas;
 
     public AttributeSchema() {
         type = AttributeType.String;
         mandatory = false;
         multivalue = false;
+
+        attributes = new HashSet<Attribute>();
+        derivedAttributeSchemas = new HashSet<DerivedAttributeSchema>();
     }
 
     public String getName() {
@@ -162,6 +169,16 @@ public class AttributeSchema extends AbstractBaseBean {
 
     public void setAttributes(Set<Attribute> attributes) {
         this.attributes = attributes;
+    }
+
+    public Set<DerivedAttributeSchema> getDerivedAttributeSchemas() {
+        return derivedAttributeSchemas;
+    }
+
+    public void setDerivedAttributeSchemas(
+            Set<DerivedAttributeSchema> derivedAttributeSchemas) {
+
+        this.derivedAttributeSchemas = derivedAttributeSchemas;
     }
 
     public <T extends Format> T getFormatter(Class<T> reference) {

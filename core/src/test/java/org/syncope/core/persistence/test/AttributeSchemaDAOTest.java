@@ -63,7 +63,7 @@ public class AttributeSchemaDAOTest extends AbstractDAOTest {
     }
 
     @Test
-    public final void deleteAndRelationships() {
+    public final void delete() {
         AttributeSchema schema =
                 attributeSchemaDAO.find("username");
 

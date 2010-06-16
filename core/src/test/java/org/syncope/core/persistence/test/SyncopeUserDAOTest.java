@@ -76,26 +76,4 @@ public class SyncopeUserDAOTest extends AbstractDAOTest {
         SyncopeUser actual = syncopeUserDAO.find(3L);
         assertNull("delete did not work", actual);
     }
-
-    @Test
-    public final void relationships() {
-        SyncopeUser user = syncopeUserDAO.find(1L);
-        Set<Attribute> attributes = user.getAttributes();
-        int originalAttributesSize = attributes.size();
-        Attribute attribute = attributes.iterator().next();
-
-        // Remove an attribute from its table: we expect not to find it
-        // associated with the user
-        attributeDAO.delete(attribute.getId());
-        assertNull(attributeDAO.find(attribute.getId()));
-        assertEquals("unexpected number of attributes",
-                originalAttributesSize - 1, user.getAttributes().size());
-
-        // Remove an attribute association with a user: we expect not to
-        // have it on the db table as well
-        attribute = user.getAttributes().iterator().next();
-        user.removeAttribute(attribute);
-        syncopeUserDAO.save(user);
-        assertNull(attributeDAO.find(attribute.getId()));
-    }
 }

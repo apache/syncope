@@ -61,10 +61,14 @@ public class DerivedAttribute extends AbstractBaseBean {
         AttributeValue attributeValue = null;
         for (Attribute attribute : attributes) {
             attributeValues = attribute.getValues();
-            if (attributeValues.isEmpty()) {
+            if (attributeValues.isEmpty()
+                    || !schema.getAttributeSchemas().contains(
+                    attribute.getSchema())) {
+
                 expressionValue = "";
             } else {
                 attributeValue = attributeValues.iterator().next();
+
                 switch (attribute.getSchema().getType()) {
                     case Boolean:
                         expressionValue =

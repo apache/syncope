@@ -21,6 +21,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.DerivedAttributeSchema;
+import org.syncope.core.persistence.dao.AttributeSchemaDAO;
 import org.syncope.core.persistence.dao.DerivedAttributeSchemaDAO;
 
 @Transactional
@@ -28,6 +29,8 @@ public class DerivedAttributeSchemaDAOTest extends AbstractDAOTest {
 
     @Autowired
     DerivedAttributeSchemaDAO derivedAttributeSchemaDAO;
+    @Autowired
+    AttributeSchemaDAO attributeSchemaDAO;
 
     @Test
     public final void findAll() {
@@ -50,7 +53,11 @@ public class DerivedAttributeSchemaDAOTest extends AbstractDAOTest {
         DerivedAttributeSchema derivedAttributeSchema =
                 new DerivedAttributeSchema();
         derivedAttributeSchema.setName("cn2");
-        derivedAttributeSchema.setExpression("name surname");
+        derivedAttributeSchema.setExpression("firstname surname");
+        derivedAttributeSchema.addAttributeSchema(
+                attributeSchemaDAO.find("firstname"));
+        derivedAttributeSchema.addAttributeSchema(
+                attributeSchemaDAO.find("surname"));
 
         derivedAttributeSchemaDAO.save(derivedAttributeSchema);
 

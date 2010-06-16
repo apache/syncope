@@ -88,7 +88,12 @@
                            attributes_id="700"/>
 
     <DerivedAttributeSchema name="cn" expression="surname + ', ' + firstname"/>
-
+    
+    <DerivedAttributeSchema_AttributeSchema derivedAttributeSchemas_name="cn"
+                                            attributeSchemas_name="surname" />
+    <DerivedAttributeSchema_AttributeSchema derivedAttributeSchemas_name="cn"
+                                            attributeSchemas_name="firstname" />
+                                            
     <DerivedAttribute id="1000" schema_name="cn"/>
 
     <SyncopeUser_DerivedAttribute SyncopeUser_id="3"
