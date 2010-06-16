@@ -106,11 +106,11 @@
         <osworkflow.version>2.8.0</osworkflow.version>
 
         <org.springframework.version>3.0.2.RELEASE</org.springframework.version>
+        <cglib.version>2.2</cglib.version>
         <jackson.version>1.5.2</jackson.version>
         <xstream.version>1.3.1</xstream.version>
 
-        <hibernate.version>3.5.2-Final</hibernate.version>
-        <jpa-2.0-api.version>1.0.0.Final</jpa-2.0-api.version>
+        <hibernate.version>3.4.0.GA</hibernate.version>
         <jasypt.version>1.6</jasypt.version>
 
         <postgresql.jdbc-driver.version>8.1-408.jdbc3</postgresql.jdbc-driver.version>
@@ -175,12 +175,6 @@
                 <artifactId>hibernate-entitymanager</artifactId>
                 <version>${hibernate.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.hibernate.javax.persistence</groupId>
-                <artifactId>hibernate-jpa-2.0-api</artifactId>
-                <version>${jpa-2.0-api.version}</version>
-                <scope>provided</scope>
-            </dependency>
 
             <dependency>
                 <groupId>org.jasypt</groupId>
@@ -231,6 +225,12 @@
                 <version>${org.springframework.version}</version>
             </dependency>
             <!-- /Spring -->
+
+            <dependency>
+                <groupId>cglib</groupId>
+                <artifactId>cglib</artifactId>
+                <version>${cglib.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.codehaus.jackson</groupId>

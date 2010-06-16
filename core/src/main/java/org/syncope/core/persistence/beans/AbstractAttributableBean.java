@@ -28,11 +28,11 @@ import javax.persistence.OneToMany;
 @MappedSuperclass
 public abstract class AbstractAttributableBean extends AbstractBaseBean {
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER,
-    orphanRemoval = true)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @org.hibernate.annotations.Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
     protected Set<Attribute> attributes;
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER,
-    orphanRemoval = true)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @org.hibernate.annotations.Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
     protected Set<DerivedAttribute> derivedAttributes;
 
     protected AbstractAttributableBean() {

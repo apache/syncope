@@ -44,7 +44,8 @@ public class AttributeSchema extends AbstractBaseBean {
     private Boolean multivalue;
     private String conversionPattern;
     private String validatorClass;
-    @OneToMany(orphanRemoval = true, mappedBy = "schema")
+    @OneToMany(mappedBy = "schema")
+    @org.hibernate.annotations.Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
     private Set<Attribute> attributes;
     @Transient
     private AttributeValidator validator;

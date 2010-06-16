@@ -35,7 +35,8 @@ public class Attribute extends AbstractBaseBean {
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     private AttributeSchema schema;
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER,
-    mappedBy = "attribute", orphanRemoval = true)
+    mappedBy = "attribute")
+    @org.hibernate.annotations.Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
     private Set<AttributeValue> values;
 
     protected Attribute() {
