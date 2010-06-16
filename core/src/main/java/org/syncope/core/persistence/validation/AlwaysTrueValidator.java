@@ -18,7 +18,6 @@ package org.syncope.core.persistence.validation;
 
 import org.syncope.core.persistence.beans.AttributeSchema;
 import org.syncope.core.persistence.beans.AttributeValue;
-import org.syncope.core.persistence.beans.AttributeValueAsBoolean;
 
 public class AlwaysTrueValidator extends AttributeValidator {
 
@@ -32,9 +31,7 @@ public class AlwaysTrueValidator extends AttributeValidator {
     protected void doValidate(AttributeValue attributeValue)
             throws ValidationFailedException {
 
-        Boolean value =
-                ((AttributeValueAsBoolean) attributeValue).getActualValue();
-
+        Boolean value = attributeValue.getValue();
         if (!value) {
             throw new ValidationFailedException(attributeValue);
         }

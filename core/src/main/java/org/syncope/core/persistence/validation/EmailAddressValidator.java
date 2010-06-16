@@ -18,7 +18,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.syncope.core.persistence.beans.AttributeSchema;
 import org.syncope.core.persistence.beans.AttributeValue;
-import org.syncope.core.persistence.beans.AttributeValueAsString;
 
 public class EmailAddressValidator extends AttributeValidator {
 
@@ -28,7 +27,7 @@ public class EmailAddressValidator extends AttributeValidator {
 
     public EmailAddressValidator(AttributeSchema schema)
             throws ClassNotFoundException {
-        
+
         super(schema);
     }
 
@@ -36,8 +35,7 @@ public class EmailAddressValidator extends AttributeValidator {
     protected void doValidate(AttributeValue attributeValue)
             throws ValidationFailedException {
 
-        CharSequence emailAddress =
-                ((AttributeValueAsString) attributeValue).getActualValue();
+        CharSequence emailAddress = attributeValue.getValue();
         Matcher matcher = emailValidationPattern.matcher(emailAddress);
 
         if (!matcher.matches()) {

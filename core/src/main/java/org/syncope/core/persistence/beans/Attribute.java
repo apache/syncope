@@ -75,6 +75,7 @@ public class Attribute extends AbstractBaseBean {
 
         AttributeValue actualValue =
                 getSchema().getValidator().getValue(value);
+        actualValue.setAttribute(this);
 
         if (!schema.isMultivalue()) {
             values.clear();

@@ -19,11 +19,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import org.syncope.core.persistence.beans.AttributeSchema;
 import org.syncope.core.persistence.beans.AttributeValue;
-import org.syncope.core.persistence.beans.AttributeValueAsBoolean;
-import org.syncope.core.persistence.beans.AttributeValueAsDate;
-import org.syncope.core.persistence.beans.AttributeValueAsDouble;
-import org.syncope.core.persistence.beans.AttributeValueAsLong;
-import org.syncope.core.persistence.beans.AttributeValueAsString;
 
 public abstract class AttributeValidator {
 
@@ -59,24 +54,22 @@ public abstract class AttributeValidator {
     protected AttributeValue parseValue(String value)
             throws ParseException {
 
-        AttributeValue result = null;
+        AttributeValue result = new AttributeValue();
         Exception exception = null;
 
         switch (schema.getType()) {
 
             case String:
-                result = new AttributeValueAsString(value);
+                result.setStringValue(value);
                 break;
 
             case Boolean:
-                result = new AttributeValueAsBoolean(
-                        Boolean.parseBoolean(value));
+                result.setBooleanValue(Boolean.parseBoolean(value));
                 break;
 
             case Long:
                 try {
-                    result = new AttributeValueAsLong(
-                            Long.valueOf(schema.getFormatter(
+                    result.setLongValue(Long.valueOf(schema.getFormatter(
                             DecimalFormat.class).parse(value).longValue()));
                 } catch (java.text.ParseException pe) {
                     exception = pe;
@@ -85,8 +78,7 @@ public abstract class AttributeValidator {
 
             case Double:
                 try {
-                    result = new AttributeValueAsDouble(
-                            Double.valueOf(schema.getFormatter(
+                    result.setDoubleValue(Double.valueOf(schema.getFormatter(
                             DecimalFormat.class).parse(value).doubleValue()));
                 } catch (java.text.ParseException pe) {
                     exception = pe;
@@ -95,8 +87,7 @@ public abstract class AttributeValidator {
 
             case Date:
                 try {
-                    result = new AttributeValueAsDate(
-                            new Date(schema.getFormatter(
+                    result.setDateValue(new Date(schema.getFormatter(
                             SimpleDateFormat.class).parse(value).getTime()));
                 } catch (java.text.ParseException pe) {
                     exception = pe;
@@ -120,23 +111,23 @@ public abstract class AttributeValidator {
         switch (schema.getType()) {
 
             case String:
-                result = new AttributeValueAsString((String) value);
+                result.setStringValue((String) value);
                 break;
 
             case Boolean:
-                result = new AttributeValueAsBoolean((Boolean) value);
+                result.setBooleanValue((Boolean) value);
                 break;
 
             case Long:
-                result = new AttributeValueAsLong((Long) value);
+                result.setLongValue((Long) value);
                 break;
 
             case Double:
-                result = new AttributeValueAsDouble((Double) value);
+                result.setDoubleValue((Double) value);
                 break;
 
             case Date:
-                result = new AttributeValueAsDate((Date) value);
+                result.setDateValue((Date) value);
                 break;
         }
 

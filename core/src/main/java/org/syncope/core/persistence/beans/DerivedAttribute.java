@@ -14,8 +14,6 @@
  */
 package org.syncope.core.persistence.beans;
 
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 import java.util.Set;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -68,32 +66,7 @@ public class DerivedAttribute extends AbstractBaseBean {
                 expressionValue = "";
             } else {
                 attributeValue = attributeValues.iterator().next();
-
-                switch (attribute.getSchema().getType()) {
-                    case Boolean:
-                        expressionValue =
-                                ((AttributeValueAsBoolean) attributeValue).getActualValue().toString();
-                        break;
-                    case Date:
-                        expressionValue = attribute.getSchema().getFormatter(
-                                SimpleDateFormat.class).format(
-                                ((AttributeValueAsDate) attributeValue).getActualValue());
-                        break;
-                    case Double:
-                        expressionValue = attribute.getSchema().getFormatter(
-                                DecimalFormat.class).format(
-                                ((AttributeValueAsDouble) attributeValue).getActualValue());
-                        break;
-                    case Long:
-                        expressionValue = attribute.getSchema().getFormatter(
-                                DecimalFormat.class).format(
-                                ((AttributeValueAsDouble) attributeValue).getActualValue());
-                        break;
-                    case String:
-                        expressionValue =
-                                ((AttributeValueAsString) attributeValue).getActualValue();
-                        break;
-                }
+                expressionValue = attributeValue.getValue();
             }
 
             jexlContext.set(attribute.getSchema().getName(), expressionValue);

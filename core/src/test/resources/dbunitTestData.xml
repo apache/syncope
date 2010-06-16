@@ -45,29 +45,24 @@
     <Attribute id="700" schema_name="icon"/>
     <Attribute id="800" schema_name="show"/>
 
-    <AttributeValue attribute_id="100" id="10"/>
-    <AttributeValue attribute_id="200" id="20"/>
-    <AttributeValue attribute_id="200" id="21"/>
-    <AttributeValue attribute_id="300" id="11"/>
-    <AttributeValue attribute_id="400" id="30"/>
-    <AttributeValue attribute_id="500" id="31"/>
-    <AttributeValue attribute_id="600" id="40"/>
-    <AttributeValue attribute_id="700" id="41"/>
-    <AttributeValue attribute_id="800" id="42"/>
-        
-    <AttributeValueAsString id="10" actualValue="chicchiricco"/>
-    <AttributeValueAsString id="11" actualValue="fabio.martelli"/>
-
-    <AttributeValueAsDate id="20" actualValue="2009-05-26"/>
-    <AttributeValueAsDate id="21" actualValue="2010-05-26 15:40:04"/>
-
-    <AttributeValueAsString id="30" actualValue="John"/>
-    <AttributeValueAsString id="31" actualValue="Doe"/>
-
-    <AttributeValueAsString id="40" actualValue="niceIcon"/>
-    <AttributeValueAsString id="41" actualValue="badIcon"/>
-
-    <AttributeValueAsBoolean id="42" actualValue="TRUE"/>
+    <AttributeValue attribute_id="100" id="10"
+                    stringValue="chicchiricco"/>
+    <AttributeValue attribute_id="300" id="11"
+                    stringValue="fabio.martelli"/>
+    <AttributeValue attribute_id="200" id="20"
+                    dateValue="2009-05-26"/>
+    <AttributeValue attribute_id="200" id="21"
+                    dateValue="2010-05-26 15:40:04"/>
+    <AttributeValue attribute_id="400" id="30"
+                    stringValue="John"/>
+    <AttributeValue attribute_id="500" id="31"
+                    stringValue="Doe"/>
+    <AttributeValue attribute_id="600" id="40"
+                    stringValue="niceIcon"/>
+    <AttributeValue attribute_id="700" id="41"
+                    stringValue="badIcon"/>
+    <AttributeValue attribute_id="800" id="42"
+                    booleanValue="TRUE"/>
 
     <SyncopeUser_Attribute SyncopeUser_id='1'
                            attributes_id='100'/>

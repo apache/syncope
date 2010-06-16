@@ -86,6 +86,7 @@ public abstract class AbstractDAOTest {
                 new HsqldbDataTypeFactory());
 
         FlatXmlDataSetBuilder dataSetBuilder = new FlatXmlDataSetBuilder();
+        dataSetBuilder.setColumnSensing(true);
         IDataSet dataSet = dataSetBuilder.build(
                 new FileInputStream("./src/test/resources/dbunitTestData.xml"));
         try {

@@ -20,8 +20,8 @@ import java.util.List;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import org.syncope.core.persistence.beans.AttributeValue;
 import org.syncope.core.persistence.beans.SyncopeUser;
-import org.syncope.core.persistence.beans.AttributeValueAsString;
 import org.syncope.core.persistence.beans.DerivedAttribute;
 import org.syncope.core.persistence.beans.DerivedAttributeSchema;
 import org.syncope.core.persistence.dao.AttributeSchemaDAO;
@@ -85,16 +85,14 @@ public class DerivedAttributeDAOTest extends AbstractDAOTest {
         assertNotNull("expected save to work", actual);
         assertEquals(derivedAttribute, actual);
 
-        AttributeValueAsString firstnameAttribute =
-                (AttributeValueAsString) owner.getAttribute(
+        AttributeValue firstnameAttribute = owner.getAttribute(
                 "firstname").getValues().iterator().next();
-        AttributeValueAsString surnameAttribute =
-                (AttributeValueAsString) owner.getAttribute(
+        AttributeValue surnameAttribute = owner.getAttribute(
                 "surname").getValues().iterator().next();
 
         assertEquals("expected derived value",
-                firstnameAttribute.getActualValue() + " "
-                + surnameAttribute.getActualValue(),
+                firstnameAttribute.getValue() + " "
+                + surnameAttribute.getValue(),
                 derivedAttribute.getValue(owner.getAttributes()));
     }
 
