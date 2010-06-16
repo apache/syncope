@@ -1,5 +1,6 @@
 package org.syncope.console.pages;
 
+import java.util.Locale;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
@@ -23,6 +24,8 @@ public class BasePage extends WebPage
      */
     public BasePage( final PageParameters parameters )
     {
+        getSession().setLocale(Locale.ITALIAN);
+
         add(new BookmarkablePageLink("users", Users.class));
 
         add(new BookmarkablePageLink("roles", Roles.class));
@@ -34,6 +37,8 @@ public class BasePage extends WebPage
         add(new BookmarkablePageLink("report", Report.class));
 
         add(new BookmarkablePageLink("configuration", Configuration.class));
+
+        add(new BookmarkablePageLink("logout", Logout.class));
     }
 
     /** Returns the current SyncopeSession */

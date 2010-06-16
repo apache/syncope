@@ -1,5 +1,6 @@
 package org.syncope.console.pages;
 
+import java.util.Locale;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.form.Button;
@@ -16,8 +17,8 @@ public class Login extends WebPage
 {
     
 public Form form;
-private TextField usernameField;
-private TextField passwordField;
+public TextField usernameField;
+public TextField passwordField;
 
 
     public Login( PageParameters parameters )
@@ -26,20 +27,21 @@ private TextField passwordField;
 
         form = new Form( "login" );
 
-        usernameField = new TextField("username");
+        usernameField = new TextField("username", new Model());
         usernameField.setMarkupId("username");
         form.add(usernameField);
 
-        passwordField = new PasswordTextField("password");
+        passwordField = new PasswordTextField("password", new Model());
         passwordField.setMarkupId("password");
         form.add(passwordField);
         
-        Button submitButton = new Button("submit",new Model(getString("submit"))){
+        Button submitButton = new Button("submit",new Model(getString("submit")))
+        {
 
             @Override
             public void onSubmit() {
                System.out.println("Submit");
-               setResponsePage(HomePage.class);
+               setResponsePage(new HomePage(null));
             }
             
         };

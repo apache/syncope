@@ -22,7 +22,7 @@ public class SyncopeApplication extends WebApplication
     @Override
     protected void init()
     {
-        getResourceSettings().setThrowExceptionOnMissingResource( false );
+        getResourceSettings().setThrowExceptionOnMissingResource( true );
 
     }
 
@@ -63,7 +63,7 @@ public class SyncopeApplication extends WebApplication
     @Override
     public String getConfigurationType()
     {
-        return DEPLOYMENT;
+        return DEVELOPMENT;
     }
 
 }
