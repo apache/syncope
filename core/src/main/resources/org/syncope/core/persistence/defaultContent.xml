@@ -4,6 +4,9 @@
                      mandatory="true" multivalue="false"/>
     <AttributeSchema name="firstname" type="String"
                      mandatory="false" multivalue="false"/>
+    <AttributeSchema name="email" type="String"
+                     mandatory="false" multivalue="true"
+                     validatorClass="org.syncope.core.validation.EmailAddressValidator"/>
 
     <DerivedAttributeSchema name="username"
                             expression="firstname + '.' + surname"/>
