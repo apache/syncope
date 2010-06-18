@@ -75,40 +75,4 @@ public class DerivedAttributeSchema extends AbstractBaseBean {
     public void setAttributeSchemas(Set<AttributeSchema> attributeSchemas) {
         this.attributeSchemas = attributeSchemas;
     }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final DerivedAttributeSchema other =
-                (DerivedAttributeSchema) obj;
-
-        if ((this.name == null)
-                ? (other.name != null) : !this.name.equals(other.name)) {
-
-            return false;
-        }
-        if ((this.expression == null)
-                ? (other.expression != null)
-                : !this.expression.equals(other.expression)) {
-
-            return false;
-        }
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = 3;
-        hash = 79 * hash + (this.name != null ? this.name.hashCode() : 0);
-        hash = 79 * hash + (this.expression != null
-                ? this.expression.hashCode() : 0);
-
-        return hash;
-    }
 }

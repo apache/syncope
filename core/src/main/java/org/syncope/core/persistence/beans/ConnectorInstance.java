@@ -39,7 +39,6 @@ public class ConnectorInstance extends AbstractBaseBean {
      */
     @Column(nullable = false)
     private String bundleName;
-
     /**
      * ConnectorBundle-Version: The version of the bundle. Within a given
      * deployment, the pair (ConnectorBundle-Name, ConnectorBundle-Version)
@@ -47,7 +46,6 @@ public class ConnectorInstance extends AbstractBaseBean {
      */
     @Column(nullable = false)
     private String version;
-
     /**
      * The main configuration for the connector instance.
      * This is directly implemented by the Configuration bean class which
@@ -88,36 +86,8 @@ public class ConnectorInstance extends AbstractBaseBean {
     public void setXmlConfiguration(String xmlConfiguration) {
         this.xmlConfiguration = xmlConfiguration;
     }
+
     public Long getId() {
         return id;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
-        final ConnectorInstance other = (ConnectorInstance) obj;
-        if (this.id != other.id && (this.id == null || !this.id.equals(other.id)))
-            return false;
-        if ((this.connectorName == null) ? (other.connectorName != null) : !this.connectorName.equals(other.connectorName))
-            return false;
-        if ((this.bundleName == null) ? (other.bundleName != null) : !this.bundleName.equals(other.bundleName))
-            return false;
-        if ((this.version == null) ? (other.version != null) : !this.version.equals(other.version))
-            return false;
-        if ((this.xmlConfiguration == null) ? (other.xmlConfiguration != null) : !this.xmlConfiguration.equals(other.xmlConfiguration))
-            return false;
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = 3;
-        hash = 79 * hash + (this.id != null ? this.id.hashCode() : 0);
-        hash = 79 * hash + (this.connectorName != null ? this.connectorName.hashCode() : 0);
-        hash = 79 * hash + (this.bundleName != null ? this.bundleName.hashCode() : 0);
-        hash = 79 * hash + (this.version != null ? this.version.hashCode() : 0);
-        hash = 79 * hash + (this.xmlConfiguration != null ? this.xmlConfiguration.hashCode() : 0);
-        return hash;
     }
 }

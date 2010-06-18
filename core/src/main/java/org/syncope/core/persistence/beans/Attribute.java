@@ -95,37 +95,4 @@ public class Attribute extends AbstractBaseBean {
             values.clear();
         }
     }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final Attribute other = (Attribute) obj;
-        if (this.id != other.id
-                && (this.id == null || !this.id.equals(other.id))) {
-
-            return false;
-        }
-        if (this.schema != other.schema
-                && (this.schema == null
-                || !this.schema.equals(other.schema))) {
-
-            return false;
-        }
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = 5;
-        hash = 53 * hash + (this.id != null ? this.id.hashCode() : 0);
-        hash = 53 * hash + (this.schema != null ? this.schema.hashCode() : 0);
-
-        return hash;
-    }
 }

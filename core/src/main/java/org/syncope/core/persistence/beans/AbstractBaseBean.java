@@ -16,16 +16,49 @@
  */
 package org.syncope.core.persistence.beans;
 
+import java.beans.PropertyDescriptor;
 import java.io.Serializable;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 
-public class AbstractBaseBean implements Serializable {
+public abstract class AbstractBaseBean implements Serializable {
 
     protected static final Logger log = LoggerFactory.getLogger(
             AbstractBaseBean.class);
+
+    protected String[] getExcludeFields() {
+        Set<String> excludeFields = new HashSet<String>();
+
+        PropertyDescriptor[] propertyDescriptors =
+                BeanUtils.getPropertyDescriptors(getClass());
+        for (int i = 0; i < propertyDescriptors.length; i++) {
+
+            if (propertyDescriptors[i].getPropertyType().isInstance(
+                    Collections.EMPTY_SET)) {
+                excludeFields.add(propertyDescriptors[i].getName());
+            }
+        }
+
+        return excludeFields.toArray(new String[]{});
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return EqualsBuilder.reflectionEquals(this, obj, getExcludeFields());
+    }
+
+    @Override
+    public int hashCode() {
+        return HashCodeBuilder.reflectionHashCode(this, getExcludeFields());
+    }
 
     @Override
     public String toString() {

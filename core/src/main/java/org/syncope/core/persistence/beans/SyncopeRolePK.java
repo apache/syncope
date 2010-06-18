@@ -39,7 +39,7 @@ public class SyncopeRolePK extends AbstractBaseBean {
         return name;
     }
 
-    public void setName(String name) throws IllegalArgumentException {
+    public final void setName(String name) throws IllegalArgumentException {
         if (ROOT_ROLE.equals(name)) {
             throw new IllegalArgumentException(
                     ROOT_ROLE + " is a reserved role name");
@@ -52,41 +52,11 @@ public class SyncopeRolePK extends AbstractBaseBean {
         return parent;
     }
 
-    public void setParent(String parent) {
+    public final void setParent(String parent) {
         if (parent == null || parent.length() == 0) {
             this.parent = ROOT_ROLE;
         } else {
             this.parent = parent;
         }
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final SyncopeRolePK other = (SyncopeRolePK) obj;
-        if (this.parent != other.parent
-                && (this.parent == null || !this.parent.equals(other.parent))) {
-
-            return false;
-        }
-        if ((this.name == null)
-                ? (other.name != null) : !this.name.equals(other.name)) {
-
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = 7;
-        hash = 89 * hash + (this.parent != null ? this.parent.hashCode() : 0);
-        hash = 89 * hash + (this.name != null ? this.name.hashCode() : 0);
-        return hash;
     }
 }

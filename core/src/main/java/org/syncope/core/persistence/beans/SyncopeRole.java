@@ -71,30 +71,4 @@ public class SyncopeRole extends AbstractAttributableBean {
     public void setUsers(Set<SyncopeUser> users) {
         this.users = users;
     }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final SyncopeRole other = (SyncopeRole) obj;
-        if (this.syncopeRolePK != other.syncopeRolePK
-                && (this.syncopeRolePK == null
-                || !this.syncopeRolePK.equals(other.syncopeRolePK))) {
-
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = 7;
-        hash = 41 * hash + (this.syncopeRolePK != null
-                ? this.syncopeRolePK.hashCode() : 0);
-        return hash;
-    }
 }

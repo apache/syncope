@@ -56,36 +56,4 @@ public class Entitlement extends AbstractBaseBean {
     public void setRoles(Set<SyncopeRole> roles) {
         this.roles = roles;
     }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final Entitlement other = (Entitlement) obj;
-        if ((this.name == null)
-                ? (other.name != null) : !this.name.equals(other.name)) {
-
-            return false;
-        }
-        if ((this.description == null)
-                ? (other.description != null)
-                : !this.description.equals(other.description)) {
-
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = 7;
-        hash = 79 * hash + (this.name != null ? this.name.hashCode() : 0);
-        hash = 79 * hash + (this.description != null
-                ? this.description.hashCode() : 0);
-        return hash;
-    }
 }
