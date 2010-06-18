@@ -19,7 +19,9 @@ import javax.persistence.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import org.syncope.core.persistence.beans.Attribute;
 import org.syncope.core.persistence.beans.AttributeSchema;
+import org.syncope.core.persistence.beans.DerivedAttributeSchema;
 import org.syncope.core.persistence.dao.AttributeDAO;
 import org.syncope.core.persistence.dao.AttributeSchemaDAO;
 
@@ -62,6 +64,16 @@ public class AttributeSchemaDAOImpl extends AbstractDAOImpl
         AttributeSchema schema = find(name);
         if (schema == null) {
             return;
+        }
+
+        for (Attribute attribute : schema.getAttributes()) {
+            attributeDAO.delete(attribute.getId());
+        }
+        for (DerivedAttributeSchema derivedAttributeSchema :
+                schema.getDerivedAttributeSchemas()) {
+
+            derivedAttributeSchema.removeAttributeSchema(schema);
+            entityManager.merge(derivedAttributeSchema);
         }
 
         entityManager.remove(schema);

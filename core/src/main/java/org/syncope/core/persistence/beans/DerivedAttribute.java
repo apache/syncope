@@ -79,10 +79,6 @@ public class DerivedAttribute extends AbstractBaseBean {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public DerivedAttributeSchema getSchema() {
         return schema;
     }

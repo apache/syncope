@@ -92,10 +92,6 @@ public class ConnectorInstance extends AbstractBaseBean {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     @Override
     public boolean equals(Object obj) {
         if (obj == null) return false;

@@ -17,13 +17,10 @@ package org.syncope.core.persistence.test;
 import static org.junit.Assert.*;
 
 import java.util.List;
-import java.util.Set;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.SyncopeRole;
-import org.syncope.core.persistence.beans.Attribute;
-import org.syncope.core.persistence.beans.Entitlement;
 import org.syncope.core.persistence.beans.SyncopeRolePK;
 import org.syncope.core.persistence.dao.AttributeSchemaDAO;
 import org.syncope.core.persistence.dao.AttributeDAO;

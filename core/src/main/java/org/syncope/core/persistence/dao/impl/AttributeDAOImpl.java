@@ -19,6 +19,8 @@ import javax.persistence.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.Attribute;
+import org.syncope.core.persistence.beans.SyncopeRole;
+import org.syncope.core.persistence.beans.SyncopeUser;
 import org.syncope.core.persistence.dao.AttributeDAO;
 
 @Repository
@@ -58,6 +60,32 @@ public class AttributeDAOImpl extends AbstractDAOImpl
             return;
         }
 
-        entityManager.remove(attribute);
+        boolean shouldRemoveAttribute = true;
+
+        Query query = entityManager.createQuery(
+                "SELECT u FROM SyncopeUser u "
+                + "WHERE :attribute MEMBER OF u.attributes");
+        query.setParameter("attribute", attribute);
+        List<SyncopeUser> users = query.getResultList();
+        shouldRemoveAttribute = !users.isEmpty();
+        for (SyncopeUser user : users) {
+            user.removeAttribute(attribute);
+            entityManager.merge(user);
+        }
+
+        query = entityManager.createQuery(
+                "SELECT r FROM SyncopeRole r "
+                + "WHERE :attribute MEMBER OF r.attributes");
+        query.setParameter("attribute", attribute);
+        List<SyncopeRole> roles = query.getResultList();
+        shouldRemoveAttribute = !roles.isEmpty();
+        for (SyncopeRole role : roles) {
+            role.removeAttribute(attribute);
+            entityManager.merge(role);
+        }
+
+        if (shouldRemoveAttribute) {
+            entityManager.remove(attribute);
+        }
     }
 }

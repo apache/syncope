@@ -58,11 +58,11 @@ public abstract class AbstractDAOTest {
             rs = stmt.executeQuery("SELECT * FROM " + tableName);
             ResultSetMetaData metaData = rs.getMetaData();
             log.debug("Table: " + tableName);
-            StringBuffer row = new StringBuffer();
+            StringBuilder row = new StringBuilder();
             while (rs.next()) {
                 for (int i = 0; i < metaData.getColumnCount(); i++) {
-                    row.append(metaData.getColumnLabel(i + 1) + "="
-                            + rs.getString(i + 1) + " ");
+                    row.append(metaData.getColumnLabel(i + 1)).append("=").
+                            append(rs.getString(i + 1)).append(" ");
                 }
 
                 log.debug(row.toString());

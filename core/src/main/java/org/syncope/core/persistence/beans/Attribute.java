@@ -47,7 +47,7 @@ public class Attribute extends AbstractBaseBean {
             throws ClassNotFoundException {
 
         this();
-        this.setSchema(schema);
+        this.schema = schema;
     }
 
     public Long getId() {

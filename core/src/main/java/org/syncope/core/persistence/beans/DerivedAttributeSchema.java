@@ -19,6 +19,7 @@ import java.util.Set;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 
 @Entity
 public class DerivedAttributeSchema extends AbstractBaseBean {
@@ -26,6 +27,8 @@ public class DerivedAttributeSchema extends AbstractBaseBean {
     @Id
     private String name;
     private String expression;
+    @OneToMany(mappedBy = "schema")
+    private Set<DerivedAttribute> derivedAttributes;
     @ManyToMany
     private Set<AttributeSchema> attributeSchemas;
 
@@ -47,6 +50,14 @@ public class DerivedAttributeSchema extends AbstractBaseBean {
 
     public void setExpression(String expression) {
         this.expression = expression;
+    }
+
+    public Set<DerivedAttribute> getDerivedAttributes() {
+        return derivedAttributes;
+    }
+
+    public void setDerivedAttributes(Set<DerivedAttribute> derivedAttributes) {
+        this.derivedAttributes = derivedAttributes;
     }
 
     public boolean addAttributeSchema(AttributeSchema attributeSchema) {

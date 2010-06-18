@@ -100,7 +100,6 @@
         version="1.0"
         xmlConfiguration="%lt;xml ... " />
 
-
     <Entitlement name="base" description="NULL"/>
     <Entitlement name="advanced" description="Advanced entitlement"/>
 

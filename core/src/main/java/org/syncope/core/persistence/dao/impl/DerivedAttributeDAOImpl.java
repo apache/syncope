@@ -19,6 +19,8 @@ import javax.persistence.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.DerivedAttribute;
+import org.syncope.core.persistence.beans.SyncopeRole;
+import org.syncope.core.persistence.beans.SyncopeUser;
 import org.syncope.core.persistence.dao.DerivedAttributeDAO;
 
 @Repository
@@ -27,7 +29,13 @@ public class DerivedAttributeDAOImpl extends AbstractDAOImpl
 
     @Override
     public DerivedAttribute find(long id) {
-        return entityManager.find(DerivedAttribute.class, id);
+        DerivedAttribute result = entityManager.find(
+                DerivedAttribute.class, id);
+        if (isDeletedOrNotManaged(result)) {
+            result = null;
+        }
+
+        return result;
     }
 
     @Override
@@ -48,6 +56,37 @@ public class DerivedAttributeDAOImpl extends AbstractDAOImpl
     @Override
     @Transactional
     public void delete(long id) {
-        entityManager.remove(find(id));
+        DerivedAttribute derivedAttribute = find(id);
+        if (derivedAttribute == null) {
+            return;
+        }
+
+        boolean shouldRemoveDerivedAttribute = true;
+
+        Query query = entityManager.createQuery(
+                "SELECT u FROM SyncopeUser u "
+                + "WHERE :derivedAttribute MEMBER OF u.derivedAttributes");
+        query.setParameter("derivedAttribute", derivedAttribute);
+        List<SyncopeUser> users = query.getResultList();
+        shouldRemoveDerivedAttribute = !users.isEmpty();
+        for (SyncopeUser user : users) {
+            user.removeDerivedAttribute(derivedAttribute);
+            entityManager.merge(user);
+        }
+
+        query = entityManager.createQuery(
+                "SELECT r FROM SyncopeRole r "
+                + "WHERE :derivedAttribute MEMBER OF r.derivedAttributes");
+        query.setParameter("derivedAttribute", derivedAttribute);
+        List<SyncopeRole> roles = query.getResultList();
+        shouldRemoveDerivedAttribute = !roles.isEmpty();
+        for (SyncopeRole role : roles) {
+            role.removeDerivedAttribute(derivedAttribute);
+            entityManager.merge(role);
+        }
+
+        if (shouldRemoveDerivedAttribute) {
+            entityManager.remove(find(id));
+        }
     }
 }

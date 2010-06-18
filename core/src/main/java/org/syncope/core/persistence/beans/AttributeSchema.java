@@ -44,12 +44,13 @@ public class AttributeSchema extends AbstractBaseBean {
     private AttributeType type;
     private Boolean mandatory;
     private Boolean multivalue;
+    @Column(nullable = true)
     private String conversionPattern;
+    @Column(nullable = true)
     private String validatorClass;
     @Transient
     private AttributeValidator validator;
     @OneToMany(mappedBy = "schema")
-    @org.hibernate.annotations.Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
     private Set<Attribute> attributes;
     @ManyToMany(mappedBy = "attributeSchemas")
     private Set<DerivedAttributeSchema> derivedAttributeSchemas;
@@ -153,22 +154,24 @@ public class AttributeSchema extends AbstractBaseBean {
         this.conversionPattern = conversionPattern;
     }
 
-    public boolean addAttribute(Attribute attribute) {
-        attribute.setSchema(this);
-        return attributes.add(attribute);
-    }
-
-    public boolean removeAttribute(Attribute attribute) {
-        attribute.setSchema(null);
-        return attributes.remove(attribute);
-    }
-
     public Set<Attribute> getAttributes() {
         return attributes;
     }
 
     public void setAttributes(Set<Attribute> attributes) {
         this.attributes = attributes;
+    }
+
+    public boolean addDerivedAttributeSchema(
+            DerivedAttributeSchema derivedAttributeSchema) {
+
+        return derivedAttributeSchemas.add(derivedAttributeSchema);
+    }
+
+    public boolean removeDerivedAttributeSchema(
+            DerivedAttributeSchema derivedAttributeSchema) {
+
+        return derivedAttributeSchemas.remove(derivedAttributeSchema);
     }
 
     public Set<DerivedAttributeSchema> getDerivedAttributeSchemas() {

@@ -315,17 +315,6 @@
             <url>https://maven.atlassian.com/3rdparty/</url>
         </repository>
 
-        <repository>
-            <id>jboss</id>
-            <url>https://repository.jboss.org/nexus/content/groups/public</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-
     </repositories>
 
     <build>

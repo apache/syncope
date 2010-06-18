@@ -16,14 +16,21 @@ package org.syncope.core.persistence.dao.impl;
 
 import java.util.List;
 import javax.persistence.Query;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import org.syncope.core.persistence.beans.AttributeSchema;
+import org.syncope.core.persistence.beans.DerivedAttribute;
 import org.syncope.core.persistence.beans.DerivedAttributeSchema;
+import org.syncope.core.persistence.dao.DerivedAttributeDAO;
 import org.syncope.core.persistence.dao.DerivedAttributeSchemaDAO;
 
 @Repository
 public class DerivedAttributeSchemaDAOImpl extends AbstractDAOImpl
         implements DerivedAttributeSchemaDAO {
+
+    @Autowired
+    DerivedAttributeDAO derivedAttributeDAO;
 
     @Override
     public DerivedAttributeSchema find(String name) {
@@ -50,6 +57,21 @@ public class DerivedAttributeSchemaDAOImpl extends AbstractDAOImpl
     @Override
     @Transactional
     public void delete(String name) {
-        entityManager.remove(find(name));
+        DerivedAttributeSchema schema = find(name);
+        if (schema == null) {
+            return;
+        }
+
+        for (DerivedAttribute attribute : schema.getDerivedAttributes()) {
+            derivedAttributeDAO.delete(attribute.getId());
+        }
+        for (AttributeSchema attributeSchema :
+                schema.getAttributeSchemas()) {
+
+            attributeSchema.removeDerivedAttributeSchema(schema);
+            entityManager.merge(attributeSchema);
+        }
+
+        entityManager.remove(schema);
     }
 }

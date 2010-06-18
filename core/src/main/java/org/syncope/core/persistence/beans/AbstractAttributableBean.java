@@ -74,6 +74,14 @@ public abstract class AbstractAttributableBean extends AbstractBaseBean {
         this.attributes = attributes;
     }
 
+    public boolean addDerivedAttribute(DerivedAttribute derivedAttribute) {
+        return derivedAttributes.add(derivedAttribute);
+    }
+
+    public boolean removeDerivedAttribute(DerivedAttribute derivedAttribute) {
+        return derivedAttributes.remove(derivedAttribute);
+    }
+
     public Set<DerivedAttribute> getDerivedAttributes() {
         return derivedAttributes;
     }
