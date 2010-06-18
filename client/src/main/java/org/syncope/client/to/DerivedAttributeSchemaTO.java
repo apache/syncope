@@ -1,0 +1,61 @@
+/*
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ * 
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *  under the License.
+ */
+package org.syncope.client.to;
+
+import java.util.HashSet;
+import java.util.Set;
+
+public class DerivedAttributeSchemaTO extends AbstractBaseTO {
+
+    private String name;
+    private String expression;
+    private Set<String> attributeSchemas;
+
+    public DerivedAttributeSchemaTO() {
+        attributeSchemas = new HashSet<String>();
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getExpression() {
+        return expression;
+    }
+
+    public void setExpression(String expression) {
+        this.expression = expression;
+    }
+
+    public boolean addAttributeSchema(String attributeSchema) {
+        return attributeSchemas.add(attributeSchema);
+    }
+
+    public boolean removeAttributeSchema(String attributeSchema) {
+        return attributeSchemas.remove(attributeSchema);
+    }
+
+    public Set<String> getAttributeSchemas() {
+        return attributeSchemas;
+    }
+
+    public void setAttributeSchemas(Set<String> attributeSchemas) {
+        this.attributeSchemas = attributeSchemas;
+    }
+}

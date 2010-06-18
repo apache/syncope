@@ -14,11 +14,11 @@
  */
 package org.syncope.client.to;
 
-import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Set;
 import org.syncope.types.AttributeType;
 
-public class AttributeSchemaTO implements Serializable {
+public class AttributeSchemaTO extends AbstractBaseTO {
 
     private String name;
     private AttributeType type;
@@ -28,12 +28,24 @@ public class AttributeSchemaTO implements Serializable {
     private String validatorClass;
     private Set<String> derivedAttributeSchemas;
 
+    public AttributeSchemaTO() {
+        derivedAttributeSchemas = new HashSet<String>();
+    }
+
     public String getConversionPattern() {
         return conversionPattern;
     }
 
     public void setConversionPattern(String conversionPattern) {
         this.conversionPattern = conversionPattern;
+    }
+
+    public boolean addDerivedAttributeSchema(String derivedAttributeSchema) {
+        return derivedAttributeSchemas.add(derivedAttributeSchema);
+    }
+
+    public boolean removeDerivedAttributeSchema(String derivedAttributeSchema) {
+        return derivedAttributeSchemas.remove(derivedAttributeSchema);
     }
 
     public Set<String> getDerivedAttributeSchemas() {
@@ -83,5 +95,4 @@ public class AttributeSchemaTO implements Serializable {
     public void setValidatorClass(String validatorClass) {
         this.validatorClass = validatorClass;
     }
-
 }

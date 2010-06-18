@@ -14,16 +14,15 @@
  */
 package org.syncope.client.to;
 
-import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
-public class SearchParameters implements Serializable {
+public class SearchParameters extends AbstractBaseTO {
 
     Set<SearchCondition> conditions = new HashSet<SearchCondition>();
 
     public SearchParameters() {
-       conditions = new HashSet<SearchCondition>();
+        conditions = new HashSet<SearchCondition>();
     }
 
     public Set<SearchCondition> getConditions() {

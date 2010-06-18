@@ -37,6 +37,7 @@
         <logfile.persistence>/tmp/syncope-core-persistence.log</logfile.persistence>
         <logfile.rest>/tmp/syncope-core-rest.log</logfile.rest>
         <logfile.test>/tmp/syncope-core-test.log</logfile.test>
+        <netbeans.hint.deploy.server>Tomcat60</netbeans.hint.deploy.server>
     </properties>
 
     <dependencies>

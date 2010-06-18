@@ -14,7 +14,7 @@
  */
 package org.syncope.client.to;
 
-public class SearchCondition {
+public class SearchCondition extends AbstractBaseTO {
 
     private String attributeName;
     private SearchCondition condition;

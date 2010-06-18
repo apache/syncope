@@ -12,7 +12,7 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.client.to;
+package org.syncope.types;
 
 public enum Comparator {
 
