@@ -29,10 +29,10 @@ import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
-import org.syncope.core.persistence.AttributeType;
 import org.syncope.core.persistence.validation.AttributeBasicValidator;
 import org.syncope.core.persistence.validation.AttributeValidator;
 import org.syncope.core.persistence.validation.ValidatorInstantiationException;
+import org.syncope.types.AttributeType;
 
 @Entity
 public class AttributeSchema extends AbstractBaseBean {

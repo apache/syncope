@@ -15,6 +15,73 @@
 package org.syncope.client.to;
 
 import java.io.Serializable;
+import java.util.Set;
+import org.syncope.types.AttributeType;
 
 public class AttributeSchemaTO implements Serializable {
+
+    private String name;
+    private AttributeType type;
+    private boolean mandatory;
+    private boolean multivalue;
+    private String conversionPattern;
+    private String validatorClass;
+    private Set<String> derivedAttributeSchemas;
+
+    public String getConversionPattern() {
+        return conversionPattern;
+    }
+
+    public void setConversionPattern(String conversionPattern) {
+        this.conversionPattern = conversionPattern;
+    }
+
+    public Set<String> getDerivedAttributeSchemas() {
+        return derivedAttributeSchemas;
+    }
+
+    public void setDerivedAttributeSchemas(Set<String> derivedAttributeSchemas) {
+        this.derivedAttributeSchemas = derivedAttributeSchemas;
+    }
+
+    public boolean isMandatory() {
+        return mandatory;
+    }
+
+    public void setMandatory(boolean mandatory) {
+        this.mandatory = mandatory;
+    }
+
+    public boolean isMultivalue() {
+        return multivalue;
+    }
+
+    public void setMultivalue(boolean multivalue) {
+        this.multivalue = multivalue;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public AttributeType getType() {
+        return type;
+    }
+
+    public void setType(AttributeType type) {
+        this.type = type;
+    }
+
+    public String getValidatorClass() {
+        return validatorClass;
+    }
+
+    public void setValidatorClass(String validatorClass) {
+        this.validatorClass = validatorClass;
+    }
+
 }

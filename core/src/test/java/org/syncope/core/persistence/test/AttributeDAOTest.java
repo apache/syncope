@@ -20,12 +20,12 @@ import java.util.List;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.syncope.core.persistence.AttributeType;
 import org.syncope.core.persistence.beans.AttributeSchema;
 import org.syncope.core.persistence.beans.Attribute;
 import org.syncope.core.persistence.dao.AttributeSchemaDAO;
 import org.syncope.core.persistence.dao.AttributeDAO;
 import org.syncope.core.persistence.validation.ValidationException;
+import org.syncope.types.AttributeType;
 
 @Transactional
 public class AttributeDAOTest extends AbstractDAOTest {

@@ -22,7 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.AttributeSchema;
 import org.syncope.core.persistence.dao.AttributeSchemaDAO;
-import org.syncope.core.persistence.AttributeType;
+import org.syncope.types.AttributeType;
 
 @Transactional
 public class AttributeSchemaDAOTest extends AbstractDAOTest {

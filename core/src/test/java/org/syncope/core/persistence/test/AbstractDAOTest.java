@@ -14,7 +14,6 @@
  */
 package org.syncope.core.persistence.test;
 
-import java.io.FileInputStream;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
@@ -42,10 +41,12 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @ContextConfiguration(locations = {"classpath:persistenceContext.xml"})
 public abstract class AbstractDAOTest {
 
-    @Autowired
-    protected DataSource dataSource;
     protected static final Logger log = LoggerFactory.getLogger(
             AbstractDAOTest.class);
+    @Autowired
+    private DataSource dataSource;
+    @Autowired
+    private HsqldbDataTypeFactory dbUnitDataTypeFactory;
 
     private void logTableContent(Connection conn, String tableName)
             throws SQLException {
@@ -83,12 +84,12 @@ public abstract class AbstractDAOTest {
 
         DatabaseConfig config = dbUnitConn.getConfig();
         config.setProperty("http://www.dbunit.org/properties/datatypeFactory",
-                new HsqldbDataTypeFactory());
+                dbUnitDataTypeFactory);
 
         FlatXmlDataSetBuilder dataSetBuilder = new FlatXmlDataSetBuilder();
         dataSetBuilder.setColumnSensing(true);
-        IDataSet dataSet = dataSetBuilder.build(
-                new FileInputStream("./src/test/resources/dbunitTestData.xml"));
+        IDataSet dataSet = dataSetBuilder.build(getClass().getResourceAsStream(
+                "/org/syncope/core/persistence/dbunitTestData.xml"));
         try {
             DatabaseOperation.REFRESH.execute(dbUnitConn, dataSet);
         } catch (Throwable t) {

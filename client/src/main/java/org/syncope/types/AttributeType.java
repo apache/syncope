@@ -12,7 +12,7 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.persistence;
+package org.syncope.types;
 
 import java.text.DecimalFormat;
 import java.text.Format;

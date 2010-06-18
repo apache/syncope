@@ -16,9 +16,11 @@ package org.syncope.core.rest.controller;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,10 +30,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.support.RequestContextUtils;
 import org.syncope.client.to.AttributeTO;
 import org.syncope.client.to.SearchParameters;
 import org.syncope.client.to.UserTO;
+import org.syncope.core.persistence.dao.SyncopeUserDAO;
 
 /**
  * TODO: call syncope-core
@@ -40,7 +45,8 @@ import org.syncope.client.to.UserTO;
 @RequestMapping("/user")
 public class UserController {
 
-    private static final Logger log = LoggerFactory.getLogger(UserController.class);
+    private static final Logger log = LoggerFactory.getLogger(
+            UserController.class);
 
     @RequestMapping(method = RequestMethod.POST, value = "/create")
     public UserTO create(HttpServletResponse response,
@@ -60,6 +66,19 @@ public class UserController {
         if (userId == 0) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
         }
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/list")
+    public Set<UserTO> list(HttpServletRequest request) throws IOException {
+
+        WebApplicationContext webApplicationContext =
+                RequestContextUtils.getWebApplicationContext(request);
+
+        SyncopeUserDAO syncopeUserDAO =
+                (SyncopeUserDAO) webApplicationContext.getBean(
+                "syncopeUserDAOImpl");
+
+        return Collections.singleton(new UserTO());
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/read/{userId}")

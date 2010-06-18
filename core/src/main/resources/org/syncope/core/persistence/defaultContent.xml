@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dataset>
+    <AttributeSchema name="surname" type="String"
+                     mandatory="true" multivalue="false"/>
+    <AttributeSchema name="firstname" type="String"
+                     mandatory="false" multivalue="false"/>
+
+    <DerivedAttributeSchema name="username"
+                            expression="firstname + '.' + surname"/>
+
+    <DerivedAttributeSchema_AttributeSchema derivedAttributeSchemas_name="username"
+                                            attributeSchemas_name="firstname"/>
+    <DerivedAttributeSchema_AttributeSchema derivedAttributeSchemas_name="username"
+                                            attributeSchemas_name="surname"/>
+</dataset>

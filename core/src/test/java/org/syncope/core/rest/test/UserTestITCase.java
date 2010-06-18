@@ -18,29 +18,16 @@ import static org.junit.Assert.*;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.HttpStatusCodeException;
-import org.springframework.web.client.RestTemplate;
 import org.syncope.client.to.AttributeTO;
 import org.syncope.client.to.SearchParameters;
 import org.syncope.client.to.UserTO;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath:restContext.xml"})
-public class RestUserTestITCase {
-
-    private static final Logger log = LoggerFactory.getLogger(RestUserTestITCase.class);
-    private static final String BASE_URL = "http://localhost:8080/syncope/user/";
-    @Autowired
-    private RestTemplate restTemplate;
-
+public class UserTestITCase extends AbstractTestITCase {
+    
     @Test
     public void create() {
         AttributeTO attribute = new AttributeTO();
@@ -51,7 +38,7 @@ public class RestUserTestITCase {
         newUserTO.setId(0L);
         newUserTO.setAttributes(Collections.singleton(attribute));
 
-        UserTO userTO = restTemplate.postForObject(BASE_URL + "create",
+        UserTO userTO = restTemplate.postForObject(BASE_URL + "user/create",
                 newUserTO, UserTO.class);
 
         assertEquals(newUserTO, userTO);
@@ -60,15 +47,29 @@ public class RestUserTestITCase {
     @Test
     public void delete() {
         try {
-            restTemplate.delete(BASE_URL + "delete/{userId}", "0");
+            restTemplate.delete(BASE_URL + "user/delete/{userId}", "0");
         } catch (HttpStatusCodeException e) {
             assertEquals(e.getStatusCode(), HttpStatus.NOT_FOUND);
         }
     }
 
     @Test
+    public void list() {
+        Set<UserTO> users = restTemplate.getForObject(BASE_URL
+                + "user/list.json",
+                Set.class);
+
+        assertNotNull(users);
+
+        if (log.isDebugEnabled()) {
+            log.debug(users.toString());
+        }
+    }
+
+    @Test
     public void read() {
-        UserTO userTO = restTemplate.getForObject(BASE_URL + "read/{userId}.json",
+        UserTO userTO = restTemplate.getForObject(BASE_URL
+                + "user/read/{userId}.json",
                 UserTO.class, "0");
 
         assertNotNull(userTO);
@@ -80,7 +81,7 @@ public class RestUserTestITCase {
 
     @Test
     public void passwordReset() {
-        String tokenId = restTemplate.getForObject(BASE_URL
+        String tokenId = restTemplate.getForObject(BASE_URL + "user/"
                 + "passwordReset/{userId}.json"
                 + "?passwordResetFormURL={passwordResetFormURL}"
                 + "&gotoURL={gotoURL}",
@@ -90,7 +91,7 @@ public class RestUserTestITCase {
 
         assertNotNull(tokenId);
 
-        restTemplate.put(BASE_URL + "passwordReset/{userId}.json"
+        restTemplate.put(BASE_URL + "user/passwordReset/{userId}.json"
                 + "?tokenId={tokenId}&newPassword={newPassword}",
                 null, "0", tokenId, "newPassword");
     }
@@ -100,7 +101,7 @@ public class RestUserTestITCase {
         SearchParameters searchParameters = new SearchParameters();
 
         List<UserTO> matchedUsers = restTemplate.postForObject(
-                BASE_URL + "search",
+                BASE_URL + "user/search",
                 searchParameters, List.class);
 
         assertNotNull(matchedUsers);
@@ -116,7 +117,7 @@ public class RestUserTestITCase {
         newUserTO.setId(0L);
         newUserTO.setAttributes(Collections.singleton(attribute));
 
-        UserTO userTO = restTemplate.postForObject(BASE_URL + "update",
+        UserTO userTO = restTemplate.postForObject(BASE_URL + "user/update",
                 newUserTO, UserTO.class);
 
         assertEquals(newUserTO, userTO);
