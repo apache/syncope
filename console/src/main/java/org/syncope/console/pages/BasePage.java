@@ -36,6 +36,8 @@ public class BasePage extends WebPage
      */
     public BasePage( final PageParameters parameters )
     {
+        add(new BookmarkablePageLink("schema", Schema.class));
+
         add(new BookmarkablePageLink("users", Users.class));
 
         add(new BookmarkablePageLink("roles", Roles.class));

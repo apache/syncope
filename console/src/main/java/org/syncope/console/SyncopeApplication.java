@@ -18,9 +18,9 @@ import org.apache.wicket.Request;
 import org.apache.wicket.Response;
 import org.apache.wicket.Session;
 import org.apache.wicket.protocol.http.WebApplication;
-import org.springframework.web.client.RestTemplate;
 import org.syncope.console.pages.HomePage;
 import org.syncope.console.pages.Login;
+import org.syncope.console.rest.RestClient;
 
 /**
  * SyncopeApplication class.
@@ -28,7 +28,7 @@ import org.syncope.console.pages.Login;
 public class SyncopeApplication extends WebApplication
 {
     SyncopeUser user = null;
-    RestTemplate restTemplate;
+    RestClient restClient;
 
     public SyncopeApplication()
     {
@@ -81,12 +81,12 @@ public class SyncopeApplication extends WebApplication
         return DEVELOPMENT;
     }
 
-    public RestTemplate getRestTemplate() {
-        return restTemplate;
+    public RestClient getRestClient() {
+        return restClient;
     }
 
-    public void setRestTemplate(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
+    public void setRestClient(RestClient restClient) {
+        this.restClient = restClient;
     }
 
 }

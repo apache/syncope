@@ -15,7 +15,7 @@
        http://www.springframework.org/schema/tx/spring-tx.xsd">
 
     <bean id="syncopeApplication" class="org.syncope.console.SyncopeApplication">
-        <property name="restTemplate" ref="restTemplate"/>
+        <property name="restClient" ref="restClient"/>
     </bean>
 
     <bean id="objectMapper" class="org.codehaus.jackson.map.ObjectMapper"/>
@@ -27,5 +27,9 @@
 
     <bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
         <property name="messageConverters" ref="mappingJacksonHttpMessageConverter"/>
+    </bean>
+
+    <bean id="restClient" class="org.syncope.console.rest.RestClient">
+        <property name="restTemplate" ref="restTemplate"/>
     </bean>
 </beans>
