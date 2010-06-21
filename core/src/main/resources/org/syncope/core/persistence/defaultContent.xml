@@ -13,19 +13,18 @@
   limitations under the License.
 -->
 <dataset>
-    <AttributeSchema name="surname" type="String"
-                     mandatory="true" multivalue="false"/>
-    <AttributeSchema name="firstname" type="String"
-                     mandatory="false" multivalue="false"/>
-    <AttributeSchema name="email" type="String"
-                     mandatory="false" multivalue="true"
-                     validatorClass="org.syncope.core.validation.EmailAddressValidator"/>
+    <UserSchema name="surname" type="String"
+                mandatory="true" multivalue="false"/>
+    <UserSchema name="firstname" type="String"
+                mandatory="false" multivalue="false"/>
+    <UserSchema name="email" type="String"
+                mandatory="false" multivalue="true"
+                validatorClass="org.syncope.core.validation.EmailAddressValidator"/>
 
-    <DerivedAttributeSchema name="username"
-                            expression="firstname + '.' + surname"/>
+    <UserDerivedSchema name="username" expression="firstname + '.' + surname"/>
 
-    <DerivedAttributeSchema_AttributeSchema derivedAttributeSchemas_name="username"
-                                            attributeSchemas_name="firstname"/>
-    <DerivedAttributeSchema_AttributeSchema derivedAttributeSchemas_name="username"
-                                            attributeSchemas_name="surname"/>
+    <UserDerivedSchema_UserSchema UserDerivedSchema_name="username"
+                                  schemas_name="firstname"/>
+    <UserDerivedSchema_UserSchema UserDerivedSchema_name="username"
+                                  schemas_name="surname"/>
 </dataset>
