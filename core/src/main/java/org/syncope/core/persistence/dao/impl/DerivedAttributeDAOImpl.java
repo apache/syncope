@@ -18,9 +18,9 @@ import java.util.List;
 import javax.persistence.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import org.syncope.core.persistence.beans.DerivedAttribute;
-import org.syncope.core.persistence.beans.SyncopeRole;
-import org.syncope.core.persistence.beans.SyncopeUser;
+import org.syncope.core.persistence.beans.AbstractDerivedAttribute;
+import org.syncope.core.persistence.beans.role.SyncopeRole;
+import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.DerivedAttributeDAO;
 
 @Repository
@@ -28,9 +28,8 @@ public class DerivedAttributeDAOImpl extends AbstractDAOImpl
         implements DerivedAttributeDAO {
 
     @Override
-    public DerivedAttribute find(Long id) {
-        DerivedAttribute result = entityManager.find(
-                DerivedAttribute.class, id);
+    public <T extends AbstractDerivedAttribute> T find(Long id, Class<T> reference) {
+        T result = entityManager.find(reference, id);
         if (isDeletedOrNotManaged(result)) {
             result = null;
         }
@@ -39,54 +38,32 @@ public class DerivedAttributeDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    public List<DerivedAttribute> findAll() {
+    public <T extends AbstractDerivedAttribute> List<T> findAll(
+            Class<T> reference) {
+        
         Query query = entityManager.createQuery(
-                "SELECT e FROM DerivedAttribute e");
+                "SELECT e FROM " + reference.getSimpleName() + " e");
         return query.getResultList();
     }
 
     @Override
     @Transactional
-    public DerivedAttribute save(DerivedAttribute attribute) {
-        DerivedAttribute result = entityManager.merge(attribute);
+    public AbstractDerivedAttribute save(AbstractDerivedAttribute attribute) {
+        AbstractDerivedAttribute result = entityManager.merge(attribute);
         entityManager.flush();
         return result;
     }
 
     @Override
     @Transactional
-    public void delete(Long id) {
-        DerivedAttribute derivedAttribute = find(id);
+    public <T extends AbstractDerivedAttribute> void delete(
+            Long id, Class<T> reference) {
+
+        T derivedAttribute = find(id, reference);
         if (derivedAttribute == null) {
             return;
         }
 
-        boolean shouldRemoveDerivedAttribute = true;
-
-        Query query = entityManager.createQuery(
-                "SELECT u FROM SyncopeUser u "
-                + "WHERE :derivedAttribute MEMBER OF u.derivedAttributes");
-        query.setParameter("derivedAttribute", derivedAttribute);
-        List<SyncopeUser> users = query.getResultList();
-        shouldRemoveDerivedAttribute = !users.isEmpty();
-        for (SyncopeUser user : users) {
-            user.removeDerivedAttribute(derivedAttribute);
-            entityManager.merge(user);
-        }
-
-        query = entityManager.createQuery(
-                "SELECT r FROM SyncopeRole r "
-                + "WHERE :derivedAttribute MEMBER OF r.derivedAttributes");
-        query.setParameter("derivedAttribute", derivedAttribute);
-        List<SyncopeRole> roles = query.getResultList();
-        shouldRemoveDerivedAttribute = !roles.isEmpty();
-        for (SyncopeRole role : roles) {
-            role.removeDerivedAttribute(derivedAttribute);
-            entityManager.merge(role);
-        }
-
-        if (shouldRemoveDerivedAttribute) {
-            entityManager.remove(find(id));
-        }
+        entityManager.remove(derivedAttribute);
     }
 }

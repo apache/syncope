@@ -15,16 +15,15 @@
 package org.syncope.core.persistence.beans;
 
 import java.util.Date;
-import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import javax.persistence.MappedSuperclass;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-@Entity
-public class AttributeValue extends AbstractBaseBean {
+@MappedSuperclass
+public abstract class AbstractAttributeValue extends AbstractBaseBean {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -35,19 +34,9 @@ public class AttributeValue extends AbstractBaseBean {
     private Boolean booleanValue;
     private Long longValue;
     private Double doubleValue;
-    @ManyToOne
-    private Attribute attribute;
 
     public Long getId() {
         return id;
-    }
-
-    public Attribute getAttribute() {
-        return attribute;
-    }
-
-    public void setAttribute(Attribute Attribute) {
-        this.attribute = Attribute;
     }
 
     public void setBooleanValue(Boolean booleanValue) {
@@ -77,4 +66,10 @@ public class AttributeValue extends AbstractBaseBean {
                 ? doubleValue : (longValue != null
                 ? longValue : stringValue))));
     }
+
+    public abstract <T extends AbstractAttribute> T getAttribute()
+            throws ClassCastException;
+
+    public abstract <T extends AbstractAttribute> void setAttribute(
+            T attribute) throws ClassCastException;
 }

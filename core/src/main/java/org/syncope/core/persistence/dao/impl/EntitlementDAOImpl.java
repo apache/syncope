@@ -20,7 +20,7 @@ import javax.persistence.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.syncope.core.persistence.beans.Entitlement;
-import org.syncope.core.persistence.beans.SyncopeRole;
+import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.dao.EntitlementDAO;
 import org.syncope.core.persistence.dao.SyncopeRoleDAO;
 
@@ -67,6 +67,6 @@ public class EntitlementDAOImpl extends AbstractDAOImpl implements EntitlementDA
             syncopeRoleDAO.save(role);
         }
 
-        entityManager.remove(find(name));
+        entityManager.remove(entitlement);
     }
 }

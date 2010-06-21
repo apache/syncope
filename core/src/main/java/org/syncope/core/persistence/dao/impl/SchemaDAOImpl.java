@@ -19,61 +19,50 @@ import javax.persistence.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import org.syncope.core.persistence.beans.Attribute;
-import org.syncope.core.persistence.beans.AttributeSchema;
-import org.syncope.core.persistence.beans.DerivedAttributeSchema;
+import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.dao.AttributeDAO;
-import org.syncope.core.persistence.dao.AttributeSchemaDAO;
+import org.syncope.core.persistence.dao.SchemaDAO;
 
 @Repository
-public class AttributeSchemaDAOImpl extends AbstractDAOImpl
-        implements AttributeSchemaDAO {
+public class SchemaDAOImpl extends AbstractDAOImpl
+        implements SchemaDAO {
 
     @Autowired
     AttributeDAO attributeDAO;
 
     @Override
-    public AttributeSchema find(String name) {
-        AttributeSchema result =
-                entityManager.find(AttributeSchema.class, name);
+    public <T extends AbstractSchema> T find(String name, Class<T> reference) {
+        T result = entityManager.find(reference, name);
         if (isDeletedOrNotManaged(result)) {
             result = null;
         }
 
-        return result;
+        return (T) result;
     }
 
     @Override
-    public List<AttributeSchema> findAll() {
+    public <T extends AbstractSchema> List<T> findAll(Class<T> reference) {
         Query query = entityManager.createQuery(
-                "SELECT e FROM AttributeSchema e");
+                "SELECT e FROM " + reference.getSimpleName() + " e");
         return query.getResultList();
     }
 
     @Override
     @Transactional
-    public AttributeSchema save(AttributeSchema attributeSchema) {
-        AttributeSchema result = entityManager.merge(attributeSchema);
+    public <T extends AbstractSchema> T save(T schema) {
+        T result = entityManager.merge(schema);
         entityManager.flush();
         return result;
     }
 
     @Override
     @Transactional
-    public void delete(String name) {
-        AttributeSchema schema = find(name);
+    public <T extends AbstractSchema> void delete(
+            String name, Class<T> reference) {
+
+        T schema = find(name, reference);
         if (schema == null) {
             return;
-        }
-
-        for (Attribute attribute : schema.getAttributes()) {
-            attributeDAO.delete(attribute.getId());
-        }
-        for (DerivedAttributeSchema derivedAttributeSchema :
-                schema.getDerivedAttributeSchemas()) {
-
-            derivedAttributeSchema.removeAttributeSchema(schema);
-            entityManager.merge(derivedAttributeSchema);
         }
 
         entityManager.remove(schema);

@@ -26,7 +26,7 @@ public class SchemaTestITCase extends AbstractTestITCase {
     public void attributeList() {
         List<AttributeSchemaTO> attributeSchemas =
                 restTemplate.getForObject(BASE_URL
-                + "schema/attribute/list.json", List.class);
+                + "schema/attribute/role/list.json", List.class);
 
         assertNotNull(attributeSchemas);
     }
@@ -35,7 +35,7 @@ public class SchemaTestITCase extends AbstractTestITCase {
     public void derivedAttributeList() {
         List<DerivedAttributeSchemaTO> derivedAttributeSchemas =
                 restTemplate.getForObject(BASE_URL
-                + "schema/derivedAttribute/list.json", List.class);
+                + "schema/derivedAttribute/user/list.json", List.class);
 
         assertNotNull(derivedAttributeSchemas);
     }

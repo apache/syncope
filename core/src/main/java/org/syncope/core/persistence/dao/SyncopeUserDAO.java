@@ -15,9 +15,9 @@
 package org.syncope.core.persistence.dao;
 
 import java.util.List;
-import org.syncope.core.persistence.beans.SyncopeUser;
+import org.syncope.core.persistence.beans.user.SyncopeUser;
 
-public interface SyncopeUserDAO extends DAO {
+public interface SyncopeUserDAO {
 
     SyncopeUser find(Long id);
 

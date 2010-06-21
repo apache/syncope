@@ -17,24 +17,23 @@ package org.syncope.core.persistence.validation;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import org.syncope.core.persistence.beans.AttributeSchema;
-import org.syncope.core.persistence.beans.AttributeValue;
+import org.syncope.core.persistence.beans.AbstractSchema;
+import org.syncope.core.persistence.beans.AbstractAttributeValue;
 
 public abstract class AttributeValidator {
 
-    final protected AttributeSchema schema;
+    final protected AbstractSchema schema;
     final protected Class attributeClass;
 
-    public AttributeValidator(AttributeSchema schema)
+    public AttributeValidator(AbstractSchema schema)
             throws ClassNotFoundException {
 
         this.schema = schema;
-        this.attributeClass = Class.forName(
-                schema.getType().getClassName());
+        this.attributeClass = Class.forName(schema.getType().getClassName());
     }
 
-    public AttributeValue getValue(Object value)
-            throws ValidationException {
+    public <T extends AbstractAttributeValue> T getValue(Object value,
+            T attributeValue) throws ValidationException {
 
         if (!attributeClass.isInstance(value)) {
             throw new ParseException(
@@ -44,32 +43,32 @@ public abstract class AttributeValidator {
                     + attributeClass.getName()));
         }
 
-        AttributeValue result = value instanceof String
-                ? parseValue((String) value) : parseValue(value);
-        doValidate(result);
+        attributeValue = value instanceof String
+                ? parseValue((String) value, attributeValue)
+                : parseValue(value, attributeValue);
+        doValidate(attributeValue);
 
-        return result;
+        return attributeValue;
     }
 
-    protected AttributeValue parseValue(String value)
-            throws ParseException {
+    protected <T extends AbstractAttributeValue> T parseValue(String value,
+            T attributeValue) throws ParseException {
 
-        AttributeValue result = new AttributeValue();
         Exception exception = null;
 
         switch (schema.getType()) {
 
             case String:
-                result.setStringValue(value);
+                attributeValue.setStringValue(value);
                 break;
 
             case Boolean:
-                result.setBooleanValue(Boolean.parseBoolean(value));
+                attributeValue.setBooleanValue(Boolean.parseBoolean(value));
                 break;
 
             case Long:
                 try {
-                    result.setLongValue(Long.valueOf(schema.getFormatter(
+                    attributeValue.setLongValue(Long.valueOf(schema.getFormatter(
                             DecimalFormat.class).parse(value).longValue()));
                 } catch (java.text.ParseException pe) {
                     exception = pe;
@@ -78,7 +77,7 @@ public abstract class AttributeValidator {
 
             case Double:
                 try {
-                    result.setDoubleValue(Double.valueOf(schema.getFormatter(
+                    attributeValue.setDoubleValue(Double.valueOf(schema.getFormatter(
                             DecimalFormat.class).parse(value).doubleValue()));
                 } catch (java.text.ParseException pe) {
                     exception = pe;
@@ -87,7 +86,7 @@ public abstract class AttributeValidator {
 
             case Date:
                 try {
-                    result.setDateValue(new Date(schema.getFormatter(
+                    attributeValue.setDateValue(new Date(schema.getFormatter(
                             SimpleDateFormat.class).parse(value).getTime()));
                 } catch (java.text.ParseException pe) {
                     exception = pe;
@@ -100,41 +99,38 @@ public abstract class AttributeValidator {
                     "While trying to parse '" + value + "'", exception);
         }
 
-        return result;
+        return attributeValue;
     }
 
-    protected AttributeValue parseValue(Object value)
-            throws ParseException {
-
-        AttributeValue result = null;
+    protected <T extends AbstractAttributeValue> T parseValue(Object value,
+            T attributeValue) throws ParseException {
 
         switch (schema.getType()) {
 
             case String:
-                result.setStringValue((String) value);
+                attributeValue.setStringValue((String) value);
                 break;
 
             case Boolean:
-                result.setBooleanValue((Boolean) value);
+                attributeValue.setBooleanValue((Boolean) value);
                 break;
 
             case Long:
-                result.setLongValue((Long) value);
+                attributeValue.setLongValue((Long) value);
                 break;
 
             case Double:
-                result.setDoubleValue((Double) value);
+                attributeValue.setDoubleValue((Double) value);
                 break;
 
             case Date:
-                result.setDateValue((Date) value);
+                attributeValue.setDateValue((Date) value);
                 break;
         }
 
-        return result;
+        return attributeValue;
     }
 
-    protected abstract void doValidate(
-            AttributeValue attributeValue)
-            throws ValidationFailedException;
+    protected abstract <T extends AbstractAttributeValue> void doValidate(
+            T attributeValue) throws ValidationFailedException;
 }

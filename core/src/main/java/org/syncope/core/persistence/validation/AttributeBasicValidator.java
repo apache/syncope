@@ -14,19 +14,19 @@
  */
 package org.syncope.core.persistence.validation;
 
-import org.syncope.core.persistence.beans.AttributeSchema;
-import org.syncope.core.persistence.beans.AttributeValue;
+import org.syncope.core.persistence.beans.AbstractSchema;
+import org.syncope.core.persistence.beans.AbstractAttributeValue;
 
 public class AttributeBasicValidator extends AttributeValidator {
 
-    public AttributeBasicValidator(AttributeSchema schema)
+    public AttributeBasicValidator(AbstractSchema schema)
             throws ClassNotFoundException {
         
         super(schema);
     }
 
     @Override
-    protected void doValidate(AttributeValue attributeValue)
+    protected void doValidate(AbstractAttributeValue attributeValue)
             throws ValidationFailedException {
     }
 }

@@ -15,15 +15,15 @@
 package org.syncope.core.persistence.dao;
 
 import java.util.List;
-import org.syncope.core.persistence.beans.AttributeValue;
+import org.syncope.core.persistence.beans.AbstractAttributeValue;
 
-public interface AttributeValueDAO extends DAO {
+public interface AttributeValueDAO {
 
-    AttributeValue find(Long id);
+    <T extends AbstractAttributeValue> T find(Long id, Class<T> reference);
 
-    List<AttributeValue> findAll();
+    <T extends AbstractAttributeValue> List<T> findAll(Class<T> reference);
 
-    AttributeValue save(AttributeValue attributeValue);
+    <T extends AbstractAttributeValue> T save(T attributeValue);
 
-    void delete(Long id);
+    <T extends AbstractAttributeValue> void delete(Long id, Class<T> reference);
 }

@@ -14,6 +14,7 @@
  */
 package org.syncope.core.persistence.beans;
 
+import org.syncope.core.persistence.beans.role.SyncopeRole;
 import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;

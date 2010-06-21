@@ -14,13 +14,12 @@
  */
 package org.syncope.core.persistence.beans;
 
+import java.util.Iterator;
 import java.util.Set;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import javax.persistence.MappedSuperclass;
 import org.apache.commons.jexl2.Expression;
 import org.apache.commons.jexl2.JexlContext;
 import org.apache.commons.jexl2.JexlEngine;
@@ -29,8 +28,8 @@ import org.apache.commons.jexl2.MapContext;
 /**
  * @see http://commons.apache.org/jexl/reference/index.html
  */
-@Entity
-public class DerivedAttribute extends AbstractBaseBean {
+@MappedSuperclass
+public abstract class AbstractDerivedAttribute extends AbstractBaseBean {
 
     private static final JexlEngine jexlEngine = new JexlEngine();
 
@@ -42,25 +41,31 @@ public class DerivedAttribute extends AbstractBaseBean {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     protected Long id;
-    @ManyToOne(fetch = FetchType.EAGER)
-    private DerivedAttributeSchema schema;
+
+    public Long getId() {
+        return id;
+    }
 
     /**
      * @see http://commons.apache.org/jexl/reference/index.html
      * @return
      */
-    public String getValue(Set<Attribute> attributes) {
+    public String getValue(Set<? extends AbstractAttribute> attributes) {
         Expression jexlExpression = jexlEngine.createExpression(
-                schema.getExpression());
+                getDerivedSchema().getExpression());
         JexlContext jexlContext = new MapContext();
 
-        Set<AttributeValue> attributeValues = null;
+        Set<? extends AbstractAttributeValue> attributeValues = null;
         String expressionValue = null;
-        AttributeValue attributeValue = null;
-        for (Attribute attribute : attributes) {
-            attributeValues = attribute.getValues();
+        AbstractAttribute attribute = null;
+        AbstractAttributeValue attributeValue = null;
+        for (Iterator<? extends AbstractAttribute> itor =
+                attributes.iterator(); itor.hasNext();) {
+
+            attribute = itor.next();
+            attributeValues = attribute.getAttributeValues();
             if (attributeValues.isEmpty()
-                    || !schema.getAttributeSchemas().contains(
+                    || !getDerivedSchema().getSchemas().contains(
                     attribute.getSchema())) {
 
                 expressionValue = "";
@@ -75,15 +80,12 @@ public class DerivedAttribute extends AbstractBaseBean {
         return jexlExpression.evaluate(jexlContext).toString();
     }
 
-    public Long getId() {
-        return id;
-    }
+    public abstract <T extends AbstractAttributable> T getOwner();
 
-    public DerivedAttributeSchema getSchema() {
-        return schema;
-    }
+    public abstract <T extends AbstractAttributable> void setOwner(T owner);
 
-    public void setSchema(DerivedAttributeSchema attributeSchema) {
-        this.schema = attributeSchema;
-    }
+    public abstract <T extends AbstractDerivedSchema> T getDerivedSchema();
+
+    public abstract <T extends AbstractDerivedSchema> void setDerivedSchema(
+            T derivedSchema);
 }

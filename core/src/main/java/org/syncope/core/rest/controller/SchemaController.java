@@ -22,16 +22,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.support.RequestContextUtils;
 import org.syncope.client.to.AttributeSchemaTO;
 import org.syncope.client.to.DerivedAttributeSchemaTO;
-import org.syncope.core.persistence.beans.AttributeSchema;
-import org.syncope.core.persistence.beans.DerivedAttributeSchema;
-import org.syncope.core.persistence.dao.AttributeSchemaDAO;
-import org.syncope.core.persistence.dao.DerivedAttributeSchemaDAO;
+import org.syncope.core.persistence.beans.AbstractSchema;
+import org.syncope.core.persistence.beans.AbstractDerivedSchema;
+import org.syncope.core.persistence.beans.role.RoleSchema;
+import org.syncope.core.persistence.beans.user.UserSchema;
+import org.syncope.core.persistence.dao.SchemaDAO;
+import org.syncope.core.persistence.dao.DerivedSchemaDAO;
 
 @Controller
 @RequestMapping("/schema")
@@ -40,29 +43,46 @@ public class SchemaController {
     private static final Logger log = LoggerFactory.getLogger(
             SchemaController.class);
 
-    @RequestMapping(method = RequestMethod.GET, value = "/attribute/list")
-    public List<AttributeSchemaTO> attributeList(HttpServletRequest request)
-            throws IOException {
+    private Class getReference(String kind) throws IOException {
+        Class result = null;
+
+        if ("user".equals(kind)) {
+            result = UserSchema.class;
+        } else if ("role".equals(kind)) {
+            result = RoleSchema.class;
+        } else {// TODO: throw exception in REST style
+        }
+
+        return result;
+    }
+
+    @RequestMapping(method = RequestMethod.GET,
+    value = "/attribute/{kind}/list")
+    public List<AttributeSchemaTO> attributeList(HttpServletRequest request,
+            @PathVariable("kind") String kind) throws IOException {
+
+        Class reference = getReference(kind);
 
         WebApplicationContext webApplicationContext =
                 RequestContextUtils.getWebApplicationContext(request);
 
-        AttributeSchemaDAO attributeSchemaDAO =
-                (AttributeSchemaDAO) webApplicationContext.getBean(
-                "attributeSchemaDAOImpl");
+        SchemaDAO schemaDAO =
+                (SchemaDAO) webApplicationContext.getBean("schemaDAOImpl");
 
-        List<AttributeSchema> attributeSchemas = attributeSchemaDAO.findAll();
+        List<AbstractSchema> attributeSchemas = schemaDAO.findAll(reference);
+
+        // TODO: change TO?
         List<AttributeSchemaTO> result = new ArrayList<AttributeSchemaTO>(
                 attributeSchemas.size());
         AttributeSchemaTO attributeSchemaTO = null;
         String[] ignoreProperties = {"derivedAttributeSchemas"};
-        for (AttributeSchema attributeSchema : attributeSchemas) {
+        for (AbstractSchema attributeSchema : attributeSchemas) {
             attributeSchemaTO = new AttributeSchemaTO();
             BeanUtils.copyProperties(attributeSchema, attributeSchemaTO,
                     ignoreProperties);
 
-            for (DerivedAttributeSchema derivedAttributeSchema :
-                    attributeSchema.getDerivedAttributeSchemas()) {
+            for (AbstractDerivedSchema derivedAttributeSchema :
+                    attributeSchema.getDerivedSchemas()) {
 
                 attributeSchemaTO.addDerivedAttributeSchema(
                         derivedAttributeSchema.getName());
@@ -75,33 +95,37 @@ public class SchemaController {
     }
 
     @RequestMapping(method = RequestMethod.GET,
-    value = "/derivedAttribute/list")
+    value = "/derivedAttribute/{kind}/list")
     public List<DerivedAttributeSchemaTO> derivedAttributeList(
-            HttpServletRequest request) throws IOException {
+            HttpServletRequest request, @PathVariable("kind") String kind)
+            throws IOException {
+
+        Class reference = getReference(kind);
 
         WebApplicationContext webApplicationContext =
                 RequestContextUtils.getWebApplicationContext(request);
 
-        DerivedAttributeSchemaDAO derivedAttributeSchemaDAO =
-                (DerivedAttributeSchemaDAO) webApplicationContext.getBean(
-                "derivedAttributeSchemaDAOImpl");
+        DerivedSchemaDAO derivedAttributeSchemaDAO =
+                (DerivedSchemaDAO) webApplicationContext.getBean(
+                "derivedSchemaDAOImpl");
 
-        List<DerivedAttributeSchema> derivedAttributeSchemas =
-                derivedAttributeSchemaDAO.findAll();
+        List<AbstractDerivedSchema> derivedAttributeSchemas =
+                derivedAttributeSchemaDAO.findAll(reference);
+        // TODO: change TO?
         List<DerivedAttributeSchemaTO> result =
                 new ArrayList<DerivedAttributeSchemaTO>(
                 derivedAttributeSchemas.size());
         DerivedAttributeSchemaTO derivedAttributeSchemaTO = null;
         String[] ignoreProperties = {"attributeSchemas"};
-        for (DerivedAttributeSchema derivedAttributeSchema :
+        for (AbstractDerivedSchema derivedAttributeSchema :
                 derivedAttributeSchemas) {
 
             derivedAttributeSchemaTO = new DerivedAttributeSchemaTO();
             BeanUtils.copyProperties(derivedAttributeSchema,
                     derivedAttributeSchemaTO, ignoreProperties);
 
-            for (AttributeSchema attributeSchema :
-                    derivedAttributeSchema.getAttributeSchemas()) {
+            for (AbstractSchema attributeSchema :
+                    derivedAttributeSchema.getSchemas()) {
 
                 derivedAttributeSchemaTO.addAttributeSchema(
                         attributeSchema.getName());

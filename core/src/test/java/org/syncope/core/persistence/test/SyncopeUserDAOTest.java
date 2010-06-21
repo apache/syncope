@@ -20,9 +20,9 @@ import java.util.List;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.syncope.core.persistence.beans.SyncopeUser;
+import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.SyncopeUserDAO;
-import org.syncope.core.persistence.dao.AttributeSchemaDAO;
+import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.AttributeDAO;
 import org.syncope.core.persistence.dao.SyncopeRoleDAO;
 
@@ -34,7 +34,7 @@ public class SyncopeUserDAOTest extends AbstractDAOTest {
     @Autowired
     AttributeDAO attributeDAO;
     @Autowired
-    AttributeSchemaDAO attributeSchemaDAO;
+    SchemaDAO attributeSchemaDAO;
     @Autowired
     SyncopeRoleDAO syncopeRoleDAO;
 

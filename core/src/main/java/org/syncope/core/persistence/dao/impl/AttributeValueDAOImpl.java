@@ -18,7 +18,7 @@ import java.util.List;
 import javax.persistence.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import org.syncope.core.persistence.beans.AttributeValue;
+import org.syncope.core.persistence.beans.AbstractAttributeValue;
 import org.syncope.core.persistence.dao.AttributeValueDAO;
 
 @Repository
@@ -26,8 +26,8 @@ public class AttributeValueDAOImpl extends AbstractDAOImpl
         implements AttributeValueDAO {
 
     @Override
-    public AttributeValue find(Long id) {
-        AttributeValue result = entityManager.find(AttributeValue.class, id);
+    public <T extends AbstractAttributeValue> T find(Long id, Class<T> reference) {
+        T result = entityManager.find(reference, id);
         if (isDeletedOrNotManaged(result)) {
             result = null;
         }
@@ -36,24 +36,24 @@ public class AttributeValueDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    public List<AttributeValue> findAll() {
+    public <T extends AbstractAttributeValue> List<T> findAll(Class<T> reference) {
         Query query = entityManager.createQuery(
-                "SELECT e FROM AttributeValue e");
+                "SELECT e FROM " + reference.getSimpleName() + " e");
         return query.getResultList();
     }
 
     @Override
     @Transactional
-    public AttributeValue save(AttributeValue attributeValue) {
-        AttributeValue result = entityManager.merge(attributeValue);
+    public <T extends AbstractAttributeValue> T save(T attributeValue) {
+        T result = entityManager.merge(attributeValue);
         entityManager.flush();
         return result;
     }
 
     @Override
     @Transactional
-    public void delete(Long id) {
-        AttributeValue attributeValue = find(id);
+    public <T extends AbstractAttributeValue> void delete(Long id, Class<T> reference) {
+        T attributeValue = find(id, reference);
         if (attributeValue == null) {
             return;
         }

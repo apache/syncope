@@ -14,11 +14,11 @@
  */
 package org.syncope.core.persistence.validation;
 
-import org.syncope.core.persistence.beans.AttributeValue;
+import org.syncope.core.persistence.beans.AbstractAttributeValue;
 
 public class ValidationFailedException extends ValidationException {
 
-    public ValidationFailedException(AttributeValue attributeValue) {
+    public ValidationFailedException(AbstractAttributeValue attributeValue) {
         super("Could not validate " + attributeValue);
     }
 }

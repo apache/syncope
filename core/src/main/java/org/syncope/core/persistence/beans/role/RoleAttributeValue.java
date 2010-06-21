@@ -12,26 +12,26 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.persistence.validation;
+package org.syncope.core.persistence.beans.role;
 
-import org.syncope.core.persistence.beans.AbstractSchema;
+import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
+import org.syncope.core.persistence.beans.AbstractAttribute;
 import org.syncope.core.persistence.beans.AbstractAttributeValue;
 
-public class AlwaysTrueValidator extends AttributeValidator {
+@Entity
+public class RoleAttributeValue extends AbstractAttributeValue {
 
-    public AlwaysTrueValidator(AbstractSchema schema)
-            throws ClassNotFoundException {
+    @ManyToOne
+    private RoleAttribute attribute;
 
-        super(schema);
+    @Override
+    public <T extends AbstractAttribute> T getAttribute() {
+        return (T) attribute;
     }
 
     @Override
-    protected void doValidate(AbstractAttributeValue attributeValue)
-            throws ValidationFailedException {
-
-        Boolean value = attributeValue.getValue();
-        if (!value) {
-            throw new ValidationFailedException(attributeValue);
-        }
+    public <T extends AbstractAttribute> void setAttribute(T attribute) {
+        this.attribute = (RoleAttribute) attribute;
     }
 }

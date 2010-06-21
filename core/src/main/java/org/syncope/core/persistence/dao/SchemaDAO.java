@@ -15,15 +15,15 @@
 package org.syncope.core.persistence.dao;
 
 import java.util.List;
-import org.syncope.core.persistence.beans.AttributeSchema;
+import org.syncope.core.persistence.beans.AbstractSchema;
 
-public interface AttributeSchemaDAO extends DAO {
+public interface SchemaDAO {
 
-    AttributeSchema find(String name);
+    <T extends AbstractSchema> T find(String name, Class<T> reference);
 
-    List<AttributeSchema> findAll();
+    <T extends AbstractSchema> List<T> findAll(Class<T> reference);
 
-    AttributeSchema save(AttributeSchema attributeSchema);
+    <T extends AbstractSchema> T save(T schema);
 
-    void delete(String name);
+    <T extends AbstractSchema> void delete(String name, Class<T> reference);
 }

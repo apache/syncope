@@ -20,14 +20,15 @@ import java.util.List;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.syncope.core.persistence.beans.AttributeValue;
-import org.syncope.core.persistence.beans.SyncopeUser;
-import org.syncope.core.persistence.beans.DerivedAttribute;
-import org.syncope.core.persistence.beans.DerivedAttributeSchema;
-import org.syncope.core.persistence.dao.AttributeSchemaDAO;
+import org.syncope.core.persistence.beans.user.SyncopeUser;
+import org.syncope.core.persistence.beans.user.UserAttributeValue;
+import org.syncope.core.persistence.beans.user.UserDerivedAttribute;
+import org.syncope.core.persistence.beans.user.UserDerivedSchema;
+import org.syncope.core.persistence.beans.user.UserSchema;
+import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.SyncopeUserDAO;
 import org.syncope.core.persistence.dao.DerivedAttributeDAO;
-import org.syncope.core.persistence.dao.DerivedAttributeSchemaDAO;
+import org.syncope.core.persistence.dao.DerivedSchemaDAO;
 
 @Transactional
 public class DerivedAttributeDAOTest extends AbstractDAOTest {
@@ -37,58 +38,63 @@ public class DerivedAttributeDAOTest extends AbstractDAOTest {
     @Autowired
     SyncopeUserDAO syncopeUserDAO;
     @Autowired
-    DerivedAttributeSchemaDAO derivedAttributeSchemaDAO;
+    DerivedSchemaDAO derivedAttributeSchemaDAO;
     @Autowired
-    AttributeSchemaDAO attributeSchemaDAO;
+    SchemaDAO attributeSchemaDAO;
 
     @Test
     public final void findAll() {
-        List<DerivedAttribute> list = derivedAttributeDAO.findAll();
+        List<UserDerivedAttribute> list = derivedAttributeDAO.findAll(
+                UserDerivedAttribute.class);
         assertEquals("did not get expected number of derived attributes ",
                 1, list.size());
     }
 
     @Test
     public final void findById() {
-        DerivedAttribute attribute = derivedAttributeDAO.find(1000L);
+        UserDerivedAttribute attribute = derivedAttributeDAO.find(1000L,
+                UserDerivedAttribute.class);
         assertNotNull("did not find expected attribute schema",
                 attribute);
     }
 
     @Test
     public final void save() throws ClassNotFoundException {
-        DerivedAttributeSchema derivedAttributeSchema =
-                new DerivedAttributeSchema();
+        UserDerivedSchema derivedAttributeSchema =
+                new UserDerivedSchema();
         derivedAttributeSchema.setName("cn2");
         derivedAttributeSchema.setExpression("firstname + \" \" + surname");
-        derivedAttributeSchema.addAttributeSchema(
-                attributeSchemaDAO.find("firstname"));
-        derivedAttributeSchema.addAttributeSchema(
-                attributeSchemaDAO.find("surname"));
+        derivedAttributeSchema.addSchema(
+                attributeSchemaDAO.find("firstname", UserSchema.class));
+        derivedAttributeSchema.addSchema(
+                attributeSchemaDAO.find("surname", UserSchema.class));
 
         derivedAttributeSchemaDAO.save(derivedAttributeSchema);
 
-        DerivedAttributeSchema actualCN2Schema =
-                derivedAttributeSchemaDAO.find("cn2");
+        UserDerivedSchema actualCN2Schema =
+                derivedAttributeSchemaDAO.find("cn2", UserDerivedSchema.class);
         assertNotNull("expected save to work for CN2 schema",
                 actualCN2Schema);
 
         SyncopeUser owner = syncopeUserDAO.find(3L);
         assertNotNull("did not get expected user", owner);
 
-        DerivedAttribute derivedAttribute = new DerivedAttribute();
-        derivedAttribute.setSchema(derivedAttributeSchema);
+        UserDerivedAttribute derivedAttribute = new UserDerivedAttribute();
+        derivedAttribute.setDerivedSchema(derivedAttributeSchema);
 
         derivedAttribute = derivedAttributeDAO.save(derivedAttribute);
 
-        DerivedAttribute actual = derivedAttributeDAO.find(derivedAttribute.getId());
+        UserDerivedAttribute actual = derivedAttributeDAO.find(
+                derivedAttribute.getId(), UserDerivedAttribute.class);
         assertNotNull("expected save to work", actual);
         assertEquals(derivedAttribute, actual);
 
-        AttributeValue firstnameAttribute = owner.getAttribute(
-                "firstname").getValues().iterator().next();
-        AttributeValue surnameAttribute = owner.getAttribute(
-                "surname").getValues().iterator().next();
+        UserAttributeValue firstnameAttribute =
+                (UserAttributeValue) owner.getAttribute(
+                "firstname").getAttributeValues().iterator().next();
+        UserAttributeValue surnameAttribute =
+                (UserAttributeValue) owner.getAttribute(
+                "surname").getAttributeValues().iterator().next();
 
         assertEquals("expected derived value",
                 firstnameAttribute.getValue() + " "
@@ -98,17 +104,21 @@ public class DerivedAttributeDAOTest extends AbstractDAOTest {
 
     @Test
     public final void delete() {
-        DerivedAttribute attribute = derivedAttributeDAO.find(1000L);
+        UserDerivedAttribute attribute = derivedAttributeDAO.find(1000L,
+                UserDerivedAttribute.class);
         String attributeSchemaName =
-                attribute.getSchema().getName();
+                attribute.getDerivedSchema().getName();
 
-        derivedAttributeDAO.delete(attribute.getId());
+        derivedAttributeDAO.delete(attribute.getId(),
+                UserDerivedAttribute.class);
 
-        DerivedAttribute actual = derivedAttributeDAO.find(1000L);
+        UserDerivedAttribute actual = derivedAttributeDAO.find(1000L,
+                UserDerivedAttribute.class);
         assertNull("delete did not work", actual);
 
-        DerivedAttributeSchema attributeSchema =
-                derivedAttributeSchemaDAO.find(attributeSchemaName);
+        UserDerivedSchema attributeSchema =
+                derivedAttributeSchemaDAO.find(attributeSchemaName,
+                UserDerivedSchema.class);
         assertNotNull("user derived attribute schema deleted "
                 + "when deleting values",
                 attributeSchema);

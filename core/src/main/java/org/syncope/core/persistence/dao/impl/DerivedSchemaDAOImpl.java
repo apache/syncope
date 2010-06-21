@@ -19,57 +19,48 @@ import javax.persistence.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import org.syncope.core.persistence.beans.AttributeSchema;
-import org.syncope.core.persistence.beans.DerivedAttribute;
-import org.syncope.core.persistence.beans.DerivedAttributeSchema;
+import org.syncope.core.persistence.beans.AbstractDerivedSchema;
 import org.syncope.core.persistence.dao.DerivedAttributeDAO;
-import org.syncope.core.persistence.dao.DerivedAttributeSchemaDAO;
+import org.syncope.core.persistence.dao.DerivedSchemaDAO;
 
 @Repository
-public class DerivedAttributeSchemaDAOImpl extends AbstractDAOImpl
-        implements DerivedAttributeSchemaDAO {
+public class DerivedSchemaDAOImpl extends AbstractDAOImpl
+        implements DerivedSchemaDAO {
 
     @Autowired
     DerivedAttributeDAO derivedAttributeDAO;
 
     @Override
-    public DerivedAttributeSchema find(String name) {
-        return entityManager.find(DerivedAttributeSchema.class, name);
+    public <T extends AbstractDerivedSchema> T find(String name,
+            Class<T> reference) {
+
+        return entityManager.find(reference, name);
     }
 
     @Override
-    public List<DerivedAttributeSchema> findAll() {
+    public <T extends AbstractDerivedSchema> List<T> findAll(
+            Class<T> reference) {
+
         Query query = entityManager.createQuery(
-                "SELECT e FROM DerivedAttributeSchema e");
+                "SELECT e FROM " + reference.getSimpleName() + " e");
         return query.getResultList();
     }
 
     @Override
     @Transactional
-    public DerivedAttributeSchema save(
-            DerivedAttributeSchema attributeSchema) {
-
-        DerivedAttributeSchema result = entityManager.merge(attributeSchema);
+    public <T extends AbstractDerivedSchema> T save(T derivedSchema) {
+        T result = entityManager.merge(derivedSchema);
         entityManager.flush();
         return result;
     }
 
     @Override
     @Transactional
-    public void delete(String name) {
-        DerivedAttributeSchema schema = find(name);
+    public <T extends AbstractDerivedSchema> void delete(String name,
+            Class<T> reference) {
+        T schema = find(name, reference);
         if (schema == null) {
             return;
-        }
-
-        for (DerivedAttribute attribute : schema.getDerivedAttributes()) {
-            derivedAttributeDAO.delete(attribute.getId());
-        }
-        for (AttributeSchema attributeSchema :
-                schema.getAttributeSchemas()) {
-
-            attributeSchema.removeDerivedAttributeSchema(schema);
-            entityManager.merge(attributeSchema);
         }
 
         entityManager.remove(schema);

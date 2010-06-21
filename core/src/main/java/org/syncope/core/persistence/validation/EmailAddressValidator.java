@@ -16,8 +16,8 @@ package org.syncope.core.persistence.validation;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.syncope.core.persistence.beans.AttributeSchema;
-import org.syncope.core.persistence.beans.AttributeValue;
+import org.syncope.core.persistence.beans.AbstractSchema;
+import org.syncope.core.persistence.beans.AbstractAttributeValue;
 
 public class EmailAddressValidator extends AttributeValidator {
 
@@ -25,14 +25,14 @@ public class EmailAddressValidator extends AttributeValidator {
             "^[\\w\\-]([\\.\\w])+[\\w]+@([\\w\\-]+\\.)+[A-Z]{2,4}$",
             Pattern.CASE_INSENSITIVE);
 
-    public EmailAddressValidator(AttributeSchema schema)
+    public EmailAddressValidator(AbstractSchema schema)
             throws ClassNotFoundException {
 
         super(schema);
     }
 
     @Override
-    protected void doValidate(AttributeValue attributeValue)
+    protected void doValidate(AbstractAttributeValue attributeValue)
             throws ValidationFailedException {
 
         CharSequence emailAddress = attributeValue.getValue();

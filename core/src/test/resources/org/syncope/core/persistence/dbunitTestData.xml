@@ -28,77 +28,51 @@
     <SyncopeUser_SyncopeRole users_id="1" roles_id="1"/>
     <SyncopeUser_SyncopeRole users_id="2" roles_id="1"/>
 
-    <AttributeSchema name="username" type="String"
-                     mandatory="true" multivalue="false"/>
-    <AttributeSchema name="loginDate" type="Date"
-                     mandatory="false" multivalue="true"
-                     conversionPattern="yyyy-MM-dd"/>
-    <AttributeSchema name="firstname" type="String"
-                     mandatory="false" multivalue="false"/>
-    <AttributeSchema name="surname" type="String"
-                     mandatory="true" multivalue="false"/>
-    <AttributeSchema name="icon" type="String"
-                     mandatory="false" multivalue="false"/>
-    <AttributeSchema name="show" type="Boolean"
-                     mandatory="false" multivalue="false"/>
+    <UserSchema name="username" type="String"
+                mandatory="true" multivalue="false"/>
+    <UserSchema name="loginDate" type="Date"
+                mandatory="false" multivalue="true"
+                conversionPattern="yyyy-MM-dd"/>
+    <UserSchema name="firstname" type="String"
+                mandatory="false" multivalue="false"/>
+    <UserSchema name="surname" type="String"
+                mandatory="true" multivalue="false"/>
 
-    <Attribute id="100" schema_name="username"/>
-    <Attribute id="200" schema_name="loginDate"/>
-    <Attribute id="300" schema_name="username"/>
-    <Attribute id="400" schema_name="firstname"/>
-    <Attribute id="500" schema_name="surname"/>
-    <Attribute id="600" schema_name="icon"/>
-    <Attribute id="700" schema_name="icon"/>
-    <Attribute id="800" schema_name="show"/>
+    <RoleSchema name="icon" type="String"
+                mandatory="false" multivalue="false"/>
+    <RoleSchema name="show" type="Boolean"
+                mandatory="false" multivalue="false"/>
 
-    <AttributeValue attribute_id="100" id="10"
-                    stringValue="chicchiricco"/>
-    <AttributeValue attribute_id="300" id="11"
-                    stringValue="fabio.martelli"/>
-    <AttributeValue attribute_id="200" id="20"
-                    dateValue="2009-05-26"/>
-    <AttributeValue attribute_id="200" id="21"
-                    dateValue="2010-05-26 15:40:04"/>
-    <AttributeValue attribute_id="400" id="30"
-                    stringValue="John"/>
-    <AttributeValue attribute_id="500" id="31"
-                    stringValue="Doe"/>
-    <AttributeValue attribute_id="600" id="40"
-                    stringValue="niceIcon"/>
-    <AttributeValue attribute_id="700" id="41"
-                    stringValue="badIcon"/>
-    <AttributeValue attribute_id="800" id="42"
-                    booleanValue="TRUE"/>
+    <UserAttribute id="100" owner_id="1" schema_name="username"/>
+    <UserAttribute id="200" owner_id="1" schema_name="loginDate"/>
+    <UserAttribute id="300" owner_id="2" schema_name="username"/>
+    <UserAttribute id="400" owner_id="3" schema_name="firstname"/>
+    <UserAttribute id="500" owner_id="3" schema_name="surname"/>
 
-    <SyncopeUser_Attribute SyncopeUser_id='1'
-                           attributes_id='100'/>
-    <SyncopeUser_Attribute SyncopeUser_id='1'
-                           attributes_id='200'/>
-    <SyncopeUser_Attribute SyncopeUser_id='2'
-                           attributes_id='300'/>
-    <SyncopeUser_Attribute SyncopeUser_id='3'
-                           attributes_id='400'/>
-    <SyncopeUser_Attribute SyncopeUser_id='3'
-                           attributes_id='500'/>
+    <RoleAttribute id="600" owner_id="1" schema_name="icon"/>
+    <RoleAttribute id="700" owner_id="2" schema_name="icon"/>
+    <RoleAttribute id="800" owner_id="1" schema_name="show"/>
 
-    <SyncopeRole_Attribute SyncopeRole_id="1"
-                           attributes_id="600"/>
-    <SyncopeRole_Attribute SyncopeRole_id="1"
-                           attributes_id="800"/>
-    <SyncopeRole_Attribute SyncopeRole_id="2"
-                           attributes_id="700"/>
+    <UserAttributeValue attribute_id="100" id="10" stringValue="chicchiricco"/>
+    <UserAttributeValue attribute_id="300" id="11" stringValue="fabio.martelli"/>
+    <UserAttributeValue attribute_id="200" id="20" dateValue="2009-05-26"/>
+    <UserAttributeValue attribute_id="200" id="21" dateValue="2010-05-26 15:40:04"/>
+    <UserAttributeValue attribute_id="400" id="30" stringValue="John"/>
+    <UserAttributeValue attribute_id="500" id="31" stringValue="Doe"/>
 
-    <DerivedAttributeSchema name="cn" expression="surname + ', ' + firstname"/>
+    <RoleAttributeValue attribute_id="600" id="40" stringValue="niceIcon"/>
+    <RoleAttributeValue attribute_id="700" id="41" stringValue="badIcon"/>
+    <RoleAttributeValue attribute_id="800" id="42" booleanValue="TRUE"/>
+
+    <UserDerivedSchema name="cn" expression="surname + ', ' + firstname"/>
     
-    <DerivedAttributeSchema_AttributeSchema derivedAttributeSchemas_name="cn"
-                                            attributeSchemas_name="surname" />
-    <DerivedAttributeSchema_AttributeSchema derivedAttributeSchemas_name="cn"
-                                            attributeSchemas_name="firstname" />
+    <UserDerivedSchema_UserSchema UserDerivedSchema_name="cn"
+                                  schemas_name="surname" />
+    <UserDerivedSchema_UserSchema UserDerivedSchema_name="cn"
+                                  schemas_name="firstname" />
                                             
-    <DerivedAttribute id="1000" schema_name="cn"/>
+    <UserDerivedAttribute id="1000" derivedSchema_name="cn" owner_id="3"/>
 
-    <SyncopeUser_DerivedAttribute SyncopeUser_id="3"
-                                  derivedAttributes_id="1000"/>
     <ConnectorInstance
         id="100"
         connectorName="OpenAM"

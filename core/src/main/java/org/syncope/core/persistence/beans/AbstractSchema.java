@@ -20,22 +20,19 @@ import java.lang.reflect.Constructor;
 import java.text.DecimalFormat;
 import java.text.Format;
 import java.text.SimpleDateFormat;
-import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Column;
-import javax.persistence.Entity;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
+import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
 import org.syncope.core.persistence.validation.AttributeBasicValidator;
 import org.syncope.core.persistence.validation.AttributeValidator;
 import org.syncope.core.persistence.validation.ValidatorInstantiationException;
 import org.syncope.types.AttributeType;
 
-@Entity
-public class AttributeSchema extends AbstractBaseBean {
+@MappedSuperclass
+public abstract class AbstractSchema extends AbstractBaseBean {
 
     @Id
     private String name;
@@ -50,18 +47,11 @@ public class AttributeSchema extends AbstractBaseBean {
     private String validatorClass;
     @Transient
     private AttributeValidator validator;
-    @OneToMany(mappedBy = "schema")
-    private Set<Attribute> attributes;
-    @ManyToMany(mappedBy = "attributeSchemas")
-    private Set<DerivedAttributeSchema> derivedAttributeSchemas;
 
-    public AttributeSchema() {
+    public AbstractSchema() {
         type = AttributeType.String;
         mandatory = false;
         multivalue = false;
-
-        attributes = new HashSet<Attribute>();
-        derivedAttributeSchemas = new HashSet<DerivedAttributeSchema>();
     }
 
     public String getName() {
@@ -107,7 +97,7 @@ public class AttributeSchema extends AbstractBaseBean {
             try {
                 Constructor validatorConstructor =
                         Class.forName(getValidatorClass()).getConstructor(
-                        new Class[]{getClass()});
+                        new Class[]{getClass().getSuperclass()});
                 validator = (AttributeValidator) validatorConstructor.newInstance(this);
             } catch (Exception e) {
                 throw new ValidatorInstantiationException(
@@ -154,36 +144,6 @@ public class AttributeSchema extends AbstractBaseBean {
         this.conversionPattern = conversionPattern;
     }
 
-    public Set<Attribute> getAttributes() {
-        return attributes;
-    }
-
-    public void setAttributes(Set<Attribute> attributes) {
-        this.attributes = attributes;
-    }
-
-    public boolean addDerivedAttributeSchema(
-            DerivedAttributeSchema derivedAttributeSchema) {
-
-        return derivedAttributeSchemas.add(derivedAttributeSchema);
-    }
-
-    public boolean removeDerivedAttributeSchema(
-            DerivedAttributeSchema derivedAttributeSchema) {
-
-        return derivedAttributeSchemas.remove(derivedAttributeSchema);
-    }
-
-    public Set<DerivedAttributeSchema> getDerivedAttributeSchemas() {
-        return derivedAttributeSchemas;
-    }
-
-    public void setDerivedAttributeSchemas(
-            Set<DerivedAttributeSchema> derivedAttributeSchemas) {
-
-        this.derivedAttributeSchemas = derivedAttributeSchemas;
-    }
-
     public <T extends Format> T getFormatter(Class<T> reference) {
         T result = null;
 
@@ -215,4 +175,21 @@ public class AttributeSchema extends AbstractBaseBean {
 
         return result;
     }
+
+    public abstract <T extends AbstractAttribute> boolean addAttribute(T attribute);
+
+    public abstract <T extends AbstractAttribute> boolean removeAttribute(T attribute);
+
+    public abstract Set<? extends AbstractAttribute> getAttributes();
+
+    public abstract void setAttributes(
+            Set<? extends AbstractAttribute> attributes);
+
+    public abstract <T extends AbstractDerivedSchema> boolean addDerivedSchema(T derivedSchema);
+
+    public abstract <T extends AbstractDerivedSchema> boolean removeDerivedSchema(T derivedSchema);
+
+    public abstract Set<? extends AbstractDerivedSchema> getDerivedSchemas();
+
+    public abstract void setDerivedSchemas(Set<? extends AbstractDerivedSchema> derivedSchemas);
 }
