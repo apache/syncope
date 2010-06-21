@@ -19,11 +19,11 @@ import org.syncope.core.persistence.beans.DerivedAttribute;
 
 public interface DerivedAttributeDAO extends DAO {
 
-    DerivedAttribute find(long id);
+    DerivedAttribute find(Long id);
 
     List<DerivedAttribute> findAll();
 
     DerivedAttribute save(DerivedAttribute attribute);
 
-    void delete(long id);
+    void delete(Long id);
 }

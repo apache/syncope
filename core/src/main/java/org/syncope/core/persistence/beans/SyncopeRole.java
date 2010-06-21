@@ -17,16 +17,25 @@ package org.syncope.core.persistence.beans;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.CascadeType;
-import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.ManyToMany;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 @Entity
+@Table(uniqueConstraints =
+@UniqueConstraint(columnNames = {"name", "parent"}))
 public class SyncopeRole extends AbstractAttributableBean {
 
-    @EmbeddedId
-    private SyncopeRolePK syncopeRolePK;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
+    private String name;
+    private String parent;
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER,
     mappedBy = "roles")
     private Set<SyncopeUser> users;
@@ -38,12 +47,24 @@ public class SyncopeRole extends AbstractAttributableBean {
         entitlements = new HashSet<Entitlement>();
     }
 
-    public SyncopeRolePK getSyncopeRolePK() {
-        return syncopeRolePK;
+    public Long getId() {
+        return id;
     }
 
-    public void setSyncopeRolePK(SyncopeRolePK syncopeRolePK) {
-        this.syncopeRolePK = syncopeRolePK;
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) throws IllegalArgumentException {
+        this.name = name;
+    }
+
+    public String getParent() {
+        return parent;
+    }
+
+    public void setParent(String parent) {
+        this.parent = parent;
     }
 
     public boolean addEntitlement(Entitlement entitlement) {

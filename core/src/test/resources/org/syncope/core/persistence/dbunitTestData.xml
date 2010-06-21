@@ -17,37 +17,30 @@
     <SyncopeUser id="2" password="YYY"/>
     <SyncopeUser id="3" password="ZZZ"/>
 
-    <SyncopeRole name="root" parent="/"/>
-    <SyncopeRole name="child" parent="root"/>
-    <SyncopeRole name="citizen" parent="/"/>
-    <SyncopeRole name="employee" parent="citizen"/>
-    <SyncopeRole name="secretary" parent="employee"/>
-    <SyncopeRole name="director" parent="employee"/>
-    <SyncopeRole name="managingDirector" parent="director"/>
+    <SyncopeRole id="1" name="root"/>
+    <SyncopeRole id="2" name="child" parent="root"/>
+    <SyncopeRole id="3" name="citizen"/>
+    <SyncopeRole id="4" name="employee" parent="citizen"/>
+    <SyncopeRole id="5" name="secretary" parent="employee"/>
+    <SyncopeRole id="6" name="director" parent="employee"/>
+    <SyncopeRole id="7" name="managingDirector" parent="director"/>
 
-    <SyncopeUser_SyncopeRole users_id="1"
-                             roles_name="root" roles_parent="/"/>
-    <SyncopeUser_SyncopeRole users_id="2"
-                             roles_name="root" roles_parent="/"/>
+    <SyncopeUser_SyncopeRole users_id="1" roles_id="1"/>
+    <SyncopeUser_SyncopeRole users_id="2" roles_id="1"/>
 
     <AttributeSchema name="username" type="String"
-                     mandatory="true" multivalue="false"
-                     conversionPattern="NULL" validatorClass="NULL"/>
+                     mandatory="true" multivalue="false"/>
     <AttributeSchema name="loginDate" type="Date"
                      mandatory="false" multivalue="true"
-                     conversionPattern="yyyy-MM-dd" validatorClass="NULL"/>
+                     conversionPattern="yyyy-MM-dd"/>
     <AttributeSchema name="firstname" type="String"
-                     mandatory="false" multivalue="false"
-                     conversionPattern="NULL" validatorClass="NULL"/>
+                     mandatory="false" multivalue="false"/>
     <AttributeSchema name="surname" type="String"
-                     mandatory="true" multivalue="false"
-                     conversionPattern="NULL" validatorClass="NULL"/>
+                     mandatory="true" multivalue="false"/>
     <AttributeSchema name="icon" type="String"
-                     mandatory="false" multivalue="false"
-                     conversionPattern="NULL" validatorClass="NULL"/>
+                     mandatory="false" multivalue="false"/>
     <AttributeSchema name="show" type="Boolean"
-                     mandatory="false" multivalue="false"
-                     conversionPattern="NULL" validatorClass="NULL"/>
+                     mandatory="false" multivalue="false"/>
 
     <Attribute id="100" schema_name="username"/>
     <Attribute id="200" schema_name="loginDate"/>
@@ -88,11 +81,11 @@
     <SyncopeUser_Attribute SyncopeUser_id='3'
                            attributes_id='500'/>
 
-    <SyncopeRole_Attribute SyncopeRole_name="root" SyncopeRole_parent="/"
+    <SyncopeRole_Attribute SyncopeRole_id="1"
                            attributes_id="600"/>
-    <SyncopeRole_Attribute SyncopeRole_name="root" SyncopeRole_parent="/"
+    <SyncopeRole_Attribute SyncopeRole_id="1"
                            attributes_id="800"/>
-    <SyncopeRole_Attribute SyncopeRole_name="child" SyncopeRole_parent="root"
+    <SyncopeRole_Attribute SyncopeRole_id="2"
                            attributes_id="700"/>
 
     <DerivedAttributeSchema name="cn" expression="surname + ', ' + firstname"/>
@@ -117,10 +110,10 @@
     <Entitlement name="advanced" description="Advanced entitlement"/>
 
     <SyncopeRole_Entitlement entitlements_name="base"
-                             roles_name="root" roles_parent="/"/>
+                             roles_id="1"/>
     <SyncopeRole_Entitlement entitlements_name="advanced"
-                             roles_name="root" roles_parent="/"/>
+                             roles_id="1"/>
     <SyncopeRole_Entitlement entitlements_name="base"
-                             roles_name="child" roles_parent="root"/>
+                             roles_id="2"/>
 
 </dataset>

@@ -21,7 +21,6 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.SyncopeRole;
-import org.syncope.core.persistence.beans.SyncopeRolePK;
 import org.syncope.core.persistence.dao.AttributeSchemaDAO;
 import org.syncope.core.persistence.dao.AttributeDAO;
 import org.syncope.core.persistence.dao.EntitlementDAO;
@@ -49,26 +48,26 @@ public class SyncopeRoleDAOTest extends AbstractDAOTest {
     public final void find() {
         SyncopeRole role = syncopeRoleDAO.find("root", null);
         assertNotNull("did not find expected role", role);
-        role = syncopeRoleDAO.find(new SyncopeRolePK(null, null));
+        role = syncopeRoleDAO.find(null, null);
         assertNull("found role but did not expect it", role);
     }
 
     @Test
     public final void save() {
-        SyncopeRolePK rolePK = new SyncopeRolePK("secondChild", "root");
         SyncopeRole role = new SyncopeRole();
-        role.setSyncopeRolePK(rolePK);
+        role.setName("secondChild");
+        role.setParent("root");
 
         role = syncopeRoleDAO.save(role);
 
-        SyncopeRole actual = syncopeRoleDAO.find(role.getSyncopeRolePK());
+        SyncopeRole actual = syncopeRoleDAO.find(role.getId());
         assertNotNull("expected save to work", actual);
     }
 
     @Test
     public final void delete() {
         SyncopeRole role = syncopeRoleDAO.find("employee", "citizen");
-        syncopeRoleDAO.delete(role.getSyncopeRolePK());
+        syncopeRoleDAO.delete(role.getId());
 
         SyncopeRole actual = syncopeRoleDAO.find("employee", "citizen");
         assertNull("delete did not work", actual);

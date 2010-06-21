@@ -19,11 +19,11 @@ import org.syncope.core.persistence.beans.SyncopeUser;
 
 public interface SyncopeUserDAO extends DAO {
 
-    SyncopeUser find(long id);
+    SyncopeUser find(Long id);
 
     List<SyncopeUser> findAll();
 
     SyncopeUser save(SyncopeUser syncopeUser);
 
-    void delete(long id);
+    void delete(Long id);
 }

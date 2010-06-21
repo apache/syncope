@@ -28,7 +28,7 @@ public class AttributeDAOImpl extends AbstractDAOImpl
         implements AttributeDAO {
 
     @Override
-    public Attribute find(long id) {
+    public Attribute find(Long id) {
         Attribute result = entityManager.find(Attribute.class, id);
         if (isDeletedOrNotManaged(result)) {
             result = null;
@@ -54,7 +54,7 @@ public class AttributeDAOImpl extends AbstractDAOImpl
 
     @Override
     @Transactional
-    public void delete(long id) {
+    public void delete(Long id) {
         Attribute attribute = find(id);
         if (attribute == null) {
             return;

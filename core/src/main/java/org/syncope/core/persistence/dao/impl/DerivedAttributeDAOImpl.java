@@ -28,7 +28,7 @@ public class DerivedAttributeDAOImpl extends AbstractDAOImpl
         implements DerivedAttributeDAO {
 
     @Override
-    public DerivedAttribute find(long id) {
+    public DerivedAttribute find(Long id) {
         DerivedAttribute result = entityManager.find(
                 DerivedAttribute.class, id);
         if (isDeletedOrNotManaged(result)) {
@@ -55,7 +55,7 @@ public class DerivedAttributeDAOImpl extends AbstractDAOImpl
 
     @Override
     @Transactional
-    public void delete(long id) {
+    public void delete(Long id) {
         DerivedAttribute derivedAttribute = find(id);
         if (derivedAttribute == null) {
             return;

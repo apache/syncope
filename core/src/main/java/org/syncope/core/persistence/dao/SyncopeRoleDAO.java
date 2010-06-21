@@ -16,13 +16,12 @@ package org.syncope.core.persistence.dao;
 
 import java.util.List;
 import org.syncope.core.persistence.beans.SyncopeRole;
-import org.syncope.core.persistence.beans.SyncopeRolePK;
 
 public interface SyncopeRoleDAO extends DAO {
 
     SyncopeRole find(String name, String parent);
 
-    SyncopeRole find(SyncopeRolePK syncopeRolePK);
+    SyncopeRole find(Long id);
 
     List<SyncopeRole> findAll();
 
@@ -30,5 +29,5 @@ public interface SyncopeRoleDAO extends DAO {
 
     void delete(String name, String parent);
 
-    void delete(SyncopeRolePK syncopeRolePK);
+    void delete(Long id);
 }

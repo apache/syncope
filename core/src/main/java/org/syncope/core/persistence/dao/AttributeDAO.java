@@ -19,11 +19,11 @@ import org.syncope.core.persistence.beans.Attribute;
 
 public interface AttributeDAO extends DAO {
 
-    Attribute find(long id);
+    Attribute find(Long id);
 
     List<Attribute> findAll();
 
     Attribute save(Attribute attribute);
 
-    void delete(long id);
+    void delete(Long id);
 }

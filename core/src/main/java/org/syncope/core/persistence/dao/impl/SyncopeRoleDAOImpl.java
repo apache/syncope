@@ -19,7 +19,6 @@ import javax.persistence.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.SyncopeRole;
-import org.syncope.core.persistence.beans.SyncopeRolePK;
 import org.syncope.core.persistence.dao.SyncopeRoleDAO;
 
 @Repository
@@ -28,12 +27,27 @@ public class SyncopeRoleDAOImpl extends AbstractDAOImpl
 
     @Override
     public SyncopeRole find(String name, String parent) {
-        return find(new SyncopeRolePK(name, parent));
+        Query query = null;
+
+        if (parent != null) {
+            query = entityManager.createQuery(
+                    "SELECT r FROM SyncopeRole r WHERE "
+                    + "name=:name AND parent=:parent");
+            query.setParameter("parent", parent);
+        } else {
+            query = entityManager.createQuery(
+                    "SELECT r FROM SyncopeRole r WHERE "
+                    + "name=:name AND parent IS NULL");
+        }
+        query.setParameter("name", name);
+
+        List<SyncopeRole> result = query.getResultList();
+        return result.isEmpty() ? null : result.get(0);
     }
 
     @Override
-    public SyncopeRole find(SyncopeRolePK syncopeRolePK) {
-        return entityManager.find(SyncopeRole.class, syncopeRolePK);
+    public SyncopeRole find(Long id) {
+        return entityManager.find(SyncopeRole.class, id);
     }
 
     @Override
@@ -52,23 +66,25 @@ public class SyncopeRoleDAOImpl extends AbstractDAOImpl
     @Override
     @Transactional
     public void delete(String name, String parent) {
-        delete(new SyncopeRolePK(name, parent));
+        Query query = entityManager.createQuery(
+                "SELECT r FROM SyncopeRole r WHERE "
+                + "parent=:role");
+        query.setParameter("role", name);
+        List<SyncopeRole> childrenRoles = query.getResultList();
+
+        if (!childrenRoles.isEmpty()) {
+            for (SyncopeRole child : childrenRoles) {
+                delete(child.getName(), child.getParent());
+            }
+        }
+
+        entityManager.remove(find(name, parent));
     }
 
     @Override
     @Transactional
-    public void delete(SyncopeRolePK syncopeRolePK) {
-        Query query = entityManager.createQuery(
-                "SELECT r FROM SyncopeRole r WHERE "
-                + "parent=:role");
-        query.setParameter("role", syncopeRolePK.getName());
-        List<SyncopeRole> childrenRoles = query.getResultList();
-
-        if (!childrenRoles.isEmpty())
-            for (SyncopeRole child : childrenRoles)
-                delete(child.getSyncopeRolePK().getName(),
-                       syncopeRolePK.getName());
-
-        entityManager.remove(find(syncopeRolePK));
+    public void delete(Long id) {
+        SyncopeRole role = find(id);
+        delete(role.getName(), role.getParent());
     }
 }

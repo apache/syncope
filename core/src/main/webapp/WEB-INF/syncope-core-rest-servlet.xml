@@ -67,15 +67,7 @@
                 <bean class="org.springframework.web.servlet.view.xml.MarshallingView">
                     <constructor-arg>
                         <bean class="org.springframework.oxm.xstream.XStreamMarshaller"
-                              p:autodetectAnnotations="false" p:encoding="UTF-8">
-                            <property name="aliases">
-                                <props>
-                                    <prop key="user">org.syncope.client.to.UserTO</prop>
-                                    <prop key="attribute">org.syncope.client.to.AttributeTO</prop>
-                                    <prop key="searchParameters">org.syncope.client.to.SearchParameters</prop>
-                                </props>
-                            </property>
-                        </bean>
+                              p:autodetectAnnotations="false" p:encoding="UTF-8"/>
                     </constructor-arg>
                 </bean>
 

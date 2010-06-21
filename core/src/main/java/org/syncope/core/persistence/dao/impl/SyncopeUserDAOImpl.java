@@ -26,7 +26,7 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
         implements SyncopeUserDAO {
 
     @Override
-    public SyncopeUser find(long id) {
+    public SyncopeUser find(Long id) {
         return entityManager.find(SyncopeUser.class, id);
     }
 
@@ -46,7 +46,7 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
 
     @Override
     @Transactional
-    public void delete(long id) {
+    public void delete(Long id) {
         entityManager.remove(find(id));
     }
 }
