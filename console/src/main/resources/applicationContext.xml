@@ -18,6 +18,14 @@
         <property name="restTemplate" ref="restTemplate"/>
     </bean>
 
-    <bean id="restTemplate" class="org.springframework.web.client.RestTemplate" />
+    <bean id="objectMapper" class="org.codehaus.jackson.map.ObjectMapper"/>
+        
+    <bean id="mappingJacksonHttpMessageConverter"
+          class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter">
+             <property name="objectMapper" ref="objectMapper"/>
+    </bean>
 
+    <bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
+        <property name="messageConverters" ref="mappingJacksonHttpMessageConverter"/>
+    </bean>
 </beans>
