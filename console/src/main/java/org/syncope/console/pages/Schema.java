@@ -18,21 +18,20 @@ import java.util.LinkedHashMap;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.console.rest.RestClient;
-import org.syncope.console.SyncopeApplication;
 
 /**
  * Schema WebPage.
  */
 public class Schema extends BasePage
 {
+    @SpringBean(name = "restClient")
     RestClient restClient;
 
     public Schema(PageParameters parameters)
     {
         super(parameters);
-        
-        restClient = ((SyncopeApplication)getApplication()).getRestClient();
 
         add(new ListView("attributesList",restClient.getAttributesList()) {
 
@@ -58,8 +57,7 @@ public class Schema extends BasePage
             }
         });
 
-        //TODO: when core will be fixed change call to restClient.getUserDerivedAttributesList()
-        add(new ListView("userDerivedAttributesList",restClient.getUserAttributesList()) {
+        add(new ListView("userDerivedAttributesList",restClient.getUserDerivedAttributesList()) {
 
             @Override
             protected void populateItem(ListItem item) {

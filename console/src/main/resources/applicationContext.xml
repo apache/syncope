@@ -14,9 +14,7 @@
        http://www.springframework.org/schema/tx
        http://www.springframework.org/schema/tx/spring-tx.xsd">
 
-    <bean id="syncopeApplication" class="org.syncope.console.SyncopeApplication">
-        <property name="restClient" ref="restClient"/>
-    </bean>
+    <bean id="syncopeApplication" class="org.syncope.console.SyncopeApplication"/>
 
     <bean id="objectMapper" class="org.codehaus.jackson.map.ObjectMapper"/>
         

@@ -6,8 +6,6 @@
 
     <display-name>Syncope console</display-name>
 
-    <!-- SPRING INTEGRATION START-->
-
     <servlet>
         <servlet-name>SyncopeApplication</servlet-name>
         <servlet-class>org.apache.wicket.protocol.http.WicketServlet</servlet-class>
@@ -33,27 +31,11 @@
         <listener-class>
 			org.springframework.web.context.ContextLoaderListener
         </listener-class>
-    </listener>
-
-    <!-- SPRING INTEGRATION END-->
-
-    <!--filter>
-        <filter-name>SyncopeApplication</filter-name>
-        <filter-class>org.apache.wicket.protocol.http.WicketFilter</filter-class>
-        <init-param>
-            <param-name>applicationClassName</param-name>
-            <param-value>org.syncope.console.SyncopeApplication</param-value>
-        </init-param>
-    </filter>
-
-    <filter-mapping>
-        <filter-name>SyncopeApplication</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>
-
+    </listener>    
+    
     <init-param>
         <param-name>applicationBean</param-name>
         <param-value>syncopeApplication</param-value>
-    </init-param-->
+    </init-param>
 
 </web-app>

@@ -24,15 +24,17 @@ import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.to.UserTO;
-import org.syncope.console.SyncopeApplication;
 import org.syncope.console.rest.RestClient;
 
 /**
  * Users WebPage.
  */
 public class Users extends BasePage{
-     RestClient restClient;
+
+    @SpringBean(name = "restClient")
+    RestClient restClient;
 
     public Users(PageParameters parameters) {
         super(parameters);
@@ -41,13 +43,11 @@ public class Users extends BasePage{
 
         add(new Button("newUserBtn",new Model(getString("newUserBtn"))));
 
-         restClient = ((SyncopeApplication)getApplication()).getRestClient();
-
         final Set<UserTO> users = restClient.getUserList();
         System.out.println("Numero di user: "+users.size());
 
-        if(!users.isEmpty()){
-
+        if(!users.isEmpty())
+        {
 
         List<UserTO> userList = new ArrayList(users);
 
@@ -61,9 +61,6 @@ public class Users extends BasePage{
             });
             
         }
-
-        UserTO userTO = restClient.getUser();
-        System.out.println(userTO.getId());
       
     }
 }

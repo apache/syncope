@@ -19,18 +19,21 @@ import org.apache.wicket.Response;
 import org.apache.wicket.Session;
 import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.syncope.console.pages.HomePage;
 import org.syncope.console.pages.Login;
-import org.syncope.console.rest.RestClient;
 
 /**
  * SyncopeApplication class.
  */
-public class SyncopeApplication extends WebApplication
+public class SyncopeApplication extends WebApplication implements ApplicationContextAware
 {
     SyncopeUser user = null;
-    RestClient restClient;
-
+    
+    private ApplicationContext ctx;
+    
     public SyncopeApplication()
     {
     }
@@ -38,8 +41,8 @@ public class SyncopeApplication extends WebApplication
     @Override
     protected void init()
     {
-        getResourceSettings().setThrowExceptionOnMissingResource( true );
         addComponentInstantiationListener(new SpringComponentInjector(this));
+        getResourceSettings().setThrowExceptionOnMissingResource( true );
     }
 
     /**
@@ -82,12 +85,9 @@ public class SyncopeApplication extends WebApplication
         return DEVELOPMENT;
     }
 
-    public RestClient getRestClient() {
-        return restClient;
-    }
-
-    public void setRestClient(RestClient restClient) {
-        this.restClient = restClient;
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+          this.ctx = applicationContext;
     }
 
 }
