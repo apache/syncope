@@ -18,7 +18,7 @@ import java.util.HashSet;
 import java.util.Set;
 import org.syncope.types.AttributeType;
 
-public class AttributeSchemaTO extends AbstractBaseTO {
+public class SchemaTO extends AbstractBaseTO {
 
     private String name;
     private AttributeType type;
@@ -26,10 +26,10 @@ public class AttributeSchemaTO extends AbstractBaseTO {
     private boolean multivalue;
     private String conversionPattern;
     private String validatorClass;
-    private Set<String> derivedAttributeSchemas;
+    private Set<String> derivedSchemas;
 
-    public AttributeSchemaTO() {
-        derivedAttributeSchemas = new HashSet<String>();
+    public SchemaTO() {
+        derivedSchemas = new HashSet<String>();
     }
 
     public String getConversionPattern() {
@@ -40,20 +40,20 @@ public class AttributeSchemaTO extends AbstractBaseTO {
         this.conversionPattern = conversionPattern;
     }
 
-    public boolean addDerivedAttributeSchema(String derivedAttributeSchema) {
-        return derivedAttributeSchemas.add(derivedAttributeSchema);
+    public boolean addDerivedSchema(String derivedSchema) {
+        return derivedSchemas.add(derivedSchema);
     }
 
-    public boolean removeDerivedAttributeSchema(String derivedAttributeSchema) {
-        return derivedAttributeSchemas.remove(derivedAttributeSchema);
+    public boolean removeDerivedSchema(String derivedSchema) {
+        return derivedSchemas.remove(derivedSchema);
     }
 
-    public Set<String> getDerivedAttributeSchemas() {
-        return derivedAttributeSchemas;
+    public Set<String> getDerivedSchemas() {
+        return derivedSchemas;
     }
 
-    public void setDerivedAttributeSchemas(Set<String> derivedAttributeSchemas) {
-        this.derivedAttributeSchemas = derivedAttributeSchemas;
+    public void setDerivedSchemas(Set<String> derivedSchemas) {
+        this.derivedSchemas = derivedSchemas;
     }
 
     public boolean isMandatory() {

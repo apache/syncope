@@ -23,8 +23,8 @@
 
     <UserDerivedSchema name="username" expression="firstname + '.' + surname"/>
 
-    <UserDerivedSchema_UserSchema UserDerivedSchema_name="username"
+    <UserDerivedSchema_UserSchema derivedSchemas_name="username"
                                   schemas_name="firstname"/>
-    <UserDerivedSchema_UserSchema UserDerivedSchema_name="username"
+    <UserDerivedSchema_UserSchema derivedSchemas_name="username"
                                   schemas_name="surname"/>
 </dataset>

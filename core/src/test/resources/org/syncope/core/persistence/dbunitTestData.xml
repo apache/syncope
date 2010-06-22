@@ -66,9 +66,9 @@
 
     <UserDerivedSchema name="cn" expression="surname + ', ' + firstname"/>
     
-    <UserDerivedSchema_UserSchema UserDerivedSchema_name="cn"
+    <UserDerivedSchema_UserSchema derivedSchemas_name="cn"
                                   schemas_name="surname" />
-    <UserDerivedSchema_UserSchema UserDerivedSchema_name="cn"
+    <UserDerivedSchema_UserSchema derivedSchemas_name="cn"
                                   schemas_name="firstname" />
                                             
     <UserDerivedAttribute id="1000" derivedSchema_name="cn" owner_id="3"/>

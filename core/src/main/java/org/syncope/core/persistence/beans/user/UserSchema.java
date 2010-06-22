@@ -33,7 +33,7 @@ public class UserSchema extends AbstractSchema {
     fetch = FetchType.EAGER, mappedBy = "schema")
     @Cascade(CascadeType.DELETE_ORPHAN)
     Set<UserAttribute> attributes;
-    @ManyToMany
+    @ManyToMany(mappedBy = "schemas")
     Set<UserDerivedSchema> derivedSchemas;
 
     public UserSchema() {

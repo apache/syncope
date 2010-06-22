@@ -14,17 +14,17 @@
  */
 package org.syncope.core.rest.test;
 
-import org.syncope.client.to.DerivedAttributeSchemaTO;
+import org.syncope.client.to.DerivedSchemaTO;
 import java.util.List;
 import org.junit.Test;
-import org.syncope.client.to.AttributeSchemaTO;
+import org.syncope.client.to.SchemaTO;
 import static org.junit.Assert.*;
 
 public class SchemaTestITCase extends AbstractTestITCase {
 
     @Test
     public void attributeList() {
-        List<AttributeSchemaTO> attributeSchemas =
+        List<SchemaTO> attributeSchemas =
                 restTemplate.getForObject(BASE_URL
                 + "schema/attribute/role/list.json", List.class);
 
@@ -33,7 +33,7 @@ public class SchemaTestITCase extends AbstractTestITCase {
 
     @Test
     public void derivedAttributeList() {
-        List<DerivedAttributeSchemaTO> derivedAttributeSchemas =
+        List<DerivedSchemaTO> derivedAttributeSchemas =
                 restTemplate.getForObject(BASE_URL
                 + "schema/derivedAttribute/user/list.json", List.class);
 

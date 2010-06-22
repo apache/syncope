@@ -17,14 +17,14 @@ package org.syncope.client.to;
 import java.util.HashSet;
 import java.util.Set;
 
-public class DerivedAttributeSchemaTO extends AbstractBaseTO {
+public class DerivedSchemaTO extends AbstractBaseTO {
 
     private String name;
     private String expression;
-    private Set<String> attributeSchemas;
+    private Set<String> schemas;
 
-    public DerivedAttributeSchemaTO() {
-        attributeSchemas = new HashSet<String>();
+    public DerivedSchemaTO() {
+        schemas = new HashSet<String>();
     }
 
     public String getName() {
@@ -43,19 +43,19 @@ public class DerivedAttributeSchemaTO extends AbstractBaseTO {
         this.expression = expression;
     }
 
-    public boolean addAttributeSchema(String attributeSchema) {
-        return attributeSchemas.add(attributeSchema);
+    public boolean addSchema(String schema) {
+        return schemas.add(schema);
     }
 
-    public boolean removeAttributeSchema(String attributeSchema) {
-        return attributeSchemas.remove(attributeSchema);
+    public boolean removeSchema(String schema) {
+        return schemas.remove(schema);
     }
 
-    public Set<String> getAttributeSchemas() {
-        return attributeSchemas;
+    public Set<String> getSchemas() {
+        return schemas;
     }
 
-    public void setAttributeSchemas(Set<String> attributeSchemas) {
-        this.attributeSchemas = attributeSchemas;
+    public void setSchemas(Set<String> schemas) {
+        this.schemas = schemas;
     }
 }

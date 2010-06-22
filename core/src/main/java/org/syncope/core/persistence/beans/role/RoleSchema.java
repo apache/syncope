@@ -33,7 +33,7 @@ public class RoleSchema extends AbstractSchema {
     fetch = FetchType.EAGER, mappedBy = "schema")
     @Cascade(CascadeType.DELETE_ORPHAN)
     Set<RoleAttribute> attributes;
-    @ManyToMany
+    @ManyToMany(mappedBy = "schemas")
     Set<RoleDerivedSchema> derivedSchemas;
 
     public RoleSchema() {

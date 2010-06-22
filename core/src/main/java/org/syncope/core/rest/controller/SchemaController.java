@@ -27,8 +27,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.support.RequestContextUtils;
-import org.syncope.client.to.AttributeSchemaTO;
-import org.syncope.client.to.DerivedAttributeSchemaTO;
+import org.syncope.client.to.DerivedSchemaTO;
+import org.syncope.client.to.SchemaTO;
 import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.beans.AbstractDerivedSchema;
 import org.syncope.core.persistence.beans.role.RoleSchema;
@@ -58,7 +58,7 @@ public class SchemaController {
 
     @RequestMapping(method = RequestMethod.GET,
     value = "/attribute/{kind}/list")
-    public List<AttributeSchemaTO> attributeList(HttpServletRequest request,
+    public List<SchemaTO> attributeList(HttpServletRequest request,
             @PathVariable("kind") String kind) throws IOException {
 
         Class reference = getReference(kind);
@@ -69,26 +69,24 @@ public class SchemaController {
         SchemaDAO schemaDAO =
                 (SchemaDAO) webApplicationContext.getBean("schemaDAOImpl");
 
-        List<AbstractSchema> attributeSchemas = schemaDAO.findAll(reference);
+        List<AbstractSchema> schemas = schemaDAO.findAll(reference);
 
         // TODO: change TO?
-        List<AttributeSchemaTO> result = new ArrayList<AttributeSchemaTO>(
-                attributeSchemas.size());
-        AttributeSchemaTO attributeSchemaTO = null;
-        String[] ignoreProperties = {"derivedAttributeSchemas"};
-        for (AbstractSchema attributeSchema : attributeSchemas) {
-            attributeSchemaTO = new AttributeSchemaTO();
-            BeanUtils.copyProperties(attributeSchema, attributeSchemaTO,
+        List<SchemaTO> result = new ArrayList<SchemaTO>(schemas.size());
+        SchemaTO schemaTO = null;
+        String[] ignoreProperties = {"derivedSchemas"};
+        for (AbstractSchema schema : schemas) {
+            schemaTO = new SchemaTO();
+            BeanUtils.copyProperties(schema, schemaTO,
                     ignoreProperties);
 
-            for (AbstractDerivedSchema derivedAttributeSchema :
-                    attributeSchema.getDerivedSchemas()) {
+            for (AbstractDerivedSchema derivedSchema :
+                    schema.getDerivedSchemas()) {
 
-                attributeSchemaTO.addDerivedAttributeSchema(
-                        derivedAttributeSchema.getName());
+                schemaTO.addDerivedSchema(derivedSchema.getName());
             }
 
-            result.add(attributeSchemaTO);
+            result.add(schemaTO);
         }
 
         return result;
@@ -96,7 +94,7 @@ public class SchemaController {
 
     @RequestMapping(method = RequestMethod.GET,
     value = "/derivedAttribute/{kind}/list")
-    public List<DerivedAttributeSchemaTO> derivedAttributeList(
+    public List<DerivedSchemaTO> derivedAttributeList(
             HttpServletRequest request, @PathVariable("kind") String kind)
             throws IOException {
 
@@ -112,23 +110,20 @@ public class SchemaController {
         List<AbstractDerivedSchema> derivedAttributeSchemas =
                 derivedAttributeSchemaDAO.findAll(reference);
         // TODO: change TO?
-        List<DerivedAttributeSchemaTO> result =
-                new ArrayList<DerivedAttributeSchemaTO>(
+        List<DerivedSchemaTO> result =
+                new ArrayList<DerivedSchemaTO>(
                 derivedAttributeSchemas.size());
-        DerivedAttributeSchemaTO derivedAttributeSchemaTO = null;
-        String[] ignoreProperties = {"attributeSchemas"};
-        for (AbstractDerivedSchema derivedAttributeSchema :
-                derivedAttributeSchemas) {
+        DerivedSchemaTO derivedAttributeSchemaTO = null;
+        String[] ignoreProperties = {"schemas"};
+        for (AbstractDerivedSchema derivedSchema : derivedAttributeSchemas) {
 
-            derivedAttributeSchemaTO = new DerivedAttributeSchemaTO();
-            BeanUtils.copyProperties(derivedAttributeSchema,
+            derivedAttributeSchemaTO = new DerivedSchemaTO();
+            BeanUtils.copyProperties(derivedSchema,
                     derivedAttributeSchemaTO, ignoreProperties);
 
-            for (AbstractSchema attributeSchema :
-                    derivedAttributeSchema.getSchemas()) {
+            for (AbstractSchema schema : derivedSchema.getSchemas()) {
 
-                derivedAttributeSchemaTO.addAttributeSchema(
-                        attributeSchema.getName());
+                derivedAttributeSchemaTO.addSchema(schema.getName());
             }
 
             result.add(derivedAttributeSchemaTO);
