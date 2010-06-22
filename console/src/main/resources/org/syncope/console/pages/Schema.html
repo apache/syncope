@@ -29,16 +29,20 @@
                 <ul class="ui-tabs-nav">
                     <li class="ui-tabs-selected"><a href="#tab1-schema"><span><wicket:message key="tab1-schema"/></span></a></li>
                     <li class=""><a href="#tab2-schema"><span><wicket:message key="tab2-schema"/></span></a></li>
+                    <li class=""><a href="#tab3-schema"><span><wicket:message key="tab3-schema"/></span></a></li>
+                    <li class=""><a href="#tab4-schema"><span><wicket:message key="tab4-schema"/></span></a></li>
                 </ul>
                 <div class="ui-tabs-panel" id="tab1-schema">
-                    <!--input type="button" wicket:id="newUserBtn"/-->
-                    <div wicket:id="attrList" />
+                    <div wicket:id="userAttributesList" />
                 </div>
                 <div class="ui-tabs-panel ui-tabs-hide" id="tab2-schema">
-                    <!--div id="searchBox">
-                        <label for="search"><wicket:message key="search"/></label>
-                        <input type="text" wicket:id="search" id="search" />
-                    </div-->
+                    <div wicket:id="userDerivedAttributesList" />
+                </div>
+                <div class="ui-tabs-panel" id="tab3-schema">
+                    <div wicket:id="attributesList" />
+                </div>
+                <div class="ui-tabs-panel ui-tabs-hide" id="tab4-schema">
+                    <div wicket:id="derivedAttributesList" />
                 </div>
             </div>
 

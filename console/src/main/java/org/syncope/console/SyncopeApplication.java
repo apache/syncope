@@ -18,6 +18,7 @@ import org.apache.wicket.Request;
 import org.apache.wicket.Response;
 import org.apache.wicket.Session;
 import org.apache.wicket.protocol.http.WebApplication;
+import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
 import org.syncope.console.pages.HomePage;
 import org.syncope.console.pages.Login;
 import org.syncope.console.rest.RestClient;
@@ -38,7 +39,7 @@ public class SyncopeApplication extends WebApplication
     protected void init()
     {
         getResourceSettings().setThrowExceptionOnMissingResource( true );
-
+        addComponentInstantiationListener(new SpringComponentInjector(this));
     }
 
     /**

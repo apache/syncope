@@ -19,8 +19,6 @@ import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.syncope.console.rest.RestClient;
-
-import org.syncope.client.to.AttributeSchemaTO;
 import org.syncope.console.SyncopeApplication;
 
 /**
@@ -36,12 +34,39 @@ public class Schema extends BasePage
         
         restClient = ((SyncopeApplication)getApplication()).getRestClient();
 
-        add(new ListView("attrList",restClient.getAttributeList()) {
+        add(new ListView("attributesList",restClient.getAttributesList()) {
 
             @Override
             protected void populateItem(ListItem item) {
                 LinkedHashMap attributeSchema = (LinkedHashMap) item.getDefaultModelObject();
             }
         });
+
+       add(new ListView("derivedAttributesList",restClient.getDerivedAttributesList()) {
+
+            @Override
+            protected void populateItem(ListItem item) {
+                LinkedHashMap attributeSchema = (LinkedHashMap) item.getDefaultModelObject();
+            }
+        });
+
+        add(new ListView("userAttributesList",restClient.getUserAttributesList()) {
+
+            @Override
+            protected void populateItem(ListItem item) {
+                LinkedHashMap attributeSchema = (LinkedHashMap) item.getDefaultModelObject();
+            }
+        });
+
+        //TODO: when core will be fixed change call to restClient.getUserDerivedAttributesList()
+        add(new ListView("userDerivedAttributesList",restClient.getUserAttributesList()) {
+
+            @Override
+            protected void populateItem(ListItem item) {
+                LinkedHashMap attributeSchema = (LinkedHashMap) item.getDefaultModelObject();
+            }
+        });
+
+
     }
 }

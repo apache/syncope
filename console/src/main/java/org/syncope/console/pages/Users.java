@@ -14,15 +14,25 @@
  */
 package org.syncope.console.pages;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import org.apache.wicket.PageParameters;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.TextField;
+import org.apache.wicket.markup.html.list.ListItem;
+import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.Model;
+import org.syncope.client.to.UserTO;
+import org.syncope.console.SyncopeApplication;
+import org.syncope.console.rest.RestClient;
 
 /**
  * Users WebPage.
  */
 public class Users extends BasePage{
+     RestClient restClient;
 
     public Users(PageParameters parameters) {
         super(parameters);
@@ -31,5 +41,29 @@ public class Users extends BasePage{
 
         add(new Button("newUserBtn",new Model(getString("newUserBtn"))));
 
+         restClient = ((SyncopeApplication)getApplication()).getRestClient();
+
+        final Set<UserTO> users = restClient.getUserList();
+        System.out.println("Numero di user: "+users.size());
+
+        if(!users.isEmpty()){
+
+
+        List<UserTO> userList = new ArrayList(users);
+
+        add(new ListView("userList", userList) {
+
+        @Override
+        protected void populateItem(ListItem item) {
+        //LinkedHashMap users = (LinkedHashMap) item.getDefaultModelObject();
+        item.add(new Label("label", item.getModel()));
+            }
+            });
+            
+        }
+
+        UserTO userTO = restClient.getUser();
+        System.out.println(userTO.getId());
+      
     }
 }

@@ -12,21 +12,22 @@
  *  limitations under the License.
  *  under the License.
  */
-
 package org.syncope.console.rest;
 
 import java.util.List;
+import java.util.Set;
 import org.springframework.web.client.RestTemplate;
-import org.syncope.client.to.AttributeSchemaTO;
-import org.syncope.client.to.DerivedAttributeSchemaTO;
+import org.syncope.client.to.DerivedSchemaTO;
+import org.syncope.client.to.SchemaTO;
+import org.syncope.client.to.UserTO;
 
 /**
  * Client for calling rest services.
  */
 public class RestClient {
 
-    private RestTemplate restTemplate;
-    private static final String BASE_URL = "http://192.168.0.137:8080/syncope/";
+    protected RestTemplate restTemplate;
+    protected static final String BASE_URL = "http://192.168.0.137:8080/syncope/";
 
     public RestTemplate getRestTemplate() {
         return restTemplate;
@@ -36,20 +37,48 @@ public class RestClient {
         this.restTemplate = restTemplate;
     }
 
-    public List<AttributeSchemaTO> getAttributeList() {
-        List<AttributeSchemaTO> attributeSchemas =
-                restTemplate.getForObject(BASE_URL
-                + "schema/attribute/list.json", List.class);
+    public List<SchemaTO> getAttributesList() {
+        List<SchemaTO> attributeSchemas =
+                restTemplate.getForObject(BASE_URL + "schema/attribute/role/list.json", List.class);
 
         return attributeSchemas;
     }
 
-    public List<DerivedAttributeSchemaTO> derivedAttributeList() {
-        List<DerivedAttributeSchemaTO> derivedAttributeSchemas =
-                restTemplate.getForObject(BASE_URL
-                + "schema/derivedAttribute/list.json", List.class);
+    public List<DerivedSchemaTO> getDerivedAttributesList() {
+        List<DerivedSchemaTO> derivedAttributeSchemas =
+                restTemplate.getForObject(BASE_URL + "schema/derivedAttribute/role/list.json", List.class);
 
         return derivedAttributeSchemas;
+    }
+
+    public List<SchemaTO> getUserAttributesList() {
+        List<SchemaTO> attributeSchemas =
+                restTemplate.getForObject(BASE_URL + "schema/attribute/user/list.json", List.class);
+
+        return attributeSchemas;
+    }
+
+    public List<DerivedSchemaTO> getUserDerivedAttributesList() {
+        List<DerivedSchemaTO> derivedAttributeSchemas =
+                restTemplate.getForObject(BASE_URL + "schema/derivedAttribute/user/list.json", List.class);
+
+        return derivedAttributeSchemas;
+    }
+
+    /*-- USERS --*/
+
+    public Set<UserTO> getUserList() {
+        Set<UserTO> listUsers =
+                restTemplate.getForObject(BASE_URL
+                + "user/list.json", Set.class);
+        return listUsers;
+    }
+
+    public UserTO getUser() {
+        UserTO userTO =
+                restTemplate.getForObject(BASE_URL + "user/read/{userId}.json",
+                UserTO.class, "11");
+        return userTO;
     }
 
 }

@@ -60,7 +60,6 @@ public class Login extends WebPage {
         Button submitButton = new Button("submit", new Model(getString("submit"))) {
             @Override
             public void onSubmit() {
-                System.out.println("Submit");
                 setResponsePage(new HomePage(null));
             }
         };
