@@ -43,10 +43,6 @@ public class RoleDerivedSchema extends AbstractDerivedSchema {
 
     @Override
     public <T extends AbstractSchema> boolean addSchema(T schema) {
-        if (!(schema instanceof RoleSchema)) {
-            throw new ClassCastException();
-        }
-
         return schemas.add((RoleSchema) schema);
     }
 

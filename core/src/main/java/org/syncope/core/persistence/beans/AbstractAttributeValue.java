@@ -67,9 +67,8 @@ public abstract class AbstractAttributeValue extends AbstractBaseBean {
                 ? longValue : stringValue))));
     }
 
-    public abstract <T extends AbstractAttribute> T getAttribute()
-            throws ClassCastException;
+    public abstract <T extends AbstractAttribute> T getAttribute();
 
     public abstract <T extends AbstractAttribute> void setAttribute(
-            T attribute) throws ClassCastException;
+            T attribute);
 }
