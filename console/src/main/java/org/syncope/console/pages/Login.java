@@ -12,13 +12,14 @@
  *  limitations under the License.
  *  under the License.
  */
-
 package org.syncope.console.pages;
 
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import org.apache.wicket.PageParameters;
+import org.apache.wicket.Session;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
@@ -28,6 +29,9 @@ import org.apache.wicket.markup.html.form.PasswordTextField;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.syncope.console.SyncopeApplication;
+import org.syncope.console.SyncopeSession;
+import org.syncope.console.SyncopeUser;
 
 /**
  * Syncope Login page.
@@ -38,10 +42,13 @@ public class Login extends WebPage {
     public TextField usernameField;
     public TextField passwordField;
     public DropDownChoice<String> languageSelect;
+    public InputStream inputStream;
 
     public Login(PageParameters parameters) {
         super(parameters);
-
+        this.getClass().getClassLoader().getResource("/WEB-INF/classes/authentication.xml");
+        //System.out.println(((WebApplication)(SyncopeApplication.get())).getServletContext());
+        //System.out.println(WebApplication.get().getServletContext());
         form = new Form("login");
 
         usernameField = new TextField("username", new Model());
@@ -52,23 +59,31 @@ public class Login extends WebPage {
         passwordField.setMarkupId("password");
         form.add(passwordField);
 
-        languageSelect = new LocaleDropDown("language", Arrays
-        .asList(new Locale[] { Locale.ENGLISH, Locale.ITALIAN }));
+        languageSelect = new LocaleDropDown("language", Arrays.asList(new Locale[]{Locale.ENGLISH, Locale.ITALIAN}));
 
         form.add(languageSelect);
 
         Button submitButton = new Button("submit", new Model(getString("submit"))) {
+
             @Override
             public void onSubmit() {
-                setResponsePage(new HomePage(null));
+                //file = ((SyncopeApplication)getApplication()).getInitParameter("authenticationFile");
+                //file = ((SyncopeApplication)getApplication()).getServletContext().getInitParameter("authenticationFile");
+                inputStream = ((SyncopeApplication)getApplication()).getAuthenticationFile();
+                Authentication auth = new Authentication();
+                Boolean authenticated = auth.authentication(usernameField.getRawInput(), passwordField.getRawInput(), inputStream);
+                if (authenticated == true) {
+                    SyncopeUser user = new SyncopeUser();
+                    user.setUsername(usernameField.getRawInput());
+                    ((SyncopeSession)Session.get()).setUser(user);
+                    setResponsePage(new HomePage(null));
+                }
             }
         };
 
         submitButton.setDefaultFormProcessing(false);
         form.add(submitButton);
-
         form.add(new Button("reset", new Model(getString("reset"))));
-
         add(form);
     }
 

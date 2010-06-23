@@ -44,7 +44,6 @@ public class Users extends BasePage{
         add(new Button("newUserBtn",new Model(getString("newUserBtn"))));
 
         final Set<UserTO> users = restClient.getUserList();
-        System.out.println("Numero di user: "+users.size());
 
         if(!users.isEmpty())
         {
