@@ -12,7 +12,7 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.rest.test;
+package org.syncope.core.test.rest;
 
 import static org.junit.Assert.*;
 

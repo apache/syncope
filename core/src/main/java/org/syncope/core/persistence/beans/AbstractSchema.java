@@ -39,8 +39,8 @@ public abstract class AbstractSchema extends AbstractBaseBean {
     @Column(nullable = false)
     @Enumerated(STRING)
     private AttributeType type;
-    private Boolean mandatory;
-    private Boolean multivalue;
+    private boolean mandatory;
+    private boolean multivalue;
     @Column(nullable = true)
     private String conversionPattern;
     @Column(nullable = true)
@@ -74,15 +74,15 @@ public abstract class AbstractSchema extends AbstractBaseBean {
         return mandatory;
     }
 
-    public void setMandatory(Boolean mandatory) {
+    public void setMandatory(boolean mandatory) {
         this.mandatory = mandatory;
     }
 
-    public Boolean isMultivalue() {
+    public boolean isMultivalue() {
         return multivalue;
     }
 
-    public void setMultivalue(Boolean multivalue) {
+    public void setMultivalue(boolean multivalue) {
         this.multivalue = multivalue;
     }
 

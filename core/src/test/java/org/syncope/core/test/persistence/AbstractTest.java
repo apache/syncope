@@ -12,7 +12,7 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.persistence.test;
+package org.syncope.core.test.persistence;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -39,10 +39,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"classpath:persistenceContext.xml"})
-public abstract class AbstractDAOTest {
+public abstract class AbstractTest {
 
     protected static final Logger log = LoggerFactory.getLogger(
-            AbstractDAOTest.class);
+            AbstractTest.class);
     @Autowired
     private DataSource dataSource;
     @Autowired
@@ -89,9 +89,9 @@ public abstract class AbstractDAOTest {
         FlatXmlDataSetBuilder dataSetBuilder = new FlatXmlDataSetBuilder();
         dataSetBuilder.setColumnSensing(true);
         IDataSet dataSet = dataSetBuilder.build(getClass().getResourceAsStream(
-                "/org/syncope/core/persistence/dbunitTestData.xml"));
+                "/org/syncope/core/persistence/content.xml"));
         try {
-            DatabaseOperation.REFRESH.execute(dbUnitConn, dataSet);
+            DatabaseOperation.CLEAN_INSERT.execute(dbUnitConn, dataSet);
         } catch (Throwable t) {
             log.error("While executing tests", t);
         } finally {

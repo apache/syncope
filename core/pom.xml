@@ -33,6 +33,8 @@
     <properties>
         <jetty.port>8080</jetty.port>
 
+        <hsqldb.file>/tmp/syncope-db</hsqldb.file>
+
         <logfile>/tmp/syncope-core.log</logfile>
         <logfile.persistence>/tmp/syncope-core-persistence.log</logfile.persistence>
         <logfile.rest>/tmp/syncope-core-rest.log</logfile.rest>
@@ -209,10 +211,51 @@
                         </goals>
                         <configuration>
                             <finalName>integration-test</finalName>
-                            <classesDirectory>${basedir}/src/test/resources</classesDirectory>
+                            <classesDirectory>${project.build.directory}/test-classes</classesDirectory>
                             <includes>
                                 <include>**/db.properties</include>
+                                <include>**/content.xml</include>
                             </includes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <inherited>true</inherited>
+                <executions>
+                    <execution>
+                        <id>clean-db-test</id>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>rm</executable>
+                            <arguments>
+                                <argument>-f</argument>
+                                <argument>${hsqldb.file}.log</argument>
+                                <argument>${hsqldb.file}.properties</argument>
+                                <argument>${hsqldb.file}.script</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>clean-db-integration-test</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>rm</executable>
+                            <arguments>
+                                <argument>-rf</argument>
+                                <argument>${hsqldb.file}.log</argument>
+                                <argument>${hsqldb.file}.properties</argument>
+                                <argument>${hsqldb.file}.script</argument>
+                            </arguments>
                         </configuration>
                     </execution>
                 </executions>
@@ -230,7 +273,10 @@
                             <goal>war</goal>
                         </goals>
                         <configuration>
-                            <packagingExcludes>WEB-INF/classes/org/syncope/core/persistence/db.properties</packagingExcludes>
+                            <packagingExcludes>
+                                WEB-INF/classes/org/syncope/core/persistence/db.properties,
+                                WEB-INF/classes/org/syncope/core/persistence/content.xml
+                            </packagingExcludes>
                             <webResources>
                                 <resource>
                                     <directory>${project.build.directory}</directory>
@@ -256,7 +302,10 @@
                             <goal>war</goal>
                         </goals>
                         <configuration>
-                            <packagingExcludes>WEB-INF/lib/integration-test.jar,WEB-INF/lib/hsqldb-${hsqldb.version}.jar</packagingExcludes>
+                            <packagingExcludes>
+                                WEB-INF/lib/integration-test.jar,
+                                WEB-INF/lib/hsqldb-${hsqldb.version}.jar
+                            </packagingExcludes>
                         </configuration>
                     </execution>
                 </executions>
@@ -306,7 +355,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>hibernate3-maven-plugin</artifactId>
-                <version>2.2</version>
+                <inherited>true</inherited>
                 <configuration>
                     <components>
                         <component>
@@ -316,14 +365,14 @@
                     </components>
                     <componentProperties>
                         <jdk5>true</jdk5>
-                        <propertyfile>src/test/resources/org/syncope/core/persistence/db.properties</propertyfile>
+                        <propertyfile>${project.build.directory}/test-classes/org/syncope/core/persistence/db.properties</propertyfile>
                         <skip>${maven.test.skip}</skip>
                         <format>true</format>
                     </componentProperties>
                 </configuration>
                 <executions>
                     <execution>
-                        <phase>process-test-resources</phase>
+                        <phase>test-compile</phase>
                         <goals>
                             <goal>hbm2ddl</goal>
                         </goals>

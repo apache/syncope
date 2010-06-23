@@ -12,7 +12,7 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.persistence.test;
+package org.syncope.core.test.persistence;
 
 import static org.junit.Assert.*;
 
@@ -31,7 +31,7 @@ import org.syncope.core.persistence.dao.DerivedAttributeDAO;
 import org.syncope.core.persistence.dao.DerivedSchemaDAO;
 
 @Transactional
-public class DerivedAttributeDAOTest extends AbstractDAOTest {
+public class DerivedAttributeDAOTest extends AbstractTest {
 
     @Autowired
     DerivedAttributeDAO derivedAttributeDAO;

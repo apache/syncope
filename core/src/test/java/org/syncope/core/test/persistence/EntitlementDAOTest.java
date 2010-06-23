@@ -12,7 +12,7 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.persistence.test;
+package org.syncope.core.test.persistence;
 
 import static org.junit.Assert.*;
 
@@ -27,7 +27,7 @@ import org.syncope.core.persistence.dao.EntitlementDAO;
 import org.syncope.core.persistence.dao.SyncopeRoleDAO;
 
 @Transactional
-public class EntitlementDAOTest extends AbstractDAOTest {
+public class EntitlementDAOTest extends AbstractTest {
 
     @Autowired
     EntitlementDAO entitlementDAO;

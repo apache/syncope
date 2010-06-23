@@ -27,6 +27,7 @@ public class SchemaTO extends AbstractBaseTO {
     private String conversionPattern;
     private String validatorClass;
     private Set<String> derivedSchemas;
+    private int attributes;
 
     public SchemaTO() {
         derivedSchemas = new HashSet<String>();
@@ -38,22 +39,6 @@ public class SchemaTO extends AbstractBaseTO {
 
     public void setConversionPattern(String conversionPattern) {
         this.conversionPattern = conversionPattern;
-    }
-
-    public boolean addDerivedSchema(String derivedSchema) {
-        return derivedSchemas.add(derivedSchema);
-    }
-
-    public boolean removeDerivedSchema(String derivedSchema) {
-        return derivedSchemas.remove(derivedSchema);
-    }
-
-    public Set<String> getDerivedSchemas() {
-        return derivedSchemas;
-    }
-
-    public void setDerivedSchemas(Set<String> derivedSchemas) {
-        this.derivedSchemas = derivedSchemas;
     }
 
     public boolean isMandatory() {
@@ -94,5 +79,29 @@ public class SchemaTO extends AbstractBaseTO {
 
     public void setValidatorClass(String validatorClass) {
         this.validatorClass = validatorClass;
+    }
+
+    public boolean addDerivedSchema(String derivedSchema) {
+        return derivedSchemas.add(derivedSchema);
+    }
+
+    public boolean removeDerivedSchema(String derivedSchema) {
+        return derivedSchemas.remove(derivedSchema);
+    }
+
+    public Set<String> getDerivedSchemas() {
+        return derivedSchemas;
+    }
+
+    public void setDerivedSchemas(Set<String> derivedSchemas) {
+        this.derivedSchemas = derivedSchemas;
+    }
+
+    public int getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(int attributes) {
+        this.attributes = attributes;
     }
 }

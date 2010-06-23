@@ -64,12 +64,7 @@
         <appender-ref ref="rest"/>
     </logger>
 
-    <logger name="org.syncope.core.persistence.test" additivity="false">
-        <level value="INFO"/>
-        <appender-ref ref="test"/>
-    </logger>
-
-    <logger name="org.syncope.core.rest.test" additivity="false">
+    <logger name="org.syncope.core.test" additivity="false">
         <level value="INFO"/>
         <appender-ref ref="test"/>
     </logger>
@@ -87,6 +82,11 @@
     <logger name="org.springframework.test" additivity="false">
         <level value="INFO"/>
         <appender-ref ref="test"/>
+    </logger>
+
+    <logger name="org.springframework.web" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="persistence"/>
     </logger>
 
     <logger name="org.hibernate" additivity="false">

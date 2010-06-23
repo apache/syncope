@@ -12,7 +12,7 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.persistence.test;
+package org.syncope.core.test.persistence;
 
 import static org.junit.Assert.*;
 
@@ -20,27 +20,30 @@ import java.util.List;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import org.syncope.core.persistence.beans.role.RoleSchema;
 import org.syncope.core.persistence.beans.user.UserSchema;
 import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.types.AttributeType;
 
 @Transactional
-public class UserSchemaDAOTest extends AbstractDAOTest {
+public class SchemaDAOTest extends AbstractTest {
 
     @Autowired
-    SchemaDAO userSchemaDAO;
+    SchemaDAO schemaDAO;
 
     @Test
     public final void findAll() {
-        List<UserSchema> list = userSchemaDAO.findAll(UserSchema.class);
-        assertEquals("did not get expected number of attribute schemas ",
-                4, list.size());
+        List<UserSchema> userList = schemaDAO.findAll(UserSchema.class);
+        assertEquals(4, userList.size());
+
+        List<RoleSchema> roleList = schemaDAO.findAll(RoleSchema.class);
+        assertEquals(2, roleList.size());
     }
 
     @Test
     public final void findByName() {
         UserSchema attributeSchema =
-                userSchemaDAO.find("username", UserSchema.class);
+                schemaDAO.find("username", UserSchema.class);
         assertNotNull("did not find expected attribute schema",
                 attributeSchema);
     }
@@ -55,9 +58,9 @@ public class UserSchemaDAOTest extends AbstractDAOTest {
         attributeSchema.setMandatory(false);
         attributeSchema.setMultivalue(true);
 
-        userSchemaDAO.save(attributeSchema);
+        schemaDAO.save(attributeSchema);
 
-        UserSchema actual = userSchemaDAO.find("email", UserSchema.class);
+        UserSchema actual = schemaDAO.find("email", UserSchema.class);
         assertNotNull("expected save to work", actual);
         assertEquals(attributeSchema, actual);
     }
@@ -65,11 +68,11 @@ public class UserSchemaDAOTest extends AbstractDAOTest {
     @Test
     public final void delete() {
         UserSchema schema =
-                userSchemaDAO.find("username", UserSchema.class);
+                schemaDAO.find("username", UserSchema.class);
 
-        userSchemaDAO.delete(schema.getName(), UserSchema.class);
+        schemaDAO.delete(schema.getName(), UserSchema.class);
 
-        UserSchema actual = userSchemaDAO.find("username", UserSchema.class);
+        UserSchema actual = schemaDAO.find("username", UserSchema.class);
         assertNull("delete did not work", actual);
     }
 }

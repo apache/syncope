@@ -12,7 +12,7 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.rest.test;
+package org.syncope.core.test.rest;
 
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -23,10 +23,12 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.RestTemplate;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"file:src/main/webapp/WEB-INF/syncope-core-rest-servlet.xml"})
+@ContextConfiguration(locations = {"classpath:persistenceContext.xml",
+    "file:src/main/webapp/WEB-INF/syncope-core-rest-servlet.xml"})
 public abstract class AbstractTestITCase {
 
-    protected static final Logger log = LoggerFactory.getLogger(SchemaTestITCase.class);
+    protected static final Logger log = LoggerFactory.getLogger(
+            AbstractTestITCase.class);
     protected static final String BASE_URL = "http://localhost:8080/syncope/";
     @Autowired
     protected RestTemplate restTemplate;

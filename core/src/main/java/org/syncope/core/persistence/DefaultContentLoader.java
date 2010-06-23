@@ -75,7 +75,7 @@ public class DefaultContentLoader implements ServletContextListener {
                 dataSetBuilder.setColumnSensing(true);
                 IDataSet dataSet = dataSetBuilder.build(
                         getClass().getResourceAsStream(
-                        "/org/syncope/core/persistence/defaultContent.xml"));
+                        "/org/syncope/core/persistence/content.xml"));
 
                 DatabaseOperation.REFRESH.execute(dbUnitConn, dataSet);
             }

@@ -12,7 +12,7 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.persistence.test;
+package org.syncope.core.test.persistence;
 
 import static org.junit.Assert.*;
 
@@ -21,10 +21,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.ConnectorInstance;
 import org.syncope.core.persistence.dao.ConnectorInstanceDAO;
-import org.syncope.core.persistence.test.util.WebServiceConfiguration;
+import org.syncope.core.test.persistence.util.WebServiceConfiguration;
 
 @Transactional
-public class ConnectorInstanceDAOTest extends AbstractDAOTest {
+public class ConnectorInstanceDAOTest extends AbstractTest {
 
     @Autowired
     ConnectorInstanceDAO connectorInstanceDAO;
@@ -77,8 +77,7 @@ public class ConnectorInstanceDAOTest extends AbstractDAOTest {
 
         assertNotNull("save did not work", actual.getId());
 
-        assertEquals("save did not work",
-                Long.valueOf(101L), actual.getId());
+        assertTrue("save did not work", actual.getId() > 100L);
 
         assertEquals("save did not work for \"name\" attribute",
                 "WebService",

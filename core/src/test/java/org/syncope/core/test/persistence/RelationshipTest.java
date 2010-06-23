@@ -12,7 +12,7 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.persistence.test;
+package org.syncope.core.test.persistence;
 
 import static org.junit.Assert.*;
 
@@ -39,7 +39,7 @@ import org.syncope.core.persistence.dao.DerivedSchemaDAO;
  * TODO: complete refactor for http://code.google.com/p/syncope/issues/detail?id=7
  */
 @Transactional
-public class RelationshipTest extends AbstractDAOTest {
+public class RelationshipTest extends AbstractTest {
 
     @Autowired
     SchemaDAO attributeSchemaDAO;

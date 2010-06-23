@@ -12,7 +12,7 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.persistence.test.util;
+package org.syncope.core.test.persistence.util;
 
 import java.beans.XMLDecoder;
 import java.beans.XMLEncoder;

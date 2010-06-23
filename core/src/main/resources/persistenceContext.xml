@@ -28,6 +28,7 @@
 
     <context:annotation-config/>
     <context:component-scan base-package="org.syncope.core.persistence.dao.impl"/>
+    <context:component-scan base-package="org.syncope.core.rest.data"/>
 
     <bean id="propertyConfigurer"
           class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">

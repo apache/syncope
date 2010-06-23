@@ -22,8 +22,6 @@ import java.util.List;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -43,10 +41,7 @@ import org.syncope.core.persistence.dao.SyncopeUserDAO;
  */
 @Controller
 @RequestMapping("/user")
-public class UserController {
-
-    private static final Logger log = LoggerFactory.getLogger(
-            UserController.class);
+public class UserController extends AbstractController {
 
     @RequestMapping(method = RequestMethod.POST, value = "/create")
     public UserTO create(HttpServletResponse response,
