@@ -29,5 +29,14 @@
 
     <bean id="restClient" class="org.syncope.console.rest.RestClient">
         <property name="restTemplate" ref="restTemplate"/>
+        <property name="baseURL" value="http://192.168.0.137:8080/syncope/"/>
+    </bean>
+
+    <bean id="schemaRestClient" class="org.syncope.console.rest.SchemaRestClient">
+        <property name="restClient" ref="restClient"/>
+    </bean>
+
+    <bean id="usersRestClient" class="org.syncope.console.rest.UsersRestClient">
+        <property name="restClient" ref="restClient"/>
     </bean>
 </beans>

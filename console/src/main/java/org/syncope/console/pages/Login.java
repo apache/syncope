@@ -59,8 +59,8 @@ public class Login extends WebPage {
         passwordField.setMarkupId("password");
         form.add(passwordField);
 
-        languageSelect = new LocaleDropDown("language", Arrays.asList(new Locale[]{Locale.ENGLISH, Locale.ITALIAN}));
-
+        languageSelect = new LocaleDropDown("language",Arrays.asList(new Locale[]{Locale.ENGLISH, Locale.ITALIAN}));
+        
         form.add(languageSelect);
 
         Button submitButton = new Button("submit", new Model(getString("submit"))) {
@@ -83,7 +83,7 @@ public class Login extends WebPage {
 
         submitButton.setDefaultFormProcessing(false);
         form.add(submitButton);
-        form.add(new Button("reset", new Model(getString("reset"))));
+        
         add(form);
     }
 
@@ -118,6 +118,9 @@ public class Login extends WebPage {
                 public void detach() {
                 }
             });
+
+            //Set default value to English
+            getModel().setObject(Locale.ENGLISH);
         }
 
         @Override

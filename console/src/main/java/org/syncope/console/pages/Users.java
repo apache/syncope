@@ -26,15 +26,15 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.to.UserTO;
-import org.syncope.console.rest.RestClient;
+import org.syncope.console.rest.UsersRestClient;
 
 /**
  * Users WebPage.
  */
 public class Users extends BasePage{
 
-    @SpringBean(name = "restClient")
-    RestClient restClient;
+    @SpringBean(name = "usersRestClient")
+    UsersRestClient restClient;
 
     public Users(PageParameters parameters) {
         super(parameters);

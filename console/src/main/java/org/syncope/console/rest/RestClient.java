@@ -14,20 +14,16 @@
  */
 package org.syncope.console.rest;
 
-import java.util.List;
-import java.util.Set;
 import org.springframework.web.client.RestTemplate;
-import org.syncope.client.to.DerivedSchemaTO;
-import org.syncope.client.to.SchemaTO;
-import org.syncope.client.to.UserTO;
 
 /**
- * Client for calling rest services.
+ * Base Rest client for invoking rest services.
  */
-public class RestClient {
-
+public class RestClient
+{
     protected RestTemplate restTemplate;
-    protected static final String BASE_URL = "http://192.168.0.137:8080/syncope/";
+
+    protected String baseURL;
 
     public RestTemplate getRestTemplate() {
         return restTemplate;
@@ -37,48 +33,12 @@ public class RestClient {
         this.restTemplate = restTemplate;
     }
 
-    public List<SchemaTO> getAttributesList() {
-        List<SchemaTO> attributeSchemas =
-                restTemplate.getForObject(BASE_URL + "schema/attribute/role/list.json", List.class);
-
-        return attributeSchemas;
+    public String getBaseURL() {
+        return baseURL;
     }
 
-    public List<DerivedSchemaTO> getDerivedAttributesList() {
-        List<DerivedSchemaTO> derivedAttributeSchemas =
-                restTemplate.getForObject(BASE_URL + "schema/derivedAttribute/role/list.json", List.class);
-
-        return derivedAttributeSchemas;
+    public void setBaseURL(String baseURL) {
+        this.baseURL = baseURL;
     }
-
-    public List<SchemaTO> getUserAttributesList() {
-        List<SchemaTO> attributeSchemas =
-                restTemplate.getForObject(BASE_URL + "schema/attribute/user/list.json", List.class);
-
-        return attributeSchemas;
-    }
-
-    public List<DerivedSchemaTO> getUserDerivedAttributesList() {
-        List<DerivedSchemaTO> derivedAttributeSchemas =
-                restTemplate.getForObject(BASE_URL + "schema/derivedAttribute/user/list.json", List.class);
-
-        return derivedAttributeSchemas;
-    }
-
-    /*-- USERS --*/
-
-    public Set<UserTO> getUserList() {
-        Set<UserTO> listUsers =
-                restTemplate.getForObject(BASE_URL
-                + "user/list.json", Set.class);
-        return listUsers;
-    }
-
-    public UserTO getUser() {
-        UserTO userTO =
-                restTemplate.getForObject(BASE_URL + "user/read/{userId}.json",
-                UserTO.class, "11");
-        return userTO;
-    }
-
+    
 }
