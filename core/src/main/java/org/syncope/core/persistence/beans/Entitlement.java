@@ -48,6 +48,14 @@ public class Entitlement extends AbstractBaseBean {
         this.name = name;
     }
 
+    public boolean addRole(SyncopeRole role) {
+        return roles.add(role);
+    }
+
+    public boolean removeRole(SyncopeRole role) {
+        return roles.remove(role);
+    }
+
     public Set<SyncopeRole> getRoles() {
         return roles;
     }

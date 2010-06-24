@@ -17,7 +17,7 @@ package org.syncope.core.persistence.dao;
 import java.util.List;
 import org.syncope.core.persistence.beans.Entitlement;
 
-public interface EntitlementDAO {
+public interface EntitlementDAO extends DAO {
 
     Entitlement find(String name);
 

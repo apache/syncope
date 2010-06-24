@@ -20,8 +20,6 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
 import org.syncope.core.persistence.beans.AbstractDerivedAttribute;
 import org.syncope.core.persistence.beans.AbstractDerivedSchema;
 import org.syncope.core.persistence.beans.AbstractSchema;
@@ -31,9 +29,7 @@ public class UserDerivedSchema extends AbstractDerivedSchema {
 
     @ManyToMany
     private Set<UserSchema> schemas;
-    @OneToMany(cascade = javax.persistence.CascadeType.ALL,
-    fetch = FetchType.EAGER, mappedBy = "derivedSchema")
-    @Cascade(CascadeType.DELETE_ORPHAN)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "derivedSchema")
     private Set<UserDerivedAttribute> derivedAttributes;
 
     public UserDerivedSchema() {

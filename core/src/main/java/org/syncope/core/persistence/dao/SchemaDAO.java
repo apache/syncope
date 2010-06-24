@@ -17,7 +17,7 @@ package org.syncope.core.persistence.dao;
 import java.util.List;
 import org.syncope.core.persistence.beans.AbstractSchema;
 
-public interface SchemaDAO {
+public interface SchemaDAO extends DAO {
 
     <T extends AbstractSchema> T find(String name, Class<T> reference);
 

@@ -17,7 +17,7 @@ package org.syncope.core.persistence.dao;
 import java.util.List;
 import org.syncope.core.persistence.beans.ConnectorInstance;
 
-public interface ConnectorInstanceDAO {
+public interface ConnectorInstanceDAO extends DAO {
 
     ConnectorInstance find(Long id);
 

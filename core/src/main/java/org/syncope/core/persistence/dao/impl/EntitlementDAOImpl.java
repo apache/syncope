@@ -32,12 +32,7 @@ public class EntitlementDAOImpl extends AbstractDAOImpl implements EntitlementDA
 
     @Override
     public Entitlement find(String name) {
-        Entitlement result = entityManager.find(Entitlement.class, name);
-        if (isDeletedOrNotManaged(result)) {
-            result = null;
-        }
-
-        return result;
+        return entityManager.find(Entitlement.class, name);
     }
 
     @Override
@@ -49,9 +44,7 @@ public class EntitlementDAOImpl extends AbstractDAOImpl implements EntitlementDA
 
     @Override
     public Entitlement save(Entitlement entitlement) {
-        Entitlement result = entityManager.merge(entitlement);
-        entityManager.flush();
-        return result;
+        return entityManager.merge(entitlement);
     }
 
     @Override

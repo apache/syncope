@@ -41,7 +41,7 @@ public class SyncopeUserDAOTest extends AbstractTest {
     @Test
     public final void findAll() {
         List<SyncopeUser> list = syncopeUserDAO.findAll();
-        assertEquals("did not get expected number of users ", 3, list.size());
+        assertEquals("did not get expected number of users ", 4, list.size());
     }
 
     @Test
@@ -50,7 +50,7 @@ public class SyncopeUserDAOTest extends AbstractTest {
         assertNotNull("did not find expected user", user);
         user = syncopeUserDAO.find(3L);
         assertNotNull("did not find expected user", user);
-        user = syncopeUserDAO.find(4L);
+        user = syncopeUserDAO.find(5L);
         assertNull("found user but did not expect it", user);
     }
 

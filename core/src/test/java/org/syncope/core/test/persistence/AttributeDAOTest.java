@@ -26,7 +26,6 @@ import org.syncope.core.persistence.beans.user.UserSchema;
 import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.AttributeDAO;
 import org.syncope.core.persistence.validation.ValidationException;
-import org.syncope.types.AttributeType;
 
 @Transactional
 public class AttributeDAOTest extends AbstractTest {
@@ -40,7 +39,7 @@ public class AttributeDAOTest extends AbstractTest {
     public final void findAll() {
         List<UserAttribute> list = attributeDAO.findAll(UserAttribute.class);
         assertEquals("did not get expected number of attributes ",
-                5, list.size());
+                6, list.size());
     }
 
     @Test
@@ -55,23 +54,11 @@ public class AttributeDAOTest extends AbstractTest {
 
     @Test
     public final void save() throws ClassNotFoundException {
-        UserSchema emailSchema = new UserSchema();
-        emailSchema.setName("email");
-        emailSchema.setType(AttributeType.String);
-        emailSchema.setValidatorClass(
-                "org.syncope.core.persistence.validation.EmailAddressValidator");
-        emailSchema.setMandatory(false);
-        emailSchema.setMultivalue(true);
-
-        userSchemaDAO.save(emailSchema);
-
-        UserSchema actualEmailSchema = userSchemaDAO.find("email",
-                UserSchema.class);
-        assertNotNull("expected save to work for e-mail schema",
-                actualEmailSchema);
+        UserSchema emailSchema = userSchemaDAO.find("email", UserSchema.class);
+        assertNotNull(emailSchema);
 
         UserAttribute attribute = new UserAttribute();
-        attribute.setSchema(actualEmailSchema);
+        attribute.setSchema(emailSchema);
 
         Exception thrown = null;
         try {
@@ -80,13 +67,10 @@ public class AttributeDAOTest extends AbstractTest {
             attribute.addValue("mario.rossi@gmail.com",
                     new UserAttributeValue());
         } catch (ValidationException e) {
-            e.printStackTrace();
+            log.error("Unexpected exception", e);
             thrown = e;
         }
         assertNull("no validation exception expected here ", thrown);
-        if (thrown != null) {
-            log.error("Validation exception for " + attribute, thrown);
-        }
 
         try {
             attribute.addValue("http://www.apache.org",

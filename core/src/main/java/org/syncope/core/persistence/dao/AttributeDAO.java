@@ -17,7 +17,7 @@ package org.syncope.core.persistence.dao;
 import java.util.List;
 import org.syncope.core.persistence.beans.AbstractAttribute;
 
-public interface AttributeDAO {
+public interface AttributeDAO extends DAO {
 
     <T extends AbstractAttribute> T find(Long id, Class<T> reference);
 
@@ -26,4 +26,6 @@ public interface AttributeDAO {
     <T extends AbstractAttribute> T save(T attribute);
 
     <T extends AbstractAttribute> void delete(Long id, Class<T> reference);
+
+    <T extends AbstractAttribute> void delete(T attribute);
 }

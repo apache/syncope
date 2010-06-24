@@ -17,7 +17,7 @@ package org.syncope.core.persistence.dao;
 import java.util.List;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 
-public interface SyncopeRoleDAO {
+public interface SyncopeRoleDAO extends DAO {
 
     SyncopeRole find(String name, String parent);
 

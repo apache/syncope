@@ -16,6 +16,7 @@
     <SyncopeUser id="1" password="XXX"/>
     <SyncopeUser id="2" password="YYY"/>
     <SyncopeUser id="3" password="ZZZ"/>
+    <SyncopeUser id="4" password="PPP"/>
 
     <SyncopeRole id="1" name="root"/>
     <SyncopeRole id="2" name="child" parent="root"/>
@@ -27,6 +28,8 @@
 
     <SyncopeUser_SyncopeRole users_id="1" roles_id="1"/>
     <SyncopeUser_SyncopeRole users_id="2" roles_id="1"/>
+    <SyncopeUser_SyncopeRole users_id="2" roles_id="2"/>
+    <SyncopeUser_SyncopeRole users_id="4" roles_id="7"/>
 
     <UserSchema name="username" type="String"
                 mandatory="true" multivalue="false"/>
@@ -37,6 +40,9 @@
                 mandatory="false" multivalue="false"/>
     <UserSchema name="surname" type="String"
                 mandatory="true" multivalue="false"/>
+    <UserSchema name="email" type="String"
+                mandatory="false" multivalue="true"
+                validatorClass="org.syncope.core.persistence.validation.EmailAddressValidator"/>
 
     <RoleSchema name="icon" type="String"
                 mandatory="false" multivalue="false"/>
@@ -48,6 +54,7 @@
     <UserAttribute id="300" owner_id="2" schema_name="username"/>
     <UserAttribute id="400" owner_id="3" schema_name="firstname"/>
     <UserAttribute id="500" owner_id="3" schema_name="surname"/>
+    <UserAttribute id="550" owner_id="4" schema_name="loginDate"/>
 
     <RoleAttribute id="600" owner_id="1" schema_name="icon"/>
     <RoleAttribute id="700" owner_id="2" schema_name="icon"/>
@@ -59,6 +66,7 @@
     <UserAttributeValue attribute_id="200" id="21" dateValue="2010-05-26 15:40:04"/>
     <UserAttributeValue attribute_id="400" id="30" stringValue="John"/>
     <UserAttributeValue attribute_id="500" id="31" stringValue="Doe"/>
+    <UserAttributeValue attribute_id="550" id="22" dateValue="2009-06-24"/>
 
     <RoleAttributeValue attribute_id="600" id="40" stringValue="niceIcon"/>
     <RoleAttributeValue attribute_id="700" id="41" stringValue="badIcon"/>
@@ -73,12 +81,9 @@
                                             
     <UserDerivedAttribute id="1000" derivedSchema_name="cn" owner_id="3"/>
 
-    <ConnectorInstance
-        id="100"
-        connectorName="OpenAM"
-        bundleName="org.syncope.core.persistence.test.util.openam"
-        version="1.0"
-        xmlConfiguration="%lt;xml ... " />
+    <ConnectorInstance id="100" connectorName="OpenAM" version="1.0"
+                       bundleName="org.syncope.core.persistence.test.util.openam"
+                       xmlConfiguration="%lt;xml ... " />
 
     <Entitlement name="base" description="NULL"/>
     <Entitlement name="advanced" description="Advanced entitlement"/>
@@ -89,5 +94,16 @@
                              roles_id="1"/>
     <SyncopeRole_Entitlement entitlements_name="base"
                              roles_id="2"/>
+
+    <RoleDerivedSchema name="displayProperty"
+                       expression="icon + ': ' + show"/>
+
+    <RoleDerivedSchema_RoleSchema derivedSchemas_name="displayProperty"
+                                  schemas_name="icon" />
+    <RoleDerivedSchema_RoleSchema derivedSchemas_name="displayProperty"
+                                  schemas_name="show" />
+
+    <RoleDerivedAttribute id="1001" derivedSchema_name="displayProperty"
+                          owner_id="1"/>
 
 </dataset>

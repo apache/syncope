@@ -26,7 +26,7 @@ public class UserDerivedAttribute extends AbstractDerivedAttribute {
 
     @ManyToOne
     private SyncopeUser owner;
-    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER)
     UserDerivedSchema derivedSchema;
 
     @Override

@@ -17,7 +17,6 @@ package org.syncope.core.rest.controller;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -52,16 +51,35 @@ public class DerivedSchemaController extends AbstractController {
                     derivedSchemaTO, reference,
                     getAttributable(kind).getSchemaClass());
         } catch (Exception e) {
-            log.error("Could not crate for  " + derivedSchemaTO, e);
+            log.error("Could not create for " + derivedSchemaTO, e);
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
 
         return derivedSchemaDataBinder.getDerivedSchemaTO(derivedSchema);
     }
 
+    @RequestMapping(method = RequestMethod.DELETE,
+    value = "/{kind}/delete/{schema}")
+    public void delete(HttpServletResponse response,
+            @PathVariable("kind") String kind,
+            @PathVariable("schema") String derivedSchemaName)
+            throws IOException {
+
+        Class reference = getAttributable(kind).getDerivedSchemaClass();
+        AbstractDerivedSchema derivedSchema =
+                derivedSchemaDAO.find(derivedSchemaName, reference);
+        if (derivedSchema == null) {
+            log.error("Could not find derived schema '"
+                    + derivedSchemaName + "'");
+
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+        } else {
+            derivedSchemaDAO.delete(derivedSchemaName, reference);
+        }
+    }
+
     @RequestMapping(method = RequestMethod.GET, value = "/{kind}/list")
-    public List<DerivedSchemaTO> list(HttpServletRequest request,
-            @PathVariable("kind") String kind) {
+    public List<DerivedSchemaTO> list(@PathVariable("kind") String kind) {
 
         Class reference = getAttributable(kind).getDerivedSchemaClass();
         List<AbstractDerivedSchema> derivedAttributeSchemas =
@@ -76,5 +94,36 @@ public class DerivedSchemaController extends AbstractController {
         }
 
         return result;
+    }
+
+    @RequestMapping(method = RequestMethod.GET,
+    value = "/{kind}/read/{derivedSchema}")
+    public DerivedSchemaTO read(HttpServletResponse response,
+            @PathVariable("kind") String kind,
+            @PathVariable("derivedSchema") String derivedSchemaName)
+            throws IOException {
+
+        Class reference = getAttributable(kind).getDerivedSchemaClass();
+        AbstractDerivedSchema derivedSchema =
+                derivedSchemaDAO.find(derivedSchemaName, reference);
+        if (derivedSchema == null) {
+            log.error("Could not find derived schema '"
+                    + derivedSchemaName + "'");
+
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return new DerivedSchemaTO();
+        }
+
+        return derivedSchemaDataBinder.getDerivedSchemaTO(derivedSchema);
+    }
+
+    // TODO: implement and verify if current attributes are affected by this update
+    @RequestMapping(method = RequestMethod.POST, value = "/{kind}/update")
+    public DerivedSchemaTO update(HttpServletResponse response,
+            @RequestBody DerivedSchemaTO derivedSchemaTO,
+            @PathVariable("kind") String kind)
+            throws IOException {
+
+        return create(response, derivedSchemaTO, kind);
     }
 }

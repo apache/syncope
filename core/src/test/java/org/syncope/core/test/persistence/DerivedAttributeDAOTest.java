@@ -24,7 +24,6 @@ import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.beans.user.UserAttributeValue;
 import org.syncope.core.persistence.beans.user.UserDerivedAttribute;
 import org.syncope.core.persistence.beans.user.UserDerivedSchema;
-import org.syncope.core.persistence.beans.user.UserSchema;
 import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.SyncopeUserDAO;
 import org.syncope.core.persistence.dao.DerivedAttributeDAO;
@@ -38,7 +37,7 @@ public class DerivedAttributeDAOTest extends AbstractTest {
     @Autowired
     SyncopeUserDAO syncopeUserDAO;
     @Autowired
-    DerivedSchemaDAO derivedAttributeSchemaDAO;
+    DerivedSchemaDAO derivedSchemaDAO;
     @Autowired
     SchemaDAO attributeSchemaDAO;
 
@@ -60,27 +59,16 @@ public class DerivedAttributeDAOTest extends AbstractTest {
 
     @Test
     public final void save() throws ClassNotFoundException {
-        UserDerivedSchema derivedAttributeSchema =
-                new UserDerivedSchema();
-        derivedAttributeSchema.setName("cn2");
-        derivedAttributeSchema.setExpression("firstname + \" \" + surname");
-        derivedAttributeSchema.addSchema(
-                attributeSchemaDAO.find("firstname", UserSchema.class));
-        derivedAttributeSchema.addSchema(
-                attributeSchemaDAO.find("surname", UserSchema.class));
-
-        derivedAttributeSchemaDAO.save(derivedAttributeSchema);
-
-        UserDerivedSchema actualCN2Schema =
-                derivedAttributeSchemaDAO.find("cn2", UserDerivedSchema.class);
-        assertNotNull("expected save to work for CN2 schema",
-                actualCN2Schema);
+        UserDerivedSchema cnSchema =
+                derivedSchemaDAO.find("cn", UserDerivedSchema.class);
+        assertNotNull(cnSchema);
 
         SyncopeUser owner = syncopeUserDAO.find(3L);
         assertNotNull("did not get expected user", owner);
 
         UserDerivedAttribute derivedAttribute = new UserDerivedAttribute();
-        derivedAttribute.setDerivedSchema(derivedAttributeSchema);
+        derivedAttribute.setOwner(owner);
+        derivedAttribute.setDerivedSchema(cnSchema);
 
         derivedAttribute = derivedAttributeDAO.save(derivedAttribute);
 
@@ -97,8 +85,8 @@ public class DerivedAttributeDAOTest extends AbstractTest {
                 "surname").getAttributeValues().iterator().next();
 
         assertEquals("expected derived value",
-                firstnameAttribute.getValue() + " "
-                + surnameAttribute.getValue(),
+                surnameAttribute.getValue() + ", "
+                + firstnameAttribute.getValue(),
                 derivedAttribute.getValue(owner.getAttributes()));
     }
 
@@ -117,7 +105,7 @@ public class DerivedAttributeDAOTest extends AbstractTest {
         assertNull("delete did not work", actual);
 
         UserDerivedSchema attributeSchema =
-                derivedAttributeSchemaDAO.find(attributeSchemaName,
+                derivedSchemaDAO.find(attributeSchemaName,
                 UserDerivedSchema.class);
         assertNotNull("user derived attribute schema deleted "
                 + "when deleting values",

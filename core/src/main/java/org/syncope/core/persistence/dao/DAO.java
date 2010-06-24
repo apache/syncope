@@ -14,16 +14,9 @@
  */
 package org.syncope.core.persistence.dao;
 
-import java.util.List;
-import org.syncope.core.persistence.beans.AbstractDerivedSchema;
+import javax.persistence.EntityManager;
 
-public interface DerivedSchemaDAO extends DAO {
+public interface DAO {
 
-    <T extends AbstractDerivedSchema> T find(String name, Class<T> reference);
-
-    <T extends AbstractDerivedSchema> List<T> findAll(Class<T> reference);
-
-    <T extends AbstractDerivedSchema> T save(T derivedSchema);
-
-    <T extends AbstractDerivedSchema> void delete(String name, Class<T> reference);
+    EntityManager getEntityManager();
 }

@@ -38,9 +38,7 @@ public class ConnectorInstanceDAOImpl extends AbstractDAOImpl
 
     @Override
     public ConnectorInstance save(ConnectorInstance connector) {
-        ConnectorInstance result = entityManager.merge(connector);
-        entityManager.flush();
-        return result;
+        return entityManager.merge(connector);
     }
 
     @Override

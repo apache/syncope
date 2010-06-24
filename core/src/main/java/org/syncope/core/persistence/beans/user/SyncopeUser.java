@@ -16,6 +16,7 @@ package org.syncope.core.persistence.beans.user;
 
 import java.util.HashSet;
 import java.util.Set;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -24,8 +25,6 @@ import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
 import org.jasypt.util.password.PasswordEncryptor;
 import org.jasypt.util.password.StrongPasswordEncryptor;
 import org.syncope.core.persistence.beans.AbstractAttributable;
@@ -45,13 +44,11 @@ public class SyncopeUser extends AbstractAttributable {
     private String password;
     @ManyToMany(fetch = FetchType.EAGER)
     private Set<SyncopeRole> roles;
-    @OneToMany(cascade = javax.persistence.CascadeType.ALL,
+    @OneToMany(cascade = CascadeType.ALL,
     fetch = FetchType.EAGER, mappedBy = "owner")
-    @Cascade(CascadeType.DELETE_ORPHAN)
     private Set<UserAttribute> attributes;
-    @OneToMany(cascade = javax.persistence.CascadeType.ALL,
+    @OneToMany(cascade = CascadeType.ALL,
     fetch = FetchType.EAGER, mappedBy = "owner")
-    @Cascade(CascadeType.DELETE_ORPHAN)
     private Set<UserDerivedAttribute> derivedAttributes;
 
     public SyncopeUser() {

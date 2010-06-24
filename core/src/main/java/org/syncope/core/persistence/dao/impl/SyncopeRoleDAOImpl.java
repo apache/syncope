@@ -14,11 +14,14 @@
  */
 package org.syncope.core.persistence.dao.impl;
 
+import java.util.Collections;
 import java.util.List;
 import javax.persistence.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import org.syncope.core.persistence.beans.Entitlement;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
+import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.SyncopeRoleDAO;
 
 @Repository
@@ -58,9 +61,7 @@ public class SyncopeRoleDAOImpl extends AbstractDAOImpl
 
     @Override
     public SyncopeRole save(SyncopeRole syncopeRole) {
-        SyncopeRole result = entityManager.merge(syncopeRole);
-        entityManager.flush();
-        return result;
+        return entityManager.merge(syncopeRole);
     }
 
     @Override
@@ -78,7 +79,19 @@ public class SyncopeRoleDAOImpl extends AbstractDAOImpl
             }
         }
 
-        entityManager.remove(find(name, parent));
+        SyncopeRole role = find(name, parent);
+
+        for (SyncopeUser user : role.getUsers()) {
+            user.removeRole(role);
+        }
+        role.setUsers(Collections.EMPTY_SET);
+
+        for (Entitlement entitlement : role.getEntitlements()) {
+            entitlement.removeRole(role);
+        }
+        role.setEntitlements(Collections.EMPTY_SET);
+
+        entityManager.remove(role);
     }
 
     @Override

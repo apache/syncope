@@ -17,7 +17,7 @@ package org.syncope.core.persistence.dao;
 import java.util.List;
 import org.syncope.core.persistence.beans.AbstractAttributeValue;
 
-public interface AttributeValueDAO {
+public interface AttributeValueDAO extends DAO {
 
     <T extends AbstractAttributeValue> T find(Long id, Class<T> reference);
 

@@ -14,12 +14,15 @@
  */
 package org.syncope.core.persistence.dao.impl;
 
+import java.util.Collections;
 import java.util.List;
 import javax.persistence.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import org.syncope.core.persistence.beans.AbstractDerivedAttribute;
 import org.syncope.core.persistence.beans.AbstractDerivedSchema;
+import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.dao.DerivedAttributeDAO;
 import org.syncope.core.persistence.dao.DerivedSchemaDAO;
 
@@ -28,7 +31,7 @@ public class DerivedSchemaDAOImpl extends AbstractDAOImpl
         implements DerivedSchemaDAO {
 
     @Autowired
-    DerivedAttributeDAO derivedAttributeDAO;
+    private DerivedAttributeDAO derivedAttributeDAO;
 
     @Override
     public <T extends AbstractDerivedSchema> T find(String name,
@@ -49,20 +52,32 @@ public class DerivedSchemaDAOImpl extends AbstractDAOImpl
     @Override
     @Transactional
     public <T extends AbstractDerivedSchema> T save(T derivedSchema) {
-        T result = entityManager.merge(derivedSchema);
-        entityManager.flush();
-        return result;
+        return entityManager.merge(derivedSchema);
     }
 
     @Override
     @Transactional
     public <T extends AbstractDerivedSchema> void delete(String name,
             Class<T> reference) {
-        T schema = find(name, reference);
-        if (schema == null) {
+
+        T derivedSchema = find(name, reference);
+        if (derivedSchema == null) {
             return;
         }
 
-        entityManager.remove(schema);
+        for (AbstractSchema schema : derivedSchema.getSchemas()) {
+            schema.removeDerivedSchema(derivedSchema);
+        }
+        derivedSchema.setSchemas(Collections.EMPTY_SET);
+
+        for (AbstractDerivedAttribute derivedAttribute :
+                derivedSchema.getDerivedAttributes()) {
+
+            derivedAttribute.setDerivedSchema(null);
+            derivedAttributeDAO.delete(derivedAttribute.getId(),
+                    derivedAttribute.getClass());
+        }
+
+        entityManager.remove(derivedSchema);
     }
 }

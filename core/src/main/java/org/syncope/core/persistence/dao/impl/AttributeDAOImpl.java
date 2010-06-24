@@ -27,12 +27,7 @@ public class AttributeDAOImpl extends AbstractDAOImpl
 
     @Override
     public <T extends AbstractAttribute> T find(Long id, Class<T> reference) {
-        T result = entityManager.find(reference, id);
-        if (isDeletedOrNotManaged(result)) {
-            result = null;
-        }
-
-        return (T) result;
+        return entityManager.find(reference, id);
     }
 
     @Override
@@ -45,9 +40,7 @@ public class AttributeDAOImpl extends AbstractDAOImpl
     @Override
     @Transactional
     public <T extends AbstractAttribute> T save(T attribute) {
-        T result = entityManager.merge(attribute);
-        entityManager.flush();
-        return result;
+        return entityManager.merge(attribute);
     }
 
     @Override
@@ -59,6 +52,17 @@ public class AttributeDAOImpl extends AbstractDAOImpl
         if (attribute == null) {
             return;
         }
+
+        delete(attribute);
+    }
+
+    @Override
+    @Transactional
+    public <T extends AbstractAttribute> void delete(T attribute) {
+        if (attribute.getOwner() != null) {
+            attribute.getOwner().removeAttribute(attribute);
+        }
+        attribute.getSchema().removeAttribute(attribute);
 
         entityManager.remove(attribute);
     }

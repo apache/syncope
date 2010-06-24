@@ -15,35 +15,19 @@
 package org.syncope.core.persistence.dao.impl;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityNotFoundException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceContextType;
 import org.springframework.beans.factory.annotation.Configurable;
+import org.syncope.core.persistence.dao.DAO;
 
 @Configurable
-public abstract class AbstractDAOImpl {
+public abstract class AbstractDAOImpl implements DAO {
 
     @PersistenceContext(type = PersistenceContextType.EXTENDED)
     protected EntityManager entityManager;
 
+    @Override
     public EntityManager getEntityManager() {
         return entityManager;
-    }
-
-    public void setEntityManager(EntityManager entityManager) {
-        this.entityManager = entityManager;
-    }
-
-    protected boolean isDeletedOrNotManaged(Object entity) {
-        boolean entityDeletedOrNotManaged = false;
-        try {
-            entityManager.refresh(entity);
-        } catch (IllegalArgumentException iae) {
-            entityDeletedOrNotManaged = true;
-        } catch (EntityNotFoundException enf) {
-            entityDeletedOrNotManaged = true;
-        }
-
-        return entityDeletedOrNotManaged;
     }
 }

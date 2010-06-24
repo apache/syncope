@@ -30,9 +30,9 @@ import org.syncope.core.persistence.beans.AbstractSchema;
 @Entity
 public class RoleAttribute extends AbstractAttribute {
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     private SyncopeRole owner;
-    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER)
     private RoleSchema schema;
     @OneToMany(cascade = javax.persistence.CascadeType.ALL,
     fetch = FetchType.EAGER, mappedBy = "attribute")

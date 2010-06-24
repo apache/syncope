@@ -16,13 +16,12 @@ package org.syncope.core.persistence.beans;
 
 import java.beans.PropertyDescriptor;
 import java.io.Serializable;
+import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -60,7 +59,24 @@ public abstract class AbstractBaseBean implements Serializable {
 
     @Override
     public String toString() {
-        return ReflectionToStringBuilder.toString(this,
-                ToStringStyle.MULTI_LINE_STYLE);
+        Method method = BeanUtils.findMethod(getClass(), "getId");
+        if (method == null) {
+            method = BeanUtils.findMethod(getClass(), "getName");
+        }
+
+        StringBuffer result = new StringBuffer().append(
+                getClass().getSimpleName()).append("[");
+        if (method != null) {
+            try {
+                result.append(method.invoke(this));
+            } catch (Exception e) {
+                if (log.isDebugEnabled()) {
+                    log.error("While serializing to string", e);
+                }
+            }
+        }
+        result.append("]");
+
+        return result.toString();
     }
 }

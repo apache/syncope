@@ -14,11 +14,14 @@
  */
 package org.syncope.core.persistence.dao.impl;
 
+import java.util.Collections;
 import java.util.List;
 import javax.persistence.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import org.syncope.core.persistence.beans.AbstractAttribute;
+import org.syncope.core.persistence.beans.AbstractDerivedSchema;
 import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.dao.AttributeDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
@@ -28,16 +31,11 @@ public class SchemaDAOImpl extends AbstractDAOImpl
         implements SchemaDAO {
 
     @Autowired
-    AttributeDAO attributeDAO;
+    private AttributeDAO attributeDAO;
 
     @Override
     public <T extends AbstractSchema> T find(String name, Class<T> reference) {
-        T result = entityManager.find(reference, name);
-        if (isDeletedOrNotManaged(result)) {
-            result = null;
-        }
-
-        return (T) result;
+        return entityManager.find(reference, name);
     }
 
     @Override
@@ -50,9 +48,7 @@ public class SchemaDAOImpl extends AbstractDAOImpl
     @Override
     @Transactional
     public <T extends AbstractSchema> T save(T schema) {
-        T result = entityManager.merge(schema);
-        entityManager.flush();
-        return result;
+        return entityManager.merge(schema);
     }
 
     @Override
@@ -63,6 +59,16 @@ public class SchemaDAOImpl extends AbstractDAOImpl
         T schema = find(name, reference);
         if (schema == null) {
             return;
+        }
+
+        for (AbstractDerivedSchema derivedSchema : schema.getDerivedSchemas()) {
+            derivedSchema.removeSchema(schema);
+        }
+        schema.setDerivedSchemas(Collections.EMPTY_SET);
+
+        for (AbstractAttribute attribute : schema.getAttributes()) {
+            attribute.setSchema(null);
+            attributeDAO.delete(attribute.getId(), attribute.getClass());
         }
 
         entityManager.remove(schema);

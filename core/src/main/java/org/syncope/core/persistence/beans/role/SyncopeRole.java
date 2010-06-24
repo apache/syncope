@@ -17,6 +17,7 @@ package org.syncope.core.persistence.beans.role;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import java.util.HashSet;
 import java.util.Set;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -26,8 +27,6 @@ import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
 import org.syncope.core.persistence.beans.AbstractAttributable;
 import org.syncope.core.persistence.beans.AbstractAttribute;
 import org.syncope.core.persistence.beans.AbstractDerivedAttribute;
@@ -43,18 +42,15 @@ public class SyncopeRole extends AbstractAttributable {
     private Long id;
     private String name;
     private String parent;
-    @ManyToMany(cascade = javax.persistence.CascadeType.ALL,
-    fetch = FetchType.EAGER, mappedBy = "roles")
+    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "roles")
     private Set<SyncopeUser> users;
     @ManyToMany(fetch = FetchType.LAZY)
     private Set<Entitlement> entitlements;
-    @OneToMany(cascade = javax.persistence.CascadeType.ALL,
+    @OneToMany(cascade = CascadeType.ALL,
     fetch = FetchType.EAGER, mappedBy = "owner")
-    @Cascade(CascadeType.DELETE_ORPHAN)
     private Set<RoleAttribute> attributes;
-    @OneToMany(cascade = javax.persistence.CascadeType.ALL,
+    @OneToMany(cascade = CascadeType.ALL,
     fetch = FetchType.EAGER, mappedBy = "owner")
-    @Cascade(CascadeType.DELETE_ORPHAN)
     private Set<RoleDerivedAttribute> derivedAttributes;
 
     public SyncopeRole() {

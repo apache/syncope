@@ -19,8 +19,6 @@ import javax.persistence.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.AbstractDerivedAttribute;
-import org.syncope.core.persistence.beans.role.SyncopeRole;
-import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.DerivedAttributeDAO;
 
 @Repository
@@ -28,19 +26,16 @@ public class DerivedAttributeDAOImpl extends AbstractDAOImpl
         implements DerivedAttributeDAO {
 
     @Override
-    public <T extends AbstractDerivedAttribute> T find(Long id, Class<T> reference) {
-        T result = entityManager.find(reference, id);
-        if (isDeletedOrNotManaged(result)) {
-            result = null;
-        }
+    public <T extends AbstractDerivedAttribute> T find(
+            Long id, Class<T> reference) {
 
-        return result;
+        return entityManager.find(reference, id);
     }
 
     @Override
     public <T extends AbstractDerivedAttribute> List<T> findAll(
             Class<T> reference) {
-        
+
         Query query = entityManager.createQuery(
                 "SELECT e FROM " + reference.getSimpleName() + " e");
         return query.getResultList();
@@ -48,10 +43,8 @@ public class DerivedAttributeDAOImpl extends AbstractDAOImpl
 
     @Override
     @Transactional
-    public AbstractDerivedAttribute save(AbstractDerivedAttribute attribute) {
-        AbstractDerivedAttribute result = entityManager.merge(attribute);
-        entityManager.flush();
-        return result;
+    public <T extends AbstractDerivedAttribute> T save(T derivedAttribute) {
+        return entityManager.merge(derivedAttribute);
     }
 
     @Override
@@ -63,6 +56,20 @@ public class DerivedAttributeDAOImpl extends AbstractDAOImpl
         if (derivedAttribute == null) {
             return;
         }
+
+        delete(derivedAttribute);
+    }
+
+    @Override
+    public <T extends AbstractDerivedAttribute> void delete(
+            T derivedAttribute) {
+
+        if (derivedAttribute.getOwner() != null) {
+            derivedAttribute.getOwner().removeDerivedAttribute(
+                    derivedAttribute);
+        }
+        derivedAttribute.getDerivedSchema().removeDerivedAttribute(
+                derivedAttribute);
 
         entityManager.remove(derivedAttribute);
     }

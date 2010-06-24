@@ -34,7 +34,7 @@ public class SchemaDAOTest extends AbstractTest {
     @Test
     public final void findAll() {
         List<UserSchema> userList = schemaDAO.findAll(UserSchema.class);
-        assertEquals(4, userList.size());
+        assertEquals(5, userList.size());
 
         List<RoleSchema> roleList = schemaDAO.findAll(RoleSchema.class);
         assertEquals(2, roleList.size());
@@ -51,7 +51,7 @@ public class SchemaDAOTest extends AbstractTest {
     @Test
     public final void save() {
         UserSchema attributeSchema = new UserSchema();
-        attributeSchema.setName("email");
+        attributeSchema.setName("secondaryEmail");
         attributeSchema.setType(AttributeType.String);
         attributeSchema.setValidatorClass(
                 "org.syncope.core.validation.EmailAddressValidator");
@@ -60,7 +60,7 @@ public class SchemaDAOTest extends AbstractTest {
 
         schemaDAO.save(attributeSchema);
 
-        UserSchema actual = schemaDAO.find("email", UserSchema.class);
+        UserSchema actual = schemaDAO.find("secondaryEmail", UserSchema.class);
         assertNotNull("expected save to work", actual);
         assertEquals(attributeSchema, actual);
     }

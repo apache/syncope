@@ -332,7 +332,7 @@
                                 <include>**/*Test.java</include>
                             </includes>
                             <excludes>
-                                <exclude>**/*RelationshipTest.java</exclude>
+                                <exclude>**/relationships/**Test.java</exclude>
                             </excludes>
                         </configuration>
                     </execution>
@@ -345,7 +345,7 @@
                         <configuration>
                             <skip>false</skip>
                             <includes>
-                                <include>**/*RelationshipTest.java</include>
+                                <include>**/relationships/**Test.java</include>
                             </includes>
                         </configuration>
                     </execution>
@@ -391,12 +391,6 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>failsafe-maven-plugin</artifactId>
                 <executions>
-                    <execution>
-                        <id>integration-test</id>
-                        <goals>
-                            <goal>integration-test</goal>
-                        </goals>
-                    </execution>
                     <execution>
                         <id>verify</id>
                         <goals>

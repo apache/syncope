@@ -26,13 +26,10 @@ public class AttributeValueDAOImpl extends AbstractDAOImpl
         implements AttributeValueDAO {
 
     @Override
-    public <T extends AbstractAttributeValue> T find(Long id, Class<T> reference) {
-        T result = entityManager.find(reference, id);
-        if (isDeletedOrNotManaged(result)) {
-            result = null;
-        }
-
-        return result;
+    public <T extends AbstractAttributeValue> T find(
+            Long id, Class<T> reference) {
+        
+        return entityManager.find(reference, id);
     }
 
     @Override
@@ -45,9 +42,7 @@ public class AttributeValueDAOImpl extends AbstractDAOImpl
     @Override
     @Transactional
     public <T extends AbstractAttributeValue> T save(T attributeValue) {
-        T result = entityManager.merge(attributeValue);
-        entityManager.flush();
-        return result;
+        return entityManager.merge(attributeValue);
     }
 
     @Override

@@ -32,19 +32,7 @@ public class SchemaTestITCase extends AbstractTestITCase {
     DerivedSchemaDAO derivedSchemaDAO;
 
     @Test
-    public void attributeList() {
-        List<SchemaTO> userSchemas =
-                restTemplate.getForObject(BASE_URL
-                + "schema/user/list.json", List.class);
-        assertFalse(userSchemas.isEmpty());
-
-        List<SchemaTO> roleSchemas = restTemplate.getForObject(BASE_URL
-                + "schema/role/list.json", List.class);
-        assertFalse(roleSchemas.isEmpty());
-    }
-
-    @Test
-    public void attributeCreate() {
+    public void create() {
         SchemaTO schemaTO = new SchemaTO();
         schemaTO.setName("testAttribute");
         schemaTO.setMandatory(true);
@@ -56,10 +44,36 @@ public class SchemaTestITCase extends AbstractTestITCase {
     }
 
     @Test
-    public void derivedAttributeList() {
+    public void delete() {
+        restTemplate.delete(BASE_URL + "schema/user/delete/username.js");
+        System.out.println(restTemplate.getForObject(BASE_URL
+                + "schema/user/read/surname.json", SchemaTO.class));
+    }
+
+    @Test
+    public void list() {
+        List<SchemaTO> userSchemas =
+                restTemplate.getForObject(BASE_URL
+                + "schema/user/list.json", List.class);
+        assertFalse(userSchemas.isEmpty());
+
+        List<SchemaTO> roleSchemas = restTemplate.getForObject(BASE_URL
+                + "schema/role/list.json", List.class);
+        assertFalse(roleSchemas.isEmpty());
+    }
+
+    @Test
+    public void derivedList() {
         List<DerivedSchemaTO> derivedSchemas =
                 restTemplate.getForObject(BASE_URL
                 + "derivedSchema/user/list.json", List.class);
         assertFalse(derivedSchemas.isEmpty());
+    }
+
+    @Test
+    public void derivedRead() {
+        DerivedSchemaTO derivedSchemaTO = restTemplate.getForObject(BASE_URL
+                + "derivedSchema/user/read/cn.json", DerivedSchemaTO.class);
+        assertNotNull(derivedSchemaTO);
     }
 }
