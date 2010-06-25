@@ -14,10 +14,13 @@
  */
 package org.syncope.console.pages;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.Session;
 import org.apache.wicket.markup.html.WebPage;
@@ -27,6 +30,7 @@ import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.PasswordTextField;
 import org.apache.wicket.markup.html.form.TextField;
+import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.syncope.console.SyncopeApplication;
@@ -46,9 +50,6 @@ public class Login extends WebPage {
 
     public Login(PageParameters parameters) {
         super(parameters);
-        this.getClass().getClassLoader().getResource("/WEB-INF/classes/authentication.xml");
-        //System.out.println(((WebApplication)(SyncopeApplication.get())).getServletContext());
-        //System.out.println(WebApplication.get().getServletContext());
         form = new Form("login");
 
         usernameField = new TextField("username", new Model());
@@ -67,8 +68,6 @@ public class Login extends WebPage {
 
             @Override
             public void onSubmit() {
-                //file = ((SyncopeApplication)getApplication()).getInitParameter("authenticationFile");
-                //file = ((SyncopeApplication)getApplication()).getServletContext().getInitParameter("authenticationFile");
                 inputStream = ((SyncopeApplication)getApplication()).getAuthenticationFile();
                 Authentication auth = new Authentication();
                 Boolean authenticated = auth.authentication(usernameField.getRawInput(), passwordField.getRawInput(), inputStream);
@@ -76,7 +75,15 @@ public class Login extends WebPage {
                     SyncopeUser user = new SyncopeUser();
                     user.setUsername(usernameField.getRawInput());
                     ((SyncopeSession)Session.get()).setUser(user);
-                    setResponsePage(new HomePage(null));
+                    setResponsePage(new WelcomePage(null));
+                    info("");
+                    try {
+                        inputStream.close();
+                    } catch (IOException ex) {
+                        Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                } else {
+                    info("Username e/o password errati");
                 }
             }
         };
@@ -85,6 +92,7 @@ public class Login extends WebPage {
         form.add(submitButton);
         
         add(form);
+        add(new FeedbackPanel("feedback"));
     }
 
     /**

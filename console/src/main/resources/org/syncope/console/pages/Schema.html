@@ -25,23 +25,24 @@
 
         <wicket:extend>
 
-            <div id="menuTab">
-                <ul class="ui-tabs-nav">
-                    <li class="ui-tabs-selected"><a href="#tab1-schema"><span><wicket:message key="tab1-schema"/></span></a></li>
-                    <li class=""><a href="#tab2-schema"><span><wicket:message key="tab2-schema"/></span></a></li>
-                    <li class=""><a href="#tab3-schema"><span><wicket:message key="tab3-schema"/></span></a></li>
-                    <li class=""><a href="#tab4-schema"><span><wicket:message key="tab4-schema"/></span></a></li>
+            <div id="tabs">
+                <!--<ul class="ui-tabs-nav">-->
+                <ul>
+                    <li class="tabs-selected"><a href="#tabs-1"><span><wicket:message key="tab1"/></span></a></li>
+                    <li><a href="#tabs-2"><span><wicket:message key="tab2"/></span></a></li>
+                    <li><a href="#tabs-3"><span><wicket:message key="tab3"/></span></a></li>
+                    <li><a href="#tabs-4"><span><wicket:message key="tab4"/></span></a></li>
                 </ul>
-                <div class="ui-tabs-panel" id="tab1-schema">
+                <div id="tabs-1">
                     <div wicket:id="userAttributesList" />
                 </div>
-                <div class="ui-tabs-panel ui-tabs-hide" id="tab2-schema">
+                <div id="tabs-2">
                     <div wicket:id="userDerivedAttributesList" />
                 </div>
-                <div class="ui-tabs-panel" id="tab3-schema">
+                <div id="tabs-3">
                     <div wicket:id="attributesList" />
                 </div>
-                <div class="ui-tabs-panel ui-tabs-hide" id="tab4-schema">
+                <div id="tabs-4">
                     <div wicket:id="derivedAttributesList" />
                 </div>
             </div>

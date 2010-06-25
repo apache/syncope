@@ -24,20 +24,57 @@
     <body>
 
         <wicket:extend>
-
-            <div id="menuTab">
-                <ul class="ui-tabs-nav">
-                    <li class="ui-tabs-selected"><a href="#pan-home-1"><span><wicket:message key="tab1"/></span></a></li>
-                    <li class=""><a href="#pan-home-2"><span><wicket:message key="tab2"/></span></a></li>
+            <div id="tabs">
+                <ul>
+                    <li  class="tabs-selected"><a href="#tabs-1"><span><wicket:message key="tab1"/></span></a></li>
+                    <li><a href="#tabs-2"><span><wicket:message key="tab2"/></span></a></li>
                 </ul>
-                <div class="ui-tabs-panel" id="pan-home-1">
-                    <input type="button" wicket:id="newUserBtn"/>
-                    <div wicket:id="userList" >
-                        <span wicket:id="label">label</span><br/>
+                <div id="tabs-1">
+                    <!--added modal form-->
+                    <div id="dialog-form" title="Create new user">
+                        <p class="validateTips">All form fields are required.</p>
+
+                        <form>
+                            <fieldset>
+                                <label for="name">Name</label>
+                                <input type="text" name="name" id="name" class="text ui-widget-content ui-corner-all" />
+                                <label for="email">Email</label>
+                                <input type="text" name="email" id="email" value="" class="text ui-widget-content ui-corner-all" />
+                                <label for="password">Password</label>
+                                <input type="password" name="password" id="password" value="" class="text ui-widget-content ui-corner-all" />
+                            </fieldset>
+                        </form>
                     </div>
 
+
+                    <div id="users-contain" class="ui-widget">
+
+                        <h1>Existing Users:</h1>
+
+                        <table id="users" class="ui-widget ui-widget-content">
+                            <thead>
+                                <!--<tr class="ui-widget-header " wicket:id="userList" >
+                                    <th><span wicket:id="label">label</span></th>
+                                </tr>-->
+                                <tr class="ui-widget-header ">
+                                    <th>surname</th>
+                                    <th>firstname</th>
+                                    <th>email</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!--<tr class="ui-widget-header " wicket:id="userList" >
+                                    <th><span wicket:id="label">label</span></th>
+                                </tr>-->
+                            </tbody>
+                        </table>
+                    </div>
+                    <!--<input type="button"  wicket:id="newUserBtn"/>-->
+                    <button id="create-user">Create new user</button>
+                    <!-- end added modal form-->
+
                 </div>
-                <div class="ui-tabs-panel ui-tabs-hide" id="pan-home-2">
+                <div id="tabs-2">
                     <div id="searchBox">
                         <label for="search"><wicket:message key="search"/></label>
                         <input type="text" wicket:id="search" id="search" />

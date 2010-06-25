@@ -18,11 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import org.apache.wicket.PageParameters;
-import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.TextField;
-import org.apache.wicket.markup.html.list.ListItem;
-import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.to.UserTO;
@@ -31,7 +27,7 @@ import org.syncope.console.rest.UsersRestClient;
 /**
  * Users WebPage.
  */
-public class Users extends BasePage{
+public class Users extends BasePage {
 
     @SpringBean(name = "usersRestClient")
     UsersRestClient restClient;
@@ -39,27 +35,25 @@ public class Users extends BasePage{
     public Users(PageParameters parameters) {
         super(parameters);
 
-        add(new TextField("search",new Model(getString("search"))));
+        add(new TextField("search", new Model(getString("search"))));
 
-        add(new Button("newUserBtn",new Model(getString("newUserBtn"))));
+        //add(new Button("newUserBtn", new Model(getString("newUserBtn"))));
 
         final Set<UserTO> users = restClient.getUserList();
 
-        if(!users.isEmpty())
-        {
+        if (!users.isEmpty()) {
 
-        List<UserTO> userList = new ArrayList(users);
+            final List userList = new ArrayList(users);
 
-        add(new ListView("userList", userList) {
-
-        @Override
-        protected void populateItem(ListItem item) {
-        //LinkedHashMap users = (LinkedHashMap) item.getDefaultModelObject();
-        item.add(new Label("label", item.getModel()));
+            /*add(new ListView("userList", userList) {
+            @Override
+            protected void populateItem(ListItem item) {
+            //item.add(new Label("label", item.getModel()));
             }
-            });
-            
+
+            });*/
+
         }
-      
+
     }
 }

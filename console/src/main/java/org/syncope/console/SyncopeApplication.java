@@ -26,6 +26,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.syncope.console.pages.HomePage;
 import org.syncope.console.pages.Login;
+import org.syncope.console.pages.WelcomePage;
 import org.syncope.console.rest.RestClient;
 
 /**
@@ -78,7 +79,7 @@ public class SyncopeApplication extends WebApplication implements ApplicationCon
      */
     public Class getHomePage()
     {
-        return (user == null) ? Login.class :  HomePage.class;
+        return (user == null) ? Login.class :  WelcomePage.class;
     }
 
     /**
