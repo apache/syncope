@@ -31,7 +31,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.support.RequestContextUtils;
-import org.syncope.client.to.AttributeTO;
 import org.syncope.client.to.SearchParameters;
 import org.syncope.client.to.UserTO;
 import org.syncope.core.persistence.dao.SyncopeUserDAO;
@@ -86,25 +85,14 @@ public class UserController extends AbstractController {
         usernameValues.add("chicchiricco");
         usernameValues.add("fabio.martelli");
 
-        AttributeTO usernameAttribute = new AttributeTO();
-        usernameAttribute.setName("username");
-        usernameAttribute.setValues(usernameValues);
-
         Set<String> surnameValues = new HashSet<String>();
         surnameValues.add("Chicchiriccò");
         surnameValues.add("Martelli");
 
-        AttributeTO surnameAttribute = new AttributeTO();
-        surnameAttribute.setName("surname");
-        surnameAttribute.setValues(surnameValues);
-
-        Set<AttributeTO> attributes = new HashSet<AttributeTO>();
-        attributes.add(usernameAttribute);
-        attributes.add(surnameAttribute);
-
         UserTO userTO = new UserTO();
-        userTO.setId(userId);
-        userTO.setAttributes(attributes);
+        userTO.addAttribute("username", usernameValues);
+        userTO.addAttribute("surname", surnameValues);
+        //userTO.setAttributes(attributes);
 
         ModelAndView mav = new ModelAndView();
         mav.addObject(userTO);

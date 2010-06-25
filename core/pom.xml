@@ -262,6 +262,60 @@
             </plugin>
 
             <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>xml-maven-plugin</artifactId>
+                <inherited>true</inherited>
+                <executions>
+                    <execution>
+                        <id>integration-test-web.xml</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>transform</goal>
+                        </goals>
+                        <configuration>
+                            <transformationSets>
+                                <transformationSet>
+                                    <dir>${basedir}/src/main/webapp/WEB-INF</dir>
+                                    <includes>
+                                        <include>web.xml</include>
+                                    </includes>
+                                    <outputDir>${project.build.directory}</outputDir>
+                                    <stylesheet>${basedir}/src/test/resources/web.xsl</stylesheet>
+                                </transformationSet>
+                            </transformationSets>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <inherited>true</inherited>
+                <executions>
+                    <execution>
+                        <id>restore-web.xml</id>
+                        <phase>integration-test</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/${project.build.finalName}/WEB-INF</outputDirectory>
+                            <overwrite>true</overwrite>
+                            <resources>
+                                <resource>
+                                    <directory>src/main/webapp/WEB-INF</directory>
+                                    <includes>
+                                        <include>web.xml</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
                 <inherited>true</inherited>
@@ -278,6 +332,13 @@
                                 WEB-INF/classes/org/syncope/core/persistence/content.xml
                             </packagingExcludes>
                             <webResources>
+                                <resource>
+                                    <directory>${project.build.directory}</directory>
+                                    <targetPath>WEB-INF</targetPath>
+                                    <includes>
+                                        <include>web.xml</include>
+                                    </includes>
+                                </resource>
                                 <resource>
                                     <directory>${project.build.directory}</directory>
                                     <targetPath>WEB-INF/lib</targetPath>

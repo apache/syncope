@@ -14,9 +14,10 @@
   limitations under the License.
 -->
 <sun-web-app error-url="">
-    <context-root>/syncope</context-root>
-    <class-loader delegate="false"/>
-    <jsp-config>
-        <property name="keepgenerated" value="true"/>
-    </jsp-config>
+  <context-root>/syncope</context-root>
+  <resource-ref>
+    <res-ref-name>jdbc/syncopeDataSource</res-ref-name>
+    <jndi-name>jdbc/syncopeDataSource</jndi-name>
+  </resource-ref>
+  <class-loader delegate="false"/>
 </sun-web-app>
