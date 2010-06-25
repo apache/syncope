@@ -29,7 +29,7 @@
 
     <bean id="restClient" class="org.syncope.console.rest.RestClient">
         <property name="restTemplate" ref="restTemplate"/>
-        <property name="baseURL" value="<%SYNCOPE_BASE_URL%>"/>
+        <property name="baseURL" value="http://localhost:8080/syncope/"/>
     </bean>
 
     <bean id="schemaRestClient" class="org.syncope.console.rest.SchemaRestClient">

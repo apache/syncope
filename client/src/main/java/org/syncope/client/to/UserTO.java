@@ -14,6 +14,7 @@
  */
 package org.syncope.client.to;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -22,13 +23,17 @@ public class UserTO extends AbstractBaseTO {
 
     private long id;
     private String password;
-    private Set<String> roles;
+    private Map<String, String> roles;
     private Map<String, Set<String>> attributes;
-    private Map<String, Set<String>> derivedAttributes;
+    private Map<String, String> derivedAttributes;
+    private Date creationTime;
+    private String token;
+    private Date tokenExpireTime;
 
     public UserTO() {
+        roles = new HashMap<String, String>();
         attributes = new HashMap<String, Set<String>>();
-        derivedAttributes = new HashMap<String, Set<String>>();
+        derivedAttributes = new HashMap<String, String>();
     }
 
     public long getId() {
@@ -47,19 +52,19 @@ public class UserTO extends AbstractBaseTO {
         this.password = password;
     }
 
-    public boolean addRole(String role) {
-        return roles.add(role);
+    public String addRole(String role, String parent) {
+        return roles.put(role, parent);
     }
 
-    public boolean removeRole(String role) {
+    public String removeRole(String role) {
         return roles.remove(role);
     }
 
-    public Set<String> getRoles() {
+    public Map<String, String> getRoles() {
         return roles;
     }
 
-    public void setRoles(Set<String> roles) {
+    public void setRoles(Map<String, String> roles) {
         this.roles = roles;
     }
 
@@ -79,7 +84,35 @@ public class UserTO extends AbstractBaseTO {
         this.attributes = attributes;
     }
 
-    public Map<String, Set<String>> getDerivedAttributes() {
+    public Map<String, String> getDerivedAttributes() {
         return derivedAttributes;
+    }
+
+    public void setDerivedAttributes(Map<String, String> derivedAttributes) {
+        this.derivedAttributes = derivedAttributes;
+    }
+
+    public Date getCreationTime() {
+        return creationTime;
+    }
+
+    public void setCreationTime(Date creationTime) {
+        this.creationTime = creationTime;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public Date getTokenExpireTime() {
+        return tokenExpireTime;
+    }
+
+    public void setTokenExpireTime(Date tokenExpireTime) {
+        this.tokenExpireTime = tokenExpireTime;
     }
 }

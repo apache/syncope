@@ -16,31 +16,31 @@ package org.syncope.core.rest.controller;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.support.RequestContextUtils;
 import org.syncope.client.to.SearchParameters;
 import org.syncope.client.to.UserTO;
+import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.SyncopeUserDAO;
+import org.syncope.core.rest.data.UserDataBinder;
 
-/**
- * TODO: call syncope-core
- */
 @Controller
 @RequestMapping("/user")
 public class UserController extends AbstractController {
+
+    @Autowired
+    private SyncopeUserDAO syncopeUserDAO;
+    @Autowired
+    private UserDataBinder userDataBinder;
 
     @RequestMapping(method = RequestMethod.POST, value = "/create")
     public UserTO create(HttpServletResponse response,
@@ -54,49 +54,58 @@ public class UserController extends AbstractController {
     @RequestMapping(method = RequestMethod.DELETE, value = "/delete/{userId}")
     public void delete(HttpServletResponse response,
             @PathVariable("userId") Long userId) throws IOException {
+        
+        SyncopeUser user = syncopeUserDAO.find(userId);
+        if (user == null) {
+            log.error("Could not find user '" + userId + "'");
 
-        log.info("delete called with parameter " + userId);
-
-        if (userId == 0) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
+        } else {
+            try {
+                syncopeUserDAO.delete(userId);
+            } catch (Throwable t) {
+                log.error("While deleting " + userId, t);
+                response.sendError(
+                        HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            }
         }
     }
 
+    @RequestMapping(method = RequestMethod.GET, value = "/isActive/{userId}")
+    public ModelAndView isActive(@PathVariable("userId") Long userId)
+            throws IOException {
+
+        // TODO: check workflow
+        ModelAndView mav = new ModelAndView();
+        mav.addObject(syncopeUserDAO.find(userId) != null);
+        return mav;
+    }
+
     @RequestMapping(method = RequestMethod.GET, value = "/list")
-    public Set<UserTO> list(HttpServletRequest request) throws IOException {
+    public List<UserTO> list(HttpServletRequest request) throws IOException {
+        List<SyncopeUser> users = syncopeUserDAO.findAll();
 
-        WebApplicationContext webApplicationContext =
-                RequestContextUtils.getWebApplicationContext(request);
+        List<UserTO> result = new ArrayList<UserTO>(users.size());
+        for (SyncopeUser user : users) {
+            result.add(userDataBinder.getUserTO(user));
+        }
 
-        SyncopeUserDAO syncopeUserDAO =
-                (SyncopeUserDAO) webApplicationContext.getBean(
-                "syncopeUserDAOImpl");
-
-        return Collections.singleton(new UserTO());
+        return result;
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/read/{userId}")
-    public ModelAndView read(@PathVariable("userId") Long userId)
-            throws IOException {
+    public UserTO read(HttpServletResponse response,
+            @PathVariable("userId") Long userId) throws IOException {
 
-        log.info("read called with parameter " + userId);
+        SyncopeUser user = syncopeUserDAO.find(userId);
+        if (user == null) {
+            log.error("Could not find user '" + userId + "'");
 
-        Set<String> usernameValues = new HashSet<String>();
-        usernameValues.add("chicchiricco");
-        usernameValues.add("fabio.martelli");
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return new UserTO();
+        }
 
-        Set<String> surnameValues = new HashSet<String>();
-        surnameValues.add("Chicchiriccò");
-        surnameValues.add("Martelli");
-
-        UserTO userTO = new UserTO();
-        userTO.addAttribute("username", usernameValues);
-        userTO.addAttribute("surname", surnameValues);
-        //userTO.setAttributes(attributes);
-
-        ModelAndView mav = new ModelAndView();
-        mav.addObject(userTO);
-        return mav;
+        return userDataBinder.getUserTO(user);
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/passwordReset/{userId}")

@@ -42,9 +42,11 @@ public enum AttributeType {
             switch (this) {
                 case Date:
                     this.formatter = new SimpleDateFormat();
+                    break;
                 case Long:
                 case Double:
                     this.formatter = new DecimalFormat();
+                    break;
             }
         }
 

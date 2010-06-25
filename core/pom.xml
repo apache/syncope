@@ -451,6 +451,11 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>failsafe-maven-plugin</artifactId>
+                <inherited>true</inherited>
+                <configuration>
+                    <redirectTestOutputToFile>true</redirectTestOutputToFile>
+                    <encoding>utf-8</encoding>
+                </configuration>
                 <executions>
                     <execution>
                         <id>verify</id>
@@ -459,9 +464,6 @@
                         </goals>
                     </execution>
                 </executions>
-                <configuration>
-                    <encoding>utf-8</encoding>
-                </configuration>
             </plugin>
 
             <plugin>

@@ -13,6 +13,9 @@
   limitations under the License.
 -->
 <dataset>
+    <SyncopeConfiguration confKey="token.length" confValue="256"/>
+    <SyncopeConfiguration confKey="token.expireTime" confValue="60"/>
+    
     <SyncopeUser id="1" password="XXX"/>
     <SyncopeUser id="2" password="YYY"/>
     <SyncopeUser id="3" password="ZZZ"/>

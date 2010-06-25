@@ -46,32 +46,33 @@ public class UserTestITCase extends AbstractTestITCase {
         } catch (HttpStatusCodeException e) {
             assertEquals(e.getStatusCode(), HttpStatus.NOT_FOUND);
         }
+
+        restTemplate.delete(BASE_URL + "user/delete/{userId}", "2");
+        try {
+            restTemplate.getForObject(BASE_URL + "user/read/{userId}.json",
+                    UserTO.class, "2");
+        } catch (HttpStatusCodeException e) {
+            assertEquals(e.getStatusCode(), HttpStatus.NOT_FOUND);
+        }
     }
 
     @Test
     public void list() {
         Set<UserTO> users = restTemplate.getForObject(BASE_URL
-                + "user/list.json",
-                Set.class);
+                + "user/list.json", Set.class);
 
         assertNotNull(users);
-
-        if (log.isDebugEnabled()) {
-            log.debug(users.toString());
-        }
+        assertEquals(4, users.size());
     }
 
     @Test
     public void read() {
         UserTO userTO = restTemplate.getForObject(BASE_URL
-                + "user/read/{userId}.json",
-                UserTO.class, "0");
+                + "user/read/{userId}.json", UserTO.class, "1");
 
         assertNotNull(userTO);
-
-        if (log.isDebugEnabled()) {
-            log.debug(userTO.toString());
-        }
+        assertNotNull(userTO.getAttributes());
+        assertFalse(userTO.getAttributes().isEmpty());
     }
 
     @Test

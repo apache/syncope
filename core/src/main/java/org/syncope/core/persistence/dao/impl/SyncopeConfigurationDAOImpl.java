@@ -14,46 +14,37 @@
  */
 package org.syncope.core.persistence.dao.impl;
 
-import java.util.Collections;
 import java.util.List;
 import javax.persistence.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import org.syncope.core.persistence.beans.role.SyncopeRole;
-import org.syncope.core.persistence.beans.user.SyncopeUser;
-import org.syncope.core.persistence.dao.SyncopeUserDAO;
+import org.syncope.core.persistence.beans.SyncopeConfiguration;
+import org.syncope.core.persistence.dao.SyncopeConfigurationDAO;
 
 @Repository
-public class SyncopeUserDAOImpl extends AbstractDAOImpl
-        implements SyncopeUserDAO {
+public class SyncopeConfigurationDAOImpl extends AbstractDAOImpl
+        implements SyncopeConfigurationDAO {
 
     @Override
-    public SyncopeUser find(Long id) {
-        return entityManager.find(SyncopeUser.class, id);
+    public SyncopeConfiguration find(String name) {
+        return entityManager.find(SyncopeConfiguration.class, name);
     }
 
     @Override
-    public List<SyncopeUser> findAll() {
-        Query query = entityManager.createQuery("SELECT e FROM SyncopeUser e");
+    public List<SyncopeConfiguration> findAll() {
+        Query query = entityManager.createQuery("SELECT e FROM SyncopeConfiguration e");
         return query.getResultList();
     }
 
     @Override
     @Transactional
-    public SyncopeUser save(SyncopeUser syncopeUser) {
-        return entityManager.merge(syncopeUser);
+    public SyncopeConfiguration save(SyncopeConfiguration syncopeConfiguration) {
+        return entityManager.merge(syncopeConfiguration);
     }
 
     @Override
     @Transactional
-    public void delete(Long id) {
-        SyncopeUser user = find(id);
-
-        for (SyncopeRole role : user.getRoles()) {
-            role.removeUser(user);
-        }
-        user.setRoles(Collections.EMPTY_SET);
-
-        entityManager.remove(user);
+    public void delete(String name) {
+        entityManager.remove(find(name));
     }
 }

@@ -14,6 +14,9 @@
  */
 package org.syncope.core.persistence.beans;
 
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -71,6 +74,44 @@ public abstract class AbstractAttribute extends AbstractBaseBean {
     public abstract <T extends AbstractAttributeValue> boolean removeAttributeValue(T attributeValue);
 
     public abstract Set<? extends AbstractAttributeValue> getAttributeValues();
+
+    public Set<String> getStringAttributeValues() {
+        Set<? extends AbstractAttributeValue> values = getAttributeValues();
+        Set<String> result = new HashSet<String>(values.size());
+
+        String stringValue = "";
+        for (AbstractAttributeValue attributeValue : values) {
+            switch (getSchema().getType()) {
+
+                case String:
+                    stringValue = (String) attributeValue.getValue();
+                    break;
+
+                case Boolean:
+                    stringValue = ((Boolean) attributeValue.getValue()).toString();
+                    break;
+
+                case Long:
+                    stringValue = getSchema().getFormatter(
+                            DecimalFormat.class).format(attributeValue.getValue());
+                    break;
+
+                case Double:
+                    stringValue = getSchema().getFormatter(
+                            DecimalFormat.class).format(attributeValue.getValue());
+                    break;
+
+                case Date:
+                    stringValue = getSchema().getFormatter(
+                            SimpleDateFormat.class).format(attributeValue.getValue());
+                    break;
+            }
+
+            result.add(stringValue);
+        }
+
+        return result;
+    }
 
     public abstract void setAttributeValues(
             Set<? extends AbstractAttributeValue> attributeValues);

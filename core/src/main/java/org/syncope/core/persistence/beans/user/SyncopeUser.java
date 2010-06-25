@@ -14,6 +14,7 @@
  */
 package org.syncope.core.persistence.beans.user;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.CascadeType;
@@ -24,6 +25,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
+import javax.persistence.Temporal;
 import javax.persistence.Transient;
 import org.jasypt.util.password.PasswordEncryptor;
 import org.jasypt.util.password.StrongPasswordEncryptor;
@@ -50,6 +52,11 @@ public class SyncopeUser extends AbstractAttributable {
     @OneToMany(cascade = CascadeType.ALL,
     fetch = FetchType.EAGER, mappedBy = "owner")
     private Set<UserDerivedAttribute> derivedAttributes;
+    @Temporal(javax.persistence.TemporalType.TIME)
+    private Date creationTime;
+    private String token;
+    @Temporal(javax.persistence.TemporalType.TIME)
+    private Date tokenExpireTime;
 
     public SyncopeUser() {
         roles = new HashSet<SyncopeRole>();
@@ -137,5 +144,29 @@ public class SyncopeUser extends AbstractAttributable {
             Set<? extends AbstractDerivedAttribute> derivedAttributes) {
 
         this.derivedAttributes = (Set<UserDerivedAttribute>) derivedAttributes;
+    }
+
+    public Date getCreationTime() {
+        return creationTime;
+    }
+
+    public void setCreationTime(Date creationTime) {
+        this.creationTime = creationTime;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public Date getTokenExpireTime() {
+        return tokenExpireTime;
+    }
+
+    public void setTokenExpireTime(Date tokenExpireTime) {
+        this.tokenExpireTime = tokenExpireTime;
     }
 }
