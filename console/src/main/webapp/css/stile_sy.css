@@ -1,0 +1,205 @@
+/* Foglio di stile */
+/*    ideato da    */
+/* giacomosocci.it */
+
+body {
+	margin: 0px;
+	padding: 0px;
+}
+
+body {
+	font-family: "Myriad Pro", Verdana, Tahoma, sans-serif;
+	color: #333;
+	font-size: 62.5%
+}
+
+
+/* id */
+#tabs {
+	background-color: #B9CFB3;
+	margin: 0px 10px;
+	margin-top: 20px;
+}
+
+#tabs div {
+	background-color: #FFF;
+}
+
+#splash {
+	background: url(../img/sf_testa.png) top repeat-x #B9CFB3;
+	width: 400px;
+	margin: auto;
+	margin-top: 100px;
+	border: 1px solid #463;
+}
+	
+	#splash a {
+		color: #463;
+		text-decoration: none;
+		font-size: 14px;
+	}
+	
+	#splash a img {
+		border: none;
+	}
+	
+	#splash h2 {
+		color: #FFF;
+		margin: 0px;
+		margin-bottom: 20px;
+		font-size: 14px;
+		text-align: center;
+		font-weight: normal;
+	}
+	
+	#splash form {
+		margin: 6px auto;
+		width: 300px;
+		text-align: center;
+	}
+	
+	#splash form label {
+		margin-right: 5px;
+		display: block;
+	}
+	
+	#splash form label.password {
+	}
+	
+	#splash form input {
+		margin-bottom: 15px;
+	}
+	
+	#splash p {
+		margin: 6px 16px;
+		border-top: 1px solid #463;
+		text-align: center;
+		padding-top: 8px;
+	}
+	
+	#splash ul {
+		height: 210px;
+		margin-left: 10px;
+		padding-left: 10px;
+	}
+	
+	#splash ul li {
+		float: left;
+		width: 90px;
+		text-align: center;
+		list-style: none;
+		margin: 0px;
+	}
+#feedbackDiv {
+        height: 20px;
+        margin: 0px;
+        padding: 0px;
+}
+
+#feedbackDiv ul{
+        height: 20px !important;
+        margin: 0px;
+        padding: 0px;
+}
+
+#feedbackDiv li{
+        list-style:none outside none;
+        margin:0;
+        text-align:center;
+        width: 100%;
+}
+#feedbackDiv ul li{
+        list-style:none outside none;
+        margin:0;
+        text-align:center;
+        width: 100%;
+        color: red;
+}
+
+#testa {
+	background: url(../img/sf_testa.png) top repeat-x #FFF;
+}
+	
+	#testa a img {
+		border: none;
+	}
+	
+	#testa {
+		height: 103px;
+	}
+	
+	#testa img#logo {
+		position: absolute;
+		left: 0px;
+		top: 0px;
+	}
+	
+	#testa a {
+		color: #FFF;
+		text-decoration: none;
+	}
+	
+	#testa a:hover {
+		color: #CCC;
+	}
+	
+	#testa ul {
+		clear: both;
+		padding: 0px;
+		margin: 0px;
+		margin-left: 280px;
+	}
+	
+	#testa ul li {
+		float: left;
+		width: 90px;
+		text-align: center;
+		margin: 0px;
+		color: #FFF;
+		font-size: 13px;
+		list-style: none;
+		padding: 0px;
+	}
+	
+	#testa span {
+		font-size: 14px;
+	}
+
+/* MODAL-FORM */
+div#dialog-form label, div#dialog-form input { display:block; }
+div#dialog-form input.text { margin-bottom:12px; width:95%; padding: .4em; }
+div#dialog-form fieldset { padding:0; border:0; margin-top:25px; }
+div#users-contain { width: 350px; margin: 20px 0; }
+div#users-contain table { margin: 1em 0; border-collapse: collapse; width: 100%; }
+div#users-contain table td, div#users-contain table th { border: 1px solid #eee; padding: .6em 10px; text-align: left; }
+.ui-dialog .ui-state-error { padding: .3em; }
+.validateTips { border: 1px solid transparent; padding: 0.3em; }
+
+/* classi */
+#testa .schema {
+	color: #99C;
+}
+
+#testa .users {
+	color: #9C0;
+}
+
+#testa .roles {
+	color: #F90;
+}
+
+#testa .resources {
+	color: #FD0;
+}
+
+#testa .connectors {
+	color: #09F;
+}
+
+#testa .report {
+	color: #F66;
+}
+
+#testa .configuration {
+	color: #CCC;
+}
