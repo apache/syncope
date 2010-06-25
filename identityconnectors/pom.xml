@@ -93,14 +93,12 @@
 
     <properties>
 
-        <junit.version>4.8.1</junit.version>
         <groovy-all.version>1.7.2</groovy-all.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     </properties>
 
     <dependencyManagement>
-
     </dependencyManagement>
 
     <repositories>

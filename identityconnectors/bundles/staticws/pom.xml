@@ -20,21 +20,23 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>identityconnectors</artifactId>
-        <groupId>org.syncope.identityconnectors</groupId>
+        <artifactId>bundles</artifactId>
+        <groupId>org.syncope.identityconnectors.bundles</groupId>
         <version>0.1-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.syncope.identityconnectors.bundles</groupId>
-    <artifactId>bundles</artifactId>
+    <groupId>org.syncope.identityconnectors.bundles.staticwebservice</groupId>
+    <artifactId>staticws</artifactId>
 
-    <name>IdentityConnectors: bundles</name>
+    <name>IdentityConnectors: bundles: static web service</name>
     <description>bundles</description>
 
     <packaging>pom</packaging>
 
     <modules>
-        <module>staticws</module>
+        <module>utilities</module>
+        <module>ws-target-resource</module>
+        <module>staticwebservice</module>
     </modules>
 
 </project>

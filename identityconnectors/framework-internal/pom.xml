@@ -12,6 +12,7 @@
 
     <groupId>org.syncope.identityconnectors</groupId>
     <artifactId>framework-internal</artifactId>
+
     <name>IdentityConnectors: framework-internal</name>
     <url>http://maven.apache.org</url>
 
@@ -41,7 +42,6 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
 

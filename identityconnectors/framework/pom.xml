@@ -12,8 +12,8 @@
 
     <groupId>org.syncope.identityconnectors</groupId>
     <artifactId>framework</artifactId>
-    <name>IdentityConnectors: framework</name>
     
+    <name>IdentityConnectors: framework</name>
     <url>http://maven.apache.org</url>
 
     <dependencies>
@@ -21,9 +21,20 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
         
     </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>${basedir}/src/main/java</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                    <include>**/*.html</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
 </project>
