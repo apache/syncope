@@ -43,7 +43,7 @@ public class ProvisioningTestITCase {
             LoggerFactory.getLogger(ProvisioningTestITCase.class);
 
     final private String ENDPOINT_PREFIX =
-            "http://localhost:8282/wstarget/services";
+            "http://localhost:8888/wstarget/services";
 
     final private String SERVICE =
             "/provisioning";
