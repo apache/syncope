@@ -21,11 +21,11 @@
 
     <parent>
         <artifactId>staticws</artifactId>
-        <groupId>org.syncope.identityconnectors.bundles.staticwebservice</groupId>
+        <groupId>org.syncope.identityconnectors.bundles</groupId>
         <version>0.1-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.syncope.identityconnectors.bundles.staticwebservice</groupId>
+    <groupId>org.syncope.identityconnectors.bundles.staticws</groupId>
     <artifactId>staticwebservice</artifactId>
 
     <name>identityconnectors: bundles: static web service: connector</name>
@@ -90,7 +90,7 @@
 
 	<!-- utilities -->
         <dependency>
-            <groupId>org.syncope.identityconnectors.bundles.staticwebservice</groupId>
+            <groupId>org.syncope.identityconnectors.bundles.staticws</groupId>
             <artifactId>utilities</artifactId>
             <version>${parent.version}</version>
         </dependency>
@@ -111,7 +111,7 @@
         </dependency>
 
         <dependency>
-            <groupId>org.syncope.identityconnectors.bundles</groupId>
+            <groupId>org.syncope.identityconnectors.bundles.staticws</groupId>
             <artifactId>ws-target-resource</artifactId>
             <type>war</type>
             <version>${parent.version}</version>

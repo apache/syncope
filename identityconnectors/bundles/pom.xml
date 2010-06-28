@@ -25,7 +25,7 @@
         <version>0.1-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.syncope.identityconnectors.bundles</groupId>
+    <groupId>org.syncope.identityconnectors</groupId>
     <artifactId>bundles</artifactId>
 
     <name>IdentityConnectors: bundles</name>

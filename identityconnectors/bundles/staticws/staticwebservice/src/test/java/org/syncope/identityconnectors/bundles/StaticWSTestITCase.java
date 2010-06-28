@@ -67,7 +67,7 @@ public class StaticWSTestITCase {
             "/provisioning";
 
     final private String bundlename =
-            "org.syncope.identityconnectors.bundles.staticwebservice";
+            "org.syncope.identityconnectors.bundles.staticws";
 
     final private String bundleversion =
             "0.1-SNAPSHOT";

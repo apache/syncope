@@ -21,11 +21,11 @@
 
     <parent>
         <artifactId>bundles</artifactId>
-        <groupId>org.syncope.identityconnectors.bundles</groupId>
+        <groupId>org.syncope.identityconnectors</groupId>
         <version>0.1-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.syncope.identityconnectors.bundles.staticwebservice</groupId>
+    <groupId>org.syncope.identityconnectors.bundles</groupId>
     <artifactId>staticws</artifactId>
 
     <name>IdentityConnectors: bundles: static web service</name>
