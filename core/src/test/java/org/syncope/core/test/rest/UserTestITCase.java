@@ -22,6 +22,7 @@ import java.util.Set;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpStatusCodeException;
+import org.syncope.client.to.AttributeTO;
 import org.syncope.client.to.SearchParameters;
 import org.syncope.client.to.UserTO;
 
@@ -29,9 +30,12 @@ public class UserTestITCase extends AbstractTestITCase {
 
     @Test
     public void create() {
+        AttributeTO attributeTO = new AttributeTO();
+        attributeTO.setSchema("attr1");
+        attributeTO.setValues(Collections.singleton("value1"));
+
         UserTO newUserTO = new UserTO();
-        newUserTO.setAttributes(Collections.singletonMap("attr1",
-                Collections.singleton("value1")));
+        newUserTO.addAttribute(attributeTO);
 
         UserTO userTO = restTemplate.postForObject(BASE_URL + "user/create",
                 newUserTO, UserTO.class);
@@ -105,9 +109,12 @@ public class UserTestITCase extends AbstractTestITCase {
 
     @Test
     public void update() {
+        AttributeTO attributeTO = new AttributeTO();
+        attributeTO.setSchema("attr1");
+        attributeTO.setValues(Collections.singleton("value1"));
+
         UserTO newUserTO = new UserTO();
-        newUserTO.setAttributes(Collections.singletonMap("attr1",
-                Collections.singleton("value1")));
+        newUserTO.addAttribute(attributeTO);
 
         UserTO userTO = restTemplate.postForObject(BASE_URL + "user/update",
                 newUserTO, UserTO.class);

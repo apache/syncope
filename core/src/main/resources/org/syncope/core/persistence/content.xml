@@ -16,11 +16,11 @@
     <SyncopeConfiguration confKey="token.length" confValue="256"/>
     <SyncopeConfiguration confKey="token.expireTime" confValue="60"/>
 
-    <UserSchema name="surname" type="String"
+    <UserSchema name="surname" type="String" virtual="false"
                 mandatory="true" multivalue="false"/>
-    <UserSchema name="firstname" type="String"
+    <UserSchema name="firstname" type="String" virtual="false"
                 mandatory="false" multivalue="false"/>
-    <UserSchema name="email" type="String"
+    <UserSchema name="email" type="String" virtual="false"
                 mandatory="false" multivalue="true"
                 validatorClass="org.syncope.core.validation.EmailAddressValidator"/>
 

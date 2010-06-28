@@ -17,10 +17,21 @@ package org.syncope.core.persistence.beans;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 
 @MappedSuperclass
 public abstract class AbstractAttributable extends AbstractBaseBean {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
+
+    public Long getId() {
+        return id;
+    }
 
     public <T extends AbstractAttribute> T getAttribute(String schemaName)
             throws NoSuchElementException {

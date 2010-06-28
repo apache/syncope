@@ -14,13 +14,13 @@
  */
 package org.syncope.core.rest.data;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Collections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.syncope.client.to.AttributeTO;
 import org.syncope.client.to.UserTO;
 import org.syncope.core.persistence.beans.AbstractAttribute;
 import org.syncope.core.persistence.beans.AbstractDerivedAttribute;
@@ -55,24 +55,29 @@ public class UserDataBinder {
         UserTO userTO = new UserTO();
         BeanUtils.copyProperties(user, userTO, ignoreSchemaProperties);
 
+        AttributeTO attributeTO = null;
         for (AbstractAttribute attribute : user.getAttributes()) {
-            userTO.addAttribute(attribute.getSchema().getName(),
-                    attribute.getStringAttributeValues());
+            attributeTO = new AttributeTO();
+            attributeTO.setSchema(attribute.getSchema().getName());
+            attributeTO.setValues(attribute.getStringAttributeValues());
+
+            userTO.addAttribute(attributeTO);
         }
 
-        Map<String, String> stringDerivedAttributes =
-                new HashMap<String, String>(user.getDerivedAttributes().size());
         for (AbstractDerivedAttribute derivedAttribute :
                 user.getDerivedAttributes()) {
 
-            stringDerivedAttributes.put(
-                    derivedAttribute.getDerivedSchema().getName(),
-                    derivedAttribute.getValue(user.getAttributes()));
+            attributeTO = new AttributeTO();
+            attributeTO.setSchema(
+                    derivedAttribute.getDerivedSchema().getName());
+            attributeTO.setValues(Collections.singleton(
+                    derivedAttribute.getValue(user.getAttributes())));
+
+            userTO.addDerivedAttribute(attributeTO);
         }
-        userTO.setDerivedAttributes(stringDerivedAttributes);
 
         for (SyncopeRole role : user.getRoles()) {
-            userTO.addRole(role.getName(), role.getParent());
+            userTO.addRole(role.getId());
         }
 
         return userTO;

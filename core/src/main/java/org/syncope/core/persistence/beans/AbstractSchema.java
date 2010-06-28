@@ -39,6 +39,7 @@ public abstract class AbstractSchema extends AbstractBaseBean {
     @Column(nullable = false)
     @Enumerated(STRING)
     private AttributeType type;
+    private boolean virtual;
     private boolean mandatory;
     private boolean multivalue;
     @Column(nullable = true)
@@ -50,6 +51,7 @@ public abstract class AbstractSchema extends AbstractBaseBean {
 
     public AbstractSchema() {
         type = AttributeType.String;
+        virtual = false;
         mandatory = false;
         multivalue = false;
     }
@@ -68,6 +70,14 @@ public abstract class AbstractSchema extends AbstractBaseBean {
 
     public void setType(AttributeType type) {
         this.type = type;
+    }
+
+    public boolean isVirtual() {
+        return virtual;
+    }
+
+    public void setVirtual(boolean virtual) {
+        this.virtual = virtual;
     }
 
     public boolean isMandatory() {

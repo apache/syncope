@@ -34,22 +34,22 @@
     <SyncopeUser_SyncopeRole users_id="2" roles_id="2"/>
     <SyncopeUser_SyncopeRole users_id="4" roles_id="7"/>
 
-    <UserSchema name="username" type="String"
+    <UserSchema name="username" type="String" virtual="false"
                 mandatory="true" multivalue="false"/>
-    <UserSchema name="loginDate" type="Date"
+    <UserSchema name="loginDate" type="Date" virtual="false"
                 mandatory="false" multivalue="true"
                 conversionPattern="yyyy-MM-dd"/>
-    <UserSchema name="firstname" type="String"
+    <UserSchema name="firstname" type="String" virtual="false"
                 mandatory="false" multivalue="false"/>
-    <UserSchema name="surname" type="String"
+    <UserSchema name="surname" type="String" virtual="false"
                 mandatory="true" multivalue="false"/>
-    <UserSchema name="email" type="String"
+    <UserSchema name="email" type="String" virtual="false"
                 mandatory="false" multivalue="true"
                 validatorClass="org.syncope.core.persistence.validation.EmailAddressValidator"/>
 
-    <RoleSchema name="icon" type="String"
+    <RoleSchema name="icon" type="String" virtual="false"
                 mandatory="false" multivalue="false"/>
-    <RoleSchema name="show" type="Boolean"
+    <RoleSchema name="show" type="Boolean" virtual="false"
                 mandatory="false" multivalue="false"/>
 
     <UserAttribute id="100" owner_id="1" schema_name="username"/>

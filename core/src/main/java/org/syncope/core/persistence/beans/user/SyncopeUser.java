@@ -20,9 +20,6 @@ import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
@@ -40,9 +37,6 @@ public class SyncopeUser extends AbstractAttributable {
     @Transient
     final private static PasswordEncryptor passwordEncryptor =
             new StrongPasswordEncryptor();
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
     private String password;
     @ManyToMany(fetch = FetchType.EAGER)
     private Set<SyncopeRole> roles;
@@ -62,10 +56,6 @@ public class SyncopeUser extends AbstractAttributable {
         roles = new HashSet<SyncopeRole>();
         attributes = new HashSet<UserAttribute>();
         derivedAttributes = new HashSet<UserDerivedAttribute>();
-    }
-
-    public Long getId() {
-        return id;
     }
 
     public boolean addRole(SyncopeRole role) {

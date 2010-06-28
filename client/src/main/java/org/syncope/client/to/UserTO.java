@@ -15,25 +15,24 @@
 package org.syncope.client.to;
 
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
 import java.util.Set;
 
 public class UserTO extends AbstractBaseTO {
 
     private long id;
     private String password;
-    private Map<String, String> roles;
-    private Map<String, Set<String>> attributes;
-    private Map<String, String> derivedAttributes;
+    private Set<Long> roles;
+    private Set<AttributeTO> attributes;
+    private Set<AttributeTO> derivedAttributes;
     private Date creationTime;
     private String token;
     private Date tokenExpireTime;
 
     public UserTO() {
-        roles = new HashMap<String, String>();
-        attributes = new HashMap<String, Set<String>>();
-        derivedAttributes = new HashMap<String, String>();
+        roles = new HashSet<Long>();
+        attributes = new HashSet<AttributeTO>();
+        derivedAttributes = new HashSet<AttributeTO>();
     }
 
     public long getId() {
@@ -52,43 +51,51 @@ public class UserTO extends AbstractBaseTO {
         this.password = password;
     }
 
-    public String addRole(String role, String parent) {
-        return roles.put(role, parent);
+    public boolean addRole(Long role) {
+        return roles.add(role);
     }
 
-    public String removeRole(String role) {
+    public boolean removeRole(Long role) {
         return roles.remove(role);
     }
 
-    public Map<String, String> getRoles() {
+    public Set<Long> getRoles() {
         return roles;
     }
 
-    public void setRoles(Map<String, String> roles) {
+    public void setRoles(Set<Long> roles) {
         this.roles = roles;
     }
 
-    public Set<String> addAttribute(String name, Set<String> values) {
-        return attributes.put(name, values);
+    public boolean addAttribute(AttributeTO attribute) {
+        return attributes.add(attribute);
     }
 
-    public Set<String> removeAttribute(String name) {
-        return attributes.remove(name);
+    public boolean removeAttribute(AttributeTO attribute) {
+        return attributes.remove(attribute);
     }
 
-    public Map<String, Set<String>> getAttributes() {
+    public Set<AttributeTO> getAttributes() {
         return attributes;
     }
 
-    public void setAttributes(Map<String, Set<String>> attributes) {
+    public void setAttributes(Set<AttributeTO> attributes) {
         this.attributes = attributes;
     }
 
-    public Map<String, String> getDerivedAttributes() {
+    public boolean addDerivedAttribute(AttributeTO derivedAttribute) {
+        return derivedAttributes.add(derivedAttribute);
+    }
+
+    public boolean removeDerivedAttribute(AttributeTO derivedAttribute) {
+        return derivedAttributes.remove(derivedAttribute);
+    }
+
+    public Set<AttributeTO> getDerivedAttributes() {
         return derivedAttributes;
     }
 
-    public void setDerivedAttributes(Map<String, String> derivedAttributes) {
+    public void setDerivedAttributes(Set<AttributeTO> derivedAttributes) {
         this.derivedAttributes = derivedAttributes;
     }
 

@@ -22,6 +22,7 @@ public class SchemaTO extends AbstractBaseTO {
 
     private String name;
     private AttributeType type;
+    private boolean virtual;
     private boolean mandatory;
     private boolean multivalue;
     private String conversionPattern;
@@ -39,6 +40,14 @@ public class SchemaTO extends AbstractBaseTO {
 
     public void setConversionPattern(String conversionPattern) {
         this.conversionPattern = conversionPattern;
+    }
+
+    public boolean isVirtual() {
+        return virtual;
+    }
+
+    public void setVirtual(boolean virtual) {
+        this.virtual = virtual;
     }
 
     public boolean isMandatory() {
