@@ -12,7 +12,7 @@
  *  limitations under the License.
  *  under the License.
  */
-package it.eposse.samples.cxf.test;
+package org.syncope.identityconnectors.bundles.staticwebservice.wstarget.test;
 
 import static org.junit.Assert.*;
 
