@@ -80,10 +80,11 @@
         <error-code>404</error-code>
         <location>/syncopeClientError.jsp</location>
     </error-page>
-<!--    <resource-ref>
+    
+    <resource-ref>
         <res-ref-name>jdbc/syncopeDataSource</res-ref-name>
         <res-type>javax.sql.XADataSource</res-type>
         <res-auth>Container</res-auth>
-    </resource-ref>-->
+    </resource-ref>
 
 </web-app>
