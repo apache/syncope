@@ -30,10 +30,8 @@ public class SchemaMappingDAOTest extends AbstractTest {
 
     @Autowired
     SchemaMappingDAO schemaMappingDAO;
-
     @Autowired
-    SchemaDAO userShemaDAO;
-
+    SchemaDAO schemaDAO;
     @Autowired
     ResourceDAO resourceDAO;
 
@@ -61,7 +59,7 @@ public class SchemaMappingDAOTest extends AbstractTest {
         SchemaMapping schema = new SchemaMapping();
 
         schema.setField("name");
-        schema.setUserSchema(userShemaDAO.find("firstname", UserSchema.class));
+        schema.setUserSchema(schemaDAO.find("firstname", UserSchema.class));
         schema.setResource(resourceDAO.find("ws-target-resource-1"));
 
         SchemaMapping actual = schemaMappingDAO.save(schema);
@@ -88,7 +86,7 @@ public class SchemaMappingDAOTest extends AbstractTest {
         schemaMappingDAO.delete(schema.getId());
 
         SchemaMapping actual = schemaMappingDAO.find(100L);
-        
+
         assertNull("delete did not work", actual);
     }
 }

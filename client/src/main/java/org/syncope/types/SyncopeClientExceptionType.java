@@ -18,24 +18,33 @@ public enum SyncopeClientExceptionType {
 
     NotFound(
     "Syncope.NotFound",
-    ""),
+    "Syncope.NotFound.entity"),
+    InvalidResources(
+    "Syncope.InvalidResources",
+    "Syncope.InvalidResources.resourceName"),
+    InvalidRoles(
+    "Syncope.InvalidRoles",
+    "Syncope.InvalidRoles.roleName"),
+    InvalidDerivedSchemas(
+    "Syncope.InvalidDerivedSchemas",
+    "Syncope.InvalidDerivedSchemas.derivedSchemaName"),
     InvalidSchemas(
-    "Syncope.User.InvalidSchema",
-    "Syncope.User.InvalidSchema.attributeName"),
+    "Syncope.InvalidSchemas",
+    "Syncope.InvalidSchemas.schemaName"),
     UserRequiredValuesMissing(
-    "Syncope.User.RequiredValuesMissing",
-    "Syncope.User.RequiredValuesMissing.attributeName"),
+    "Syncope.RequiredValuesMissing",
+    "Syncope.RequiredValuesMissing.attributeName"),
     UserInvalidValues(
-    "Syncope.User.InvalidValues",
-    "Syncope.User.InvalidValues.attributeName");
-    private String exceptionTypeHeaderValue;
-    private String attributeNameHeaderName;
+    "Syncope.InvalidValues",
+    "Syncope.InvalidValues.attributeName");
+    private String headerValue;
+    private String elementHeaderName;
 
-    private SyncopeClientExceptionType(String exceptionTypeHeaderValue,
-            String attributeNameHeaderName) {
+    private SyncopeClientExceptionType(String headerValue,
+            String elementHeaderName) {
 
-        this.exceptionTypeHeaderValue = exceptionTypeHeaderValue;
-        this.attributeNameHeaderName = attributeNameHeaderName;
+        this.headerValue = headerValue;
+        this.elementHeaderName = elementHeaderName;
     }
 
     public static SyncopeClientExceptionType getFromHeaderValue(
@@ -44,7 +53,7 @@ public enum SyncopeClientExceptionType {
         SyncopeClientExceptionType result = null;
         for (SyncopeClientExceptionType syncopeClientExceptionType : values()) {
             if (exceptionTypeHeaderValue.equals(
-                    syncopeClientExceptionType.getExceptionTypeHeaderValue())) {
+                    syncopeClientExceptionType.getHeaderValue())) {
                 result = syncopeClientExceptionType;
             }
         }
@@ -57,11 +66,11 @@ public enum SyncopeClientExceptionType {
         return result;
     }
 
-    public String getAttributeNameHeaderName() {
-        return attributeNameHeaderName;
+    public String getElementHeaderName() {
+        return elementHeaderName;
     }
 
-    public String getExceptionTypeHeaderValue() {
-        return exceptionTypeHeaderValue;
+    public String getHeaderValue() {
+        return headerValue;
     }
 }

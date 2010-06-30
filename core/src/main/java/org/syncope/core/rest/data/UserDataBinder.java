@@ -30,12 +30,18 @@ import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
 import org.syncope.core.persistence.beans.AbstractAttribute;
 import org.syncope.core.persistence.beans.AbstractDerivedAttribute;
+import org.syncope.core.persistence.beans.Resource;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.beans.user.UserAttribute;
 import org.syncope.core.persistence.beans.user.UserAttributeValue;
+import org.syncope.core.persistence.beans.user.UserDerivedAttribute;
+import org.syncope.core.persistence.beans.user.UserDerivedSchema;
 import org.syncope.core.persistence.beans.user.UserSchema;
+import org.syncope.core.persistence.dao.DerivedSchemaDAO;
+import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
+import org.syncope.core.persistence.dao.SyncopeRoleDAO;
 import org.syncope.core.persistence.dao.SyncopeUserDAO;
 import org.syncope.core.persistence.validation.ValidationException;
 import org.syncope.types.SyncopeClientExceptionType;
@@ -46,16 +52,25 @@ public class UserDataBinder {
     private static final Logger log = LoggerFactory.getLogger(
             UserDataBinder.class);
     private static final String[] ignoreProperties = {"attributes",
-        "derivedAttributes", "roles"};
+        "derivedAttributes", "roles", "resources"};
     private SyncopeUserDAO syncopeUserDAO;
     private SchemaDAO schemaDAO;
+    private DerivedSchemaDAO derivedSchemaDAO;
+    private SyncopeRoleDAO syncopeRoleDAO;
+    private ResourceDAO resourceDAO;
 
     @Autowired
     public UserDataBinder(SyncopeUserDAO syncopeUserDAO,
-            SchemaDAO schemaDAO) {
+            SchemaDAO schemaDAO,
+            DerivedSchemaDAO derivedSchemaDAO,
+            SyncopeRoleDAO syncopeRoleDAO,
+            ResourceDAO resourceDAO) {
 
         this.syncopeUserDAO = syncopeUserDAO;
         this.schemaDAO = schemaDAO;
+        this.derivedSchemaDAO = derivedSchemaDAO;
+        this.syncopeRoleDAO = syncopeRoleDAO;
+        this.resourceDAO = resourceDAO;
     }
 
     public SyncopeUser createSyncopeUser(UserTO userTO)
@@ -64,19 +79,26 @@ public class UserDataBinder {
         SyncopeClientCompositeErrorException compositeErrorException =
                 new SyncopeClientCompositeErrorException(
                 HttpStatus.BAD_REQUEST);
-        SyncopeClientException invalidSchemas = new SyncopeClientException();
-        invalidSchemas.setType(SyncopeClientExceptionType.InvalidSchemas);
+        SyncopeClientException invalidSchemas = new SyncopeClientException(
+                SyncopeClientExceptionType.InvalidSchemas);
         SyncopeClientException requiredValuesMissing =
-                new SyncopeClientException();
-        requiredValuesMissing.setType(
+                new SyncopeClientException(
                 SyncopeClientExceptionType.UserRequiredValuesMissing);
-        SyncopeClientException invalidValues = new SyncopeClientException();
-        invalidValues.setType(SyncopeClientExceptionType.UserInvalidValues);
+        SyncopeClientException invalidValues = new SyncopeClientException(
+                SyncopeClientExceptionType.UserInvalidValues);
+        SyncopeClientException invalidDerivedSchemas =
+                new SyncopeClientException(
+                SyncopeClientExceptionType.InvalidDerivedSchemas);
+        SyncopeClientException invalidRoles = new SyncopeClientException(
+                SyncopeClientExceptionType.InvalidRoles);
+        SyncopeClientException invalidResources = new SyncopeClientException(
+                SyncopeClientExceptionType.InvalidResources);
 
         SyncopeUser user = new SyncopeUser();
         BeanUtils.copyProperties(userTO, user,
                 (String[]) ArrayUtils.add(ignoreProperties, "id"));
 
+        // 1. attributes
         UserSchema schema = null;
         UserAttribute attribute = null;
         Set<String> valuesProvided = null;
@@ -85,7 +107,7 @@ public class UserDataBinder {
             schema = schemaDAO.find(attributeTO.getSchema(), UserSchema.class);
 
             if (schema == null) {
-                invalidSchemas.addAttributeName(attributeTO.getSchema());
+                invalidSchemas.addElement(attributeTO.getSchema());
             } else {
                 attribute = new UserAttribute();
                 attribute.setSchema(schema);
@@ -109,13 +131,30 @@ public class UserDataBinder {
                         log.error("Invalid value for attribute "
                                 + schema.getName() + ": " + value, e);
 
-                        invalidValues.addAttributeName(schema.getName());
+                        invalidValues.addElement(schema.getName());
                     }
                 }
 
                 if (!attribute.getAttributeValues().isEmpty()) {
                     user.addAttribute(attribute);
                 }
+            }
+        }
+
+        // 2. derived attributes
+        UserDerivedSchema derivedSchema = null;
+        UserDerivedAttribute derivedAttribute = null;
+        for (AttributeTO attributeTO : userTO.getDerivedAttributes()) {
+            derivedSchema = derivedSchemaDAO.find(attributeTO.getSchema(),
+                    UserDerivedSchema.class);
+
+            if (derivedSchema == null) {
+                invalidDerivedSchemas.addElement(attributeTO.getSchema());
+            } else {
+                derivedAttribute = new UserDerivedAttribute();
+                derivedAttribute.setDerivedSchema(derivedSchema);
+                derivedAttribute.setOwner(user);
+                user.addDerivedAttribute(derivedAttribute);
             }
         }
 
@@ -129,20 +168,53 @@ public class UserDataBinder {
                 log.error("Mandatory schema " + userSchema.getName()
                         + " not provided with values");
 
-                requiredValuesMissing.addAttributeName(userSchema.getName());
+                requiredValuesMissing.addElement(userSchema.getName());
             }
         }
 
-        // Throw composite exception if there is at least one attribute name set
+        // 3. roles
+        SyncopeRole role = null;
+        for (Long roleId : userTO.getRoles()) {
+            role = syncopeRoleDAO.find(roleId);
+
+            if (role == null) {
+                invalidRoles.addElement(String.valueOf(roleId));
+            } else {
+                user.addRole(role);
+            }
+        }
+
+        // 4. resources
+        Resource resource = null;
+        for (String resourceName : userTO.getResources()) {
+            resource = resourceDAO.find(resourceName);
+
+            if (resource == null) {
+                invalidResources.addElement(resourceName);
+            } else {
+                user.addResource(resource);
+            }
+        }
+
+        // Throw composite exception if there is at least one element set
         // in the composing exceptions
-        if (!invalidSchemas.getAttributeNames().isEmpty()) {
+        if (!invalidSchemas.getElements().isEmpty()) {
             compositeErrorException.addException(invalidSchemas);
         }
-        if (!requiredValuesMissing.getAttributeNames().isEmpty()) {
+        if (!requiredValuesMissing.getElements().isEmpty()) {
             compositeErrorException.addException(requiredValuesMissing);
         }
-        if (!invalidValues.getAttributeNames().isEmpty()) {
+        if (!invalidValues.getElements().isEmpty()) {
             compositeErrorException.addException(invalidValues);
+        }
+        if (!invalidDerivedSchemas.getElements().isEmpty()) {
+            compositeErrorException.addException(invalidDerivedSchemas);
+        }
+        if (!invalidRoles.getElements().isEmpty()) {
+            compositeErrorException.addException(invalidRoles);
+        }
+        if (!invalidResources.getElements().isEmpty()) {
+            compositeErrorException.addException(invalidResources);
         }
         if (compositeErrorException.hasExceptions()) {
             throw compositeErrorException;

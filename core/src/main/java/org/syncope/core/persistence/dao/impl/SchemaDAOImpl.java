@@ -23,8 +23,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.AbstractAttribute;
 import org.syncope.core.persistence.beans.AbstractDerivedSchema;
 import org.syncope.core.persistence.beans.AbstractSchema;
+import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.dao.AttributeDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
+import org.syncope.core.persistence.dao.SchemaMappingDAO;
 
 @Repository
 public class SchemaDAOImpl extends AbstractDAOImpl
@@ -32,6 +34,8 @@ public class SchemaDAOImpl extends AbstractDAOImpl
 
     @Autowired
     private AttributeDAO attributeDAO;
+    @Autowired
+    private SchemaMappingDAO schemaMappingDAO;
 
     @Override
     public <T extends AbstractSchema> T find(String name, Class<T> reference) {
@@ -70,6 +74,11 @@ public class SchemaDAOImpl extends AbstractDAOImpl
             attribute.setSchema(null);
             attributeDAO.delete(attribute.getId(), attribute.getClass());
         }
+
+        for (SchemaMapping schemaMapping : schema.getMappings()) {
+            schemaMappingDAO.delete(schemaMapping.getId());
+        }
+        schema.setMappings(Collections.EMPTY_SET);
 
         entityManager.remove(schema);
     }

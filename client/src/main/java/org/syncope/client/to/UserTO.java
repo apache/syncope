@@ -25,6 +25,7 @@ public class UserTO extends AbstractBaseTO {
     private Set<Long> roles;
     private Set<AttributeTO> attributes;
     private Set<AttributeTO> derivedAttributes;
+    private Set<String> resources;
     private Date creationTime;
     private String token;
     private Date tokenExpireTime;
@@ -33,6 +34,7 @@ public class UserTO extends AbstractBaseTO {
         roles = new HashSet<Long>();
         attributes = new HashSet<AttributeTO>();
         derivedAttributes = new HashSet<AttributeTO>();
+        resources = new HashSet<String>();
     }
 
     public long getId() {
@@ -97,6 +99,22 @@ public class UserTO extends AbstractBaseTO {
 
     public void setDerivedAttributes(Set<AttributeTO> derivedAttributes) {
         this.derivedAttributes = derivedAttributes;
+    }
+
+    public boolean addResource(String resource) {
+        return resources.add(resource);
+    }
+
+    public boolean removeResource(String resource) {
+        return resources.remove(resource);
+    }
+
+    public Set<String> getResources() {
+        return resources;
+    }
+
+    public void setResources(Set<String> resources) {
+        this.resources = resources;
     }
 
     public Date getCreationTime() {

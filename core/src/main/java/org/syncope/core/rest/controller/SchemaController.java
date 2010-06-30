@@ -65,7 +65,7 @@ public class SchemaController extends AbstractController {
         AbstractSchema schema = schemaDAO.find(schemaName, reference);
         if (schema == null) {
             log.error("Could not find schema '" + schemaName + "'");
-            throwNotFoundException(response);
+            throwNotFoundException(schemaName, response);
         } else {
             schemaDAO.delete(schemaName, reference);
             schemaDAO.getEntityManager().flush();
@@ -98,7 +98,7 @@ public class SchemaController extends AbstractController {
         AbstractSchema schema = schemaDAO.find(schemaName, reference);
         if (schema == null) {
             log.error("Could not find schema '" + schemaName + "'");
-            return throwNotFoundException(response);
+            return throwNotFoundException(schemaName, response);
         }
 
         return schemaDataBinder.getSchemaTO(schema);

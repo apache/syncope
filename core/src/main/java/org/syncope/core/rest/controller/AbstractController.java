@@ -54,26 +54,29 @@ public abstract class AbstractController {
 
             response.setHeader(
                     SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
-                    exception.getType().getExceptionTypeHeaderValue());
+                    exception.getType().getHeaderValue());
 
-            for (String attributeName : exception.getAttributeNames()) {
+            for (String attributeName : exception.getElements()) {
                 response.addHeader(
-                        exception.getType().getAttributeNameHeaderName(),
+                        exception.getType().getElementHeaderName(),
                         attributeName);
             }
-
-            response.sendError(compositeErrorException.getStatusCode().value());
         }
+
+        response.sendError(compositeErrorException.getStatusCode().value());
 
         return null;
     }
 
-    protected <T> T throwNotFoundException(
+    protected <T> T throwNotFoundException(String notFound,
             HttpServletResponse response) throws IOException {
 
         response.setHeader(
                 SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
-                SyncopeClientExceptionType.NotFound.getExceptionTypeHeaderValue());
+                SyncopeClientExceptionType.NotFound.getHeaderValue());
+        response.setHeader(
+                SyncopeClientExceptionType.NotFound.getElementHeaderName(),
+                notFound);
 
         response.sendError(HttpServletResponse.SC_NOT_FOUND);
 

@@ -71,7 +71,7 @@ public class DerivedSchemaController extends AbstractController {
         if (derivedSchema == null) {
             log.error("Could not find derived schema '"
                     + derivedSchemaName + "'");
-            throwNotFoundException(response);
+            throwNotFoundException(derivedSchemaName, response);
         } else {
             derivedSchemaDAO.delete(derivedSchemaName, reference);
             derivedSchemaDAO.getEntityManager().flush();
@@ -111,7 +111,7 @@ public class DerivedSchemaController extends AbstractController {
         if (derivedSchema == null) {
             log.error("Could not find derived schema '"
                     + derivedSchemaName + "'");
-            return throwNotFoundException(response);
+            return throwNotFoundException(derivedSchemaName, response);
         }
 
         return derivedSchemaDataBinder.getDerivedSchemaTO(derivedSchema);

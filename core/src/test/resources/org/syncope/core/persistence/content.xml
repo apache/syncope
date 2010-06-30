@@ -91,17 +91,15 @@
     <Resource name="ws-target-resource-1" connector_id="100"/>
     <Resource name="ws-target-resource-2" connector_id="100"/>
 
-    <SchemaMapping id="100" field="username" resource_name="ws-target-resource-1" 
-                   userSchema_name="email"
-                   nullable="false"
-                   accountid="true"
-                   password="false"/>
+    <SchemaMapping id="100" field="username"
+                   resource_name="ws-target-resource-1"
+                   userSchema_name="email" nullable="false"
+                   accountid="true" password="false"/>
 
-    <SchemaMapping id="101" field="username" resource_name="ws-target-resource-2"
-                   userSchema_name="email"
-                   nullable="false"
-                   accountid="true"
-                   password="false"/>
+    <SchemaMapping id="101" field="username"
+                   resource_name="ws-target-resource-2"
+                   userSchema_name="email" nullable="false"
+                   accountid="true" password="false"/>
 
     <Entitlement name="base" description="NULL"/>
     <Entitlement name="advanced" description="Advanced entitlement"/>

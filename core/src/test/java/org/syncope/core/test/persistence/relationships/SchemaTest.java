@@ -25,6 +25,7 @@ import org.syncope.core.persistence.beans.user.UserSchema;
 import org.syncope.core.persistence.dao.AttributeDAO;
 import org.syncope.core.persistence.dao.DerivedSchemaDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
+import org.syncope.core.persistence.dao.SchemaMappingDAO;
 import org.syncope.core.persistence.dao.SyncopeUserDAO;
 import org.syncope.core.test.persistence.AbstractTest;
 
@@ -39,6 +40,8 @@ public class SchemaTest extends AbstractTest {
     private DerivedSchemaDAO derivedSchemaDAO;
     @Autowired
     private AttributeDAO attributeDAO;
+    @Autowired
+    private SchemaMappingDAO schemaMappingDAO;
 
     @Test
     public final void test() {

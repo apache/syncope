@@ -79,7 +79,7 @@ public class UserController extends AbstractController {
 
         if (user == null) {
             log.error("Could not find user '" + userId + "'");
-            throwNotFoundException(response);
+            throwNotFoundException(String.valueOf(userId), response);
         } else {
             syncopeUserDAO.delete(userId);
             syncopeUserDAO.getEntityManager().flush();
@@ -123,7 +123,7 @@ public class UserController extends AbstractController {
 
         if (user == null) {
             log.error("Could not find user '" + userId + "'");
-            return throwNotFoundException(response);
+            return throwNotFoundException(String.valueOf(userId), response);
         }
 
         return userDataBinder.getUserTO(user);

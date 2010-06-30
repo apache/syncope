@@ -33,10 +33,8 @@ public class SchemaMappingTest extends AbstractTest {
 
     @Autowired
     SchemaMappingDAO schemaMappingDAO;
-
     @Autowired
-    SchemaDAO userShemaDAO;
-
+    SchemaDAO schemaDAO;
     @Autowired
     ResourceDAO resourceDAO;
 
@@ -46,7 +44,7 @@ public class SchemaMappingTest extends AbstractTest {
 
         schema.setField("name");
 
-        UserSchema user = userShemaDAO.find("firstname", UserSchema.class);
+        UserSchema user = schemaDAO.find("firstname", UserSchema.class);
         schema.setUserSchema(user);
 
         Resource resource = resourceDAO.find("ws-target-resource-1");
@@ -73,7 +71,7 @@ public class SchemaMappingTest extends AbstractTest {
         assertEquals("name", actual.getField());
 
         UserSchema actualUser =
-                userShemaDAO.find("firstname", UserSchema.class);
+                schemaDAO.find("firstname", UserSchema.class);
 
         assertTrue(actualUser.getMappings().contains(actual));
 
@@ -87,7 +85,7 @@ public class SchemaMappingTest extends AbstractTest {
     public final void delete() {
         SchemaMapping schema = schemaMappingDAO.find(100L);
 
-        assertNotNull("find to delete did not work", schema);
+        assertNotNull("find did not work", schema);
 
         Long id = schema.getId();
 
@@ -121,7 +119,7 @@ public class SchemaMappingTest extends AbstractTest {
         }
 
         UserSchema actualUser =
-                userShemaDAO.find(user.getName(), UserSchema.class);
+                schemaDAO.find(user.getName(), UserSchema.class);
 
         assertNotNull(actualUser);
 

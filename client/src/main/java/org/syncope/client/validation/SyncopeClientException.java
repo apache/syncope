@@ -22,38 +22,43 @@ import org.syncope.types.SyncopeClientExceptionType;
 public class SyncopeClientException extends Exception {
 
     private SyncopeClientExceptionType type;
-    private Set<String> attributeNames;
+    private Set<String> elements;
 
     public SyncopeClientException() {
         super();
-        attributeNames = new HashSet<String>();
+        elements = new HashSet<String>();
+    }
+
+    public SyncopeClientException(SyncopeClientExceptionType type) {
+        this();
+        setType(type);
     }
 
     public SyncopeClientExceptionType getType() {
         return type;
     }
 
-    public void setType(SyncopeClientExceptionType type) {
+    public final void setType(SyncopeClientExceptionType type) {
         this.type = type;
     }
 
-    public boolean addAttributeName(String attributeName) {
-        return attributeNames.add(attributeName);
+    public boolean addElement(String element) {
+        return elements.add(element);
     }
 
-    public boolean removeAttributeName(String attributeName) {
-        return attributeNames.remove(attributeName);
+    public boolean removeElement(String element) {
+        return elements.remove(element);
     }
 
-    public Set<String> getAttributeNames() {
-        return attributeNames;
+    public Set<String> getElements() {
+        return elements;
     }
 
-    public void setAttributeNames(Set<String> attributeNames) {
-        this.attributeNames = attributeNames;
+    public void setElements(Set<String> elements) {
+        this.elements = elements;
     }
 
-    public void setAttributeNames(List<String> attributeNames) {
-        this.attributeNames.addAll(attributeNames);
+    public void setElements(List<String> elements) {
+        this.elements.addAll(elements);
     }
 }

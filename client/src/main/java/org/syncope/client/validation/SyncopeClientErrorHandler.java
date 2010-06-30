@@ -64,12 +64,12 @@ public class SyncopeClientErrorHandler extends DefaultResponseErrorHandler {
                 clientException = new SyncopeClientException();
                 clientException.setType(exceptionType);
                 if (response.getHeaders().get(
-                        exceptionType.getAttributeNameHeaderName()) != null
+                        exceptionType.getElementHeaderName()) != null
                         && !response.getHeaders().get(
-                        exceptionType.getAttributeNameHeaderName()).isEmpty()) {
+                        exceptionType.getElementHeaderName()).isEmpty()) {
 
-                    clientException.setAttributeNames(response.getHeaders().get(
-                            exceptionType.getAttributeNameHeaderName()));
+                    clientException.setElements(response.getHeaders().get(
+                            exceptionType.getElementHeaderName()));
                 }
 
                 compositeException.addException(clientException);

@@ -49,12 +49,12 @@ public class SchemaMappingDAOImpl extends AbstractDAOImpl
     public void delete(Long id) {
         SchemaMapping mapping = find(id);
 
-        RoleSchema roleAttribueSchemas = mapping.getRoleSchema();
+        RoleSchema roleSchema = mapping.getRoleSchema();
 
         Set<SchemaMapping> mappings = null;
 
-        if (roleAttribueSchemas != null) {
-            mappings = roleAttribueSchemas.getMappings();
+        if (roleSchema != null) {
+            mappings = roleSchema.getMappings();
         }
 
         if (mappings != null) {
@@ -63,11 +63,11 @@ public class SchemaMappingDAOImpl extends AbstractDAOImpl
 
         mapping.setRoleSchema(null);
 
-        UserSchema userAttributeSchemas = mapping.getUserSchema();
+        UserSchema userSchema = mapping.getUserSchema();
 
         mappings = null;
-        if (userAttributeSchemas != null) {
-            mappings = userAttributeSchemas.getMappings();
+        if (userSchema != null) {
+            mappings = userSchema.getMappings();
         }
 
         if (mappings != null) {
