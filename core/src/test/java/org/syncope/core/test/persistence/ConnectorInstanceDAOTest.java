@@ -35,14 +35,15 @@ public class ConnectorInstanceDAOTest extends AbstractTest {
 
         assertNotNull("findById did not work", connectorInstance);
 
-        assertEquals("invalid name", "OpenAM",
+        assertEquals("invalid connector name", "WebServiceConnector",
                 connectorInstance.getConnectorName());
 
-        assertEquals("invalid name", "org.syncope.core.persistence.test.util.openam",
+        assertEquals("invalid bundle name",
+                "org.syncope.identityconnectors.bundles.staticws",
                 connectorInstance.getBundleName());
 
-        assertEquals("invalid version",
-                "1.0", connectorInstance.getVersion());
+        assertEquals("invalid bundle version",
+                "0.1-SNAPSHOT", connectorInstance.getVersion());
     }
 
     @Test

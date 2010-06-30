@@ -36,16 +36,26 @@ public abstract class AbstractSchema extends AbstractBaseBean {
 
     @Id
     private String name;
+
     @Column(nullable = false)
     @Enumerated(STRING)
     private AttributeType type;
+
+    /**
+     * Specify if the attribute should be stored on the local repository.
+     */
     private boolean virtual;
+
     private boolean mandatory;
+
     private boolean multivalue;
+
     @Column(nullable = true)
     private String conversionPattern;
+
     @Column(nullable = true)
     private String validatorClass;
+
     @Transient
     private AttributeValidator validator;
 
@@ -111,8 +121,7 @@ public abstract class AbstractSchema extends AbstractBaseBean {
                 validator = (AttributeValidator) validatorConstructor.newInstance(this);
             } catch (Exception e) {
                 throw new ValidatorInstantiationException(
-                        "Could not instantiate validator of type "
-                        + getValidatorClass(), e);
+                        "Could not instantiate validator of type " + getValidatorClass(), e);
             }
         } else {
             try {
@@ -136,9 +145,7 @@ public abstract class AbstractSchema extends AbstractBaseBean {
 
     public String getConversionPattern() {
         if (!getType().isConversionPatternNeeded()) {
-            log.warn("Conversion pattern is not needed: "
-                    + "this attribute type is "
-                    + getType());
+            log.warn("Conversion pattern is not needed: " + "this attribute type is " + getType());
         }
 
         return conversionPattern;
@@ -146,9 +153,7 @@ public abstract class AbstractSchema extends AbstractBaseBean {
 
     public void setConversionPattern(String conversionPattern) {
         if (!getType().isConversionPatternNeeded()) {
-            log.warn("Conversion pattern will be ignored: "
-                    + "this attribute type is "
-                    + getType());
+            log.warn("Conversion pattern will be ignored: " + "this attribute type is " + getType());
         }
 
         this.conversionPattern = conversionPattern;
@@ -202,4 +207,12 @@ public abstract class AbstractSchema extends AbstractBaseBean {
     public abstract Set<? extends AbstractDerivedSchema> getDerivedSchemas();
 
     public abstract void setDerivedSchemas(Set<? extends AbstractDerivedSchema> derivedSchemas);
+
+    public abstract Set<SchemaMapping> getMappings();
+
+    public abstract void setMappings(Set<SchemaMapping> mappings);
+
+    public abstract boolean addMapping(SchemaMapping mapping);
+
+    public abstract boolean removeMapping(SchemaMapping mapping);
 }

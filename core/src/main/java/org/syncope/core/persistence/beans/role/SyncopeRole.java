@@ -35,14 +35,19 @@ import org.syncope.core.persistence.beans.Entitlement;
 public class SyncopeRole extends AbstractAttributable {
 
     private String name;
+
     private String parent;
+
     @ManyToMany(fetch = FetchType.EAGER, mappedBy = "roles")
     private Set<SyncopeUser> users;
+
     @ManyToMany(fetch = FetchType.LAZY)
     private Set<Entitlement> entitlements;
+
     @OneToMany(cascade = CascadeType.ALL,
     fetch = FetchType.EAGER, mappedBy = "owner")
     private Set<RoleAttribute> attributes;
+
     @OneToMany(cascade = CascadeType.ALL,
     fetch = FetchType.EAGER, mappedBy = "owner")
     private Set<RoleDerivedAttribute> derivedAttributes;

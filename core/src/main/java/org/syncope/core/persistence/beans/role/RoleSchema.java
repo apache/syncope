@@ -23,14 +23,23 @@ import javax.persistence.OneToMany;
 import org.syncope.core.persistence.beans.AbstractAttribute;
 import org.syncope.core.persistence.beans.AbstractDerivedSchema;
 import org.syncope.core.persistence.beans.AbstractSchema;
+import org.syncope.core.persistence.beans.SchemaMapping;
 
 @Entity
 public class RoleSchema extends AbstractSchema {
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "schema")
     Set<RoleAttribute> attributes;
+
     @ManyToMany(mappedBy = "schemas")
     Set<RoleDerivedSchema> derivedSchemas;
+
+    /**
+     * All the mappings of the attribute schema.
+     */
+    @OneToMany(cascade = javax.persistence.CascadeType.ALL,
+    fetch = FetchType.EAGER, mappedBy = "roleSchema")
+    Set<SchemaMapping> mappings;
 
     public RoleSchema() {
         attributes = new HashSet<RoleAttribute>();
@@ -81,5 +90,27 @@ public class RoleSchema extends AbstractSchema {
             Set<? extends AbstractDerivedSchema> derivedSchemas) {
 
         this.derivedSchemas = (Set<RoleDerivedSchema>) derivedSchemas;
+    }
+
+    @Override
+    public Set<SchemaMapping> getMappings() {
+        return mappings;
+    }
+
+    @Override
+    public void setMappings(Set<SchemaMapping> mappings) {
+        this.mappings = mappings;
+    }
+
+    @Override
+    public boolean addMapping(SchemaMapping mapping) {
+        if (this.mappings == null) this.mappings = new HashSet<SchemaMapping>();
+        return this.mappings.add(mapping);
+    }
+
+    @Override
+    public boolean removeMapping(SchemaMapping mapping) {
+        if (this.mappings == null) this.mappings = new HashSet<SchemaMapping>();
+        return this.mappings.remove(mapping);
     }
 }

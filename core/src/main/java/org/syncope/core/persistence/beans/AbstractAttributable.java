@@ -14,12 +14,15 @@
  */
 package org.syncope.core.persistence.beans;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.MappedSuperclass;
 
 @MappedSuperclass
@@ -28,6 +31,12 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
+    /**
+     * Provisioning target resources.
+     */
+    @ManyToMany(fetch = FetchType.EAGER)
+    private Set<Resource> resources;
 
     public Long getId() {
         return id;
@@ -43,8 +52,7 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
                 result == null && itor.hasNext();) {
 
             attribute = (T) itor.next();
-            if (attribute.getSchema() != null
-                    && schemaName.equals(attribute.getSchema().getName())) {
+            if (attribute.getSchema() != null && schemaName.equals(attribute.getSchema().getName())) {
 
                 result = attribute;
             }
@@ -63,8 +71,7 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
                 result == null && itor.hasNext();) {
 
             derivedAttribute = (T) itor.next();
-            if (derivedAttribute.getDerivedSchema() != null
-                    && derivedSchemaName.equals(
+            if (derivedAttribute.getDerivedSchema() != null && derivedSchemaName.equals(
                     derivedAttribute.getDerivedSchema().getName())) {
 
                 result = derivedAttribute;
@@ -91,4 +98,24 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
 
     public abstract void setDerivedAttributes(
             Set<? extends AbstractDerivedAttribute> derivedAttributes);
+
+    public Set<Resource> getResources() {
+        return resources;
+    }
+
+    public void setResources(Set<Resource> resources) {
+        this.resources = resources;
+    }
+
+    public boolean addResource(Resource resource) {
+        if (this.resources == null) {
+            this.resources = new HashSet<Resource>();
+        }
+        return this.resources.add(resource);
+    }
+
+    public boolean removeResource(Resource resource) {
+        if (this.resources == null) return true;
+        return this.resources.remove(resource);
+    }
 }

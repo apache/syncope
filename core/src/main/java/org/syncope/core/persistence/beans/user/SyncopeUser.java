@@ -37,18 +37,25 @@ public class SyncopeUser extends AbstractAttributable {
     @Transient
     final private static PasswordEncryptor passwordEncryptor =
             new StrongPasswordEncryptor();
+
     private String password;
+
     @ManyToMany(fetch = FetchType.EAGER)
     private Set<SyncopeRole> roles;
+
     @OneToMany(cascade = CascadeType.ALL,
     fetch = FetchType.EAGER, mappedBy = "owner")
     private Set<UserAttribute> attributes;
+
     @OneToMany(cascade = CascadeType.ALL,
     fetch = FetchType.EAGER, mappedBy = "owner")
     private Set<UserDerivedAttribute> derivedAttributes;
+
     @Temporal(javax.persistence.TemporalType.TIME)
     private Date creationTime;
+
     private String token;
+
     @Temporal(javax.persistence.TemporalType.TIME)
     private Date tokenExpireTime;
 
