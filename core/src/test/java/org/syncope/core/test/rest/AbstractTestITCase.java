@@ -29,7 +29,8 @@ public abstract class AbstractTestITCase {
 
     protected static final Logger log = LoggerFactory.getLogger(
             AbstractTestITCase.class);
-    protected static final String BASE_URL = "http://localhost:8080/syncope/";
+    protected static final String BASE_URL =
+            "http://localhost:8080/syncope/rest/";
     @Autowired
     protected RestTemplate restTemplate;
 }

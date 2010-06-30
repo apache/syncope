@@ -37,6 +37,13 @@ public class DefaultContentLoader implements ServletContextListener {
     private static final Logger log = LoggerFactory.getLogger(
             DefaultContentLoader.class);
 
+    /**
+     * <em>WARNING</em>: this method connects to the database by mean of the 
+     * underlying Spring's datasource, not using the provided one, to be fetched
+     * via JNDI. This in order to avoid potential conflicts and problems with
+     * DbUnit.
+     * @param sce
+     */
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         WebApplicationContext springContext =
@@ -44,7 +51,7 @@ public class DefaultContentLoader implements ServletContextListener {
                 sce.getServletContext());
 
         DataSource dataSource =
-                (DataSource) springContext.getBean("dataSource");
+                (DataSource) springContext.getBean("localDataSource");
         DefaultDataTypeFactory dbUnitDataTypeFactory =
                 (DefaultDataTypeFactory) springContext.getBean(
                 "dbUnitDataTypeFactory");
@@ -74,8 +81,7 @@ public class DefaultContentLoader implements ServletContextListener {
                 FlatXmlDataSetBuilder dataSetBuilder = new FlatXmlDataSetBuilder();
                 dataSetBuilder.setColumnSensing(true);
                 IDataSet dataSet = dataSetBuilder.build(
-                        getClass().getResourceAsStream(
-                        "/org/syncope/core/persistence/content.xml"));
+                        getClass().getResourceAsStream("content.xml"));
 
                 DatabaseOperation.REFRESH.execute(dbUnitConn, dataSet);
             }

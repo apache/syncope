@@ -63,7 +63,10 @@ public class DerivedSchemaDataBinder {
             }
         }
 
-        return derivedSchemaDAO.save(derivedSchema);
+        // Everything went out fine, we can flush to the database
+        derivedSchema = derivedSchemaDAO.save(derivedSchema);
+        derivedSchemaDAO.getEntityManager().flush();
+        return derivedSchema;
     }
 
     public <T extends AbstractDerivedSchema> DerivedSchemaTO getDerivedSchemaTO(

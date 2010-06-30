@@ -23,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.role.RoleSchema;
 import org.syncope.core.persistence.beans.user.UserSchema;
 import org.syncope.core.persistence.dao.SchemaDAO;
-import org.syncope.types.AttributeType;
+import org.syncope.types.SchemaType;
 
 @Transactional
 public class SchemaDAOTest extends AbstractTest {
@@ -52,7 +52,7 @@ public class SchemaDAOTest extends AbstractTest {
     public final void save() {
         UserSchema attributeSchema = new UserSchema();
         attributeSchema.setName("secondaryEmail");
-        attributeSchema.setType(AttributeType.String);
+        attributeSchema.setType(SchemaType.String);
         attributeSchema.setValidatorClass(
                 "org.syncope.core.validation.EmailAddressValidator");
         attributeSchema.setMandatory(false);

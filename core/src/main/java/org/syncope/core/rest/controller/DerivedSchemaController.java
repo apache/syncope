@@ -20,11 +20,13 @@ import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.syncope.client.to.DerivedSchemaTO;
+import org.syncope.client.to.DerivedSchemaTOs;
 import org.syncope.core.persistence.beans.AbstractDerivedSchema;
 import org.syncope.core.persistence.dao.DerivedSchemaDAO;
 import org.syncope.core.rest.data.DerivedSchemaDataBinder;
@@ -38,26 +40,24 @@ public class DerivedSchemaController extends AbstractController {
     @Autowired
     private DerivedSchemaDataBinder derivedSchemaDataBinder;
 
+    @Transactional
     @RequestMapping(method = RequestMethod.POST, value = "/{kind}/create")
     public DerivedSchemaTO create(HttpServletResponse response,
             @RequestBody DerivedSchemaTO derivedSchemaTO,
             @PathVariable("kind") String kind)
-            throws IOException {
+            throws InstantiationException, IllegalAccessException {
 
         Class reference = getAttributable(kind).getDerivedSchemaClass();
-        AbstractDerivedSchema derivedSchema = null;
-        try {
-            derivedSchema = derivedSchemaDataBinder.createDerivedSchema(
-                    derivedSchemaTO, reference,
-                    getAttributable(kind).getSchemaClass());
-        } catch (Exception e) {
-            log.error("Could not create for " + derivedSchemaTO, e);
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        }
+        AbstractDerivedSchema derivedSchema =
+                derivedSchemaDataBinder.createDerivedSchema(
+                derivedSchemaTO, reference,
+                getAttributable(kind).getSchemaClass());
 
+        response.setStatus(HttpServletResponse.SC_CREATED);
         return derivedSchemaDataBinder.getDerivedSchemaTO(derivedSchema);
     }
 
+    @Transactional
     @RequestMapping(method = RequestMethod.DELETE,
     value = "/{kind}/delete/{schema}")
     public void delete(HttpServletResponse response,
@@ -71,28 +71,30 @@ public class DerivedSchemaController extends AbstractController {
         if (derivedSchema == null) {
             log.error("Could not find derived schema '"
                     + derivedSchemaName + "'");
-
-            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            throwNotFoundException(response);
         } else {
             derivedSchemaDAO.delete(derivedSchemaName, reference);
+            derivedSchemaDAO.getEntityManager().flush();
         }
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/{kind}/list")
-    public List<DerivedSchemaTO> list(@PathVariable("kind") String kind) {
+    public DerivedSchemaTOs list(@PathVariable("kind") String kind) {
 
         Class reference = getAttributable(kind).getDerivedSchemaClass();
         List<AbstractDerivedSchema> derivedAttributeSchemas =
                 derivedSchemaDAO.findAll(reference);
 
-        List<DerivedSchemaTO> result =
+        List<DerivedSchemaTO> derivedSchemaTOs =
                 new ArrayList<DerivedSchemaTO>(derivedAttributeSchemas.size());
         for (AbstractDerivedSchema derivedSchema : derivedAttributeSchemas) {
 
-            result.add(derivedSchemaDataBinder.getDerivedSchemaTO(
+            derivedSchemaTOs.add(derivedSchemaDataBinder.getDerivedSchemaTO(
                     derivedSchema));
         }
 
+        DerivedSchemaTOs result = new DerivedSchemaTOs();
+        result.setDerivedSchemas(derivedSchemaTOs);
         return result;
     }
 
@@ -109,20 +111,19 @@ public class DerivedSchemaController extends AbstractController {
         if (derivedSchema == null) {
             log.error("Could not find derived schema '"
                     + derivedSchemaName + "'");
-
-            response.sendError(HttpServletResponse.SC_NOT_FOUND);
-            return new DerivedSchemaTO();
+            return throwNotFoundException(response);
         }
 
         return derivedSchemaDataBinder.getDerivedSchemaTO(derivedSchema);
     }
 
     // TODO: implement and verify if current attributes are affected by this update
+    @Transactional
     @RequestMapping(method = RequestMethod.POST, value = "/{kind}/update")
     public DerivedSchemaTO update(HttpServletResponse response,
             @RequestBody DerivedSchemaTO derivedSchemaTO,
             @PathVariable("kind") String kind)
-            throws IOException {
+            throws InstantiationException, IllegalAccessException {
 
         return create(response, derivedSchemaTO, kind);
     }

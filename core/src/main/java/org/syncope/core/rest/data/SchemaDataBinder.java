@@ -62,7 +62,10 @@ public class SchemaDataBinder {
             }
         }
 
-        return schemaDAO.save(schema);
+        // Everything went out fine, we can flush to the database
+        schema = schemaDAO.save(schema);
+        schemaDAO.getEntityManager().flush();
+        return schema;
     }
 
     public <T extends AbstractSchema> SchemaTO getSchemaTO(T schema) {

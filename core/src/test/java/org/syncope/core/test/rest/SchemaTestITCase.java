@@ -14,14 +14,17 @@
  */
 package org.syncope.core.test.rest;
 
+import org.springframework.web.client.HttpClientErrorException;
+import org.syncope.client.to.DerivedSchemaTOs;
 import org.syncope.core.persistence.dao.DerivedSchemaDAO;
 import org.syncope.client.to.DerivedSchemaTO;
-import java.util.List;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.syncope.client.to.SchemaTO;
+import org.syncope.client.to.SchemaTOs;
 import org.syncope.core.persistence.dao.SchemaDAO;
-import org.syncope.types.AttributeType;
+import org.syncope.types.SchemaType;
 import static org.junit.Assert.*;
 
 public class SchemaTestITCase extends AbstractTestITCase {
@@ -36,7 +39,7 @@ public class SchemaTestITCase extends AbstractTestITCase {
         SchemaTO schemaTO = new SchemaTO();
         schemaTO.setName("testAttribute");
         schemaTO.setMandatory(true);
-        schemaTO.setType(AttributeType.String);
+        schemaTO.setType(SchemaType.String);
 
         SchemaTO newSchemaTO = restTemplate.postForObject(BASE_URL
                 + "schema/user/create", schemaTO, SchemaTO.class);
@@ -46,28 +49,34 @@ public class SchemaTestITCase extends AbstractTestITCase {
     @Test
     public void delete() {
         restTemplate.delete(BASE_URL + "schema/user/delete/username.js");
-        System.out.println(restTemplate.getForObject(BASE_URL
-                + "schema/user/read/surname.json", SchemaTO.class));
+        SchemaTO username = null;
+        try {
+            username = restTemplate.getForObject(BASE_URL
+                    + "schema/user/read/username.json", SchemaTO.class);
+        } catch (HttpClientErrorException e) {
+            assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
+        }
+        assertNull(username);
     }
 
     @Test
     public void list() {
-        List<SchemaTO> userSchemas =
+        SchemaTOs userSchemas =
                 restTemplate.getForObject(BASE_URL
-                + "schema/user/list.json", List.class);
-        assertFalse(userSchemas.isEmpty());
+                + "schema/user/list.json", SchemaTOs.class);
+        assertFalse(userSchemas.getSchemas().isEmpty());
 
-        List<SchemaTO> roleSchemas = restTemplate.getForObject(BASE_URL
-                + "schema/role/list.json", List.class);
-        assertFalse(roleSchemas.isEmpty());
+        SchemaTOs roleSchemas = restTemplate.getForObject(BASE_URL
+                + "schema/role/list.json", SchemaTOs.class);
+        assertFalse(roleSchemas.getSchemas().isEmpty());
     }
 
     @Test
     public void derivedList() {
-        List<DerivedSchemaTO> derivedSchemas =
+        DerivedSchemaTOs derivedSchemas =
                 restTemplate.getForObject(BASE_URL
-                + "derivedSchema/user/list.json", List.class);
-        assertFalse(derivedSchemas.isEmpty());
+                + "derivedSchema/user/list.json", DerivedSchemaTOs.class);
+        assertFalse(derivedSchemas.getDerivedSchemas().isEmpty());
     }
 
     @Test

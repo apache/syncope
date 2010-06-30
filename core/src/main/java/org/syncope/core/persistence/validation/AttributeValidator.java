@@ -17,7 +17,6 @@ package org.syncope.core.persistence.validation;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import org.springframework.beans.TypeMismatchException;
 import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.beans.AbstractAttributeValue;
 
@@ -35,11 +34,6 @@ public abstract class AttributeValidator {
 
     public <T extends AbstractAttributeValue> T getValue(Object value,
             T attributeValue) throws ValidationException {
-
-        if (!attributeClass.isInstance(value)) {
-            throw new ParseException(
-                    new TypeMismatchException(value, attributeClass));
-        }
 
         attributeValue = value instanceof String
                 ? parseValue((String) value, attributeValue)

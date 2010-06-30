@@ -50,13 +50,14 @@
     <bean id="jsonMediaType" class="org.springframework.http.MediaType">
         <constructor-arg value="application"/>
         <constructor-arg value="json"/>
+        <constructor-arg value="UTF-8"/>
     </bean>
 
     <bean class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
         <property name="mediaTypes">
             <map>
-                <entry key="json" value="application/json"/>
-                <entry key="xml" value="application/xml"/>
+                <entry key="json" value="application/json;charset=UTF-8"/>
+                <entry key="xml" value="application/xml;charset=UTF-8"/>
             </map>
         </property>
         <property name="defaultViews">
@@ -79,6 +80,10 @@
 
     <bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
         <property name="messageConverters" ref="mappingJacksonHttpMessageConverter"/>
+        <property name="errorHandler">
+            <bean id="syncopeClientErrorHandler"
+            class="org.syncope.client.validation.SyncopeClientErrorHandler"/>
+        </property>
     </bean>
 
 </beans>

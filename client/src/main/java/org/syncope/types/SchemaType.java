@@ -18,7 +18,7 @@ import java.text.DecimalFormat;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 
-public enum AttributeType {
+public enum SchemaType {
 
     String("java.lang.String"),
     Long("java.lang.Long"),
@@ -28,7 +28,7 @@ public enum AttributeType {
     final private String className;
     private Format formatter;
 
-    AttributeType(String className) {
+    SchemaType(String className) {
         this.className = className;
         this.formatter = null;
     }
@@ -54,9 +54,9 @@ public enum AttributeType {
     }
 
     public boolean isConversionPatternNeeded() {
-        return this == AttributeType.Date
-                || this == AttributeType.Double
-                || this == AttributeType.Long;
+        return this == SchemaType.Date
+                || this == SchemaType.Double
+                || this == SchemaType.Long;
     }
 
 }

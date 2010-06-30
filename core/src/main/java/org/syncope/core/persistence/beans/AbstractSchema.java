@@ -29,38 +29,31 @@ import javax.persistence.Transient;
 import org.syncope.core.persistence.validation.AttributeBasicValidator;
 import org.syncope.core.persistence.validation.AttributeValidator;
 import org.syncope.core.persistence.validation.ValidatorInstantiationException;
-import org.syncope.types.AttributeType;
+import org.syncope.types.SchemaType;
 
 @MappedSuperclass
 public abstract class AbstractSchema extends AbstractBaseBean {
 
     @Id
     private String name;
-
     @Column(nullable = false)
     @Enumerated(STRING)
-    private AttributeType type;
-
+    private SchemaType type;
     /**
      * Specify if the attribute should be stored on the local repository.
      */
     private boolean virtual;
-
     private boolean mandatory;
-
     private boolean multivalue;
-
     @Column(nullable = true)
     private String conversionPattern;
-
     @Column(nullable = true)
     private String validatorClass;
-
     @Transient
     private AttributeValidator validator;
 
     public AbstractSchema() {
-        type = AttributeType.String;
+        type = SchemaType.String;
         virtual = false;
         mandatory = false;
         multivalue = false;
@@ -74,11 +67,11 @@ public abstract class AbstractSchema extends AbstractBaseBean {
         this.name = name;
     }
 
-    public AttributeType getType() {
+    public SchemaType getType() {
         return type;
     }
 
-    public void setType(AttributeType type) {
+    public void setType(SchemaType type) {
         this.type = type;
     }
 
@@ -208,11 +201,11 @@ public abstract class AbstractSchema extends AbstractBaseBean {
 
     public abstract void setDerivedSchemas(Set<? extends AbstractDerivedSchema> derivedSchemas);
 
-    public abstract Set<SchemaMapping> getMappings();
-
-    public abstract void setMappings(Set<SchemaMapping> mappings);
-
     public abstract boolean addMapping(SchemaMapping mapping);
 
     public abstract boolean removeMapping(SchemaMapping mapping);
+
+    public abstract Set<SchemaMapping> getMappings();
+
+    public abstract void setMappings(Set<SchemaMapping> mappings);
 }

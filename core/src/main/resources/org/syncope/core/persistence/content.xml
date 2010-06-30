@@ -22,7 +22,7 @@
                 mandatory="false" multivalue="false"/>
     <UserSchema name="email" type="String" virtual="false"
                 mandatory="false" multivalue="true"
-                validatorClass="org.syncope.core.validation.EmailAddressValidator"/>
+                validatorClass="org.syncope.core.persistence.validation.EmailAddressValidator"/>
 
     <UserDerivedSchema name="username" expression="firstname + '.' + surname"/>
 
