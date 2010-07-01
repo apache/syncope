@@ -14,15 +14,14 @@
  */
 package org.syncope.core.persistence.beans;
 
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
-import org.syncope.core.persistence.validation.ValidationException;
+import org.syncope.core.persistence.validation.ParseException;
+import org.syncope.core.persistence.validation.ValidationFailedException;
 
 @MappedSuperclass
 public abstract class AbstractAttribute extends AbstractBaseBean {
@@ -35,11 +34,11 @@ public abstract class AbstractAttribute extends AbstractBaseBean {
         return id;
     }
 
-    public <T extends AbstractAttributeValue> void addValue(
-            Object value, T attributeValue) throws ValidationException {
+    public <T extends AbstractAttributeValue> T addValue(String value,
+            T attributeValue) throws ParseException, ValidationFailedException {
 
-        T actualValue =
-                getSchema().getValidator().getValue(value, attributeValue);
+        T actualValue = getSchema().getValidator().getValue(value,
+                attributeValue);
         actualValue.setAttribute(this);
 
         if (!getSchema().isMultivalue()) {
@@ -47,18 +46,8 @@ public abstract class AbstractAttribute extends AbstractBaseBean {
         }
 
         addAttributeValue(actualValue);
-    }
 
-    public <T extends AbstractAttributeValue> void removeValue(
-            Object value, T attributeValue) throws ValidationException {
-
-        T actualValue =
-                getSchema().getValidator().getValue(value, attributeValue);
-
-        removeAttributeValue(actualValue);
-        if (!getAttributeValues().isEmpty() && !getSchema().isMultivalue()) {
-            getAttributeValues().clear();
-        }
+        return actualValue;
     }
 
     public abstract <T extends AbstractAttributable> T getOwner();
@@ -69,45 +58,20 @@ public abstract class AbstractAttribute extends AbstractBaseBean {
 
     public abstract <T extends AbstractSchema> void setSchema(T schema);
 
-    public abstract <T extends AbstractAttributeValue> boolean addAttributeValue(T attributeValue);
+    public abstract <T extends AbstractAttributeValue> boolean addAttributeValue(
+            T attributeValue);
 
-    public abstract <T extends AbstractAttributeValue> boolean removeAttributeValue(T attributeValue);
+    public abstract <T extends AbstractAttributeValue> boolean removeAttributeValue(
+            T attributeValue);
 
     public abstract Set<? extends AbstractAttributeValue> getAttributeValues();
 
-    public Set<String> getStringAttributeValues() {
+    public Set<String> getAttributeValuesAsStrings() {
         Set<? extends AbstractAttributeValue> values = getAttributeValues();
+        
         Set<String> result = new HashSet<String>(values.size());
-
-        String stringValue = "";
         for (AbstractAttributeValue attributeValue : values) {
-            switch (getSchema().getType()) {
-
-                case String:
-                    stringValue = (String) attributeValue.getValue();
-                    break;
-
-                case Boolean:
-                    stringValue = ((Boolean) attributeValue.getValue()).toString();
-                    break;
-
-                case Long:
-                    stringValue = getSchema().getFormatter(
-                            DecimalFormat.class).format(attributeValue.getValue());
-                    break;
-
-                case Double:
-                    stringValue = getSchema().getFormatter(
-                            DecimalFormat.class).format(attributeValue.getValue());
-                    break;
-
-                case Date:
-                    stringValue = getSchema().getFormatter(
-                            SimpleDateFormat.class).format(attributeValue.getValue());
-                    break;
-            }
-
-            result.add(stringValue);
+            result.add(attributeValue.getValueAsString());
         }
 
         return result;

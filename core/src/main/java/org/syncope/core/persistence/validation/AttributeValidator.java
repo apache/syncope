@@ -23,29 +23,24 @@ import org.syncope.core.persistence.beans.AbstractAttributeValue;
 public abstract class AttributeValidator {
 
     final protected AbstractSchema schema;
-    final protected Class attributeClass;
 
-    public AttributeValidator(AbstractSchema schema)
-            throws ClassNotFoundException {
+    public AttributeValidator(AbstractSchema schema) {
 
         this.schema = schema;
-        this.attributeClass = Class.forName(schema.getType().getClassName());
     }
 
-    public <T extends AbstractAttributeValue> T getValue(Object value,
-            T attributeValue) throws ValidationException {
+    public <T extends AbstractAttributeValue> T getValue(String value,
+            T attributeValue)
+            throws ParseException, ValidationFailedException {
 
-        attributeValue = value instanceof String
-                ? parseValue((String) value, attributeValue)
-                : parseValue(value, attributeValue);
+        attributeValue = parseValue(value, attributeValue);
         doValidate(attributeValue);
 
         return attributeValue;
     }
 
-    protected <T extends AbstractAttributeValue> T parseValue(String value,
+    private <T extends AbstractAttributeValue> T parseValue(String value,
             T attributeValue) throws ParseException {
-
         Exception exception = null;
 
         switch (schema.getType()) {
@@ -60,8 +55,9 @@ public abstract class AttributeValidator {
 
             case Long:
                 try {
-                    attributeValue.setLongValue(Long.valueOf(schema.getFormatter(
-                            DecimalFormat.class).parse(value).longValue()));
+                    attributeValue.setLongValue(Long.valueOf(
+                            schema.getFormatter(DecimalFormat.class).parse(
+                            value).longValue()));
                 } catch (java.text.ParseException pe) {
                     exception = pe;
                 }
@@ -69,8 +65,9 @@ public abstract class AttributeValidator {
 
             case Double:
                 try {
-                    attributeValue.setDoubleValue(Double.valueOf(schema.getFormatter(
-                            DecimalFormat.class).parse(value).doubleValue()));
+                    attributeValue.setDoubleValue(Double.valueOf(
+                            schema.getFormatter(DecimalFormat.class).parse(
+                            value).doubleValue()));
                 } catch (java.text.ParseException pe) {
                     exception = pe;
                 }
@@ -87,37 +84,8 @@ public abstract class AttributeValidator {
         }
 
         if (exception != null) {
-            throw new ParseException(
-                    "While trying to parse '" + value + "'", exception);
-        }
-
-        return attributeValue;
-    }
-
-    protected <T extends AbstractAttributeValue> T parseValue(Object value,
-            T attributeValue) throws ParseException {
-
-        switch (schema.getType()) {
-
-            case String:
-                attributeValue.setStringValue((String) value);
-                break;
-
-            case Boolean:
-                attributeValue.setBooleanValue((Boolean) value);
-                break;
-
-            case Long:
-                attributeValue.setLongValue((Long) value);
-                break;
-
-            case Double:
-                attributeValue.setDoubleValue((Double) value);
-                break;
-
-            case Date:
-                attributeValue.setDateValue((Date) value);
-                break;
+            throw new ParseException("While trying to parse '" + value + "'",
+                    exception);
         }
 
         return attributeValue;

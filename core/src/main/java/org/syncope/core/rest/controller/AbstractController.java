@@ -23,7 +23,6 @@ import org.springframework.beans.TypeMismatchException;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientErrorHandler;
 import org.syncope.client.validation.SyncopeClientException;
-import org.syncope.core.persistence.Attributable;
 import org.syncope.types.SyncopeClientExceptionType;
 
 public abstract class AbstractController {
@@ -52,7 +51,7 @@ public abstract class AbstractController {
         for (SyncopeClientException exception :
                 compositeErrorException.getExceptions()) {
 
-            response.setHeader(
+            response.addHeader(
                     SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
                     exception.getType().getHeaderValue());
 

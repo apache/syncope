@@ -16,27 +16,30 @@ package org.syncope.types;
 
 public enum SyncopeClientExceptionType {
 
-    NotFound(
-    "Syncope.NotFound",
-    "Syncope.NotFound.entity"),
+    InvalidDerivedSchemas(
+    "Syncope.InvalidDerivedSchemas",
+    "Syncope.InvalidDerivedSchemas.derivedSchemaName"),
     InvalidResources(
     "Syncope.InvalidResources",
     "Syncope.InvalidResources.resourceName"),
     InvalidRoles(
     "Syncope.InvalidRoles",
     "Syncope.InvalidRoles.roleName"),
-    InvalidDerivedSchemas(
-    "Syncope.InvalidDerivedSchemas",
-    "Syncope.InvalidDerivedSchemas.derivedSchemaName"),
     InvalidSchemas(
     "Syncope.InvalidSchemas",
     "Syncope.InvalidSchemas.schemaName"),
-    UserRequiredValuesMissing(
-    "Syncope.RequiredValuesMissing",
-    "Syncope.RequiredValuesMissing.attributeName"),
-    UserInvalidValues(
+    InvalidUniques(
+    "Syncope.InvalidUniques",
+    "Syncope.InvalidUniques.attributeName"),
+    InvalidValues(
     "Syncope.InvalidValues",
-    "Syncope.InvalidValues.attributeName");
+    "Syncope.InvalidValues.attributeName"),
+    NotFound(
+    "Syncope.NotFound",
+    "Syncope.NotFound.entity"),
+    RequiredValuesMissing(
+    "Syncope.RequiredValuesMissing",
+    "Syncope.RequiredValuesMissing.attributeName");
     private String headerValue;
     private String elementHeaderName;
 

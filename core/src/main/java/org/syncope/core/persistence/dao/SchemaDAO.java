@@ -16,6 +16,7 @@ package org.syncope.core.persistence.dao;
 
 import java.util.List;
 import org.syncope.core.persistence.beans.AbstractSchema;
+import org.syncope.core.persistence.validation.UniqueValueException;
 
 public interface SchemaDAO extends DAO {
 
@@ -23,7 +24,7 @@ public interface SchemaDAO extends DAO {
 
     <T extends AbstractSchema> List<T> findAll(Class<T> reference);
 
-    <T extends AbstractSchema> T save(T schema);
+    <T extends AbstractSchema> T save(T schema) throws UniqueValueException;
 
     <T extends AbstractSchema> void delete(String name, Class<T> reference);
 }

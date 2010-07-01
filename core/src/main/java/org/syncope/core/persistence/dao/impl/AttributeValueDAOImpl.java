@@ -28,12 +28,34 @@ public class AttributeValueDAOImpl extends AbstractDAOImpl
     @Override
     public <T extends AbstractAttributeValue> T find(
             Long id, Class<T> reference) {
-        
+
         return entityManager.find(reference, id);
     }
 
     @Override
-    public <T extends AbstractAttributeValue> List<T> findAll(Class<T> reference) {
+    public <T extends AbstractAttributeValue> boolean existingAttributeValue(
+            T attributeValue) {
+
+        Query query = entityManager.createQuery(
+                "SELECT e FROM " + attributeValue.getClass().getSimpleName()
+                + " e WHERE (e.stringValue IS NOT NULL AND e.stringValue = :stringValue)"
+                + " OR (e.booleanValue IS NOT NULL AND e.booleanValue = :booleanValue)"
+                + " OR (e.dateValue IS NOT NULL AND e.dateValue = :dateValue)"
+                + " OR (e.longValue IS NOT NULL AND e.longValue = :longValue)"
+                + " OR (e.doubleValue IS NOT NULL AND e.doubleValue = :doubleValue)");
+        query.setParameter("stringValue", attributeValue.getStringValue());
+        query.setParameter("booleanValue", attributeValue.getBooleanValue());
+        query.setParameter("dateValue", attributeValue.getDateValue());
+        query.setParameter("longValue", attributeValue.getLongValue());
+        query.setParameter("doubleValue", attributeValue.getDoubleValue());
+
+        return !query.getResultList().isEmpty();
+    }
+
+    @Override
+    public <T extends AbstractAttributeValue> List<T> findAll(
+            Class<T> reference) {
+
         Query query = entityManager.createQuery(
                 "SELECT e FROM " + reference.getSimpleName() + " e");
         return query.getResultList();
@@ -47,7 +69,9 @@ public class AttributeValueDAOImpl extends AbstractDAOImpl
 
     @Override
     @Transactional
-    public <T extends AbstractAttributeValue> void delete(Long id, Class<T> reference) {
+    public <T extends AbstractAttributeValue> void delete(Long id,
+            Class<T> reference) {
+
         T attributeValue = find(id, reference);
         if (attributeValue == null) {
             return;

@@ -12,14 +12,14 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.persistence;
+package org.syncope.core.rest.controller;
 
 import org.syncope.core.persistence.beans.role.RoleDerivedSchema;
 import org.syncope.core.persistence.beans.role.RoleSchema;
 import org.syncope.core.persistence.beans.user.UserDerivedSchema;
 import org.syncope.core.persistence.beans.user.UserSchema;
 
-public enum Attributable {
+enum Attributable {
 
     USER, ROLE;
 

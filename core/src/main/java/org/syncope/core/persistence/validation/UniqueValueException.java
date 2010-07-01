@@ -14,9 +14,12 @@
  */
 package org.syncope.core.persistence.validation;
 
-public class ValidatorInstantiationException extends ValidationException {
+import org.syncope.core.persistence.beans.AbstractSchema;
 
-    public ValidatorInstantiationException(String message, Throwable cause) {
-        super(message, cause);
+public class UniqueValueException extends ValidationException {
+
+    public UniqueValueException(AbstractSchema schema) {
+        super("A schema cannot be multivalue and uniquevalue at the same time"
+                + schema);
     }
 }

@@ -24,6 +24,7 @@ import org.syncope.core.persistence.beans.AbstractDerivedSchema;
 import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.dao.DerivedSchemaDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
+import org.syncope.core.persistence.validation.UniqueValueException;
 
 @Component
 public class SchemaDataBinder {
@@ -45,7 +46,8 @@ public class SchemaDataBinder {
 
     public <T extends AbstractSchema, K extends AbstractDerivedSchema> T createSchema(
             SchemaTO schemaTO, Class<T> reference, Class<K> derivedReference)
-            throws InstantiationException, IllegalAccessException {
+            throws InstantiationException, IllegalAccessException,
+            UniqueValueException {
 
         T schema = reference.newInstance();
         BeanUtils.copyProperties(schemaTO, schema, ignoreSchemaProperties);

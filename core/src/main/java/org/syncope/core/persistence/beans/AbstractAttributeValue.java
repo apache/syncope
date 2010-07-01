@@ -14,6 +14,8 @@
  */
 package org.syncope.core.persistence.beans;
 
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -39,20 +41,40 @@ public abstract class AbstractAttributeValue extends AbstractBaseBean {
         return id;
     }
 
+    public Boolean getBooleanValue() {
+        return booleanValue;
+    }
+
     public void setBooleanValue(Boolean booleanValue) {
         this.booleanValue = booleanValue;
+    }
+
+    public Date getDateValue() {
+        return dateValue;
     }
 
     public void setDateValue(Date dateValue) {
         this.dateValue = dateValue;
     }
 
+    public Double getDoubleValue() {
+        return doubleValue;
+    }
+
     public void setDoubleValue(Double doubleValue) {
         this.doubleValue = doubleValue;
     }
 
+    public Long getLongValue() {
+        return longValue;
+    }
+
     public void setLongValue(Long longValue) {
         this.longValue = longValue;
+    }
+
+    public String getStringValue() {
+        return stringValue;
     }
 
     public void setStringValue(String stringValue) {
@@ -65,6 +87,37 @@ public abstract class AbstractAttributeValue extends AbstractBaseBean {
                 ? dateValue : (doubleValue != null
                 ? doubleValue : (longValue != null
                 ? longValue : stringValue))));
+    }
+
+    public String getValueAsString() {
+        String result = null;
+
+        switch (getAttribute().getSchema().getType()) {
+
+            case String:
+                result = stringValue;
+                break;
+
+            case Boolean:
+                result = booleanValue.toString();
+                break;
+
+            case Long:
+                result = getAttribute().getSchema().getFormatter(
+                        DecimalFormat.class).format(longValue);
+                break;
+
+            case Double:
+                result = getAttribute().getSchema().getFormatter(
+                        DecimalFormat.class).format(doubleValue);
+                break;
+
+            case Date:
+                result = getAttribute().getSchema().getFormatter(
+                        SimpleDateFormat.class).format(dateValue);
+        }
+
+        return result;
     }
 
     public abstract <T extends AbstractAttribute> T getAttribute();

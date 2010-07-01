@@ -25,8 +25,7 @@ public class EmailAddressValidator extends AttributeValidator {
             "^[\\w\\-]([\\.\\w])+[\\w]+@([\\w\\-]+\\.)+[A-Z]{2,4}$",
             Pattern.CASE_INSENSITIVE);
 
-    public EmailAddressValidator(AbstractSchema schema)
-            throws ClassNotFoundException {
+    public EmailAddressValidator(AbstractSchema schema) {
 
         super(schema);
     }

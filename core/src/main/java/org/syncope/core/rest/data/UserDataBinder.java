@@ -38,6 +38,7 @@ import org.syncope.core.persistence.beans.user.UserAttributeValue;
 import org.syncope.core.persistence.beans.user.UserDerivedAttribute;
 import org.syncope.core.persistence.beans.user.UserDerivedSchema;
 import org.syncope.core.persistence.beans.user.UserSchema;
+import org.syncope.core.persistence.dao.AttributeValueDAO;
 import org.syncope.core.persistence.dao.DerivedSchemaDAO;
 import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
@@ -51,10 +52,12 @@ public class UserDataBinder {
 
     private static final Logger log = LoggerFactory.getLogger(
             UserDataBinder.class);
-    private static final String[] ignoreProperties = {"attributes",
-        "derivedAttributes", "roles", "resources"};
+    private static final String[] ignoreProperties = {
+        "attributes", "derivedAttributes", "roles", "resources"
+    };
     private SyncopeUserDAO syncopeUserDAO;
     private SchemaDAO schemaDAO;
+    private AttributeValueDAO attributeValueDAO;
     private DerivedSchemaDAO derivedSchemaDAO;
     private SyncopeRoleDAO syncopeRoleDAO;
     private ResourceDAO resourceDAO;
@@ -62,12 +65,14 @@ public class UserDataBinder {
     @Autowired
     public UserDataBinder(SyncopeUserDAO syncopeUserDAO,
             SchemaDAO schemaDAO,
+            AttributeValueDAO attributeValueDAO,
             DerivedSchemaDAO derivedSchemaDAO,
             SyncopeRoleDAO syncopeRoleDAO,
             ResourceDAO resourceDAO) {
 
         this.syncopeUserDAO = syncopeUserDAO;
         this.schemaDAO = schemaDAO;
+        this.attributeValueDAO = attributeValueDAO;
         this.derivedSchemaDAO = derivedSchemaDAO;
         this.syncopeRoleDAO = syncopeRoleDAO;
         this.resourceDAO = resourceDAO;
@@ -83,9 +88,11 @@ public class UserDataBinder {
                 SyncopeClientExceptionType.InvalidSchemas);
         SyncopeClientException requiredValuesMissing =
                 new SyncopeClientException(
-                SyncopeClientExceptionType.UserRequiredValuesMissing);
+                SyncopeClientExceptionType.RequiredValuesMissing);
         SyncopeClientException invalidValues = new SyncopeClientException(
-                SyncopeClientExceptionType.UserInvalidValues);
+                SyncopeClientExceptionType.InvalidValues);
+        SyncopeClientException invalidUniques = new SyncopeClientException(
+                SyncopeClientExceptionType.InvalidUniques);
         SyncopeClientException invalidDerivedSchemas =
                 new SyncopeClientException(
                 SyncopeClientExceptionType.InvalidDerivedSchemas);
@@ -126,12 +133,26 @@ public class UserDataBinder {
                     attributeValue = new UserAttributeValue();
 
                     try {
-                        attribute.addValue(value, attributeValue);
+                        attributeValue = attribute.addValue(value,
+                                attributeValue);
                     } catch (ValidationException e) {
                         log.error("Invalid value for attribute "
                                 + schema.getName() + ": " + value, e);
 
                         invalidValues.addElement(schema.getName());
+                    }
+
+                    // if the schema is uniquevalue, check the uniqueness
+                    if (schema.isUniquevalue()
+                            && attributeValueDAO.existingAttributeValue(
+                            attributeValue)) {
+
+                        log.error("Unique value schema " + schema.getName()
+                                + " with no unique value: "
+                                + attributeValue.getValueAsString());
+
+                        invalidUniques.addElement(schema.getName());
+                        attribute.setAttributeValues(Collections.EMPTY_SET);
                     }
                 }
 
@@ -207,6 +228,9 @@ public class UserDataBinder {
         if (!invalidValues.getElements().isEmpty()) {
             compositeErrorException.addException(invalidValues);
         }
+        if (!invalidUniques.getElements().isEmpty()) {
+            compositeErrorException.addException(invalidUniques);
+        }
         if (!invalidDerivedSchemas.getElements().isEmpty()) {
             compositeErrorException.addException(invalidDerivedSchemas);
         }
@@ -234,7 +258,7 @@ public class UserDataBinder {
         for (AbstractAttribute attribute : user.getAttributes()) {
             attributeTO = new AttributeTO();
             attributeTO.setSchema(attribute.getSchema().getName());
-            attributeTO.setValues(attribute.getStringAttributeValues());
+            attributeTO.setValues(attribute.getAttributeValuesAsStrings());
 
             userTO.addAttribute(attributeTO);
         }

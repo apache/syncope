@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.syncope.client.to.SchemaTO;
 import org.syncope.client.to.SchemaTOs;
+import org.syncope.core.persistence.validation.UniqueValueException;
 import org.syncope.core.rest.data.SchemaDataBinder;
 import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.dao.SchemaDAO;
@@ -44,7 +45,8 @@ public class SchemaController extends AbstractController {
     @RequestMapping(method = RequestMethod.POST, value = "/{kind}/create")
     public SchemaTO create(HttpServletResponse response,
             @RequestBody SchemaTO schemaTO, @PathVariable("kind") String kind)
-            throws InstantiationException, IllegalAccessException {
+            throws InstantiationException, IllegalAccessException,
+            UniqueValueException {
 
         Class reference = getAttributable(kind).getSchemaClass();
         AbstractSchema schema = schemaDataBinder.createSchema(schemaTO,
@@ -109,7 +111,8 @@ public class SchemaController extends AbstractController {
     @RequestMapping(method = RequestMethod.POST, value = "/{kind}/update")
     public SchemaTO update(HttpServletResponse response,
             @RequestBody SchemaTO schemaTO, @PathVariable("kind") String kind)
-            throws InstantiationException, IllegalAccessException {
+            throws InstantiationException, IllegalAccessException,
+            UniqueValueException {
 
         return create(response, schemaTO, kind);
     }

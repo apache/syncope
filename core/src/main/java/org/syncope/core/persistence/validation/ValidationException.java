@@ -14,7 +14,7 @@
  */
 package org.syncope.core.persistence.validation;
 
-public class ValidationException extends Exception {
+public abstract class ValidationException extends Exception {
 
     public ValidationException(String message) {
         super(message);

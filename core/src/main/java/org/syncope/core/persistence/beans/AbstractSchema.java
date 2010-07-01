@@ -28,7 +28,6 @@ import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
 import org.syncope.core.persistence.validation.AttributeBasicValidator;
 import org.syncope.core.persistence.validation.AttributeValidator;
-import org.syncope.core.persistence.validation.ValidatorInstantiationException;
 import org.syncope.types.SchemaType;
 
 @MappedSuperclass
@@ -45,6 +44,7 @@ public abstract class AbstractSchema extends AbstractBaseBean {
     private boolean virtual;
     private boolean mandatory;
     private boolean multivalue;
+    private boolean uniquevalue;
     @Column(nullable = true)
     private String conversionPattern;
     @Column(nullable = true)
@@ -57,6 +57,7 @@ public abstract class AbstractSchema extends AbstractBaseBean {
         virtual = false;
         mandatory = false;
         multivalue = false;
+        uniquevalue = false;
     }
 
     public String getName() {
@@ -99,9 +100,15 @@ public abstract class AbstractSchema extends AbstractBaseBean {
         this.multivalue = multivalue;
     }
 
-    public AttributeValidator getValidator()
-            throws ValidatorInstantiationException {
+    public boolean isUniquevalue() {
+        return uniquevalue;
+    }
 
+    public void setUniquevalue(boolean uniquevalue) {
+        this.uniquevalue = uniquevalue;
+    }
+
+    public AttributeValidator getValidator() {
         if (validator != null) {
             return validator;
         }
@@ -111,18 +118,18 @@ public abstract class AbstractSchema extends AbstractBaseBean {
                 Constructor validatorConstructor =
                         Class.forName(getValidatorClass()).getConstructor(
                         new Class[]{getClass().getSuperclass()});
-                validator = (AttributeValidator) validatorConstructor.newInstance(this);
+                validator =
+                        (AttributeValidator) validatorConstructor.newInstance(
+                        this);
             } catch (Exception e) {
-                throw new ValidatorInstantiationException(
-                        "Could not instantiate validator of type " + getValidatorClass(), e);
+                log.error("Could not instantiate validator of type "
+                        + getValidatorClass()
+                        + ", reverting to AttributeBasicValidator", e);
             }
-        } else {
-            try {
-                validator = new AttributeBasicValidator(this);
-            } catch (ClassNotFoundException cnfe) {
-                throw new ValidatorInstantiationException(
-                        "Could not instantiate basic validator", cnfe);
-            }
+        }
+
+        if (validator == null) {
+            validator = new AttributeBasicValidator(this);
         }
 
         return validator;
@@ -138,7 +145,8 @@ public abstract class AbstractSchema extends AbstractBaseBean {
 
     public String getConversionPattern() {
         if (!getType().isConversionPatternNeeded()) {
-            log.warn("Conversion pattern is not needed: " + "this attribute type is " + getType());
+            log.warn("Conversion pattern is not needed: "
+                    + "this attribute type is " + getType());
         }
 
         return conversionPattern;
@@ -146,7 +154,8 @@ public abstract class AbstractSchema extends AbstractBaseBean {
 
     public void setConversionPattern(String conversionPattern) {
         if (!getType().isConversionPatternNeeded()) {
-            log.warn("Conversion pattern will be ignored: " + "this attribute type is " + getType());
+            log.warn("Conversion pattern will be ignored: "
+                    + "this attribute type is " + getType());
         }
 
         this.conversionPattern = conversionPattern;

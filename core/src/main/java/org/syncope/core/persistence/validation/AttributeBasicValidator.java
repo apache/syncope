@@ -19,9 +19,8 @@ import org.syncope.core.persistence.beans.AbstractAttributeValue;
 
 public class AttributeBasicValidator extends AttributeValidator {
 
-    public AttributeBasicValidator(AbstractSchema schema)
-            throws ClassNotFoundException {
-        
+    public AttributeBasicValidator(AbstractSchema schema) {
+
         super(schema);
     }
 

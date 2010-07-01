@@ -16,10 +16,6 @@ package org.syncope.core.persistence.validation;
 
 public class ParseException extends ValidationException {
 
-    public ParseException(Throwable cause) {
-        super(cause);
-    }
-
     public ParseException(String message, Throwable cause) {
         super(message, cause);
     }

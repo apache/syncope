@@ -23,6 +23,9 @@ public interface AttributeValueDAO extends DAO {
 
     <T extends AbstractAttributeValue> List<T> findAll(Class<T> reference);
 
+    <T extends AbstractAttributeValue> boolean existingAttributeValue(
+            T attributeValue);
+
     <T extends AbstractAttributeValue> T save(T attributeValue);
 
     <T extends AbstractAttributeValue> void delete(Long id, Class<T> reference);

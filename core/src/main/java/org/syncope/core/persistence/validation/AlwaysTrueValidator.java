@@ -19,8 +19,7 @@ import org.syncope.core.persistence.beans.AbstractAttributeValue;
 
 public class AlwaysTrueValidator extends AttributeValidator {
 
-    public AlwaysTrueValidator(AbstractSchema schema)
-            throws ClassNotFoundException {
+    public AlwaysTrueValidator(AbstractSchema schema) {
 
         super(schema);
     }

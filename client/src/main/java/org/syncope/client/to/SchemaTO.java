@@ -25,6 +25,7 @@ public class SchemaTO extends AbstractBaseTO {
     private boolean virtual;
     private boolean mandatory;
     private boolean multivalue;
+    private boolean uniquevalue;
     private String conversionPattern;
     private String validatorClass;
     private Set<String> derivedSchemas;
@@ -64,6 +65,14 @@ public class SchemaTO extends AbstractBaseTO {
 
     public void setMultivalue(boolean multivalue) {
         this.multivalue = multivalue;
+    }
+
+    public boolean isUniquevalue() {
+        return uniquevalue;
+    }
+
+    public void setUniquevalue(boolean uniquevalue) {
+        this.uniquevalue = uniquevalue;
     }
 
     public String getName() {

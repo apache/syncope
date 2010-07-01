@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.role.RoleSchema;
 import org.syncope.core.persistence.beans.user.UserSchema;
 import org.syncope.core.persistence.dao.SchemaDAO;
+import org.syncope.core.persistence.validation.UniqueValueException;
 import org.syncope.types.SchemaType;
 
 @Transactional
@@ -57,8 +58,12 @@ public class SchemaDAOTest extends AbstractTest {
                 "org.syncope.core.validation.EmailAddressValidator");
         attributeSchema.setMandatory(false);
         attributeSchema.setMultivalue(true);
-
-        schemaDAO.save(attributeSchema);
+        
+        try {
+            schemaDAO.save(attributeSchema);
+        } catch (UniqueValueException e) {
+            log.error("Unexpected exception", e);
+        }
 
         UserSchema actual = schemaDAO.find("secondaryEmail", UserSchema.class);
         assertNotNull("expected save to work", actual);

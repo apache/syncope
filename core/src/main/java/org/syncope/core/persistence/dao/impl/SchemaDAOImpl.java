@@ -29,6 +29,7 @@ import org.syncope.core.persistence.beans.user.UserSchema;
 import org.syncope.core.persistence.dao.AttributeDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.SchemaMappingDAO;
+import org.syncope.core.persistence.validation.UniqueValueException;
 
 @Repository
 public class SchemaDAOImpl extends AbstractDAOImpl
@@ -53,7 +54,13 @@ public class SchemaDAOImpl extends AbstractDAOImpl
 
     @Override
     @Transactional
-    public <T extends AbstractSchema> T save(T schema) {
+    public <T extends AbstractSchema> T save(T schema)
+            throws UniqueValueException {
+
+        if (schema.isMultivalue() && schema.isUniquevalue()) {
+            throw new UniqueValueException(schema);
+        }
+
         return entityManager.merge(schema);
     }
 

@@ -26,6 +26,8 @@ import org.syncope.client.to.SearchParameters;
 import org.syncope.client.to.UserTO;
 import org.syncope.client.to.UserTOs;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.syncope.client.validation.SyncopeClientException;
+import org.syncope.types.SyncopeClientExceptionType;
 
 public class UserTestITCase extends AbstractTestITCase {
 
@@ -47,32 +49,66 @@ public class UserTestITCase extends AbstractTestITCase {
     public void create() {
         UserTO userTO = new UserTO();
 
-        AttributeTO attributeTO = new AttributeTO();
-        attributeTO.setSchema("username");
-        attributeTO.addValue("fchicchiricco");
-        userTO.addAttribute(attributeTO);
+        AttributeTO usernameTO = new AttributeTO();
+        usernameTO.setSchema("username");
+        usernameTO.addValue("fchicchiricco");
+        userTO.addAttribute(usernameTO);
 
-        attributeTO = new AttributeTO();
-        attributeTO.setSchema("surname");
-        attributeTO.addValue("Chicchiriccò");
-        userTO.addAttribute(attributeTO);
+        AttributeTO surnameTO = new AttributeTO();
+        surnameTO.setSchema("surname");
+        surnameTO.addValue("Chicchiriccò");
+        userTO.addAttribute(surnameTO);
 
-        attributeTO = new AttributeTO();
-        attributeTO.setSchema("email");
-        attributeTO.addValue("chicchiricco@gmail.com");
-        attributeTO.addValue("syncope@googlecode.com");
-        userTO.addAttribute(attributeTO);
+        AttributeTO emailTO = new AttributeTO();
+        emailTO.setSchema("email");
+        emailTO.addValue("chicchiricco@gmail.com");
+        emailTO.addValue("syncope@googlecode.com");
+        userTO.addAttribute(emailTO);
 
-        attributeTO = new AttributeTO();
-        attributeTO.setSchema("loginDate");
-        attributeTO.addValue("2010-06-30");
-        attributeTO.addValue("2010-07-01");
-        userTO.addAttribute(attributeTO);
+        AttributeTO loginDateTO = new AttributeTO();
+        loginDateTO.setSchema("loginDate");
+        loginDateTO.addValue("2010-06-30");
+        loginDateTO.addValue("2010-07-01");
+        userTO.addAttribute(loginDateTO);
 
         UserTO newUserTO = restTemplate.postForObject(BASE_URL + "user/create",
                 userTO, UserTO.class);
         userTO.setId(newUserTO.getId());
         assertEquals(userTO, userTO);
+
+        userTO = new UserTO();
+
+        usernameTO = new AttributeTO();
+        usernameTO.setSchema("username");
+        usernameTO.addValue("fchicchiricco");
+        userTO.addAttribute(usernameTO);
+
+        surnameTO = new AttributeTO();
+        surnameTO.setSchema("surname");
+        surnameTO.addValue("Martelli");
+        userTO.addAttribute(surnameTO);
+
+        emailTO = new AttributeTO();
+        emailTO.setSchema("email");
+        emailTO.addValue("syncope@googlecode.com");
+        userTO.addAttribute(emailTO);
+
+        loginDateTO = new AttributeTO();
+        loginDateTO.setSchema("loginDate");
+        loginDateTO.addValue("2010-07-01");
+        userTO.addAttribute(loginDateTO);
+
+        SyncopeClientException syncopeClientException = null;
+        try {
+            restTemplate.postForObject(BASE_URL + "user/create",
+                    userTO, UserTO.class);
+        } catch (SyncopeClientCompositeErrorException e) {
+            syncopeClientException =
+                    e.getException(SyncopeClientExceptionType.InvalidUniques);
+        }
+        assertNotNull(syncopeClientException);
+        assertTrue(syncopeClientException.getElements().contains("username"));
+        assertTrue(syncopeClientException.getElements().contains("email"));
     }
 
     @Test
