@@ -24,6 +24,8 @@ import org.syncope.core.persistence.beans.AbstractAttribute;
 import org.syncope.core.persistence.beans.AbstractDerivedSchema;
 import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.beans.SchemaMapping;
+import org.syncope.core.persistence.beans.role.RoleSchema;
+import org.syncope.core.persistence.beans.user.UserSchema;
 import org.syncope.core.persistence.dao.AttributeDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.SchemaMappingDAO;
@@ -76,6 +78,13 @@ public class SchemaDAOImpl extends AbstractDAOImpl
         }
 
         for (SchemaMapping schemaMapping : schema.getMappings()) {
+            if (schema instanceof UserSchema) {
+                schemaMapping.setUserSchema(null);
+            }
+            if (schema instanceof RoleSchema) {
+                schemaMapping.setRoleSchema(null);
+            }
+
             schemaMappingDAO.delete(schemaMapping.getId());
         }
         schema.setMappings(Collections.EMPTY_SET);

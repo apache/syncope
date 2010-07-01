@@ -44,7 +44,7 @@ public class SchemaTest extends AbstractTest {
     private SchemaMappingDAO schemaMappingDAO;
 
     @Test
-    public final void test() {
+    public final void test1() {
         // 1
         schemaDAO.delete("username", UserSchema.class);
 
@@ -64,5 +64,16 @@ public class SchemaTest extends AbstractTest {
         assertNull(schemaDAO.find("surname", UserSchema.class));
         assertEquals(1, derivedSchemaDAO.find("cn",
                 UserDerivedSchema.class).getSchemas().size());
+    }
+
+    @Test
+    public final void test2() {
+        schemaDAO.delete("email", UserSchema.class);
+
+        schemaDAO.getEntityManager().flush();
+
+        assertNull(schemaDAO.find("email", UserSchema.class));
+        assertNull(schemaMappingDAO.find(100L));
+        assertNull(schemaMappingDAO.find(101L));
     }
 }

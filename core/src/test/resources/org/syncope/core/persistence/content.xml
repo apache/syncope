@@ -101,7 +101,7 @@
                    userSchema_name="email" nullable="false"
                    accountid="true" password="false"/>
 
-    <Entitlement name="base" description="NULL"/>
+    <Entitlement name="base"/>
     <Entitlement name="advanced" description="Advanced entitlement"/>
 
     <SyncopeRole_Entitlement entitlements_name="base"
