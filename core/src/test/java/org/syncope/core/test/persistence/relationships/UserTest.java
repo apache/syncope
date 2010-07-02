@@ -47,7 +47,7 @@ public class UserTest extends AbstractTest {
     public final void test() {
         syncopeUserDAO.delete(4L);
 
-        syncopeUserDAO.getEntityManager().flush();
+        syncopeUserDAO.flush();
 
         assertNull(syncopeUserDAO.find(4L));
         assertNull(attributeDAO.find(550L, UserAttribute.class));

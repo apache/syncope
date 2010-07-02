@@ -27,7 +27,7 @@ public abstract class AbstractDAOImpl implements DAO {
     protected EntityManager entityManager;
 
     @Override
-    public EntityManager getEntityManager() {
-        return entityManager;
+    public void flush() {
+        entityManager.flush();
     }
 }

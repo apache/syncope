@@ -50,7 +50,7 @@ public class RoleTest extends AbstractTest {
     public final void test() {
         syncopeRoleDAO.delete(2L);
 
-        syncopeRoleDAO.getEntityManager().flush();
+        syncopeRoleDAO.flush();
 
         assertNull(syncopeRoleDAO.find(2L));
         assertTrue(entitlementDAO.find("base").getRoles().size() == 1);

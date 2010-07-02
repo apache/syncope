@@ -20,6 +20,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import javax.persistence.EntityManager;
 import javax.sql.DataSource;
 import org.dbunit.database.DatabaseConfig;
 import org.dbunit.database.DatabaseConnection;
@@ -43,6 +44,8 @@ public abstract class AbstractTest {
 
     protected static final Logger log = LoggerFactory.getLogger(
             AbstractTest.class);
+    @Autowired
+    protected EntityManager entityManager;
     @Autowired
     private DataSource dataSource;
     @Autowired

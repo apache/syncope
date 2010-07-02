@@ -245,9 +245,7 @@ public class UserDataBinder {
         }
 
         // Everything went out fine, we can flush to the database
-        user = syncopeUserDAO.save(user);
-        syncopeUserDAO.getEntityManager().flush();
-        return user;
+        return syncopeUserDAO.save(user);
     }
 
     public UserTO getUserTO(SyncopeUser user) {

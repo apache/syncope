@@ -43,12 +43,11 @@ public class DerivedSchemaDataBinder {
         this.derivedSchemaDAO = derivedSchemaDAO;
     }
 
-    public <T extends AbstractDerivedSchema, K extends AbstractSchema> T createDerivedSchema(
+    private <T extends AbstractDerivedSchema, K extends AbstractSchema> T populateDerivedSchema(
+            T derivedSchema,
             DerivedSchemaTO derivedSchemaTO,
-            Class<T> derivedReference, Class<K> reference)
-            throws InstantiationException, IllegalAccessException {
+            Class<K> reference) {
 
-        T derivedSchema = derivedReference.newInstance();
         BeanUtils.copyProperties(derivedSchemaTO, derivedSchema,
                 ignoreDerivedSchemaProperties);
 
@@ -63,10 +62,37 @@ public class DerivedSchemaDataBinder {
             }
         }
 
-        // Everything went out fine, we can flush to the database
-        derivedSchema = derivedSchemaDAO.save(derivedSchema);
-        derivedSchemaDAO.getEntityManager().flush();
         return derivedSchema;
+    }
+
+    public <T extends AbstractDerivedSchema, K extends AbstractSchema> T createDerivedSchema(
+            DerivedSchemaTO derivedSchemaTO,
+            Class<T> derivedReference,
+            Class<K> reference)
+            throws InstantiationException, IllegalAccessException {
+
+        T derivedSchema = populateDerivedSchema(derivedReference.newInstance(),
+                derivedSchemaTO, reference);
+
+        // Everything went out fine, we can flush to the database
+        return derivedSchemaDAO.save(derivedSchema);
+    }
+
+    public <T extends AbstractDerivedSchema, K extends AbstractSchema> T updateDerivedSchema(
+            DerivedSchemaTO derivedSchemaTO,
+            Class<T> derivedReference,
+            Class<K> reference) {
+
+        T derivedSchema = derivedSchemaDAO.find(derivedSchemaTO.getName(),
+                derivedReference);
+        if (derivedSchema != null) {
+            derivedSchema = populateDerivedSchema(derivedSchema, derivedSchemaTO, reference);
+
+            // Everything went out fine, we can flush to the database
+            return derivedSchemaDAO.save(derivedSchema);
+        }
+
+        return null;
     }
 
     public <T extends AbstractDerivedSchema> DerivedSchemaTO getDerivedSchemaTO(

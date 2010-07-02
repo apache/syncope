@@ -74,7 +74,6 @@ public class DerivedSchemaController extends AbstractController {
             throwNotFoundException(derivedSchemaName, response);
         } else {
             derivedSchemaDAO.delete(derivedSchemaName, reference);
-            derivedSchemaDAO.getEntityManager().flush();
         }
     }
 
@@ -117,14 +116,23 @@ public class DerivedSchemaController extends AbstractController {
         return derivedSchemaDataBinder.getDerivedSchemaTO(derivedSchema);
     }
 
-    // TODO: implement and verify if current attributes are affected by this update
     @Transactional
     @RequestMapping(method = RequestMethod.POST, value = "/{kind}/update")
     public DerivedSchemaTO update(HttpServletResponse response,
             @RequestBody DerivedSchemaTO derivedSchemaTO,
             @PathVariable("kind") String kind)
-            throws InstantiationException, IllegalAccessException {
+            throws InstantiationException, IllegalAccessException, IOException {
 
-        return create(response, derivedSchemaTO, kind);
+        Class reference = getAttributable(kind).getDerivedSchemaClass();
+        AbstractDerivedSchema derivedSchema =
+                derivedSchemaDataBinder.createDerivedSchema(
+                derivedSchemaTO, reference,
+                getAttributable(kind).getSchemaClass());
+        if (derivedSchema == null) {
+            log.error("Could not find schema '" + derivedSchemaTO.getName() + "'");
+            return throwNotFoundException(derivedSchemaTO.getName(), response);
+        }
+
+        return derivedSchemaDataBinder.getDerivedSchemaTO(derivedSchema);
     }
 }

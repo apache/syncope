@@ -14,6 +14,8 @@
  */
 package org.syncope.core.rest.controller;
 
+import org.syncope.core.persistence.beans.AbstractDerivedSchema;
+import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.beans.role.RoleDerivedSchema;
 import org.syncope.core.persistence.beans.role.RoleSchema;
 import org.syncope.core.persistence.beans.user.UserDerivedSchema;
@@ -23,7 +25,7 @@ enum Attributable {
 
     USER, ROLE;
 
-    public Class getSchemaClass() {
+    public <T extends AbstractSchema> Class<T> getSchemaClass() {
         Class result = null;
 
         switch (this) {
@@ -38,7 +40,7 @@ enum Attributable {
         return result;
     }
 
-    public Class getDerivedSchemaClass() {
+    public <T extends AbstractDerivedSchema> Class<T> getDerivedSchemaClass() {
         Class result = null;
 
         switch (this) {

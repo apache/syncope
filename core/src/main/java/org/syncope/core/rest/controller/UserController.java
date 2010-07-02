@@ -82,7 +82,6 @@ public class UserController extends AbstractController {
             throwNotFoundException(String.valueOf(userId), response);
         } else {
             syncopeUserDAO.delete(userId);
-            syncopeUserDAO.getEntityManager().flush();
         }
     }
 

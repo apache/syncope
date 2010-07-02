@@ -14,17 +14,24 @@
  */
 package org.syncope.core.rest.data;
 
+import java.util.Iterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.syncope.client.to.SchemaTO;
+import org.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.syncope.client.validation.SyncopeClientException;
+import org.syncope.core.persistence.beans.AbstractAttribute;
+import org.syncope.core.persistence.beans.AbstractAttributeValue;
 import org.syncope.core.persistence.beans.AbstractDerivedSchema;
 import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.dao.DerivedSchemaDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.validation.UniqueValueException;
+import org.syncope.types.SyncopeClientExceptionType;
 
 @Component
 public class SchemaDataBinder {
@@ -44,12 +51,11 @@ public class SchemaDataBinder {
         this.derivedSchemaDAO = derivedSchemaDAO;
     }
 
-    public <T extends AbstractSchema, K extends AbstractDerivedSchema> T createSchema(
-            SchemaTO schemaTO, Class<T> reference, Class<K> derivedReference)
-            throws InstantiationException, IllegalAccessException,
-            UniqueValueException {
+    private <T extends AbstractSchema, K extends AbstractDerivedSchema> T populateSchema(
+            T schema,
+            SchemaTO schemaTO,
+            Class<K> derivedReference) {
 
-        T schema = reference.newInstance();
         BeanUtils.copyProperties(schemaTO, schema, ignoreSchemaProperties);
 
         AbstractDerivedSchema abstractDerivedSchema = null;
@@ -64,10 +70,71 @@ public class SchemaDataBinder {
             }
         }
 
-        // Everything went out fine, we can flush to the database
-        schema = schemaDAO.save(schema);
-        schemaDAO.getEntityManager().flush();
         return schema;
+    }
+
+    public <T extends AbstractSchema, K extends AbstractDerivedSchema> T createSchema(
+            SchemaTO schemaTO,
+            Class<T> reference,
+            Class<K> derivedReference)
+            throws InstantiationException, IllegalAccessException,
+            UniqueValueException {
+
+        T schema = populateSchema(reference.newInstance(), schemaTO, derivedReference);
+
+        // Everything went out fine, we can flush to the database
+        return schemaDAO.save(schema);
+    }
+
+    public <T extends AbstractSchema, K extends AbstractDerivedSchema> T updateSchema(
+            SchemaTO schemaTO,
+            Class<T> reference,
+            Class<K> derivedReference)
+            throws InstantiationException, IllegalAccessException,
+            SyncopeClientCompositeErrorException, UniqueValueException {
+
+        T schema = schemaDAO.find(schemaTO.getName(), reference);
+        if (schema != null) {
+            schema = populateSchema(schema, schemaTO, derivedReference);
+
+            boolean validationExceptionFound = false;
+            AbstractAttribute attribute = null;
+            AbstractAttributeValue attributeValue = null;
+            for (Iterator<? extends AbstractAttribute> attributeItor =
+                    schema.getAttributes().iterator();
+                    attributeItor.hasNext() && !validationExceptionFound;) {
+
+                attribute = attributeItor.next();
+                for (Iterator<? extends AbstractAttributeValue> attributeValueItor =
+                        attribute.getAttributeValues().iterator();
+                        attributeValueItor.hasNext()
+                        && !validationExceptionFound;) {
+
+                    attributeValue = attributeValueItor.next();
+                    try {
+                        schema.getValidator().getValue(
+                                attributeValue.getValueAsString(),
+                                attributeValue);
+                    } catch (Exception e) {
+                        validationExceptionFound = true;
+                    }
+                }
+            }
+
+            if (validationExceptionFound) {
+                SyncopeClientCompositeErrorException sccee =
+                        new SyncopeClientCompositeErrorException(
+                        HttpStatus.BAD_REQUEST);
+                sccee.addException(new SyncopeClientException(
+                        SyncopeClientExceptionType.InvalidSchemaUpdate));
+                throw sccee;
+            }
+
+            // Everything went out fine, we can flush to the database
+            return schemaDAO.save(schema);
+        }
+
+        return null;
     }
 
     public <T extends AbstractSchema> SchemaTO getSchemaTO(T schema) {
@@ -75,7 +142,6 @@ public class SchemaDataBinder {
         BeanUtils.copyProperties(schema, schemaTO, ignoreSchemaProperties);
 
         for (AbstractDerivedSchema derivedSchema : schema.getDerivedSchemas()) {
-
             schemaTO.addDerivedSchema(derivedSchema.getName());
         }
         schemaTO.setAttributes(schema.getAttributes().size());

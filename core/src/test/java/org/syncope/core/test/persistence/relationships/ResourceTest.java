@@ -87,7 +87,7 @@ public class ResourceTest extends AbstractTest {
 
         assertNotNull(actual);
 
-        resourceDAO.getEntityManager().flush();
+        resourceDAO.flush();
 
         // connector should be updated
         connector = connectorInstanceDAO.find(100L);
@@ -167,7 +167,7 @@ public class ResourceTest extends AbstractTest {
         resourceDAO.delete(resource.getName());
 
         // close the transaction
-        resourceDAO.getEntityManager().flush();
+        resourceDAO.flush();
 
         // resource must be removed
         Resource actual = resourceDAO.find("ws-target-resource-2");

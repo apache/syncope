@@ -47,7 +47,7 @@ public class DerivedSchemaTest extends AbstractTest {
     public final void test() {
         derivedSchemaDAO.delete("cn", UserDerivedSchema.class);
 
-        derivedSchemaDAO.getEntityManager().flush();
+        derivedSchemaDAO.flush();
 
         assertNull(derivedSchemaDAO.find("cn", UserDerivedSchema.class));
         assertNull(derivedAttributeDAO.find(1000L, UserDerivedAttribute.class));

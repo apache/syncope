@@ -14,25 +14,18 @@
  */
 package org.syncope.core.test.rest;
 
+import org.syncope.types.SyncopeClientExceptionType;
+import org.syncope.client.validation.SyncopeClientException;
 import org.springframework.web.client.HttpClientErrorException;
-import org.syncope.client.to.DerivedSchemaTOs;
-import org.syncope.core.persistence.dao.DerivedSchemaDAO;
-import org.syncope.client.to.DerivedSchemaTO;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.syncope.client.to.SchemaTO;
 import org.syncope.client.to.SchemaTOs;
-import org.syncope.core.persistence.dao.SchemaDAO;
+import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.types.SchemaType;
 import static org.junit.Assert.*;
 
 public class SchemaTestITCase extends AbstractTestITCase {
-
-    @Autowired
-    SchemaDAO schemaDAO;
-    @Autowired
-    DerivedSchemaDAO derivedSchemaDAO;
 
     @Test
     public void create() {
@@ -72,17 +65,25 @@ public class SchemaTestITCase extends AbstractTestITCase {
     }
 
     @Test
-    public void derivedList() {
-        DerivedSchemaTOs derivedSchemas =
-                restTemplate.getForObject(BASE_URL
-                + "derivedSchema/user/list.json", DerivedSchemaTOs.class);
-        assertFalse(derivedSchemas.getDerivedSchemas().isEmpty());
-    }
+    public void update() {
+        SchemaTO schemaTO = restTemplate.getForObject(BASE_URL
+                + "schema/role/read/icon.json", SchemaTO.class);
+        assertNotNull(schemaTO);
 
-    @Test
-    public void derivedRead() {
-        DerivedSchemaTO derivedSchemaTO = restTemplate.getForObject(BASE_URL
-                + "derivedSchema/user/read/cn.json", DerivedSchemaTO.class);
-        assertNotNull(derivedSchemaTO);
+        schemaTO.setVirtual(true);
+        SchemaTO updatedTO = restTemplate.postForObject(BASE_URL
+                + "schema/role/update", schemaTO, SchemaTO.class);
+        assertEquals(schemaTO, updatedTO);
+
+        updatedTO.setType(SchemaType.Date);
+        SyncopeClientException syncopeClientException = null;
+        try {
+            restTemplate.postForObject(BASE_URL
+                    + "schema/role/update", updatedTO, SchemaTO.class);
+        } catch (SyncopeClientCompositeErrorException e) {
+            syncopeClientException = e.getException(
+                    SyncopeClientExceptionType.InvalidSchemaUpdate);
+        }
+        assertNotNull(syncopeClientException);
     }
 }

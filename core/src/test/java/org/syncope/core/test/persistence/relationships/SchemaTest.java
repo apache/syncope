@@ -51,7 +51,7 @@ public class SchemaTest extends AbstractTest {
         // 2
         schemaDAO.delete("surname", UserSchema.class);
 
-        schemaDAO.getEntityManager().flush();
+        schemaDAO.flush();
 
         // 1
         assertNull(schemaDAO.find("username", UserSchema.class));
@@ -70,7 +70,7 @@ public class SchemaTest extends AbstractTest {
     public final void test2() {
         schemaDAO.delete("email", UserSchema.class);
 
-        schemaDAO.getEntityManager().flush();
+        schemaDAO.flush();
 
         assertNull(schemaDAO.find("email", UserSchema.class));
         assertNull(schemaMappingDAO.find(100L));

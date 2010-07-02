@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.syncope.client.to.SchemaTO;
 import org.syncope.client.to.SchemaTOs;
+import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.core.persistence.validation.UniqueValueException;
 import org.syncope.core.rest.data.SchemaDataBinder;
 import org.syncope.core.persistence.beans.AbstractSchema;
@@ -70,7 +71,6 @@ public class SchemaController extends AbstractController {
             throwNotFoundException(schemaName, response);
         } else {
             schemaDAO.delete(schemaName, reference);
-            schemaDAO.getEntityManager().flush();
         }
     }
 
@@ -106,14 +106,28 @@ public class SchemaController extends AbstractController {
         return schemaDataBinder.getSchemaTO(schema);
     }
 
-    // TODO: implement and verify if current attributes are affected by this update
     @Transactional
     @RequestMapping(method = RequestMethod.POST, value = "/{kind}/update")
     public SchemaTO update(HttpServletResponse response,
             @RequestBody SchemaTO schemaTO, @PathVariable("kind") String kind)
-            throws InstantiationException, IllegalAccessException,
+            throws IOException, InstantiationException, IllegalAccessException,
             UniqueValueException {
 
-        return create(response, schemaTO, kind);
+        Class reference = getAttributable(kind).getSchemaClass();
+        AbstractSchema schema = null;
+        try {
+            schema = schemaDataBinder.updateSchema(schemaTO,
+                    reference,
+                    getAttributable(kind).getDerivedSchemaClass());
+            if (schema == null) {
+                log.error("Could not find schema '" + schemaTO.getName() + "'");
+                return throwNotFoundException(schemaTO.getName(), response);
+            }
+        } catch (SyncopeClientCompositeErrorException e) {
+            log.error("Could not update for " + schemaTO, e);
+            return throwCompositeException(e, response);
+        }
+
+        return schemaDataBinder.getSchemaTO(schema);
     }
 }

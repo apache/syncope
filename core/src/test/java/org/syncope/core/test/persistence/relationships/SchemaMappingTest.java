@@ -56,7 +56,7 @@ public class SchemaMappingTest extends AbstractTest {
         resource.addMapping(actual);
 
         // close the transaction
-        schemaMappingDAO.getEntityManager().flush();
+        schemaMappingDAO.flush();
 
         assertNotNull(actual);
 
@@ -100,7 +100,7 @@ public class SchemaMappingTest extends AbstractTest {
         schemaMappingDAO.delete(schema.getId());
 
         // close the transaction
-        schemaMappingDAO.getEntityManager().flush();
+        schemaMappingDAO.flush();
 
         SchemaMapping actual = schemaMappingDAO.find(100L);
 

@@ -28,6 +28,9 @@ public enum SyncopeClientExceptionType {
     InvalidSchemas(
     "Syncope.InvalidSchemas",
     "Syncope.InvalidSchemas.schemaName"),
+    InvalidSchemaUpdate(
+    "Syncope.InvalidSchemaUpdate",
+    ""),
     InvalidUniques(
     "Syncope.InvalidUniques",
     "Syncope.InvalidUniques.attributeName"),
