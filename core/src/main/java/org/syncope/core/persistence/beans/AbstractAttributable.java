@@ -31,6 +31,7 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
     /**
      * Provisioning target resources.
      */
@@ -53,8 +54,7 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
                 result == null && itor.hasNext();) {
 
             attribute = (T) itor.next();
-            if (attribute.getSchema() != null
-                    && schemaName.equals(attribute.getSchema().getName())) {
+            if (attribute.getSchema() != null && schemaName.equals(attribute.getSchema().getName())) {
 
                 result = attribute;
             }
@@ -73,8 +73,7 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
                 result == null && itor.hasNext();) {
 
             derivedAttribute = (T) itor.next();
-            if (derivedAttribute.getDerivedSchema() != null
-                    && derivedSchemaName.equals(
+            if (derivedAttribute.getDerivedSchema() != null && derivedSchemaName.equals(
                     derivedAttribute.getDerivedSchema().getName())) {
 
                 result = derivedAttribute;
@@ -93,7 +92,8 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
     }
 
     public Set<Resource> getResources() {
-        return resources;
+        if (resources != null) return resources;
+        return new HashSet<Resource>();
     }
 
     public void setResources(Set<Resource> resources) {

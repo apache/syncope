@@ -14,20 +14,67 @@
  */
 package org.syncope.core.test.persistence;
 
+import java.util.HashSet;
+import java.util.Set;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
+import org.syncope.client.to.PropertyTO;
 import org.syncope.core.persistence.beans.ConnectorInstance;
 import org.syncope.core.persistence.dao.ConnectorInstanceDAO;
-import org.syncope.core.test.persistence.util.WebServiceConfiguration;
+import org.syncope.core.persistence.util.ApplicationContextManager;
+import org.syncope.core.rest.data.ConnectorInstanceDataBinder;
 
 @Transactional
 public class ConnectorInstanceDAOTest extends AbstractTest {
 
     @Autowired
     ConnectorInstanceDAO connectorInstanceDAO;
+
+    @Test
+    public final void testSingletonBean() {
+        ConnectorInstance connectorInstance = connectorInstanceDAO.find(100L);
+
+        assertNotNull("findById did not work", connectorInstance);
+
+        ConfigurableApplicationContext context =
+                ApplicationContextManager.getApplicationContext();
+
+        assertNotNull(context);
+
+        // --------------------------------------------
+        DefaultListableBeanFactory beanFactory =
+                (DefaultListableBeanFactory) context.getBeanFactory();
+
+        assertNotNull(beanFactory);
+
+        beanFactory.registerSingleton(
+                connectorInstance.getId().toString(),
+                connectorInstance);
+        // --------------------------------------------
+
+        // --------------------------------------------
+        beanFactory =
+                (DefaultListableBeanFactory) context.getBeanFactory();
+
+        assertNotNull(beanFactory);
+
+        ConnectorInstance actual = (ConnectorInstance) beanFactory.getBean(
+                connectorInstance.getId().toString());
+        // --------------------------------------------
+
+        assertNotNull(actual);
+
+        assertEquals(actual, connectorInstance);
+
+        connectorInstance.setXmlConfiguration("ne configuration ...");
+
+        assertEquals(actual, connectorInstance);
+    }
 
     @Test
     public final void findById() {
@@ -60,12 +107,22 @@ public class ConnectorInstanceDAOTest extends AbstractTest {
         connectorInstance.setBundleName(
                 "org.syncope.core.persistence.test.util");
 
-        WebServiceConfiguration conf = new WebServiceConfiguration();
-        conf.setEndpoint("http://host.domain");
-        conf.setService("/provisioning");
-        conf.setContext("/service");
+        // set the connector configuration using PropertyTO
+        Set<PropertyTO> conf = new HashSet<PropertyTO>();
 
-        String xmlconf = conf.serializeToXML();
+        PropertyTO endpoint = new PropertyTO();
+        endpoint.setKey("endpoint");
+        endpoint.setValue("http://host.domain");
+
+        PropertyTO servicename = new PropertyTO();
+        servicename.setKey("servicename");
+        servicename.setValue("Provisioning");
+
+        conf.add(endpoint);
+        conf.add(servicename);
+
+        // serialize configuration
+        String xmlconf = ConnectorInstanceDataBinder.serializeToXML(conf);
 
         assertNotNull("xml configuration string is null", xmlconf);
 
@@ -95,20 +152,11 @@ public class ConnectorInstanceDAOTest extends AbstractTest {
 
         assertNotNull("configuration not found", xmlConfiguration);
 
-        conf = (WebServiceConfiguration) WebServiceConfiguration.buildFromXML(
+        conf = (Set<PropertyTO>) ConnectorInstanceDataBinder.buildFromXML(
                 xmlConfiguration);
 
         assertNotNull("configuration retrieving failed", conf);
-
-        Throwable t = null;
-
-        try {
-            conf.validate();
-        } catch (IllegalArgumentException e) {
-            t = e;
-        }
-
-        assertNull("configuration validation failed", t);
+        assertTrue(conf.size() == 2);
     }
 
     @Test

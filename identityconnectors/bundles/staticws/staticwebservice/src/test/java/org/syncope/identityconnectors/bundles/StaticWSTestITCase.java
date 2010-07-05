@@ -16,7 +16,6 @@ package org.syncope.identityconnectors.bundles;
 
 import static org.junit.Assert.*;
 
-import java.io.IOException;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
@@ -58,7 +57,7 @@ import org.syncope.identityconnectors.bundles.staticwebservice.provisioning.inte
 public class StaticWSTestITCase {
 
     private static final Logger log =
-            LoggerFactory.getLogger(WebServiceConnector.class);
+            LoggerFactory.getLogger(StaticWSTestITCase.class);
 
     final private String ENDPOINT_PREFIX =
             "http://localhost:8888/wstarget/services";
@@ -75,6 +74,8 @@ public class StaticWSTestITCase {
     final private String bundleclass =
             WebServiceConnector.class.getName();
 
+    final private String BUNDLE_DIRECTORY = "target";
+
     private ConnectorFacade connector;
 
     /**
@@ -87,72 +88,78 @@ public class StaticWSTestITCase {
         ConnectorInfoManagerFactory connectorInfoManagerFactory =
                 ConnectorInfoManagerFactory.getInstance();
 
-        File bundleDirectory = new File("target");
+        File bundleDirectory = new File(BUNDLE_DIRECTORY);
 
         APIConfiguration apiConfig = null;
 
         Throwable t = null;
 
-        try {
-            // take bundles repository (directory or jar).
-            URL url = IOUtil.makeURL(
-                    bundleDirectory, "staticwebservice-0.1-SNAPSHOT.jar");
+        List<URL> urls = new ArrayList<URL>();
 
+        String[] files = bundleDirectory.list();
 
-            assertNotNull(url);
-
-            if (log.isDebugEnabled()) {
-                log.debug("URL: " + url.toString());
-            }
-
-            ConnectorInfoManager manager =
-                    connectorInfoManagerFactory.getLocalManager(url);
-
-            assertNotNull(manager);
-
-            // list connectors info
-            List<ConnectorInfo> infos = manager.getConnectorInfos();
-            if (infos != null) {
-                log.debug("infos size: " + infos.size());
-                for (ConnectorInfo i : infos) {
-                    log.debug("Name: " + i.getConnectorDisplayName());
+        for (String file : files) {
+            try {
+                urls.add(IOUtil.makeURL(bundleDirectory, file));
+            } catch (Exception ignore) {
+                // ignore exception and don't add bundle
+                if (log.isDebugEnabled()) {
+                    log.debug(
+                            "\"" +
+                            bundleDirectory.toString() + "/" + file +
+                            "\"" +
+                            " is not a valid connector bundle.", ignore);
                 }
             }
-
-            if (log.isDebugEnabled()) {
-                log.debug(
-                        "\nBundle name: " + bundlename +
-                        "\nBundle version: " + bundleversion +
-                        "\nBundle class: " + bundleclass);
-            }
-
-            // specify a connector.
-            ConnectorKey key = new ConnectorKey(
-                    bundlename,
-                    bundleversion,
-                    bundleclass);
-
-            assertNotNull(key);
-
-            // get the specified connector.
-            ConnectorInfo info = manager.findConnectorInfo(key);
-
-            assertNotNull(info);
-
-            // create default configuration
-            apiConfig = info.createDefaultAPIConfiguration();
-
-            assertNotNull(apiConfig);
-
-        } catch (IOException e) {
-            if (log.isErrorEnabled()) {
-                log.error("Bundle file not found", e);
-            }
-
-            t = e;
         }
 
-        assertNull(t);
+        assertFalse(urls.isEmpty());
+
+        if (log.isDebugEnabled()) {
+            log.debug("URL: " + urls.toString());
+        }
+
+        ConnectorInfoManager manager =
+                connectorInfoManagerFactory.getLocalManager(
+                urls.toArray(new URL[0]));
+
+        assertNotNull(manager);
+
+        // list connectors info
+        List<ConnectorInfo> infos = manager.getConnectorInfos();
+
+        assertNotNull(infos);
+
+        log.debug("infos size: " + infos.size());
+
+        for (ConnectorInfo i : infos) {
+            log.debug("Name: " + i.getConnectorDisplayName());
+        }
+
+        if (log.isDebugEnabled()) {
+            log.debug(
+                    "\nBundle name: " + bundlename +
+                    "\nBundle version: " + bundleversion +
+                    "\nBundle class: " + bundleclass);
+        }
+
+        // specify a connector.
+        ConnectorKey key = new ConnectorKey(
+                bundlename,
+                bundleversion,
+                bundleclass);
+
+        assertNotNull(key);
+
+        // get the specified connector.
+        ConnectorInfo info = manager.findConnectorInfo(key);
+
+        assertNotNull(info);
+
+        // create default configuration
+        apiConfig = info.createDefaultAPIConfiguration();
+
+        assertNotNull(apiConfig);
 
         // retrieve the ConfigurationProperties.
         ConfigurationProperties properties =

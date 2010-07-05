@@ -15,7 +15,10 @@
 <dataset>
     <SyncopeConfiguration confKey="token.length" confValue="256"/>
     <SyncopeConfiguration confKey="token.expireTime" confValue="60"/>
-    
+
+    <SyncopeConfiguration confKey="identityconnectors.bundle.directory"
+                          confValue="/tmp/bundles"/>
+                          
     <SyncopeUser id="1" password="XXX"/>
     <SyncopeUser id="2" password="YYY"/>
     <SyncopeUser id="3" password="ZZZ"/>

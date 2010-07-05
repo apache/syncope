@@ -21,7 +21,7 @@
 
     <parent>
         <artifactId>staticws</artifactId>
-        <groupId>org.syncope.identityconnectors.bundles</groupId>
+        <groupId>org.syncope.identityconnectors.bundles.staticws</groupId>
         <version>0.1-SNAPSHOT</version>
     </parent>
 

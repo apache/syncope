@@ -74,7 +74,8 @@ public class SyncopeUser extends AbstractAttributable {
     }
 
     public Set<SyncopeRole> getRoles() {
-        return roles;
+        if (roles != null) return roles;
+        return new HashSet<SyncopeRole>();
     }
 
     public void setRoles(Set<SyncopeRole> roles) {

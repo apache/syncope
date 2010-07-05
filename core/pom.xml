@@ -173,6 +173,12 @@
 
         <!-- TEST -->
         <dependency>
+            <groupId>org.syncope.identityconnectors.bundles.staticws</groupId>
+            <artifactId>staticwebservice</artifactId>
+            <version>${parent.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
@@ -507,6 +513,32 @@
                         <goals>
                             <goal>stop</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- in order to copy bundles and test connector controller -->
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>2.4.3</version>
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>/tmp/bundles</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${basedir}/../identityconnectors/bundles/staticws/staticwebservice/target</directory>
+                                    <includes>
+                                        <include>*.jar</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

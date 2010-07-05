@@ -21,7 +21,7 @@
 
     <parent>
         <artifactId>staticws</artifactId>
-        <groupId>org.syncope.identityconnectors.bundles</groupId>
+        <groupId>org.syncope.identityconnectors.bundles.staticws</groupId>
         <version>0.1-SNAPSHOT</version>
     </parent>
 
@@ -132,10 +132,18 @@
 
     <build>
         <plugins>
+            
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
+                <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
+
+                    <finalName>${artifactId}-${version}</finalName>
+                    <appendAssemblyId>false</appendAssemblyId>
+
+                    <descriptors>
+                        <descriptor>src/assemble/connector.xml</descriptor>
+                    </descriptors>
+
                     <archive>
                         <index>true</index>
                         <manifestEntries>
@@ -154,7 +162,18 @@
 
                         </manifestEntries>
                     </archive>
+                    
                 </configuration>
+                
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
 
             <!-- Test Plugins -->

@@ -42,8 +42,16 @@ public enum SyncopeClientExceptionType {
     "Syncope.NotFound.entity"),
     RequiredValuesMissing(
     "Syncope.RequiredValuesMissing",
+    "Syncope.RequiredValuesMissing.attributeName"),
+    UserInvalidValues(
+    "Syncope.InvalidValues",
+    "Syncope.InvalidValues.attributeName"),
+    ConnectorRequiredValueMissing(
+    "Syncope.RequiredValuesMissing",
     "Syncope.RequiredValuesMissing.attributeName");
+
     private String headerValue;
+
     private String elementHeaderName;
 
     private SyncopeClientExceptionType(String headerValue,
@@ -65,8 +73,7 @@ public enum SyncopeClientExceptionType {
         }
 
         if (result == null) {
-            throw new IllegalArgumentException("Unexpected header value: "
-                    + exceptionTypeHeaderValue);
+            throw new IllegalArgumentException("Unexpected header value: " + exceptionTypeHeaderValue);
         }
 
         return result;

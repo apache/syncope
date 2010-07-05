@@ -81,6 +81,9 @@
         <property name="entityManagerFactory" ref="entityManagerFactory"/>
     </bean>
 
+    <bean id="contextApplicationContextProvider"
+          class="org.syncope.core.persistence.util.ApplicationContextProvider" />
+
     <!-- workflow -->
     <bean id="workflowFactory"
           class="com.opensymphony.workflow.spi.hibernate.SpringWorkflowFactory"
