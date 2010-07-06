@@ -30,19 +30,20 @@ import org.syncope.core.persistence.beans.SchemaMapping;
 public class UserSchema extends AbstractSchema {
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "schema")
-    Set<UserAttribute> attributes;
+    private Set<UserAttribute> attributes;
     @ManyToMany(mappedBy = "schemas")
-    Set<UserDerivedSchema> derivedSchemas;
+    private Set<UserDerivedSchema> derivedSchemas;
     /**
      * All the mappings of the attribute schema.
      */
     @OneToMany(cascade = CascadeType.ALL,
     fetch = FetchType.EAGER, mappedBy = "userSchema")
-    Set<SchemaMapping> mappings;
+    private Set<SchemaMapping> mappings;
 
     public UserSchema() {
         attributes = new HashSet<UserAttribute>();
         derivedSchemas = new HashSet<UserDerivedSchema>();
+        mappings = new HashSet<SchemaMapping>();
     }
 
     @Override
@@ -103,17 +104,11 @@ public class UserSchema extends AbstractSchema {
 
     @Override
     public boolean addMapping(SchemaMapping mapping) {
-        if (this.mappings == null) {
-            this.mappings = new HashSet<SchemaMapping>();
-        }
         return this.mappings.add(mapping);
     }
 
     @Override
     public boolean removeMapping(SchemaMapping mapping) {
-        if (this.mappings == null) {
-            this.mappings = new HashSet<SchemaMapping>();
-        }
         return this.mappings.remove(mapping);
     }
 }

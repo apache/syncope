@@ -30,19 +30,20 @@ import org.syncope.core.persistence.beans.SchemaMapping;
 public class RoleSchema extends AbstractSchema {
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "schema")
-    Set<RoleAttribute> attributes;
+    private Set<RoleAttribute> attributes;
     @ManyToMany(mappedBy = "schemas")
-    Set<RoleDerivedSchema> derivedSchemas;
+    private Set<RoleDerivedSchema> derivedSchemas;
     /**
      * All the mappings of the attribute schema.
      */
     @OneToMany(cascade = CascadeType.ALL,
     fetch = FetchType.EAGER, mappedBy = "roleSchema")
-    Set<SchemaMapping> mappings;
+    private Set<SchemaMapping> mappings;
 
     public RoleSchema() {
         attributes = new HashSet<RoleAttribute>();
         derivedSchemas = new HashSet<RoleDerivedSchema>();
+        mappings = new HashSet<SchemaMapping>();
     }
 
     @Override
@@ -103,17 +104,11 @@ public class RoleSchema extends AbstractSchema {
 
     @Override
     public boolean addMapping(SchemaMapping mapping) {
-        if (this.mappings == null) {
-            this.mappings = new HashSet<SchemaMapping>();
-        }
-        return this.mappings.add(mapping);
+        return mappings.add(mapping);
     }
 
     @Override
     public boolean removeMapping(SchemaMapping mapping) {
-        if (this.mappings == null) {
-            this.mappings = new HashSet<SchemaMapping>();
-        }
-        return this.mappings.remove(mapping);
+        return mappings.remove(mapping);
     }
 }
