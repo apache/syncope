@@ -18,7 +18,11 @@ import java.beans.XMLDecoder;
 import java.beans.XMLEncoder;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.Set;
+import java.util.logging.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -60,7 +64,7 @@ public class ConnectorInstanceDataBinder {
 
         SyncopeClientException requiredValuesMissing =
                 new SyncopeClientException(
-                SyncopeClientExceptionType.ConnectorRequiredValueMissing);
+                SyncopeClientExceptionType.RequiredValueMissing);
 
         if (connectorTO.getBundleName() == null) {
             requiredValuesMissing.addElement("bundlename");
@@ -117,7 +121,7 @@ public class ConnectorInstanceDataBinder {
 
         SyncopeClientException requiredValuesMissing =
                 new SyncopeClientException(
-                SyncopeClientExceptionType.ConnectorRequiredValueMissing);
+                SyncopeClientExceptionType.RequiredValueMissing);
 
         if (connectorInstanceId == null) {
             requiredValuesMissing.addElement("connector id");
@@ -145,6 +149,14 @@ public class ConnectorInstanceDataBinder {
             connectorInstance.setXmlConfiguration(
                     serializeToXML(
                     connectorTO.getConfiguration()));
+        }
+
+        try {
+            log.error(URLEncoder.encode(serializeToXML(connectorTO.getConfiguration()), "UTF-8"));
+            // Throw composite exception if there is at least one element set
+            // in the composing exceptions
+        } catch (UnsupportedEncodingException ex) {
+            java.util.logging.Logger.getLogger(ConnectorInstanceDataBinder.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         // Throw composite exception if there is at least one element set
@@ -190,9 +202,14 @@ public class ConnectorInstanceDataBinder {
             encoder.flush();
             encoder.close();
 
-            return tokenContentOS.toString();
+            String res = tokenContentOS.toString();
+
+            return URLEncoder.encode(res, "UTF-8");
 
         } catch (Throwable t) {
+            if (log.isInfoEnabled()) {
+                log.info("Exception during connector serialization", t);
+            }
             return null;
         }
     }
@@ -200,7 +217,9 @@ public class ConnectorInstanceDataBinder {
     public static Object buildFromXML(String xml) {
         try {
 
-            ByteArrayInputStream tokenContentIS = new ByteArrayInputStream(xml.getBytes());
+            ByteArrayInputStream tokenContentIS = new ByteArrayInputStream(
+                    URLDecoder.decode(xml, "UTF-8").getBytes());
+
             XMLDecoder decoder = new XMLDecoder(tokenContentIS);
             Object object = decoder.readObject();
             decoder.close();
@@ -208,6 +227,9 @@ public class ConnectorInstanceDataBinder {
             return object;
 
         } catch (Throwable t) {
+            if (log.isInfoEnabled()) {
+                log.info("Exception during connector serialization", t);
+            }
             return null;
         }
     }

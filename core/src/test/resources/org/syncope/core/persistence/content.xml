@@ -87,12 +87,25 @@
                                             
     <UserDerivedAttribute id="1000" derivedSchema_name="cn" owner_id="3"/>
 
-    <ConnectorInstance id="100" connectorName="WebServiceConnector" version="0.1-SNAPSHOT"
+    <ConnectorInstance id="100"
                        bundleName="org.syncope.identityconnectors.bundles.staticws"
-                       xmlConfiguration="%lt;xml ... " />
+                       connectorName="org.syncope.identityconnectors.bundles.staticwebservice.WebServiceConnector"
+                       version="0.1-SNAPSHOT"
+                       xmlConfiguration="%3C%3Fxml+version%3D%221.0%22+encoding%3D%22UTF-8%22%3F%3E+%0A%3Cjava+version%3D%221.6.0_20%22+class%3D%22java.beans.XMLDecoder%22%3E+%0A+%3Cobject+class%3D%22java.util.HashSet%22%3E+%0A++%3Cvoid+method%3D%22add%22%3E+%0A+++%3Cobject+class%3D%22org.syncope.client.to.PropertyTO%22%3E+%0A++++%3Cvoid+property%3D%22key%22%3E+%0A+++++%3Cstring%3Eendpoint%3C%2Fstring%3E+%0A++++%3C%2Fvoid%3E+%0A++++%3Cvoid+property%3D%22value%22%3E+%0A+++++%3Cstring%3Ehttp%3A%2F%2Flocalhost%3A8888%2Fwstarget%2Fservices%3C%2Fstring%3E+%0A++++%3C%2Fvoid%3E+%0A+++%3C%2Fobject%3E+%0A++%3C%2Fvoid%3E+%0A++%3Cvoid+method%3D%22add%22%3E+%0A+++%3Cobject+class%3D%22org.syncope.client.to.PropertyTO%22%3E+%0A++++%3Cvoid+property%3D%22key%22%3E+%0A+++++%3Cstring%3Eservicename%3C%2Fstring%3E+%0A++++%3C%2Fvoid%3E+%0A++++%3Cvoid+property%3D%22value%22%3E+%0A+++++%3Cstring%3EProvisioning%3C%2Fstring%3E+%0A++++%3C%2Fvoid%3E+%0A+++%3C%2Fobject%3E+%0A++%3C%2Fvoid%3E+%0A+%3C%2Fobject%3E+%0A%3C%2Fjava%3E+%0A" />
 
     <Resource name="ws-target-resource-1" connector_id="100"/>
     <Resource name="ws-target-resource-2" connector_id="100"/>
+    <Resource name="ws-target-resource-list-mappings-1" connector_id="100"/>
+    <Resource name="ws-target-resource-list-mappings-2" connector_id="100"/>
+
+    <Resource_SyncopeRole Resource_name="ws-target-resource-list-mappings-1" roles_id="3" />
+    <SyncopeRole_Resource SyncopeRole_id="3" resources_name="ws-target-resource-list-mappings-1" />
+
+    <Resource_SyncopeUser Resource_name="ws-target-resource-2" users_id="3" />
+    <SyncopeUser_Resource SyncopeUser_id="3" resources_name="ws-target-resource-2" />
+
+    <Resource_SyncopeRole Resource_name="ws-target-resource-list-mappings-2" roles_id="3" />
+    <SyncopeRole_Resource SyncopeRole_id="3" resources_name="ws-target-resource-list-mappings-2" />
 
     <SchemaMapping id="100" field="username"
                    resource_name="ws-target-resource-1"
@@ -101,6 +114,21 @@
 
     <SchemaMapping id="101" field="username"
                    resource_name="ws-target-resource-2"
+                   userSchema_name="email" nullable="false"
+                   accountid="true" password="false"/>
+
+    <SchemaMapping id="102" field="email"
+                   resource_name="ws-target-resource-list-mappings-1"
+                   userSchema_name="email" nullable="false"
+                   accountid="true" password="false"/>
+
+    <SchemaMapping id="103" field="firstname"
+                   resource_name="ws-target-resource-list-mappings-1"
+                   userSchema_name="email" nullable="false"
+                   accountid="true" password="false"/>
+
+    <SchemaMapping id="104" field="firstname"
+                   resource_name="ws-target-resource-list-mappings-2"
                    userSchema_name="email" nullable="false"
                    accountid="true" password="false"/>
 

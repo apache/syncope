@@ -22,6 +22,7 @@ import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.annotation.ExpectedException;
 import org.springframework.web.client.HttpStatusCodeException;
+import org.syncope.client.to.ConnectorBundleTOs;
 import org.syncope.client.to.ConnectorInstanceTO;
 import org.syncope.client.to.ConnectorInstanceTOs;
 import org.syncope.client.to.PropertyTO;
@@ -194,5 +195,25 @@ public class ConnectorInstanceTestITCase extends AbstractTestITCase {
                 ConnectorInstanceTO.class, "100");
 
         assertNotNull(connectorInstanceTO);
+    }
+
+    //@Test
+    public void check() {
+        String verify = restTemplate.getForObject(
+                BASE_URL + "connector/check/{connectorId}.json",
+                String.class, "100");
+
+        assertEquals(verify, "OK");
+    }
+
+    @Test
+    public void getBundles() {
+        ConnectorBundleTOs bundles = restTemplate.getForObject(
+                BASE_URL + "connector/getBundles.json",
+                ConnectorBundleTOs.class);
+
+        assertNotNull(bundles);
+
+        assertFalse(bundles.getBundles().isEmpty());
     }
 }

@@ -31,8 +31,10 @@ public class UserSchema extends AbstractSchema {
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "schema")
     private Set<UserAttribute> attributes;
+
     @ManyToMany(mappedBy = "schemas")
     private Set<UserDerivedSchema> derivedSchemas;
+
     /**
      * All the mappings of the attribute schema.
      */
@@ -94,7 +96,8 @@ public class UserSchema extends AbstractSchema {
 
     @Override
     public Set<SchemaMapping> getMappings() {
-        return mappings;
+        if (this.mappings == null) this.mappings = new HashSet<SchemaMapping>();
+        return this.mappings;
     }
 
     @Override
@@ -104,11 +107,13 @@ public class UserSchema extends AbstractSchema {
 
     @Override
     public boolean addMapping(SchemaMapping mapping) {
+        if (this.mappings == null) this.mappings = new HashSet<SchemaMapping>();
         return this.mappings.add(mapping);
     }
 
     @Override
     public boolean removeMapping(SchemaMapping mapping) {
+        if (this.mappings == null) return true;
         return this.mappings.remove(mapping);
     }
 }

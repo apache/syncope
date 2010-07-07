@@ -58,7 +58,8 @@ public class ResourceDAOTest extends AbstractTest {
 
         assertNotNull("connector not found", connector);
 
-        assertEquals("invalid connector name", "WebServiceConnector",
+        assertEquals("invalid connector name",
+                "org.syncope.identityconnectors.bundles.staticwebservice.WebServiceConnector",
                 connector.getConnectorName());
 
         assertEquals("invalid bundle name",

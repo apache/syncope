@@ -67,18 +67,8 @@ public class Resource extends AbstractBaseBean {
     }
 
     public Set<SchemaMapping> getMappings() {
-        return mappings;
-    }
-
-    public void setMappings(Set<SchemaMapping> mappings) {
-        this.mappings = mappings;
-    }
-
-    public boolean addMapping(SchemaMapping mapping) {
-        if (this.mappings == null) {
-            this.mappings = new HashSet<SchemaMapping>();
-        }
-        return this.mappings.add(mapping);
+        if (this.mappings == null) this.mappings = new HashSet<SchemaMapping>();
+        return this.mappings;
     }
 
     public boolean removeMapping(SchemaMapping mapping) {
@@ -95,6 +85,7 @@ public class Resource extends AbstractBaseBean {
     }
 
     public Set<SyncopeRole> getRoles() {
+        if (roles == null) return new HashSet<SyncopeRole>();
         return roles;
     }
 
@@ -103,6 +94,7 @@ public class Resource extends AbstractBaseBean {
     }
 
     public Set<SyncopeUser> getUsers() {
+        if (users == null) return new HashSet<SyncopeUser>();
         return users;
     }
 
@@ -128,5 +120,14 @@ public class Resource extends AbstractBaseBean {
     public boolean removeRole(SyncopeRole role) {
         if (this.roles == null) return true;
         return this.roles.remove(role);
+    }
+
+    public void setMappings(Set<SchemaMapping> mappings) {
+        this.mappings = mappings;
+    }
+
+    public boolean addMapping(SchemaMapping mapping) {
+        if (this.mappings == null) this.mappings = new HashSet<SchemaMapping>();
+        return this.mappings.add(mapping);
     }
 }

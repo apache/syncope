@@ -15,6 +15,7 @@
 package org.syncope.core.persistence.beans;
 
 import java.util.HashSet;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -24,6 +25,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.MappedSuperclass;
+import org.syncope.core.persistence.beans.Resource;
 
 @MappedSuperclass
 public abstract class AbstractAttributable extends AbstractBaseBean {
@@ -92,8 +94,8 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
     }
 
     public Set<Resource> getResources() {
-        if (resources != null) return resources;
-        return new HashSet<Resource>();
+        if (this.resources == null) this.resources = new HashSet<Resource>();
+        return this.resources;
     }
 
     public void setResources(Set<Resource> resources) {

@@ -46,9 +46,12 @@ public enum SyncopeClientExceptionType {
     UserInvalidValues(
     "Syncope.InvalidValues",
     "Syncope.InvalidValues.attributeName"),
-    ConnectorRequiredValueMissing(
+    RequiredValueMissing(
     "Syncope.RequiredValuesMissing",
-    "Syncope.RequiredValuesMissing.attributeName");
+    "Syncope.RequiredValuesMissing.attributeName"),
+    Unknown(
+    "Syncope.Unknown",
+    "");
 
     private String headerValue;
 

@@ -16,6 +16,7 @@ package org.syncope.core.test.persistence;
 
 import java.util.HashSet;
 import java.util.Set;
+import org.identityconnectors.framework.api.ConnectorFacade;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
@@ -36,53 +37,14 @@ public class ConnectorInstanceDAOTest extends AbstractTest {
     ConnectorInstanceDAO connectorInstanceDAO;
 
     @Test
-    public final void testSingletonBean() {
-        ConnectorInstance connectorInstance = connectorInstanceDAO.find(100L);
-
-        assertNotNull("findById did not work", connectorInstance);
-
-        ConfigurableApplicationContext context =
-                ApplicationContextManager.getApplicationContext();
-
-        assertNotNull(context);
-
-        // --------------------------------------------
-        DefaultListableBeanFactory beanFactory =
-                (DefaultListableBeanFactory) context.getBeanFactory();
-
-        assertNotNull(beanFactory);
-
-        beanFactory.registerSingleton(
-                connectorInstance.getId().toString(),
-                connectorInstance);
-        // --------------------------------------------
-
-        // --------------------------------------------
-        beanFactory =
-                (DefaultListableBeanFactory) context.getBeanFactory();
-
-        assertNotNull(beanFactory);
-
-        ConnectorInstance actual = (ConnectorInstance) beanFactory.getBean(
-                connectorInstance.getId().toString());
-        // --------------------------------------------
-
-        assertNotNull(actual);
-
-        assertEquals(actual, connectorInstance);
-
-        connectorInstance.setXmlConfiguration("ne configuration ...");
-
-        assertEquals(actual, connectorInstance);
-    }
-
-    @Test
     public final void findById() {
         ConnectorInstance connectorInstance = connectorInstanceDAO.find(100L);
 
         assertNotNull("findById did not work", connectorInstance);
 
-        assertEquals("invalid connector name", "WebServiceConnector",
+        assertEquals(
+                "invalid connector name",
+                "org.syncope.identityconnectors.bundles.staticwebservice.WebServiceConnector",
                 connectorInstance.getConnectorName());
 
         assertEquals("invalid bundle name",

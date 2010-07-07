@@ -34,6 +34,9 @@
     <listener>
         <listener-class>org.syncope.core.persistence.DefaultContentLoader</listener-class>
     </listener>
+    <listener>
+        <listener-class>org.syncope.core.persistence.ConnectorInstanceBeansLoader</listener-class>
+    </listener>
 
     <servlet>
         <servlet-name>syncope-core-rest</servlet-name>

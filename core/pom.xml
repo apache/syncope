@@ -520,7 +520,6 @@
             <!-- in order to copy bundles and test connector controller -->
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
-                <version>2.4.3</version>
                 <executions>
                     <execution>
                         <id>copy-resources</id>

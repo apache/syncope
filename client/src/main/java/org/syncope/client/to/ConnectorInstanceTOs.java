@@ -35,8 +35,26 @@ public class ConnectorInstanceTOs extends AbstractBaseTO
         this.instances = instances;
     }
 
+    public boolean addInstance(ConnectorInstanceTO instance) {
+        if (this.instances == null) {
+            this.instances = new ArrayList<ConnectorInstanceTO>();
+        }
+
+        return this.instances.add(instance);
+    }
+
+    public boolean removeInstance(ConnectorInstanceTO instance) {
+        if (this.instances == null) return true;
+
+        return this.instances.remove(instance);
+    }
+
     @Override
     public Iterator<ConnectorInstanceTO> iterator() {
-        return instances.iterator();
+        if (this.instances == null) {
+            this.instances = new ArrayList<ConnectorInstanceTO>();
+        }
+
+        return this.instances.iterator();
     }
 }

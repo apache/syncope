@@ -128,7 +128,7 @@ public class ResourceTest extends AbstractTest {
         assertNotNull("find to delete did not work", resource);
 
         // -------------------------------------
-        // Get original associated mappings
+        // Get originally associated mappings
         // -------------------------------------
         Set<SchemaMapping> mappings = resource.getMappings();
 
@@ -141,7 +141,7 @@ public class ResourceTest extends AbstractTest {
         // -------------------------------------
 
         // -------------------------------------
-        // Get original associated connector
+        // Get originally associated connector
         // -------------------------------------
         ConnectorInstance connector = resource.getConnector();
 
@@ -151,7 +151,7 @@ public class ResourceTest extends AbstractTest {
         // -------------------------------------
 
         // -------------------------------------
-        // Get original users assoicated
+        // Get originally assoicated users
         // -------------------------------------
         Set<SyncopeUser> users = resource.getUsers();
 
