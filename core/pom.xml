@@ -32,6 +32,7 @@
 
     <properties>
         <jetty.port>8080</jetty.port>
+        <logfile.jetty>/tmp/syncope-core-jetty.log</logfile.jetty>
 
         <hsqldb.file>/tmp/syncope-db</hsqldb.file>
 
@@ -137,11 +138,6 @@
         <dependency>
             <groupId>org.jasypt</groupId>
             <artifactId>jasypt</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>postgresql</groupId>
-            <artifactId>postgresql</artifactId>
         </dependency>
 
         <dependency>
@@ -494,7 +490,31 @@
                             <maxIdleTime>60000</maxIdleTime>
                         </connector>
                     </connectors>
+                    <systemProperties>
+                        <systemProperty>
+                            <name>slf4j</name>
+                            <value>false</value>
+                        </systemProperty>
+                        <systemProperty>
+                            <name>log4j.configuration</name>
+                            <value>file:${project.build.directory}/test-classes/log4j_jetty.xml</value>
+                        </systemProperty>
+                    </systemProperties>
                 </configuration>
+               <!--<dependencies>
+                    <dependency>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-jcl</artifactId>
+                    </dependency>
+                    <dependency>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                    </dependency>
+                </dependencies>-->
                 <executions>
                     <execution>
                         <id>start-jetty</id>

@@ -12,7 +12,7 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.persistence;
+package org.syncope.core.workflow;
 
 import com.opensymphony.workflow.StoreException;
 import com.opensymphony.workflow.spi.hibernate3.AbstractHibernateWorkflowStore;

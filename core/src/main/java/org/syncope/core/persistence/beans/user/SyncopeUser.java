@@ -14,16 +14,21 @@
  */
 package org.syncope.core.persistence.beans.user;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.persistence.Transient;
+import org.apache.commons.lang.RandomStringUtils;
 import org.jasypt.util.password.PasswordEncryptor;
 import org.jasypt.util.password.StrongPasswordEncryptor;
 import org.syncope.core.persistence.beans.AbstractAttributable;
@@ -37,26 +42,22 @@ public class SyncopeUser extends AbstractAttributable {
     @Transient
     final private static PasswordEncryptor passwordEncryptor =
             new StrongPasswordEncryptor();
-
     private String password;
-
     @ManyToMany(fetch = FetchType.EAGER)
     private Set<SyncopeRole> roles;
-
     @OneToMany(cascade = CascadeType.ALL,
     fetch = FetchType.EAGER, mappedBy = "owner")
     private Set<UserAttribute> attributes;
-
     @OneToMany(cascade = CascadeType.ALL,
     fetch = FetchType.EAGER, mappedBy = "owner")
     private Set<UserDerivedAttribute> derivedAttributes;
-
-    @Temporal(javax.persistence.TemporalType.TIME)
+    @Column(nullable = true)
+    private Long workflowEntryId;
+    @Temporal(TemporalType.TIMESTAMP)
     private Date creationTime;
-
+    @Lob
     private String token;
-
-    @Temporal(javax.persistence.TemporalType.TIME)
+    @Temporal(TemporalType.TIMESTAMP)
     private Date tokenExpireTime;
 
     public SyncopeUser() {
@@ -74,7 +75,9 @@ public class SyncopeUser extends AbstractAttributable {
     }
 
     public Set<SyncopeRole> getRoles() {
-        if (roles != null) return roles;
+        if (roles != null) {
+            return roles;
+        }
         return new HashSet<SyncopeRole>();
     }
 
@@ -144,6 +147,14 @@ public class SyncopeUser extends AbstractAttributable {
         this.derivedAttributes = (Set<UserDerivedAttribute>) derivedAttributes;
     }
 
+    public Long getWorkflowEntryId() {
+        return workflowEntryId;
+    }
+
+    public void setWorkflowEntryId(Long workflowEntryId) {
+        this.workflowEntryId = workflowEntryId;
+    }
+
     public Date getCreationTime() {
         return creationTime;
     }
@@ -152,19 +163,28 @@ public class SyncopeUser extends AbstractAttributable {
         this.creationTime = creationTime;
     }
 
-    public String getToken() {
-        return token;
+    public void generateToken(int tokenLength, int tokenExpireTime) {
+        token = RandomStringUtils.randomAlphanumeric(tokenLength);
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.MINUTE, tokenExpireTime);
+        this.tokenExpireTime = calendar.getTime();
     }
 
-    public void setToken(String token) {
-        this.token = token;
+    public void removeToken() {
+        token = null;
+        tokenExpireTime = null;
+    }
+
+    public String getToken() {
+        return token;
     }
 
     public Date getTokenExpireTime() {
         return tokenExpireTime;
     }
 
-    public void setTokenExpireTime(Date tokenExpireTime) {
-        this.tokenExpireTime = tokenExpireTime;
+    public boolean checkToken(String token) {
+        return this.token.equals(token) && tokenExpireTime.after(new Date());
     }
 }

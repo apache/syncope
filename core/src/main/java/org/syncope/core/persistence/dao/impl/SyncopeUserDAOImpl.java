@@ -21,6 +21,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
+import org.syncope.core.persistence.beans.user.UserAttributeValue;
 import org.syncope.core.persistence.dao.SyncopeUserDAO;
 
 @Repository
@@ -30,6 +31,26 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
     @Override
     public SyncopeUser find(Long id) {
         return entityManager.find(SyncopeUser.class, id);
+    }
+
+    @Override
+    public List<SyncopeUser> findByAttributeValue(UserAttributeValue attributeValue) {
+
+        Query query = entityManager.createQuery(
+                "SELECT u FROM SyncopeUser u, UserAttribute ua, UserAttributeValue e "
+                + " WHERE e.attribute = ua AND ua.owner = u"
+                + " AND ((e.stringValue IS NOT NULL AND e.stringValue = :stringValue)"
+                + " OR (e.booleanValue IS NOT NULL AND e.booleanValue = :booleanValue)"
+                + " OR (e.dateValue IS NOT NULL AND e.dateValue = :dateValue)"
+                + " OR (e.longValue IS NOT NULL AND e.longValue = :longValue)"
+                + " OR (e.doubleValue IS NOT NULL AND e.doubleValue = :doubleValue))");
+        query.setParameter("stringValue", attributeValue.getStringValue());
+        query.setParameter("booleanValue", attributeValue.getBooleanValue());
+        query.setParameter("dateValue", attributeValue.getDateValue());
+        query.setParameter("longValue", attributeValue.getLongValue());
+        query.setParameter("doubleValue", attributeValue.getDoubleValue());
+
+        return query.getResultList();
     }
 
     @Override

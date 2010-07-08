@@ -39,6 +39,9 @@
 
     <UserSchema name="username" type="String" virtual="false"
                 mandatory="true" multivalue="false" uniquevalue="true"/>
+    <UserSchema name="userId" type="String" virtual="false"
+                mandatory="true" multivalue="false" uniquevalue="true"
+                validatorClass="org.syncope.core.persistence.validation.EmailAddressValidator"/>
     <UserSchema name="loginDate" type="Date" virtual="false"
                 mandatory="false" multivalue="true" uniquevalue="false"
                 conversionPattern="yyyy-MM-dd"/>
@@ -49,7 +52,10 @@
     <UserSchema name="email" type="String" virtual="false"
                 mandatory="false" multivalue="true" uniquevalue="true"
                 validatorClass="org.syncope.core.persistence.validation.EmailAddressValidator"/>
-
+    <UserSchema name="activationDate" type="Date" virtual="false"
+                mandatory="false" multivalue="false" uniquevalue="false"
+                conversionPattern="yyyy-MM-dd'T'HH:mm:ss.SSSZ"/>
+                
     <RoleSchema name="icon" type="String" virtual="false"
                 mandatory="false" multivalue="false" uniquevalue="false"/>
     <RoleSchema name="show" type="Boolean" virtual="false"

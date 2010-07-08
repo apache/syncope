@@ -46,6 +46,14 @@ public class SyncopeClientErrorHandler extends DefaultResponseErrorHandler {
 
         List<String> exceptionTypesInHeaders = response.getHeaders().get(
                 EXCEPTION_TYPE_HEADER);
+        if (exceptionTypesInHeaders == null) {
+            if (log.isDebugEnabled()) {
+                log.debug("No " + EXCEPTION_TYPE_HEADER + " provided");
+            }
+
+            return;
+        }
+
         SyncopeClientExceptionType exceptionType = null;
         SyncopeClientException clientException = null;
         Set<String> handledExceptions = new HashSet<String>();

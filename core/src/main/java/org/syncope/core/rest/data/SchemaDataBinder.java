@@ -80,10 +80,8 @@ public class SchemaDataBinder {
             throws InstantiationException, IllegalAccessException,
             UniqueValueException {
 
-        T schema = populateSchema(reference.newInstance(), schemaTO, derivedReference);
-
-        // Everything went out fine, we can flush to the database
-        return schemaDAO.save(schema);
+        return populateSchema(
+                reference.newInstance(), schemaTO, derivedReference);
     }
 
     public <T extends AbstractSchema, K extends AbstractDerivedSchema> T updateSchema(
@@ -130,8 +128,7 @@ public class SchemaDataBinder {
                 throw sccee;
             }
 
-            // Everything went out fine, we can flush to the database
-            return schemaDAO.save(schema);
+            return schema;
         }
 
         return null;

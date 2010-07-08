@@ -12,21 +12,23 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.persistence.dao;
+package org.syncope.core.workflow;
 
-import java.util.List;
+import com.opensymphony.module.propertyset.PropertySet;
+import com.opensymphony.workflow.FunctionProvider;
+import com.opensymphony.workflow.WorkflowException;
+import java.util.Map;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
-import org.syncope.core.persistence.beans.user.UserAttributeValue;
 
-public interface SyncopeUserDAO extends DAO {
+public class SendEmail extends OSWorkflowComponent implements FunctionProvider {
 
-    SyncopeUser find(Long id);
+    @Override
+    public void execute(Map transientVars, Map args, PropertySet ps)
+            throws WorkflowException {
 
-    List<SyncopeUser> findByAttributeValue(UserAttributeValue attributeValue);
+        SyncopeUser syncopeUser = (SyncopeUser) transientVars.get(
+                Constants.SYNCOPE_USER);
 
-    List<SyncopeUser> findAll();
-
-    SyncopeUser save(SyncopeUser syncopeUser);
-
-    void delete(Long id);
+        log.info("Send an e-mail to " + syncopeUser);
+    }
 }

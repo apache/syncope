@@ -71,11 +71,8 @@ public class DerivedSchemaDataBinder {
             Class<K> reference)
             throws InstantiationException, IllegalAccessException {
 
-        T derivedSchema = populateDerivedSchema(derivedReference.newInstance(),
+        return populateDerivedSchema(derivedReference.newInstance(),
                 derivedSchemaTO, reference);
-
-        // Everything went out fine, we can flush to the database
-        return derivedSchemaDAO.save(derivedSchema);
     }
 
     public <T extends AbstractDerivedSchema, K extends AbstractSchema> T updateDerivedSchema(
@@ -86,10 +83,8 @@ public class DerivedSchemaDataBinder {
         T derivedSchema = derivedSchemaDAO.find(derivedSchemaTO.getName(),
                 derivedReference);
         if (derivedSchema != null) {
-            derivedSchema = populateDerivedSchema(derivedSchema, derivedSchemaTO, reference);
-
-            // Everything went out fine, we can flush to the database
-            return derivedSchemaDAO.save(derivedSchema);
+            return populateDerivedSchema(
+                    derivedSchema, derivedSchemaTO, reference);
         }
 
         return null;

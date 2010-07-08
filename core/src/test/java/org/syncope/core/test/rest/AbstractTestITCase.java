@@ -23,7 +23,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.RestTemplate;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath:persistenceContext.xml",
+@ContextConfiguration(locations = {
+    "classpath:persistenceContext.xml",
+    "classpath:workflowContext.xml",
     "file:src/main/webapp/WEB-INF/syncope-core-rest-servlet.xml"})
 public abstract class AbstractTestITCase {
 

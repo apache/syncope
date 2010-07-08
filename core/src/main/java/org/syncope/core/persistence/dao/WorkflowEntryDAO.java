@@ -14,19 +14,11 @@
  */
 package org.syncope.core.persistence.dao;
 
-import java.util.List;
-import org.syncope.core.persistence.beans.user.SyncopeUser;
-import org.syncope.core.persistence.beans.user.UserAttributeValue;
+import com.opensymphony.workflow.spi.hibernate.HibernateWorkflowEntry;
 
-public interface SyncopeUserDAO extends DAO {
+public interface WorkflowEntryDAO extends DAO {
 
-    SyncopeUser find(Long id);
-
-    List<SyncopeUser> findByAttributeValue(UserAttributeValue attributeValue);
-
-    List<SyncopeUser> findAll();
-
-    SyncopeUser save(SyncopeUser syncopeUser);
+    HibernateWorkflowEntry find(Long id);
 
     void delete(Long id);
 }

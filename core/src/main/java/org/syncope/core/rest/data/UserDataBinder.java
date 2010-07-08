@@ -43,7 +43,6 @@ import org.syncope.core.persistence.dao.DerivedSchemaDAO;
 import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.SyncopeRoleDAO;
-import org.syncope.core.persistence.dao.SyncopeUserDAO;
 import org.syncope.core.persistence.validation.ValidationException;
 import org.syncope.types.SyncopeClientExceptionType;
 
@@ -53,9 +52,9 @@ public class UserDataBinder {
     private static final Logger log = LoggerFactory.getLogger(
             UserDataBinder.class);
     private static final String[] ignoreProperties = {
-        "attributes", "derivedAttributes", "roles", "resources"
+        "attributes", "derivedAttributes", "roles", "resources",
+        "workflowEntryId"
     };
-    private SyncopeUserDAO syncopeUserDAO;
     private SchemaDAO schemaDAO;
     private AttributeValueDAO attributeValueDAO;
     private DerivedSchemaDAO derivedSchemaDAO;
@@ -63,14 +62,12 @@ public class UserDataBinder {
     private ResourceDAO resourceDAO;
 
     @Autowired
-    public UserDataBinder(SyncopeUserDAO syncopeUserDAO,
-            SchemaDAO schemaDAO,
+    public UserDataBinder(SchemaDAO schemaDAO,
             AttributeValueDAO attributeValueDAO,
             DerivedSchemaDAO derivedSchemaDAO,
             SyncopeRoleDAO syncopeRoleDAO,
             ResourceDAO resourceDAO) {
 
-        this.syncopeUserDAO = syncopeUserDAO;
         this.schemaDAO = schemaDAO;
         this.attributeValueDAO = attributeValueDAO;
         this.derivedSchemaDAO = derivedSchemaDAO;
@@ -101,8 +98,8 @@ public class UserDataBinder {
         SyncopeClientException invalidResources = new SyncopeClientException(
                 SyncopeClientExceptionType.InvalidResources);
 
-        SyncopeUser user = new SyncopeUser();
-        BeanUtils.copyProperties(userTO, user,
+        SyncopeUser syncopeUser = new SyncopeUser();
+        BeanUtils.copyProperties(userTO, syncopeUser,
                 (String[]) ArrayUtils.add(ignoreProperties, "id"));
 
         // 1. attributes
@@ -118,7 +115,7 @@ public class UserDataBinder {
             } else {
                 attribute = new UserAttribute();
                 attribute.setSchema(schema);
-                attribute.setOwner(user);
+                attribute.setOwner(syncopeUser);
 
                 // if the schema is multivale, all values are considered for
                 // addition, otherwise only the fist one - if provided - is
@@ -157,7 +154,7 @@ public class UserDataBinder {
                 }
 
                 if (!attribute.getAttributeValues().isEmpty()) {
-                    user.addAttribute(attribute);
+                    syncopeUser.addAttribute(attribute);
                 }
             }
         }
@@ -174,8 +171,8 @@ public class UserDataBinder {
             } else {
                 derivedAttribute = new UserDerivedAttribute();
                 derivedAttribute.setDerivedSchema(derivedSchema);
-                derivedAttribute.setOwner(user);
-                user.addDerivedAttribute(derivedAttribute);
+                derivedAttribute.setOwner(syncopeUser);
+                syncopeUser.addDerivedAttribute(derivedAttribute);
             }
         }
 
@@ -183,7 +180,7 @@ public class UserDataBinder {
         // has been provided
         List<UserSchema> allUserSchemas = schemaDAO.findAll(UserSchema.class);
         for (UserSchema userSchema : allUserSchemas) {
-            if (user.getAttribute(userSchema.getName()) == null
+            if (syncopeUser.getAttribute(userSchema.getName()) == null
                     && userSchema.isMandatory()) {
 
                 log.error("Mandatory schema " + userSchema.getName()
@@ -201,7 +198,7 @@ public class UserDataBinder {
             if (role == null) {
                 invalidRoles.addElement(String.valueOf(roleId));
             } else {
-                user.addRole(role);
+                syncopeUser.addRole(role);
             }
         }
 
@@ -213,7 +210,7 @@ public class UserDataBinder {
             if (resource == null) {
                 invalidResources.addElement(resourceName);
             } else {
-                user.addResource(resource);
+                syncopeUser.addResource(resource);
             }
         }
 
@@ -244,8 +241,7 @@ public class UserDataBinder {
             throw compositeErrorException;
         }
 
-        // Everything went out fine, we can flush to the database
-        return syncopeUserDAO.save(user);
+        return syncopeUser;
     }
 
     public UserTO getUserTO(SyncopeUser user) {

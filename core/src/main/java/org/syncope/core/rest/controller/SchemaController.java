@@ -53,6 +53,7 @@ public class SchemaController extends AbstractController {
         AbstractSchema schema = schemaDataBinder.createSchema(schemaTO,
                 reference, getAttributable(kind).getDerivedSchemaClass());
 
+        schema = schemaDAO.save(schema);
         response.setStatus(HttpServletResponse.SC_CREATED);
         return schemaDataBinder.getSchemaTO(schema);
     }
@@ -127,7 +128,8 @@ public class SchemaController extends AbstractController {
             log.error("Could not update for " + schemaTO, e);
             return throwCompositeException(e, response);
         }
-
+        
+        schema = schemaDAO.save(schema);
         return schemaDataBinder.getSchemaTO(schema);
     }
 }

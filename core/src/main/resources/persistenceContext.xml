@@ -30,6 +30,9 @@
     <context:component-scan base-package="org.syncope.core.persistence"/>
     <context:component-scan base-package="org.syncope.core.rest.data"/>
 
+    <bean id="contextApplicationContextProvider"
+          class="org.syncope.core.persistence.util.ApplicationContextProvider"/>
+          
     <bean id="propertyConfigurer"
           class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
         <property name="locations">
@@ -62,10 +65,9 @@
         <property name="dataSource" ref="dataSource"/>
         <property name="jpaVendorAdapter">
             <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
-                <property name="showSql" value="true"/>
+                <property name="showSql" value="false"/>
                 <property name="generateDdl" value="true"/>
-                <property name="databasePlatform"
-                          value="${hibernate.dialect}"/>
+                <property name="databasePlatform" value="${hibernate.dialect}"/>
             </bean>
         </property>
     </bean>
@@ -79,50 +81,6 @@
     <bean id="transactionManager"
           class="org.springframework.orm.jpa.JpaTransactionManager">
         <property name="entityManagerFactory" ref="entityManagerFactory"/>
-    </bean>
-
-    <bean id="contextApplicationContextProvider"
-          class="org.syncope.core.persistence.util.ApplicationContextProvider" />
-
-    <!-- workflow -->
-    <bean id="workflowFactory"
-          class="com.opensymphony.workflow.spi.hibernate.SpringWorkflowFactory"
-          init-method="init">
-        <property name="resource">
-            <value>org/syncope/core/persistence/workflows.xml</value>
-        </property>
-        <property name="reload">
-            <value>true</value>
-        </property>
-    </bean>
-
-    <bean id="workflowStore"
-          class="org.syncope.core.persistence.SpringHibernateJPAWorkflowStore"/>
-
-    <bean id="osworkflowConfiguration"
-          class="com.opensymphony.workflow.config.SpringConfiguration">
-        <property name="store">
-            <ref local="workflowStore"/>
-        </property>
-        <property name="factory">
-            <ref local="workflowFactory"/>
-        </property>
-    </bean>
-
-    <bean id="workflowTypeResolver"
-          class="com.opensymphony.workflow.util.SpringTypeResolver"/>
-
-    <bean id="userWorkflow"
-          class="com.opensymphony.workflow.basic.BasicWorkflow">
-        <constructor-arg>
-            <value>user</value>
-        </constructor-arg>
-        <property name="configuration">
-            <ref local="osworkflowConfiguration"/>
-        </property>
-        <property name="resolver">
-            <ref local="workflowTypeResolver"/>
-        </property>
     </bean>
 
 </beans>

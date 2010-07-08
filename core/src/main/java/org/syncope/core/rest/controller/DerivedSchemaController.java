@@ -53,6 +53,7 @@ public class DerivedSchemaController extends AbstractController {
                 derivedSchemaTO, reference,
                 getAttributable(kind).getSchemaClass());
 
+        derivedSchema = derivedSchemaDAO.save(derivedSchema);
         response.setStatus(HttpServletResponse.SC_CREATED);
         return derivedSchemaDataBinder.getDerivedSchemaTO(derivedSchema);
     }
@@ -132,7 +133,8 @@ public class DerivedSchemaController extends AbstractController {
             log.error("Could not find schema '" + derivedSchemaTO.getName() + "'");
             return throwNotFoundException(derivedSchemaTO.getName(), response);
         }
-
+        
+        derivedSchema = derivedSchemaDAO.save(derivedSchema);
         return derivedSchemaDataBinder.getDerivedSchemaTO(derivedSchema);
     }
 }

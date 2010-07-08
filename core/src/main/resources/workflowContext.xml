@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd">
+    
+    <bean id="workflowStore" class="org.syncope.core.workflow.SpringHibernateJPAWorkflowStore">
+        <property name="propertySetDelegate">
+            <bean id="propertySetDelegate"
+                  class="com.opensymphony.workflow.util.PropertySetDelegateImpl"/>
+        </property>
+    </bean>
+
+    <bean id="workflowFactory"
+          class="com.opensymphony.workflow.spi.hibernate.SpringWorkflowFactory"
+          init-method="init">
+        <property name="resource">
+            <value>workflows.xml</value>
+        </property>
+        <property name="reload">
+            <value>true</value>
+        </property>
+    </bean>
+
+    <bean id="osworkflowConfiguration" class="com.opensymphony.workflow.config.SpringConfiguration">
+        <property name="store">
+            <ref local="workflowStore"/>
+        </property>
+        <property name="factory">
+            <ref local="workflowFactory"/>
+        </property>
+    </bean>
+
+    <bean id="workflowTypeResolver" class="com.opensymphony.workflow.util.SpringTypeResolver"/>
+
+    <bean id="userWorkflow" class="com.opensymphony.workflow.basic.BasicWorkflow">
+        <constructor-arg>
+            <value>userWorkflow</value>
+        </constructor-arg>
+        <property name="configuration">
+            <ref local="osworkflowConfiguration"/>
+        </property>
+        <property name="resolver">
+            <ref local="workflowTypeResolver"/>
+        </property>
+    </bean>
+
+</beans>

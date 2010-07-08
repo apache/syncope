@@ -35,8 +35,8 @@ public class UserTestITCase extends AbstractTestITCase {
     @ExpectedException(value = SyncopeClientCompositeErrorException.class)
     public void createWithException() {
         AttributeTO attributeTO = new AttributeTO();
-        attributeTO.setSchema("attr1");
-        attributeTO.setValues(Collections.singleton("value1"));
+        attributeTO.setSchema("userId");
+        attributeTO.setValues(Collections.singleton("userId@nowhere.org"));
 
         UserTO newUserTO = new UserTO();
         newUserTO.addAttribute(attributeTO);
@@ -59,6 +59,11 @@ public class UserTestITCase extends AbstractTestITCase {
         surnameTO.addValue("Chicchiriccò");
         userTO.addAttribute(surnameTO);
 
+        AttributeTO userIdTO = new AttributeTO();
+        userIdTO.setSchema("userId");
+        userIdTO.addValue("chicchiricco@gmail.com");
+        userTO.addAttribute(userIdTO);
+
         AttributeTO emailTO = new AttributeTO();
         emailTO.setSchema("email");
         emailTO.addValue("chicchiricco@gmail.com");
@@ -71,11 +76,18 @@ public class UserTestITCase extends AbstractTestITCase {
         loginDateTO.addValue("2010-07-01");
         userTO.addAttribute(loginDateTO);
 
+        // 1. create user
         UserTO newUserTO = restTemplate.postForObject(BASE_URL + "user/create",
                 userTO, UserTO.class);
         userTO.setId(newUserTO.getId());
         assertEquals(userTO, userTO);
 
+        // 2. activate user
+        restTemplate.postForObject(BASE_URL + "user/activate/" + userTO.getId(),
+                Collections.singletonMap("token", userTO.getToken()),
+                UserTO.class);
+
+        // 3. try (and fail) to create another user with the same surname (unique)
         userTO = new UserTO();
 
         usernameTO = new AttributeTO();
@@ -87,6 +99,11 @@ public class UserTestITCase extends AbstractTestITCase {
         surnameTO.setSchema("surname");
         surnameTO.addValue("Martelli");
         userTO.addAttribute(surnameTO);
+
+        userIdTO = new AttributeTO();
+        userIdTO.setSchema("userId");
+        userIdTO.addValue("syncope@googlecode.com");
+        userTO.addAttribute(userIdTO);
 
         emailTO = new AttributeTO();
         emailTO.setSchema("email");

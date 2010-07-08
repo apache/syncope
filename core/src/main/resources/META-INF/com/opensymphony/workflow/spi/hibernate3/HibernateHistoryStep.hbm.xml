@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class name="com.opensymphony.workflow.spi.hibernate.HibernateHistoryStep" table="OS_HISTORYSTEP">
+        <id name="id" unsaved-value="-1">
+            <generator class="native"/>
+        </id>
+        <property name="actionId" column="action_Id"/>
+        <property name="caller" column="caller"/>
+        <property name="finishDate" column="finish_Date"/>
+        <property name="startDate" column="start_Date"/>
+        <property name="dueDate" column="due_Date"/>
+        <property name="owner" column="owner"/>
+        <property name="status" column="status"/>
+        <property name="stepId" column="step_Id"/>
+
+        <many-to-one name="entry" class="com.opensymphony.workflow.spi.hibernate.HibernateWorkflowEntry" column="entry_Id" cascade="none"/>
+    </class>
+</hibernate-mapping>

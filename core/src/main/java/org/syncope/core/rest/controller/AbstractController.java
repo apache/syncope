@@ -15,6 +15,7 @@
  */
 package org.syncope.core.rest.controller;
 
+import com.opensymphony.workflow.WorkflowException;
 import java.io.IOException;
 import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
@@ -78,6 +79,21 @@ public abstract class AbstractController {
                 notFound);
 
         response.sendError(HttpServletResponse.SC_NOT_FOUND);
+
+        return null;
+    }
+
+    protected <T> T throwWorkflowException(WorkflowException we,
+            HttpServletResponse response) throws IOException {
+
+        response.setHeader(
+                SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
+                SyncopeClientExceptionType.Workflow.getHeaderValue());
+        response.setHeader(
+                SyncopeClientExceptionType.Workflow.getElementHeaderName(),
+                we.getMessage());
+
+        response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 
         return null;
     }

@@ -12,21 +12,14 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.persistence.dao;
+package org.syncope.core.workflow;
 
-import java.util.List;
-import org.syncope.core.persistence.beans.user.SyncopeUser;
-import org.syncope.core.persistence.beans.user.UserAttributeValue;
+public class Constants {
 
-public interface SyncopeUserDAO extends DAO {
-
-    SyncopeUser find(Long id);
-
-    List<SyncopeUser> findByAttributeValue(UserAttributeValue attributeValue);
-
-    List<SyncopeUser> findAll();
-
-    SyncopeUser save(SyncopeUser syncopeUser);
-
-    void delete(Long id);
+    final public static String ACTION_ACTIVATE = "activate";
+    final public static String ENTRY = "entry";
+    final public static String SYNCOPE_USER = "syncopeUser";
+    final public static String TOKEN = "token";
+    final public static String USER_TO = "userTO";
+    final public static String USER_WORKFLOW = "userWorkflow";
 }
