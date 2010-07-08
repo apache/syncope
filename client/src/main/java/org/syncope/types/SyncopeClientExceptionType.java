@@ -19,6 +19,9 @@ public enum SyncopeClientExceptionType {
     InvalidDerivedSchemas(
     "Syncope.InvalidDerivedSchemas",
     "Syncope.InvalidDerivedSchemas.derivedSchemaName"),
+    InvalidPassword(
+    "Syncope.InvalidPassword",
+    "Syncope.InvalidPassword.reason"),
     InvalidResources(
     "Syncope.InvalidResources",
     "Syncope.InvalidResources.resourceName"),

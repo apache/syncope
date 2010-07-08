@@ -48,6 +48,7 @@ public class UserTestITCase extends AbstractTestITCase {
     @Test
     public void create() {
         UserTO userTO = new UserTO();
+        userTO.setPassword("password");
 
         AttributeTO usernameTO = new AttributeTO();
         usernameTO.setSchema("username");
@@ -80,6 +81,7 @@ public class UserTestITCase extends AbstractTestITCase {
         UserTO newUserTO = restTemplate.postForObject(BASE_URL + "user/create",
                 userTO, UserTO.class);
         userTO.setId(newUserTO.getId());
+        userTO.setPassword(newUserTO.getPassword());
         userTO.setCreationTime(newUserTO.getCreationTime());
         userTO.setToken(newUserTO.getToken());
         userTO.setTokenExpireTime(newUserTO.getTokenExpireTime());
@@ -94,6 +96,7 @@ public class UserTestITCase extends AbstractTestITCase {
 
         // 3. try (and fail) to create another user with the same surname (unique)
         userTO = new UserTO();
+        userTO.setPassword("password");
 
         usernameTO = new AttributeTO();
         usernameTO.setSchema("username");

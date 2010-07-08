@@ -15,6 +15,12 @@
 <dataset>
     <SyncopeConfiguration confKey="token.length" confValue="256"/>
     <SyncopeConfiguration confKey="token.expireTime" confValue="60"/>
+    <SyncopeConfiguration confKey="smtp.host" confValue="smtp.ngi.it"/>
+    <SyncopeConfiguration confKey="activate.email.from" confValue="syncope@googlecode.com"/>
+    <SyncopeConfiguration confKey="activate.email.subject" confValue="Welcome to Syncope!"/>
+    <SyncopeConfiguration confKey="activate.email.template.html" confValue="registration.html"/>
+    <SyncopeConfiguration confKey="activate.email.template.txt" confValue="registration.txt"/>
+    <SyncopeConfiguration confKey="servicelayer.baseurl" confValue="http://www.google.it/"/>
     <SyncopeConfiguration confKey="identityconnectors.bundle.directory"
                           confValue="/tmp/bundles"/>
 

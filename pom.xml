@@ -97,9 +97,12 @@
     <properties>
 
         <servlet-api.version>2.5</servlet-api.version>
+        <jsp-api.version>2.1</jsp-api.version>
+        <jstl.version>1.2</jstl.version>
 
         <commons-jexl.version>2.0.1</commons-jexl.version>
         <commons-lang.version>2.5</commons-lang.version>
+        <commons-email.version>1.2</commons-email.version>
 
         <openam.version>snapshot9</openam.version>
 
@@ -129,8 +132,6 @@
 
         <jetty.version>6.1.24</jetty.version>
 
-        <commons-digester.version>2.0</commons-digester.version>
-
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <org.apache.cxf.version>2.2.9</org.apache.cxf.version>
@@ -149,6 +150,19 @@
             </dependency>
 
             <dependency>
+                <groupId>javax.servlet.jsp</groupId>
+                <artifactId>jsp-api</artifactId>
+                <version>${jsp-api.version}</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>jstl</artifactId>
+                <version>${jstl.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-jexl</artifactId>
                 <version>${commons-jexl.version}</version>
@@ -158,6 +172,12 @@
                 <groupId>commons-lang</groupId>
                 <artifactId>commons-lang</artifactId>
                 <version>${commons-lang.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-email</artifactId>
+                <version>${commons-email.version}</version>
             </dependency>
 
             <dependency>

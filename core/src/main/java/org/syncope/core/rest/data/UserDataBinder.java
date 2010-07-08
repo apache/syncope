@@ -81,6 +81,8 @@ public class UserDataBinder {
         SyncopeClientCompositeErrorException compositeErrorException =
                 new SyncopeClientCompositeErrorException(
                 HttpStatus.BAD_REQUEST);
+        SyncopeClientException invalidPassword = new SyncopeClientException(
+                SyncopeClientExceptionType.InvalidPassword);
         SyncopeClientException invalidSchemas = new SyncopeClientException(
                 SyncopeClientExceptionType.InvalidSchemas);
         SyncopeClientException requiredValuesMissing =
@@ -101,6 +103,13 @@ public class UserDataBinder {
         SyncopeUser syncopeUser = new SyncopeUser();
         BeanUtils.copyProperties(userTO, syncopeUser,
                 (String[]) ArrayUtils.add(ignoreProperties, "id"));
+
+        // 0. password
+        // TODO: check password policies
+        if (userTO.getPassword() == null || userTO.getPassword().length() == 0) {
+            invalidPassword.addElement("Null password");
+            compositeErrorException.addException(invalidPassword);
+        }
 
         // 1. attributes
         UserSchema schema = null;

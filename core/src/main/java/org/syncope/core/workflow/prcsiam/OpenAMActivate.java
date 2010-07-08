@@ -14,21 +14,22 @@
  */
 package org.syncope.core.workflow.prcsiam;
 
-import java.io.IOException;
+import com.iplanet.sso.SSOToken;
+import com.iplanet.sso.SSOTokenManager;
 import org.syncope.core.workflow.OSWorkflowComponent;
 import com.opensymphony.module.propertyset.PropertySet;
 import com.opensymphony.workflow.FunctionProvider;
 import com.opensymphony.workflow.WorkflowException;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.URI;
-import java.net.URLEncoder;
+import com.sun.identity.idm.AMIdentity;
+import com.sun.identity.idm.AMIdentityRepository;
+import com.sun.identity.idm.IdSearchControl;
+import com.sun.identity.idm.IdSearchOpModifier;
+import com.sun.identity.idm.IdSearchResults;
+import com.sun.identity.idm.IdType;
+import com.sun.identity.security.AdminTokenAction;
+import java.security.AccessController;
+import java.util.Collections;
 import java.util.Map;
-import java.util.Properties;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.client.ClientHttpRequest;
-import org.springframework.http.client.ClientHttpResponse;
-import org.springframework.web.client.RestTemplate;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.workflow.Constants;
 
@@ -45,62 +46,34 @@ public class OpenAMActivate extends OSWorkflowComponent
         SyncopeUser syncopeUser = (SyncopeUser) transientVars.get(
                 Constants.SYNCOPE_USER);
 
-        Properties openAMProps = new Properties();
-        ClientHttpResponse response = null;
-        BufferedReader reader = null;
         try {
-            openAMProps.load(getClass().getResourceAsStream(
-                    "/WEB-INF/classes/openam.properties"));
+            SSOToken adminToken = (SSOToken) AccessController.doPrivileged(
+                    AdminTokenAction.getInstance());
 
-            RestTemplate restTemplate =
-                    (RestTemplate) context.getBean("restTemplate");
+            AMIdentityRepository repo =
+                    new AMIdentityRepository(adminToken, "/");
 
-            ClientHttpRequest request =
-                    restTemplate.getRequestFactory().createRequest(
-                    new URI(openAMProps.getProperty("baseURL")
-                    + "/identity/authenticate?username="
-                    + openAMProps.getProperty("username")
-                    + "&password="
-                    + openAMProps.getProperty("password")),
-                    HttpMethod.GET);
-            response = request.execute();
-            reader = new BufferedReader(
-                    new InputStreamReader(response.getBody(), "UTF-8"));
-            String adminTokenId = reader.readLine();
-            adminTokenId = adminTokenId.substring(adminTokenId.indexOf('=') + 1);
-            response.getBody().close();
-            reader.close();
+            IdSearchControl controls = new IdSearchControl();
+            controls.setSearchModifiers(IdSearchOpModifier.OR,
+                    Collections.singletonMap("uid",
+                    Collections.singleton(String.valueOf(syncopeUser.getId()))));
 
-            request = restTemplate.getRequestFactory().createRequest(
-                    new URI(openAMProps.getProperty("baseURL")
-                    + "/identity/update?identity_name="
-                    + Utils.getUserId(syncopeUser)
-                    + "&identity_attribute_names=inetuserstatus"
-                    + "&identity_attribute_values_inetuserstatus="
-                    + "active"
-                    + "&identity_realm=/&identity_type=user&admin="
-                    + URLEncoder.encode(adminTokenId, "UTF-8")),
-                    HttpMethod.GET);
-            request.execute();
-
-            request = restTemplate.getRequestFactory().createRequest(
-                    new URI(openAMProps.getProperty("baseURL")
-                    + "/identity/logout?subjectid="
-                    + URLEncoder.encode(adminTokenId, "UTF-8")),
-                    HttpMethod.GET);
-            request.execute();
-        } catch (Throwable t) {
-            log.error("While trying to create the user on OpenAM", t);
-        } finally {
-            try {
-                if (reader != null) {
-                    reader.close();
-                }
-                if (response != null) {
-                    response.getBody().close();
-                }
-            } catch (IOException e) {
+            IdSearchResults idSearchResults = repo.searchIdentities(
+                    IdType.USER, "*", controls);
+            if (!idSearchResults.getSearchResults().isEmpty()) {
+                AMIdentity amUser =
+                        (AMIdentity) idSearchResults.getSearchResults().iterator().next();
+                amUser.setAttributes(Collections.singletonMap("inetuserstatus",
+                        Collections.singleton("Active")));
+                amUser.store();
+            } else {
+                log.info("No user found with uid "
+                        + String.valueOf(syncopeUser.getId()));
             }
+
+            SSOTokenManager.getInstance().destroyToken(adminToken);
+        } catch (Throwable t) {
+            log.error("While trying to activate the user on OpenAM", t);
         }
     }
 }

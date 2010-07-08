@@ -67,7 +67,7 @@
                     </results>
                     <post-functions>
                         <function type="class">
-                            <arg name="class.name">org.syncope.core.workflow.SendEmail</arg>
+                            <arg name="class.name">org.syncope.core.workflow.prcsiam.SendEmail</arg>
                         </function>
                         <!-- TMP -->
                         <function type="class">

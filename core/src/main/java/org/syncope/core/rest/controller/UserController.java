@@ -84,9 +84,7 @@ public class UserController extends AbstractController {
 
         Map<String, Object> inputs = new HashMap<String, Object>();
         inputs.put(Constants.SYNCOPE_USER, syncopeUser);
-        if (userTO.getToken() != null) {
-            inputs.put(Constants.TOKEN, userTO.getToken());
-        }
+        inputs.put(Constants.TOKEN, userTO.getToken());
 
         WorkflowDescriptor workflowDescriptor =
                 userWorkflow.getWorkflowDescriptor(Constants.USER_WORKFLOW);
@@ -123,7 +121,8 @@ public class UserController extends AbstractController {
     @Transactional
     @RequestMapping(method = RequestMethod.POST,
     value = "/create")
-    public UserTO create(HttpServletResponse response,
+    public UserTO create(HttpServletRequest request,
+            HttpServletResponse response,
             @RequestBody UserTO userTO) throws IOException {
 
         if (log.isDebugEnabled()) {
@@ -196,10 +195,28 @@ public class UserController extends AbstractController {
         syncopeUser = syncopeUserDAO.save(syncopeUser);
         userTO = userDataBinder.getUserTO(syncopeUser);
 
+        Map<String, Object> inputs = new HashMap<String, Object>();
+        inputs.put(Constants.SYNCOPE_USER, syncopeUser);
+        inputs.put(Constants.TOKEN, userTO.getToken());
+        inputs.put(Constants.MAIL_FROM,
+                syncopeConfigurationDAO.find(
+                "activate.email.from").getConfValue());
+        inputs.put(Constants.MAIL_SUBJECT,
+                syncopeConfigurationDAO.find(
+                "activate.email.from").getConfValue());
+        StringBuffer baseRequestURL = request.getRequestURL();
+        inputs.put(Constants.BASE_REQUEST_URL,
+                baseRequestURL.substring(0,
+                baseRequestURL.indexOf("/user") - 4).toString());
+        inputs.put(Constants.MAIL_TEMPLATE_HTML,
+                syncopeConfigurationDAO.find(
+                "activate.email.template.html").getConfValue());
+        inputs.put(Constants.MAIL_TEMPLATE_TXT,
+                syncopeConfigurationDAO.find(
+                "activate.email.template.txt").getConfValue());
+
         int[] availableWorkflowActions = userWorkflow.getAvailableActions(
                 workflowId, null);
-        Map<String, SyncopeUser> inputs =
-                Collections.singletonMap(Constants.SYNCOPE_USER, syncopeUser);
         for (int availableWorkflowAction : availableWorkflowActions) {
             try {
                 userWorkflow.doAction(workflowId, availableWorkflowAction,
