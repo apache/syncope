@@ -69,23 +69,23 @@ public class UserController extends AbstractController {
 
     @Transactional
     @RequestMapping(method = RequestMethod.POST,
-    value = "/activate/{userId}")
+    value = "/activate")
     public UserTO activate(HttpServletResponse response,
-            @PathVariable("userId") Long userId,
-            @RequestParam("token") String token)
+            @RequestBody UserTO userTO)
             throws IOException {
 
-        SyncopeUser syncopeUser = syncopeUserDAO.find(userId);
+        SyncopeUser syncopeUser = syncopeUserDAO.find(userTO.getId());
 
         if (syncopeUser == null) {
-            log.error("Could not find user '" + userId + "'");
-            return throwNotFoundException(String.valueOf(userId), response);
+            log.error("Could not find user '" + userTO.getId() + "'");
+            return throwNotFoundException(
+                    String.valueOf(userTO.getId()), response);
         }
 
         Map<String, Object> inputs = new HashMap<String, Object>();
         inputs.put(Constants.SYNCOPE_USER, syncopeUser);
-        if (token != null) {
-            inputs.put(Constants.TOKEN, token);
+        if (userTO.getToken() != null) {
+            inputs.put(Constants.TOKEN, userTO.getToken());
         }
 
         WorkflowDescriptor workflowDescriptor =
@@ -312,7 +312,7 @@ public class UserController extends AbstractController {
 
     @RequestMapping(method = RequestMethod.GET,
     value = "/status/{userId}")
-    public String getStatus(HttpServletResponse response,
+    public ModelAndView getStatus(HttpServletResponse response,
             @PathVariable("userId") Long userId) throws IOException {
 
         SyncopeUser user = syncopeUserDAO.find(userId);
@@ -328,7 +328,9 @@ public class UserController extends AbstractController {
             return null;
         }
 
-        return currentSteps.iterator().next().getStatus();
+        ModelAndView mav = new ModelAndView();
+        mav.addObject(currentSteps.iterator().next().getStatus());
+        return mav;
     }
 
     @Transactional

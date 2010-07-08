@@ -80,12 +80,17 @@ public class UserTestITCase extends AbstractTestITCase {
         UserTO newUserTO = restTemplate.postForObject(BASE_URL + "user/create",
                 userTO, UserTO.class);
         userTO.setId(newUserTO.getId());
-        assertEquals(userTO, userTO);
+        userTO.setCreationTime(newUserTO.getCreationTime());
+        userTO.setToken(newUserTO.getToken());
+        userTO.setTokenExpireTime(newUserTO.getTokenExpireTime());
+        assertEquals(userTO, newUserTO);
 
         // 2. activate user
-        restTemplate.postForObject(BASE_URL + "user/activate/" + userTO.getId(),
-                Collections.singletonMap("token", userTO.getToken()),
-                UserTO.class);
+        newUserTO = restTemplate.postForObject(BASE_URL + "user/activate",
+                newUserTO, UserTO.class);
+        assertEquals("active",
+                restTemplate.getForObject(BASE_URL + "user/status/"
+                + newUserTO.getId(), String.class));
 
         // 3. try (and fail) to create another user with the same surname (unique)
         userTO = new UserTO();
