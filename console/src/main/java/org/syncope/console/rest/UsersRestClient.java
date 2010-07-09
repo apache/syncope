@@ -36,7 +36,8 @@ public class UsersRestClient
 
     public UserTO getUser() {
         UserTO userTO =
-                restClient.getRestTemplate().getForObject(restClient.getBaseURL() + "user/read/{userId}.json",
+                restClient.getRestTemplate().getForObject(restClient.getBaseURL()
+                + "user/read/{userId}.json",
                 UserTO.class, "11");
         return userTO;
     }

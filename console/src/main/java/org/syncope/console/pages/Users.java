@@ -39,21 +39,13 @@ public class Users extends BasePage {
 
         //add(new Button("newUserBtn", new Model(getString("newUserBtn"))));
 
-        final Set<UserTO> users = restClient.getUserList();
-
-        if (!users.isEmpty()) {
-
-            final List userList = new ArrayList(users);
-
-            /*add(new ListView("userList", userList) {
-            @Override
-            protected void populateItem(ListItem item) {
-            //item.add(new Label("label", item.getModel()));
-            }
-
-            });*/
-
-        }
+//        final Set<UserTO> users = restClient.getUserList();
+//
+//        if (!users.isEmpty()) {
+//
+//            final List userList = new ArrayList(users);
+//
+//        }
 
     }
 }

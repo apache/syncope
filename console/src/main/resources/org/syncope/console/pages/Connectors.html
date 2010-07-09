@@ -12,25 +12,57 @@
  limitations under the License.
  under the License.
 -->
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
-<html
-    xmlns="http://www.w3.org/1999/xhtml"
-    xmlns:wicket="http://wicket.sourceforge.net/"
-    xml:lang="en"
-    lang="en">
-
-    <body>
 
         <wicket:extend>
 
-            <p>
-                Users
-            </p>
+            <div id="tabs">
+                <ul>
+                    <li class="tabs-selected">
+                        <a href="#tabs-1"><span><wicket:message key="tab1"/></span></a>
+                    </li>
+                </ul>
+                <div id="tabs-1">
+                    <div id="users-contain" class="ui-widget">
+
+                        <h1><wicket:message key="existing_connectors"/></h1>
+
+                        <table id="connectors" class="ui-widget ui-widget-content" wicket:id="connectorsContainer">
+                            <thead>
+                                <tr class="ui-widget-header">
+                                    <th><wicket:message key="name"/></th>
+                                    <th><wicket:message key="version"/></th>
+                                    <th><wicket:message key="bundleName"/></th>
+                                    <th><wicket:message key="edit"/></th>
+                                    <th><wicket:message key="delete"/></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr wicket:id="connectors" >
+                                    <td><span wicket:id="name">[label name]</span></td>
+                                    <td><span wicket:id="version">[label version]</span></td>
+                                    <td><span wicket:id="bundleName">[label bundle-name]</span></td>
+                                    <td>
+                                        <a href="#" wicket:id="editLink">
+                                            <wicket:message key="edit"/>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a href="#" wicket:id="deleteLink">
+                                            <wicket:message key="delete"/>
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div wicket:id="createConnectorWin">[Show modal window for creating connector]</div>
+                    <div wicket:id="editConnectorWin">[Show modal window for editing connector]</div>
+
+                   <a wicket:id="createConnectorLink">
+                        <wicket:message key="create-link"/>
+                    </a>
+                </div>
+            </div>
 
         </wicket:extend>
-
-    </body>
-
-</html>

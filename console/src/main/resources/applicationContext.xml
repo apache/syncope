@@ -16,23 +16,31 @@
 
     <bean id="syncopeApplication" class="org.syncope.console.SyncopeApplication"/>
 
-    <bean id="objectMapper" class="org.codehaus.jackson.map.ObjectMapper"/>
+    <bean id="jacksonObjectMapper" class="org.codehaus.jackson.map.ObjectMapper"/>
         
     <bean id="mappingJacksonHttpMessageConverter"
           class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter">
-             <property name="objectMapper" ref="objectMapper"/>
+        <property name="objectMapper" ref="jacksonObjectMapper"/>
     </bean>
 
     <bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
         <property name="messageConverters" ref="mappingJacksonHttpMessageConverter"/>
+        <property name="errorHandler">
+            <bean id="syncopeClientErrorHandler"
+            class="org.syncope.client.validation.SyncopeClientErrorHandler"/>
+        </property>
     </bean>
 
     <bean id="restClient" class="org.syncope.console.rest.RestClient">
         <property name="restTemplate" ref="restTemplate"/>
-        <property name="baseURL" value="http://localhost:8080/syncope/"/>
+        <property name="baseURL" value="http://192.168.0.138:8080/syncope/rest/"/>
     </bean>
 
     <bean id="schemaRestClient" class="org.syncope.console.rest.SchemaRestClient">
+        <property name="restClient" ref="restClient"/>
+    </bean>
+
+    <bean id="connectorsRestClient" class="org.syncope.console.rest.ConnectorsRestClient">
         <property name="restClient" ref="restClient"/>
     </bean>
 

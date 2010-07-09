@@ -25,8 +25,18 @@
 
         <wicket:extend>
 
+            <!--script type="text/javascript">
+                $(document).ready(
+                function() {
+
+                //var tabId = document.forms[0].elements['tabId'].value;
+                var tabId = document.getElementById("tabId");
+                $('#tabs').tabs('select',parseInt(tabId.innerHTML));
+
+                });
+            </script>
+            <span style="visibility:collapse;" wicket:id="tabId" id="tabId"/-->
             <div id="tabs">
-                <!--<ul class="ui-tabs-nav">-->
                 <ul>
                     <li class="tabs-selected"><a href="#tabs-1"><span><wicket:message key="tab1"/></span></a></li>
                     <li><a href="#tabs-2"><span><wicket:message key="tab2"/></span></a></li>
@@ -34,16 +44,175 @@
                     <li><a href="#tabs-4"><span><wicket:message key="tab4"/></span></a></li>
                 </ul>
                 <div id="tabs-1">
-                    <div wicket:id="userAttributesList" />
+
+                    <div id="users-contain" class="ui-widget">
+
+                        <h1><wicket:message key="existing_schemas"/></h1>
+
+                        <table id="roleSchemas" class="ui-widget ui-widget-content" wicket:id="roleSchemasContainer">
+                            <thead>
+                                <tr class="ui-widget-header ">
+                                    <th><wicket:message key="name"/></th>
+                                    <th><wicket:message key="type"/></th>
+                                    <th><wicket:message key="attributes"/></th>
+                                    <th><wicket:message key="edit"/></th>
+                                    <th><wicket:message key="delete"/></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr wicket:id="roleSchemas" >
+                                    <td><span wicket:id="name">[label name]</span></td>
+                                    <td><span wicket:id="type">[label type]</span></td>
+                                    <td><span wicket:id="attributes">[label attributes]</span></td>
+                                    <td>
+                                        <a href="#" wicket:id="editLink">
+                                            <wicket:message key="edit"/>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a href="#" wicket:id="deleteLink">
+                                            <wicket:message key="delete"/>
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div wicket:id="createRoleSchemaWin">[Show modal window for creating schema]</div>
+                    <div wicket:id="editRoleSchemaWin">[Show modal window for editing schema]</div>
+
+                   <a wicket:id="createRoleSchemaWinLink">
+                        <wicket:message key="create_attribute"/>
+                    </a>
                 </div>
                 <div id="tabs-2">
-                    <div wicket:id="userDerivedAttributesList" />
+
+                    <div id="users-contain" class="ui-widget">
+
+                        <h1><wicket:message key="existing_schemas"/></h1>
+
+                        <table id="roleSchemas" class="ui-widget ui-widget-content" wicket:id="roleDerivedSchemasContainer">
+                            <thead>
+                                <tr class="ui-widget-header ">
+                                    <th><wicket:message key="name"/></th>
+                                    <th><wicket:message key="expression"/></th>
+                                    <th><wicket:message key="attributes"/></th>
+                                    <th><wicket:message key="edit"/></th>
+                                    <th><wicket:message key="delete"/></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr wicket:id="roleDerivedSchemas" >
+                                     <td><span wicket:id="name">[label name]</span></td>
+                                    <td><span wicket:id="expression">[label expression]</span></td>
+                                    <td><span wicket:id="attributes">[label attributes]</span></td>
+                                    <td>
+                                        <a href="#" wicket:id="editLink">
+                                            <wicket:message key="edit"/>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a href="#" wicket:id="deleteLink">
+                                            <wicket:message key="delete"/>
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div wicket:id="createRoleDerivedSchemaWin">[Show modal window for creating schema]</div>
+                    <div wicket:id="editRoleDerivedSchemaWin">[Show modal window for editing schema]</div>
+
+                   <a wicket:id="createRoleDerivedSchemaWinLink">
+                        <wicket:message key="create_attribute"/>
+                    </a>
+
                 </div>
                 <div id="tabs-3">
-                    <div wicket:id="attributesList" />
+                
+                    <div id="users-contain" class="ui-widget">
+                        <h1><wicket:message key="existing_schemas"/></h1>
+                        <!--div wicket:id="feedbackUserSchema"/-->
+                        <table id="users" class="ui-widget ui-widget-content" wicket:id="userSchemaContainer">
+                            <thead>
+                                <tr class="ui-widget-header ">
+                                    <th><wicket:message key="name"/></th>
+                                    <th><wicket:message key="type"/></th>
+                                    <th><wicket:message key="attributes"/></th>
+                                    <th><wicket:message key="edit"/></th>
+                                    <th><wicket:message key="delete"/></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr wicket:id="userSchemas" >
+                                    <td><span wicket:id="name">[label name]</span></td>
+                                    <td><span wicket:id="type">[label type]</span></td>
+                                    <td><span wicket:id="attributes">[label attributes]</span></td>
+                                    <td>
+                                        <a href="#" wicket:id="editLink">
+                                            <wicket:message key="edit"/>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a href="#" wicket:id="deleteLink">
+                                            <wicket:message key="delete"/>
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div wicket:id="createUserSchemaWin">[Show modal window for creating schema]</div>
+                    <div wicket:id="editUserSchemaWin">[Show modal window for editing schema]</div>
+
+                    <a wicket:id="createUserSchemaWinLink">
+                        <wicket:message key="create_attribute"/>
+                    </a>
+
                 </div>
                 <div id="tabs-4">
-                    <div wicket:id="derivedAttributesList" />
+                     <div id="users-contain" class="ui-widget">
+
+                        <h1><wicket:message key="existing_schemas"/></h1>
+
+                        <table id="users" class="ui-widget ui-widget-content" wicket:id="userDerivedSchemaContainer">
+                            <thead>
+                                <tr class="ui-widget-header ">
+                                    <th><wicket:message key="name"/></th>
+                                    <th><wicket:message key="expression"/></th>
+                                    <th><wicket:message key="attributes"/></th>
+                                    <th><wicket:message key="edit"/></th>
+                                    <th><wicket:message key="delete"/></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr wicket:id="userDerivedSchemas" >
+                                    <td><span wicket:id="name">[label name]</span></td>
+                                    <td><span wicket:id="expression">[label expression]</span></td>
+                                    <td><span wicket:id="attributes">[label attributes]</span></td>
+                                    <td>
+                                        <a href="#" wicket:id="editLink">
+                                            <wicket:message key="edit"/>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a href="#" wicket:id="deleteLink">
+                                            <wicket:message key="delete"/>
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div wicket:id="createUserDerSchemaWin">[Show modal window for creating schema]</div>
+                    <div wicket:id="editUserDerSchemaWin">[Show modal window for editing schema]</div>
+
+                     <a wicket:id="createUserDerSchemaLink">
+                        <wicket:message key="create_attribute"/>
+                    </a>
                 </div>
             </div>
 
