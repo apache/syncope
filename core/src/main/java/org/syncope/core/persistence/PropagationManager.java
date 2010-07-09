@@ -172,7 +172,7 @@ public class PropagationManager {
         DefaultListableBeanFactory beanFactory =
                 (DefaultListableBeanFactory) context.getBeanFactory();
 
-        ConnectorFacade connector = (ConnectorFacade) beanFactory.getSingleton(
+        ConnectorFacade connector = (ConnectorFacade) beanFactory.getBean(
                 connectorInstance.getId().toString());
 
         if (connector == null) {

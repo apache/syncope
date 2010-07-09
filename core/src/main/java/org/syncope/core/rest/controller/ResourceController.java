@@ -22,29 +22,31 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.syncope.client.to.ResourceTO;
+import org.syncope.client.to.ResourceTOs;
 import org.syncope.client.to.SchemaMappingTOs;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
 import org.syncope.core.persistence.beans.Resource;
 import org.syncope.core.persistence.beans.SchemaMapping;
-import org.syncope.core.persistence.beans.role.RoleSchema;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
-import org.syncope.core.persistence.beans.user.UserSchema;
+import org.syncope.core.persistence.dao.ConnectorInstanceDAO;
 import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.SchemaMappingDAO;
 import org.syncope.core.persistence.dao.SyncopeRoleDAO;
-import org.syncope.core.rest.data.SchemaMappingDataBinder;
+import org.syncope.core.rest.data.ResourceDataBinder;
 import org.syncope.types.SyncopeClientExceptionType;
 
 @Controller
-@RequestMapping("/mapping")
-public class SchemaMappingController extends AbstractController {
+@RequestMapping("/resource")
+public class ResourceController extends AbstractController {
 
     @Autowired
     private ResourceDAO resourceDAO;
@@ -58,17 +60,273 @@ public class SchemaMappingController extends AbstractController {
     @Autowired
     private SchemaMappingDAO schemaMappingDAO;
 
+    @Autowired
+    ConnectorInstanceDAO connectorInstanceDAO;
+
     @Transactional
     @RequestMapping(method = RequestMethod.POST,
-    value = "/create/{resourceName}")
-    public SchemaMappingTOs create(HttpServletResponse response,
+    value = "/create")
+    public ResourceTO create(HttpServletResponse response,
+            @RequestBody ResourceTO resourceTO) throws IOException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("Creation request received");
+        }
+
+        ResourceDataBinder binder =
+                new ResourceDataBinder(schemaDAO, connectorInstanceDAO);
+
+        if (resourceTO == null) {
+            if (log.isErrorEnabled()) {
+                log.error("Missing resource.");
+            }
+
+            return throwNotFoundException("Resource not found", response);
+        }
+
+        Resource actual = null;
+
+        try {
+
+            if (log.isDebugEnabled()) {
+                log.debug("Resource data binder ..");
+            }
+
+            Resource resource = binder.getResource(resourceTO);
+
+            if (log.isInfoEnabled()) {
+                log.info("Create resource " + resource.getName());
+            }
+
+            actual = resourceDAO.save(resource);
+
+            if (actual == null) {
+                if (log.isErrorEnabled()) {
+                    log.error("Resource creation failed");
+                }
+
+                SyncopeClientException ex = new SyncopeClientException(
+                        SyncopeClientExceptionType.Unknown);
+
+                throw ex;
+            }
+
+        } catch (SyncopeClientCompositeErrorException e) {
+
+            return throwCompositeException(e, response);
+
+        } catch (SyncopeClientException ex) {
+
+            SyncopeClientCompositeErrorException compositeErrorException =
+                    new SyncopeClientCompositeErrorException(
+                    HttpStatus.BAD_REQUEST);
+
+            compositeErrorException.addException(ex);
+
+            return throwCompositeException(compositeErrorException, response);
+
+        } catch (Throwable t) {
+
+            if (log.isErrorEnabled()) {
+                log.error("Unknown exception", t);
+            }
+
+            SyncopeClientException ex = new SyncopeClientException(
+                    SyncopeClientExceptionType.Unknown);
+
+            SyncopeClientCompositeErrorException compositeErrorException =
+                    new SyncopeClientCompositeErrorException(
+                    HttpStatus.BAD_REQUEST);
+
+            compositeErrorException.addException(ex);
+
+            return throwCompositeException(compositeErrorException, response);
+        }
+
+        response.setStatus(HttpServletResponse.SC_CREATED);
+        return binder.getResourceTO(actual);
+    }
+
+    @Transactional
+    @RequestMapping(method = RequestMethod.POST,
+    value = "/update")
+    public ResourceTO update(HttpServletResponse response,
+            @RequestBody ResourceTO resourceTO) throws IOException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("Update request received");
+        }
+
+        Resource resource = null;
+
+        if (resourceTO != null && resourceTO.getName() != null) {
+            resource = resourceDAO.find(resourceTO.getName());
+        }
+
+        if (resource == null) {
+            if (log.isErrorEnabled()) {
+                log.error("Missing resource.");
+            }
+
+            return throwNotFoundException("Resource not found", response);
+        }
+
+        ResourceDataBinder binder =
+                new ResourceDataBinder(schemaDAO, connectorInstanceDAO);
+
+        Resource actual = null;
+
+        try {
+            if (log.isDebugEnabled()) {
+                log.debug("Resource data binder ..");
+            }
+
+            resource = binder.getResource(resource, resourceTO);
+
+            if (log.isInfoEnabled()) {
+                log.info("Update resource " + resource.getName());
+            }
+
+            actual = resourceDAO.save(resource);
+
+            if (actual == null) {
+                if (log.isErrorEnabled()) {
+                    log.error("Resource creation failed");
+                }
+
+                SyncopeClientException ex = new SyncopeClientException(
+                        SyncopeClientExceptionType.Unknown);
+
+                throw ex;
+            }
+
+            // remove older mappings
+            Set<SchemaMapping> mappings = resource.getMappings();
+            for (SchemaMapping mapping : mappings) {
+                mapping.setResource(null);
+                schemaMappingDAO.delete(mapping.getId());
+            }
+
+        } catch (SyncopeClientCompositeErrorException e) {
+
+            if (log.isErrorEnabled()) {
+                log.error("Could not create mappings", e);
+            }
+
+            return throwCompositeException(e, response);
+
+        } catch (SyncopeClientException ex) {
+
+            SyncopeClientCompositeErrorException compositeErrorException =
+                    new SyncopeClientCompositeErrorException(
+                    HttpStatus.BAD_REQUEST);
+
+            compositeErrorException.addException(ex);
+
+            return throwCompositeException(compositeErrorException, response);
+
+        } catch (Throwable t) {
+
+            if (log.isErrorEnabled()) {
+                log.error("Unknown exception", t);
+            }
+
+            SyncopeClientException ex = new SyncopeClientException(
+                    SyncopeClientExceptionType.Unknown);
+
+            SyncopeClientCompositeErrorException compositeErrorException =
+                    new SyncopeClientCompositeErrorException(
+                    HttpStatus.BAD_REQUEST);
+
+            compositeErrorException.addException(ex);
+
+            return throwCompositeException(compositeErrorException, response);
+        }
+
+        response.setStatus(HttpServletResponse.SC_CREATED);
+        return binder.getResourceTO(actual);
+    }
+
+    @Transactional
+    @RequestMapping(method = RequestMethod.DELETE,
+    value = "/delete/{resourceName}")
+    public void delete(HttpServletResponse response,
+            @PathVariable("resourceName") String resourceName)
+            throws IOException {
+
+        Resource resource = resourceDAO.find(resourceName);
+
+        if (resource == null) {
+
+            if (log.isErrorEnabled()) {
+                log.error("Could not find resource '" + resourceName + "'");
+            }
+
+            throwNotFoundException(String.valueOf(resourceName), response);
+
+        } else {
+
+            resourceDAO.delete(resourceName);
+
+        }
+    }
+
+    @RequestMapping(method = RequestMethod.GET,
+    value = "/read/{resourceName}")
+    public ResourceTO read(HttpServletResponse response,
+            @PathVariable("resourceName") String resourceName)
+            throws IOException {
+
+        ResourceDataBinder binder =
+                new ResourceDataBinder(schemaDAO, connectorInstanceDAO);
+
+        Resource resource = resourceDAO.find(resourceName);
+
+        if (resource == null) {
+
+            if (log.isErrorEnabled()) {
+                log.error("Could not find resource '" + resourceName + "'");
+            }
+
+            return throwNotFoundException(resourceName, response);
+        }
+
+        return binder.getResourceTO(resource);
+    }
+
+    @RequestMapping(method = RequestMethod.GET,
+    value = "/list")
+    public ResourceTOs list(HttpServletResponse response)
+            throws IOException {
+
+        ResourceDataBinder binder =
+                new ResourceDataBinder(schemaDAO, connectorInstanceDAO);
+
+        List<Resource> resources = resourceDAO.findAll();
+
+        if (resources == null) {
+
+            if (log.isErrorEnabled()) {
+                log.error("No resource found");
+            }
+
+            return throwNotFoundException("No resource found", response);
+        }
+
+        return binder.getResourceTOs(resources);
+    }
+
+    @Transactional
+    @RequestMapping(method = RequestMethod.POST,
+    value = "/{resourceName}/mappings/create")
+    public SchemaMappingTOs createMappings(HttpServletResponse response,
             @PathVariable("resourceName") String resourceName,
             @RequestBody SchemaMappingTOs mappings) throws IOException {
 
         Set<SchemaMapping> actuals = new HashSet<SchemaMapping>();
 
-        SchemaMappingDataBinder binder =
-                new SchemaMappingDataBinder(schemaDAO);
+        ResourceDataBinder binder =
+                new ResourceDataBinder(schemaDAO, connectorInstanceDAO);
 
         try {
 
@@ -117,23 +375,9 @@ public class SchemaMappingController extends AbstractController {
                     binder.getSchemaMappings(resource, mappings);
 
             SchemaMapping actual = null;
-            UserSchema userSchema = null;
-            RoleSchema roleSchema = null;
 
             for (SchemaMapping schemaMapping : schemaMappings) {
-                resource.addMapping(schemaMapping);
-
-                // synchronize userSchema
-                userSchema = schemaMapping.getUserSchema();
-                if (userSchema != null) userSchema.addMapping(schemaMapping);
-
-                // synchronize roleSchema
-                roleSchema = schemaMapping.getRoleSchema();
-                if (roleSchema != null) roleSchema.addMapping(schemaMapping);
-
-                // save schema mapping and synchronize
                 actual = schemaMappingDAO.save(schemaMapping);
-
                 actuals.add(actual);
             }
 
@@ -179,8 +423,8 @@ public class SchemaMappingController extends AbstractController {
 
     @Transactional
     @RequestMapping(method = RequestMethod.DELETE,
-    value = "/delete/{resourceName}")
-    public void delete(HttpServletResponse response,
+    value = "/{resourceName}/mappings/delete")
+    public void deleteMappings(HttpServletResponse response,
             @PathVariable("resourceName") String resourceName)
             throws IOException {
 
@@ -210,7 +454,7 @@ public class SchemaMappingController extends AbstractController {
     }
 
     @RequestMapping(method = RequestMethod.GET,
-    value = "/getResourceMapping/{resourceName}")
+    value = "/{resourceName}/mappings/list")
     public SchemaMappingTOs getResourceMapping(HttpServletResponse response,
             @PathVariable("resourceName") String resourceName)
             throws IOException {
@@ -244,13 +488,14 @@ public class SchemaMappingController extends AbstractController {
 
         // resource.getMappings() can never return a null value
 
-        SchemaMappingDataBinder binder = new SchemaMappingDataBinder(schemaDAO);
+        ResourceDataBinder binder =
+                new ResourceDataBinder(schemaDAO, connectorInstanceDAO);
 
         return binder.getSchemaMappingTOs(schemaMappings);
     }
 
     @RequestMapping(method = RequestMethod.GET,
-    value = "/getRoleResourcesMapping/{roleName}")
+    value = "/{roleName}/resources/mappings/list")
     public SchemaMappingTOs getRoleResourcesMapping(HttpServletResponse response,
             @PathVariable("roleName") Long roleId)
             throws IOException {
@@ -283,7 +528,8 @@ public class SchemaMappingController extends AbstractController {
 
         Set<Resource> resources = role.getResources();
 
-        SchemaMappingDataBinder binder = new SchemaMappingDataBinder(schemaDAO);
+        ResourceDataBinder binder =
+                new ResourceDataBinder(schemaDAO, connectorInstanceDAO);
 
         SchemaMappingTOs resourceMappings = null;
 
@@ -306,7 +552,7 @@ public class SchemaMappingController extends AbstractController {
                         resourceMappings.getMappings() + "'");
             }
 
-            roleMappings.addAllMappings(resourceMappings.getMappings());
+            roleMappings.getMappings().addAll(resourceMappings.getMappings());
         }
 
         if (log.isDebugEnabled()) {

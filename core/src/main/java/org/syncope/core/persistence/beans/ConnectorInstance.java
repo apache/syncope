@@ -108,7 +108,8 @@ public class ConnectorInstance extends AbstractBaseBean {
     }
 
     public Set<Resource> getResources() {
-        return resources;
+        if (this.resources == null) this.resources = new HashSet<Resource>();
+        return this.resources;
     }
 
     public void setResources(Set<Resource> resources) {

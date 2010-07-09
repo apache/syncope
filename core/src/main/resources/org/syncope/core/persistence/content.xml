@@ -44,6 +44,8 @@
                 mandatory="true" multivalue="false" uniquevalue="false"/>
     <UserSchema name="promoThirdPartyAuth" type="Boolean" virtual="false"
                 mandatory="true" multivalue="false" uniquevalue="false"/>
+    <UserSchema name="type" type="String" virtual="false"
+                mandatory="true" multivalue="false" uniquevalue="false"/>
 
     <UserDerivedSchema name="username" expression="firstname + '.' + surname"/>
 
@@ -67,4 +69,39 @@
     <RoleAttributeValue attribute_id="10" id="100" stringValue="mobile"/>
     <RoleAttributeValue attribute_id="11" id="101" stringValue="e-commerce"/>
 
+    <ConnectorInstance id="1"
+                       bundleName="org.syncope.identityconnectors.bundles.staticws"
+                       connectorName="org.syncope.identityconnectors.bundles.staticwebservice.WebServiceConnector"
+                       version="0.1-SNAPSHOT"
+                       xmlConfiguration="%3C%3Fxml+version%3D%221.0%22+encoding%3D%22UTF-8%22%3F%3E+%0A%3Cjava+version%3D%221.6.0_20%22+class%3D%22java.beans.XMLDecoder%22%3E+%0A+%3Cobject+class%3D%22java.util.HashSet%22%3E+%0A++%3Cvoid+method%3D%22add%22%3E+%0A+++%3Cobject+class%3D%22org.syncope.client.to.PropertyTO%22%3E+%0A++++%3Cvoid+property%3D%22key%22%3E+%0A+++++%3Cstring%3Eendpoint%3C%2Fstring%3E+%0A++++%3C%2Fvoid%3E+%0A++++%3Cvoid+property%3D%22value%22%3E+%0A+++++%3Cstring%3Ehttp%3A%2F%2Flocalhost%3A8888%2FsampleCode%3C%2Fstring%3E+%0A++++%3C%2Fvoid%3E+%0A+++%3C%2Fobject%3E+%0A++%3C%2Fvoid%3E+%0A++%3Cvoid+method%3D%22add%22%3E+%0A+++%3Cobject+class%3D%22org.syncope.client.to.PropertyTO%22%3E+%0A++++%3Cvoid+property%3D%22key%22%3E+%0A+++++%3Cstring%3Eservicename%3C%2Fstring%3E+%0A++++%3C%2Fvoid%3E+%0A++++%3Cvoid+property%3D%22value%22%3E+%0A+++++%3Cstring%3EProvisioning%3C%2Fstring%3E+%0A++++%3C%2Fvoid%3E+%0A+++%3C%2Fobject%3E+%0A++%3C%2Fvoid%3E+%0A+%3C%2Fobject%3E+%0A%3C%2Fjava%3E+%0A" />
+
+    <Resource name="ws-target-resource" connector_id="1"/>
+
+    <Resource_SyncopeRole Resource_name="ws-target-resource" roles_id="2" />
+    <SyncopeRole_Resource SyncopeRole_id="2" resources_name="ws-target-resource" />
+
+    <SchemaMapping id="1" field="userId"
+                   resource_name="ws-target-resource"
+                   userSchema_name="userId" nullable="false"
+                   accountid="true" password="false"/>
+
+    <SchemaMapping id="2" field="password"
+                   resource_name="ws-target-resource"
+                   userSchema_name="userId" nullable="false"
+                   accountid="false" password="true"/>
+
+    <SchemaMapping id="3" field="name"
+                   resource_name="ws-target-resource"
+                   userSchema_name="firstname" nullable="false"
+                   accountid="false" password="false"/>
+
+    <SchemaMapping id="4" field="surname"
+                   resource_name="ws-target-resource"
+                   userSchema_name="surname" nullable="false"
+                   accountid="false" password="false"/>
+
+    <SchemaMapping id="5" field="type"
+                   resource_name="ws-target-resource"
+                   userSchema_name="type" nullable="false"
+                   accountid="false" password="false"/>
 </dataset>

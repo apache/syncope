@@ -43,7 +43,7 @@ public class SchemaMappingTestITCase extends AbstractTestITCase {
         mappings.addMapping(mapping);
 
         restTemplate.postForObject(
-                BASE_URL + "mapping/create/{resourceName}.json",
+                BASE_URL + "resource/{resourceName}/mappings/create.json",
                 mappings,
                 SchemaMappingTOs.class,
                 resourceName);
@@ -67,7 +67,7 @@ public class SchemaMappingTestITCase extends AbstractTestITCase {
 
         SchemaMappingTOs actuals =
                 (SchemaMappingTOs) restTemplate.postForObject(
-                BASE_URL + "mapping/create/{resourceName}.json",
+                BASE_URL + "resource/{resourceName}/mappings/create.json",
                 mappings, SchemaMappingTOs.class, resourceName);
 
         assertNotNull(actuals);
@@ -77,7 +77,7 @@ public class SchemaMappingTestITCase extends AbstractTestITCase {
         // check the non existence
 
         actuals = restTemplate.getForObject(
-                BASE_URL + "mapping/getResourceMapping/{resourceName}.json",
+                BASE_URL + "resource/{resourceName}/mappings/list.json",
                 SchemaMappingTOs.class,
                 resourceName);
 
@@ -91,11 +91,11 @@ public class SchemaMappingTestITCase extends AbstractTestITCase {
         try {
 
             restTemplate.delete(
-                    BASE_URL + "mapping/delete/{resourceName}.json",
+                    BASE_URL + "resource/{resourceName}/mappings/delete.json",
                     "notfoundresourcename");
 
         } catch (HttpStatusCodeException e) {
-            assertEquals(e.getStatusCode(), HttpStatus.NOT_FOUND);
+            assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
         }
     }
 
@@ -104,11 +104,11 @@ public class SchemaMappingTestITCase extends AbstractTestITCase {
         final String resourceName = "ws-target-resource-2";
 
         restTemplate.delete(
-                BASE_URL + "mapping/delete/{resourceName}.json",
+                BASE_URL + "resource/{resourceName}/mappings/delete.json",
                 resourceName);
 
         SchemaMappingTOs actuals = restTemplate.getForObject(
-                BASE_URL + "mapping/getResourceMapping/{resourceName}.json",
+                BASE_URL + "resource/{resourceName}/mappings/list.json",
                 SchemaMappingTOs.class,
                 resourceName);
 
@@ -118,12 +118,12 @@ public class SchemaMappingTestITCase extends AbstractTestITCase {
     }
 
     @Test
-    public void getRoleResourcesMapping(){
+    public void getRoleResourcesMapping() {
         final Long roleId = 3L;
 
         SchemaMappingTOs actuals =
                 restTemplate.getForObject(
-                BASE_URL + "mapping/getRoleResourcesMapping/{roleId}.json",
+                BASE_URL + "resource/{roleName}/resources/mappings/list.json",
                 SchemaMappingTOs.class,
                 roleId);
 

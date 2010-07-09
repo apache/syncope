@@ -24,35 +24,24 @@ public class SchemaMappingTOs extends AbstractBaseTO
     private List<SchemaMappingTO> mappings;
 
     public List<SchemaMappingTO> getMappings() {
-        if (this.mappings == null) {
+        if (this.mappings == null)
             this.mappings = new ArrayList<SchemaMappingTO>();
-        }
         return this.mappings;
+    }
+
+    public boolean addMapping(SchemaMappingTO mapping) {
+        if (this.mappings == null)
+            this.mappings = new ArrayList<SchemaMappingTO>();
+        return this.mappings.add(mapping);
+    }
+    
+    public boolean removeMapping(SchemaMappingTO mapping) {
+        if (this.mappings == null) return true;
+        return this.mappings.remove(mapping);
     }
 
     public void setMappings(List<SchemaMappingTO> mappings) {
         this.mappings = mappings;
-    }
-
-    public boolean addMapping(SchemaMappingTO mapping) {
-        if (this.mappings == null) {
-            this.mappings = new ArrayList<SchemaMappingTO>();
-        }
-
-        return this.mappings.add(mapping);
-    }
-
-    public boolean addAllMappings(List<SchemaMappingTO> mappings) {
-        if (this.mappings == null) {
-            this.mappings = new ArrayList<SchemaMappingTO>();
-        }
-
-        return this.mappings.addAll(mappings);
-    }
-
-    public boolean removeMapping(SchemaMappingTO mapping) {
-        if (this.mappings == null) return true;
-        return this.mappings.remove(mapping);
     }
 
     @Override

@@ -14,9 +14,6 @@
  */
 package org.syncope.core.test.persistence;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import static org.junit.Assert.*;
 
@@ -26,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.ConnectorInstance;
 import org.syncope.core.persistence.beans.Resource;
 import org.syncope.core.persistence.beans.SchemaMapping;
-import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.ConnectorInstanceDAO;
 import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.dao.SchemaMappingDAO;
@@ -81,30 +77,7 @@ public class ResourceDAOTest extends AbstractTest {
     @Test
     public final void save() throws ClassNotFoundException {
         Resource resource = new Resource();
-        resource.setName("ws-target-resource-3");
-
-        // specify the connector
-        ConnectorInstance connector = connectorInstanceDAO.find(100L);
-
-        assertNotNull("connector not found", connector);
-
-        resource.setConnector(connector);
-
-        // specify a mapping
-        List<SchemaMapping> mappings = schemaMappingDAO.findAll();
-
-        assertNotNull("mappings not found", mappings);
-
-        assertFalse("no mapping specified", mappings.isEmpty());
-
-        resource.setMappings(new HashSet<SchemaMapping>(mappings));
-
-        // specify an user schema
-        SyncopeUser user = syncopeUserDAO.find(1L);
-
-        assertNotNull("user not found", user);
-
-        resource.setUsers(Collections.singleton(user));
+        resource.setName("ws-target-resource-basic-save");
 
         // save the resource
         Resource actual = resourceDAO.save(resource);

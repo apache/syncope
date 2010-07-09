@@ -14,6 +14,7 @@
  */
 package org.syncope.client.to;
 
+import java.util.HashSet;
 import java.util.Set;
 
 public class ConnectorInstanceTO extends AbstractBaseTO {
@@ -53,7 +54,20 @@ public class ConnectorInstanceTO extends AbstractBaseTO {
     }
 
     public Set<PropertyTO> getConfiguration() {
-        return configuration;
+        if (this.configuration == null)
+            this.configuration = new HashSet<PropertyTO>();
+        return this.configuration;
+    }
+
+    public boolean addConfiguration(PropertyTO property) {
+        if (this.configuration == null)
+            this.configuration = new HashSet<PropertyTO>();
+        return this.configuration.add(property);
+    }
+
+    public boolean removeConfiguration(PropertyTO property) {
+        if (this.configuration == null) return true;
+        return this.configuration.remove(property);
     }
 
     public void setConfiguration(Set<PropertyTO> configuration) {

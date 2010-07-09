@@ -73,10 +73,12 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
     }
 
     public boolean addResource(Resource resource) {
-        return resources.add(resource);
+        if (this.resources == null) this.resources = new HashSet<Resource>();
+        return this.resources.add(resource);
     }
 
     public boolean removeResource(Resource resource) {
+        if (this.resources == null) return true;
         return resources.remove(resource);
     }
 

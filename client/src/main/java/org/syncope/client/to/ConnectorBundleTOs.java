@@ -24,11 +24,9 @@ public class ConnectorBundleTOs extends AbstractBaseTO
     private List<ConnectorBundleTO> bundles;
 
     public List<ConnectorBundleTO> getBundles() {
-        return bundles;
-    }
-
-    public void setBundles(List<ConnectorBundleTO> bundles) {
-        this.bundles = bundles;
+        if (this.bundles == null)
+            this.bundles = new ArrayList<ConnectorBundleTO>();
+        return this.bundles;
     }
 
     public boolean addBundle(ConnectorBundleTO bundle) {
@@ -41,6 +39,10 @@ public class ConnectorBundleTOs extends AbstractBaseTO
     public boolean removeBundle(ConnectorBundleTO bundle) {
         if (this.bundles == null) return true;
         return this.bundles.remove(bundle);
+    }
+
+    public void setBundles(List<ConnectorBundleTO> bundles) {
+        this.bundles = bundles;
     }
 
     @Override

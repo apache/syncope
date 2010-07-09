@@ -83,9 +83,28 @@ public class ConnectorInstanceTestITCase extends AbstractTestITCase {
         assertEquals(actual.getConnectorName(), connectorTO.getConnectorName());
         assertEquals(actual.getVersion(), connectorTO.getVersion());
 
+        Throwable t = null;
+
+        // check for the updating
+
+        connectorTO.setId(actual.getId());
+
+        try {
+
+            restTemplate.postForObject(
+                    BASE_URL + "connector/update.json",
+                    connectorTO, ConnectorInstanceTO.class);
+
+        } catch (HttpStatusCodeException e) {
+            log.error("delete failed", e);
+            t = e;
+        }
+
+        assertNull(t);
+
         // check also for the deletion of the created object
 
-        Throwable t = null;
+        t = null;
 
         try {
 
@@ -197,13 +216,13 @@ public class ConnectorInstanceTestITCase extends AbstractTestITCase {
         assertNotNull(connectorInstanceTO);
     }
 
-    //@Test
+    @Test
     public void check() {
-        String verify = restTemplate.getForObject(
+        Boolean verify = restTemplate.getForObject(
                 BASE_URL + "connector/check/{connectorId}.json",
-                String.class, "100");
+                Boolean.class, 100L);
 
-        assertEquals(verify, "OK");
+        assertTrue(verify);
     }
 
     @Test

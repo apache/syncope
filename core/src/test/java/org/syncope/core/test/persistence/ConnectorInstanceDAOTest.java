@@ -16,18 +16,14 @@ package org.syncope.core.test.persistence;
 
 import java.util.HashSet;
 import java.util.Set;
-import org.identityconnectors.framework.api.ConnectorFacade;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.support.DefaultListableBeanFactory;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.client.to.PropertyTO;
 import org.syncope.core.persistence.beans.ConnectorInstance;
 import org.syncope.core.persistence.dao.ConnectorInstanceDAO;
-import org.syncope.core.persistence.util.ApplicationContextManager;
 import org.syncope.core.rest.data.ConnectorInstanceDataBinder;
 
 @Transactional

@@ -54,7 +54,7 @@ public class ConnectorInstanceDataBinder {
         this.connectorInstanceDAO = connectorInstanceDAO;
     }
 
-    public ConnectorInstance createConnectorInstance(
+    public ConnectorInstance getConnectorInstance(
             ConnectorInstanceTO connectorTO)
             throws SyncopeClientCompositeErrorException {
 
@@ -103,11 +103,7 @@ public class ConnectorInstanceDataBinder {
             throw compositeErrorException;
         }
 
-        // Everything went out fine, we can flush to the database
-        ConnectorInstance actual = connectorInstanceDAO.save(
-                connectorInstance);
-
-        return actual;
+        return connectorInstance;
     }
 
     public ConnectorInstance updateConnectorInstance(
@@ -170,11 +166,7 @@ public class ConnectorInstanceDataBinder {
             throw compositeErrorException;
         }
 
-        // Everything went out fine, we can flush to the database
-        ConnectorInstance actual = connectorInstanceDAO.save(
-                connectorInstance);
-
-        return actual;
+        return connectorInstance;
     }
 
     public ConnectorInstanceTO getConnectorInstanceTO(ConnectorInstance connectorInstance) {

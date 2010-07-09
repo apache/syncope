@@ -42,6 +42,7 @@ import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.servlet.ModelAndView;
 import org.syncope.client.to.ConnectorBundleTO;
 import org.syncope.client.to.ConnectorBundleTOs;
 import org.syncope.client.to.ConnectorInstanceTO;
@@ -72,7 +73,7 @@ public class ConnectorInstanceController extends AbstractController {
             @RequestBody ConnectorInstanceTO connectorTO) throws IOException {
 
         if (log.isDebugEnabled()) {
-            log.debug("create called with configuration " + connectorTO);
+            log.debug("Create called with configuration " + connectorTO);
         }
 
         ConnectorInstanceDataBinder binder =
@@ -82,7 +83,11 @@ public class ConnectorInstanceController extends AbstractController {
 
         try {
 
-            actual = binder.createConnectorInstance(connectorTO);
+            ConnectorInstance connectorInstance =
+                    binder.getConnectorInstance(connectorTO);
+
+            // Everything went out fine, we can flush to the database
+            actual = connectorInstanceDAO.save(connectorInstance);
 
         } catch (SyncopeClientCompositeErrorException e) {
             log.error("Could not create for " + connectorTO, e);
@@ -119,9 +124,7 @@ public class ConnectorInstanceController extends AbstractController {
 
         try {
 
-            beanFactory.destroyBean(
-                    actual.getId().toString(),
-                    beanFactory.getBean(actual.getId().toString()));
+            beanFactory.destroySingleton(actual.getId().toString());
 
         } catch (NoSuchBeanDefinitionException ignore) {
             // ignore exception
@@ -152,9 +155,13 @@ public class ConnectorInstanceController extends AbstractController {
         ConnectorInstance actual = null;
 
         try {
-
-            actual = binder.updateConnectorInstance(
+            ConnectorInstance connectorInstance =
+                    binder.updateConnectorInstance(
                     connectorTO.getId(), connectorTO);
+
+            // Everything went out fine, we can flush to the database
+            actual = connectorInstanceDAO.save(
+                    connectorInstance);
 
         } catch (SyncopeClientCompositeErrorException e) {
             log.error("Could not create for " + connectorTO, e);
@@ -170,7 +177,7 @@ public class ConnectorInstanceController extends AbstractController {
         DefaultListableBeanFactory beanFactory =
                 (DefaultListableBeanFactory) context.getBeanFactory();
 
-        ConnectorFacade connector = (ConnectorFacade) beanFactory.getSingleton(
+        ConnectorFacade connector = (ConnectorFacade) beanFactory.getBean(
                 actual.getId().toString());
 
         if (connector == null) {
@@ -196,9 +203,7 @@ public class ConnectorInstanceController extends AbstractController {
 
         try {
 
-            beanFactory.destroyBean(
-                    actual.getId().toString(),
-                    beanFactory.getBean(actual.getId().toString()));
+            beanFactory.destroySingleton(actual.getId().toString());
 
         } catch (NoSuchBeanDefinitionException ignore) {
             // ignore exception
@@ -224,8 +229,13 @@ public class ConnectorInstanceController extends AbstractController {
                 connectorInstanceDAO.find(connectorId);
 
         if (connectorInstance == null) {
-            log.error("Could not find connector '" + connectorId + "'");
+
+            if (log.isErrorEnabled()) {
+                log.error("Could not find connector '" + connectorId + "'");
+            }
+
             throwNotFoundException(String.valueOf(connectorId), response);
+
         } else {
             connectorInstanceDAO.delete(connectorId);
 
@@ -237,9 +247,7 @@ public class ConnectorInstanceController extends AbstractController {
 
             try {
 
-                beanFactory.destroyBean(
-                        connectorId.toString(),
-                        beanFactory.getBean(connectorId.toString()));
+                beanFactory.destroySingleton(connectorId.toString());
 
             } catch (NoSuchBeanDefinitionException ignore) {
                 // ignore exception
@@ -250,26 +258,22 @@ public class ConnectorInstanceController extends AbstractController {
         }
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/list")
+    @RequestMapping(method = RequestMethod.GET,
+    value = "/list")
     public ConnectorInstanceTOs list() {
 
         List<ConnectorInstance> connectorInstances =
                 connectorInstanceDAO.findAll();
 
-        List<ConnectorInstanceTO> instances =
-                new ArrayList<ConnectorInstanceTO>();
+        ConnectorInstanceTOs connectorInstanceTOs = new ConnectorInstanceTOs();
 
         ConnectorInstanceDataBinder binder =
                 new ConnectorInstanceDataBinder(connectorInstanceDAO);
 
         for (ConnectorInstance connector : connectorInstances) {
-            instances.add(binder.getConnectorInstanceTO(connector));
+            connectorInstanceTOs.addInstance(
+                    binder.getConnectorInstanceTO(connector));
         }
-
-        ConnectorInstanceTOs connectorInstanceTOs =
-                new ConnectorInstanceTOs();
-
-        connectorInstanceTOs.setInstances(instances);
 
         return connectorInstanceTOs;
     }
@@ -295,7 +299,7 @@ public class ConnectorInstanceController extends AbstractController {
 
     @RequestMapping(method = RequestMethod.GET,
     value = "/check/{connectorId}")
-    public String check(HttpServletResponse response,
+    public ModelAndView check(HttpServletResponse response,
             @PathVariable("connectorId") Long connectorId) throws IOException {
 
         ConfigurableApplicationContext context =
@@ -304,13 +308,34 @@ public class ConnectorInstanceController extends AbstractController {
         DefaultListableBeanFactory beanFactory =
                 (DefaultListableBeanFactory) context.getBeanFactory();
 
-        ConnectorFacade connector = (ConnectorFacade) beanFactory.getSingleton(
+        if (log.isDebugEnabled()) {
+            log.debug("Singleton in bean factory: " +
+                    beanFactory.getSingletonNames());
+        }
+
+        ConnectorFacade connector = (ConnectorFacade) beanFactory.getBean(
                 connectorId.toString());
 
-        if (connector == null)
-            return "KO";
-        else
-            return "OK";
+        ModelAndView mav = new ModelAndView();
+
+        Boolean verify = Boolean.FALSE;
+
+        try {
+
+            if (connector != null) {
+                connector.validate();
+                verify = Boolean.TRUE;
+            }
+
+        } catch (RuntimeException ignore) {
+            if (log.isInfoEnabled()) {
+                log.info("Connector validation failed", ignore);
+            }
+        }
+
+        mav.addObject(verify);
+
+        return mav;
     }
 
     @RequestMapping(method = RequestMethod.GET,

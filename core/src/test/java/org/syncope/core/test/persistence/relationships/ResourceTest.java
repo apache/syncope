@@ -14,6 +14,7 @@
  */
 package org.syncope.core.test.persistence.relationships;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -26,9 +27,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.ConnectorInstance;
 import org.syncope.core.persistence.beans.Resource;
 import org.syncope.core.persistence.beans.SchemaMapping;
+import org.syncope.core.persistence.beans.role.RoleSchema;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
+import org.syncope.core.persistence.beans.user.UserSchema;
 import org.syncope.core.persistence.dao.ConnectorInstanceDAO;
 import org.syncope.core.persistence.dao.ResourceDAO;
+import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.SchemaMappingDAO;
 import org.syncope.core.persistence.dao.SyncopeUserDAO;
 import org.syncope.core.test.persistence.AbstractTest;
@@ -40,6 +44,9 @@ public class ResourceTest extends AbstractTest {
     ResourceDAO resourceDAO;
 
     @Autowired
+    SchemaDAO schemaDAO;
+
+    @Autowired
     ConnectorInstanceDAO connectorInstanceDAO;
 
     @Autowired
@@ -49,9 +56,9 @@ public class ResourceTest extends AbstractTest {
     SyncopeUserDAO syncopeUserDAO;
 
     @Test
-    public final void save() {
+    public final void save() throws ClassNotFoundException {
         Resource resource = new Resource();
-        resource.setName("ws-target-resource-3");
+        resource.setName("ws-target-resource-save");
 
         // specify the connector
         ConnectorInstance connector = connectorInstanceDAO.find(100L);
@@ -62,16 +69,29 @@ public class ResourceTest extends AbstractTest {
         connector.addResource(resource);
 
         // specify a mapping
-        List<SchemaMapping> mappings = schemaMappingDAO.findAll();
+        List<SchemaMapping> mappings = new ArrayList<SchemaMapping>();
 
-        assertNotNull("mappings not found", mappings);
+        // search for the user schema
+        UserSchema userSchema =
+                schemaDAO.find("username", UserSchema.class);
 
-        assertFalse("no mapping specified", mappings.isEmpty());
+        // search for the role schema
+        RoleSchema roleSchema = schemaDAO.find(
+                "icon", RoleSchema.class);
 
-        resource.setMappings(new HashSet<SchemaMapping>(mappings));
+        SchemaMapping mapping = null;
 
-        for (SchemaMapping mapping : mappings) {
+        for (int i = 0; i < 3; i++) {
+            mapping = new SchemaMapping();
+            mapping.setField("test" + i);
+
+            mapping.setUserSchema(userSchema);
+            mapping.setRoleSchema(roleSchema);
+
             mapping.setResource(resource);
+            resource.addMapping(mapping);
+
+            mappings.add(mapping);
         }
 
         // specify an user schema
@@ -89,35 +109,32 @@ public class ResourceTest extends AbstractTest {
 
         resourceDAO.flush();
 
-        // connector should be updated
+        // retrieve resource
+        resource = resourceDAO.find(actual.getName());
+
+        assertNotNull(resource);
+
+        // check connector
         connector = connectorInstanceDAO.find(100L);
 
         assertNotNull(connector);
 
         Set<Resource> resources = connector.getResources();
+
         assertNotNull(resources);
-        assertTrue(resources.size() > 1);
 
-        assertTrue(resources.contains(resourceDAO.find(actual.getName())));
+        assertTrue(connector.getResources().contains(resource));
 
-        // mapping should be updated
-        SchemaMapping mapping = schemaMappingDAO.find(100L);
+        assertNotNull(resource.getConnector());
 
-        assertNotNull(mapping);
+        assertTrue(resource.getConnector().equals(connector));
 
-        resource = mapping.getResource();
-        assertNotNull(resource);
-        assertEquals(resource, actual);
+        // check mappings
+        Set<SchemaMapping> schemaMappings = resource.getMappings();
 
-        // user must bu updated
-        user = syncopeUserDAO.find(1L);
+        assertNotNull(schemaMappings);
 
-        assertNotNull(user);
-
-        resources = user.getResources();
-        assertNotNull(resources);
-        assertTrue(resources.size() == 1);
-        assertTrue(resources.contains(actual));
+        assertTrue(schemaMappings.size() == 3);
     }
 
     @Test

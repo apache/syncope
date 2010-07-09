@@ -86,6 +86,10 @@ public class ConnectorInstanceBeansLoader implements ServletContextListener {
                         instance.getConnectorName(),
                         properties);
 
+                if (log.isInfoEnabled()) {
+                    log.info("Connector instance " + connector);
+                }
+
                 beanFactory.registerSingleton(
                         instance.getId().toString(), connector);
 
