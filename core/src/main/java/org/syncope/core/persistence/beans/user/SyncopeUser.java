@@ -14,23 +14,28 @@
  */
 package org.syncope.core.persistence.beans.user;
 
+import java.security.KeyPair;
+import java.security.Security;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.persistence.Transient;
 import org.apache.commons.lang.RandomStringUtils;
-import org.jasypt.util.password.PasswordEncryptor;
-import org.jasypt.util.password.StrongPasswordEncryptor;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.syncope.core.persistence.AsymmetricCipher;
 import org.syncope.core.persistence.beans.AbstractAttributable;
 import org.syncope.core.persistence.beans.AbstractAttribute;
 import org.syncope.core.persistence.beans.AbstractDerivedAttribute;
@@ -39,10 +44,21 @@ import org.syncope.core.persistence.beans.role.SyncopeRole;
 @Entity
 public class SyncopeUser extends AbstractAttributable {
 
-    @Transient
-    final private static PasswordEncryptor passwordEncryptor =
-            new StrongPasswordEncryptor();
-    private String password;
+    static {
+        BouncyCastleProvider securityProvider = new BouncyCastleProvider();
+        if (Security.getProvider(securityProvider.getName()) == null) {
+            Security.addProvider(securityProvider);
+        }
+    }
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @Basic
+    @Lob
+    private byte[] passwordKeyPair;
+    @Basic
+    @Lob
+    private byte[] password;
     @ManyToMany(fetch = FetchType.EAGER)
     private Set<SyncopeRole> roles;
     @OneToMany(cascade = CascadeType.ALL,
@@ -66,6 +82,10 @@ public class SyncopeUser extends AbstractAttributable {
         derivedAttributes = new HashSet<UserDerivedAttribute>();
     }
 
+    public Long getId() {
+        return id;
+    }
+
     public boolean addRole(SyncopeRole role) {
         return roles.add(role);
     }
@@ -85,12 +105,18 @@ public class SyncopeUser extends AbstractAttributable {
         this.roles = roles;
     }
 
-    public boolean checkPassword(String cleanPassword) {
-        return passwordEncryptor.checkPassword(cleanPassword, password);
-    }
-
     public String getPassword() {
-        return password;
+        String result = null;
+
+        try {
+            KeyPair kp = AsymmetricCipher.deserializeKeyPair(passwordKeyPair);
+            result = new String(AsymmetricCipher.decrypt(password,
+                    kp.getPrivate()));
+        } catch (Throwable t) {
+            log.error("Could not get the key pair and the password", t);
+        }
+
+        return result;
     }
 
     /**
@@ -98,7 +124,14 @@ public class SyncopeUser extends AbstractAttributable {
      * @param password
      */
     public void setPassword(String password) {
-        this.password = passwordEncryptor.encryptPassword(password);
+        try {
+            KeyPair kp = AsymmetricCipher.generateKeyPair();
+            this.password = AsymmetricCipher.encrypt(password.getBytes(),
+                    kp.getPublic());
+            this.passwordKeyPair = AsymmetricCipher.serializeKeyPair(kp);
+        } catch (Throwable t) {
+            log.error("Could not set the password and the key pair", t);
+        }
     }
 
     @Override

@@ -52,8 +52,8 @@ public class CheckIfUserIdAlreadyExists extends OSWorkflowComponent
         List<Long> entries = workflow.query(query);
         if (!entries.isEmpty()) {
             WorkflowInitException initException = new WorkflowInitException();
-            initException.setWorkflowEntry((WorkflowEntry) transientVars.get(
-                    Constants.ENTRY));
+            initException.setWorkflowEntryId(((WorkflowEntry) transientVars.get(
+                    Constants.ENTRY)).getId());
 
             // Find SyncopeUser involved in ther other worklfow instance
             SyncopeUserDAO syncopeUserDAO = (SyncopeUserDAO) context.getBean(

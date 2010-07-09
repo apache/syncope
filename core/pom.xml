@@ -40,10 +40,6 @@
         <logfile.persistence>/tmp/syncope-core-persistence.log</logfile.persistence>
         <logfile.rest>/tmp/syncope-core-rest.log</logfile.rest>
         <logfile.test>/tmp/syncope-core-test.log</logfile.test>
-
-        <!-- Ugly having this version number defined here and not in the
-             parent POM, but needed for integration tests -->
-        <hsqldb.version>1.8.0.10</hsqldb.version>
     </properties>
 
     <dependencies>
@@ -57,18 +53,21 @@
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
-            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>javax.servlet.jsp</groupId>
             <artifactId>jsp-api</artifactId>
-            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>jstl</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>bouncycastle</groupId>
+            <artifactId>bcprov-jdk16</artifactId>
         </dependency>
 
         <dependency>
@@ -150,10 +149,6 @@
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-entitymanager</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jasypt</groupId>
-            <artifactId>jasypt</artifactId>
         </dependency>
 
         <dependency>
@@ -377,13 +372,6 @@
                                         <include>integration-test.jar</include>
                                     </includes>
                                 </resource>
-                                <resource>
-                                    <directory>${settings.localRepository}/hsqldb/hsqldb/${hsqldb.version}</directory>
-                                    <targetPath>WEB-INF/lib</targetPath>
-                                    <includes>
-                                        <include>hsqldb-${hsqldb.version}.jar</include>
-                                    </includes>
-                                </resource>
                             </webResources>
                         </configuration>
                     </execution>
@@ -395,8 +383,7 @@
                         </goals>
                         <configuration>
                             <packagingExcludes>
-                                WEB-INF/lib/integration-test.jar,
-                                WEB-INF/lib/hsqldb-${hsqldb.version}.jar
+                                WEB-INF/lib/integration-test.jar
                             </packagingExcludes>
                         </configuration>
                     </execution>
@@ -470,13 +457,6 @@
                         </goals>
                     </execution>
                 </executions>
-                <dependencies>
-                    <dependency>
-                        <groupId>hsqldb</groupId>
-                        <artifactId>hsqldb</artifactId>
-                        <version>${hsqldb.version}</version>
-                    </dependency>
-                </dependencies>
             </plugin>
 
             <plugin>
@@ -522,20 +502,6 @@
                         </systemProperty>
                     </systemProperties>
                 </configuration>
-               <!--<dependencies>
-                    <dependency>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>slf4j-jcl</artifactId>
-                    </dependency>
-                    <dependency>
-                        <groupId>log4j</groupId>
-                        <artifactId>log4j</artifactId>
-                    </dependency>
-                </dependencies>-->
                 <executions>
                     <execution>
                         <id>start-jetty</id>

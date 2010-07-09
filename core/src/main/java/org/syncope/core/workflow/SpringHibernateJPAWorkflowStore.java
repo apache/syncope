@@ -15,6 +15,7 @@
 package org.syncope.core.workflow;
 
 import com.opensymphony.workflow.StoreException;
+import com.opensymphony.workflow.spi.hibernate.HibernateWorkflowEntry;
 import com.opensymphony.workflow.spi.hibernate3.AbstractHibernateWorkflowStore;
 import java.util.Map;
 import javax.persistence.EntityManager;
@@ -37,5 +38,13 @@ public class SpringHibernateJPAWorkflowStore
     @Override
     protected Object execute(InternalCallback action) throws StoreException {
         return action.doInHibernate((Session) entityManager.getDelegate());
+    }
+
+    public void delete(Long entryId) {
+        HibernateWorkflowEntry entry =
+                entityManager.find(HibernateWorkflowEntry.class, entryId);
+        if (entry != null) {
+            entityManager.remove(entry);
+        }
     }
 }

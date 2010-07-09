@@ -81,7 +81,6 @@ public class UserTestITCase extends AbstractTestITCase {
         UserTO newUserTO = restTemplate.postForObject(BASE_URL + "user/create",
                 userTO, UserTO.class);
         userTO.setId(newUserTO.getId());
-        userTO.setPassword(newUserTO.getPassword());
         userTO.setCreationTime(newUserTO.getCreationTime());
         userTO.setToken(newUserTO.getToken());
         userTO.setTokenExpireTime(newUserTO.getTokenExpireTime());

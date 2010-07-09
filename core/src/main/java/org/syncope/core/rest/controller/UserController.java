@@ -47,8 +47,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
 import org.syncope.core.persistence.dao.SyncopeConfigurationDAO;
-import org.syncope.core.persistence.dao.WorkflowEntryDAO;
 import org.syncope.core.workflow.Constants;
+import org.syncope.core.workflow.SpringHibernateJPAWorkflowStore;
 import org.syncope.core.workflow.WorkflowInitException;
 import org.syncope.types.SyncopeClientExceptionType;
 
@@ -64,8 +64,8 @@ public class UserController extends AbstractController {
     private UserDataBinder userDataBinder;
     @Autowired
     private Workflow userWorkflow;
-    @Autowired
-    private WorkflowEntryDAO workflowEntryDAO;
+    @Autowired(required = false)
+    private SpringHibernateJPAWorkflowStore workflowStore;
 
     @Transactional
     @RequestMapping(method = RequestMethod.POST,
@@ -139,18 +139,8 @@ public class UserController extends AbstractController {
             wie = e;
 
             // Removing dirty workflow entry
-            if (e.getWorkflowEntry() != null) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Removing dirty workflow entry "
-                            + e.getWorkflowEntry());
-                }
-
-                workflowEntryDAO.delete(e.getWorkflowEntry().getId());
-
-                if (log.isDebugEnabled()) {
-                    log.debug("Removed dirty workflow entry "
-                            + e.getWorkflowEntry());
-                }
+            if (workflowStore != null && e.getWorkflowEntryId() != null) {
+                workflowStore.delete(e.getWorkflowEntryId());
             }
         } catch (WorkflowException e) {
             log.error("Unexpected workflow exception", e);
@@ -183,6 +173,12 @@ public class UserController extends AbstractController {
             syncopeUser = userDataBinder.createSyncopeUser(userTO);
         } catch (SyncopeClientCompositeErrorException e) {
             log.error("Could not create for " + userTO, e);
+
+            // Removing dirty workflow entry
+            if (workflowStore != null) {
+                workflowStore.delete(workflowId);
+            }
+
             return throwCompositeException(e, response);
         }
         syncopeUser.setWorkflowEntryId(workflowId);
@@ -245,8 +241,8 @@ public class UserController extends AbstractController {
             log.error("Could not find user '" + userId + "'");
             throwNotFoundException(String.valueOf(userId), response);
         } else {
-            if (user.getWorkflowEntryId() != null) {
-                workflowEntryDAO.delete(user.getWorkflowEntryId());
+            if (workflowStore != null && user.getWorkflowEntryId() != null) {
+                workflowStore.delete(user.getWorkflowEntryId());
             }
 
             syncopeUserDAO.delete(userId);

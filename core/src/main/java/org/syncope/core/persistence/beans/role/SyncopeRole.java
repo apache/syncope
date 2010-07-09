@@ -20,6 +20,9 @@ import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -34,20 +37,18 @@ import org.syncope.core.persistence.beans.Entitlement;
 @UniqueConstraint(columnNames = {"name", "parent"}))
 public class SyncopeRole extends AbstractAttributable {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     private String name;
-
     private String parent;
-
     @ManyToMany(fetch = FetchType.EAGER, mappedBy = "roles")
     private Set<SyncopeUser> users;
-
     @ManyToMany(fetch = FetchType.LAZY)
     private Set<Entitlement> entitlements;
-
     @OneToMany(cascade = CascadeType.ALL,
     fetch = FetchType.EAGER, mappedBy = "owner")
     private Set<RoleAttribute> attributes;
-
     @OneToMany(cascade = CascadeType.ALL,
     fetch = FetchType.EAGER, mappedBy = "owner")
     private Set<RoleDerivedAttribute> derivedAttributes;
@@ -57,6 +58,10 @@ public class SyncopeRole extends AbstractAttributable {
         entitlements = new HashSet<Entitlement>();
         attributes = new HashSet<RoleAttribute>();
         derivedAttributes = new HashSet<RoleDerivedAttribute>();
+    }
+
+    public Long getId() {
+        return id;
     }
 
     public String getName() {

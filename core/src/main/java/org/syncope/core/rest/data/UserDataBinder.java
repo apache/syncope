@@ -52,9 +52,8 @@ public class UserDataBinder {
     private static final Logger log = LoggerFactory.getLogger(
             UserDataBinder.class);
     private static final String[] ignoreProperties = {
-        "attributes", "derivedAttributes", "roles", "resources",
-        "workflowEntryId"
-    };
+        "password", "passwordKeyPair", "attributes", "derivedAttributes",
+        "roles", "resources", "workflowEntryId"};
     private SchemaDAO schemaDAO;
     private AttributeValueDAO attributeValueDAO;
     private DerivedSchemaDAO derivedSchemaDAO;
@@ -109,6 +108,8 @@ public class UserDataBinder {
         if (userTO.getPassword() == null || userTO.getPassword().length() == 0) {
             invalidPassword.addElement("Null password");
             compositeErrorException.addException(invalidPassword);
+        } else {
+            syncopeUser.setPassword(userTO.getPassword());
         }
 
         // 1. attributes
@@ -256,6 +257,7 @@ public class UserDataBinder {
     public UserTO getUserTO(SyncopeUser user) {
         UserTO userTO = new UserTO();
         BeanUtils.copyProperties(user, userTO, ignoreProperties);
+        userTO.setPassword(user.getPassword());
 
         AttributeTO attributeTO = null;
         for (AbstractAttribute attribute : user.getAttributes()) {

@@ -15,7 +15,6 @@
 package org.syncope.core.workflow;
 
 import com.opensymphony.workflow.InvalidInputException;
-import com.opensymphony.workflow.spi.WorkflowEntry;
 
 public class WorkflowInitException extends InvalidInputException {
 
@@ -25,20 +24,20 @@ public class WorkflowInitException extends InvalidInputException {
     };
     private ExceptionOperation exceptionOperation;
     private Long syncopeUserId;
-    private WorkflowEntry workflowEntry;
+    private Long workflowEntryId;
 
     public WorkflowInitException() {
         super();
     }
 
     public WorkflowInitException(ExceptionOperation exceptionOperation,
-            Long syncopeUserId, WorkflowEntry workflowEntry) {
+            Long syncopeUserId, Long workflowEntryId) {
 
         super();
 
         this.exceptionOperation = exceptionOperation;
         this.syncopeUserId = syncopeUserId;
-        this.workflowEntry = workflowEntry;
+        this.workflowEntryId = workflowEntryId;
     }
 
     public ExceptionOperation getExceptionOperation() {
@@ -57,12 +56,12 @@ public class WorkflowInitException extends InvalidInputException {
         this.syncopeUserId = syncopeUserId;
     }
 
-    public WorkflowEntry getWorkflowEntry() {
-        return workflowEntry;
+    public Long getWorkflowEntryId() {
+        return workflowEntryId;
     }
 
-    public void setWorkflowEntry(WorkflowEntry workflowEntry) {
-        this.workflowEntry = workflowEntry;
+    public void setWorkflowEntryId(Long workflowEntryId) {
+        this.workflowEntryId = workflowEntryId;
     }
 
     @Override
@@ -70,6 +69,6 @@ public class WorkflowInitException extends InvalidInputException {
         return "WorkflowInitException{"
                 + "exceptionOperation=" + exceptionOperation + ","
                 + "syncopeUserId=" + syncopeUserId + ","
-                + "workflowEntry=" + workflowEntry.getId() + '}';
+                + "workflowEntry=" + workflowEntryId + '}';
     }
 }

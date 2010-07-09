@@ -15,24 +15,15 @@
 package org.syncope.core.persistence.beans;
 
 import java.util.HashSet;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.MappedSuperclass;
-import org.syncope.core.persistence.beans.Resource;
 
 @MappedSuperclass
 public abstract class AbstractAttributable extends AbstractBaseBean {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
 
     /**
      * Provisioning target resources.
@@ -42,10 +33,6 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
 
     public AbstractAttributable() {
         resources = new HashSet<Resource>();
-    }
-
-    public Long getId() {
-        return id;
     }
 
     public <T extends AbstractAttribute> T getAttribute(String schemaName) {
@@ -94,7 +81,9 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
     }
 
     public Set<Resource> getResources() {
-        if (this.resources == null) this.resources = new HashSet<Resource>();
+        if (this.resources == null) {
+            this.resources = new HashSet<Resource>();
+        }
         return this.resources;
     }
 
