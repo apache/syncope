@@ -34,8 +34,6 @@
         <jetty.port>8080</jetty.port>
         <logfile.jetty>/tmp/syncope-core-jetty.log</logfile.jetty>
 
-        <hsqldb.file>/tmp/syncope-db</hsqldb.file>
-
         <logfile>/tmp/syncope-core.log</logfile>
         <logfile.persistence>/tmp/syncope-core-persistence.log</logfile.persistence>
         <logfile.rest>/tmp/syncope-core-rest.log</logfile.rest>
@@ -249,46 +247,6 @@
 
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <inherited>true</inherited>
-                <executions>
-                    <execution>
-                        <id>clean-db-test</id>
-                        <phase>initialize</phase>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <configuration>
-                            <executable>rm</executable>
-                            <arguments>
-                                <argument>-f</argument>
-                                <argument>${hsqldb.file}.log</argument>
-                                <argument>${hsqldb.file}.properties</argument>
-                                <argument>${hsqldb.file}.script</argument>
-                            </arguments>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>clean-db-integration-test</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <configuration>
-                            <executable>rm</executable>
-                            <arguments>
-                                <argument>-rf</argument>
-                                <argument>${hsqldb.file}.log</argument>
-                                <argument>${hsqldb.file}.properties</argument>
-                                <argument>${hsqldb.file}.script</argument>
-                            </arguments>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
                 <artifactId>xml-maven-plugin</artifactId>
                 <inherited>true</inherited>
                 <executions>
@@ -460,8 +418,8 @@
             </plugin>
 
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>failsafe-maven-plugin</artifactId>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
                 <inherited>true</inherited>
                 <configuration>
                     <redirectTestOutputToFile>true</redirectTestOutputToFile>
