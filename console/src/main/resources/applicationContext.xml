@@ -33,7 +33,7 @@
 
     <bean id="restClient" class="org.syncope.console.rest.RestClient">
         <property name="restTemplate" ref="restTemplate"/>
-        <property name="baseURL" value="http://192.168.0.138:8080/syncope/rest/"/>
+        <property name="baseURL" value="http://<%SYNCOPE_BASE_URL%>/rest/"/>
     </bean>
 
     <bean id="schemaRestClient" class="org.syncope.console.rest.SchemaRestClient">
