@@ -82,8 +82,6 @@ public class UserDataBinder {
                 HttpStatus.BAD_REQUEST);
         SyncopeClientException invalidPassword = new SyncopeClientException(
                 SyncopeClientExceptionType.InvalidPassword);
-        SyncopeClientException invalidSchemas = new SyncopeClientException(
-                SyncopeClientExceptionType.InvalidSchemas);
         SyncopeClientException requiredValuesMissing =
                 new SyncopeClientException(
                 SyncopeClientExceptionType.RequiredValuesMissing);
@@ -122,9 +120,9 @@ public class UserDataBinder {
         for (AttributeTO attributeTO : userTO.getAttributes()) {
             schema = schemaDAO.find(attributeTO.getSchema(), UserSchema.class);
 
-            if (schema == null) {
-                invalidSchemas.addElement(attributeTO.getSchema());
-            } else {
+            // safely ignore invalid schemas from AttributeTO
+            // see http://code.google.com/p/syncope/issues/detail?id=17
+            if (schema != null) {
                 attribute = new UserAttribute();
                 attribute.setSchema(schema);
                 attribute.setOwner(syncopeUser);
@@ -167,6 +165,11 @@ public class UserDataBinder {
 
                 if (!attribute.getAttributeValues().isEmpty()) {
                     syncopeUser.addAttribute(attribute);
+                }
+            } else {
+                if (log.isDebugEnabled()) {
+                    log.debug("Ignoring invalid schema "
+                            + attributeTO.getSchema());
                 }
             }
         }
@@ -228,9 +231,6 @@ public class UserDataBinder {
 
         // Throw composite exception if there is at least one element set
         // in the composing exceptions
-        if (!invalidSchemas.getElements().isEmpty()) {
-            compositeErrorException.addException(invalidSchemas);
-        }
         if (!requiredValuesMissing.getElements().isEmpty()) {
             compositeErrorException.addException(requiredValuesMissing);
         }

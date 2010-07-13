@@ -77,9 +77,18 @@ public class UserTestITCase extends AbstractTestITCase {
         loginDateTO.addValue("2010-07-01");
         userTO.addAttribute(loginDateTO);
 
+        AttributeTO attrWithInvalidSchemaTO = new AttributeTO();
+        attrWithInvalidSchemaTO.setSchema("invalid schema");
+        attrWithInvalidSchemaTO.addValue("a value");
+        userTO.addAttribute(attrWithInvalidSchemaTO);
+
         // 1. create user
         UserTO newUserTO = restTemplate.postForObject(BASE_URL + "user/create",
                 userTO, UserTO.class);
+        
+        assertFalse(newUserTO.getAttributes().contains(attrWithInvalidSchemaTO));
+        userTO.removeAttribute(attrWithInvalidSchemaTO);
+
         userTO.setId(newUserTO.getId());
         userTO.setCreationTime(newUserTO.getCreationTime());
         userTO.setToken(newUserTO.getToken());
