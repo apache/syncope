@@ -20,7 +20,7 @@
     <bean id="workflowStore" class="org.syncope.core.workflow.SpringHibernateJPAWorkflowStore">
         <property name="propertySetDelegate">
             <bean id="propertySetDelegate"
-                  class="com.opensymphony.workflow.util.PropertySetDelegateImpl"/>
+                  class="org.syncope.core.workflow.PropertySetDelegateImpl"/>
         </property>
     </bean>
 

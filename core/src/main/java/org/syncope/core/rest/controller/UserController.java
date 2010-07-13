@@ -183,23 +183,16 @@ public class UserController extends AbstractController {
         }
         syncopeUser.setWorkflowEntryId(workflowId);
         syncopeUser.setCreationTime(new Date());
-        syncopeUser.generateToken(
-                Integer.parseInt(syncopeConfigurationDAO.find(
-                "token.length").getConfValue()),
-                Integer.parseInt(syncopeConfigurationDAO.find(
-                "token.expireTime").getConfValue()));
         syncopeUser = syncopeUserDAO.save(syncopeUser);
-        userTO = userDataBinder.getUserTO(syncopeUser);
 
         Map<String, Object> inputs = new HashMap<String, Object>();
         inputs.put(Constants.SYNCOPE_USER, syncopeUser);
-        inputs.put(Constants.TOKEN, userTO.getToken());
         inputs.put(Constants.MAIL_FROM,
                 syncopeConfigurationDAO.find(
                 "activate.email.from").getConfValue());
         inputs.put(Constants.MAIL_SUBJECT,
                 syncopeConfigurationDAO.find(
-                "activate.email.from").getConfValue());
+                "activate.email.subject").getConfValue());
         StringBuffer baseRequestURL = request.getRequestURL();
         inputs.put(Constants.BASE_REQUEST_URL,
                 baseRequestURL.substring(0,
@@ -223,9 +216,10 @@ public class UserController extends AbstractController {
                 return throwWorkflowException(e, response);
             }
         }
+        syncopeUser = syncopeUserDAO.save(syncopeUser);
 
         response.setStatus(HttpServletResponse.SC_CREATED);
-        return userTO;
+        return userDataBinder.getUserTO(syncopeUser);
     }
 
     @Transactional

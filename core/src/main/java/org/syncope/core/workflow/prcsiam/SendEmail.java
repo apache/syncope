@@ -14,12 +14,14 @@
  */
 package org.syncope.core.workflow.prcsiam;
 
+import com.opensymphony.module.propertyset.PropertySet;
 import com.opensymphony.workflow.WorkflowException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Map;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.HtmlEmail;
+import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.SyncopeConfiguration;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.workflow.*;
@@ -27,14 +29,10 @@ import org.syncope.core.workflow.*;
 public class SendEmail extends BaseSendEmail {
 
     @Override
-    protected HtmlEmail getHtmlEmail(Map transientVars)
+    protected HtmlEmail getHtmlEmail(PropertySet ps, String token)
             throws EmailException, WorkflowException {
 
-        SyncopeUser syncopeUser = (SyncopeUser) transientVars.get(
-                Constants.SYNCOPE_USER);
-
-        String urlPrefix =
-                (String) transientVars.get(Constants.BASE_REQUEST_URL)
+        String urlPrefix = ps.getString(Constants.BASE_REQUEST_URL)
                 + Constants.MAILTEMPLATES_URL;
         String urlSuffix = "";
         try {
@@ -43,24 +41,46 @@ public class SendEmail extends BaseSendEmail {
             if (conf != null) {
                 urlSuffix = ".jsp?confirmationLink="
                         + conf.getConfValue()
-                        + "?token=" + URLEncoder.encode(
-                        syncopeUser.getToken(), "UTF-8");
+                        + "?token=" + URLEncoder.encode(token, "UTF-8");
             }
         } catch (UnsupportedEncodingException e) {
             log.error("Unexpected exception", e);
         }
 
-        HtmlEmail email = super.getHtmlEmail(transientVars);
-        email.addTo(Utils.getUserId(syncopeUser));
+        HtmlEmail email = super.getHtmlEmail(ps, token);
+        email.addTo(ps.getString("userId"));
         email.setHtmlMsg(getEmailBody(urlPrefix,
-                (String) transientVars.get(Constants.MAIL_TEMPLATE_HTML),
+                ps.getString(Constants.MAIL_TEMPLATE_HTML),
                 urlSuffix,
                 urlSuffix.substring(0, urlSuffix.indexOf('=') + 1)));
         email.setTextMsg(getEmailBody(urlPrefix,
-                (String) transientVars.get(Constants.MAIL_TEMPLATE_TXT),
+                ps.getString(Constants.MAIL_TEMPLATE_TXT),
                 urlSuffix,
                 urlSuffix.substring(0, urlSuffix.indexOf('=') + 1)));
 
         return email;
+    }
+
+    @Override
+    @Transactional
+    public void execute(Map transientVars, Map args, PropertySet ps)
+            throws WorkflowException {
+
+        if (transientVars.get(Constants.SYNCOPE_USER) != null
+                && !ps.exists("userId")) {
+
+            SyncopeUser syncopeUser = (SyncopeUser) transientVars.get(
+                    Constants.SYNCOPE_USER);
+
+            ps.setString("userId", Utils.getUserId(syncopeUser));
+        }
+        if (transientVars.get(Constants.BASE_REQUEST_URL) != null
+                && !ps.exists(Constants.BASE_REQUEST_URL)) {
+
+            ps.setString(Constants.BASE_REQUEST_URL,
+                    (String) transientVars.get(Constants.BASE_REQUEST_URL));
+        }
+
+        super.execute(transientVars, args, ps);
     }
 }

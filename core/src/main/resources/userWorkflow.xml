@@ -47,9 +47,14 @@
             </pre-functions>
             <actions>
                 <action name="create" id="1001">
+                    <pre-functions>
+                        <function type="class">
+                            <arg name="class.name">org.syncope.core.workflow.GenerateToken</arg>
+                        </function>
+                    </pre-functions>
                     <results>
                         <result old-status="creationRequest" status="active" step="3">
-                            <conditions type="AND">
+                            <conditions>
                                 <condition type="class">
                                     <arg name="class.name">org.syncope.core.workflow.prcsiam.IsMobileApplication</arg>
                                 </condition>
@@ -89,7 +94,7 @@
                 <action name="activate" id="2001">
                     <results>
                         <result old-status="doubleOptIn" status="active" step="3">
-                            <conditions type="AND">
+                            <conditions>
                                 <condition type="class">
                                     <arg name="class.name">org.syncope.core.workflow.IsValidToken</arg>
                                 </condition>
@@ -97,6 +102,26 @@
                             <post-functions>
                                 <function type="class">
                                     <arg name="class.name">org.syncope.core.workflow.prcsiam.StoreActivationDate</arg>
+                                </function>
+                                <function type="class">
+                                    <arg name="class.name">org.syncope.core.workflow.prcsiam.CleanupAfterEmail</arg>
+                                </function>
+                            </post-functions>
+                        </result>
+                        <result old-status="doubleOptIn" status="doubleOptIn" step="2">
+                            <conditions>
+                                <condition type="class">
+                                    <arg name="class.name">org.syncope.core.workflow.IsNotValidToken</arg>
+                                </condition>
+                            </conditions>
+                            <pre-functions>
+                                <function type="class">
+                                    <arg name="class.name">org.syncope.core.workflow.GenerateToken</arg>
+                                </function>
+                            </pre-functions>
+                            <post-functions>
+                                <function type="class">
+                                    <arg name="class.name">org.syncope.core.workflow.prcsiam.SendEmail</arg>
                                 </function>
                             </post-functions>
                         </result>
@@ -116,32 +141,32 @@
                 </function>
             </pre-functions>
             <actions>
-                <action name="subscribe" id="301">
+                <action name="subscribe" id="3001">
                     <results>
                         <unconditional-result old-status="active" status="active" step="3"/>
                     </results>
                 </action>
-                <action name="unsubscribe" id="302">
+                <action name="unsubscribe" id="3002">
                     <results>
                         <unconditional-result old-status="active" status="active" step="3"/>
                     </results>
                 </action>
-                <action name="update" id="303">
+                <action name="update" id="3003">
                     <results>
                         <unconditional-result old-status="active" status="active" step="3"/>
                     </results>
                 </action>
-                <action name="passwordReset" id="304">
+                <action name="passwordReset" id="3004">
                     <results>
                         <unconditional-result old-status="active" status="active" step="3"/>
                     </results>
                 </action>
-                <action name="suspend" id="305">
+                <action name="suspend" id="3005">
                     <results>
                         <unconditional-result old-status="active" status="suspended" step="4"/>
                     </results>
                 </action>
-                <action name="delete" id="306">
+                <action name="delete" id="3006">
                     <results>
                         <unconditional-result old-status="active" status="deleted" step="5"/>
                     </results>
@@ -155,7 +180,7 @@
                 </function>
             </pre-functions>
             <actions>
-                <action name="reactivate" id="401">
+                <action name="reactivate" id="4001">
                     <results>
                         <unconditional-result old-status="suspended" status="active" step="3"/>
                     </results>

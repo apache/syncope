@@ -106,6 +106,8 @@ public class UserDataBinder {
         // 0. password
         // TODO: check password policies
         if (userTO.getPassword() == null || userTO.getPassword().length() == 0) {
+            log.error("No password provided");
+
             invalidPassword.addElement("Null password");
             compositeErrorException.addException(invalidPassword);
         } else {

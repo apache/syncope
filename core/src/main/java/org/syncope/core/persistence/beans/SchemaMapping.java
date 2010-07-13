@@ -87,10 +87,6 @@ public class SchemaMapping extends AbstractBaseBean {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public boolean isAccountid() {
         return accountid;
     }

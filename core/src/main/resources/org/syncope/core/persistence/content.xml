@@ -45,7 +45,7 @@
     <UserSchema name="promoThirdPartyAuth" type="Boolean" virtual="false"
                 mandatory="true" multivalue="false" uniquevalue="false"/>
     <UserSchema name="type" type="String" virtual="false"
-                mandatory="true" multivalue="false" uniquevalue="false"/>
+                mandatory="false" multivalue="false" uniquevalue="false"/>
 
     <UserDerivedSchema name="username" expression="firstname + '.' + surname"/>
 
