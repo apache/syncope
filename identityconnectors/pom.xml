@@ -30,67 +30,6 @@
 
     <packaging>pom</packaging>
 
-    <url>http://syncope.googlecode.com/</url>
-    <prerequisites>
-        <maven>[2.1.0,)</maven>
-    </prerequisites>
-
-    <licenses>
-        <license>
-            <name>The Apache Software License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-
-    <scm>
-        <connection>scm:svn:http://syncope.googlecode.com/svn/trunk/</connection>
-        <developerConnection>scm:svn:https://syncope.googlecode.com/svn/trunk/</developerConnection>
-        <url>http://syncope.googlecode.com/svn/trunk/</url>
-    </scm>
-
-    <issueManagement>
-        <system>Google Code</system>
-        <url>http://code.google.com/p/syncope/issues/</url>
-    </issueManagement>
-
-    <developers>
-        <developer>
-            <name>Francesco Chicchiriccò</name>
-            <id>ilgrosso</id>
-            <organization/>
-            <roles>
-                <role>Project Lead</role>
-            </roles>
-            <timezone>+1</timezone>
-        </developer>
-        <developer>
-            <name>Fabio Martelli</name>
-            <id>spallone</id>
-            <organization/>
-            <roles>
-                <role>Project Lead</role>
-            </roles>
-            <timezone>+1</timezone>
-        </developer>
-    </developers>
-
-    <contributors>
-    </contributors>
-
-    <mailingLists>
-        <mailingList>
-            <name>syncope-dev</name>
-            <post>syncope-dev@googlegroups.com</post>
-            <archive>http://groups.google.com/group/syncope-dev</archive>
-        </mailingList>
-        <mailingList>
-            <name>syncope-users</name>
-            <post>syncope-uses@googlegroups.com</post>
-            <archive>http://groups.google.com/group/syncope-users</archive>
-        </mailingList>
-    </mailingLists>
-
     <properties>
 
         <groovy-all.version>1.7.2</groovy-all.version>

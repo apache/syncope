@@ -25,9 +25,16 @@
     <version>0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
+    <!-- maven repository on sonatype -->
+    <parent>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>3</version>
+    </parent>
+
     <url>http://syncope.googlecode.com/</url>
     <prerequisites>
-        <maven>[2.1.0,)</maven>
+        <maven>[2.2.0,)</maven>
     </prerequisites>
 
     <licenses>
@@ -48,14 +55,6 @@
         <system>Google Code</system>
         <url>http://code.google.com/p/syncope/issues/</url>
     </issueManagement>
-
-    <distributionManagement>
-        <repository>
-            <uniqueVersion>false</uniqueVersion>
-            <id>googlecode</id>
-            <url>dav:https://syncope.googlecode.com/svn/maven2/</url>
-        </repository>
-    </distributionManagement>
 
     <developers>
         <developer>
@@ -376,6 +375,23 @@
 
     <build>
         <defaultGoal>package</defaultGoal>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+        
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -471,14 +487,6 @@
                 </plugin>
             </plugins>
         </pluginManagement>
-
-        <extensions>
-            <extension>
-                <groupId>org.apache.maven.wagon</groupId>
-                <artifactId>wagon-webdav</artifactId>
-                <version>1.0-beta-2</version>
-            </extension>
-        </extensions>
     </build>
 
     <reporting>
