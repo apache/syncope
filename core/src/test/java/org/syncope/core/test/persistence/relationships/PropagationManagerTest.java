@@ -85,7 +85,8 @@ public class PropagationManagerTest extends AbstractTest {
         try {
 
             PropagationManager propagationManager = new PropagationManager();
-            propagationManager.provision(user, true);
+            propagationManager.provision(
+                    user, Collections.singleton("ws-target-resource-2"));
 
         } catch (RuntimeException e) {
             re = e;
@@ -109,7 +110,8 @@ public class PropagationManagerTest extends AbstractTest {
         try {
 
             PropagationManager propagationManager = new PropagationManager();
-            propagationManager.update(user, true);
+            propagationManager.update(
+                    user, Collections.singleton("ws-target-resource-2"));
 
         } catch (RuntimeException e) {
             re = e;

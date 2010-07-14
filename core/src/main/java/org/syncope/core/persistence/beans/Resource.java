@@ -16,6 +16,7 @@ package org.syncope.core.persistence.beans;
 
 import java.util.HashSet;
 import java.util.Set;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
@@ -55,7 +56,7 @@ public class Resource extends AbstractBaseBean {
     /**
      * Attribute mappings.
      */
-    @OneToMany(cascade = javax.persistence.CascadeType.MERGE,
+    @OneToMany(cascade = {CascadeType.REFRESH, CascadeType.MERGE},
     fetch = FetchType.EAGER, mappedBy = "resource")
     private Set<SchemaMapping> mappings;
 

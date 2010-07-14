@@ -49,14 +49,14 @@ public class ResourceDataBinder {
 
     private SchemaDAO schemaDAO;
 
-    private ConnectorInstanceDAO connectoInstanceDAO;
+    private ConnectorInstanceDAO connectorInstanceDAO;
 
     @Autowired
     public ResourceDataBinder(
             SchemaDAO schemaDAO, ConnectorInstanceDAO connectorInstanceDAO) {
 
         this.schemaDAO = schemaDAO;
-        this.connectoInstanceDAO = connectorInstanceDAO;
+        this.connectorInstanceDAO = connectorInstanceDAO;
     }
 
     public Resource getResource(ResourceTO resourceTO)
@@ -85,7 +85,7 @@ public class ResourceDataBinder {
         ConnectorInstance connector = null;
 
         if (resourceTO.getConnectorId() != null) {
-            connector = connectoInstanceDAO.find(resourceTO.getConnectorId());
+            connector = connectorInstanceDAO.find(resourceTO.getConnectorId());
         }
 
         if (connector == null) {
@@ -108,8 +108,7 @@ public class ResourceDataBinder {
                 getSchemaMappings(resource, resourceTO.getMappings()));
 
         resource.setConnector(connector);
-        // TODO: to be verified
-        //connector.addResource(resource);
+        connector.addResource(resource);
 
         return resource;
     }

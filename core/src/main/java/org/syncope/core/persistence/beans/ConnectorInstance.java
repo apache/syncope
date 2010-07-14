@@ -16,6 +16,7 @@ package org.syncope.core.persistence.beans;
 
 import java.util.HashSet;
 import java.util.Set;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -67,7 +68,7 @@ public class ConnectorInstance extends AbstractBaseBean {
      * Provisioning target resources associated to the connector.
      * The connector can be considered the resource's type.
      */
-    @OneToMany(cascade = javax.persistence.CascadeType.ALL,
+    @OneToMany(cascade = {CascadeType.REFRESH, CascadeType.MERGE},
     fetch = FetchType.EAGER, mappedBy = "connector")
     private Set<Resource> resources;
 

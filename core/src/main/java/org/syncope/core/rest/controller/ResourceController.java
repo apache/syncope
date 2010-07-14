@@ -556,8 +556,7 @@ public class ResourceController extends AbstractController {
         }
 
         if (log.isDebugEnabled()) {
-            log.debug("Mappings found: " +
-                    roleMappings.getMappings());
+            log.debug("Mappings found: " + roleMappings.getMappings());
         }
 
         return roleMappings;

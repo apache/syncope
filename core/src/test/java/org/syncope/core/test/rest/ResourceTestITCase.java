@@ -37,7 +37,7 @@ public class ResourceTestITCase extends AbstractTestITCase {
         ResourceTO resourceTO = new ResourceTO();
 
         resourceTO.setName(resourceName);
-        resourceTO.setConnectorId(100L);
+        resourceTO.setConnectorId(102L);
 
         SchemaMappingTOs schemaMappingTOs = new SchemaMappingTOs();
 

@@ -14,6 +14,7 @@
  */
 package org.syncope.core.persistence;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import org.identityconnectors.framework.api.ConnectorFacade;
@@ -46,19 +47,20 @@ public class PropagationManager {
      * @return a set of provisioned resources.
      */
     public Set<String> provision(SyncopeUser user) {
-        return provision(user, false, false);
+        return provision(user, null, false);
     }
 
     /**
      * Performs provisioning on each resource associated to the user.
-     * If we ask for a synchronous provisioning passing true as second argument,
-     * than exceptions won't be ignored but the process will be stoppend and a
-     * runtime exception will be returned.
+     * It is possible to ask for a synchronous provisioning for some resources
+     * specifying a set of resource names.
+     * Exceptions won't be ignored and the process will be stoppend if the
+     * provisioning fails onto a synchronous resource.
      * @param user to be created.
      * @param synchronous to ask for a synchronous or asynchronous provisioning.
      * @return a set of provisioned resources.
      */
-    public Set<String> provision(SyncopeUser user, boolean synchronous) {
+    public Set<String> provision(SyncopeUser user, Set<String> synchronous) {
         return provision(user, synchronous, false);
     }
 
@@ -69,19 +71,20 @@ public class PropagationManager {
      * @return a set of updated resources.
      */
     public Set<String> update(SyncopeUser user) {
-        return provision(user, false, true);
+        return provision(user, null, true);
     }
 
     /**
      * Performs update on each resource associated to the user.
-     * If we ask for a synchronous update passing true as second argument,
-     * than exceptions won't be ignored but the process will be stoppend and a
-     * runtime exception will be returned.
+     * It is possible to ask for a synchronous provisioning for some resources
+     * specifying a set of resource names.
+     * Exceptions won't be ignored and the process will be stoppend if the
+     * provisioning fails onto a synchronous resource.
      * @param user to be updated.
      * @param synchronous to ask for a synchronous or asynchronous update.
      * @return a set of updated resources.
      */
-    public Set<String> update(SyncopeUser user, boolean synchronous) {
+    public Set<String> update(SyncopeUser user, Set<String> synchronous) {
         return provision(user, synchronous, true);
     }
 
@@ -93,51 +96,84 @@ public class PropagationManager {
      * @return
      */
     private Set<String> provision(
-            SyncopeUser user, boolean synchronous, boolean merge) {
+            SyncopeUser user, Set<String> synchronous, boolean merge) {
 
+        if (synchronous == null) {
+            synchronous = Collections.EMPTY_SET;
+        }
+
+        // set of provisioned resources
         Set<String> provisioned = new HashSet<String>();
 
+        // All of the resource to be provisioned
         Set<Resource> resources = user.getResources();
+
         Set<SyncopeRole> roles = user.getRoles();
 
         for (SyncopeRole role : roles) {
             resources.addAll(role.getResources());
         }
 
+        // Resource to be provisioned synchronously
+        Set<Resource> syncResources = new HashSet<Resource>();
+
+        // Resource to be provisioned asynchronously
+        Set<Resource> asyncResources = new HashSet<Resource>();
+
+        for (Resource resource : resources) {
+            if (synchronous.contains(resource.getName())) {
+                syncResources.add(resource);
+            } else {
+                asyncResources.add(resource);
+            }
+        }
+
+        // synchronous propagation ...
+
         if (log.isDebugEnabled()) {
             log.debug(
-                    "Provisioning " + resources +
+                    "Synchronous provisioning of " + resources +
                     " with user " + user.getId());
         }
 
-        for (Resource resource : resources) {
+        for (Resource resource : syncResources) {
             try {
 
                 propagate(user, resource, merge);
                 provisioned.add(resource.getName());
 
-            } catch (RuntimeException re) {
+            } catch (Throwable t) {
 
                 if (log.isErrorEnabled()) {
                     log.error(
-                            "Runtime exception during provision on resource " +
-                            resource.getName(), re);
+                            "Exception during provision on resource " +
+                            resource.getName(), t);
                 }
 
-                if (synchronous) {
-                    throw re;
-                }
+                throw new RuntimeException(t);
+            }
+        }
+
+        // asynchronous propagation ...
+        
+        if (log.isDebugEnabled()) {
+            log.debug(
+                    "Asynchronous provisioning of " + resources +
+                    " with user " + user.getId());
+        }
+
+        for (Resource resource : asyncResources) {
+            try {
+
+                propagate(user, resource, merge);
+                provisioned.add(resource.getName());
 
             } catch (Throwable t) {
 
                 if (log.isErrorEnabled()) {
                     log.error(
-                            "Unknown exception during provision on resource " +
+                            "Exception during provision on resource " +
                             resource.getName(), t);
-                }
-
-                if (synchronous) {
-                    throw new RuntimeException(t.getMessage());
                 }
             }
         }
