@@ -14,6 +14,15 @@
        http://www.springframework.org/schema/tx
        http://www.springframework.org/schema/tx/spring-tx.xsd">
 
+    <bean id="propertyConfigurer"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>/WEB-INF/classes/configuration.properties</value>
+            </list>
+        </property>
+    </bean>
+
     <bean id="syncopeApplication" class="org.syncope.console.SyncopeApplication"/>
 
     <bean id="jacksonObjectMapper" class="org.codehaus.jackson.map.ObjectMapper"/>
@@ -33,7 +42,7 @@
 
     <bean id="restClient" class="org.syncope.console.rest.RestClient">
         <property name="restTemplate" ref="restTemplate"/>
-        <property name="baseURL" value="<%SYNCOPE_BASE_URL%>/rest/"/>
+        <property name="baseURL" value="${baseURL}"/>
     </bean>
 
     <bean id="schemaRestClient" class="org.syncope.console.rest.SchemaRestClient">
@@ -41,6 +50,10 @@
     </bean>
 
     <bean id="connectorsRestClient" class="org.syncope.console.rest.ConnectorsRestClient">
+        <property name="restClient" ref="restClient"/>
+    </bean>
+
+    <bean id="resourcesRestClient" class="org.syncope.console.rest.ResourcesRestClient">
         <property name="restClient" ref="restClient"/>
     </bean>
 
