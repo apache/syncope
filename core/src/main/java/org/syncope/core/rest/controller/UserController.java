@@ -257,7 +257,7 @@ public class UserController extends AbstractController {
             log.debug("About to propagate synchronously on the following "
                     + "resources " + synchronous);
         }
-        
+
         try {
             propagationManager.provision(syncopeUser, synchronous);
         } catch (PropagationException e) {

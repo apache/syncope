@@ -116,7 +116,8 @@ public class PropagationManager {
         Set<String> provisioned = new HashSet<String>();
 
         // All of the resource to be provisioned
-        Set<Resource> resources = user.getResources();
+        Set<Resource> resources = new HashSet<Resource>();
+        resources.addAll(user.getResources());
 
         Set<SyncopeRole> roles = user.getRoles();
 

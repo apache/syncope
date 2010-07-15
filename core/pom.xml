@@ -31,8 +31,11 @@
     <packaging>war</packaging>
 
     <properties>
-        <jetty.port>8080</jetty.port>
-        <logfile.jetty>/tmp/syncope-core-jetty.log</logfile.jetty>
+        <hsqldb.version>1.8.0.10</hsqldb.version>
+                
+        <cargo.servlet.port>8080</cargo.servlet.port>
+        <cargo.log>/tmp/syncope-core-cargo.log</cargo.log>
+        <cargo.output>/tmp/syncope-core-cargo-output.log</cargo.output>
 
         <logfile>/tmp/syncope-core.log</logfile>
         <logfile.persistence>/tmp/syncope-core-persistence.log</logfile.persistence>
@@ -131,7 +134,7 @@
 
         <dependency>
             <groupId>cglib</groupId>
-            <artifactId>cglib</artifactId>
+            <artifactId>cglib-nodep</artifactId>
         </dependency>
 
         <dependency>
@@ -196,6 +199,7 @@
         <dependency>
             <groupId>hsqldb</groupId>
             <artifactId>hsqldb</artifactId>
+            <version>${hsqldb.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -209,6 +213,12 @@
             <version>${parent.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.syncope.identityconnectors.bundles.staticws</groupId>
+            <artifactId>ws-target-resource</artifactId>
+            <version>${parent.version}</version>
+            <type>war</type>
+        </dependency>
         <!-- /TEST -->
     </dependencies>
 
@@ -216,132 +226,6 @@
         <finalName>${parent.artifactId}</finalName>
 
         <plugins>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <inherited>true</inherited>
-                <executions>
-                    <execution>
-                        <id>integration-test-resources</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                        <configuration>
-                            <finalName>integration-test</finalName>
-                            <classesDirectory>${project.build.directory}/test-classes</classesDirectory>
-                            <includes>
-                                <include>**/db.properties</include>
-                                <include>**/content.xml</include>
-                            </includes>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>xml-maven-plugin</artifactId>
-                <inherited>true</inherited>
-                <executions>
-                    <execution>
-                        <id>integration-test-web.xml</id>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>transform</goal>
-                        </goals>
-                        <configuration>
-                            <transformationSets>
-                                <transformationSet>
-                                    <dir>${basedir}/src/main/webapp/WEB-INF</dir>
-                                    <includes>
-                                        <include>web.xml</include>
-                                    </includes>
-                                    <outputDir>${project.build.directory}</outputDir>
-                                    <stylesheet>${basedir}/src/test/resources/web.xsl</stylesheet>
-                                </transformationSet>
-                            </transformationSets>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <inherited>true</inherited>
-                <executions>
-                    <execution>
-                        <id>restore-web.xml</id>
-                        <phase>integration-test</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}/${project.build.finalName}/WEB-INF</outputDirectory>
-                            <overwrite>true</overwrite>
-                            <resources>
-                                <resource>
-                                    <directory>src/main/webapp/WEB-INF</directory>
-                                    <includes>
-                                        <include>web.xml</include>
-                                    </includes>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <inherited>true</inherited>
-                <executions>
-                    <execution>
-                        <id>integration-test-war</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>war</goal>
-                        </goals>
-                        <configuration>
-                            <packagingExcludes>
-                                WEB-INF/classes/org/syncope/core/persistence/db.properties,
-                                WEB-INF/classes/org/syncope/core/persistence/content.xml
-                            </packagingExcludes>
-                            <webResources>
-                                <resource>
-                                    <directory>${project.build.directory}</directory>
-                                    <targetPath>WEB-INF</targetPath>
-                                    <includes>
-                                        <include>web.xml</include>
-                                    </includes>
-                                </resource>
-                                <resource>
-                                    <directory>${project.build.directory}</directory>
-                                    <targetPath>WEB-INF/lib</targetPath>
-                                    <includes>
-                                        <include>integration-test.jar</include>
-                                    </includes>
-                                </resource>
-                            </webResources>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>repackage-war</id>
-                        <phase>post-integration-test</phase>
-                        <goals>
-                            <goal>war</goal>
-                        </goals>
-                        <configuration>
-                            <packagingExcludes>
-                                WEB-INF/lib/integration-test.jar
-                            </packagingExcludes>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -388,6 +272,13 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>hibernate3-maven-plugin</artifactId>
                 <inherited>true</inherited>
+                <dependencies>
+                    <dependency>
+                        <groupId>hsqldb</groupId>
+                        <artifactId>hsqldb</artifactId>
+                        <version>${hsqldb.version}</version>
+                    </dependency>
+                </dependencies>
                 <configuration>
                     <components>
                         <component>
@@ -412,6 +303,7 @@
                 </executions>
             </plugin>
 
+            <!-- Integration test -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
@@ -431,53 +323,56 @@
             </plugin>
 
             <plugin>
-                <groupId>org.mortbay.jetty</groupId>
-                <artifactId>maven-jetty-plugin</artifactId>
-                <configuration>
-                    <contextPath>/${parent.artifactId}</contextPath>
-                    <scanIntervalSeconds>10</scanIntervalSeconds>
-                    <stopKey>foo</stopKey>
-                    <stopPort>9999</stopPort>
-                    <connectors>
-                        <connector implementation="org.mortbay.jetty.nio.SelectChannelConnector">
-                            <port>${jetty.port}</port>
-                            <maxIdleTime>60000</maxIdleTime>
-                        </connector>
-                    </connectors>
-                    <systemProperties>
-                        <systemProperty>
-                            <name>slf4j</name>
-                            <value>false</value>
-                        </systemProperty>
-                        <systemProperty>
-                            <name>log4j.configuration</name>
-                            <value>file:${project.build.directory}/test-classes/log4j_jetty.xml</value>
-                        </systemProperty>
-                    </systemProperties>
-                </configuration>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <inherited>true</inherited>
                 <executions>
                     <execution>
-                        <id>start-jetty</id>
-                        <phase>pre-integration-test</phase>
+                        <id>integration-test-resources</id>
+                        <phase>prepare-package</phase>
                         <goals>
-                            <goal>deploy-war</goal>
+                            <goal>jar</goal>
                         </goals>
                         <configuration>
-                            <scanIntervalSeconds>0</scanIntervalSeconds>
-                            <daemon>true</daemon>
+                            <finalName>integration-test</finalName>
+                            <classesDirectory>${project.build.directory}/test-classes</classesDirectory>
+                            <includes>
+                                <include>**/db.properties</include>
+                                <include>**/content.xml</include>
+                            </includes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <inherited>true</inherited>
+                <executions>
+                    <execution>
+                        <id>integration-test-war</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>war</goal>
+                        </goals>
+                        <configuration>
+                            <packagingExcludes>
+                                WEB-INF/classes/org/syncope/core/persistence/db.properties,
+                                WEB-INF/classes/org/syncope/core/persistence/content.xml
+                            </packagingExcludes>
                         </configuration>
                     </execution>
                     <execution>
-                        <id>stop-jetty</id>
+                        <id>repackage-war</id>
                         <phase>post-integration-test</phase>
                         <goals>
-                            <goal>stop</goal>
+                            <goal>war</goal>
                         </goals>
                     </execution>
                 </executions>
             </plugin>
 
-            <!-- in order to copy bundles and test connector controller -->
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
                 <executions>
@@ -498,6 +393,69 @@
                                 </resource>
                             </resources>
                         </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.cargo</groupId>
+                <artifactId>cargo-maven2-plugin</artifactId>
+                <inherited>true</inherited>
+                <configuration>
+                    <wait>false</wait>
+                    <container>
+                        <containerId>tomcat6x</containerId>
+                        <zipUrlInstaller>
+                            <url>http://www.apache.org/dist/tomcat/tomcat-6/v6.0.28/bin/apache-tomcat-6.0.28.zip</url>
+                            <installDir>${java.io.tmpdir}/tomcat</installDir>
+                        </zipUrlInstaller>
+                        <log>${cargo.log}</log>
+                        <output>${cargo.output}</output>
+                        <dependencies>
+                            <dependency>
+                                <location>${settings.localRepository}/hsqldb/hsqldb/${hsqldb.version}/hsqldb-${hsqldb.version}.jar</location>
+                            </dependency>
+                            <dependency>
+                                <location>${project.build.directory}/integration-test.jar</location>
+                            </dependency>
+                        </dependencies>
+                    </container>
+                    <configuration>
+                        <type>standalone</type>
+                        <home>target/tomcat6x</home>
+                        <properties>
+                            <cargo.servlet.port>${cargo.servlet.port}</cargo.servlet.port>
+                        </properties>
+                        <deployables>
+                            <deployable>
+                                <location>${project.build.directory}/${project.build.finalName}.war</location>
+                            </deployable>
+                            <deployable>
+                                <groupId>org.syncope.identityconnectors.bundles.staticws</groupId>
+                                <artifactId>ws-target-resource</artifactId>
+                                <type>war</type>
+                                <properties>
+                                    <context>wstarget</context>
+                                </properties>
+                            </deployable>
+                        </deployables>
+
+                    </configuration>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>start-container</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>start</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>stop-container</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>stop</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>

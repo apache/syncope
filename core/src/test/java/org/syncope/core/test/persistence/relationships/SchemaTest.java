@@ -74,6 +74,5 @@ public class SchemaTest extends AbstractTest {
 
         assertNull(schemaDAO.find("email", UserSchema.class));
         assertNull(schemaMappingDAO.find(100L));
-        assertNull(schemaMappingDAO.find(101L));
     }
 }

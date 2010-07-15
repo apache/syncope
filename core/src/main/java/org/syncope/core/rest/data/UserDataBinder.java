@@ -14,7 +14,6 @@
  */
 package org.syncope.core.rest.data;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -93,9 +92,9 @@ public class UserDataBinder {
 
         // 0. password
         // TODO: check password policies
-        if (userTO.getPassword() == null 
+        if (userTO.getPassword() == null
                 || userTO.getPassword().length() == 0) {
-            
+
             log.error("No password provided");
 
             invalidPassword.addElement("Null password");
@@ -208,6 +207,7 @@ public class UserDataBinder {
                 }
             } else {
                 syncopeUser.addRole(role);
+                role.addUser(syncopeUser);
             }
         }
 
@@ -222,6 +222,7 @@ public class UserDataBinder {
                 }
             } else {
                 syncopeUser.addResource(resource);
+                resource.addUser(syncopeUser);
             }
         }
 

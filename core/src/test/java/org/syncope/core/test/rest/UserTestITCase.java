@@ -82,10 +82,12 @@ public class UserTestITCase extends AbstractTestITCase {
         attrWithInvalidSchemaTO.addValue("a value");
         userTO.addAttribute(attrWithInvalidSchemaTO);
 
+        userTO.addRole(8L);
+
         // 1. create user
         UserTO newUserTO = restTemplate.postForObject(BASE_URL + "user/create",
                 userTO, UserTO.class);
-        
+
         assertFalse(newUserTO.getAttributes().contains(attrWithInvalidSchemaTO));
         userTO.removeAttribute(attrWithInvalidSchemaTO);
 
