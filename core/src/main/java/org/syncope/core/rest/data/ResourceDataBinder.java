@@ -200,7 +200,7 @@ public class ResourceDataBinder {
         RoleSchema roleSchema = null;
         if (mapping.getRoleSchema() != null) {
             roleSchema = schemaDAO.find(
-                    mapping.getUserSchema(), RoleSchema.class);
+                    mapping.getRoleSchema(), RoleSchema.class);
         }
 
         // at least one schema must be provided

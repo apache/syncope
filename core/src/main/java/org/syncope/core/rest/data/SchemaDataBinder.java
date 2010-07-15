@@ -123,8 +123,13 @@ public class SchemaDataBinder {
                 SyncopeClientCompositeErrorException sccee =
                         new SyncopeClientCompositeErrorException(
                         HttpStatus.BAD_REQUEST);
-                sccee.addException(new SyncopeClientException(
-                        SyncopeClientExceptionType.InvalidSchemaUpdate));
+
+                SyncopeClientException ex = new SyncopeClientException(
+                        SyncopeClientExceptionType.InvalidUpdate);
+
+                ex.addElement(schema.getName());
+                sccee.addException(ex);
+                
                 throw sccee;
             }
 

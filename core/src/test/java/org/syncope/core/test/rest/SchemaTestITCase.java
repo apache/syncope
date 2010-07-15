@@ -82,7 +82,7 @@ public class SchemaTestITCase extends AbstractTestITCase {
                     + "schema/role/update", updatedTO, SchemaTO.class);
         } catch (SyncopeClientCompositeErrorException e) {
             syncopeClientException = e.getException(
-                    SyncopeClientExceptionType.InvalidSchemaUpdate);
+                    SyncopeClientExceptionType.InvalidUpdate);
         }
         assertNotNull(syncopeClientException);
     }

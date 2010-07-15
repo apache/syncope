@@ -22,9 +22,9 @@ public enum SyncopeClientExceptionType {
     InvalidPassword(
     "Syncope.InvalidPassword",
     "Syncope.InvalidPassword.reason"),
-    InvalidSchemaUpdate(
-    "Syncope.InvalidSchemaUpdate",
-    ""),
+    InvalidUpdate(
+    "Syncope.InvalidUpdate",
+    "Syncope.InvalidUpdate.name"),
     InvalidUniques(
     "Syncope.InvalidUniques",
     "Syncope.InvalidUniques.attributeName"),
@@ -40,15 +40,15 @@ public enum SyncopeClientExceptionType {
     RequiredValuesMissing(
     "Syncope.RequiredValuesMissing",
     "Syncope.RequiredValuesMissing.attributeName"),
-    UserInvalidValues(
-    "Syncope.InvalidValues",
-    "Syncope.InvalidValues.attributeName"),
     Propagation(
     "Syncope.Propagation",
     "Syncope.Propagation.resourceName"),
     RequiredValueMissing(
     "Syncope.RequiredValuesMissing",
     "Syncope.RequiredValuesMissing.attributeName"),
+    AlreadyExists(
+    "Syncope.AlreadyExists",
+    "Syncope.AlreadyExists.name"),
     Unknown(
     "Syncope.Unknown",
     ""),

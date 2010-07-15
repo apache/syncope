@@ -38,7 +38,7 @@ public class UserSchema extends AbstractSchema {
     /**
      * All the mappings of the attribute schema.
      */
-    @OneToMany(cascade = CascadeType.ALL,
+    @OneToMany(cascade = CascadeType.MERGE,
     fetch = FetchType.EAGER, mappedBy = "userSchema")
     private Set<SchemaMapping> mappings;
 

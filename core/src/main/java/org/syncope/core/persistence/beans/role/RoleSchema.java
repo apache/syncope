@@ -36,7 +36,7 @@ public class RoleSchema extends AbstractSchema {
     /**
      * All the mappings of the attribute schema.
      */
-    @OneToMany(cascade = CascadeType.ALL,
+    @OneToMany(cascade = CascadeType.MERGE,
     fetch = FetchType.EAGER, mappedBy = "roleSchema")
     private Set<SchemaMapping> mappings;
 

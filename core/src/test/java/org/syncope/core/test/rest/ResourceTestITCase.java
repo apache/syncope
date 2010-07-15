@@ -19,17 +19,31 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.annotation.ExpectedException;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.syncope.client.to.ResourceTO;
 import org.syncope.client.to.ResourceTOs;
 import org.syncope.client.to.SchemaMappingTO;
 import org.syncope.client.to.SchemaMappingTOs;
+import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.core.persistence.dao.SchemaDAO;
 
 public class ResourceTestITCase extends AbstractTestITCase {
 
     @Autowired
     SchemaDAO schemaDAO;
+
+    @Test
+    @ExpectedException(value = SyncopeClientCompositeErrorException.class)
+    public void createExistingResource() {
+        final String resourceName = "ws-target-resource-1";
+        ResourceTO resourceTO = new ResourceTO();
+
+        resourceTO.setName(resourceName);
+
+        restTemplate.postForObject(BASE_URL + "resource/create.json",
+                resourceTO, ResourceTO.class);
+    }
 
     @Test
     public void create() {
@@ -85,7 +99,7 @@ public class ResourceTestITCase extends AbstractTestITCase {
         }
     }
 
-    //@Test
+    @Test
     public void update() {
         final String resourceName = "ws-target-resource-update";
         ResourceTO resourceTO = new ResourceTO();

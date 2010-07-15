@@ -73,9 +73,6 @@ public class ResourceController extends AbstractController {
             log.debug("Creation request received");
         }
 
-        ResourceDataBinder binder =
-                new ResourceDataBinder(schemaDAO, connectorInstanceDAO);
-
         if (resourceTO == null) {
             if (log.isErrorEnabled()) {
                 log.error("Missing resource.");
@@ -84,15 +81,32 @@ public class ResourceController extends AbstractController {
             return throwNotFoundException("Resource not found", response);
         }
 
+        ResourceDataBinder binder =
+                new ResourceDataBinder(schemaDAO, connectorInstanceDAO);
+
         Resource actual = null;
 
         try {
+            if (log.isDebugEnabled()) {
+                log.debug("Verify that resource dosn't exist");
+            }
+
+            Resource resource = null;
+
+            if (resourceDAO.find(resourceTO.getName()) != null) {
+                SyncopeClientException ex = new SyncopeClientException(
+                        SyncopeClientExceptionType.AlreadyExists);
+
+                ex.addElement(resourceTO.getName());
+
+                throw ex;
+            }
 
             if (log.isDebugEnabled()) {
                 log.debug("Resource data binder ..");
             }
 
-            Resource resource = binder.getResource(resourceTO);
+            resource = binder.getResource(resourceTO);
 
             if (log.isInfoEnabled()) {
                 log.info("Create resource " + resource.getName());
