@@ -39,7 +39,7 @@ import org.syncope.types.SchemaType;
 /**
  * Modal window with Schema form.
  */
-public class SchemaModalPage extends WebPage
+public class SchemaModalPage extends SyncopeModalPage
 {
     public TextField name;
     public TextField conversionPattern;

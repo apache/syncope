@@ -28,7 +28,6 @@
         <link rel="stylesheet" type="text/css" href="css/jquery.ui.resizable.css" />
         <link rel="stylesheet" type="text/css" href="css/jquery.ui.tabs.css" />
         <link rel="stylesheet" type="text/css" href="css/jquery.ui.theme.css" />
-        <link rel="stylesheet" type="text/css" href="css/stile_sy.css" media="all" />
         <link rel="shortcut icon" href="img/favicon.png" type="image/png" />
         <link rel="stylesheet" href="css/ui.tabs.css" type="text/css" media="all"/>
         <link rel="stylesheet" href="css/stile_sy.css" type="text/css" media="all"/>
@@ -49,48 +48,6 @@
             $(function() {
                 $("#tabs").tabs();
             });
-
-             // a workaround for a flaw in the demo system (http://dev.jqueryui.com/ticket/4375), ignore!
-                $("#dialog").dialog("destroy");
-
-                var name = $("#name"),
-                email = $("#email"),
-                password = $("#password"),
-                allFields = $([]).add(name).add(email).add(password),
-                tips = $(".validateTips");
-
-                function updateTips(t) {
-                    tips
-                    .text(t)
-                    .addClass('ui-state-highlight');
-                    setTimeout(function() {
-                        tips.removeClass('ui-state-highlight', 1500);
-                    }, 500);
-                }
-
-                function checkLength(o,n,min,max) {
-
-                    if ( o.val().length > max || o.val().length < min ) {
-                        o.addClass('ui-state-error');
-                        updateTips("Length of " + n + " must be between "+min+" and "+max+".");
-                        return false;
-                    } else {
-                        return true;
-                    }
-
-                }
-
-                function checkRegexp(o,regexp,n) {
-
-                    if ( !( regexp.test( o.val() ) ) ) {
-                        o.addClass('ui-state-error');
-                        updateTips(n);
-                        return false;
-                    } else {
-                        return true;
-                    }
-
-                }
         </script>
     </head>
     <body>

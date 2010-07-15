@@ -12,36 +12,10 @@
  limitations under the License.
  under the License.
 -->
-<html>
-    <head>
-        <title>Syncope - Schema</title>
-        <link rel="stylesheet" type="text/css" href="css/jquery.ui.button.css" />
-        <link rel="stylesheet" type="text/css" href="css/jquery.ui.core.css" />
-        <link rel="stylesheet" type="text/css" href="css/jquery.ui.dialog.css" />
-        <link rel="stylesheet" type="text/css" href="css/jquery.ui.resizable.css" />
-        <link rel="stylesheet" type="text/css" href="css/jquery.ui.tabs.css" />
-        <link rel="stylesheet" type="text/css" href="css/jquery.ui.theme.css" />
-        <link rel="stylesheet" type="text/css" href="css/stile_sy.css" media="all" />
-        <link rel="shortcut icon" href="img/favicon.png" type="image/png" />
-        <link rel="stylesheet" href="css/ui.tabs.css" type="text/css" media="all"/>
-        <link rel="stylesheet" href="css/stile_sy.css" type="text/css" media="all"/>
-
-        <script type="text/javascript" src="scripts/jquery-1.4.2.min.js"></script>
-        <script type="text/javascript" src="scripts/jquery.ui.core.js"></script>
-        <script type="text/javascript" src="scripts/jquery.ui.widget.js"></script>
-        <script type="text/javascript" src="scripts/jquery.ui.mouse.js"></script>
-        <script type="text/javascript" src="scripts/jquery.ui.button.js"></script>
-        <script type="text/javascript" src="scripts/jquery.ui.draggable.js"></script>
-        <script type="text/javascript" src="scripts/jquery.ui.position.js"></script>
-        <script type="text/javascript" src="scripts/jquery.ui.resizable.js"></script>
-        <script type="text/javascript" src="scripts/jquery.ui.dialog.js"></script>
-        <script type="text/javascript" src="scripts/jquery.ui.tabs.js"></script>
-    </head>
-    <body>
-
+<wicket:extend>
         <div id="dialog-form" title="Create new Schema">
-
-        <form wicket:id="SchemaForm">
+        <p class="ui-widget ui-corner-all ui-widget-header"><wicket:message key="title"/></p>
+            <form wicket:id="SchemaForm">
             <div wicket:id="feedback" style="color:red;padding:5px"/>
             <fieldset>
                 <label for="name"><wicket:message key="name"/></label>
@@ -53,15 +27,13 @@
                 <label for="type"><wicket:message key="type"/></label>
                 <select id="type"  class="text ui-widget-content ui-corner-all" wicket:id="type"/>
                 <label for="mandatory"><wicket:message key="mandatory"/></label>
-                <span id="mandatory" wicket:id="mandatory"/>
+                <span id="mandatory" wicket:id="mandatory" class="radio"/>
                 <label for="virtual"><wicket:message key="virtual"/></label>
-                <span id="virtual" wicket:id="virtual"/>
+                <span id="virtual" wicket:id="virtual" class="radio"/>
                 <label for="multivalue"><wicket:message key="multivalue"/></label>
-                <span id="multivalue" wicket:id="multivalue"/>
-                <input type="submit" wicket:id="submit"/>
-
+                <span id="multivalue" wicket:id="multivalue" class="radio"/>
+                <input type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" wicket:id="submit"/>
             </fieldset>
         </form>
     </div>
-</body>
-</html>
+</wicket:extend>

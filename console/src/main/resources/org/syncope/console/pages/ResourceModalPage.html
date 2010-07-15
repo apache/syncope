@@ -1,0 +1,129 @@
+<!--
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ under the License.
+-->
+<wicket:extend>
+    <div id="dialog-form" title="Create new Resource-Mappings">
+        <p class="ui-widget ui-corner-all ui-widget-header"><wicket:message key="title"/></p>
+        <form wicket:id="ResourceForm">
+            <div wicket:id="feedback" style="color:red;padding:5px"/>
+            <fieldset>
+                <label for="name"><wicket:message key="name"/></label>
+                <input type="text" id="name" class="text ui-widget-content ui-corner-all" wicket:id="name" />
+
+                <label for="connector"><wicket:message key="connector"/></label>
+                <select id="connector" class="text ui-widget-content ui-corner-all" wicket:id="connectors" />
+
+                <label for="mappingUserSchema"><wicket:message key="mappingUserSchema"/></label>
+                <table id="mappingUserSchema" class="ui-widget ui-widget-content" width="80%" cellpadding="2px" cellspacing="1px">
+                    <thead>
+                        <tr class="ui-widget-header">
+                            <th><wicket:message key="delete"/></th>
+                            <th><wicket:message key="field"/></th>
+                            <th><wicket:message key="userSchema"/></th>
+                            <th><wicket:message key="nullable"/></th>
+                            <th><wicket:message key="accountId"/></th>
+                            <th><wicket:message key="password"/></th>
+                    </tr>
+                    </thead>
+                    <tfoot>
+                        <tr>
+                            <td>
+                                <input type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+                                       wicket:id="addUserSchemaMappingBtn" />
+                            </td>
+                        </tr>
+                    </tfoot>
+                    <tbody wicket:id="mappingUserSchemaContainer">
+                        <tr wicket:id="mappingsUserSchema">
+                            <td align="center" valign="middle">
+                                <input type="checkbox" class="text ui-widget-content ui-corner-all"  wicket:id="toRemove"/>
+                            </td>
+                            <td align="center" valign="middle">
+                                <input type="text" class="text ui-widget-content ui-corner-all"  wicket:id="field"/>
+                            </td>
+                            <td>
+                                <select class="text ui-widget-content ui-corner-all" wicket:id="userSchema"/>
+                            </td>
+                            <td align="center" valign="middle">
+                                <input type="checkbox" class="checkbox" wicket:id="nullable"/>
+                            </td>
+                            <td align="center" valign="middle">
+                                <input type="checkbox"  class="checkbox" wicket:id="accountId"/>
+                            </td>
+                            <td align="center" valign="middle">
+                                <input type="checkbox"  class="checkbox" wicket:id="password"/>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div>
+                    &nbsp;
+                </div>
+
+                 <label for="mappingRoleSchema"><wicket:message key="mappingRoleSchema"/></label>
+                <table id="mappingRoleSchema" class="ui-widget ui-widget-content" width="80%" cellpadding="2px" cellspacing="1px">
+                    <thead>
+                        <tr class="ui-widget-header">
+                            <th><wicket:message key="delete"/></th>
+                            <th><wicket:message key="field"/></th>
+                            <th><wicket:message key="roleSchema"/></th>
+                            <th><wicket:message key="nullable"/></th>
+                            <th><wicket:message key="accountId"/></th>
+                            <th><wicket:message key="password"/></th>
+                    </tr>
+                    </thead>
+                    <tfoot>
+                        <tr>
+                            <td>
+                                <input type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+                                       wicket:id="addRoleSchemaMappingBtn" />
+                            </td>
+                        </tr>
+                    </tfoot>
+                    <tbody wicket:id="mappingRoleSchemaContainer">
+                        <tr wicket:id="mappingsRoleSchema">
+                            <td align="center" valign="middle">
+                                <input type="checkbox" class="text ui-widget-content ui-corner-all"  wicket:id="toRemove"/>
+                            </td>
+                            <td align="center" valign="middle">
+                                <input type="text" class="text ui-widget-content ui-corner-all"  wicket:id="field"/>
+                            </td>
+                            <td>
+                                <select class="text ui-widget-content ui-corner-all" wicket:id="roleSchema"/>
+                            </td>
+                            <td align="center" valign="middle">
+                                <input type="checkbox" class="checkbox" wicket:id="nullable"/>
+                            </td>
+                            <td align="center" valign="middle">
+                                <input type="checkbox"  class="checkbox" wicket:id="accountId"/>
+                            </td>
+                            <td align="center" valign="middle">
+                                <input type="checkbox"  class="checkbox" wicket:id="password"/>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div>
+                    &nbsp;
+                </div>
+                 
+                <div style="bottom:0">
+                    <input type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" wicket:id="submit"/>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+</wicket:extend>

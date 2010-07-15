@@ -12,25 +12,53 @@
  limitations under the License.
  under the License.
 -->
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
-<html
-    xmlns="http://www.w3.org/1999/xhtml"
-    xmlns:wicket="http://wicket.sourceforge.net/"
-    xml:lang="en"
-    lang="en">
-
-    <body>
 
         <wicket:extend>
 
-            <p>
-                Resources
-            </p>
+             <div id="tabs">
+                <ul>
+                    <li class="tabs-selected">
+                        <a href="#tabs-1"><span><wicket:message key="tab1"/></span></a>
+                    </li>
+                </ul>
+                <div id="tabs-1">
+                    <div id="users-contain" class="ui-widget">
+
+                        <h1><wicket:message key="existing_resources"/></h1>
+
+                        <table id="resources" class="ui-widget ui-widget-content" wicket:id="resourcesContainer">
+                            <thead>
+                                <tr class="ui-widget-header">
+                                    <th><wicket:message key="name"/></th>
+                                    <th><wicket:message key="edit"/></th>
+                                    <th><wicket:message key="delete"/></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr wicket:id="resources">
+                                    <td><span wicket:id="name">[label name]</span></td>
+                                    <td>
+                                        <a href="#" wicket:id="editLink">
+                                            <wicket:message key="edit"/>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a href="#" wicket:id="deleteLink">
+                                            <wicket:message key="delete"/>
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div wicket:id="createResourceWin">[Show modal window for creating resource]</div>
+                    <div wicket:id="editResourceWin">[Show modal window for editing resource]</div>
+
+                   <a class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" wicket:id="createResourceLink">
+                        <wicket:message key="create-link"/>
+                    </a>
+                </div>
+            </div>
 
         </wicket:extend>
-
-    </body>
-
-</html>

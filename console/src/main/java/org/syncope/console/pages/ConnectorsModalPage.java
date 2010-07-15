@@ -25,7 +25,6 @@ import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
@@ -49,7 +48,7 @@ import org.syncope.console.rest.ConnectorsRestClient;
 /**
  * Modal window with Connector form.
  */
-public class ConnectorsModalPage extends WebPage {
+public class ConnectorsModalPage extends SyncopeModalPage {
 
     public TextField connectorName;
     public DropDownChoice bundle;
@@ -59,16 +58,14 @@ public class ConnectorsModalPage extends WebPage {
     ConnectorBundleTO selectedBundleTO = new ConnectorBundleTO();
     List<PropertyTO> connectorProperties = new ArrayList<PropertyTO>();
 
-    //Set<PropertyTO> connectorPropertiesMap = new HashSet<PropertyTO>();
-
     public AjaxButton submit;
 
     @SpringBean(name = "connectorsRestClient")
     ConnectorsRestClient restClient;
-
-    WebMarkupContainer propertiesContainer;
+    
     //WebMarkupContainer container;
-
+    WebMarkupContainer propertiesContainer;
+    
     /**
      *
      * @param basePage base
@@ -232,22 +229,5 @@ public class ConnectorsModalPage extends WebPage {
         }
 
         return list;
-    }
-
-    /**
-     * Convert a List<PropertyTO> object to a corresponding HashSet<PropertyTO>
-     * object.
-     * @param list
-     * @return
-     * INUTILIZZATO
-     */
-    public Set<PropertyTO> listToHashSet(List<PropertyTO> list) {
-        Set<PropertyTO> set = new HashSet<PropertyTO>();
-
-        for (PropertyTO propertyTO : list) {
-            set.add(propertyTO);
-        }
-
-        return set;
     }
 }

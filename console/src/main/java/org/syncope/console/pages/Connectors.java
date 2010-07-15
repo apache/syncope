@@ -36,8 +36,10 @@ public class Connectors extends BasePage {
 
     @SpringBean(name = "connectorsRestClient")
     ConnectorsRestClient restClient;
+
     final ModalWindow createConnectorWin;
     final ModalWindow editConnectorWin;
+    
     WebMarkupContainer connectorsContainer;
 
     public Connectors(PageParameters parameters) {
@@ -110,7 +112,12 @@ public class Connectors extends BasePage {
         setWindowClosedCallback(editConnectorWin, connectorsContainer);
 
         createConnectorWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+        createConnectorWin.setPageMapName("create-conn-modal");
+        createConnectorWin.setCookieName("create-conn-modal");
+
         editConnectorWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+        editConnectorWin.setPageMapName("edit-conn-modal");
+        editConnectorWin.setCookieName("edit-conn-modal");
 
         add(new AjaxLink("createConnectorLink") {
 

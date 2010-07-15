@@ -19,7 +19,6 @@ package org.syncope.console.pages;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
@@ -31,7 +30,7 @@ import org.syncope.console.rest.SchemaRestClient;
 /**
  * Modal window with Schema form.
  */
-public class DerivedSchemaModalPage extends WebPage
+public class DerivedSchemaModalPage extends SyncopeModalPage
 {
     public TextField name;
     public TextField expression;

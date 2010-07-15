@@ -19,15 +19,12 @@ import org.apache.wicket.Request;
 import org.apache.wicket.Response;
 import org.apache.wicket.Session;
 import org.apache.wicket.protocol.http.WebApplication;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.syncope.console.pages.HomePage;
 import org.syncope.console.pages.Login;
 import org.syncope.console.pages.WelcomePage;
-import org.syncope.console.rest.RestClient;
 
 /**
  * SyncopeApplication class.
@@ -35,11 +32,10 @@ import org.syncope.console.rest.RestClient;
 public class SyncopeApplication extends WebApplication implements ApplicationContextAware
 {
     SyncopeUser user = null;
-    @SpringBean(name = "restClient")
-    RestClient restClient;
+
     String file;
     
-    private ApplicationContext ctx;
+    private ApplicationContext applicationContext;
 
     public SyncopeApplication()
     {
@@ -96,17 +92,16 @@ public class SyncopeApplication extends WebApplication implements ApplicationCon
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-          this.ctx = applicationContext;
+          this.applicationContext = applicationContext;
     }
 
-
-    public void setRestClient(RestClient restClient) {
-        this.restClient = restClient;
+    public ApplicationContext getApplicationContext() {
+        return applicationContext;
     }
+    
     public InputStream getAuthenticationFile(){
     return getServletContext().getResourceAsStream(file);
     }
-
 }
 
 

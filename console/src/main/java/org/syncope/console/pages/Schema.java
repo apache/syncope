@@ -310,27 +310,35 @@ public class Schema extends BasePage
         add(userSchemaContainer);
         add(userDerivedSchemaContainer);
         
+        createUserSchemaWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         createUserSchemaWin.setPageMapName("modal-1");
         createUserSchemaWin.setCookieName("modal-1");
 
+        editUserSchemaWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         editUserSchemaWin.setPageMapName("modal-2");
         editUserSchemaWin.setCookieName("modal-2");
 
+        createUserDerivedSchemaWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         createUserDerivedSchemaWin.setPageMapName("modal-3");
         createUserDerivedSchemaWin.setCookieName("modal-3");
 
+        editUserDerivedSchemaWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         editUserDerivedSchemaWin.setPageMapName("modal-4");
         editUserDerivedSchemaWin.setCookieName("modal-4");
-
+        
+        createRoleSchemaWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         createRoleSchemaWin.setPageMapName("modal-5");
         createRoleSchemaWin.setCookieName("modal-5");
-
+        
+        editRoleSchemaWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         editRoleSchemaWin.setPageMapName("modal-6");
         editRoleSchemaWin.setCookieName("modal-6");
-
+        
+        createRoleDerivedSchemaWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         createRoleDerivedSchemaWin.setPageMapName("modal-7");
         createRoleDerivedSchemaWin.setCookieName("modal-7");
-
+        
+        editRoleDerivedSchemaWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         editRoleDerivedSchemaWin.setPageMapName("modal-8");
         editRoleDerivedSchemaWin.setCookieName("modal-8");
 

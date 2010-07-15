@@ -17,6 +17,7 @@ package org.syncope.console.rest;
 import org.syncope.client.to.ConnectorInstanceTO;
 import org.syncope.client.to.ConnectorInstanceTOs;
 import org.syncope.client.to.ConnectorBundleTOs;
+import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 
 /**
  * Console client for invoking Rest Connectors services.
@@ -27,12 +28,14 @@ public class ConnectorsRestClient {
 
     /**
      * Get all connectors.
-     * @return SchemaTOs
+     * @return ConnectorInstanceTOs
      */
     public ConnectorInstanceTOs getAllConnectors() {
         ConnectorInstanceTOs connectors = null;
 
-        connectors = restClient.getRestTemplate().getForObject(restClient.getBaseURL() + "connector/list.json", ConnectorInstanceTOs.class);
+        connectors = restClient.getRestTemplate().getForObject
+                (restClient.getBaseURL() + "connector/list.json",
+                  ConnectorInstanceTOs.class);
 
         return connectors;
     }
@@ -42,8 +45,13 @@ public class ConnectorsRestClient {
      * @param schemaTO
      */
     public void createConnector(ConnectorInstanceTO connectorTO) {
+        try {
         restClient.getRestTemplate().postForObject(restClient.getBaseURL() +
                 "connector/create", connectorTO, ConnectorInstanceTO.class);
+        }
+        catch (SyncopeClientCompositeErrorException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -52,7 +60,17 @@ public class ConnectorsRestClient {
      * @return schemaTO
      */
     public ConnectorInstanceTO readConnector(String name) {
-        ConnectorInstanceTO schema = restClient.getRestTemplate().getForObject(restClient.getBaseURL() + "connector/read/" + name + ".json", ConnectorInstanceTO.class);
+        ConnectorInstanceTO schema = null;
+
+        try {
+        schema = restClient.getRestTemplate().getForObject
+                (restClient.getBaseURL() + "connector/read/" + name + ".json",
+                  ConnectorInstanceTO.class);
+        }
+        catch (SyncopeClientCompositeErrorException e) {
+            e.printStackTrace();
+        }
+
         return schema;
     }
 
@@ -61,7 +79,14 @@ public class ConnectorsRestClient {
      * @param schemaTO updated
      */
     public void updateConnector(ConnectorInstanceTO connectorTO) {
-        ConnectorInstanceTO updatedTO = restClient.getRestTemplate().postForObject(restClient.getBaseURL() + "connector/update.json", connectorTO, ConnectorInstanceTO.class);
+        try {
+        restClient.getRestTemplate().postForObject
+                (restClient.getBaseURL() + "connector/update.json", connectorTO,
+                 ConnectorInstanceTO.class);
+        }
+        catch (SyncopeClientCompositeErrorException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -70,15 +95,26 @@ public class ConnectorsRestClient {
      * @return schemaTO
      */
     public void deleteConnector(Long id) {
+        try {
         restClient.getRestTemplate().delete(restClient.getBaseURL() +
                 "connector/delete/{connectorId}.json",id.toString());
+        }
+        catch (SyncopeClientCompositeErrorException e) {
+            e.printStackTrace();
+        }
     }
 
     public ConnectorBundleTOs getAllBundles() {
+        ConnectorBundleTOs bundles = null;
 
-        ConnectorBundleTOs bundles = restClient.getRestTemplate().getForObject(
+        try {
+        bundles = restClient.getRestTemplate().getForObject(
                 restClient.getBaseURL() + "connector/getBundles.json",
                 ConnectorBundleTOs.class);
+        }
+        catch (SyncopeClientCompositeErrorException e) {
+            e.printStackTrace();
+        }
 
         return bundles;
     }
