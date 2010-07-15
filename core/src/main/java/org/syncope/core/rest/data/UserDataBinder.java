@@ -14,13 +14,12 @@
  */
 package org.syncope.core.rest.data;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -51,9 +50,6 @@ public class UserDataBinder {
 
     private static final Logger log = LoggerFactory.getLogger(
             UserDataBinder.class);
-    private static final String[] ignoreProperties = {
-        "password", "passwordKeyPair", "attributes", "derivedAttributes",
-        "roles", "resources", "workflowEntryId"};
     private SchemaDAO schemaDAO;
     private AttributeValueDAO attributeValueDAO;
     private DerivedSchemaDAO derivedSchemaDAO;
@@ -92,18 +88,14 @@ public class UserDataBinder {
         SyncopeClientException invalidDerivedSchemas =
                 new SyncopeClientException(
                 SyncopeClientExceptionType.InvalidDerivedSchemas);
-        SyncopeClientException invalidRoles = new SyncopeClientException(
-                SyncopeClientExceptionType.InvalidRoles);
-        SyncopeClientException invalidResources = new SyncopeClientException(
-                SyncopeClientExceptionType.InvalidResources);
 
         SyncopeUser syncopeUser = new SyncopeUser();
-        BeanUtils.copyProperties(userTO, syncopeUser,
-                (String[]) ArrayUtils.add(ignoreProperties, "id"));
 
         // 0. password
         // TODO: check password policies
-        if (userTO.getPassword() == null || userTO.getPassword().length() == 0) {
+        if (userTO.getPassword() == null 
+                || userTO.getPassword().length() == 0) {
+            
             log.error("No password provided");
 
             invalidPassword.addElement("Null password");
@@ -122,7 +114,12 @@ public class UserDataBinder {
 
             // safely ignore invalid schemas from AttributeTO
             // see http://code.google.com/p/syncope/issues/detail?id=17
-            if (schema != null) {
+            if (schema == null) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Ignoring invalid schema "
+                            + attributeTO.getSchema());
+                }
+            } else {
                 attribute = new UserAttribute();
                 attribute.setSchema(schema);
                 attribute.setOwner(syncopeUser);
@@ -166,11 +163,6 @@ public class UserDataBinder {
                 if (!attribute.getAttributeValues().isEmpty()) {
                     syncopeUser.addAttribute(attribute);
                 }
-            } else {
-                if (log.isDebugEnabled()) {
-                    log.debug("Ignoring invalid schema "
-                            + attributeTO.getSchema());
-                }
             }
         }
 
@@ -211,7 +203,9 @@ public class UserDataBinder {
             role = syncopeRoleDAO.find(roleId);
 
             if (role == null) {
-                invalidRoles.addElement(String.valueOf(roleId));
+                if (log.isDebugEnabled()) {
+                    log.debug("Ignoring invalid role " + roleId);
+                }
             } else {
                 syncopeUser.addRole(role);
             }
@@ -223,7 +217,9 @@ public class UserDataBinder {
             resource = resourceDAO.find(resourceName);
 
             if (resource == null) {
-                invalidResources.addElement(resourceName);
+                if (log.isDebugEnabled()) {
+                    log.debug("Ignoring invalid resource " + resourceName);
+                }
             } else {
                 syncopeUser.addResource(resource);
             }
@@ -243,12 +239,6 @@ public class UserDataBinder {
         if (!invalidDerivedSchemas.getElements().isEmpty()) {
             compositeErrorException.addException(invalidDerivedSchemas);
         }
-        if (!invalidRoles.getElements().isEmpty()) {
-            compositeErrorException.addException(invalidRoles);
-        }
-        if (!invalidResources.getElements().isEmpty()) {
-            compositeErrorException.addException(invalidResources);
-        }
         if (compositeErrorException.hasExceptions()) {
             throw compositeErrorException;
         }
@@ -258,7 +248,10 @@ public class UserDataBinder {
 
     public UserTO getUserTO(SyncopeUser user) {
         UserTO userTO = new UserTO();
-        BeanUtils.copyProperties(user, userTO, ignoreProperties);
+        userTO.setId(user.getId());
+        userTO.setCreationTime(user.getCreationTime());
+        userTO.setToken(user.getToken());
+        userTO.setTokenExpireTime(user.getTokenExpireTime());
         userTO.setPassword(user.getPassword());
 
         AttributeTO attributeTO = null;
@@ -284,6 +277,10 @@ public class UserDataBinder {
 
         for (SyncopeRole role : user.getRoles()) {
             userTO.addRole(role.getId());
+        }
+
+        for (Resource resource : user.getResources()) {
+            userTO.addResource(resource.getName());
         }
 
         return userTO;

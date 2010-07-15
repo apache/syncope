@@ -35,7 +35,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import org.apache.commons.lang.RandomStringUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.syncope.core.persistence.AsymmetricCipher;
+import org.syncope.core.persistence.security.AsymmetricCipher;
 import org.syncope.core.persistence.beans.AbstractAttributable;
 import org.syncope.core.persistence.beans.AbstractAttribute;
 import org.syncope.core.persistence.beans.AbstractDerivedAttribute;

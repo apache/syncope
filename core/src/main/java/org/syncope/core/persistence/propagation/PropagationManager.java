@@ -12,7 +12,7 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.persistence;
+package org.syncope.core.persistence.propagation;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -45,8 +45,9 @@ public class PropagationManager {
      * Exceptions will be ignored.
      * @param user to be created.
      * @return a set of provisioned resources.
+     * @throws PropagationException
      */
-    public Set<String> provision(SyncopeUser user) {
+    public Set<String> provision(SyncopeUser user) throws PropagationException {
         return provision(user, null, false);
     }
 
@@ -59,8 +60,11 @@ public class PropagationManager {
      * @param user to be created.
      * @param synchronous to ask for a synchronous or asynchronous provisioning.
      * @return a set of provisioned resources.
+     * @throws PropagationException
      */
-    public Set<String> provision(SyncopeUser user, Set<String> synchronous) {
+    public Set<String> provision(SyncopeUser user, Set<String> synchronous)
+            throws PropagationException {
+
         return provision(user, synchronous, false);
     }
 
@@ -69,8 +73,9 @@ public class PropagationManager {
      * Exceptions will be ignored.
      * @param user to be updated.
      * @return a set of updated resources.
+     * @throws PropagationException
      */
-    public Set<String> update(SyncopeUser user) {
+    public Set<String> update(SyncopeUser user) throws PropagationException {
         return provision(user, null, true);
     }
 
@@ -83,8 +88,11 @@ public class PropagationManager {
      * @param user to be updated.
      * @param synchronous to ask for a synchronous or asynchronous update.
      * @return a set of updated resources.
+     * @throws PropagationException
      */
-    public Set<String> update(SyncopeUser user, Set<String> synchronous) {
+    public Set<String> update(SyncopeUser user, Set<String> synchronous)
+            throws PropagationException {
+
         return provision(user, synchronous, true);
     }
 
@@ -94,9 +102,11 @@ public class PropagationManager {
      * @param synchronous
      * @param merge
      * @return
+     * @throws PropagationException
      */
     private Set<String> provision(
-            SyncopeUser user, Set<String> synchronous, boolean merge) {
+            SyncopeUser user, Set<String> synchronous, boolean merge)
+            throws PropagationException {
 
         if (synchronous == null) {
             synchronous = Collections.EMPTY_SET;
@@ -132,8 +142,8 @@ public class PropagationManager {
 
         if (log.isDebugEnabled()) {
             log.debug(
-                    "Synchronous provisioning of " + resources +
-                    " with user " + user.getId());
+                    "Synchronous provisioning of " + resources
+                    + " with user " + user.getId());
         }
 
         for (Resource resource : syncResources) {
@@ -146,20 +156,22 @@ public class PropagationManager {
 
                 if (log.isErrorEnabled()) {
                     log.error(
-                            "Exception during provision on resource " +
-                            resource.getName(), t);
+                            "Exception during provision on resource "
+                            + resource.getName(), t);
                 }
 
-                throw new RuntimeException(t);
+                throw new PropagationException(
+                        "Exception during provision on resource "
+                        + resource.getName(), resource.getName(), t);
             }
         }
 
         // asynchronous propagation ...
-        
+
         if (log.isDebugEnabled()) {
             log.debug(
-                    "Asynchronous provisioning of " + resources +
-                    " with user " + user.getId());
+                    "Asynchronous provisioning of " + resources
+                    + " with user " + user.getId());
         }
 
         for (Resource resource : asyncResources) {
@@ -172,16 +184,16 @@ public class PropagationManager {
 
                 if (log.isErrorEnabled()) {
                     log.error(
-                            "Exception during provision on resource " +
-                            resource.getName(), t);
+                            "Exception during provision on resource "
+                            + resource.getName(), t);
                 }
             }
         }
 
         if (log.isDebugEnabled()) {
             log.debug(
-                    "Provisioned " + provisioned +
-                    " with user " + user.getId());
+                    "Provisioned " + provisioned
+                    + " with user " + user.getId());
         }
 
         return provisioned;
@@ -214,9 +226,9 @@ public class PropagationManager {
         if (connector == null) {
             if (log.isErrorEnabled()) {
 
-                log.error("Connector instance bean " +
-                        connectorInstance.getId().toString() +
-                        " not found");
+                log.error("Connector instance bean "
+                        + connectorInstance.getId().toString()
+                        + " not found");
 
             }
 
@@ -267,8 +279,8 @@ public class PropagationManager {
             if (log.isErrorEnabled()) {
 
                 log.error(
-                        "Error creating user on resource " +
-                        resource.getName());
+                        "Error creating user on resource "
+                        + resource.getName());
 
             }
 

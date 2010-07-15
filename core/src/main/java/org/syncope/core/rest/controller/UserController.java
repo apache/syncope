@@ -32,20 +32,26 @@ import org.syncope.client.to.UserTO;
 import org.syncope.client.to.UserTOs;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.SyncopeUserDAO;
+import org.syncope.core.persistence.propagation.PropagationException;
 import org.syncope.core.rest.data.UserDataBinder;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
+import org.syncope.core.persistence.beans.Resource;
+import org.syncope.core.persistence.beans.role.SyncopeRole;
+import org.syncope.core.persistence.propagation.PropagationManager;
 import org.syncope.core.persistence.dao.SyncopeConfigurationDAO;
 import org.syncope.core.workflow.Constants;
 import org.syncope.core.workflow.SpringHibernateJPAWorkflowStore;
@@ -66,6 +72,8 @@ public class UserController extends AbstractController {
     private Workflow userWorkflow;
     @Autowired(required = false)
     private SpringHibernateJPAWorkflowStore workflowStore;
+    @Autowired
+    private PropagationManager propagationManager;
 
     @Transactional
     @RequestMapping(method = RequestMethod.POST,
@@ -123,10 +131,23 @@ public class UserController extends AbstractController {
     value = "/create")
     public UserTO create(HttpServletRequest request,
             HttpServletResponse response,
-            @RequestBody UserTO userTO) throws IOException {
+            @RequestBody UserTO userTO,
+            @RequestParam(value = "syncRoles",
+            required = false) Set<Long> syncRoles,
+            @RequestParam(value = "syncResources",
+            required = false) Set<String> syncResources)
+            throws IOException {
+
+        if (syncRoles == null) {
+            syncRoles = Collections.EMPTY_SET;
+        }
+        if (syncResources == null) {
+            syncResources = Collections.EMPTY_SET;
+        }
 
         if (log.isDebugEnabled()) {
-            log.debug("create called with parameter " + userTO);
+            log.debug("create called with parameters " + userTO
+                    + "\n" + syncRoles + "\n" + syncResources);
         }
 
         WorkflowInitException wie = null;
@@ -217,6 +238,33 @@ public class UserController extends AbstractController {
             }
         }
         syncopeUser = syncopeUserDAO.save(syncopeUser);
+
+        // Now that user is created locally, let's propagate
+        Set<String> synchronous = new HashSet<String>();
+        for (Resource resource : syncopeUser.getResources()) {
+            if (syncResources.contains(resource.getName())) {
+                synchronous.add(resource.getName());
+            }
+        }
+        for (SyncopeRole role : syncopeUser.getRoles()) {
+            if (syncRoles.contains(role.getId())) {
+                for (Resource resource : role.getResources()) {
+                    synchronous.add(resource.getName());
+                }
+            }
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("About to propagate synchronously on the following "
+                    + "resources " + synchronous);
+        }
+        
+        try {
+            propagationManager.provision(syncopeUser, synchronous);
+        } catch (PropagationException e) {
+            log.error("Propagation exception", e);
+
+            return throwPropagationException(e, response);
+        }
 
         response.setStatus(HttpServletResponse.SC_CREATED);
         return userDataBinder.getUserTO(syncopeUser);

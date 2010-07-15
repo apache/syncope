@@ -83,4 +83,6 @@
         <property name="entityManagerFactory" ref="entityManagerFactory"/>
     </bean>
 
+    <bean id="propagationManager"
+          class="org.syncope.core.persistence.propagation.PropagationManager"/>
 </beans>

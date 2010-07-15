@@ -204,11 +204,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.mortbay.jetty</groupId>
-            <artifactId>jetty</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.syncope.identityconnectors</groupId>
             <artifactId>test-common</artifactId>
             <version>${parent.version}</version>

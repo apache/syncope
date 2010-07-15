@@ -22,7 +22,8 @@ import org.junit.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.syncope.core.persistence.PropagationManager;
+import org.syncope.core.persistence.propagation.PropagationException;
+import org.syncope.core.persistence.propagation.PropagationManager;
 import org.syncope.core.persistence.beans.Resource;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.ResourceDAO;
@@ -34,9 +35,10 @@ public class PropagationManagerTest extends AbstractTest {
 
     @Autowired
     ResourceDAO resourceDAO;
-
     @Autowired
     SyncopeUserDAO syncopeUserDAO;
+    @Autowired
+    PropagationManager propagationManager;
 
     @Test
     public final void provision() {
@@ -48,8 +50,12 @@ public class PropagationManagerTest extends AbstractTest {
 
         user.setResources(Collections.singleton(resource));
 
-        PropagationManager propagationManager = new PropagationManager();
-        Set<String> provisioned = propagationManager.provision(user);
+        Set<String> provisioned = null;
+        try {
+            provisioned = propagationManager.provision(user);
+        } catch (PropagationException e) {
+            log.error("While provisioning", e);
+        }
 
         assertNotNull(provisioned);
     }
@@ -64,8 +70,12 @@ public class PropagationManagerTest extends AbstractTest {
 
         user.setResources(Collections.singleton(resource));
 
-        PropagationManager propagationManager = new PropagationManager();
-        Set<String> provisioned = propagationManager.update(user);
+        Set<String> provisioned = null;
+        try {
+            provisioned = propagationManager.update(user);
+        } catch (PropagationException e) {
+            log.error("While updating", e);
+        }
 
         assertNotNull(provisioned);
     }
@@ -80,15 +90,14 @@ public class PropagationManagerTest extends AbstractTest {
 
         user.setResources(Collections.singleton(resource));
 
-        RuntimeException re = null;
+        PropagationException re = null;
 
         try {
 
-            PropagationManager propagationManager = new PropagationManager();
             propagationManager.provision(
                     user, Collections.singleton("ws-target-resource-2"));
 
-        } catch (RuntimeException e) {
+        } catch (PropagationException e) {
             re = e;
         }
 
@@ -105,15 +114,14 @@ public class PropagationManagerTest extends AbstractTest {
 
         user.setResources(Collections.singleton(resource));
 
-        RuntimeException re = null;
+        PropagationException re = null;
 
         try {
 
-            PropagationManager propagationManager = new PropagationManager();
             propagationManager.update(
                     user, Collections.singleton("ws-target-resource-2"));
 
-        } catch (RuntimeException e) {
+        } catch (PropagationException e) {
             re = e;
         }
 

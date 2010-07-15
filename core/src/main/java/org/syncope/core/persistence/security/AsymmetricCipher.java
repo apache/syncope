@@ -12,7 +12,7 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.persistence;
+package org.syncope.core.persistence.security;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

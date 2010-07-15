@@ -24,6 +24,7 @@ import org.springframework.beans.TypeMismatchException;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientErrorHandler;
 import org.syncope.client.validation.SyncopeClientException;
+import org.syncope.core.persistence.propagation.PropagationException;
 import org.syncope.types.SyncopeClientExceptionType;
 
 public abstract class AbstractController {
@@ -92,6 +93,21 @@ public abstract class AbstractController {
         response.setHeader(
                 SyncopeClientExceptionType.Workflow.getElementHeaderName(),
                 we.getMessage());
+
+        response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+
+        return null;
+    }
+
+    protected <T> T throwPropagationException(PropagationException pe,
+            HttpServletResponse response) throws IOException {
+
+        response.setHeader(
+                SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
+                SyncopeClientExceptionType.Propagation.getHeaderValue());
+        response.setHeader(
+                SyncopeClientExceptionType.Propagation.getElementHeaderName(),
+                pe.getResource());
 
         response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 
