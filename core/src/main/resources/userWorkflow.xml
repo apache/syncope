@@ -73,6 +73,11 @@
                     <post-functions>
                         <function type="class">
                             <arg name="class.name">org.syncope.core.workflow.prcsiam.SendEmail</arg>
+                            <arg name="from">activate.email.from</arg>
+                            <arg name="subject">activate.email.subject</arg>
+                            <arg name="template.html">activate.email.template.html</arg>
+                            <arg name="template.txt">activate.email.template.txt</arg>
+                            <arg name="parametrize">true</arg>
                         </function>
                         <!-- TMP -->
                         <function type="class">
@@ -103,9 +108,6 @@
                                 <function type="class">
                                     <arg name="class.name">org.syncope.core.workflow.prcsiam.StoreActivationDate</arg>
                                 </function>
-                                <function type="class">
-                                    <arg name="class.name">org.syncope.core.workflow.prcsiam.CleanupAfterEmail</arg>
-                                </function>
                             </post-functions>
                         </result>
                         <result old-status="doubleOptIn" status="doubleOptIn" step="2">
@@ -122,6 +124,11 @@
                             <post-functions>
                                 <function type="class">
                                     <arg name="class.name">org.syncope.core.workflow.prcsiam.SendEmail</arg>
+                                    <arg name="from">activate.email.from</arg>
+                                    <arg name="subject">activate.email.subject</arg>
+                                    <arg name="template.html">activate.email.template.html</arg>
+                                    <arg name="template.txt">activate.email.template.txt</arg>
+                                    <arg name="parametrize">true</arg>
                                 </function>
                             </post-functions>
                         </result>
@@ -156,17 +163,54 @@
                         <unconditional-result old-status="active" status="active" step="3"/>
                     </results>
                 </action>
-                <action name="passwordReset" id="3004">
+                <action name="generateToken" id="3004">
+                    <pre-functions>
+                        <function type="class">
+                            <arg name="class.name">org.syncope.core.workflow.GenerateToken</arg>
+                        </function>
+                    </pre-functions>
                     <results>
                         <unconditional-result old-status="active" status="active" step="3"/>
                     </results>
+                    <post-functions>
+                        <function type="class">
+                            <arg name="class.name">org.syncope.core.workflow.prcsiam.SendEmail</arg>
+                            <arg name="from">generateToken.email.from</arg>
+                            <arg name="subject">generateToken.email.subject</arg>
+                            <arg name="template.html">generateToken.email.template.html</arg>
+                            <arg name="template.txt">generateToken.email.template.txt</arg>
+                            <arg name="parametrize">true</arg>
+                        </function>
+                    </post-functions>
                 </action>
-                <action name="suspend" id="3005">
+                <action name="verifyToken" id="3005">
+                    <results>
+                        <result old-status="active" status="active" step="3">
+                            <conditions>
+                                <condition type="class">
+                                    <arg name="class.name">org.syncope.core.workflow.IsValidToken</arg>
+                                </condition>
+                            </conditions>
+                            <post-functions>
+                                <function type="class">
+                                    <arg name="class.name">org.syncope.core.workflow.prcsiam.SendEmail</arg>
+                                    <arg name="from">verifyToken.email.from</arg>
+                                    <arg name="subject">verifyToken.email.subject</arg>
+                                    <arg name="template.html">verifyToken.email.template.html</arg>
+                                    <arg name="template.txt">verifyToken.email.template.txt</arg>
+                                    <arg name="parametrize">false</arg>
+                                </function>
+                            </post-functions>
+                        </result>
+                        <unconditional-result old-status="active" status="active" step="3"/>
+                    </results>
+                </action>
+                <action name="suspend" id="3006">
                     <results>
                         <unconditional-result old-status="active" status="suspended" step="4"/>
                     </results>
                 </action>
-                <action name="delete" id="3006">
+                <action name="delete" id="3007">
                     <results>
                         <unconditional-result old-status="active" status="deleted" step="5"/>
                     </results>

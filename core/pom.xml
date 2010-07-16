@@ -32,7 +32,7 @@
 
     <properties>
         <hsqldb.version>1.8.0.10</hsqldb.version>
-                
+
         <cargo.servlet.port>8080</cargo.servlet.port>
         <cargo.log>/tmp/syncope-core-cargo.log</cargo.log>
         <cargo.output>/tmp/syncope-core-cargo-output.log</cargo.output>
@@ -161,7 +161,7 @@
             <groupId>org.dbunit</groupId>
             <artifactId>dbunit</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
@@ -197,7 +197,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>hsqldb</groupId>
+            <groupId>org.hsqldb</groupId>
             <artifactId>hsqldb</artifactId>
             <version>${hsqldb.version}</version>
             <scope>test</scope>
@@ -274,7 +274,7 @@
                 <inherited>true</inherited>
                 <dependencies>
                     <dependency>
-                        <groupId>hsqldb</groupId>
+                        <groupId>org.hsqldb</groupId>
                         <artifactId>hsqldb</artifactId>
                         <version>${hsqldb.version}</version>
                     </dependency>
@@ -413,7 +413,7 @@
                         <output>${cargo.output}</output>
                         <dependencies>
                             <dependency>
-                                <location>${settings.localRepository}/hsqldb/hsqldb/${hsqldb.version}/hsqldb-${hsqldb.version}.jar</location>
+                                <location>${settings.localRepository}/org/hsqldb/hsqldb/${hsqldb.version}/hsqldb-${hsqldb.version}.jar</location>
                             </dependency>
                             <dependency>
                                 <location>${project.build.directory}/integration-test.jar</location>

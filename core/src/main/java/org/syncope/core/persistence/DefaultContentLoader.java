@@ -78,7 +78,8 @@ public class DefaultContentLoader implements ServletContextListener {
             } else {
                 log.info("Empty database found, loading default content");
 
-                FlatXmlDataSetBuilder dataSetBuilder = new FlatXmlDataSetBuilder();
+                FlatXmlDataSetBuilder dataSetBuilder =
+                        new FlatXmlDataSetBuilder();
                 dataSetBuilder.setColumnSensing(true);
                 IDataSet dataSet = dataSetBuilder.build(
                         getClass().getResourceAsStream("content.xml"));

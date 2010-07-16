@@ -76,11 +76,8 @@ public class UserController extends AbstractController {
     private PropagationManager propagationManager;
 
     @Transactional
-    @RequestMapping(method = RequestMethod.POST,
-    value = "/activate")
-    public UserTO activate(HttpServletResponse response,
-            @RequestBody UserTO userTO)
-            throws IOException {
+    private UserTO executeAction(String actionName,
+            HttpServletResponse response, UserTO userTO) throws IOException {
 
         SyncopeUser syncopeUser = syncopeUserDAO.find(userTO.getId());
 
@@ -99,31 +96,39 @@ public class UserController extends AbstractController {
 
         int[] actions = userWorkflow.getAvailableActions(
                 syncopeUser.getWorkflowEntryId(), inputs);
-        Integer activateActionId = null;
-        for (int i = 0; i < actions.length && activateActionId == null; i++) {
-            if (Constants.ACTION_ACTIVATE.equals(
+        Integer actionId = null;
+        for (int i = 0; i < actions.length && actionId == null; i++) {
+            if (actionName.equals(
                     workflowDescriptor.getAction(actions[i]).getName())) {
 
-                activateActionId = actions[i];
+                actionId = actions[i];
             }
         }
-        if (activateActionId != null) {
-            try {
-                userWorkflow.doAction(syncopeUser.getWorkflowEntryId(),
-                        activateActionId, inputs);
-            } catch (WorkflowException e) {
-                log.error("While performing activate", e);
-
-                return throwWorkflowException(e, response);
-            }
-
-            syncopeUser = syncopeUserDAO.save(syncopeUser);
-        } else {
-            log.error("No action named '" + Constants.ACTION_ACTIVATE
-                    + "' has been found among available actions");
+        if (actionId == null) {
+            return throwNotFoundException(actionName, response);
         }
 
+        try {
+            userWorkflow.doAction(syncopeUser.getWorkflowEntryId(),
+                    actionId, inputs);
+        } catch (WorkflowException e) {
+            log.error("While performing " + actionName, e);
+
+            return throwWorkflowException(e, response);
+        }
+
+        syncopeUser = syncopeUserDAO.save(syncopeUser);
         return userDataBinder.getUserTO(syncopeUser);
+    }
+
+    @Transactional
+    @RequestMapping(method = RequestMethod.POST,
+    value = "/activate")
+    public UserTO activate(HttpServletResponse response,
+            @RequestBody UserTO userTO)
+            throws IOException {
+
+        return executeAction(Constants.ACTION_ACTIVATE, response, userTO);
     }
 
     @Transactional
@@ -208,22 +213,6 @@ public class UserController extends AbstractController {
 
         Map<String, Object> inputs = new HashMap<String, Object>();
         inputs.put(Constants.SYNCOPE_USER, syncopeUser);
-        inputs.put(Constants.MAIL_FROM,
-                syncopeConfigurationDAO.find(
-                "activate.email.from").getConfValue());
-        inputs.put(Constants.MAIL_SUBJECT,
-                syncopeConfigurationDAO.find(
-                "activate.email.subject").getConfValue());
-        StringBuffer baseRequestURL = request.getRequestURL();
-        inputs.put(Constants.BASE_REQUEST_URL,
-                baseRequestURL.substring(0,
-                baseRequestURL.indexOf("/user") - 4).toString());
-        inputs.put(Constants.MAIL_TEMPLATE_HTML,
-                syncopeConfigurationDAO.find(
-                "activate.email.template.html").getConfValue());
-        inputs.put(Constants.MAIL_TEMPLATE_TXT,
-                syncopeConfigurationDAO.find(
-                "activate.email.template.txt").getConfValue());
 
         int[] availableWorkflowActions = userWorkflow.getAvailableActions(
                 workflowId, null);
@@ -311,6 +300,7 @@ public class UserController extends AbstractController {
     public UserTO read(HttpServletResponse response,
             @PathVariable("userId") Long userId)
             throws IOException {
+
         SyncopeUser user = syncopeUserDAO.find(userId);
 
         if (user == null) {
@@ -321,32 +311,26 @@ public class UserController extends AbstractController {
         return userDataBinder.getUserTO(user);
     }
 
+    @Transactional
     @RequestMapping(method = RequestMethod.GET,
-    value = "/passwordReset/{userId}")
-    public ModelAndView getPasswordResetToken(
-            @PathVariable("userId") Long userId,
-            @RequestParam("passwordResetFormURL") String passwordResetFormURL,
-            @RequestParam("gotoURL") String gotoURL)
+    value = "/generateToken/{userId}")
+    public UserTO generateToken(HttpServletResponse response,
+            @PathVariable("userId") Long userId)
             throws IOException {
-        log.info("passwordReset (GET) called with parameters " + userId + ", "
-                + passwordResetFormURL + ", " + gotoURL);
 
-        String passwordResetToken = "token";
-        ModelAndView mav = new ModelAndView();
-
-        mav.addObject(passwordResetToken);
-
-        return mav;
+        UserTO userTO = new UserTO();
+        userTO.setId(userId);
+        return executeAction(Constants.ACTION_GENERATE_TOKEN, response, userTO);
     }
 
-    @RequestMapping(method = RequestMethod.PUT,
-    value = "/passwordReset/{userId}")
-    public void passwordReset(@PathVariable("userId") Long userId,
-            @RequestParam("tokenId") String tokenId,
-            @RequestParam("newPassword") String newPassword)
+    @Transactional
+    @RequestMapping(method = RequestMethod.POST,
+    value = "/verifyToken")
+    public UserTO verifyToken(HttpServletResponse response,
+            @RequestBody UserTO userTO)
             throws IOException {
-        log.info("passwordReset (POST) called with parameters " + userId + ", "
-                + tokenId + ", " + newPassword);
+
+        return executeAction(Constants.ACTION_VERIFY_TOKEN, response, userTO);
     }
 
     @RequestMapping(method = RequestMethod.POST,

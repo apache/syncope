@@ -119,48 +119,54 @@ public class UserDataBinder {
                             + attributeTO.getSchema());
                 }
             } else {
-                attribute = new UserAttribute();
-                attribute.setSchema(schema);
-                attribute.setOwner(syncopeUser);
+                if (schema.isVirtual()) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Ignoring virtual schema" + schema.getName());
+                    }
+                } else {
+                    attribute = new UserAttribute();
+                    attribute.setSchema(schema);
+                    attribute.setOwner(syncopeUser);
 
-                // if the schema is multivale, all values are considered for
-                // addition, otherwise only the fist one - if provided - is
-                // considered
-                valuesProvided = schema.isMultivalue()
-                        ? attributeTO.getValues()
-                        : (attributeTO.getValues().isEmpty()
-                        ? Collections.EMPTY_SET
-                        : Collections.singleton(
-                        attributeTO.getValues().iterator().next()));
-                for (String value : valuesProvided) {
-                    attributeValue = new UserAttributeValue();
+                    // if the schema is multivale, all values are considered for
+                    // addition, otherwise only the fist one - if provided - is
+                    // considered
+                    valuesProvided = schema.isMultivalue()
+                            ? attributeTO.getValues()
+                            : (attributeTO.getValues().isEmpty()
+                            ? Collections.EMPTY_SET
+                            : Collections.singleton(
+                            attributeTO.getValues().iterator().next()));
+                    for (String value : valuesProvided) {
+                        attributeValue = new UserAttributeValue();
 
-                    try {
-                        attributeValue = attribute.addValue(value,
-                                attributeValue);
-                    } catch (ValidationException e) {
-                        log.error("Invalid value for attribute "
-                                + schema.getName() + ": " + value, e);
+                        try {
+                            attributeValue = attribute.addValue(value,
+                                    attributeValue);
+                        } catch (ValidationException e) {
+                            log.error("Invalid value for attribute "
+                                    + schema.getName() + ": " + value, e);
 
-                        invalidValues.addElement(schema.getName());
+                            invalidValues.addElement(schema.getName());
+                        }
+
+                        // if the schema is uniquevalue, check the uniqueness
+                        if (schema.isUniquevalue()
+                                && attributeValueDAO.existingAttributeValue(
+                                attributeValue)) {
+
+                            log.error("Unique value schema " + schema.getName()
+                                    + " with no unique value: "
+                                    + attributeValue.getValueAsString());
+
+                            invalidUniques.addElement(schema.getName());
+                            attribute.setAttributeValues(Collections.EMPTY_SET);
+                        }
                     }
 
-                    // if the schema is uniquevalue, check the uniqueness
-                    if (schema.isUniquevalue()
-                            && attributeValueDAO.existingAttributeValue(
-                            attributeValue)) {
-
-                        log.error("Unique value schema " + schema.getName()
-                                + " with no unique value: "
-                                + attributeValue.getValueAsString());
-
-                        invalidUniques.addElement(schema.getName());
-                        attribute.setAttributeValues(Collections.EMPTY_SET);
+                    if (!attribute.getAttributeValues().isEmpty()) {
+                        syncopeUser.addAttribute(attribute);
                     }
-                }
-
-                if (!attribute.getAttributeValues().isEmpty()) {
-                    syncopeUser.addAttribute(attribute);
                 }
             }
         }

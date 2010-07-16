@@ -17,16 +17,11 @@ package org.syncope.core.workflow;
 public class Constants {
 
     final public static String ACTION_ACTIVATE = "activate";
+    final public static String ACTION_GENERATE_TOKEN = "generateToken";
+    final public static String ACTION_VERIFY_TOKEN = "verifyToken";
     final public static String ENTRY = "entry";
     final public static String SYNCOPE_USER = "syncopeUser";
     final public static String TOKEN = "token";
     final public static String USER_TO = "userTO";
     final public static String USER_WORKFLOW = "userWorkflow";
-    final public static String BASE_REQUEST_URL = "baseRequestURL";
-    final public static String MAILTEMPLATES_URL = "mailTemplates/";
-    final public static String MAIL_FROM = "from";
-    final public static String MAIL_TO = "to";
-    final public static String MAIL_SUBJECT = "subject";
-    final public static String MAIL_TEMPLATE_HTML = "templateHtml";
-    final public static String MAIL_TEMPLATE_TXT = "templateTxt";
 }

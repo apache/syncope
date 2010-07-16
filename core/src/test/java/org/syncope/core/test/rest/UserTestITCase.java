@@ -14,9 +14,12 @@
  */
 package org.syncope.core.test.rest;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import static org.junit.Assert.*;
 
 import java.util.Collections;
+import java.util.Date;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.annotation.ExpectedException;
@@ -30,6 +33,39 @@ import org.syncope.client.validation.SyncopeClientException;
 import org.syncope.types.SyncopeClientExceptionType;
 
 public class UserTestITCase extends AbstractTestITCase {
+
+    private UserTO getSampleTO(String email) {
+        UserTO userTO = new UserTO();
+        userTO.setPassword("password");
+
+        AttributeTO usernameTO = new AttributeTO();
+        usernameTO.setSchema("username");
+        usernameTO.addValue(email);
+        userTO.addAttribute(usernameTO);
+
+        AttributeTO surnameTO = new AttributeTO();
+        surnameTO.setSchema("surname");
+        surnameTO.addValue("Surname");
+        userTO.addAttribute(surnameTO);
+
+        AttributeTO userIdTO = new AttributeTO();
+        userIdTO.setSchema("userId");
+        userIdTO.addValue(email);
+        userTO.addAttribute(userIdTO);
+
+        AttributeTO emailTO = new AttributeTO();
+        emailTO.setSchema("email");
+        emailTO.addValue(email);
+        userTO.addAttribute(emailTO);
+
+        AttributeTO loginDateTO = new AttributeTO();
+        loginDateTO.setSchema("loginDate");
+        DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        loginDateTO.addValue(sdf.format(new Date()));
+        userTO.addAttribute(loginDateTO);
+
+        return userTO;
+    }
 
     @Test
     @ExpectedException(value = SyncopeClientCompositeErrorException.class)
@@ -47,35 +83,7 @@ public class UserTestITCase extends AbstractTestITCase {
 
     @Test
     public void create() {
-        UserTO userTO = new UserTO();
-        userTO.setPassword("password");
-
-        AttributeTO usernameTO = new AttributeTO();
-        usernameTO.setSchema("username");
-        usernameTO.addValue("fchicchiricco");
-        userTO.addAttribute(usernameTO);
-
-        AttributeTO surnameTO = new AttributeTO();
-        surnameTO.setSchema("surname");
-        surnameTO.addValue("Chicchiriccò");
-        userTO.addAttribute(surnameTO);
-
-        AttributeTO userIdTO = new AttributeTO();
-        userIdTO.setSchema("userId");
-        userIdTO.addValue("chicchiricco@gmail.com");
-        userTO.addAttribute(userIdTO);
-
-        AttributeTO emailTO = new AttributeTO();
-        emailTO.setSchema("email");
-        emailTO.addValue("chicchiricco@gmail.com");
-        emailTO.addValue("syncope@googlecode.com");
-        userTO.addAttribute(emailTO);
-
-        AttributeTO loginDateTO = new AttributeTO();
-        loginDateTO.setSchema("loginDate");
-        loginDateTO.addValue("2010-06-30");
-        loginDateTO.addValue("2010-07-01");
-        userTO.addAttribute(loginDateTO);
+        UserTO userTO = getSampleTO("a.b@c.com");
 
         AttributeTO attrWithInvalidSchemaTO = new AttributeTO();
         attrWithInvalidSchemaTO.setSchema("invalid schema");
@@ -104,34 +112,12 @@ public class UserTestITCase extends AbstractTestITCase {
                 restTemplate.getForObject(BASE_URL + "user/status/"
                 + newUserTO.getId(), String.class));
 
-        // 3. try (and fail) to create another user with the same surname (unique)
-        userTO = new UserTO();
-        userTO.setPassword("password");
-
-        usernameTO = new AttributeTO();
-        usernameTO.setSchema("username");
-        usernameTO.addValue("fchicchiricco");
-        userTO.addAttribute(usernameTO);
-
-        surnameTO = new AttributeTO();
-        surnameTO.setSchema("surname");
-        surnameTO.addValue("Martelli");
-        userTO.addAttribute(surnameTO);
-
-        userIdTO = new AttributeTO();
+        // 3. try (and fail) to create another user with same (unique) values
+        userTO = getSampleTO("pippo@c.com");
+        AttributeTO userIdTO = new AttributeTO();
         userIdTO.setSchema("userId");
-        userIdTO.addValue("syncope@googlecode.com");
+        userIdTO.addValue("a.b@c.com");
         userTO.addAttribute(userIdTO);
-
-        emailTO = new AttributeTO();
-        emailTO.setSchema("email");
-        emailTO.addValue("syncope@googlecode.com");
-        userTO.addAttribute(emailTO);
-
-        loginDateTO = new AttributeTO();
-        loginDateTO.setSchema("loginDate");
-        loginDateTO.addValue("2010-07-01");
-        userTO.addAttribute(loginDateTO);
 
         SyncopeClientException syncopeClientException = null;
         try {
@@ -142,8 +128,7 @@ public class UserTestITCase extends AbstractTestITCase {
                     e.getException(SyncopeClientExceptionType.InvalidUniques);
         }
         assertNotNull(syncopeClientException);
-        assertTrue(syncopeClientException.getElements().contains("username"));
-        assertTrue(syncopeClientException.getElements().contains("email"));
+        assertTrue(syncopeClientException.getElements().contains("userId"));
     }
 
     @Test
@@ -183,20 +168,22 @@ public class UserTestITCase extends AbstractTestITCase {
     }
 
     @Test
-    public void passwordReset() {
-        String tokenId = restTemplate.getForObject(BASE_URL + "user/"
-                + "passwordReset/{userId}.json"
-                + "?passwordResetFormURL={passwordResetFormURL}"
-                + "&gotoURL={gotoURL}",
-                String.class, "0",
-                "http://www.google.it/passwordResetForm",
-                "http://www.google.it/gotoURL");
+    public void token() {
+        UserTO userTO = getSampleTO("d.e@f.com");
 
-        assertNotNull(tokenId);
+        userTO = restTemplate.postForObject(BASE_URL + "user/create",
+                userTO, UserTO.class);
+        userTO = restTemplate.postForObject(BASE_URL + "user/activate",
+                userTO, UserTO.class);
+        assertNull(userTO.getToken());
 
-        restTemplate.put(BASE_URL + "user/passwordReset/{userId}.json"
-                + "?tokenId={tokenId}&newPassword={newPassword}",
-                null, "0", tokenId, "newPassword");
+        userTO = restTemplate.getForObject(BASE_URL + "user/generateToken/"
+                + String.valueOf(userTO.getId()), UserTO.class);
+        assertNotNull(userTO.getToken());
+
+        userTO = restTemplate.postForObject(BASE_URL + "user/verifyToken",
+                userTO, UserTO.class);
+        assertNull(userTO.getToken());
     }
 
     @Test

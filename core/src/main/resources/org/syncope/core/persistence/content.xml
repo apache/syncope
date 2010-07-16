@@ -16,10 +16,19 @@
     <SyncopeConfiguration confKey="token.length" confValue="256"/>
     <SyncopeConfiguration confKey="token.expireTime" confValue="60"/>
     <SyncopeConfiguration confKey="smtp.host" confValue="smtp.ngi.it"/>
+    <SyncopeConfiguration confKey="mail.templates.url" confValue="http://localhost:8080/syncope/mailTemplates/"/>
     <SyncopeConfiguration confKey="activate.email.from" confValue="syncope@googlecode.com"/>
     <SyncopeConfiguration confKey="activate.email.subject" confValue="Welcome to Syncope!"/>
     <SyncopeConfiguration confKey="activate.email.template.html" confValue="registration.html"/>
     <SyncopeConfiguration confKey="activate.email.template.txt" confValue="registration.txt"/>
+    <SyncopeConfiguration confKey="generateToken.email.from" confValue="syncope@googlecode.com"/>
+    <SyncopeConfiguration confKey="generateToken.email.subject" confValue="Syncope: reset requested"/>
+    <SyncopeConfiguration confKey="generateToken.email.template.html" confValue="generateToken.html"/>
+    <SyncopeConfiguration confKey="generateToken.email.template.txt" confValue="generateToken.txt"/>
+    <SyncopeConfiguration confKey="verifyToken.email.from" confValue="syncope@googlecode.com"/>
+    <SyncopeConfiguration confKey="verifyToken.email.subject" confValue="Syncope: reset successful"/>
+    <SyncopeConfiguration confKey="verifyToken.email.template.html" confValue="verifyToken.html"/>
+    <SyncopeConfiguration confKey="verifyToken.email.template.txt" confValue="verifyToken.txt"/>
     <SyncopeConfiguration confKey="servicelayer.baseurl" confValue="http://www.google.it/"/>
     <SyncopeConfiguration confKey="identityconnectors.bundle.directory"
                           confValue="/tmp/bundles"/>
