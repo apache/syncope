@@ -16,12 +16,15 @@ package org.syncope.types;
 
 public enum SyncopeClientExceptionType {
 
-    InvalidDerivedSchemas(
-    "Syncope.InvalidDerivedSchemas",
-    "Syncope.InvalidDerivedSchemas.derivedSchemaName"),
+    AlreadyExists(
+    "Syncope.AlreadyExists",
+    "Syncope.AlreadyExists.name"),
     InvalidPassword(
     "Syncope.InvalidPassword",
     "Syncope.InvalidPassword.reason"),
+    InvalidRoles(
+    "Syncope.InvalidRoles",
+    "Syncope.InvalidRoles.name"),
     InvalidUpdate(
     "Syncope.InvalidUpdate",
     "Syncope.InvalidUpdate.name"),
@@ -46,9 +49,6 @@ public enum SyncopeClientExceptionType {
     RequiredValueMissing(
     "Syncope.RequiredValuesMissing",
     "Syncope.RequiredValuesMissing.attributeName"),
-    AlreadyExists(
-    "Syncope.AlreadyExists",
-    "Syncope.AlreadyExists.name"),
     Unknown(
     "Syncope.Unknown",
     ""),

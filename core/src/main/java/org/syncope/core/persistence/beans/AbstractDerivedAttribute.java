@@ -71,7 +71,7 @@ public abstract class AbstractDerivedAttribute extends AbstractBaseBean {
                 expressionValue = "";
             } else {
                 attributeValue = attributeValues.iterator().next();
-                expressionValue = attributeValue.getValue();
+                expressionValue = attributeValue.getValueAsString();
             }
 
             jexlContext.set(attribute.getSchema().getName(), expressionValue);

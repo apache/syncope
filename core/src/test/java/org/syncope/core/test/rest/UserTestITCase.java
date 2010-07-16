@@ -18,7 +18,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import static org.junit.Assert.*;
 
-import java.util.Collections;
 import java.util.Date;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
@@ -72,7 +71,7 @@ public class UserTestITCase extends AbstractTestITCase {
     public void createWithException() {
         AttributeTO attributeTO = new AttributeTO();
         attributeTO.setSchema("userId");
-        attributeTO.setValues(Collections.singleton("userId@nowhere.org"));
+        attributeTO.addValue("userId@nowhere.org");
 
         UserTO newUserTO = new UserTO();
         newUserTO.addAttribute(attributeTO);
@@ -134,15 +133,15 @@ public class UserTestITCase extends AbstractTestITCase {
     @Test
     public void delete() {
         try {
-            restTemplate.delete(BASE_URL + "user/delete/{userId}", "0");
+            restTemplate.delete(BASE_URL + "user/delete/{userId}", 0);
         } catch (HttpStatusCodeException e) {
             assertEquals(e.getStatusCode(), HttpStatus.NOT_FOUND);
         }
 
-        restTemplate.delete(BASE_URL + "user/delete/{userId}", "2");
+        restTemplate.delete(BASE_URL + "user/delete/{userId}", 2);
         try {
             restTemplate.getForObject(BASE_URL + "user/read/{userId}.json",
-                    UserTO.class, "2");
+                    UserTO.class, 2);
         } catch (HttpStatusCodeException e) {
             assertEquals(e.getStatusCode(), HttpStatus.NOT_FOUND);
         }
@@ -177,8 +176,9 @@ public class UserTestITCase extends AbstractTestITCase {
                 userTO, UserTO.class);
         assertNull(userTO.getToken());
 
-        userTO = restTemplate.getForObject(BASE_URL + "user/generateToken/"
-                + String.valueOf(userTO.getId()), UserTO.class);
+        userTO = restTemplate.getForObject(
+                BASE_URL + "user/generateToken/{userId}",
+                UserTO.class, userTO.getId());
         assertNotNull(userTO.getToken());
 
         userTO = restTemplate.postForObject(BASE_URL + "user/verifyToken",
@@ -202,7 +202,7 @@ public class UserTestITCase extends AbstractTestITCase {
     public void update() {
         AttributeTO attributeTO = new AttributeTO();
         attributeTO.setSchema("attr1");
-        attributeTO.setValues(Collections.singleton("value1"));
+        attributeTO.addValue("value1");
 
         UserTO newUserTO = new UserTO();
         newUserTO.addAttribute(attributeTO);

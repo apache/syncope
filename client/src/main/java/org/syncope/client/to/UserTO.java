@@ -18,31 +18,20 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-public class UserTO extends AbstractBaseTO {
+public class UserTO extends AttributableTO {
 
-    private long id;
     private String password;
     private Set<Long> roles;
-    private Set<AttributeTO> attributes;
-    private Set<AttributeTO> derivedAttributes;
     private Set<String> resources;
     private Date creationTime;
     private String token;
     private Date tokenExpireTime;
 
     public UserTO() {
+        super();
+        
         roles = new HashSet<Long>();
-        attributes = new HashSet<AttributeTO>();
-        derivedAttributes = new HashSet<AttributeTO>();
         resources = new HashSet<String>();
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
     }
 
     public String getPassword() {
@@ -67,38 +56,6 @@ public class UserTO extends AbstractBaseTO {
 
     public void setRoles(Set<Long> roles) {
         this.roles = roles;
-    }
-
-    public boolean addAttribute(AttributeTO attribute) {
-        return attributes.add(attribute);
-    }
-
-    public boolean removeAttribute(AttributeTO attribute) {
-        return attributes.remove(attribute);
-    }
-
-    public Set<AttributeTO> getAttributes() {
-        return attributes;
-    }
-
-    public void setAttributes(Set<AttributeTO> attributes) {
-        this.attributes = attributes;
-    }
-
-    public boolean addDerivedAttribute(AttributeTO derivedAttribute) {
-        return derivedAttributes.add(derivedAttribute);
-    }
-
-    public boolean removeDerivedAttribute(AttributeTO derivedAttribute) {
-        return derivedAttributes.remove(derivedAttribute);
-    }
-
-    public Set<AttributeTO> getDerivedAttributes() {
-        return derivedAttributes;
-    }
-
-    public void setDerivedAttributes(Set<AttributeTO> derivedAttributes) {
-        this.derivedAttributes = derivedAttributes;
     }
 
     public boolean addResource(String resource) {
