@@ -24,6 +24,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -34,14 +35,15 @@ import org.syncope.core.persistence.beans.Entitlement;
 
 @Entity
 @Table(uniqueConstraints =
-@UniqueConstraint(columnNames = {"name", "parent"}))
+@UniqueConstraint(columnNames = {"name", "parent_id"}))
 public class SyncopeRole extends AbstractAttributable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
-    private String parent;
+    @ManyToOne(optional = true)
+    private SyncopeRole parent;
     @ManyToMany(fetch = FetchType.EAGER, mappedBy = "roles")
     private Set<SyncopeUser> users;
     @ManyToMany(fetch = FetchType.LAZY)
@@ -72,11 +74,11 @@ public class SyncopeRole extends AbstractAttributable {
         this.name = name;
     }
 
-    public String getParent() {
+    public SyncopeRole getParent() {
         return parent;
     }
 
-    public void setParent(String parent) {
+    public void setParent(SyncopeRole parent) {
         this.parent = parent;
     }
 

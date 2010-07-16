@@ -21,22 +21,13 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
-import org.syncope.core.persistence.dao.SchemaDAO;
-import org.syncope.core.persistence.dao.AttributeDAO;
-import org.syncope.core.persistence.dao.EntitlementDAO;
 import org.syncope.core.persistence.dao.SyncopeRoleDAO;
 
 @Transactional
 public class SyncopeRoleDAOTest extends AbstractTest {
 
     @Autowired
-    SyncopeRoleDAO syncopeRoleDAO;
-    @Autowired
-    AttributeDAO attributeDAO;
-    @Autowired
-    SchemaDAO attributeSchemaDAO;
-    @Autowired
-    EntitlementDAO entitlementDAO;
+    private SyncopeRoleDAO syncopeRoleDAO;
 
     @Test
     public final void findAll() {
@@ -56,7 +47,9 @@ public class SyncopeRoleDAOTest extends AbstractTest {
     public final void save() {
         SyncopeRole role = new SyncopeRole();
         role.setName("secondChild");
-        role.setParent("root");
+
+        SyncopeRole rootRole = syncopeRoleDAO.find("root", null);
+        role.setParent(rootRole);
 
         role = syncopeRoleDAO.save(role);
 
@@ -66,14 +59,13 @@ public class SyncopeRoleDAOTest extends AbstractTest {
 
     @Test
     public final void delete() {
-        SyncopeRole role = syncopeRoleDAO.find("employee", "citizen");
+        SyncopeRole role = syncopeRoleDAO.find(4L);
         syncopeRoleDAO.delete(role.getId());
 
-        SyncopeRole actual = syncopeRoleDAO.find("employee", "citizen");
+        SyncopeRole actual = syncopeRoleDAO.find(4L);
         assertNull("delete did not work", actual);
 
-        SyncopeRole children = syncopeRoleDAO.find("managingDirector",
-                "director");
+        SyncopeRole children = syncopeRoleDAO.find(7L);
         assertNull("delete of successors did not work", children);
 
     }

@@ -38,13 +38,13 @@
     <SyncopeUser id="4" password="PPP"/>
 
     <SyncopeRole id="1" name="root"/>
-    <SyncopeRole id="2" name="child" parent="root"/>
+    <SyncopeRole id="2" name="child" parent_id="1"/>
     <SyncopeRole id="3" name="citizen"/>
-    <SyncopeRole id="4" name="employee" parent="citizen"/>
-    <SyncopeRole id="5" name="secretary" parent="employee"/>
-    <SyncopeRole id="6" name="director" parent="employee"/>
-    <SyncopeRole id="7" name="managingDirector" parent="director"/>
-    <SyncopeRole id="8" name="otherchild" parent="root"/>
+    <SyncopeRole id="4" name="employee" parent_id="3"/>
+    <SyncopeRole id="5" name="secretary" parent_id="4"/>
+    <SyncopeRole id="6" name="director" parent_id="4"/>
+    <SyncopeRole id="7" name="managingDirector" parent_id="6"/>
+    <SyncopeRole id="8" name="otherchild" parent_id="1"/>
 
     <SyncopeUser_SyncopeRole users_id="1" roles_id="1"/>
     <SyncopeUser_SyncopeRole users_id="2" roles_id="1"/>

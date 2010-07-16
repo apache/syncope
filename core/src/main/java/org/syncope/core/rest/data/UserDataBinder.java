@@ -84,9 +84,6 @@ public class UserDataBinder {
                 SyncopeClientExceptionType.InvalidValues);
         SyncopeClientException invalidUniques = new SyncopeClientException(
                 SyncopeClientExceptionType.InvalidUniques);
-        SyncopeClientException invalidDerivedSchemas =
-                new SyncopeClientException(
-                SyncopeClientExceptionType.InvalidDerivedSchemas);
 
         SyncopeUser syncopeUser = new SyncopeUser();
 
@@ -179,7 +176,10 @@ public class UserDataBinder {
                     UserDerivedSchema.class);
 
             if (derivedSchema == null) {
-                invalidDerivedSchemas.addElement(attributeTO.getSchema());
+                if (log.isDebugEnabled()) {
+                    log.debug("Ignoring invalid derivedschema "
+                            + attributeTO.getSchema());
+                }
             } else {
                 derivedAttribute = new UserDerivedAttribute();
                 derivedAttribute.setDerivedSchema(derivedSchema);
@@ -242,9 +242,6 @@ public class UserDataBinder {
         }
         if (!invalidUniques.getElements().isEmpty()) {
             compositeErrorException.addException(invalidUniques);
-        }
-        if (!invalidDerivedSchemas.getElements().isEmpty()) {
-            compositeErrorException.addException(invalidDerivedSchemas);
         }
         if (compositeErrorException.hasExceptions()) {
             throw compositeErrorException;

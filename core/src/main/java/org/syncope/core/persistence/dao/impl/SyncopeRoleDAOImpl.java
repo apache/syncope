@@ -29,14 +29,14 @@ public class SyncopeRoleDAOImpl extends AbstractDAOImpl
         implements SyncopeRoleDAO {
 
     @Override
-    public SyncopeRole find(String name, String parent) {
+    public SyncopeRole find(String name, Long parentId) {
         Query query = null;
 
-        if (parent != null) {
+        if (parentId != null) {
             query = entityManager.createQuery(
                     "SELECT r FROM SyncopeRole r WHERE "
-                    + "name=:name AND parent=:parent");
-            query.setParameter("parent", parent);
+                    + "name=:name AND parent.id=:parentId");
+            query.setParameter("parentId", parentId);
         } else {
             query = entityManager.createQuery(
                     "SELECT r FROM SyncopeRole r WHERE "
@@ -66,20 +66,17 @@ public class SyncopeRoleDAOImpl extends AbstractDAOImpl
 
     @Override
     @Transactional
-    public void delete(String name, String parent) {
+    public void delete(Long id) {
         Query query = entityManager.createQuery(
                 "SELECT r FROM SyncopeRole r WHERE "
-                + "parent=:role");
-        query.setParameter("role", name);
+                + "parent_id=:id");
+        query.setParameter("id", id);
         List<SyncopeRole> childrenRoles = query.getResultList();
-
-        if (!childrenRoles.isEmpty()) {
-            for (SyncopeRole child : childrenRoles) {
-                delete(child.getName(), child.getParent());
-            }
+        for (SyncopeRole child : childrenRoles) {
+            delete(child.getId());
         }
 
-        SyncopeRole role = find(name, parent);
+        SyncopeRole role = find(id);
 
         for (SyncopeUser user : role.getUsers()) {
             user.removeRole(role);
@@ -91,13 +88,7 @@ public class SyncopeRoleDAOImpl extends AbstractDAOImpl
         }
         role.setEntitlements(Collections.EMPTY_SET);
 
+        role.setParent(null);
         entityManager.remove(role);
-    }
-
-    @Override
-    @Transactional
-    public void delete(Long id) {
-        SyncopeRole role = find(id);
-        delete(role.getName(), role.getParent());
     }
 }

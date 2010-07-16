@@ -39,7 +39,7 @@ public class RoleAttribute extends AbstractAttribute {
     @Cascade(CascadeType.DELETE_ORPHAN)
     private Set<RoleAttributeValue> attributeValues;
 
-    protected RoleAttribute() {
+    public RoleAttribute() {
         attributeValues = new HashSet<RoleAttributeValue>();
     }
 

@@ -19,15 +19,13 @@ import org.syncope.core.persistence.beans.role.SyncopeRole;
 
 public interface SyncopeRoleDAO extends DAO {
 
-    SyncopeRole find(String name, String parent);
+    SyncopeRole find(String name, Long parent);
 
     SyncopeRole find(Long id);
 
     List<SyncopeRole> findAll();
 
     SyncopeRole save(SyncopeRole syncopeRole);
-
-    void delete(String name, String parent);
 
     void delete(Long id);
 }
