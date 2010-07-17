@@ -49,9 +49,9 @@ public class SchemaController extends AbstractController {
             throws InstantiationException, IllegalAccessException,
             UniqueValueException {
 
-        Class reference = getAttributable(kind).getSchemaClass();
+        Class reference = getAttributableUtil(kind).getSchemaClass();
         AbstractSchema schema = schemaDataBinder.createSchema(schemaTO,
-                reference, getAttributable(kind).getDerivedSchemaClass());
+                reference, getAttributableUtil(kind).getDerivedSchemaClass());
 
         schema = schemaDAO.save(schema);
         response.setStatus(HttpServletResponse.SC_CREATED);
@@ -65,7 +65,7 @@ public class SchemaController extends AbstractController {
             @PathVariable("kind") String kind,
             @PathVariable("schema") String schemaName) throws IOException {
 
-        Class reference = getAttributable(kind).getSchemaClass();
+        Class reference = getAttributableUtil(kind).getSchemaClass();
         AbstractSchema schema = schemaDAO.find(schemaName, reference);
         if (schema == null) {
             log.error("Could not find schema '" + schemaName + "'");
@@ -78,7 +78,7 @@ public class SchemaController extends AbstractController {
     @RequestMapping(method = RequestMethod.GET, value = "/{kind}/list")
     public SchemaTOs list(@PathVariable("kind") String kind) {
 
-        Class reference = getAttributable(kind).getSchemaClass();
+        Class reference = getAttributableUtil(kind).getSchemaClass();
         List<AbstractSchema> schemas = schemaDAO.findAll(reference);
 
         List<SchemaTO> schemaTOs = new ArrayList<SchemaTO>(schemas.size());
@@ -97,7 +97,7 @@ public class SchemaController extends AbstractController {
             @PathVariable("kind") String kind,
             @PathVariable("schema") String schemaName) throws IOException {
 
-        Class reference = getAttributable(kind).getSchemaClass();
+        Class reference = getAttributableUtil(kind).getSchemaClass();
         AbstractSchema schema = schemaDAO.find(schemaName, reference);
         if (schema == null) {
             log.error("Could not find schema '" + schemaName + "'");
@@ -114,12 +114,12 @@ public class SchemaController extends AbstractController {
             throws IOException, InstantiationException, IllegalAccessException,
             UniqueValueException {
 
-        Class reference = getAttributable(kind).getSchemaClass();
+        Class reference = getAttributableUtil(kind).getSchemaClass();
         AbstractSchema schema = null;
         try {
             schema = schemaDataBinder.updateSchema(schemaTO,
                     reference,
-                    getAttributable(kind).getDerivedSchemaClass());
+                    getAttributableUtil(kind).getDerivedSchemaClass());
             if (schema == null) {
                 log.error("Could not find schema '" + schemaTO.getName() + "'");
                 return throwNotFoundException(schemaTO.getName(), response);

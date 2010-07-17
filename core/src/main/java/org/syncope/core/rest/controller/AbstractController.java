@@ -15,6 +15,7 @@
  */
 package org.syncope.core.rest.controller;
 
+import org.syncope.core.rest.data.AttributableUtil;
 import com.opensymphony.workflow.WorkflowException;
 import java.io.IOException;
 import javax.servlet.http.HttpServletResponse;
@@ -32,15 +33,15 @@ public abstract class AbstractController {
     protected static final Logger log =
             LoggerFactory.getLogger(AbstractController.class);
 
-    protected Attributable getAttributable(String kind) {
-        Attributable result = null;
+    protected AttributableUtil getAttributableUtil(String kind) {
+        AttributableUtil result = null;
 
         try {
-            result = Attributable.valueOf(kind.toUpperCase());
+            result = AttributableUtil.valueOf(kind.toUpperCase());
         } catch (Exception e) {
             log.error("Attributable not supported: " + kind);
 
-            throw new TypeMismatchException(kind, Attributable.class, e);
+            throw new TypeMismatchException(kind, AttributableUtil.class, e);
         }
 
         return result;

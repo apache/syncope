@@ -134,22 +134,6 @@ public class RoleController extends AbstractController {
         return roleDataBinder.getRoleTO(role);
     }
 
-    @RequestMapping(method = RequestMethod.POST,
-    value = "/search")
-    public RoleTOs search(HttpServletResponse response,
-            @RequestBody SearchParameters searchParameters)
-            throws IOException {
-
-        log.info("search called with parameter " + searchParameters);
-
-        List<RoleTO> roleTOs = new ArrayList<RoleTO>();
-        RoleTOs result = new RoleTOs();
-
-        result.setRoles(roleTOs);
-
-        return result;
-    }
-
     @Transactional
     @RequestMapping(method = RequestMethod.POST,
     value = "/update")

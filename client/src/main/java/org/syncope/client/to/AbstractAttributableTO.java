@@ -17,15 +17,17 @@ package org.syncope.client.to;
 import java.util.HashSet;
 import java.util.Set;
 
-public abstract class AttributableTO extends AbstractBaseTO {
+public abstract class AbstractAttributableTO extends AbstractBaseTO {
 
     protected long id;
     protected Set<AttributeTO> attributes;
     protected Set<AttributeTO> derivedAttributes;
+    protected Set<String> resources;
 
-    protected AttributableTO() {
+    protected AbstractAttributableTO() {
         attributes = new HashSet<AttributeTO>();
         derivedAttributes = new HashSet<AttributeTO>();
+        resources = new HashSet<String>();
     }
 
     public long getId() {
@@ -66,5 +68,21 @@ public abstract class AttributableTO extends AbstractBaseTO {
 
     public void setDerivedAttributes(Set<AttributeTO> derivedAttributes) {
         this.derivedAttributes = derivedAttributes;
+    }
+
+    public boolean addResource(String resource) {
+        return resources.add(resource);
+    }
+
+    public boolean removeResource(String resource) {
+        return resources.remove(resource);
+    }
+
+    public Set<String> getResources() {
+        return resources;
+    }
+
+    public void setResources(Set<String> resources) {
+        this.resources = resources;
     }
 }

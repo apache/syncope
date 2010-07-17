@@ -47,11 +47,11 @@ public class DerivedSchemaController extends AbstractController {
             @PathVariable("kind") String kind)
             throws InstantiationException, IllegalAccessException {
 
-        Class reference = getAttributable(kind).getDerivedSchemaClass();
+        Class reference = getAttributableUtil(kind).getDerivedSchemaClass();
         AbstractDerivedSchema derivedSchema =
                 derivedSchemaDataBinder.createDerivedSchema(
                 derivedSchemaTO, reference,
-                getAttributable(kind).getSchemaClass());
+                getAttributableUtil(kind).getSchemaClass());
 
         derivedSchema = derivedSchemaDAO.save(derivedSchema);
         response.setStatus(HttpServletResponse.SC_CREATED);
@@ -66,7 +66,7 @@ public class DerivedSchemaController extends AbstractController {
             @PathVariable("schema") String derivedSchemaName)
             throws IOException {
 
-        Class reference = getAttributable(kind).getDerivedSchemaClass();
+        Class reference = getAttributableUtil(kind).getDerivedSchemaClass();
         AbstractDerivedSchema derivedSchema =
                 derivedSchemaDAO.find(derivedSchemaName, reference);
         if (derivedSchema == null) {
@@ -81,7 +81,7 @@ public class DerivedSchemaController extends AbstractController {
     @RequestMapping(method = RequestMethod.GET, value = "/{kind}/list")
     public DerivedSchemaTOs list(@PathVariable("kind") String kind) {
 
-        Class reference = getAttributable(kind).getDerivedSchemaClass();
+        Class reference = getAttributableUtil(kind).getDerivedSchemaClass();
         List<AbstractDerivedSchema> derivedAttributeSchemas =
                 derivedSchemaDAO.findAll(reference);
 
@@ -105,7 +105,7 @@ public class DerivedSchemaController extends AbstractController {
             @PathVariable("derivedSchema") String derivedSchemaName)
             throws IOException {
 
-        Class reference = getAttributable(kind).getDerivedSchemaClass();
+        Class reference = getAttributableUtil(kind).getDerivedSchemaClass();
         AbstractDerivedSchema derivedSchema =
                 derivedSchemaDAO.find(derivedSchemaName, reference);
         if (derivedSchema == null) {
@@ -124,11 +124,11 @@ public class DerivedSchemaController extends AbstractController {
             @PathVariable("kind") String kind)
             throws InstantiationException, IllegalAccessException, IOException {
 
-        Class reference = getAttributable(kind).getDerivedSchemaClass();
+        Class reference = getAttributableUtil(kind).getDerivedSchemaClass();
         AbstractDerivedSchema derivedSchema =
                 derivedSchemaDataBinder.createDerivedSchema(
                 derivedSchemaTO, reference,
-                getAttributable(kind).getSchemaClass());
+                getAttributableUtil(kind).getSchemaClass());
         if (derivedSchema == null) {
             log.error("Could not find schema '" + derivedSchemaTO.getName() + "'");
             return throwNotFoundException(derivedSchemaTO.getName(), response);

@@ -18,11 +18,10 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-public class UserTO extends AttributableTO {
+public class UserTO extends AbstractAttributableTO {
 
     private String password;
     private Set<Long> roles;
-    private Set<String> resources;
     private Date creationTime;
     private String token;
     private Date tokenExpireTime;
@@ -31,8 +30,7 @@ public class UserTO extends AttributableTO {
         super();
         
         roles = new HashSet<Long>();
-        resources = new HashSet<String>();
-    }
+   }
 
     public String getPassword() {
         return password;
@@ -56,22 +54,6 @@ public class UserTO extends AttributableTO {
 
     public void setRoles(Set<Long> roles) {
         this.roles = roles;
-    }
-
-    public boolean addResource(String resource) {
-        return resources.add(resource);
-    }
-
-    public boolean removeResource(String resource) {
-        return resources.remove(resource);
-    }
-
-    public Set<String> getResources() {
-        return resources;
-    }
-
-    public void setResources(Set<String> resources) {
-        this.resources = resources;
     }
 
     public Date getCreationTime() {

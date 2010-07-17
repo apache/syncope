@@ -24,7 +24,6 @@ import org.springframework.web.client.HttpStatusCodeException;
 import org.syncope.client.to.AttributeTO;
 import org.syncope.client.to.RoleTO;
 import org.syncope.client.to.RoleTOs;
-import org.syncope.client.to.SearchParameters;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 
 public class RoleTestITCase extends AbstractTestITCase {
@@ -103,18 +102,6 @@ public class RoleTestITCase extends AbstractTestITCase {
         assertNotNull(roleTO);
         assertNotNull(roleTO.getAttributes());
         assertFalse(roleTO.getAttributes().isEmpty());
-    }
-
-    @Test
-    public void search() {
-        SearchParameters searchParameters = new SearchParameters();
-
-        RoleTOs matchedRoles = restTemplate.postForObject(
-                BASE_URL + "role/search",
-                searchParameters, RoleTOs.class);
-
-        assertNotNull(matchedRoles);
-        assertTrue(matchedRoles.getRoles().isEmpty());
     }
 
     @Test
