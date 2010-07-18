@@ -30,6 +30,8 @@ import org.syncope.core.persistence.beans.AbstractDerivedAttribute;
 import org.syncope.core.persistence.beans.AbstractDerivedSchema;
 import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.beans.Resource;
+import org.syncope.core.persistence.beans.role.SyncopeRole;
+import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.AttributeValueDAO;
 import org.syncope.core.persistence.dao.DerivedSchemaDAO;
 import org.syncope.core.persistence.dao.ResourceDAO;
@@ -162,6 +164,24 @@ class AbstractAttributableDataBinder {
 
                 requiredValuesMissing.addElement(userSchema.getName());
             }
+
+        // 3. resources
+        Resource resource = null;
+        for (String resourceName : abstractAttributableTO.getResources()) {
+            resource = resourceDAO.find(resourceName);
+
+            if (resource == null) {
+                if (log.isDebugEnabled())
+                    log.debug("Ignoring invalid resource " + resourceName);
+            } else {
+                abstractAttributable.addResource(resource);
+                
+                if (attributableUtil == attributableUtil.USER)
+                    resource.addUser((SyncopeUser) abstractAttributable);
+                if (attributableUtil == attributableUtil.ROLE)
+                    resource.addRole((SyncopeRole) abstractAttributable);
+            }
+        }
 
         // Throw composite exception if there is at least one element set
         // in the composing exceptions

@@ -111,20 +111,6 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
             }
         }
 
-        // 4. resources
-        Resource resource = null;
-        for (String resourceName : roleTO.getResources()) {
-            resource = resourceDAO.find(resourceName);
-
-            if (resource == null) {
-                if (log.isDebugEnabled())
-                    log.debug("Ignoring invalid resource " + resourceName);
-            } else {
-                syncopeRole.addResource(resource);
-                resource.addRole(syncopeRole);
-            }
-        }
-
         return syncopeRole;
     }
 

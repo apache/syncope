@@ -30,11 +30,7 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
      */
     @ManyToMany(fetch = FetchType.EAGER)
     private Set<Resource> resources;
-
-    public AbstractAttributable() {
-        resources = new HashSet<Resource>();
-    }
-
+    
     public <T extends AbstractAttribute> T getAttribute(String schemaName) {
         T result = null;
         T attribute = null;
