@@ -66,11 +66,11 @@
     <RoleSchema name="applicationType" type="String" virtual="false"
                 mandatory="true" multivalue="false" uniquevalue="false"/>
 
-    <SyncopeRole id="0" name="/"/>
-    <SyncopeRole id="1" name="applicationCluster1" parent_id="0"/>
-    <SyncopeRole id="2" name="applicationCluster2" parent_id="0"/>
-    <SyncopeRole id="3" name="application1" parent_id="1"/>
-    <SyncopeRole id="4" name="application2" parent_id="1"/>
+    <SyncopeRole id="0" name="/" inheritAttributes="FALSE" inheritDerivedAttributes="FALSE"/>
+    <SyncopeRole id="1" name="applicationCluster1" parent_id="0" inheritAttributes="FALSE" inheritDerivedAttributes="FALSE"/>
+    <SyncopeRole id="2" name="applicationCluster2" parent_id="0" inheritAttributes="FALSE" inheritDerivedAttributes="FALSE"/>
+    <SyncopeRole id="3" name="application1" parent_id="1" inheritAttributes="FALSE" inheritDerivedAttributes="FALSE"/>
+    <SyncopeRole id="4" name="application2" parent_id="1" inheritAttributes="FALSE" inheritDerivedAttributes="FALSE"/>
 
     <RoleAttribute id="10" owner_id="4" schema_name="applicationType"/>
     <RoleAttribute id="11" owner_id="3" schema_name="applicationType"/>
