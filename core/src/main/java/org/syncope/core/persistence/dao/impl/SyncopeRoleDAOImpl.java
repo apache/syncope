@@ -14,6 +14,7 @@
  */
 package org.syncope.core.persistence.dao.impl;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import javax.persistence.Query;
@@ -51,6 +52,29 @@ public class SyncopeRoleDAOImpl extends AbstractDAOImpl
     @Override
     public SyncopeRole find(Long id) {
         return entityManager.find(SyncopeRole.class, id);
+    }
+
+    private List<SyncopeRole> findChildren(Long roleId,
+            List<SyncopeRole> children) {
+
+        Query query = entityManager.createQuery(
+                "SELECT r FROM SyncopeRole r WHERE "
+                + "parent.id=:roleId");
+        query.setParameter("roleId", roleId);
+
+        List<SyncopeRole> result = query.getResultList();
+        children.addAll(result);
+
+        for (SyncopeRole role : result) {
+            findChildren(role.getId(), children);
+        }
+
+        return children;
+    }
+
+    @Override
+    public List<SyncopeRole> findChildren(Long roleId) {
+        return findChildren(roleId, new ArrayList<SyncopeRole>());
     }
 
     @Override

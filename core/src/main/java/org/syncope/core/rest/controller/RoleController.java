@@ -28,7 +28,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.syncope.client.to.RoleTO;
 import org.syncope.client.to.RoleTOs;
-import org.syncope.client.to.SearchParameters;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.dao.SyncopeRoleDAO;
@@ -116,6 +115,24 @@ public class RoleController extends AbstractController {
 
         return role.getParent() == null ? null
                 : roleDataBinder.getRoleTO(role.getParent());
+    }
+
+    @RequestMapping(method = RequestMethod.GET,
+    value = "/children/{roleId}")
+    public RoleTOs children(HttpServletResponse response,
+            @PathVariable("roleId") Long roleId)
+            throws IOException {
+
+        List<SyncopeRole> roles = syncopeRoleDAO.findChildren(roleId);
+        List<RoleTO> roleTOs = new ArrayList<RoleTO>(roles.size());
+
+        for (SyncopeRole role : roles) {
+            roleTOs.add(roleDataBinder.getRoleTO(role));
+        }
+
+        RoleTOs result = new RoleTOs();
+        result.setRoles(roleTOs);
+        return result;
     }
 
     @RequestMapping(method = RequestMethod.GET,

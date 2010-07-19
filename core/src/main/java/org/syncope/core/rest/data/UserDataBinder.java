@@ -20,7 +20,6 @@ import org.springframework.stereotype.Component;
 import org.syncope.client.to.UserTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
-import org.syncope.core.persistence.beans.Resource;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.AttributeValueDAO;
@@ -35,10 +34,10 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
     @Autowired
     public UserDataBinder(SchemaDAO schemaDAO,
-                          AttributeValueDAO attributeValueDAO,
-                          DerivedSchemaDAO derivedSchemaDAO,
-                          SyncopeRoleDAO syncopeRoleDAO,
-                          ResourceDAO resourceDAO) {
+            AttributeValueDAO attributeValueDAO,
+            DerivedSchemaDAO derivedSchemaDAO,
+            SyncopeRoleDAO syncopeRoleDAO,
+            ResourceDAO resourceDAO) {
 
         this.schemaDAO = schemaDAO;
         this.attributeValueDAO = attributeValueDAO;
@@ -67,11 +66,13 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
             log.error("No password provided");
 
             invalidPassword.addElement("Null password");
-        } else
+        } else {
             syncopeUser.setPassword(userTO.getPassword());
+        }
 
-        if (!invalidPassword.getElements().isEmpty())
+        if (!invalidPassword.getElements().isEmpty()) {
             scce.addException(invalidPassword);
+        }
 
         syncopeUser = fillAbstractAttributable(
                 syncopeUser, userTO, AttributableUtil.USER, scce);
@@ -82,8 +83,9 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
             role = syncopeRoleDAO.find(roleId);
 
             if (role == null) {
-                if (log.isDebugEnabled())
+                if (log.isDebugEnabled()) {
                     log.debug("Ignoring invalid role " + roleId);
+                }
             } else {
                 syncopeUser.addRole(role);
                 role.addUser(syncopeUser);
@@ -103,8 +105,9 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
         userTO = getAbstractAttributableTO(userTO, user);
 
-        for (SyncopeRole role : user.getRoles())
+        for (SyncopeRole role : user.getRoles()) {
             userTO.addRole(role.getId());
+        }
 
         return userTO;
     }

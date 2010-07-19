@@ -74,17 +74,19 @@ class AbstractAttributableDataBinder {
         AbstractAttributeValue attributeValue = null;
         for (AttributeTO attributeTO : abstractAttributableTO.getAttributes()) {
             schema = schemaDAO.find(attributeTO.getSchema(),
-                                    attributableUtil.getSchemaClass());
+                    attributableUtil.getSchemaClass());
 
             // safely ignore invalid schemas from AttributeTO
             // see http://code.google.com/p/syncope/issues/detail?id=17
             if (schema == null) {
-                if (log.isDebugEnabled())
+                if (log.isDebugEnabled()) {
                     log.debug("Ignoring invalid schema "
                             + attributeTO.getSchema());
+                }
             } else if (schema.isVirtual()) {
-                if (log.isDebugEnabled())
+                if (log.isDebugEnabled()) {
                     log.debug("Ignoring virtual schema" + schema.getName());
+                }
             } else {
                 attribute = attributableUtil.newAttribute();
                 attribute.setSchema(schema);
@@ -96,15 +98,15 @@ class AbstractAttributableDataBinder {
                 valuesProvided = schema.isMultivalue()
                         ? attributeTO.getValues()
                         : (attributeTO.getValues().isEmpty()
-                           ? Collections.EMPTY_SET
-                           : Collections.singleton(
-                           attributeTO.getValues().iterator().next()));
+                        ? Collections.EMPTY_SET
+                        : Collections.singleton(
+                        attributeTO.getValues().iterator().next()));
                 for (String value : valuesProvided) {
                     attributeValue = attributableUtil.newAttributeValue();
 
                     try {
                         attributeValue = attribute.addValue(value,
-                                                            attributeValue);
+                                attributeValue);
                     } catch (ValidationException e) {
                         log.error("Invalid value for attribute "
                                 + schema.getName() + ": " + value, e);
@@ -126,8 +128,9 @@ class AbstractAttributableDataBinder {
                     }
                 }
 
-                if (!attribute.getAttributeValues().isEmpty())
+                if (!attribute.getAttributeValues().isEmpty()) {
                     abstractAttributable.addAttribute(attribute);
+                }
             }
         }
 
@@ -138,12 +141,13 @@ class AbstractAttributableDataBinder {
                 abstractAttributableTO.getDerivedAttributes()) {
 
             derivedSchema = derivedSchemaDAO.find(attributeTO.getSchema(),
-                                                  attributableUtil.getDerivedSchemaClass());
+                    attributableUtil.getDerivedSchemaClass());
 
             if (derivedSchema == null) {
-                if (log.isDebugEnabled())
+                if (log.isDebugEnabled()) {
                     log.debug("Ignoring invalid derivedschema "
                             + attributeTO.getSchema());
+                }
             } else {
                 derivedAttribute = attributableUtil.newDerivedAttribute();
                 derivedAttribute.setDerivedSchema(derivedSchema);
@@ -155,7 +159,7 @@ class AbstractAttributableDataBinder {
         // has been provided
         List<AbstractSchema> allUserSchemas =
                 schemaDAO.findAll(attributableUtil.getSchemaClass());
-        for (AbstractSchema userSchema : allUserSchemas)
+        for (AbstractSchema userSchema : allUserSchemas) {
             if (abstractAttributable.getAttribute(userSchema.getName()) == null
                     && userSchema.isMandatory()) {
 
@@ -164,6 +168,7 @@ class AbstractAttributableDataBinder {
 
                 requiredValuesMissing.addElement(userSchema.getName());
             }
+        }
 
         // 3. resources
         Resource resource = null;
@@ -171,28 +176,35 @@ class AbstractAttributableDataBinder {
             resource = resourceDAO.find(resourceName);
 
             if (resource == null) {
-                if (log.isDebugEnabled())
+                if (log.isDebugEnabled()) {
                     log.debug("Ignoring invalid resource " + resourceName);
+                }
             } else {
                 abstractAttributable.addResource(resource);
-                
-                if (attributableUtil == attributableUtil.USER)
+
+                if (attributableUtil == attributableUtil.USER) {
                     resource.addUser((SyncopeUser) abstractAttributable);
-                if (attributableUtil == attributableUtil.ROLE)
+                }
+                if (attributableUtil == attributableUtil.ROLE) {
                     resource.addRole((SyncopeRole) abstractAttributable);
+                }
             }
         }
 
         // Throw composite exception if there is at least one element set
         // in the composing exceptions
-        if (!requiredValuesMissing.getElements().isEmpty())
+        if (!requiredValuesMissing.getElements().isEmpty()) {
             compositeErrorException.addException(requiredValuesMissing);
-        if (!invalidValues.getElements().isEmpty())
+        }
+        if (!invalidValues.getElements().isEmpty()) {
             compositeErrorException.addException(invalidValues);
-        if (!invalidUniques.getElements().isEmpty())
+        }
+        if (!invalidUniques.getElements().isEmpty()) {
             compositeErrorException.addException(invalidUniques);
-        if (compositeErrorException.hasExceptions())
+        }
+        if (compositeErrorException.hasExceptions()) {
             throw compositeErrorException;
+        }
 
         return abstractAttributable;
     }
@@ -224,8 +236,9 @@ class AbstractAttributableDataBinder {
             abstractAttributableTO.addDerivedAttribute(attributeTO);
         }
 
-        for (Resource resource : abstractAttributable.getResources())
+        for (Resource resource : abstractAttributable.getResources()) {
             abstractAttributableTO.addResource(resource.getName());
+        }
 
         return abstractAttributableTO;
     }

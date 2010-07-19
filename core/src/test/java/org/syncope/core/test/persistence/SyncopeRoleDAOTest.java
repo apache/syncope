@@ -36,6 +36,11 @@ public class SyncopeRoleDAOTest extends AbstractTest {
     }
 
     @Test
+    public final void findChildren() {
+        assertEquals(4, syncopeRoleDAO.findChildren(3L).size());
+    }
+
+    @Test
     public final void find() {
         SyncopeRole role = syncopeRoleDAO.find("root", null);
         assertNotNull("did not find expected role", role);

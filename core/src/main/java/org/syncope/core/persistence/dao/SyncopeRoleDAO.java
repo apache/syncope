@@ -23,6 +23,8 @@ public interface SyncopeRoleDAO extends DAO {
 
     SyncopeRole find(Long id);
 
+    List<SyncopeRole> findChildren(Long roleId);
+
     List<SyncopeRole> findAll();
 
     SyncopeRole save(SyncopeRole syncopeRole);

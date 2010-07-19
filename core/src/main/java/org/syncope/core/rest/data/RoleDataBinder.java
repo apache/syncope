@@ -20,7 +20,6 @@ import org.springframework.stereotype.Component;
 import org.syncope.client.to.RoleTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
-import org.syncope.core.persistence.beans.Resource;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.AttributeValueDAO;
@@ -36,11 +35,11 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
 
     @Autowired
     public RoleDataBinder(SyncopeRoleDAO syncopeRoleDAO,
-                          SchemaDAO schemaDAO,
-                          DerivedSchemaDAO derivedSchemaDAO,
-                          AttributeValueDAO attributeValueDAO,
-                          SyncopeUserDAO syncopeUserDAO,
-                          ResourceDAO resourceDAO) {
+            SchemaDAO schemaDAO,
+            DerivedSchemaDAO derivedSchemaDAO,
+            AttributeValueDAO attributeValueDAO,
+            SyncopeUserDAO syncopeUserDAO,
+            ResourceDAO resourceDAO) {
 
         this.syncopeRoleDAO = syncopeRoleDAO;
         this.schemaDAO = schemaDAO;
@@ -67,8 +66,9 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
             log.error("No name specified for this role");
 
             invalidRoles.addElement("No name specified for this role");
-        } else
+        } else {
             syncopeRole.setName(roleTO.getName());
+        }
         Long parentRoleId = null;
         if (roleTO.getParent() != null) {
             SyncopeRole parentRole = syncopeRoleDAO.find(roleTO.getParent());
@@ -91,8 +91,9 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
             invalidRoles.addElement(roleTO.getName());
         }
 
-        if (!invalidRoles.getElements().isEmpty())
+        if (!invalidRoles.getElements().isEmpty()) {
             scce.addException(invalidRoles);
+        }
 
         syncopeRole = fillAbstractAttributable(
                 syncopeRole, roleTO, AttributableUtil.ROLE, scce);
@@ -103,8 +104,9 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
             user = syncopeUserDAO.find(userId);
 
             if (user == null) {
-                if (log.isDebugEnabled())
+                if (log.isDebugEnabled()) {
                     log.debug("Ignoring invalid user " + userId);
+                }
             } else {
                 syncopeRole.addUser(user);
                 user.addRole(syncopeRole);
@@ -118,13 +120,15 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
         RoleTO roleTO = new RoleTO();
         roleTO.setId(role.getId());
         roleTO.setName(role.getName());
-        if (role.getParent() != null)
+        if (role.getParent() != null) {
             roleTO.setParent(role.getParent().getId());
+        }
 
         roleTO = getAbstractAttributableTO(roleTO, role);
 
-        for (SyncopeUser user : role.getUsers())
+        for (SyncopeUser user : role.getUsers()) {
             roleTO.addUser(user.getId());
+        }
 
         return roleTO;
     }
