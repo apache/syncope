@@ -37,7 +37,7 @@ public class SyncopeRoleDAOTest extends AbstractTest {
 
     @Test
     public final void findChildren() {
-        assertEquals(4, syncopeRoleDAO.findChildren(3L).size());
+        assertEquals(2, syncopeRoleDAO.findChildren(4L).size());
     }
 
     @Test
