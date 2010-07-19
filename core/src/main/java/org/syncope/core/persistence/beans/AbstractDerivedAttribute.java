@@ -14,6 +14,7 @@
  */
 package org.syncope.core.persistence.beans;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 import javax.persistence.GeneratedValue;
@@ -35,7 +36,7 @@ public abstract class AbstractDerivedAttribute extends AbstractBaseBean {
 
     static {
         jexlEngine.setCache(512);
-        jexlEngine.setLenient(false);
+        jexlEngine.setLenient(true);
         jexlEngine.setSilent(false);
     }
     @Id
@@ -50,7 +51,7 @@ public abstract class AbstractDerivedAttribute extends AbstractBaseBean {
      * @see http://commons.apache.org/jexl/reference/index.html
      * @return
      */
-    public String getValue(Set<? extends AbstractAttribute> attributes) {
+    public String getValue(Collection<? extends AbstractAttribute> attributes) {
         Expression jexlExpression = jexlEngine.createExpression(
                 getDerivedSchema().getExpression());
         JexlContext jexlContext = new MapContext();

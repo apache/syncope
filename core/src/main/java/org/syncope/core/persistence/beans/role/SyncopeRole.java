@@ -54,6 +54,8 @@ public class SyncopeRole extends AbstractAttributable {
     @OneToMany(cascade = CascadeType.ALL,
     fetch = FetchType.EAGER, mappedBy = "owner")
     private Set<RoleDerivedAttribute> derivedAttributes;
+    private boolean inheritAttributes;
+    private boolean inheritDerivedAttributes;
 
     public SyncopeRole() {
         users = new HashSet<SyncopeUser>();
@@ -158,5 +160,21 @@ public class SyncopeRole extends AbstractAttributable {
             Set<? extends AbstractDerivedAttribute> derivedAttributes) {
 
         this.derivedAttributes = (Set<RoleDerivedAttribute>) derivedAttributes;
+    }
+
+    public boolean isInheritAttributes() {
+        return inheritAttributes;
+    }
+
+    public void setInheritAttributes(boolean inheritAttributes) {
+        this.inheritAttributes = inheritAttributes;
+    }
+
+    public boolean isInheritDerivedAttributes() {
+        return inheritDerivedAttributes;
+    }
+
+    public void setInheritDerivedAttributes(boolean inheritDerivedAttributes) {
+        this.inheritDerivedAttributes = inheritDerivedAttributes;
     }
 }

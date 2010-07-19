@@ -14,12 +14,15 @@
  */
 package org.syncope.core.persistence.dao.impl;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import javax.persistence.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.Entitlement;
+import org.syncope.core.persistence.beans.role.RoleAttribute;
+import org.syncope.core.persistence.beans.role.RoleDerivedAttribute;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.SyncopeRoleDAO;
@@ -59,6 +62,80 @@ public class SyncopeRoleDAOImpl extends AbstractDAOImpl
                 "SELECT r FROM SyncopeRole r WHERE "
                 + "parent.id=:roleId");
         query.setParameter("roleId", roleId);
+        return query.getResultList();
+    }
+
+    private List<Long> getAncestors(SyncopeRole role,
+            List<Long> ancestors) {
+
+        ancestors.add(role.getId());
+
+        if (role.getParent() != null && role.isInheritAttributes()) {
+            return getAncestors(role.getParent(), ancestors);
+        }
+
+        return ancestors;
+    }
+
+    @Override
+    public List<RoleAttribute> findInheritedAttributes(SyncopeRole role) {
+        if (role.getParent() == null) {
+            return Collections.EMPTY_LIST;
+        }
+
+        List<Long> ancestors = getAncestors(role.getParent(),
+                new ArrayList<Long>());
+        if (ancestors == null || ancestors.isEmpty()) {
+            return Collections.EMPTY_LIST;
+        }
+
+        StringBuilder queryExp = new StringBuilder();
+        queryExp.append("SELECT ra FROM RoleAttribute ra "
+                + "WHERE ra.owner.id = ");
+        queryExp.append(ancestors.get(0));
+
+        if (ancestors.size() > 1) {
+            for (int i = 1; i < ancestors.size(); i++) {
+                queryExp.append("OR ra.owner.id = ");
+                queryExp.append(ancestors.get(i));
+                queryExp.append(" ");
+            }
+        }
+        queryExp.append("ORDER BY ra.owner.id ASC");
+
+        Query query = entityManager.createQuery(queryExp.toString());
+        return query.getResultList();
+    }
+
+    @Override
+    public List<RoleDerivedAttribute> findInheritedDerivedAttributes(
+            SyncopeRole role) {
+
+        if (role.getParent() == null) {
+            return Collections.EMPTY_LIST;
+        }
+
+        List<Long> ancestors = getAncestors(role.getParent(),
+                new ArrayList<Long>());
+        if (ancestors == null || ancestors.isEmpty()) {
+            return Collections.EMPTY_LIST;
+        }
+
+        StringBuilder queryExp = new StringBuilder();
+        queryExp.append("SELECT rda FROM RoleDerivedAttribute rda "
+                + "WHERE rda.owner.id = ");
+        queryExp.append(ancestors.get(0));
+
+        if (ancestors.size() > 1) {
+            for (int i = 1; i < ancestors.size(); i++) {
+                queryExp.append("OR rda.owner.id = ");
+                queryExp.append(ancestors.get(i));
+                queryExp.append(" ");
+            }
+        }
+        queryExp.append("ORDER BY rda.owner.id ASC");
+
+        Query query = entityManager.createQuery(queryExp.toString());
         return query.getResultList();
     }
 

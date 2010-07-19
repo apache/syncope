@@ -14,12 +14,19 @@
  */
 package org.syncope.core.rest.data;
 
+import java.util.Collections;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import org.syncope.client.to.AttributeTO;
 import org.syncope.client.to.RoleTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
+import org.syncope.core.persistence.beans.AbstractAttribute;
+import org.syncope.core.persistence.beans.AbstractDerivedAttribute;
+import org.syncope.core.persistence.beans.role.RoleAttribute;
+import org.syncope.core.persistence.beans.role.RoleDerivedAttribute;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.AttributeValueDAO;
@@ -53,6 +60,9 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
             throws SyncopeClientCompositeErrorException {
 
         SyncopeRole syncopeRole = new SyncopeRole();
+        syncopeRole.setInheritAttributes(roleTO.isInheritAttributes());
+        syncopeRole.setInheritDerivedAttributes(
+                roleTO.isInheritDerivedAttributes());
 
         SyncopeClientCompositeErrorException scce =
                 new SyncopeClientCompositeErrorException(
@@ -120,14 +130,52 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
         RoleTO roleTO = new RoleTO();
         roleTO.setId(role.getId());
         roleTO.setName(role.getName());
+        roleTO.setInheritAttributes(role.isInheritAttributes());
+        roleTO.setInheritDerivedAttributes(role.isInheritDerivedAttributes());
         if (role.getParent() != null) {
             roleTO.setParent(role.getParent().getId());
         }
 
         roleTO = getAbstractAttributableTO(roleTO, role);
 
+        // users
         for (SyncopeUser user : role.getUsers()) {
             roleTO.addUser(user.getId());
+        }
+
+        AttributeTO attributeTO = null;
+
+        List<RoleAttribute> inheritedAttributes = null;
+        if (role.isInheritAttributes()) {
+            // inherited attributes
+            inheritedAttributes = syncopeRoleDAO.findInheritedAttributes(role);
+
+            for (AbstractAttribute attribute : inheritedAttributes) {
+                attributeTO = new AttributeTO();
+                attributeTO.setSchema(attribute.getSchema().getName());
+                attributeTO.setValues(attribute.getAttributeValuesAsStrings());
+
+                roleTO.addAttribute(attributeTO);
+            }
+
+            // inherited derived attributes
+            List<RoleDerivedAttribute> inheritedDerivedAttributes = null;
+            if (role.isInheritDerivedAttributes()) {
+                inheritedDerivedAttributes =
+                        syncopeRoleDAO.findInheritedDerivedAttributes(role);
+
+                for (AbstractDerivedAttribute attribute :
+                        inheritedDerivedAttributes) {
+
+                    attributeTO = new AttributeTO();
+                    attributeTO.setSchema(
+                            attribute.getDerivedSchema().getName());
+                    attributeTO.setValues(Collections.singleton(
+                            attribute.getValue(inheritedAttributes)));
+
+                    roleTO.addDerivedAttribute(attributeTO);
+                }
+            }
         }
 
         return roleTO;

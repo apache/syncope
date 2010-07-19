@@ -37,14 +37,14 @@
     <SyncopeUser id="3" password="ZZZ"/>
     <SyncopeUser id="4" password="PPP"/>
 
-    <SyncopeRole id="1" name="root"/>
-    <SyncopeRole id="2" name="child" parent_id="1"/>
-    <SyncopeRole id="3" name="citizen"/>
-    <SyncopeRole id="4" name="employee" parent_id="3"/>
-    <SyncopeRole id="5" name="secretary" parent_id="4"/>
-    <SyncopeRole id="6" name="director" parent_id="4"/>
-    <SyncopeRole id="7" name="managingDirector" parent_id="6"/>
-    <SyncopeRole id="8" name="otherchild" parent_id="1"/>
+    <SyncopeRole id="1" name="root" inheritAttributes="FALSE" inheritDerivedAttributes="FALSE"/>
+    <SyncopeRole id="2" name="child" parent_id="1" inheritAttributes="FALSE" inheritDerivedAttributes="FALSE"/>
+    <SyncopeRole id="3" name="citizen" inheritAttributes="FALSE" inheritDerivedAttributes="FALSE"/>
+    <SyncopeRole id="4" name="employee" parent_id="3" inheritAttributes="FALSE" inheritDerivedAttributes="FALSE"/>
+    <SyncopeRole id="5" name="secretary" parent_id="4" inheritAttributes="FALSE" inheritDerivedAttributes="FALSE"/>
+    <SyncopeRole id="6" name="director" parent_id="4" inheritAttributes="TRUE" inheritDerivedAttributes="TRUE"/>
+    <SyncopeRole id="7" name="managingDirector" parent_id="6" inheritAttributes="FALSE" inheritDerivedAttributes="FALSE"/>
+    <SyncopeRole id="8" name="otherchild" parent_id="1" inheritAttributes="FALSE" inheritDerivedAttributes="FALSE"/>
 
     <SyncopeUser_SyncopeRole users_id="1" roles_id="1"/>
     <SyncopeUser_SyncopeRole users_id="2" roles_id="1"/>
@@ -85,6 +85,8 @@
     <RoleAttribute id="600" owner_id="1" schema_name="icon"/>
     <RoleAttribute id="700" owner_id="2" schema_name="icon"/>
     <RoleAttribute id="800" owner_id="1" schema_name="show"/>
+    <RoleAttribute id="900" owner_id="6" schema_name="icon"/>
+    <RoleAttribute id="950" owner_id="4" schema_name="icon"/>
 
     <UserAttributeValue attribute_id="100" id="10" stringValue="chicchiricco"/>
     <UserAttributeValue attribute_id="300" id="11" stringValue="fabio.martelli"/>
@@ -97,6 +99,8 @@
     <RoleAttributeValue attribute_id="600" id="40" stringValue="niceIcon"/>
     <RoleAttributeValue attribute_id="700" id="41" stringValue="badIcon"/>
     <RoleAttributeValue attribute_id="800" id="42" booleanValue="TRUE"/>
+    <RoleAttributeValue attribute_id="900" id="43" stringValue="icon6"/>
+    <RoleAttributeValue attribute_id="950" id="44" stringValue="icon4"/>
 
     <UserDerivedSchema name="cn" expression="surname + ', ' + firstname"/>
     
@@ -197,5 +201,7 @@
 
     <RoleDerivedAttribute id="1001" derivedSchema_name="displayProperty"
                           owner_id="1"/>
+    <RoleDerivedAttribute id="1002" derivedSchema_name="displayProperty"
+                          owner_id="4"/>
 
 </dataset>

@@ -22,6 +22,8 @@ public class RoleTO extends AbstractAttributableTO {
     private String name;
     private Long parent;
     private Set<Long> users;
+    private boolean inheritAttributes;
+    private boolean inheritDerivedAttributes;
 
     public RoleTO() {
         super();
@@ -60,5 +62,21 @@ public class RoleTO extends AbstractAttributableTO {
 
     public void setUsers(Set<Long> users) {
         this.users = users;
+    }
+
+    public boolean isInheritAttributes() {
+        return inheritAttributes;
+    }
+
+    public void setInheritAttributes(boolean inheritAttributes) {
+        this.inheritAttributes = inheritAttributes;
+    }
+
+    public boolean isInheritDerivedAttributes() {
+        return inheritDerivedAttributes;
+    }
+
+    public void setInheritDerivedAttributes(boolean inheritDerivedAttributes) {
+        this.inheritDerivedAttributes = inheritDerivedAttributes;
     }
 }

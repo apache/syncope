@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.role.RoleAttribute;
 import org.syncope.core.persistence.beans.role.RoleAttributeValue;
 import org.syncope.core.persistence.beans.role.RoleSchema;
+import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.dao.AttributeDAO;
 import org.syncope.core.persistence.dao.AttributeValueDAO;
 import org.syncope.core.persistence.dao.EntitlementDAO;
@@ -47,7 +48,7 @@ public class RoleTest extends AbstractTest {
     private EntitlementDAO entitlementDAO;
 
     @Test
-    public final void test() {
+    public final void delete() {
         syncopeRoleDAO.delete(2L);
 
         syncopeRoleDAO.flush();
@@ -58,5 +59,21 @@ public class RoleTest extends AbstractTest {
         assertNull(attributeDAO.find(700L, RoleAttribute.class));
         assertNull(attributeValueDAO.find(41L, RoleAttributeValue.class));
         assertNotNull(schemaDAO.find("icon", RoleSchema.class));
+    }
+
+    @Test
+    public final void inheritedAttributes() {
+        SyncopeRole director = syncopeRoleDAO.find(7L);
+
+        assertEquals(2,
+                syncopeRoleDAO.findInheritedAttributes(director).size());
+    }
+
+    @Test
+    public final void inheritedDerivedAttributes() {
+        SyncopeRole director = syncopeRoleDAO.find(7L);
+
+       assertEquals(1,
+                syncopeRoleDAO.findInheritedDerivedAttributes(director).size());
     }
 }
