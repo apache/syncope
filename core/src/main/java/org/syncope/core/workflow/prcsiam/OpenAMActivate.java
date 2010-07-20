@@ -46,12 +46,14 @@ public class OpenAMActivate extends OSWorkflowComponent
         SyncopeUser syncopeUser = (SyncopeUser) transientVars.get(
                 Constants.SYNCOPE_USER);
 
+        String realm = OpenAMUtils.getRealmFromRoles(syncopeUser.getRoles());
+
         try {
             SSOToken adminToken = (SSOToken) AccessController.doPrivileged(
                     AdminTokenAction.getInstance());
 
             AMIdentityRepository repo =
-                    new AMIdentityRepository(adminToken, "/");
+                    new AMIdentityRepository(adminToken, realm);
 
             IdSearchControl controls = new IdSearchControl();
             controls.setSearchModifiers(IdSearchOpModifier.OR,
@@ -73,7 +75,8 @@ public class OpenAMActivate extends OSWorkflowComponent
 
             SSOTokenManager.getInstance().destroyToken(adminToken);
         } catch (Throwable t) {
-            log.error("While trying to activate the user on OpenAM", t);
+            log.error("While trying to activate the user on OpenAM, "
+                    + "under realm " + realm, t);
         }
     }
 }

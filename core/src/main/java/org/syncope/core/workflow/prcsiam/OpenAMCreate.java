@@ -44,6 +44,8 @@ public class OpenAMCreate extends OSWorkflowComponent
         SyncopeUser syncopeUser = (SyncopeUser) transientVars.get(
                 Constants.SYNCOPE_USER);
 
+        String realm = OpenAMUtils.getRealmFromRoles(syncopeUser.getRoles());
+
         try {
             SSOToken adminToken = (SSOToken) AccessController.doPrivileged(
                     AdminTokenAction.getInstance());
@@ -62,14 +64,15 @@ public class OpenAMCreate extends OSWorkflowComponent
             map.put("inetuserstatus", Collections.singleton("Inactive"));
 
             AMIdentityRepository repo =
-                    new AMIdentityRepository(adminToken, "/");
+                    new AMIdentityRepository(adminToken, realm);
 
             repo.createIdentity(IdType.USER,
                     String.valueOf(syncopeUser.getId()), map);
 
             SSOTokenManager.getInstance().destroyToken(adminToken);
         } catch (Throwable t) {
-            log.error("While trying to create the user on OpenAM", t);
+            log.error("While trying to create the user on OpenAM, "
+                    + " under realm " + realm, t);
         }
     }
 }
