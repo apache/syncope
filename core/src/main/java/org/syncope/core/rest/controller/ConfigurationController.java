@@ -14,14 +14,12 @@
  */
 package org.syncope.core.rest.controller;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.syncope.client.to.ConfigurationTO;
 import org.syncope.client.to.ConfigurationTOs;
 import org.syncope.core.persistence.beans.SyncopeConfiguration;
+import org.syncope.core.persistence.dao.MissingConfKeyException;
 import org.syncope.core.persistence.dao.SyncopeConfigurationDAO;
 import org.syncope.core.rest.data.ConfigurationDataBinder;
 
@@ -41,13 +40,11 @@ public class ConfigurationController extends AbstractController {
     @Autowired
     private ConfigurationDataBinder configurationDataBinder;
 
-    @Transactional
     @RequestMapping(method = RequestMethod.POST,
     value = "/create")
     public ConfigurationTO create(HttpServletRequest request,
             HttpServletResponse response,
-            @RequestBody ConfigurationTO configurationTO)
-            throws IOException {
+            @RequestBody ConfigurationTO configurationTO) {
 
         if (log.isDebugEnabled()) {
             log.debug("create called with parameters " + configurationTO);
@@ -65,28 +62,20 @@ public class ConfigurationController extends AbstractController {
         return configurationDataBinder.getConfigurationTO(syncopeConfiguration);
     }
 
-    @Transactional
     @RequestMapping(method = RequestMethod.DELETE,
     value = "/delete/{confKey}")
     public void delete(HttpServletResponse response,
             @PathVariable("confKey") String confKey)
-            throws IOException {
+            throws MissingConfKeyException {
 
         SyncopeConfiguration syncopeConfiguration =
                 syncopeConfigurationDAO.find(confKey);
-
-        if (syncopeConfiguration == null) {
-            log.error("Could not find configuration '" + confKey + "'");
-
-            throwNotFoundException(String.valueOf(confKey), response);
-        } else {
-            syncopeConfigurationDAO.delete(confKey);
-        }
+        syncopeConfigurationDAO.delete(confKey);
     }
 
     @RequestMapping(method = RequestMethod.GET,
     value = "/list")
-    public ConfigurationTOs list(HttpServletRequest request) throws IOException {
+    public ConfigurationTOs list(HttpServletRequest request) {
         List<SyncopeConfiguration> configurations =
                 syncopeConfigurationDAO.findAll();
         List<ConfigurationTO> configurationTOs =
@@ -106,35 +95,22 @@ public class ConfigurationController extends AbstractController {
     value = "/read/{confKey}")
     public ConfigurationTO read(HttpServletResponse response,
             @PathVariable("confKey") String confKey)
-            throws IOException {
+            throws MissingConfKeyException {
 
         SyncopeConfiguration syncopeConfiguration =
                 syncopeConfigurationDAO.find(confKey);
 
-        if (syncopeConfiguration == null) {
-            log.error("Could not find configuration '" + confKey + "'");
-
-            return throwNotFoundException(String.valueOf(confKey), response);
-        }
-
         return configurationDataBinder.getConfigurationTO(syncopeConfiguration);
     }
 
-    @Transactional
     @RequestMapping(method = RequestMethod.POST,
     value = "/update")
     public ConfigurationTO update(HttpServletResponse response,
             @RequestBody ConfigurationTO configurationTO)
-            throws IOException {
+            throws MissingConfKeyException {
 
         SyncopeConfiguration syncopeConfiguration =
                 syncopeConfigurationDAO.find(configurationTO.getConfKey());
-
-        if (syncopeConfiguration == null) {
-            log.error("Could not find configuration '" + configurationTO + "'");
-
-            return throwNotFoundException(configurationTO.getConfKey(), response);
-        }
 
         syncopeConfiguration.setConfValue(configurationTO.getConfValue());
 

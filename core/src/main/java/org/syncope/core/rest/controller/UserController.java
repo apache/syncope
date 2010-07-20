@@ -34,7 +34,6 @@ import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.SyncopeUserDAO;
 import org.syncope.core.persistence.propagation.PropagationException;
 import org.syncope.core.rest.data.UserDataBinder;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -43,10 +42,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javassist.NotFoundException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
-import org.springframework.transaction.annotation.Transactional;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
 import org.syncope.core.persistence.beans.Resource;
@@ -75,16 +74,16 @@ public class UserController extends AbstractController {
     @Autowired
     private PropagationManager propagationManager;
 
-    @Transactional
     private UserTO executeAction(String actionName,
-            HttpServletResponse response, UserTO userTO) throws IOException {
+            HttpServletResponse response, UserTO userTO)
+            throws WorkflowException, NotFoundException {
 
         SyncopeUser syncopeUser = syncopeUserDAO.find(userTO.getId());
 
         if (syncopeUser == null) {
             log.error("Could not find user '" + userTO.getId() + "'");
-            return throwNotFoundException(
-                    String.valueOf(userTO.getId()), response);
+
+            throw new NotFoundException(String.valueOf(userTO.getId()));
         }
 
         Map<String, Object> inputs = new HashMap<String, Object>();
@@ -105,33 +104,26 @@ public class UserController extends AbstractController {
             }
         }
         if (actionId == null) {
-            return throwNotFoundException(actionName, response);
+
+            throw new NotFoundException(actionName);
         }
 
-        try {
-            userWorkflow.doAction(syncopeUser.getWorkflowEntryId(),
-                    actionId, inputs);
-        } catch (WorkflowException e) {
-            log.error("While performing " + actionName, e);
-
-            return throwWorkflowException(e, response);
-        }
+        userWorkflow.doAction(syncopeUser.getWorkflowEntryId(),
+                actionId, inputs);
 
         syncopeUser = syncopeUserDAO.save(syncopeUser);
         return userDataBinder.getUserTO(syncopeUser);
     }
 
-    @Transactional
     @RequestMapping(method = RequestMethod.POST,
     value = "/activate")
     public UserTO activate(HttpServletResponse response,
             @RequestBody UserTO userTO)
-            throws IOException {
+            throws WorkflowException, NotFoundException {
 
         return executeAction(Constants.ACTION_ACTIVATE, response, userTO);
     }
 
-    @Transactional
     @RequestMapping(method = RequestMethod.POST,
     value = "/create")
     public UserTO create(HttpServletRequest request,
@@ -141,7 +133,8 @@ public class UserController extends AbstractController {
             required = false) Set<Long> syncRoles,
             @RequestParam(value = "syncResources",
             required = false) Set<String> syncResources)
-            throws IOException {
+            throws SyncopeClientCompositeErrorException,
+            WorkflowException, PropagationException {
 
         if (syncRoles == null) {
             syncRoles = Collections.EMPTY_SET;
@@ -168,10 +161,6 @@ public class UserController extends AbstractController {
             if (workflowStore != null && e.getWorkflowEntryId() != null) {
                 workflowStore.delete(e.getWorkflowEntryId());
             }
-        } catch (WorkflowException e) {
-            log.error("Unexpected workflow exception", e);
-
-            return throwWorkflowException(e, response);
         }
 
         if (wie != null) {
@@ -189,43 +178,13 @@ public class UserController extends AbstractController {
                             String.valueOf(wie.getSyncopeUserId()));
                     compositeException.addException(rejectedUserCreate);
 
-                    return throwCompositeException(compositeException,
-                            response);
+                    throw compositeException;
             }
         }
 
-        SyncopeUser syncopeUser = null;
-        try {
-            syncopeUser = userDataBinder.createSyncopeUser(userTO);
-        } catch (SyncopeClientCompositeErrorException e) {
-            log.error("Could not create for " + userTO, e);
-
-            // Removing dirty workflow entry
-            if (workflowStore != null) {
-                workflowStore.delete(workflowId);
-            }
-
-            return throwCompositeException(e, response);
-        }
+        SyncopeUser syncopeUser = userDataBinder.createSyncopeUser(userTO);
         syncopeUser.setWorkflowEntryId(workflowId);
         syncopeUser.setCreationTime(new Date());
-        syncopeUser = syncopeUserDAO.save(syncopeUser);
-
-        Map<String, Object> inputs = new HashMap<String, Object>();
-        inputs.put(Constants.SYNCOPE_USER, syncopeUser);
-
-        int[] availableWorkflowActions = userWorkflow.getAvailableActions(
-                workflowId, null);
-        for (int availableWorkflowAction : availableWorkflowActions) {
-            try {
-                userWorkflow.doAction(workflowId, availableWorkflowAction,
-                        inputs);
-            } catch (WorkflowException e) {
-                log.error("Unexpected workflow exception", e);
-
-                return throwWorkflowException(e, response);
-            }
-        }
         syncopeUser = syncopeUserDAO.save(syncopeUser);
 
         // Now that user is created locally, let's propagate
@@ -246,31 +205,36 @@ public class UserController extends AbstractController {
             log.debug("About to propagate synchronously on the following "
                     + "resources " + synchronous);
         }
+        propagationManager.provision(syncopeUser, synchronous);
 
-        try {
-            propagationManager.provision(syncopeUser, synchronous);
-        } catch (PropagationException e) {
-            log.error("Propagation exception", e);
+        // User is created locally and propagated, let's advance on the workflow
+        Map<String, Object> inputs = new HashMap<String, Object>();
+        inputs.put(Constants.SYNCOPE_USER, syncopeUser);
 
-            return throwPropagationException(e, response);
+        int[] availableWorkflowActions = userWorkflow.getAvailableActions(
+                workflowId, null);
+        for (int availableWorkflowAction : availableWorkflowActions) {
+            userWorkflow.doAction(workflowId, availableWorkflowAction,
+                    inputs);
         }
+        syncopeUser = syncopeUserDAO.save(syncopeUser);
 
         response.setStatus(HttpServletResponse.SC_CREATED);
         return userDataBinder.getUserTO(syncopeUser);
     }
 
-    @Transactional
     @RequestMapping(method = RequestMethod.DELETE,
     value = "/delete/{userId}")
     public void delete(HttpServletResponse response,
             @PathVariable("userId") Long userId)
-            throws IOException {
+            throws NotFoundException {
 
         SyncopeUser user = syncopeUserDAO.find(userId);
 
         if (user == null) {
             log.error("Could not find user '" + userId + "'");
-            throwNotFoundException(String.valueOf(userId), response);
+
+            throw new NotFoundException(String.valueOf(userId));
         } else {
             if (workflowStore != null && user.getWorkflowEntryId() != null) {
                 workflowStore.delete(user.getWorkflowEntryId());
@@ -282,7 +246,7 @@ public class UserController extends AbstractController {
 
     @RequestMapping(method = RequestMethod.GET,
     value = "/list")
-    public UserTOs list(HttpServletRequest request) throws IOException {
+    public UserTOs list(HttpServletRequest request) {
         List<SyncopeUser> users = syncopeUserDAO.findAll();
         List<UserTO> userTOs = new ArrayList<UserTO>(users.size());
 
@@ -299,36 +263,35 @@ public class UserController extends AbstractController {
     value = "/read/{userId}")
     public UserTO read(HttpServletResponse response,
             @PathVariable("userId") Long userId)
-            throws IOException {
+            throws NotFoundException {
 
         SyncopeUser user = syncopeUserDAO.find(userId);
 
         if (user == null) {
             log.error("Could not find user '" + userId + "'");
-            return throwNotFoundException(String.valueOf(userId), response);
+
+            throw new NotFoundException(String.valueOf(userId));
         }
 
         return userDataBinder.getUserTO(user);
     }
 
-    @Transactional
     @RequestMapping(method = RequestMethod.GET,
     value = "/generateToken/{userId}")
     public UserTO generateToken(HttpServletResponse response,
             @PathVariable("userId") Long userId)
-            throws IOException {
+            throws WorkflowException, NotFoundException {
 
         UserTO userTO = new UserTO();
         userTO.setId(userId);
         return executeAction(Constants.ACTION_GENERATE_TOKEN, response, userTO);
     }
 
-    @Transactional
     @RequestMapping(method = RequestMethod.POST,
     value = "/verifyToken")
     public UserTO verifyToken(HttpServletResponse response,
             @RequestBody UserTO userTO)
-            throws IOException {
+            throws WorkflowException, NotFoundException {
 
         return executeAction(Constants.ACTION_VERIFY_TOKEN, response, userTO);
     }
@@ -336,8 +299,7 @@ public class UserController extends AbstractController {
     @RequestMapping(method = RequestMethod.POST,
     value = "/search")
     public UserTOs search(HttpServletResponse response,
-            @RequestBody SearchParameters searchParameters)
-            throws IOException {
+            @RequestBody SearchParameters searchParameters) {
 
         log.info("search called with parameter " + searchParameters);
 
@@ -352,13 +314,14 @@ public class UserController extends AbstractController {
     @RequestMapping(method = RequestMethod.GET,
     value = "/status/{userId}")
     public ModelAndView getStatus(HttpServletResponse response,
-            @PathVariable("userId") Long userId) throws IOException {
+            @PathVariable("userId") Long userId) throws NotFoundException {
 
         SyncopeUser user = syncopeUserDAO.find(userId);
 
         if (user == null) {
             log.error("Could not find user '" + userId + "'");
-            return throwNotFoundException(String.valueOf(userId), response);
+
+            throw new NotFoundException(String.valueOf(userId));
         }
 
         List<Step> currentSteps = userWorkflow.getCurrentSteps(
@@ -372,12 +335,10 @@ public class UserController extends AbstractController {
         return mav;
     }
 
-    @Transactional
     @RequestMapping(method = RequestMethod.POST,
     value = "/update")
     public UserTO update(HttpServletResponse response,
-            @RequestBody UserTO userTO)
-            throws IOException {
+            @RequestBody UserTO userTO) {
 
         log.info("update called with parameter " + userTO);
 

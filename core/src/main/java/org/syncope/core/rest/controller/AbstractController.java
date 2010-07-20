@@ -16,19 +16,12 @@
 package org.syncope.core.rest.controller;
 
 import org.syncope.core.rest.data.AttributableUtil;
-import com.opensymphony.workflow.WorkflowException;
-import java.io.IOException;
-import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.TypeMismatchException;
-import org.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.syncope.client.validation.SyncopeClientErrorHandler;
-import org.syncope.client.validation.SyncopeClientException;
-import org.syncope.core.persistence.propagation.PropagationException;
-import org.syncope.core.persistence.validation.MultiUniqueValueException;
-import org.syncope.types.SyncopeClientExceptionType;
+import org.springframework.transaction.annotation.Transactional;
 
+@Transactional(rollbackFor = {Throwable.class})
 public abstract class AbstractController {
 
     protected static final Logger log =
@@ -46,85 +39,5 @@ public abstract class AbstractController {
         }
 
         return result;
-    }
-
-    protected <T> T throwCompositeException(
-            SyncopeClientCompositeErrorException compositeErrorException,
-            HttpServletResponse response) throws IOException {
-
-        for (SyncopeClientException exception :
-                compositeErrorException.getExceptions()) {
-
-            response.addHeader(
-                    SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
-                    exception.getType().getHeaderValue());
-
-            for (String attributeName : exception.getElements()) {
-                response.addHeader(
-                        exception.getType().getElementHeaderName(),
-                        attributeName);
-            }
-        }
-
-        response.sendError(compositeErrorException.getStatusCode().value());
-
-        return null;
-    }
-
-    protected <T> T throwNotFoundException(String notFound,
-            HttpServletResponse response) throws IOException {
-
-        response.setHeader(
-                SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
-                SyncopeClientExceptionType.NotFound.getHeaderValue());
-        response.setHeader(
-                SyncopeClientExceptionType.NotFound.getElementHeaderName(),
-                notFound);
-
-        response.sendError(HttpServletResponse.SC_NOT_FOUND);
-
-        return null;
-    }
-
-    protected <T> T throwMultiUniqueValueException(MultiUniqueValueException e,
-            HttpServletResponse response) throws IOException {
-
-        response.setHeader(
-                SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
-                SyncopeClientExceptionType.InvalidSchemaDefinition.getHeaderValue());
-
-        response.sendError(HttpServletResponse.SC_BAD_REQUEST);
-
-        return null;
-    }
-
-    protected <T> T throwWorkflowException(WorkflowException we,
-            HttpServletResponse response) throws IOException {
-
-        response.setHeader(
-                SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
-                SyncopeClientExceptionType.Workflow.getHeaderValue());
-        response.setHeader(
-                SyncopeClientExceptionType.Workflow.getElementHeaderName(),
-                we.getMessage());
-
-        response.sendError(HttpServletResponse.SC_BAD_REQUEST);
-
-        return null;
-    }
-
-    protected <T> T throwPropagationException(PropagationException pe,
-            HttpServletResponse response) throws IOException {
-
-        response.setHeader(
-                SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
-                SyncopeClientExceptionType.Propagation.getHeaderValue());
-        response.setHeader(
-                SyncopeClientExceptionType.Propagation.getElementHeaderName(),
-                pe.getResource());
-
-        response.sendError(HttpServletResponse.SC_BAD_REQUEST);
-
-        return null;
     }
 }

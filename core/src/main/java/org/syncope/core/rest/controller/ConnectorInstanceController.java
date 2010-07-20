@@ -21,11 +21,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import javassist.NotFoundException;
 import javax.servlet.http.HttpServletResponse;
 import org.identityconnectors.common.IOUtil;
 import org.identityconnectors.framework.api.APIConfiguration;
@@ -40,7 +40,6 @@ import org.identityconnectors.framework.api.ConnectorKey;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.servlet.ModelAndView;
 import org.syncope.client.to.ConnectorBundleTO;
@@ -52,6 +51,7 @@ import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.core.persistence.beans.ConnectorInstance;
 import org.syncope.core.persistence.beans.SyncopeConfiguration;
 import org.syncope.core.persistence.dao.ConnectorInstanceDAO;
+import org.syncope.core.persistence.dao.MissingConfKeyException;
 import org.syncope.core.persistence.dao.SyncopeConfigurationDAO;
 import org.syncope.core.persistence.util.ApplicationContextManager;
 import org.syncope.core.rest.data.ConnectorInstanceDataBinder;
@@ -62,15 +62,15 @@ public class ConnectorInstanceController extends AbstractController {
 
     @Autowired
     private ConnectorInstanceDAO connectorInstanceDAO;
-
     @Autowired
     SyncopeConfigurationDAO syncopeConfigurationDAO;
 
-    @Transactional
     @RequestMapping(method = RequestMethod.POST,
     value = "/create")
     public ConnectorInstanceTO create(HttpServletResponse response,
-            @RequestBody ConnectorInstanceTO connectorTO) throws IOException {
+            @RequestBody ConnectorInstanceTO connectorTO)
+            throws SyncopeClientCompositeErrorException, NotFoundException,
+            MissingConfKeyException {
 
         if (log.isDebugEnabled()) {
             log.debug("Create called with configuration " + connectorTO);
@@ -91,20 +91,13 @@ public class ConnectorInstanceController extends AbstractController {
 
         } catch (SyncopeClientCompositeErrorException e) {
             log.error("Could not create for " + connectorTO, e);
-            return throwCompositeException(e, response);
-        }
 
-        if (actual == null) {
-            throw new IOException("Connector bind failed");
+            throw e;
         }
 
         SyncopeConfiguration syncopeConfiguration =
                 syncopeConfigurationDAO.find(
                 "identityconnectors.bundle.directory");
-
-        if (syncopeConfiguration == null) {
-            throw new IOException("Syncope configuration not found");
-        }
 
         ConnectorInfoManager manager =
                 getConnectorManager(syncopeConfiguration.getConfValue());
@@ -139,11 +132,12 @@ public class ConnectorInstanceController extends AbstractController {
         return binder.getConnectorInstanceTO(actual);
     }
 
-    @Transactional
     @RequestMapping(method = RequestMethod.POST,
     value = "/update")
     public ConnectorInstanceTO update(HttpServletResponse response,
-            @RequestBody ConnectorInstanceTO connectorTO) throws IOException {
+            @RequestBody ConnectorInstanceTO connectorTO)
+            throws SyncopeClientCompositeErrorException, NotFoundException,
+            MissingConfKeyException {
 
         if (log.isDebugEnabled()) {
             log.debug("update called with configuration " + connectorTO);
@@ -165,11 +159,9 @@ public class ConnectorInstanceController extends AbstractController {
 
         } catch (SyncopeClientCompositeErrorException e) {
             log.error("Could not create for " + connectorTO, e);
-            return throwCompositeException(e, response);
-        }
 
-        if (actual == null)
-            throw new IOException("Connector bind failed");
+            throw e;
+        }
 
         ConfigurableApplicationContext context =
                 ApplicationContextManager.getApplicationContext();
@@ -185,10 +177,6 @@ public class ConnectorInstanceController extends AbstractController {
             SyncopeConfiguration syncopeConfiguration =
                     syncopeConfigurationDAO.find(
                     "identityconnectors.bundle.directory");
-
-            if (syncopeConfiguration == null) {
-                throw new IOException("Syncope configuration not found");
-            }
 
             ConnectorInfoManager manager =
                     getConnectorManager(syncopeConfiguration.getConfValue());
@@ -218,12 +206,11 @@ public class ConnectorInstanceController extends AbstractController {
         return binder.getConnectorInstanceTO(actual);
     }
 
-    @Transactional
     @RequestMapping(method = RequestMethod.DELETE,
     value = "/delete/{connectorId}")
     public void delete(HttpServletResponse response,
             @PathVariable("connectorId") Long connectorId)
-            throws IOException {
+            throws NotFoundException {
 
         ConnectorInstance connectorInstance =
                 connectorInstanceDAO.find(connectorId);
@@ -234,7 +221,7 @@ public class ConnectorInstanceController extends AbstractController {
                 log.error("Could not find connector '" + connectorId + "'");
             }
 
-            throwNotFoundException(String.valueOf(connectorId), response);
+            throw new NotFoundException(String.valueOf(connectorId));
 
         } else {
             connectorInstanceDAO.delete(connectorId);
@@ -281,14 +268,16 @@ public class ConnectorInstanceController extends AbstractController {
     @RequestMapping(method = RequestMethod.GET,
     value = "/read/{connectorId}")
     public ConnectorInstanceTO read(HttpServletResponse response,
-            @PathVariable("connectorId") Long connectorId) throws IOException {
+            @PathVariable("connectorId") Long connectorId)
+            throws NotFoundException {
 
         ConnectorInstance connectorInstance =
                 connectorInstanceDAO.find(connectorId);
 
         if (connectorInstance == null) {
             log.error("Could not find connector '" + connectorId + "'");
-            return throwNotFoundException("Connector not found", response);
+
+            throw new NotFoundException(String.valueOf(connectorId));
         }
 
         ConnectorInstanceDataBinder binder =
@@ -300,7 +289,7 @@ public class ConnectorInstanceController extends AbstractController {
     @RequestMapping(method = RequestMethod.GET,
     value = "/check/{connectorId}")
     public ModelAndView check(HttpServletResponse response,
-            @PathVariable("connectorId") Long connectorId) throws IOException {
+            @PathVariable("connectorId") Long connectorId) {
 
         ConfigurableApplicationContext context =
                 ApplicationContextManager.getApplicationContext();
@@ -309,8 +298,8 @@ public class ConnectorInstanceController extends AbstractController {
                 (DefaultListableBeanFactory) context.getBeanFactory();
 
         if (log.isDebugEnabled()) {
-            log.debug("Singleton in bean factory: " +
-                    beanFactory.getSingletonNames());
+            log.debug("Singleton in bean factory: "
+                    + beanFactory.getSingletonNames());
         }
 
         ConnectorFacade connector = (ConnectorFacade) beanFactory.getBean(
@@ -340,16 +329,14 @@ public class ConnectorInstanceController extends AbstractController {
 
     @RequestMapping(method = RequestMethod.GET,
     value = "/getBundles")
-    public ConnectorBundleTOs getBundles() throws IOException {
+    public ConnectorBundleTOs getBundles()
+            throws NotFoundException, MissingConfKeyException {
+
         ConnectorBundleTOs connectorBundleTOs = new ConnectorBundleTOs();
 
         SyncopeConfiguration syncopeConfiguration =
                 syncopeConfigurationDAO.find(
                 "identityconnectors.bundle.directory");
-
-        if (syncopeConfiguration == null) {
-            throw new IOException("Syncope configuration not found");
-        }
 
         ConnectorInfoManager manager =
                 getConnectorManager(syncopeConfiguration.getConfValue());
@@ -370,9 +357,9 @@ public class ConnectorInstanceController extends AbstractController {
 
             if (log.isDebugEnabled()) {
                 log.debug(
-                        "\nBundle name: " + key.getBundleName() +
-                        "\nBundle version: " + key.getBundleVersion() +
-                        "\nBundle class: " + key.getConnectorName());
+                        "\nBundle name: " + key.getBundleName()
+                        + "\nBundle version: " + key.getBundleVersion()
+                        + "\nBundle class: " + key.getConnectorName());
             }
 
             connectorBundleTO.setBundleName(key.getBundleName());
@@ -385,8 +372,8 @@ public class ConnectorInstanceController extends AbstractController {
             connectorBundleTO.setProperties(properties.getPropertyNames());
 
             if (log.isDebugEnabled()) {
-                log.debug("Bundle properties: " +
-                        connectorBundleTO.getProperties());
+                log.debug("Bundle properties: "
+                        + connectorBundleTO.getProperties());
             }
 
             connectorBundleTOs.addBundle(connectorBundleTO);
@@ -396,7 +383,7 @@ public class ConnectorInstanceController extends AbstractController {
     }
 
     public static List<ConnectorInfo> getBundles(
-            ConnectorInfoManager manager) throws IOException {
+            ConnectorInfoManager manager) {
 
         List<ConnectorInfo> bundles = manager.getConnectorInfos();
 
@@ -416,7 +403,7 @@ public class ConnectorInstanceController extends AbstractController {
             String bundlename,
             String bundleversion,
             String connectorname,
-            Set<PropertyTO> configuration) throws IOException {
+            Set<PropertyTO> configuration) throws NotFoundException {
 
         // specify a connector.
         ConnectorKey key = new ConnectorKey(
@@ -425,28 +412,28 @@ public class ConnectorInstanceController extends AbstractController {
                 connectorname);
 
         if (key == null) {
-            throw new IOException("Connector Key not found");
+            throw new NotFoundException("Connector Key");
         }
 
         if (log.isDebugEnabled()) {
             log.debug(
-                    "\nBundle name: " + key.getBundleName() +
-                    "\nBundle version: " + key.getBundleVersion() +
-                    "\nBundle class: " + key.getConnectorName());
+                    "\nBundle name: " + key.getBundleName()
+                    + "\nBundle version: " + key.getBundleVersion()
+                    + "\nBundle class: " + key.getConnectorName());
         }
 
         // get the specified connector.
         ConnectorInfo info = manager.findConnectorInfo(key);
 
         if (info == null) {
-            throw new IOException("Connector Info not found");
+            throw new NotFoundException("Connector Info");
         }
 
         // create default configuration
         APIConfiguration apiConfig = info.createDefaultAPIConfiguration();
 
         if (apiConfig == null) {
-            throw new IOException("Default API configuration not found");
+            throw new NotFoundException("Default API configuration");
         }
 
         // retrieve the ConfigurationProperties.
@@ -454,7 +441,7 @@ public class ConnectorInstanceController extends AbstractController {
                 apiConfig.getConfigurationProperties();
 
         if (properties == null) {
-            throw new IOException("Configuration properties not found");
+            throw new NotFoundException("Configuration properties");
         }
 
         // Print out what the properties are (not necessary)
@@ -465,8 +452,8 @@ public class ConnectorInstanceController extends AbstractController {
 
             if (log.isDebugEnabled()) {
                 log.debug(
-                        "\nProperty Name: " + prop.getName() +
-                        "\nProperty Type: " + prop.getType());
+                        "\nProperty Name: " + prop.getName()
+                        + "\nProperty Type: " + prop.getType());
             }
         }
 
@@ -482,7 +469,7 @@ public class ConnectorInstanceController extends AbstractController {
                 ConnectorFacadeFactory.getInstance().newInstance(apiConfig);
 
         if (connector == null) {
-            throw new IOException("Connector not found");
+            throw new NotFoundException("Connector");
         }
 
         // Make sure we have set up the Configuration properly
@@ -493,7 +480,7 @@ public class ConnectorInstanceController extends AbstractController {
     }
 
     public static ConnectorInfoManager getConnectorManager(
-            String bundledirectory) throws IOException {
+            String bundledirectory) throws NotFoundException {
 
         ConnectorInfoManagerFactory connectorInfoManagerFactory =
                 ConnectorInfoManagerFactory.getInstance();
@@ -505,7 +492,7 @@ public class ConnectorInstanceController extends AbstractController {
         String[] files = bundleDirectory.list();
 
         if (files == null) {
-            throw new IOException("No bundles found");
+            throw new NotFoundException("Bundles");
         }
 
         for (String file : files) {
@@ -515,16 +502,16 @@ public class ConnectorInstanceController extends AbstractController {
                 // ignore exception and don't add bundle
                 if (log.isDebugEnabled()) {
                     log.debug(
-                            "\"" +
-                            bundleDirectory.toString() + "/" + file +
-                            "\"" +
-                            " is not a valid connector bundle.", ignore);
+                            "\""
+                            + bundleDirectory.toString() + "/" + file
+                            + "\""
+                            + " is not a valid connector bundle.", ignore);
                 }
             }
         }
 
         if (urls.isEmpty()) {
-            throw new IOException("No bundles found");
+            throw new NotFoundException("Bundles");
         }
 
         if (log.isDebugEnabled()) {
@@ -536,7 +523,7 @@ public class ConnectorInstanceController extends AbstractController {
                 urls.toArray(new URL[0]));
 
         if (manager == null) {
-            throw new IOException("Connector Info Manager not found");
+            throw new NotFoundException("Connector Info Manager");
         }
 
         return manager;

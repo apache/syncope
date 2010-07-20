@@ -14,16 +14,15 @@
  */
 package org.syncope.core.persistence.dao;
 
-import java.util.List;
-import org.syncope.core.persistence.beans.SyncopeConfiguration;
+public class MissingConfKeyException extends Exception {
 
-public interface SyncopeConfigurationDAO extends DAO {
+    private String confKey;
 
-    SyncopeConfiguration find(String name) throws MissingConfKeyException;
+    public MissingConfKeyException(String confKey) {
+        this.confKey = confKey;
+    }
 
-    List<SyncopeConfiguration> findAll();
-
-    SyncopeConfiguration save(SyncopeConfiguration syncopeConfiguration);
-
-    void delete(String name);
+    public String getConfKey() {
+        return confKey;
+    }
 }

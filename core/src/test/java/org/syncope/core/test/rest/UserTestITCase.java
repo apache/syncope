@@ -95,7 +95,8 @@ public class UserTestITCase extends AbstractTestITCase {
         UserTO newUserTO = restTemplate.postForObject(BASE_URL + "user/create",
                 userTO, UserTO.class);
 
-        assertFalse(newUserTO.getAttributes().contains(attrWithInvalidSchemaTO));
+        assertFalse(newUserTO.getAttributes().contains(
+                attrWithInvalidSchemaTO));
         userTO.removeAttribute(attrWithInvalidSchemaTO);
 
         userTO.setId(newUserTO.getId());

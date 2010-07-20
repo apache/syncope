@@ -19,6 +19,7 @@ import javax.persistence.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.SyncopeConfiguration;
+import org.syncope.core.persistence.dao.MissingConfKeyException;
 import org.syncope.core.persistence.dao.SyncopeConfigurationDAO;
 
 @Repository
@@ -26,8 +27,17 @@ public class SyncopeConfigurationDAOImpl extends AbstractDAOImpl
         implements SyncopeConfigurationDAO {
 
     @Override
-    public SyncopeConfiguration find(String name) {
-        return entityManager.find(SyncopeConfiguration.class, name);
+    public SyncopeConfiguration find(String name)
+            throws MissingConfKeyException {
+
+        SyncopeConfiguration syncopeConfiguration =
+                entityManager.find(SyncopeConfiguration.class, name);
+
+        if (syncopeConfiguration == null) {
+            throw new MissingConfKeyException(name);
+        }
+
+        return syncopeConfiguration;
     }
 
     @Override
@@ -45,6 +55,10 @@ public class SyncopeConfigurationDAOImpl extends AbstractDAOImpl
     @Override
     @Transactional
     public void delete(String name) {
-        entityManager.remove(find(name));
+        try {
+            entityManager.remove(find(name));
+        } catch (MissingConfKeyException e) {
+            log.error("Could not find " + name, e);
+        }
     }
 }

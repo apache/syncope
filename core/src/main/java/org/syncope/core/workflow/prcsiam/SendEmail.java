@@ -15,12 +15,12 @@
 package org.syncope.core.workflow.prcsiam;
 
 import com.opensymphony.workflow.WorkflowException;
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Map;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.HtmlEmail;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
+import org.syncope.core.persistence.dao.MissingConfKeyException;
 import org.syncope.core.workflow.*;
 
 public class SendEmail extends BaseSendEmail {
@@ -45,18 +45,22 @@ public class SendEmail extends BaseSendEmail {
 
         HtmlEmail email = super.getHtmlEmail(args, syncopeUser);
         email.addTo(Utils.getUserId(syncopeUser));
-        email.setHtmlMsg(getEmailBody(syncopeConfigurationDAO.find(
-                "mail.templates.url").getConfValue(),
-                syncopeConfigurationDAO.find(
-                args.get("template.html")).getConfValue(),
-                urlSuffix,
-                urlSuffix.substring(0, urlSuffix.indexOf('=') + 1)));
-        email.setTextMsg(getEmailBody(syncopeConfigurationDAO.find(
-                "mail.templates.url").getConfValue(),
-                syncopeConfigurationDAO.find(
-                args.get("template.txt")).getConfValue(),
-                urlSuffix,
-                urlSuffix.substring(0, urlSuffix.indexOf('=') + 1)));
+        try {
+            email.setHtmlMsg(getEmailBody(syncopeConfigurationDAO.find(
+                    "mail.templates.url").getConfValue(),
+                    syncopeConfigurationDAO.find(
+                    args.get("template.html")).getConfValue(),
+                    urlSuffix,
+                    urlSuffix.substring(0, urlSuffix.indexOf('=') + 1)));
+            email.setTextMsg(getEmailBody(syncopeConfigurationDAO.find(
+                    "mail.templates.url").getConfValue(),
+                    syncopeConfigurationDAO.find(
+                    args.get("template.txt")).getConfValue(),
+                    urlSuffix,
+                    urlSuffix.substring(0, urlSuffix.indexOf('=') + 1)));
+        } catch (MissingConfKeyException e) {
+            new WorkflowException(e);
+        }
 
         return email;
     }

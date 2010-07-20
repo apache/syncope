@@ -28,6 +28,7 @@ import org.syncope.client.to.PropertyTO;
 import org.syncope.core.persistence.beans.ConnectorInstance;
 import org.syncope.core.persistence.beans.SyncopeConfiguration;
 import org.syncope.core.persistence.dao.ConnectorInstanceDAO;
+import org.syncope.core.persistence.dao.MissingConfKeyException;
 import org.syncope.core.persistence.dao.SyncopeConfigurationDAO;
 import org.syncope.core.persistence.util.ApplicationContextManager;
 import org.syncope.core.rest.controller.ConnectorInstanceController;
@@ -61,9 +62,13 @@ public class ConnectorInstanceBeansLoader implements ServletContextListener {
                 (SyncopeConfigurationDAO) context.getBean(
                 "syncopeConfigurationDAOImpl");
 
-        SyncopeConfiguration syncopeConfiguration =
-                syncopeConfigurationDAO.find(
-                "identityconnectors.bundle.directory");
+        SyncopeConfiguration syncopeConfiguration = null;
+        try {
+            syncopeConfiguration = syncopeConfigurationDAO.find(
+                    "identityconnectors.bundle.directory");
+        } catch (MissingConfKeyException e) {
+            log.error("Missing configuration", e);
+        }
 
         List<ConnectorInstance> instances = connectorInstanceDAO.findAll();
         Set<PropertyTO> properties = null;

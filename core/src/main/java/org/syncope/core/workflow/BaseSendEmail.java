@@ -25,6 +25,7 @@ import org.apache.commons.mail.Email;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.HtmlEmail;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
+import org.syncope.core.persistence.dao.MissingConfKeyException;
 import org.syncope.core.persistence.dao.SyncopeConfigurationDAO;
 
 public class BaseSendEmail extends OSWorkflowComponent
@@ -70,12 +71,16 @@ public class BaseSendEmail extends OSWorkflowComponent
             throws EmailException, WorkflowException {
 
         HtmlEmail email = new HtmlEmail();
-        email.setHostName(syncopeConfigurationDAO.find(
-                "smtp.host").getConfValue());
-        email.setFrom(syncopeConfigurationDAO.find(
-                args.get("from")).getConfValue());
-        email.setSubject(syncopeConfigurationDAO.find(
-                args.get("subject")).getConfValue());
+        try {
+            email.setHostName(syncopeConfigurationDAO.find(
+                    "smtp.host").getConfValue());
+            email.setFrom(syncopeConfigurationDAO.find(
+                    args.get("from")).getConfValue());
+            email.setSubject(syncopeConfigurationDAO.find(
+                    args.get("subject")).getConfValue());
+        } catch (MissingConfKeyException e) {
+            throw new WorkflowException(e);
+        }
 
         return email;
     }

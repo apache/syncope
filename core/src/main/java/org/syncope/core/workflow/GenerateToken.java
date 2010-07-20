@@ -20,6 +20,7 @@ import com.opensymphony.workflow.WorkflowException;
 import java.util.Map;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
+import org.syncope.core.persistence.dao.MissingConfKeyException;
 import org.syncope.core.persistence.dao.SyncopeConfigurationDAO;
 
 public class GenerateToken extends OSWorkflowComponent
@@ -40,12 +41,15 @@ public class GenerateToken extends OSWorkflowComponent
 
         SyncopeUser syncopeUser = (SyncopeUser) transientVars.get(
                 Constants.SYNCOPE_USER);
-
-        syncopeUser.generateToken(
-                Integer.parseInt(syncopeConfigurationDAO.find(
-                "token.length").getConfValue()),
-                Integer.parseInt(syncopeConfigurationDAO.find(
-                "token.expireTime").getConfValue()));
+        try {
+            syncopeUser.generateToken(
+                    Integer.parseInt(syncopeConfigurationDAO.find(
+                    "token.length").getConfValue()),
+                    Integer.parseInt(syncopeConfigurationDAO.find(
+                    "token.expireTime").getConfValue()));
+        } catch (MissingConfKeyException e) {
+            throw new WorkflowException(e);
+        }
 
         transientVars.put(Constants.SYNCOPE_USER, syncopeUser);
     }
