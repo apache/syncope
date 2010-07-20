@@ -133,10 +133,22 @@ public class ProvisioningImpl implements Provisioning {
     public String create(final Set<WSAttributeValue> data)
             throws ProvisioningException {
 
+        Set<String> schema = new HashSet<String>();
+        Set<WSAttribute> attrs = schema();
+        for (WSAttribute attr : attrs) {
+            schema.add(attr.getName());
+        }
+
         String res = null;
 
 
         for (WSAttributeValue value : data) {
+
+            if (!schema.contains(value.getName())) {
+                throw new IllegalArgumentException("Invalid schema " +
+                        value.getName());
+            }
+
             if (log.isDebugEnabled()) {
                 log.debug(
                         "\nName: " + value.getName() +
@@ -147,8 +159,10 @@ public class ProvisioningImpl implements Provisioning {
                         "\nValue: " + value.getValue().toString());
             }
 
-            if (value.isKey())
+            if (value.isKey()) {
                 res = value.getValue().toString();
+            }
+            
         }
 
         return res;
@@ -267,7 +281,7 @@ public class ProvisioningImpl implements Provisioning {
     public Set<WSChange> sync() throws ProvisioningException {
 
         WSChange change = new WSChange();
-        
+
         // specify the change id
         change.setId(1);
         change.setType("CREATE_OR_UPDATE");
