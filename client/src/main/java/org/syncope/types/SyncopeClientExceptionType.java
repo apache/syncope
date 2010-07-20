@@ -25,6 +25,9 @@ public enum SyncopeClientExceptionType {
     InvalidRoles(
     "Syncope.InvalidRoles",
     "Syncope.InvalidRoles.name"),
+    InvalidSchemaDefinition(
+    "Syncope.InvalidSchemaDefinition",
+    ""),
     InvalidUpdate(
     "Syncope.InvalidUpdate",
     "Syncope.InvalidUpdate.name"),

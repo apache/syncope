@@ -23,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.role.RoleSchema;
 import org.syncope.core.persistence.beans.user.UserSchema;
 import org.syncope.core.persistence.dao.SchemaDAO;
-import org.syncope.core.persistence.validation.UniqueValueException;
+import org.syncope.core.persistence.validation.MultiUniqueValueException;
 import org.syncope.types.SchemaType;
 
 @Transactional
@@ -61,7 +61,7 @@ public class SchemaDAOTest extends AbstractTest {
         
         try {
             schemaDAO.save(attributeSchema);
-        } catch (UniqueValueException e) {
+        } catch (MultiUniqueValueException e) {
             log.error("Unexpected exception", e);
         }
 

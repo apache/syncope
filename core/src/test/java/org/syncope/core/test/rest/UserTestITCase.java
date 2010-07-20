@@ -159,7 +159,7 @@ public class UserTestITCase extends AbstractTestITCase {
     @Test
     public void read() {
         UserTO userTO = restTemplate.getForObject(BASE_URL
-                + "user/read/{userId}.json", UserTO.class, "1");
+                + "user/read/{userId}.json", UserTO.class, 1);
 
         assertNotNull(userTO);
         assertNotNull(userTO.getAttributes());

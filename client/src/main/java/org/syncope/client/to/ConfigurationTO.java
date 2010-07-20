@@ -12,19 +12,26 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.persistence.dao;
+package org.syncope.client.to;
 
-import java.util.List;
-import org.syncope.core.persistence.beans.AbstractSchema;
-import org.syncope.core.persistence.validation.MultiUniqueValueException;
+public class ConfigurationTO extends AbstractBaseTO {
 
-public interface SchemaDAO extends DAO {
+    private String confKey;
+    private String confValue;
 
-    <T extends AbstractSchema> T find(String name, Class<T> reference);
+    public String getConfKey() {
+        return confKey;
+    }
 
-    <T extends AbstractSchema> List<T> findAll(Class<T> reference);
+    public void setConfKey(String confKey) {
+        this.confKey = confKey;
+    }
 
-    <T extends AbstractSchema> T save(T schema) throws MultiUniqueValueException;
+    public String getConfValue() {
+        return confValue;
+    }
 
-    <T extends AbstractSchema> void delete(String name, Class<T> reference);
+    public void setConfValue(String confValue) {
+        this.confValue = confValue;
+    }
 }

@@ -26,6 +26,7 @@ import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientErrorHandler;
 import org.syncope.client.validation.SyncopeClientException;
 import org.syncope.core.persistence.propagation.PropagationException;
+import org.syncope.core.persistence.validation.MultiUniqueValueException;
 import org.syncope.types.SyncopeClientExceptionType;
 
 public abstract class AbstractController {
@@ -81,6 +82,18 @@ public abstract class AbstractController {
                 notFound);
 
         response.sendError(HttpServletResponse.SC_NOT_FOUND);
+
+        return null;
+    }
+
+    protected <T> T throwMultiUniqueValueException(MultiUniqueValueException e,
+            HttpServletResponse response) throws IOException {
+
+        response.setHeader(
+                SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
+                SyncopeClientExceptionType.InvalidSchemaDefinition.getHeaderValue());
+
+        response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 
         return null;
     }

@@ -30,7 +30,6 @@ import org.syncope.core.persistence.beans.AbstractDerivedSchema;
 import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.dao.DerivedSchemaDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
-import org.syncope.core.persistence.validation.UniqueValueException;
 import org.syncope.types.SyncopeClientExceptionType;
 
 @Component
@@ -38,8 +37,8 @@ public class SchemaDataBinder {
 
     private static final Logger log = LoggerFactory.getLogger(
             SchemaDataBinder.class);
-    private static final String[] ignoreSchemaProperties = {"derivedSchemas",
-        "attributes"};
+    private static final String[] ignoreSchemaProperties = {
+        "derivedSchemas", "attributes"};
     private SchemaDAO schemaDAO;
     private DerivedSchemaDAO derivedSchemaDAO;
 
@@ -75,21 +74,17 @@ public class SchemaDataBinder {
 
     public <T extends AbstractSchema, K extends AbstractDerivedSchema> T createSchema(
             SchemaTO schemaTO,
-            Class<T> reference,
-            Class<K> derivedReference)
-            throws InstantiationException, IllegalAccessException,
-            UniqueValueException {
+            T schema,
+            Class<K> derivedReference) {
 
-        return populateSchema(
-                reference.newInstance(), schemaTO, derivedReference);
+        return populateSchema(schema, schemaTO, derivedReference);
     }
 
     public <T extends AbstractSchema, K extends AbstractDerivedSchema> T updateSchema(
             SchemaTO schemaTO,
             Class<T> reference,
             Class<K> derivedReference)
-            throws InstantiationException, IllegalAccessException,
-            SyncopeClientCompositeErrorException, UniqueValueException {
+            throws SyncopeClientCompositeErrorException {
 
         T schema = schemaDAO.find(schemaTO.getName(), reference);
         if (schema != null) {
@@ -124,12 +119,12 @@ public class SchemaDataBinder {
                         new SyncopeClientCompositeErrorException(
                         HttpStatus.BAD_REQUEST);
 
-                SyncopeClientException ex = new SyncopeClientException(
+                SyncopeClientException e = new SyncopeClientException(
                         SyncopeClientExceptionType.InvalidUpdate);
 
-                ex.addElement(schema.getName());
-                sccee.addException(ex);
-                
+                e.addElement(schema.getName());
+                sccee.addException(e);
+
                 throw sccee;
             }
 

@@ -49,6 +49,21 @@ public enum AttributableUtil {
         return result;
     }
 
+    public <T extends AbstractSchema> T newSchema() {
+        T result = null;
+
+        switch (this) {
+            case USER:
+                result = (T) new UserSchema();
+                break;
+            case ROLE:
+                result = (T) new RoleSchema();
+                break;
+        }
+
+        return result;
+    }
+
     public <T extends AbstractDerivedSchema> Class<T> getDerivedSchemaClass() {
         Class result = null;
 
@@ -58,6 +73,21 @@ public enum AttributableUtil {
                 break;
             case ROLE:
                 result = RoleDerivedSchema.class;
+                break;
+        }
+
+        return result;
+    }
+
+    public <T extends AbstractDerivedSchema> T newDerivedSchema() {
+        T result = null;
+
+        switch (this) {
+            case USER:
+                result = (T) new UserDerivedSchema();
+                break;
+            case ROLE:
+                result = (T) new RoleDerivedSchema();
                 break;
         }
 

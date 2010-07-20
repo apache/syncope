@@ -28,10 +28,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.syncope.client.to.SchemaTO;
 import org.syncope.client.to.SchemaTOs;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.syncope.core.persistence.validation.UniqueValueException;
 import org.syncope.core.rest.data.SchemaDataBinder;
 import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.dao.SchemaDAO;
+import org.syncope.core.persistence.validation.MultiUniqueValueException;
 
 @Controller
 @RequestMapping("/schema")
@@ -45,15 +45,21 @@ public class SchemaController extends AbstractController {
     @Transactional
     @RequestMapping(method = RequestMethod.POST, value = "/{kind}/create")
     public SchemaTO create(HttpServletResponse response,
-            @RequestBody SchemaTO schemaTO, @PathVariable("kind") String kind)
-            throws InstantiationException, IllegalAccessException,
-            UniqueValueException {
+            @RequestBody SchemaTO schemaTO,
+            @PathVariable("kind") String kind)
+            throws IOException {
 
-        Class reference = getAttributableUtil(kind).getSchemaClass();
-        AbstractSchema schema = schemaDataBinder.createSchema(schemaTO,
-                reference, getAttributableUtil(kind).getDerivedSchemaClass());
+        AbstractSchema schema = getAttributableUtil(kind).newSchema();
+        schema = schemaDataBinder.createSchema(schemaTO, schema,
+                getAttributableUtil(kind).getDerivedSchemaClass());
+        try {
+            schema = schemaDAO.save(schema);
+        } catch (MultiUniqueValueException e) {
+            log.error("While saving schema", e);
 
-        schema = schemaDAO.save(schema);
+            return throwMultiUniqueValueException(e, response);
+        }
+
         response.setStatus(HttpServletResponse.SC_CREATED);
         return schemaDataBinder.getSchemaTO(schema);
     }
@@ -63,7 +69,8 @@ public class SchemaController extends AbstractController {
     value = "/{kind}/delete/{schema}")
     public void delete(HttpServletResponse response,
             @PathVariable("kind") String kind,
-            @PathVariable("schema") String schemaName) throws IOException {
+            @PathVariable("schema") String schemaName)
+            throws IOException {
 
         Class reference = getAttributableUtil(kind).getSchemaClass();
         AbstractSchema schema = schemaDAO.find(schemaName, reference);
@@ -95,7 +102,8 @@ public class SchemaController extends AbstractController {
     value = "/{kind}/read/{schema}")
     public SchemaTO read(HttpServletResponse response,
             @PathVariable("kind") String kind,
-            @PathVariable("schema") String schemaName) throws IOException {
+            @PathVariable("schema") String schemaName)
+            throws IOException {
 
         Class reference = getAttributableUtil(kind).getSchemaClass();
         AbstractSchema schema = schemaDAO.find(schemaName, reference);
@@ -111,8 +119,7 @@ public class SchemaController extends AbstractController {
     @RequestMapping(method = RequestMethod.POST, value = "/{kind}/update")
     public SchemaTO update(HttpServletResponse response,
             @RequestBody SchemaTO schemaTO, @PathVariable("kind") String kind)
-            throws IOException, InstantiationException, IllegalAccessException,
-            UniqueValueException {
+            throws IOException {
 
         Class reference = getAttributableUtil(kind).getSchemaClass();
         AbstractSchema schema = null;
@@ -128,8 +135,15 @@ public class SchemaController extends AbstractController {
             log.error("Could not update for " + schemaTO, e);
             return throwCompositeException(e, response);
         }
-        
-        schema = schemaDAO.save(schema);
+
+        try {
+            schema = schemaDAO.save(schema);
+        } catch (MultiUniqueValueException e) {
+            log.error("While saving schema", e);
+
+            return throwMultiUniqueValueException(e, response);
+        }
+
         return schemaDataBinder.getSchemaTO(schema);
     }
 }

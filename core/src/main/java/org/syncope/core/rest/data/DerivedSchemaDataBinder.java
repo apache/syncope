@@ -30,8 +30,8 @@ public class DerivedSchemaDataBinder {
 
     private static final Logger log = LoggerFactory.getLogger(
             DerivedSchemaDataBinder.class);
-    private static final String[] ignoreDerivedSchemaProperties = {"schemas",
-        "derivedAttributes"};
+    private static final String[] ignoreDerivedSchemaProperties = {
+        "schemas", "derivedAttributes"};
     private SchemaDAO schemaDAO;
     private DerivedSchemaDAO derivedSchemaDAO;
 
@@ -67,12 +67,10 @@ public class DerivedSchemaDataBinder {
 
     public <T extends AbstractDerivedSchema, K extends AbstractSchema> T createDerivedSchema(
             DerivedSchemaTO derivedSchemaTO,
-            Class<T> derivedReference,
-            Class<K> reference)
-            throws InstantiationException, IllegalAccessException {
+            T derivedSchema,
+            Class<K> reference) {
 
-        return populateDerivedSchema(derivedReference.newInstance(),
-                derivedSchemaTO, reference);
+        return populateDerivedSchema(derivedSchema, derivedSchemaTO, reference);
     }
 
     public <T extends AbstractDerivedSchema, K extends AbstractSchema> T updateDerivedSchema(

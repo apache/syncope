@@ -16,9 +16,9 @@ package org.syncope.core.persistence.validation;
 
 import org.syncope.core.persistence.beans.AbstractSchema;
 
-public class UniqueValueException extends ValidationException {
+public class MultiUniqueValueException extends ValidationException {
 
-    public UniqueValueException(AbstractSchema schema) {
+    public MultiUniqueValueException(AbstractSchema schema) {
         super("A schema cannot be multivalue and uniquevalue at the same time"
                 + schema);
     }

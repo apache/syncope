@@ -45,15 +45,17 @@ public class DerivedSchemaController extends AbstractController {
     public DerivedSchemaTO create(HttpServletResponse response,
             @RequestBody DerivedSchemaTO derivedSchemaTO,
             @PathVariable("kind") String kind)
-            throws InstantiationException, IllegalAccessException {
+            throws IOException {
 
-        Class reference = getAttributableUtil(kind).getDerivedSchemaClass();
         AbstractDerivedSchema derivedSchema =
+                getAttributableUtil(kind).newDerivedSchema();
+        derivedSchema =
                 derivedSchemaDataBinder.createDerivedSchema(
-                derivedSchemaTO, reference,
+                derivedSchemaTO, derivedSchema,
                 getAttributableUtil(kind).getSchemaClass());
 
         derivedSchema = derivedSchemaDAO.save(derivedSchema);
+
         response.setStatus(HttpServletResponse.SC_CREATED);
         return derivedSchemaDataBinder.getDerivedSchemaTO(derivedSchema);
     }
@@ -72,6 +74,7 @@ public class DerivedSchemaController extends AbstractController {
         if (derivedSchema == null) {
             log.error("Could not find derived schema '"
                     + derivedSchemaName + "'");
+            
             throwNotFoundException(derivedSchemaName, response);
         } else {
             derivedSchemaDAO.delete(derivedSchemaName, reference);
@@ -111,6 +114,7 @@ public class DerivedSchemaController extends AbstractController {
         if (derivedSchema == null) {
             log.error("Could not find derived schema '"
                     + derivedSchemaName + "'");
+            
             return throwNotFoundException(derivedSchemaName, response);
         }
 
@@ -122,18 +126,21 @@ public class DerivedSchemaController extends AbstractController {
     public DerivedSchemaTO update(HttpServletResponse response,
             @RequestBody DerivedSchemaTO derivedSchemaTO,
             @PathVariable("kind") String kind)
-            throws InstantiationException, IllegalAccessException, IOException {
+            throws IOException {
 
-        Class reference = getAttributableUtil(kind).getDerivedSchemaClass();
         AbstractDerivedSchema derivedSchema =
+                getAttributableUtil(kind).newDerivedSchema();
+        derivedSchema =
                 derivedSchemaDataBinder.createDerivedSchema(
-                derivedSchemaTO, reference,
+                derivedSchemaTO, derivedSchema,
                 getAttributableUtil(kind).getSchemaClass());
         if (derivedSchema == null) {
-            log.error("Could not find schema '" + derivedSchemaTO.getName() + "'");
+            log.error("Could not find schema '"
+                    + derivedSchemaTO.getName() + "'");
+
             return throwNotFoundException(derivedSchemaTO.getName(), response);
         }
-        
+
         derivedSchema = derivedSchemaDAO.save(derivedSchema);
         return derivedSchemaDataBinder.getDerivedSchemaTO(derivedSchema);
     }
