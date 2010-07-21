@@ -21,16 +21,16 @@ import java.util.Set;
 public class UserTO extends AbstractAttributableTO {
 
     private String password;
-    private Set<Long> roles;
+    private Set<MembershipTO> memberships;
     private Date creationTime;
     private String token;
     private Date tokenExpireTime;
 
     public UserTO() {
         super();
-        
-        roles = new HashSet<Long>();
-   }
+
+        memberships = new HashSet<MembershipTO>();
+    }
 
     public String getPassword() {
         return password;
@@ -40,20 +40,20 @@ public class UserTO extends AbstractAttributableTO {
         this.password = password;
     }
 
-    public boolean addRole(Long role) {
-        return roles.add(role);
+    public boolean addMembership(MembershipTO membershipTO) {
+        return memberships.add(membershipTO);
     }
 
-    public boolean removeRole(Long role) {
-        return roles.remove(role);
+    public boolean removeMembership(MembershipTO membershipTO) {
+        return memberships.remove(membershipTO);
     }
 
-    public Set<Long> getRoles() {
-        return roles;
+    public Set<MembershipTO> getMemberships() {
+        return memberships;
     }
 
-    public void setRoles(Set<Long> roles) {
-        this.roles = roles;
+    public void setMemberships(Set<MembershipTO> memberships) {
+        this.memberships = memberships;
     }
 
     public Date getCreationTime() {

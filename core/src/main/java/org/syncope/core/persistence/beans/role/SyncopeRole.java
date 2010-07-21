@@ -14,7 +14,6 @@
  */
 package org.syncope.core.persistence.beans.role;
 
-import org.syncope.core.persistence.beans.user.SyncopeUser;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.CascadeType;
@@ -32,6 +31,8 @@ import org.syncope.core.persistence.beans.AbstractAttributable;
 import org.syncope.core.persistence.beans.AbstractAttribute;
 import org.syncope.core.persistence.beans.AbstractDerivedAttribute;
 import org.syncope.core.persistence.beans.Entitlement;
+import org.syncope.core.persistence.beans.membership.Membership;
+import org.syncope.core.persistence.beans.user.SyncopeUser;
 
 @Entity
 @Table(uniqueConstraints =
@@ -44,8 +45,9 @@ public class SyncopeRole extends AbstractAttributable {
     private String name;
     @ManyToOne(optional = true)
     private SyncopeRole parent;
-    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "roles")
-    private Set<SyncopeUser> users;
+    @OneToMany(cascade = CascadeType.MERGE,
+    fetch = FetchType.EAGER, mappedBy = "syncopeRole")
+    private Set<Membership> memberships;
     @ManyToMany(fetch = FetchType.LAZY)
     private Set<Entitlement> entitlements;
     @OneToMany(cascade = CascadeType.ALL,
@@ -58,7 +60,7 @@ public class SyncopeRole extends AbstractAttributable {
     private boolean inheritDerivedAttributes;
 
     public SyncopeRole() {
-        users = new HashSet<SyncopeUser>();
+        memberships = new HashSet<Membership>();
         entitlements = new HashSet<Entitlement>();
         attributes = new HashSet<RoleAttribute>();
         derivedAttributes = new HashSet<RoleDerivedAttribute>();
@@ -100,20 +102,30 @@ public class SyncopeRole extends AbstractAttributable {
         this.entitlements = entitlements;
     }
 
-    public boolean addUser(SyncopeUser user) {
-        return users.add(user);
+    public boolean addMembership(Membership membership) {
+        return memberships.add(membership);
     }
 
-    public boolean removeUser(SyncopeUser user) {
-        return users.remove(user);
+    public boolean removeMembership(Membership membership) {
+        return memberships.remove(membership);
+    }
+
+    public Set<Membership> getMemberships() {
+        return memberships;
+    }
+
+    public void setMemberships(Set<Membership> memberships) {
+        this.memberships = memberships;
     }
 
     public Set<SyncopeUser> getUsers() {
-        return users;
-    }
+        Set<SyncopeUser> result = new HashSet<SyncopeUser>();
 
-    public void setUsers(Set<SyncopeUser> users) {
-        this.users = users;
+        for (Membership membership : memberships) {
+            result.add(membership.getSyncopeUser());
+        }
+
+        return result;
     }
 
     @Override

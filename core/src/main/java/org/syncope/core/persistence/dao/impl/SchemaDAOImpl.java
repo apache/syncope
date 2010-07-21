@@ -24,6 +24,7 @@ import org.syncope.core.persistence.beans.AbstractAttribute;
 import org.syncope.core.persistence.beans.AbstractDerivedSchema;
 import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.beans.SchemaMapping;
+import org.syncope.core.persistence.beans.membership.MembershipSchema;
 import org.syncope.core.persistence.beans.role.RoleSchema;
 import org.syncope.core.persistence.beans.user.UserSchema;
 import org.syncope.core.persistence.dao.AttributeDAO;
@@ -83,6 +84,7 @@ public class SchemaDAOImpl extends AbstractDAOImpl
             attribute.setSchema(null);
             attributeDAO.delete(attribute.getId(), attribute.getClass());
         }
+        schema.setAttributes(Collections.EMPTY_SET);
 
         for (SchemaMapping schemaMapping : schema.getMappings()) {
             if (schema instanceof UserSchema) {
@@ -90,6 +92,9 @@ public class SchemaDAOImpl extends AbstractDAOImpl
             }
             if (schema instanceof RoleSchema) {
                 schemaMapping.setRoleSchema(null);
+            }
+            if (schema instanceof MembershipSchema) {
+                schemaMapping.setMembershipSchema(null);
             }
 
             schemaMappingDAO.delete(schemaMapping.getId());

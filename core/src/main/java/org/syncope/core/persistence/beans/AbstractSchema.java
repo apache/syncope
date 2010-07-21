@@ -193,22 +193,27 @@ public abstract class AbstractSchema extends AbstractBaseBean {
         return result;
     }
 
-    public abstract <T extends AbstractAttribute> boolean addAttribute(T attribute);
+    public abstract <T extends AbstractAttribute> boolean addAttribute(
+            T attribute);
 
-    public abstract <T extends AbstractAttribute> boolean removeAttribute(T attribute);
+    public abstract <T extends AbstractAttribute> boolean removeAttribute(
+            T attribute);
 
     public abstract Set<? extends AbstractAttribute> getAttributes();
 
     public abstract void setAttributes(
             Set<? extends AbstractAttribute> attributes);
 
-    public abstract <T extends AbstractDerivedSchema> boolean addDerivedSchema(T derivedSchema);
+    public abstract <T extends AbstractDerivedSchema> boolean addDerivedSchema(
+            T derivedSchema);
 
-    public abstract <T extends AbstractDerivedSchema> boolean removeDerivedSchema(T derivedSchema);
+    public abstract <T extends AbstractDerivedSchema> boolean removeDerivedSchema(
+            T derivedSchema);
 
     public abstract Set<? extends AbstractDerivedSchema> getDerivedSchemas();
 
-    public abstract void setDerivedSchemas(Set<? extends AbstractDerivedSchema> derivedSchemas);
+    public abstract void setDerivedSchemas(
+            Set<? extends AbstractDerivedSchema> derivedSchemas);
 
     public abstract boolean addMapping(SchemaMapping mapping);
 

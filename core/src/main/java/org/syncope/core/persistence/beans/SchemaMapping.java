@@ -21,6 +21,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import org.syncope.core.persistence.beans.membership.MembershipSchema;
 import org.syncope.core.persistence.beans.role.RoleSchema;
 import org.syncope.core.persistence.beans.user.UserSchema;
 
@@ -30,7 +31,6 @@ public class SchemaMapping extends AbstractBaseBean {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-
     /**
      * Attribute schema to be mapped.
      * Consider that we can associate tha same attribute schema more
@@ -38,7 +38,6 @@ public class SchemaMapping extends AbstractBaseBean {
      */
     @ManyToOne(fetch = FetchType.EAGER)
     private UserSchema userSchema;
-
     /**
      * Attribute schema to be mapped.
      * Consider that we can associate tha same attribute schema more
@@ -46,31 +45,33 @@ public class SchemaMapping extends AbstractBaseBean {
      */
     @ManyToOne(fetch = FetchType.EAGER)
     private RoleSchema roleSchema;
-
+    /**
+     * Attribute schema to be mapped.
+     * Consider that we can associate tha same attribute schema more
+     * than once, with different aliases, to different resource attributes.
+     */
+    @ManyToOne(fetch = FetchType.EAGER)
+    private MembershipSchema membershipSchema;
     /**
      * Target resource that has fields to be mapped over user attribute schemas.
      */
     @ManyToOne(fetch = FetchType.EAGER)
     private Resource resource;
-
     /**
      * Target resource's field to be mapped.
      */
     @Column(nullable = false)
     private String field;
-
     /**
      * Specify if the mapped target resource's field is the key.
      */
     @Column(nullable = false)
     private boolean accountid;
-
     /**
      * Specify if the mapped target resource's field is the password.
      */
     @Column(nullable = false)
     private boolean password;
-
     /**
      * Specify if the mapped target resource's field is nullable.
      */
@@ -141,5 +142,13 @@ public class SchemaMapping extends AbstractBaseBean {
 
     public void setUserSchema(UserSchema userSchema) {
         this.userSchema = userSchema;
+    }
+
+    public MembershipSchema getMembershipSchema() {
+        return membershipSchema;
+    }
+
+    public void setMembershipSchema(MembershipSchema membershipSchema) {
+        this.membershipSchema = membershipSchema;
     }
 }

@@ -46,10 +46,10 @@
     <SyncopeRole id="7" name="managingDirector" parent_id="6" inheritAttributes="FALSE" inheritDerivedAttributes="FALSE"/>
     <SyncopeRole id="8" name="otherchild" parent_id="1" inheritAttributes="FALSE" inheritDerivedAttributes="FALSE"/>
 
-    <SyncopeUser_SyncopeRole users_id="1" roles_id="1"/>
-    <SyncopeUser_SyncopeRole users_id="2" roles_id="1"/>
-    <SyncopeUser_SyncopeRole users_id="2" roles_id="2"/>
-    <SyncopeUser_SyncopeRole users_id="4" roles_id="7"/>
+    <Membership id="1" syncopeUser_id="1" syncopeRole_id="1"/>
+    <Membership id="2" syncopeUser_id="2" syncopeRole_id="1"/>
+    <Membership id="3" syncopeUser_id="2" syncopeRole_id="2"/>
+    <Membership id="4" syncopeUser_id="4" syncopeRole_id="7"/>
 
     <UserSchema name="username" type="String" virtual="false"
                 mandatory="true" multivalue="false" uniquevalue="true"/>
@@ -75,6 +75,10 @@
     <RoleSchema name="show" type="Boolean" virtual="false"
                 mandatory="false" multivalue="false" uniquevalue="false"/>
 
+    <MembershipSchema name="subscriptionDate" type="Date" virtual="false"
+                      mandatory="false" multivalue="false" uniquevalue="false"
+                      conversionPattern="yyyy-MM-dd'T'HH:mm:ss.SSSZ"/>
+
     <UserAttribute id="100" owner_id="1" schema_name="username"/>
     <UserAttribute id="200" owner_id="1" schema_name="loginDate"/>
     <UserAttribute id="300" owner_id="2" schema_name="username"/>
@@ -87,6 +91,8 @@
     <RoleAttribute id="800" owner_id="1" schema_name="show"/>
     <RoleAttribute id="900" owner_id="6" schema_name="icon"/>
     <RoleAttribute id="950" owner_id="4" schema_name="icon"/>
+
+    <MembershipAttribute id="1000" owner_id="4" schema_name="subscriptionDate"/>
 
     <UserAttributeValue attribute_id="100" id="10" stringValue="chicchiricco"/>
     <UserAttributeValue attribute_id="300" id="11" stringValue="fabio.martelli"/>
@@ -102,12 +108,15 @@
     <RoleAttributeValue attribute_id="900" id="43" stringValue="icon6"/>
     <RoleAttributeValue attribute_id="950" id="44" stringValue="icon4"/>
 
+    <MembershipAttributeValue attribute_id="1000" id="90" dateValue="2009-05-26"/>
+    <MembershipAttributeValue attribute_id="1000" id="91" dateValue="2010-05-26 15:40:04"/>
+
     <UserDerivedSchema name="cn" expression="surname + ', ' + firstname"/>
     
     <UserDerivedSchema_UserSchema derivedSchemas_name="cn"
-                                  schemas_name="surname" />
+                                  schemas_name="surname"/>
     <UserDerivedSchema_UserSchema derivedSchemas_name="cn"
-                                  schemas_name="firstname" />
+                                  schemas_name="firstname"/>
                                             
     <UserDerivedAttribute id="1000" derivedSchema_name="cn" owner_id="3"/>
 

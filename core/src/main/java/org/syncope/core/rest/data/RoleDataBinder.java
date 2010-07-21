@@ -28,7 +28,6 @@ import org.syncope.core.persistence.beans.AbstractDerivedAttribute;
 import org.syncope.core.persistence.beans.role.RoleAttribute;
 import org.syncope.core.persistence.beans.role.RoleDerivedAttribute;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
-import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.AttributeValueDAO;
 import org.syncope.core.persistence.dao.DerivedSchemaDAO;
 import org.syncope.core.persistence.dao.ResourceDAO;
@@ -105,23 +104,8 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
             scce.addException(invalidRoles);
         }
 
-        syncopeRole = fillAbstractAttributable(
+        syncopeRole = fill(
                 syncopeRole, roleTO, AttributableUtil.ROLE, scce);
-
-        // users
-        SyncopeUser user = null;
-        for (Long userId : roleTO.getUsers()) {
-            user = syncopeUserDAO.find(userId);
-
-            if (user == null) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Ignoring invalid user " + userId);
-                }
-            } else {
-                syncopeRole.addUser(user);
-                user.addRole(syncopeRole);
-            }
-        }
 
         return syncopeRole;
     }
@@ -136,12 +120,7 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
             roleTO.setParent(role.getParent().getId());
         }
 
-        roleTO = getAbstractAttributableTO(roleTO, role);
-
-        // users
-        for (SyncopeUser user : role.getUsers()) {
-            roleTO.addUser(user.getId());
-        }
+        roleTO = getTO(roleTO, role);
 
         AttributeTO attributeTO = null;
 

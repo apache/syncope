@@ -21,10 +21,10 @@ import javax.persistence.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.Entitlement;
+import org.syncope.core.persistence.beans.membership.Membership;
 import org.syncope.core.persistence.beans.role.RoleAttribute;
 import org.syncope.core.persistence.beans.role.RoleDerivedAttribute;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
-import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.SyncopeRoleDAO;
 
 @Repository
@@ -153,6 +153,11 @@ public class SyncopeRoleDAOImpl extends AbstractDAOImpl
     @Override
     @Transactional
     public void delete(Long id) {
+        SyncopeRole role = find(id);
+        if (id == null) {
+            return;
+        }
+
         Query query = entityManager.createQuery(
                 "SELECT r FROM SyncopeRole r WHERE "
                 + "parent_id=:id");
@@ -162,12 +167,14 @@ public class SyncopeRoleDAOImpl extends AbstractDAOImpl
             delete(child.getId());
         }
 
-        SyncopeRole role = find(id);
+        for (Membership membership : role.getMemberships()) {
+            membership.setSyncopeRole(null);
+            membership.getSyncopeUser().removeMembership(membership);
+            membership.setSyncopeRole(null);
 
-        for (SyncopeUser user : role.getUsers()) {
-            user.removeRole(role);
+            entityManager.remove(membership);
         }
-        role.setUsers(Collections.EMPTY_SET);
+        role.setMemberships(Collections.EMPTY_SET);
 
         for (Entitlement entitlement : role.getEntitlements()) {
             entitlement.removeRole(role);

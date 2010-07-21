@@ -14,6 +14,7 @@
  */
 package org.syncope.core.persistence.beans;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -29,8 +30,8 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
      * Provisioning target resources.
      */
     @ManyToMany(fetch = FetchType.EAGER)
-    private Set<Resource> resources;
-    
+    protected Set<Resource> resources;
+
     public <T extends AbstractAttribute> T getAttribute(String schemaName) {
         T result = null;
         T attribute = null;
@@ -39,7 +40,8 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
                 result == null && itor.hasNext();) {
 
             attribute = (T) itor.next();
-            if (attribute.getSchema() != null && schemaName.equals(attribute.getSchema().getName())) {
+            if (attribute.getSchema() != null
+                    && schemaName.equals(attribute.getSchema().getName())) {
 
                 result = attribute;
             }
@@ -58,7 +60,8 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
                 result == null && itor.hasNext();) {
 
             derivedAttribute = (T) itor.next();
-            if (derivedAttribute.getDerivedSchema() != null && derivedSchemaName.equals(
+            if (derivedAttribute.getDerivedSchema() != null
+                    && derivedSchemaName.equals(
                     derivedAttribute.getDerivedSchema().getName())) {
 
                 result = derivedAttribute;
@@ -69,20 +72,18 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
     }
 
     public boolean addResource(Resource resource) {
-        if (this.resources == null) this.resources = new HashSet<Resource>();
+        if (this.resources == null) {
+            this.resources = new HashSet<Resource>();
+        }
         return this.resources.add(resource);
     }
 
     public boolean removeResource(Resource resource) {
-        if (this.resources == null) return true;
-        return resources.remove(resource);
+        return resources == null ? true : resources.remove(resource);
     }
 
     public Set<Resource> getResources() {
-        if (this.resources == null) {
-            this.resources = new HashSet<Resource>();
-        }
-        return this.resources;
+        return resources == null ? Collections.EMPTY_SET : resources;
     }
 
     public void setResources(Set<Resource> resources) {
@@ -98,9 +99,11 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
     public abstract void setAttributes(
             Set<? extends AbstractAttribute> attributes);
 
-    public abstract <T extends AbstractDerivedAttribute> boolean addDerivedAttribute(T derivedAttribute);
+    public abstract <T extends AbstractDerivedAttribute> boolean addDerivedAttribute(
+            T derivedAttribute);
 
-    public abstract <T extends AbstractDerivedAttribute> boolean removeDerivedAttribute(T derivedAttribute);
+    public abstract <T extends AbstractDerivedAttribute> boolean removeDerivedAttribute(
+            T derivedAttribute);
 
     public abstract Set<? extends AbstractDerivedAttribute> getDerivedAttributes();
 

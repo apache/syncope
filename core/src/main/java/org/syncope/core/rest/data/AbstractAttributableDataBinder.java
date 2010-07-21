@@ -52,7 +52,7 @@ class AbstractAttributableDataBinder {
     protected SyncopeUserDAO syncopeUserDAO;
     protected ResourceDAO resourceDAO;
 
-    protected <T extends AbstractAttributable> T fillAbstractAttributable(
+    protected <T extends AbstractAttributable> T fill(
             T abstractAttributable,
             AbstractAttributableTO abstractAttributableTO,
             AttributableUtil attributableUtil,
@@ -209,7 +209,7 @@ class AbstractAttributableDataBinder {
         return abstractAttributable;
     }
 
-    protected <T extends AbstractAttributableTO> T getAbstractAttributableTO(
+    protected <T extends AbstractAttributableTO> T getTO(
             T abstractAttributableTO,
             AbstractAttributable abstractAttributable) {
 

@@ -24,6 +24,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.annotation.ExpectedException;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.syncope.client.to.AttributeTO;
+import org.syncope.client.to.MembershipTO;
 import org.syncope.client.to.SearchParameters;
 import org.syncope.client.to.UserTO;
 import org.syncope.client.to.UserTOs;
@@ -89,7 +90,9 @@ public class UserTestITCase extends AbstractTestITCase {
         attrWithInvalidSchemaTO.addValue("a value");
         userTO.addAttribute(attrWithInvalidSchemaTO);
 
-        userTO.addRole(8L);
+        MembershipTO membershipTO = new MembershipTO();
+        membershipTO.setRole(8L);
+        userTO.addMembership(membershipTO);
 
         // 1. create user
         UserTO newUserTO = restTemplate.postForObject(BASE_URL + "user/create",

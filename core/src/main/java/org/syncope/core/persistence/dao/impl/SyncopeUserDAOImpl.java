@@ -17,11 +17,13 @@ package org.syncope.core.persistence.dao.impl;
 import java.util.Collections;
 import java.util.List;
 import javax.persistence.Query;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import org.syncope.core.persistence.beans.role.SyncopeRole;
+import org.syncope.core.persistence.beans.membership.Membership;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.beans.user.UserAttributeValue;
+import org.syncope.core.persistence.dao.MembershipDAO;
 import org.syncope.core.persistence.dao.SyncopeUserDAO;
 
 @Repository
@@ -69,11 +71,18 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
     @Transactional
     public void delete(Long id) {
         SyncopeUser user = find(id);
-
-        for (SyncopeRole role : user.getRoles()) {
-            role.removeUser(user);
+        if (id == null) {
+            return;
         }
-        user.setRoles(Collections.EMPTY_SET);
+
+        for (Membership membership : user.getMemberships()) {
+            membership.setSyncopeUser(null);
+            membership.getSyncopeRole().removeMembership(membership);
+            membership.setSyncopeRole(null);
+
+            entityManager.remove(membership);
+        }
+        user.setMemberships(Collections.EMPTY_SET);
 
         entityManager.remove(user);
     }

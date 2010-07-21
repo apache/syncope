@@ -29,7 +29,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
-import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -39,6 +38,7 @@ import org.syncope.core.persistence.security.AsymmetricCipher;
 import org.syncope.core.persistence.beans.AbstractAttributable;
 import org.syncope.core.persistence.beans.AbstractAttribute;
 import org.syncope.core.persistence.beans.AbstractDerivedAttribute;
+import org.syncope.core.persistence.beans.membership.Membership;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 
 @Entity
@@ -59,8 +59,9 @@ public class SyncopeUser extends AbstractAttributable {
     @Basic
     @Lob
     private byte[] password;
-    @ManyToMany(fetch = FetchType.EAGER)
-    private Set<SyncopeRole> roles;
+    @OneToMany(cascade = CascadeType.MERGE,
+    fetch = FetchType.EAGER, mappedBy = "syncopeUser")
+    private Set<Membership> memberships;
     @OneToMany(cascade = CascadeType.ALL,
     fetch = FetchType.EAGER, mappedBy = "owner")
     private Set<UserAttribute> attributes;
@@ -77,7 +78,7 @@ public class SyncopeUser extends AbstractAttributable {
     private Date tokenExpireTime;
 
     public SyncopeUser() {
-        roles = new HashSet<SyncopeRole>();
+        memberships = new HashSet<Membership>();
         attributes = new HashSet<UserAttribute>();
         derivedAttributes = new HashSet<UserDerivedAttribute>();
     }
@@ -86,23 +87,30 @@ public class SyncopeUser extends AbstractAttributable {
         return id;
     }
 
-    public boolean addRole(SyncopeRole role) {
-        return roles.add(role);
+    public boolean addMembership(Membership membership) {
+        return memberships.add(membership);
     }
 
-    public boolean removeRole(SyncopeRole role) {
-        return roles.remove(role);
+    public boolean removeMembership(Membership membership) {
+        return memberships.remove(membership);
+    }
+
+    public Set<Membership> getMemberships() {
+        return memberships;
+    }
+
+    public void setMemberships(Set<Membership> memberships) {
+        this.memberships = memberships;
     }
 
     public Set<SyncopeRole> getRoles() {
-        if (roles != null) {
-            return roles;
-        }
-        return new HashSet<SyncopeRole>();
-    }
+        Set<SyncopeRole> result = new HashSet<SyncopeRole>();
 
-    public void setRoles(Set<SyncopeRole> roles) {
-        this.roles = roles;
+        for (Membership membership : memberships) {
+            result.add(membership.getSyncopeRole());
+        }
+
+        return result;
     }
 
     public String getPassword() {

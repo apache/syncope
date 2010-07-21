@@ -19,6 +19,11 @@ import org.syncope.core.persistence.beans.AbstractAttributeValue;
 import org.syncope.core.persistence.beans.AbstractDerivedAttribute;
 import org.syncope.core.persistence.beans.AbstractDerivedSchema;
 import org.syncope.core.persistence.beans.AbstractSchema;
+import org.syncope.core.persistence.beans.membership.MembershipAttribute;
+import org.syncope.core.persistence.beans.membership.MembershipAttributeValue;
+import org.syncope.core.persistence.beans.membership.MembershipDerivedAttribute;
+import org.syncope.core.persistence.beans.membership.MembershipDerivedSchema;
+import org.syncope.core.persistence.beans.membership.MembershipSchema;
 import org.syncope.core.persistence.beans.role.RoleAttribute;
 import org.syncope.core.persistence.beans.role.RoleAttributeValue;
 import org.syncope.core.persistence.beans.role.RoleDerivedAttribute;
@@ -32,7 +37,7 @@ import org.syncope.core.persistence.beans.user.UserSchema;
 
 public enum AttributableUtil {
 
-    USER, ROLE;
+    USER, ROLE, MEMBERSHIP;
 
     public <T extends AbstractSchema> Class<T> getSchemaClass() {
         Class result = null;
@@ -43,6 +48,9 @@ public enum AttributableUtil {
                 break;
             case ROLE:
                 result = RoleSchema.class;
+                break;
+            case MEMBERSHIP:
+                result = MembershipSchema.class;
                 break;
         }
 
@@ -59,6 +67,9 @@ public enum AttributableUtil {
             case ROLE:
                 result = (T) new RoleSchema();
                 break;
+            case MEMBERSHIP:
+                result = (T) new MembershipSchema();
+                break;
         }
 
         return result;
@@ -73,6 +84,9 @@ public enum AttributableUtil {
                 break;
             case ROLE:
                 result = RoleDerivedSchema.class;
+                break;
+            case MEMBERSHIP:
+                result = MembershipDerivedSchema.class;
                 break;
         }
 
@@ -89,6 +103,9 @@ public enum AttributableUtil {
             case ROLE:
                 result = (T) new RoleDerivedSchema();
                 break;
+            case MEMBERSHIP:
+                result = (T) new MembershipDerivedSchema();
+                break;
         }
 
         return result;
@@ -103,6 +120,9 @@ public enum AttributableUtil {
                 break;
             case ROLE:
                 result = RoleAttribute.class;
+                break;
+            case MEMBERSHIP:
+                result = MembershipAttribute.class;
                 break;
         }
 
@@ -119,6 +139,9 @@ public enum AttributableUtil {
             case ROLE:
                 result = (T) new RoleAttribute();
                 break;
+            case MEMBERSHIP:
+                result = (T) new MembershipAttribute();
+                break;
         }
 
         return result;
@@ -133,6 +156,9 @@ public enum AttributableUtil {
                 break;
             case ROLE:
                 result = RoleDerivedAttribute.class;
+                break;
+            case MEMBERSHIP:
+                result = MembershipDerivedAttribute.class;
                 break;
         }
 
@@ -149,6 +175,9 @@ public enum AttributableUtil {
             case ROLE:
                 result = (T) new RoleDerivedAttribute();
                 break;
+            case MEMBERSHIP:
+                result = (T) new MembershipDerivedAttribute();
+                break;
         }
 
         return result;
@@ -164,6 +193,9 @@ public enum AttributableUtil {
             case ROLE:
                 result = RoleAttributeValue.class;
                 break;
+            case MEMBERSHIP:
+                result = MembershipAttributeValue.class;
+                break;
         }
 
         return result;
@@ -178,6 +210,9 @@ public enum AttributableUtil {
                 break;
             case ROLE:
                 result = (T) new RoleAttributeValue();
+                break;
+            case MEMBERSHIP:
+                result = (T) new MembershipAttributeValue();
                 break;
         }
 

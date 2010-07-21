@@ -65,18 +65,28 @@
 
     <RoleSchema name="applicationType" type="String" virtual="false"
                 mandatory="true" multivalue="false" uniquevalue="false"/>
-
+                      
     <SyncopeRole id="0" name="/" inheritAttributes="FALSE" inheritDerivedAttributes="FALSE"/>
-    <SyncopeRole id="1" name="applicationCluster1" parent_id="0" inheritAttributes="FALSE" inheritDerivedAttributes="FALSE"/>
-    <SyncopeRole id="2" name="applicationCluster2" parent_id="0" inheritAttributes="FALSE" inheritDerivedAttributes="FALSE"/>
-    <SyncopeRole id="3" name="application1" parent_id="1" inheritAttributes="FALSE" inheritDerivedAttributes="FALSE"/>
-    <SyncopeRole id="4" name="application2" parent_id="1" inheritAttributes="FALSE" inheritDerivedAttributes="FALSE"/>
+    <SyncopeRole id="1" name="EDUCATION2" parent_id="0" inheritAttributes="TRUE" inheritDerivedAttributes="TRUE"/>
+    <SyncopeRole id="2" name="ABBONAMENTI2009" parent_id="0" inheritAttributes="TRUE" inheritDerivedAttributes="TRUE"/>
+    <SyncopeRole id="3" name="PORTFEM" parent_id="0" inheritAttributes="TRUE" inheritDerivedAttributes="TRUE"/>
+    <SyncopeRole id="4" name="MAIN_OUTSIDE_FENCE" parent_id="0" inheritAttributes="TRUE" inheritDerivedAttributes="TRUE"/>
+    <SyncopeRole id="5" name="COMPARTIMENTO_PAN" parent_id="0" inheritAttributes="TRUE" inheritDerivedAttributes="TRUE"/>
+    <SyncopeRole id="6" name="MAIN" parent_id="0" inheritAttributes="TRUE" inheritDerivedAttributes="TRUE"/>
+    <SyncopeRole id="7" name="ATCASA" parent_id="0" inheritAttributes="TRUE" inheritDerivedAttributes="TRUE"/>
+    <SyncopeRole id="10" name="testApplication1" parent_id="1" inheritAttributes="FALSE" inheritDerivedAttributes="FALSE"/>
+    <SyncopeRole id="11" name="testApplication2" parent_id="1" inheritAttributes="FALSE" inheritDerivedAttributes="FALSE"/>
+    <SyncopeRole id="20" name="testApplication3" parent_id="2" inheritAttributes="FALSE" inheritDerivedAttributes="FALSE"/>
 
     <RoleAttribute id="10" owner_id="4" schema_name="applicationType"/>
     <RoleAttribute id="11" owner_id="3" schema_name="applicationType"/>
 
     <RoleAttributeValue attribute_id="10" id="100" stringValue="mobile"/>
     <RoleAttributeValue attribute_id="11" id="101" stringValue="e-commerce"/>
+
+    <MembershipSchema name="subscriptionDate" type="Date" virtual="false"
+                      mandatory="false" multivalue="false" uniquevalue="false"
+                      conversionPattern="yyyy-MM-dd'T'HH:mm:ss.SSSZ"/>
 
     <ConnectorInstance id="1"
                        bundleName="org.syncope.identityconnectors.bundles.staticws"

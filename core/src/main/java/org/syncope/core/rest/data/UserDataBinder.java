@@ -17,16 +17,20 @@ package org.syncope.core.rest.data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import org.syncope.client.to.MembershipTO;
 import org.syncope.client.to.UserTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
+import org.syncope.core.persistence.beans.membership.Membership;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.AttributeValueDAO;
 import org.syncope.core.persistence.dao.DerivedSchemaDAO;
+import org.syncope.core.persistence.dao.MembershipDAO;
 import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.SyncopeRoleDAO;
+import org.syncope.core.persistence.dao.SyncopeUserDAO;
 import org.syncope.types.SyncopeClientExceptionType;
 
 @Component
@@ -36,12 +40,15 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
     public UserDataBinder(SchemaDAO schemaDAO,
             AttributeValueDAO attributeValueDAO,
             DerivedSchemaDAO derivedSchemaDAO,
+            SyncopeUserDAO syncopeUserDAO,
             SyncopeRoleDAO syncopeRoleDAO,
-            ResourceDAO resourceDAO) {
+            ResourceDAO resourceDAO,
+            MembershipDAO membershipDAO) {
 
         this.schemaDAO = schemaDAO;
         this.attributeValueDAO = attributeValueDAO;
         this.derivedSchemaDAO = derivedSchemaDAO;
+        this.syncopeUserDAO = syncopeUserDAO;
         this.syncopeRoleDAO = syncopeRoleDAO;
         this.resourceDAO = resourceDAO;
     }
@@ -74,21 +81,28 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
             scce.addException(invalidPassword);
         }
 
-        syncopeUser = fillAbstractAttributable(
+        syncopeUser = fill(
                 syncopeUser, userTO, AttributableUtil.USER, scce);
 
-        // roles
+        // memberships
         SyncopeRole role = null;
-        for (Long roleId : userTO.getRoles()) {
-            role = syncopeRoleDAO.find(roleId);
+        for (MembershipTO membershipTO : userTO.getMemberships()) {
+            role = syncopeRoleDAO.find(membershipTO.getRole());
 
             if (role == null) {
                 if (log.isDebugEnabled()) {
-                    log.debug("Ignoring invalid role " + roleId);
+                    log.debug("Ignoring invalid role "
+                            + membershipTO.getRole());
                 }
             } else {
-                syncopeUser.addRole(role);
-                role.addUser(syncopeUser);
+                Membership membership = new Membership();
+                membership.setSyncopeRole(role);
+                membership.setSyncopeUser(syncopeUser);
+
+                membership = fill(membership, membershipTO,
+                        AttributableUtil.MEMBERSHIP, scce);
+
+                syncopeUser.addMembership(membership);
             }
         }
 
@@ -103,10 +117,15 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         userTO.setTokenExpireTime(user.getTokenExpireTime());
         userTO.setPassword(user.getPassword());
 
-        userTO = getAbstractAttributableTO(userTO, user);
+        userTO = getTO(userTO, user);
 
-        for (SyncopeRole role : user.getRoles()) {
-            userTO.addRole(role.getId());
+        MembershipTO membershipTO = new MembershipTO();
+        for (Membership membership : user.getMemberships()) {
+            membershipTO.setRole(membership.getSyncopeRole().getId());
+
+            membershipTO = getTO(membershipTO, membership);
+
+            userTO.addMembership(membershipTO);
         }
 
         return userTO;

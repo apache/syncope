@@ -34,7 +34,7 @@ public class OpenAMUtils {
                 role = role.getParent();
             }
             if (role.getParent() != null) {
-                realm = role.getName();
+                realm = String.valueOf(role.getId());
             }
         }
 
