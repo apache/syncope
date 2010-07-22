@@ -28,12 +28,15 @@ public enum SyncopeClientExceptionType {
     InvalidSchemaDefinition(
     "Syncope.InvalidSchemaDefinition",
     ""),
-    InvalidUpdate(
-    "Syncope.InvalidUpdate",
-    "Syncope.InvalidUpdate.name"),
+    InvalidSearchCondition(
+    "Syncope.InvalidSearchCondition",
+    ""),
     InvalidUniques(
     "Syncope.InvalidUniques",
     "Syncope.InvalidUniques.attributeName"),
+    InvalidUpdate(
+    "Syncope.InvalidUpdate",
+    "Syncope.InvalidUpdate.name"),
     InvalidValues(
     "Syncope.InvalidValues",
     "Syncope.InvalidValues.attributeName"),

@@ -26,6 +26,14 @@ public class UserTOs extends AbstractBaseTO implements Iterable<UserTO> {
         users = new ArrayList<UserTO>();
     }
 
+    public boolean addUser(UserTO userTO) {
+        return users.add(userTO);
+    }
+
+    public boolean removeUser(UserTO userTO) {
+        return users.remove(userTO);
+    }
+
     public List<UserTO> getUsers() {
         return users;
     }

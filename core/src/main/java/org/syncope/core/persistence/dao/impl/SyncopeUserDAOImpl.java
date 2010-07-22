@@ -17,13 +17,12 @@ package org.syncope.core.persistence.dao.impl;
 import java.util.Collections;
 import java.util.List;
 import javax.persistence.Query;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import org.syncope.client.to.NodeSearchCondition;
 import org.syncope.core.persistence.beans.membership.Membership;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.beans.user.UserAttributeValue;
-import org.syncope.core.persistence.dao.MembershipDAO;
 import org.syncope.core.persistence.dao.SyncopeUserDAO;
 
 @Repository
@@ -36,16 +35,23 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    public List<SyncopeUser> findByAttributeValue(UserAttributeValue attributeValue) {
+    public List<SyncopeUser> findByAttributeValue(
+            UserAttributeValue attributeValue) {
 
         Query query = entityManager.createQuery(
-                "SELECT u FROM SyncopeUser u, UserAttribute ua, UserAttributeValue e "
+                "SELECT u"
+                + " FROM SyncopeUser u, UserAttribute ua, UserAttributeValue e "
                 + " WHERE e.attribute = ua AND ua.owner = u"
-                + " AND ((e.stringValue IS NOT NULL AND e.stringValue = :stringValue)"
-                + " OR (e.booleanValue IS NOT NULL AND e.booleanValue = :booleanValue)"
-                + " OR (e.dateValue IS NOT NULL AND e.dateValue = :dateValue)"
-                + " OR (e.longValue IS NOT NULL AND e.longValue = :longValue)"
-                + " OR (e.doubleValue IS NOT NULL AND e.doubleValue = :doubleValue))");
+                + " AND ((e.stringValue IS NOT NULL"
+                + " AND e.stringValue = :stringValue)"
+                + " OR (e.booleanValue IS NOT NULL"
+                + " AND e.booleanValue = :booleanValue)"
+                + " OR (e.dateValue IS NOT NULL"
+                + " AND e.dateValue = :dateValue)"
+                + " OR (e.longValue IS NOT NULL"
+                + " AND e.longValue = :longValue)"
+                + " OR (e.doubleValue IS NOT NULL"
+                + " AND e.doubleValue = :doubleValue))");
         query.setParameter("stringValue", attributeValue.getStringValue());
         query.setParameter("booleanValue", attributeValue.getBooleanValue());
         query.setParameter("dateValue", attributeValue.getDateValue());
@@ -59,6 +65,24 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
     public List<SyncopeUser> findAll() {
         Query query = entityManager.createQuery("SELECT e FROM SyncopeUser e");
         return query.getResultList();
+    }
+
+    @Override
+    public List<SyncopeUser> search(NodeSearchCondition searchCondition) {
+        String queryString = QueryUtils.getUserSearchQuery(searchCondition);
+        if (log.isDebugEnabled()) {
+            log.debug("About to execute query\n\t" + queryString + "\n");
+        }
+
+        List<SyncopeUser> result = Collections.EMPTY_LIST;
+        try {
+            Query query = entityManager.createQuery(queryString);
+            result = query.getResultList();
+        } catch (Throwable t) {
+            log.error("While executing query\n\t" + queryString + "\n", t);
+        }
+        
+        return result;
     }
 
     @Override

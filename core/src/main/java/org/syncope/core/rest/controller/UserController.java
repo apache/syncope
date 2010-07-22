@@ -27,8 +27,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-import org.syncope.client.to.SearchParameters;
-import org.syncope.client.to.UserTO;
 import org.syncope.client.to.UserTOs;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.SyncopeUserDAO;
@@ -46,12 +44,15 @@ import javassist.NotFoundException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
+import org.syncope.client.to.NodeSearchCondition;
+import org.syncope.client.to.UserTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
 import org.syncope.core.persistence.beans.Resource;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.propagation.PropagationManager;
 import org.syncope.core.persistence.dao.SyncopeConfigurationDAO;
+import org.syncope.core.rest.data.InvalidSearchConditionException;
 import org.syncope.core.workflow.Constants;
 import org.syncope.core.workflow.SpringHibernateJPAWorkflowStore;
 import org.syncope.core.workflow.WorkflowInitException;
@@ -299,14 +300,25 @@ public class UserController extends AbstractController {
     @RequestMapping(method = RequestMethod.POST,
     value = "/search")
     public UserTOs search(HttpServletResponse response,
-            @RequestBody SearchParameters searchParameters) {
+            @RequestBody NodeSearchCondition searchCondition)
+            throws InvalidSearchConditionException {
 
-        log.info("search called with parameter " + searchParameters);
+        if (log.isDebugEnabled()) {
+            log.debug("search called with condition " + searchCondition);
+        }
 
-        List<UserTO> userTOs = new ArrayList<UserTO>();
+        if (!searchCondition.checkValidity()) {
+            log.error("Invalid search condition: " + searchCondition);
+
+            throw new InvalidSearchConditionException();
+        }
+
+        List<SyncopeUser> matchingUsers =
+                syncopeUserDAO.search(searchCondition);
         UserTOs result = new UserTOs();
-
-        result.setUsers(userTOs);
+        for (SyncopeUser user : matchingUsers) {
+            result.addUser(userDataBinder.getUserTO(user));
+        }
 
         return result;
     }

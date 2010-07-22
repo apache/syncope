@@ -24,8 +24,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.annotation.ExpectedException;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.syncope.client.to.AttributeTO;
+import org.syncope.client.to.LeafSearchCondition;
 import org.syncope.client.to.MembershipTO;
-import org.syncope.client.to.SearchParameters;
+import org.syncope.client.to.NodeSearchCondition;
 import org.syncope.client.to.UserTO;
 import org.syncope.client.to.UserTOs;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
@@ -192,14 +193,29 @@ public class UserTestITCase extends AbstractTestITCase {
 
     @Test
     public void search() {
-        SearchParameters searchParameters = new SearchParameters();
+        LeafSearchCondition usernameLeafCond1 =
+                new LeafSearchCondition(LeafSearchCondition.Type.LIKE);
+        usernameLeafCond1.setSchema("username");
+        usernameLeafCond1.setExpression("%o%");
+
+        LeafSearchCondition usernameLeafCond2 =
+                new LeafSearchCondition(LeafSearchCondition.Type.LIKE);
+        usernameLeafCond2.setSchema("username");
+        usernameLeafCond2.setExpression("%i%");
+
+        NodeSearchCondition searchCondition =
+                NodeSearchCondition.getAndSearchCondition(
+                NodeSearchCondition.getLeafCondition(usernameLeafCond1),
+                NodeSearchCondition.getLeafCondition(usernameLeafCond2));
+
+        assertTrue(searchCondition.checkValidity());
 
         UserTOs matchedUsers = restTemplate.postForObject(
                 BASE_URL + "user/search",
-                searchParameters, UserTOs.class);
+                searchCondition, UserTOs.class);
 
         assertNotNull(matchedUsers);
-        assertTrue(matchedUsers.getUsers().isEmpty());
+        assertFalse(matchedUsers.getUsers().isEmpty());
     }
 
     @Test

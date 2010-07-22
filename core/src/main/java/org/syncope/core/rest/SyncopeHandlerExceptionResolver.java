@@ -27,6 +27,7 @@ import org.syncope.client.validation.SyncopeClientException;
 import org.syncope.core.persistence.dao.MissingConfKeyException;
 import org.syncope.core.persistence.propagation.PropagationException;
 import org.syncope.core.persistence.validation.MultiUniqueValueException;
+import org.syncope.core.rest.data.InvalidSearchConditionException;
 import org.syncope.types.SyncopeClientExceptionType;
 
 public class SyncopeHandlerExceptionResolver
@@ -97,9 +98,13 @@ public class SyncopeHandlerExceptionResolver
                     SyncopeClientExceptionType.NotFound.getHeaderValue());
             response.setHeader(
                     SyncopeClientExceptionType.NotFound.getElementHeaderName(),
-                    ((MissingConfKeyException)ex).getConfKey());
+                    ((MissingConfKeyException) ex).getConfKey());
 
             statusCode = HttpServletResponse.SC_NOT_FOUND;
+        } else if (ex instanceof InvalidSearchConditionException) {
+            response.setHeader(
+                    SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
+                    SyncopeClientExceptionType.InvalidSearchCondition.getHeaderValue());
         }
 
         try {
