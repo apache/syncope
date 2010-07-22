@@ -37,7 +37,8 @@ public class SendEmail extends BaseSendEmail {
                         + syncopeConfigurationDAO.find(
                         "servicelayer.baseurl").getConfValue()
                         + "?token="
-                        + URLEncoder.encode(syncopeUser.getToken(), "UTF-8");
+                        + URLEncoder.encode(syncopeUser.getToken(), "UTF-8")
+                        + "&userId=" + Utils.getUserId(syncopeUser);
             } catch (Throwable t) {
                 log.error("Unexpected exception", t);
             }
