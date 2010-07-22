@@ -16,153 +16,32 @@
 <workflow>
     <initial-actions>
         <action name="start" id="0">
-            <validators>
-                <validator type="class">
-                    <arg name="class.name">org.syncope.core.workflow.prcsiam.CheckIfUserIdAlreadyExists</arg>
-                </validator>
-            </validators>
-            <pre-functions>
-                <function type="class">
-                    <arg name="class.name">org.syncope.core.workflow.prcsiam.StoreUserIdAsCaller</arg>
-                </function>
-            </pre-functions>
             <results>
                 <unconditional-result old-status="n/a" status="creationRequest" step="1"/>
             </results>
         </action>
     </initial-actions>
-    <common-actions>
-        <action name="reset" id="100">
-            <results>
-                <unconditional-result old-status="n/a" status="creationRequest" step="1"/>
-            </results>
-        </action>
-    </common-actions>
     <steps>
         <step name="creationRequest" id="1">
-            <pre-functions>
-                <function type="class">
-                    <arg name="class.name">org.syncope.core.workflow.prcsiam.StoreUserIdAsCaller</arg>
-                </function>
-            </pre-functions>
             <actions>
                 <action name="create" id="1001">
-                    <pre-functions>
-                        <function type="class">
-                            <arg name="class.name">org.syncope.core.workflow.GenerateToken</arg>
-                        </function>
-                    </pre-functions>
                     <results>
-                        <result old-status="creationRequest" status="active" step="3">
-                            <conditions>
-                                <condition type="class">
-                                    <arg name="class.name">org.syncope.core.workflow.prcsiam.IsMobileApplication</arg>
-                                </condition>
-                            </conditions>
-                            <post-functions>
-                                <function type="class">
-                                    <arg name="class.name">org.syncope.core.workflow.prcsiam.SendSMSText</arg>
-                                </function>
-                                <function type="class">
-                                    <arg name="class.name">org.syncope.core.workflow.prcsiam.StoreActivationDate</arg>
-                                </function>
-                            </post-functions>
-                        </result>
                         <unconditional-result old-status="creationRequest" status="doubleOptIn" step="2"/>
                     </results>
-                    <post-functions>
-                        <function type="class">
-                            <arg name="class.name">org.syncope.core.workflow.prcsiam.SendEmail</arg>
-                            <arg name="from">activate.email.from</arg>
-                            <arg name="subject">activate.email.subject</arg>
-                            <arg name="template.html">activate.email.template.html</arg>
-                            <arg name="template.txt">activate.email.template.txt</arg>
-                            <arg name="parametrize">true</arg>
-                        </function>
-                        <!-- TMP -->
-                        <function type="class">
-                            <arg name="class.name">org.syncope.core.workflow.prcsiam.OpenAMCreate</arg>
-                        </function>
-                    </post-functions>
                 </action>
             </actions>
         </step>
-        <step name="doubleOptIn" id="2">
-            <pre-functions>
-                <function type="class">
-                    <arg name="class.name">org.syncope.core.workflow.prcsiam.StoreUserIdAsCaller</arg>
-                </function>
-            </pre-functions>
+        <step name="activatable" id="2">
             <actions>
-                <common-action id="100"/>
-
                 <action name="activate" id="2001">
                     <results>
-                        <result old-status="doubleOptIn" status="active" step="3">
-                            <conditions>
-                                <condition type="class">
-                                    <arg name="class.name">org.syncope.core.workflow.IsValidToken</arg>
-                                </condition>
-                            </conditions>
-                            <post-functions>
-                                <function type="class">
-                                    <arg name="class.name">org.syncope.core.workflow.prcsiam.StoreActivationDate</arg>
-                                </function>
-                            </post-functions>
-                        </result>
-                        <result old-status="doubleOptIn" status="doubleOptIn" step="2">
-                            <conditions>
-                                <condition type="class">
-                                    <arg name="class.name">org.syncope.core.workflow.IsNotValidToken</arg>
-                                </condition>
-                            </conditions>
-                            <pre-functions>
-                                <function type="class">
-                                    <arg name="class.name">org.syncope.core.workflow.GenerateToken</arg>
-                                </function>
-                            </pre-functions>
-                            <post-functions>
-                                <function type="class">
-                                    <arg name="class.name">org.syncope.core.workflow.prcsiam.SendEmail</arg>
-                                    <arg name="from">activate.email.from</arg>
-                                    <arg name="subject">activate.email.subject</arg>
-                                    <arg name="template.html">activate.email.template.html</arg>
-                                    <arg name="template.txt">activate.email.template.txt</arg>
-                                    <arg name="parametrize">true</arg>
-                                </function>
-                            </post-functions>
-                        </result>
-                        <unconditional-result old-status="doubleOptIn" status="doubleOptIn" step="2"/>
+                        <unconditional-result old-status="doubleOptIn" status="active" step="3"/>
                     </results>
                 </action>
             </actions>
         </step>
         <step name="active" id="3">
-            <pre-functions>
-                <function type="class">
-                    <arg name="class.name">org.syncope.core.workflow.prcsiam.StoreUserIdAsCaller</arg>
-                </function>
-                <!-- TMP -->
-                <function type="class">
-                    <arg name="class.name">org.syncope.core.workflow.prcsiam.OpenAMActivate</arg>
-                </function>
-            </pre-functions>
             <actions>
-                <action name="subscribe" id="3001">
-                    <results>
-                        <unconditional-result old-status="active" status="active" step="3"/>
-                    </results>
-                </action>
-                <action name="unsubscribe" id="3002">
-                    <results>
-                        <unconditional-result old-status="active" status="active" step="3"/>
-                    </results>
-                </action>
-                <action name="update" id="3003">
-                    <results>
-                        <unconditional-result old-status="active" status="active" step="3"/>
-                    </results>
-                </action>
                 <action name="generateToken" id="3004">
                     <pre-functions>
                         <function type="class">
@@ -172,16 +51,6 @@
                     <results>
                         <unconditional-result old-status="active" status="active" step="3"/>
                     </results>
-                    <post-functions>
-                        <function type="class">
-                            <arg name="class.name">org.syncope.core.workflow.prcsiam.SendEmail</arg>
-                            <arg name="from">generateToken.email.from</arg>
-                            <arg name="subject">generateToken.email.subject</arg>
-                            <arg name="template.html">generateToken.email.template.html</arg>
-                            <arg name="template.txt">generateToken.email.template.txt</arg>
-                            <arg name="parametrize">true</arg>
-                        </function>
-                    </post-functions>
                 </action>
                 <action name="verifyToken" id="3005">
                     <results>
@@ -191,16 +60,6 @@
                                     <arg name="class.name">org.syncope.core.workflow.IsValidToken</arg>
                                 </condition>
                             </conditions>
-                            <post-functions>
-                                <function type="class">
-                                    <arg name="class.name">org.syncope.core.workflow.prcsiam.SendEmail</arg>
-                                    <arg name="from">verifyToken.email.from</arg>
-                                    <arg name="subject">verifyToken.email.subject</arg>
-                                    <arg name="template.html">verifyToken.email.template.html</arg>
-                                    <arg name="template.txt">verifyToken.email.template.txt</arg>
-                                    <arg name="parametrize">false</arg>
-                                </function>
-                            </post-functions>
                         </result>
                         <unconditional-result old-status="active" status="active" step="3"/>
                     </results>
@@ -218,11 +77,6 @@
             </actions>
         </step>
         <step name="suspended" id="4">
-            <pre-functions>
-                <function type="class">
-                    <arg name="class.name">org.syncope.core.workflow.prcsiam.StoreUserIdAsCaller</arg>
-                </function>
-            </pre-functions>
             <actions>
                 <action name="reactivate" id="4001">
                     <results>
@@ -231,15 +85,6 @@
                 </action>
             </actions>
         </step>
-        <step name="deleted" id="5">
-            <pre-functions>
-                <function type="class">
-                    <arg name="class.name">org.syncope.core.workflow.prcsiam.StoreUserIdAsCaller</arg>
-                </function>
-            </pre-functions>
-            <actions>
-                <common-action id="100"/>
-            </actions>
-        </step>
+        <step name="deleted" id="5"/>
     </steps>
 </workflow>

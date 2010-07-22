@@ -26,7 +26,7 @@ import org.springframework.web.client.RestTemplate;
 @ContextConfiguration(locations = {
     "classpath:persistenceContext.xml",
     "classpath:workflowContext.xml",
-    "file:src/main/webapp/WEB-INF/syncope-core-rest-servlet.xml"})
+    "file:target/syncope/WEB-INF/syncope-core-rest-servlet.xml"})
 public abstract class AbstractTestITCase {
 
     protected static final Logger log = LoggerFactory.getLogger(

@@ -153,11 +153,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.forgerock.openam</groupId>
-            <artifactId>clientsdk</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.dbunit</groupId>
             <artifactId>dbunit</artifactId>
         </dependency>
@@ -349,6 +344,9 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
                 <inherited>true</inherited>
+                <configuration>
+                    <attachClasses>true</attachClasses>
+                </configuration>
                 <executions>
                     <execution>
                         <id>integration-test-war</id>
