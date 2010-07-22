@@ -37,6 +37,11 @@ public class SchemaTestITCase extends AbstractTestITCase {
         SchemaTO newSchemaTO = restTemplate.postForObject(BASE_URL
                 + "schema/user/create", schemaTO, SchemaTO.class);
         assertEquals(schemaTO, newSchemaTO);
+
+
+        newSchemaTO = restTemplate.postForObject(BASE_URL
+                + "schema/membership/create", schemaTO, SchemaTO.class);
+        assertEquals(schemaTO, newSchemaTO);
     }
 
     @Test
@@ -50,6 +55,17 @@ public class SchemaTestITCase extends AbstractTestITCase {
             assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
         }
         assertNull(username);
+
+        restTemplate.delete(BASE_URL +
+                "schema/membership/delete/subscriptionDate.json");
+        SchemaTO subscriptionDate = null;
+        try {
+            subscriptionDate = restTemplate.getForObject(BASE_URL
+                    + "schema/membership/read/firstname.json", SchemaTO.class);
+        } catch (HttpClientErrorException e) {
+            assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
+        }
+        assertNull(subscriptionDate);
     }
 
     @Test
@@ -62,6 +78,10 @@ public class SchemaTestITCase extends AbstractTestITCase {
         SchemaTOs roleSchemas = restTemplate.getForObject(BASE_URL
                 + "schema/role/list.json", SchemaTOs.class);
         assertFalse(roleSchemas.getSchemas().isEmpty());
+
+        SchemaTOs membershipSchemas = restTemplate.getForObject(BASE_URL
+                + "schema/membership/list.json", SchemaTOs.class);
+        assertFalse(membershipSchemas.getSchemas().isEmpty());
     }
 
     @Test
