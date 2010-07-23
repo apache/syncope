@@ -33,6 +33,8 @@
     <properties>
         <hsqldb.version>1.8.0.10</hsqldb.version>
 
+        <jetty.port>8888</jetty.port>
+
         <cargo.servlet.port>8080</cargo.servlet.port>
         <cargo.log>/tmp/syncope-core-cargo.log</cargo.log>
         <cargo.output>/tmp/syncope-core-cargo-output.log</cargo.output>
@@ -179,6 +181,15 @@
         </dependency>
         <!-- /IdentityConnectors -->
 
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-frontend-jaxws</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-transports-http</artifactId>
+        </dependency>
+
         <!-- TEST -->
         <dependency>
             <groupId>org.syncope.identityconnectors.bundles.staticws</groupId>
@@ -213,6 +224,7 @@
             <artifactId>ws-target-resource</artifactId>
             <version>${parent.version}</version>
             <type>war</type>
+            <scope>test</scope>
         </dependency>
         <!-- /TEST -->
     </dependencies>
@@ -404,7 +416,7 @@
                     <container>
                         <containerId>tomcat6x</containerId>
                         <zipUrlInstaller>
-                            <url>http://www.apache.org/dist/tomcat/tomcat-6/v6.0.28/bin/apache-tomcat-6.0.28.zip</url>
+                            <url>http://www.apache.org/dist/tomcat/tomcat-6/v6.0.29/bin/apache-tomcat-6.0.29.zip</url>
                             <installDir>${java.io.tmpdir}/tomcat</installDir>
                         </zipUrlInstaller>
                         <log>${cargo.log}</log>
@@ -428,16 +440,7 @@
                             <deployable>
                                 <location>${project.build.directory}/${project.build.finalName}.war</location>
                             </deployable>
-                            <deployable>
-                                <groupId>org.syncope.identityconnectors.bundles.staticws</groupId>
-                                <artifactId>ws-target-resource</artifactId>
-                                <type>war</type>
-                                <properties>
-                                    <context>wstarget</context>
-                                </properties>
-                            </deployable>
                         </deployables>
-
                     </configuration>
                 </configuration>
                 <executions>
@@ -450,6 +453,43 @@
                     </execution>
                     <execution>
                         <id>stop-container</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>stop</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.mortbay.jetty</groupId>
+                <artifactId>maven-jetty-plugin</artifactId>
+                <inherited>true</inherited>
+                <configuration>
+                    <stopKey>foo</stopKey>
+                    <stopPort>9999</stopPort>
+                    <webApp>${settings.localRepository}/org/syncope/identityconnectors/bundles/staticws/ws-target-resource/${parent.version}/ws-target-resource-${parent.version}.war</webApp>
+                    <contextPath>wstarget</contextPath>
+                    <connectors>
+                        <connector implementation="org.mortbay.jetty.nio.SelectChannelConnector">
+                            <port>${jetty.port}</port>
+                        </connector>
+                    </connectors>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>start-jetty</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>run-war</goal>
+                        </goals>
+                        <configuration>
+                            <scanIntervalSeconds>0</scanIntervalSeconds>
+                            <daemon>true</daemon>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>stop-jetty</id>
                         <phase>post-integration-test</phase>
                         <goals>
                             <goal>stop</goal>

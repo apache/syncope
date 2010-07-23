@@ -108,10 +108,10 @@ public class ProvisioningImpl implements Provisioning {
         attr.setPassword(true);
         attrs.add(attr);
 
-        attr = new WSAttribute("data di nascita", "Date", false);
+        attr = new WSAttribute("data di nascita", "Date");
         attrs.add(attr);
 
-        attr = new WSAttribute("privacy", "Boolean", false);
+        attr = new WSAttribute("privacy", "Boolean");
         attrs.add(attr);
 
         attr = new WSAttribute("altezza", "Double");

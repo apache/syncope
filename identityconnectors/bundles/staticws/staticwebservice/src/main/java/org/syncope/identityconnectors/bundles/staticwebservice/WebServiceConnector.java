@@ -72,23 +72,19 @@ public class WebServiceConnector implements
      */
     private static final Logger log =
             LoggerFactory.getLogger(WebServiceConnector.class);
-
     /**
      * Place holder for the Connection created in the init method.
      */
     private WebServiceConnection connection;
-
     /**
      * Place holder for the {@link Configuration} passed into the init() method
      * {@link WebServiceConnector#init}.
      */
     private WebServiceConfiguration config;
-
     /**
      * Schema.
      */
     private Schema schema = null;
-
     /**
      * Web Service Attributes.
      */
@@ -221,14 +217,15 @@ public class WebServiceConnector implements
         }
 
         // check attributes
-        if (attrs == null || attrs.size() == 0) {
+        if (attrs == null || attrs.isEmpty()) {
             throw new IllegalArgumentException("No attribute specified");
         }
 
         // get web service client
         Provisioning provisioning = connection.getProvisioning();
-        if (provisioning == null)
+        if (provisioning == null) {
             throw new IllegalStateException("Web Service client not found");
+        }
 
         // get account name
         Name name = AttributeUtil.getNameFromAttributes(attrs);
@@ -287,8 +284,8 @@ public class WebServiceConnector implements
                         "Missing required parameter");
             }
 
-            if (value instanceof GuardedString ||
-                    value instanceof GuardedByteArray) {
+            if (value instanceof GuardedString
+                    || value instanceof GuardedByteArray) {
 
                 wsAttributeValue.setValue(value.toString());
             } else {
@@ -303,15 +300,15 @@ public class WebServiceConnector implements
         }
 
         // check for mandatory attributes
-        if (mandatoryAttributes.size() > 0) {
-            // TODO: it should be forwarded some details about this exception
-            throw new IllegalArgumentException("Missing required parameters");
+        if (!mandatoryAttributes.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Missing required parameters: " + mandatoryAttributes);
         }
 
         if (log.isDebugEnabled()) {
             log.debug(
-                    "\nUser " + accountName +
-                    "\n\tattributes: " + attributes.size());
+                    "\nUser " + accountName
+                    + "\n\tattributes: " + attributes.size());
         }
 
         try {
@@ -376,8 +373,9 @@ public class WebServiceConnector implements
 
         Provisioning provisioning = connection.getProvisioning();
 
-        if (provisioning == null)
+        if (provisioning == null) {
             throw new IllegalStateException("Web Service client not found");
+        }
 
         Set<WSAttribute> wsAttrs = provisioning.schema();
 
@@ -395,12 +393,12 @@ public class WebServiceConnector implements
 
             if (log.isDebugEnabled()) {
                 log.debug(
-                        "\nAttribute: " +
-                        "\n\tName: " + attribute.getName() +
-                        "\n\tType: " + attribute.getType() +
-                        "\n\tIsKey: " + attribute.isKey() +
-                        "\n\tIsPassword: " + attribute.isPassword() +
-                        "\n\tIsNullable: " + attribute.isNullable());
+                        "\nAttribute: "
+                        + "\n\tName: " + attribute.getName()
+                        + "\n\tType: " + attribute.getType()
+                        + "\n\tIsKey: " + attribute.isKey()
+                        + "\n\tIsPassword: " + attribute.isPassword()
+                        + "\n\tIsNullable: " + attribute.isNullable());
             }
 
             try {
@@ -608,8 +606,8 @@ public class WebServiceConnector implements
                         "Missing required parameter");
             }
 
-            if (value instanceof GuardedString ||
-                    value instanceof GuardedByteArray) {
+            if (value instanceof GuardedString
+                    || value instanceof GuardedByteArray) {
 
                 wsAttributeValue.setValue(value.toString());
             } else {
@@ -843,14 +841,17 @@ public class WebServiceConnector implements
     private String getAttributeName(WSAttribute attribute) {
         String attributeName = null;
 
-        if (attribute.isKey())
+        if (attribute.isKey()) {
             attributeName = Name.NAME;
+        }
 
-        if (attribute.isPassword())
+        if (attribute.isPassword()) {
             attributeName = OperationalAttributeInfos.PASSWORD.getName();
+        }
 
-        if (!attribute.isKey() && !attribute.isPassword())
+        if (!attribute.isKey() && !attribute.isPassword()) {
             attributeName = attribute.getName();
+        }
 
         return attributeName;
     }

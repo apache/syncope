@@ -34,7 +34,7 @@
 
     <url>http://syncope.googlecode.com/</url>
     <prerequisites>
-        <maven>[2.2.0,)</maven>
+        <maven>[2.2.1,)</maven>
     </prerequisites>
 
     <licenses>
@@ -94,7 +94,6 @@
     </mailingLists>
 
     <properties>
-
         <servlet-api.version>2.5</servlet-api.version>
         <jsp-api.version>2.1</jsp-api.version>
         <jstl.version>1.2</jstl.version>
@@ -129,6 +128,7 @@
         <dbunit.version>2.4.7</dbunit.version>
 
         <jetty.version>6.1.24</jetty.version>
+        <cargo.version>1.0.2</cargo.version>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
@@ -420,7 +420,7 @@
                 <plugin>
                     <groupId>org.codehaus.cargo</groupId>
                     <artifactId>cargo-maven2-plugin</artifactId>
-                    <version>1.0.2</version>
+                    <version>${cargo.version}</version>
                 </plugin>
             </plugins>
         </pluginManagement>

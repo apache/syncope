@@ -96,7 +96,8 @@ public class UserTestITCase extends AbstractTestITCase {
         userTO.addMembership(membershipTO);
 
         // 1. create user
-        UserTO newUserTO = restTemplate.postForObject(BASE_URL + "user/create",
+        UserTO newUserTO = restTemplate.postForObject(
+                BASE_URL + "user/create?syncRoles=8",
                 userTO, UserTO.class);
 
         assertFalse(newUserTO.getAttributes().contains(
