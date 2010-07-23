@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>${groupId}</groupId>
+        <artifactId>${rootArtifactId}</artifactId>
+        <version>${version}</version>
+    </parent>
+
+    <name>Syncope sample project core</name>
+    <groupId>${groupId}</groupId>
+    <artifactId>${artifactId}</artifactId>
+    <packaging>war</packaging>
+
+    <properties>
+        <hsqldb.version>1.8.0.10</hsqldb.version>
+
+        <cargo.servlet.port>8080</cargo.servlet.port>
+        <cargo.log>/tmp/syncope-core-cargo.log</cargo.log>
+        <cargo.output>/tmp/syncope-core-cargo-output.log</cargo.output>
+    </properties>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>org.syncope</groupId>
+            <artifactId>syncope-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.syncope</groupId>
+            <artifactId>syncope-core</artifactId>
+            <type>war</type>
+        </dependency>
+        <dependency>
+            <groupId>org.syncope</groupId>
+            <artifactId>syncope-core</artifactId>
+            <classifier>classes</classifier>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet.jsp</groupId>
+            <artifactId>jsp-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>jstl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.persistence</groupId>
+            <artifactId>persistence-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-annotations</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>opensymphony</groupId>
+            <artifactId>osworkflow</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>opensymphony</groupId>
+            <artifactId>propertyset</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>opensymphony</groupId>
+            <artifactId>oscore</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hsqldb</groupId>
+            <artifactId>hsqldb</artifactId>
+            <version>${hsqldb.version}</version>
+            <scope>test</scope>
+        </dependency>
+        
+    </dependencies>
+
+    <build>
+        <finalName>syncope</finalName>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <inherited>true</inherited>
+                <configuration>
+                    <redirectTestOutputToFile>true</redirectTestOutputToFile>
+                    <encoding>utf-8</encoding>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>verify</id>
+                        <goals>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <inherited>true</inherited>
+                <executions>
+                    <execution>
+                        <id>integration-test-resources</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>integration-test</finalName>
+                            <classesDirectory>${project.build.directory}/test-classes</classesDirectory>
+                            <includes>
+                                <include>**/db.properties</include>
+                                <include>**/content.xml</include>
+                            </includes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <inherited>true</inherited>
+                <configuration>
+                    <attachClasses>true</attachClasses>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>integration-test-war</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>war</goal>
+                        </goals>
+                        <configuration>
+                            <packagingExcludes>WEB-INF/classes/org/syncope/core/persistence/db.properties,
+                                WEB-INF/classes/org/syncope/core/persistence/content.xml</packagingExcludes>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>repackage-war</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>war</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.cargo</groupId>
+                <artifactId>cargo-maven2-plugin</artifactId>
+                <inherited>true</inherited>
+                <configuration>
+                    <wait>false</wait>
+                    <container>
+                        <containerId>tomcat6x</containerId>
+                        <zipUrlInstaller>
+                            <url>http://www.apache.org/dist/tomcat/tomcat-6/v6.0.28/bin/apache-tomcat-6.0.28.zip</url>
+                            <installDir>${java.io.tmpdir}/tomcat</installDir>
+                        </zipUrlInstaller>
+                        <log>${cargo.log}</log>
+                        <output>${cargo.output}</output>
+                        <dependencies>
+                            <dependency>
+                                <location>${settings.localRepository}/org/hsqldb/hsqldb/${hsqldb.version}/hsqldb-${hsqldb.version}.jar</location>
+                            </dependency>
+                            <dependency>
+                                <location>${project.build.directory}/integration-test.jar</location>
+                            </dependency>
+                        </dependencies>
+                    </container>
+                    <configuration>
+                        <type>standalone</type>
+                        <home>target/tomcat6x</home>
+                        <properties>
+                            <cargo.servlet.port>${cargo.servlet.port}</cargo.servlet.port>
+                        </properties>
+                        <deployables>
+                            <deployable>
+                                <location>${project.build.directory}/${project.build.finalName}.war</location>
+                            </deployable>
+                            <deployable>
+                                <groupId>org.syncope.identityconnectors.bundles.staticws</groupId>
+                                <artifactId>ws-target-resource</artifactId>
+                                <type>war</type>
+                                <properties>
+                                    <context>wstarget</context>
+                                </properties>
+                            </deployable>
+                        </deployables>
+
+                    </configuration>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>start-container</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>start</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>stop-container</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>stop</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+                <filtering>true</filtering>
+            </testResource>
+        </testResources>
+    </build>
+</project>
