@@ -16,12 +16,11 @@ package org.syncope.core.persistence.beans.user;
 
 import java.util.HashSet;
 import java.util.Set;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
 import org.syncope.core.persistence.beans.AbstractAttributable;
 import org.syncope.core.persistence.beans.AbstractAttribute;
 import org.syncope.core.persistence.beans.AbstractAttributeValue;
@@ -34,9 +33,8 @@ public class UserAttribute extends AbstractAttribute {
     private SyncopeUser owner;
     @ManyToOne(fetch = FetchType.EAGER)
     private UserSchema schema;
-    @OneToMany(cascade = javax.persistence.CascadeType.ALL,
+    @OneToMany(cascade = CascadeType.ALL,
     fetch = FetchType.EAGER, mappedBy = "attribute")
-    @Cascade(CascadeType.DELETE_ORPHAN)
     private Set<UserAttributeValue> attributeValues;
 
     public UserAttribute() {
