@@ -33,7 +33,10 @@ import org.syncope.core.persistence.beans.Resource;
 import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
+import org.syncope.core.persistence.beans.user.UserAttribute;
+import org.syncope.core.persistence.beans.user.UserAttributeValue;
 import org.syncope.core.persistence.util.ApplicationContextManager;
+import org.syncope.types.SchemaType;
 
 public class PropagationManager {
 
@@ -143,8 +146,7 @@ public class PropagationManager {
 
         if (log.isDebugEnabled()) {
             log.debug(
-                    "Synchronous provisioning of " + resources
-                    + " with user " + user.getId());
+                    "Synchronous provisioning of " + resources + " with user " + user.getId());
         }
 
         for (Resource resource : syncResources) {
@@ -157,13 +159,11 @@ public class PropagationManager {
 
                 if (log.isErrorEnabled()) {
                     log.error(
-                            "Exception during provision on resource "
-                            + resource.getName(), t);
+                            "Exception during provision on resource " + resource.getName(), t);
                 }
 
                 throw new PropagationException(
-                        "Exception during provision on resource "
-                        + resource.getName(), resource.getName(), t);
+                        "Exception during provision on resource " + resource.getName(), resource.getName(), t);
             }
         }
 
@@ -171,8 +171,7 @@ public class PropagationManager {
 
         if (log.isDebugEnabled()) {
             log.debug(
-                    "Asynchronous provisioning of " + resources
-                    + " with user " + user.getId());
+                    "Asynchronous provisioning of " + resources + " with user " + user.getId());
         }
 
         for (Resource resource : asyncResources) {
@@ -185,16 +184,14 @@ public class PropagationManager {
 
                 if (log.isErrorEnabled()) {
                     log.error(
-                            "Exception during provision on resource "
-                            + resource.getName(), t);
+                            "Exception during provision on resource " + resource.getName(), t);
                 }
             }
         }
 
         if (log.isDebugEnabled()) {
             log.debug(
-                    "Provisioned " + provisioned
-                    + " with user " + user.getId());
+                    "Provisioned " + provisioned + " with user " + user.getId());
         }
 
         return provisioned;
@@ -213,23 +210,19 @@ public class PropagationManager {
     private void propagate(SyncopeUser user, Resource resource, boolean merge)
             throws NoSuchBeanDefinitionException, IllegalStateException {
 
-        ConnectorInstance connectorInstance = resource.getConnector();
+        ConnectorInstance connectorInstance =
+                resource.getConnector();
 
-        ConfigurableApplicationContext context =
-                ApplicationContextManager.getApplicationContext();
-
-        DefaultListableBeanFactory beanFactory =
-                (DefaultListableBeanFactory) context.getBeanFactory();
-
-        ConnectorFacade connector = (ConnectorFacade) beanFactory.getBean(
-                connectorInstance.getId().toString());
+        ConnectorFacade connector =
+                getConnectorFacade(connectorInstance.getId().toString());
 
         if (connector == null) {
             if (log.isErrorEnabled()) {
 
-                log.error("Connector instance bean "
-                        + connectorInstance.getId().toString()
-                        + " not found");
+                log.error(
+                        "Connector instance bean " +
+                        connectorInstance.getId().toString() +
+                        " not found");
 
             }
 
@@ -241,18 +234,57 @@ public class PropagationManager {
 
         Set<Attribute> attrs = new HashSet<Attribute>();
 
+        Class castToBeApplied = null;
+        SchemaType type = null;
+
         String accountId = null;
+
         String field = null;
+
+        UserAttribute userAttribute = null;
+        String schema = null;
+        Set<UserAttributeValue> values = null;
+
         String password = user.getPassword();
+
+        Set objValues = new HashSet();
 
         for (SchemaMapping mapping : mappings) {
 
             field = mapping.getField();
 
-            Object value = user.getAttribute(mapping.getUserSchema().getName());
+            schema = mapping.getUserSchema().getName();
 
-            if (value != null && mapping.isAccountid()) {
-                accountId = value.toString();
+            userAttribute = user.getAttribute(schema);
+
+            values = null;
+
+            try {
+                type = mapping.getUserSchema().getType();
+                castToBeApplied = Class.forName(type.getClassName());
+            } catch (ClassNotFoundException e) {
+                castToBeApplied = String.class;
+            }
+
+
+            if (log.isDebugEnabled()) {
+                log.debug(
+                        "\nDefine mapping for: " +
+                        "\n* Field " + field +
+                        "\n* Schema " + schema +
+                        "\n* Type " + type.getClassName());
+            }
+
+            if (userAttribute != null) {
+                values = (Set<UserAttributeValue>) userAttribute.getAttributeValues();
+
+                for (UserAttributeValue value : values) {
+                    objValues.add(value.getValue());
+                }
+            }
+
+            if (!objValues.isEmpty() && mapping.isAccountid()) {
+                accountId = objValues.iterator().next().toString();
                 attrs.add(new Name(accountId));
             }
 
@@ -261,8 +293,17 @@ public class PropagationManager {
                         password.toCharArray()));
             }
 
-            if (!mapping.isPassword() && !mapping.isAccountid()) {
-                attrs.add(AttributeBuilder.build(field, value));
+            if (!mapping.isPassword() &&
+                    !mapping.isAccountid() &&
+                    !objValues.isEmpty()) {
+
+                if (mapping.getUserSchema().isMultivalue()) {
+                    attrs.add(AttributeBuilder.build(field, objValues));
+                } else {
+                    attrs.add(AttributeBuilder.build(field,
+                            castToBeApplied.cast(objValues.iterator().next())));
+                }
+
             }
         }
 
@@ -280,8 +321,7 @@ public class PropagationManager {
             if (log.isErrorEnabled()) {
 
                 log.error(
-                        "Error creating user on resource "
-                        + resource.getName());
+                        "Error creating user on resource " + resource.getName());
 
             }
 
@@ -291,5 +331,16 @@ public class PropagationManager {
         if (log.isInfoEnabled()) {
             log.info("Created user " + userUid.getUidValue());
         }
+    }
+
+    private ConnectorFacade getConnectorFacade(String id) {
+
+        ConfigurableApplicationContext context =
+                ApplicationContextManager.getApplicationContext();
+
+        DefaultListableBeanFactory beanFactory =
+                (DefaultListableBeanFactory) context.getBeanFactory();
+
+        return (ConnectorFacade) beanFactory.getBean(id);
     }
 }
