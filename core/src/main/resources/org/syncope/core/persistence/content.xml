@@ -40,7 +40,7 @@
     <UserSchema name="email" type="String" virtual="false"
                 mandatory="false" multivalue="true" uniquevalue="false"
                 validatorClass="org.syncope.core.persistence.validation.EmailAddressValidator"/>
-
+               
     <UserDerivedSchema name="username" expression="firstname + '.' + surname"/>
 
     <UserDerivedSchema_UserSchema derivedSchemas_name="username"

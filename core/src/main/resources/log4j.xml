@@ -55,12 +55,12 @@
     </appender>
 
     <logger name="org.syncope.core.persistence" additivity="false">
-        <level value="INFO"/>
+        <level value="DEBUG"/>
         <appender-ref ref="persistence"/>
     </logger>
 
     <logger name="org.syncope.core.rest" additivity="false">
-        <level value="INFO"/>
+        <level value="DEBUG"/>
         <appender-ref ref="rest"/>
     </logger>
 
@@ -100,7 +100,7 @@
     </logger>
 
     <root>
-        <priority value="INFO"/>
+        <priority value="DEBUG"/>
         <appender-ref ref="main"/>
         <appender-ref ref="persistence"/>
         <appender-ref ref="rest"/>

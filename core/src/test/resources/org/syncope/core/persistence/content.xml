@@ -145,6 +145,12 @@
     <Resource name="ws-target-resource-delete" connector_id="100"/>
     <Resource name="ws-target-resource-update" connector_id="100"/>
 
+    <Resource_SyncopeRole Resource_name="ws-target-resource-delete" roles_id="3" />
+    <SyncopeRole_Resource SyncopeRole_id="3" resources_name="ws-target-resource-delete" />
+
+    <Resource_SyncopeUser Resource_name="ws-target-resource-delete" users_id="3" />
+    <SyncopeUser_Resource SyncopeUser_id="3" resources_name="ws-target-resource-delete" />
+
     <Resource_SyncopeRole Resource_name="ws-target-resource-list-mappings-1" roles_id="3" />
     <SyncopeRole_Resource SyncopeRole_id="3" resources_name="ws-target-resource-list-mappings-1" />
 
@@ -157,6 +163,11 @@
     <Resource_SyncopeRole Resource_name="ws-target-resource-list-mappings-2" roles_id="3" />
     <SyncopeRole_Resource SyncopeRole_id="3" resources_name="ws-target-resource-list-mappings-2" />
 
+    <SchemaMapping id="99" field="username"
+                   resource_name="ws-target-resource-delete"
+                   userSchema_name="email" nullable="false"
+                   accountid="true" password="false"/>
+
     <SchemaMapping id="100" field="username"
                    resource_name="ws-target-resource-1"
                    userSchema_name="email" nullable="false"
@@ -166,10 +177,12 @@
                    resource_name="ws-target-resource-2"
                    userSchema_name="username" nullable="false"
                    accountid="true" password="false"/>
+
     <SchemaMapping id="105" field="cognome"
                    resource_name="ws-target-resource-2"
                    userSchema_name="surname" nullable="false"
                    accountid="false" password="false"/>
+                   
     <SchemaMapping id="106" field="password"
                    resource_name="ws-target-resource-2"
                    userSchema_name="surname" nullable="false"

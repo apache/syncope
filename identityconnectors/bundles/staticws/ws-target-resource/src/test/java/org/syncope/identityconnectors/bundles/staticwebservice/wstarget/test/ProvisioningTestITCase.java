@@ -14,9 +14,11 @@
  */
 package org.syncope.identityconnectors.bundles.staticwebservice.wstarget.test;
 
+import java.util.ArrayList;
 import static org.junit.Assert.*;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.junit.Before;
@@ -163,7 +165,7 @@ public class ProvisioningTestITCase {
             birthday.setName("data di nascita");
             birthday.setValue("12/09/1990");
 
-            Set<WSAttributeValue> attrs = new HashSet<WSAttributeValue>();
+            List<WSAttributeValue> attrs = new ArrayList<WSAttributeValue>();
             attrs.add(uid);
             attrs.add(password);
             attrs.add(name);
@@ -202,7 +204,7 @@ public class ProvisioningTestITCase {
             name.setValue("test1");
 
 
-            Set<WSAttributeValue> attrs = new HashSet<WSAttributeValue>();
+            List<WSAttributeValue> attrs = new ArrayList<WSAttributeValue>();
             attrs.add(surname);
             attrs.add(name);
 
@@ -274,7 +276,7 @@ public class ProvisioningTestITCase {
 
             Operand query = new Operand(Operator.OR, sop, true);
 
-            Set<WSUser> results = provisioning.query(query);
+            List<WSUser> results = provisioning.query(query);
 
             for (WSUser user : results) {
                 log.debug("Name: " + user.getAccountid());
@@ -346,7 +348,7 @@ public class ProvisioningTestITCase {
 
         try {
 
-            Set<WSChange> results = provisioning.sync();
+            List<WSChange> results = provisioning.sync();
 
             for (WSChange change : results) {
                 log.debug("Delta: " + change.getId());

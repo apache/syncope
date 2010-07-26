@@ -1,9 +1,11 @@
 package org.syncope.identityconnectors.bundles.staticwebservice;
 
+import java.util.ArrayList;
 import org.syncope.identityconnectors.bundles.staticwebservice.provisioning.interfaces.Provisioning;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import org.identityconnectors.common.security.GuardedByteArray;
 import org.identityconnectors.framework.common.objects.filter.FilterTranslator;
@@ -258,8 +260,8 @@ public class WebServiceConnector implements
         }
 
         // to be user in order to pass information to the web service
-        Set<WSAttributeValue> attributes =
-                new HashSet<WSAttributeValue>();
+        List<WSAttributeValue> attributes =
+                new ArrayList<WSAttributeValue>();
 
         WSAttributeValue wsAttributeValue = null;
 
@@ -377,7 +379,7 @@ public class WebServiceConnector implements
             throw new IllegalStateException("Web Service client not found");
         }
 
-        Set<WSAttribute> wsAttrs = provisioning.schema();
+        List<WSAttribute> wsAttrs = provisioning.schema();
 
         Set<AttributeInfo> attributes = new HashSet<AttributeInfo>();
 
@@ -505,7 +507,7 @@ public class WebServiceConnector implements
 
         try {
 
-            Set<WSUser> resultSet = provisioning.query(query);
+            List<WSUser> resultSet = provisioning.query(query);
 
             Iterator i = resultSet.iterator();
 
@@ -580,8 +582,8 @@ public class WebServiceConnector implements
         }
 
         // to be user in order to pass information to the web service
-        Set<WSAttributeValue> attributes =
-                new HashSet<WSAttributeValue>();
+        List<WSAttributeValue> attributes =
+                new ArrayList<WSAttributeValue>();
 
         WSAttributeValue wsAttributeValue = null;
 
@@ -661,7 +663,7 @@ public class WebServiceConnector implements
 
         try {
 
-            Set<WSChange> changes = provisioning.sync();
+            List<WSChange> changes = provisioning.sync();
 
             SyncDeltaBuilder sdb = null;
 

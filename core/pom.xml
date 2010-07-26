@@ -369,7 +369,8 @@
                         <configuration>
                             <packagingExcludes>
                                 WEB-INF/classes/org/syncope/core/persistence/db.properties,
-                                WEB-INF/classes/org/syncope/core/persistence/content.xml
+                                WEB-INF/classes/org/syncope/core/persistence/content.xml,
+                                WEB-INF/classes/beans.xml
                             </packagingExcludes>
                         </configuration>
                     </execution>

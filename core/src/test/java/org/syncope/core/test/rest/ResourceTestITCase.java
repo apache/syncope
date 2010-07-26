@@ -57,13 +57,15 @@ public class ResourceTestITCase extends AbstractTestITCase {
 
         SchemaMappingTO schemaMappingTO = null;
 
-        for (int i = 0; i < 3; i++) {
-            schemaMappingTO = new SchemaMappingTO();
-            schemaMappingTO.setField("test" + i);
-            schemaMappingTO.setUserSchema("username");
-            schemaMappingTO.setRoleSchema("icon");
-            schemaMappingTOs.addMapping(schemaMappingTO);
-        }
+        schemaMappingTO = new SchemaMappingTO();
+        schemaMappingTO.setField("uid");
+        schemaMappingTO.setUserSchema("userId");
+        schemaMappingTOs.addMapping(schemaMappingTO);
+
+        schemaMappingTO = new SchemaMappingTO();
+        schemaMappingTO.setField("icon");
+        schemaMappingTO.setRoleSchema("icon");
+        schemaMappingTOs.addMapping(schemaMappingTO);
 
         resourceTO.setMappings(schemaMappingTOs);
 

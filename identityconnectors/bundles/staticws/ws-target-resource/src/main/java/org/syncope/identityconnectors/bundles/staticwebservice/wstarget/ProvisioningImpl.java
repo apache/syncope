@@ -14,7 +14,9 @@
  */
 package org.syncope.identityconnectors.bundles.staticwebservice.wstarget;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import javax.jws.WebService;
 import org.slf4j.Logger;
@@ -88,8 +90,8 @@ public class ProvisioningImpl implements Provisioning {
      * @return a set of attributes.
      */
     @Override
-    public Set<WSAttribute> schema() {
-        Set<WSAttribute> attrs = new HashSet<WSAttribute>();
+    public List<WSAttribute> schema() {
+        List<WSAttribute> attrs = new ArrayList<WSAttribute>();
 
         WSAttribute attr = null;
 
@@ -130,11 +132,11 @@ public class ProvisioningImpl implements Provisioning {
      * @throws ProvisioningException in case of failure.
      */
     @Override
-    public String create(final Set<WSAttributeValue> data)
+    public String create(final List<WSAttributeValue> data)
             throws ProvisioningException {
 
-        Set<String> schema = new HashSet<String>();
-        Set<WSAttribute> attrs = schema();
+        List<String> schema = new ArrayList<String>();
+        List<WSAttribute> attrs = schema();
         for (WSAttribute attr : attrs) {
             schema.add(attr.getName());
         }
@@ -193,7 +195,7 @@ public class ProvisioningImpl implements Provisioning {
     @Override
     public String update(
             final String accountid,
-            final Set<WSAttributeValue> data) throws ProvisioningException {
+            final List<WSAttributeValue> data) throws ProvisioningException {
 
         for (WSAttributeValue value : data) {
             if (log.isDebugEnabled()) {
@@ -216,9 +218,9 @@ public class ProvisioningImpl implements Provisioning {
      * @return a set of user accounts.
      */
     @Override
-    public Set<WSUser> query(Operand query) {
+    public List<WSUser> query(Operand query) {
 
-        Set<WSUser> resultSet = new HashSet<WSUser>();
+        List<WSUser> resultSet = new ArrayList<WSUser>();
 
         WSUser user = null;
         WSAttributeValue attr = null;
@@ -278,7 +280,7 @@ public class ProvisioningImpl implements Provisioning {
      * @throws ProvisioningException in case of failure
      */
     @Override
-    public Set<WSChange> sync() throws ProvisioningException {
+    public List<WSChange> sync() throws ProvisioningException {
 
         WSChange change = new WSChange();
 
@@ -302,7 +304,7 @@ public class ProvisioningImpl implements Provisioning {
 
         change.setAttributes(attrs);
 
-        Set<WSChange> changes = new HashSet<WSChange>();
+        List<WSChange> changes = new ArrayList<WSChange>();
         changes.add(change);
 
         return changes;

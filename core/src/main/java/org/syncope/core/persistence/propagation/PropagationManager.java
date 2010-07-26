@@ -230,24 +230,35 @@ public class PropagationManager {
                     "Connector instance bean not found");
         }
 
-        Set<SchemaMapping> mappings = resource.getMappings();
-
-        Set<Attribute> attrs = new HashSet<Attribute>();
-
-        Class castToBeApplied = null;
-        SchemaType type = null;
-
-        String accountId = null;
-
-        String field = null;
-
-        UserAttribute userAttribute = null;
-        String schema = null;
-        Set<UserAttributeValue> values = null;
-
+        // get password
         String password = user.getPassword();
 
-        Set objValues = new HashSet();
+        // get mapping
+        Set<SchemaMapping> mappings = resource.getMappings();
+
+        // set of user attributes
+        Set<Attribute> attrs = new HashSet<Attribute>();
+
+        // cast to be applied on SchemaType
+        Class castToBeApplied = null;
+
+        // account id
+        String accountId = null;
+
+        // resource field
+        String field = null;
+        // resource field values
+        Set objValues = null;
+
+        // syncope attribute schema name
+        String schema = null;
+        // syncope user attribute
+        UserAttribute userAttribute = null;
+        // syncope user attribute schema type
+        SchemaType type = null;
+        // syncope user attribute values
+        Set<UserAttributeValue> values = null;
+
 
         for (SchemaMapping mapping : mappings) {
 
@@ -266,14 +277,18 @@ public class PropagationManager {
                 castToBeApplied = String.class;
             }
 
-
             if (log.isDebugEnabled()) {
                 log.debug(
                         "\nDefine mapping for: " +
                         "\n* Field " + field +
+                        "\n* is accountId " + mapping.isAccountid() +
+                        "\n* is password " + mapping.isPassword() +
+                        "\n* is nullable " + mapping.isNullable() +
                         "\n* Schema " + schema +
                         "\n* Type " + type.getClassName());
             }
+
+            objValues = new HashSet();
 
             if (userAttribute != null) {
                 values = (Set<UserAttributeValue>) userAttribute.getAttributeValues();

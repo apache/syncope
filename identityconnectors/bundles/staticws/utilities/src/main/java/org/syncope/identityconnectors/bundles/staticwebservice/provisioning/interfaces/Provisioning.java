@@ -14,7 +14,7 @@
  */
 package org.syncope.identityconnectors.bundles.staticwebservice.provisioning.interfaces;
 
-import java.util.Set;
+import java.util.List;
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebService;
@@ -24,7 +24,6 @@ import org.syncope.identityconnectors.bundles.commons.staticwebservice.to.WSChan
 import org.syncope.identityconnectors.bundles.commons.staticwebservice.to.WSUser;
 import org.syncope.identityconnectors.bundles.staticwebservice.exceptions.ProvisioningException;
 import org.syncope.identityconnectors.bundles.staticwebservice.utilities.Operand;
-
 
 @WebService
 public interface Provisioning {
@@ -70,7 +69,7 @@ public interface Provisioning {
      * @return a set of attributes.
      */
     @WebMethod(operationName = "schema")
-    public Set<WSAttribute> schema();
+    public List<WSAttribute> schema();
 
     /**
      * Creates user account.
@@ -80,7 +79,7 @@ public interface Provisioning {
      */
     @WebMethod(operationName = "create")
     public String create(
-            @WebParam(name = "data") final Set<WSAttributeValue> data)
+            @WebParam(name = "data") final List<WSAttributeValue> data)
             throws ProvisioningException;
 
     /**
@@ -93,7 +92,7 @@ public interface Provisioning {
     @WebMethod(operationName = "update")
     public String update(
             @WebParam(name = "accountid") final String accountid,
-            @WebParam(name = "data") final Set<WSAttributeValue> data)
+            @WebParam(name = "data") final List<WSAttributeValue> data)
             throws ProvisioningException;
 
     /**
@@ -112,7 +111,7 @@ public interface Provisioning {
      * @return a set of user accounts.
      */
     @WebMethod(operationName = "query")
-    public Set<WSUser> query(@WebParam(name = "query") final Operand query);
+    public List<WSUser> query(@WebParam(name = "query") final Operand query);
 
     /**
      * Returns accountid related to the specified username.
@@ -139,6 +138,6 @@ public interface Provisioning {
      * @throws ProvisioningException in case of failure
      */
     @WebMethod(operationName = "sync")
-    public Set<WSChange> sync()
+    public List<WSChange> sync()
             throws ProvisioningException;
 }
