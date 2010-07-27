@@ -21,13 +21,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.syncope.core.persistence.dao.DAO;
-import org.syncope.core.workflow.JPAPropertySet;
 
 @Configurable
 public abstract class AbstractDAOImpl implements DAO {
 
     protected static final Logger log =
-            LoggerFactory.getLogger(JPAPropertySet.class);
+            LoggerFactory.getLogger(AbstractDAOImpl.class);
     @PersistenceContext(type = PersistenceContextType.EXTENDED)
     protected EntityManager entityManager;
 
