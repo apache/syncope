@@ -12,7 +12,7 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.client.to;
+package org.syncope.client;
 
 import java.io.Serializable;
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -20,7 +20,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
-public abstract class AbstractBaseTO implements Serializable {
+public abstract class AbstractBaseBean implements Serializable {
 
     @Override
     public boolean equals(Object obj) {

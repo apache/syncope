@@ -14,8 +14,8 @@
  */
 package org.syncope.core.persistence.beans.role;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -33,12 +33,11 @@ public class RoleAttribute extends AbstractAttribute {
     private SyncopeRole owner;
     @ManyToOne(fetch = FetchType.EAGER)
     private RoleSchema schema;
-    @OneToMany(cascade = CascadeType.ALL,
-    fetch = FetchType.EAGER, mappedBy = "attribute")
-    private Set<RoleAttributeValue> attributeValues;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "attribute")
+    private List<RoleAttributeValue> attributeValues;
 
     public RoleAttribute() {
-        attributeValues = new HashSet<RoleAttributeValue>();
+        attributeValues = new ArrayList<RoleAttributeValue>();
     }
 
     @Override
@@ -76,14 +75,15 @@ public class RoleAttribute extends AbstractAttribute {
     }
 
     @Override
-    public Set<? extends AbstractAttributeValue> getAttributeValues() {
-        return attributeValues;
+    public <T extends AbstractAttributeValue> List<T> getAttributeValues() {
+        return (List<T>) attributeValues;
     }
 
     @Override
-    public void setAttributeValues(
-            Set<? extends AbstractAttributeValue> attributeValues) {
+    public <T extends AbstractAttributeValue> void setAttributeValues(
+            List<T> attributeValues) {
 
-        this.attributeValues = (Set<RoleAttributeValue>) attributeValues;
+        this.attributeValues = (List<RoleAttributeValue>) attributeValues;
+
     }
 }

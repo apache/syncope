@@ -336,7 +336,7 @@ public class ResourceController extends AbstractController {
                 }
 
                 SyncopeClientException ex = new SyncopeClientException(
-                        SyncopeClientExceptionType.RequiredValueMissing);
+                        SyncopeClientExceptionType.RequiredValuesMissing);
 
                 ex.addElement("resource");
 
@@ -349,7 +349,7 @@ public class ResourceController extends AbstractController {
                 }
 
                 SyncopeClientException ex = new SyncopeClientException(
-                        SyncopeClientExceptionType.RequiredValueMissing);
+                        SyncopeClientExceptionType.RequiredValuesMissing);
 
                 ex.addElement("mappings");
 
@@ -460,7 +460,7 @@ public class ResourceController extends AbstractController {
                     HttpStatus.BAD_REQUEST);
 
             SyncopeClientException ex = new SyncopeClientException(
-                    SyncopeClientExceptionType.RequiredValueMissing);
+                    SyncopeClientExceptionType.RequiredValuesMissing);
 
             ex.addElement("resource");
 
@@ -500,7 +500,7 @@ public class ResourceController extends AbstractController {
                     HttpStatus.BAD_REQUEST);
 
             SyncopeClientException ex = new SyncopeClientException(
-                    SyncopeClientExceptionType.RequiredValueMissing);
+                    SyncopeClientExceptionType.RequiredValuesMissing);
 
             ex.addElement("resource");
 

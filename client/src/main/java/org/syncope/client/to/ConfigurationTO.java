@@ -14,7 +14,9 @@
  */
 package org.syncope.client.to;
 
-public class ConfigurationTO extends AbstractBaseTO {
+import org.syncope.client.AbstractBaseBean;
+
+public class ConfigurationTO extends AbstractBaseBean {
 
     private String confKey;
     private String confValue;

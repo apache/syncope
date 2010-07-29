@@ -17,8 +17,9 @@ package org.syncope.client.to;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import org.syncope.client.AbstractBaseBean;
 
-public class ResourceTOs extends AbstractBaseTO
+public class ResourceTOs extends AbstractBaseBean
         implements Iterable<ResourceTO> {
 
     private List<ResourceTO> resources;

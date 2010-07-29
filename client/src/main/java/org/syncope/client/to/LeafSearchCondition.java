@@ -14,7 +14,9 @@
  */
 package org.syncope.client.to;
 
-public class LeafSearchCondition extends AbstractBaseTO {
+import org.syncope.client.AbstractBaseBean;
+
+public class LeafSearchCondition extends AbstractBaseBean {
 
     public enum Type {
 

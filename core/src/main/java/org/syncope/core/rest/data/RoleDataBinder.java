@@ -15,18 +15,13 @@
 package org.syncope.core.rest.data;
 
 import java.util.Collections;
-import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import org.syncope.client.to.AttributeTO;
+import org.syncope.client.mod.RoleMod;
 import org.syncope.client.to.RoleTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
-import org.syncope.core.persistence.beans.AbstractAttribute;
-import org.syncope.core.persistence.beans.AbstractDerivedAttribute;
-import org.syncope.core.persistence.beans.role.RoleAttribute;
-import org.syncope.core.persistence.beans.role.RoleDerivedAttribute;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.dao.AttributeValueDAO;
 import org.syncope.core.persistence.dao.DerivedSchemaDAO;
@@ -79,16 +74,15 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
             syncopeRole.setName(roleTO.getName());
         }
         Long parentRoleId = null;
-        if (roleTO.getParent() != null) {
-            SyncopeRole parentRole = syncopeRoleDAO.find(roleTO.getParent());
-            if (parentRole == null) {
-                log.error("Could not find role with id " + roleTO.getParent());
+        SyncopeRole parentRole = syncopeRoleDAO.find(roleTO.getParent());
+        if (parentRole == null) {
+            log.error("Could not find role with id " + roleTO.getParent());
 
-                invalidRoles.addElement(String.valueOf(roleTO.getParent()));
-            } else {
-                syncopeRole.setParent(parentRole);
-                parentRoleId = syncopeRole.getParent().getId();
-            }
+            invalidRoles.addElement(String.valueOf(roleTO.getParent()));
+            scce.addException(invalidRoles);
+        } else {
+            syncopeRole.setParent(parentRole);
+            parentRoleId = syncopeRole.getParent().getId();
         }
 
         SyncopeRole otherRole = syncopeRoleDAO.find(
@@ -100,12 +94,53 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
             invalidRoles.addElement(roleTO.getName());
         }
 
-        if (!invalidRoles.getElements().isEmpty()) {
-            scce.addException(invalidRoles);
+        // attributes, derived attributes and resources
+        syncopeRole = fill(syncopeRole, roleTO, AttributableUtil.ROLE, scce);
+
+        return syncopeRole;
+    }
+
+    public SyncopeRole updateSyncopeRole(SyncopeRole syncopeRole,
+            RoleMod roleMod)
+            throws SyncopeClientCompositeErrorException {
+
+        SyncopeClientCompositeErrorException scce =
+                new SyncopeClientCompositeErrorException(
+                HttpStatus.BAD_REQUEST);
+
+        // name
+        SyncopeClientException invalidRoles =
+                new SyncopeClientException(
+                SyncopeClientExceptionType.InvalidRoles);
+        if (roleMod.getName() != null) {
+            SyncopeRole otherRole = syncopeRoleDAO.find(
+                    roleMod.getName(), syncopeRole.getParent().getId());
+
+            if (otherRole != null) {
+                log.error("Another role exists with the same name "
+                        + "and the same parent role: " + otherRole);
+
+                invalidRoles.addElement(roleMod.getName());
+                scce.addException(invalidRoles);
+            } else {
+                syncopeRole.setName(roleMod.getName());
+            }
         }
 
-        syncopeRole = fill(
-                syncopeRole, roleTO, AttributableUtil.ROLE, scce);
+        // inherited attributes
+        if (roleMod.isChangeInheritAttributes()) {
+            syncopeRole.setInheritAttributes(
+                    !syncopeRole.isInheritAttributes());
+        }
+
+        // inherited derived attributes
+        if (roleMod.isChangeInheritDerivedAttributes()) {
+            syncopeRole.setInheritDerivedAttributes(
+                    !syncopeRole.isInheritDerivedAttributes());
+        }
+
+        // attributes, derived attributes and resources
+        syncopeRole = fill(syncopeRole, roleMod, AttributableUtil.ROLE, scce);
 
         return syncopeRole;
     }
@@ -120,41 +155,18 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
             roleTO.setParent(role.getParent().getId());
         }
 
-        roleTO = getTO(roleTO, role);
+        roleTO = fillTO(roleTO, role.getAttributes(),
+                role.getDerivedAttributes(), role.getResources());
 
-        AttributeTO attributeTO = null;
-
-        List<RoleAttribute> inheritedAttributes = null;
-        if (role.isInheritAttributes()) {
-            // inherited attributes
-            inheritedAttributes = syncopeRoleDAO.findInheritedAttributes(role);
-
-            for (AbstractAttribute attribute : inheritedAttributes) {
-                attributeTO = new AttributeTO();
-                attributeTO.setSchema(attribute.getSchema().getName());
-                attributeTO.setValues(attribute.getAttributeValuesAsStrings());
-
-                roleTO.addAttribute(attributeTO);
-            }
-
-            // inherited derived attributes
-            List<RoleDerivedAttribute> inheritedDerivedAttributes = null;
-            if (role.isInheritDerivedAttributes()) {
-                inheritedDerivedAttributes =
-                        syncopeRoleDAO.findInheritedDerivedAttributes(role);
-
-                for (AbstractDerivedAttribute attribute :
-                        inheritedDerivedAttributes) {
-
-                    attributeTO = new AttributeTO();
-                    attributeTO.setSchema(
-                            attribute.getDerivedSchema().getName());
-                    attributeTO.setValues(Collections.singleton(
-                            attribute.getValue(inheritedAttributes)));
-
-                    roleTO.addDerivedAttribute(attributeTO);
-                }
-            }
+        if (role.isInheritAttributes() || role.isInheritDerivedAttributes()) {
+            roleTO = fillTO(roleTO,
+                    role.isInheritAttributes()
+                    ? syncopeRoleDAO.findInheritedAttributes(role)
+                    : Collections.EMPTY_SET,
+                    role.isInheritDerivedAttributes()
+                    ? syncopeRoleDAO.findInheritedDerivedAttributes(role)
+                    : Collections.EMPTY_SET,
+                    Collections.EMPTY_SET);
         }
 
         return roleTO;

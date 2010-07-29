@@ -14,8 +14,8 @@
  */
 package org.syncope.core.persistence.beans;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -64,19 +64,19 @@ public abstract class AbstractAttribute extends AbstractBaseBean {
     public abstract <T extends AbstractAttributeValue> boolean removeAttributeValue(
             T attributeValue);
 
-    public abstract Set<? extends AbstractAttributeValue> getAttributeValues();
+    public <T extends AbstractAttributeValue> List<String> getAttributeValuesAsStrings() {
+        List<T> values = getAttributeValues();
 
-    public Set<String> getAttributeValuesAsStrings() {
-        Set<? extends AbstractAttributeValue> values = getAttributeValues();
-        
-        Set<String> result = new HashSet<String>(values.size());
-        for (AbstractAttributeValue attributeValue : values) {
+        List<String> result = new ArrayList<String>(values.size());
+        for (T attributeValue : values) {
             result.add(attributeValue.getValueAsString());
         }
 
         return result;
     }
 
-    public abstract void setAttributeValues(
-            Set<? extends AbstractAttributeValue> attributeValues);
+    public abstract <T extends AbstractAttributeValue> List<T> getAttributeValues();
+
+    public abstract <T extends AbstractAttributeValue> void setAttributeValues(
+            List<T> attributeValues);
 }

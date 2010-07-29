@@ -17,8 +17,9 @@ package org.syncope.client.to;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import org.syncope.client.AbstractBaseBean;
 
-public class RoleTOs extends AbstractBaseTO implements Iterable<RoleTO> {
+public class RoleTOs extends AbstractBaseBean implements Iterable<RoleTO> {
 
     private List<RoleTO> roles;
 

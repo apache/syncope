@@ -15,14 +15,17 @@
 package org.syncope.core.persistence.beans.user;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.syncope.core.persistence.beans.AbstractAttribute;
 import org.syncope.core.persistence.beans.AbstractAttributeValue;
 
 @Entity
 public class UserAttributeValue extends AbstractAttributeValue {
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     private UserAttribute attribute;
 
     @Override
@@ -33,5 +36,11 @@ public class UserAttributeValue extends AbstractAttributeValue {
     @Override
     public <T extends AbstractAttribute> void setAttribute(T attribute) {
         this.attribute = (UserAttribute) attribute;
+    }
+
+    @Override
+    public String toString() {
+        return ReflectionToStringBuilder.toString(this,
+                ToStringStyle.MULTI_LINE_STYLE);
     }
 }

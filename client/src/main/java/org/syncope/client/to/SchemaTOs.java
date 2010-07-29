@@ -17,8 +17,9 @@ package org.syncope.client.to;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import org.syncope.client.AbstractBaseBean;
 
-public class SchemaTOs extends AbstractBaseTO implements Iterable<SchemaTO> {
+public class SchemaTOs extends AbstractBaseBean implements Iterable<SchemaTO> {
 
     private List<SchemaTO> schemas;
 

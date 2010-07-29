@@ -74,7 +74,7 @@ public class ResourceDataBinder {
 
         SyncopeClientException requiredValuesMissing =
                 new SyncopeClientException(
-                SyncopeClientExceptionType.RequiredValueMissing);
+                SyncopeClientExceptionType.RequiredValuesMissing);
 
         if (resourceTO == null) return null;
 
@@ -175,7 +175,7 @@ public class ResourceDataBinder {
 
         SyncopeClientException requiredValuesMissing =
                 new SyncopeClientException(
-                SyncopeClientExceptionType.RequiredValueMissing);
+                SyncopeClientExceptionType.RequiredValuesMissing);
 
         if (mapping == null) {
             if (log.isErrorEnabled()) {

@@ -15,10 +15,13 @@
 package org.syncope.core.persistence.dao.impl;
 
 import java.util.List;
+import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.membership.Membership;
+import org.syncope.core.persistence.beans.role.SyncopeRole;
+import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.MembershipDAO;
 
 @Repository
@@ -28,6 +31,27 @@ public class MembershipDAOImpl extends AbstractDAOImpl
     @Override
     public Membership find(Long id) {
         return entityManager.find(Membership.class, id);
+    }
+
+    @Override
+    public Membership find(SyncopeUser user, SyncopeRole role) {
+        Query query = entityManager.createQuery("SELECT e FROM Membership e "
+                + "WHERE e.syncopeUser = :user AND e.syncopeRole = :role");
+        query.setParameter("user", user);
+        query.setParameter("role", role);
+
+        Membership result = null;
+
+        try {
+            result = (Membership) query.getSingleResult();
+        } catch (NoResultException e) {
+            if (log.isDebugEnabled()) {
+                log.debug("No membership was found for user "
+                        + user + " and role " + role);
+            }
+        }
+
+        return result;
     }
 
     @Override

@@ -16,8 +16,9 @@ package org.syncope.client.to;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.syncope.client.AbstractBaseBean;
 
-public class ConnectorBundleTO extends AbstractBaseTO {
+public class ConnectorBundleTO extends AbstractBaseBean {
 
     private String displayName;
 

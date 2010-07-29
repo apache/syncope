@@ -43,16 +43,13 @@ public enum SyncopeClientExceptionType {
     NotFound(
     "Syncope.NotFound",
     "Syncope.NotFound.entity"),
+    Propagation(
+    "Syncope.Propagation",
+    "Syncope.Propagation.resourceName"),
     RejectedUserCreate(
     "Syncope.RejectUserCreate",
     "Syncope.RejectUserCreate.syncopeUserId"),
     RequiredValuesMissing(
-    "Syncope.RequiredValuesMissing",
-    "Syncope.RequiredValuesMissing.attributeName"),
-    Propagation(
-    "Syncope.Propagation",
-    "Syncope.Propagation.resourceName"),
-    RequiredValueMissing(
     "Syncope.RequiredValuesMissing",
     "Syncope.RequiredValuesMissing.attributeName"),
     Unknown(

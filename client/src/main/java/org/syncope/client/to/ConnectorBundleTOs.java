@@ -17,8 +17,9 @@ package org.syncope.client.to;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import org.syncope.client.AbstractBaseBean;
 
-public class ConnectorBundleTOs extends AbstractBaseTO
+public class ConnectorBundleTOs extends AbstractBaseBean
         implements Iterable<ConnectorBundleTO> {
 
     private List<ConnectorBundleTO> bundles;

@@ -16,8 +16,9 @@ package org.syncope.client.to;
 
 import java.util.HashSet;
 import java.util.Set;
+import org.syncope.client.AbstractBaseBean;
 
-public abstract class AbstractAttributableTO extends AbstractBaseTO {
+public abstract class AbstractAttributableTO extends AbstractBaseBean {
 
     protected long id;
     protected Set<AttributeTO> attributes;

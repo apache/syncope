@@ -16,8 +16,9 @@ package org.syncope.client.to;
 
 import java.util.HashSet;
 import java.util.Set;
+import org.syncope.client.AbstractBaseBean;
 
-public class ConnectorInstanceTO extends AbstractBaseTO {
+public class ConnectorInstanceTO extends AbstractBaseBean {
 
     private Long id;
 

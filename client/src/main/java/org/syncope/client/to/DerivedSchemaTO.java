@@ -16,8 +16,9 @@ package org.syncope.client.to;
 
 import java.util.HashSet;
 import java.util.Set;
+import org.syncope.client.AbstractBaseBean;
 
-public class DerivedSchemaTO extends AbstractBaseTO {
+public class DerivedSchemaTO extends AbstractBaseBean {
 
     private String name;
     private String expression;

@@ -19,7 +19,7 @@ import java.util.HashSet;
 public class RoleTO extends AbstractAttributableTO {
 
     private String name;
-    private Long parent;
+    private long parent;
     private boolean inheritAttributes;
     private boolean inheritDerivedAttributes;
 
@@ -37,11 +37,11 @@ public class RoleTO extends AbstractAttributableTO {
         this.name = name;
     }
 
-    public Long getParent() {
+    public long getParent() {
         return parent;
     }
 
-    public void setParent(Long parent) {
+    public void setParent(long parent) {
         this.parent = parent;
     }
 

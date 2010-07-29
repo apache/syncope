@@ -16,7 +16,7 @@ package org.syncope.core.persistence.beans;
 
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Set;
+import java.util.List;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -56,7 +56,7 @@ public abstract class AbstractDerivedAttribute extends AbstractBaseBean {
                 getDerivedSchema().getExpression());
         JexlContext jexlContext = new MapContext();
 
-        Set<? extends AbstractAttributeValue> attributeValues = null;
+        List<? extends AbstractAttributeValue> attributeValues = null;
         String expressionValue = null;
         AbstractAttribute attribute = null;
         AbstractAttributeValue attributeValue = null;

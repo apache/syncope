@@ -44,6 +44,7 @@ import javassist.NotFoundException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
+import org.syncope.client.mod.UserMod;
 import org.syncope.client.to.NodeSearchCondition;
 import org.syncope.client.to.UserTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
@@ -75,8 +76,7 @@ public class UserController extends AbstractController {
     @Autowired
     private PropagationManager propagationManager;
 
-    private UserTO executeAction(String actionName,
-            HttpServletResponse response, UserTO userTO)
+    private UserTO executeAction(String actionName, UserTO userTO)
             throws WorkflowException, NotFoundException {
 
         SyncopeUser syncopeUser = syncopeUserDAO.find(userTO.getId());
@@ -122,7 +122,7 @@ public class UserController extends AbstractController {
             @RequestBody UserTO userTO)
             throws WorkflowException, NotFoundException {
 
-        return executeAction(Constants.ACTION_ACTIVATE, response, userTO);
+        return executeAction(Constants.ACTION_ACTIVATE, userTO);
     }
 
     @RequestMapping(method = RequestMethod.POST,
@@ -135,7 +135,7 @@ public class UserController extends AbstractController {
             @RequestParam(value = "syncResources",
             required = false) Set<String> syncResources)
             throws SyncopeClientCompositeErrorException,
-            WorkflowException, PropagationException {
+            WorkflowException, PropagationException, NotFoundException {
 
         if (syncRoles == null) {
             syncRoles = Collections.EMPTY_SET;
@@ -167,7 +167,7 @@ public class UserController extends AbstractController {
         if (wie != null) {
             switch (wie.getExceptionOperation()) {
                 case OVERWRITE:
-                    return update(response, userTO);
+                    return update(response, new UserMod());
                 case REJECT:
                     SyncopeClientCompositeErrorException compositeException =
                             new SyncopeClientCompositeErrorException(
@@ -285,7 +285,7 @@ public class UserController extends AbstractController {
 
         UserTO userTO = new UserTO();
         userTO.setId(userId);
-        return executeAction(Constants.ACTION_GENERATE_TOKEN, response, userTO);
+        return executeAction(Constants.ACTION_GENERATE_TOKEN, userTO);
     }
 
     @RequestMapping(method = RequestMethod.POST,
@@ -294,7 +294,7 @@ public class UserController extends AbstractController {
             @RequestBody UserTO userTO)
             throws WorkflowException, NotFoundException {
 
-        return executeAction(Constants.ACTION_VERIFY_TOKEN, response, userTO);
+        return executeAction(Constants.ACTION_VERIFY_TOKEN, userTO);
     }
 
     @RequestMapping(method = RequestMethod.POST,
@@ -350,10 +350,24 @@ public class UserController extends AbstractController {
     @RequestMapping(method = RequestMethod.POST,
     value = "/update")
     public UserTO update(HttpServletResponse response,
-            @RequestBody UserTO userTO) {
+            @RequestBody UserMod userMod) throws NotFoundException {
 
-        log.info("update called with parameter " + userTO);
+        if (log.isDebugEnabled()) {
+            log.debug("update called with parameter " + userMod);
+        }
 
-        return userTO;
+        SyncopeUser syncopeUser = syncopeUserDAO.find(userMod.getId());
+
+        if (syncopeUser == null) {
+            log.error("Could not find user '" + userMod.getId() + "'");
+
+            throw new NotFoundException(String.valueOf(userMod.getId()));
+        }
+
+        syncopeUser = userDataBinder.updateSyncopeUser(syncopeUser, userMod);
+        syncopeUser = syncopeUserDAO.save(syncopeUser);
+
+        // TODO: workflow
+        return userDataBinder.getUserTO(syncopeUser);
     }
 }

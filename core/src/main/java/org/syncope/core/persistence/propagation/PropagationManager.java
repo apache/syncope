@@ -16,6 +16,7 @@ package org.syncope.core.persistence.propagation;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import org.identityconnectors.framework.api.ConnectorFacade;
 import org.identityconnectors.framework.common.objects.Attribute;
@@ -220,9 +221,9 @@ public class PropagationManager {
             if (log.isErrorEnabled()) {
 
                 log.error(
-                        "Connector instance bean " +
-                        connectorInstance.getId().toString() +
-                        " not found");
+                        "Connector instance bean "
+                        + connectorInstance.getId().toString()
+                        + " not found");
 
             }
 
@@ -257,7 +258,7 @@ public class PropagationManager {
         // syncope user attribute schema type
         SchemaType type = null;
         // syncope user attribute values
-        Set<UserAttributeValue> values = null;
+        List<UserAttributeValue> values = null;
 
 
         for (SchemaMapping mapping : mappings) {
@@ -279,19 +280,19 @@ public class PropagationManager {
 
             if (log.isDebugEnabled()) {
                 log.debug(
-                        "\nDefine mapping for: " +
-                        "\n* Field " + field +
-                        "\n* is accountId " + mapping.isAccountid() +
-                        "\n* is password " + mapping.isPassword() +
-                        "\n* is nullable " + mapping.isNullable() +
-                        "\n* Schema " + schema +
-                        "\n* Type " + type.getClassName());
+                        "\nDefine mapping for: "
+                        + "\n* Field " + field
+                        + "\n* is accountId " + mapping.isAccountid()
+                        + "\n* is password " + mapping.isPassword()
+                        + "\n* is nullable " + mapping.isNullable()
+                        + "\n* Schema " + schema
+                        + "\n* Type " + type.getClassName());
             }
 
             objValues = new HashSet();
 
             if (userAttribute != null) {
-                values = (Set<UserAttributeValue>) userAttribute.getAttributeValues();
+                values = userAttribute.getAttributeValues();
 
                 for (UserAttributeValue value : values) {
                     objValues.add(value.getValue());
@@ -308,9 +309,9 @@ public class PropagationManager {
                         password.toCharArray()));
             }
 
-            if (!mapping.isPassword() &&
-                    !mapping.isAccountid() &&
-                    !objValues.isEmpty()) {
+            if (!mapping.isPassword()
+                    && !mapping.isAccountid()
+                    && !objValues.isEmpty()) {
 
                 if (mapping.getUserSchema().isMultivalue()) {
                     attrs.add(AttributeBuilder.build(field, objValues));

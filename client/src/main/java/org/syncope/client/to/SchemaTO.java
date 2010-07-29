@@ -16,9 +16,10 @@ package org.syncope.client.to;
 
 import java.util.HashSet;
 import java.util.Set;
+import org.syncope.client.AbstractBaseBean;
 import org.syncope.types.SchemaType;
 
-public class SchemaTO extends AbstractBaseTO {
+public class SchemaTO extends AbstractBaseBean {
 
     private String name;
     private SchemaType type;

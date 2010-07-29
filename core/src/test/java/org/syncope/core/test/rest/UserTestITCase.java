@@ -23,6 +23,9 @@ import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.annotation.ExpectedException;
 import org.springframework.web.client.HttpStatusCodeException;
+import org.syncope.client.mod.AttributeMod;
+import org.syncope.client.mod.MembershipMod;
+import org.syncope.client.mod.UserMod;
 import org.syncope.client.to.AttributeTO;
 import org.syncope.client.to.LeafSearchCondition;
 import org.syncope.client.to.MembershipTO;
@@ -221,16 +224,43 @@ public class UserTestITCase extends AbstractTestITCase {
 
     @Test
     public void update() {
+        UserTO userTO = getSampleTO("g.h@t.com");
+
+        userTO = restTemplate.postForObject(BASE_URL + "user/create",
+                userTO, UserTO.class);
+        userTO = restTemplate.postForObject(BASE_URL + "user/activate",
+                userTO, UserTO.class);
+
+        AttributeMod attributeMod = new AttributeMod();
+        attributeMod.setSchema("userId");
+        attributeMod.addValueToBeRemoved("g.h@t.com");
+        attributeMod.addValueToBeAdded("new@t.com");
+
+        MembershipMod membershipMod = new MembershipMod();
+        membershipMod.setRole(8L);
+        membershipMod.addAttributeToBeUpdated(attributeMod);
+
+        assertTrue(userTO.getDerivedAttributes().isEmpty());
+        assertTrue(userTO.getMemberships().isEmpty());
+
+        UserMod userMod = new UserMod();
+        userMod.setId(userTO.getId());
+        userMod.setPassword("newPassword");
+        userMod.addDerivedAttributeToBeAdded("cn");
+        userMod.addAttributeToBeUpdated(attributeMod);
+        userMod.addMembershipMod(membershipMod);
+
+        userTO = restTemplate.postForObject(BASE_URL + "user/update",
+                userMod, UserTO.class);
+
+        assertEquals("newPassword", userTO.getPassword());
+
         AttributeTO attributeTO = new AttributeTO();
-        attributeTO.setSchema("attr1");
-        attributeTO.addValue("value1");
+        attributeTO.setSchema("userId");
+        attributeTO.addValue("new@t.com");
 
-        UserTO newUserTO = new UserTO();
-        newUserTO.addAttribute(attributeTO);
-
-        UserTO userTO = restTemplate.postForObject(BASE_URL + "user/update",
-                newUserTO, UserTO.class);
-
-        assertEquals(newUserTO, userTO);
+        assertTrue(userTO.getAttributes().contains(attributeTO));
+        assertFalse(userTO.getDerivedAttributes().isEmpty());
+        assertFalse(userTO.getMemberships().isEmpty());
     }
 }

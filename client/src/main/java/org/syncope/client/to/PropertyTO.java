@@ -14,10 +14,11 @@
  */
 package org.syncope.client.to;
 
-public class PropertyTO {
+import org.syncope.client.AbstractBaseBean;
+
+public class PropertyTO extends AbstractBaseBean {
 
     private String key;
-
     private Object value;
 
     public String getKey() {

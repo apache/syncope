@@ -14,8 +14,8 @@
  */
 package org.syncope.core.persistence.beans.user;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -33,12 +33,11 @@ public class UserAttribute extends AbstractAttribute {
     private SyncopeUser owner;
     @ManyToOne(fetch = FetchType.EAGER)
     private UserSchema schema;
-    @OneToMany(cascade = CascadeType.ALL,
-    fetch = FetchType.EAGER, mappedBy = "attribute")
-    private Set<UserAttributeValue> attributeValues;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "attribute")
+    private List<UserAttributeValue> attributeValues;
 
     public UserAttribute() {
-        attributeValues = new HashSet<UserAttributeValue>();
+        attributeValues = new ArrayList<UserAttributeValue>();
     }
 
     @Override
@@ -76,14 +75,15 @@ public class UserAttribute extends AbstractAttribute {
     }
 
     @Override
-    public Set<? extends AbstractAttributeValue> getAttributeValues() {
-        return attributeValues;
+    public <T extends AbstractAttributeValue> List<T> getAttributeValues() {
+        return (List<T>) attributeValues;
     }
 
     @Override
-    public void setAttributeValues(
-            Set<? extends AbstractAttributeValue> attributeValues) {
+    public <T extends AbstractAttributeValue> void setAttributeValues(
+            List<T> attributeValues) {
 
-        this.attributeValues = (Set<UserAttributeValue>) attributeValues;
+        this.attributeValues = (List<UserAttributeValue>) attributeValues;
+
     }
 }

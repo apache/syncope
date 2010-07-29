@@ -77,6 +77,16 @@ public class AttributeValueDAOImpl extends AbstractDAOImpl
             return;
         }
 
+        delete(attributeValue);
+    }
+
+    @Override
+    @Transactional
+    public <T extends AbstractAttributeValue> void delete(T attributeValue) {
+        if (attributeValue.getAttribute() != null) {
+            attributeValue.getAttribute().removeAttributeValue(attributeValue);
+        }
+
         entityManager.remove(attributeValue);
     }
 }

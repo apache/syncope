@@ -42,10 +42,8 @@ public class ConnectorInstanceDataBinder {
 
     private static final Logger log = LoggerFactory.getLogger(
             ConnectorInstanceDataBinder.class);
-
     private static final String[] ignoreProperties = {
         "id", "resources", "xmlConfiguration", "configuration"};
-
     private ConnectorInstanceDAO connectorInstanceDAO;
 
     @Autowired
@@ -64,7 +62,7 @@ public class ConnectorInstanceDataBinder {
 
         SyncopeClientException requiredValuesMissing =
                 new SyncopeClientException(
-                SyncopeClientExceptionType.RequiredValueMissing);
+                SyncopeClientExceptionType.RequiredValuesMissing);
 
         if (connectorTO.getBundleName() == null) {
             requiredValuesMissing.addElement("bundlename");
@@ -78,8 +76,8 @@ public class ConnectorInstanceDataBinder {
             requiredValuesMissing.addElement("connectorname");
         }
 
-        if (connectorTO.getConfiguration() == null ||
-                connectorTO.getConfiguration().isEmpty()) {
+        if (connectorTO.getConfiguration() == null
+                || connectorTO.getConfiguration().isEmpty()) {
             requiredValuesMissing.addElement("configuration");
         }
 
@@ -117,7 +115,7 @@ public class ConnectorInstanceDataBinder {
 
         SyncopeClientException requiredValuesMissing =
                 new SyncopeClientException(
-                SyncopeClientExceptionType.RequiredValueMissing);
+                SyncopeClientExceptionType.RequiredValuesMissing);
 
         if (connectorInstanceId == null) {
             requiredValuesMissing.addElement("connector id");
@@ -139,8 +137,8 @@ public class ConnectorInstanceDataBinder {
             connectorInstance.setConnectorName(connectorTO.getConnectorName());
         }
 
-        if (connectorTO.getConfiguration() != null ||
-                connectorTO.getConfiguration().isEmpty()) {
+        if (connectorTO.getConfiguration() != null
+                || connectorTO.getConfiguration().isEmpty()) {
 
             connectorInstance.setXmlConfiguration(
                     serializeToXML(

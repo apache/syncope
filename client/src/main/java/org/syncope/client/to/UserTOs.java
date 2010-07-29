@@ -17,8 +17,9 @@ package org.syncope.client.to;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import org.syncope.client.AbstractBaseBean;
 
-public class UserTOs extends AbstractBaseTO implements Iterable<UserTO> {
+public class UserTOs extends AbstractBaseBean implements Iterable<UserTO> {
 
     private List<UserTO> users;
 

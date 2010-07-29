@@ -29,4 +29,6 @@ public interface AttributeValueDAO extends DAO {
     <T extends AbstractAttributeValue> T save(T attributeValue);
 
     <T extends AbstractAttributeValue> void delete(Long id, Class<T> reference);
+
+    <T extends AbstractAttributeValue> void delete(T attributeValue);
 }

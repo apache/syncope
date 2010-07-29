@@ -2,9 +2,9 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *
+ * 
  *       http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -12,41 +12,30 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.client.to;
+package org.syncope.client.mod;
 
-import org.syncope.client.AbstractBaseBean;
+public class RoleMod extends AbstractAttributableMod {
 
-public class ResourceTO extends AbstractBaseBean {
-
-    /**
-     * The resource identifier is the name.
-     */
     private String name;
+    private boolean changeInheritAttributes;
+    private boolean changeInheritDerivedAttributes;
 
-    /**
-     * The resource type is identified by the associated connector.
-     */
-    private Long connectorId;
-
-    /**
-     * Attribute mappings.
-     */
-    private SchemaMappingTOs mappings;
-
-    public Long getConnectorId() {
-        return connectorId;
+    public boolean isChangeInheritAttributes() {
+        return changeInheritAttributes;
     }
 
-    public void setConnectorId(Long connectorId) {
-        this.connectorId = connectorId;
+    public void setChangeInheritAttributes(boolean changeInheritAttributes) {
+        this.changeInheritAttributes = changeInheritAttributes;
     }
 
-    public SchemaMappingTOs getMappings() {
-        return mappings;
+    public boolean isChangeInheritDerivedAttributes() {
+        return changeInheritDerivedAttributes;
     }
 
-    public void setMappings(SchemaMappingTOs mappings) {
-        this.mappings = mappings;
+    public void setChangeInheritDerivedAttributes(
+            boolean changeInheritDerivedAttributes) {
+
+        this.changeInheritDerivedAttributes = changeInheritDerivedAttributes;
     }
 
     public String getName() {
@@ -56,5 +45,4 @@ public class ResourceTO extends AbstractBaseBean {
     public void setName(String name) {
         this.name = name;
     }
-    
 }

@@ -14,8 +14,8 @@
  */
 package org.syncope.core.persistence.beans.membership;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -33,12 +33,11 @@ public class MembershipAttribute extends AbstractAttribute {
     private Membership owner;
     @ManyToOne(fetch = FetchType.EAGER)
     private MembershipSchema schema;
-    @OneToMany(cascade = CascadeType.ALL,
-    fetch = FetchType.EAGER, mappedBy = "attribute")
-    private Set<MembershipAttributeValue> attributeValues;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "attribute")
+    private List<MembershipAttributeValue> attributeValues;
 
     public MembershipAttribute() {
-        attributeValues = new HashSet<MembershipAttributeValue>();
+        attributeValues = new ArrayList<MembershipAttributeValue>();
     }
 
     @Override
@@ -76,14 +75,15 @@ public class MembershipAttribute extends AbstractAttribute {
     }
 
     @Override
-    public Set<? extends AbstractAttributeValue> getAttributeValues() {
-        return attributeValues;
+    public <T extends AbstractAttributeValue> List<T> getAttributeValues() {
+        return (List<T>) attributeValues;
     }
 
     @Override
-    public void setAttributeValues(
-            Set<? extends AbstractAttributeValue> attributeValues) {
+    public <T extends AbstractAttributeValue> void setAttributeValues(
+            List<T> attributeValues) {
 
-        this.attributeValues = (Set<MembershipAttributeValue>) attributeValues;
+        this.attributeValues = (List<MembershipAttributeValue>) attributeValues;
+
     }
 }

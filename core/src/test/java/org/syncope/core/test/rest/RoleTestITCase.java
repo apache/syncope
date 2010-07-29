@@ -16,11 +16,12 @@ package org.syncope.core.test.rest;
 
 import static org.junit.Assert.*;
 
-import java.util.Collections;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.annotation.ExpectedException;
 import org.springframework.web.client.HttpStatusCodeException;
+import org.syncope.client.mod.AttributeMod;
+import org.syncope.client.mod.RoleMod;
 import org.syncope.client.to.AttributeTO;
 import org.syncope.client.to.RoleTO;
 import org.syncope.client.to.RoleTOs;
@@ -106,16 +107,33 @@ public class RoleTestITCase extends AbstractTestITCase {
 
     @Test
     public void update() {
-        AttributeTO attributeTO = new AttributeTO();
-        attributeTO.setSchema("attr1");
-        attributeTO.setValues(Collections.singleton("value1"));
+        RoleTO roleTO = new RoleTO();
+        roleTO.setName("latestRole");
+        roleTO.setParent(8L);
 
-        RoleTO newRoleTO = new RoleTO();
-        newRoleTO.addAttribute(attributeTO);
+        AttributeTO icon = new AttributeTO();
+        icon.setSchema("icon");
+        icon.addValue("anIcon");
+        roleTO.addAttribute(icon);
 
-        RoleTO userTO = restTemplate.postForObject(BASE_URL + "role/update",
-                newRoleTO, RoleTO.class);
+        roleTO = restTemplate.postForObject(BASE_URL + "role/create",
+                roleTO, RoleTO.class);
 
-        assertEquals(newRoleTO, userTO);
+        assertEquals(1, roleTO.getAttributes().size());
+
+        AttributeMod attributeMod = new AttributeMod();
+        attributeMod.setSchema("show");
+        attributeMod.addValueToBeAdded("FALSE");
+
+        RoleMod roleMod = new RoleMod();
+        roleMod.setId(roleTO.getId());
+        roleMod.setName("finalRole");
+        roleMod.addAttributeToBeUpdated(attributeMod);
+
+        roleTO = restTemplate.postForObject(BASE_URL + "role/update",
+                roleMod, RoleTO.class);
+
+        assertEquals("finalRole", roleTO.getName());
+        assertEquals(2, roleTO.getAttributes().size());
     }
 }

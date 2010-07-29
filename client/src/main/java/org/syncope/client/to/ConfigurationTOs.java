@@ -17,8 +17,9 @@ package org.syncope.client.to;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import org.syncope.client.AbstractBaseBean;
 
-public class ConfigurationTOs extends AbstractBaseTO
+public class ConfigurationTOs extends AbstractBaseBean
         implements Iterable<ConfigurationTO> {
 
     private List<ConfigurationTO> configurations;

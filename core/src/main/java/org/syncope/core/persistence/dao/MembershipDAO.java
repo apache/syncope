@@ -16,10 +16,14 @@ package org.syncope.core.persistence.dao;
 
 import java.util.List;
 import org.syncope.core.persistence.beans.membership.Membership;
+import org.syncope.core.persistence.beans.role.SyncopeRole;
+import org.syncope.core.persistence.beans.user.SyncopeUser;
 
 public interface MembershipDAO extends DAO {
 
     Membership find(Long id);
+
+    Membership find(SyncopeUser user, SyncopeRole role);
 
     List<Membership> findAll();
 

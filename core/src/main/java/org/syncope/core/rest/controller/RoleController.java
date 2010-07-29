@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.syncope.client.mod.RoleMod;
 import org.syncope.client.to.RoleTO;
 import org.syncope.client.to.RoleTOs;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
@@ -153,10 +154,23 @@ public class RoleController extends AbstractController {
     @RequestMapping(method = RequestMethod.POST,
     value = "/update")
     public RoleTO update(HttpServletResponse response,
-            @RequestBody RoleTO roleTO) {
+            @RequestBody RoleMod roleMod) throws NotFoundException {
 
-        log.info("update called with parameter " + roleTO);
+        if (log.isDebugEnabled()) {
+            log.debug("update called with parameter " + roleMod);
+        }
 
-        return roleTO;
+        SyncopeRole syncopeRole = syncopeRoleDAO.find(roleMod.getId());
+
+        if (syncopeRole == null) {
+            log.error("Could not find user '" + roleMod.getId() + "'");
+
+            throw new NotFoundException(String.valueOf(roleMod.getId()));
+        }
+
+        syncopeRole = roleDataBinder.updateSyncopeRole(syncopeRole, roleMod);
+        syncopeRole = syncopeRoleDAO.save(syncopeRole);
+
+        return roleDataBinder.getRoleTO(syncopeRole);
     }
 }
