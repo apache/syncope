@@ -52,7 +52,7 @@ import org.syncope.client.validation.SyncopeClientException;
 import org.syncope.core.persistence.beans.Resource;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.propagation.PropagationManager;
-import org.syncope.core.persistence.dao.SyncopeConfigurationDAO;
+import org.syncope.core.persistence.propagation.ResourceOperations;
 import org.syncope.core.rest.data.InvalidSearchConditionException;
 import org.syncope.core.workflow.Constants;
 import org.syncope.core.workflow.SpringHibernateJPAWorkflowStore;
@@ -65,8 +65,6 @@ public class UserController extends AbstractController {
 
     @Autowired
     private SyncopeUserDAO syncopeUserDAO;
-    @Autowired
-    private SyncopeConfigurationDAO syncopeConfigurationDAO;
     @Autowired
     private UserDataBinder userDataBinder;
     @Autowired
@@ -125,6 +123,32 @@ public class UserController extends AbstractController {
         return executeAction(Constants.ACTION_ACTIVATE, userTO);
     }
 
+    private Set<String> getSyncResourceNames(SyncopeUser syncopeUser,
+            Set<Long> syncRoles, Set<String> syncResources) {
+
+        if ((syncRoles == null || syncRoles.isEmpty()
+                && (syncResources == null || syncResources.isEmpty()))) {
+            return Collections.EMPTY_SET;
+        }
+
+        Set<String> syncResourceNames = new HashSet<String>();
+
+        for (Resource resource : syncopeUser.getResources()) {
+            if (syncResources.contains(resource.getName())) {
+                syncResourceNames.add(resource.getName());
+            }
+        }
+        for (SyncopeRole role : syncopeUser.getRoles()) {
+            if (syncRoles.contains(role.getId())) {
+                for (Resource resource : role.getResources()) {
+                    syncResourceNames.add(resource.getName());
+                }
+            }
+        }
+
+        return syncResourceNames;
+    }
+
     @RequestMapping(method = RequestMethod.POST,
     value = "/create")
     public UserTO create(HttpServletRequest request,
@@ -136,13 +160,6 @@ public class UserController extends AbstractController {
             required = false) Set<String> syncResources)
             throws SyncopeClientCompositeErrorException,
             WorkflowException, PropagationException, NotFoundException {
-
-        if (syncRoles == null) {
-            syncRoles = Collections.EMPTY_SET;
-        }
-        if (syncResources == null) {
-            syncResources = Collections.EMPTY_SET;
-        }
 
         if (log.isDebugEnabled()) {
             log.debug("create called with parameters " + userTO
@@ -167,7 +184,8 @@ public class UserController extends AbstractController {
         if (wie != null) {
             switch (wie.getExceptionOperation()) {
                 case OVERWRITE:
-                    return update(response, new UserMod());
+                    return update(response, new UserMod(),
+                            syncRoles, syncResources);
                 case REJECT:
                     SyncopeClientCompositeErrorException compositeException =
                             new SyncopeClientCompositeErrorException(
@@ -189,24 +207,17 @@ public class UserController extends AbstractController {
         syncopeUser = syncopeUserDAO.save(syncopeUser);
 
         // Now that user is created locally, let's propagate
-        Set<String> synchronous = new HashSet<String>();
-        for (Resource resource : syncopeUser.getResources()) {
-            if (syncResources.contains(resource.getName())) {
-                synchronous.add(resource.getName());
-            }
+        Set<String> syncResourceNames =
+                getSyncResourceNames(syncopeUser, syncRoles, syncResources);
+        if (log.isDebugEnabled() && !syncResourceNames.isEmpty()) {
+            log.debug("About to propagate synchronously onto resources "
+                    + syncResourceNames);
         }
-        for (SyncopeRole role : syncopeUser.getRoles()) {
-            if (syncRoles.contains(role.getId())) {
-                for (Resource resource : role.getResources()) {
-                    synchronous.add(resource.getName());
-                }
-            }
-        }
+        Set<String> propagatedResources =
+                propagationManager.create(syncopeUser, syncResourceNames);
         if (log.isDebugEnabled()) {
-            log.debug("About to propagate synchronously on the following "
-                    + "resources " + synchronous);
+            log.debug("Propagated onto resources " + propagatedResources);
         }
-        propagationManager.provision(syncopeUser, synchronous);
 
         // User is created locally and propagated, let's advance on the workflow
         Map<String, Object> inputs = new HashMap<String, Object>();
@@ -350,7 +361,12 @@ public class UserController extends AbstractController {
     @RequestMapping(method = RequestMethod.POST,
     value = "/update")
     public UserTO update(HttpServletResponse response,
-            @RequestBody UserMod userMod) throws NotFoundException {
+            @RequestBody UserMod userMod,
+            @RequestParam(value = "syncRoles",
+            required = false) Set<Long> syncRoles,
+            @RequestParam(value = "syncResources",
+            required = false) Set<String> syncResources)
+            throws NotFoundException, PropagationException {
 
         if (log.isDebugEnabled()) {
             log.debug("update called with parameter " + userMod);
@@ -364,8 +380,23 @@ public class UserController extends AbstractController {
             throw new NotFoundException(String.valueOf(userMod.getId()));
         }
 
-        syncopeUser = userDataBinder.updateSyncopeUser(syncopeUser, userMod);
+       ResourceOperations resourceOperations =
+                userDataBinder.updateSyncopeUser(syncopeUser, userMod);
         syncopeUser = syncopeUserDAO.save(syncopeUser);
+
+        // Now that user is update locally, let's propagate
+        Set<String> syncResourceNames =
+                getSyncResourceNames(syncopeUser, syncRoles, syncResources);
+        if (log.isDebugEnabled() && !syncResourceNames.isEmpty()) {
+            log.debug("About to propagate synchronously onto resources "
+                    + syncResourceNames);
+        }
+        Set<String> propagatedResources =
+                propagationManager.update(syncopeUser,
+                resourceOperations, syncResourceNames);
+        if (log.isDebugEnabled()) {
+            log.debug("Propagated onto resources " + propagatedResources);
+        }
 
         // TODO: workflow
         return userDataBinder.getUserTO(syncopeUser);

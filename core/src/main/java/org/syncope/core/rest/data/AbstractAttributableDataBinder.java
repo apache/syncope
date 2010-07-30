@@ -34,6 +34,7 @@ import org.syncope.core.persistence.beans.AbstractDerivedAttribute;
 import org.syncope.core.persistence.beans.AbstractDerivedSchema;
 import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.beans.Resource;
+import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.AttributeDAO;
@@ -45,6 +46,8 @@ import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.SyncopeRoleDAO;
 import org.syncope.core.persistence.dao.SyncopeUserDAO;
+import org.syncope.core.persistence.propagation.ResourceOperations;
+import org.syncope.core.persistence.propagation.ResourceOperations.Type;
 import org.syncope.core.persistence.validation.ValidationException;
 import org.syncope.types.SyncopeClientExceptionType;
 
@@ -182,12 +185,14 @@ class AbstractAttributableDataBinder {
         return requiredValuesMissing;
     }
 
-    protected <T extends AbstractAttributable> T fill(
-            T attributable,
+    protected ResourceOperations fill(
+            AbstractAttributable attributable,
             AbstractAttributableMod attributableMod,
             AttributableUtil attributableUtil,
             SyncopeClientCompositeErrorException compositeErrorException)
             throws SyncopeClientCompositeErrorException {
+
+        ResourceOperations resourceOperations = new ResourceOperations();
 
         SyncopeClientException invalidValues = new SyncopeClientException(
                 SyncopeClientExceptionType.InvalidValues);
@@ -206,6 +211,13 @@ class AbstractAttributableDataBinder {
                     attributableUtil.getSchemaClass());
 
             if (schema != null) {
+                for (SchemaMapping mapping : schema.getMappings()) {
+                    if (mapping.getResource() != null) {
+                        resourceOperations.add(Type.UPDATE,
+                                mapping.getResource());
+                    }
+                }
+
                 attribute = attributable.getAttribute(schema.getName());
                 if (attribute == null) {
                     attribute = attributableUtil.newAttribute();
@@ -253,6 +265,13 @@ class AbstractAttributableDataBinder {
                     attributableUtil.getSchemaClass());
 
             if (schema != null) {
+                for (SchemaMapping mapping : schema.getMappings()) {
+                    if (mapping.getResource() != null) {
+                        resourceOperations.add(Type.UPDATE,
+                                mapping.getResource());
+                    }
+                }
+
                 attribute = attributable.getAttribute(schema.getName());
                 if (attribute == null) {
                     if (log.isDebugEnabled()) {
@@ -287,6 +306,13 @@ class AbstractAttributableDataBinder {
             derivedSchema = getDerivedSchema(derivedAttributeToBeAdded,
                     attributableUtil.getDerivedSchemaClass());
             if (derivedSchema != null) {
+                for (SchemaMapping mapping : derivedSchema.getMappings()) {
+                    if (mapping.getResource() != null) {
+                        resourceOperations.add(Type.UPDATE,
+                                mapping.getResource());
+                    }
+                }
+
                 derivedAttribute = attributableUtil.newDerivedAttribute();
                 derivedAttribute.setDerivedSchema(derivedSchema);
                 derivedAttribute.setOwner(attributable);
@@ -301,10 +327,16 @@ class AbstractAttributableDataBinder {
             derivedSchema = getDerivedSchema(derivedAttributeToBeRemoved,
                     attributableUtil.getDerivedSchemaClass());
             if (derivedSchema != null) {
+                for (SchemaMapping mapping : derivedSchema.getMappings()) {
+                    if (mapping.getResource() != null) {
+                        resourceOperations.add(Type.UPDATE,
+                                mapping.getResource());
+                    }
+                }
+
                 derivedAttribute = attributable.getDerivedAttribute(
                         derivedSchema.getName());
-
-                if (attribute == null) {
+                if (derivedAttribute == null) {
                     if (log.isDebugEnabled()) {
                         log.debug("No derived attribute found for schema "
                                 + derivedSchema.getName());
@@ -323,6 +355,8 @@ class AbstractAttributableDataBinder {
             resource = getResource(resourceToBeRemoved);
 
             if (resource != null) {
+                resourceOperations.add(Type.DELETE, resource);
+
                 attributable.removeResource(resource);
 
                 if (attributableUtil == attributableUtil.USER) {
@@ -334,7 +368,6 @@ class AbstractAttributableDataBinder {
             }
         }
 
-
         // 6. resources to be added
         for (String resourceToBeAdded :
                 attributableMod.getResourcesToBeAdded()) {
@@ -342,6 +375,8 @@ class AbstractAttributableDataBinder {
             resource = getResource(resourceToBeAdded);
 
             if (resource != null) {
+                resourceOperations.add(Type.CREATE, resource);
+
                 attributable.addResource(resource);
 
                 if (attributableUtil == attributableUtil.USER) {
@@ -358,11 +393,10 @@ class AbstractAttributableDataBinder {
             throw compositeErrorException;
         }
 
-        return attributable;
+        return resourceOperations;
     }
 
-    protected <T extends AbstractAttributable> T fill(
-            T attributable,
+    protected AbstractAttributable fill(AbstractAttributable attributable,
             AbstractAttributableTO attributableTO,
             AttributableUtil attributableUtil,
             SyncopeClientCompositeErrorException compositeErrorException)
@@ -384,7 +418,6 @@ class AbstractAttributableDataBinder {
             if (schema != null) {
                 attribute = attributableUtil.newAttribute();
                 attribute.setSchema(schema);
-                attribute.setOwner(attributable);
 
                 fillAttribute(attributeTO.getValues(),
                         attributableUtil, schema, attribute,
@@ -392,6 +425,7 @@ class AbstractAttributableDataBinder {
 
                 if (!attribute.getAttributeValues().isEmpty()) {
                     attributable.addAttribute(attribute);
+                    attribute.setOwner(attributable);
                 }
             }
         }
@@ -457,8 +491,8 @@ class AbstractAttributableDataBinder {
         return attributable;
     }
 
-    protected <T extends AbstractAttributableTO> T fillTO(
-            T abstractAttributableTO,
+    protected AbstractAttributableTO fillTO(
+            AbstractAttributableTO abstractAttributableTO,
             Collection<? extends AbstractAttribute> attributes,
             Collection<? extends AbstractDerivedAttribute> derivedAttributes,
             Collection<Resource> resources) {

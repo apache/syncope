@@ -14,6 +14,7 @@
  */
 package org.syncope.core.persistence.beans.role;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Entity;
@@ -23,6 +24,7 @@ import javax.persistence.OneToMany;
 import org.syncope.core.persistence.beans.AbstractDerivedAttribute;
 import org.syncope.core.persistence.beans.AbstractDerivedSchema;
 import org.syncope.core.persistence.beans.AbstractSchema;
+import org.syncope.core.persistence.beans.SchemaMapping;
 
 @Entity
 public class RoleDerivedSchema extends AbstractDerivedSchema {
@@ -81,5 +83,42 @@ public class RoleDerivedSchema extends AbstractDerivedSchema {
             Set<T> derivedAttributes) {
 
         this.derivedAttributes = (Set<RoleDerivedAttribute>) derivedAttributes;
+    }
+
+    /**
+     * TODO: https://code.google.com/p/syncope/issues/detail?id=27
+     * @param mapping
+     * @return
+     */
+    @Override
+    public boolean addMapping(SchemaMapping mapping) {
+        return true;
+    }
+
+    /**
+     * TODO: https://code.google.com/p/syncope/issues/detail?id=27
+     * @param mapping
+     * @return
+     */
+    @Override
+    public boolean removeMapping(SchemaMapping mapping) {
+        return true;
+    }
+
+    /**
+     * TODO: https://code.google.com/p/syncope/issues/detail?id=27
+     * @return
+     */
+    @Override
+    public Set<SchemaMapping> getMappings() {
+        return Collections.EMPTY_SET;
+    }
+
+    /**
+     * TODO: https://code.google.com/p/syncope/issues/detail?id=27
+     * @param mappings
+     */
+    @Override
+    public void setMappings(Set<SchemaMapping> mappings) {
     }
 }

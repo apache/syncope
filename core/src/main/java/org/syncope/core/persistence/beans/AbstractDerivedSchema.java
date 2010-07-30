@@ -56,4 +56,12 @@ public abstract class AbstractDerivedSchema extends AbstractBaseBean {
     public abstract Set<? extends AbstractSchema> getSchemas();
 
     public abstract void setSchemas(Set<? extends AbstractSchema> schemas);
+
+    public abstract boolean addMapping(SchemaMapping mapping);
+
+    public abstract boolean removeMapping(SchemaMapping mapping);
+
+    public abstract Set<SchemaMapping> getMappings();
+
+    public abstract void setMappings(Set<SchemaMapping> mappings);
 }

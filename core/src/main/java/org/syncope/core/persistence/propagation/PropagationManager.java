@@ -32,10 +32,11 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.syncope.core.persistence.beans.ConnectorInstance;
 import org.syncope.core.persistence.beans.Resource;
 import org.syncope.core.persistence.beans.SchemaMapping;
-import org.syncope.core.persistence.beans.role.SyncopeRole;
+import org.syncope.core.persistence.beans.membership.Membership;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.beans.user.UserAttribute;
 import org.syncope.core.persistence.beans.user.UserAttributeValue;
+import org.syncope.core.persistence.propagation.ResourceOperations.Type;
 import org.syncope.core.persistence.util.ApplicationContextManager;
 import org.syncope.types.SchemaType;
 
@@ -45,42 +46,42 @@ public class PropagationManager {
             LoggerFactory.getLogger(PropagationManager.class);
 
     /**
-     * Performs provisioning on each resource associated to the user.
+     * Create the user on every associated resource.
      * Exceptions will be ignored.
      * @param user to be created.
      * @return a set of provisioned resources.
      * @throws PropagationException
      */
-    public Set<String> provision(SyncopeUser user) throws PropagationException {
-        return provision(user, null, false);
+    public Set<String> create(SyncopeUser user) throws PropagationException {
+        return create(user, null);
     }
 
     /**
-     * Performs provisioning on each resource associated to the user.
+     * Create the user on every associated resource.
      * It is possible to ask for a synchronous provisioning for some resources
      * specifying a set of resource names.
-     * Exceptions won't be ignored and the process will be stoppend if the
-     * provisioning fails onto a synchronous resource.
+     * Exceptions won't be ignored and the process will be stopped if the
+     * creation fails onto a synchronous resource.
      * @param user to be created.
-     * @param synchronous to ask for a synchronous or asynchronous provisioning.
+     * @param syncResourceNames to ask for a synchronous or asynchronous provisioning.
      * @return a set of provisioned resources.
      * @throws PropagationException
      */
-    public Set<String> provision(SyncopeUser user, Set<String> synchronous)
+    public Set<String> create(SyncopeUser user, Set<String> syncResourceNames)
             throws PropagationException {
 
-        return provision(user, synchronous, false);
-    }
+        Set<Resource> resources = new HashSet<Resource>();
+        for (Resource resource : user.getResources()) {
+            resources.add(resource);
+        }
+        for (Membership membership : user.getMemberships()) {
+            resources.addAll(membership.getResources());
+        }
 
-    /**
-     * Performs update on each resource associated to the user.
-     * Exceptions will be ignored.
-     * @param user to be updated.
-     * @return a set of updated resources.
-     * @throws PropagationException
-     */
-    public Set<String> update(SyncopeUser user) throws PropagationException {
-        return provision(user, null, true);
+        ResourceOperations resourceOperations = new ResourceOperations();
+        resourceOperations.set(Type.CREATE, resources);
+
+        return provision(user, resourceOperations, syncResourceNames);
     }
 
     /**
@@ -90,109 +91,98 @@ public class PropagationManager {
      * Exceptions won't be ignored and the process will be stoppend if the
      * provisioning fails onto a synchronous resource.
      * @param user to be updated.
-     * @param synchronous to ask for a synchronous or asynchronous update.
+     * @param affectedResources resources affected by this update
+     * @param syncResourceNames to ask for a synchronous or asynchronous update.
      * @return a set of updated resources.
      * @throws PropagationException
      */
-    public Set<String> update(SyncopeUser user, Set<String> synchronous)
+    public Set<String> update(SyncopeUser user,
+            ResourceOperations resourceOperations,
+            Set<String> syncResourceNames)
             throws PropagationException {
 
-        return provision(user, synchronous, true);
+        return provision(user, resourceOperations, syncResourceNames);
     }
 
     /**
      * Implementation of the provisioning feature.
      * @param user
-     * @param synchronous
+     * @param syncResourceNames
      * @param merge
-     * @return
+     * @return provisioned resources
      * @throws PropagationException
      */
-    private Set<String> provision(
-            SyncopeUser user, Set<String> synchronous, boolean merge)
+    private Set<String> provision(SyncopeUser user,
+            ResourceOperations resourceOperations,
+            Set<String> syncResourceNames)
             throws PropagationException {
-
-        if (synchronous == null) {
-            synchronous = Collections.EMPTY_SET;
-        }
 
         // set of provisioned resources
         Set<String> provisioned = new HashSet<String>();
 
-        // All of the resource to be provisioned
-        Set<Resource> resources = new HashSet<Resource>();
-        resources.addAll(user.getResources());
-
-        Set<SyncopeRole> roles = user.getRoles();
-
-        for (SyncopeRole role : roles) {
-            resources.addAll(role.getResources());
-        }
+        // Avoid duplicates - see javadoc
+        resourceOperations.purge();
 
         // Resource to be provisioned synchronously
-        Set<Resource> syncResources = new HashSet<Resource>();
+        ResourceOperations syncOperations = new ResourceOperations();
 
         // Resource to be provisioned asynchronously
-        Set<Resource> asyncResources = new HashSet<Resource>();
+        ResourceOperations asyncOperations = new ResourceOperations();
 
-        for (Resource resource : resources) {
-            if (synchronous.contains(resource.getName())) {
-                syncResources.add(resource);
-            } else {
-                asyncResources.add(resource);
+        if (syncResourceNames == null) {
+            syncResourceNames = Collections.EMPTY_SET;
+        }
+        for (Type type : ResourceOperations.Type.values()) {
+            for (Resource resource : resourceOperations.get(type)) {
+                if (syncResourceNames.contains(resource.getName())) {
+                    syncOperations.add(type, resource);
+                } else {
+                    asyncOperations.add(type, resource);
+                }
             }
         }
 
         // synchronous propagation ...
-
         if (log.isDebugEnabled()) {
-            log.debug(
-                    "Synchronous provisioning of " + resources + " with user " + user.getId());
+            log.debug("Synchronous provisioning of " + syncOperations
+                    + " with user " + user);
         }
+        for (Type type : ResourceOperations.Type.values()) {
+            for (Resource resource : syncOperations.get(type)) {
+                try {
+                    propagate(user, resource, type);
+                    provisioned.add(resource.getName());
+                } catch (Throwable t) {
+                    log.error("Exception during provision on resource "
+                            + resource.getName(), t);
 
-        for (Resource resource : syncResources) {
-            try {
-
-                propagate(user, resource, merge);
-                provisioned.add(resource.getName());
-
-            } catch (Throwable t) {
-
-                if (log.isErrorEnabled()) {
-                    log.error(
-                            "Exception during provision on resource " + resource.getName(), t);
+                    throw new PropagationException(
+                            "Exception during provision on resource "
+                            + resource.getName(), resource.getName(), t);
                 }
-
-                throw new PropagationException(
-                        "Exception during provision on resource " + resource.getName(), resource.getName(), t);
             }
         }
 
         // asynchronous propagation ...
-
         if (log.isDebugEnabled()) {
-            log.debug(
-                    "Asynchronous provisioning of " + resources + " with user " + user.getId());
+            log.debug("Asynchronous provisioning of "
+                    + asyncOperations + " with user " + user);
         }
-
-        for (Resource resource : asyncResources) {
-            try {
-
-                propagate(user, resource, merge);
-                provisioned.add(resource.getName());
-
-            } catch (Throwable t) {
-
-                if (log.isErrorEnabled()) {
-                    log.error(
-                            "Exception during provision on resource " + resource.getName(), t);
+        for (Type type : ResourceOperations.Type.values()) {
+            for (Resource resource : asyncOperations.get(type)) {
+                try {
+                    propagate(user, resource, type);
+                    provisioned.add(resource.getName());
+                } catch (Throwable t) {
+                    log.error("Exception during provision on resource "
+                            + resource.getName(), t);
                 }
             }
         }
 
         if (log.isDebugEnabled()) {
-            log.debug(
-                    "Provisioned " + provisioned + " with user " + user.getId());
+            log.debug("Provisioned " + provisioned
+                    + " with user " + user.getId());
         }
 
         return provisioned;
@@ -202,30 +192,22 @@ public class PropagationManager {
      * Propagate provision/update the resource indicated.
      * @param user to be created.
      * @param resource to be provisioned.
-     * @param merge specifies if it must be performed an update (true) or a
-     * creation (false).
+     * @param type to be performed on the specified resource
      * @throws NoSuchBeanDefinitionException if the connector bean doesn't
      * exist.
      * @throws IllegalStateException if propagation fails.
      */
-    private void propagate(SyncopeUser user, Resource resource, boolean merge)
+    private void propagate(SyncopeUser user, Resource resource, Type type)
             throws NoSuchBeanDefinitionException, IllegalStateException {
 
-        ConnectorInstance connectorInstance =
-                resource.getConnector();
+        ConnectorInstance connectorInstance = resource.getConnector();
 
         ConnectorFacade connector =
                 getConnectorFacade(connectorInstance.getId().toString());
 
         if (connector == null) {
-            if (log.isErrorEnabled()) {
-
-                log.error(
-                        "Connector instance bean "
-                        + connectorInstance.getId().toString()
-                        + " not found");
-
-            }
+            log.error("Connector instance bean "
+                    + connectorInstance.getId().toString() + " not found");
 
             throw new NoSuchBeanDefinitionException(
                     "Connector instance bean not found");
@@ -256,10 +238,9 @@ public class PropagationManager {
         // syncope user attribute
         UserAttribute userAttribute = null;
         // syncope user attribute schema type
-        SchemaType type = null;
+        SchemaType schemaType = null;
         // syncope user attribute values
         List<UserAttributeValue> values = null;
-
 
         for (SchemaMapping mapping : mappings) {
 
@@ -272,21 +253,20 @@ public class PropagationManager {
             values = null;
 
             try {
-                type = mapping.getUserSchema().getType();
-                castToBeApplied = Class.forName(type.getClassName());
+                schemaType = mapping.getUserSchema().getType();
+                castToBeApplied = Class.forName(schemaType.getClassName());
             } catch (ClassNotFoundException e) {
                 castToBeApplied = String.class;
             }
 
             if (log.isDebugEnabled()) {
-                log.debug(
-                        "\nDefine mapping for: "
+                log.debug("\nDefine mapping for: "
                         + "\n* Field " + field
                         + "\n* is accountId " + mapping.isAccountid()
                         + "\n* is password " + mapping.isPassword()
                         + "\n* is nullable " + mapping.isNullable()
                         + "\n* Schema " + schema
-                        + "\n* Type " + type.getClassName());
+                        + "\n* Type " + schemaType.getClassName());
             }
 
             objValues = new HashSet();
@@ -324,28 +304,26 @@ public class PropagationManager {
         }
 
         Uid userUid = null;
+        switch (type) {
+            case CREATE:
+                userUid = connector.create(ObjectClass.ACCOUNT, attrs, null);
+                break;
 
-        if (merge) {
-            userUid = connector.update(
-                    ObjectClass.ACCOUNT, new Uid(accountId), attrs, null);
-        } else {
-            userUid = connector.create(
-                    ObjectClass.ACCOUNT, attrs, null);
+            case UPDATE:
+                userUid = connector.update(ObjectClass.ACCOUNT,
+                        new Uid(accountId), attrs, null);
+                break;
+
+            case DELETE:
+                connector.delete(ObjectClass.ACCOUNT, new Uid(accountId), null);
+                break;
         }
 
-        if (userUid == null) {
-            if (log.isErrorEnabled()) {
+        if (userUid == null && type != Type.DELETE) {
+            log.error("Error creating / updating user onto resource "
+                    + resource);
 
-                log.error(
-                        "Error creating user on resource " + resource.getName());
-
-            }
-
-            throw new IllegalStateException("Error creating user.");
-        }
-
-        if (log.isInfoEnabled()) {
-            log.info("Created user " + userUid.getUidValue());
+            throw new IllegalStateException("Error creating user");
         }
     }
 

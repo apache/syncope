@@ -31,6 +31,7 @@ import org.syncope.client.to.RoleTOs;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.dao.SyncopeRoleDAO;
+import org.syncope.core.persistence.propagation.ResourceOperations;
 import org.syncope.core.rest.data.RoleDataBinder;
 
 @Controller
@@ -168,7 +169,8 @@ public class RoleController extends AbstractController {
             throw new NotFoundException(String.valueOf(roleMod.getId()));
         }
 
-        syncopeRole = roleDataBinder.updateSyncopeRole(syncopeRole, roleMod);
+       ResourceOperations resourceOperations =
+                roleDataBinder.updateSyncopeRole(syncopeRole, roleMod);
         syncopeRole = syncopeRoleDAO.save(syncopeRole);
 
         return roleDataBinder.getRoleTO(syncopeRole);

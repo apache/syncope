@@ -29,6 +29,7 @@ import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.SyncopeRoleDAO;
 import org.syncope.core.persistence.dao.SyncopeUserDAO;
+import org.syncope.core.persistence.propagation.ResourceOperations;
 import org.syncope.types.SyncopeClientExceptionType;
 
 @Component
@@ -95,13 +96,14 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
         }
 
         // attributes, derived attributes and resources
-        syncopeRole = fill(syncopeRole, roleTO, AttributableUtil.ROLE, scce);
+        syncopeRole = (SyncopeRole) fill(syncopeRole, roleTO,
+                AttributableUtil.ROLE, scce);
 
         return syncopeRole;
     }
 
-    public SyncopeRole updateSyncopeRole(SyncopeRole syncopeRole,
-            RoleMod roleMod)
+    public ResourceOperations updateSyncopeRole(
+            SyncopeRole syncopeRole, RoleMod roleMod)
             throws SyncopeClientCompositeErrorException {
 
         SyncopeClientCompositeErrorException scce =
@@ -109,8 +111,7 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
                 HttpStatus.BAD_REQUEST);
 
         // name
-        SyncopeClientException invalidRoles =
-                new SyncopeClientException(
+        SyncopeClientException invalidRoles = new SyncopeClientException(
                 SyncopeClientExceptionType.InvalidRoles);
         if (roleMod.getName() != null) {
             SyncopeRole otherRole = syncopeRoleDAO.find(
@@ -140,9 +141,7 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
         }
 
         // attributes, derived attributes and resources
-        syncopeRole = fill(syncopeRole, roleMod, AttributableUtil.ROLE, scce);
-
-        return syncopeRole;
+        return fill(syncopeRole, roleMod, AttributableUtil.ROLE, scce);
     }
 
     public RoleTO getRoleTO(SyncopeRole role) {
@@ -155,11 +154,11 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
             roleTO.setParent(role.getParent().getId());
         }
 
-        roleTO = fillTO(roleTO, role.getAttributes(),
+        roleTO = (RoleTO) fillTO(roleTO, role.getAttributes(),
                 role.getDerivedAttributes(), role.getResources());
 
         if (role.isInheritAttributes() || role.isInheritDerivedAttributes()) {
-            roleTO = fillTO(roleTO,
+            roleTO = (RoleTO) fillTO(roleTO,
                     role.isInheritAttributes()
                     ? syncopeRoleDAO.findInheritedAttributes(role)
                     : Collections.EMPTY_SET,

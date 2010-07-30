@@ -35,6 +35,7 @@ import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.SyncopeRoleDAO;
 import org.syncope.core.persistence.dao.SyncopeUserDAO;
+import org.syncope.core.persistence.propagation.ResourceOperations;
 import org.syncope.types.SyncopeClientExceptionType;
 
 @Component
@@ -90,7 +91,8 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         }
 
         // attributes, derived attributes and resources
-        syncopeUser = fill(syncopeUser, userTO, AttributableUtil.USER, scce);
+        syncopeUser = (SyncopeUser) fill(
+                syncopeUser, userTO, AttributableUtil.USER, scce);
 
         // memberships
         SyncopeRole role = null;
@@ -107,7 +109,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
                 membership.setSyncopeRole(role);
                 membership.setSyncopeUser(syncopeUser);
 
-                membership = fill(membership, membershipTO,
+                membership = (Membership) fill(membership, membershipTO,
                         AttributableUtil.MEMBERSHIP, scce);
 
                 syncopeUser.addMembership(membership);
@@ -117,8 +119,8 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         return syncopeUser;
     }
 
-    public SyncopeUser updateSyncopeUser(SyncopeUser syncopeUser,
-            UserMod userMod)
+    public ResourceOperations updateSyncopeUser(
+            SyncopeUser syncopeUser, UserMod userMod)
             throws SyncopeClientCompositeErrorException {
 
         SyncopeClientCompositeErrorException scce =
@@ -131,7 +133,8 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         }
 
         // attributes, derived attributes and resources
-        syncopeUser = fill(syncopeUser, userMod, AttributableUtil.USER, scce);
+        ResourceOperations resourceOperations =
+                fill(syncopeUser, userMod, AttributableUtil.USER, scce);
 
         // memberships
         SyncopeRole role = null;
@@ -153,12 +156,12 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
                     syncopeUser.addMembership(membership);
                 }
 
-                membership = fill(membership, membershipMod,
-                        AttributableUtil.MEMBERSHIP, scce);
+                resourceOperations.merge(fill(membership, membershipMod,
+                        AttributableUtil.MEMBERSHIP, scce));
             }
         }
 
-        return syncopeUser;
+        return resourceOperations;
     }
 
     public UserTO getUserTO(SyncopeUser user) {
@@ -169,14 +172,14 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         userTO.setTokenExpireTime(user.getTokenExpireTime());
         userTO.setPassword(user.getPassword());
 
-        userTO = fillTO(userTO, user.getAttributes(),
+        userTO = (UserTO) fillTO(userTO, user.getAttributes(),
                 user.getDerivedAttributes(), user.getResources());
 
         MembershipTO membershipTO = new MembershipTO();
         for (Membership membership : user.getMemberships()) {
             membershipTO.setRole(membership.getSyncopeRole().getId());
 
-            membershipTO = fillTO(membershipTO,
+            membershipTO = (MembershipTO) fillTO(membershipTO,
                     membership.getAttributes(),
                     membership.getDerivedAttributes(),
                     membership.getResources());
