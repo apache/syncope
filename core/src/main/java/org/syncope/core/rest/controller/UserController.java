@@ -47,6 +47,7 @@ import org.springframework.http.HttpStatus;
 import org.syncope.client.mod.UserMod;
 import org.syncope.client.to.NodeSearchCondition;
 import org.syncope.client.to.UserTO;
+import org.syncope.client.to.WorkflowActionsTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
 import org.syncope.core.persistence.beans.Resource;
@@ -74,7 +75,7 @@ public class UserController extends AbstractController {
     @Autowired
     private PropagationManager propagationManager;
 
-    private SyncopeUser executeAction(String actionName, UserTO userTO)
+    private SyncopeUser doExecuteAction(String actionName, UserTO userTO)
             throws WorkflowException, NotFoundException {
 
         SyncopeUser syncopeUser = syncopeUserDAO.find(userTO.getId());
@@ -103,7 +104,6 @@ public class UserController extends AbstractController {
             }
         }
         if (actionId == null) {
-
             throw new NotFoundException(actionName);
         }
 
@@ -114,13 +114,155 @@ public class UserController extends AbstractController {
     }
 
     @RequestMapping(method = RequestMethod.POST,
+    value = "/action/{actionName}")
+    public UserTO executeAction(HttpServletResponse response,
+            @RequestBody UserTO userTO,
+            @PathVariable(value = "actionName") String actionName)
+            throws WorkflowException, NotFoundException {
+
+        return userDataBinder.getUserTO(
+                doExecuteAction(actionName, userTO));
+    }
+
+    @RequestMapping(method = RequestMethod.POST,
     value = "/activate")
     public UserTO activate(HttpServletResponse response,
             @RequestBody UserTO userTO)
             throws WorkflowException, NotFoundException {
 
         return userDataBinder.getUserTO(
-                executeAction(Constants.ACTION_ACTIVATE, userTO));
+                doExecuteAction(Constants.ACTION_ACTIVATE, userTO));
+    }
+
+    @RequestMapping(method = RequestMethod.GET,
+    value = "/generateToken/{userId}")
+    public UserTO generateToken(HttpServletResponse response,
+            @PathVariable("userId") Long userId)
+            throws WorkflowException, NotFoundException {
+
+        UserTO userTO = new UserTO();
+        userTO.setId(userId);
+        return userDataBinder.getUserTO(
+                doExecuteAction(Constants.ACTION_GENERATE_TOKEN, userTO));
+    }
+
+    @RequestMapping(method = RequestMethod.POST,
+    value = "/verifyToken")
+    public UserTO verifyToken(HttpServletResponse response,
+            @RequestBody UserTO userTO)
+            throws WorkflowException, NotFoundException {
+
+        return userDataBinder.getUserTO(
+                doExecuteAction(Constants.ACTION_VERIFY_TOKEN, userTO));
+    }
+
+    @RequestMapping(method = RequestMethod.GET,
+    value = "/list")
+    public UserTOs list(HttpServletRequest request) {
+        List<SyncopeUser> users = syncopeUserDAO.findAll();
+        List<UserTO> userTOs = new ArrayList<UserTO>(users.size());
+
+        for (SyncopeUser user : users) {
+            userTOs.add(userDataBinder.getUserTO(user));
+        }
+
+        UserTOs result = new UserTOs();
+        result.setUsers(userTOs);
+        return result;
+    }
+
+    @RequestMapping(method = RequestMethod.GET,
+    value = "/read/{userId}")
+    public UserTO read(HttpServletResponse response,
+            @PathVariable("userId") Long userId)
+            throws NotFoundException {
+
+        SyncopeUser user = syncopeUserDAO.find(userId);
+
+        if (user == null) {
+            log.error("Could not find user '" + userId + "'");
+
+            throw new NotFoundException(String.valueOf(userId));
+        }
+
+        return userDataBinder.getUserTO(user);
+    }
+
+    @RequestMapping(method = RequestMethod.GET,
+    value = "/actions/{userId}")
+    public WorkflowActionsTO actions(HttpServletResponse response,
+            @PathVariable("userId") Long userId) throws NotFoundException {
+
+        SyncopeUser user = syncopeUserDAO.find(userId);
+
+        if (user == null) {
+            log.error("Could not find user '" + userId + "'");
+
+            throw new NotFoundException(String.valueOf(userId));
+        }
+
+        WorkflowActionsTO result = new WorkflowActionsTO();
+
+        WorkflowDescriptor workflowDescriptor =
+                userWorkflow.getWorkflowDescriptor(Constants.USER_WORKFLOW);
+        int[] availableActions = userWorkflow.getAvailableActions(
+                user.getWorkflowEntryId(), Collections.EMPTY_MAP);
+        for (int i = 0; i < availableActions.length; i++) {
+            result.addAction(workflowDescriptor.getAction(
+                    availableActions[i]).getName());
+        }
+
+        return result;
+    }
+
+    @RequestMapping(method = RequestMethod.POST,
+    value = "/search")
+    public UserTOs search(HttpServletResponse response,
+            @RequestBody NodeSearchCondition searchCondition)
+            throws InvalidSearchConditionException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("search called with condition " + searchCondition);
+        }
+
+        if (!searchCondition.checkValidity()) {
+            log.error("Invalid search condition: " + searchCondition);
+
+            throw new InvalidSearchConditionException();
+        }
+
+        List<SyncopeUser> matchingUsers =
+                syncopeUserDAO.search(searchCondition);
+        UserTOs result = new UserTOs();
+        for (SyncopeUser user : matchingUsers) {
+            result.addUser(userDataBinder.getUserTO(user));
+        }
+
+        return result;
+    }
+
+    @RequestMapping(method = RequestMethod.GET,
+    value = "/status/{userId}")
+    public ModelAndView getStatus(HttpServletResponse response,
+            @PathVariable("userId") Long userId) throws NotFoundException {
+
+        SyncopeUser user = syncopeUserDAO.find(userId);
+
+        if (user == null) {
+            log.error("Could not find user '" + userId + "'");
+
+            throw new NotFoundException(String.valueOf(userId));
+        }
+
+        List<Step> currentSteps = userWorkflow.getCurrentSteps(
+                user.getWorkflowEntryId());
+        if (currentSteps == null || currentSteps.isEmpty()) {
+            return null;
+        }
+
+        ModelAndView mav = new ModelAndView();
+        mav.addObject(currentSteps.iterator().next().getStatus());
+        return mav;
     }
 
     private Set<String> getSyncResourceNames(SyncopeUser syncopeUser,
@@ -235,131 +377,6 @@ public class UserController extends AbstractController {
         return userDataBinder.getUserTO(syncopeUser);
     }
 
-    @RequestMapping(method = RequestMethod.DELETE,
-    value = "/delete/{userId}")
-    public void delete(HttpServletResponse response,
-            @PathVariable("userId") Long userId)
-            throws NotFoundException {
-
-        SyncopeUser user = syncopeUserDAO.find(userId);
-
-        if (user == null) {
-            log.error("Could not find user '" + userId + "'");
-
-            throw new NotFoundException(String.valueOf(userId));
-        } else {
-            if (workflowStore != null && user.getWorkflowEntryId() != null) {
-                workflowStore.delete(user.getWorkflowEntryId());
-            }
-
-            syncopeUserDAO.delete(userId);
-        }
-    }
-
-    @RequestMapping(method = RequestMethod.GET,
-    value = "/list")
-    public UserTOs list(HttpServletRequest request) {
-        List<SyncopeUser> users = syncopeUserDAO.findAll();
-        List<UserTO> userTOs = new ArrayList<UserTO>(users.size());
-
-        for (SyncopeUser user : users) {
-            userTOs.add(userDataBinder.getUserTO(user));
-        }
-
-        UserTOs result = new UserTOs();
-        result.setUsers(userTOs);
-        return result;
-    }
-
-    @RequestMapping(method = RequestMethod.GET,
-    value = "/read/{userId}")
-    public UserTO read(HttpServletResponse response,
-            @PathVariable("userId") Long userId)
-            throws NotFoundException {
-
-        SyncopeUser user = syncopeUserDAO.find(userId);
-
-        if (user == null) {
-            log.error("Could not find user '" + userId + "'");
-
-            throw new NotFoundException(String.valueOf(userId));
-        }
-
-        return userDataBinder.getUserTO(user);
-    }
-
-    @RequestMapping(method = RequestMethod.GET,
-    value = "/generateToken/{userId}")
-    public UserTO generateToken(HttpServletResponse response,
-            @PathVariable("userId") Long userId)
-            throws WorkflowException, NotFoundException {
-
-        UserTO userTO = new UserTO();
-        userTO.setId(userId);
-        return userDataBinder.getUserTO(
-                executeAction(Constants.ACTION_GENERATE_TOKEN, userTO));
-    }
-
-    @RequestMapping(method = RequestMethod.POST,
-    value = "/verifyToken")
-    public UserTO verifyToken(HttpServletResponse response,
-            @RequestBody UserTO userTO)
-            throws WorkflowException, NotFoundException {
-
-        return userDataBinder.getUserTO(
-                executeAction(Constants.ACTION_VERIFY_TOKEN, userTO));
-    }
-
-    @RequestMapping(method = RequestMethod.POST,
-    value = "/search")
-    public UserTOs search(HttpServletResponse response,
-            @RequestBody NodeSearchCondition searchCondition)
-            throws InvalidSearchConditionException {
-
-        if (log.isDebugEnabled()) {
-            log.debug("search called with condition " + searchCondition);
-        }
-
-        if (!searchCondition.checkValidity()) {
-            log.error("Invalid search condition: " + searchCondition);
-
-            throw new InvalidSearchConditionException();
-        }
-
-        List<SyncopeUser> matchingUsers =
-                syncopeUserDAO.search(searchCondition);
-        UserTOs result = new UserTOs();
-        for (SyncopeUser user : matchingUsers) {
-            result.addUser(userDataBinder.getUserTO(user));
-        }
-
-        return result;
-    }
-
-    @RequestMapping(method = RequestMethod.GET,
-    value = "/status/{userId}")
-    public ModelAndView getStatus(HttpServletResponse response,
-            @PathVariable("userId") Long userId) throws NotFoundException {
-
-        SyncopeUser user = syncopeUserDAO.find(userId);
-
-        if (user == null) {
-            log.error("Could not find user '" + userId + "'");
-
-            throw new NotFoundException(String.valueOf(userId));
-        }
-
-        List<Step> currentSteps = userWorkflow.getCurrentSteps(
-                user.getWorkflowEntryId());
-        if (currentSteps == null || currentSteps.isEmpty()) {
-            return null;
-        }
-
-        ModelAndView mav = new ModelAndView();
-        mav.addObject(currentSteps.iterator().next().getStatus());
-        return mav;
-    }
-
     @RequestMapping(method = RequestMethod.POST,
     value = "/update")
     public UserTO update(HttpServletResponse response,
@@ -383,8 +400,8 @@ public class UserController extends AbstractController {
         }
 
         // First of all, let's check if update is allowed
-        syncopeUser =
-                executeAction("update", userDataBinder.getUserTO(syncopeUser));
+        syncopeUser = doExecuteAction(Constants.ACTION_UPDATE,
+                userDataBinder.getUserTO(syncopeUser));
 
         // Update user with provided userMod
         ResourceOperations resourceOperations =
@@ -406,5 +423,26 @@ public class UserController extends AbstractController {
         }
 
         return userDataBinder.getUserTO(syncopeUser);
+    }
+
+    @RequestMapping(method = RequestMethod.DELETE,
+    value = "/delete/{userId}")
+    public void delete(HttpServletResponse response,
+            @PathVariable("userId") Long userId)
+            throws NotFoundException {
+
+        SyncopeUser user = syncopeUserDAO.find(userId);
+
+        if (user == null) {
+            log.error("Could not find user '" + userId + "'");
+
+            throw new NotFoundException(String.valueOf(userId));
+        } else {
+            if (workflowStore != null && user.getWorkflowEntryId() != null) {
+                workflowStore.delete(user.getWorkflowEntryId());
+            }
+
+            syncopeUserDAO.delete(userId);
+        }
     }
 }

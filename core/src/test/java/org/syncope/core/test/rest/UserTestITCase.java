@@ -16,6 +16,7 @@ package org.syncope.core.test.rest;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import static org.junit.Assert.*;
 
 import java.util.Date;
@@ -32,6 +33,7 @@ import org.syncope.client.to.MembershipTO;
 import org.syncope.client.to.NodeSearchCondition;
 import org.syncope.client.to.UserTO;
 import org.syncope.client.to.UserTOs;
+import org.syncope.client.to.WorkflowActionsTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
 import org.syncope.types.SyncopeClientExceptionType;
@@ -112,6 +114,12 @@ public class UserTestITCase extends AbstractTestITCase {
         userTO.setToken(newUserTO.getToken());
         userTO.setTokenExpireTime(newUserTO.getTokenExpireTime());
         assertEquals(userTO, newUserTO);
+
+        WorkflowActionsTO workflowActions = restTemplate.getForObject(BASE_URL
+                + "user/actions/{userId}", WorkflowActionsTO.class,
+                userTO.getId());
+        assertTrue(workflowActions.getActions().equals(
+                Collections.singleton("activate")));
 
         // 2. activate user
         newUserTO = restTemplate.postForObject(BASE_URL + "user/activate",
