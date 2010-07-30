@@ -42,7 +42,12 @@
         </step>
         <step name="active" id="3">
             <actions>
-                <action name="generateToken" id="3004">
+                <action name="update" id="3001">
+                    <results>
+                        <unconditional-result old-status="active" status="active" step="3"/>
+                    </results>
+                </action>
+                <action name="generateToken" id="3002">
                     <pre-functions>
                         <function type="class">
                             <arg name="class.name">org.syncope.core.workflow.GenerateToken</arg>
@@ -52,7 +57,7 @@
                         <unconditional-result old-status="active" status="active" step="3"/>
                     </results>
                 </action>
-                <action name="verifyToken" id="3005">
+                <action name="verifyToken" id="3003">
                     <results>
                         <result old-status="active" status="active" step="3">
                             <conditions>
@@ -64,12 +69,12 @@
                         <unconditional-result old-status="active" status="active" step="3"/>
                     </results>
                 </action>
-                <action name="suspend" id="3006">
+                <action name="suspend" id="3004">
                     <results>
                         <unconditional-result old-status="active" status="suspended" step="4"/>
                     </results>
                 </action>
-                <action name="delete" id="3007">
+                <action name="delete" id="3005">
                     <results>
                         <unconditional-result old-status="active" status="deleted" step="5"/>
                     </results>

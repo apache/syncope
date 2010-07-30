@@ -74,7 +74,7 @@ public class UserController extends AbstractController {
     @Autowired
     private PropagationManager propagationManager;
 
-    private UserTO executeAction(String actionName, UserTO userTO)
+    private SyncopeUser executeAction(String actionName, UserTO userTO)
             throws WorkflowException, NotFoundException {
 
         SyncopeUser syncopeUser = syncopeUserDAO.find(userTO.getId());
@@ -110,8 +110,7 @@ public class UserController extends AbstractController {
         userWorkflow.doAction(syncopeUser.getWorkflowEntryId(),
                 actionId, inputs);
 
-        syncopeUser = syncopeUserDAO.save(syncopeUser);
-        return userDataBinder.getUserTO(syncopeUser);
+        return syncopeUserDAO.save(syncopeUser);
     }
 
     @RequestMapping(method = RequestMethod.POST,
@@ -120,7 +119,8 @@ public class UserController extends AbstractController {
             @RequestBody UserTO userTO)
             throws WorkflowException, NotFoundException {
 
-        return executeAction(Constants.ACTION_ACTIVATE, userTO);
+        return userDataBinder.getUserTO(
+                executeAction(Constants.ACTION_ACTIVATE, userTO));
     }
 
     private Set<String> getSyncResourceNames(SyncopeUser syncopeUser,
@@ -296,7 +296,8 @@ public class UserController extends AbstractController {
 
         UserTO userTO = new UserTO();
         userTO.setId(userId);
-        return executeAction(Constants.ACTION_GENERATE_TOKEN, userTO);
+        return userDataBinder.getUserTO(
+                executeAction(Constants.ACTION_GENERATE_TOKEN, userTO));
     }
 
     @RequestMapping(method = RequestMethod.POST,
@@ -305,7 +306,8 @@ public class UserController extends AbstractController {
             @RequestBody UserTO userTO)
             throws WorkflowException, NotFoundException {
 
-        return executeAction(Constants.ACTION_VERIFY_TOKEN, userTO);
+        return userDataBinder.getUserTO(
+                executeAction(Constants.ACTION_VERIFY_TOKEN, userTO));
     }
 
     @RequestMapping(method = RequestMethod.POST,
@@ -366,7 +368,7 @@ public class UserController extends AbstractController {
             required = false) Set<Long> syncRoles,
             @RequestParam(value = "syncResources",
             required = false) Set<String> syncResources)
-            throws NotFoundException, PropagationException {
+            throws NotFoundException, PropagationException, WorkflowException {
 
         if (log.isDebugEnabled()) {
             log.debug("update called with parameter " + userMod);
@@ -380,7 +382,12 @@ public class UserController extends AbstractController {
             throw new NotFoundException(String.valueOf(userMod.getId()));
         }
 
-       ResourceOperations resourceOperations =
+        // First of all, let's check if update is allowed
+        syncopeUser =
+                executeAction("update", userDataBinder.getUserTO(syncopeUser));
+
+        // Update user with provided userMod
+        ResourceOperations resourceOperations =
                 userDataBinder.updateSyncopeUser(syncopeUser, userMod);
         syncopeUser = syncopeUserDAO.save(syncopeUser);
 
@@ -398,7 +405,6 @@ public class UserController extends AbstractController {
             log.debug("Propagated onto resources " + propagatedResources);
         }
 
-        // TODO: workflow
         return userDataBinder.getUserTO(syncopeUser);
     }
 }
