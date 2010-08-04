@@ -36,6 +36,7 @@ import org.syncope.client.to.UserTOs;
 import org.syncope.client.to.WorkflowActionsTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
+import org.syncope.core.workflow.Constants;
 import org.syncope.types.SyncopeClientExceptionType;
 
 public class UserTestITCase extends AbstractTestITCase {
@@ -113,7 +114,7 @@ public class UserTestITCase extends AbstractTestITCase {
                 + "user/actions/{userId}", WorkflowActionsTO.class,
                 newUserTO.getId());
         assertTrue(workflowActions.getActions().equals(
-                Collections.singleton("activate")));
+                Collections.singleton(Constants.ACTION_ACTIVATE)));
 
         // 2. activate user
         newUserTO = restTemplate.postForObject(BASE_URL + "user/activate",

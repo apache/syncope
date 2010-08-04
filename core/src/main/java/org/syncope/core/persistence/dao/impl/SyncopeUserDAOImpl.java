@@ -106,7 +106,7 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
 
             entityManager.remove(membership);
         }
-        user.setMemberships(Collections.EMPTY_SET);
+        user.setMemberships(Collections.EMPTY_LIST);
 
         entityManager.remove(user);
     }

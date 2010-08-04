@@ -16,9 +16,11 @@ package org.syncope.core.persistence.beans.user;
 
 import java.security.KeyPair;
 import java.security.Security;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
@@ -59,9 +61,8 @@ public class SyncopeUser extends AbstractAttributable {
     @Basic
     @Lob
     private byte[] password;
-    @OneToMany(cascade = CascadeType.MERGE,
-    fetch = FetchType.EAGER, mappedBy = "syncopeUser")
-    private Set<Membership> memberships;
+    @OneToMany(cascade = CascadeType.MERGE, mappedBy = "syncopeUser")
+    private List<Membership> memberships;
     @OneToMany(cascade = CascadeType.ALL,
     fetch = FetchType.EAGER, mappedBy = "owner")
     private Set<UserAttribute> attributes;
@@ -78,7 +79,7 @@ public class SyncopeUser extends AbstractAttributable {
     private Date tokenExpireTime;
 
     public SyncopeUser() {
-        memberships = new HashSet<Membership>();
+        memberships = new ArrayList<Membership>();
         attributes = new HashSet<UserAttribute>();
         derivedAttributes = new HashSet<UserDerivedAttribute>();
     }
@@ -95,11 +96,11 @@ public class SyncopeUser extends AbstractAttributable {
         return memberships.remove(membership);
     }
 
-    public Set<Membership> getMemberships() {
+    public List<Membership> getMemberships() {
         return memberships;
     }
 
-    public void setMemberships(Set<Membership> memberships) {
+    public void setMemberships(List<Membership> memberships) {
         this.memberships = memberships;
     }
 

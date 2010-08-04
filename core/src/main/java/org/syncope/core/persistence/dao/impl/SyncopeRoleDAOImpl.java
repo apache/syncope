@@ -174,7 +174,7 @@ public class SyncopeRoleDAOImpl extends AbstractDAOImpl
 
             entityManager.remove(membership);
         }
-        role.setMemberships(Collections.EMPTY_SET);
+        role.setMemberships(Collections.EMPTY_LIST);
 
         for (Entitlement entitlement : role.getEntitlements()) {
             entitlement.removeRole(role);

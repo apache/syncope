@@ -70,7 +70,7 @@ public class MembershipDAOImpl extends AbstractDAOImpl
     @Transactional
     public void delete(Long id) {
         Membership membership = find(id);
-        if (id == null) {
+        if (membership == null) {
             return;
         }
 

@@ -18,8 +18,9 @@ public class Constants {
 
     final public static String ACTION_ACTIVATE = "activate";
     final public static String ACTION_GENERATE_TOKEN = "generateToken";
-    final public static String ACTION_VERIFY_TOKEN = "verifyToken";
+    final public static String ACTION_RESET = "reset";
     final public static String ACTION_UPDATE = "update";
+    final public static String ACTION_VERIFY_TOKEN = "verifyToken";
     final public static String ENTRY = "entry";
     final public static String SYNCOPE_USER = "syncopeUser";
     final public static String SYNCOPE_ROLE = "syncopeRole";

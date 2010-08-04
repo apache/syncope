@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
 import org.syncope.core.persistence.beans.AbstractAttribute;
-import org.syncope.core.persistence.beans.user.UserAttributeValue;
+import org.syncope.core.persistence.beans.AbstractAttributeValue;
 
 public class StoreDate extends AbstractStoreAttributeValue {
 
@@ -30,7 +30,7 @@ public class StoreDate extends AbstractStoreAttributeValue {
 
         AbstractAttribute attribute = getAttribute(transientVars, args);
 
-        UserAttributeValue date = new UserAttributeValue();
+        AbstractAttributeValue date = attributableUtil.newAttributeValue();
         date.setDateValue(new Date());
         date.setAttribute(attribute);
         if (attribute.getSchema().isMultivalue()) {

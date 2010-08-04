@@ -19,7 +19,7 @@ import com.opensymphony.workflow.WorkflowException;
 import java.util.Collections;
 import java.util.Map;
 import org.syncope.core.persistence.beans.AbstractAttribute;
-import org.syncope.core.persistence.beans.user.UserAttributeValue;
+import org.syncope.core.persistence.beans.AbstractAttributeValue;
 
 public class StoreText extends AbstractStoreAttributeValue {
 
@@ -34,7 +34,8 @@ public class StoreText extends AbstractStoreAttributeValue {
             throw new WorkflowException("Missing text");
         }
 
-        UserAttributeValue textAttributeValue = new UserAttributeValue();
+        AbstractAttributeValue textAttributeValue =
+                attributableUtil.newAttributeValue();
         textAttributeValue.setStringValue(text);
         textAttributeValue.setAttribute(attribute);
         if (attribute.getSchema().isMultivalue()) {

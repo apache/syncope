@@ -20,23 +20,16 @@ import java.util.List;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import org.syncope.client.to.LeafSearchCondition;
+import org.syncope.client.to.NodeSearchCondition;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.SyncopeUserDAO;
-import org.syncope.core.persistence.dao.SchemaDAO;
-import org.syncope.core.persistence.dao.AttributeDAO;
-import org.syncope.core.persistence.dao.SyncopeRoleDAO;
 
 @Transactional
 public class SyncopeUserDAOTest extends AbstractTest {
 
     @Autowired
-    SyncopeUserDAO syncopeUserDAO;
-    @Autowired
-    AttributeDAO attributeDAO;
-    @Autowired
-    SchemaDAO attributeSchemaDAO;
-    @Autowired
-    SyncopeRoleDAO syncopeRoleDAO;
+    private SyncopeUserDAO syncopeUserDAO;
 
     @Test
     public final void findAll() {
@@ -63,6 +56,30 @@ public class SyncopeUserDAOTest extends AbstractTest {
 
         SyncopeUser actual = syncopeUserDAO.find(user.getId());
         assertNotNull("expected save to work", actual);
+    }
+
+    @Test
+    public final void search() {
+        LeafSearchCondition usernameLeafCond1 =
+                new LeafSearchCondition(LeafSearchCondition.Type.LIKE);
+        usernameLeafCond1.setSchema("username");
+        usernameLeafCond1.setExpression("%o%");
+
+        LeafSearchCondition usernameLeafCond2 =
+                new LeafSearchCondition(LeafSearchCondition.Type.LIKE);
+        usernameLeafCond2.setSchema("username");
+        usernameLeafCond2.setExpression("%i%");
+
+        NodeSearchCondition searchCondition =
+                NodeSearchCondition.getAndSearchCondition(
+                NodeSearchCondition.getLeafCondition(usernameLeafCond1),
+                NodeSearchCondition.getLeafCondition(usernameLeafCond2));
+
+        assertTrue(searchCondition.checkValidity());
+
+        List<SyncopeUser> users = syncopeUserDAO.search(searchCondition);
+        assertNotNull(users);
+        assertFalse(users.isEmpty());
     }
 
     @Test

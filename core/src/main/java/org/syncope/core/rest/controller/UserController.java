@@ -74,6 +74,26 @@ public class UserController extends AbstractController {
     @Autowired
     private PropagationManager propagationManager;
 
+    private Integer findWorkflowAction(Long workflowEntryId,
+            String actionName) {
+
+        WorkflowDescriptor workflowDescriptor =
+                userWorkflow.getWorkflowDescriptor(Constants.USER_WORKFLOW);
+
+        int[] actions = userWorkflow.getAvailableActions(workflowEntryId, null);
+
+        Integer actionId = null;
+        for (int i = 0; i < actions.length && actionId == null; i++) {
+            if (actionName.equals(
+                    workflowDescriptor.getAction(actions[i]).getName())) {
+
+                actionId = actions[i];
+            }
+        }
+
+        return actionId;
+    }
+
     public SyncopeUser doExecuteAction(String actionName, UserTO userTO,
             Map<String, Object> moreInputs)
             throws WorkflowException, NotFoundException {
@@ -92,19 +112,8 @@ public class UserController extends AbstractController {
         }
         inputs.put(Constants.SYNCOPE_USER, syncopeUser);
 
-        WorkflowDescriptor workflowDescriptor =
-                userWorkflow.getWorkflowDescriptor(Constants.USER_WORKFLOW);
-
-        int[] actions = userWorkflow.getAvailableActions(
-                syncopeUser.getWorkflowEntryId(), inputs);
-        Integer actionId = null;
-        for (int i = 0; i < actions.length && actionId == null; i++) {
-            if (actionName.equals(
-                    workflowDescriptor.getAction(actions[i]).getName())) {
-
-                actionId = actions[i];
-            }
-        }
+        Integer actionId = findWorkflowAction(syncopeUser.getWorkflowEntryId(),
+                actionName);
         if (actionId == null) {
             throw new NotFoundException(actionName);
         }
@@ -328,6 +337,16 @@ public class UserController extends AbstractController {
         if (wie != null) {
             switch (wie.getExceptionOperation()) {
                 case OVERWRITE:
+                    Integer resetActionId = findWorkflowAction(
+                            wie.getWorkflowEntryId(), Constants.ACTION_RESET);
+                    if (resetActionId != null) {
+                        UserTO localUserTO = new UserTO();
+                        localUserTO.setId(wie.getSyncopeUserId());
+
+                        doExecuteAction(Constants.ACTION_RESET,
+                                localUserTO, null);
+                    }
+
                     UserMod overwriteMod = userTO.buildUserMod();
                     overwriteMod.setId(wie.getSyncopeUserId());
 

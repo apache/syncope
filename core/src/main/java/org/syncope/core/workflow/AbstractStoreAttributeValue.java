@@ -29,6 +29,8 @@ import org.syncope.core.rest.data.AttributableUtil;
 abstract class AbstractStoreAttributeValue extends OSWorkflowComponent
         implements FunctionProvider {
 
+    protected AttributableUtil attributableUtil;
+
     protected AbstractAttribute getAttribute(Map transientVars, Map args)
             throws WorkflowException {
 
@@ -42,7 +44,6 @@ abstract class AbstractStoreAttributeValue extends OSWorkflowComponent
             kind = Constants.SYNCOPE_USER;
         }
 
-        AttributableUtil attributableUtil = null;
         AbstractAttributable attributable = null;
         if (Constants.SYNCOPE_USER.equals(kind)) {
             attributableUtil = AttributableUtil.USER;

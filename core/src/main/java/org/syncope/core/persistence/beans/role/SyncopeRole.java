@@ -14,7 +14,9 @@
  */
 package org.syncope.core.persistence.beans.role;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -45,9 +47,8 @@ public class SyncopeRole extends AbstractAttributable {
     private String name;
     @ManyToOne(optional = true)
     private SyncopeRole parent;
-    @OneToMany(cascade = CascadeType.MERGE,
-    fetch = FetchType.EAGER, mappedBy = "syncopeRole")
-    private Set<Membership> memberships;
+    @OneToMany(cascade = CascadeType.MERGE, mappedBy = "syncopeRole")
+    private List<Membership> memberships;
     @ManyToMany(fetch = FetchType.LAZY)
     private Set<Entitlement> entitlements;
     @OneToMany(cascade = CascadeType.ALL,
@@ -60,7 +61,7 @@ public class SyncopeRole extends AbstractAttributable {
     private boolean inheritDerivedAttributes;
 
     public SyncopeRole() {
-        memberships = new HashSet<Membership>();
+        memberships = new ArrayList<Membership>();
         entitlements = new HashSet<Entitlement>();
         attributes = new HashSet<RoleAttribute>();
         derivedAttributes = new HashSet<RoleDerivedAttribute>();
@@ -110,11 +111,11 @@ public class SyncopeRole extends AbstractAttributable {
         return memberships.remove(membership);
     }
 
-    public Set<Membership> getMemberships() {
+    public List<Membership> getMemberships() {
         return memberships;
     }
 
-    public void setMemberships(Set<Membership> memberships) {
+    public void setMemberships(List<Membership> memberships) {
         this.memberships = memberships;
     }
 
