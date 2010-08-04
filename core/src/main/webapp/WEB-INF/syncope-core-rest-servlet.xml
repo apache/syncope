@@ -31,8 +31,6 @@
 
     <context:component-scan base-package="org.syncope.core.rest.controller"/>
 
-    <bean id="handlerExceptionResolver" class="org.syncope.core.rest.SyncopeHandlerExceptionResolver"/>
-
     <bean id="jacksonObjectMapper" class="org.syncope.core.rest.jackson.UnwrappedObjectMapper"/>
     
     <bean id="mappingJacksonHttpMessageConverter"

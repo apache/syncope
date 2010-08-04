@@ -76,11 +76,7 @@
     </filter-mapping>
 
     <error-page>
-        <error-code>400</error-code>
-        <location>/syncopeClientError.jsp</location>
-    </error-page>
-    <error-page>
-        <error-code>404</error-code>
+        <exception-type>java.lang.Throwable</exception-type>
         <location>/syncopeClientError.jsp</location>
     </error-page>
     
