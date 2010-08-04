@@ -14,6 +14,10 @@
  */
 package org.syncope.core.rest.data;
 
+import com.opensymphony.workflow.Workflow;
+import com.opensymphony.workflow.spi.Step;
+import java.util.List;
+import javax.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -164,13 +168,29 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         return resourceOperations;
     }
 
-    public UserTO getUserTO(SyncopeUser user) {
+    public UserTO getUserTO(SyncopeUser user, Workflow userWorkflow) {
         UserTO userTO = new UserTO();
         userTO.setId(user.getId());
         userTO.setCreationTime(user.getCreationTime());
         userTO.setToken(user.getToken());
         userTO.setTokenExpireTime(user.getTokenExpireTime());
         userTO.setPassword(user.getPassword());
+
+        String status = null;
+        try {
+            List<Step> currentSteps = userWorkflow.getCurrentSteps(
+                    user.getWorkflowEntryId());
+
+            if (currentSteps != null && !currentSteps.isEmpty()) {
+                status = currentSteps.iterator().next().getStatus();
+            } else {
+                log.error("Could not find status information for " + user);
+            }
+        } catch (EntityNotFoundException e) {
+            log.error("Could not find workflow entry with id "
+                    + user.getWorkflowEntryId());
+        }
+        userTO.setStatus(status);
 
         userTO = (UserTO) fillTO(userTO, user.getAttributes(),
                 user.getDerivedAttributes(), user.getResources());

@@ -23,25 +23,13 @@ import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.ConnectorInstance;
 import org.syncope.core.persistence.beans.Resource;
 import org.syncope.core.persistence.beans.SchemaMapping;
-import org.syncope.core.persistence.dao.ConnectorInstanceDAO;
 import org.syncope.core.persistence.dao.ResourceDAO;
-import org.syncope.core.persistence.dao.SchemaMappingDAO;
-import org.syncope.core.persistence.dao.SyncopeUserDAO;
 
 @Transactional
 public class ResourceDAOTest extends AbstractTest {
 
     @Autowired
-    ResourceDAO resourceDAO;
-
-    @Autowired
-    ConnectorInstanceDAO connectorInstanceDAO;
-
-    @Autowired
-    SchemaMappingDAO schemaMappingDAO;
-
-    @Autowired
-    SyncopeUserDAO syncopeUserDAO;
+    private ResourceDAO resourceDAO;
 
     @Test
     public final void findById() {

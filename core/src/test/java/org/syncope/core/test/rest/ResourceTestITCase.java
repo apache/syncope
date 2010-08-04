@@ -17,7 +17,6 @@ package org.syncope.core.test.rest;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.annotation.ExpectedException;
 import org.springframework.web.client.HttpStatusCodeException;
@@ -26,12 +25,8 @@ import org.syncope.client.to.ResourceTOs;
 import org.syncope.client.to.SchemaMappingTO;
 import org.syncope.client.to.SchemaMappingTOs;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.syncope.core.persistence.dao.SchemaDAO;
 
 public class ResourceTestITCase extends AbstractTestITCase {
-
-    @Autowired
-    SchemaDAO schemaDAO;
 
     @Test
     @ExpectedException(value = SyncopeClientCompositeErrorException.class)

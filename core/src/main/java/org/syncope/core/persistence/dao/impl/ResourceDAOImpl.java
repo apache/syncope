@@ -55,6 +55,8 @@ public class ResourceDAOImpl extends AbstractDAOImpl
     public void delete(String name) {
 
         Resource resource = find(name);
+        if (resource == null)
+            return;
 
         Set<SchemaMapping> mappings = resource.getMappings();
         if (mappings != null) {

@@ -41,19 +41,19 @@ import org.syncope.core.test.persistence.AbstractTest;
 public class ResourceTest extends AbstractTest {
 
     @Autowired
-    ResourceDAO resourceDAO;
+    private ResourceDAO resourceDAO;
 
     @Autowired
-    SchemaDAO schemaDAO;
+    private SchemaDAO schemaDAO;
 
     @Autowired
-    ConnectorInstanceDAO connectorInstanceDAO;
+    private ConnectorInstanceDAO connectorInstanceDAO;
 
     @Autowired
-    SchemaMappingDAO schemaMappingDAO;
+    private SchemaMappingDAO schemaMappingDAO;
 
     @Autowired
-    SyncopeUserDAO syncopeUserDAO;
+    private SyncopeUserDAO syncopeUserDAO;
 
     @Test
     public final void save() throws ClassNotFoundException {

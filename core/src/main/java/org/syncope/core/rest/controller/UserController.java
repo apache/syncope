@@ -123,7 +123,7 @@ public class UserController extends AbstractController {
             throws WorkflowException, NotFoundException {
 
         return userDataBinder.getUserTO(
-                doExecuteAction(actionName, userTO, null));
+                doExecuteAction(actionName, userTO, null), userWorkflow);
     }
 
     @RequestMapping(method = RequestMethod.POST,
@@ -134,7 +134,7 @@ public class UserController extends AbstractController {
         return userDataBinder.getUserTO(
                 doExecuteAction(Constants.ACTION_ACTIVATE, userTO,
                 Collections.singletonMap(Constants.TOKEN,
-                (Object) userTO.getToken())));
+                (Object) userTO.getToken())), userWorkflow);
     }
 
     @RequestMapping(method = RequestMethod.GET,
@@ -145,7 +145,8 @@ public class UserController extends AbstractController {
         UserTO userTO = new UserTO();
         userTO.setId(userId);
         return userDataBinder.getUserTO(
-                doExecuteAction(Constants.ACTION_GENERATE_TOKEN, userTO, null));
+                doExecuteAction(Constants.ACTION_GENERATE_TOKEN, userTO, null),
+                userWorkflow);
     }
 
     @RequestMapping(method = RequestMethod.POST,
@@ -156,7 +157,8 @@ public class UserController extends AbstractController {
         return userDataBinder.getUserTO(
                 doExecuteAction(Constants.ACTION_VERIFY_TOKEN, userTO,
                 Collections.singletonMap(Constants.TOKEN,
-                (Object) userTO.getToken())));
+                (Object) userTO.getToken())),
+                userWorkflow);
     }
 
     @RequestMapping(method = RequestMethod.GET,
@@ -166,7 +168,7 @@ public class UserController extends AbstractController {
         List<UserTO> userTOs = new ArrayList<UserTO>(users.size());
 
         for (SyncopeUser user : users) {
-            userTOs.add(userDataBinder.getUserTO(user));
+            userTOs.add(userDataBinder.getUserTO(user, userWorkflow));
         }
 
         UserTOs result = new UserTOs();
@@ -187,7 +189,7 @@ public class UserController extends AbstractController {
             throw new NotFoundException(String.valueOf(userId));
         }
 
-        return userDataBinder.getUserTO(user);
+        return userDataBinder.getUserTO(user, userWorkflow);
     }
 
     @RequestMapping(method = RequestMethod.GET,
@@ -236,7 +238,7 @@ public class UserController extends AbstractController {
                 syncopeUserDAO.search(searchCondition);
         UserTOs result = new UserTOs();
         for (SyncopeUser user : matchingUsers) {
-            result.addUser(userDataBinder.getUserTO(user));
+            result.addUser(userDataBinder.getUserTO(user, userWorkflow));
         }
 
         return result;
@@ -376,7 +378,7 @@ public class UserController extends AbstractController {
         syncopeUser = syncopeUserDAO.save(syncopeUser);
 
         response.setStatus(HttpServletResponse.SC_CREATED);
-        return userDataBinder.getUserTO(syncopeUser);
+        return userDataBinder.getUserTO(syncopeUser, userWorkflow);
     }
 
     @RequestMapping(method = RequestMethod.POST,
@@ -402,7 +404,7 @@ public class UserController extends AbstractController {
 
         // First of all, let's check if update is allowed
         syncopeUser = doExecuteAction(Constants.ACTION_UPDATE,
-                userDataBinder.getUserTO(syncopeUser), null);
+                userDataBinder.getUserTO(syncopeUser, userWorkflow), null);
 
         // Update user with provided userMod
         ResourceOperations resourceOperations =
@@ -423,7 +425,7 @@ public class UserController extends AbstractController {
             log.debug("Propagated onto resources " + propagatedResources);
         }
 
-        return userDataBinder.getUserTO(syncopeUser);
+        return userDataBinder.getUserTO(syncopeUser, userWorkflow);
     }
 
     @RequestMapping(method = RequestMethod.DELETE,

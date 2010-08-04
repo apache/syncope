@@ -105,19 +105,13 @@ public class UserTestITCase extends AbstractTestITCase {
                 BASE_URL + "user/create?syncRoles=8",
                 userTO, UserTO.class);
 
+        assertNotNull(newUserTO);
         assertFalse(newUserTO.getAttributes().contains(
                 attrWithInvalidSchemaTO));
-        userTO.removeAttribute(attrWithInvalidSchemaTO);
-
-        userTO.setId(newUserTO.getId());
-        userTO.setCreationTime(newUserTO.getCreationTime());
-        userTO.setToken(newUserTO.getToken());
-        userTO.setTokenExpireTime(newUserTO.getTokenExpireTime());
-        assertEquals(userTO, newUserTO);
 
         WorkflowActionsTO workflowActions = restTemplate.getForObject(BASE_URL
                 + "user/actions/{userId}", WorkflowActionsTO.class,
-                userTO.getId());
+                newUserTO.getId());
         assertTrue(workflowActions.getActions().equals(
                 Collections.singleton("activate")));
 
