@@ -22,6 +22,8 @@ public class Constants {
     final public static String ACTION_UPDATE = "update";
     final public static String ENTRY = "entry";
     final public static String SYNCOPE_USER = "syncopeUser";
+    final public static String SYNCOPE_ROLE = "syncopeRole";
+    final public static String MEMBERSHIP = "membership";
     final public static String TOKEN = "token";
     final public static String USER_TO = "userTO";
     final public static String USER_WORKFLOW = "userWorkflow";

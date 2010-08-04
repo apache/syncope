@@ -39,13 +39,6 @@ public class ConnectorInstanceBeansLoader implements ServletContextListener {
     private static final Logger log = LoggerFactory.getLogger(
             ConnectorInstanceBeansLoader.class);
 
-    /**
-     * <em>WARNING</em>: this method connects to the database by mean of the 
-     * underlying Spring's datasource, not using the provided one, to be fetched
-     * via JNDI. This in order to avoid potential conflicts and problems with
-     * DbUnit.
-     * @param sce
-     */
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         ConfigurableApplicationContext context =

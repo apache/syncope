@@ -41,7 +41,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javassist.NotFoundException;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
 import org.syncope.client.mod.UserMod;
@@ -75,7 +74,8 @@ public class UserController extends AbstractController {
     @Autowired
     private PropagationManager propagationManager;
 
-    private SyncopeUser doExecuteAction(String actionName, UserTO userTO)
+    public SyncopeUser doExecuteAction(String actionName, UserTO userTO,
+            Map<String, Object> moreInputs)
             throws WorkflowException, NotFoundException {
 
         SyncopeUser syncopeUser = syncopeUserDAO.find(userTO.getId());
@@ -87,8 +87,10 @@ public class UserController extends AbstractController {
         }
 
         Map<String, Object> inputs = new HashMap<String, Object>();
+        if (moreInputs != null && !moreInputs.isEmpty()) {
+            inputs.putAll(moreInputs);
+        }
         inputs.put(Constants.SYNCOPE_USER, syncopeUser);
-        inputs.put(Constants.TOKEN, userTO.getToken());
 
         WorkflowDescriptor workflowDescriptor =
                 userWorkflow.getWorkflowDescriptor(Constants.USER_WORKFLOW);
@@ -121,44 +123,45 @@ public class UserController extends AbstractController {
             throws WorkflowException, NotFoundException {
 
         return userDataBinder.getUserTO(
-                doExecuteAction(actionName, userTO));
+                doExecuteAction(actionName, userTO, null));
     }
 
     @RequestMapping(method = RequestMethod.POST,
     value = "/activate")
-    public UserTO activate(HttpServletResponse response,
-            @RequestBody UserTO userTO)
+    public UserTO activate(@RequestBody UserTO userTO)
             throws WorkflowException, NotFoundException {
 
         return userDataBinder.getUserTO(
-                doExecuteAction(Constants.ACTION_ACTIVATE, userTO));
+                doExecuteAction(Constants.ACTION_ACTIVATE, userTO,
+                Collections.singletonMap(Constants.TOKEN,
+                (Object) userTO.getToken())));
     }
 
     @RequestMapping(method = RequestMethod.GET,
     value = "/generateToken/{userId}")
-    public UserTO generateToken(HttpServletResponse response,
-            @PathVariable("userId") Long userId)
+    public UserTO generateToken(@PathVariable("userId") Long userId)
             throws WorkflowException, NotFoundException {
 
         UserTO userTO = new UserTO();
         userTO.setId(userId);
         return userDataBinder.getUserTO(
-                doExecuteAction(Constants.ACTION_GENERATE_TOKEN, userTO));
+                doExecuteAction(Constants.ACTION_GENERATE_TOKEN, userTO, null));
     }
 
     @RequestMapping(method = RequestMethod.POST,
     value = "/verifyToken")
-    public UserTO verifyToken(HttpServletResponse response,
-            @RequestBody UserTO userTO)
+    public UserTO verifyToken(@RequestBody UserTO userTO)
             throws WorkflowException, NotFoundException {
 
         return userDataBinder.getUserTO(
-                doExecuteAction(Constants.ACTION_VERIFY_TOKEN, userTO));
+                doExecuteAction(Constants.ACTION_VERIFY_TOKEN, userTO,
+                Collections.singletonMap(Constants.TOKEN,
+                (Object) userTO.getToken())));
     }
 
     @RequestMapping(method = RequestMethod.GET,
     value = "/list")
-    public UserTOs list(HttpServletRequest request) {
+    public UserTOs list() {
         List<SyncopeUser> users = syncopeUserDAO.findAll();
         List<UserTO> userTOs = new ArrayList<UserTO>(users.size());
 
@@ -173,8 +176,7 @@ public class UserController extends AbstractController {
 
     @RequestMapping(method = RequestMethod.GET,
     value = "/read/{userId}")
-    public UserTO read(HttpServletResponse response,
-            @PathVariable("userId") Long userId)
+    public UserTO read(@PathVariable("userId") Long userId)
             throws NotFoundException {
 
         SyncopeUser user = syncopeUserDAO.find(userId);
@@ -190,8 +192,8 @@ public class UserController extends AbstractController {
 
     @RequestMapping(method = RequestMethod.GET,
     value = "/actions/{userId}")
-    public WorkflowActionsTO actions(HttpServletResponse response,
-            @PathVariable("userId") Long userId) throws NotFoundException {
+    public WorkflowActionsTO getActions(@PathVariable("userId") Long userId)
+            throws NotFoundException {
 
         SyncopeUser user = syncopeUserDAO.find(userId);
 
@@ -217,8 +219,7 @@ public class UserController extends AbstractController {
 
     @RequestMapping(method = RequestMethod.POST,
     value = "/search")
-    public UserTOs search(HttpServletResponse response,
-            @RequestBody NodeSearchCondition searchCondition)
+    public UserTOs search(@RequestBody NodeSearchCondition searchCondition)
             throws InvalidSearchConditionException {
 
         if (log.isDebugEnabled()) {
@@ -243,8 +244,8 @@ public class UserController extends AbstractController {
 
     @RequestMapping(method = RequestMethod.GET,
     value = "/status/{userId}")
-    public ModelAndView getStatus(HttpServletResponse response,
-            @PathVariable("userId") Long userId) throws NotFoundException {
+    public ModelAndView getStatus(@PathVariable("userId") Long userId)
+            throws NotFoundException {
 
         SyncopeUser user = syncopeUserDAO.find(userId);
 
@@ -293,8 +294,7 @@ public class UserController extends AbstractController {
 
     @RequestMapping(method = RequestMethod.POST,
     value = "/create")
-    public UserTO create(HttpServletRequest request,
-            HttpServletResponse response,
+    public UserTO create(HttpServletResponse response,
             @RequestBody UserTO userTO,
             @RequestParam(value = "syncRoles",
             required = false) Set<Long> syncRoles,
@@ -326,8 +326,10 @@ public class UserController extends AbstractController {
         if (wie != null) {
             switch (wie.getExceptionOperation()) {
                 case OVERWRITE:
-                    return update(response, new UserMod(),
-                            syncRoles, syncResources);
+                    UserMod overwriteMod = userTO.buildUserMod();
+                    overwriteMod.setId(wie.getSyncopeUserId());
+
+                    return update(overwriteMod, syncRoles, syncResources);
                 case REJECT:
                     SyncopeClientCompositeErrorException compositeException =
                             new SyncopeClientCompositeErrorException(
@@ -379,8 +381,7 @@ public class UserController extends AbstractController {
 
     @RequestMapping(method = RequestMethod.POST,
     value = "/update")
-    public UserTO update(HttpServletResponse response,
-            @RequestBody UserMod userMod,
+    public UserTO update(@RequestBody UserMod userMod,
             @RequestParam(value = "syncRoles",
             required = false) Set<Long> syncRoles,
             @RequestParam(value = "syncResources",
@@ -401,7 +402,7 @@ public class UserController extends AbstractController {
 
         // First of all, let's check if update is allowed
         syncopeUser = doExecuteAction(Constants.ACTION_UPDATE,
-                userDataBinder.getUserTO(syncopeUser));
+                userDataBinder.getUserTO(syncopeUser), null);
 
         // Update user with provided userMod
         ResourceOperations resourceOperations =
@@ -427,8 +428,7 @@ public class UserController extends AbstractController {
 
     @RequestMapping(method = RequestMethod.DELETE,
     value = "/delete/{userId}")
-    public void delete(HttpServletResponse response,
-            @PathVariable("userId") Long userId)
+    public void delete(@PathVariable("userId") Long userId)
             throws NotFoundException {
 
         SyncopeUser user = syncopeUserDAO.find(userId);

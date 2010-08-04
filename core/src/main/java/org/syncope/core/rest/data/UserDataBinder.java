@@ -177,6 +177,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
         MembershipTO membershipTO = new MembershipTO();
         for (Membership membership : user.getMemberships()) {
+            membershipTO.setId(membership.getId());
             membershipTO.setRole(membership.getSyncopeRole().getId());
 
             membershipTO = (MembershipTO) fillTO(membershipTO,

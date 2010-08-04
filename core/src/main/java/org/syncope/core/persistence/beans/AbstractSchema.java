@@ -144,9 +144,11 @@ public abstract class AbstractSchema extends AbstractBaseBean {
     }
 
     public String getConversionPattern() {
-        if (!getType().isConversionPatternNeeded()) {
-            log.warn("Conversion pattern is not needed: "
-                    + "this attribute type is " + getType());
+        if (!getType().isConversionPatternNeeded()
+                && log.isDebugEnabled()) {
+
+            log.debug("Conversion pattern is not needed: "
+                    + this + "'s type is " + getType());
         }
 
         return conversionPattern;
