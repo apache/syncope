@@ -50,12 +50,21 @@ public class Schema extends BasePage
     
     final ModalWindow createRoleDerivedSchemaWin;
     final ModalWindow editRoleDerivedSchemaWin;
+
+    final ModalWindow createMembershipSchemaWin;
+    final ModalWindow editMembershipSchemaWin;
+
+    final ModalWindow createMembershipDerivedSchemaWin;
+    final ModalWindow editMembershipDerivedSchemaWin;
     
     WebMarkupContainer userSchemaContainer;
     WebMarkupContainer userDerivedSchemaContainer;
 
     WebMarkupContainer roleSchemasContainer;
     WebMarkupContainer roleDerivedSchemasContainer;
+
+    WebMarkupContainer membershipSchemaContainer;
+    WebMarkupContainer membershipDerivedSchemaContainer;
 
     public Schema(PageParameters parameters)
     {
@@ -72,6 +81,12 @@ public class Schema extends BasePage
         
         add(createUserDerivedSchemaWin = new ModalWindow("createUserDerSchemaWin"));
         add(editUserDerivedSchemaWin = new ModalWindow("editUserDerSchemaWin"));
+
+        add(createMembershipSchemaWin = new ModalWindow("createMembershipSchemaWin"));
+        add(editMembershipSchemaWin = new ModalWindow("editMembershipSchemaWin"));
+
+        add(createMembershipDerivedSchemaWin = new ModalWindow("createMembershipDerSchemaWin"));
+        add(editMembershipDerivedSchemaWin = new ModalWindow("editMembershipDerSchemaWin"));
 
         IModel userSchemas =  new LoadableDetachableModel()
         {
@@ -98,6 +113,20 @@ public class Schema extends BasePage
         {
             protected Object load() {
                 return restClient.getAllRoleDerivedSchemas().getDerivedSchemas();
+            }
+        };
+
+        IModel membershipSchemas =  new LoadableDetachableModel()
+        {
+            protected Object load() {
+                return restClient.getAllMemberhipSchemas().getSchemas();
+            }
+        };
+
+        IModel membershipDerivedSchemas =  new LoadableDetachableModel()
+        {
+            protected Object load() {
+                return restClient.getAllMembershipDerivedSchemas().getDerivedSchemas();
             }
         };
 
@@ -286,8 +315,101 @@ public class Schema extends BasePage
                 item.add(deleteLink);
             }
         };
+       add(userDerSchemasView);
 
-        add(userDerSchemasView);
+       ListView membershipSchemasView = new ListView("membershipSchemas", membershipSchemas) {
+
+            @Override
+            protected void populateItem(final ListItem item) {
+                final SchemaTO schemaTO = (SchemaTO) item.getDefaultModelObject();
+
+                item.add(new Label("name", schemaTO.getName()));
+                item.add(new Label("type", schemaTO.getType().getClassName()));
+                item.add(new Label("attributes", schemaTO.getAttributes() + ""));
+
+
+                AjaxLink editLink = new AjaxLink("editLink") {
+
+                    @Override
+                    public void onClick(AjaxRequestTarget target) {
+                        final SchemaTO schemaTO = (SchemaTO) item.getDefaultModelObject();
+
+                        editMembershipSchemaWin.setPageCreator(new ModalWindow.PageCreator() {
+
+                        public Page createPage() {
+                            SchemaModalPage form = new SchemaModalPage(Schema.this,
+                                    editMembershipSchemaWin, schemaTO, false);
+                            form.setEntity(SchemaModalPage.Entity.MEMBERSHIP);
+                            return form;
+                        }
+                        });
+
+                        editMembershipSchemaWin.show(target);
+                    }
+                };
+
+                item.add(editLink);
+
+                AjaxLink deleteLink = new AjaxLink("deleteLink"){
+
+                    @Override
+                    public void onClick(AjaxRequestTarget target) {
+                        restClient.deleteMemberhipSchema((schemaTO.getName()));
+                        target.addComponent(membershipSchemaContainer);
+                    }
+
+                };
+
+                item.add(deleteLink);
+            }
+        };
+       // add(membershipSchemasView);
+
+       ListView membershipDerSchemasView = new ListView("membershipDerivedSchemas", membershipDerivedSchemas) {
+
+            @Override
+            protected void populateItem(final ListItem item) {
+               final DerivedSchemaTO schemaTO = (DerivedSchemaTO) item.getDefaultModelObject();
+
+                item.add(new Label("name", schemaTO.getName()));
+                item.add(new Label("expression", schemaTO.getExpression()));
+                item.add(new Label("attributes", schemaTO.getDerivedAttributes() + ""));
+
+                AjaxLink editLink = new AjaxLink("editLink") {
+
+                    @Override
+                    public void onClick(AjaxRequestTarget target) {
+                        final DerivedSchemaTO schemaTO = (DerivedSchemaTO) item.getDefaultModelObject();
+
+                        editMembershipDerivedSchemaWin.setPageCreator(new ModalWindow.PageCreator() {
+
+                        public Page createPage() {
+                            DerivedSchemaModalPage form = new DerivedSchemaModalPage
+                                    (Schema.this, editMembershipDerivedSchemaWin, schemaTO, false);
+                            form.setEntity(DerivedSchemaModalPage.Entity.MEMBERSHIP);
+                            return form;
+                        }
+                        });
+
+                        editMembershipDerivedSchemaWin.show(target);
+                    }
+                };
+
+                item.add(editLink);
+
+                AjaxLink deleteLink = new AjaxLink("deleteLink"){
+
+                    @Override
+                    public void onClick(AjaxRequestTarget target) {
+                        restClient.deleteMembershipDerivedSchema(schemaTO.getName());
+                        target.addComponent(membershipDerivedSchemaContainer);
+                    }
+
+                };
+
+                item.add(deleteLink);
+            }
+        };
 
         roleSchemasContainer = new WebMarkupContainer("roleSchemasContainer");
         roleSchemasContainer.add(roleSchemasView);
@@ -304,12 +426,24 @@ public class Schema extends BasePage
         userDerivedSchemaContainer = new WebMarkupContainer("userDerivedSchemaContainer");
         userDerivedSchemaContainer.add(userDerSchemasView);
         userDerivedSchemaContainer.setOutputMarkupId(true);
+
+        membershipSchemaContainer = new WebMarkupContainer("membershipSchemaContainer");
+        membershipSchemaContainer.add(membershipSchemasView);
+        membershipSchemaContainer.setOutputMarkupId(true);
+
+        membershipDerivedSchemaContainer = new WebMarkupContainer("membershipDerivedSchemaContainer");
+        membershipDerivedSchemaContainer.add(membershipDerSchemasView);
+        membershipDerivedSchemaContainer.setOutputMarkupId(true);
         
         add(roleSchemasContainer);
         add(roleDerivedSchemasContainer);
+
         add(userSchemaContainer);
         add(userDerivedSchemaContainer);
-        
+
+        add(membershipSchemaContainer);
+        add(membershipDerivedSchemaContainer);
+
         createUserSchemaWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         createUserSchemaWin.setPageMapName("modal-1");
         createUserSchemaWin.setCookieName("modal-1");
@@ -342,6 +476,22 @@ public class Schema extends BasePage
         editRoleDerivedSchemaWin.setPageMapName("modal-8");
         editRoleDerivedSchemaWin.setCookieName("modal-8");
 
+        createMembershipSchemaWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+        createMembershipSchemaWin.setPageMapName("modal-9");
+        createMembershipSchemaWin.setCookieName("modal-9");
+
+        createMembershipSchemaWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+        createMembershipSchemaWin.setPageMapName("modal-10");
+        createMembershipSchemaWin.setCookieName("modal-10");
+
+        createMembershipDerivedSchemaWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+        createMembershipDerivedSchemaWin.setPageMapName("modal-11");
+        createMembershipDerivedSchemaWin.setCookieName("modal-11");
+
+        editMembershipDerivedSchemaWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+        editMembershipDerivedSchemaWin.setPageMapName("modal-12");
+        editMembershipDerivedSchemaWin.setCookieName("modal-12");
+
         setWindowClosedCallback(createUserSchemaWin, userSchemaContainer);
         setWindowClosedCallback(editUserSchemaWin, userSchemaContainer);
 
@@ -353,6 +503,12 @@ public class Schema extends BasePage
 
         setWindowClosedCallback(createRoleDerivedSchemaWin, roleDerivedSchemasContainer);
         setWindowClosedCallback(editRoleDerivedSchemaWin, roleDerivedSchemasContainer);
+
+        setWindowClosedCallback(createMembershipSchemaWin, membershipSchemaContainer);
+        setWindowClosedCallback(editMembershipSchemaWin, membershipSchemaContainer);
+
+        setWindowClosedCallback(createMembershipDerivedSchemaWin, membershipDerivedSchemaContainer);
+        setWindowClosedCallback(editMembershipDerivedSchemaWin, membershipDerivedSchemaContainer);
 
         add(new AjaxLink("createRoleSchemaWinLink") {
 
@@ -401,7 +557,7 @@ public class Schema extends BasePage
 
                     public Page createPage() {
                         SchemaModalPage form = new SchemaModalPage(Schema.this,
-                                new ModalWindow("createModalWin"), null, true);
+                                new ModalWindow("createUserSchemaWin"), null, true);
                         form.setEntity(SchemaModalPage.Entity.USER);
                         return form;
                     }
@@ -411,7 +567,7 @@ public class Schema extends BasePage
             }
         });
 
-        add(new AjaxLink("createUserDerSchemaLink") {
+        add(new AjaxLink("createUserDerSchemaWinLink") {
             
             @Override
             public void onClick(AjaxRequestTarget target) {
@@ -431,8 +587,47 @@ public class Schema extends BasePage
             }
         });
 
+        add(new AjaxLink("createMembershipSchemaWinLink") {
+
+            @Override
+            public void onClick(AjaxRequestTarget target) {
+
+                createMembershipSchemaWin.setPageCreator(new ModalWindow.PageCreator() {
+
+                    public Page createPage() {
+                        SchemaModalPage form = new SchemaModalPage(Schema.this,
+                                new ModalWindow("createMembershipSchemaModalWin"), null, true);
+                        form.setEntity(SchemaModalPage.Entity.MEMBERSHIP);
+                        return form;
+                    }
+                });
+
+                createMembershipSchemaWin.show(target);
+            }
+        });
+
+            add(new AjaxLink("createMembershipDerSchemaWinLink") {
+
+            @Override
+            public void onClick(AjaxRequestTarget target) {
+
+            createMembershipDerivedSchemaWin.setPageCreator(new ModalWindow.PageCreator() {
+
+            public Page createPage() {
+                DerivedSchemaModalPage form = new DerivedSchemaModalPage(Schema.this,
+                        new ModalWindow("createMembershipDerivedSchemaWin"), null, true);
+                form.setEntity(DerivedSchemaModalPage.Entity.MEMBERSHIP);
+
+                return form;
+            }
+            });
+
+            createMembershipDerivedSchemaWin.show(target);
+            }
+        });
+
     }
-    
+
     /**
      * Set a WindowClosedCallback for a ModalWindow instance.
      * @param window

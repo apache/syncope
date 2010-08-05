@@ -45,7 +45,8 @@ public class SchemaRestClient {
 
         try {
             userSchemas =
-                    restClient.getRestTemplate().getForObject(restClient.getBaseURL() + "schema/user/list.json", SchemaTOs.class);
+                    restClient.getRestTemplate().getForObject(restClient.getBaseURL()
+                    + "schema/user/list.json", SchemaTOs.class);
         } catch (SyncopeClientCompositeErrorException e) {
 
             for (SyncopeClientExceptionType exceptionType :
@@ -73,7 +74,8 @@ public class SchemaRestClient {
         List<String> schemasNames = new ArrayList<String>();
         try {
             userSchemas =
-                    restClient.getRestTemplate().getForObject(restClient.getBaseURL() + "schema/user/list.json", SchemaTOs.class);
+                    restClient.getRestTemplate().getForObject(restClient.getBaseURL()
+                    + "schema/user/list.json", SchemaTOs.class);
         } catch (SyncopeClientCompositeErrorException e) {
             e.printStackTrace();
         } catch (RestClientException e) {
@@ -95,11 +97,37 @@ public class SchemaRestClient {
 
         DerivedSchemaTOs userDerivedSchemas = null;
         try {
-            userDerivedSchemas = restClient.getRestTemplate().getForObject(restClient.getBaseURL() + "derivedSchema/user/list.json", DerivedSchemaTOs.class);
+            userDerivedSchemas = restClient.getRestTemplate().getForObject(restClient.getBaseURL()
+                    + "derivedSchema/user/list.json", DerivedSchemaTOs.class);
         } catch (SyncopeClientCompositeErrorException e) {
             e.printStackTrace();
         }
         return userDerivedSchemas;
+    }
+
+    /**
+     * Get all user's derived schemas names.
+     * @return String list of derived schemas' names.
+     */
+    public List<String> getAllUserDerivedSchemasNames() {
+
+        DerivedSchemaTOs userDerivedSchemas = null;
+        List<String> userDerivedSchemasNames = new ArrayList<String>();
+        try {
+            userDerivedSchemas =
+                    restClient.getRestTemplate().getForObject(restClient.getBaseURL() 
+                    + "derivedSchema/user/list.json", DerivedSchemaTOs.class);
+        } catch (SyncopeClientCompositeErrorException e) {
+            e.printStackTrace();
+        } catch (RestClientException e) {
+            e.printStackTrace();
+        }
+
+        for (DerivedSchemaTO schemaTO : userDerivedSchemas) {
+            userDerivedSchemasNames.add(schemaTO.getName());
+        }
+
+        return userDerivedSchemasNames;
     }
 
     /**
@@ -124,7 +152,8 @@ public class SchemaRestClient {
         SchemaTO schema = null;
 
         try {
-            schema = restClient.getRestTemplate().getForObject(restClient.getBaseURL() + "schema/user/read/" + name + ".json", SchemaTO.class);
+            schema = restClient.getRestTemplate().getForObject(restClient.getBaseURL()
+                    + "schema/user/read/" + name + ".json", SchemaTO.class);
         } catch (SyncopeClientCompositeErrorException e) {
             e.printStackTrace();
         }
@@ -137,7 +166,8 @@ public class SchemaRestClient {
      */
     public void updateUserSchema(SchemaTO schemaTO) {
         try {
-            restClient.getRestTemplate().postForObject(restClient.getBaseURL() + "schema/user/update", schemaTO, SchemaTO.class);
+            restClient.getRestTemplate().postForObject(restClient.getBaseURL()
+                    + "schema/user/update", schemaTO, SchemaTO.class);
         } catch (SyncopeClientCompositeErrorException e) {
             e.printStackTrace();
         }
@@ -232,7 +262,8 @@ public class SchemaRestClient {
 
         try {
             roleSchemas =
-                    restClient.getRestTemplate().getForObject(restClient.getBaseURL() + "schema/role/list.json", SchemaTOs.class);
+                    restClient.getRestTemplate().getForObject(restClient.getBaseURL()
+                    + "schema/role/list.json", SchemaTOs.class);
         } catch (SyncopeClientCompositeErrorException e) {
         } catch (RestClientException e) {
             e.printStackTrace();
@@ -252,7 +283,8 @@ public class SchemaRestClient {
 
         try {
             roleSchemas =
-                    restClient.getRestTemplate().getForObject(restClient.getBaseURL() + "schema/role/list.json", SchemaTOs.class);
+                    restClient.getRestTemplate().getForObject(restClient.getBaseURL()
+                    + "schema/role/list.json", SchemaTOs.class);
         } catch (SyncopeClientCompositeErrorException e) {
         } catch (RestClientException e) {
             e.printStackTrace();
@@ -287,7 +319,8 @@ public class SchemaRestClient {
         SchemaTO schema = null;
 
         try {
-            schema = restClient.getRestTemplate().getForObject(restClient.getBaseURL() + "schema/role/read/" + name + ".json", SchemaTO.class);
+            schema = restClient.getRestTemplate().getForObject(restClient.getBaseURL()
+                    + "schema/role/read/" + name + ".json", SchemaTO.class);
         } catch (SyncopeClientCompositeErrorException e) {
             e.printStackTrace();
         }
@@ -300,7 +333,8 @@ public class SchemaRestClient {
      */
     public void updateRoleSchema(SchemaTO schemaTO) {
         try {
-            SchemaTO updatedTO = restClient.getRestTemplate().postForObject(restClient.getBaseURL() + "schema/role/update", schemaTO, SchemaTO.class);
+            SchemaTO updatedTO = restClient.getRestTemplate().postForObject(restClient.getBaseURL()
+                    + "schema/role/update", schemaTO, SchemaTO.class);
         } catch (SyncopeClientCompositeErrorException e) {
             e.printStackTrace();
         }
@@ -328,7 +362,8 @@ public class SchemaRestClient {
         DerivedSchemaTOs roleDerivedSchemas = null;
 
         try {
-            roleDerivedSchemas = restClient.getRestTemplate().getForObject(restClient.getBaseURL() + "derivedSchema/role/list.json", DerivedSchemaTOs.class);
+            roleDerivedSchemas = restClient.getRestTemplate().getForObject(restClient.getBaseURL()
+                    + "derivedSchema/role/list.json", DerivedSchemaTOs.class);
         } catch (SyncopeClientCompositeErrorException e) {
         }
         return roleDerivedSchemas;
@@ -356,7 +391,8 @@ public class SchemaRestClient {
         DerivedSchemaTO derivedSchemaTO = null;
 
         try {
-            derivedSchemaTO = restClient.getRestTemplate().getForObject(restClient.getBaseURL() + "derivedSchema/role/read/" + name + ".json", DerivedSchemaTO.class);
+            derivedSchemaTO = restClient.getRestTemplate().getForObject(restClient.getBaseURL()
+                    + "derivedSchema/role/read/" + name + ".json", DerivedSchemaTO.class);
         } catch (SyncopeClientCompositeErrorException e) {
             e.printStackTrace();
         }
@@ -370,7 +406,8 @@ public class SchemaRestClient {
     public void updateRoleDerivedSchema(DerivedSchemaTO schemaTO) {
 
         try {
-            restClient.getRestTemplate().postForObject(restClient.getBaseURL() + "derivedSchema/role/update", schemaTO, DerivedSchemaTO.class);
+            restClient.getRestTemplate().postForObject(restClient.getBaseURL()
+                    + "derivedSchema/role/update", schemaTO, DerivedSchemaTO.class);
         } catch (SyncopeClientCompositeErrorException e) {
             e.printStackTrace();
         }
@@ -383,7 +420,158 @@ public class SchemaRestClient {
      */
     public void deleteRoleDerivedSchema(String name) {
         try {
-            restClient.getRestTemplate().delete(restClient.getBaseURL() + "derivedSchema/role/delete/" + name + ".json");
+            restClient.getRestTemplate().delete(restClient.getBaseURL()
+                    + "derivedSchema/role/delete/" + name + ".json");
+        } catch (SyncopeClientCompositeErrorException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Get all role's schemas.
+     * @return SchemaTOs
+     */
+    public SchemaTOs getAllMemberhipSchemas() {
+
+        SchemaTOs memberhipSchemas = null;
+
+        try {
+            memberhipSchemas =
+                    restClient.getRestTemplate().getForObject(restClient.getBaseURL()
+                    + "schema/membership/list.json", SchemaTOs.class);
+        } catch (SyncopeClientCompositeErrorException e) {
+        } catch (RestClientException e) {
+            e.printStackTrace();
+        }
+
+        return memberhipSchemas;
+    }
+
+    /**
+     * Create new membership schema.
+     * @param schemaTO
+     */
+    public void createMemberhipSchema(SchemaTO schemaTO) {
+        try {
+            restClient.getRestTemplate().postForObject(restClient.getBaseURL() +
+                    "schema/membership/create", schemaTO, SchemaTO.class);
+        } catch (SyncopeClientCompositeErrorException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Load an already existent membership schema by its name.
+     * @param name (e.g.:surname)
+     * @return schemaTO
+     */
+    public SchemaTO readMemberhipSchema(String name) {
+        SchemaTO schema = null;
+
+        try {
+            schema = restClient.getRestTemplate().getForObject(restClient.getBaseURL()
+                    + "schema/membership/read/" + name + ".json", SchemaTO.class);
+        } catch (SyncopeClientCompositeErrorException e) {
+            e.printStackTrace();
+        }
+        return schema;
+    }
+
+    /**
+     * Update an already existent membership schema.
+     * @param schemaTO updated
+     */
+    public void updateMemberhipSchema(SchemaTO schemaTO) {
+        try {
+            SchemaTO updatedTO = restClient.getRestTemplate().postForObject(restClient.getBaseURL()
+                    + "schema/membership/update", schemaTO, SchemaTO.class);
+        } catch (SyncopeClientCompositeErrorException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Delete an already existent membership schema by its name.
+     * @param name (e.g.:surname)
+     * @return schemaTO
+     */
+    public void deleteMemberhipSchema(String name) {
+        try {
+            restClient.getRestTemplate().delete(restClient.getBaseURL() +
+                    "schema/membership/delete/" + name + ".json");
+        } catch (SyncopeClientCompositeErrorException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Get all membership's derived schemas.
+     * @return DerivedSchemaTOs
+     */
+    public DerivedSchemaTOs getAllMembershipDerivedSchemas() {
+        DerivedSchemaTOs roleDerivedSchemas = null;
+
+        try {
+            roleDerivedSchemas = restClient.getRestTemplate().getForObject(restClient.getBaseURL()
+                    + "derivedSchema/membership/list.json", DerivedSchemaTOs.class);
+        } catch (SyncopeClientCompositeErrorException e) {
+        }
+        return roleDerivedSchemas;
+    }
+
+    /**
+     * Create new membership schema.
+     * @param schemaTO
+     */
+    public void createMembershipDerivedSchema(DerivedSchemaTO schemaTO) {
+        try {
+            restClient.getRestTemplate().postForObject(restClient.getBaseURL() +
+                    "derivedSchema/membership/create", schemaTO, DerivedSchemaTO.class);
+        } catch (SyncopeClientCompositeErrorException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Load an already existent membership derived schema by its name.
+     * @param name (e.g.:surname)
+     * @return DerivedSchemaTO
+     */
+    public DerivedSchemaTO readMembershipDerivedSchema(String name) {
+        DerivedSchemaTO derivedSchemaTO = null;
+
+        try {
+            derivedSchemaTO = restClient.getRestTemplate().getForObject(restClient.getBaseURL()
+                    + "derivedSchema/membership/read/" + name + ".json", DerivedSchemaTO.class);
+        } catch (SyncopeClientCompositeErrorException e) {
+            e.printStackTrace();
+        }
+        return derivedSchemaTO;
+    }
+
+    /**
+     * Update an already existent membership derived schema.
+     * @param schemaTO updated
+     */
+    public void updateMembershipDerivedSchema(DerivedSchemaTO schemaTO) {
+
+        try {
+            restClient.getRestTemplate().postForObject(restClient.getBaseURL()
+                    + "derivedSchema/membership/update", schemaTO, DerivedSchemaTO.class);
+        } catch (SyncopeClientCompositeErrorException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Delete an already existent membership derived schema by its name.
+     * @param name (e.g.:surname)
+     * @return schemaTO
+     */
+    public void deleteMembershipDerivedSchema(String name) {
+        try {
+            restClient.getRestTemplate().delete(restClient.getBaseURL()
+                    + "derivedSchema/membership/delete/" + name + ".json");
         } catch (SyncopeClientCompositeErrorException e) {
             e.printStackTrace();
         }

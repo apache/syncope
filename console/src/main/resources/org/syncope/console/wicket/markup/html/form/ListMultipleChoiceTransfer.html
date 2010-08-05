@@ -1,0 +1,47 @@
+<!--
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ under the License.
+-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<wicket:panel>
+		<table style="width: auto; height: auto;font-size:14px">
+			<tbody style="overflow-y: hidden;">
+                                <tr>
+					<td>
+                                            <span wicket:id="originalsName"/>
+                                        </td>
+
+                                        <td>
+                                            &nbsp;
+					</td>
+
+                                        <td>
+                                            <span wicket:id="destinationsName"/>
+					</td>
+				</tr>
+                                <tr>
+                                        <td>
+                                                <select wicket:id="originals" size="7" style="width:200px;"></select>
+                                        </td>
+                                        <td>
+                                                <input wicket:id="add" type="button" value="&rarr;" /><br />
+                                                        <input wicket:id="remove" type="button" value="&larr;" />
+                                        </td>
+                                        <td>
+                                                <select wicket:id="destinations" size="7" style="width:200px;"></select>
+                                        </td>
+                                </tr>
+			</tbody>
+		</table>
+</wicket:panel>

@@ -36,7 +36,7 @@ public class DerivedSchemaModalPage extends SyncopeModalPage
     public TextField expression;
     public AjaxButton submit;
 
-    public enum Entity {USER,ROLE};
+    public enum Entity {USER,ROLE,MEMBERSHIP};
 
     public Entity entity;
 
@@ -90,7 +90,14 @@ public class DerivedSchemaModalPage extends SyncopeModalPage
                     else
                         restClient.updateRoleDerivedSchema((DerivedSchemaTO)form.getDefaultModelObject());
                 }
-                
+                else if (getEntity() == Entity.MEMBERSHIP){
+
+                    if (createFlag)
+                        restClient.createMembershipDerivedSchema((DerivedSchemaTO)form.getDefaultModelObject());
+
+                    else
+                        restClient.updateMembershipDerivedSchema((DerivedSchemaTO)form.getDefaultModelObject());
+                }
                 window.close(target);
             }
 

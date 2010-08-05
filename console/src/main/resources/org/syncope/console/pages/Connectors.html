@@ -13,56 +13,102 @@
  under the License.
 -->
 
-        <wicket:extend>
-
-            <div id="tabs">
-                <ul>
-                    <li class="tabs-selected">
-                        <a href="#tabs-1"><span><wicket:message key="tab1"/></span></a>
-                    </li>
-                </ul>
-                <div id="tabs-1">
-                    <div id="users-contain" class="ui-widget">
-
-                        <h1><wicket:message key="existing_connectors"/></h1>
-
-                        <table id="connectors" class="ui-widget ui-widget-content" wicket:id="connectorsContainer">
-                            <thead>
-                                <tr class="ui-widget-header">
-                                    <th><wicket:message key="name"/></th>
-                                    <th><wicket:message key="version"/></th>
-                                    <th><wicket:message key="bundleName"/></th>
-                                    <th><wicket:message key="edit"/></th>
-                                    <th><wicket:message key="delete"/></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr wicket:id="connectors" >
-                                    <td><span wicket:id="name">[label name]</span></td>
-                                    <td><span wicket:id="version">[label version]</span></td>
-                                    <td><span wicket:id="bundleName">[label bundle-name]</span></td>
-                                    <td>
-                                        <a href="#" wicket:id="editLink">
-                                            <wicket:message key="edit"/>
-                                        </a>
-                                    </td>
-                                    <td>
-                                        <a href="#" wicket:id="deleteLink">
-                                            <wicket:message key="delete"/>
-                                        </a>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div wicket:id="createConnectorWin">[Show modal window for creating connector]</div>
-                    <div wicket:id="editConnectorWin">[Show modal window for editing connector]</div>
-
-                   <a class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" wicket:id="createConnectorLink">
-                        <wicket:message key="create-link"/>
+<wicket:extend>
+    <div id="testa">
+        <img src="img/logo.png" alt="syncope" title="syncope" id="logo" />
+        <ul>
+            <li>
+                <a href=#" wicket:id="schema"><img src="img/menu/notsel/schema.png" alt="Schema" width="80" height="80" /><br />
+                    <wicket:message key="schema"/>
+                </a>
+            </li>
+            <li>
+                <a href=#" wicket:id="users"><img src="img/menu/notsel/users.png" alt="Users" width="80" height="80" /><br />
+                    <wicket:message key="users"/>
+                </a>
+            </li>
+            <li>
+                <a href=#" wicket:id="roles"><img src="img/menu/notsel/roles.png" alt="Roles" width="80" height="80" /><br />
+                    <wicket:message key="roles"/>
+                </a>
+            </li>
+            <li>
+                <a href="#" wicket:id="resources"><img src="img/menu/notsel/resources.png" alt="Resources" width="80" height="80" /><br />
+                    <wicket:message key="resources"/>
+                </a>
+            </li>
+            <li><span class="connectors">
+                    <a href="#" wicket:id="connectors"><img src="img/menu/connectors.png" alt="Connectors" width="80" height="80" /><br />
+                        <wicket:message key="connectors"/>
                     </a>
-                </div>
+                </span>
+            </li>
+            <li>
+                <a href="#" wicket:id="report"><img src="img/menu/notsel/reports.png" alt="Report" width="80" height="80" /><br />
+                    <wicket:message key="report"/>
+                </a>
+            </li>
+            <li>
+                <a href="#" wicket:id="configuration"><img src="img/menu/notsel/configuration.png" alt="Configuration" width="80" height="80" /><br />
+                    <wicket:message key="configuration"/>
+                </a>
+            </li>
+            <li style="float:right">
+                <a href="#" wicket:id="logout"><img src="img/menu/notsel/logout.png" alt="Roles" width="80" height="80" /><br />
+                    <wicket:message key="logout"/>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div id="tabs">
+        <ul>
+            <li class="tabs-selected">
+                <a href="#tabs-1"><span><wicket:message key="tab1"/></span></a>
+            </li>
+        </ul>
+        <div id="tabs-1">
+            <div id="users-contain" class="ui-widget">
+
+                <h1><wicket:message key="existing_connectors"/></h1>
+
+                <table id="connectors" class="ui-widget ui-widget-content" wicket:id="connectorsContainer">
+                    <thead>
+                        <tr class="ui-widget-header">
+                            <th><wicket:message key="name"/></th>
+                    <th><wicket:message key="version"/></th>
+                    <th><wicket:message key="bundleName"/></th>
+                    <th><wicket:message key="edit"/></th>
+                    <th><wicket:message key="delete"/></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        <tr wicket:id="connectors" >
+                            <td><span wicket:id="name">[label name]</span></td>
+                            <td><span wicket:id="version">[label version]</span></td>
+                            <td><span wicket:id="bundleName">[label bundle-name]</span></td>
+                            <td>
+                                <a href="#" wicket:id="editLink">
+                                    <wicket:message key="edit"/>
+                                </a>
+                            </td>
+                            <td>
+                                <a href="#" wicket:id="deleteLink">
+                                    <wicket:message key="delete"/>
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
 
-        </wicket:extend>
+            <div wicket:id="createConnectorWin">[Show modal window for creating connector]</div>
+            <div wicket:id="editConnectorWin">[Show modal window for editing connector]</div>
+
+            <a class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" wicket:id="createConnectorLink">
+                <wicket:message key="create-link"/>
+            </a>
+        </div>
+    </div>
+
+</wicket:extend>

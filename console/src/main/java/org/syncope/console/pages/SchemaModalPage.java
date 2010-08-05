@@ -51,7 +51,7 @@ public class SchemaModalPage extends SyncopeModalPage
     public RadioChoice multivalue;
     public AjaxButton submit;
 
-    public enum Entity {USER,ROLE};
+    public enum Entity {USER,ROLE,MEMBERSHIP};
 
     public Entity entity;
 
@@ -123,6 +123,17 @@ public class SchemaModalPage extends SyncopeModalPage
 
                     else
                         restClient.updateRoleSchema((SchemaTO)form.getDefaultModelObject());
+
+                }
+
+                else if (getEntity() == Entity.MEMBERSHIP)
+                {
+
+                    if (createFlag)
+                        restClient.createMemberhipSchema((SchemaTO)form.getDefaultModelObject());
+
+                    else
+                        restClient.updateMemberhipSchema((SchemaTO)form.getDefaultModelObject());
 
                 }
 

@@ -127,7 +127,8 @@ public class Connectors extends BasePage {
                 createConnectorWin.setPageCreator(new ModalWindow.PageCreator() {
 
                     public Page createPage() {
-                        ConnectorsModalPage form = new ConnectorsModalPage(Connectors.this, editConnectorWin, new ConnectorInstanceTO(), true);
+                        ConnectorsModalPage form = new ConnectorsModalPage(Connectors.this,
+                                editConnectorWin, new ConnectorInstanceTO(), true);
                         return form;
                     }
                 });

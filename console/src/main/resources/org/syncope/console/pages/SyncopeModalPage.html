@@ -15,14 +15,16 @@
 <html>
     <head>
         <title>Syncope Modal Window</title>
+        <link rel="shortcut icon" type="image/png" href="img/favicon.png" />
+
         <link rel="stylesheet" type="text/css" href="css/jquery.ui.button.css" />
         <link rel="stylesheet" type="text/css" href="css/jquery.ui.core.css" />
         <link rel="stylesheet" type="text/css" href="css/jquery.ui.dialog.css" />
         <link rel="stylesheet" type="text/css" href="css/jquery.ui.resizable.css" />
         <link rel="stylesheet" type="text/css" href="css/jquery.ui.tabs.css" />
         <link rel="stylesheet" type="text/css" href="css/jquery.ui.theme.css" />
-        <link rel="stylesheet" type="text/css" href="css/stile_sy.css" />
-        <link rel="shortcut icon" href="img/favicon.png" type="image/png" />
+        <link rel="stylesheet" type="text/css" href="css/ui.tabs.css" media="all"/>
+        <link rel="stylesheet" type="text/css" href="css/stile_sy.css" media="all"/>
 
         <script type="text/javascript" src="scripts/jquery-1.4.2.min.js"></script>
         <script type="text/javascript" src="scripts/jquery.ui.core.js"></script>
@@ -34,6 +36,12 @@
         <script type="text/javascript" src="scripts/jquery.ui.resizable.js"></script>
         <script type="text/javascript" src="scripts/jquery.ui.dialog.js"></script>
         <script type="text/javascript" src="scripts/jquery.ui.tabs.js"></script>
+
+        <script type="text/javascript">
+            $(function() {
+                $("#tabs").tabs();
+            });
+        </script>
     </head>
     <body>
         <wicket:child />
