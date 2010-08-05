@@ -14,7 +14,11 @@
  */
 package org.syncope.core.persistence.dao;
 
+import org.syncope.core.persistence.beans.AbstractBaseBean;
+
 public interface DAO {
+
+    <T extends AbstractBaseBean> T refresh(T entity);
 
     void flush();
 }

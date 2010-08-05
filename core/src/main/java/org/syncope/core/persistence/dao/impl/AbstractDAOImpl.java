@@ -20,6 +20,7 @@ import javax.persistence.PersistenceContextType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Configurable;
+import org.syncope.core.persistence.beans.AbstractBaseBean;
 import org.syncope.core.persistence.dao.DAO;
 
 @Configurable
@@ -29,6 +30,12 @@ public abstract class AbstractDAOImpl implements DAO {
             LoggerFactory.getLogger(AbstractDAOImpl.class);
     @PersistenceContext(type = PersistenceContextType.EXTENDED)
     protected EntityManager entityManager;
+
+    @Override
+    public <T extends AbstractBaseBean> T refresh(T entity) {
+        entityManager.refresh(entity);
+        return entity;
+    }
 
     @Override
     public void flush() {
