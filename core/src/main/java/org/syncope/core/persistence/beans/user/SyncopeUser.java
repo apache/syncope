@@ -70,7 +70,7 @@ public class SyncopeUser extends AbstractAttributable {
     fetch = FetchType.EAGER, mappedBy = "owner")
     private Set<UserDerivedAttribute> derivedAttributes;
     @Column(nullable = true)
-    private Long workflowEntryId;
+    private Long workflowId;
     @Temporal(TemporalType.TIMESTAMP)
     private Date creationTime;
     @Lob
@@ -198,12 +198,12 @@ public class SyncopeUser extends AbstractAttributable {
         this.derivedAttributes = (Set<UserDerivedAttribute>) derivedAttributes;
     }
 
-    public Long getWorkflowEntryId() {
-        return workflowEntryId;
+    public Long getWorkflowId() {
+        return workflowId;
     }
 
-    public void setWorkflowEntryId(Long workflowEntryId) {
-        this.workflowEntryId = workflowEntryId;
+    public void setWorkflowId(Long workflowEntryId) {
+        this.workflowId = workflowEntryId;
     }
 
     public Date getCreationTime() {

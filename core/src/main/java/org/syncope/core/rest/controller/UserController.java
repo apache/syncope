@@ -76,13 +76,12 @@ public class UserController extends AbstractController {
     @Autowired
     private PropagationManager propagationManager;
 
-    private Integer findWorkflowAction(Long workflowEntryId,
-            String actionName) {
+    private Integer findWorkflowAction(Long workflowId, String actionName) {
 
         WorkflowDescriptor workflowDescriptor =
                 userWorkflow.getWorkflowDescriptor(Constants.USER_WORKFLOW);
 
-        int[] actions = userWorkflow.getAvailableActions(workflowEntryId, null);
+        int[] actions = userWorkflow.getAvailableActions(workflowId, null);
 
         Integer actionId = null;
         for (int i = 0; i < actions.length && actionId == null; i++) {
@@ -122,14 +121,14 @@ public class UserController extends AbstractController {
         }
         inputs.put(Constants.SYNCOPE_USER, syncopeUser);
 
-        Integer actionId = findWorkflowAction(syncopeUser.getWorkflowEntryId(),
+        Integer actionId = findWorkflowAction(syncopeUser.getWorkflowId(),
                 actionName);
         if (actionId == null) {
             throw new NotFoundException(actionName);
         }
 
         try {
-            userWorkflow.doAction(syncopeUser.getWorkflowEntryId(),
+            userWorkflow.doAction(syncopeUser.getWorkflowId(),
                     actionId, inputs);
         } catch (InvalidActionException e) {
             throw new WorkflowException(e);
@@ -234,7 +233,7 @@ public class UserController extends AbstractController {
         WorkflowDescriptor workflowDescriptor =
                 userWorkflow.getWorkflowDescriptor(Constants.USER_WORKFLOW);
         int[] availableActions = userWorkflow.getAvailableActions(
-                user.getWorkflowEntryId(), Collections.EMPTY_MAP);
+                user.getWorkflowId(), Collections.EMPTY_MAP);
         for (int i = 0; i < availableActions.length; i++) {
             result.addAction(workflowDescriptor.getAction(
                     availableActions[i]).getName());
@@ -282,7 +281,7 @@ public class UserController extends AbstractController {
         }
 
         List<Step> currentSteps = userWorkflow.getCurrentSteps(
-                user.getWorkflowEntryId());
+                user.getWorkflowId());
         if (currentSteps == null || currentSteps.isEmpty()) {
             return null;
         }
@@ -351,6 +350,9 @@ public class UserController extends AbstractController {
             if (workflowStore != null && e.getWorkflowEntryId() != null) {
                 workflowStore.delete(e.getWorkflowEntryId());
             }
+
+            // Use the found workflow id
+            workflowId = wie.getWorkflowId();
         }
 
         if (wie != null) {
@@ -358,7 +360,7 @@ public class UserController extends AbstractController {
 
                 case OVERWRITE:
                     Integer resetActionId = findWorkflowAction(
-                            wie.getWorkflowEntryId(), Constants.ACTION_RESET);
+                            wie.getWorkflowId(), Constants.ACTION_RESET);
                     if (resetActionId != null) {
                         doExecuteAction(Constants.ACTION_RESET,
                                 wie.getSyncopeUserId(), null);
@@ -383,7 +385,7 @@ public class UserController extends AbstractController {
         }
 
         SyncopeUser syncopeUser = userDataBinder.createSyncopeUser(userTO);
-        syncopeUser.setWorkflowEntryId(workflowId);
+        syncopeUser.setWorkflowId(workflowId);
         syncopeUser.setCreationTime(new Date());
         syncopeUser = syncopeUserDAO.save(syncopeUser);
 
@@ -480,8 +482,8 @@ public class UserController extends AbstractController {
 
             throw new NotFoundException(String.valueOf(userId));
         } else {
-            if (workflowStore != null && user.getWorkflowEntryId() != null) {
-                workflowStore.delete(user.getWorkflowEntryId());
+            if (workflowStore != null && user.getWorkflowId() != null) {
+                workflowStore.delete(user.getWorkflowId());
             }
 
             syncopeUserDAO.delete(userId);

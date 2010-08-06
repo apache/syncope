@@ -21,7 +21,9 @@ import java.util.List;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.syncope.client.mod.AbstractAttributableMod;
 import org.syncope.client.mod.AttributeMod;
 import org.syncope.client.to.AbstractAttributableTO;
@@ -52,18 +54,28 @@ import org.syncope.core.persistence.propagation.ResourceOperations.Type;
 import org.syncope.core.persistence.validation.ValidationException;
 import org.syncope.types.SyncopeClientExceptionType;
 
+@Transactional(rollbackFor = {Throwable.class})
 class AbstractAttributableDataBinder {
 
     protected static final Logger log = LoggerFactory.getLogger(
             AbstractAttributableDataBinder.class);
+    @Autowired
     protected SyncopeRoleDAO syncopeRoleDAO;
+    @Autowired
     protected SchemaDAO schemaDAO;
+    @Autowired
     protected DerivedSchemaDAO derivedSchemaDAO;
+    @Autowired
     protected AttributeDAO attributeDAO;
+    @Autowired
     protected DerivedAttributeDAO derivedAttributeDAO;
+    @Autowired
     protected AttributeValueDAO attributeValueDAO;
+    @Autowired
     protected SyncopeUserDAO syncopeUserDAO;
+    @Autowired
     protected ResourceDAO resourceDAO;
+    @Autowired
     protected MembershipDAO membershipDAO;
 
     private <T extends AbstractSchema> AbstractSchema getSchema(

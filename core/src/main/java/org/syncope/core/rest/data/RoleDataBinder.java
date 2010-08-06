@@ -15,7 +15,6 @@
 package org.syncope.core.rest.data;
 
 import java.util.Collections;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.syncope.client.mod.RoleMod;
@@ -23,33 +22,11 @@ import org.syncope.client.to.RoleTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
-import org.syncope.core.persistence.dao.AttributeValueDAO;
-import org.syncope.core.persistence.dao.DerivedSchemaDAO;
-import org.syncope.core.persistence.dao.ResourceDAO;
-import org.syncope.core.persistence.dao.SchemaDAO;
-import org.syncope.core.persistence.dao.SyncopeRoleDAO;
-import org.syncope.core.persistence.dao.SyncopeUserDAO;
 import org.syncope.core.persistence.propagation.ResourceOperations;
 import org.syncope.types.SyncopeClientExceptionType;
 
 @Component
 public class RoleDataBinder extends AbstractAttributableDataBinder {
-
-    @Autowired
-    public RoleDataBinder(SyncopeRoleDAO syncopeRoleDAO,
-            SchemaDAO schemaDAO,
-            DerivedSchemaDAO derivedSchemaDAO,
-            AttributeValueDAO attributeValueDAO,
-            SyncopeUserDAO syncopeUserDAO,
-            ResourceDAO resourceDAO) {
-
-        this.syncopeRoleDAO = syncopeRoleDAO;
-        this.schemaDAO = schemaDAO;
-        this.derivedSchemaDAO = derivedSchemaDAO;
-        this.attributeValueDAO = attributeValueDAO;
-        this.syncopeUserDAO = syncopeUserDAO;
-        this.resourceDAO = resourceDAO;
-    }
 
     public SyncopeRole createSyncopeRole(RoleTO roleTO)
             throws SyncopeClientCompositeErrorException {

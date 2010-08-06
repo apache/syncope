@@ -19,7 +19,6 @@ import com.opensymphony.workflow.spi.Step;
 import java.util.List;
 import javassist.NotFoundException;
 import javax.persistence.EntityNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.syncope.client.mod.MembershipMod;
@@ -31,42 +30,11 @@ import org.syncope.client.validation.SyncopeClientException;
 import org.syncope.core.persistence.beans.membership.Membership;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
-import org.syncope.core.persistence.dao.AttributeDAO;
-import org.syncope.core.persistence.dao.AttributeValueDAO;
-import org.syncope.core.persistence.dao.DerivedAttributeDAO;
-import org.syncope.core.persistence.dao.DerivedSchemaDAO;
-import org.syncope.core.persistence.dao.MembershipDAO;
-import org.syncope.core.persistence.dao.ResourceDAO;
-import org.syncope.core.persistence.dao.SchemaDAO;
-import org.syncope.core.persistence.dao.SyncopeRoleDAO;
-import org.syncope.core.persistence.dao.SyncopeUserDAO;
 import org.syncope.core.persistence.propagation.ResourceOperations;
 import org.syncope.types.SyncopeClientExceptionType;
 
 @Component
 public class UserDataBinder extends AbstractAttributableDataBinder {
-
-    @Autowired
-    public UserDataBinder(SchemaDAO schemaDAO,
-            AttributeDAO attributeDAO,
-            AttributeValueDAO attributeValueDAO,
-            DerivedSchemaDAO derivedSchemaDAO,
-            DerivedAttributeDAO derivedAttributeDAO,
-            SyncopeUserDAO syncopeUserDAO,
-            SyncopeRoleDAO syncopeRoleDAO,
-            ResourceDAO resourceDAO,
-            MembershipDAO membershipDAO) {
-
-        this.schemaDAO = schemaDAO;
-        this.attributeDAO = attributeDAO;
-        this.attributeValueDAO = attributeValueDAO;
-        this.derivedSchemaDAO = derivedSchemaDAO;
-        this.derivedSchemaDAO = derivedSchemaDAO;
-        this.syncopeUserDAO = syncopeUserDAO;
-        this.syncopeRoleDAO = syncopeRoleDAO;
-        this.resourceDAO = resourceDAO;
-        this.membershipDAO = membershipDAO;
-    }
 
     public SyncopeUser createSyncopeUser(UserTO userTO)
             throws SyncopeClientCompositeErrorException, NotFoundException {
@@ -122,10 +90,9 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
                             + membershipTO.getRole());
                 }
             } else {
-                Membership membership = membershipDAO.find(syncopeUser, role);
-                if (membership != null) {
-                    membershipDAO.delete(membership.getId());
-                }
+                Membership membership = new Membership();
+                membership.setSyncopeRole(role);
+                membership.setSyncopeUser(syncopeUser);
 
                 membership = (Membership) fill(membership, membershipTO,
                         AttributableUtil.MEMBERSHIP, scce);
@@ -193,7 +160,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         String status = null;
         try {
             List<Step> currentSteps = userWorkflow.getCurrentSteps(
-                    user.getWorkflowEntryId());
+                    user.getWorkflowId());
 
             if (currentSteps != null && !currentSteps.isEmpty()) {
                 status = currentSteps.iterator().next().getStatus();
@@ -202,7 +169,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
             }
         } catch (EntityNotFoundException e) {
             log.error("Could not find workflow entry with id "
-                    + user.getWorkflowEntryId());
+                    + user.getWorkflowId());
         }
         userTO.setStatus(status);
 

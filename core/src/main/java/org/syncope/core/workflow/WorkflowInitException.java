@@ -24,6 +24,7 @@ public class WorkflowInitException extends InvalidInputException {
     };
     private ExceptionOperation exceptionOperation;
     private Long syncopeUserId;
+    private Long workflowId;
     private Long workflowEntryId;
 
     public WorkflowInitException() {
@@ -64,11 +65,20 @@ public class WorkflowInitException extends InvalidInputException {
         this.workflowEntryId = workflowEntryId;
     }
 
+    public Long getWorkflowId() {
+        return workflowId;
+    }
+
+    public void setWorkflowId(Long workflowId) {
+        this.workflowId = workflowId;
+    }
+
     @Override
     public String toString() {
         return "WorkflowInitException{"
                 + "exceptionOperation=" + exceptionOperation + ","
                 + "syncopeUserId=" + syncopeUserId + ","
+                + "workflowId=" + workflowId + ","
                 + "workflowEntry=" + workflowEntryId + '}';
     }
 }

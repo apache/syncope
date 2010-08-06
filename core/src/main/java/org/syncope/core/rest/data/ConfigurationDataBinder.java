@@ -19,7 +19,7 @@ import org.syncope.client.to.ConfigurationTO;
 import org.syncope.core.persistence.beans.SyncopeConfiguration;
 
 @Component
-public class ConfigurationDataBinder extends AbstractAttributableDataBinder {
+public class ConfigurationDataBinder {
 
     public SyncopeConfiguration createSyncopeConfiguration(
             ConfigurationTO configurationTO) {
