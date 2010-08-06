@@ -17,8 +17,6 @@ package org.syncope.client.to;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
-import org.syncope.client.mod.MembershipMod;
-import org.syncope.client.mod.UserMod;
 
 public class UserTO extends AbstractAttributableTO {
 
@@ -89,23 +87,5 @@ public class UserTO extends AbstractAttributableTO {
 
     public void setTokenExpireTime(Date tokenExpireTime) {
         this.tokenExpireTime = tokenExpireTime;
-    }
-
-    public UserMod buildUserMod() {
-        UserMod userMod = new UserMod();
-        userMod.setPassword(password);
-        userMod = fillAbstractAttributableMod(userMod);
-
-        MembershipMod membershipMod = null;
-        for (MembershipTO membershipTO : memberships) {
-            membershipMod = new MembershipMod();
-            membershipMod.setRole(membershipTO.getRole());
-            membershipMod =
-                    membershipTO.fillAbstractAttributableMod(membershipMod);
-
-            userMod.addMembershipMod(membershipMod);
-        }
-
-        return userMod;
     }
 }

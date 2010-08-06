@@ -17,6 +17,7 @@ package org.syncope.core.rest.data;
 import com.opensymphony.workflow.Workflow;
 import com.opensymphony.workflow.spi.Step;
 import java.util.List;
+import javassist.NotFoundException;
 import javax.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -68,13 +69,25 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
     }
 
     public SyncopeUser createSyncopeUser(UserTO userTO)
-            throws SyncopeClientCompositeErrorException {
-
-        SyncopeUser syncopeUser = new SyncopeUser();
+            throws SyncopeClientCompositeErrorException, NotFoundException {
 
         SyncopeClientCompositeErrorException scce =
                 new SyncopeClientCompositeErrorException(
                 HttpStatus.BAD_REQUEST);
+
+        // Check if UserTO has a valued id: if so,
+        // try to read the user from the db
+        SyncopeUser syncopeUser = null;
+        if (userTO.getId() == 0) {
+            syncopeUser = new SyncopeUser();
+        } else {
+            syncopeUser = syncopeUserDAO.find(userTO.getId());
+            if (syncopeUser == null) {
+                log.error("Could not find user '" + userTO.getId() + "'");
+
+                throw new NotFoundException(String.valueOf(userTO.getId()));
+            }
+        }
 
         // password
         // TODO: check password policies
@@ -109,9 +122,10 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
                             + membershipTO.getRole());
                 }
             } else {
-                Membership membership = new Membership();
-                membership.setSyncopeRole(role);
-                membership.setSyncopeUser(syncopeUser);
+                Membership membership = membershipDAO.find(syncopeUser, role);
+                if (membership != null) {
+                    membershipDAO.delete(membership.getId());
+                }
 
                 membership = (Membership) fill(membership, membershipTO,
                         AttributableUtil.MEMBERSHIP, scce);
@@ -195,8 +209,9 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         userTO = (UserTO) fillTO(userTO, user.getAttributes(),
                 user.getDerivedAttributes(), user.getResources());
 
-        MembershipTO membershipTO = new MembershipTO();
+        MembershipTO membershipTO = null;
         for (Membership membership : user.getMemberships()) {
+            membershipTO = new MembershipTO();
             membershipTO.setId(membership.getId());
             membershipTO.setRole(membership.getSyncopeRole().getId());
 

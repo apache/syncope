@@ -17,8 +17,6 @@ package org.syncope.client.to;
 import java.util.HashSet;
 import java.util.Set;
 import org.syncope.client.AbstractBaseBean;
-import org.syncope.client.mod.AbstractAttributableMod;
-import org.syncope.client.mod.AttributeMod;
 
 public abstract class AbstractAttributableTO extends AbstractBaseBean {
 
@@ -87,28 +85,5 @@ public abstract class AbstractAttributableTO extends AbstractBaseBean {
 
     public void setResources(Set<String> resources) {
         this.resources = resources;
-    }
-
-    protected <T extends AbstractAttributableMod> T fillAbstractAttributableMod(
-            T attributableMod) {
-
-        attributableMod.setId(id);
-
-        AttributeMod attributeMod = null;
-        for (AttributeTO attributeTO : attributes) {
-            attributeMod = new AttributeMod();
-            attributeMod.setSchema(attributeTO.getSchema());
-            attributeMod.setValuesToBeAdded(attributeTO.getValues());
-
-            attributableMod.addAttributeToBeUpdated(attributeMod);
-        }
-        for (AttributeTO derivedAttributeTO : derivedAttributes) {
-            attributableMod.addDerivedAttributeToBeAdded(
-                    derivedAttributeTO.getSchema());
-        }
-
-        attributableMod.setResourcesToBeAdded(resources);
-
-        return attributableMod;
     }
 }

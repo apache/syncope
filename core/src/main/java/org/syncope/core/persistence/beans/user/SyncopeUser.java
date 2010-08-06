@@ -115,8 +115,11 @@ public class SyncopeUser extends AbstractAttributable {
     }
 
     public String getPassword() {
-        String result = null;
+        if (password == null || passwordKeyPair == null) {
+            return null;
+        }
 
+        String result = null;
         try {
             KeyPair kp = AsymmetricCipher.deserializeKeyPair(passwordKeyPair);
             result = new String(AsymmetricCipher.decrypt(password,
@@ -133,6 +136,12 @@ public class SyncopeUser extends AbstractAttributable {
      * @param password
      */
     public void setPassword(String password) {
+        if (password == null) {
+            this.password = null;
+            this.passwordKeyPair = null;
+            return;
+        }
+
         try {
             KeyPair kp = AsymmetricCipher.generateKeyPair();
             this.password = AsymmetricCipher.encrypt(password.getBytes(),

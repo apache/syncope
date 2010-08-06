@@ -15,8 +15,10 @@
  */
 package org.syncope.core.rest.controller;
 
+import com.opensymphony.workflow.InvalidActionException;
 import com.opensymphony.workflow.Workflow;
 import com.opensymphony.workflow.WorkflowException;
+import com.opensymphony.workflow.loader.ActionDescriptor;
 import com.opensymphony.workflow.loader.WorkflowDescriptor;
 import com.opensymphony.workflow.spi.Step;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,19 +93,27 @@ public class UserController extends AbstractController {
             }
         }
 
+        Map<Integer, ActionDescriptor> commonActions =
+                workflowDescriptor.getCommonActions();
+        for (Integer actionNumber : commonActions.keySet()) {
+            if (actionName.equals(commonActions.get(actionNumber).getName())) {
+                actionId = actionNumber;
+            }
+        }
+
         return actionId;
     }
 
-    public SyncopeUser doExecuteAction(String actionName, UserTO userTO,
+    public SyncopeUser doExecuteAction(String actionName, Long userId,
             Map<String, Object> moreInputs)
             throws WorkflowException, NotFoundException {
 
-        SyncopeUser syncopeUser = syncopeUserDAO.find(userTO.getId());
+        SyncopeUser syncopeUser = syncopeUserDAO.find(userId);
 
         if (syncopeUser == null) {
-            log.error("Could not find user '" + userTO.getId() + "'");
+            log.error("Could not find user '" + userId + "'");
 
-            throw new NotFoundException(String.valueOf(userTO.getId()));
+            throw new NotFoundException(String.valueOf(userId));
         }
 
         Map<String, Object> inputs = new HashMap<String, Object>();
@@ -118,8 +128,12 @@ public class UserController extends AbstractController {
             throw new NotFoundException(actionName);
         }
 
-        userWorkflow.doAction(syncopeUser.getWorkflowEntryId(),
-                actionId, inputs);
+        try {
+            userWorkflow.doAction(syncopeUser.getWorkflowEntryId(),
+                    actionId, inputs);
+        } catch (InvalidActionException e) {
+            throw new WorkflowException(e);
+        }
 
         return syncopeUserDAO.save(syncopeUser);
     }
@@ -132,7 +146,7 @@ public class UserController extends AbstractController {
             throws WorkflowException, NotFoundException {
 
         return userDataBinder.getUserTO(
-                doExecuteAction(actionName, userTO, null), userWorkflow);
+                doExecuteAction(actionName, userTO.getId(), null), userWorkflow);
     }
 
     @RequestMapping(method = RequestMethod.POST,
@@ -141,7 +155,7 @@ public class UserController extends AbstractController {
             throws WorkflowException, NotFoundException {
 
         return userDataBinder.getUserTO(
-                doExecuteAction(Constants.ACTION_ACTIVATE, userTO,
+                doExecuteAction(Constants.ACTION_ACTIVATE, userTO.getId(),
                 Collections.singletonMap(Constants.TOKEN,
                 (Object) userTO.getToken())), userWorkflow);
     }
@@ -154,7 +168,8 @@ public class UserController extends AbstractController {
         UserTO userTO = new UserTO();
         userTO.setId(userId);
         return userDataBinder.getUserTO(
-                doExecuteAction(Constants.ACTION_GENERATE_TOKEN, userTO, null),
+                doExecuteAction(Constants.ACTION_GENERATE_TOKEN,
+                userTO.getId(), null),
                 userWorkflow);
     }
 
@@ -164,7 +179,7 @@ public class UserController extends AbstractController {
             throws WorkflowException, NotFoundException {
 
         return userDataBinder.getUserTO(
-                doExecuteAction(Constants.ACTION_VERIFY_TOKEN, userTO,
+                doExecuteAction(Constants.ACTION_VERIFY_TOKEN, userTO.getId(),
                 Collections.singletonMap(Constants.TOKEN,
                 (Object) userTO.getToken())),
                 userWorkflow);
@@ -319,6 +334,10 @@ public class UserController extends AbstractController {
                     + "\n" + syncRoles + "\n" + syncResources);
         }
 
+        // By default, ignore id in UserTO:
+        // set it explicitely in case of overwrite
+        userTO.setId(0);
+
         WorkflowInitException wie = null;
         Long workflowId = null;
         try {
@@ -336,21 +355,18 @@ public class UserController extends AbstractController {
 
         if (wie != null) {
             switch (wie.getExceptionOperation()) {
+
                 case OVERWRITE:
                     Integer resetActionId = findWorkflowAction(
                             wie.getWorkflowEntryId(), Constants.ACTION_RESET);
                     if (resetActionId != null) {
-                        UserTO localUserTO = new UserTO();
-                        localUserTO.setId(wie.getSyncopeUserId());
-
                         doExecuteAction(Constants.ACTION_RESET,
-                                localUserTO, null);
+                                wie.getSyncopeUserId(), null);
                     }
 
-                    UserMod overwriteMod = userTO.buildUserMod();
-                    overwriteMod.setId(wie.getSyncopeUserId());
+                    userTO.setId(wie.getSyncopeUserId());
+                    break;
 
-                    return update(overwriteMod, syncRoles, syncResources);
                 case REJECT:
                     SyncopeClientCompositeErrorException compositeException =
                             new SyncopeClientCompositeErrorException(
@@ -370,6 +386,9 @@ public class UserController extends AbstractController {
         syncopeUser.setWorkflowEntryId(workflowId);
         syncopeUser.setCreationTime(new Date());
         syncopeUser = syncopeUserDAO.save(syncopeUser);
+
+        // Check if attributes with unique schema have unique values
+        userDataBinder.checkUniqueness(syncopeUser);
 
         // Now that user is created locally, let's propagate
         Set<String> syncResourceNames =
@@ -414,7 +433,6 @@ public class UserController extends AbstractController {
         }
 
         SyncopeUser syncopeUser = syncopeUserDAO.find(userMod.getId());
-
         if (syncopeUser == null) {
             log.error("Could not find user '" + userMod.getId() + "'");
 
@@ -423,12 +441,15 @@ public class UserController extends AbstractController {
 
         // First of all, let's check if update is allowed
         syncopeUser = doExecuteAction(Constants.ACTION_UPDATE,
-                userDataBinder.getUserTO(syncopeUser, userWorkflow), null);
+                syncopeUser.getId(), null);
 
         // Update user with provided userMod
         ResourceOperations resourceOperations =
                 userDataBinder.updateSyncopeUser(syncopeUser, userMod);
         syncopeUser = syncopeUserDAO.save(syncopeUser);
+
+        // Check if attributes with unique schema have unique values
+        userDataBinder.checkUniqueness(syncopeUser);
 
         // Now that user is update locally, let's propagate
         Set<String> syncResourceNames =

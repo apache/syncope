@@ -45,6 +45,7 @@ public class EmptyUser extends OSWorkflowComponent
         for (AbstractAttribute attribute : syncopeUser.getAttributes()) {
             attributeDAO.delete(attribute.getId(), UserAttribute.class);
         }
+        syncopeUser.getAttributes().clear();
 
         DerivedAttributeDAO derivedAttributeDAO =
                 (DerivedAttributeDAO) context.getBean(
@@ -55,12 +56,17 @@ public class EmptyUser extends OSWorkflowComponent
             derivedAttributeDAO.delete(derivedAttribute.getId(),
                     UserDerivedAttribute.class);
         }
+        syncopeUser.getDerivedAttributes().clear();
 
         MembershipDAO membershipDAO =
                 (MembershipDAO) context.getBean("membershipDAOImpl");
         for (Membership membership : syncopeUser.getMemberships()) {
             membershipDAO.delete(membership.getId());
         }
+        syncopeUser.getMemberships().clear();
+
+        syncopeUser.setCreationTime(null);
+        syncopeUser.setPassword(null);
 
         transientVars.put(Constants.SYNCOPE_USER, syncopeUser);
     }

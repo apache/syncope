@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.syncope.client.mod.AbstractAttributableMod;
 import org.syncope.client.mod.AttributeMod;
 import org.syncope.client.to.AbstractAttributableTO;
@@ -119,8 +120,7 @@ class AbstractAttributableDataBinder {
             AbstractSchema schema,
             AbstractAttribute attribute,
             AbstractAttributeValue attributeValue,
-            SyncopeClientException invalidValues,
-            SyncopeClientException invalidUniques) {
+            SyncopeClientException invalidValues) {
 
         // if the schema is multivale, all values are considered for
         // addition, otherwise only the fist one - if provided - is
@@ -143,19 +143,6 @@ class AbstractAttributableDataBinder {
                         + schema.getName() + ": " + value, e);
 
                 invalidValues.addElement(value);
-            }
-
-            // if the schema is uniquevalue, check the uniqueness
-            if (schema.isUniquevalue()
-                    && attributeValueDAO.existingAttributeValue(
-                    attributeValue)) {
-
-                log.error("Unique value schema " + schema.getName()
-                        + " with no unique value: "
-                        + attributeValue.getValueAsString());
-
-                invalidUniques.addElement(schema.getName());
-                attribute.setAttributeValues(Collections.EMPTY_LIST);
             }
         }
     }
@@ -196,8 +183,6 @@ class AbstractAttributableDataBinder {
 
         SyncopeClientException invalidValues = new SyncopeClientException(
                 SyncopeClientExceptionType.InvalidValues);
-        SyncopeClientException invalidUniques = new SyncopeClientException(
-                SyncopeClientExceptionType.InvalidUniques);
 
         // 1. attributes to be updated
         AbstractSchema schema = null;
@@ -248,7 +233,7 @@ class AbstractAttributableDataBinder {
                 // 1.2 add values
                 fillAttribute(attributeMod.getValuesToBeAdded(),
                         attributableUtil, schema, attribute,
-                        attributeValue, invalidValues, invalidUniques);
+                        attributeValue, invalidValues);
 
                 // if no values are in, the attribute can be saely removed
                 if (attribute.getAttributeValues().isEmpty()) {
@@ -286,9 +271,6 @@ class AbstractAttributableDataBinder {
 
         if (!invalidValues.getElements().isEmpty()) {
             compositeErrorException.addException(invalidValues);
-        }
-        if (!invalidUniques.getElements().isEmpty()) {
-            compositeErrorException.addException(invalidUniques);
         }
 
         SyncopeClientException requiredValuesMissing =
@@ -405,8 +387,6 @@ class AbstractAttributableDataBinder {
         // 1. attributes
         SyncopeClientException invalidValues = new SyncopeClientException(
                 SyncopeClientExceptionType.InvalidValues);
-        SyncopeClientException invalidUniques = new SyncopeClientException(
-                SyncopeClientExceptionType.InvalidUniques);
 
         AbstractSchema schema = null;
         AbstractAttribute attribute = null;
@@ -421,7 +401,7 @@ class AbstractAttributableDataBinder {
 
                 fillAttribute(attributeTO.getValues(),
                         attributableUtil, schema, attribute,
-                        attributeValue, invalidValues, invalidUniques);
+                        attributeValue, invalidValues);
 
                 if (!attribute.getAttributeValues().isEmpty()) {
                     attributable.addAttribute(attribute);
@@ -432,9 +412,6 @@ class AbstractAttributableDataBinder {
 
         if (!invalidValues.getElements().isEmpty()) {
             compositeErrorException.addException(invalidValues);
-        }
-        if (!invalidUniques.getElements().isEmpty()) {
-            compositeErrorException.addException(invalidUniques);
         }
 
         SyncopeClientException requiredValuesMissing =
@@ -523,5 +500,40 @@ class AbstractAttributableDataBinder {
         }
 
         return abstractAttributableTO;
+    }
+
+    public void checkUniqueness(AbstractAttributable attributable)
+            throws SyncopeClientCompositeErrorException {
+
+        SyncopeClientException invalidUniques = new SyncopeClientException(
+                SyncopeClientExceptionType.InvalidUniques);
+
+        for (AbstractAttribute attribute : attributable.getAttributes()) {
+
+            for (AbstractAttributeValue attributeValue :
+                    attribute.getAttributeValues()) {
+
+                if (attribute.getSchema().isUniquevalue()
+                        && attributeValueDAO.nonUniqueAttributeValue(
+                        attributeValue)) {
+
+                    log.error("Unique value schema "
+                            + attribute.getSchema().getName()
+                            + " with no unique value: "
+                            + attributeValue.getValueAsString());
+
+                    invalidUniques.addElement(attribute.getSchema().getName());
+                }
+            }
+        }
+
+        if (!invalidUniques.getElements().isEmpty()) {
+            SyncopeClientCompositeErrorException scce =
+                    new SyncopeClientCompositeErrorException(
+                    HttpStatus.BAD_REQUEST);
+            scce.addException(invalidUniques);
+
+            throw scce;
+        }
     }
 }

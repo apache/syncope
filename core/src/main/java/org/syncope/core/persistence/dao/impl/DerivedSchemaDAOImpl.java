@@ -77,6 +77,7 @@ public class DerivedSchemaDAOImpl extends AbstractDAOImpl
             derivedAttributeDAO.delete(derivedAttribute.getId(),
                     derivedAttribute.getClass());
         }
+        derivedSchema.setDerivedAttributes(Collections.EMPTY_SET);
 
         entityManager.remove(derivedSchema);
     }

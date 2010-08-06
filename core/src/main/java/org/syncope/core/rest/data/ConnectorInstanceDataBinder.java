@@ -22,7 +22,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.Set;
-import java.util.logging.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -146,11 +145,12 @@ public class ConnectorInstanceDataBinder {
         }
 
         try {
-            log.error(URLEncoder.encode(serializeToXML(connectorTO.getConfiguration()), "UTF-8"));
+            log.error(URLEncoder.encode(
+                    serializeToXML(connectorTO.getConfiguration()), "UTF-8"));
             // Throw composite exception if there is at least one element set
             // in the composing exceptions
         } catch (UnsupportedEncodingException ex) {
-            java.util.logging.Logger.getLogger(ConnectorInstanceDataBinder.class.getName()).log(Level.SEVERE, null, ex);
+            log.error("Unexpected exception", ex);
         }
 
         // Throw composite exception if there is at least one element set
@@ -167,7 +167,9 @@ public class ConnectorInstanceDataBinder {
         return connectorInstance;
     }
 
-    public ConnectorInstanceTO getConnectorInstanceTO(ConnectorInstance connectorInstance) {
+    public ConnectorInstanceTO getConnectorInstanceTO(
+            ConnectorInstance connectorInstance) {
+        
         ConnectorInstanceTO connectorInstanceTO =
                 new ConnectorInstanceTO();
 
@@ -195,7 +197,6 @@ public class ConnectorInstanceDataBinder {
             String res = tokenContentOS.toString();
 
             return URLEncoder.encode(res, "UTF-8");
-
         } catch (Throwable t) {
             if (log.isInfoEnabled()) {
                 log.info("Exception during connector serialization", t);

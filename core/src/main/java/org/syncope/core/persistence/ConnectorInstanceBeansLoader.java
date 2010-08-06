@@ -96,7 +96,7 @@ public class ConnectorInstanceBeansLoader implements ServletContextListener {
                 }
 
             } catch (Throwable t) {
-                log.error("While loading default content", t);
+                log.error("While loading bundles", t);
             }
         }
     }
