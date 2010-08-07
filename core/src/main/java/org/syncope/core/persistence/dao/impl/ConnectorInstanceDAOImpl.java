@@ -17,6 +17,7 @@ package org.syncope.core.persistence.dao.impl;
 import java.util.List;
 import javax.persistence.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.ConnectorInstance;
 import org.syncope.core.persistence.dao.ConnectorInstanceDAO;
 
@@ -25,11 +26,13 @@ public class ConnectorInstanceDAOImpl extends AbstractDAOImpl
         implements ConnectorInstanceDAO {
 
     @Override
+    @Transactional(readOnly = true)
     public ConnectorInstance find(Long id) {
         return entityManager.find(ConnectorInstance.class, id);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ConnectorInstance> findAll() {
         Query query = entityManager.createQuery(
                 "SELECT e FROM ConnectorInstance e");

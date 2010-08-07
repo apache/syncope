@@ -34,6 +34,7 @@ public class DerivedSchemaDAOImpl extends AbstractDAOImpl
     private DerivedAttributeDAO derivedAttributeDAO;
 
     @Override
+    @Transactional(readOnly = true)
     public <T extends AbstractDerivedSchema> T find(String name,
             Class<T> reference) {
 
@@ -41,6 +42,7 @@ public class DerivedSchemaDAOImpl extends AbstractDAOImpl
     }
 
     @Override
+    @Transactional(readOnly = true)
     public <T extends AbstractDerivedSchema> List<T> findAll(
             Class<T> reference) {
 
@@ -50,13 +52,11 @@ public class DerivedSchemaDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    @Transactional
     public <T extends AbstractDerivedSchema> T save(T derivedSchema) {
         return entityManager.merge(derivedSchema);
     }
 
     @Override
-    @Transactional
     public <T extends AbstractDerivedSchema> void delete(String name,
             Class<T> reference) {
 

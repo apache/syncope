@@ -32,6 +32,7 @@ public class SyncopeRoleDAOImpl extends AbstractDAOImpl
         implements SyncopeRoleDAO {
 
     @Override
+    @Transactional(readOnly = true)
     public SyncopeRole find(String name, Long parentId) {
         Query query = null;
 
@@ -52,11 +53,13 @@ public class SyncopeRoleDAOImpl extends AbstractDAOImpl
     }
 
     @Override
+    @Transactional(readOnly = true)
     public SyncopeRole find(Long id) {
         return entityManager.find(SyncopeRole.class, id);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<SyncopeRole> findChildren(Long roleId) {
         Query query = entityManager.createQuery(
                 "SELECT r FROM SyncopeRole r WHERE "
@@ -78,6 +81,7 @@ public class SyncopeRoleDAOImpl extends AbstractDAOImpl
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<RoleAttribute> findInheritedAttributes(SyncopeRole role) {
         if (role.getParent() == null) {
             return Collections.EMPTY_LIST;
@@ -108,6 +112,7 @@ public class SyncopeRoleDAOImpl extends AbstractDAOImpl
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<RoleDerivedAttribute> findInheritedDerivedAttributes(
             SyncopeRole role) {
 
@@ -140,6 +145,7 @@ public class SyncopeRoleDAOImpl extends AbstractDAOImpl
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<SyncopeRole> findAll() {
         Query query = entityManager.createQuery("SELECT e FROM SyncopeRole e");
         return query.getResultList();
@@ -151,7 +157,6 @@ public class SyncopeRoleDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    @Transactional
     public void delete(Long id) {
         SyncopeRole role = find(id);
         if (id == null) {

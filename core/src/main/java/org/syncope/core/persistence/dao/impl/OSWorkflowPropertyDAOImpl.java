@@ -27,11 +27,13 @@ public class OSWorkflowPropertyDAOImpl extends AbstractDAOImpl
         implements OSWorkflowPropertyDAO {
 
     @Override
+    @Transactional(readOnly = true)
     public OSWorkflowProperty find(Long id) {
         return entityManager.find(OSWorkflowProperty.class, id);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public OSWorkflowProperty find(Long workflowEntryId, String propertyKey) {
         Query query = entityManager.createQuery(
                 "SELECT e FROM OSWorkflowProperty e "
@@ -52,6 +54,7 @@ public class OSWorkflowPropertyDAOImpl extends AbstractDAOImpl
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<OSWorkflowProperty> findAll() {
         Query query = entityManager.createQuery(
                 "SELECT e FROM OSWorkflowProperty e");
@@ -59,6 +62,7 @@ public class OSWorkflowPropertyDAOImpl extends AbstractDAOImpl
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<OSWorkflowProperty> findAll(Long workflowEntryId) {
         Query query = entityManager.createQuery(
                 "SELECT e FROM OSWorkflowProperty e "
@@ -68,13 +72,11 @@ public class OSWorkflowPropertyDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    @Transactional
     public OSWorkflowProperty save(OSWorkflowProperty property) {
         return entityManager.merge(property);
     }
 
     @Override
-    @Transactional
     public void delete(Long id) {
         OSWorkflowProperty osWorkflowProperty = find(id);
         if (osWorkflowProperty == null) {
@@ -85,7 +87,6 @@ public class OSWorkflowPropertyDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    @Transactional
     public void delete(Long workflowEntryId, String propertyKey) {
         OSWorkflowProperty osWorkflowProperty =
                 find(workflowEntryId, propertyKey);

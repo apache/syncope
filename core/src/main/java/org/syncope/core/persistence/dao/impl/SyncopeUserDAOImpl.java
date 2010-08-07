@@ -30,11 +30,13 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
         implements SyncopeUserDAO {
 
     @Override
+    @Transactional(readOnly = true)
     public SyncopeUser find(Long id) {
         return entityManager.find(SyncopeUser.class, id);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<SyncopeUser> findByAttributeValue(
             UserAttributeValue attributeValue) {
 
@@ -62,12 +64,14 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<SyncopeUser> findAll() {
         Query query = entityManager.createQuery("SELECT e FROM SyncopeUser e");
         return query.getResultList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<SyncopeUser> search(NodeSearchCondition searchCondition) {
         String queryString = QueryUtils.getUserSearchQuery(searchCondition);
         if (log.isDebugEnabled()) {
@@ -81,18 +85,16 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
         } catch (Throwable t) {
             log.error("While executing query\n\t" + queryString + "\n", t);
         }
-        
+
         return result;
     }
 
     @Override
-    @Transactional
     public SyncopeUser save(SyncopeUser syncopeUser) {
         return entityManager.merge(syncopeUser);
     }
 
     @Override
-    @Transactional
     public void delete(Long id) {
         SyncopeUser user = find(id);
         if (id == null) {

@@ -26,6 +26,7 @@ public class AttributeValueDAOImpl extends AbstractDAOImpl
         implements AttributeValueDAO {
 
     @Override
+    @Transactional(readOnly = true)
     public <T extends AbstractAttributeValue> T find(
             Long id, Class<T> reference) {
 
@@ -33,6 +34,7 @@ public class AttributeValueDAOImpl extends AbstractDAOImpl
     }
 
     @Override
+    @Transactional(readOnly = true)
     public <T extends AbstractAttributeValue> boolean nonUniqueAttributeValue(
             T attributeValue) {
 
@@ -56,6 +58,7 @@ public class AttributeValueDAOImpl extends AbstractDAOImpl
     }
 
     @Override
+    @Transactional(readOnly = true)
     public <T extends AbstractAttributeValue> List<T> findAll(
             Class<T> reference) {
 
@@ -65,13 +68,11 @@ public class AttributeValueDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    @Transactional
     public <T extends AbstractAttributeValue> T save(T attributeValue) {
         return entityManager.merge(attributeValue);
     }
 
     @Override
-    @Transactional
     public <T extends AbstractAttributeValue> void delete(Long id,
             Class<T> reference) {
 
@@ -84,7 +85,6 @@ public class AttributeValueDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    @Transactional
     public <T extends AbstractAttributeValue> void delete(T attributeValue) {
         if (attributeValue.getAttribute() != null) {
             attributeValue.getAttribute().removeAttributeValue(attributeValue);

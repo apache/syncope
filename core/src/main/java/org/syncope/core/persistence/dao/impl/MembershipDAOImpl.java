@@ -29,11 +29,13 @@ public class MembershipDAOImpl extends AbstractDAOImpl
         implements MembershipDAO {
 
     @Override
+    @Transactional(readOnly = true)
     public Membership find(Long id) {
         return entityManager.find(Membership.class, id);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Membership find(SyncopeUser user, SyncopeRole role) {
         Query query = entityManager.createQuery("SELECT e FROM Membership e "
                 + "WHERE e.syncopeUser = :user AND e.syncopeRole = :role");
@@ -55,19 +57,18 @@ public class MembershipDAOImpl extends AbstractDAOImpl
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Membership> findAll() {
         Query query = entityManager.createQuery("SELECT e FROM Membership e");
         return query.getResultList();
     }
 
     @Override
-    @Transactional
     public Membership save(Membership membership) {
         return entityManager.merge(membership);
     }
 
     @Override
-    @Transactional
     public void delete(Long id) {
         Membership membership = find(id);
         if (membership == null) {

@@ -15,9 +15,9 @@
 package org.syncope.core.persistence.dao.impl;
 
 import java.util.List;
-import java.util.Set;
 import javax.persistence.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.Resource;
 import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.beans.membership.MembershipSchema;
@@ -30,11 +30,13 @@ public class SchemaMappingDAOImpl extends AbstractDAOImpl
         implements SchemaMappingDAO {
 
     @Override
+    @Transactional(readOnly = true)
     public SchemaMapping find(Long id) {
         return entityManager.find(SchemaMapping.class, id);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<SchemaMapping> findAll() {
         Query query = entityManager.createQuery(
                 "SELECT e FROM SchemaMapping e");
@@ -51,56 +53,27 @@ public class SchemaMappingDAOImpl extends AbstractDAOImpl
         SchemaMapping mapping = find(id);
 
         RoleSchema roleSchema = mapping.getRoleSchema();
-
-        Set<SchemaMapping> mappings = null;
-
-        if (roleSchema != null) {
-            mappings = roleSchema.getMappings();
+        if (roleSchema != null && roleSchema.getMappings() != null) {
+            roleSchema.getMappings().remove(mapping);
         }
-
-        if (mappings != null) {
-            mappings.remove(mapping);
-        }
-
         mapping.setRoleSchema(null);
 
         UserSchema userSchema = mapping.getUserSchema();
-
-        mappings = null;
-        if (userSchema != null) {
-            mappings = userSchema.getMappings();
+        if (userSchema != null && userSchema.getMappings() != null) {
+            userSchema.getMappings().remove(mapping);
         }
-
-        if (mappings != null) {
-            mappings.remove(mapping);
-        }
-
         mapping.setUserSchema(null);
 
         MembershipSchema membershipSchema = mapping.getMembershipSchema();
-
-        mappings = null;
-        if (membershipSchema != null) {
-            mappings = membershipSchema.getMappings();
+        if (membershipSchema != null && membershipSchema.getMappings() != null) {
+            membershipSchema.getMappings().remove(mapping);
         }
-
-        if (mappings != null) {
-            mappings.remove(mapping);
-        }
-
         mapping.setMembershipSchema(null);
 
         Resource resource = mapping.getResource();
-
-        mappings = null;
-        if (resource != null) {
-            mappings = resource.getMappings();
+        if (resource != null && resource.getMappings() != null) {
+            resource.getMappings().remove(mapping);
         }
-
-        if (mappings != null) {
-            mappings.remove(mapping);
-        }
-
         mapping.setResource(null);
 
         entityManager.remove(mapping);

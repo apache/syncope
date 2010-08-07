@@ -42,11 +42,13 @@ public class SchemaDAOImpl extends AbstractDAOImpl
     private SchemaMappingDAO schemaMappingDAO;
 
     @Override
+    @Transactional(readOnly = true)
     public <T extends AbstractSchema> T find(String name, Class<T> reference) {
         return entityManager.find(reference, name);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public <T extends AbstractSchema> List<T> findAll(Class<T> reference) {
         Query query = entityManager.createQuery(
                 "SELECT e FROM " + reference.getSimpleName() + " e");
@@ -54,7 +56,6 @@ public class SchemaDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    @Transactional
     public <T extends AbstractSchema> T save(T schema)
             throws MultiUniqueValueException {
 
@@ -66,7 +67,6 @@ public class SchemaDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    @Transactional
     public <T extends AbstractSchema> void delete(
             String name, Class<T> reference) {
 

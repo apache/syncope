@@ -19,6 +19,7 @@ import java.util.Set;
 import javax.persistence.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.ConnectorInstance;
 import org.syncope.core.persistence.beans.Resource;
 import org.syncope.core.persistence.beans.SchemaMapping;
@@ -32,14 +33,16 @@ public class ResourceDAOImpl extends AbstractDAOImpl
         implements ResourceDAO {
 
     @Autowired
-    SchemaMappingDAO schemaMappingDAO;
+    private SchemaMappingDAO schemaMappingDAO;
 
     @Override
+    @Transactional(readOnly = true)
     public Resource find(String name) {
         return entityManager.find(Resource.class, name);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Resource> findAll() {
         Query query = entityManager.createQuery(
                 "SELECT e FROM Resource e");
@@ -55,8 +58,9 @@ public class ResourceDAOImpl extends AbstractDAOImpl
     public void delete(String name) {
 
         Resource resource = find(name);
-        if (resource == null)
+        if (resource == null) {
             return;
+        }
 
         Set<SchemaMapping> mappings = resource.getMappings();
         if (mappings != null) {

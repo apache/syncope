@@ -27,6 +27,7 @@ public class SyncopeConfigurationDAOImpl extends AbstractDAOImpl
         implements SyncopeConfigurationDAO {
 
     @Override
+    @Transactional(readOnly = true)
     public SyncopeConfiguration find(String name)
             throws MissingConfKeyException {
 
@@ -41,19 +42,18 @@ public class SyncopeConfigurationDAOImpl extends AbstractDAOImpl
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<SyncopeConfiguration> findAll() {
         Query query = entityManager.createQuery("SELECT e FROM SyncopeConfiguration e");
         return query.getResultList();
     }
 
     @Override
-    @Transactional
     public SyncopeConfiguration save(SyncopeConfiguration syncopeConfiguration) {
         return entityManager.merge(syncopeConfiguration);
     }
 
     @Override
-    @Transactional
     public void delete(String name) {
         try {
             entityManager.remove(find(name));

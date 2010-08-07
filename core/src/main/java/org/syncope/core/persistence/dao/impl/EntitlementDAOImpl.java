@@ -19,6 +19,7 @@ import java.util.Set;
 import javax.persistence.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.Entitlement;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.dao.EntitlementDAO;
@@ -28,14 +29,16 @@ import org.syncope.core.persistence.dao.SyncopeRoleDAO;
 public class EntitlementDAOImpl extends AbstractDAOImpl implements EntitlementDAO {
 
     @Autowired
-    SyncopeRoleDAO syncopeRoleDAO;
+    private SyncopeRoleDAO syncopeRoleDAO;
 
     @Override
+    @Transactional(readOnly = true)
     public Entitlement find(String name) {
         return entityManager.find(Entitlement.class, name);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Entitlement> findAll() {
         Query query = entityManager.createQuery(
                 "SELECT e FROM Entitlement e");

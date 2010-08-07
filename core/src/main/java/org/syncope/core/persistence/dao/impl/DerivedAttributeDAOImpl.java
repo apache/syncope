@@ -26,6 +26,7 @@ public class DerivedAttributeDAOImpl extends AbstractDAOImpl
         implements DerivedAttributeDAO {
 
     @Override
+    @Transactional(readOnly = true)
     public <T extends AbstractDerivedAttribute> T find(
             Long id, Class<T> reference) {
 
@@ -33,6 +34,7 @@ public class DerivedAttributeDAOImpl extends AbstractDAOImpl
     }
 
     @Override
+    @Transactional(readOnly = true)
     public <T extends AbstractDerivedAttribute> List<T> findAll(
             Class<T> reference) {
 
@@ -48,7 +50,6 @@ public class DerivedAttributeDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    @Transactional
     public <T extends AbstractDerivedAttribute> void delete(
             Long id, Class<T> reference) {
 

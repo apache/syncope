@@ -26,11 +26,13 @@ public class AttributeDAOImpl extends AbstractDAOImpl
         implements AttributeDAO {
 
     @Override
+    @Transactional(readOnly = true)
     public <T extends AbstractAttribute> T find(Long id, Class<T> reference) {
         return entityManager.find(reference, id);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public <T extends AbstractAttribute> List<T> findAll(Class<T> reference) {
         Query query = entityManager.createQuery(
                 "SELECT e FROM " + reference.getSimpleName() + " e");
@@ -38,13 +40,11 @@ public class AttributeDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    @Transactional
     public <T extends AbstractAttribute> T save(T attribute) {
         return entityManager.merge(attribute);
     }
 
     @Override
-    @Transactional
     public <T extends AbstractAttribute> void delete(
             Long id, Class<T> reference) {
 
@@ -57,7 +57,6 @@ public class AttributeDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    @Transactional
     public <T extends AbstractAttribute> void delete(T attribute) {
         if (attribute.getOwner() != null) {
             attribute.getOwner().removeAttribute(attribute);
