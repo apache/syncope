@@ -98,6 +98,9 @@ public class DerivedSchemaModalPage extends SyncopeModalPage
                     else
                         restClient.updateMembershipDerivedSchema((DerivedSchemaTO)form.getDefaultModelObject());
                 }
+                Schema callerPage = (Schema)basePage;
+                callerPage.setOperationResult(true);
+
                 window.close(target);
             }
 

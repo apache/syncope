@@ -12,6 +12,13 @@
  limitations under the License.
  under the License.
 -->
+<wicket:head>
+    <style>
+        div.role-tree div.wicket-tree-table a {
+            color:black;
+        }
+    </style>
+</wicket:head>
 <wicket:extend>
     <div id="testa">
         <img src="img/logo.png" alt="syncope" title="syncope" id="logo" />
@@ -62,8 +69,8 @@
     </div>
     <form wicket:id="form">
         <span wicket:id="container">
-            <div wicket:id="treeTable" style="width: 100%;
-                 display:block;margin:auto;" class="my-tree"/>
+            <div class="role-tree" wicket:id="treeTable"/>
         </span>
     </form>
+    <div wicket:id="createRoleWin">[Show modal window for creating role]</div>
 </wicket:extend>

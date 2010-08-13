@@ -143,11 +143,16 @@ public class UsersRestClient
      * @return ConfigurationTO object if the configuration exists, null otherwise
      */
     public ConfigurationTO readConfigurationAttributes() {
-
-        ConfigurationTO configurationTO = restClient.getRestTemplate().getForObject(
-                restClient.getBaseURL()+ "configuration/read/{confKey}.json",
-                ConfigurationTO.class, "users.attributes.view");
-               
+        
+        ConfigurationTO configurationTO;
+        try {
+            configurationTO = restClient.getRestTemplate().getForObject(
+                    restClient.getBaseURL() + "configuration/read/{confKey}.json",
+                    ConfigurationTO.class, "users.attributes.view");
+        } catch (SyncopeClientCompositeErrorException e) {
+            e.printStackTrace();
+            return null;
+        }
 
         return configurationTO;
     }

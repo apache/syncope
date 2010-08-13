@@ -14,6 +14,7 @@
  */
 package org.syncope.console.rest;
 
+import org.syncope.client.mod.RoleMod;
 import org.syncope.client.to.RoleTO;
 import org.syncope.client.to.RoleTOs;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
@@ -45,12 +46,13 @@ public class RolesRestClient {
 
     /**
      * Create new role.
-     * @param schemaTO
+     * @param roleTO
      */
-    public void createRole(RoleTO RoleTO) {
+    public void createRole(RoleTO roleTO) {
+        RoleTO newRoleTO;
         try{
-        restClient.getRestTemplate().postForObject(restClient.getBaseURL() +
-                "role/create", RoleTO, RoleTO.class);
+        newRoleTO = restClient.getRestTemplate().postForObject(restClient.getBaseURL() +
+                "role/create", roleTO, RoleTO.class);
         }
         catch (SyncopeClientCompositeErrorException e) {
             e.printStackTrace();
@@ -62,13 +64,13 @@ public class RolesRestClient {
      * @param name (e.g.:surname)
      * @return schemaTO
      */
-    public RoleTO readRole(String name) {
+    public RoleTO readRole(Long id) {
         RoleTO roleTO = null;
 
         try {
         roleTO = restClient.getRestTemplate().getForObject
-                (restClient.getBaseURL() + "role/read/" + name + ".json",
-                RoleTO.class);
+                (restClient.getBaseURL() + "role/read/{roleId}.json",
+                 RoleTO.class, id);
         }
         catch (SyncopeClientCompositeErrorException e) {
             e.printStackTrace();
@@ -78,22 +80,22 @@ public class RolesRestClient {
 
     /**
      * Update an already existent role.
-     * @param schemaTO updated
+     * @param roleTO updated
      * @return true is the opertion ends succesfully, false otherwise
      */
-    public boolean updateRole(RoleTO roleTO) {
+    public boolean updateRole(RoleMod roleMod) {
         RoleTO newRoleTO = null;
 
         try {
         newRoleTO = restClient.getRestTemplate().postForObject
-                (restClient.getBaseURL() + "role/update.json", roleTO,
+                (restClient.getBaseURL() + "role/update", roleMod,
                 RoleTO.class);
         }
         catch (SyncopeClientCompositeErrorException e) {
             e.printStackTrace();
         }
 
-        return (roleTO.equals(newRoleTO))?true:false;
+        return (newRoleTO.getName().equals(roleMod.getName()))?true:false;
     }
     
     /**
@@ -101,10 +103,10 @@ public class RolesRestClient {
      * @param name (e.g.:surname)
      * @return schemaTO
      */
-    public void deleteRole(String name) {
+    public void deleteRole(Long id) {
         try {
         restClient.getRestTemplate().delete(restClient.getBaseURL() +
-                "role/delete/{roleName}.json",name);
+                "role/delete/{roleId}.json",id);
         }
         catch (SyncopeClientCompositeErrorException e) {
             e.printStackTrace();

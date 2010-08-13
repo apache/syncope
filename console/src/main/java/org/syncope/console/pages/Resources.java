@@ -23,6 +23,7 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
@@ -45,11 +46,22 @@ public class Resources extends BasePage {
 
     WebMarkupContainer resourcesContainer;
 
+    /** Response flag set by the Modal Window after the operation is completed:
+     *  TRUE if the operation succedes, FALSE otherwise
+     */
+    boolean operationResult = false;
+    FeedbackPanel feedbackPanel;
+
     public Resources(PageParameters parameters) {
         super(parameters);
 
         add(createResourceWin = new ModalWindow("createResourceWin"));
         add(editResourceWin = new ModalWindow("editResourceWin"));
+
+        feedbackPanel = new FeedbackPanel("feedback");
+        feedbackPanel.setOutputMarkupId( true );
+
+        add(feedbackPanel);
 
         IModel resources = new LoadableDetachableModel() {
 
@@ -142,6 +154,14 @@ public class Resources extends BasePage {
         });
     }
 
+    public boolean isOperationResult() {
+        return operationResult;
+    }
+
+    public void setOperationResult(boolean operationResult) {
+        this.operationResult = operationResult;
+    }
+
     /**
      * Set a WindowClosedCallback for a ModalWindow instance.
      * @param window
@@ -154,6 +174,11 @@ public class Resources extends BasePage {
 
                     public void onClose(AjaxRequestTarget target) {
                         target.addComponent(container);
+                        if(operationResult){
+                        info(getString("operation_succeded"));
+                        target.addComponent(feedbackPanel);
+                        operationResult = false;
+                        }
                     }
                 });
     }

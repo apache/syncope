@@ -28,10 +28,14 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.wicket.Application;
+import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
@@ -40,10 +44,15 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.markup.html.tree.BaseTree;
+import org.apache.wicket.markup.html.tree.LinkTree;
 import org.apache.wicket.model.CompoundPropertyModel;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.to.AttributeTO;
+import org.syncope.client.to.MembershipTO;
 import org.syncope.client.to.ResourceTO;
 import org.syncope.client.to.ResourceTOs;
 import org.syncope.client.to.SchemaTO;
@@ -51,6 +60,7 @@ import org.syncope.client.to.SchemaTOs;
 import org.syncope.client.to.UserTO;
 import org.syncope.console.SyncopeApplication;
 import org.syncope.console.rest.ResourcesRestClient;
+import org.syncope.console.rest.RolesRestClient;
 import org.syncope.console.rest.SchemaRestClient;
 import org.syncope.console.rest.UsersRestClient;
 
@@ -58,6 +68,8 @@ import org.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.syncope.console.wicket.markup.html.form.DateFieldPanel;
 import org.syncope.console.wicket.markup.html.form.ListMultipleChoiceTransfer;
+import org.syncope.console.wicket.markup.html.tree.SyncopeRoleTree;
+import org.syncope.console.wicket.markup.html.tree.TreeModelBean;
 
 /**
  * Modal window with User form.
@@ -65,12 +77,18 @@ import org.syncope.console.wicket.markup.html.form.ListMultipleChoiceTransfer;
 public class UserModalPage extends SyncopeModalPage {
 
     @SpringBean(name = "usersRestClient")
-    UsersRestClient restClient;
-    AjaxButton submit;
-    /** Wicket panel containing specific HTML input type component*/
-    List<Panel> inputTypePanels = new ArrayList<Panel>();
+    UsersRestClient usersRestClient;
+
+    @SpringBean(name = "rolesRestClient")
+    RolesRestClient rolesRestClient;
+
     WebMarkupContainer container;
-    List<SchemaWrapper> schemaWrappers = new ArrayList<SchemaWrapper>();
+    WebMarkupContainer membershipsContainer;
+    AjaxButton submit;
+
+    List<SchemaWrapper> schemaWrappers;
+    List<MembershipTO> membershipTOs;
+    final ModalWindow createUserWin;
 
     /**
      *
@@ -82,25 +100,23 @@ public class UserModalPage extends SyncopeModalPage {
     public UserModalPage(final BasePage basePage, final ModalWindow window,
             final UserTO userTO, final boolean createFlag) {
 
+        schemaWrappers = new ArrayList<SchemaWrapper>();
+
+        add(createUserWin = new ModalWindow("membershipWin"));
+
+        createUserWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+//        createUserWin.setInitialHeight(WIN_USER_HEIGHT);
+//        createUserWin.setInitialWidth(WIN_USER_WIDTH);
+        createUserWin.setPageMapName("create-membership-modal");
+        createUserWin.setCookieName("create-membership-modal");
 
         Form userForm = new Form("UserForm");
 
         userForm.setModel(new CompoundPropertyModel(userTO));
 
-//        final IModel roleSchemasList =  new LoadableDetachableModel()
-//        {
-//            protected Object load() {
-//
-//                SchemaRestClient schemaRestClient = (SchemaRestClient)
-//                        ((SyncopeApplication)Application.get()).
-//                        getApplicationContext().getBean("schemaRestClient");
-//
-//                return schemaRestClient.getAllRoleSchemasNames();
-//            }
-//        };
-
         setupSchemaWrappers(createFlag, userTO);
-
+        setupMemberships(createFlag,userTO);
+        
         final ListView userAttributesView = new ListView("userSchemas", schemaWrappers) {
 
             @Override
@@ -136,8 +152,8 @@ public class UserModalPage extends SyncopeModalPage {
 
                                 @Override
                                 public Serializable getObject() {
-                                    //return (String) item.getModelObject();
-                                    return "false";
+                                    return (String) item.getModelObject();
+                                    //return "false";
                                 }
 
                                 @Override
@@ -155,11 +171,14 @@ public class UserModalPage extends SyncopeModalPage {
                                         public Serializable getObject() {
                                             DateFormat formatter = new SimpleDateFormat(schemaTO.getConversionPattern());
                                             Date date = new Date();
-                                            String val;
+
                                             try {
-                                                date = formatter.parse((String) item.getModelObject());
+                                                String dateValue = (String) item.getModelObject();
                                                 formatter = new SimpleDateFormat("yyyy-MM-dd");
-                                                val = formatter.format(date);
+
+                                                if(!dateValue.equals(""))
+                                                    date = formatter.parse((String) item.getModelObject());
+                                                
                                             } catch (ParseException ex) {
                                                 Logger.getLogger(UserModalPage.class.getName()).log(Level.SEVERE, null, ex);
                                             }
@@ -207,11 +226,9 @@ public class UserModalPage extends SyncopeModalPage {
                 }
 
                 addButton.setDefaultFormProcessing(false);
-                //addButton.setEnabled(schemaTO.isMultivalue());
                 addButton.setVisible(schemaTO.isMultivalue());
 
                 dropButton.setDefaultFormProcessing(false);
-                //dropButton.setEnabled(schemaTO.isMultivalue());
                 dropButton.setVisible(schemaTO.isMultivalue());
 
                 if (schemaWrapper.getValues().size() == 1) {
@@ -247,8 +264,7 @@ public class UserModalPage extends SyncopeModalPage {
                         //Destinations:available resources
                         List<String> resources = new ArrayList<String>();
 
-                        ResourcesRestClient resourcesRestClient = (ResourcesRestClient)
-                                ((SyncopeApplication) Application.get()).getApplicationContext().getBean("resourcesRestClient");
+                        ResourcesRestClient resourcesRestClient = (ResourcesRestClient) ((SyncopeApplication) Application.get()).getApplicationContext().getBean("resourcesRestClient");
 
                         ResourceTOs resourcesTos = resourcesRestClient.getAllResources();
 
@@ -273,53 +289,6 @@ public class UserModalPage extends SyncopeModalPage {
 
         userForm.add(resourcesTransfer);
 
-//final ListMultipleChoiceTransfer rolesTransfer =
-//    new ListMultipleChoiceTransfer("rolesChoiceTransfer",
-//    getString("firstRolesList"),getString("secondRolesList")) {
-//
-//    @Override
-//    public List<String> setupOriginals() {
-//        //Originals:user's resources
-//        List<String> roles = new ArrayList<String>();
-//
-//        for (String roleName : userTO.get) {
-//            roles.add(roleName);
-//        }
-//
-//        return roles;
-//
-//    }
-//
-//    @Override
-//    public List<String> setupDestinations() {
-//        //Destinations:available resources
-//        List<String> resources = new ArrayList<String>();
-//
-//        ResourcesRestClient resourcesRestClient = (ResourcesRestClient)
-//                ((SyncopeApplication) Application.get()).getApplicationContext()
-//                .getBean("resourcesRestClient");
-//
-//        ResourceTOs resourcesTos = resourcesRestClient.getAllResources();
-//
-//        if (userTO.getResources().size() == 0) {
-//            for (ResourceTO resourceTO : resourcesTos) {
-//                resources.add(resourceTO.getName());
-//            }
-//
-//        } else {
-//
-//            for (String resource : userTO.getResources()) {
-//                for (ResourceTO resourceTO : resourcesTos) {
-//                    if (!resource.equals(resourceTO.getName())) {
-//                        resources.add(resourceTO.getName());
-//                    }
-//                }
-//            }
-//        }
-//        return resources;
-//    }
-//    };
-
         container = new WebMarkupContainer("container");
         container.add(userAttributesView);
 
@@ -342,26 +311,26 @@ public class UserModalPage extends SyncopeModalPage {
 
                 try {
 
-                    userTO.setResources(getResourcesSelected(resourcesTransfer.getFinalSelections()));
-                    userTO.setAttributes(getUserAttributes());
+                    userTO.setResources(getResourcesSet(resourcesTransfer.getFinalSelections()));
+                    userTO.setAttributes(getUserAttributesSet());
+                    userTO.setMemberships(getMembershipsSet());
 
-                    if (createFlag) {
-                        restClient.createUser(userTO);
-                    } else {
-                        res = restClient.updateUser(userTO);
-                        
-                        if (!res) 
-                              error(getString("error_updating"));
+                        if (createFlag) {
+                            usersRestClient.createUser(userTO);
+                        } else {
+                            res = usersRestClient.updateUser(userTO);
+
+                        if (!res) {
+                            error(getString("error_updating"));
+                        }
 
                     }
-                    
+
                     window.close(target);
 
                 } catch (Exception e) {
                     error(getString("error") + ":" + e.getMessage());
                 }
-
-
             }
 
             @Override
@@ -374,16 +343,140 @@ public class UserModalPage extends SyncopeModalPage {
 
         userForm.add(new FeedbackPanel("feedback").setOutputMarkupId(true));
 
+        //Roles Tab
+        SyncopeRoleTree roleTree = new SyncopeRoleTree(rolesRestClient);
+
+        BaseTree tree;
+
+        tree = new LinkTree("treeTable", roleTree.createTreeModel()) {
+
+            @Override
+            protected IModel<Object> getNodeTextModel(IModel<Object> model) {
+                return new PropertyModel(model, "userObject.treeNode.name");
+            }
+
+            @Override
+            protected void onNodeLinkClicked(final Object node, final BaseTree tree,
+                    final AjaxRequestTarget target) {
+
+                DefaultMutableTreeNode syncopeTreeNode = (DefaultMutableTreeNode) node;
+                final TreeModelBean treeModel = (TreeModelBean) syncopeTreeNode.getUserObject();
+
+                if (treeModel.getTreeNode() != null){
+
+                createUserWin.setPageCreator(new ModalWindow.PageCreator() {
+
+                 MembershipTO membershipTO;
+                 
+                    @Override
+                    public Page createPage() {
+
+                            membershipTO = new MembershipTO();
+                            membershipTO.setRole(treeModel.getTreeNode().getId());
+                            String title = treeModel.getTreeNode().getName();
+
+                            MembershipModalPage form =
+                                    new MembershipModalPage(getPage(), createUserWin,
+                                    membershipTO, true);
+
+                            return form;
+                    }
+                });
+                createUserWin.show(target);
+                }
+            }
+        };
+
+        tree.getTreeState().expandAll();
+        tree.updateTree();
+
+        userForm.add(tree);
+
+
+        ListView membershipsView = new ListView("memberships", membershipTOs) {
+
+            @Override
+            protected void populateItem(final ListItem item) {
+                final MembershipTO membershipTO =
+                        (MembershipTO) item.getDefaultModelObject();
+
+                item.add(new Label("roleId", new Model(membershipTO.getRole())));
+
+                AjaxLink editLink = new AjaxLink("editLink") {
+
+                    @Override
+                    public void onClick(AjaxRequestTarget target) {
+                        createUserWin.setPageCreator(new ModalWindow.PageCreator() {
+
+                            public Page createPage() {
+
+                            MembershipModalPage form = new MembershipModalPage(
+                                getPage(), createUserWin,membershipTO, false);
+
+                            return form;  
+
+                            }
+                        });
+                        createUserWin.show(target);
+                    }
+                };
+                item.add(editLink);
+
+                AjaxLink deleteLink = new AjaxLink("deleteLink") {
+
+                        @Override
+                        public void onClick(AjaxRequestTarget target) {
+                            int componentId = new Integer(getParent().getId());
+                            membershipTOs.remove(componentId);
+                            
+                            target.addComponent(membershipsContainer);
+                        }
+                    };
+                item.add(deleteLink);
+            }
+        };
+
+        membershipsContainer = new WebMarkupContainer("membershipsContainer");
+        membershipsContainer.add(membershipsView);
+        membershipsContainer.setOutputMarkupId(true);
+
+        setWindowClosedCallback(createUserWin, membershipsContainer);
+
+        userForm.add(membershipsContainer);
         add(userForm);
     }
 
-    public void setupSchemaWrappers(boolean create, UserTO userTO) {
+    /**
+     * Set a WindowClosedCallback for a ModalWindow instance.
+     * @param window
+     * @param container
+     */
+    public void setWindowClosedCallback(ModalWindow window,
+            final WebMarkupContainer container) {
+
+        window.setWindowClosedCallback(
+                new ModalWindow.WindowClosedCallback() {
+
+                    public void onClose(AjaxRequestTarget target) {
+                        target.addComponent(container);
+                    }
+                });
+    }
+
+    /**
+     * Initialize the SchemaWrapper collection
+     * @param create
+     * @param userTO
+     */
+
+    public void setupSchemaWrappers(boolean create,UserTO userTO) {
 
         schemaWrappers = new ArrayList<SchemaWrapper>();
         SchemaWrapper schemaWrapper;
 
-        SchemaRestClient schemaRestClient = (SchemaRestClient) ((SyncopeApplication)
-                Application.get()).getApplicationContext().getBean("schemaRestClient");
+        SchemaRestClient schemaRestClient = (SchemaRestClient)
+                ((SyncopeApplication) Application.get())
+                .getApplicationContext().getBean("schemaRestClient");
 
         SchemaTOs schemas = schemaRestClient.getAllUserSchemas();
 
@@ -405,7 +498,29 @@ public class UserModalPage extends SyncopeModalPage {
         }
     }
 
-    public Set<AttributeTO> getUserAttributes() {
+    /**
+     * Initialize the membershipTOs
+     * @param creation flag: true if a new User is being created, false otherwise
+     * @param userTO object
+     */
+    public void setupMemberships(boolean create,UserTO userTO){
+    
+        membershipTOs = new ArrayList<MembershipTO>();
+        
+        if(!create) {
+            Set<MembershipTO> memberships = userTO.getMemberships();
+
+            for(MembershipTO membership : memberships)
+            membershipTOs.add(membership);
+          }
+    }
+
+    /**
+     * Initialize the user's attributes
+     * @param creation flag: true if a new User is being created, false otherwise
+     * @param userTO object
+     */
+    public Set<AttributeTO> getUserAttributesSet() {
 
         Set<AttributeTO> attributes = new HashSet<AttributeTO>();
 
@@ -428,10 +543,24 @@ public class UserModalPage extends SyncopeModalPage {
     }
 
     /**
-     * Set in the UserTO the resources set.
-     * @return UserTO with resources set
+     * Convert a memberships ArrayList in a memberships HashSet list.
+     * @return Set<MembershipTO> selected for a new user.
      */
-    public Set<String> getResourcesSelected(List<String> resourcesList) {
+    public Set<MembershipTO> getMembershipsSet(){
+
+        HashSet<MembershipTO> memberships = new HashSet<MembershipTO>();
+
+        for (MembershipTO membership : membershipTOs) 
+            memberships.add(membership);
+
+        return memberships;
+    }
+
+    /**
+     * Covert a resources List<String> to Set<String>.
+     * @return Set<String>
+     */
+    public Set<String> getResourcesSet(List<String> resourcesList) {
         Set<String> resourcesSet = new HashSet<String>();
 
         for (String resource : resourcesList) {
@@ -439,6 +568,14 @@ public class UserModalPage extends SyncopeModalPage {
         }
 
         return resourcesSet;
+    }
+
+    public List<MembershipTO> getMembershipTOs() {
+        return membershipTOs;
+    }
+
+    public void setMembershipTOs(List<MembershipTO> membershipTOs) {
+        this.membershipTOs = membershipTOs;
     }
 
     /**
@@ -452,11 +589,12 @@ public class UserModalPage extends SyncopeModalPage {
         public SchemaWrapper(SchemaTO schemaTO) {
             this.schemaTO = schemaTO;
             values = new ArrayList<String>();
-            
-            if(schemaTO.getType().getClassName().equals("java.lang.Boolean"))
-                values.add("false");
-            else
+
+            if (schemaTO.getType().getClassName().equals("java.lang.Boolean")) {
+                values.add("");//false
+            } else {
                 values.add("");
+            }
         }
 
         public SchemaTO getSchemaTO() {
@@ -476,8 +614,8 @@ public class UserModalPage extends SyncopeModalPage {
         }
 
         public void setValues(Set<String> values) {
+            this.values = new ArrayList<String>();
             for (String value : values) {
-                this.values = new ArrayList<String>();
                 this.values.add(value);
             }
         }

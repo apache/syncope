@@ -61,6 +61,8 @@
         </ul>
     </div>
 
+    <div wicket:id="feedback"/>
+
     <div id="tabs">
         <ul>
             <li class="tabs-selected"><a href="#tabs-1"><span><wicket:message key="tab1"/></span></a></li>
@@ -70,6 +72,7 @@
             <li><a href="#tabs-5"><span><wicket:message key="tab5"/></span></a></li>
             <li><a href="#tabs-6"><span><wicket:message key="tab6"/></span></a></li>
         </ul>
+        
         <div id="tabs-1">
 
             <div id="users-contain" class="ui-widget">
@@ -80,11 +83,11 @@
                     <thead>
                         <tr class="ui-widget-header ">
                             <th><wicket:message key="name"/></th>
-                    <th><wicket:message key="type"/></th>
-                    <th><wicket:message key="attributes"/></th>
-                    <th><wicket:message key="edit"/></th>
-                    <th><wicket:message key="delete"/></th>
-                    </tr>
+                            <th><wicket:message key="type"/></th>
+                            <th><wicket:message key="attributes"/></th>
+                            <th><wicket:message key="edit"/></th>
+                            <th><wicket:message key="delete"/></th>
+                        </tr>
                     </thead>
                     <tbody>
                         <tr wicket:id="roleSchemas" >
@@ -134,12 +137,6 @@
                             <td><span wicket:id="name">[label name]</span></td>
                             <td><span wicket:id="expression">[label expression]</span></td>
                             <td><span wicket:id="attributes">[label attributes]</span></td>
-
-                            <th><wicket:message key="name"/></th>
-                    <th><wicket:message key="type"/></th>
-                    <th><wicket:message key="attributes"/></th>
-                    <th><wicket:message key="edit"/></th>
-                    <th><wicket:message key="delete"/></th>
 
                     <td>
                         <a href="#" wicket:id="editLink">
@@ -327,7 +324,7 @@
             <div wicket:id="editMembershipDerSchemaWin">[Show modal window for editing schema]</div>
 
             <a wicket:id="createMembershipDerSchemaWinLink" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
-                <wicket:message key="create_attribute"/>
+                <wicket:message key="create_attribute"/>    
             </a>
         </div>
     </div>

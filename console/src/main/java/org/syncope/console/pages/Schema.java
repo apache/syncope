@@ -23,6 +23,7 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
@@ -66,6 +67,10 @@ public class Schema extends BasePage
     WebMarkupContainer membershipSchemaContainer;
     WebMarkupContainer membershipDerivedSchemaContainer;
 
+    /** Response flag set by the Modal Window after the operation is completed  */
+    boolean operationResult = false;
+    FeedbackPanel feedbackPanel;
+    
     public Schema(PageParameters parameters)
     {
         super(parameters);
@@ -87,6 +92,11 @@ public class Schema extends BasePage
 
         add(createMembershipDerivedSchemaWin = new ModalWindow("createMembershipDerSchemaWin"));
         add(editMembershipDerivedSchemaWin = new ModalWindow("editMembershipDerSchemaWin"));
+
+        feedbackPanel = new FeedbackPanel("feedback");
+        feedbackPanel.setOutputMarkupId( true );
+        
+        add(feedbackPanel);
 
         IModel userSchemas =  new LoadableDetachableModel()
         {
@@ -636,10 +646,23 @@ public class Schema extends BasePage
     public void setWindowClosedCallback(ModalWindow window,final WebMarkupContainer container) {
 
         window.setWindowClosedCallback(
-                new ModalWindow.WindowClosedCallback() {
-                    public void onClose(AjaxRequestTarget target) {
-                        target.addComponent(container);
+            new ModalWindow.WindowClosedCallback() {
+                public void onClose(AjaxRequestTarget target) {
+                    target.addComponent(container);
+                    if(operationResult){
+                        info(getString("operation_succeded"));  
+                        target.addComponent(feedbackPanel);
+                        operationResult = false;
                     }
-                });
+                }
+            });
+    }
+
+    public boolean isOperationResult() {
+        return operationResult;
+    }
+
+    public void setOperationResult(boolean operationResult) {
+        this.operationResult = operationResult;
     }
 }

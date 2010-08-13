@@ -117,6 +117,32 @@ body {
     color: red;
 }
 
+/* FEEDBACK PANEL'S INFO STYLE */
+.feedbackPanel {
+    padding-left:8px;
+    padding-right:8px;
+    padding-top:8px;
+}
+
+.feedbackPanelINFO {
+    color: green;
+    margin: 0px;
+    list-style-type: none;
+    background:url("images/ui-bg_highlight-soft_75_cccccc_1x100.png") repeat-x scroll 50% 50% #CCCCCC;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border: 1px solid gray;
+    border-radius: 3px;
+    padding: 5px;
+}
+
+.feedbackPanelINFO span {
+    background: url("../img/ok.png") no-repeat left;
+    border:0 none;
+    font-size:12px;
+    padding-left: 20px;
+}
+
 #testa {
     background: url(../img/sf_testa.png) top repeat-x #FFF;
 }

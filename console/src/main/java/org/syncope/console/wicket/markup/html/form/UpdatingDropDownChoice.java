@@ -12,28 +12,28 @@
  *  limitations under the License.
  *  under the License.
  */
+
 package org.syncope.console.wicket.markup.html.form;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
-import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
+import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
+import org.apache.wicket.model.PropertyModel;
 
 /**
- * AjaxCheckBoxPanel
+ * Extension class of DropDownChoice. It's purposed for storing values in the
+ * corresponding property model after pressing 'Add' button.
  */
-public class AjaxCheckBoxPanel extends Panel {
-    /**
-     * Build a AjaxCheckBoxPanel.
-     * @param component id
-     * @param label name
-     * @param IModel<?> object
-     * @param required flag
-     */
-    public AjaxCheckBoxPanel(String id, String name, IModel<Boolean> model,boolean required) {
-        super(id,model);
-
-        add(new UpdatingCheckBox("checkboxField", model).setLabel(new Model(name)));
+ public class UpdatingDropDownChoice extends DropDownChoice
+ {
+    public UpdatingDropDownChoice(String id, PropertyModel model, IModel imodel) {
+        super(id, model, imodel);
+        add( new AjaxFormComponentUpdatingBehavior( "onblur" )
+        {
+            protected void onUpdate( AjaxRequestTarget target )
+            {
+            }
+        } );
     }
-}
+ }

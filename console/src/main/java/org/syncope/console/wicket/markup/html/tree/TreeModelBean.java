@@ -16,18 +16,17 @@
 package org.syncope.console.wicket.markup.html.tree;
 
 import java.io.Serializable;
-import org.syncope.console.pages.Roles.TreeNode;
 
 public class TreeModelBean implements Serializable
 {
-    private TreeNode treeNode;
+    private SyncopeTreeNode treeNode;
     private String title;
 
     public TreeModelBean(String title) {
         this.title = title;
     }
     
-    public TreeModelBean(TreeNode tree)
+    public TreeModelBean(SyncopeTreeNode tree)
     {
         this.treeNode = tree;
     }
@@ -40,11 +39,11 @@ public class TreeModelBean implements Serializable
         this.title = title;
     }
     
-    public TreeNode getTreeNode() {
+    public SyncopeTreeNode getTreeNode() {
         return treeNode;
     }
 
-    public void setTreeNode(TreeNode treeNode) {
+    public void setTreeNode(SyncopeTreeNode treeNode) {
         this.treeNode = treeNode;
     }
     

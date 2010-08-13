@@ -18,7 +18,6 @@ package org.syncope.console.pages;
 
 import org.apache.wicket.Application;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
@@ -44,6 +43,9 @@ import org.syncope.console.SyncopeApplication;
 import org.syncope.console.rest.ConnectorsRestClient;
 import org.syncope.console.rest.ResourcesRestClient;
 import org.syncope.console.rest.SchemaRestClient;
+import org.syncope.console.wicket.markup.html.form.UpdatingCheckBox;
+import org.syncope.console.wicket.markup.html.form.UpdatingDropDownChoice;
+import org.syncope.console.wicket.markup.html.form.UpdatingTextField;
 
 /**
  * Modal window with Connector form.
@@ -259,7 +261,10 @@ public class ResourceModalPage extends SyncopeModalPage {
                      else
                         restClient.updateResource(resourceTO);
 
-                    window.close(target);
+                     Resources callerPage = (Resources)basePage;
+                     callerPage.setOperationResult(true);
+
+                     window.close(target);
                     
                 } catch (Exception e) {
                     error(getString("error") + ":" + e.getMessage());
@@ -325,50 +330,50 @@ public class ResourceModalPage extends SyncopeModalPage {
      * Extension class of TextField. It's purposed for storing values in the
      * corresponding property model after pressing 'Add' button.
      */
-    private static class UpdatingTextField extends TextField
-    {
-        public UpdatingTextField( String id, IModel model )
-        {
-            super( id, model );
-            add( new AjaxFormComponentUpdatingBehavior( "onblur" )
-            {
-                protected void onUpdate( AjaxRequestTarget target )
-                {
-                }
-            } );
-        }
-    }
+//    private static class UpdatingTextField extends TextField
+//    {
+//        public UpdatingTextField( String id, IModel model )
+//        {
+//            super( id, model );
+//            add( new AjaxFormComponentUpdatingBehavior( "onblur" )
+//            {
+//                protected void onUpdate( AjaxRequestTarget target )
+//                {
+//                }
+//            } );
+//        }
+//    }
 
     /**
      * Extension class of DropDownChoice. It's purposed for storing values in the
      * corresponding property model after pressing 'Add' button.
      */
-     private static class UpdatingDropDownChoice extends DropDownChoice
-     {
-        private UpdatingDropDownChoice(String id, PropertyModel model, IModel imodel) {
-            super(id, model, imodel);
-            add( new AjaxFormComponentUpdatingBehavior( "onblur" )
-            {
-                protected void onUpdate( AjaxRequestTarget target )
-                {
-                }
-            } );
-        }
-     }
+//     private static class UpdatingDropDownChoice extends DropDownChoice
+//     {
+//        private UpdatingDropDownChoice(String id, PropertyModel model, IModel imodel) {
+//            super(id, model, imodel);
+//            add( new AjaxFormComponentUpdatingBehavior( "onblur" )
+//            {
+//                protected void onUpdate( AjaxRequestTarget target )
+//                {
+//                }
+//            } );
+//        }
+//     }
 
     /**
      * Extension class of CheckBox. It's purposed for storing values in the
      * corresponding property model after pressing 'Add' button.
      */
-     private static class UpdatingCheckBox extends AjaxCheckBox
-     {
-        public UpdatingCheckBox(String id, IModel<Boolean> model) {
-            super(id, model);
-        }
-
-        @Override
-        protected void onUpdate(AjaxRequestTarget target) {
-
-        }
-     }
+//     private static class UpdatingCheckBox extends AjaxCheckBox
+//     {
+//        public UpdatingCheckBox(String id, IModel<Boolean> model) {
+//            super(id, model);
+//        }
+//
+//        @Override
+//        protected void onUpdate(AjaxRequestTarget target) {
+//
+//        }
+//     }
 }

@@ -1,20 +1,19 @@
-/*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.syncope.console.pages;
+
+/*
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ * 
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *  under the License.
+ */
 
 import java.io.Serializable;
 import java.text.DateFormat;
@@ -28,13 +27,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import org.apache.wicket.Application;
+import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -43,54 +41,35 @@ import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.spring.injection.annot.SpringBean;
-
-import org.syncope.client.mod.AttributeMod;
-import org.syncope.client.mod.RoleMod;
 import org.syncope.client.to.AttributeTO;
-import org.syncope.client.to.ResourceTO;
-import org.syncope.client.to.ResourceTOs;
-import org.syncope.client.to.RoleTO;
+import org.syncope.client.to.MembershipTO;
 import org.syncope.client.to.SchemaTO;
 import org.syncope.client.to.SchemaTOs;
-
 import org.syncope.console.SyncopeApplication;
-import org.syncope.console.rest.ResourcesRestClient;
-import org.syncope.console.rest.RolesRestClient;
 import org.syncope.console.rest.SchemaRestClient;
 import org.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.syncope.console.wicket.markup.html.form.DateFieldPanel;
-import org.syncope.console.wicket.markup.html.form.ListMultipleChoiceTransfer;
 
 /**
- * Modal window with Role form.
+ * MembershipModalPage.
  */
-public class RoleModalPage extends SyncopeModalPage {
-
-    @SpringBean(name = "rolesRestClient")
-    RolesRestClient restClient;
-    AjaxButton submit;
-    WebMarkupContainer container;
+public class MembershipModalPage extends SyncopeModalPage {
     List<SchemaWrapper> schemaWrappers = new ArrayList<SchemaWrapper>();
+    WebMarkupContainer container;
 
-    /**
-     *
-     * @param basePage base
-     * @param modalWindow modal window
-     * @param connectorTO
-     * @param create : set to true only if a CREATE operation is required
-     */
-    public RoleModalPage(final BasePage basePage, final ModalWindow window,
-            final RoleTO roleTO, final boolean createFlag) {
+    AjaxButton submit;
 
-        Form form = new Form("RoleForm");
+    public MembershipModalPage(final Page basePage, final ModalWindow window,
+            final MembershipTO membershipTO, final boolean createFlag) {
 
-        form.setModel(new CompoundPropertyModel(roleTO));
+        Form form = new Form("MembershipForm");
 
-        setupSchemaWrappers(createFlag, roleTO);
+        form.setModel(new CompoundPropertyModel(membershipTO));
 
-        final ListView roleAttributesView = new ListView("roleSchemas", schemaWrappers) {
+        setupSchemaWrappers(createFlag,membershipTO);
+
+        final ListView userAttributesView = new ListView("membershipSchemas", schemaWrappers) {
 
             @Override
             protected void populateItem(ListItem item) {
@@ -125,7 +104,8 @@ public class RoleModalPage extends SyncopeModalPage {
 
                                 @Override
                                 public Serializable getObject() {
-                                    return (String) item.getModelObject();
+                                    //return (String) item.getModelObject();
+                                    return "false";
                                 }
 
                                 @Override
@@ -146,10 +126,11 @@ public class RoleModalPage extends SyncopeModalPage {
                                             try {
                                                 String dateValue = (String) item.getModelObject();
                                                 formatter = new SimpleDateFormat("yyyy-MM-dd");
+
                                                 if(!dateValue.equals(""))
                                                     date = formatter.parse((String) item.getModelObject());
                                             } catch (ParseException ex) {
-                                                Logger.getLogger(RoleModalPage.class.getName()).log(Level.SEVERE, null, ex);
+                                                Logger.getLogger(UserModalPage.class.getName()).log(Level.SEVERE, null, ex);
                                             }
                                             return date;
                                         }
@@ -209,95 +190,23 @@ public class RoleModalPage extends SyncopeModalPage {
             }
         };
 
-        form.add(roleAttributesView);
-
-        final ListMultipleChoiceTransfer resourcesTransfer =
-                new ListMultipleChoiceTransfer("resourcesChoiceTransfer",
-                getString("firstResourcesList"), getString("secondResourcesList")) {
-
-                    @Override
-                    public List<String> setupOriginals() {
-                        //Originals:role's resources
-                        List<String> resources = new ArrayList<String>();
-
-                        for (String resourceName : roleTO.getResources()) {
-                            resources.add(resourceName);
-                        }
-
-                        return resources;
-
-                    }
-
-                    @Override
-                    public List<String> setupDestinations() {
-                        //Destinations:available resources
-                        List<String> resources = new ArrayList<String>();
-
-                        ResourcesRestClient resourcesRestClient = (ResourcesRestClient)
-                                ((SyncopeApplication) Application.get()).getApplicationContext().getBean("resourcesRestClient");
-
-                        ResourceTOs resourcesTos = resourcesRestClient.getAllResources();
-
-                        if (roleTO.getResources().size() == 0) {
-                            for (ResourceTO resourceTO : resourcesTos) {
-                                resources.add(resourceTO.getName());
-                            }
-
-                        } else {
-
-                            for (String resource : roleTO.getResources()) {
-                                for (ResourceTO resourceTO : resourcesTos) {
-                                    if (!resource.equals(resourceTO.getName())) {
-                                        resources.add(resourceTO.getName());
-                                    }
-                                }
-                            }
-                        }
-                        return resources;
-                    }
-                };
-
-        form.add(resourcesTransfer);
-
-        container = new WebMarkupContainer("container");
-        container.add(roleAttributesView);
-
-        container.setOutputMarkupId(true);
-
-        form.add(container);
-
-        TextField name = new TextField("name");
-        name.setRequired(true);
-        container.add(name);
-
         submit = new AjaxButton("submit", new Model(getString("submit"))) {
 
             @Override
             protected void onSubmit(AjaxRequestTarget target, Form form) {
-                RoleTO roleTO = (RoleTO) form.getDefaultModelObject();
 
-                boolean res = false;
+                MembershipTO membershipTO = (MembershipTO) form.getDefaultModelObject();
+                membershipTO.setAttributes(getMembershipAttributes());
+                
+                UserModalPage userModalPage = (UserModalPage) basePage;
 
-                try {
-
-                    roleTO.setResources(getResourcesSet(resourcesTransfer.getFinalSelections()));
-                    roleTO.setAttributes(getRoleAttributes());
-
-                    if (createFlag) {
-                        restClient.createRole(roleTO);
-                        window.close(target);
-                    } else {
-                        res = restClient.updateRole(convertRoleTOtoRoleMod(roleTO));
-                        if (!res) {
-                            error(getString("error"));
-                        } else {
-                            window.close(target);
-                        }
-                    }
-
-                } catch (Exception e) {
-                    error(getString("error") + ":" + e.getMessage());
+                if(createFlag)
+                    userModalPage.getMembershipTOs().add(membershipTO);
+                else {
+                    userModalPage.getMembershipTOs().remove(membershipTO);
+                    userModalPage.getMembershipTOs().add(membershipTO);
                 }
+                window.close(target);
             }
 
             @Override
@@ -308,40 +217,18 @@ public class RoleModalPage extends SyncopeModalPage {
 
         form.add(submit);
 
+
+        container = new WebMarkupContainer("container");
+        container.add(userAttributesView);
+        container.setOutputMarkupId(true);
+        
         form.add(new FeedbackPanel("feedback").setOutputMarkupId(true));
+        form.add(container);
 
         add(form);
     }
 
-    public void setupSchemaWrappers(boolean create, RoleTO roleTO) {
-
-        schemaWrappers = new ArrayList<SchemaWrapper>();
-        SchemaWrapper schemaWrapper;
-
-        SchemaRestClient schemaRestClient = (SchemaRestClient)
-                ((SyncopeApplication) Application.get()).getApplicationContext().getBean("schemaRestClient");
-
-        SchemaTOs schemas = schemaRestClient.getAllRoleSchemas();
-
-        if (create) {
-            for (SchemaTO schema : schemas) {
-                schemaWrapper = new SchemaWrapper(schema);
-                schemaWrappers.add(schemaWrapper);
-            }
-        } else {
-            for (SchemaTO schema : schemas) {
-                for (AttributeTO attribute : roleTO.getAttributes()) {
-                    if (schema.getName().equals(attribute.getSchema())) {
-                        schemaWrapper = new SchemaWrapper(schema);
-                        schemaWrapper.setValues(attribute.getValues());
-                        schemaWrappers.add(schemaWrapper);
-                    }
-                }
-            }
-        }
-    }
-
-    public Set<AttributeTO> getRoleAttributes() {
+        public Set<AttributeTO> getMembershipAttributes() {
 
         Set<AttributeTO> attributes = new HashSet<AttributeTO>();
 
@@ -363,49 +250,36 @@ public class RoleModalPage extends SyncopeModalPage {
         return attributes;
     }
 
-    /**
-     * Covert a resources List<String> to Set<String>.
-     * @return Set<String>
-     */
-    public Set<String> getResourcesSet(List<String> resourcesList) {
-        Set<String> resourcesSet = new HashSet<String>();
+    public void setupSchemaWrappers(boolean create, MembershipTO membershipTO) {
 
-        for (String resource : resourcesList) {
-            resourcesSet.add(resource);
-        }
+        schemaWrappers = new ArrayList<SchemaWrapper>();
+        SchemaWrapper schemaWrapper;
 
-        return resourcesSet;
-    }
+        SchemaRestClient schemaRestClient = (SchemaRestClient) ((SyncopeApplication)
+                Application.get()).getApplicationContext().getBean("schemaRestClient");
 
+        SchemaTOs schemas = schemaRestClient.getAllMemberhipSchemas();
 
-    public RoleMod convertRoleTOtoRoleMod(RoleTO roleTO){
-        RoleMod roleMod = new RoleMod();
-
-        AttributeMod attributeMod;
-        Set<AttributeMod> attributesToUpdate = new HashSet<AttributeMod>();
-
-        for (SchemaWrapper schemaWrapper : schemaWrappers) {
-
-            attributeMod = new AttributeMod();
-            attributeMod.setSchema(schemaWrapper.getSchemaTO().getName());
-            attributeMod.setValuesToBeAdded(new HashSet<String>());
-
-            for (String value : schemaWrapper.getValues()) {
-                attributeMod.getValuesToBeAdded().add(value);
+        if(create) {
+            for (SchemaTO schema : schemas) {
+                schemaWrapper = new SchemaWrapper(schema);
+                schemaWrappers.add(schemaWrapper);
             }
-
-            attributesToUpdate.add(attributeMod);
         }
-
-        roleMod.setId(roleTO.getId());
-        roleMod.setName(roleTO.getName());
-
-        roleMod.setAttributesToBeUpdated(attributesToUpdate);
-
-        return roleMod;
+        else {
+            for (SchemaTO schema : schemas) {
+                for (AttributeTO attribute : membershipTO.getAttributes()) {
+                    if (schema.getName().equals(attribute.getSchema())) {
+                        schemaWrapper = new SchemaWrapper(schema);
+                        schemaWrapper.setValues(attribute.getValues());
+                        schemaWrappers.add(schemaWrapper);
+                    }
+                }
+            }
+        }
     }
 
-    /**
+  /**
      * Wrapper for User's Schema - Attribute.
      */
     public class SchemaWrapper {
@@ -436,8 +310,8 @@ public class RoleModalPage extends SyncopeModalPage {
         }
 
         public void setValues(Set<String> values) {
+            this.values = new ArrayList<String>();
             for (String value : values) {
-                this.values = new ArrayList<String>();
                 this.values.add(value);
             }
         }

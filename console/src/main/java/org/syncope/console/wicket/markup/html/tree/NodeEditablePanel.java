@@ -1,12 +1,12 @@
 /*
  *  Copyright 2010 sara.
- * 
+ *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,51 +22,50 @@ import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.to.RoleTO;
 import org.syncope.console.pages.RoleModalPage;
+import org.syncope.console.pages.Roles;
+import org.syncope.console.rest.RolesRestClient;
 
 /**
- *
+ * Panel for a node element form.
  */
-public class ParentEditablePanel extends Panel {
-
-    final ModalWindow createRoleWin;
-    final int WIN_USER_HEIGHT = 680;
-    final int WIN_USER_WIDTH = 900;
-
+public class NodeEditablePanel extends Panel {
+    @SpringBean(name = "rolesRestClient")
+    RolesRestClient restClient;
     /**
      * Panel constructor.
      *
      * @param id
      *            Markup id
-     *
+     * @param parentId
+     *            Role id
      * @param inputModel
      *            Model of the text field
+     * @param window
+     *            Modal window to open
      */
-    public ParentEditablePanel(String id, IModel inputModel) {
+    public NodeEditablePanel(String id, final Long idRole,IModel inputModel,
+                               final ModalWindow window) {
         super(id);
-
-        add(createRoleWin = new ModalWindow("createRoleWin"));
-
-        createRoleWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
-        createRoleWin.setInitialHeight(WIN_USER_HEIGHT);
-        createRoleWin.setInitialWidth(WIN_USER_WIDTH);
-        createRoleWin.setPageMapName("create-role-modal");
-        createRoleWin.setCookieName("create-role-modal");
 
         add(new AjaxLink("createRoleLink") {
 
             @Override
             public void onClick(AjaxRequestTarget target) {
-                createRoleWin.setPageCreator(new ModalWindow.PageCreator() {
+                window.setPageCreator(new ModalWindow.PageCreator() {
 
                     public Page createPage() {
-                        RoleModalPage form = new RoleModalPage(null,createRoleWin, new RoleTO(), true);
+                        RoleTO roleTO = new RoleTO();
+                        roleTO.setParent(idRole);
+                        RoleModalPage form = new RoleModalPage
+                                (null,window, roleTO, true);
                         return form;
                     }
                 });
 
-                createRoleWin.show(target);
+                window.show(target);
             }
         });
 
@@ -74,6 +73,17 @@ public class ParentEditablePanel extends Panel {
 
             @Override
             public void onClick(AjaxRequestTarget target) {
+                window.setPageCreator(new ModalWindow.PageCreator() {
+
+                    public Page createPage() {
+                        RoleTO roleTO = restClient.readRole(idRole);
+                        RoleModalPage form =
+                                new RoleModalPage(null, window, roleTO, false);
+                        return form;
+                    }
+                });
+
+                window.show(target);
             }
         });
 
@@ -81,6 +91,8 @@ public class ParentEditablePanel extends Panel {
 
             @Override
             public void onClick(AjaxRequestTarget target) {
+                restClient.deleteRole(idRole);
+                setResponsePage(new Roles(null));
             }
         });
     }

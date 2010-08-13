@@ -23,6 +23,7 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
@@ -42,11 +43,20 @@ public class Connectors extends BasePage {
     
     WebMarkupContainer connectorsContainer;
 
+        /** Response flag set by the Modal Window after the operation is completed  */
+    boolean operationResult = false;
+    FeedbackPanel feedbackPanel;
+
     public Connectors(PageParameters parameters) {
         super(parameters);
 
         add(createConnectorWin = new ModalWindow("createConnectorWin"));
         add(editConnectorWin = new ModalWindow("editConnectorWin"));
+
+        feedbackPanel = new FeedbackPanel("feedback");
+        feedbackPanel.setOutputMarkupId( true );
+
+        add(feedbackPanel);
 
         IModel connectors = new LoadableDetachableModel() {
 
@@ -151,7 +161,20 @@ public class Connectors extends BasePage {
 
                     public void onClose(AjaxRequestTarget target) {
                         target.addComponent(container);
+                        if(operationResult){
+                        info(getString("operation_succeded"));
+                        target.addComponent(feedbackPanel);
+                        operationResult = false;
+                    }
                     }
                 });
+    }
+
+    public boolean isOperationResult() {
+        return operationResult;
+    }
+
+    public void setOperationResult(boolean operationResult) {
+        this.operationResult = operationResult;
     }
 }

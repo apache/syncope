@@ -136,7 +136,9 @@ public class SchemaModalPage extends SyncopeModalPage
                         restClient.updateMemberhipSchema((SchemaTO)form.getDefaultModelObject());
 
                 }
-
+                Schema callerPage = (Schema)basePage;
+                callerPage.setOperationResult(true);
+                
                 window.close(target);
             }
 

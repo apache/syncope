@@ -14,19 +14,20 @@
  */
 package org.syncope.console.wicket.markup.html.tree;
 
+import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
+import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.markup.html.tree.table.ColumnLocation;
 import org.apache.wicket.extensions.markup.html.tree.table.IColumn;
 import org.apache.wicket.extensions.markup.html.tree.table.IRenderable;
 import org.apache.wicket.extensions.markup.html.tree.table.PropertyRenderableColumn;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.PropertyModel;
 
 public class PropertyEditableColumn extends PropertyRenderableColumn {
-
+ModalWindow window = null;
     /**
      * Column constructor.
      *
@@ -34,23 +35,30 @@ public class PropertyEditableColumn extends PropertyRenderableColumn {
      * @param header
      * @param propertyExpression
      */
-    public PropertyEditableColumn(ColumnLocation location, String header, String propertyExpression) {
+    public PropertyEditableColumn(ColumnLocation location, String header,
+                                  String propertyExpression,ModalWindow window)
+    {
         super(location, header, propertyExpression);
+        
+        this.window = window;
     }
 
     /**
      * @see IColumn#newCell(MarkupContainer, String, TreeNode, int)
      */
     @Override
-    public Component newCell(MarkupContainer parent, String id, TreeNode node, int level) {
-        Panel editablePanel;
-        if(node.isLeaf())
-            editablePanel = new LeafEditablePanel(id, new PropertyModel(node, getPropertyExpression()));
-        else
-            editablePanel = new ParentEditablePanel(id, new PropertyModel(node, getPropertyExpression()));
+    public Component newCell(MarkupContainer parent, String id, 
+            TreeNode node, int level) {
+        DefaultMutableTreeNode syncopeTreeNode = (DefaultMutableTreeNode) node;
+        TreeModelBean treeModel = (TreeModelBean) syncopeTreeNode.getUserObject();
+
+        NodeEditablePanel editablePanel;
+        
+        editablePanel = new NodeEditablePanel(id, treeModel.getTreeNode().getId(),
+                    new PropertyModel(node, getPropertyExpression()),window);
+
 
         return editablePanel;
-
     }
 
     /**

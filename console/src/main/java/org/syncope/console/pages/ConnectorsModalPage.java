@@ -190,13 +190,14 @@ public class ConnectorsModalPage extends SyncopeModalPage {
                      else
                         restClient.updateConnector(connector);
 
+                    Connectors callerPage = (Connectors)basePage;
+                    callerPage.setOperationResult(true);
+
                     window.close(target);
-                    
+
                 } catch (Exception e) {
                     error(getString("error") + ":" + e.getMessage());
                 }
-
-                
             }
 
             @Override

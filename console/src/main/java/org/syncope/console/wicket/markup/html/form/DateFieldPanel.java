@@ -20,7 +20,6 @@ package org.syncope.console.wicket.markup.html.form;
 import java.util.Date;
 import org.apache.wicket.extensions.yui.calendar.DatePicker;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -45,7 +44,7 @@ public class DateFieldPanel extends Panel {
             add(new Label("required", ""));
         }
 
-        TextField dateField = new TextField("dateField", model, Date.class);
+        UpdatingTextField dateField = new UpdatingTextField("dateField", model, Date.class);
         dateField.setRequired(required);
         dateField.setLabel(new Model(name));
         dateField.add(new DatePicker());

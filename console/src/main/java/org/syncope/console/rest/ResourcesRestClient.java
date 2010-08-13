@@ -19,7 +19,7 @@ import org.syncope.client.to.ResourceTOs;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 
 /**
- * Console client for invoking Rest Connectors services.
+ * Console client for invoking Rest Resources services.
  */
 public class ResourcesRestClient {
 
@@ -27,7 +27,7 @@ public class ResourcesRestClient {
 
     /**
      * Get all Connectors.
-     * @return SchemaTOs
+     * @return ResourceTOs
      */
     public ResourceTOs getAllResources() {
         ResourceTOs resources = null;
@@ -45,7 +45,7 @@ public class ResourcesRestClient {
 
     /**
      * Create new resource.
-     * @param schemaTO
+     * @param resourceTO
      */
     public void createResource(ResourceTO resourceTO) {
         try{
@@ -60,9 +60,9 @@ public class ResourcesRestClient {
     /**
      * Load an already existent resource by its name.
      * @param name (e.g.:surname)
-     * @return schemaTO
+     * @return ResourceTO
      */
-    public ResourceTO readConnector(String name) {
+    public ResourceTO readResource(String name) {
         ResourceTO resourceTO = null;
 
         try {
@@ -80,12 +80,12 @@ public class ResourcesRestClient {
      * Update an already existent resource.
      * @param schemaTO updated
      */
-    public void updateResource(ResourceTO connectorTO) {
-        ResourceTO resourceTO = null;
+    public void updateResource(ResourceTO resourceTO) {
+        ResourceTO newResourceTO;
 
         try {
-        resourceTO = restClient.getRestTemplate().postForObject
-                (restClient.getBaseURL() + "resource/update.json", connectorTO,
+        newResourceTO = restClient.getRestTemplate().postForObject
+                (restClient.getBaseURL() + "resource/update.json", resourceTO,
                 ResourceTO.class);
         }
         catch (SyncopeClientCompositeErrorException e) {
@@ -96,8 +96,7 @@ public class ResourcesRestClient {
 
     /**
      * Delete an already existent resource by its name.
-     * @param name (e.g.:surname)
-     * @return schemaTO
+     * @param name
      */
     public void deleteResource(String name) {
         try {
