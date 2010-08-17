@@ -31,9 +31,9 @@ import org.syncope.core.persistence.validation.ValidationException;
 public class AttributeDAOTest extends AbstractTest {
 
     @Autowired
-    AttributeDAO attributeDAO;
+    private AttributeDAO attributeDAO;
     @Autowired
-    SchemaDAO userSchemaDAO;
+    private SchemaDAO userSchemaDAO;
 
     @Test
     public final void findAll() {

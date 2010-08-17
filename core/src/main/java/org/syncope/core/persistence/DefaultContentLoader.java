@@ -61,8 +61,7 @@ public class DefaultContentLoader implements ServletContextListener {
             IDatabaseConnection dbUnitConn = new DatabaseConnection(conn);
 
             DatabaseConfig config = dbUnitConn.getConfig();
-            config.setProperty(
-                    "http://www.dbunit.org/properties/datatypeFactory",
+            config.setProperty(DatabaseConfig.PROPERTY_DATATYPE_FACTORY,
                     dbUnitDataTypeFactory);
 
             boolean existingData = false;

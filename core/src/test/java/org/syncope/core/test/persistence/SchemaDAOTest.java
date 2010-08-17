@@ -30,7 +30,7 @@ import org.syncope.types.SchemaType;
 public class SchemaDAOTest extends AbstractTest {
 
     @Autowired
-    SchemaDAO schemaDAO;
+    private SchemaDAO schemaDAO;
 
     @Test
     public final void findAll() {

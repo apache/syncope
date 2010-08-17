@@ -29,9 +29,9 @@ import org.syncope.core.persistence.dao.DerivedSchemaDAO;
 public class DerivedSchemaDAOTest extends AbstractTest {
 
     @Autowired
-    DerivedSchemaDAO derivedSchemaDAO;
+    private DerivedSchemaDAO derivedSchemaDAO;
     @Autowired
-    SchemaDAO schemaDAO;
+    private SchemaDAO schemaDAO;
 
     @Test
     public final void findAll() {

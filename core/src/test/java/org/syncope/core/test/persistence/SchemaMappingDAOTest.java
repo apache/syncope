@@ -29,11 +29,11 @@ import org.syncope.core.persistence.dao.SchemaMappingDAO;
 public class SchemaMappingDAOTest extends AbstractTest {
 
     @Autowired
-    SchemaMappingDAO schemaMappingDAO;
+    private SchemaMappingDAO schemaMappingDAO;
     @Autowired
-    SchemaDAO schemaDAO;
+    private SchemaDAO schemaDAO;
     @Autowired
-    ResourceDAO resourceDAO;
+    private ResourceDAO resourceDAO;
 
     @Test
     public final void findById() {

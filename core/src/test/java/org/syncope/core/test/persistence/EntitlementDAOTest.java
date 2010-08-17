@@ -30,9 +30,9 @@ import org.syncope.core.persistence.dao.SyncopeRoleDAO;
 public class EntitlementDAOTest extends AbstractTest {
 
     @Autowired
-    EntitlementDAO entitlementDAO;
+    private EntitlementDAO entitlementDAO;
     @Autowired
-    SyncopeRoleDAO syncopeRoleDAO;
+    private SyncopeRoleDAO syncopeRoleDAO;
 
     @Test
     public final void findAll() {

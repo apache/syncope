@@ -24,7 +24,6 @@ import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.beans.user.UserAttributeValue;
 import org.syncope.core.persistence.beans.user.UserDerivedAttribute;
 import org.syncope.core.persistence.beans.user.UserDerivedSchema;
-import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.SyncopeUserDAO;
 import org.syncope.core.persistence.dao.DerivedAttributeDAO;
 import org.syncope.core.persistence.dao.DerivedSchemaDAO;
@@ -33,13 +32,11 @@ import org.syncope.core.persistence.dao.DerivedSchemaDAO;
 public class DerivedAttributeDAOTest extends AbstractTest {
 
     @Autowired
-    DerivedAttributeDAO derivedAttributeDAO;
+    private DerivedAttributeDAO derivedAttributeDAO;
     @Autowired
-    SyncopeUserDAO syncopeUserDAO;
+    private SyncopeUserDAO syncopeUserDAO;
     @Autowired
-    DerivedSchemaDAO derivedSchemaDAO;
-    @Autowired
-    SchemaDAO attributeSchemaDAO;
+    private DerivedSchemaDAO derivedSchemaDAO;
 
     @Test
     public final void findAll() {

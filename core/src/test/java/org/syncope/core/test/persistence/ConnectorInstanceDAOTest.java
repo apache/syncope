@@ -30,7 +30,7 @@ import org.syncope.core.rest.data.ConnectorInstanceDataBinder;
 public class ConnectorInstanceDAOTest extends AbstractTest {
 
     @Autowired
-    ConnectorInstanceDAO connectorInstanceDAO;
+    private ConnectorInstanceDAO connectorInstanceDAO;
 
     @Test
     public final void findById() {

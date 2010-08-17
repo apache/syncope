@@ -86,7 +86,7 @@ public abstract class AbstractTest {
         IDatabaseConnection dbUnitConn = new DatabaseConnection(conn);
 
         DatabaseConfig config = dbUnitConn.getConfig();
-        config.setProperty("http://www.dbunit.org/properties/datatypeFactory",
+        config.setProperty(DatabaseConfig.PROPERTY_DATATYPE_FACTORY,
                 dbUnitDataTypeFactory);
 
         FlatXmlDataSetBuilder dataSetBuilder = new FlatXmlDataSetBuilder();
