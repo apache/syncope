@@ -32,7 +32,7 @@ public class MembershipTest extends AbstractTest {
     private MembershipDAO membershipDAO;
 
     @Test
-    public final void test() {
+    public final void delete() {
         Membership membership = membershipDAO.find(4L);
         SyncopeUser user = membership.getSyncopeUser();
         SyncopeRole role = membership.getSyncopeRole();
@@ -47,5 +47,27 @@ public class MembershipTest extends AbstractTest {
         for (Membership m : role.getMemberships()) {
             assertTrue(m.getId() != 4L);
         }
+    }
+
+    @Test
+    public final void deleteAndCreate() {
+        Membership membership = membershipDAO.find(3L);
+        SyncopeUser user = membership.getSyncopeUser();
+        SyncopeRole role = membership.getSyncopeRole();
+
+        // 1. delete that membership
+        membershipDAO.delete(membership.getId());
+
+        // if not flushing here, the INSERT below will be executed 
+        // before the DELETE above
+        membershipDAO.flush();
+
+        // 2. (in the same transaction) create new membership with same user
+        // and role (in order to check the UNIQE constraint on Membership)
+        membership = new Membership();
+        membership.setSyncopeUser(user);
+        membership.setSyncopeRole(role);
+
+        membership = membershipDAO.save(membership);
     }
 }

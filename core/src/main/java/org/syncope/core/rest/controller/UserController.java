@@ -343,7 +343,7 @@ public class UserController extends AbstractController {
             workflowId = userWorkflow.initialize(Constants.USER_WORKFLOW, 0,
                     Collections.singletonMap(Constants.USER_TO, userTO));
         } catch (WorkflowInitException e) {
-            log.error("During workflow initialization: " + e, e);
+            log.error("During workflow initialization: " + e);
             wie = e;
 
             // Removing dirty workflow entry
@@ -363,7 +363,9 @@ public class UserController extends AbstractController {
                             wie.getWorkflowId(), Constants.ACTION_RESET);
                     if (resetActionId != null) {
                         doExecuteAction(Constants.ACTION_RESET,
-                                wie.getSyncopeUserId(), null);
+                                wie.getSyncopeUserId(),
+                                Collections.singletonMap(Constants.USER_TO,
+                                (Object) userTO));
                     }
 
                     userTO.setId(wie.getSyncopeUserId());

@@ -23,6 +23,8 @@ import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 
 @MappedSuperclass
 public abstract class AbstractAttributeValue extends AbstractBaseBean {
@@ -124,4 +126,10 @@ public abstract class AbstractAttributeValue extends AbstractBaseBean {
 
     public abstract <T extends AbstractAttribute> void setAttribute(
             T attribute);
+
+    @Override
+    public String toString() {
+        return ReflectionToStringBuilder.toString(this,
+                ToStringStyle.MULTI_LINE_STYLE);
+    }
 }

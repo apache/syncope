@@ -23,6 +23,8 @@ public interface SyncopeUserDAO extends DAO {
 
     SyncopeUser find(Long id);
 
+    SyncopeUser findByWorkflowId(Long workflowId);
+
     List<SyncopeUser> findByAttributeValue(UserAttributeValue attributeValue);
 
     List<SyncopeUser> findAll();

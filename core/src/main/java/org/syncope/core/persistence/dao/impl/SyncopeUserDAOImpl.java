@@ -37,6 +37,16 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
 
     @Override
     @Transactional(readOnly = true)
+    public SyncopeUser findByWorkflowId(Long workflowId) {
+        Query query = entityManager.createQuery("SELECT e FROM SyncopeUser e "
+                + "WHERE e.workflowId = :workflowId");
+        query.setParameter("workflowId", workflowId);
+        
+        return (SyncopeUser) query.getSingleResult();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<SyncopeUser> findByAttributeValue(
             UserAttributeValue attributeValue) {
 

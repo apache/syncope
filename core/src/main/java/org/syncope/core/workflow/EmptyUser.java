@@ -22,12 +22,13 @@ import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.AbstractAttribute;
 import org.syncope.core.persistence.beans.AbstractDerivedAttribute;
 import org.syncope.core.persistence.beans.membership.Membership;
+import org.syncope.core.persistence.beans.membership.MembershipAttribute;
+import org.syncope.core.persistence.beans.membership.MembershipDerivedAttribute;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.beans.user.UserAttribute;
 import org.syncope.core.persistence.beans.user.UserDerivedAttribute;
 import org.syncope.core.persistence.dao.AttributeDAO;
 import org.syncope.core.persistence.dao.DerivedAttributeDAO;
-import org.syncope.core.persistence.dao.MembershipDAO;
 
 public class EmptyUser extends OSWorkflowComponent
         implements FunctionProvider {
@@ -58,12 +59,21 @@ public class EmptyUser extends OSWorkflowComponent
         }
         syncopeUser.getDerivedAttributes().clear();
 
-        MembershipDAO membershipDAO =
-                (MembershipDAO) context.getBean("membershipDAOImpl");
         for (Membership membership : syncopeUser.getMemberships()) {
-            membershipDAO.delete(membership.getId());
+            for (AbstractAttribute attribute : membership.getAttributes()) {
+                attributeDAO.delete(attribute.getId(),
+                        MembershipAttribute.class);
+            }
+            membership.getAttributes().clear();
+
+            for (AbstractDerivedAttribute derivedAttribute :
+                    membership.getDerivedAttributes()) {
+
+                derivedAttributeDAO.delete(derivedAttribute.getId(),
+                        MembershipDerivedAttribute.class);
+            }
+            membership.getDerivedAttributes().clear();
         }
-        syncopeUser.getMemberships().clear();
 
         syncopeUser.setCreationTime(null);
         syncopeUser.setPassword(null);

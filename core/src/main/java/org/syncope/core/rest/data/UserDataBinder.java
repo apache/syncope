@@ -16,7 +16,10 @@ package org.syncope.core.rest.data;
 
 import com.opensymphony.workflow.Workflow;
 import com.opensymphony.workflow.spi.Step;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import javassist.NotFoundException;
 import javax.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -43,6 +46,10 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
                 new SyncopeClientCompositeErrorException(
                 HttpStatus.BAD_REQUEST);
 
+        // In case of overwrite, take into account memberships formerly
+        // assigned to this user
+        Set<Long> formerMembershipIds = Collections.EMPTY_SET;
+
         // Check if UserTO has a valued id: if so,
         // try to read the user from the db
         SyncopeUser syncopeUser = null;
@@ -54,6 +61,11 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
                 log.error("Could not find user '" + userTO.getId() + "'");
 
                 throw new NotFoundException(String.valueOf(userTO.getId()));
+            }
+
+            formerMembershipIds = new HashSet<Long>();
+            for (Membership membership : syncopeUser.getMemberships()) {
+                formerMembershipIds.add(membership.getId());
             }
         }
 
@@ -90,15 +102,28 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
                             + membershipTO.getRole());
                 }
             } else {
-                Membership membership = new Membership();
-                membership.setSyncopeRole(role);
-                membership.setSyncopeUser(syncopeUser);
+                Membership membership = null;
+                if (syncopeUser.getId() != null) {
+                    membership = membershipDAO.find(syncopeUser, role);
+                }
+                if (membership == null) {
+                    membership = new Membership();
+                    membership.setSyncopeRole(role);
+                    membership.setSyncopeUser(syncopeUser);
+
+                    syncopeUser.addMembership(membership);
+                } else {
+                    formerMembershipIds.remove(membership.getId());
+                }
 
                 membership = (Membership) fill(membership, membershipTO,
                         AttributableUtil.MEMBERSHIP, scce);
-
-                syncopeUser.addMembership(membership);
             }
+        }
+        // Remove from the DB any former membership that has not been
+        // renewed in this overwrite
+        for (Long membershipId : formerMembershipIds) {
+            membershipDAO.delete(membershipId);
         }
 
         return syncopeUser;

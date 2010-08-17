@@ -26,8 +26,8 @@ import org.dbunit.database.DatabaseConfig;
 import org.dbunit.database.DatabaseConnection;
 import org.dbunit.database.IDatabaseConnection;
 import org.dbunit.dataset.IDataSet;
+import org.dbunit.dataset.datatype.DefaultDataTypeFactory;
 import org.dbunit.dataset.xml.FlatXmlDataSetBuilder;
-import org.dbunit.ext.hsqldb.HsqldbDataTypeFactory;
 import org.dbunit.operation.DatabaseOperation;
 import org.junit.Before;
 import org.junit.runner.RunWith;
@@ -49,7 +49,7 @@ public abstract class AbstractTest {
     @Autowired
     private DataSource dataSource;
     @Autowired
-    private HsqldbDataTypeFactory dbUnitDataTypeFactory;
+    private DefaultDataTypeFactory dbUnitDataTypeFactory;
 
     private void logTableContent(Connection conn, String tableName)
             throws SQLException {
