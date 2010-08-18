@@ -57,8 +57,7 @@ public class EntitlementDAOImpl extends AbstractDAOImpl implements EntitlementDA
             return;
         }
 
-        Set<SyncopeRole> roles = entitlement.getRoles();
-        for (SyncopeRole role : roles) {
+        for (SyncopeRole role : entitlement.getRoles()) {
             role.removeEntitlement(entitlement);
             syncopeRoleDAO.save(role);
         }

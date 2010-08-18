@@ -217,7 +217,7 @@ public class PropagationManager {
         String password = user.getPassword();
 
         // get mapping
-        Set<SchemaMapping> mappings = resource.getMappings();
+        List<SchemaMapping> mappings = resource.getMappings();
 
         // set of user attributes
         Set<Attribute> attrs = new HashSet<Attribute>();

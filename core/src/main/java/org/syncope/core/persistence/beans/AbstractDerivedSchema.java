@@ -14,6 +14,7 @@
  */
 package org.syncope.core.persistence.beans;
 
+import java.util.List;
 import java.util.Set;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
@@ -45,9 +46,9 @@ public abstract class AbstractDerivedSchema extends AbstractBaseBean {
 
     public abstract <T extends AbstractDerivedAttribute> boolean removeDerivedAttribute(T derivedAttribute);
 
-    public abstract Set<? extends AbstractDerivedAttribute> getDerivedAttributes();
+    public abstract List<? extends AbstractDerivedAttribute> getDerivedAttributes();
 
-    public abstract <T extends AbstractDerivedAttribute> void setDerivedAttributes(Set<T> derivedAttributes);
+    public abstract <T extends AbstractDerivedAttribute> void setDerivedAttributes(List<T> derivedAttributes);
 
     public abstract <T extends AbstractSchema> boolean addSchema(T schema);
 
@@ -61,7 +62,7 @@ public abstract class AbstractDerivedSchema extends AbstractBaseBean {
 
     public abstract boolean removeMapping(SchemaMapping mapping);
 
-    public abstract Set<SchemaMapping> getMappings();
+    public abstract List<SchemaMapping> getMappings();
 
-    public abstract void setMappings(Set<SchemaMapping> mappings);
+    public abstract void setMappings(List<SchemaMapping> mappings);
 }

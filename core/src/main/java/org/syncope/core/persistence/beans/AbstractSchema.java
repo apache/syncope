@@ -20,7 +20,7 @@ import java.lang.reflect.Constructor;
 import java.text.DecimalFormat;
 import java.text.Format;
 import java.text.SimpleDateFormat;
-import java.util.Set;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
@@ -201,10 +201,10 @@ public abstract class AbstractSchema extends AbstractBaseBean {
     public abstract <T extends AbstractAttribute> boolean removeAttribute(
             T attribute);
 
-    public abstract Set<? extends AbstractAttribute> getAttributes();
+    public abstract List<? extends AbstractAttribute> getAttributes();
 
     public abstract void setAttributes(
-            Set<? extends AbstractAttribute> attributes);
+            List<? extends AbstractAttribute> attributes);
 
     public abstract <T extends AbstractDerivedSchema> boolean addDerivedSchema(
             T derivedSchema);
@@ -212,16 +212,16 @@ public abstract class AbstractSchema extends AbstractBaseBean {
     public abstract <T extends AbstractDerivedSchema> boolean removeDerivedSchema(
             T derivedSchema);
 
-    public abstract Set<? extends AbstractDerivedSchema> getDerivedSchemas();
+    public abstract List<? extends AbstractDerivedSchema> getDerivedSchemas();
 
     public abstract void setDerivedSchemas(
-            Set<? extends AbstractDerivedSchema> derivedSchemas);
+            List<? extends AbstractDerivedSchema> derivedSchemas);
 
     public abstract boolean addMapping(SchemaMapping mapping);
 
     public abstract boolean removeMapping(SchemaMapping mapping);
 
-    public abstract Set<SchemaMapping> getMappings();
+    public abstract List<SchemaMapping> getMappings();
 
-    public abstract void setMappings(Set<SchemaMapping> mappings);
+    public abstract void setMappings(List<SchemaMapping> mappings);
 }

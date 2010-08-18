@@ -196,10 +196,43 @@ class AbstractAttributableDataBinder {
         SyncopeClientException invalidValues = new SyncopeClientException(
                 SyncopeClientExceptionType.InvalidValues);
 
-        // 1. attributes to be updated
         AbstractSchema schema = null;
         AbstractAttribute attribute = null;
         AbstractAttributeValue attributeValue = null;
+        AbstractDerivedSchema derivedSchema = null;
+        AbstractDerivedAttribute derivedAttribute = null;
+
+        // 1. attributes to be removed
+        for (String attributeToBeRemoved :
+                attributableMod.getAttributesToBeRemoved()) {
+
+            schema = getSchema(attributeToBeRemoved,
+                    attributableUtil.getSchemaClass());
+
+            if (schema != null) {
+                for (SchemaMapping mapping : schema.getMappings()) {
+                    if (mapping.getResource() != null) {
+                        resourceOperations.add(Type.UPDATE,
+                                mapping.getResource());
+                    }
+                }
+
+                attribute = attributable.getAttribute(schema.getName());
+                if (attribute == null) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("No attribute found for schema "
+                                + schema.getName());
+                    }
+                } else {
+                    attributable.removeAttribute(attribute);
+
+                    attributeDAO.delete(attribute.getId(),
+                            attributableUtil.getAttributeClass());
+                }
+            }
+        }
+
+        // 2. attributes to be updated
         Set<Long> valuesToBeRemoved = null;
         for (AttributeMod attributeMod :
                 attributableMod.getAttributesToBeUpdated()) {
@@ -247,35 +280,8 @@ class AbstractAttributableDataBinder {
                         attributableUtil, schema, attribute,
                         attributeValue, invalidValues);
 
-                // if no values are in, the attribute can be saely removed
+                // if no values are in, the attribute can be safely removed
                 if (attribute.getAttributeValues().isEmpty()) {
-                    attributeDAO.delete(attribute);
-                }
-            }
-        }
-
-        // 2. attributes to be removed
-        for (String attributeToBeRemoved :
-                attributableMod.getAttributesToBeRemoved()) {
-
-            schema = getSchema(attributeToBeRemoved,
-                    attributableUtil.getSchemaClass());
-
-            if (schema != null) {
-                for (SchemaMapping mapping : schema.getMappings()) {
-                    if (mapping.getResource() != null) {
-                        resourceOperations.add(Type.UPDATE,
-                                mapping.getResource());
-                    }
-                }
-
-                attribute = attributable.getAttribute(schema.getName());
-                if (attribute == null) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("No attribute found for schema "
-                                + schema.getName());
-                    }
-                } else {
                     attributeDAO.delete(attribute);
                 }
             }
@@ -291,30 +297,7 @@ class AbstractAttributableDataBinder {
             compositeErrorException.addException(requiredValuesMissing);
         }
 
-        // 3. derived attributes to be added
-        AbstractDerivedSchema derivedSchema = null;
-        AbstractDerivedAttribute derivedAttribute = null;
-        for (String derivedAttributeToBeAdded :
-                attributableMod.getDerivedAttributesToBeAdded()) {
-
-            derivedSchema = getDerivedSchema(derivedAttributeToBeAdded,
-                    attributableUtil.getDerivedSchemaClass());
-            if (derivedSchema != null) {
-                for (SchemaMapping mapping : derivedSchema.getMappings()) {
-                    if (mapping.getResource() != null) {
-                        resourceOperations.add(Type.UPDATE,
-                                mapping.getResource());
-                    }
-                }
-
-                derivedAttribute = attributableUtil.newDerivedAttribute();
-                derivedAttribute.setDerivedSchema(derivedSchema);
-                derivedAttribute.setOwner(attributable);
-                attributable.addDerivedAttribute(derivedAttribute);
-            }
-        }
-
-        // 4. derived attributes to be removed
+        // 3. derived attributes to be removed
         for (String derivedAttributeToBeRemoved :
                 attributableMod.getDerivedAttributesToBeRemoved()) {
 
@@ -338,6 +321,27 @@ class AbstractAttributableDataBinder {
                 } else {
                     derivedAttributeDAO.delete(derivedAttribute);
                 }
+            }
+        }
+
+        // 4. derived attributes to be added
+        for (String derivedAttributeToBeAdded :
+                attributableMod.getDerivedAttributesToBeAdded()) {
+
+            derivedSchema = getDerivedSchema(derivedAttributeToBeAdded,
+                    attributableUtil.getDerivedSchemaClass());
+            if (derivedSchema != null) {
+                for (SchemaMapping mapping : derivedSchema.getMappings()) {
+                    if (mapping.getResource() != null) {
+                        resourceOperations.add(Type.UPDATE,
+                                mapping.getResource());
+                    }
+                }
+
+                derivedAttribute = attributableUtil.newDerivedAttribute();
+                derivedAttribute.setDerivedSchema(derivedSchema);
+                derivedAttribute.setOwner(attributable);
+                attributable.addDerivedAttribute(derivedAttribute);
             }
         }
 

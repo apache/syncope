@@ -14,11 +14,12 @@
  */
 package org.syncope.core.persistence.beans.membership;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import org.syncope.core.persistence.beans.AbstractDerivedAttribute;
@@ -31,12 +32,12 @@ public class MembershipDerivedSchema extends AbstractDerivedSchema {
 
     @ManyToMany
     private Set<MembershipSchema> schemas;
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "derivedSchema")
-    private Set<MembershipDerivedAttribute> derivedAttributes;
+    @OneToMany(mappedBy = "derivedSchema")
+    private List<MembershipDerivedAttribute> derivedAttributes;
 
     public MembershipDerivedSchema() {
         schemas = new HashSet<MembershipSchema>();
-        derivedAttributes = new HashSet<MembershipDerivedAttribute>();
+        derivedAttributes = new ArrayList<MembershipDerivedAttribute>();
     }
 
     @Override
@@ -74,15 +75,15 @@ public class MembershipDerivedSchema extends AbstractDerivedSchema {
     }
 
     @Override
-    public Set<? extends AbstractDerivedAttribute> getDerivedAttributes() {
+    public List<? extends AbstractDerivedAttribute> getDerivedAttributes() {
         return derivedAttributes;
     }
 
     @Override
     public <T extends AbstractDerivedAttribute> void setDerivedAttributes(
-            Set<T> derivedAttributes) {
+            List<T> derivedAttributes) {
 
-        this.derivedAttributes = (Set<MembershipDerivedAttribute>) derivedAttributes;
+        this.derivedAttributes = (List<MembershipDerivedAttribute>) derivedAttributes;
     }
 
     /**
@@ -110,8 +111,8 @@ public class MembershipDerivedSchema extends AbstractDerivedSchema {
      * @return
      */
     @Override
-    public Set<SchemaMapping> getMappings() {
-        return Collections.EMPTY_SET;
+    public List<SchemaMapping> getMappings() {
+        return Collections.EMPTY_LIST;
     }
 
     /**
@@ -119,6 +120,6 @@ public class MembershipDerivedSchema extends AbstractDerivedSchema {
      * @param mappings
      */
     @Override
-    public void setMappings(Set<SchemaMapping> mappings) {
+    public void setMappings(List<SchemaMapping> mappings) {
     }
 }

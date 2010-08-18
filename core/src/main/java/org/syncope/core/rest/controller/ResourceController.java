@@ -206,7 +206,7 @@ public class ResourceController extends AbstractController {
             }
 
             // remove older mappings
-            Set<SchemaMapping> mappings = resource.getMappings();
+            List<SchemaMapping> mappings = resource.getMappings();
             for (SchemaMapping mapping : mappings) {
                 mapping.setResource(null);
                 schemaMappingDAO.delete(mapping.getId());
@@ -357,7 +357,7 @@ public class ResourceController extends AbstractController {
             }
 
             // resource.getMappings() can never return a null value
-            Set<SchemaMapping> existentMappings = resource.getMappings();
+            List<SchemaMapping> existentMappings = resource.getMappings();
 
             for (SchemaMapping mapping : existentMappings) {
                 schemaMappingDAO.delete(mapping.getId());
@@ -366,7 +366,7 @@ public class ResourceController extends AbstractController {
             // to be sure ...
             resource.getMappings().clear();
 
-            Set<SchemaMapping> schemaMappings =
+            List<SchemaMapping> schemaMappings =
                     binder.getSchemaMappings(resource, mappings);
 
             SchemaMapping actual = null;
@@ -426,7 +426,7 @@ public class ResourceController extends AbstractController {
 
         } else {
 
-            Set<SchemaMapping> mappings = resource.getMappings();
+            List<SchemaMapping> mappings = resource.getMappings();
 
             // resource.getMappings() can never return a null value
 
@@ -469,7 +469,7 @@ public class ResourceController extends AbstractController {
             throw compositeErrorException;
         }
 
-        Set<SchemaMapping> schemaMappings = resource.getMappings();
+        List<SchemaMapping> schemaMappings = resource.getMappings();
 
         // resource.getMappings() can never return a null value
 
@@ -523,7 +523,7 @@ public class ResourceController extends AbstractController {
                 log.debug("Ask for the mappings of '" + resource + "'");
             }
 
-            Set<SchemaMapping> schemaMappings = resource.getMappings();
+            List<SchemaMapping> schemaMappings = resource.getMappings();
 
             if (log.isDebugEnabled()) {
                 log.debug("The mappings of '" + resource + "' are '"

@@ -17,6 +17,7 @@ package org.syncope.core.persistence.beans;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import javax.persistence.FetchType;
@@ -94,10 +95,10 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
 
     public abstract <T extends AbstractAttribute> boolean removeAttribute(T attribute);
 
-    public abstract Set<? extends AbstractAttribute> getAttributes();
+    public abstract List<? extends AbstractAttribute> getAttributes();
 
     public abstract void setAttributes(
-            Set<? extends AbstractAttribute> attributes);
+            List<? extends AbstractAttribute> attributes);
 
     public abstract <T extends AbstractDerivedAttribute> boolean addDerivedAttribute(
             T derivedAttribute);
@@ -105,8 +106,8 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
     public abstract <T extends AbstractDerivedAttribute> boolean removeDerivedAttribute(
             T derivedAttribute);
 
-    public abstract Set<? extends AbstractDerivedAttribute> getDerivedAttributes();
+    public abstract List<? extends AbstractDerivedAttribute> getDerivedAttributes();
 
     public abstract void setDerivedAttributes(
-            Set<? extends AbstractDerivedAttribute> derivedAttributes);
+            List<? extends AbstractDerivedAttribute> derivedAttributes);
 }

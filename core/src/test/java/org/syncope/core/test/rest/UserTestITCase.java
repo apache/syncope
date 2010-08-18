@@ -234,36 +234,45 @@ public class UserTestITCase extends AbstractTestITCase {
         userTO = restTemplate.postForObject(BASE_URL + "user/activate",
                 userTO, UserTO.class);
 
+        assertTrue(userTO.getDerivedAttributes().isEmpty());
+        assertTrue(userTO.getMemberships().isEmpty());
+
         AttributeMod attributeMod = new AttributeMod();
-        attributeMod.setSchema("userId");
-        attributeMod.addValueToBeRemoved("g.h@t.com");
-        attributeMod.addValueToBeAdded("new@t.com");
+        attributeMod.setSchema("subscriptionDate");
+        attributeMod.addValueToBeAdded("2010-08-18T16:33:12.203+0200");
 
         MembershipMod membershipMod = new MembershipMod();
         membershipMod.setRole(8L);
         membershipMod.addAttributeToBeUpdated(attributeMod);
 
-        assertTrue(userTO.getDerivedAttributes().isEmpty());
-        assertTrue(userTO.getMemberships().isEmpty());
+        attributeMod = new AttributeMod();
+        attributeMod.setSchema("userId");
+        attributeMod.addValueToBeAdded("t.w@spre.net");
 
         UserMod userMod = new UserMod();
         userMod.setId(userTO.getId());
         userMod.setPassword("newPassword");
-        userMod.addDerivedAttributeToBeAdded("cn");
+        userMod.addAttributeToBeRemoved("userId");
         userMod.addAttributeToBeUpdated(attributeMod);
+        userMod.addDerivedAttributeToBeAdded("cn");
         userMod.addMembershipMod(membershipMod);
 
         userTO = restTemplate.postForObject(BASE_URL + "user/update",
                 userMod, UserTO.class);
 
         assertEquals("newPassword", userTO.getPassword());
+        assertTrue(userTO.getMemberships().size() == 1);
+        assertTrue(userTO.getMemberships().iterator().next().getAttributes().size() == 1);
+        assertTrue(userTO.getDerivedAttributes().size() == 1);
+        boolean attributeFound = false;
+        for (AttributeTO attributeTO : userTO.getAttributes()) {
+            if ("userId".equals(attributeTO.getSchema())) {
+                attributeFound = true;
 
-        AttributeTO attributeTO = new AttributeTO();
-        attributeTO.setSchema("userId");
-        attributeTO.addValue("new@t.com");
-
-        assertTrue(userTO.getAttributes().contains(attributeTO));
-        assertFalse(userTO.getDerivedAttributes().isEmpty());
-        assertFalse(userTO.getMemberships().isEmpty());
+                assertEquals(Collections.singleton("t.w@spre.net"),
+                        attributeTO.getValues());
+            }
+        }
+        assertTrue(attributeFound);
     }
 }

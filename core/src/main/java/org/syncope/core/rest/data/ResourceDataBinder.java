@@ -14,9 +14,9 @@
  */
 package org.syncope.core.rest.data;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -147,13 +147,13 @@ public class ResourceDataBinder {
         return resourceTO;
     }
 
-    public Set<SchemaMapping> getSchemaMappings(
+    public List<SchemaMapping> getSchemaMappings(
             Resource resource,
             SchemaMappingTOs mappings) {
 
         if (mappings == null) return null;
 
-        Set<SchemaMapping> schemaMappings = new HashSet<SchemaMapping>();
+        List<SchemaMapping> schemaMappings = new ArrayList<SchemaMapping>();
 
         for (SchemaMappingTO mapping : mappings) {
 

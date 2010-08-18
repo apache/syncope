@@ -80,9 +80,8 @@ public class DerivedAttributeDAOTest extends AbstractTest {
         UserAttributeValue surnameAttribute =
                 (UserAttributeValue) owner.getAttribute(
                 "surname").getAttributeValues().iterator().next();
-
-        assertEquals("expected derived value",
-                surnameAttribute.getValue() + ", "
+        
+        assertEquals(surnameAttribute.getValue() + ", "
                 + firstnameAttribute.getValue(),
                 derivedAttribute.getValue(owner.getAttributes()));
     }

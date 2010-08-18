@@ -14,7 +14,7 @@
  */
 package org.syncope.core.test.persistence.relationships;
 
-import java.util.Set;
+import java.util.List;
 import org.syncope.core.test.persistence.*;
 import static org.junit.Assert.*;
 
@@ -32,11 +32,11 @@ import org.syncope.core.persistence.dao.SchemaMappingDAO;
 public class SchemaMappingTest extends AbstractTest {
 
     @Autowired
-    SchemaMappingDAO schemaMappingDAO;
+    private SchemaMappingDAO schemaMappingDAO;
     @Autowired
-    SchemaDAO schemaDAO;
+    private SchemaDAO schemaDAO;
     @Autowired
-    ResourceDAO resourceDAO;
+    private ResourceDAO resourceDAO;
 
     @Test
     public final void save() throws ClassNotFoundException {
@@ -111,7 +111,7 @@ public class SchemaMappingTest extends AbstractTest {
 
         assertNotNull(actualResource);
 
-        Set<SchemaMapping> mappings = actualResource.getMappings();
+        List<SchemaMapping> mappings = actualResource.getMappings();
         if (mappings != null) {
             for (SchemaMapping mapping : mappings) {
                 assertFalse(mapping.getId().equals(id));

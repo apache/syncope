@@ -14,11 +14,10 @@
  */
 package org.syncope.core.persistence.beans.user;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import org.syncope.core.persistence.beans.AbstractAttribute;
@@ -29,23 +28,20 @@ import org.syncope.core.persistence.beans.SchemaMapping;
 @Entity
 public class UserSchema extends AbstractSchema {
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "schema")
-    private Set<UserAttribute> attributes;
-
+    @OneToMany(mappedBy = "schema")
+    private List<UserAttribute> attributes;
     @ManyToMany(mappedBy = "schemas")
-    private Set<UserDerivedSchema> derivedSchemas;
-
+    private List<UserDerivedSchema> derivedSchemas;
     /**
      * All the mappings of the attribute schema.
      */
-    @OneToMany(cascade = CascadeType.MERGE,
-    fetch = FetchType.EAGER, mappedBy = "userSchema")
-    private Set<SchemaMapping> mappings;
+    @OneToMany(cascade = CascadeType.MERGE, mappedBy = "userSchema")
+    private List<SchemaMapping> mappings;
 
     public UserSchema() {
-        attributes = new HashSet<UserAttribute>();
-        derivedSchemas = new HashSet<UserDerivedSchema>();
-        mappings = new HashSet<SchemaMapping>();
+        attributes = new ArrayList<UserAttribute>();
+        derivedSchemas = new ArrayList<UserDerivedSchema>();
+        mappings = new ArrayList<SchemaMapping>();
     }
 
     @Override
@@ -59,13 +55,13 @@ public class UserSchema extends AbstractSchema {
     }
 
     @Override
-    public Set<? extends AbstractAttribute> getAttributes() {
+    public List<? extends AbstractAttribute> getAttributes() {
         return attributes;
     }
 
     @Override
-    public void setAttributes(Set<? extends AbstractAttribute> attributes) {
-        this.attributes = (Set<UserAttribute>) attributes;
+    public void setAttributes(List<? extends AbstractAttribute> attributes) {
+        this.attributes = (List<UserAttribute>) attributes;
     }
 
     @Override
@@ -83,37 +79,43 @@ public class UserSchema extends AbstractSchema {
     }
 
     @Override
-    public Set<? extends AbstractDerivedSchema> getDerivedSchemas() {
+    public List<? extends AbstractDerivedSchema> getDerivedSchemas() {
         return derivedSchemas;
     }
 
     @Override
     public void setDerivedSchemas(
-            Set<? extends AbstractDerivedSchema> derivedSchemas) {
+            List<? extends AbstractDerivedSchema> derivedSchemas) {
 
-        this.derivedSchemas = (Set<UserDerivedSchema>) derivedSchemas;
+        this.derivedSchemas = (List<UserDerivedSchema>) derivedSchemas;
     }
 
     @Override
-    public Set<SchemaMapping> getMappings() {
-        if (this.mappings == null) this.mappings = new HashSet<SchemaMapping>();
+    public List<SchemaMapping> getMappings() {
+        if (this.mappings == null) {
+            this.mappings = new ArrayList<SchemaMapping>();
+        }
         return this.mappings;
     }
 
     @Override
-    public void setMappings(Set<SchemaMapping> mappings) {
+    public void setMappings(List<SchemaMapping> mappings) {
         this.mappings = mappings;
     }
 
     @Override
     public boolean addMapping(SchemaMapping mapping) {
-        if (this.mappings == null) this.mappings = new HashSet<SchemaMapping>();
+        if (this.mappings == null) {
+            this.mappings = new ArrayList<SchemaMapping>();
+        }
         return this.mappings.add(mapping);
     }
 
     @Override
     public boolean removeMapping(SchemaMapping mapping) {
-        if (this.mappings == null) return true;
+        if (this.mappings == null) {
+            return true;
+        }
         return this.mappings.remove(mapping);
     }
 }

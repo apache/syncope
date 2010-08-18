@@ -14,8 +14,8 @@
  */
 package org.syncope.core.persistence.beans.membership;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -29,21 +29,21 @@ import org.syncope.core.persistence.beans.SchemaMapping;
 @Entity
 public class MembershipSchema extends AbstractSchema {
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "schema")
-    private Set<MembershipAttribute> attributes;
+    @OneToMany(mappedBy = "schema")
+    private List<MembershipAttribute> attributes;
     @ManyToMany(mappedBy = "schemas")
-    private Set<MembershipDerivedSchema> derivedSchemas;
+    private List<MembershipDerivedSchema> derivedSchemas;
     /**
      * All the mappings of the attribute schema.
      */
     @OneToMany(cascade = CascadeType.MERGE,
     fetch = FetchType.EAGER, mappedBy = "membershipSchema")
-    private Set<SchemaMapping> mappings;
+    private List<SchemaMapping> mappings;
 
     public MembershipSchema() {
-        attributes = new HashSet<MembershipAttribute>();
-        derivedSchemas = new HashSet<MembershipDerivedSchema>();
-        mappings = new HashSet<SchemaMapping>();
+        attributes = new ArrayList<MembershipAttribute>();
+        derivedSchemas = new ArrayList<MembershipDerivedSchema>();
+        mappings = new ArrayList<SchemaMapping>();
     }
 
     @Override
@@ -57,13 +57,13 @@ public class MembershipSchema extends AbstractSchema {
     }
 
     @Override
-    public Set<? extends AbstractAttribute> getAttributes() {
+    public List<? extends AbstractAttribute> getAttributes() {
         return attributes;
     }
 
     @Override
-    public void setAttributes(Set<? extends AbstractAttribute> attributes) {
-        this.attributes = (Set<MembershipAttribute>) attributes;
+    public void setAttributes(List<? extends AbstractAttribute> attributes) {
+        this.attributes = (List<MembershipAttribute>) attributes;
     }
 
     @Override
@@ -81,34 +81,34 @@ public class MembershipSchema extends AbstractSchema {
     }
 
     @Override
-    public Set<? extends AbstractDerivedSchema> getDerivedSchemas() {
+    public List<? extends AbstractDerivedSchema> getDerivedSchemas() {
         return derivedSchemas;
     }
 
     @Override
     public void setDerivedSchemas(
-            Set<? extends AbstractDerivedSchema> derivedSchemas) {
+            List<? extends AbstractDerivedSchema> derivedSchemas) {
 
-        this.derivedSchemas = (Set<MembershipDerivedSchema>) derivedSchemas;
+        this.derivedSchemas = (List<MembershipDerivedSchema>) derivedSchemas;
     }
 
     @Override
-    public Set<SchemaMapping> getMappings() {
+    public List<SchemaMapping> getMappings() {
         if (this.mappings == null) {
-            this.mappings = new HashSet<SchemaMapping>();
+            this.mappings = new ArrayList<SchemaMapping>();
         }
         return this.mappings;
     }
 
     @Override
-    public void setMappings(Set<SchemaMapping> mappings) {
+    public void setMappings(List<SchemaMapping> mappings) {
         this.mappings = mappings;
     }
 
     @Override
     public boolean addMapping(SchemaMapping mapping) {
         if (this.mappings == null) {
-            this.mappings = new HashSet<SchemaMapping>();
+            this.mappings = new ArrayList<SchemaMapping>();
         }
         return this.mappings.add(mapping);
     }

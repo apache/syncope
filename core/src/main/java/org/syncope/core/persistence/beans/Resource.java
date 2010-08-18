@@ -14,7 +14,9 @@
  */
 package org.syncope.core.persistence.beans;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -34,31 +36,27 @@ public class Resource extends AbstractBaseBean {
      */
     @Id
     private String name;
-
     /**
      * The resource type is identified by the associated connector.
      */
     @ManyToOne(fetch = FetchType.EAGER)
     private ConnectorInstance connector;
-
     /**
      * Users associated to this resource.
      */
     @ManyToMany(fetch = FetchType.EAGER)
     private Set<SyncopeUser> users;
-
     /**
      * Roles associated to this resource.
      */
     @ManyToMany(fetch = FetchType.EAGER)
     private Set<SyncopeRole> roles;
-
     /**
      * Attribute mappings.
      */
     @OneToMany(cascade = {CascadeType.REFRESH, CascadeType.MERGE},
-    fetch = FetchType.EAGER, mappedBy = "resource")
-    private Set<SchemaMapping> mappings;
+    mappedBy = "resource")
+    private List<SchemaMapping> mappings;
 
     public ConnectorInstance getConnector() {
         return connector;
@@ -68,22 +66,28 @@ public class Resource extends AbstractBaseBean {
         this.connector = connector;
     }
 
-    public Set<SchemaMapping> getMappings() {
-        if (this.mappings == null) this.mappings = new HashSet<SchemaMapping>();
+    public List<SchemaMapping> getMappings() {
+        if (this.mappings == null) {
+            this.mappings = new ArrayList<SchemaMapping>();
+        }
         return this.mappings;
     }
 
     public boolean removeMapping(SchemaMapping mapping) {
-        if (this.mappings == null) return true;
+        if (this.mappings == null) {
+            return true;
+        }
         return this.mappings.remove(mapping);
     }
 
     public boolean addMapping(SchemaMapping mapping) {
-        if (this.mappings == null) this.mappings = new HashSet<SchemaMapping>();
+        if (this.mappings == null) {
+            this.mappings = new ArrayList<SchemaMapping>();
+        }
         return this.mappings.add(mapping);
     }
 
-    public void setMappings(Set<SchemaMapping> mappings) {
+    public void setMappings(List<SchemaMapping> mappings) {
         this.mappings = mappings;
     }
 
@@ -96,17 +100,23 @@ public class Resource extends AbstractBaseBean {
     }
 
     public Set<SyncopeRole> getRoles() {
-        if (this.roles == null) this.roles = new HashSet<SyncopeRole>();
+        if (this.roles == null) {
+            this.roles = new HashSet<SyncopeRole>();
+        }
         return this.roles;
     }
 
     public boolean addRole(SyncopeRole role) {
-        if (this.roles == null) this.roles = new HashSet<SyncopeRole>();
+        if (this.roles == null) {
+            this.roles = new HashSet<SyncopeRole>();
+        }
         return this.roles.add(role);
     }
 
     public boolean removeRole(SyncopeRole role) {
-        if (this.roles == null) return true;
+        if (this.roles == null) {
+            return true;
+        }
         return this.roles.remove(role);
     }
 
@@ -115,17 +125,23 @@ public class Resource extends AbstractBaseBean {
     }
 
     public Set<SyncopeUser> getUsers() {
-        if (this.users == null) this.users = new HashSet<SyncopeUser>();
+        if (this.users == null) {
+            this.users = new HashSet<SyncopeUser>();
+        }
         return this.users;
     }
 
     public boolean addUser(SyncopeUser user) {
-        if (this.users == null) this.users = new HashSet<SyncopeUser>();
+        if (this.users == null) {
+            this.users = new HashSet<SyncopeUser>();
+        }
         return this.users.add(user);
     }
 
     public boolean removeUser(SyncopeUser user) {
-        if (this.users == null) return true;
+        if (this.users == null) {
+            return true;
+        }
         return this.users.remove(user);
     }
 

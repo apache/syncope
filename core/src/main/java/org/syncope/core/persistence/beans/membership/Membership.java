@@ -14,12 +14,12 @@
  */
 package org.syncope.core.persistence.beans.membership;
 
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -46,16 +46,14 @@ public class Membership extends AbstractAttributable {
     private SyncopeUser syncopeUser;
     @ManyToOne
     private SyncopeRole syncopeRole;
-    @OneToMany(cascade = CascadeType.ALL,
-    fetch = FetchType.EAGER, mappedBy = "owner")
-    private Set<MembershipAttribute> attributes;
-    @OneToMany(cascade = CascadeType.ALL,
-    fetch = FetchType.EAGER, mappedBy = "owner")
-    private Set<MembershipDerivedAttribute> derivedAttributes;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
+    private List<MembershipAttribute> attributes;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
+    private List<MembershipDerivedAttribute> derivedAttributes;
 
     public Membership() {
-        attributes = new HashSet<MembershipAttribute>();
-        derivedAttributes = new HashSet<MembershipDerivedAttribute>();
+        attributes = new ArrayList<MembershipAttribute>();
+        derivedAttributes = new ArrayList<MembershipDerivedAttribute>();
     }
 
     public Long getId() {
@@ -89,13 +87,13 @@ public class Membership extends AbstractAttributable {
     }
 
     @Override
-    public Set<? extends AbstractAttribute> getAttributes() {
+    public List<? extends AbstractAttribute> getAttributes() {
         return attributes;
     }
 
     @Override
-    public void setAttributes(Set<? extends AbstractAttribute> attributes) {
-        this.attributes = (Set<MembershipAttribute>) attributes;
+    public void setAttributes(List<? extends AbstractAttribute> attributes) {
+        this.attributes = (List<MembershipAttribute>) attributes;
     }
 
     @Override
@@ -115,16 +113,16 @@ public class Membership extends AbstractAttributable {
     }
 
     @Override
-    public Set<? extends AbstractDerivedAttribute> getDerivedAttributes() {
+    public List<? extends AbstractDerivedAttribute> getDerivedAttributes() {
         return derivedAttributes;
     }
 
     @Override
     public void setDerivedAttributes(
-            Set<? extends AbstractDerivedAttribute> derivedAttributes) {
+            List<? extends AbstractDerivedAttribute> derivedAttributes) {
 
         this.derivedAttributes =
-                (Set<MembershipDerivedAttribute>) derivedAttributes;
+                (List<MembershipDerivedAttribute>) derivedAttributes;
     }
 
     @Override

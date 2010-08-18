@@ -14,11 +14,10 @@
  */
 package org.syncope.core.persistence.beans.role;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import org.syncope.core.persistence.beans.AbstractAttribute;
@@ -29,21 +28,20 @@ import org.syncope.core.persistence.beans.SchemaMapping;
 @Entity
 public class RoleSchema extends AbstractSchema {
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "schema")
-    private Set<RoleAttribute> attributes;
+    @OneToMany(mappedBy = "schema")
+    private List<RoleAttribute> attributes;
     @ManyToMany(mappedBy = "schemas")
-    private Set<RoleDerivedSchema> derivedSchemas;
+    private List<RoleDerivedSchema> derivedSchemas;
     /**
      * All the mappings of the attribute schema.
      */
-    @OneToMany(cascade = CascadeType.MERGE,
-    fetch = FetchType.EAGER, mappedBy = "roleSchema")
-    private Set<SchemaMapping> mappings;
+    @OneToMany(cascade = CascadeType.MERGE, mappedBy = "roleSchema")
+    private List<SchemaMapping> mappings;
 
     public RoleSchema() {
-        attributes = new HashSet<RoleAttribute>();
-        derivedSchemas = new HashSet<RoleDerivedSchema>();
-        mappings = new HashSet<SchemaMapping>();
+        attributes = new ArrayList<RoleAttribute>();
+        derivedSchemas = new ArrayList<RoleDerivedSchema>();
+        mappings = new ArrayList<SchemaMapping>();
     }
 
     @Override
@@ -57,13 +55,13 @@ public class RoleSchema extends AbstractSchema {
     }
 
     @Override
-    public Set<? extends AbstractAttribute> getAttributes() {
+    public List<? extends AbstractAttribute> getAttributes() {
         return attributes;
     }
 
     @Override
-    public void setAttributes(Set<? extends AbstractAttribute> attributes) {
-        this.attributes = (Set<RoleAttribute>) attributes;
+    public void setAttributes(List<? extends AbstractAttribute> attributes) {
+        this.attributes = (List<RoleAttribute>) attributes;
     }
 
     @Override
@@ -81,24 +79,24 @@ public class RoleSchema extends AbstractSchema {
     }
 
     @Override
-    public Set<? extends AbstractDerivedSchema> getDerivedSchemas() {
+    public List<? extends AbstractDerivedSchema> getDerivedSchemas() {
         return derivedSchemas;
     }
 
     @Override
     public void setDerivedSchemas(
-            Set<? extends AbstractDerivedSchema> derivedSchemas) {
+            List<? extends AbstractDerivedSchema> derivedSchemas) {
 
-        this.derivedSchemas = (Set<RoleDerivedSchema>) derivedSchemas;
+        this.derivedSchemas = (List<RoleDerivedSchema>) derivedSchemas;
     }
 
     @Override
-    public Set<SchemaMapping> getMappings() {
+    public List<SchemaMapping> getMappings() {
         return mappings;
     }
 
     @Override
-    public void setMappings(Set<SchemaMapping> mappings) {
+    public void setMappings(List<SchemaMapping> mappings) {
         this.mappings = mappings;
     }
 

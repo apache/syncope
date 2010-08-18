@@ -14,7 +14,7 @@
  */
 package org.syncope.core.test.persistence;
 
-import java.util.Set;
+import java.util.List;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
@@ -53,7 +53,7 @@ public class ResourceDAOTest extends AbstractTest {
         assertEquals("invalid bundle version",
                 "0.1-SNAPSHOT", connector.getVersion());
 
-        Set<SchemaMapping> mappings = resource.getMappings();
+        List<SchemaMapping> mappings = resource.getMappings();
 
         assertNotNull("mappings not found", mappings);
 

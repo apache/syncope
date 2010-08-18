@@ -15,6 +15,7 @@
 package org.syncope.core.test.persistence.relationships;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -119,7 +120,7 @@ public class ResourceTest extends AbstractTest {
 
         assertNotNull(connector);
 
-        Set<Resource> resources = connector.getResources();
+        List<Resource> resources = connector.getResources();
 
         assertNotNull(resources);
 
@@ -130,7 +131,7 @@ public class ResourceTest extends AbstractTest {
         assertTrue(resource.getConnector().equals(connector));
 
         // check mappings
-        Set<SchemaMapping> schemaMappings = resource.getMappings();
+        List<SchemaMapping> schemaMappings = resource.getMappings();
 
         assertNotNull(schemaMappings);
 
@@ -147,7 +148,7 @@ public class ResourceTest extends AbstractTest {
         // -------------------------------------
         // Get originally associated mappings
         // -------------------------------------
-        Set<SchemaMapping> mappings = resource.getMappings();
+        List<SchemaMapping> mappings = resource.getMappings();
 
         assertNotNull(mappings);
 
@@ -198,7 +199,7 @@ public class ResourceTest extends AbstractTest {
 
         // resource must be not referenced any more from users
         SyncopeUser actualUser = null;
-        Set<Resource> resources = null;
+        Collection<Resource> resources = null;
         for (Long id : userIds) {
             actualUser = syncopeUserDAO.find(id);
             assertNotNull(actualUser);

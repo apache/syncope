@@ -184,7 +184,7 @@ public class SyncopeRoleDAOImpl extends AbstractDAOImpl
         for (Entitlement entitlement : role.getEntitlements()) {
             entitlement.removeRole(role);
         }
-        role.setEntitlements(Collections.EMPTY_SET);
+        role.setEntitlements(Collections.EMPTY_LIST);
 
         role.setParent(null);
         entityManager.remove(role);

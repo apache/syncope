@@ -15,8 +15,8 @@
 package org.syncope.core.persistence.beans;
 
 import java.util.HashSet;
-import org.syncope.core.persistence.beans.role.SyncopeRole;
 import java.util.Set;
+import org.syncope.core.persistence.beans.role.SyncopeRole;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -28,10 +28,8 @@ public class Entitlement extends AbstractBaseBean {
 
     @Id
     private String name;
-
     @Column(nullable = true)
     private String description;
-
     @ManyToMany(fetch = FetchType.EAGER, mappedBy = "entitlements")
     private Set<SyncopeRole> roles;
 
@@ -52,17 +50,23 @@ public class Entitlement extends AbstractBaseBean {
     }
 
     public boolean addRole(SyncopeRole role) {
-        if (this.roles == null) this.roles = new HashSet<SyncopeRole>();
+        if (this.roles == null) {
+            this.roles = new HashSet<SyncopeRole>();
+        }
         return this.roles.add(role);
     }
 
     public boolean removeRole(SyncopeRole role) {
-        if (this.roles == null) return true;
+        if (this.roles == null) {
+            return true;
+        }
         return this.roles.remove(role);
     }
 
     public Set<SyncopeRole> getRoles() {
-        if (this.roles == null) this.roles = new HashSet<SyncopeRole>();
+        if (this.roles == null) {
+            this.roles = new HashSet<SyncopeRole>();
+        }
         return this.roles;
     }
 

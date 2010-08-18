@@ -26,7 +26,6 @@ import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -63,12 +62,10 @@ public class SyncopeUser extends AbstractAttributable {
     private byte[] password;
     @OneToMany(cascade = CascadeType.MERGE, mappedBy = "syncopeUser")
     private List<Membership> memberships;
-    @OneToMany(cascade = CascadeType.ALL,
-    fetch = FetchType.EAGER, mappedBy = "owner")
-    private Set<UserAttribute> attributes;
-    @OneToMany(cascade = CascadeType.ALL,
-    fetch = FetchType.EAGER, mappedBy = "owner")
-    private Set<UserDerivedAttribute> derivedAttributes;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
+    private List<UserAttribute> attributes;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
+    private List<UserDerivedAttribute> derivedAttributes;
     @Column(nullable = true)
     private Long workflowId;
     @Temporal(TemporalType.TIMESTAMP)
@@ -80,8 +77,8 @@ public class SyncopeUser extends AbstractAttributable {
 
     public SyncopeUser() {
         memberships = new ArrayList<Membership>();
-        attributes = new HashSet<UserAttribute>();
-        derivedAttributes = new HashSet<UserDerivedAttribute>();
+        attributes = new ArrayList<UserAttribute>();
+        derivedAttributes = new ArrayList<UserDerivedAttribute>();
     }
 
     public Long getId() {
@@ -163,13 +160,13 @@ public class SyncopeUser extends AbstractAttributable {
     }
 
     @Override
-    public Set<? extends AbstractAttribute> getAttributes() {
+    public List<? extends AbstractAttribute> getAttributes() {
         return attributes;
     }
 
     @Override
-    public void setAttributes(Set<? extends AbstractAttribute> attributes) {
-        this.attributes = (Set<UserAttribute>) attributes;
+    public void setAttributes(List<? extends AbstractAttribute> attributes) {
+        this.attributes = (List<UserAttribute>) attributes;
     }
 
     @Override
@@ -187,15 +184,15 @@ public class SyncopeUser extends AbstractAttributable {
     }
 
     @Override
-    public Set<? extends AbstractDerivedAttribute> getDerivedAttributes() {
+    public List<? extends AbstractDerivedAttribute> getDerivedAttributes() {
         return derivedAttributes;
     }
 
     @Override
     public void setDerivedAttributes(
-            Set<? extends AbstractDerivedAttribute> derivedAttributes) {
+            List<? extends AbstractDerivedAttribute> derivedAttributes) {
 
-        this.derivedAttributes = (Set<UserDerivedAttribute>) derivedAttributes;
+        this.derivedAttributes = (List<UserDerivedAttribute>) derivedAttributes;
     }
 
     public Long getWorkflowId() {

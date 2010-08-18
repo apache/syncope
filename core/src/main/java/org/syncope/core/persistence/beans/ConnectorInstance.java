@@ -14,12 +14,11 @@
  */
 package org.syncope.core.persistence.beans;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -32,13 +31,11 @@ public class ConnectorInstance extends AbstractBaseBean {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-
     /**
      * Connector class name prefix used to retrieve configuration bean
      */
     @Column(nullable = false)
     private String connectorName;
-
     /**
      * ConnectorBundle-Name: Qualified name for the connector bundle.
      * Within a given deployment, the pair (ConnectorBundle-Name,
@@ -46,7 +43,6 @@ public class ConnectorInstance extends AbstractBaseBean {
      */
     @Column(nullable = false)
     private String bundleName;
-
     /**
      * ConnectorBundle-Version: The version of the bundle. Within a given
      * deployment, the pair (ConnectorBundle-Name, ConnectorBundle-Version)
@@ -54,7 +50,6 @@ public class ConnectorInstance extends AbstractBaseBean {
      */
     @Column(nullable = false)
     private String version;
-
     /**
      * The main configuration for the connector instance.
      * This is directly implemented by the Configuration bean class which
@@ -63,14 +58,13 @@ public class ConnectorInstance extends AbstractBaseBean {
     @Lob
     @Column(nullable = false)
     private String xmlConfiguration;
-
     /**
      * Provisioning target resources associated to the connector.
      * The connector can be considered the resource's type.
      */
     @OneToMany(cascade = {CascadeType.REFRESH, CascadeType.MERGE},
-    fetch = FetchType.EAGER, mappedBy = "connector")
-    private Set<Resource> resources;
+    mappedBy = "connector")
+    private List<Resource> resources;
 
     public String getVersion() {
         return version;
@@ -108,22 +102,28 @@ public class ConnectorInstance extends AbstractBaseBean {
         return id;
     }
 
-    public Set<Resource> getResources() {
-        if (this.resources == null) this.resources = new HashSet<Resource>();
+    public List<Resource> getResources() {
+        if (this.resources == null) {
+            this.resources = new ArrayList<Resource>();
+        }
         return this.resources;
     }
 
-    public void setResources(Set<Resource> resources) {
+    public void setResources(List<Resource> resources) {
         this.resources = resources;
     }
 
     public boolean addResource(Resource resource) {
-        if (this.resources == null) this.resources = new HashSet<Resource>();
+        if (this.resources == null) {
+            this.resources = new ArrayList<Resource>();
+        }
         return this.resources.add(resource);
     }
 
     public boolean removeResource(Resource resource) {
-        if (this.resources == null) return true;
+        if (this.resources == null) {
+            return true;
+        }
         return this.resources.remove(resource);
     }
 }

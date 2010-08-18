@@ -24,15 +24,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.Entitlement;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.dao.EntitlementDAO;
-import org.syncope.core.persistence.dao.SyncopeRoleDAO;
 
 @Transactional
 public class EntitlementDAOTest extends AbstractTest {
 
     @Autowired
     private EntitlementDAO entitlementDAO;
-    @Autowired
-    private SyncopeRoleDAO syncopeRoleDAO;
 
     @Test
     public final void findAll() {

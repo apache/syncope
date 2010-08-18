@@ -14,11 +14,12 @@
  */
 package org.syncope.core.persistence.beans.user;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import org.syncope.core.persistence.beans.AbstractDerivedAttribute;
@@ -31,12 +32,12 @@ public class UserDerivedSchema extends AbstractDerivedSchema {
 
     @ManyToMany
     private Set<UserSchema> schemas;
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "derivedSchema")
-    private Set<UserDerivedAttribute> derivedAttributes;
+    @OneToMany(mappedBy = "derivedSchema")
+    private List<UserDerivedAttribute> derivedAttributes;
 
     public UserDerivedSchema() {
         schemas = new HashSet<UserSchema>();
-        derivedAttributes = new HashSet<UserDerivedAttribute>();
+        derivedAttributes = new ArrayList<UserDerivedAttribute>();
     }
 
     @Override
@@ -74,15 +75,15 @@ public class UserDerivedSchema extends AbstractDerivedSchema {
     }
 
     @Override
-    public Set<? extends AbstractDerivedAttribute> getDerivedAttributes() {
+    public List<? extends AbstractDerivedAttribute> getDerivedAttributes() {
         return derivedAttributes;
     }
 
     @Override
     public <T extends AbstractDerivedAttribute> void setDerivedAttributes(
-            Set<T> derivedAttributes) {
+            List<T> derivedAttributes) {
 
-        this.derivedAttributes = (Set<UserDerivedAttribute>) derivedAttributes;
+        this.derivedAttributes = (List<UserDerivedAttribute>) derivedAttributes;
     }
 
     /**
@@ -110,8 +111,8 @@ public class UserDerivedSchema extends AbstractDerivedSchema {
      * @return
      */
     @Override
-    public Set<SchemaMapping> getMappings() {
-        return Collections.EMPTY_SET;
+    public List<SchemaMapping> getMappings() {
+        return Collections.EMPTY_LIST;
     }
 
     /**
@@ -119,6 +120,6 @@ public class UserDerivedSchema extends AbstractDerivedSchema {
      * @param mappings
      */
     @Override
-    public void setMappings(Set<SchemaMapping> mappings) {
+    public void setMappings(List<SchemaMapping> mappings) {
     }
 }

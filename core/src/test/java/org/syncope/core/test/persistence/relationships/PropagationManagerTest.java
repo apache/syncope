@@ -36,11 +36,11 @@ import org.syncope.core.test.persistence.AbstractTest;
 public class PropagationManagerTest extends AbstractTest {
 
     @Autowired
-    ResourceDAO resourceDAO;
+    private ResourceDAO resourceDAO;
     @Autowired
-    SyncopeUserDAO syncopeUserDAO;
+    private SyncopeUserDAO syncopeUserDAO;
     @Autowired
-    PropagationManager propagationManager;
+    private PropagationManager propagationManager;
 
     @Test
     public final void create() {

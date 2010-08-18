@@ -124,7 +124,7 @@ public class UserController extends AbstractController {
         Integer actionId = findWorkflowAction(syncopeUser.getWorkflowId(),
                 actionName);
         if (actionId == null) {
-            throw new NotFoundException(actionName);
+            throw new NotFoundException("Workflow action '"+ actionName + "'");
         }
 
         try {
@@ -436,16 +436,9 @@ public class UserController extends AbstractController {
             log.debug("update called with parameter " + userMod);
         }
 
-        SyncopeUser syncopeUser = syncopeUserDAO.find(userMod.getId());
-        if (syncopeUser == null) {
-            log.error("Could not find user '" + userMod.getId() + "'");
-
-            throw new NotFoundException(String.valueOf(userMod.getId()));
-        }
-
         // First of all, let's check if update is allowed
-        syncopeUser = doExecuteAction(Constants.ACTION_UPDATE,
-                syncopeUser.getId(), null);
+        SyncopeUser syncopeUser = doExecuteAction(Constants.ACTION_UPDATE,
+                userMod.getId(), null);
 
         // Update user with provided userMod
         ResourceOperations resourceOperations =

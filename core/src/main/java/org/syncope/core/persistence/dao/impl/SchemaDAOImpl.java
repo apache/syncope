@@ -78,13 +78,13 @@ public class SchemaDAOImpl extends AbstractDAOImpl
         for (AbstractDerivedSchema derivedSchema : schema.getDerivedSchemas()) {
             derivedSchema.removeSchema(schema);
         }
-        schema.setDerivedSchemas(Collections.EMPTY_SET);
+        schema.setDerivedSchemas(Collections.EMPTY_LIST);
 
         for (AbstractAttribute attribute : schema.getAttributes()) {
             attribute.setSchema(null);
             attributeDAO.delete(attribute.getId(), attribute.getClass());
         }
-        schema.setAttributes(Collections.EMPTY_SET);
+        schema.setAttributes(Collections.EMPTY_LIST);
 
         for (SchemaMapping schemaMapping : schema.getMappings()) {
             if (schema instanceof UserSchema) {
@@ -99,7 +99,7 @@ public class SchemaDAOImpl extends AbstractDAOImpl
 
             schemaMappingDAO.delete(schemaMapping.getId());
         }
-        schema.setMappings(Collections.EMPTY_SET);
+        schema.setMappings(Collections.EMPTY_LIST);
 
         entityManager.remove(schema);
     }

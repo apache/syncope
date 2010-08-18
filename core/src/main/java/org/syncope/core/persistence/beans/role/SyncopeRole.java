@@ -50,21 +50,19 @@ public class SyncopeRole extends AbstractAttributable {
     @OneToMany(cascade = CascadeType.MERGE, mappedBy = "syncopeRole")
     private List<Membership> memberships;
     @ManyToMany(fetch = FetchType.LAZY)
-    private Set<Entitlement> entitlements;
-    @OneToMany(cascade = CascadeType.ALL,
-    fetch = FetchType.EAGER, mappedBy = "owner")
-    private Set<RoleAttribute> attributes;
-    @OneToMany(cascade = CascadeType.ALL,
-    fetch = FetchType.EAGER, mappedBy = "owner")
-    private Set<RoleDerivedAttribute> derivedAttributes;
+    private List<Entitlement> entitlements;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
+    private List<RoleAttribute> attributes;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
+    private List<RoleDerivedAttribute> derivedAttributes;
     private boolean inheritAttributes;
     private boolean inheritDerivedAttributes;
 
     public SyncopeRole() {
         memberships = new ArrayList<Membership>();
-        entitlements = new HashSet<Entitlement>();
-        attributes = new HashSet<RoleAttribute>();
-        derivedAttributes = new HashSet<RoleDerivedAttribute>();
+        entitlements = new ArrayList<Entitlement>();
+        attributes = new ArrayList<RoleAttribute>();
+        derivedAttributes = new ArrayList<RoleDerivedAttribute>();
     }
 
     public Long getId() {
@@ -95,11 +93,11 @@ public class SyncopeRole extends AbstractAttributable {
         return entitlements.remove(entitlement);
     }
 
-    public Set<Entitlement> getEntitlements() {
+    public List<Entitlement> getEntitlements() {
         return entitlements;
     }
 
-    public void setEntitlements(Set<Entitlement> entitlements) {
+    public void setEntitlements(List<Entitlement> entitlements) {
         this.entitlements = entitlements;
     }
 
@@ -140,13 +138,13 @@ public class SyncopeRole extends AbstractAttributable {
     }
 
     @Override
-    public Set<? extends AbstractAttribute> getAttributes() {
+    public List<? extends AbstractAttribute> getAttributes() {
         return attributes;
     }
 
     @Override
-    public void setAttributes(Set<? extends AbstractAttribute> attributes) {
-        this.attributes = (Set<RoleAttribute>) attributes;
+    public void setAttributes(List<? extends AbstractAttribute> attributes) {
+        this.attributes = (List<RoleAttribute>) attributes;
     }
 
     @Override
@@ -164,15 +162,15 @@ public class SyncopeRole extends AbstractAttributable {
     }
 
     @Override
-    public Set<? extends AbstractDerivedAttribute> getDerivedAttributes() {
+    public List<? extends AbstractDerivedAttribute> getDerivedAttributes() {
         return derivedAttributes;
     }
 
     @Override
     public void setDerivedAttributes(
-            Set<? extends AbstractDerivedAttribute> derivedAttributes) {
+            List<? extends AbstractDerivedAttribute> derivedAttributes) {
 
-        this.derivedAttributes = (Set<RoleDerivedAttribute>) derivedAttributes;
+        this.derivedAttributes = (List<RoleDerivedAttribute>) derivedAttributes;
     }
 
     public boolean isInheritAttributes() {

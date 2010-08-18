@@ -62,7 +62,7 @@ public class ResourceDAOImpl extends AbstractDAOImpl
             return;
         }
 
-        Set<SchemaMapping> mappings = resource.getMappings();
+        List<SchemaMapping> mappings = resource.getMappings();
         if (mappings != null) {
             for (SchemaMapping mapping : mappings) {
                 mapping.setResource(null);
@@ -88,7 +88,7 @@ public class ResourceDAOImpl extends AbstractDAOImpl
         resource.setRoles(null);
 
         ConnectorInstance connector = resource.getConnector();
-        Set<Resource> resources = null;
+        List<Resource> resources = null;
         if (connector != null) {
             resources = connector.getResources();
         }
