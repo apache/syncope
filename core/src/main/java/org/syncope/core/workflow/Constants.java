@@ -27,5 +27,6 @@ public class Constants {
     final public static String MEMBERSHIP = "membership";
     final public static String TOKEN = "token";
     final public static String USER_TO = "userTO";
+    final public static String USER_MOD = "userMod";
     final public static String USER_WORKFLOW = "userWorkflow";
 }

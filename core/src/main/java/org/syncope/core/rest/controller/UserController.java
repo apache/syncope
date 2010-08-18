@@ -124,7 +124,7 @@ public class UserController extends AbstractController {
         Integer actionId = findWorkflowAction(syncopeUser.getWorkflowId(),
                 actionName);
         if (actionId == null) {
-            throw new NotFoundException("Workflow action '"+ actionName + "'");
+            throw new NotFoundException("Workflow action '" + actionName + "'");
         }
 
         try {
@@ -438,7 +438,8 @@ public class UserController extends AbstractController {
 
         // First of all, let's check if update is allowed
         SyncopeUser syncopeUser = doExecuteAction(Constants.ACTION_UPDATE,
-                userMod.getId(), null);
+                userMod.getId(), Collections.singletonMap(Constants.USER_MOD,
+                (Object) userMod));
 
         // Update user with provided userMod
         ResourceOperations resourceOperations =
