@@ -255,7 +255,7 @@ public class UserTestITCase extends AbstractTestITCase {
         userMod.addAttributeToBeRemoved("userId");
         userMod.addAttributeToBeUpdated(attributeMod);
         userMod.addDerivedAttributeToBeAdded("cn");
-        userMod.addMembershipMod(membershipMod);
+        userMod.addMembershipToBeAdded(membershipMod);
 
         userTO = restTemplate.postForObject(BASE_URL + "user/update",
                 userMod, UserTO.class);

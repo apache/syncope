@@ -31,9 +31,9 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
     public SyncopeRole createSyncopeRole(RoleTO roleTO)
             throws SyncopeClientCompositeErrorException {
 
-        SyncopeRole syncopeRole = new SyncopeRole();
-        syncopeRole.setInheritAttributes(roleTO.isInheritAttributes());
-        syncopeRole.setInheritDerivedAttributes(
+        SyncopeRole role = new SyncopeRole();
+        role.setInheritAttributes(roleTO.isInheritAttributes());
+        role.setInheritDerivedAttributes(
                 roleTO.isInheritDerivedAttributes());
 
         SyncopeClientCompositeErrorException scce =
@@ -49,7 +49,7 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
 
             invalidRoles.addElement("No name specified for this role");
         } else {
-            syncopeRole.setName(roleTO.getName());
+            role.setName(roleTO.getName());
         }
         Long parentRoleId = null;
         SyncopeRole parentRole = syncopeRoleDAO.find(roleTO.getParent());
@@ -59,8 +59,8 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
             invalidRoles.addElement(String.valueOf(roleTO.getParent()));
             scce.addException(invalidRoles);
         } else {
-            syncopeRole.setParent(parentRole);
-            parentRoleId = syncopeRole.getParent().getId();
+            role.setParent(parentRole);
+            parentRoleId = role.getParent().getId();
         }
 
         SyncopeRole otherRole = syncopeRoleDAO.find(
@@ -73,14 +73,13 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
         }
 
         // attributes, derived attributes and resources
-        syncopeRole = (SyncopeRole) fill(syncopeRole, roleTO,
+        role = (SyncopeRole) fill(role, roleTO,
                 AttributableUtil.ROLE, scce);
 
-        return syncopeRole;
+        return role;
     }
 
-    public ResourceOperations updateSyncopeRole(
-            SyncopeRole syncopeRole, RoleMod roleMod)
+    public ResourceOperations update(SyncopeRole role, RoleMod roleMod)
             throws SyncopeClientCompositeErrorException {
 
         SyncopeClientCompositeErrorException scce =
@@ -92,7 +91,7 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
                 SyncopeClientExceptionType.InvalidRoles);
         if (roleMod.getName() != null) {
             SyncopeRole otherRole = syncopeRoleDAO.find(
-                    roleMod.getName(), syncopeRole.getParent().getId());
+                    roleMod.getName(), role.getParent().getId());
 
             if (otherRole != null) {
                 log.error("Another role exists with the same name "
@@ -101,24 +100,24 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
                 invalidRoles.addElement(roleMod.getName());
                 scce.addException(invalidRoles);
             } else {
-                syncopeRole.setName(roleMod.getName());
+                role.setName(roleMod.getName());
             }
         }
 
         // inherited attributes
         if (roleMod.isChangeInheritAttributes()) {
-            syncopeRole.setInheritAttributes(
-                    !syncopeRole.isInheritAttributes());
+            role.setInheritAttributes(
+                    !role.isInheritAttributes());
         }
 
         // inherited derived attributes
         if (roleMod.isChangeInheritDerivedAttributes()) {
-            syncopeRole.setInheritDerivedAttributes(
-                    !syncopeRole.isInheritDerivedAttributes());
+            role.setInheritDerivedAttributes(
+                    !role.isInheritDerivedAttributes());
         }
 
         // attributes, derived attributes and resources
-        return fill(syncopeRole, roleMod, AttributableUtil.ROLE, scce);
+        return fill(role, roleMod, AttributableUtil.ROLE, scce);
     }
 
     public RoleTO getRoleTO(SyncopeRole role) {

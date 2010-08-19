@@ -107,11 +107,9 @@ public class UserController extends AbstractController {
             Map<String, Object> moreInputs)
             throws WorkflowException, NotFoundException {
 
-        SyncopeUser syncopeUser = syncopeUserDAO.find(userId);
-
-        if (syncopeUser == null) {
+        SyncopeUser user = syncopeUserDAO.find(userId);
+        if (user == null) {
             log.error("Could not find user '" + userId + "'");
-
             throw new NotFoundException(String.valueOf(userId));
         }
 
@@ -119,22 +117,22 @@ public class UserController extends AbstractController {
         if (moreInputs != null && !moreInputs.isEmpty()) {
             inputs.putAll(moreInputs);
         }
-        inputs.put(Constants.SYNCOPE_USER, syncopeUser);
+        inputs.put(Constants.SYNCOPE_USER, user);
 
-        Integer actionId = findWorkflowAction(syncopeUser.getWorkflowId(),
+        Integer actionId = findWorkflowAction(user.getWorkflowId(),
                 actionName);
         if (actionId == null) {
             throw new NotFoundException("Workflow action '" + actionName + "'");
         }
 
         try {
-            userWorkflow.doAction(syncopeUser.getWorkflowId(),
+            userWorkflow.doAction(user.getWorkflowId(),
                     actionId, inputs);
         } catch (InvalidActionException e) {
             throw new WorkflowException(e);
         }
 
-        return syncopeUserDAO.save(syncopeUser);
+        return syncopeUserDAO.save(user);
     }
 
     @RequestMapping(method = RequestMethod.POST,
@@ -221,10 +219,8 @@ public class UserController extends AbstractController {
             throws NotFoundException {
 
         SyncopeUser user = syncopeUserDAO.find(userId);
-
         if (user == null) {
             log.error("Could not find user '" + userId + "'");
-
             throw new NotFoundException(String.valueOf(userId));
         }
 
@@ -273,10 +269,8 @@ public class UserController extends AbstractController {
             throws NotFoundException {
 
         SyncopeUser user = syncopeUserDAO.find(userId);
-
         if (user == null) {
             log.error("Could not find user '" + userId + "'");
-
             throw new NotFoundException(String.valueOf(userId));
         }
 
@@ -291,7 +285,7 @@ public class UserController extends AbstractController {
         return mav;
     }
 
-    private Set<String> getSyncResourceNames(SyncopeUser syncopeUser,
+    private Set<String> getSyncResourceNames(SyncopeUser user,
             Set<Long> syncRoles, Set<String> syncResources) {
 
         if ((syncRoles == null || syncRoles.isEmpty()
@@ -301,12 +295,12 @@ public class UserController extends AbstractController {
 
         Set<String> syncResourceNames = new HashSet<String>();
 
-        for (Resource resource : syncopeUser.getResources()) {
+        for (Resource resource : user.getResources()) {
             if (syncResources.contains(resource.getName())) {
                 syncResourceNames.add(resource.getName());
             }
         }
-        for (SyncopeRole role : syncopeUser.getRoles()) {
+        for (SyncopeRole role : user.getRoles()) {
             if (syncRoles.contains(role.getId())) {
                 for (Resource resource : role.getResources()) {
                     syncResourceNames.add(resource.getName());
@@ -386,30 +380,30 @@ public class UserController extends AbstractController {
             }
         }
 
-        SyncopeUser syncopeUser = userDataBinder.createSyncopeUser(userTO);
-        syncopeUser.setWorkflowId(workflowId);
-        syncopeUser.setCreationTime(new Date());
-        syncopeUser = syncopeUserDAO.save(syncopeUser);
+        SyncopeUser user = userDataBinder.createSyncopeUser(userTO);
+        user.setWorkflowId(workflowId);
+        user.setCreationTime(new Date());
+        user = syncopeUserDAO.save(user);
 
         // Check if attributes with unique schema have unique values
-        userDataBinder.checkUniqueness(syncopeUser);
+        userDataBinder.checkUniqueness(user);
 
         // Now that user is created locally, let's propagate
         Set<String> syncResourceNames =
-                getSyncResourceNames(syncopeUser, syncRoles, syncResources);
+                getSyncResourceNames(user, syncRoles, syncResources);
         if (log.isDebugEnabled() && !syncResourceNames.isEmpty()) {
             log.debug("About to propagate synchronously onto resources "
                     + syncResourceNames);
         }
         Set<String> propagatedResources =
-                propagationManager.create(syncopeUser, syncResourceNames);
+                propagationManager.create(user, syncResourceNames);
         if (log.isDebugEnabled()) {
             log.debug("Propagated onto resources " + propagatedResources);
         }
 
         // User is created locally and propagated, let's advance on the workflow
         Map<String, Object> inputs = new HashMap<String, Object>();
-        inputs.put(Constants.SYNCOPE_USER, syncopeUser);
+        inputs.put(Constants.SYNCOPE_USER, user);
 
         int[] availableWorkflowActions = userWorkflow.getAvailableActions(
                 workflowId, null);
@@ -417,10 +411,10 @@ public class UserController extends AbstractController {
             userWorkflow.doAction(workflowId, availableWorkflowAction,
                     inputs);
         }
-        syncopeUser = syncopeUserDAO.save(syncopeUser);
+        user = syncopeUserDAO.save(user);
 
         response.setStatus(HttpServletResponse.SC_CREATED);
-        return userDataBinder.getUserTO(syncopeUser, userWorkflow);
+        return userDataBinder.getUserTO(user, userWorkflow);
     }
 
     @RequestMapping(method = RequestMethod.POST,
@@ -437,33 +431,33 @@ public class UserController extends AbstractController {
         }
 
         // First of all, let's check if update is allowed
-        SyncopeUser syncopeUser = doExecuteAction(Constants.ACTION_UPDATE,
+        SyncopeUser user = doExecuteAction(Constants.ACTION_UPDATE,
                 userMod.getId(), Collections.singletonMap(Constants.USER_MOD,
                 (Object) userMod));
 
         // Update user with provided userMod
         ResourceOperations resourceOperations =
-                userDataBinder.updateSyncopeUser(syncopeUser, userMod);
-        syncopeUser = syncopeUserDAO.save(syncopeUser);
+                userDataBinder.update(user, userMod);
+        user = syncopeUserDAO.save(user);
 
         // Check if attributes with unique schema have unique values
-        userDataBinder.checkUniqueness(syncopeUser);
+        userDataBinder.checkUniqueness(user);
 
         // Now that user is update locally, let's propagate
         Set<String> syncResourceNames =
-                getSyncResourceNames(syncopeUser, syncRoles, syncResources);
+                getSyncResourceNames(user, syncRoles, syncResources);
         if (log.isDebugEnabled() && !syncResourceNames.isEmpty()) {
             log.debug("About to propagate synchronously onto resources "
                     + syncResourceNames);
         }
         Set<String> propagatedResources =
-                propagationManager.update(syncopeUser,
+                propagationManager.update(user,
                 resourceOperations, syncResourceNames);
         if (log.isDebugEnabled()) {
             log.debug("Propagated onto resources " + propagatedResources);
         }
 
-        return userDataBinder.getUserTO(syncopeUser, userWorkflow);
+        return userDataBinder.getUserTO(user, userWorkflow);
     }
 
     @RequestMapping(method = RequestMethod.DELETE,

@@ -52,19 +52,19 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
         // Check if UserTO has a valued id: if so,
         // try to read the user from the db
-        SyncopeUser syncopeUser = null;
+        SyncopeUser user = null;
         if (userTO.getId() == 0) {
-            syncopeUser = new SyncopeUser();
+            user = new SyncopeUser();
         } else {
-            syncopeUser = syncopeUserDAO.find(userTO.getId());
-            if (syncopeUser == null) {
+            user = syncopeUserDAO.find(userTO.getId());
+            if (user == null) {
                 log.error("Could not find user '" + userTO.getId() + "'");
 
                 throw new NotFoundException(String.valueOf(userTO.getId()));
             }
 
             formerMembershipIds = new HashSet<Long>();
-            for (Membership membership : syncopeUser.getMemberships()) {
+            for (Membership membership : user.getMemberships()) {
                 formerMembershipIds.add(membership.getId());
             }
         }
@@ -80,7 +80,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
             invalidPassword.addElement("Null password");
         } else {
-            syncopeUser.setPassword(userTO.getPassword());
+            user.setPassword(userTO.getPassword());
         }
 
         if (!invalidPassword.getElements().isEmpty()) {
@@ -88,8 +88,8 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         }
 
         // attributes, derived attributes and resources
-        syncopeUser = (SyncopeUser) fill(
-                syncopeUser, userTO, AttributableUtil.USER, scce);
+        user = (SyncopeUser) fill(
+                user, userTO, AttributableUtil.USER, scce);
 
         // memberships
         SyncopeRole role = null;
@@ -103,15 +103,15 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
                 }
             } else {
                 Membership membership = null;
-                if (syncopeUser.getId() != null) {
-                    membership = membershipDAO.find(syncopeUser, role);
+                if (user.getId() != null) {
+                    membership = membershipDAO.find(user, role);
                 }
                 if (membership == null) {
                     membership = new Membership();
                     membership.setSyncopeRole(role);
-                    membership.setSyncopeUser(syncopeUser);
+                    membership.setSyncopeUser(user);
 
-                    syncopeUser.addMembership(membership);
+                    user.addMembership(membership);
                 } else {
                     formerMembershipIds.remove(membership.getId());
                 }
@@ -126,11 +126,10 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
             membershipDAO.delete(membershipId);
         }
 
-        return syncopeUser;
+        return user;
     }
 
-    public ResourceOperations updateSyncopeUser(
-            SyncopeUser syncopeUser, UserMod userMod)
+    public ResourceOperations update(SyncopeUser user, UserMod userMod)
             throws SyncopeClientCompositeErrorException {
 
         SyncopeClientCompositeErrorException scce =
@@ -139,31 +138,49 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
         // password
         if (userMod.getPassword() != null) {
-            syncopeUser.setPassword(userMod.getPassword());
+            user.setPassword(userMod.getPassword());
         }
 
         // attributes, derived attributes and resources
         ResourceOperations resourceOperations =
-                fill(syncopeUser, userMod, AttributableUtil.USER, scce);
+                fill(user, userMod, AttributableUtil.USER, scce);
 
-        // memberships
+        // memberships to be removed
+        Membership membership = null;
+        for (Long membershipToBeRemovedId :
+                userMod.getMembershipsToBeRemoved()) {
+
+            membership = membershipDAO.find(membershipToBeRemovedId);
+            if (membership == null) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Invalid membership id specified to be removed: "
+                            + membershipToBeRemovedId);
+                }
+            } else {
+                user.removeMembership(membership);
+                membershipDAO.delete(membershipToBeRemovedId);
+            }
+        }
+
+        // memberships to be added
         SyncopeRole role = null;
-        for (MembershipMod membershipMod : userMod.getMembershipMods()) {
-            role = syncopeRoleDAO.find(membershipMod.getRole());
+        for (MembershipMod membershipMod :
+                userMod.getMembershipsToBeAdded()) {
 
+            role = syncopeRoleDAO.find(membershipMod.getRole());
             if (role == null) {
                 if (log.isDebugEnabled()) {
                     log.debug("Ignoring invalid role "
                             + membershipMod.getRole());
                 }
             } else {
-                Membership membership = membershipDAO.find(syncopeUser, role);
+                membership = membershipDAO.find(user, role);
                 if (membership == null) {
                     membership = new Membership();
                     membership.setSyncopeRole(role);
-                    membership.setSyncopeUser(syncopeUser);
+                    membership.setSyncopeUser(user);
 
-                    syncopeUser.addMembership(membership);
+                    user.addMembership(membership);
                 }
 
                 resourceOperations.merge(fill(membership, membershipMod,

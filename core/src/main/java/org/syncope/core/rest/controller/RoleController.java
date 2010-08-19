@@ -54,18 +54,18 @@ public class RoleController extends AbstractController {
             log.debug("create called with parameters " + roleTO);
         }
 
-        SyncopeRole syncopeRole = null;
+        SyncopeRole role = null;
         try {
-            syncopeRole = roleDataBinder.createSyncopeRole(roleTO);
+            role = roleDataBinder.createSyncopeRole(roleTO);
         } catch (SyncopeClientCompositeErrorException e) {
             log.error("Could not create for " + roleTO, e);
 
             throw e;
         }
-        syncopeRole = syncopeRoleDAO.save(syncopeRole);
+        role = syncopeRoleDAO.save(role);
 
         response.setStatus(HttpServletResponse.SC_CREATED);
-        return roleDataBinder.getRoleTO(syncopeRole);
+        return roleDataBinder.getRoleTO(role);
     }
 
     @RequestMapping(method = RequestMethod.DELETE,
@@ -161,18 +161,17 @@ public class RoleController extends AbstractController {
             log.debug("update called with parameter " + roleMod);
         }
 
-        SyncopeRole syncopeRole = syncopeRoleDAO.find(roleMod.getId());
-
-        if (syncopeRole == null) {
+        SyncopeRole role = syncopeRoleDAO.find(roleMod.getId());
+        if (role == null) {
             log.error("Could not find user '" + roleMod.getId() + "'");
 
             throw new NotFoundException(String.valueOf(roleMod.getId()));
         }
 
-       ResourceOperations resourceOperations =
-                roleDataBinder.updateSyncopeRole(syncopeRole, roleMod);
-        syncopeRole = syncopeRoleDAO.save(syncopeRole);
+        ResourceOperations resourceOperations =
+                roleDataBinder.update(role, roleMod);
+        role = syncopeRoleDAO.save(role);
 
-        return roleDataBinder.getRoleTO(syncopeRole);
+        return roleDataBinder.getRoleTO(role);
     }
 }

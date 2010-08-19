@@ -20,26 +20,28 @@ import java.util.Set;
 public class UserMod extends AbstractAttributableMod {
 
     private String password;
-    private Set<MembershipMod> membershipMods;
+    private Set<MembershipMod> membershipsToBeAddeded;
+    private Set<Long> membershipsToBeRemoved;
 
     public UserMod() {
-        membershipMods = new HashSet<MembershipMod>();
+        membershipsToBeAddeded = new HashSet<MembershipMod>();
+        membershipsToBeRemoved = new HashSet<Long>();
     }
 
-    public boolean addMembershipMod(MembershipMod membershipMod) {
-        return membershipMods.add(membershipMod);
+    public boolean addMembershipToBeAdded(MembershipMod membershipMod) {
+        return membershipsToBeAddeded.add(membershipMod);
     }
 
-    public boolean removeMembershipMod(MembershipMod membershipMod) {
-        return membershipMods.remove(membershipMod);
+    public boolean removeMembershipToBeAdded(MembershipMod membershipMod) {
+        return membershipsToBeAddeded.remove(membershipMod);
     }
 
-    public Set<MembershipMod> getMembershipMods() {
-        return membershipMods;
+    public Set<MembershipMod> getMembershipsToBeAdded() {
+        return membershipsToBeAddeded;
     }
 
-    public void setMembershipMods(Set<MembershipMod> membershipMods) {
-        this.membershipMods = membershipMods;
+    public void setMembershipsToBeAdded(Set<MembershipMod> membershipMods) {
+        this.membershipsToBeAddeded = membershipMods;
     }
 
     public String getPassword() {
@@ -48,5 +50,21 @@ public class UserMod extends AbstractAttributableMod {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public boolean addMembershipToBeRemoved(Long membershipToBeRemoved) {
+        return membershipsToBeRemoved.add(membershipToBeRemoved);
+    }
+
+    public boolean removeMembershipToBeRemoved(Long membershipToBeRemoved) {
+        return membershipsToBeRemoved.remove(membershipToBeRemoved);
+    }
+
+    public Set<Long> getMembershipsToBeRemoved() {
+        return membershipsToBeRemoved;
+    }
+
+    public void setMembershipsToBeRemoved(Set<Long> membershipsToBeRemoved) {
+        this.membershipsToBeRemoved = membershipsToBeRemoved;
     }
 }
