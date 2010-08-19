@@ -69,8 +69,6 @@ public class SyncopeUser extends AbstractAttributable {
     private List<UserDerivedAttribute> derivedAttributes;
     @Column(nullable = true)
     private Long workflowId;
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date creationTime;
     @Lob
     private String token;
     @Temporal(TemporalType.TIMESTAMP)
@@ -221,14 +219,6 @@ public class SyncopeUser extends AbstractAttributable {
 
     public void setWorkflowId(Long workflowEntryId) {
         this.workflowId = workflowEntryId;
-    }
-
-    public Date getCreationTime() {
-        return creationTime;
-    }
-
-    public void setCreationTime(Date creationTime) {
-        this.creationTime = creationTime;
     }
 
     public void generateToken(int tokenLength, int tokenExpireTime) {

@@ -16,7 +16,6 @@ package org.syncope.core.workflow;
 
 import com.opensymphony.module.propertyset.PropertySet;
 import com.opensymphony.workflow.WorkflowException;
-import java.util.Collections;
 import java.util.Map;
 import org.syncope.core.persistence.beans.AbstractAttribute;
 import org.syncope.core.persistence.beans.AbstractAttributeValue;
@@ -38,11 +37,9 @@ public class StoreText extends AbstractStoreAttributeValue {
                 attributableUtil.newAttributeValue();
         textAttributeValue.setStringValue(text);
         textAttributeValue.setAttribute(attribute);
-        if (attribute.getSchema().isMultivalue()) {
-            attribute.addAttributeValue(textAttributeValue);
-        } else {
-            attribute.setAttributeValues(
-                    Collections.singletonList(textAttributeValue));
+        if (!attribute.getSchema().isMultivalue()) {
+            attribute.getAttributeValues().clear();
         }
+        attribute.addAttributeValue(textAttributeValue);
     }
 }

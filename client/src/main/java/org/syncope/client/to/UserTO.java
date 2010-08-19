@@ -23,7 +23,6 @@ public class UserTO extends AbstractAttributableTO {
     private String password;
     private Set<MembershipTO> memberships;
     private String status;
-    private Date creationTime;
     private String token;
     private Date tokenExpireTime;
 
@@ -63,14 +62,6 @@ public class UserTO extends AbstractAttributableTO {
 
     public void setStatus(String status) {
         this.status = status;
-    }
-
-    public Date getCreationTime() {
-        return creationTime;
-    }
-
-    public void setCreationTime(Date creationTime) {
-        this.creationTime = creationTime;
     }
 
     public String getToken() {

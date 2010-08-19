@@ -75,7 +75,6 @@ public class EmptyUser extends OSWorkflowComponent
             membership.getDerivedAttributes().clear();
         }
 
-        syncopeUser.setCreationTime(null);
         syncopeUser.setPassword(null);
 
         transientVars.put(Constants.SYNCOPE_USER, syncopeUser);

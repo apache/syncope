@@ -36,7 +36,6 @@ import org.syncope.core.persistence.propagation.PropagationException;
 import org.syncope.core.rest.data.UserDataBinder;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -382,7 +381,6 @@ public class UserController extends AbstractController {
 
         SyncopeUser user = userDataBinder.createSyncopeUser(userTO);
         user.setWorkflowId(workflowId);
-        user.setCreationTime(new Date());
         user = syncopeUserDAO.save(user);
 
         // Check if attributes with unique schema have unique values

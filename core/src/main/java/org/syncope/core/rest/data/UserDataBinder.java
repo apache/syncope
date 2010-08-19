@@ -209,7 +209,6 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
     public UserTO getUserTO(SyncopeUser user, Workflow userWorkflow) {
         UserTO userTO = new UserTO();
         userTO.setId(user.getId());
-        userTO.setCreationTime(user.getCreationTime());
         userTO.setToken(user.getToken());
         userTO.setTokenExpireTime(user.getTokenExpireTime());
         userTO.setPassword(user.getPassword());

@@ -69,4 +69,26 @@ public class SyncopeClientCompositeErrorException
 
         return exceptions.add(exception);
     }
+
+    @Override
+    public String getMessage() {
+        StringBuilder message = new StringBuilder();
+
+        message.append("{");
+        for (SyncopeClientException e : getExceptions()) {
+            message.append("[");
+            message.append(e.getType());
+            message.append(" ");
+            message.append(e.getElements());
+            message.append("], ");
+        }
+        message.append("}");
+
+        return message.toString();
+    }
+
+    @Override
+    public String getLocalizedMessage() {
+        return getMessage();
+    }
 }

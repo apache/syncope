@@ -16,7 +16,6 @@ package org.syncope.core.workflow;
 
 import com.opensymphony.module.propertyset.PropertySet;
 import com.opensymphony.workflow.WorkflowException;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
 import org.syncope.core.persistence.beans.AbstractAttribute;
@@ -33,10 +32,9 @@ public class StoreDate extends AbstractStoreAttributeValue {
         AbstractAttributeValue date = attributableUtil.newAttributeValue();
         date.setDateValue(new Date());
         date.setAttribute(attribute);
-        if (attribute.getSchema().isMultivalue()) {
-            attribute.addAttributeValue(date);
-        } else {
-            attribute.setAttributeValues(Collections.singletonList(date));
+        if (!attribute.getSchema().isMultivalue()) {
+            attribute.getAttributeValues().clear();
         }
+        attribute.addAttributeValue(date);
     }
 }
