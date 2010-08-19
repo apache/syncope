@@ -50,7 +50,7 @@ public class SyncopeRole extends AbstractAttributable {
     @OneToMany(cascade = CascadeType.MERGE, mappedBy = "syncopeRole")
     private List<Membership> memberships;
     @ManyToMany(fetch = FetchType.LAZY)
-    private List<Entitlement> entitlements;
+    private Set<Entitlement> entitlements;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     private List<RoleAttribute> attributes;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
@@ -60,7 +60,7 @@ public class SyncopeRole extends AbstractAttributable {
 
     public SyncopeRole() {
         memberships = new ArrayList<Membership>();
-        entitlements = new ArrayList<Entitlement>();
+        entitlements = new HashSet<Entitlement>();
         attributes = new ArrayList<RoleAttribute>();
         derivedAttributes = new ArrayList<RoleDerivedAttribute>();
     }
@@ -93,11 +93,11 @@ public class SyncopeRole extends AbstractAttributable {
         return entitlements.remove(entitlement);
     }
 
-    public List<Entitlement> getEntitlements() {
+    public Set<Entitlement> getEntitlements() {
         return entitlements;
     }
 
-    public void setEntitlements(List<Entitlement> entitlements) {
+    public void setEntitlements(Set<Entitlement> entitlements) {
         this.entitlements = entitlements;
     }
 

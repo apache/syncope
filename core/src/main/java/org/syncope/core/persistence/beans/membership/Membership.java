@@ -54,6 +54,7 @@ public class Membership extends AbstractAttributable {
     public Membership() {
         attributes = new ArrayList<MembershipAttribute>();
         derivedAttributes = new ArrayList<MembershipDerivedAttribute>();
+        resources = Collections.EMPTY_SET;
     }
 
     public Long getId() {

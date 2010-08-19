@@ -228,6 +228,9 @@ public class UserTestITCase extends AbstractTestITCase {
     @Test
     public void update() {
         UserTO userTO = getSampleTO("g.h@t.com");
+        MembershipTO membershipTO = new MembershipTO();
+        membershipTO.setRole(8L);
+        userTO.addMembership(membershipTO);
 
         userTO = restTemplate.postForObject(BASE_URL + "user/create",
                 userTO, UserTO.class);
@@ -235,14 +238,14 @@ public class UserTestITCase extends AbstractTestITCase {
                 userTO, UserTO.class);
 
         assertTrue(userTO.getDerivedAttributes().isEmpty());
-        assertTrue(userTO.getMemberships().isEmpty());
+        assertTrue(userTO.getMemberships().size() == 1);
 
         AttributeMod attributeMod = new AttributeMod();
         attributeMod.setSchema("subscriptionDate");
         attributeMod.addValueToBeAdded("2010-08-18T16:33:12.203+0200");
 
         MembershipMod membershipMod = new MembershipMod();
-        membershipMod.setRole(8L);
+        membershipMod.setRole(7L);
         membershipMod.addAttributeToBeUpdated(attributeMod);
 
         attributeMod = new AttributeMod();
@@ -256,6 +259,8 @@ public class UserTestITCase extends AbstractTestITCase {
         userMod.addAttributeToBeUpdated(attributeMod);
         userMod.addDerivedAttributeToBeAdded("cn");
         userMod.addMembershipToBeAdded(membershipMod);
+        userMod.addMembershipToBeRemoved(
+                userTO.getMemberships().iterator().next().getId());
 
         userTO = restTemplate.postForObject(BASE_URL + "user/update",
                 userMod, UserTO.class);

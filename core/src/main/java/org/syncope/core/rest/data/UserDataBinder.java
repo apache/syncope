@@ -30,6 +30,7 @@ import org.syncope.client.to.MembershipTO;
 import org.syncope.client.to.UserTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
+import org.syncope.core.persistence.beans.Resource;
 import org.syncope.core.persistence.beans.membership.Membership;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
@@ -157,7 +158,21 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
                             + membershipToBeRemovedId);
                 }
             } else {
+                for (Resource resource :
+                        membership.getSyncopeRole().getResources()) {
+
+                    resourceOperations.add(ResourceOperations.Type.DELETE,
+                            resource);
+                }
+
+                // In order to make the removeMembership() below to work,
+                // we need to be sure to take exactly the same membership
+                // of the user object currently in memory (which has potentially
+                // some modifications compared to the one stored in the DB
+                membership = user.getMembership(
+                        membership.getSyncopeRole().getId());
                 user.removeMembership(membership);
+
                 membershipDAO.delete(membershipToBeRemovedId);
             }
         }
