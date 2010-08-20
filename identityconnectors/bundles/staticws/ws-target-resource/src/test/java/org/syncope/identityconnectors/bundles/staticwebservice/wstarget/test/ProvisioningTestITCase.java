@@ -140,8 +140,8 @@ public class ProvisioningTestITCase {
 
         try {
             WSAttributeValue uid = new WSAttributeValue();
-            uid.setName("username");
-            uid.setValue("test1");
+            uid.setName("userId");
+            uid.setValue("john.doe@gmail.com");
             uid.setKey(true);
 
             WSAttributeValue password = new WSAttributeValue();
@@ -149,36 +149,36 @@ public class ProvisioningTestITCase {
             password.setValue("password");
             password.setPassword(true);
 
+            WSAttributeValue type = new WSAttributeValue();
+            type.setName("type");
+            type.setValue("person");
+
             WSAttributeValue name = new WSAttributeValue();
-            name.setName("nome");
-            name.setValue("test1");
+            name.setName("name");
+            name.setValue("john");
 
             WSAttributeValue surname = new WSAttributeValue();
-            surname.setName("cognome");
-            surname.setValue("test1");
+            surname.setName("surname");
+            surname.setValue("doe");
 
-            WSAttributeValue privacy = new WSAttributeValue();
-            privacy.setName("privacy");
-            privacy.setValue(Boolean.TRUE);
-
-            WSAttributeValue birthday = new WSAttributeValue();
-            birthday.setName("data di nascita");
-            birthday.setValue("12/09/1990");
+            WSAttributeValue birthdate = new WSAttributeValue();
+            birthdate.setName("birthdate");
+            birthdate.setValue("1990-01-01");
 
             List<WSAttributeValue> attrs = new ArrayList<WSAttributeValue>();
             attrs.add(uid);
             attrs.add(password);
+            attrs.add(type);
             attrs.add(name);
             attrs.add(surname);
-            attrs.add(privacy);
-            attrs.add(birthday);
+            attrs.add(birthdate);
 
             provisioning.create(attrs);
 
         } catch (Exception e) {
 
             if (log.isDebugEnabled()) {
-                log.debug("Unknown exception!", e);
+                    log.debug("Unknown exception!", e);
             }
 
             t = e;

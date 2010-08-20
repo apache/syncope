@@ -74,19 +74,23 @@ public class WebServiceConnector implements
      */
     private static final Logger log =
             LoggerFactory.getLogger(WebServiceConnector.class);
+
     /**
      * Place holder for the Connection created in the init method.
      */
     private WebServiceConnection connection;
+
     /**
      * Place holder for the {@link Configuration} passed into the init() method
      * {@link WebServiceConnector#init}.
      */
     private WebServiceConfiguration config;
+
     /**
      * Schema.
      */
     private Schema schema = null;
+
     /**
      * Web Service Attributes.
      */
@@ -286,8 +290,7 @@ public class WebServiceConnector implements
                         "Missing required parameter");
             }
 
-            if (value instanceof GuardedString
-                    || value instanceof GuardedByteArray) {
+            if (value instanceof GuardedString || value instanceof GuardedByteArray) {
 
                 wsAttributeValue.setValue(value.toString());
             } else {
@@ -309,8 +312,7 @@ public class WebServiceConnector implements
 
         if (log.isDebugEnabled()) {
             log.debug(
-                    "\nUser " + accountName
-                    + "\n\tattributes: " + attributes.size());
+                    "\nUser " + accountName + "\n\tattributes: " + attributes.size());
         }
 
         try {
@@ -395,12 +397,7 @@ public class WebServiceConnector implements
 
             if (log.isDebugEnabled()) {
                 log.debug(
-                        "\nAttribute: "
-                        + "\n\tName: " + attribute.getName()
-                        + "\n\tType: " + attribute.getType()
-                        + "\n\tIsKey: " + attribute.isKey()
-                        + "\n\tIsPassword: " + attribute.isPassword()
-                        + "\n\tIsNullable: " + attribute.isNullable());
+                        "\nAttribute: " + "\n\tName: " + attribute.getName() + "\n\tType: " + attribute.getType() + "\n\tIsKey: " + attribute.isKey() + "\n\tIsPassword: " + attribute.isPassword() + "\n\tIsNullable: " + attribute.isNullable());
             }
 
             try {
@@ -608,8 +605,7 @@ public class WebServiceConnector implements
                         "Missing required parameter");
             }
 
-            if (value instanceof GuardedString
-                    || value instanceof GuardedByteArray) {
+            if (value instanceof GuardedString || value instanceof GuardedByteArray) {
 
                 wsAttributeValue.setValue(value.toString());
             } else {

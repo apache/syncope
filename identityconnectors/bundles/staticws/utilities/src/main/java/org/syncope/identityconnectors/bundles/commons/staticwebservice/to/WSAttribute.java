@@ -101,7 +101,8 @@ public class WSAttribute {
 
     public void setKey(boolean key) {
         this.key = key;
-        this.nullable = false;
+        if(key)
+            this.nullable = false;
     }
 
     public boolean isNullable() {

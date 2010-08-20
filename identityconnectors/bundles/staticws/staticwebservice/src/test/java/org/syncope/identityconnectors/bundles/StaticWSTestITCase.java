@@ -269,10 +269,10 @@ public class StaticWSTestITCase {
                 AttributeBuilder.build(Name.NAME, "test"));
 
         Filter nameFilter = FilterBuilder.equalTo(
-                AttributeBuilder.build("nome", "jhon"));
+                AttributeBuilder.build("name", "jhon"));
 
         Filter surnameFilter = FilterBuilder.equalTo(
-                AttributeBuilder.build("cognome", "doe"));
+                AttributeBuilder.build("surname", "doe"));
 
         Filter filter = FilterBuilder.or(
                 usernameFilter,
@@ -302,9 +302,10 @@ public class StaticWSTestITCase {
 
         attrs.add(AttributeBuilder.buildPassword("TESTPASSWORD".toCharArray()));
 
-        attrs.add(AttributeBuilder.build("cognome", "Doe"));
-        attrs.add(AttributeBuilder.build("privacy", true));
-        attrs.add(AttributeBuilder.build("data di nascita", "12/03/1990"));
+        attrs.add(AttributeBuilder.build("name", "John"));
+        attrs.add(AttributeBuilder.build("surname", "Doe"));
+        attrs.add(AttributeBuilder.build("type", "person"));
+        attrs.add(AttributeBuilder.build("birthdate", "12/03/1990"));
 
         Uid userUid = connector.create(ObjectClass.ACCOUNT, attrs, null);
 

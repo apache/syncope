@@ -91,35 +91,172 @@ public class ProvisioningImpl implements Provisioning {
      */
     @Override
     public List<WSAttribute> schema() {
+        if (log.isInfoEnabled()) {
+            log.info("Operation request received");
+        }
+
         List<WSAttribute> attrs = new ArrayList<WSAttribute>();
 
         WSAttribute attr = null;
 
-        attr = new WSAttribute("nome");
-        attrs.add(attr);
-
-        attr = new WSAttribute("cognome");
+        attr = new WSAttribute();
+        attr.setName("userId");
         attr.setNullable(false);
-        attrs.add(attr);
-
-        attr = new WSAttribute("username");
+        attr.setPassword(false);
         attr.setKey(true);
+        attr.setType("String");
         attrs.add(attr);
 
-        attr = new WSAttribute("password");
+        attr = new WSAttribute();
+        attr.setName("password");
+        attr.setNullable(false);
         attr.setPassword(true);
+        attr.setKey(false);
+        attr.setType("String");
         attrs.add(attr);
 
-        attr = new WSAttribute("data di nascita", "Date");
+        attr = new WSAttribute();
+        attr.setName("type");
+        attr.setNullable(false);
+        attr.setPassword(false);
+        attr.setKey(false);
+        attr.setType("String");
         attrs.add(attr);
 
-        attr = new WSAttribute("privacy", "Boolean");
+        attr = new WSAttribute();
+        attr.setName("residence");
+        attr.setNullable(true);
+        attr.setPassword(false);
+        attr.setKey(false);
+        attr.setType("String");
         attrs.add(attr);
 
-        attr = new WSAttribute("altezza", "Double");
+        attr = new WSAttribute();
+        attr.setName("telephone");
+        attr.setNullable(true);
+        attr.setPassword(false);
+        attr.setKey(false);
+        attr.setType("String");
         attrs.add(attr);
 
-        attr = new WSAttribute("eta", "Long");
+        attr = new WSAttribute();
+        attr.setName("fax");
+        attr.setNullable(true);
+        attr.setPassword(false);
+        attr.setKey(false);
+        attr.setType("String");
+        attrs.add(attr);
+
+        attr = new WSAttribute();
+        attr.setName("preference");
+        attr.setNullable(true);
+        attr.setPassword(false);
+        attr.setKey(false);
+        attr.setType("String");
+        attrs.add(attr);
+
+        attr = new WSAttribute();
+        attr.setName("name");
+        attr.setNullable(true);
+        attr.setPassword(false);
+        attr.setKey(false);
+        attr.setType("String");
+        attrs.add(attr);
+
+        attr = new WSAttribute();
+        attr.setName("surname");
+        attr.setNullable(true);
+        attr.setPassword(false);
+        attr.setKey(false);
+        attr.setType("String");
+        attrs.add(attr);
+
+        attr = new WSAttribute();
+        attr.setName("birthdate");
+        attr.setNullable(true);
+        attr.setPassword(false);
+        attr.setKey(false);
+        attr.setType("Date");
+        attrs.add(attr);
+
+        attr = new WSAttribute();
+        attr.setName("telephone");
+        attr.setNullable(true);
+        attr.setPassword(false);
+        attr.setKey(false);
+        attr.setType("String");
+        attrs.add(attr);
+
+        attr = new WSAttribute();
+        attr.setName("gender");
+        attr.setNullable(true);
+        attr.setPassword(false);
+        attr.setKey(false);
+        attr.setType("String");
+        attrs.add(attr);
+
+        attr = new WSAttribute();
+        attr.setName("taxNumber");
+        attr.setNullable(true);
+        attr.setPassword(false);
+        attr.setKey(false);
+        attr.setType("String");
+        attrs.add(attr);
+
+        attr = new WSAttribute();
+        attr.setName("state");
+        attr.setNullable(true);
+        attr.setPassword(false);
+        attr.setKey(false);
+        attr.setType("String");
+        attrs.add(attr);
+
+        attr = new WSAttribute();
+        attr.setName("studyTitle");
+        attr.setNullable(true);
+        attr.setPassword(false);
+        attr.setKey(false);
+        attr.setType("String");
+        attrs.add(attr);
+
+        attr = new WSAttribute();
+        attr.setName("studyArea");
+        attr.setNullable(true);
+        attr.setPassword(false);
+        attr.setKey(false);
+        attr.setType("String");
+        attrs.add(attr);
+
+        attr = new WSAttribute();
+        attr.setName("job");
+        attr.setNullable(true);
+        attr.setPassword(false);
+        attr.setKey(false);
+        attr.setType("String");
+        attrs.add(attr);
+
+        attr = new WSAttribute();
+        attr.setName("companyType");
+        attr.setNullable(true);
+        attr.setPassword(false);
+        attr.setKey(false);
+        attr.setType("String");
+        attrs.add(attr);
+
+        attr = new WSAttribute();
+        attr.setName("companyName");
+        attr.setNullable(true);
+        attr.setPassword(false);
+        attr.setKey(false);
+        attr.setType("String");
+        attrs.add(attr);
+
+        attr = new WSAttribute();
+        attr.setName("vatNumber");
+        attr.setNullable(true);
+        attr.setPassword(false);
+        attr.setKey(false);
+        attr.setType("String");
         attrs.add(attr);
 
         return attrs;
