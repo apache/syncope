@@ -55,7 +55,7 @@ import org.syncope.core.persistence.validation.ValidationException;
 import org.syncope.types.SyncopeClientExceptionType;
 
 @Transactional(rollbackFor = {Throwable.class})
-class AbstractAttributableDataBinder {
+public abstract class AbstractAttributableDataBinder {
 
     protected static final Logger log = LoggerFactory.getLogger(
             AbstractAttributableDataBinder.class);
