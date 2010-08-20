@@ -107,7 +107,6 @@ public class DefaultContentLoader implements ServletContextListener {
             } catch (SQLException e) {
             }
         }
-        log.info("OOOOOOOO " + existingData);
         try {
             IDatabaseConnection dbUnitConn = dbSchema == null
                     ? new DatabaseConnection(conn)

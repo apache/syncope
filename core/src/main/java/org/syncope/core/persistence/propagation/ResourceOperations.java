@@ -56,10 +56,13 @@ public class ResourceOperations {
         switch (type) {
             case CREATE:
                 result = toBeCreated.add(resource);
+                break;
             case UPDATE:
                 result = toBeUpdated.add(resource);
+                break;
             case DELETE:
                 result = toBeDeleted.add(resource);
+                break;
         }
 
         return result;

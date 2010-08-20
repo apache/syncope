@@ -96,10 +96,10 @@ public abstract class AbstractAttributeValue extends AbstractBaseBean {
 
     public <T> T getValue() {
         return (T) (booleanValue != null
-                ? booleanValue : (dateValue != null
-                ? dateValue : (doubleValue != null
-                ? doubleValue : (longValue != null
-                ? longValue : stringValue))));
+                ? getBooleanValue() : (dateValue != null
+                ? getDateValue() : (doubleValue != null
+                ? getDoubleValue() : (longValue != null
+                ? getLongValue() : stringValue))));
     }
 
     public String getValueAsString() {

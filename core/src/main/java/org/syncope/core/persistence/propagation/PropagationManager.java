@@ -147,8 +147,8 @@ public class PropagationManager {
         // synchronous propagation ...
         if (log.isDebugEnabled()) {
             log.debug(
-                    "Synchronous provisioning of " +
-                    syncOperations + " with user " + user);
+                    "Synchronous provisioning of "
+                    + syncOperations + " with user " + user);
         }
 
         for (Type type : ResourceOperations.Type.values()) {
@@ -160,12 +160,12 @@ public class PropagationManager {
 
                 } catch (Throwable t) {
                     log.error(
-                            "Exception during provision on resource " +
-                            resource.getName(), t);
+                            "Exception during provision on resource "
+                            + resource.getName(), t);
 
                     throw new PropagationException(
-                            "Exception during provision on resource " +
-                            resource.getName(), resource.getName(), t);
+                            "Exception during provision on resource "
+                            + resource.getName(), resource.getName(), t);
                 }
             }
         }
@@ -173,8 +173,8 @@ public class PropagationManager {
         // asynchronous propagation ...
         if (log.isDebugEnabled()) {
             log.debug(
-                    "Asynchronous provisioning of " +
-                    asyncOperations + " with user " + user);
+                    "Asynchronous provisioning of "
+                    + asyncOperations + " with user " + user);
         }
 
         for (Type type : ResourceOperations.Type.values()) {
@@ -186,8 +186,8 @@ public class PropagationManager {
 
                 } catch (Throwable t) {
                     log.error(
-                            "Exception during provision on resource " +
-                            resource.getName(), t);
+                            "Exception during provision on resource "
+                            + resource.getName(), t);
                 }
             }
         }
@@ -219,8 +219,8 @@ public class PropagationManager {
 
         if (connector == null) {
             log.error(
-                    "Connector instance bean " +
-                    connectorInstance.getId().toString() + " not found");
+                    "Connector instance bean "
+                    + connectorInstance.getId().toString() + " not found");
 
             throw new NoSuchBeanDefinitionException(
                     "Connector instance bean not found");
@@ -269,13 +269,13 @@ public class PropagationManager {
 
                 if (log.isDebugEnabled()) {
                     log.debug(
-                            "\nDefine mapping for: " +
-                            "\n* Field " + field +
-                            "\n* is accountId " + mapping.isAccountid() +
-                            "\n* is password " + mapping.isPassword() +
-                            "\n* is nullable " + mapping.isNullable() +
-                            "\n* Schema " + schema +
-                            "\n* Type " + schemaType.getClassName());
+                            "\nDefine mapping for: "
+                            + "\n* Field " + field
+                            + "\n* is accountId " + mapping.isAccountid()
+                            + "\n* is password " + mapping.isPassword()
+                            + "\n* is nullable " + mapping.isNullable()
+                            + "\n* Schema " + schema
+                            + "\n* Type " + schemaType.getClassName());
                 }
 
                 // get user attribute object
@@ -323,11 +323,12 @@ public class PropagationManager {
 
                 Object objValue = null;
 
-                if (!objValues.isEmpty())
+                if (!objValues.isEmpty()) {
                     objValue = objValues.iterator().next();
+                }
 
-                if (!mapping.isPassword() &&
-                        !mapping.isAccountid()) {
+                if (!mapping.isPassword()
+                        && !mapping.isAccountid()) {
 
                     if (mapping.getUserSchema().isMultivalue()) {
                         attrs.add(AttributeBuilder.build(
@@ -343,13 +344,13 @@ public class PropagationManager {
             } catch (ClassNotFoundException e) {
 
                 if (log.isWarnEnabled()) {
-                    log.warn("Unsupported attribute type " +
-                            schemaType.getClassName(), e);
+                    log.warn("Unsupported attribute type "
+                            + schemaType.getClassName(), e);
                 }
 
             } catch (Throwable t) {
-                if (log.isWarnEnabled()) {
-                    log.warn("Attribute '" + schema + "' processing failed", t);
+                if (log.isDebugEnabled()) {
+                    log.debug("Attribute '" + schema + "' processing failed", t);
                 }
             }
         }
@@ -370,8 +371,6 @@ public class PropagationManager {
                 break;
 
         }
-
-
 
         if (userUid == null && type != Type.DELETE) {
             log.error(

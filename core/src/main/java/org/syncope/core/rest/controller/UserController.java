@@ -66,16 +66,12 @@ public class UserController extends AbstractController {
 
     @Autowired
     private SyncopeUserDAO syncopeUserDAO;
-
     @Autowired
     private UserDataBinder userDataBinder;
-
     @Autowired
     private Workflow userWorkflow;
-
     @Autowired(required = false)
     private SpringHibernateJPAWorkflowStore workflowStore;
-
     @Autowired
     private PropagationManager propagationManager;
 
@@ -325,7 +321,8 @@ public class UserController extends AbstractController {
             WorkflowException, PropagationException, NotFoundException {
 
         if (log.isDebugEnabled()) {
-            log.debug("create called with parameters " + userTO + "\n" + syncRoles + "\n" + syncResources);
+            log.debug("create called with parameters " + userTO + "\n"
+                    + syncRoles + "\n" + syncResources);
         }
 
         // By default, ignore id in UserTO:
@@ -393,8 +390,8 @@ public class UserController extends AbstractController {
                 getSyncResourceNames(user, syncRoles, syncResources);
 
         if (log.isDebugEnabled() && !syncResourceNames.isEmpty()) {
-            log.debug("About to propagate synchronously onto resources " +
-                    syncResourceNames);
+            log.debug("About to propagate synchronously onto resources "
+                    + syncResourceNames);
         }
 
         Set<String> propagatedResources =
@@ -415,7 +412,7 @@ public class UserController extends AbstractController {
             userWorkflow.doAction(
                     workflowId, availableWorkflowAction, inputs);
         }
-        
+
         user = syncopeUserDAO.save(user);
 
         response.setStatus(HttpServletResponse.SC_CREATED);
