@@ -29,7 +29,7 @@ import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 
 @Entity
-public class Resource extends AbstractBaseBean {
+public class TargetResource extends AbstractBaseBean {
 
     /**
      * The resource identifier is the name.

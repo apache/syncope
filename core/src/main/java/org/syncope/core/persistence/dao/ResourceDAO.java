@@ -15,15 +15,15 @@
 package org.syncope.core.persistence.dao;
 
 import java.util.List;
-import org.syncope.core.persistence.beans.Resource;
+import org.syncope.core.persistence.beans.TargetResource;
 
 public interface ResourceDAO extends DAO {
 
-    Resource find(String name);
+    TargetResource find(String name);
 
-    List<Resource> findAll();
+    List<TargetResource> findAll();
 
-    Resource save(Resource resource);
+    TargetResource save(TargetResource resource);
 
     void delete(String name);
 }

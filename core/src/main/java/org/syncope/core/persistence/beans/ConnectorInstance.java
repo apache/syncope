@@ -64,7 +64,7 @@ public class ConnectorInstance extends AbstractBaseBean {
      */
     @OneToMany(cascade = {CascadeType.REFRESH, CascadeType.MERGE},
     mappedBy = "connector")
-    private List<Resource> resources;
+    private List<TargetResource> resources;
 
     public String getVersion() {
         return version;
@@ -102,25 +102,25 @@ public class ConnectorInstance extends AbstractBaseBean {
         return id;
     }
 
-    public List<Resource> getResources() {
+    public List<TargetResource> getResources() {
         if (this.resources == null) {
-            this.resources = new ArrayList<Resource>();
+            this.resources = new ArrayList<TargetResource>();
         }
         return this.resources;
     }
 
-    public void setResources(List<Resource> resources) {
+    public void setResources(List<TargetResource> resources) {
         this.resources = resources;
     }
 
-    public boolean addResource(Resource resource) {
+    public boolean addResource(TargetResource resource) {
         if (this.resources == null) {
-            this.resources = new ArrayList<Resource>();
+            this.resources = new ArrayList<TargetResource>();
         }
         return this.resources.add(resource);
     }
 
-    public boolean removeResource(Resource resource) {
+    public boolean removeResource(TargetResource resource) {
         if (this.resources == null) {
             return true;
         }

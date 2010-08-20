@@ -21,7 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.ConnectorInstance;
-import org.syncope.core.persistence.beans.Resource;
+import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
@@ -37,27 +37,27 @@ public class ResourceDAOImpl extends AbstractDAOImpl
 
     @Override
     @Transactional(readOnly = true)
-    public Resource find(String name) {
-        return entityManager.find(Resource.class, name);
+    public TargetResource find(String name) {
+        return entityManager.find(TargetResource.class, name);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<Resource> findAll() {
+    public List<TargetResource> findAll() {
         Query query = entityManager.createQuery(
-                "SELECT e FROM Resource e");
+                "SELECT e FROM TargetResource e");
         return query.getResultList();
     }
 
     @Override
-    public Resource save(Resource resource) {
+    public TargetResource save(TargetResource resource) {
         return entityManager.merge(resource);
     }
 
     @Override
     public void delete(String name) {
 
-        Resource resource = find(name);
+        TargetResource resource = find(name);
         if (resource == null) {
             return;
         }
@@ -74,7 +74,7 @@ public class ResourceDAOImpl extends AbstractDAOImpl
         Set<SyncopeUser> users = resource.getUsers();
         if (users != null && !users.isEmpty()) {
             for (SyncopeUser user : users) {
-                user.removeResource(resource);
+                user.removeTargetResource(resource);
             }
         }
         resource.setUsers(null);
@@ -82,13 +82,13 @@ public class ResourceDAOImpl extends AbstractDAOImpl
         Set<SyncopeRole> roles = resource.getRoles();
         if (roles != null && !roles.isEmpty()) {
             for (SyncopeRole role : roles) {
-                role.removeResource(resource);
+                role.removeTargetResource(resource);
             }
         }
         resource.setRoles(null);
 
         ConnectorInstance connector = resource.getConnector();
-        List<Resource> resources = null;
+        List<TargetResource> resources = null;
         if (connector != null) {
             resources = connector.getResources();
         }

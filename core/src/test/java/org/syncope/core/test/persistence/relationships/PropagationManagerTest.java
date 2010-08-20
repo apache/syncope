@@ -24,7 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.propagation.PropagationException;
 import org.syncope.core.persistence.propagation.PropagationManager;
-import org.syncope.core.persistence.beans.Resource;
+import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.dao.SyncopeUserDAO;
@@ -47,7 +47,7 @@ public class PropagationManagerTest extends AbstractTest {
         SyncopeUser user = syncopeUserDAO.find(1L);
         assertNotNull(user);
 
-        Resource resource = resourceDAO.find("ws-target-resource-1");
+        TargetResource resource = resourceDAO.find("ws-target-resource-1");
         assertNotNull(resource);
 
         user.setResources(Collections.singleton(resource));
@@ -67,7 +67,7 @@ public class PropagationManagerTest extends AbstractTest {
         SyncopeUser user = syncopeUserDAO.find(2L);
         assertNotNull(user);
 
-        Resource resource = resourceDAO.find("ws-target-resource-1");
+        TargetResource resource = resourceDAO.find("ws-target-resource-1");
         assertNotNull(resource);
 
         user.setResources(Collections.singleton(resource));
@@ -91,7 +91,7 @@ public class PropagationManagerTest extends AbstractTest {
         SyncopeUser user = syncopeUserDAO.find(3L);
         assertNotNull(user);
 
-        Resource resource = resourceDAO.find("ws-target-resource-2");
+        TargetResource resource = resourceDAO.find("ws-target-resource-2");
         assertNotNull(resource);
 
         user.setResources(Collections.singleton(resource));
@@ -111,7 +111,7 @@ public class PropagationManagerTest extends AbstractTest {
         SyncopeUser user = syncopeUserDAO.find(4L);
         assertNotNull(user);
 
-        Resource resource = resourceDAO.find("ws-target-resource-2");
+        TargetResource resource = resourceDAO.find("ws-target-resource-2");
         assertNotNull(resource);
 
         user.setResources(Collections.singleton(resource));

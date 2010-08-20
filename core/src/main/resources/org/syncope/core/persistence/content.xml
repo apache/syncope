@@ -33,25 +33,25 @@
     <SyncopeConfiguration confKey="identityconnectors.bundle.directory"
                           confValue="/tmp/bundles"/>
 
-    <UserSchema name="surname" type="String" virtual="false"
-                mandatory="true" multivalue="false" uniquevalue="false"/>
-    <UserSchema name="firstname" type="String" virtual="false"
-                mandatory="false" multivalue="false" uniquevalue="false"/>
-    <UserSchema name="email" type="String" virtual="false"
-                mandatory="false" multivalue="true" uniquevalue="false"
+    <UserSchema name="surname" type="String" virtual="F"
+                mandatory="T" multivalue="F" uniquevalue="F"/>
+    <UserSchema name="firstname" type="String" virtual="F"
+                mandatory="F" multivalue="F" uniquevalue="F"/>
+    <UserSchema name="email" type="String" virtual="F"
+                mandatory="F" multivalue="T" uniquevalue="F"
                 validatorClass="org.syncope.core.persistence.validation.EmailAddressValidator"/>
                
     <UserDerivedSchema name="username" expression="firstname + '.' + surname"/>
 
-    <UserDerivedSchema_UserSchema derivedSchemas_name="username"
-                                  schemas_name="firstname"/>
-    <UserDerivedSchema_UserSchema derivedSchemas_name="username"
-                                  schemas_name="surname"/>
+    <UserSchemaDerivation derivedSchemas_name="username"
+                          schemas_name="firstname"/>
+    <UserSchemaDerivation derivedSchemas_name="username"
+                          schemas_name="surname"/>
 
-    <SyncopeRole id="0" name="/" inheritAttributes="FALSE" inheritDerivedAttributes="FALSE"/>
+    <SyncopeRole id="0" name="/" inheritAttributes="F" inheritDerivedAttributes="F"/>
 
-    <MembershipSchema name="subscriptionDate" type="Date" virtual="false"
-                      mandatory="false" multivalue="false" uniquevalue="false"
+    <MembershipSchema name="subscriptionDate" type="Date" virtual="F"
+                      mandatory="F" multivalue="F" uniquevalue="F"
                       conversionPattern="yyyy-MM-dd'T'HH:mm:ss.SSSZ"/>
 
 </dataset>

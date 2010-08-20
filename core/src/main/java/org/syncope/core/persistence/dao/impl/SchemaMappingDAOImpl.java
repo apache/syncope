@@ -18,7 +18,7 @@ import java.util.List;
 import javax.persistence.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import org.syncope.core.persistence.beans.Resource;
+import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.beans.membership.MembershipSchema;
 import org.syncope.core.persistence.beans.role.RoleSchema;
@@ -70,7 +70,7 @@ public class SchemaMappingDAOImpl extends AbstractDAOImpl
         }
         mapping.setMembershipSchema(null);
 
-        Resource resource = mapping.getResource();
+        TargetResource resource = mapping.getResource();
         if (resource != null && resource.getMappings() != null) {
             resource.getMappings().remove(mapping);
         }

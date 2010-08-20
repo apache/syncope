@@ -36,7 +36,7 @@ import org.syncope.core.persistence.beans.AbstractAttributeValue;
 import org.syncope.core.persistence.beans.AbstractDerivedAttribute;
 import org.syncope.core.persistence.beans.AbstractDerivedSchema;
 import org.syncope.core.persistence.beans.AbstractSchema;
-import org.syncope.core.persistence.beans.Resource;
+import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
@@ -115,8 +115,8 @@ class AbstractAttributableDataBinder {
         return derivedSchema;
     }
 
-    private Resource getResource(String resourceName) {
-        Resource resource = resourceDAO.find(resourceName);
+    private TargetResource getResource(String resourceName) {
+        TargetResource resource = resourceDAO.find(resourceName);
 
         if (resource == null) {
             if (log.isDebugEnabled()) {
@@ -346,7 +346,7 @@ class AbstractAttributableDataBinder {
         }
 
         // 5. resources to be removed
-        Resource resource = null;
+        TargetResource resource = null;
         for (String resourceToBeRemoved :
                 attributableMod.getResourcesToBeRemoved()) {
 
@@ -355,7 +355,7 @@ class AbstractAttributableDataBinder {
             if (resource != null) {
                 resourceOperations.add(Type.DELETE, resource);
 
-                attributable.removeResource(resource);
+                attributable.removeTargetResource(resource);
 
                 if (attributableUtil == attributableUtil.USER) {
                     resource.removeUser((SyncopeUser) attributable);
@@ -375,7 +375,7 @@ class AbstractAttributableDataBinder {
             if (resource != null) {
                 resourceOperations.add(Type.CREATE, resource);
 
-                attributable.addResource(resource);
+                attributable.addTargetResource(resource);
 
                 if (attributableUtil == attributableUtil.USER) {
                     resource.addUser((SyncopeUser) attributable);
@@ -459,12 +459,12 @@ class AbstractAttributableDataBinder {
         }
 
         // 3. resources
-        Resource resource = null;
+        TargetResource resource = null;
         for (String resourceName : attributableTO.getResources()) {
             resource = getResource(resourceName);
 
             if (resource != null) {
-                attributable.addResource(resource);
+                attributable.addTargetResource(resource);
 
                 if (attributableUtil == attributableUtil.USER) {
                     resource.addUser((SyncopeUser) attributable);
@@ -488,7 +488,7 @@ class AbstractAttributableDataBinder {
             AbstractAttributableTO abstractAttributableTO,
             Collection<? extends AbstractAttribute> attributes,
             Collection<? extends AbstractDerivedAttribute> derivedAttributes,
-            Collection<Resource> resources) {
+            Collection<TargetResource> resources) {
 
         AttributeTO attributeTO = null;
         for (AbstractAttribute attribute : attributes) {
@@ -511,7 +511,7 @@ class AbstractAttributableDataBinder {
             abstractAttributableTO.addDerivedAttribute(attributeTO);
         }
 
-        for (Resource resource : resources) {
+        for (TargetResource resource : resources) {
             abstractAttributableTO.addResource(resource.getName());
         }
 

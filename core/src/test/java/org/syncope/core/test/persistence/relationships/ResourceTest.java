@@ -26,7 +26,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.ConnectorInstance;
-import org.syncope.core.persistence.beans.Resource;
+import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.beans.role.RoleSchema;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
@@ -58,7 +58,7 @@ public class ResourceTest extends AbstractTest {
 
     @Test
     public final void save() throws ClassNotFoundException {
-        Resource resource = new Resource();
+        TargetResource resource = new TargetResource();
         resource.setName("ws-target-resource-save");
 
         // specify the connector
@@ -101,10 +101,10 @@ public class ResourceTest extends AbstractTest {
         assertNotNull("user not found", user);
 
         resource.setUsers(Collections.singleton(user));
-        user.addResource(resource);
+        user.addTargetResource(resource);
 
         // save the resource
-        Resource actual = resourceDAO.save(resource);
+        TargetResource actual = resourceDAO.save(resource);
 
         assertNotNull(actual);
 
@@ -120,7 +120,7 @@ public class ResourceTest extends AbstractTest {
 
         assertNotNull(connector);
 
-        List<Resource> resources = connector.getResources();
+        List<TargetResource> resources = connector.getResources();
 
         assertNotNull(resources);
 
@@ -141,7 +141,7 @@ public class ResourceTest extends AbstractTest {
     @Test
     public final void delete() {
 
-        Resource resource = resourceDAO.find("ws-target-resource-2");
+        TargetResource resource = resourceDAO.find("ws-target-resource-2");
 
         assertNotNull("find to delete did not work", resource);
 
@@ -188,7 +188,7 @@ public class ResourceTest extends AbstractTest {
         resourceDAO.flush();
 
         // resource must be removed
-        Resource actual = resourceDAO.find("ws-target-resource-2");
+        TargetResource actual = resourceDAO.find("ws-target-resource-2");
         assertNull("delete did not work", actual);
 
         // mappings must be removed
@@ -199,12 +199,12 @@ public class ResourceTest extends AbstractTest {
 
         // resource must be not referenced any more from users
         SyncopeUser actualUser = null;
-        Collection<Resource> resources = null;
+        Collection<TargetResource> resources = null;
         for (Long id : userIds) {
             actualUser = syncopeUserDAO.find(id);
             assertNotNull(actualUser);
-            resources = actualUser.getResources();
-            for (Resource res : resources) {
+            resources = actualUser.getTargetResources();
+            for (TargetResource res : resources) {
                 assertFalse(res.getName().equalsIgnoreCase(resource.getName()));
             }
         }
@@ -214,7 +214,7 @@ public class ResourceTest extends AbstractTest {
                 connectorInstanceDAO.find(connectorId);
         assertNotNull(actualConnector);
         resources = actualConnector.getResources();
-        for (Resource res : resources) {
+        for (TargetResource res : resources) {
             assertFalse(res.getName().equalsIgnoreCase(resource.getName()));
         }
     }

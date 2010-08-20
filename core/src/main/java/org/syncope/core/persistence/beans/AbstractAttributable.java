@@ -31,7 +31,7 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
      * Provisioning target resources.
      */
     @ManyToMany(fetch = FetchType.EAGER)
-    protected Set<Resource> resources;
+    protected Set<TargetResource> targetResources;
 
     public <T extends AbstractAttribute> T getAttribute(String schemaName) {
         T result = null;
@@ -72,23 +72,27 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
         return result;
     }
 
-    public boolean addResource(Resource resource) {
-        if (this.resources == null) {
-            this.resources = new HashSet<Resource>();
+    public boolean addTargetResource(TargetResource targetResource) {
+        if (this.targetResources == null) {
+            this.targetResources = new HashSet<TargetResource>();
         }
-        return this.resources.add(resource);
+        return this.targetResources.add(targetResource);
     }
 
-    public boolean removeResource(Resource resource) {
-        return resources == null ? true : resources.remove(resource);
+    public boolean removeTargetResource(TargetResource targetResource) {
+        return targetResources == null
+                ? true
+                : targetResources.remove(targetResource);
     }
 
-    public Set<Resource> getResources() {
-        return resources == null ? Collections.EMPTY_SET : resources;
+    public Set<TargetResource> getTargetResources() {
+        return targetResources == null 
+                ? Collections.EMPTY_SET
+                : targetResources;
     }
 
-    public void setResources(Set<Resource> resources) {
-        this.resources = resources;
+    public void setResources(Set<TargetResource> resources) {
+        this.targetResources = resources;
     }
 
     public abstract <T extends AbstractAttribute> boolean addAttribute(T attribute);

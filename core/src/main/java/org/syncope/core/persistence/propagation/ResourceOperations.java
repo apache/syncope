@@ -17,7 +17,7 @@ package org.syncope.core.persistence.propagation;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import org.syncope.core.persistence.beans.Resource;
+import org.syncope.core.persistence.beans.TargetResource;
 
 public class ResourceOperations {
 
@@ -25,14 +25,14 @@ public class ResourceOperations {
 
         CREATE, UPDATE, DELETE
     }
-    private Set<Resource> toBeCreated;
-    private Set<Resource> toBeUpdated;
-    private Set<Resource> toBeDeleted;
+    private Set<TargetResource> toBeCreated;
+    private Set<TargetResource> toBeUpdated;
+    private Set<TargetResource> toBeDeleted;
 
     public ResourceOperations() {
-        toBeCreated = new HashSet<Resource>();
-        toBeUpdated = new HashSet<Resource>();
-        toBeDeleted = new HashSet<Resource>();
+        toBeCreated = new HashSet<TargetResource>();
+        toBeUpdated = new HashSet<TargetResource>();
+        toBeDeleted = new HashSet<TargetResource>();
     }
 
     /**
@@ -41,16 +41,16 @@ public class ResourceOperations {
      * on any resource for which an update is requested.
      */
     public void purge() {
-        for (Resource resource : toBeDeleted) {
+        for (TargetResource resource : toBeDeleted) {
             toBeCreated.remove(resource);
             toBeUpdated.remove(resource);
         }
-        for (Resource resource : toBeUpdated) {
+        for (TargetResource resource : toBeUpdated) {
             toBeCreated.remove(resource);
         }
     }
 
-    public boolean add(Type type, Resource resource) {
+    public boolean add(Type type, TargetResource resource) {
         boolean result = false;
 
         switch (type) {
@@ -65,7 +65,7 @@ public class ResourceOperations {
         return result;
     }
 
-    public boolean remove(Type type, Resource resource) {
+    public boolean remove(Type type, TargetResource resource) {
         boolean result = false;
 
         switch (type) {
@@ -83,8 +83,8 @@ public class ResourceOperations {
         return result;
     }
 
-    public Set<Resource> get(Type type) {
-        Set<Resource> result = Collections.EMPTY_SET;
+    public Set<TargetResource> get(Type type) {
+        Set<TargetResource> result = Collections.EMPTY_SET;
 
         switch (type) {
             case CREATE:
@@ -101,7 +101,7 @@ public class ResourceOperations {
         return result;
     }
 
-    public void set(Type type, Set<Resource> resources) {
+    public void set(Type type, Set<TargetResource> resources) {
         switch (type) {
             case CREATE:
                 toBeCreated.clear();

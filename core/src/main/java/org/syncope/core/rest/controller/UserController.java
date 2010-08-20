@@ -50,7 +50,7 @@ import org.syncope.client.to.UserTO;
 import org.syncope.client.to.WorkflowActionsTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
-import org.syncope.core.persistence.beans.Resource;
+import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.propagation.PropagationManager;
 import org.syncope.core.persistence.propagation.ResourceOperations;
@@ -294,14 +294,14 @@ public class UserController extends AbstractController {
 
         Set<String> syncResourceNames = new HashSet<String>();
 
-        for (Resource resource : user.getResources()) {
+        for (TargetResource resource : user.getTargetResources()) {
             if (syncResources.contains(resource.getName())) {
                 syncResourceNames.add(resource.getName());
             }
         }
         for (SyncopeRole role : user.getRoles()) {
             if (syncRoles.contains(role.getId())) {
-                for (Resource resource : role.getResources()) {
+                for (TargetResource resource : role.getTargetResources()) {
                     syncResourceNames.add(resource.getName());
                 }
             }
@@ -379,7 +379,7 @@ public class UserController extends AbstractController {
             }
         }
 
-        SyncopeUser user = userDataBinder.createSyncopeUser(userTO);
+        SyncopeUser user = userDataBinder.create(userTO);
         user.setWorkflowId(workflowId);
         user = syncopeUserDAO.save(user);
 

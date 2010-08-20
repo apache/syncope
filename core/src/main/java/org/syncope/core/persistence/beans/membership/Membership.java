@@ -30,7 +30,7 @@ import javax.persistence.UniqueConstraint;
 import org.syncope.core.persistence.beans.AbstractAttributable;
 import org.syncope.core.persistence.beans.AbstractAttribute;
 import org.syncope.core.persistence.beans.AbstractDerivedAttribute;
-import org.syncope.core.persistence.beans.Resource;
+import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 
@@ -40,7 +40,7 @@ import org.syncope.core.persistence.beans.user.SyncopeUser;
 public class Membership extends AbstractAttributable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     @ManyToOne
     private SyncopeUser syncopeUser;
@@ -54,7 +54,7 @@ public class Membership extends AbstractAttributable {
     public Membership() {
         attributes = new ArrayList<MembershipAttribute>();
         derivedAttributes = new ArrayList<MembershipDerivedAttribute>();
-        resources = Collections.EMPTY_SET;
+        targetResources = Collections.EMPTY_SET;
     }
 
     public Long getId() {
@@ -127,21 +127,21 @@ public class Membership extends AbstractAttributable {
     }
 
     @Override
-    public boolean addResource(Resource resource) {
+    public boolean addTargetResource(TargetResource resource) {
         return false;
     }
 
     @Override
-    public boolean removeResource(Resource resource) {
+    public boolean removeTargetResource(TargetResource resource) {
         return false;
     }
 
     @Override
-    public Set<Resource> getResources() {
+    public Set<TargetResource> getTargetResources() {
         return Collections.EMPTY_SET;
     }
 
     @Override
-    public void setResources(Set<Resource> resources) {
+    public void setResources(Set<TargetResource> resources) {
     }
 }

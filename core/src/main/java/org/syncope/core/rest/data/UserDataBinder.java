@@ -30,7 +30,7 @@ import org.syncope.client.to.MembershipTO;
 import org.syncope.client.to.UserTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
-import org.syncope.core.persistence.beans.Resource;
+import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.membership.Membership;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
@@ -40,7 +40,7 @@ import org.syncope.types.SyncopeClientExceptionType;
 @Component
 public class UserDataBinder extends AbstractAttributableDataBinder {
 
-    public SyncopeUser createSyncopeUser(UserTO userTO)
+    public SyncopeUser create(UserTO userTO)
             throws SyncopeClientCompositeErrorException, NotFoundException {
 
         SyncopeClientCompositeErrorException scce =
@@ -158,8 +158,8 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
                             + membershipToBeRemovedId);
                 }
             } else {
-                for (Resource resource :
-                        membership.getSyncopeRole().getResources()) {
+                for (TargetResource resource :
+                        membership.getSyncopeRole().getTargetResources()) {
 
                     resourceOperations.add(ResourceOperations.Type.DELETE,
                             resource);
@@ -230,7 +230,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         userTO.setStatus(status);
 
         userTO = (UserTO) fillTO(userTO, user.getAttributes(),
-                user.getDerivedAttributes(), user.getResources());
+                user.getDerivedAttributes(), user.getTargetResources());
 
         MembershipTO membershipTO = null;
         for (Membership membership : user.getMemberships()) {
@@ -241,7 +241,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
             membershipTO = (MembershipTO) fillTO(membershipTO,
                     membership.getAttributes(),
                     membership.getDerivedAttributes(),
-                    membership.getResources());
+                    membership.getTargetResources());
 
             userTO.addMembership(membershipTO);
         }

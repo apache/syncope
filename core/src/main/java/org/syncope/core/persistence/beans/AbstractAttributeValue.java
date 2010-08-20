@@ -17,6 +17,7 @@ package org.syncope.core.persistence.beans;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import javax.persistence.Basic;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -35,7 +36,8 @@ public abstract class AbstractAttributeValue extends AbstractBaseBean {
     private String stringValue;
     @Temporal(TemporalType.TIMESTAMP)
     private Date dateValue;
-    private Boolean booleanValue;
+    @Basic
+    private Character booleanValue;
     private Long longValue;
     private Double doubleValue;
 
@@ -44,11 +46,20 @@ public abstract class AbstractAttributeValue extends AbstractBaseBean {
     }
 
     public Boolean getBooleanValue() {
-        return booleanValue;
+        if (booleanValue == null) {
+            return null;
+        }
+        return booleanValue == 'T' ? Boolean.TRUE : Boolean.FALSE;
     }
 
     public void setBooleanValue(Boolean booleanValue) {
-        this.booleanValue = booleanValue;
+        if (booleanValue == null) {
+            this.booleanValue = null;
+        } else if (booleanValue == Boolean.TRUE) {
+            this.booleanValue = 'T';
+        } else {
+            this.booleanValue = 'F';
+        }
     }
 
     public Date getDateValue() {

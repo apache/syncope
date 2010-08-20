@@ -21,6 +21,7 @@ import java.text.DecimalFormat;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.List;
+import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
@@ -41,10 +42,14 @@ public abstract class AbstractSchema extends AbstractBaseBean {
     /**
      * Specify if the attribute should be stored on the local repository.
      */
-    private boolean virtual;
-    private boolean mandatory;
-    private boolean multivalue;
-    private boolean uniquevalue;
+    @Basic
+    private Character virtual;
+    @Basic
+    private Character mandatory;
+    @Basic
+    private Character multivalue;
+    @Basic
+    private Character uniquevalue;
     @Column(nullable = true)
     private String conversionPattern;
     @Column(nullable = true)
@@ -54,10 +59,10 @@ public abstract class AbstractSchema extends AbstractBaseBean {
 
     public AbstractSchema() {
         type = SchemaType.String;
-        virtual = false;
-        mandatory = false;
-        multivalue = false;
-        uniquevalue = false;
+        virtual = 'F';
+        mandatory = 'F';
+        multivalue = 'F';
+        uniquevalue = 'F';
     }
 
     public String getName() {
@@ -77,35 +82,35 @@ public abstract class AbstractSchema extends AbstractBaseBean {
     }
 
     public boolean isVirtual() {
-        return virtual;
+        return virtual != null && virtual == 'T';
     }
 
     public void setVirtual(boolean virtual) {
-        this.virtual = virtual;
+        this.virtual = virtual ? 'T' : 'F';
     }
 
     public boolean isMandatory() {
-        return mandatory;
+        return mandatory != null && mandatory == 'T';
     }
 
     public void setMandatory(boolean mandatory) {
-        this.mandatory = mandatory;
+        this.mandatory = mandatory ? 'T' : 'F';
     }
 
     public boolean isMultivalue() {
-        return multivalue;
+        return multivalue != null && multivalue == 'T';
     }
 
     public void setMultivalue(boolean multivalue) {
-        this.multivalue = multivalue;
+        this.multivalue = multivalue ? 'T' : 'F';
     }
 
     public boolean isUniquevalue() {
-        return uniquevalue;
+        return uniquevalue != null && uniquevalue == 'T';
     }
 
     public void setUniquevalue(boolean uniquevalue) {
-        this.uniquevalue = uniquevalue;
+        this.uniquevalue = uniquevalue ? 'T' : 'F';
     }
 
     public AttributeValidator getValidator() {

@@ -56,7 +56,7 @@ public class RoleController extends AbstractController {
 
         SyncopeRole role = null;
         try {
-            role = roleDataBinder.createSyncopeRole(roleTO);
+            role = roleDataBinder.create(roleTO);
         } catch (SyncopeClientCompositeErrorException e) {
             log.error("Could not create for " + roleTO, e);
 

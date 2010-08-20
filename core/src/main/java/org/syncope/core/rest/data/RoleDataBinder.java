@@ -28,7 +28,7 @@ import org.syncope.types.SyncopeClientExceptionType;
 @Component
 public class RoleDataBinder extends AbstractAttributableDataBinder {
 
-    public SyncopeRole createSyncopeRole(RoleTO roleTO)
+    public SyncopeRole create(RoleTO roleTO)
             throws SyncopeClientCompositeErrorException {
 
         SyncopeRole role = new SyncopeRole();
@@ -131,7 +131,7 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
         }
 
         roleTO = (RoleTO) fillTO(roleTO, role.getAttributes(),
-                role.getDerivedAttributes(), role.getResources());
+                role.getDerivedAttributes(), role.getTargetResources());
 
         if (role.isInheritAttributes() || role.isInheritDerivedAttributes()) {
             roleTO = (RoleTO) fillTO(roleTO,

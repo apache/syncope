@@ -30,7 +30,7 @@ import org.syncope.client.to.SchemaMappingTOs;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
 import org.syncope.core.persistence.beans.ConnectorInstance;
-import org.syncope.core.persistence.beans.Resource;
+import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.beans.role.RoleSchema;
 import org.syncope.core.persistence.beans.user.UserSchema;
@@ -59,13 +59,13 @@ public class ResourceDataBinder {
         this.connectorInstanceDAO = connectorInstanceDAO;
     }
 
-    public Resource getResource(ResourceTO resourceTO)
+    public TargetResource getResource(ResourceTO resourceTO)
             throws SyncopeClientCompositeErrorException {
 
-        return getResource(new Resource(), resourceTO);
+        return getResource(new TargetResource(), resourceTO);
     }
 
-    public Resource getResource(Resource resource, ResourceTO resourceTO)
+    public TargetResource getResource(TargetResource resource, ResourceTO resourceTO)
             throws SyncopeClientCompositeErrorException {
 
         SyncopeClientCompositeErrorException compositeErrorException =
@@ -113,20 +113,20 @@ public class ResourceDataBinder {
         return resource;
     }
 
-    public ResourceTOs getResourceTOs(Collection<Resource> resources) {
+    public ResourceTOs getResourceTOs(Collection<TargetResource> resources) {
 
         if (resources == null) return null;
 
         ResourceTOs resourceTOs = new ResourceTOs();
 
-        for (Resource resource : resources) {
+        for (TargetResource resource : resources) {
             resourceTOs.addResource(getResourceTO(resource));
         }
 
         return resourceTOs;
     }
 
-    public ResourceTO getResourceTO(Resource resource) {
+    public ResourceTO getResourceTO(TargetResource resource) {
 
         if (resource == null) return null;
 
@@ -148,7 +148,7 @@ public class ResourceDataBinder {
     }
 
     public List<SchemaMapping> getSchemaMappings(
-            Resource resource,
+            TargetResource resource,
             SchemaMappingTOs mappings) {
 
         if (mappings == null) return null;
@@ -165,7 +165,7 @@ public class ResourceDataBinder {
     }
 
     public SchemaMapping getSchemaMapping(
-            Resource resource,
+            TargetResource resource,
             SchemaMappingTO mapping)
             throws SyncopeClientCompositeErrorException {
 

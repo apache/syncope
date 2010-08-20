@@ -14,6 +14,7 @@
  */
 package org.syncope.core.persistence.beans;
 
+import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -56,7 +57,7 @@ public class SchemaMapping extends AbstractBaseBean {
      * Target resource that has fields to be mapped over user attribute schemas.
      */
     @ManyToOne(fetch = FetchType.EAGER)
-    private Resource resource;
+    private TargetResource resource;
     /**
      * Target resource's field to be mapped.
      */
@@ -66,22 +67,25 @@ public class SchemaMapping extends AbstractBaseBean {
      * Specify if the mapped target resource's field is the key.
      */
     @Column(nullable = false)
-    private boolean accountid;
+    @Basic
+    private Character accountid;
     /**
      * Specify if the mapped target resource's field is the password.
      */
     @Column(nullable = false)
-    private boolean password;
+    @Basic
+    private Character password;
     /**
      * Specify if the mapped target resource's field is nullable.
      */
     @Column(nullable = false)
-    private boolean nullable;
+    @Basic
+    private Character nullable;
 
     public SchemaMapping() {
-        accountid = false;
-        password = false;
-        nullable = true;
+        accountid = 'F';
+        password = 'F';
+        nullable = 'T';
     }
 
     public Long getId() {
@@ -89,11 +93,11 @@ public class SchemaMapping extends AbstractBaseBean {
     }
 
     public boolean isAccountid() {
-        return accountid;
+        return accountid != null && accountid == 'T';
     }
 
     public void setAccountid(boolean accountid) {
-        this.accountid = accountid;
+        this.accountid = accountid ? 'T' : 'F';
     }
 
     public String getField() {
@@ -105,26 +109,26 @@ public class SchemaMapping extends AbstractBaseBean {
     }
 
     public boolean isNullable() {
-        return nullable;
+        return nullable != null && nullable == 'T';
     }
 
     public void setNullable(boolean nullable) {
-        this.nullable = nullable;
+        this.nullable = nullable ? 'T' : 'F';
     }
 
     public boolean isPassword() {
-        return password;
+        return password != null && password == 'T';
     }
 
     public void setPassword(boolean password) {
-        this.password = password;
+        this.password = password ? 'T' : 'F';
     }
 
-    public Resource getResource() {
+    public TargetResource getResource() {
         return resource;
     }
 
-    public void setResource(Resource resource) {
+    public void setResource(TargetResource resource) {
         this.resource = resource;
     }
 

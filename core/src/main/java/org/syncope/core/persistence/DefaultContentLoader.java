@@ -14,7 +14,12 @@
  */
 package org.syncope.core.persistence;
 
+import java.io.InputStream;
 import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Properties;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.sql.DataSource;
@@ -22,7 +27,6 @@ import org.dbunit.database.DatabaseConfig;
 import org.dbunit.database.DatabaseConnection;
 import org.dbunit.database.IDatabaseConnection;
 import org.dbunit.dataset.IDataSet;
-import org.dbunit.dataset.ITableIterator;
 import org.dbunit.dataset.datatype.DefaultDataTypeFactory;
 import org.dbunit.dataset.xml.FlatXmlDataSetBuilder;
 import org.dbunit.operation.DatabaseOperation;
@@ -31,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
+import org.syncope.core.persistence.beans.SyncopeConfiguration;
 
 public class DefaultContentLoader implements ServletContextListener {
 
@@ -56,21 +61,63 @@ public class DefaultContentLoader implements ServletContextListener {
                 (DefaultDataTypeFactory) springContext.getBean(
                 "dbUnitDataTypeFactory");
 
-        Connection conn = DataSourceUtils.getConnection(dataSource);
+        String dbSchema = null;
         try {
-            IDatabaseConnection dbUnitConn = new DatabaseConnection(conn);
+            InputStream dbPropsStream =
+                    sce.getServletContext().getResourceAsStream(
+                    "WEB-INF/classes/org/syncope/core/persistence/db.properties");
+            Properties dbProps = new Properties();
+            dbProps.load(dbPropsStream);
+            dbSchema = dbProps.getProperty("database.schema");
+        } catch (Throwable t) {
+            if (log.isDebugEnabled()) {
+                log.debug("Could not find db.properties", t);
+            } else {
+                log.error("Could not find db.properties");
+            }
+
+            dbSchema = null;
+        }
+
+        Connection conn = DataSourceUtils.getConnection(dataSource);
+
+        Statement statement = null;
+        ResultSet resultSet = null;
+        boolean existingData = false;
+        try {
+            statement = conn.createStatement(
+                    ResultSet.TYPE_SCROLL_SENSITIVE,
+                    ResultSet.CONCUR_READ_ONLY);
+
+            resultSet = statement.executeQuery("SELECT * FROM "
+                    + SyncopeConfiguration.class.getSimpleName());
+            resultSet.last();
+
+            existingData = resultSet.getRow() > 0;
+        } catch (SQLException e) {
+            log.error("Could not access to table "
+                    + SyncopeConfiguration.class.getSimpleName(), e);
+
+            // Setting this to true make nothing to be done below
+            existingData = true;
+        } finally {
+            try {
+                resultSet.close();
+                statement.close();
+            } catch (SQLException e) {
+            }
+        }
+        log.info("OOOOOOOO " + existingData);
+        try {
+            IDatabaseConnection dbUnitConn = dbSchema == null
+                    ? new DatabaseConnection(conn)
+                    : new DatabaseConnection(conn, dbSchema);
 
             DatabaseConfig config = dbUnitConn.getConfig();
             config.setProperty(DatabaseConfig.PROPERTY_DATATYPE_FACTORY,
                     dbUnitDataTypeFactory);
-
-            boolean existingData = false;
-            IDataSet existingDataSet = dbUnitConn.createDataSet();
-            for (ITableIterator itor = existingDataSet.iterator();
-                    itor.next() && !existingData;) {
-
-                existingData = (itor.getTable().getRowCount() > 0);
-            }
+            config.setProperty(
+                    DatabaseConfig.FEATURE_SKIP_ORACLE_RECYCLEBIN_TABLES, true);
 
             if (existingData) {
                 log.info("Data found in the database, leaving untouched");

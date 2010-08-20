@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -42,7 +43,7 @@ import org.syncope.core.persistence.beans.user.SyncopeUser;
 public class SyncopeRole extends AbstractAttributable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String name;
     @ManyToOne(optional = true)
@@ -55,14 +56,18 @@ public class SyncopeRole extends AbstractAttributable {
     private List<RoleAttribute> attributes;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     private List<RoleDerivedAttribute> derivedAttributes;
-    private boolean inheritAttributes;
-    private boolean inheritDerivedAttributes;
+    @Basic
+    private Character inheritAttributes;
+    @Basic
+    private Character inheritDerivedAttributes;
 
     public SyncopeRole() {
         memberships = new ArrayList<Membership>();
         entitlements = new HashSet<Entitlement>();
         attributes = new ArrayList<RoleAttribute>();
         derivedAttributes = new ArrayList<RoleDerivedAttribute>();
+        inheritAttributes = 'F';
+        inheritDerivedAttributes = 'F';
     }
 
     public Long getId() {
@@ -174,18 +179,19 @@ public class SyncopeRole extends AbstractAttributable {
     }
 
     public boolean isInheritAttributes() {
-        return inheritAttributes;
+        return inheritAttributes != null && inheritAttributes == 'T';
     }
 
     public void setInheritAttributes(boolean inheritAttributes) {
-        this.inheritAttributes = inheritAttributes;
+        this.inheritAttributes = inheritAttributes ? 'T' : 'F';
     }
 
     public boolean isInheritDerivedAttributes() {
-        return inheritDerivedAttributes;
+        return inheritDerivedAttributes != null
+                && inheritDerivedAttributes == 'T';
     }
 
     public void setInheritDerivedAttributes(boolean inheritDerivedAttributes) {
-        this.inheritDerivedAttributes = inheritDerivedAttributes;
+        this.inheritDerivedAttributes = inheritDerivedAttributes ? 'T' : 'F';
     }
 }

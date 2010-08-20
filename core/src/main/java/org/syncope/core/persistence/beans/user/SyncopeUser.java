@@ -53,7 +53,7 @@ public class SyncopeUser extends AbstractAttributable {
         }
     }
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     @Basic
     @Lob

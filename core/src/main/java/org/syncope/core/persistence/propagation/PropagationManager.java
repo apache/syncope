@@ -30,7 +30,7 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.syncope.core.persistence.beans.ConnectorInstance;
-import org.syncope.core.persistence.beans.Resource;
+import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.beans.membership.Membership;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
@@ -70,12 +70,12 @@ public class PropagationManager {
     public Set<String> create(SyncopeUser user, Set<String> syncResourceNames)
             throws PropagationException {
 
-        Set<Resource> resources = new HashSet<Resource>();
-        for (Resource resource : user.getResources()) {
+        Set<TargetResource> resources = new HashSet<TargetResource>();
+        for (TargetResource resource : user.getTargetResources()) {
             resources.add(resource);
         }
         for (Membership membership : user.getMemberships()) {
-            resources.addAll(membership.getResources());
+            resources.addAll(membership.getTargetResources());
         }
 
         ResourceOperations resourceOperations = new ResourceOperations();
@@ -133,7 +133,7 @@ public class PropagationManager {
             syncResourceNames = Collections.EMPTY_SET;
         }
         for (Type type : ResourceOperations.Type.values()) {
-            for (Resource resource : resourceOperations.get(type)) {
+            for (TargetResource resource : resourceOperations.get(type)) {
                 if (syncResourceNames.contains(resource.getName())) {
                     syncOperations.add(type, resource);
                 } else {
@@ -148,7 +148,7 @@ public class PropagationManager {
                     + " with user " + user);
         }
         for (Type type : ResourceOperations.Type.values()) {
-            for (Resource resource : syncOperations.get(type)) {
+            for (TargetResource resource : syncOperations.get(type)) {
                 try {
                     propagate(user, resource, type);
                     provisioned.add(resource.getName());
@@ -169,7 +169,7 @@ public class PropagationManager {
                     + asyncOperations + " with user " + user);
         }
         for (Type type : ResourceOperations.Type.values()) {
-            for (Resource resource : asyncOperations.get(type)) {
+            for (TargetResource resource : asyncOperations.get(type)) {
                 try {
                     propagate(user, resource, type);
                     provisioned.add(resource.getName());
@@ -197,7 +197,7 @@ public class PropagationManager {
      * exist.
      * @throws IllegalStateException if propagation fails.
      */
-    private void propagate(SyncopeUser user, Resource resource, Type type)
+    private void propagate(SyncopeUser user, TargetResource resource, Type type)
             throws NoSuchBeanDefinitionException, IllegalStateException {
 
         ConnectorInstance connectorInstance = resource.getConnector();

@@ -32,7 +32,7 @@ import org.syncope.client.to.ResourceTOs;
 import org.syncope.client.to.SchemaMappingTOs;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
-import org.syncope.core.persistence.beans.Resource;
+import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.dao.ConnectorInstanceDAO;
@@ -79,14 +79,14 @@ public class ResourceController extends AbstractController {
         ResourceDataBinder binder =
                 new ResourceDataBinder(schemaDAO, connectorInstanceDAO);
 
-        Resource actual = null;
+        TargetResource actual = null;
 
         try {
             if (log.isDebugEnabled()) {
                 log.debug("Verify that resource dosn't exist");
             }
 
-            Resource resource = null;
+            TargetResource resource = null;
 
             if (resourceDAO.find(resourceTO.getName()) != null) {
                 SyncopeClientException ex = new SyncopeClientException(
@@ -162,7 +162,7 @@ public class ResourceController extends AbstractController {
             log.debug("Update request received");
         }
 
-        Resource resource = null;
+        TargetResource resource = null;
 
         if (resourceTO != null && resourceTO.getName() != null) {
             resource = resourceDAO.find(resourceTO.getName());
@@ -179,7 +179,7 @@ public class ResourceController extends AbstractController {
         ResourceDataBinder binder =
                 new ResourceDataBinder(schemaDAO, connectorInstanceDAO);
 
-        Resource actual = null;
+        TargetResource actual = null;
 
         try {
             if (log.isDebugEnabled()) {
@@ -250,7 +250,7 @@ public class ResourceController extends AbstractController {
             @PathVariable("resourceName") String resourceName)
             throws NotFoundException {
 
-        Resource resource = resourceDAO.find(resourceName);
+        TargetResource resource = resourceDAO.find(resourceName);
 
         if (resource == null) {
 
@@ -276,7 +276,7 @@ public class ResourceController extends AbstractController {
         ResourceDataBinder binder =
                 new ResourceDataBinder(schemaDAO, connectorInstanceDAO);
 
-        Resource resource = resourceDAO.find(resourceName);
+        TargetResource resource = resourceDAO.find(resourceName);
 
         if (resource == null) {
 
@@ -297,7 +297,7 @@ public class ResourceController extends AbstractController {
         ResourceDataBinder binder =
                 new ResourceDataBinder(schemaDAO, connectorInstanceDAO);
 
-        List<Resource> resources = resourceDAO.findAll();
+        List<TargetResource> resources = resourceDAO.findAll();
 
         if (resources == null) {
 
@@ -325,7 +325,7 @@ public class ResourceController extends AbstractController {
 
         try {
 
-            Resource resource = null;
+            TargetResource resource = null;
             if (resourceName != null) {
                 resource = resourceDAO.find(resourceName);
             }
@@ -414,7 +414,7 @@ public class ResourceController extends AbstractController {
             @PathVariable("resourceName") String resourceName)
             throws NotFoundException {
 
-        Resource resource = resourceDAO.find(resourceName);
+        TargetResource resource = resourceDAO.find(resourceName);
 
         if (resource == null) {
 
@@ -445,7 +445,7 @@ public class ResourceController extends AbstractController {
             @PathVariable("resourceName") String resourceName)
             throws SyncopeClientCompositeErrorException {
 
-        Resource resource = null;
+        TargetResource resource = null;
         if (resourceName != null) {
             resource = resourceDAO.find(resourceName);
         }
@@ -511,14 +511,14 @@ public class ResourceController extends AbstractController {
 
         SchemaMappingTOs roleMappings = new SchemaMappingTOs();
 
-        Set<Resource> resources = role.getResources();
+        Set<TargetResource> resources = role.getTargetResources();
 
         ResourceDataBinder binder =
                 new ResourceDataBinder(schemaDAO, connectorInstanceDAO);
 
         SchemaMappingTOs resourceMappings = null;
 
-        for (Resource resource : resources) {
+        for (TargetResource resource : resources) {
             if (log.isDebugEnabled()) {
                 log.debug("Ask for the mappings of '" + resource + "'");
             }

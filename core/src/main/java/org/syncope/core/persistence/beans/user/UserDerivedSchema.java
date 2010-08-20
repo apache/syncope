@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.persistence.Entity;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import org.syncope.core.persistence.beans.AbstractDerivedAttribute;
@@ -31,6 +32,7 @@ import org.syncope.core.persistence.beans.SchemaMapping;
 public class UserDerivedSchema extends AbstractDerivedSchema {
 
     @ManyToMany
+    @JoinTable(name = "UserSchemaDerivation")
     private Set<UserSchema> schemas;
     @OneToMany(mappedBy = "derivedSchema")
     private List<UserDerivedAttribute> derivedAttributes;

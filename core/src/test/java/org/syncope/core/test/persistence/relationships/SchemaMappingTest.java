@@ -21,7 +21,7 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.syncope.core.persistence.beans.Resource;
+import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.beans.user.UserSchema;
 import org.syncope.core.persistence.dao.ResourceDAO;
@@ -47,7 +47,7 @@ public class SchemaMappingTest extends AbstractTest {
         UserSchema user = schemaDAO.find("firstname", UserSchema.class);
         schema.setUserSchema(user);
 
-        Resource resource = resourceDAO.find("ws-target-resource-1");
+        TargetResource resource = resourceDAO.find("ws-target-resource-1");
         schema.setResource(resource);
 
         SchemaMapping actual = schemaMappingDAO.save(schema);
@@ -75,7 +75,7 @@ public class SchemaMappingTest extends AbstractTest {
 
         assertTrue(actualUser.getMappings().contains(actual));
 
-        Resource actualResource =
+        TargetResource actualResource =
                 resourceDAO.find("ws-target-resource-1");
 
         assertTrue(actualResource.getMappings().contains(actual));
@@ -89,7 +89,7 @@ public class SchemaMappingTest extends AbstractTest {
 
         Long id = schema.getId();
 
-        Resource resource = schema.getResource();
+        TargetResource resource = schema.getResource();
 
         assertNotNull(resource);
 
@@ -106,7 +106,7 @@ public class SchemaMappingTest extends AbstractTest {
 
         assertNull("delete did not work", actual);
 
-        Resource actualResource =
+        TargetResource actualResource =
                 resourceDAO.find(resource.getName());
 
         assertNotNull(actualResource);
