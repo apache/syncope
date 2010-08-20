@@ -66,12 +66,16 @@ public class UserController extends AbstractController {
 
     @Autowired
     private SyncopeUserDAO syncopeUserDAO;
+
     @Autowired
     private UserDataBinder userDataBinder;
+
     @Autowired
     private Workflow userWorkflow;
+
     @Autowired(required = false)
     private SpringHibernateJPAWorkflowStore workflowStore;
+
     @Autowired
     private PropagationManager propagationManager;
 
@@ -287,8 +291,7 @@ public class UserController extends AbstractController {
     private Set<String> getSyncResourceNames(SyncopeUser user,
             Set<Long> syncRoles, Set<String> syncResources) {
 
-        if ((syncRoles == null || syncRoles.isEmpty()
-                && (syncResources == null || syncResources.isEmpty()))) {
+        if ((syncRoles == null || syncRoles.isEmpty() && (syncResources == null || syncResources.isEmpty()))) {
             return Collections.EMPTY_SET;
         }
 
@@ -322,8 +325,7 @@ public class UserController extends AbstractController {
             WorkflowException, PropagationException, NotFoundException {
 
         if (log.isDebugEnabled()) {
-            log.debug("create called with parameters " + userTO
-                    + "\n" + syncRoles + "\n" + syncResources);
+            log.debug("create called with parameters " + userTO + "\n" + syncRoles + "\n" + syncResources);
         }
 
         // By default, ignore id in UserTO:
@@ -389,12 +391,15 @@ public class UserController extends AbstractController {
         // Now that user is created locally, let's propagate
         Set<String> syncResourceNames =
                 getSyncResourceNames(user, syncRoles, syncResources);
+
         if (log.isDebugEnabled() && !syncResourceNames.isEmpty()) {
-            log.debug("About to propagate synchronously onto resources "
-                    + syncResourceNames);
+            log.debug("About to propagate synchronously onto resources " +
+                    syncResourceNames);
         }
+
         Set<String> propagatedResources =
                 propagationManager.create(user, syncResourceNames);
+
         if (log.isDebugEnabled()) {
             log.debug("Propagated onto resources " + propagatedResources);
         }
@@ -403,12 +408,14 @@ public class UserController extends AbstractController {
         Map<String, Object> inputs = new HashMap<String, Object>();
         inputs.put(Constants.SYNCOPE_USER, user);
 
-        int[] availableWorkflowActions = userWorkflow.getAvailableActions(
-                workflowId, null);
+        int[] availableWorkflowActions =
+                userWorkflow.getAvailableActions(workflowId, null);
+
         for (int availableWorkflowAction : availableWorkflowActions) {
-            userWorkflow.doAction(workflowId, availableWorkflowAction,
-                    inputs);
+            userWorkflow.doAction(
+                    workflowId, availableWorkflowAction, inputs);
         }
+        
         user = syncopeUserDAO.save(user);
 
         response.setStatus(HttpServletResponse.SC_CREATED);
@@ -445,8 +452,7 @@ public class UserController extends AbstractController {
         Set<String> syncResourceNames =
                 getSyncResourceNames(user, syncRoles, syncResources);
         if (log.isDebugEnabled() && !syncResourceNames.isEmpty()) {
-            log.debug("About to propagate synchronously onto resources "
-                    + syncResourceNames);
+            log.debug("About to propagate synchronously onto resources " + syncResourceNames);
         }
         Set<String> propagatedResources =
                 propagationManager.update(user,

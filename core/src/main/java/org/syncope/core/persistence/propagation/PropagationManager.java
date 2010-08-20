@@ -19,6 +19,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.identityconnectors.framework.api.ConnectorFacade;
+import org.identityconnectors.framework.common.FrameworkUtil;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.Name;
@@ -75,7 +76,7 @@ public class PropagationManager {
             resources.add(resource);
         }
         for (Membership membership : user.getMemberships()) {
-            resources.addAll(membership.getTargetResources());
+            resources.addAll(membership.getSyncopeRole().getTargetResources());
         }
 
         ResourceOperations resourceOperations = new ResourceOperations();
@@ -132,6 +133,7 @@ public class PropagationManager {
         if (syncResourceNames == null) {
             syncResourceNames = Collections.EMPTY_SET;
         }
+
         for (Type type : ResourceOperations.Type.values()) {
             for (TargetResource resource : resourceOperations.get(type)) {
                 if (syncResourceNames.contains(resource.getName())) {
@@ -144,45 +146,55 @@ public class PropagationManager {
 
         // synchronous propagation ...
         if (log.isDebugEnabled()) {
-            log.debug("Synchronous provisioning of " + syncOperations
-                    + " with user " + user);
+            log.debug(
+                    "Synchronous provisioning of " +
+                    syncOperations + " with user " + user);
         }
+
         for (Type type : ResourceOperations.Type.values()) {
             for (TargetResource resource : syncOperations.get(type)) {
                 try {
+
                     propagate(user, resource, type);
                     provisioned.add(resource.getName());
+
                 } catch (Throwable t) {
-                    log.error("Exception during provision on resource "
-                            + resource.getName(), t);
+                    log.error(
+                            "Exception during provision on resource " +
+                            resource.getName(), t);
 
                     throw new PropagationException(
-                            "Exception during provision on resource "
-                            + resource.getName(), resource.getName(), t);
+                            "Exception during provision on resource " +
+                            resource.getName(), resource.getName(), t);
                 }
             }
         }
 
         // asynchronous propagation ...
         if (log.isDebugEnabled()) {
-            log.debug("Asynchronous provisioning of "
-                    + asyncOperations + " with user " + user);
+            log.debug(
+                    "Asynchronous provisioning of " +
+                    asyncOperations + " with user " + user);
         }
+
         for (Type type : ResourceOperations.Type.values()) {
             for (TargetResource resource : asyncOperations.get(type)) {
                 try {
+
                     propagate(user, resource, type);
                     provisioned.add(resource.getName());
+
                 } catch (Throwable t) {
-                    log.error("Exception during provision on resource "
-                            + resource.getName(), t);
+                    log.error(
+                            "Exception during provision on resource " +
+                            resource.getName(), t);
                 }
             }
         }
 
         if (log.isDebugEnabled()) {
-            log.debug("Provisioned " + provisioned
-                    + " with user " + user.getId());
+            log.debug(
+                    "Provisioned " + provisioned + " with user " + user.getId());
         }
 
         return provisioned;
@@ -206,8 +218,9 @@ public class PropagationManager {
                 getConnectorFacade(connectorInstance.getId().toString());
 
         if (connector == null) {
-            log.error("Connector instance bean "
-                    + connectorInstance.getId().toString() + " not found");
+            log.error(
+                    "Connector instance bean " +
+                    connectorInstance.getId().toString() + " not found");
 
             throw new NoSuchBeanDefinitionException(
                     "Connector instance bean not found");
@@ -244,62 +257,100 @@ public class PropagationManager {
 
         for (SchemaMapping mapping : mappings) {
 
-            field = mapping.getField();
-
-            schema = mapping.getUserSchema().getName();
-
-            userAttribute = user.getAttribute(schema);
-
-            values = null;
-
             try {
+                // get field name on target resource
+                field = mapping.getField();
+
+                // get schema name on syncope
+                schema = mapping.getUserSchema().getName();
+
+                // get defined type for user attribute
                 schemaType = mapping.getUserSchema().getType();
-                castToBeApplied = Class.forName(schemaType.getClassName());
-            } catch (ClassNotFoundException e) {
-                castToBeApplied = String.class;
-            }
 
-            if (log.isDebugEnabled()) {
-                log.debug("\nDefine mapping for: "
-                        + "\n* Field " + field
-                        + "\n* is accountId " + mapping.isAccountid()
-                        + "\n* is password " + mapping.isPassword()
-                        + "\n* is nullable " + mapping.isNullable()
-                        + "\n* Schema " + schema
-                        + "\n* Type " + schemaType.getClassName());
-            }
+                if (log.isDebugEnabled()) {
+                    log.debug(
+                            "\nDefine mapping for: " +
+                            "\n* Field " + field +
+                            "\n* is accountId " + mapping.isAccountid() +
+                            "\n* is password " + mapping.isPassword() +
+                            "\n* is nullable " + mapping.isNullable() +
+                            "\n* Schema " + schema +
+                            "\n* Type " + schemaType.getClassName());
+                }
 
-            objValues = new HashSet();
+                // get user attribute object
+                userAttribute = user.getAttribute(schema);
 
-            if (userAttribute != null) {
+                if (userAttribute == null) {
+                    throw new Exception(
+                            "Invalid user attribute " + userAttribute);
+                }
+
+                // -----------------------------
+                // Retrieve user attribute values
+                // -----------------------------
+                objValues = new HashSet();
+
                 values = userAttribute.getAttributeValues();
 
                 for (UserAttributeValue value : values) {
-                    objValues.add(value.getValue());
+
+                    castToBeApplied = Class.forName(schemaType.getClassName());
+
+                    if (!FrameworkUtil.isSupportedAttributeType(
+                            castToBeApplied)) {
+
+                        castToBeApplied = String.class;
+                        objValues.add(value.getValueAsString());
+
+                    } else {
+
+                        objValues.add(value.getValue());
+
+                    }
                 }
-            }
+                // -----------------------------
 
-            if (!objValues.isEmpty() && mapping.isAccountid()) {
-                accountId = objValues.iterator().next().toString();
-                attrs.add(new Name(accountId));
-            }
-
-            if (password != null && mapping.isPassword()) {
-                attrs.add(AttributeBuilder.buildPassword(
-                        password.toCharArray()));
-            }
-
-            if (!mapping.isPassword()
-                    && !mapping.isAccountid()
-                    && !objValues.isEmpty()) {
-
-                if (mapping.getUserSchema().isMultivalue()) {
-                    attrs.add(AttributeBuilder.build(field, objValues));
-                } else {
-                    attrs.add(AttributeBuilder.build(field,
-                            castToBeApplied.cast(objValues.iterator().next())));
+                if (mapping.isAccountid()) {
+                    accountId = objValues.iterator().next().toString();
+                    attrs.add(new Name(accountId));
                 }
 
+                if (mapping.isPassword()) {
+                    attrs.add(AttributeBuilder.buildPassword(
+                            password.toCharArray()));
+                }
+
+                Object objValue = null;
+
+                if (!objValues.isEmpty())
+                    objValue = objValues.iterator().next();
+
+                if (!mapping.isPassword() &&
+                        !mapping.isAccountid()) {
+
+                    if (mapping.getUserSchema().isMultivalue()) {
+                        attrs.add(AttributeBuilder.build(
+                                field,
+                                objValues));
+                    } else {
+                        attrs.add(AttributeBuilder.build(
+                                field,
+                                castToBeApplied.cast(objValue)));
+                    }
+                }
+
+            } catch (ClassNotFoundException e) {
+
+                if (log.isWarnEnabled()) {
+                    log.warn("Unsupported attribute type " +
+                            schemaType.getClassName(), e);
+                }
+
+            } catch (Throwable t) {
+                if (log.isWarnEnabled()) {
+                    log.warn("Attribute '" + schema + "' processing failed", t);
+                }
             }
         }
 
@@ -317,14 +368,18 @@ public class PropagationManager {
             case DELETE:
                 connector.delete(ObjectClass.ACCOUNT, new Uid(accountId), null);
                 break;
+
         }
 
+
+
         if (userUid == null && type != Type.DELETE) {
-            log.error("Error creating / updating user onto resource "
-                    + resource);
+            log.error(
+                    "Error creating / updating user onto resource " + resource);
 
             throw new IllegalStateException("Error creating user");
         }
+
     }
 
     private ConnectorFacade getConnectorFacade(String id) {

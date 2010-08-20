@@ -74,8 +74,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         // TODO: check password policies
         SyncopeClientException invalidPassword = new SyncopeClientException(
                 SyncopeClientExceptionType.InvalidPassword);
-        if (userTO.getPassword() == null
-                || userTO.getPassword().length() == 0) {
+        if (userTO.getPassword() == null || userTO.getPassword().length() == 0) {
 
             log.error("No password provided");
 
@@ -99,8 +98,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
             if (role == null) {
                 if (log.isDebugEnabled()) {
-                    log.debug("Ignoring invalid role "
-                            + membershipTO.getRole());
+                    log.debug("Ignoring invalid role " + membershipTO.getRole());
                 }
             } else {
                 Membership membership = null;
@@ -154,8 +152,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
             membership = membershipDAO.find(membershipToBeRemovedId);
             if (membership == null) {
                 if (log.isDebugEnabled()) {
-                    log.debug("Invalid membership id specified to be removed: "
-                            + membershipToBeRemovedId);
+                    log.debug("Invalid membership id specified to be removed: " + membershipToBeRemovedId);
                 }
             } else {
                 for (TargetResource resource :
@@ -185,8 +182,8 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
             role = syncopeRoleDAO.find(membershipMod.getRole());
             if (role == null) {
                 if (log.isDebugEnabled()) {
-                    log.debug("Ignoring invalid role "
-                            + membershipMod.getRole());
+                    log.debug("Ignoring invalid role " +
+                            membershipMod.getRole());
                 }
             } else {
                 membership = membershipDAO.find(user, role);
@@ -224,8 +221,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
                 log.error("Could not find status information for " + user);
             }
         } catch (EntityNotFoundException e) {
-            log.error("Could not find workflow entry with id "
-                    + user.getWorkflowId());
+            log.error("Could not find workflow entry with id " + user.getWorkflowId());
         }
         userTO.setStatus(status);
 
