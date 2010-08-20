@@ -53,7 +53,6 @@ public class UsersRestClient
                 + "user/create", userTO, UserTO.class);
         
         userTO.setId(newUserTO.getId());
-        userTO.setCreationTime(newUserTO.getCreationTime());
         userTO.setToken(newUserTO.getToken());
         userTO.setTokenExpireTime(newUserTO.getTokenExpireTime());
         
