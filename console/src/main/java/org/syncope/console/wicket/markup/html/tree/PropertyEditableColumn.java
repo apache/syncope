@@ -52,9 +52,15 @@ ModalWindow window = null;
         DefaultMutableTreeNode syncopeTreeNode = (DefaultMutableTreeNode) node;
         TreeModelBean treeModel = (TreeModelBean) syncopeTreeNode.getUserObject();
 
-        NodeEditablePanel editablePanel;
-        
-        editablePanel = new NodeEditablePanel(id, treeModel.getTreeNode().getId(),
+        NodeEditablePanel editablePanel = null;
+        long nodeId;
+
+        if(treeModel.getTreeNode() != null)
+            nodeId = treeModel.getTreeNode().getId();
+        else
+            nodeId = -1;
+
+        editablePanel = new NodeEditablePanel(id, nodeId ,
                     new PropertyModel(node, getPropertyExpression()),window);
 
 

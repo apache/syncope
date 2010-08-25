@@ -36,7 +36,6 @@
         <div id="tabs">
             <ul>
                 <li  class="tabs-selected"><a href="#tabs-1"><span><wicket:message key="tab1"/></span></a></li>
-                <li><a href="#tabs-2"><span><wicket:message key="tab2"/></span></a></li>
                 <li><a href="#tabs-3"><span><wicket:message key="tab3"/></span></a></li>
                 <li><a href="#tabs-4"><span><wicket:message key="tab4"/></span></a></li>
             </ul>
@@ -66,14 +65,7 @@
                     </tr>
                 </table>
             </div>
-            <div id="tabs-2">
-                <!--table>
-                    <tr wicket:id="userDerivedAttributes">
-                        <td><span wicket:id="key"/></td>
-                        <td><input type="text" class="text ui-widget-content ui-corner-all" wicket:id="value" /></td>
-                    </tr>
-                 </table-->
-            </div>
+
             <div id="tabs-3">
 
                 <span wicket:id="resourcesChoiceTransfer"/>
@@ -98,6 +90,7 @@
                    <thead>
                         <tr class="ui-widget-header">
                             <th><wicket:message key="id"/></th>
+                            <th><wicket:message key="name"/></th>
                             <th><wicket:message key="edit"/></th>
                             <th><wicket:message key="delete"/></th>
                         </tr>
@@ -106,6 +99,9 @@
                         <tr wicket:id="memberships">
                             <td>
                                 <span wicket:id="roleId"/>
+                            </td>
+                            <td>
+                                <span wicket:id="roleName"/>
                             </td>
                              <td>
                                 <a href="#" wicket:id="editLink">

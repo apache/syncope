@@ -20,6 +20,7 @@ import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
@@ -34,6 +35,8 @@ import org.syncope.console.rest.RolesRestClient;
 public class NodeEditablePanel extends Panel {
     @SpringBean(name = "rolesRestClient")
     RolesRestClient restClient;
+
+    Fragment fragment;
     /**
      * Panel constructor.
      *
@@ -50,7 +53,12 @@ public class NodeEditablePanel extends Panel {
                                final ModalWindow window) {
         super(id);
 
-        add(new AjaxLink("createRoleLink") {
+        if (idRole == -1)
+            fragment = new Fragment("menuPanel", "frag2",this);
+        else {
+            fragment = new Fragment("menuPanel", "frag1",this);
+
+        fragment.add(new AjaxLink("createRoleLink") {
 
             @Override
             public void onClick(AjaxRequestTarget target) {
@@ -69,7 +77,7 @@ public class NodeEditablePanel extends Panel {
             }
         });
 
-        add(new AjaxLink("updateRoleLink") {
+        fragment.add(new AjaxLink("updateRoleLink") {
 
             @Override
             public void onClick(AjaxRequestTarget target) {
@@ -87,7 +95,7 @@ public class NodeEditablePanel extends Panel {
             }
         });
 
-        add(new AjaxLink("dropRoleLink") {
+        fragment.add(new AjaxLink("dropRoleLink") {
 
             @Override
             public void onClick(AjaxRequestTarget target) {
@@ -95,5 +103,8 @@ public class NodeEditablePanel extends Panel {
                 setResponsePage(new Roles(null));
             }
         });
+    }
+
+    add(fragment);
     }
 }

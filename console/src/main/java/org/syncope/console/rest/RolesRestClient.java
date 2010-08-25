@@ -93,9 +93,10 @@ public class RolesRestClient {
         }
         catch (SyncopeClientCompositeErrorException e) {
             e.printStackTrace();
+            return false;
         }
 
-        return (newRoleTO.getName().equals(roleMod.getName()))?true:false;
+        return true;
     }
     
     /**

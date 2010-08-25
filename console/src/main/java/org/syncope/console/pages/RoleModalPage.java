@@ -74,6 +74,8 @@ public class RoleModalPage extends SyncopeModalPage {
     WebMarkupContainer container;
     List<SchemaWrapper> schemaWrappers = new ArrayList<SchemaWrapper>();
 
+    RoleTO oldRole;
+    RoleMod roleMod;
     /**
      *
      * @param basePage base
@@ -89,6 +91,9 @@ public class RoleModalPage extends SyncopeModalPage {
         form.setModel(new CompoundPropertyModel(roleTO));
 
         setupSchemaWrappers(createFlag, roleTO);
+
+        if(!createFlag)
+            cloneOldRoleTO(roleTO);
 
         final ListView roleAttributesView = new ListView("roleSchemas", schemaWrappers) {
 
@@ -287,7 +292,8 @@ public class RoleModalPage extends SyncopeModalPage {
                         restClient.createRole(roleTO);
                         window.close(target);
                     } else {
-                        res = restClient.updateRole(convertRoleTOtoRoleMod(roleTO));
+                        setupRoleMod(roleTO);
+                        res = restClient.updateRole(roleMod);
                         if (!res) {
                             error(getString("error"));
                         } else {
@@ -323,6 +329,8 @@ public class RoleModalPage extends SyncopeModalPage {
 
         SchemaTOs schemas = schemaRestClient.getAllRoleSchemas();
 
+        boolean found = false;
+
         if (create) {
             for (SchemaTO schema : schemas) {
                 schemaWrapper = new SchemaWrapper(schema);
@@ -335,7 +343,14 @@ public class RoleModalPage extends SyncopeModalPage {
                         schemaWrapper = new SchemaWrapper(schema);
                         schemaWrapper.setValues(attribute.getValues());
                         schemaWrappers.add(schemaWrapper);
+                        found = true;
                     }
+                }
+                if (!found) {
+                    schemaWrapper = new SchemaWrapper(schema);
+                    schemaWrappers.add(schemaWrapper);
+                } else {
+                    found = false;
                 }
             }
         }
@@ -377,32 +392,86 @@ public class RoleModalPage extends SyncopeModalPage {
         return resourcesSet;
     }
 
+    /**
+     * Create a copy of old RoleTO
+     * @param roleTO
+     */
+    public void cloneOldRoleTO(RoleTO roleTO){
+        oldRole = new RoleTO();
 
-    public RoleMod convertRoleTOtoRoleMod(RoleTO roleTO){
-        RoleMod roleMod = new RoleMod();
+        oldRole.setName(new String(roleTO.getName()));
+        oldRole.setParent(new Long(roleTO.getParent()));
 
-        AttributeMod attributeMod;
-        Set<AttributeMod> attributesToUpdate = new HashSet<AttributeMod>();
+        Set<AttributeTO> attributes = new HashSet<AttributeTO>();
 
-        for (SchemaWrapper schemaWrapper : schemaWrappers) {
+        oldRole.setAttributes(attributes);
 
-            attributeMod = new AttributeMod();
-            attributeMod.setSchema(schemaWrapper.getSchemaTO().getName());
-            attributeMod.setValuesToBeAdded(new HashSet<String>());
+        AttributeTO attributeTO;
+        Set<String> values;
+        for (AttributeTO attribute : roleTO.getAttributes()) {
+            attributeTO = new AttributeTO();
+            attributeTO.setSchema(new String(attribute.getSchema()));
 
-            for (String value : schemaWrapper.getValues()) {
-                attributeMod.getValuesToBeAdded().add(value);
+            values = new HashSet<String>();
+            for(String val : attribute.getValues()) {
+                values.add(val);
             }
-
-            attributesToUpdate.add(attributeMod);
+            attributeTO.setValues(values);
         }
+    }
+
+    public void setupRoleMod(RoleTO roleTO){
+        roleMod = new RoleMod();
+
+//        AttributeMod attributeMod;
+//        Set<AttributeMod> attributesToUpdate = new HashSet<AttributeMod>();
+
+//        for (SchemaWrapper schemaWrapper : schemaWrappers) {
+
+//            attributeMod = new AttributeMod();
+//            attributeMod.setSchema(schemaWrapper.getSchemaTO().getName());
+//            attributeMod.setValuesToBeAdded(new HashSet<String>());
+//
+//            for (String value : schemaWrapper.getValues()) {
+//                attributeMod.getValuesToBeAdded().add(value);
+//            }
+//
+//            attributesToUpdate.add(attributeMod);
+//        }
 
         roleMod.setId(roleTO.getId());
-        roleMod.setName(roleTO.getName());
 
-        roleMod.setAttributesToBeUpdated(attributesToUpdate);
+        if(!oldRole.getName().equals(roleTO.getName()))
+            roleMod.setName(roleTO.getName());
 
-        return roleMod;
+        for(AttributeTO attributeTO : roleTO.getAttributes())
+            searchAndUpdateAttribute(attributeTO);
+    }
+
+    public void searchAndUpdateAttribute(AttributeTO attributeTO){
+        boolean found = false;
+
+        AttributeMod attributeMod = new AttributeMod();
+        attributeMod.setSchema(attributeTO.getSchema());
+
+        for(AttributeTO oldAttribute : oldRole.getAttributes()){
+            if (attributeTO.getSchema().equals(oldAttribute.getSchema())) {
+
+                if (!attributeTO.equals(oldAttribute)) {
+                    attributeMod.setValuesToBeAdded(attributeTO.getValues());
+
+                    roleMod.addAttributeToBeRemoved(oldAttribute.getSchema());
+                    roleMod.addAttributeToBeUpdated(attributeMod);
+                }
+
+                found = true;
+            }
+        }
+
+        if(!found){
+            attributeMod.setValuesToBeAdded(attributeTO.getValues());
+            roleMod.addAttributeToBeUpdated(attributeMod);
+       }
     }
 
     /**

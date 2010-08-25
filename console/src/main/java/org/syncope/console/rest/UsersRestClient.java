@@ -16,6 +16,7 @@
 
 package org.syncope.console.rest;
 
+import org.syncope.client.mod.UserMod;
 import org.syncope.client.to.ConfigurationTO;
 import org.syncope.client.to.UserTO;
 import org.syncope.client.to.UserTOs;
@@ -71,25 +72,25 @@ public class UsersRestClient
      * @param userTO
      * @return true is the opertion ends succesfully, false otherwise
      */
-    public boolean updateUser(UserTO userTO) {
+    public boolean updateUser(UserMod userModTO) {
         UserTO newUserTO = null;
         
         try {
         newUserTO = restClient.getRestTemplate().postForObject(restClient.getBaseURL()
-                + "user/update", userTO, UserTO.class);
+                + "user/update", userModTO, UserTO.class);
         }
         catch (SyncopeClientCompositeErrorException e) {
             e.printStackTrace();
         }
 
-        return (userTO.equals(newUserTO))?true:false;
+        return (userModTO.getId() == newUserTO.getId())?true:false;
     }
 
 
     public void deleteUser(String id) {
         try {
         restClient.getRestTemplate().delete(restClient.getBaseURL()
-                + "user/delete/{userId}", id);
+                + "user/delete/{userId}", new Integer(id));
         }
         catch (SyncopeClientCompositeErrorException e) {
             e.printStackTrace();

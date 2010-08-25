@@ -13,13 +13,22 @@
  under the License.
 -->
 <wicket:panel>
-    <a  wicket:id="createRoleLink">
-        <wicket:message key="create_role"/>&nbsp;
-    </a>
-    <a  wicket:id="updateRoleLink">
-        <wicket:message key="update_role"/>&nbsp;
-    </a>
-    <a  wicket:id="dropRoleLink">
-        <wicket:message key="drop_role"/>&nbsp;
-    </a>
+    <span wicket:id="menuPanel"/>
+    
+    <wicket:fragment wicket:id="frag1">
+        <a  wicket:id="createRoleLink">
+            <wicket:message key="create_role"/>&nbsp;
+        </a>
+        <a  wicket:id="updateRoleLink">
+            <wicket:message key="update_role"/>&nbsp;
+        </a>
+        <a  wicket:id="dropRoleLink">
+            <wicket:message key="drop_role"/>&nbsp;
+        </a>
+    </wicket:fragment>
+
+    <wicket:fragment wicket:id="frag2">
+
+    </wicket:fragment>
+    
 </wicket:panel>
