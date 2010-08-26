@@ -115,7 +115,7 @@
 
         <hibernate.version>3.4.0.GA</hibernate.version>
 
-        <wicket.version>1.4.9</wicket.version>
+        <wicket.version>1.4.10</wicket.version>
 
         <org.apache.cxf.version>2.2.9</org.apache.cxf.version>
 

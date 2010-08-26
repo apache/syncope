@@ -177,6 +177,10 @@ public class Schema extends BasePage
                     @Override
                     public void onClick(AjaxRequestTarget target) {
                         restClient.deleteRoleSchema(schemaTO.getName());
+
+                        info(getString("operation_succeded"));
+                        target.addComponent(feedbackPanel);
+
                         target.addComponent(roleSchemasContainer);
                     }
 
@@ -223,6 +227,10 @@ public class Schema extends BasePage
                     @Override
                     public void onClick(AjaxRequestTarget target) {
                         restClient.deleteRoleDerivedSchema(schemaTO.getName());
+
+                        info(getString("operation_succeded"));
+                        target.addComponent(feedbackPanel);
+
                         target.addComponent(roleDerivedSchemasContainer);
                     }
 
@@ -270,6 +278,10 @@ public class Schema extends BasePage
                     @Override
                     public void onClick(AjaxRequestTarget target) {
                         restClient.deleteUserSchema(schemaTO.getName());
+
+                        info(getString("operation_succeded"));
+                        target.addComponent(feedbackPanel);
+
                         target.addComponent(userSchemaContainer);
                     }
 
@@ -317,6 +329,10 @@ public class Schema extends BasePage
                     @Override
                     public void onClick(AjaxRequestTarget target) {
                         restClient.deleteUserDerivedSchema(schemaTO.getName());
+
+                        info(getString("operation_succeded"));
+                        target.addComponent(feedbackPanel);
+
                         target.addComponent(userDerivedSchemaContainer);
                     }
 
@@ -365,6 +381,10 @@ public class Schema extends BasePage
                     @Override
                     public void onClick(AjaxRequestTarget target) {
                         restClient.deleteMemberhipSchema((schemaTO.getName()));
+
+                        info(getString("operation_succeded"));
+                        target.addComponent(feedbackPanel);
+
                         target.addComponent(membershipSchemaContainer);
                     }
 
@@ -412,6 +432,10 @@ public class Schema extends BasePage
                     @Override
                     public void onClick(AjaxRequestTarget target) {
                         restClient.deleteMembershipDerivedSchema(schemaTO.getName());
+
+                        info(getString("operation_succeded"));
+                        target.addComponent(feedbackPanel);
+
                         target.addComponent(membershipDerivedSchemaContainer);
                     }
 

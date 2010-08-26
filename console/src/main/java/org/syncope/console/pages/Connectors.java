@@ -104,6 +104,10 @@ public class Connectors extends BasePage {
                     @Override
                     public void onClick(AjaxRequestTarget target) {
                         restClient.deleteConnector(connectorTO.getId());
+
+                        info(getString("operation_succeded"));
+                        target.addComponent(feedbackPanel);
+                        
                         target.addComponent(connectorsContainer);
                     }
                 };

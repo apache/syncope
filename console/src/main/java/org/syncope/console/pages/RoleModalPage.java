@@ -290,6 +290,10 @@ public class RoleModalPage extends SyncopeModalPage {
 
                     if (createFlag) {
                         restClient.createRole(roleTO);
+
+                        Roles callerPage = (Roles)basePage;
+                        callerPage.setOperationResult(true);
+
                         window.close(target);
                     } else {
                         setupRoleMod(roleTO);
@@ -297,6 +301,9 @@ public class RoleModalPage extends SyncopeModalPage {
                         if (!res) {
                             error(getString("error"));
                         } else {
+                            Roles callerPage = (Roles)basePage;
+                            callerPage.setOperationResult(true);
+                            
                             window.close(target);
                         }
                     }

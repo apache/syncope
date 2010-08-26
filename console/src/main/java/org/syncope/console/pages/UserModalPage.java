@@ -347,6 +347,9 @@ public class UserModalPage extends SyncopeModalPage {
 
                     }
 
+                    Users callerPage = (Users)basePage;
+                    callerPage.setOperationResult(true);
+
                     window.close(target);
 
                 } catch (Exception e) {
@@ -803,11 +806,14 @@ public class UserModalPage extends SyncopeModalPage {
                         if (!oldAttribute.equals(newAttribute)) {
                             attributeMod = new AttributeMod();
                             attributeMod.setSchema(newAttribute.getSchema());
+                            
+                            attributeMod.setValuesToBeRemoved(oldAttribute.getValues());
                             attributeMod.setValuesToBeAdded(newAttribute.getValues());
 
                             membershipMod.addAttributeToBeUpdated(attributeMod);
+                            
+                            userMod.addMembershipToBeAdded(membershipMod);
                             userMod.addMembershipToBeRemoved(oldMembership.getId());
-                            //userMod.addMembershipToBeAdded(membershipMod);
                         }
                     }
                 }

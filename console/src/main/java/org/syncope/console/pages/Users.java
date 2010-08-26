@@ -30,6 +30,7 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
@@ -60,6 +61,10 @@ public class Users extends BasePage {
     WebMarkupContainer usersContainer;
 
     List<String> columnsList;
+
+    /** Response flag set by the Modal Window after the operation is completed  */
+    boolean operationResult = false;
+    FeedbackPanel feedbackPanel;
     
     public Users(PageParameters parameters) {
         super(parameters);
@@ -67,6 +72,11 @@ public class Users extends BasePage {
         add(createUserWin = new ModalWindow("createUserWin"));
         add(editUserWin = new ModalWindow("editUserWin"));
         add(changeAttribsViewWin = new ModalWindow("changeAttributesViewWin"));
+
+        feedbackPanel = new FeedbackPanel("feedback");
+        feedbackPanel.setOutputMarkupId( true );
+
+        add(feedbackPanel);
         
         //table's columnsList = attributes to view
         final IModel columns = new LoadableDetachableModel() {
@@ -165,6 +175,10 @@ public class Users extends BasePage {
                     @Override
                     public void onClick(AjaxRequestTarget target) {
                         restClient.deleteUser(userTO.getId()+"");
+
+                        info(getString("operation_succeded"));
+                        target.addComponent(feedbackPanel);
+
                         target.addComponent(usersContainer);
                     }
                 };
@@ -305,8 +319,21 @@ public class Users extends BasePage {
 
                     public void onClose(AjaxRequestTarget target) {
                         target.addComponent(container);
+                        if(operationResult){
+                        info(getString("operation_succeded"));
+                        target.addComponent(feedbackPanel);
+                        operationResult = false;
+                    }
                     }
                 });
+    }
+
+    public boolean isOperationResult() {
+        return operationResult;
+    }
+
+    public void setOperationResult(boolean operationResult) {
+        this.operationResult = operationResult;
     }
 
     /**

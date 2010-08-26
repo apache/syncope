@@ -25,6 +25,7 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.to.RoleTO;
+import org.syncope.console.pages.BasePage;
 import org.syncope.console.pages.RoleModalPage;
 import org.syncope.console.pages.Roles;
 import org.syncope.console.rest.RolesRestClient;
@@ -50,7 +51,7 @@ public class NodeEditablePanel extends Panel {
      *            Modal window to open
      */
     public NodeEditablePanel(String id, final Long idRole,IModel inputModel,
-                               final ModalWindow window) {
+                               final ModalWindow window,final BasePage basePage) {
         super(id);
 
         if (idRole == -1)
@@ -68,7 +69,7 @@ public class NodeEditablePanel extends Panel {
                         RoleTO roleTO = new RoleTO();
                         roleTO.setParent(idRole);
                         RoleModalPage form = new RoleModalPage
-                                (null,window, roleTO, true);
+                                (basePage,window, roleTO, true);
                         return form;
                     }
                 });
@@ -86,7 +87,7 @@ public class NodeEditablePanel extends Panel {
                     public Page createPage() {
                         RoleTO roleTO = restClient.readRole(idRole);
                         RoleModalPage form =
-                                new RoleModalPage(null, window, roleTO, false);
+                                new RoleModalPage(basePage, window, roleTO, false);
                         return form;
                     }
                 });
@@ -100,6 +101,9 @@ public class NodeEditablePanel extends Panel {
             @Override
             public void onClick(AjaxRequestTarget target) {
                 restClient.deleteRole(idRole);
+
+                getSession().info(getString("operation_succeded"));
+
                 setResponsePage(new Roles(null));
             }
         });

@@ -26,6 +26,7 @@ import org.apache.wicket.extensions.markup.html.tree.table.ColumnLocation.Alignm
 import org.apache.wicket.extensions.markup.html.tree.table.ColumnLocation.Unit;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.tree.AbstractTree;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.console.rest.RolesRestClient;
@@ -47,6 +48,10 @@ public class Roles extends BasePage {
 
     WebMarkupContainer container;
 
+        /** Response flag set by the Modal Window after the operation is completed  */
+    boolean operationResult = false;
+    FeedbackPanel feedbackPanel;
+    
     public Roles(PageParameters parameters) {
         super(parameters);
 
@@ -64,10 +69,15 @@ public class Roles extends BasePage {
         new PropertyTreeColumn(new ColumnLocation(Alignment.LEFT, 30,
             Unit.EM), getString("column1"), "userObject.treeNode.name"),
             new PropertyEditableColumn(new ColumnLocation(Alignment.LEFT, 20,
-            Unit.EM), getString("column2"), "userObject.title",createRoleWin),
+            Unit.EM), getString("column2"), "userObject.title",createRoleWin,Roles.this),
 //            new PropertyRenderableColumn(new ColumnLocation(Alignment.MIDDLE, 3,
 //                        Unit.PROPORTIONAL), "Name", "userObject.treeNode.name")
             };
+
+        feedbackPanel = new FeedbackPanel("feedback");
+        feedbackPanel.setOutputMarkupId( true );
+
+        add(feedbackPanel);
 
         Form form = new Form("form");
         add(form);
@@ -102,6 +112,10 @@ public class Roles extends BasePage {
 
                     public void onClose(AjaxRequestTarget target) {
                         target.addComponent(container);
+                        
+                        if(operationResult)
+                            getSession().info(getString("operation_succeded"));
+                    
                         setResponsePage(new Roles(null));
                     }
                 });
@@ -112,5 +126,13 @@ public class Roles extends BasePage {
      */
     protected AbstractTree getTree() {
         return tree;
+    }
+
+    public boolean isOperationResult() {
+        return operationResult;
+    }
+
+    public void setOperationResult(boolean operationResult) {
+        this.operationResult = operationResult;
     }
 }

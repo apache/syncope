@@ -107,6 +107,10 @@ public class Resources extends BasePage {
                     @Override
                     public void onClick(AjaxRequestTarget target) {
                         restClient.deleteResource(resourceTO.getName());
+
+                        info(getString("operation_succeded"));
+                        target.addComponent(feedbackPanel);
+
                         target.addComponent(resourcesContainer);
                     }
                 };

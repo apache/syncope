@@ -25,9 +25,11 @@ import org.apache.wicket.extensions.markup.html.tree.table.IColumn;
 import org.apache.wicket.extensions.markup.html.tree.table.IRenderable;
 import org.apache.wicket.extensions.markup.html.tree.table.PropertyRenderableColumn;
 import org.apache.wicket.model.PropertyModel;
+import org.syncope.console.pages.BasePage;
 
 public class PropertyEditableColumn extends PropertyRenderableColumn {
 ModalWindow window = null;
+BasePage callerPage;
     /**
      * Column constructor.
      *
@@ -36,10 +38,10 @@ ModalWindow window = null;
      * @param propertyExpression
      */
     public PropertyEditableColumn(ColumnLocation location, String header,
-                                  String propertyExpression,ModalWindow window)
+                                  String propertyExpression,ModalWindow window,BasePage callerPage)
     {
         super(location, header, propertyExpression);
-        
+        this.callerPage = callerPage;
         this.window = window;
     }
 
@@ -61,7 +63,7 @@ ModalWindow window = null;
             nodeId = -1;
 
         editablePanel = new NodeEditablePanel(id, nodeId ,
-                    new PropertyModel(node, getPropertyExpression()),window);
+                    new PropertyModel(node, getPropertyExpression()),window,callerPage);
 
 
         return editablePanel;
