@@ -14,6 +14,7 @@
  */
 package org.syncope.core.test.persistence;
 
+import java.util.ArrayList;
 import java.util.List;
 import static org.junit.Assert.*;
 
@@ -59,7 +60,12 @@ public class ResourceDAOTest extends AbstractTest {
 
         assertFalse("no mapping specified", mappings.isEmpty());
 
-        assertTrue(mappings.iterator().next().getId() == 100L);
+        List<Long> mappingIds = new ArrayList<Long>();
+
+        for (SchemaMapping mapping : mappings)
+            mappingIds.add(mapping.getId());
+
+        assertTrue(mappingIds.contains(100L));
     }
 
     @Test

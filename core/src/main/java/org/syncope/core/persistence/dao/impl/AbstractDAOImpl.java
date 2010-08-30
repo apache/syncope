@@ -30,6 +30,7 @@ public abstract class AbstractDAOImpl implements DAO {
 
     protected static final Logger log =
             LoggerFactory.getLogger(AbstractDAOImpl.class);
+
     @PersistenceContext(type = PersistenceContextType.EXTENDED)
     protected EntityManager entityManager;
 

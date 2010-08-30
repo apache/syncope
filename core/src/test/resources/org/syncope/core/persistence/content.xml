@@ -50,6 +50,7 @@
     <Membership id="2" syncopeUser_id="2" syncopeRole_id="1"/>
     <Membership id="3" syncopeUser_id="2" syncopeRole_id="2"/>
     <Membership id="4" syncopeUser_id="4" syncopeRole_id="7"/>
+    <Membership id="5" syncopeUser_id="1" syncopeRole_id="8"/>
 
     <UserSchema name="username" type="String" virtual="F"
                 mandatory="T" multivalue="F" uniquevalue="T"/>
@@ -63,8 +64,10 @@
                 mandatory="F" multivalue="F" uniquevalue="F"/>
     <UserSchema name="surname" type="String" virtual="F"
                 mandatory="T" multivalue="F" uniquevalue="F"/>
+    <UserSchema name="type" type="String" virtual="F"
+                mandatory="F" multivalue="F" uniquevalue="F"/>
     <UserSchema name="email" type="String" virtual="F"
-                mandatory="F" multivalue="T" uniquevalue="T"
+                mandatory="F" multivalue="F" uniquevalue="T"
                 validatorClass="org.syncope.core.persistence.validation.EmailAddressValidator"/>
     <UserSchema name="activationDate" type="Date" virtual="F"
                 mandatory="F" multivalue="F" uniquevalue="F"
@@ -113,10 +116,8 @@
 
     <UserDerivedSchema name="cn" expression="surname + ', ' + firstname"/>
     
-    <UserSchemaDerivation derivedSchemas_name="cn"
-                          schemas_name="surname"/>
-    <UserSchemaDerivation derivedSchemas_name="cn"
-                          schemas_name="firstname"/>
+    <UserSchemaDerivation derivedSchemas_name="cn" schemas_name="surname"/>
+    <UserSchemaDerivation derivedSchemas_name="cn" schemas_name="firstname"/>
                                             
     <UserDerivedAttribute id="1000" derivedSchema_name="cn" owner_id="3"/>
 
@@ -138,67 +139,93 @@
                        version="0.1-SNAPSHOT"
                        xmlConfiguration="%3C%3Fxml+version%3D%221.0%22+encoding%3D%22UTF-8%22%3F%3E+%0A%3Cjava+version%3D%221.6.0_20%22+class%3D%22java.beans.XMLDecoder%22%3E+%0A+%3Cobject+class%3D%22java.util.HashSet%22%3E+%0A++%3Cvoid+method%3D%22add%22%3E+%0A+++%3Cobject+class%3D%22org.syncope.client.to.PropertyTO%22%3E+%0A++++%3Cvoid+property%3D%22key%22%3E+%0A+++++%3Cstring%3Eendpoint%3C%2Fstring%3E+%0A++++%3C%2Fvoid%3E+%0A++++%3Cvoid+property%3D%22value%22%3E+%0A+++++%3Cstring%3Ehttp%3A%2F%2Flocalhost%3A8888%2Fwstarget%2Fservices%2Fprovisioning%3C%2Fstring%3E+%0A++++%3C%2Fvoid%3E+%0A+++%3C%2Fobject%3E+%0A++%3C%2Fvoid%3E+%0A++%3Cvoid+method%3D%22add%22%3E+%0A+++%3Cobject+class%3D%22org.syncope.client.to.PropertyTO%22%3E+%0A++++%3Cvoid+property%3D%22key%22%3E+%0A+++++%3Cstring%3Eservicename%3C%2Fstring%3E+%0A++++%3C%2Fvoid%3E+%0A++++%3Cvoid+property%3D%22value%22%3E+%0A+++++%3Cstring%3Eorg.syncope.identityconnectors.bundles.staticwebservice.provisioning.interfaces.Provisioning%3C%2Fstring%3E+%0A++++%3C%2Fvoid%3E+%0A+++%3C%2Fobject%3E+%0A++%3C%2Fvoid%3E+%0A+%3C%2Fobject%3E+%0A%3C%2Fjava%3E+%0A"/>
 
-    <TargetResource name="ws-target-resource-1" connector_id="100"/>
-    <TargetResource name="ws-target-resource-2" connector_id="100"/>
-    <TargetResource name="ws-target-resource-list-mappings-1" connector_id="100"/>
-    <TargetResource name="ws-target-resource-list-mappings-2" connector_id="100"/>
-    <TargetResource name="ws-target-resource-delete" connector_id="102"/>
-    <TargetResource name="ws-target-resource-update" connector_id="100"/>
+    <TargetResource name="ws-target-resource-1" connector_id="100" forceMandatoryConstraint="T"/>
+    <TargetResource name="ws-target-resource-2" connector_id="100" forceMandatoryConstraint="T"/>
+    <TargetResource name="ws-target-resource-list-mappings-1" connector_id="100" forceMandatoryConstraint="F"/>
+    <TargetResource name="ws-target-resource-list-mappings-2" connector_id="100" forceMandatoryConstraint="F"/>
+    <TargetResource name="ws-target-resource-delete" connector_id="102" forceMandatoryConstraint="F"/>
+    <TargetResource name="ws-target-resource-update" connector_id="100" forceMandatoryConstraint="T"/>
 
-    <TargetResource_SyncopeUser TargetResource_name="ws-target-resource-delete" users_id="3" />
-    <SyncopeUser_TargetResource SyncopeUser_id="3" targetResources_name="ws-target-resource-delete" />
+    <SyncopeUser_TargetResource users_id="3" targetResources_name="ws-target-resource-delete" />
+    <SyncopeRole_TargetResource roles_id="3" targetResources_name="ws-target-resource-list-mappings-1" />
+    <SyncopeUser_TargetResource users_id="3" targetResources_name="ws-target-resource-2" />
+    <SyncopeRole_TargetResource roles_id="8" targetResources_name="ws-target-resource-2" />
+    <SyncopeRole_TargetResource roles_id="3" targetResources_name="ws-target-resource-list-mappings-2" />
 
-    <TargetResource_SyncopeRole TargetResource_name="ws-target-resource-list-mappings-1" roles_id="3" />
-    <SyncopeRole_TargetResource SyncopeRole_id="3" targetResources_name="ws-target-resource-list-mappings-1" />
-
-    <TargetResource_SyncopeUser TargetResource_name="ws-target-resource-2" users_id="3" />
-    <SyncopeUser_TargetResource SyncopeUser_id="3" targetResources_name="ws-target-resource-2" />
-
-    <TargetResource_SyncopeRole TargetResource_name="ws-target-resource-2" roles_id="8" />
-    <SyncopeRole_TargetResource SyncopeRole_id="8" targetResources_name="ws-target-resource-2" />
-
-    <TargetResource_SyncopeRole TargetResource_name="ws-target-resource-list-mappings-2" roles_id="3" />
-    <SyncopeRole_TargetResource SyncopeRole_id="3" targetResources_name="ws-target-resource-list-mappings-2" />
-
-    <SchemaMapping id="99" field="username"
-                   resource_name="ws-target-resource-delete"
-                   userSchema_name="email" nullable="F"
-                   accountid="T" password="F"/>
-
-    <SchemaMapping id="100" field="username"
+    <SchemaMapping id="99" field="userid"
                    resource_name="ws-target-resource-1"
-                   userSchema_name="email" nullable="F"
+                   schemaName="AccountId" schemaType="AccountId" nullable="F"
                    accountid="T" password="F"/>
+
+    <SchemaMapping id="100" field="email"
+                   resource_name="ws-target-resource-1"
+                   schemaName="email" schemaType="UserSchema" nullable="F"
+                   accountid="T" password="F"/>
+    <UserSchema_SchemaMapping UserSchema_name="email" mappings_id="100" />
 
     <SchemaMapping id="101" field="username"
                    resource_name="ws-target-resource-2"
-                   userSchema_name="username" nullable="F"
+                   schemaName="username" schemaType="UserSchema" nullable="F"
                    accountid="T" password="F"/>
-
-    <SchemaMapping id="105" field="cognome"
-                   resource_name="ws-target-resource-2"
-                   userSchema_name="surname" nullable="F"
-                   accountid="F" password="F"/>
-                   
-    <SchemaMapping id="106" field="password"
-                   resource_name="ws-target-resource-2"
-                   userSchema_name="surname" nullable="F"
-                   accountid="F" password="T"/>
+    <UserSchema_SchemaMapping UserSchema_name="username" mappings_id="101" />
 
     <SchemaMapping id="102" field="email"
                    resource_name="ws-target-resource-list-mappings-1"
-                   userSchema_name="email" nullable="F"
+                   schemaName="email" schemaType="UserSchema" nullable="F"
                    accountid="T" password="F"/>
+    <UserSchema_SchemaMapping UserSchema_name="email" mappings_id="102" />
 
-    <SchemaMapping id="103" field="firstname"
+    <SchemaMapping id="103" field="surname"
                    resource_name="ws-target-resource-list-mappings-1"
-                   userSchema_name="email" nullable="F"
-                   accountid="T" password="F"/>
+                   schemaName="surname" schemaType="UserSchema" nullable="F"
+                   accountid="F" password="F"/>
+    <UserSchema_SchemaMapping UserSchema_name="surname" mappings_id="103" />
 
-    <SchemaMapping id="104" field="firstname"
+    <SchemaMapping id="104" field="userid"
                    resource_name="ws-target-resource-list-mappings-2"
-                   userSchema_name="email" nullable="F"
+                   schemaName="userId" schemaType="UserSchema" nullable="F"
                    accountid="T" password="F"/>
+    <UserSchema_SchemaMapping UserSchema_name="userId" mappings_id="104" />
+
+    <SchemaMapping id="105" field="surname"
+                   resource_name="ws-target-resource-1"
+                   schemaName="surname" schemaType="UserSchema" nullable="F"
+                   accountid="F" password="F"/>
+    <UserSchema_SchemaMapping UserSchema_name="surname" mappings_id="105" />
+
+    <SchemaMapping id="106" field="password"
+                   resource_name="ws-target-resource-1"
+                   schemaName="Password" schemaType="Password" nullable="F"
+                   accountid="F" password="T"/>
+
+    <SchemaMapping id="107" field="password"
+                   resource_name="ws-target-resource-2"
+                   schemaName="Password" schemaType="Password" nullable="F"
+                   accountid="F" password="T"/>
+
+    <SchemaMapping id="108" field="type"
+                   resource_name="ws-target-resource-2"
+                   schemaName="type" schemaType="UserSchema" nullable="F"
+                   accountid="F" password="F"/>
+    <UserSchema_SchemaMapping UserSchema_name="type" mappings_id="108" />
+
+    <SchemaMapping id="109" field="surname"
+                   resource_name="ws-target-resource-2"
+                   schemaName="surname" schemaType="UserSchema" nullable="F"
+                   accountid="F" password="F"/>
+    <UserSchema_SchemaMapping UserSchema_name="surname" mappings_id="109" />
+
+    <SchemaMapping id="110" field="email"
+                   resource_name="ws-target-resource-update"
+                   schemaName="email" schemaType="UserSchema" nullable="T"
+                   accountid="F" password="F"/>
+    <UserSchema_SchemaMapping UserSchema_name="email" mappings_id="110" />
+
+    <SchemaMapping id="111" field="userId"
+                   resource_name="ws-target-resource-update"
+                   schemaName="userId" schemaType="UserSchema" nullable="T"
+                   accountid="F" password="F"/>
+    <UserSchema_SchemaMapping UserSchema_name="userId" mappings_id="111" />
 
     <Entitlement name="base"/>
     <Entitlement name="advanced" description="Advanced entitlement"/>

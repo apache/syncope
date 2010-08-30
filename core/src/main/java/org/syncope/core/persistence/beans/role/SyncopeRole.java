@@ -45,19 +45,27 @@ public class SyncopeRole extends AbstractAttributable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
     private String name;
+
     @ManyToOne(optional = true)
     private SyncopeRole parent;
+
     @OneToMany(cascade = CascadeType.MERGE, mappedBy = "syncopeRole")
     private List<Membership> memberships;
+
     @ManyToMany(fetch = FetchType.LAZY)
     private Set<Entitlement> entitlements;
+
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     private List<RoleAttribute> attributes;
+
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     private List<RoleDerivedAttribute> derivedAttributes;
+
     @Basic
     private Character inheritAttributes;
+
     @Basic
     private Character inheritDerivedAttributes;
 
@@ -187,8 +195,7 @@ public class SyncopeRole extends AbstractAttributable {
     }
 
     public boolean isInheritDerivedAttributes() {
-        return inheritDerivedAttributes != null
-                && inheritDerivedAttributes == 'T';
+        return inheritDerivedAttributes != null && inheritDerivedAttributes == 'T';
     }
 
     public void setInheritDerivedAttributes(boolean inheritDerivedAttributes) {

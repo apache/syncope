@@ -16,6 +16,7 @@ package org.syncope.core.persistence.dao.impl;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import javax.persistence.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -24,13 +25,12 @@ import org.syncope.core.persistence.beans.AbstractAttribute;
 import org.syncope.core.persistence.beans.AbstractDerivedSchema;
 import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.beans.SchemaMapping;
-import org.syncope.core.persistence.beans.membership.MembershipSchema;
-import org.syncope.core.persistence.beans.role.RoleSchema;
-import org.syncope.core.persistence.beans.user.UserSchema;
+import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.dao.AttributeDAO;
+import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
-import org.syncope.core.persistence.dao.SchemaMappingDAO;
 import org.syncope.core.persistence.validation.MultiUniqueValueException;
+import org.syncope.types.SchemaType;
 
 @Repository
 public class SchemaDAOImpl extends AbstractDAOImpl
@@ -38,8 +38,9 @@ public class SchemaDAOImpl extends AbstractDAOImpl
 
     @Autowired
     private AttributeDAO attributeDAO;
+
     @Autowired
-    private SchemaMappingDAO schemaMappingDAO;
+    private ResourceDAO resourceDAO;
 
     @Override
     @Transactional(readOnly = true)
@@ -71,13 +72,22 @@ public class SchemaDAOImpl extends AbstractDAOImpl
             String name, Class<T> reference) {
 
         T schema = find(name, reference);
-        if (schema == null) {
-            return;
-        }
 
-        for (AbstractDerivedSchema derivedSchema : schema.getDerivedSchemas()) {
+        if (schema == null) return;
+
+        // --------------------------------------
+        // Remove all mappings
+        // --------------------------------------
+        List<SchemaMapping> mappings = schema.getMappings();
+        schema.setMappings(Collections.EMPTY_LIST);
+
+        for (SchemaMapping mapping : mappings)
+            removeMapping(mapping.getId());
+        // --------------------------------------
+
+        for (AbstractDerivedSchema derivedSchema : schema.getDerivedSchemas())
             derivedSchema.removeSchema(schema);
-        }
+
         schema.setDerivedSchemas(Collections.EMPTY_LIST);
 
         for (AbstractAttribute attribute : schema.getAttributes()) {
@@ -86,21 +96,136 @@ public class SchemaDAOImpl extends AbstractDAOImpl
         }
         schema.setAttributes(Collections.EMPTY_LIST);
 
-        for (SchemaMapping schemaMapping : schema.getMappings()) {
-            if (schema instanceof UserSchema) {
-                schemaMapping.setUserSchema(null);
-            }
-            if (schema instanceof RoleSchema) {
-                schemaMapping.setRoleSchema(null);
-            }
-            if (schema instanceof MembershipSchema) {
-                schemaMapping.setMembershipSchema(null);
-            }
-
-            schemaMappingDAO.delete(schemaMapping.getId());
-        }
-        schema.setMappings(Collections.EMPTY_LIST);
-
         entityManager.remove(schema);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public SchemaMapping findMapping(Long id) {
+        return entityManager.find(SchemaMapping.class, id);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<SchemaMapping> findAllMappings() {
+        Query query =
+                entityManager.createQuery("SELECT e FROM SchemaMapping e");
+        return query.getResultList();
+    }
+
+    @Override
+    public SchemaMapping saveMapping(SchemaMapping mapping) {
+        return entityManager.merge(mapping);
+    }
+
+    @Override
+    public void removeMapping(Long mappingId) {
+
+        // Get mapping object
+        SchemaMapping mapping = findMapping(mappingId);
+
+        if (mapping == null) return;
+
+        // --------------------------------------
+        // Synchronize schema
+        // --------------------------------------
+        String schemaName = mapping.getSchemaName();
+        SchemaType schemaType = mapping.getSchemaType();
+
+        try {
+            // check for schema type
+            schemaType.getSchemaType().asSubclass(AbstractSchema.class);
+
+            /**
+             * Schema type could be:
+             * * UserSchema
+             * * RoleSchema
+             * * MembershipSchema
+             */
+            if (log.isDebugEnabled()) {
+                log.debug("Schema type " + schemaType.getClassName());
+            }
+            AbstractSchema schema = find(schemaName, schemaType.getSchemaType());
+
+            if (schema != null)
+                schema.removeMapping(mapping);
+
+        } catch (ClassCastException e) {
+            /**
+             * Schema type could be:
+             * * AccountId
+             * * Password
+             */
+            if (log.isDebugEnabled()) {
+                log.debug("Wrong schema type " + schemaType.getClassName());
+            }
+        }
+        // --------------------------------------
+
+        // --------------------------------------
+        // Synchronize resource
+        // --------------------------------------
+        TargetResource resource =
+                resourceDAO.find(mapping.getResource().getName());
+
+        if (resource != null)
+            resource.removeMapping(mapping);
+
+        mapping.setResource(null);
+        // --------------------------------------
+
+        // Remove mapping
+        entityManager.remove(mapping);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean isMandatoryOnResource(
+            AbstractSchema schema, TargetResource resource) {
+
+        Query query = entityManager.createQuery(
+                "SELECT e " +
+                "FROM SchemaMapping e " +
+                "WHERE e.schemaName='" + schema.getName() + "' " +
+                "AND e.resource.name='" + resource.getName() + "' " +
+                "AND e.nullable='F'");
+
+        return schema.isMandatory() ||
+                (resource.isForceMandatoryConstraint() &&
+                !query.getResultList().isEmpty());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean isMandatoryOnResource(
+            AbstractSchema schema, Set<TargetResource> resources) {
+
+        StringBuilder queryBuilder = new StringBuilder();
+
+        for (TargetResource resource : resources) {
+            if (resource.isForceMandatoryConstraint()) {
+
+                queryBuilder.append(
+                        (queryBuilder.length() > 0 ? " OR " : "") +
+                        "e.resource.name='" + resource.getName() + "'");
+
+            }
+        }
+
+        Query query = null;
+
+        if (queryBuilder.length() > 0) {
+
+            query = entityManager.createQuery(
+                    "SELECT e " +
+                    "FROM SchemaMapping e " +
+                    "WHERE e.schemaName='" + schema.getName() + "' " +
+                    "AND (" + queryBuilder.toString() + ") " +
+                    "AND e.nullable='F'");
+
+        }
+
+        return schema.isMandatory() ||
+                (query != null && !query.getResultList().isEmpty());
     }
 }

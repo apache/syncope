@@ -15,6 +15,7 @@
 package org.syncope.client.to;
 
 import org.syncope.client.AbstractBaseBean;
+import org.syncope.types.SchemaType;
 
 public class SchemaMappingTO extends AbstractBaseBean {
 
@@ -25,14 +26,18 @@ public class SchemaMappingTO extends AbstractBaseBean {
      * Consider that we can associate tha same attribute schema more
      * than once, with different aliases, to different resource attributes.
      */
-    private String userSchema;
+    private String schemaName;
 
     /**
-     * Attribute schema to be mapped.
-     * Consider that we can associate tha same attribute schema more
-     * than once, with different aliases, to different resource attributes.
+     * Schema type to be mapped.
+     * Possible values are:
+     * * AccountId for an account id;
+     * * Password for a password;
+     * * UserSchema for a user schema;
+     * * RoleSchema for a role schema;
+     * * MembershipSchema for a membership schema.
      */
-    private String roleSchema;
+    private SchemaType schemaType;
 
     /**
      * Target resource's field to be mapped.
@@ -94,20 +99,19 @@ public class SchemaMappingTO extends AbstractBaseBean {
         this.password = password;
     }
 
-    public String getRoleSchema() {
-        return roleSchema;
+    public String getSchemaName() {
+        return schemaName;
     }
 
-    public void setRoleSchema(String roleSchema) {
-        this.roleSchema = roleSchema;
+    public void setSchemaName(String schemaName) {
+        this.schemaName = schemaName;
     }
 
-    public String getUserSchema() {
-        return userSchema;
+    public SchemaType getSchemaType() {
+        return schemaType;
     }
 
-    public void setUserSchema(String userSchema) {
-        this.userSchema = userSchema;
+    public void setSchemaType(SchemaType schemaType) {
+        this.schemaType = schemaType;
     }
-    
 }

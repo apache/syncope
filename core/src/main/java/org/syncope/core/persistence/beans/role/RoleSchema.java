@@ -16,32 +16,25 @@ package org.syncope.core.persistence.beans.role;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import org.syncope.core.persistence.beans.AbstractAttribute;
 import org.syncope.core.persistence.beans.AbstractDerivedSchema;
 import org.syncope.core.persistence.beans.AbstractSchema;
-import org.syncope.core.persistence.beans.SchemaMapping;
 
 @Entity
 public class RoleSchema extends AbstractSchema {
 
     @OneToMany(mappedBy = "schema")
     private List<RoleAttribute> attributes;
+
     @ManyToMany(mappedBy = "schemas")
     private List<RoleDerivedSchema> derivedSchemas;
-    /**
-     * All the mappings of the attribute schema.
-     */
-    @OneToMany(cascade = CascadeType.MERGE, mappedBy = "roleSchema")
-    private List<SchemaMapping> mappings;
 
     public RoleSchema() {
         attributes = new ArrayList<RoleAttribute>();
         derivedSchemas = new ArrayList<RoleDerivedSchema>();
-        mappings = new ArrayList<SchemaMapping>();
     }
 
     @Override
@@ -88,25 +81,5 @@ public class RoleSchema extends AbstractSchema {
             List<? extends AbstractDerivedSchema> derivedSchemas) {
 
         this.derivedSchemas = (List<RoleDerivedSchema>) derivedSchemas;
-    }
-
-    @Override
-    public List<SchemaMapping> getMappings() {
-        return mappings;
-    }
-
-    @Override
-    public void setMappings(List<SchemaMapping> mappings) {
-        this.mappings = mappings;
-    }
-
-    @Override
-    public boolean addMapping(SchemaMapping mapping) {
-        return mappings.add(mapping);
-    }
-
-    @Override
-    public boolean removeMapping(SchemaMapping mapping) {
-        return mappings.remove(mapping);
     }
 }

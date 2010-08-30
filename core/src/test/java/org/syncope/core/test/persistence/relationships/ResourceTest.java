@@ -28,15 +28,14 @@ import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.ConnectorInstance;
 import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.SchemaMapping;
-import org.syncope.core.persistence.beans.role.RoleSchema;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.beans.user.UserSchema;
 import org.syncope.core.persistence.dao.ConnectorInstanceDAO;
 import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
-import org.syncope.core.persistence.dao.SchemaMappingDAO;
 import org.syncope.core.persistence.dao.SyncopeUserDAO;
 import org.syncope.core.test.persistence.AbstractTest;
+import org.syncope.types.SchemaType;
 
 @Transactional
 public class ResourceTest extends AbstractTest {
@@ -49,9 +48,6 @@ public class ResourceTest extends AbstractTest {
 
     @Autowired
     private ConnectorInstanceDAO connectorInstanceDAO;
-
-    @Autowired
-    private SchemaMappingDAO schemaMappingDAO;
 
     @Autowired
     private SyncopeUserDAO syncopeUserDAO;
@@ -76,18 +72,14 @@ public class ResourceTest extends AbstractTest {
         UserSchema userSchema =
                 schemaDAO.find("username", UserSchema.class);
 
-        // search for the role schema
-        RoleSchema roleSchema = schemaDAO.find(
-                "icon", RoleSchema.class);
-
         SchemaMapping mapping = null;
 
         for (int i = 0; i < 3; i++) {
             mapping = new SchemaMapping();
             mapping.setField("test" + i);
 
-            mapping.setUserSchema(userSchema);
-            mapping.setRoleSchema(roleSchema);
+            mapping.setSchemaName(userSchema.getName());
+            mapping.setSchemaType(SchemaType.UserSchema);
 
             mapping.setResource(resource);
             resource.addMapping(mapping);
@@ -194,7 +186,7 @@ public class ResourceTest extends AbstractTest {
         // mappings must be removed
         for (Long id : mappingIds) {
             assertNull("mapping delete did not work",
-                    schemaMappingDAO.find(id));
+                    schemaDAO.findMapping(id));
         }
 
         // resource must be not referenced any more from users

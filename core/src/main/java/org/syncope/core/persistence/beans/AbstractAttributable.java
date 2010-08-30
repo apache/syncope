@@ -41,8 +41,8 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
                 result == null && itor.hasNext();) {
 
             attribute = (T) itor.next();
-            if (attribute.getSchema() != null
-                    && schemaName.equals(attribute.getSchema().getName())) {
+            if (attribute.getSchema() != null &&
+                    schemaName.equals(attribute.getSchema().getName())) {
 
                 result = attribute;
             }
@@ -61,8 +61,8 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
                 result == null && itor.hasNext();) {
 
             derivedAttribute = (T) itor.next();
-            if (derivedAttribute.getDerivedSchema() != null
-                    && derivedSchemaName.equals(
+            if (derivedAttribute.getDerivedSchema() != null &&
+                    derivedSchemaName.equals(
                     derivedAttribute.getDerivedSchema().getName())) {
 
                 result = derivedAttribute;
@@ -86,18 +86,30 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
     }
 
     public Set<TargetResource> getTargetResources() {
-        return targetResources == null 
+        return targetResources == null
                 ? Collections.EMPTY_SET
                 : targetResources;
+    }
+
+    /**
+     * Provide al inherited target resources.
+     * This method must be implemented by all that beans that can be indirectly
+     * associated to some target resources (SyncopeUser for example).
+     * @return
+     */
+    public Set<TargetResource> getInheritedTargetResources() {
+        return Collections.EMPTY_SET;
     }
 
     public void setResources(Set<TargetResource> resources) {
         this.targetResources = resources;
     }
 
-    public abstract <T extends AbstractAttribute> boolean addAttribute(T attribute);
+    public abstract <T extends AbstractAttribute> boolean addAttribute(
+            T attribute);
 
-    public abstract <T extends AbstractAttribute> boolean removeAttribute(T attribute);
+    public abstract <T extends AbstractAttribute> boolean removeAttribute(
+            T attribute);
 
     public abstract List<? extends AbstractAttribute> getAttributes();
 

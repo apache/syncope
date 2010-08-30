@@ -14,17 +14,22 @@
  */
 package org.syncope.core.test.persistence;
 
+import java.util.HashSet;
 import static org.junit.Assert.*;
 
 import java.util.List;
+import java.util.Set;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import org.syncope.core.persistence.beans.AbstractSchema;
+import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.role.RoleSchema;
 import org.syncope.core.persistence.beans.user.UserSchema;
+import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.validation.MultiUniqueValueException;
-import org.syncope.types.SchemaType;
+import org.syncope.types.SchemaValueType;
 
 @Transactional
 public class SchemaDAOTest extends AbstractTest {
@@ -32,10 +37,13 @@ public class SchemaDAOTest extends AbstractTest {
     @Autowired
     private SchemaDAO schemaDAO;
 
+    @Autowired
+    private ResourceDAO resourceDAO;
+
     @Test
     public final void findAll() {
         List<UserSchema> userList = schemaDAO.findAll(UserSchema.class);
-        assertEquals(7, userList.size());
+        assertEquals(8, userList.size());
 
         List<RoleSchema> roleList = schemaDAO.findAll(RoleSchema.class);
         assertEquals(2, roleList.size());
@@ -53,12 +61,12 @@ public class SchemaDAOTest extends AbstractTest {
     public final void save() {
         UserSchema attributeSchema = new UserSchema();
         attributeSchema.setName("secondaryEmail");
-        attributeSchema.setType(SchemaType.String);
+        attributeSchema.setType(SchemaValueType.String);
         attributeSchema.setValidatorClass(
                 "org.syncope.core.validation.EmailAddressValidator");
         attributeSchema.setMandatory(false);
         attributeSchema.setMultivalue(true);
-        
+
         try {
             schemaDAO.save(attributeSchema);
         } catch (MultiUniqueValueException e) {
@@ -79,5 +87,41 @@ public class SchemaDAOTest extends AbstractTest {
 
         UserSchema actual = schemaDAO.find("username", UserSchema.class);
         assertNull("delete did not work", actual);
+    }
+
+    @Test
+    public final void checkForMandatoryOnResource() {
+        TargetResource resource = resourceDAO.find("ws-target-resource-1");
+
+        assertNotNull(resource);
+
+        AbstractSchema schema = schemaDAO.find("email", UserSchema.class);
+
+        assertNotNull(schema);
+
+        // schema not mandatory but field onto the resource mandatory
+        assertTrue(schemaDAO.isMandatoryOnResource(schema, resource));
+
+        resource = resourceDAO.find("ws-target-resource-update");
+
+        // schema not mandatory and field onto the resource not mandatory
+        assertFalse(schemaDAO.isMandatoryOnResource(schema, resource));
+
+        schema = schemaDAO.find("userId", UserSchema.class);
+
+        // schema mandatory and field onto the resource not mandatory
+        assertTrue(schemaDAO.isMandatoryOnResource(schema, resource));
+
+        // multi choice
+        TargetResource resource1 =
+                resourceDAO.find("ws-target-resource-1");
+        TargetResource resource2 =
+                resourceDAO.find("ws-target-resource-update");
+
+        Set<TargetResource> resources = new HashSet<TargetResource>();
+        resources.add(resource1);
+        resources.add(resource2);
+
+        assertTrue(schemaDAO.isMandatoryOnResource(schema, resources));
     }
 }

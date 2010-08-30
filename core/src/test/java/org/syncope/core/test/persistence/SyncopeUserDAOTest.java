@@ -91,4 +91,10 @@ public class SyncopeUserDAOTest extends AbstractTest {
         SyncopeUser actual = syncopeUserDAO.find(3L);
         assertNull("delete did not work", actual);
     }
+    
+    @Test
+    public final void getRoleResources() {
+        SyncopeUser user = syncopeUserDAO.find(1L);
+        assertFalse(user.getInheritedTargetResources().isEmpty());
+    }
 }

@@ -28,8 +28,10 @@ import org.identityconnectors.framework.common.objects.Uid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.beans.ConnectorInstance;
 import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.SchemaMapping;
@@ -37,11 +39,16 @@ import org.syncope.core.persistence.beans.membership.Membership;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.beans.user.UserAttribute;
 import org.syncope.core.persistence.beans.user.UserAttributeValue;
+import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.propagation.ResourceOperations.Type;
 import org.syncope.core.persistence.util.ApplicationContextManager;
 import org.syncope.types.SchemaType;
+import org.syncope.types.SchemaValueType;
 
 public class PropagationManager {
+
+    @Autowired
+    private SchemaDAO schemaDAO;
 
     private static final Logger log =
             LoggerFactory.getLogger(PropagationManager.class);
@@ -147,8 +154,8 @@ public class PropagationManager {
         // synchronous propagation ...
         if (log.isDebugEnabled()) {
             log.debug(
-                    "Synchronous provisioning of "
-                    + syncOperations + " with user " + user);
+                    "Synchronous provisioning of " + syncOperations +
+                    " with user " + user);
         }
 
         for (Type type : ResourceOperations.Type.values()) {
@@ -160,12 +167,12 @@ public class PropagationManager {
 
                 } catch (Throwable t) {
                     log.error(
-                            "Exception during provision on resource "
-                            + resource.getName(), t);
+                            "Exception during provision on resource " +
+                            resource.getName(), t);
 
                     throw new PropagationException(
-                            "Exception during provision on resource "
-                            + resource.getName(), resource.getName(), t);
+                            "Exception during provision on resource " +
+                            resource.getName(), resource.getName(), t);
                 }
             }
         }
@@ -173,8 +180,8 @@ public class PropagationManager {
         // asynchronous propagation ...
         if (log.isDebugEnabled()) {
             log.debug(
-                    "Asynchronous provisioning of "
-                    + asyncOperations + " with user " + user);
+                    "Asynchronous provisioning of " + asyncOperations +
+                    " with user " + user);
         }
 
         for (Type type : ResourceOperations.Type.values()) {
@@ -186,15 +193,16 @@ public class PropagationManager {
 
                 } catch (Throwable t) {
                     log.error(
-                            "Exception during provision on resource "
-                            + resource.getName(), t);
+                            "Exception during provision on resource " +
+                            resource.getName(), t);
                 }
             }
         }
 
         if (log.isDebugEnabled()) {
             log.debug(
-                    "Provisioned " + provisioned + " with user " + user.getId());
+                    "Provisioned " + provisioned +
+                    " with user " + user.getId());
         }
 
         return provisioned;
@@ -212,6 +220,12 @@ public class PropagationManager {
     private void propagate(SyncopeUser user, TargetResource resource, Type type)
             throws NoSuchBeanDefinitionException, IllegalStateException {
 
+        if (log.isDebugEnabled()) {
+            log.debug(
+                    "\nPropagation of user " + user +
+                    "\nAttributes: " + user.getAttributes());
+        }
+
         ConnectorInstance connectorInstance = resource.getConnector();
 
         ConnectorFacade connector =
@@ -219,8 +233,8 @@ public class PropagationManager {
 
         if (connector == null) {
             log.error(
-                    "Connector instance bean "
-                    + connectorInstance.getId().toString() + " not found");
+                    "Connector instance bean " +
+                    connectorInstance.getId().toString() + " not found");
 
             throw new NoSuchBeanDefinitionException(
                     "Connector instance bean not found");
@@ -235,7 +249,7 @@ public class PropagationManager {
         // set of user attributes
         Set<Attribute> attrs = new HashSet<Attribute>();
 
-        // cast to be applied on SchemaType
+        // cast to be applied on SchemaValueType
         Class castToBeApplied = null;
 
         // account id
@@ -247,13 +261,18 @@ public class PropagationManager {
         Set objValues = null;
 
         // syncope attribute schema name
-        String schema = null;
+        String schemaName = null;
+        // schema type
+        SchemaType schemaType = null;
+
         // syncope user attribute
         UserAttribute userAttribute = null;
         // syncope user attribute schema type
-        SchemaType schemaType = null;
+        SchemaValueType schemaValueType = null;
         // syncope user attribute values
         List<UserAttributeValue> values = null;
+
+        //SchemaDAO schemaDAO = getSchemaDAO();
 
         for (SchemaMapping mapping : mappings) {
 
@@ -262,28 +281,73 @@ public class PropagationManager {
                 field = mapping.getField();
 
                 // get schema name on syncope
-                schema = mapping.getUserSchema().getName();
-
-                // get defined type for user attribute
-                schemaType = mapping.getUserSchema().getType();
+                schemaName = mapping.getSchemaName();
+                schemaType = mapping.getSchemaType();
 
                 if (log.isDebugEnabled()) {
                     log.debug(
-                            "\nDefine mapping for: "
-                            + "\n* Field " + field
-                            + "\n* is accountId " + mapping.isAccountid()
-                            + "\n* is password " + mapping.isPassword()
-                            + "\n* is nullable " + mapping.isNullable()
-                            + "\n* Schema " + schema
-                            + "\n* Type " + schemaType.getClassName());
+                            "Process schema " + schemaName +
+                            "(" + schemaType.getClassName() + ").");
                 }
 
-                // get user attribute object
-                userAttribute = user.getAttribute(schema);
+                AbstractSchema schema = null;
 
-                if (userAttribute == null) {
-                    throw new Exception(
-                            "Invalid user attribute " + userAttribute);
+                try {
+                    // check for schema or constants (AccountId/Password)
+                    schemaType.getSchemaType().asSubclass(AbstractSchema.class);
+
+                    schema = schemaDAO.find(schemaName, schemaType.getSchemaType());
+                } catch (ClassCastException e) {
+                    // ignore exception ... check for AccountId or Password
+                    if (log.isDebugEnabled())
+                        log.debug("Wrong schema type " +
+                                schemaType.getClassName());
+                }
+
+                if (schema != null) {
+                    // get defined type for user attribute
+                    schemaValueType = schema.getType();
+
+                    // get user attribute object
+                    userAttribute = user.getAttribute(schemaName);
+
+                    values = userAttribute != null
+                            ? userAttribute.getAttributeValues()
+                            : Collections.EMPTY_LIST;
+
+                    if (log.isDebugEnabled()) {
+                        log.debug(
+                                "\nRetrieved attribute " + userAttribute +
+                                "\n* Schema " + schemaName +
+                                "\n* Schema type " + schemaType.getClassName() +
+                                "\n* Attribute values " + values);
+                    }
+
+                } else {
+                    schemaValueType = SchemaValueType.String;
+
+                    UserAttributeValue userAttributeValue =
+                            new UserAttributeValue();
+
+                    userAttributeValue.setStringValue(
+                            SchemaType.AccountId.equals(schemaType)
+                            ? user.getId().toString() : password);
+
+                    values = Collections.singletonList(userAttributeValue);
+                }
+
+                if (log.isDebugEnabled()) {
+                    log.debug(
+                            "\nDefine mapping for: " +
+                            "\n* Field " + field +
+                            "\n* is accountId " + mapping.isAccountid() +
+                            "\n* is password " + (mapping.isPassword() ||
+                            schemaType.equals(SchemaType.Password)) +
+                            "\n* is nullable " + mapping.isNullable() +
+                            "\n* Schema " + schemaName +
+                            "\n* SchemaType " + schemaType.toString() +
+                            "\n* ClassType " + schemaValueType.getClassName() +
+                            "\n* Values " + values);
                 }
 
                 // -----------------------------
@@ -291,11 +355,10 @@ public class PropagationManager {
                 // -----------------------------
                 objValues = new HashSet();
 
-                values = userAttribute.getAttributeValues();
-
                 for (UserAttributeValue value : values) {
 
-                    castToBeApplied = Class.forName(schemaType.getClassName());
+                    castToBeApplied =
+                            Class.forName(schemaValueType.getClassName());
 
                     if (!FrameworkUtil.isSupportedAttributeType(
                             castToBeApplied)) {
@@ -318,7 +381,8 @@ public class PropagationManager {
 
                 if (mapping.isPassword()) {
                     attrs.add(AttributeBuilder.buildPassword(
-                            password.toCharArray()));
+                            objValues.iterator().next().toString().
+                            toCharArray()));
                 }
 
                 Object objValue = null;
@@ -327,10 +391,9 @@ public class PropagationManager {
                     objValue = objValues.iterator().next();
                 }
 
-                if (!mapping.isPassword()
-                        && !mapping.isAccountid()) {
+                if (!mapping.isPassword() && !mapping.isAccountid()) {
 
-                    if (mapping.getUserSchema().isMultivalue()) {
+                    if (schema.isMultivalue()) {
                         attrs.add(AttributeBuilder.build(
                                 field,
                                 objValues));
@@ -344,26 +407,37 @@ public class PropagationManager {
             } catch (ClassNotFoundException e) {
 
                 if (log.isWarnEnabled()) {
-                    log.warn("Unsupported attribute type "
-                            + schemaType.getClassName(), e);
+                    log.warn("Unsupported attribute type " +
+                            schemaValueType.getClassName(), e);
                 }
 
             } catch (Throwable t) {
                 if (log.isDebugEnabled()) {
-                    log.debug("Attribute '" + schema + "' processing failed", t);
+                    log.debug("Attribute '" + schemaName +
+                            "' processing failed", t);
                 }
             }
         }
 
         Uid userUid = null;
+
         switch (type) {
             case CREATE:
                 userUid = connector.create(ObjectClass.ACCOUNT, attrs, null);
                 break;
 
             case UPDATE:
-                userUid = connector.update(ObjectClass.ACCOUNT,
-                        new Uid(accountId), attrs, null);
+                userUid = connector.resolveUsername(
+                        ObjectClass.ACCOUNT, accountId, null);
+
+                if (userUid != null) {
+                    userUid = connector.update(
+                            ObjectClass.ACCOUNT, userUid, attrs, null);
+                } else {
+                    userUid = connector.create(
+                            ObjectClass.ACCOUNT, attrs, null);
+                }
+
                 break;
 
             case DELETE:

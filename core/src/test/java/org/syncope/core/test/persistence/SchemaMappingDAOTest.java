@@ -14,36 +14,99 @@
  */
 package org.syncope.core.test.persistence;
 
+import java.util.List;
+import org.junit.Before;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.beans.SchemaMapping;
+import org.syncope.core.persistence.beans.TargetResource;
+import org.syncope.core.persistence.beans.membership.MembershipSchema;
+import org.syncope.core.persistence.beans.role.RoleSchema;
 import org.syncope.core.persistence.beans.user.UserSchema;
 import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
-import org.syncope.core.persistence.dao.SchemaMappingDAO;
+import org.syncope.types.SchemaType;
 
 @Transactional
 public class SchemaMappingDAOTest extends AbstractTest {
 
     @Autowired
-    private SchemaMappingDAO schemaMappingDAO;
+    private ResourceDAO resourceDAO;
+
     @Autowired
     private SchemaDAO schemaDAO;
-    @Autowired
-    private ResourceDAO resourceDAO;
+
+    @Before
+    public final void checkBeforeForStoredData() {
+        List<SchemaMapping> mappings = schemaDAO.findAllMappings();
+
+        if (log.isDebugEnabled()) {
+            log.debug("Found " + mappings);
+        }
+
+        assertNotNull(mappings);
+        assertFalse(mappings.isEmpty());
+
+        for (SchemaMapping mapping : mappings) {
+            if (log.isDebugEnabled()) {
+                log.debug("Check for schema mapping " + mapping);
+            }
+
+            String name = mapping.getSchemaName();
+            assertNotNull(name);
+
+            SchemaType type = mapping.getSchemaType();
+            assertNotNull(type);
+
+            TargetResource resource = mapping.getResource();
+            assertNotNull(resource);
+
+            if (log.isDebugEnabled()) {
+                log.debug(
+                        "\nRelated schema name: " + name +
+                        "\nRelated schema type: " + type.toString() +
+                        "\nRelated resource name: " + resource.getName() +
+                        "\nBrothers in resource : " + resource.getMappings());
+            }
+
+            AbstractSchema schema = null;
+
+            schema = schemaDAO.find(name, UserSchema.class);
+
+            if (log.isDebugEnabled()) {
+                log.debug("Brothers in UserSchema: " +
+                        (schema != null ? ((UserSchema)schema).getMappings() : ""));
+            }
+
+            schema = schemaDAO.find(name, RoleSchema.class);
+
+            if (log.isDebugEnabled()) {
+                log.debug("Brothers in RoleSchema: " +
+                        (schema != null ? ((RoleSchema)schema).getMappings() : ""));
+            }
+
+            schema = schemaDAO.find(name, MembershipSchema.class);
+
+            if (log.isDebugEnabled()) {
+                log.debug("Brothers in MembershipSchema: " +
+                        (schema != null ? ((MembershipSchema)schema).getMappings() : ""));
+            }
+        }
+    }
 
     @Test
     public final void findById() {
-        SchemaMapping schema = schemaMappingDAO.find(100L);
+        SchemaMapping schema = schemaDAO.findMapping(100L);
 
         assertNotNull("findById did not work", schema);
 
-        assertEquals("username", schema.getField());
+        assertEquals("email", schema.getField());
 
-        assertEquals("email", schema.getUserSchema().getName());
+        assertEquals("email", schema.getSchemaName());
 
         assertEquals("ws-target-resource-1", schema.getResource().getName());
 
@@ -59,10 +122,11 @@ public class SchemaMappingDAOTest extends AbstractTest {
         SchemaMapping schema = new SchemaMapping();
 
         schema.setField("name");
-        schema.setUserSchema(schemaDAO.find("firstname", UserSchema.class));
+        schema.setSchemaName("firstname");
+        schema.setSchemaType(SchemaType.UserSchema);
         schema.setResource(resourceDAO.find("ws-target-resource-1"));
 
-        SchemaMapping actual = schemaMappingDAO.save(schema);
+        SchemaMapping actual = schemaDAO.saveMapping(schema);
 
         assertNotNull(actual);
 
@@ -72,20 +136,20 @@ public class SchemaMappingDAOTest extends AbstractTest {
 
         assertFalse(actual.isPassword());
 
-        assertEquals("firstname", actual.getUserSchema().getName());
+        assertEquals("firstname", actual.getSchemaName());
 
         assertEquals("name", actual.getField());
     }
 
     @Test
     public final void delete() {
-        SchemaMapping schema = schemaMappingDAO.find(100L);
+        SchemaMapping mapping = schemaDAO.findMapping(100L);
 
-        assertNotNull("find to delete did not work", schema);
+        assertNotNull("find to delete did not work", mapping);
 
-        schemaMappingDAO.delete(schema.getId());
+        schemaDAO.removeMapping(mapping.getId());
 
-        SchemaMapping actual = schemaMappingDAO.find(100L);
+        SchemaMapping actual = schemaDAO.findMapping(100L);
 
         assertNull("delete did not work", actual);
     }

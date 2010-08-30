@@ -25,6 +25,7 @@ import org.syncope.client.to.ResourceTOs;
 import org.syncope.client.to.SchemaMappingTO;
 import org.syncope.client.to.SchemaMappingTOs;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.syncope.types.SchemaType;
 
 public class ResourceTestITCase extends AbstractTestITCase {
 
@@ -54,12 +55,14 @@ public class ResourceTestITCase extends AbstractTestITCase {
 
         schemaMappingTO = new SchemaMappingTO();
         schemaMappingTO.setField("uid");
-        schemaMappingTO.setUserSchema("userId");
+        schemaMappingTO.setSchemaName("userId");
+        schemaMappingTO.setSchemaType(SchemaType.UserSchema);
         schemaMappingTOs.addMapping(schemaMappingTO);
 
         schemaMappingTO = new SchemaMappingTO();
         schemaMappingTO.setField("icon");
-        schemaMappingTO.setRoleSchema("icon");
+        schemaMappingTO.setSchemaName("icon");
+        schemaMappingTO.setSchemaType(SchemaType.RoleSchema);
         schemaMappingTOs.addMapping(schemaMappingTO);
 
         resourceTO.setMappings(schemaMappingTOs);
@@ -111,8 +114,8 @@ public class ResourceTestITCase extends AbstractTestITCase {
         for (int i = 3; i < 6; i++) {
             schemaMappingTO = new SchemaMappingTO();
             schemaMappingTO.setField("test" + i);
-            schemaMappingTO.setUserSchema("username");
-            schemaMappingTO.setRoleSchema("icon");
+            schemaMappingTO.setSchemaName("username");
+            schemaMappingTO.setSchemaType(SchemaType.UserSchema);
             schemaMappingTOs.addMapping(schemaMappingTO);
         }
 
@@ -148,7 +151,7 @@ public class ResourceTestITCase extends AbstractTestITCase {
 
     @Test
     public void delete() {
-        final String resourceName = "ws-target-resource-delete";
+        final String resourceName = "ws-target-resource-1";
 
         restTemplate.delete(
                 BASE_URL + "resource/delete/{resourceName}.json",

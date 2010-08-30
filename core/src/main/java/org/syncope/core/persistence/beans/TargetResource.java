@@ -18,7 +18,9 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import javax.persistence.Basic;
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
@@ -36,27 +38,48 @@ public class TargetResource extends AbstractBaseBean {
      */
     @Id
     private String name;
+
     /**
      * The resource type is identified by the associated connector.
      */
     @ManyToOne(fetch = FetchType.EAGER)
     private ConnectorInstance connector;
+
     /**
      * Users associated to this resource.
      */
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "targetResources")
     private Set<SyncopeUser> users;
+
     /**
      * Roles associated to this resource.
      */
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "targetResources")
     private Set<SyncopeRole> roles;
+
     /**
      * Attribute mappings.
      */
-    @OneToMany(cascade = {CascadeType.REFRESH, CascadeType.MERGE},
+    @OneToMany(cascade = {CascadeType.MERGE, CascadeType.REFRESH},
     mappedBy = "resource")
     private List<SchemaMapping> mappings;
+
+    @Column(nullable = false)
+    @Basic
+    private Character forceMandatoryConstraint;
+
+    public TargetResource(){
+        this.forceMandatoryConstraint = 'F';
+    }
+
+    public boolean isForceMandatoryConstraint() {
+        return forceMandatoryConstraint != null &&
+                forceMandatoryConstraint == 'T';
+    }
+
+    public void setForceMandatoryConstraint(boolean forceMandatoryConstraint) {
+        this.forceMandatoryConstraint = forceMandatoryConstraint ? 'T' : 'F';
+    }
 
     public ConnectorInstance getConnector() {
         return connector;
@@ -74,17 +97,14 @@ public class TargetResource extends AbstractBaseBean {
     }
 
     public boolean removeMapping(SchemaMapping mapping) {
-        if (this.mappings == null) {
-            return true;
-        }
-        return this.mappings.remove(mapping);
+        return this.mappings == null || this.mappings.remove(mapping);
     }
 
     public boolean addMapping(SchemaMapping mapping) {
         if (this.mappings == null) {
             this.mappings = new ArrayList<SchemaMapping>();
         }
-        return this.mappings.add(mapping);
+        return this.mappings.contains(mapping) || this.mappings.add(mapping);
     }
 
     public void setMappings(List<SchemaMapping> mappings) {

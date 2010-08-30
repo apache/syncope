@@ -40,6 +40,7 @@ import org.syncope.core.persistence.security.AsymmetricCipher;
 import org.syncope.core.persistence.beans.AbstractAttributable;
 import org.syncope.core.persistence.beans.AbstractAttribute;
 import org.syncope.core.persistence.beans.AbstractDerivedAttribute;
+import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.membership.Membership;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 
@@ -55,22 +56,30 @@ public class SyncopeUser extends AbstractAttributable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
     @Basic
     @Lob
     private byte[] passwordKeyPair;
+
     @Basic
     @Lob
     private byte[] password;
+
     @OneToMany(cascade = CascadeType.MERGE, mappedBy = "syncopeUser")
     private List<Membership> memberships;
+
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     private List<UserAttribute> attributes;
+
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     private List<UserDerivedAttribute> derivedAttributes;
+
     @Column(nullable = true)
     private Long workflowId;
+
     @Lob
     private String token;
+
     @Temporal(TemporalType.TIMESTAMP)
     private Date tokenExpireTime;
 
@@ -85,11 +94,11 @@ public class SyncopeUser extends AbstractAttributable {
     }
 
     public boolean addMembership(Membership membership) {
-        return memberships.add(membership);
+        return memberships.contains(membership) || memberships.add(membership);
     }
 
     public boolean removeMembership(Membership membership) {
-        return memberships.remove(membership);
+        return memberships == null || memberships.remove(membership);
     }
 
     public Membership getMembership(Long syncopeRoleId) {
@@ -100,8 +109,7 @@ public class SyncopeUser extends AbstractAttributable {
                 result == null && itor.hasNext();) {
 
             membership = itor.next();
-            if (membership.getSyncopeRole() != null
-                    && syncopeRoleId.equals(
+            if (membership.getSyncopeRole() != null && syncopeRoleId.equals(
                     membership.getSyncopeRole().getId())) {
 
                 result = membership;
@@ -127,6 +135,30 @@ public class SyncopeUser extends AbstractAttributable {
         }
 
         return result;
+    }
+
+    @Override
+    public Set<TargetResource> getInheritedTargetResources() {
+        Set<TargetResource> inheritedTargetResources =
+                new HashSet<TargetResource>();
+
+        SyncopeRole role = null;
+
+        for (Membership membership : memberships) {
+            role = membership.getSyncopeRole();
+
+            try {
+
+                inheritedTargetResources.addAll(role.getTargetResources());
+
+            } catch (Throwable t) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Invalid role " + role, t);
+                }
+            }
+        }
+
+        return inheritedTargetResources;
     }
 
     public String getPassword() {

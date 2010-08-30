@@ -34,6 +34,7 @@ public class UserDerivedSchema extends AbstractDerivedSchema {
     @ManyToMany
     @JoinTable(name = "UserSchemaDerivation")
     private Set<UserSchema> schemas;
+
     @OneToMany(mappedBy = "derivedSchema")
     private List<UserDerivedAttribute> derivedAttributes;
 

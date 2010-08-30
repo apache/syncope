@@ -14,15 +14,15 @@
  */
 package org.syncope.core.test.rest;
 
+import org.junit.Test;
 import org.syncope.types.SyncopeClientExceptionType;
 import org.syncope.client.validation.SyncopeClientException;
 import org.springframework.web.client.HttpClientErrorException;
-import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.syncope.client.to.SchemaTO;
 import org.syncope.client.to.SchemaTOs;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.syncope.types.SchemaType;
+import org.syncope.types.SchemaValueType;
 import static org.junit.Assert.*;
 
 public class SchemaTestITCase extends AbstractTestITCase {
@@ -32,7 +32,7 @@ public class SchemaTestITCase extends AbstractTestITCase {
         SchemaTO schemaTO = new SchemaTO();
         schemaTO.setName("testAttribute");
         schemaTO.setMandatory(true);
-        schemaTO.setType(SchemaType.String);
+        schemaTO.setType(SchemaValueType.String);
 
         SchemaTO newSchemaTO = restTemplate.postForObject(BASE_URL
                 + "schema/user/create", schemaTO, SchemaTO.class);
@@ -95,7 +95,7 @@ public class SchemaTestITCase extends AbstractTestITCase {
                 + "schema/role/update", schemaTO, SchemaTO.class);
         assertEquals(schemaTO, updatedTO);
 
-        updatedTO.setType(SchemaType.Date);
+        updatedTO.setType(SchemaValueType.Date);
         SyncopeClientException syncopeClientException = null;
         try {
             restTemplate.postForObject(BASE_URL

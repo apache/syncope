@@ -15,7 +15,10 @@
 package org.syncope.core.persistence.dao;
 
 import java.util.List;
+import java.util.Set;
 import org.syncope.core.persistence.beans.AbstractSchema;
+import org.syncope.core.persistence.beans.SchemaMapping;
+import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.validation.MultiUniqueValueException;
 
 public interface SchemaDAO extends DAO {
@@ -27,4 +30,18 @@ public interface SchemaDAO extends DAO {
     <T extends AbstractSchema> T save(T schema) throws MultiUniqueValueException;
 
     <T extends AbstractSchema> void delete(String name, Class<T> reference);
+
+    public SchemaMapping findMapping(Long id);
+
+    public List<SchemaMapping> findAllMappings();
+
+    public SchemaMapping saveMapping(SchemaMapping mapping);
+
+    public void removeMapping(Long mappingId);
+
+    public boolean isMandatoryOnResource(
+            AbstractSchema schema, TargetResource resource);
+
+    public boolean isMandatoryOnResource(
+            AbstractSchema schema, Set<TargetResource> resources);
 }

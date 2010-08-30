@@ -55,6 +55,11 @@ public class UserTestITCase extends AbstractTestITCase {
         surnameTO.addValue("Surname");
         userTO.addAttribute(surnameTO);
 
+        AttributeTO typeTO = new AttributeTO();
+        typeTO.setSchema("type");
+        typeTO.addValue("a type");
+        userTO.addAttribute(typeTO);
+
         AttributeTO userIdTO = new AttributeTO();
         userIdTO.setSchema("userId");
         userIdTO.addValue(email);
@@ -110,8 +115,7 @@ public class UserTestITCase extends AbstractTestITCase {
         assertFalse(newUserTO.getAttributes().contains(
                 attrWithInvalidSchemaTO));
 
-        WorkflowActionsTO workflowActions = restTemplate.getForObject(BASE_URL
-                + "user/actions/{userId}", WorkflowActionsTO.class,
+        WorkflowActionsTO workflowActions = restTemplate.getForObject(BASE_URL + "user/actions/{userId}", WorkflowActionsTO.class,
                 newUserTO.getId());
         assertTrue(workflowActions.getActions().equals(
                 Collections.singleton(Constants.ACTION_ACTIVATE)));
@@ -120,8 +124,7 @@ public class UserTestITCase extends AbstractTestITCase {
         newUserTO = restTemplate.postForObject(BASE_URL + "user/activate",
                 newUserTO, UserTO.class);
         assertEquals("active",
-                restTemplate.getForObject(BASE_URL + "user/status/"
-                + newUserTO.getId(), String.class));
+                restTemplate.getForObject(BASE_URL + "user/status/" + newUserTO.getId(), String.class));
 
         // 3. try (and fail) to create another user with same (unique) values
         userTO = getSampleTO("pippo@c.com");
@@ -143,6 +146,42 @@ public class UserTestITCase extends AbstractTestITCase {
     }
 
     @Test
+    public void createWithRequiredValueMissing() {
+        UserTO userTO = getSampleTO("a.b@c.it");
+
+        AttributeTO type = null;
+
+        for (AttributeTO attr : userTO.getAttributes()) {
+            if ("type".equals(attr.getSchema())) {
+                type = attr;
+            }
+        }
+
+        assertNotNull(type);
+
+        userTO.removeAttribute(type);
+
+        MembershipTO membershipTO = new MembershipTO();
+        membershipTO.setRole(8L);
+        userTO.addMembership(membershipTO);
+
+        SyncopeClientCompositeErrorException ex = null;
+
+        try {
+            // 1. create user
+            restTemplate.postForObject(
+                    BASE_URL + "user/create?syncRoles=8",
+                    userTO, UserTO.class);
+        } catch (SyncopeClientCompositeErrorException e) {
+            ex = e;
+        }
+
+        assertNotNull(ex);
+        assertNotNull(ex.getException(
+                SyncopeClientExceptionType.RequiredValuesMissing));
+    }
+
+    @Test
     public void delete() {
         try {
             restTemplate.delete(BASE_URL + "user/delete/{userId}", 0);
@@ -161,8 +200,7 @@ public class UserTestITCase extends AbstractTestITCase {
 
     @Test
     public void list() {
-        UserTOs users = restTemplate.getForObject(BASE_URL
-                + "user/list.json", UserTOs.class);
+        UserTOs users = restTemplate.getForObject(BASE_URL + "user/list.json", UserTOs.class);
 
         assertNotNull(users);
         assertEquals(4, users.getUsers().size());
@@ -170,8 +208,7 @@ public class UserTestITCase extends AbstractTestITCase {
 
     @Test
     public void read() {
-        UserTO userTO = restTemplate.getForObject(BASE_URL
-                + "user/read/{userId}.json", UserTO.class, 1);
+        UserTO userTO = restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, 1);
 
         assertNotNull(userTO);
         assertNotNull(userTO.getAttributes());

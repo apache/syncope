@@ -14,17 +14,19 @@
  */
 package org.syncope.core.persistence.beans;
 
+import static javax.persistence.EnumType.STRING;
+
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
-import org.syncope.core.persistence.beans.membership.MembershipSchema;
-import org.syncope.core.persistence.beans.role.RoleSchema;
-import org.syncope.core.persistence.beans.user.UserSchema;
+import org.syncope.types.SchemaType;
 
 @Entity
 public class SchemaMapping extends AbstractBaseBean {
@@ -32,49 +34,41 @@ public class SchemaMapping extends AbstractBaseBean {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    /**
-     * Attribute schema to be mapped.
-     * Consider that we can associate tha same attribute schema more
-     * than once, with different aliases, to different resource attributes.
-     */
-    @ManyToOne(fetch = FetchType.EAGER)
-    private UserSchema userSchema;
-    /**
-     * Attribute schema to be mapped.
-     * Consider that we can associate tha same attribute schema more
-     * than once, with different aliases, to different resource attributes.
-     */
-    @ManyToOne(fetch = FetchType.EAGER)
-    private RoleSchema roleSchema;
-    /**
-     * Attribute schema to be mapped.
-     * Consider that we can associate tha same attribute schema more
-     * than once, with different aliases, to different resource attributes.
-     */
-    @ManyToOne(fetch = FetchType.EAGER)
-    private MembershipSchema membershipSchema;
+
+    @Column(nullable = false)
+    String schemaName;
+
+    @Column(nullable = false)
+    @Enumerated(STRING)
+    SchemaType schemaType;
+
     /**
      * Target resource that has fields to be mapped over user attribute schemas.
      */
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER,
+    cascade = {CascadeType.REFRESH, CascadeType.MERGE})
     private TargetResource resource;
+
     /**
      * Target resource's field to be mapped.
      */
     @Column(nullable = false)
     private String field;
+
     /**
      * Specify if the mapped target resource's field is the key.
      */
     @Column(nullable = false)
     @Basic
     private Character accountid;
+
     /**
      * Specify if the mapped target resource's field is the password.
      */
     @Column(nullable = false)
     @Basic
     private Character password;
+
     /**
      * Specify if the mapped target resource's field is nullable.
      */
@@ -132,27 +126,19 @@ public class SchemaMapping extends AbstractBaseBean {
         this.resource = resource;
     }
 
-    public RoleSchema getRoleSchema() {
-        return roleSchema;
+    public String getSchemaName() {
+        return schemaName;
     }
 
-    public void setRoleSchema(RoleSchema roleSchema) {
-        this.roleSchema = roleSchema;
+    public void setSchemaName(String schemaName) {
+        this.schemaName = schemaName;
     }
 
-    public UserSchema getUserSchema() {
-        return userSchema;
+    public SchemaType getSchemaType() {
+        return schemaType;
     }
 
-    public void setUserSchema(UserSchema userSchema) {
-        this.userSchema = userSchema;
-    }
-
-    public MembershipSchema getMembershipSchema() {
-        return membershipSchema;
-    }
-
-    public void setMembershipSchema(MembershipSchema membershipSchema) {
-        this.membershipSchema = membershipSchema;
+    public void setSchemaType(SchemaType schemaType) {
+        this.schemaType = schemaType;
     }
 }

@@ -1,3 +1,5 @@
+package org.syncope.types;
+
 /*
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -12,51 +14,34 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.types;
-
-import java.text.DecimalFormat;
-import java.text.Format;
-import java.text.SimpleDateFormat;
-
 public enum SchemaType {
 
-    String("java.lang.String"),
-    Long("java.lang.Long"),
-    Double("java.lang.Double"),
-    Boolean("java.lang.Boolean"),
-    Date("java.util.Date");
+    UserSchema(
+    "org.syncope.core.persistence.beans.user.UserSchema"),
+    RoleSchema(
+    "org.syncope.core.persistence.beans.role.RoleSchema"),
+    MembershipSchema(
+    "org.syncope.core.persistence.beans.membership.MembershipSchema"),
+    AccountId(
+    "AccountId"),
+    Password(
+    "Password");
+
     final private String className;
-    private Format formatter;
 
     SchemaType(String className) {
         this.className = className;
-        this.formatter = null;
     }
 
     public String getClassName() {
         return className;
     }
 
-    public Format getBasicFormatter() {
-        if (formatter == null) {
-            switch (this) {
-                case Date:
-                    this.formatter = new SimpleDateFormat();
-                    break;
-                case Long:
-                case Double:
-                    this.formatter = new DecimalFormat();
-                    break;
-            }
+    public Class getSchemaType() {
+        try {
+            return Class.forName(getClassName());
+        } catch (ClassNotFoundException e) {
+            return String.class;
         }
-
-        return formatter;
     }
-
-    public boolean isConversionPatternNeeded() {
-        return this == SchemaType.Date
-                || this == SchemaType.Double
-                || this == SchemaType.Long;
-    }
-
 }

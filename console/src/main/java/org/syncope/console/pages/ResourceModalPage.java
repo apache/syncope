@@ -46,6 +46,7 @@ import org.syncope.console.rest.SchemaRestClient;
 import org.syncope.console.wicket.markup.html.form.UpdatingCheckBox;
 import org.syncope.console.wicket.markup.html.form.UpdatingDropDownChoice;
 import org.syncope.console.wicket.markup.html.form.UpdatingTextField;
+import org.syncope.types.SchemaType;
 
 /**
  * Modal window with Connector form.
@@ -53,24 +54,30 @@ import org.syncope.console.wicket.markup.html.form.UpdatingTextField;
 public class ResourceModalPage extends SyncopeModalPage {
 
     public TextField resourceName;
+
     public DropDownChoice connector;
-    
+
     ConnectorInstanceTO connectorTO = new ConnectorInstanceTO();
 
     SchemaMappingTOs userSchemas = new SchemaMappingTOs();
+
     SchemaMappingTOs roleSchemas = new SchemaMappingTOs();
 
     public AjaxButton submit;
+
     public AjaxButton addUserSchemaMappingBtn;
+
     public AjaxButton addRoleSchemaMappingBtn;
 
     ListView mappingUserSchemaView;
+
     ListView mappingRoleSchemaView;
 
     @SpringBean(name = "resourcesRestClient")
     ResourcesRestClient restClient;
 
     WebMarkupContainer mappingUserSchemaContainer;
+
     WebMarkupContainer mappingRoleSchemaContainer;
 
     /**
@@ -81,48 +88,46 @@ public class ResourceModalPage extends SyncopeModalPage {
      * @param create : set to true only if a CREATE operation is required
      */
     public ResourceModalPage(final BasePage basePage, final ModalWindow window,
-        final ResourceTO resourceTO, final boolean createFlag) {
+            final ResourceTO resourceTO, final boolean createFlag) {
 
         setupSchemaLists(resourceTO.getMappings());
 
         Form resourceForm = new Form("ResourceForm");
-        
+
         resourceForm.setModel(new CompoundPropertyModel(resourceTO));
 
-        if(!createFlag)
+        if (!createFlag)
             connectorTO.setId(resourceTO.getConnectorId());
 
-        IModel connectors =  new LoadableDetachableModel()
-        {
+        IModel connectors = new LoadableDetachableModel() {
+
+            @Override
             protected Object load() {
 
-                ConnectorsRestClient connectorRestClient = (ConnectorsRestClient)
-                        ((SyncopeApplication)Application.get()).getApplicationContext().
+                ConnectorsRestClient connectorRestClient = (ConnectorsRestClient) ((SyncopeApplication) Application.get()).getApplicationContext().
                         getBean("connectorsRestClient");
 
                 return connectorRestClient.getAllConnectors().getInstances();
             }
         };
 
-        final IModel userSchemasList =  new LoadableDetachableModel()
-        {
+        final IModel userSchemasList = new LoadableDetachableModel() {
+
+            @Override
             protected Object load() {
 
-                SchemaRestClient schemaRestClient = (SchemaRestClient)
-                        ((SyncopeApplication)Application.get()).
-                        getApplicationContext().getBean("schemaRestClient");
+                SchemaRestClient schemaRestClient = (SchemaRestClient) ((SyncopeApplication) Application.get()).getApplicationContext().getBean("schemaRestClient");
 
                 return schemaRestClient.getAllUserSchemasNames();
             }
         };
 
-        final IModel roleSchemasList =  new LoadableDetachableModel()
-        {
+        final IModel roleSchemasList = new LoadableDetachableModel() {
+
+            @Override
             protected Object load() {
 
-                SchemaRestClient schemaRestClient = (SchemaRestClient)
-                        ((SyncopeApplication)Application.get()).
-                        getApplicationContext().getBean("schemaRestClient");
+                SchemaRestClient schemaRestClient = (SchemaRestClient) ((SyncopeApplication) Application.get()).getApplicationContext().getBean("schemaRestClient");
 
                 return schemaRestClient.getAllRoleSchemasNames();
             }
@@ -136,37 +141,41 @@ public class ResourceModalPage extends SyncopeModalPage {
         resourceForm.add(resourceName);
 
         ChoiceRenderer renderer = new ChoiceRenderer("connectorName", "id");
-        connector = new DropDownChoice("connectors",new Model(connectorTO),connectors,renderer);
+        connector = new DropDownChoice("connectors", new Model(connectorTO), connectors, renderer);
         connector.setEnabled(createFlag);
         connector.setModel(new IModel() {
 
-                public Object getObject() {
-                    return connectorTO;
-                }
+            @Override
+            public Object getObject() {
+                return connectorTO;
+            }
 
-                public void setObject(Object object) {
-                    ConnectorInstanceTO connector = (ConnectorInstanceTO)object;
-                    resourceTO.setConnectorId(connector.getId());
-                }
+            @Override
+            public void setObject(Object object) {
+                ConnectorInstanceTO connector = (ConnectorInstanceTO) object;
+                resourceTO.setConnectorId(connector.getId());
+            }
 
-                public void detach() {
-                }
-            });
+            @Override
+            public void detach() {
+            }
+        });
 
         connector.setRequired(true);
         connector.setEnabled(createFlag);
 
         resourceForm.add(connector);
 
-        mappingUserSchemaView = new ListView("mappingsUserSchema",userSchemas.getMappings()) {
+        mappingUserSchemaView = new ListView("mappingsUserSchema", userSchemas.getMappings()) {
 
             SchemaMappingTO mappingTO = null;
 
             @Override
             protected void populateItem(ListItem item) {
-                mappingTO = (SchemaMappingTO)item.getDefaultModelObject();
+                mappingTO = (SchemaMappingTO) item.getDefaultModelObject();
 
-                item.add(new AjaxCheckBox("toRemove",new Model(new Boolean(""))) {
+                item.add(new AjaxCheckBox("toRemove", new Model(new Boolean(""))) {
+
                     @Override
                     protected void onUpdate(AjaxRequestTarget target) {
                         int id = new Integer(getParent().getId());
@@ -174,13 +183,11 @@ public class ResourceModalPage extends SyncopeModalPage {
                         target.addComponent(mappingUserSchemaContainer);
                     }
                 });
-                item.add(new UpdatingTextField("field",new PropertyModel(mappingTO, "field"))
-                        .setRequired(true));
-                item.add(new UpdatingDropDownChoice("userSchema",new PropertyModel(mappingTO, "userSchema"),userSchemasList)
-                        .setRequired(true));
-                item.add(new UpdatingCheckBox("nullable",new PropertyModel(mappingTO, "nullable")));
-                item.add(new UpdatingCheckBox("accountId",new PropertyModel(mappingTO, "accountid")));
-                item.add(new UpdatingCheckBox("password",new PropertyModel(mappingTO, "password")));
+                item.add(new UpdatingTextField("field", new PropertyModel(mappingTO, "field")).setRequired(true));
+                item.add(new UpdatingDropDownChoice("userSchema", new PropertyModel(mappingTO, "userSchema"), userSchemasList).setRequired(true));
+                item.add(new UpdatingCheckBox("nullable", new PropertyModel(mappingTO, "nullable")));
+                item.add(new UpdatingCheckBox("accountId", new PropertyModel(mappingTO, "accountid")));
+                item.add(new UpdatingCheckBox("password", new PropertyModel(mappingTO, "password")));
             }
         };
 
@@ -190,7 +197,7 @@ public class ResourceModalPage extends SyncopeModalPage {
 
         resourceForm.add(mappingUserSchemaContainer);
 
-        addUserSchemaMappingBtn = new AjaxButton("addUserSchemaMappingBtn",new Model(getString("add"))) {
+        addUserSchemaMappingBtn = new AjaxButton("addUserSchemaMappingBtn", new Model(getString("add"))) {
 
             @Override
             protected void onSubmit(AjaxRequestTarget target, Form form) {
@@ -203,15 +210,16 @@ public class ResourceModalPage extends SyncopeModalPage {
 
         resourceForm.add(addUserSchemaMappingBtn);
 
-        mappingRoleSchemaView = new ListView("mappingsRoleSchema",roleSchemas.getMappings()) {
+        mappingRoleSchemaView = new ListView("mappingsRoleSchema", roleSchemas.getMappings()) {
 
             SchemaMappingTO mappingTO = null;
 
             @Override
             protected void populateItem(ListItem item) {
-                mappingTO = (SchemaMappingTO)item.getDefaultModelObject();
+                mappingTO = (SchemaMappingTO) item.getDefaultModelObject();
 
-                item.add(new AjaxCheckBox("toRemove",new Model(new Boolean(""))) {
+                item.add(new AjaxCheckBox("toRemove", new Model(new Boolean(""))) {
+
                     @Override
                     protected void onUpdate(AjaxRequestTarget target) {
                         int id = new Integer(getParent().getId());
@@ -219,13 +227,11 @@ public class ResourceModalPage extends SyncopeModalPage {
                         target.addComponent(mappingRoleSchemaContainer);
                     }
                 });
-                item.add(new UpdatingTextField("field",new PropertyModel(mappingTO, "field"))
-                        .setRequired(true));
-                item.add(new UpdatingDropDownChoice("roleSchema",new PropertyModel(mappingTO, "roleSchema"),roleSchemasList)
-                        .setRequired(true));
-                item.add(new UpdatingCheckBox("nullable",new PropertyModel(mappingTO, "nullable")));
-                item.add(new UpdatingCheckBox("accountId",new PropertyModel(mappingTO, "accountid")));
-                item.add(new UpdatingCheckBox("password",new PropertyModel(mappingTO, "password")));
+                item.add(new UpdatingTextField("field", new PropertyModel(mappingTO, "field")).setRequired(true));
+                item.add(new UpdatingDropDownChoice("roleSchema", new PropertyModel(mappingTO, "roleSchema"), roleSchemasList).setRequired(true));
+                item.add(new UpdatingCheckBox("nullable", new PropertyModel(mappingTO, "nullable")));
+                item.add(new UpdatingCheckBox("accountId", new PropertyModel(mappingTO, "accountid")));
+                item.add(new UpdatingCheckBox("password", new PropertyModel(mappingTO, "password")));
             }
         };
 
@@ -235,7 +241,7 @@ public class ResourceModalPage extends SyncopeModalPage {
 
         resourceForm.add(mappingRoleSchemaContainer);
 
-        addRoleSchemaMappingBtn = new AjaxButton("addRoleSchemaMappingBtn",new Model(getString("add"))) {
+        addRoleSchemaMappingBtn = new AjaxButton("addRoleSchemaMappingBtn", new Model(getString("add"))) {
 
             @Override
             protected void onSubmit(AjaxRequestTarget target, Form form) {
@@ -256,16 +262,16 @@ public class ResourceModalPage extends SyncopeModalPage {
                 resourceTO = mergeSchemaLists(resourceTO);
                 try {
 
-                    if (createFlag) 
+                    if (createFlag)
                         restClient.createResource(resourceTO);
-                     else
+                    else
                         restClient.updateResource(resourceTO);
 
-                     Resources callerPage = (Resources)basePage;
-                     callerPage.setOperationResult(true);
+                    Resources callerPage = (Resources) basePage;
+                    callerPage.setOperationResult(true);
 
-                     window.close(target);
-                    
+                    window.close(target);
+
                 } catch (Exception e) {
                     error(getString("error") + ":" + e.getMessage());
                 }
@@ -280,10 +286,10 @@ public class ResourceModalPage extends SyncopeModalPage {
         resourceForm.add(submit);
 
         resourceForm.add(new FeedbackPanel("feedback").setOutputMarkupId(true));
-        
+
         add(resourceForm);
     }
-    
+
     /**
      * Set User and Role Schemas list for populating different views.
      * @param schemaMappingTos
@@ -292,21 +298,25 @@ public class ResourceModalPage extends SyncopeModalPage {
         userSchemas = new SchemaMappingTOs();
         roleSchemas = new SchemaMappingTOs();
 
+        SchemaType schemaType = null;
+
         if (schemaMappingTos != null)
-            for(SchemaMappingTO schemaMappingTO: schemaMappingTos.getMappings()) {
+            for (SchemaMappingTO schemaMappingTO :
+                    schemaMappingTos.getMappings()) {
 
-                if(schemaMappingTO.getRoleSchema() == null
-                        && schemaMappingTO.getUserSchema() != null)
+                schemaType = schemaMappingTO.getSchemaType();
+
+                if (SchemaType.UserSchema.equals(schemaType)) {
                     userSchemas.addMapping(schemaMappingTO);
+                }
 
-                else if (schemaMappingTO.getUserSchema()== null
-                        && schemaMappingTO.getRoleSchema()!= null)
+                if (SchemaType.RoleSchema.equals(schemaType)) {
                     roleSchemas.addMapping(schemaMappingTO);
-
+                }
             }
         else {
-        userSchemas.addMapping(new SchemaMappingTO());
-        roleSchemas.addMapping(new SchemaMappingTO());
+            userSchemas.addMapping(new SchemaMappingTO());
+            roleSchemas.addMapping(new SchemaMappingTO());
         }
     }
 
@@ -322,10 +332,9 @@ public class ResourceModalPage extends SyncopeModalPage {
         schemaMappingTOs.getMappings().addAll(roleSchemas.getMappings());
 
         resourceTO.setMappings(schemaMappingTOs);
-        
+
         return resourceTO;
     }
-
     /**
      * Extension class of TextField. It's purposed for storing values in the
      * corresponding property model after pressing 'Add' button.
@@ -343,7 +352,6 @@ public class ResourceModalPage extends SyncopeModalPage {
 //            } );
 //        }
 //    }
-
     /**
      * Extension class of DropDownChoice. It's purposed for storing values in the
      * corresponding property model after pressing 'Add' button.
@@ -360,7 +368,6 @@ public class ResourceModalPage extends SyncopeModalPage {
 //            } );
 //        }
 //     }
-
     /**
      * Extension class of CheckBox. It's purposed for storing values in the
      * corresponding property model after pressing 'Add' button.

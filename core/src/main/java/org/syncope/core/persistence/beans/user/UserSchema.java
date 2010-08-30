@@ -16,32 +16,25 @@ package org.syncope.core.persistence.beans.user;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import org.syncope.core.persistence.beans.AbstractAttribute;
 import org.syncope.core.persistence.beans.AbstractDerivedSchema;
 import org.syncope.core.persistence.beans.AbstractSchema;
-import org.syncope.core.persistence.beans.SchemaMapping;
 
 @Entity
 public class UserSchema extends AbstractSchema {
 
     @OneToMany(mappedBy = "schema")
     private List<UserAttribute> attributes;
+
     @ManyToMany(mappedBy = "schemas")
     private List<UserDerivedSchema> derivedSchemas;
-    /**
-     * All the mappings of the attribute schema.
-     */
-    @OneToMany(cascade = CascadeType.MERGE, mappedBy = "userSchema")
-    private List<SchemaMapping> mappings;
 
     public UserSchema() {
         attributes = new ArrayList<UserAttribute>();
         derivedSchemas = new ArrayList<UserDerivedSchema>();
-        mappings = new ArrayList<SchemaMapping>();
     }
 
     @Override
@@ -88,34 +81,5 @@ public class UserSchema extends AbstractSchema {
             List<? extends AbstractDerivedSchema> derivedSchemas) {
 
         this.derivedSchemas = (List<UserDerivedSchema>) derivedSchemas;
-    }
-
-    @Override
-    public List<SchemaMapping> getMappings() {
-        if (this.mappings == null) {
-            this.mappings = new ArrayList<SchemaMapping>();
-        }
-        return this.mappings;
-    }
-
-    @Override
-    public void setMappings(List<SchemaMapping> mappings) {
-        this.mappings = mappings;
-    }
-
-    @Override
-    public boolean addMapping(SchemaMapping mapping) {
-        if (this.mappings == null) {
-            this.mappings = new ArrayList<SchemaMapping>();
-        }
-        return this.mappings.add(mapping);
-    }
-
-    @Override
-    public boolean removeMapping(SchemaMapping mapping) {
-        if (this.mappings == null) {
-            return true;
-        }
-        return this.mappings.remove(mapping);
     }
 }

@@ -25,6 +25,7 @@ import org.syncope.client.to.SchemaMappingTO;
 import org.syncope.client.to.SchemaMappingTOs;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.core.persistence.dao.SchemaDAO;
+import org.syncope.types.SchemaType;
 
 public class SchemaMappingTestITCase extends AbstractTestITCase {
 
@@ -60,8 +61,8 @@ public class SchemaMappingTestITCase extends AbstractTestITCase {
         for (int i = 0; i < 3; i++) {
             mapping = new SchemaMappingTO();
             mapping.setField("test" + i);
-            mapping.setUserSchema("username");
-            mapping.setRoleSchema("icon");
+            mapping.setSchemaName("username");
+            mapping.setSchemaType(SchemaType.UserSchema);
             mappings.addMapping(mapping);
         }
 

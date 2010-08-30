@@ -16,34 +16,25 @@ package org.syncope.core.persistence.beans.membership;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import org.syncope.core.persistence.beans.AbstractAttribute;
 import org.syncope.core.persistence.beans.AbstractDerivedSchema;
 import org.syncope.core.persistence.beans.AbstractSchema;
-import org.syncope.core.persistence.beans.SchemaMapping;
 
 @Entity
 public class MembershipSchema extends AbstractSchema {
 
     @OneToMany(mappedBy = "schema")
     private List<MembershipAttribute> attributes;
+
     @ManyToMany(mappedBy = "schemas")
     private List<MembershipDerivedSchema> derivedSchemas;
-    /**
-     * All the mappings of the attribute schema.
-     */
-    @OneToMany(cascade = CascadeType.MERGE,
-    fetch = FetchType.EAGER, mappedBy = "membershipSchema")
-    private List<SchemaMapping> mappings;
 
     public MembershipSchema() {
         attributes = new ArrayList<MembershipAttribute>();
         derivedSchemas = new ArrayList<MembershipDerivedSchema>();
-        mappings = new ArrayList<SchemaMapping>();
     }
 
     @Override
@@ -90,34 +81,5 @@ public class MembershipSchema extends AbstractSchema {
             List<? extends AbstractDerivedSchema> derivedSchemas) {
 
         this.derivedSchemas = (List<MembershipDerivedSchema>) derivedSchemas;
-    }
-
-    @Override
-    public List<SchemaMapping> getMappings() {
-        if (this.mappings == null) {
-            this.mappings = new ArrayList<SchemaMapping>();
-        }
-        return this.mappings;
-    }
-
-    @Override
-    public void setMappings(List<SchemaMapping> mappings) {
-        this.mappings = mappings;
-    }
-
-    @Override
-    public boolean addMapping(SchemaMapping mapping) {
-        if (this.mappings == null) {
-            this.mappings = new ArrayList<SchemaMapping>();
-        }
-        return this.mappings.add(mapping);
-    }
-
-    @Override
-    public boolean removeMapping(SchemaMapping mapping) {
-        if (this.mappings == null) {
-            return true;
-        }
-        return this.mappings.remove(mapping);
     }
 }

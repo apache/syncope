@@ -14,7 +14,10 @@
  */
 package org.syncope.core.test.persistence.relationships;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import org.syncope.core.persistence.validation.MultiUniqueValueException;
 import org.syncope.core.test.persistence.*;
 import static org.junit.Assert.*;
 
@@ -26,108 +29,268 @@ import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.beans.user.UserSchema;
 import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
-import org.syncope.core.persistence.dao.SchemaMappingDAO;
+import org.syncope.types.SchemaType;
 
 @Transactional
 public class SchemaMappingTest extends AbstractTest {
 
     @Autowired
-    private SchemaMappingDAO schemaMappingDAO;
-    @Autowired
     private SchemaDAO schemaDAO;
+
     @Autowired
     private ResourceDAO resourceDAO;
 
     @Test
-    public final void save() throws ClassNotFoundException {
-        SchemaMapping schema = new SchemaMapping();
+    public final void create() throws ClassNotFoundException, MultiUniqueValueException {
+        SchemaMapping mapping = new SchemaMapping();
 
-        schema.setField("name");
+        mapping.setSchemaType(SchemaType.UserSchema);
 
-        UserSchema user = schemaDAO.find("firstname", UserSchema.class);
-        schema.setUserSchema(user);
+        UserSchema schema = schemaDAO.find("firstname", UserSchema.class);
+
+        assertNotNull(schema);
+
+        mapping.setSchemaName(schema.getName());
 
         TargetResource resource = resourceDAO.find("ws-target-resource-1");
-        schema.setResource(resource);
-
-        SchemaMapping actual = schemaMappingDAO.save(schema);
-
-        user.addMapping(actual);
-        resource.addMapping(actual);
-
-        // close the transaction
-        schemaMappingDAO.flush();
-
-        assertNotNull(actual);
-
-        assertTrue(actual.isNullable());
-
-        assertFalse(actual.isAccountid());
-
-        assertFalse(actual.isPassword());
-
-        assertEquals("firstname", actual.getUserSchema().getName());
-
-        assertEquals("name", actual.getField());
-
-        UserSchema actualUser =
-                schemaDAO.find("firstname", UserSchema.class);
-
-        assertTrue(actualUser.getMappings().contains(actual));
-
-        TargetResource actualResource =
-                resourceDAO.find("ws-target-resource-1");
-
-        assertTrue(actualResource.getMappings().contains(actual));
-    }
-
-    @Test
-    public final void delete() {
-        SchemaMapping schema = schemaMappingDAO.find(100L);
-
-        assertNotNull("find did not work", schema);
-
-        Long id = schema.getId();
-
-        TargetResource resource = schema.getResource();
 
         assertNotNull(resource);
 
-        UserSchema user = schema.getUserSchema();
+        mapping.setResource(resource);
 
-        assertNotNull(user);
+        mapping.setField("name");
 
-        schemaMappingDAO.delete(schema.getId());
+        // update schema mapping
+        SchemaMapping actualMapping = schemaDAO.saveMapping(mapping);
+
+        assertNotNull(actualMapping);
+
+        assertTrue(actualMapping.isNullable());
+
+        assertFalse(actualMapping.isAccountid());
+
+        assertFalse(actualMapping.isPassword());
+
+        assertEquals("firstname", actualMapping.getSchemaName());
+
+        assertEquals("name", actualMapping.getField());
+
+        // update schema
+        schema.addMapping(actualMapping);
+        UserSchema actualSchema = schemaDAO.save(schema);
+
+        assertNotNull(actualSchema);
+
+        // update resource
+        resource.addMapping(actualMapping);
+        TargetResource actualResource = resourceDAO.save(resource);
+
+        assertNotNull(actualResource);
 
         // close the transaction
-        schemaMappingDAO.flush();
+        schemaDAO.flush();
 
-        SchemaMapping actual = schemaMappingDAO.find(100L);
+        actualSchema = schemaDAO.find("firstname", UserSchema.class);
+
+        assertNotNull(actualSchema.getMappings());
+        assertFalse(actualSchema.getMappings().isEmpty());
+        assertTrue(actualSchema.getMappings().contains(actualMapping));
+
+        actualResource = resourceDAO.find("ws-target-resource-1");
+
+        assertNotNull(actualResource.getMappings());
+        assertFalse(actualResource.getMappings().isEmpty());
+        assertTrue(actualResource.getMappings().contains(actualMapping));
+    }
+
+    @Test
+    public final void delete() throws MultiUniqueValueException {
+        SchemaMapping mapping = schemaDAO.findMapping(100L);
+
+        assertNotNull("find did not work", mapping);
+
+        TargetResource resource = mapping.getResource();
+
+        assertNotNull(resource);
+        assertNotNull(resource.getMappings());
+        assertFalse(resource.getMappings().isEmpty());
+
+        int resourceMappings = resource.getMappings().size();
+
+        assertTrue(resourceMappings > 0);
+
+        UserSchema schema =
+                schemaDAO.find(mapping.getSchemaName(), UserSchema.class);
+
+        assertNotNull(schema);
+        assertNotNull(schema.getMappings());
+        assertFalse(schema.getMappings().isEmpty());
+
+        int userMappings = schema.getMappings().size();
+
+        assertTrue(userMappings > 0);
+
+        schemaDAO.removeMapping(mapping.getId());
+
+        SchemaMapping actual = schemaDAO.findMapping(100L);
 
         assertNull("delete did not work", actual);
+
+        // close the transaction
+        schemaDAO.flush();
+
+        UserSchema actualUser =
+                schemaDAO.find(schema.getName(), UserSchema.class);
+
+        assertNotNull(actualUser);
+        assertNotNull(actualUser.getMappings());
+        assertTrue(userMappings > actualUser.getMappings().size());
+        assertFalse(actualUser.getMappings().contains(mapping));
 
         TargetResource actualResource =
                 resourceDAO.find(resource.getName());
 
         assertNotNull(actualResource);
+        assertNotNull(actualResource.getMappings());
+        assertTrue(resourceMappings > actualResource.getMappings().size());
+        assertFalse(actualResource.getMappings().contains(mapping));
+    }
 
-        List<SchemaMapping> mappings = actualResource.getMappings();
-        if (mappings != null) {
-            for (SchemaMapping mapping : mappings) {
-                assertFalse(mapping.getId().equals(id));
-            }
+    @Test
+    public void update() throws MultiUniqueValueException {
+        SchemaMapping mapping = schemaDAO.findMapping(100L);
+
+        assertNotNull(mapping);
+        assertEquals("email", mapping.getSchemaName());
+        assertEquals(mapping.getSchemaType(), SchemaType.UserSchema);
+        assertTrue(mapping.isAccountid());
+        assertFalse(mapping.isPassword());
+        assertEquals("ws-target-resource-1", mapping.getResource().getName());
+
+        UserSchema schema =
+                schemaDAO.find(mapping.getSchemaName(), UserSchema.class);
+
+        assertNotNull(schema);
+        assertTrue(schema.getMappings().contains(mapping));
+
+        int schemaMappings = schema.getMappings().size();
+
+        TargetResource resource =
+                resourceDAO.find(mapping.getResource().getName());
+
+        assertNotNull(resource);
+        assertTrue(resource.getMappings().contains(mapping));
+
+        int resourceMappings = resource.getMappings().size();
+
+        // Schema must be forcely synchronized
+        schema.removeMapping(mapping);
+        schemaDAO.save(schema);
+
+        // Resource must be forcely synchronized
+        resource.removeMapping(mapping);
+        resourceDAO.save(resource);
+
+        resource = resourceDAO.find("ws-target-resource-2");
+
+        mapping.setAccountid(false);
+        mapping.setPassword(true);
+        mapping.setSchemaName("Password");
+        mapping.setSchemaType(SchemaType.Password);
+        mapping.setResource(resource);
+
+        SchemaMapping actual = schemaDAO.saveMapping(mapping);
+        schemaDAO.flush();
+
+        assertNotNull(actual);
+        assertEquals("Password", actual.getSchemaName());
+        assertEquals(actual.getSchemaType(), SchemaType.Password);
+        assertFalse(actual.isAccountid());
+        assertTrue(actual.isPassword());
+        assertEquals("ws-target-resource-2", actual.getResource().getName());
+
+        // Check for synchronization
+
+        schema = schemaDAO.find("email", UserSchema.class);
+        assertNotNull(schema);
+        assertTrue(schemaMappings > schema.getMappings().size());
+
+        resource = resourceDAO.find("ws-target-resource-1");
+        assertNotNull(resource);
+        assertTrue(resourceMappings > resource.getMappings().size());
+    }
+
+    @Test
+    public void removeResourceAndCheckForMapping() {
+        TargetResource resource = resourceDAO.find("ws-target-resource-2");
+
+        assertNotNull(resource);
+
+        List<SchemaMapping> mappings = resource.getMappings();
+
+        assertNotNull(mappings);
+        assertFalse(mappings.isEmpty());
+
+        Set<Long> mappingIds = new HashSet<Long>();
+        for (SchemaMapping mapping : mappings) {
+            mappingIds.add(mapping.getId());
         }
 
-        UserSchema actualUser =
-                schemaDAO.find(user.getName(), UserSchema.class);
+        resourceDAO.delete("ws-target-resource-2");
 
-        assertNotNull(actualUser);
+        resourceDAO.flush();
 
-        mappings = actualUser.getMappings();
-        if (mappings != null) {
-            for (SchemaMapping mapping : mappings) {
-                assertFalse(mapping.getId().equals(id));
-            }
+        resource = resourceDAO.find("ws-target-resource-2");
+
+        assertNull(resource);
+
+        for (Long id : mappingIds) {
+            assertNull(schemaDAO.findMapping(id));
         }
+    }
+
+    @Test
+    public void removeSchemaAndCheckForMapping() {
+        UserSchema schema = schemaDAO.find("email", UserSchema.class);
+
+        assertNotNull(schema);
+
+        List<SchemaMapping> mappings = schema.getMappings();
+
+        assertNotNull(mappings);
+        assertFalse(mappings.isEmpty());
+
+        Set<Long> mappingIds = new HashSet<Long>();
+        for (SchemaMapping mapping : mappings) {
+            mappingIds.add(mapping.getId());
+        }
+
+        schemaDAO.delete("email", UserSchema.class);
+
+        schemaDAO.flush();
+
+        schema = schemaDAO.find("email", UserSchema.class);
+
+        assertNull(schema);
+
+        for (Long id : mappingIds) {
+            assertNull(schemaDAO.findMapping(id));
+        }
+    }
+
+    @Test
+    public void checkForAccountId() {
+        schemaDAO.removeMapping(99L);
+        schemaDAO.flush();
+
+        assertNull(schemaDAO.findMapping(99L));
+    }
+
+    @Test
+    public void checkForPassword() {
+        schemaDAO.removeMapping(106L);
+        schemaDAO.flush();
+
+        assertNull(schemaDAO.findMapping(106L));
     }
 }

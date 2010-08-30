@@ -17,12 +17,12 @@ package org.syncope.client.to;
 import java.util.HashSet;
 import java.util.Set;
 import org.syncope.client.AbstractBaseBean;
-import org.syncope.types.SchemaType;
+import org.syncope.types.SchemaValueType;
 
 public class SchemaTO extends AbstractBaseBean {
 
     private String name;
-    private SchemaType type;
+    private SchemaValueType type;
     private boolean virtual;
     private boolean mandatory;
     private boolean multivalue;
@@ -84,11 +84,11 @@ public class SchemaTO extends AbstractBaseBean {
         this.name = name;
     }
 
-    public SchemaType getType() {
+    public SchemaValueType getType() {
         return type;
     }
 
-    public void setType(SchemaType type) {
+    public void setType(SchemaValueType type) {
         this.type = type;
     }
 

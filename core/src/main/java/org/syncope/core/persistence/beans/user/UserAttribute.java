@@ -32,8 +32,10 @@ public class UserAttribute extends AbstractAttribute {
 
     @ManyToOne(fetch = FetchType.EAGER)
     private SyncopeUser owner;
+
     @ManyToOne(fetch = FetchType.EAGER)
     private UserSchema schema;
+
     @OneToMany(cascade = CascadeType.MERGE, mappedBy = "attribute")
     @Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
     private List<UserAttributeValue> attributeValues;

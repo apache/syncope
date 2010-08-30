@@ -14,6 +14,7 @@
  */
 package org.syncope.core.persistence.dao.impl;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import javax.persistence.Query;
@@ -26,14 +27,14 @@ import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.ResourceDAO;
-import org.syncope.core.persistence.dao.SchemaMappingDAO;
+import org.syncope.core.persistence.dao.SchemaDAO;
 
 @Repository
 public class ResourceDAOImpl extends AbstractDAOImpl
         implements ResourceDAO {
 
     @Autowired
-    private SchemaMappingDAO schemaMappingDAO;
+    private SchemaDAO schemaDAO;
 
     @Override
     @Transactional(readOnly = true)
@@ -58,18 +59,19 @@ public class ResourceDAOImpl extends AbstractDAOImpl
     public void delete(String name) {
 
         TargetResource resource = find(name);
-        if (resource == null) {
-            return;
-        }
+        if (resource == null) return;
 
+        // --------------------------------------
+        // Remove all mappings
+        // --------------------------------------
         List<SchemaMapping> mappings = resource.getMappings();
-        if (mappings != null) {
-            for (SchemaMapping mapping : mappings) {
-                mapping.setResource(null);
-                schemaMappingDAO.delete(mapping.getId());
-            }
+        resource.setMappings(Collections.EMPTY_LIST);
+
+        for (SchemaMapping mapping : mappings) {
+            mapping.setResource(null);
+            schemaDAO.removeMapping(mapping.getId());
         }
-        resource.setMappings(null);
+        // --------------------------------------
 
         Set<SyncopeUser> users = resource.getUsers();
         if (users != null && !users.isEmpty()) {

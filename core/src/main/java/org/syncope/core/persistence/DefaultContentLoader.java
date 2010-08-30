@@ -89,14 +89,12 @@ public class DefaultContentLoader implements ServletContextListener {
                     ResultSet.TYPE_SCROLL_SENSITIVE,
                     ResultSet.CONCUR_READ_ONLY);
 
-            resultSet = statement.executeQuery("SELECT * FROM "
-                    + SyncopeConfiguration.class.getSimpleName());
+            resultSet = statement.executeQuery("SELECT * FROM " + SyncopeConfiguration.class.getSimpleName());
             resultSet.last();
 
             existingData = resultSet.getRow() > 0;
         } catch (SQLException e) {
-            log.error("Could not access to table "
-                    + SyncopeConfiguration.class.getSimpleName(), e);
+            log.error("Could not access to table " + SyncopeConfiguration.class.getSimpleName(), e);
 
             // Setting this to true make nothing to be done below
             existingData = true;

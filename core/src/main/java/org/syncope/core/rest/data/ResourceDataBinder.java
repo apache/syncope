@@ -29,13 +29,14 @@ import org.syncope.client.to.SchemaMappingTO;
 import org.syncope.client.to.SchemaMappingTOs;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
+import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.beans.ConnectorInstance;
 import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.SchemaMapping;
-import org.syncope.core.persistence.beans.role.RoleSchema;
-import org.syncope.core.persistence.beans.user.UserSchema;
 import org.syncope.core.persistence.dao.ConnectorInstanceDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
+import org.syncope.core.persistence.validation.MultiUniqueValueException;
+import org.syncope.types.SchemaType;
 import org.syncope.types.SyncopeClientExceptionType;
 
 @Component
@@ -45,7 +46,7 @@ public class ResourceDataBinder {
             ResourceDataBinder.class);
 
     private static final String[] ignoreMappingProperties = {
-        "id", "userSchema", "roleSchema", "resource"};
+        "id", "resource"};
 
     private SchemaDAO schemaDAO;
 
@@ -185,27 +186,16 @@ public class ResourceDataBinder {
             return null;
         }
 
+        if (mapping.getSchemaName() == null) {
+            requiredValuesMissing.addElement("schema");
+        }
+
         if (mapping.getField() == null) {
             requiredValuesMissing.addElement("field");
         }
 
-        // search for the user schema
-        UserSchema userSchema = null;
-        if (mapping.getUserSchema() != null) {
-            userSchema = schemaDAO.find(
-                    mapping.getUserSchema(), UserSchema.class);
-        }
-
-        // search for the role schema
-        RoleSchema roleSchema = null;
-        if (mapping.getRoleSchema() != null) {
-            roleSchema = schemaDAO.find(
-                    mapping.getRoleSchema(), RoleSchema.class);
-        }
-
-        // at least one schema must be provided
-        if (userSchema == null && roleSchema == null) {
-            requiredValuesMissing.addElement("schema");
+        if (mapping.getSchemaType() == null) {
+            requiredValuesMissing.addElement("type");
         }
 
         // a resource must be provided
@@ -229,17 +219,42 @@ public class ResourceDataBinder {
                 mapping, schemaMapping, ignoreMappingProperties);
 
         schemaMapping.setResource(resource);
-        resource.addMapping(schemaMapping);
 
-        // synchronize userSchema
-        schemaMapping.setUserSchema(userSchema);
-        userSchema = schemaMapping.getUserSchema();
-        if (userSchema != null) userSchema.addMapping(schemaMapping);
+        if (log.isInfoEnabled()) {
+            log.info("Save mapping " + mapping);
+        }
 
-        // synchronize roleSchema
-        schemaMapping.setRoleSchema(roleSchema);
-        roleSchema = schemaMapping.getRoleSchema();
-        if (roleSchema != null) roleSchema.addMapping(schemaMapping);
+        schemaDAO.saveMapping(schemaMapping);
+
+        SchemaType schemaType = mapping.getSchemaType();
+
+        try {
+            schemaType.getSchemaType().asSubclass(AbstractSchema.class);
+
+
+            // search for the attribute schema
+            AbstractSchema schema = schemaDAO.find(
+                    mapping.getSchemaName(),
+                    mapping.getSchemaType().getSchemaType());
+
+            if (schema != null)
+                schema.addMapping(schemaMapping);
+
+
+            if (log.isInfoEnabled()) {
+                log.info("Merge schema " + schema);
+            }
+
+            schemaDAO.save(schema);
+
+        } catch (ClassCastException e) {
+            // no real schema provided
+            if (log.isDebugEnabled()) {
+                log.debug("Wrong schema type " + schemaType.getClassName());
+            }
+        } catch (MultiUniqueValueException e) {
+            log.error("Error during schema persistence", e);
+        }
 
         return schemaMapping;
     }
@@ -286,16 +301,6 @@ public class ResourceDataBinder {
 
         BeanUtils.copyProperties(
                 schemaMapping, schemaMappingTO, ignoreMappingProperties);
-
-        if (schemaMapping.getUserSchema() != null) {
-            schemaMappingTO.setUserSchema(
-                    schemaMapping.getUserSchema().getName());
-        }
-
-        if (schemaMapping.getRoleSchema() != null) {
-            schemaMappingTO.setRoleSchema(
-                    schemaMapping.getRoleSchema().getName());
-        }
 
         schemaMappingTO.setId(schemaMapping.getId());
 

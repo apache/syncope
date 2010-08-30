@@ -15,6 +15,8 @@
  */
 package org.syncope.core.rest.controller;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,15 +34,16 @@ import org.syncope.client.to.ResourceTOs;
 import org.syncope.client.to.SchemaMappingTOs;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
+import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.dao.ConnectorInstanceDAO;
 import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
-import org.syncope.core.persistence.dao.SchemaMappingDAO;
 import org.syncope.core.persistence.dao.SyncopeRoleDAO;
 import org.syncope.core.rest.data.ResourceDataBinder;
+import org.syncope.types.SchemaType;
 import org.syncope.types.SyncopeClientExceptionType;
 
 @Controller
@@ -49,12 +52,13 @@ public class ResourceController extends AbstractController {
 
     @Autowired
     private ResourceDAO resourceDAO;
+
     @Autowired
     private SchemaDAO schemaDAO;
+
     @Autowired
     private SyncopeRoleDAO syncopeRoleDAO;
-    @Autowired
-    private SchemaMappingDAO schemaMappingDAO;
+
     @Autowired
     ConnectorInstanceDAO connectorInstanceDAO;
 
@@ -86,8 +90,6 @@ public class ResourceController extends AbstractController {
                 log.debug("Verify that resource dosn't exist");
             }
 
-            TargetResource resource = null;
-
             if (resourceDAO.find(resourceTO.getName()) != null) {
                 SyncopeClientException ex = new SyncopeClientException(
                         SyncopeClientExceptionType.AlreadyExists);
@@ -101,7 +103,7 @@ public class ResourceController extends AbstractController {
                 log.debug("Resource data binder ..");
             }
 
-            resource = binder.getResource(resourceTO);
+            TargetResource resource = binder.getResource(resourceTO);
 
             if (log.isInfoEnabled()) {
                 log.info("Create resource " + resource.getName());
@@ -183,6 +185,17 @@ public class ResourceController extends AbstractController {
 
         try {
             if (log.isDebugEnabled()) {
+                log.debug("Remove old mappings ..");
+            }
+
+            // remove older mappings
+            List<SchemaMapping> mappings = resource.getMappings();
+            for (SchemaMapping mapping : mappings) {
+                mapping.setResource(null);
+                schemaDAO.removeMapping(mapping.getId());
+            }
+
+            if (log.isDebugEnabled()) {
                 log.debug("Resource data binder ..");
             }
 
@@ -203,13 +216,6 @@ public class ResourceController extends AbstractController {
                         SyncopeClientExceptionType.Unknown);
 
                 throw ex;
-            }
-
-            // remove older mappings
-            List<SchemaMapping> mappings = resource.getMappings();
-            for (SchemaMapping mapping : mappings) {
-                mapping.setResource(null);
-                schemaMappingDAO.delete(mapping.getId());
             }
 
         } catch (SyncopeClientException ex) {
@@ -360,11 +366,14 @@ public class ResourceController extends AbstractController {
             List<SchemaMapping> existentMappings = resource.getMappings();
 
             for (SchemaMapping mapping : existentMappings) {
-                schemaMappingDAO.delete(mapping.getId());
+                if (mapping != null) {// a list can contain null values
+                    mapping.setResource(null);
+                    schemaDAO.removeMapping(mapping.getId());
+                }
             }
 
             // to be sure ...
-            resource.getMappings().clear();
+            resource.setMappings(new ArrayList<SchemaMapping>());
 
             List<SchemaMapping> schemaMappings =
                     binder.getSchemaMappings(resource, mappings);
@@ -372,9 +381,56 @@ public class ResourceController extends AbstractController {
             SchemaMapping actual = null;
 
             for (SchemaMapping schemaMapping : schemaMappings) {
-                actual = schemaMappingDAO.save(schemaMapping);
+                // --------------------------------------
+                // Synchronize resource
+                // --------------------------------------
+                resource.addMapping(actual);
+                // --------------------------------------
+
+                // --------------------------------------
+                // Synchronize schema
+                // --------------------------------------
+                String schemaName = schemaMapping.getSchemaName();
+                SchemaType schemaType = schemaMapping.getSchemaType();
+
+                try {
+                    // check for schema type
+                    schemaType.getSchemaType().asSubclass(AbstractSchema.class);
+
+                    /**
+                     * Schema type could be:
+                     * * UserSchema
+                     * * RoleSchema
+                     * * MembershipSchema
+                     */
+                    if (log.isDebugEnabled()) {
+                        log.debug("Schema type " + schemaType.getClassName());
+                    }
+
+                    AbstractSchema schema = schemaDAO.find(
+                            schemaName, schemaType.getSchemaType());
+
+                    if (schema != null)
+                        schema.removeMapping(schemaMapping);
+
+                } catch (ClassCastException e) {
+                    /**
+                     * Schema type could be:
+                     * * AccountId
+                     * * Password
+                     */
+                    if (log.isDebugEnabled()) {
+                        log.debug("Wrong schema type " +
+                                schemaType.getClassName());
+                    }
+                }
+                // --------------------------------------
+
+                actual = schemaDAO.saveMapping(schemaMapping);
                 actuals.add(actual);
             }
+
+            resourceDAO.save(resource);
 
         } catch (SyncopeClientException ex) {
 
@@ -431,11 +487,12 @@ public class ResourceController extends AbstractController {
             // resource.getMappings() can never return a null value
 
             for (SchemaMapping mapping : mappings) {
-                schemaMappingDAO.delete(mapping.getId());
+                mapping.setResource(null);
+                schemaDAO.removeMapping(mapping.getId());
             }
 
             // to be sure ...
-            resource.getMappings().clear();
+            resource.setMappings(Collections.EMPTY_LIST);
         }
     }
 
@@ -481,7 +538,8 @@ public class ResourceController extends AbstractController {
 
     @RequestMapping(method = RequestMethod.GET,
     value = "/{roleName}/resources/mappings/list")
-    public SchemaMappingTOs getRoleResourcesMapping(HttpServletResponse response,
+    public SchemaMappingTOs getRoleResourcesMapping(
+            HttpServletResponse response,
             @PathVariable("roleName") Long roleId)
             throws SyncopeClientCompositeErrorException {
 
@@ -526,15 +584,15 @@ public class ResourceController extends AbstractController {
             List<SchemaMapping> schemaMappings = resource.getMappings();
 
             if (log.isDebugEnabled()) {
-                log.debug("The mappings of '" + resource + "' are '"
-                        + schemaMappings + "'");
+                log.debug("The mappings of '" + resource + "' are '" +
+                        schemaMappings + "'");
             }
 
             resourceMappings = binder.getSchemaMappingTOs(schemaMappings);
 
             if (log.isDebugEnabled()) {
-                log.debug("The mappings TO of '" + resource + "' are '"
-                        + resourceMappings.getMappings() + "'");
+                log.debug("The mappings TO of '" + resource + "' are '" +
+                        resourceMappings.getMappings() + "'");
             }
 
             roleMappings.getMappings().addAll(resourceMappings.getMappings());
