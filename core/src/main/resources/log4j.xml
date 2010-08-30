@@ -55,17 +55,17 @@
     </appender>
 
     <logger name="org.syncope.core.persistence" additivity="false">
-        <level value="DEBUG"/>
+        <level value="INFO"/>
         <appender-ref ref="persistence"/>
     </logger>
 
     <logger name="org.syncope.core.rest" additivity="false">
-        <level value="DEBUG"/>
+        <level value="INFO"/>
         <appender-ref ref="rest"/>
     </logger>
 
     <logger name="org.syncope.core.test" additivity="false">
-        <level value="DEBUG"/>
+        <level value="INFO"/>
         <appender-ref ref="test"/>
     </logger>
 
@@ -90,7 +90,7 @@
     </logger>
 
     <logger name="org.hibernate" additivity="false">
-        <level value="DEBUG"/>
+        <level value="INFO"/>
         <appender-ref ref="persistence"/>
     </logger>
 
