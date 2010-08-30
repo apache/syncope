@@ -22,21 +22,18 @@ public class ResourceTO extends AbstractBaseBean {
      * The resource identifier is the name.
      */
     private String name;
-
     /**
      * The resource type is identified by the associated connector.
      */
     private Long connectorId;
-
     /**
      * Attribute mappings.
      */
     private SchemaMappingTOs mappings;
-
     /**
      * Force mandatory constraint.
      */
-    private Boolean forceMandatoryConstraint;
+    private boolean forceMandatoryConstraint;
 
     public boolean isForceMandatoryConstraint() {
         return forceMandatoryConstraint;
