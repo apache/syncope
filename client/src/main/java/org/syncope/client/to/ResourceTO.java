@@ -33,6 +33,19 @@ public class ResourceTO extends AbstractBaseBean {
      */
     private SchemaMappingTOs mappings;
 
+    /**
+     * Force mandatory constraint.
+     */
+    private Boolean forceMandatoryConstraint;
+
+    public boolean isForceMandatoryConstraint() {
+        return forceMandatoryConstraint;
+    }
+
+    public void setForceMandatoryConstraint(boolean forceMandatoryConstraint) {
+        this.forceMandatoryConstraint = forceMandatoryConstraint;
+    }
+
     public Long getConnectorId() {
         return connectorId;
     }
@@ -56,5 +69,4 @@ public class ResourceTO extends AbstractBaseBean {
     public void setName(String name) {
         this.name = name;
     }
-    
 }
