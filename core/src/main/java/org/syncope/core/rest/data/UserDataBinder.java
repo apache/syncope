@@ -35,6 +35,7 @@ import org.syncope.core.persistence.beans.membership.Membership;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.propagation.ResourceOperations;
+import org.syncope.core.persistence.propagation.ResourceOperations.Type;
 import org.syncope.types.SyncopeClientExceptionType;
 
 @Component
@@ -151,6 +152,11 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         for (Long membershipToBeRemovedId :
                 userMod.getMembershipsToBeRemoved()) {
 
+            if (log.isDebugEnabled()) {
+                log.debug("Membership to be removed: " +
+                        membershipToBeRemovedId);
+            }
+
             membership = membershipDAO.find(membershipToBeRemovedId);
             if (membership == null) {
                 if (log.isDebugEnabled()) {
@@ -183,6 +189,11 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         for (MembershipMod membershipMod :
                 userMod.getMembershipsToBeAdded()) {
 
+            if (log.isDebugEnabled()) {
+                log.debug("Membership to be added: role(" +
+                        membershipMod.getRole() + ")");
+            }
+
             role = syncopeRoleDAO.find(membershipMod.getRole());
             if (role == null) {
                 if (log.isDebugEnabled()) {
@@ -197,6 +208,9 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
                     membership.setSyncopeUser(user);
 
                     user.addMembership(membership);
+
+                    resourceOperations.addAll(
+                            Type.UPDATE, role.getTargetResources());
                 }
 
                 resourceOperations.merge(fill(membership, membershipMod,

@@ -31,7 +31,7 @@ public class MembershipSchema extends AbstractSchema {
 
     @ManyToMany(mappedBy = "schemas")
     private List<MembershipDerivedSchema> derivedSchemas;
-
+    
     public MembershipSchema() {
         attributes = new ArrayList<MembershipAttribute>();
         derivedSchemas = new ArrayList<MembershipDerivedSchema>();

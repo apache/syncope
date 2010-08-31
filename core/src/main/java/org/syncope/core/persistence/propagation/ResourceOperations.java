@@ -24,9 +24,12 @@ public class ResourceOperations {
     public enum Type {
 
         CREATE, UPDATE, DELETE
+
     }
     private Set<TargetResource> toBeCreated;
+
     private Set<TargetResource> toBeUpdated;
+
     private Set<TargetResource> toBeDeleted;
 
     public ResourceOperations() {
@@ -62,6 +65,24 @@ public class ResourceOperations {
                 break;
             case DELETE:
                 result = toBeDeleted.add(resource);
+                break;
+        }
+
+        return result;
+    }
+
+    public boolean addAll(Type type, Set<TargetResource> resource) {
+        boolean result = false;
+
+        switch (type) {
+            case CREATE:
+                result = toBeCreated.addAll(resource);
+                break;
+            case UPDATE:
+                result = toBeUpdated.addAll(resource);
+                break;
+            case DELETE:
+                result = toBeDeleted.addAll(resource);
                 break;
         }
 
@@ -125,5 +146,12 @@ public class ResourceOperations {
         toBeCreated.addAll(resourceOperations.get(Type.CREATE));
         toBeUpdated.addAll(resourceOperations.get(Type.UPDATE));
         toBeDeleted.addAll(resourceOperations.get(Type.DELETE));
+    }
+
+    @Override
+    public String toString() {
+        return "To Be Created: " + toBeCreated + ";" +
+                "To Be Updated: " + toBeUpdated + ";" +
+                "To Be Deleted: " + toBeDeleted;
     }
 }

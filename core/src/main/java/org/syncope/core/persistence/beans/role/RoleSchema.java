@@ -31,7 +31,7 @@ public class RoleSchema extends AbstractSchema {
 
     @ManyToMany(mappedBy = "schemas")
     private List<RoleDerivedSchema> derivedSchemas;
-
+    
     public RoleSchema() {
         attributes = new ArrayList<RoleAttribute>();
         derivedSchemas = new ArrayList<RoleDerivedSchema>();

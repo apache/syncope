@@ -134,7 +134,7 @@ public class DefaultContentLoader implements ServletContextListener {
                 IDataSet dataSet = dataSetBuilder.build(
                         getClass().getResourceAsStream("content.xml"));
 
-                DatabaseOperation.REFRESH.execute(dbUnitConn, dataSet);
+                DatabaseOperation.CLEAN_INSERT.execute(dbUnitConn, dataSet);
             }
         } catch (Throwable t) {
             log.error("While loading default content", t);

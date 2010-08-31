@@ -48,7 +48,8 @@ public abstract class AbstractSchema extends AbstractBaseBean {
     /**
      * All the mappings of the attribute schema.
      */
-    @OneToMany(cascade = {CascadeType.MERGE, CascadeType.REFRESH},
+    @OneToMany(targetEntity = SchemaMapping.class,
+    cascade = {CascadeType.MERGE, CascadeType.REFRESH},
     fetch = FetchType.EAGER)
     private List<SchemaMapping> mappings;
 

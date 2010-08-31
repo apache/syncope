@@ -125,6 +125,11 @@ public class PropagationManager {
             Set<String> syncResourceNames)
             throws PropagationException {
 
+        if (log.isDebugEnabled()) {
+            log.debug("Provisioning with user " + user + ":\n" +
+                    resourceOperations);
+        }
+
         // set of provisioned resources
         Set<String> provisioned = new HashSet<String>();
 
@@ -154,8 +159,9 @@ public class PropagationManager {
         // synchronous propagation ...
         if (log.isDebugEnabled()) {
             log.debug(
-                    "Synchronous provisioning of " + syncOperations +
-                    " with user " + user);
+                    "Synchronous provisioning with user " + user + ":\n" +
+                    syncOperations);
+
         }
 
         for (Type type : ResourceOperations.Type.values()) {
@@ -180,8 +186,8 @@ public class PropagationManager {
         // asynchronous propagation ...
         if (log.isDebugEnabled()) {
             log.debug(
-                    "Asynchronous provisioning of " + asyncOperations +
-                    " with user " + user);
+                    "Asynchronous provisioning with user " + user + ":\n" +
+                    asyncOperations);
         }
 
         for (Type type : ResourceOperations.Type.values()) {
@@ -427,8 +433,12 @@ public class PropagationManager {
                 break;
 
             case UPDATE:
-                userUid = connector.resolveUsername(
-                        ObjectClass.ACCOUNT, accountId, null);
+                try {
+                    userUid = connector.resolveUsername(
+                            ObjectClass.ACCOUNT, accountId, null);
+                } catch (RuntimeException ignore) {
+                    // ignore exception
+                }
 
                 if (userUid != null) {
                     userUid = connector.update(

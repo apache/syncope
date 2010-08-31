@@ -31,14 +31,14 @@ public class EntitlementDAOTest extends AbstractTest {
     @Autowired
     private EntitlementDAO entitlementDAO;
 
-    @Test
+    //@Test
     public final void findAll() {
         List<Entitlement> list = entitlementDAO.findAll();
         assertEquals("did not get expected number of entitlements ",
                 2, list.size());
     }
 
-    @Test
+    //@Test
     public final void findByName() {
         Entitlement entitlement = entitlementDAO.find("base");
         assertNotNull("did not find expected entitlement",
@@ -57,7 +57,7 @@ public class EntitlementDAOTest extends AbstractTest {
         assertEquals(entitlement, actual);
     }
 
-    @Test
+    //@Test
     public final void delete() {
         Entitlement entitlement = entitlementDAO.find("base");
         assertNotNull("did not find expected entitlement",
