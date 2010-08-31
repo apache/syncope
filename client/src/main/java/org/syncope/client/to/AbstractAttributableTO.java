@@ -20,10 +20,10 @@ import org.syncope.client.AbstractBaseBean;
 
 public abstract class AbstractAttributableTO extends AbstractBaseBean {
 
-    protected long id;
-    protected Set<AttributeTO> attributes;
-    protected Set<AttributeTO> derivedAttributes;
-    protected Set<String> resources;
+    private long id;
+    private Set<AttributeTO> attributes;
+    private Set<AttributeTO> derivedAttributes;
+    private Set<String> resources;
 
     protected AbstractAttributableTO() {
         attributes = new HashSet<AttributeTO>();
@@ -35,15 +35,15 @@ public abstract class AbstractAttributableTO extends AbstractBaseBean {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(final long id) {
         this.id = id;
     }
 
-    public boolean addAttribute(AttributeTO attribute) {
+    public boolean addAttribute(final AttributeTO attribute) {
         return attributes.add(attribute);
     }
 
-    public boolean removeAttribute(AttributeTO attribute) {
+    public boolean removeAttribute(final AttributeTO attribute) {
         return attributes.remove(attribute);
     }
 
@@ -51,15 +51,15 @@ public abstract class AbstractAttributableTO extends AbstractBaseBean {
         return attributes;
     }
 
-    public void setAttributes(Set<AttributeTO> attributes) {
+    public void setAttributes(final Set<AttributeTO> attributes) {
         this.attributes = attributes;
     }
 
-    public boolean addDerivedAttribute(AttributeTO derivedAttribute) {
+    public boolean addDerivedAttribute(final AttributeTO derivedAttribute) {
         return derivedAttributes.add(derivedAttribute);
     }
 
-    public boolean removeDerivedAttribute(AttributeTO derivedAttribute) {
+    public boolean removeDerivedAttribute(final AttributeTO derivedAttribute) {
         return derivedAttributes.remove(derivedAttribute);
     }
 
@@ -67,15 +67,15 @@ public abstract class AbstractAttributableTO extends AbstractBaseBean {
         return derivedAttributes;
     }
 
-    public void setDerivedAttributes(Set<AttributeTO> derivedAttributes) {
+    public void setDerivedAttributes(final Set<AttributeTO> derivedAttributes) {
         this.derivedAttributes = derivedAttributes;
     }
 
-    public boolean addResource(String resource) {
+    public boolean addResource(final String resource) {
         return resources.add(resource);
     }
 
-    public boolean removeResource(String resource) {
+    public boolean removeResource(final String resource) {
         return resources.remove(resource);
     }
 
@@ -83,7 +83,7 @@ public abstract class AbstractAttributableTO extends AbstractBaseBean {
         return resources;
     }
 
-    public void setResources(Set<String> resources) {
+    public void setResources(final Set<String> resources) {
         this.resources = resources;
     }
 }

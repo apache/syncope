@@ -14,8 +14,6 @@
  */
 package org.syncope.client.to;
 
-import java.util.HashSet;
-
 public class RoleTO extends AbstractAttributableTO {
 
     private String name;
@@ -23,17 +21,11 @@ public class RoleTO extends AbstractAttributableTO {
     private boolean inheritAttributes;
     private boolean inheritDerivedAttributes;
 
-    public RoleTO() {
-        super();
-
-        resources = new HashSet<String>();
-    }
-
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 
@@ -41,7 +33,7 @@ public class RoleTO extends AbstractAttributableTO {
         return parent;
     }
 
-    public void setParent(long parent) {
+    public void setParent(final long parent) {
         this.parent = parent;
     }
 
@@ -49,7 +41,7 @@ public class RoleTO extends AbstractAttributableTO {
         return inheritAttributes;
     }
 
-    public void setInheritAttributes(boolean inheritAttributes) {
+    public void setInheritAttributes(final boolean inheritAttributes) {
         this.inheritAttributes = inheritAttributes;
     }
 
@@ -57,7 +49,9 @@ public class RoleTO extends AbstractAttributableTO {
         return inheritDerivedAttributes;
     }
 
-    public void setInheritDerivedAttributes(boolean inheritDerivedAttributes) {
+    public void setInheritDerivedAttributes(
+            final boolean inheritDerivedAttributes) {
+        
         this.inheritDerivedAttributes = inheritDerivedAttributes;
     }
 }

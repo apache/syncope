@@ -41,7 +41,7 @@ import org.syncope.types.SyncopeClientExceptionType;
 
 public class UserTestITCase extends AbstractTestITCase {
 
-    private UserTO getSampleTO(String email) {
+    private UserTO getSampleTO(final String email) {
         UserTO userTO = new UserTO();
         userTO.setPassword("password");
 
@@ -81,7 +81,7 @@ public class UserTestITCase extends AbstractTestITCase {
 
     @Test
     @ExpectedException(value = SyncopeClientCompositeErrorException.class)
-    public void createWithException() {
+    public final void createWithException() {
         AttributeTO attributeTO = new AttributeTO();
         attributeTO.setSchema("userId");
         attributeTO.addValue("userId@nowhere.org");
@@ -94,17 +94,32 @@ public class UserTestITCase extends AbstractTestITCase {
     }
 
     @Test
-    public void create() {
+    public final void create() {
         UserTO userTO = getSampleTO("a.b@c.com");
 
+        // add a membership
+        MembershipTO membershipTO = new MembershipTO();
+        membershipTO.setRole(8L);
+        userTO.addMembership(membershipTO);
+
+        // add an attribute with no values: must be ignored
+        AttributeTO nullValueAttributeTO = new AttributeTO();
+        nullValueAttributeTO.setSchema("subscriptionDate");
+        nullValueAttributeTO.setValues(null);
+        membershipTO.addAttribute(nullValueAttributeTO);
+
+        // add an attribute with a non-existing schema: must be ignored
         AttributeTO attrWithInvalidSchemaTO = new AttributeTO();
         attrWithInvalidSchemaTO.setSchema("invalid schema");
         attrWithInvalidSchemaTO.addValue("a value");
         userTO.addAttribute(attrWithInvalidSchemaTO);
 
-        MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRole(8L);
-        userTO.addMembership(membershipTO);
+        // add an attribute with null value: must be ignored
+        nullValueAttributeTO = new AttributeTO();
+        nullValueAttributeTO.setSchema("activationDate");
+        //nullValueAttributeTO.setValues(null);
+        nullValueAttributeTO.addValue(null);
+        userTO.addAttribute(nullValueAttributeTO);
 
         // 1. create user
         UserTO newUserTO = restTemplate.postForObject(
@@ -115,7 +130,8 @@ public class UserTestITCase extends AbstractTestITCase {
         assertFalse(newUserTO.getAttributes().contains(
                 attrWithInvalidSchemaTO));
 
-        WorkflowActionsTO workflowActions = restTemplate.getForObject(BASE_URL + "user/actions/{userId}", WorkflowActionsTO.class,
+        WorkflowActionsTO workflowActions = restTemplate.getForObject(
+                BASE_URL + "user/actions/{userId}", WorkflowActionsTO.class,
                 newUserTO.getId());
         assertTrue(workflowActions.getActions().equals(
                 Collections.singleton(Constants.ACTION_ACTIVATE)));
@@ -124,7 +140,8 @@ public class UserTestITCase extends AbstractTestITCase {
         newUserTO = restTemplate.postForObject(BASE_URL + "user/activate",
                 newUserTO, UserTO.class);
         assertEquals("active",
-                restTemplate.getForObject(BASE_URL + "user/status/" + newUserTO.getId(), String.class));
+                restTemplate.getForObject(BASE_URL + "user/status/"
+                + newUserTO.getId(), String.class));
 
         // 3. try (and fail) to create another user with same (unique) values
         userTO = getSampleTO("pippo@c.com");
@@ -146,7 +163,7 @@ public class UserTestITCase extends AbstractTestITCase {
     }
 
     @Test
-    public void createWithRequiredValueMissing() {
+    public final void createWithRequiredValueMissing() {
         UserTO userTO = getSampleTO("a.b@c.it");
 
         AttributeTO type = null;
@@ -182,7 +199,7 @@ public class UserTestITCase extends AbstractTestITCase {
     }
 
     @Test
-    public void delete() {
+    public final void delete() {
         try {
             restTemplate.delete(BASE_URL + "user/delete/{userId}", 0);
         } catch (HttpStatusCodeException e) {
@@ -199,16 +216,18 @@ public class UserTestITCase extends AbstractTestITCase {
     }
 
     @Test
-    public void list() {
-        UserTOs users = restTemplate.getForObject(BASE_URL + "user/list.json", UserTOs.class);
+    public final void list() {
+        UserTOs users = restTemplate.getForObject(
+                BASE_URL + "user/list.json", UserTOs.class);
 
         assertNotNull(users);
         assertEquals(4, users.getUsers().size());
     }
 
     @Test
-    public void read() {
-        UserTO userTO = restTemplate.getForObject(BASE_URL + "user/read/{userId}.json", UserTO.class, 1);
+    public final void read() {
+        UserTO userTO = restTemplate.getForObject(
+                BASE_URL + "user/read/{userId}.json", UserTO.class, 1);
 
         assertNotNull(userTO);
         assertNotNull(userTO.getAttributes());
@@ -216,7 +235,7 @@ public class UserTestITCase extends AbstractTestITCase {
     }
 
     @Test
-    public void token() {
+    public final void token() {
         UserTO userTO = getSampleTO("d.e@f.com");
 
         userTO = restTemplate.postForObject(BASE_URL + "user/create",
@@ -236,7 +255,7 @@ public class UserTestITCase extends AbstractTestITCase {
     }
 
     @Test
-    public void search() {
+    public final void search() {
         LeafSearchCondition usernameLeafCond1 =
                 new LeafSearchCondition(LeafSearchCondition.Type.LIKE);
         usernameLeafCond1.setSchema("username");
@@ -263,7 +282,7 @@ public class UserTestITCase extends AbstractTestITCase {
     }
 
     @Test
-    public void update() {
+    public final void update() {
         UserTO userTO = getSampleTO("g.h@t.com");
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRole(8L);
@@ -304,7 +323,9 @@ public class UserTestITCase extends AbstractTestITCase {
 
         assertEquals("newPassword", userTO.getPassword());
         assertTrue(userTO.getMemberships().size() == 1);
-        assertTrue(userTO.getMemberships().iterator().next().getAttributes().size() == 1);
+        assertTrue(
+                userTO.getMemberships().iterator().next().getAttributes().size()
+                == 1);
         assertTrue(userTO.getDerivedAttributes().size() == 1);
         boolean attributeFound = false;
         for (AttributeTO attributeTO : userTO.getAttributes()) {

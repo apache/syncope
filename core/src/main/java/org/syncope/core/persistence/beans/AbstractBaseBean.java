@@ -31,7 +31,10 @@ public abstract class AbstractBaseBean implements Serializable {
     protected static final Logger log = LoggerFactory.getLogger(
             AbstractBaseBean.class);
 
-    protected String[] getExcludeFields() {
+    /**
+     * @return fields to be excluded when computing equals() or hashcode()
+     */
+    private String[] getExcludeFields() {
         Set<String> excludeFields = new HashSet<String>();
 
         PropertyDescriptor[] propertyDescriptors =
@@ -42,7 +45,7 @@ public abstract class AbstractBaseBean implements Serializable {
                     Collections.EMPTY_SET)
                     || propertyDescriptors[i].getPropertyType().isInstance(
                     Collections.EMPTY_LIST)) {
-                
+
                 excludeFields.add(propertyDescriptors[i].getName());
             }
         }

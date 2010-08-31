@@ -37,6 +37,9 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.syncope.core.persistence.beans.SyncopeConfiguration;
 
+/**
+ * Load default content in the database.
+ */
 public class DefaultContentLoader implements ServletContextListener {
 
     private static final Logger log = LoggerFactory.getLogger(
@@ -50,7 +53,7 @@ public class DefaultContentLoader implements ServletContextListener {
      * @param sce
      */
     @Override
-    public void contextInitialized(ServletContextEvent sce) {
+    public void contextInitialized(final ServletContextEvent sce) {
         WebApplicationContext springContext =
                 WebApplicationContextUtils.getWebApplicationContext(
                 sce.getServletContext());
@@ -65,7 +68,8 @@ public class DefaultContentLoader implements ServletContextListener {
         try {
             InputStream dbPropsStream =
                     sce.getServletContext().getResourceAsStream(
-                    "WEB-INF/classes/org/syncope/core/persistence/db.properties");
+                    "WEB-INF/classes/"
+                    + "org/syncope/core/persistence/db.properties");
             Properties dbProps = new Properties();
             dbProps.load(dbPropsStream);
             dbSchema = dbProps.getProperty("database.schema");
@@ -89,12 +93,14 @@ public class DefaultContentLoader implements ServletContextListener {
                     ResultSet.TYPE_SCROLL_SENSITIVE,
                     ResultSet.CONCUR_READ_ONLY);
 
-            resultSet = statement.executeQuery("SELECT * FROM " + SyncopeConfiguration.class.getSimpleName());
+            resultSet = statement.executeQuery("SELECT * FROM "
+                    + SyncopeConfiguration.class.getSimpleName());
             resultSet.last();
 
             existingData = resultSet.getRow() > 0;
         } catch (SQLException e) {
-            log.error("Could not access to table " + SyncopeConfiguration.class.getSimpleName(), e);
+            log.error("Could not access to table "
+                    + SyncopeConfiguration.class.getSimpleName(), e);
 
             // Setting this to true make nothing to be done below
             existingData = true;
@@ -103,6 +109,7 @@ public class DefaultContentLoader implements ServletContextListener {
                 resultSet.close();
                 statement.close();
             } catch (SQLException e) {
+                log.error("While closing SQL connection", e);
             }
         }
         try {
@@ -137,6 +144,6 @@ public class DefaultContentLoader implements ServletContextListener {
     }
 
     @Override
-    public void contextDestroyed(ServletContextEvent sce) {
+    public void contextDestroyed(final ServletContextEvent sce) {
     }
 }
