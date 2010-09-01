@@ -117,29 +117,55 @@ public class Operand extends WSAttribute {
 
     @Override
     public String toString() {
-        StringBuffer str = new StringBuffer();
+
+        if (Operator.STARTS.equals(op)) {
+            return (not ? "NOT" : "") +
+                    getName() + " LIKE '" + getValue() + "%'";
+        }
+
+        if (Operator.ENDS.equals(op)) {
+            return (not ? "NOT" : "") +
+                    getName() + " LIKE '%" + getValue() + "'";
+        }
+
+        if (Operator.CONTAINS.equals(op)) {
+            return (not ? "NOT" : "") +
+                    getName() + " LIKE '%" + getValue() + "%'";
+        }
+
+        if (Operator.GT.equals(op)) {
+            return (not ? "NOT" : "") +
+                    getName() + ">'" + getValue() + "'";
+        }
+
+        if (Operator.LT.equals(op)) {
+            return (not ? "NOT" : "") +
+                    getName() + "<'" + getValue() + "'";
+        }
+
+        if (Operator.EQ.equals(op)) {
+            return (not ? "NOT" : "") +
+                    getName() + "='" + getValue() + "'";
+        }
+
+        if (operands == null) return null;
+
+        StringBuilder queryBuilder = new StringBuilder();
+
+        for (Operand operand : operands) {
+
+            if (queryBuilder.length() > 0)
+                queryBuilder.append(" " + op.toString() + " ");
+
+            queryBuilder.append(operand.toString());
+        }
 
         if (not)
-            str.append("(! ");
+            return "NOT (" + queryBuilder + ")";
 
-        if (logical && operands != null) {
-            str.append("(" + this.op.toString());
-            for (Operand o : operands)
-                str.append(o.toString());
-            str.append(")");
-        } else
-            str.append(
-                    "(" +
-                    getName() +
-                    " " +
-                    op.toString() +
-                    " " +
-                    getValue().toString() +
-                    ")");
+        if (operands.size() > 1)
+            return "(" + queryBuilder + ")";
 
-        if (not)
-            str.append(")");
-
-        return str.toString();
+        return queryBuilder.toString();
     }
 }

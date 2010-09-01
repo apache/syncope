@@ -111,6 +111,9 @@ public class ResourceDataBinder {
         resource.setConnector(connector);
         connector.addResource(resource);
 
+        resource.setForceMandatoryConstraint(
+                resourceTO.isForceMandatoryConstraint());
+
         return resource;
     }
 
@@ -144,6 +147,9 @@ public class ResourceDataBinder {
 
         // set the mappings
         resourceTO.setMappings(getSchemaMappingTOs(resource.getMappings()));
+
+        resourceTO.setForceMandatoryConstraint(
+                resource.isForceMandatoryConstraint());
 
         return resourceTO;
     }

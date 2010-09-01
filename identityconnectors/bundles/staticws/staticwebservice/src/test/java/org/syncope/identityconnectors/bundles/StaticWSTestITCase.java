@@ -260,19 +260,24 @@ public class StaticWSTestITCase {
 
             @Override
             public boolean handle(ConnectorObject obj) {
+
+                if (log.isDebugEnabled()) {
+                    log.debug("Add record " + obj);
+                }
+
                 results.add(obj);
                 return true;
             }
         };
 
         Filter usernameFilter = FilterBuilder.startsWith(
-                AttributeBuilder.build(Name.NAME, "test"));
+                AttributeBuilder.build("USERID", "test"));
 
         Filter nameFilter = FilterBuilder.equalTo(
-                AttributeBuilder.build("name", "jhon"));
+                AttributeBuilder.build("NAME", "jhon"));
 
         Filter surnameFilter = FilterBuilder.equalTo(
-                AttributeBuilder.build("surname", "doe"));
+                AttributeBuilder.build("SURNAME", "doe"));
 
         Filter filter = FilterBuilder.or(
                 usernameFilter,
@@ -280,7 +285,10 @@ public class StaticWSTestITCase {
 
         connector.search(ObjectClass.ACCOUNT, filter, resultsHandler, null);
 
-        // pay attention: results will be returned according to the filter
+        /**
+         * Pay attention: results will be returned according to the filter
+         * above.
+         */
         assertFalse(results.isEmpty());
 
         if (log.isDebugEnabled()) {

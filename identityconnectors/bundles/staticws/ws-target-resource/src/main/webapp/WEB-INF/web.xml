@@ -4,18 +4,25 @@
 
 <web-app>
     <display-name>WS Target Sample</display-name>
-    
+
+    <!-- Spring context configuration -->
     <context-param>
         <param-name>contextConfigLocation</param-name>
         <param-value>classpath:/beans.xml</param-value>
     </context-param>
 
+    <!-- Spring context loader -->
     <listener>
         <listener-class>
             org.springframework.web.context.ContextLoaderListener
         </listener-class>
     </listener>
 
+    <!-- persistence listener -->
+    <listener>
+        <listener-class>org.syncope.identityconnectors.bundles.staticwebservice.wstarget.DefaultContentLoader</listener-class>
+    </listener>
+    
     <servlet>
         <servlet-name>CXFServlet</servlet-name>
         <display-name>CXF Servlet</display-name>

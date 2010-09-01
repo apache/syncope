@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<dataset>
+    <user
+        capsId="1"
+        userId="test1"
+        password="XXX"
+        name="Alberto"
+        surname="Bianchi"
+        type="persona fisica"
+        mandatoryDisclaimer="TRUE"
+        promoRCSDisclaimer="TRUE"
+        promoThirdPartyDisclaimer="TRUE"
+    />
+
+    <user
+        capsId="2"
+        userId="test2"
+        password="XXX"
+        name="Mario"
+        surname="Rossi"
+        type="persona fisica"
+        mandatoryDisclaimer="TRUE"
+        promoRCSDisclaimer="TRUE"
+        promoThirdPartyDisclaimer="TRUE"
+    />
+</dataset>

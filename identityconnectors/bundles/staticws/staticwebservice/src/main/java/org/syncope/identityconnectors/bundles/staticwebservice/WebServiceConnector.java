@@ -506,6 +506,8 @@ public class WebServiceConnector implements
 
             List<WSUser> resultSet = provisioning.query(query);
 
+            if (resultSet == null) return;
+
             Iterator i = resultSet.iterator();
 
             WSUser user = null;
@@ -806,6 +808,8 @@ public class WebServiceConnector implements
             if (attribute.isKey()) {
                 uid = attribute.getStringValue();
                 bld.setName(uid);
+                bld.addAttribute(AttributeBuilder.build(
+                        attribute.getName(), attribute.getValue()));
             }
 
             if (!attribute.isKey() && !attribute.isPassword()) {
@@ -831,7 +835,6 @@ public class WebServiceConnector implements
 
         // Add objectclass
         bld.setObjectClass(ObjectClass.ACCOUNT);
-
 
         return bld;
     }

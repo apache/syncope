@@ -19,11 +19,11 @@ public enum Operator {
     GT(">"),
     LT("<"),
     EQ("="),
-    CONTAINS("contains"),
-    ENDS("endswith"),
-    STARTS("startswith"),
-    AND("&"),
-    OR("|");
+    CONTAINS("%"),
+    ENDS("%"),
+    STARTS("%"),
+    AND("AND"),
+    OR("OR");
 
     final private String op;
 

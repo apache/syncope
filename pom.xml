@@ -119,6 +119,8 @@
 
         <org.apache.cxf.version>2.2.9</org.apache.cxf.version>
 
+        <hsqldb.version>1.8.0.10</hsqldb.version>
+
         <log4j.version>1.2.16</log4j.version>
         <slf4j.version>1.5.2</slf4j.version>
 
@@ -304,6 +306,12 @@
                 <groupId>org.apache.wicket</groupId>
                 <artifactId>wicket-spring</artifactId>
                 <version>${wicket.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>hsqldb</groupId>
+                <artifactId>hsqldb</artifactId>
+                <version>${hsqldb.version}</version>
             </dependency>
 
             <dependency>

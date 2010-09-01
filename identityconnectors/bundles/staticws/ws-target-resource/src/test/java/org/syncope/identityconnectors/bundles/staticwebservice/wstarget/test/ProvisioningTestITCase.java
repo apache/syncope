@@ -163,7 +163,7 @@ public class ProvisioningTestITCase {
 
             WSAttributeValue birthdate = new WSAttributeValue();
             birthdate.setName("birthdate");
-            birthdate.setValue("1990-01-01");
+            birthdate.setValue("01/01/1990");
 
             List<WSAttributeValue> attrs = new ArrayList<WSAttributeValue>();
             attrs.add(uid);
@@ -173,12 +173,15 @@ public class ProvisioningTestITCase {
             attrs.add(surname);
             attrs.add(birthdate);
 
-            provisioning.create(attrs);
+            String accountId = provisioning.create(attrs);
+
+            assertNotNull(accountId);
+            assertEquals(accountId, "john.doe@gmail.com");
 
         } catch (Exception e) {
 
             if (log.isDebugEnabled()) {
-                    log.debug("Unknown exception!", e);
+                log.debug("Unknown exception!", e);
             }
 
             t = e;
@@ -196,22 +199,22 @@ public class ProvisioningTestITCase {
 
             WSAttributeValue surname = new WSAttributeValue();
             surname.setName("surname");
-            surname.setValue("test1");
+            surname.setValue("verde");
             surname.setKey(true);
 
             WSAttributeValue name = new WSAttributeValue();
-            name.setName("nome");
-            name.setValue("test1");
+            name.setName("name");
+            name.setValue("pino");
 
 
             List<WSAttributeValue> attrs = new ArrayList<WSAttributeValue>();
             attrs.add(surname);
             attrs.add(name);
 
-            String uid = provisioning.update("test1", attrs);
+            String uid = provisioning.update("test2", attrs);
 
             assertNotNull(uid);
-            assertEquals("test1", uid);
+            assertEquals("test2", uid);
 
         } catch (Exception e) {
 
@@ -233,7 +236,7 @@ public class ProvisioningTestITCase {
 
         try {
 
-            provisioning.delete("TESTUSER");
+            provisioning.delete("test1");
 
         } catch (Exception e) {
 
@@ -255,9 +258,9 @@ public class ProvisioningTestITCase {
 
         try {
 
-            Operand op1 = new Operand(Operator.EQ, "nome", "john");
-            Operand op2 = new Operand(Operator.EQ, "cognome", "doe");
-            Operand op3 = new Operand(Operator.EQ, "cognome", "black");
+            Operand op1 = new Operand(Operator.EQ, "name", "Pino");
+            Operand op2 = new Operand(Operator.EQ, "surname", "Bianchi");
+            Operand op3 = new Operand(Operator.EQ, "surname", "Rossi");
 
             Set<Operand> sop1 = new HashSet<Operand>();
             sop1.add(op1);
@@ -278,8 +281,11 @@ public class ProvisioningTestITCase {
 
             List<WSUser> results = provisioning.query(query);
 
+            assertNotNull(results);
+            assertFalse(results.isEmpty());
+
             for (WSUser user : results) {
-                log.debug("Name: " + user.getAccountid());
+                log.debug("User: " + user);
             }
 
 
@@ -302,9 +308,9 @@ public class ProvisioningTestITCase {
 
         try {
 
-            String uid = provisioning.resolve("fmartelli");
+            String uid = provisioning.resolve("test2");
 
-            assertEquals("TESTUSER", uid);
+            assertEquals("test2", uid);
 
         } catch (Exception e) {
 
@@ -327,7 +333,7 @@ public class ProvisioningTestITCase {
 
             int token = provisioning.getLatestChangeNumber();
 
-            assertEquals(1, token);
+            assertEquals(0, token);
 
         } catch (Exception e) {
 
@@ -348,10 +354,16 @@ public class ProvisioningTestITCase {
 
         try {
 
-            List<WSChange> results = provisioning.sync();
+            List<WSChange> results = null;
 
-            for (WSChange change : results) {
-                log.debug("Delta: " + change.getId());
+            if (provisioning.isSyncSupported()) {
+
+                results = provisioning.sync();
+                assertNotNull(results);
+
+                for (WSChange change : results)
+                    log.debug("Delta: " + change.getId());
+
             }
 
         } catch (Exception e) {

@@ -14,13 +14,18 @@
  */
 package org.syncope.identityconnectors.bundles.staticwebservice.wstarget;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import javax.jws.WebService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.syncope.identityconnectors.bundles.commons.staticwebservice.to.WSAttribute;
 import org.syncope.identityconnectors.bundles.commons.staticwebservice.to.WSAttributeValue;
 import org.syncope.identityconnectors.bundles.commons.staticwebservice.to.WSChange;
@@ -36,59 +41,331 @@ public class ProvisioningImpl implements Provisioning {
     private static final Logger log =
             LoggerFactory.getLogger(Provisioning.class);
 
-    /**
-     * Returns true if authentication is supported false otherwise.
-     * @return true if authentication is supported false otherwise.
-     */
     @Override
-    public Boolean isAuthenticationSupported() {
-        return Boolean.TRUE;
-    }
+    public String delete(String accountid) throws ProvisioningException {
 
-    /**
-     * Returns true if synchronization is supported false otherwise.
-     * @return true if synchronization is supported false otherwise.
-     */
-    @Override
-    public Boolean isSyncSupported() {
-        return Boolean.TRUE;
-    }
-
-    /**
-     * Verify user creentials
-     * @param username
-     * @param password
-     * @return 
-     * the accountid of the first account that match username and password.
-     * @throws
-     * ProvisioningException in case of authentication failed.
-     */
-    @Override
-    public String authenticate(final String username, final String password)
-            throws ProvisioningException {
-
-        if (log.isDebugEnabled()) {
-            log.debug(
-                    "\nUsername: " + username +
-                    "\nPassword: " + password);
+        if (log.isInfoEnabled()) {
+            log.info("Operation request received");
         }
 
-        return "TESTUSER";
+        Connection conn = null;
+
+        try {
+            conn = connect();
+
+            Statement statement = conn.createStatement();
+
+            String query =
+                    "DELETE FROM user WHERE userId='" + accountid + "';";
+
+            if (log.isDebugEnabled()) {
+                log.debug("Execute query: " + query);
+            }
+
+            statement.executeUpdate(query);
+
+            return accountid;
+
+        } catch (SQLException ex) {
+            throw new ProvisioningException("Delete operation failed");
+        } finally {
+
+            if (conn != null) {
+                try {
+                    close(conn);
+                } catch (SQLException ignore) {
+                    // ignore exception
+                }
+            }
+
+        }
     }
 
-    /**
-     * Returns "OK" if the resource is available.
-     * @return the string "OK" in case of availability of the resource.
-     */
+    @Override
+    public Boolean isSyncSupported() {
+        if (log.isInfoEnabled()) {
+            log.info("Operation request received");
+        }
+
+        return Boolean.FALSE;
+    }
+
     @Override
     public String checkAlive() {
-        return "OK";
+        if (log.isInfoEnabled()) {
+            log.info("Operation request received");
+        }
+
+        try {
+
+            close(connect());
+
+            if (log.isInfoEnabled()) {
+                log.info("Services available");
+            }
+
+            return "OK";
+
+        } catch (Exception e) {
+
+            if (log.isInfoEnabled()) {
+                log.info("Services not available");
+            }
+
+            return "KO";
+        }
     }
 
-    /**
-     * Returns the schema.
-     * @return a set of attributes.
-     */
+    @Override
+    public String update(String accountid, List<WSAttributeValue> data)
+            throws ProvisioningException {
+
+        if (log.isInfoEnabled()) {
+            log.info("Operation request received");
+        }
+
+        Connection conn = null;
+
+        try {
+
+            conn = connect();
+            Statement statement = conn.createStatement();
+
+            StringBuffer set = new StringBuffer();
+
+            for (WSAttributeValue attr : data) {
+                if (!attr.isKey()) {
+
+                    if (set.length() > 0) set.append(",");
+                    set.append(attr.getName() + "='" + attr.getValue().toString() + "'");
+
+                }
+            }
+
+            String query =
+                    "UPDATE user SET " + set.toString() +
+                    " WHERE userId='" + accountid + "';";
+
+            if (log.isDebugEnabled()) {
+                log.debug("Execute query: " + query);
+            }
+
+            statement.executeUpdate(query);
+
+            return accountid;
+
+        } catch (SQLException ex) {
+            log.error("Update failed", ex);
+            throw new ProvisioningException("Update operation failed");
+        } finally {
+
+            if (conn != null) {
+                try {
+                    close(conn);
+                } catch (SQLException ignore) {
+                    // ignore exception
+                }
+            }
+
+        }
+    }
+
+    @Override
+    public List<WSUser> query(Operand query) {
+        if (log.isInfoEnabled()) {
+            log.info("Operation request received");
+        }
+
+        List<WSUser> results = new ArrayList<WSUser>();
+
+        Connection conn = null;
+
+        try {
+            String queryString =
+                    "SELECT * FROM user WHERE " + query.toString();
+
+            if (log.isDebugEnabled()) {
+                log.debug("Execute query: " + queryString);
+            }
+
+            if (queryString == null || queryString.length() == 0)
+                throw new SQLException("Invalid query [" + queryString + "]");
+
+            conn = connect();
+            Statement statement = conn.createStatement();
+
+            ResultSet rs = statement.executeQuery(queryString);
+
+            ResultSetMetaData metaData = rs.getMetaData();
+
+            if (log.isDebugEnabled()) {
+                log.debug("Metadata: " + metaData.toString());
+            }
+
+            WSUser user = null;
+            WSAttributeValue attr = null;
+
+            while (rs.next()) {
+
+                user = new WSUser();
+
+                for (int i = 0; i < metaData.getColumnCount(); i++) {
+                    attr = new WSAttributeValue();
+                    attr.setName(metaData.getColumnLabel(i + 1));
+                    attr.setValue(rs.getString(i + 1));
+
+                    if ("userId".equalsIgnoreCase(
+                            metaData.getColumnName(i + 1))) {
+                        attr.setKey(true);
+                        user.setAccountid(attr.getValue().toString());
+                    }
+
+                    user.addAttribute(attr);
+                }
+
+                results.add(user);
+            }
+
+            if (log.isDebugEnabled()) {
+                log.debug("Retrieved users: " + results);
+            }
+
+        } catch (SQLException ex) {
+            log.error("Search operation failed", ex);
+        } finally {
+
+            if (conn != null) {
+                try {
+                    close(conn);
+                } catch (SQLException ignore) {
+                    // ignore exception
+                }
+            }
+
+        }
+
+        return results;
+    }
+
+    @Override
+    public String create(List<WSAttributeValue> data)
+            throws ProvisioningException {
+
+        if (log.isInfoEnabled()) {
+            log.info("Operation request received");
+        }
+
+        Connection conn = null;
+        try {
+            conn = connect();
+            Statement statement = conn.createStatement();
+
+            StringBuffer keys = new StringBuffer();
+            StringBuffer values = new StringBuffer();
+
+            String accountid = null;
+
+            for (WSAttributeValue attr : data) {
+                if (keys.length() > 0) keys.append(",");
+                keys.append(attr.getName());
+
+                if (values.length() > 0) values.append(",");
+                values.append(
+                        "'" +
+                        (attr.getValue() == null ? null : attr.getValue().toString()) +
+                        "'");
+
+                if (attr.isKey()) {
+                    accountid = attr.getValue().toString();
+                }
+            }
+
+            String query =
+                    "INSERT INTO user (" + keys.toString() + ")" +
+                    "VALUES (" + values.toString() + ");";
+
+            if (log.isDebugEnabled()) {
+                log.debug("Execute query: " + query);
+            }
+
+            statement.executeUpdate(query);
+
+            return accountid;
+        } catch (SQLException ex) {
+            log.error("Creation failed", ex);
+            throw new ProvisioningException("Create operation failed");
+        } finally {
+
+            if (conn != null) {
+                try {
+                    close(conn);
+                } catch (SQLException ignore) {
+                    // ignore exception
+                }
+            }
+
+        }
+    }
+
+    @Override
+    public int getLatestChangeNumber() throws ProvisioningException {
+        if (log.isInfoEnabled()) {
+            log.info("Operation request received");
+        }
+
+        return 0;
+    }
+
+    @Override
+    public List<WSChange> sync() throws ProvisioningException {
+        if (log.isInfoEnabled()) {
+            log.info("Operation request received");
+        }
+
+        return Collections.EMPTY_LIST;
+    }
+
+    @Override
+    public String resolve(String username) throws ProvisioningException {
+        if (log.isInfoEnabled()) {
+            log.info("Operation request received");
+        }
+
+        Connection conn = null;
+
+        try {
+            conn = connect();
+            Statement statement = conn.createStatement();
+
+            String query =
+                    "SELECT userId FROM user WHERE userId='" + username + "';";
+
+            if (log.isDebugEnabled()) {
+                log.debug("Execute query: " + query);
+            }
+
+            ResultSet rs = statement.executeQuery(query);
+
+            if (rs.next())
+                return rs.getString(1);
+            else
+                return null;
+
+        } catch (SQLException ex) {
+            throw new ProvisioningException("Resolve operation failed");
+        } finally {
+
+            if (conn != null) {
+                try {
+                    close(conn);
+                } catch (SQLException ignore) {
+                    // ignore exception
+                }
+            }
+
+        }
+    }
+
     @Override
     public List<WSAttribute> schema() {
         if (log.isInfoEnabled()) {
@@ -259,191 +536,81 @@ public class ProvisioningImpl implements Provisioning {
         attr.setType("String");
         attrs.add(attr);
 
+        attr = new WSAttribute();
+        attr.setName("mandatoryDisclaimer");
+        attr.setNullable(true);
+        attr.setPassword(false);
+        attr.setKey(false);
+        attr.setType("Boolean");
+        attrs.add(attr);
+
+        attr = new WSAttribute();
+        attr.setName("promoRCSDisclaimer");
+        attr.setNullable(true);
+        attr.setPassword(false);
+        attr.setKey(false);
+        attr.setType("Boolean");
+        attrs.add(attr);
+
+        attr = new WSAttribute();
+        attr.setName("promoThirdPartyDisclaimer");
+        attr.setNullable(true);
+        attr.setPassword(false);
+        attr.setKey(false);
+        attr.setType("Boolean");
+        attrs.add(attr);
+
         return attrs;
     }
 
-    /**
-     * Creates user account.
-     * @param a set of account attributes.
-     * @return accountid of the account created.
-     * @throws ProvisioningException in case of failure.
-     */
     @Override
-    public String create(final List<WSAttributeValue> data)
+    public String authenticate(String username, String password)
             throws ProvisioningException {
-
-        List<String> schema = new ArrayList<String>();
-        List<WSAttribute> attrs = schema();
-        for (WSAttribute attr : attrs) {
-            schema.add(attr.getName());
+        if (log.isInfoEnabled()) {
+            log.info("Operation request received");
         }
 
-        String res = null;
+        return username;
+    }
 
-
-        for (WSAttributeValue value : data) {
-
-            if (!schema.contains(value.getName())) {
-                throw new IllegalArgumentException("Invalid schema " +
-                        value.getName());
-            }
-
-            if (log.isDebugEnabled()) {
-                log.debug(
-                        "\nName: " + value.getName() +
-                        "\nType: " + value.getType() +
-                        "\nNullable: " + value.isNullable() +
-                        "\nKey: " + value.isKey() +
-                        "\nPassword: " + value.isPassword() +
-                        "\nValue: " + value.getValue().toString());
-            }
-
-            if (value.isKey()) {
-                res = value.getValue().toString();
-            }
-            
+    @Override
+    public Boolean isAuthenticationSupported() {
+        if (log.isInfoEnabled()) {
+            log.info("Operation request received");
         }
 
-        return res;
+        return Boolean.FALSE;
     }
 
     /**
-     * Deletes user account.
-     * @param accountid.
-     * @return accountid.
-     * @throws ProvisioningException in case of failure.
+     * Establish a connection to db addressbook
+     * @return
+     * @throws ClassNotFoundException
+     * @throws SQLException
      */
-    @Override
-    public String delete(final String accountid) throws ProvisioningException {
-        if (log.isDebugEnabled()) {
-            log.debug("Account name: " + accountid);
+    private Connection connect() throws SQLException {
+
+        if (DefaultContentLoader.localDataSource == null) {
+            log.error("Data Source is null");
+            return null;
         }
 
-        return accountid;
-    }
+        Connection conn = DataSourceUtils.getConnection(
+                DefaultContentLoader.localDataSource);
 
-    /**
-     * Updates user account.
-     * @param accountid.
-     * @param a set of attributes to be updated.
-     * @return accountid.
-     * @throws ProvisioningException in case of failure
-     */
-    @Override
-    public String update(
-            final String accountid,
-            final List<WSAttributeValue> data) throws ProvisioningException {
-
-        for (WSAttributeValue value : data) {
-            if (log.isDebugEnabled()) {
-                log.debug(
-                        "\nName: " + value.getName() +
-                        "\nType: " + value.getType() +
-                        "\nNullable: " + value.isNullable() +
-                        "\nKey: " + value.isKey() +
-                        "\nPassword: " + value.isPassword() +
-                        "\nValue: " + value.getValue().toString());
-            }
+        if (conn == null) {
+            log.error("Connection is null");
         }
 
-        return accountid;
+        return conn;
+
     }
 
     /**
-     * Searches for user accounts.
-     * @param query filter
-     * @return a set of user accounts.
+     * Close connection to db addressbook
+     * @throws SQLException
      */
-    @Override
-    public List<WSUser> query(Operand query) {
-
-        List<WSUser> resultSet = new ArrayList<WSUser>();
-
-        WSUser user = null;
-        WSAttributeValue attr = null;
-
-        for (int i = 0; i < 5; i++) {
-            user = new WSUser("test" + i, new HashSet<WSAttributeValue>());
-
-            attr = new WSAttributeValue();
-            attr.setName("username");
-            attr.setKey(true);
-            attr.setValue("test" + i);
-
-            user.addAttribute(attr);
-
-            attr = new WSAttributeValue();
-            attr.setName("nome");
-            attr.setValue("ntest" + i);
-
-            user.addAttribute(attr);
-
-            attr = new WSAttributeValue();
-            attr.setName("cognome");
-            attr.setValue("ctest" + i);
-
-            user.addAttribute(attr);
-
-            resultSet.add(user);
-        }
-
-        return resultSet;
-    }
-
-    /**
-     * Returns accountid related to the specified username.
-     * @param username.
-     * @return accountid.
-     * @throws ProvisioningException in case of failure or username not found.
-     */
-    @Override
-    public String resolve(final String username) throws ProvisioningException {
-        return "TESTUSER";
-    }
-
-    /**
-     * Gets the latest change id.
-     * @return change id.
-     * @throws ProvisioningException in case of failure.
-     */
-    @Override
-    public int getLatestChangeNumber() throws ProvisioningException {
-        return 1;
-    }
-
-    /**
-     * Returns changes to be synchronized.
-     * @return a set of changes
-     * @throws ProvisioningException in case of failure
-     */
-    @Override
-    public List<WSChange> sync() throws ProvisioningException {
-
-        WSChange change = new WSChange();
-
-        // specify the change id
-        change.setId(1);
-        change.setType("CREATE_OR_UPDATE");
-
-        // specify the account id
-        WSAttributeValue uid = new WSAttributeValue();
-        uid.setName("username");
-        uid.setValue("test1");
-        uid.setKey(true);
-
-        // specify the attributes changed
-        WSAttributeValue attr = new WSAttributeValue();
-        attr.setName("name");
-
-        Set<WSAttributeValue> attrs = new HashSet<WSAttributeValue>();
-        attrs.add(uid);
-        attrs.add(attr);
-
-        change.setAttributes(attrs);
-
-        List<WSChange> changes = new ArrayList<WSChange>();
-        changes.add(change);
-
-        return changes;
+    private void close(Connection conn) throws SQLException {
+        conn.close();
     }
 }
