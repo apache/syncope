@@ -32,6 +32,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.OneToMany;
+import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import org.apache.commons.lang.RandomStringUtils;
@@ -54,32 +55,26 @@ public class SyncopeUser extends AbstractAttributable {
         }
     }
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.TABLE,
+    generator = "SEQ_SyncopeUser")
+    @TableGenerator(name = "SEQ_SyncopeUser", allocationSize = 100)
     private Long id;
-
     @Basic
     @Lob
     private byte[] passwordKeyPair;
-
     @Basic
     @Lob
     private byte[] password;
-
     @OneToMany(cascade = CascadeType.MERGE, mappedBy = "syncopeUser")
     private List<Membership> memberships;
-
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     private List<UserAttribute> attributes;
-
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     private List<UserDerivedAttribute> derivedAttributes;
-
     @Column(nullable = true)
     private Long workflowId;
-
     @Lob
     private String token;
-
     @Temporal(TemporalType.TIMESTAMP)
     private Date tokenExpireTime;
 

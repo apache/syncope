@@ -34,41 +34,34 @@ public class SchemaMapping extends AbstractBaseBean {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-
     @Column(nullable = false)
-    String schemaName;
-
+    private String schemaName;
     @Column(nullable = false)
     @Enumerated(STRING)
-    SchemaType schemaType;
-
+    private SchemaType schemaType;
     /**
      * Target resource that has fields to be mapped over user attribute schemas.
      */
     @ManyToOne(fetch = FetchType.EAGER,
     cascade = {CascadeType.REFRESH, CascadeType.MERGE})
     private TargetResource resource;
-
     /**
      * Target resource's field to be mapped.
      */
     @Column(nullable = false)
     private String field;
-
     /**
      * Specify if the mapped target resource's field is the key.
      */
     @Column(nullable = false)
     @Basic
     private Character accountid;
-
     /**
      * Specify if the mapped target resource's field is the password.
      */
     @Column(nullable = false)
     @Basic
     private Character password;
-
     /**
      * Specify if the mapped target resource's field is nullable.
      */
