@@ -20,6 +20,7 @@ import com.opensymphony.workflow.spi.hibernate3.AbstractHibernateWorkflowStore;
 import java.util.List;
 import java.util.Map;
 import javax.persistence.EntityManager;
+import javax.persistence.EntityNotFoundException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceContextType;
 import org.hibernate.Session;
@@ -48,8 +49,11 @@ public class SpringHibernateJPAWorkflowStore
 
     public void delete(Long entryId) {
         // 1. remove this workflow entry
-        HibernateWorkflowEntry entry =
-                entityManager.find(HibernateWorkflowEntry.class, entryId);
+        HibernateWorkflowEntry entry = null;
+        try {
+            entry = entityManager.find(HibernateWorkflowEntry.class, entryId);
+        } catch (EntityNotFoundException e) {
+        }
         if (entry != null) {
             entityManager.remove(entry);
         }
