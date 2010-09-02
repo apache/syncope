@@ -385,24 +385,25 @@
             </plugin>
 
             <plugin>
-                <artifactId>maven-resources-plugin</artifactId>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <inherited>true</inherited>
                 <executions>
                     <execution>
-                        <id>copy-resources</id>
+                        <id>set-bundles</id>
                         <phase>pre-integration-test</phase>
                         <goals>
-                            <goal>copy-resources</goal>
+                            <goal>copy</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>/tmp/bundles</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>${basedir}/../identityconnectors/bundles/staticws/staticwebservice/target</directory>
-                                    <includes>
-                                        <include>*.jar</include>
-                                    </includes>
-                                </resource>
-                            </resources>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.syncope.identityconnectors.bundles.staticws</groupId>
+                                    <artifactId>staticwebservice</artifactId>
+                                    <version>${parent.version}</version>
+                                    <outputDirectory>/tmp/bundles</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
                         </configuration>
                     </execution>
                 </executions>
