@@ -27,12 +27,13 @@
                 <label for="mappingUserSchema"><wicket:message key="mappingUserSchema"/></label>
                 <table id="mappingUserSchema" class="ui-widget ui-widget-content ui-corner-all"
                        style="margin-top:2px;"
-                       width="80%" cellpadding="2px" cellspacing="1px">
+                       width="100%" cellpadding="2px" cellspacing="1px">
                     <thead>
                         <tr class="ui-widget-header">
                             <th><wicket:message key="delete"/></th>
                             <th><wicket:message key="field"/></th>
-                            <th><wicket:message key="userSchema"/></th>
+                            <th><wicket:message key="schemaTypes"/></th>
+                            <th><wicket:message key="schemaAttributes"/></th>
                             <th><wicket:message key="nullable"/></th>
                             <th><wicket:message key="accountId"/></th>
                             <th><wicket:message key="password"/></th>
@@ -55,7 +56,10 @@
                                 <input type="text" class="text ui-widget-content ui-corner-all"  wicket:id="field"/>
                             </td>
                             <td>
-                                <select class="text ui-widget-content ui-corner-all" wicket:id="userSchema"/>
+                                <select class="text ui-widget-content ui-corner-all" wicket:id="schemaTypes"/>
+                            </td>
+                            <td>
+                                <select class="text ui-widget-content ui-corner-all" wicket:id="schemaAttributes"/>
                             </td>
                             <td align="center" valign="middle">
                                 <input type="checkbox" class="checkbox" wicket:id="nullable"/>
@@ -74,51 +78,8 @@
                     &nbsp;
                 </div>
 
-                 <label for="mappingRoleSchema"><wicket:message key="mappingRoleSchema"/></label>
-                <table id="mappingRoleSchema" class="ui-widget ui-widget-content ui-corner-all"
-                       style="margin-top:2px;"
-                       width="80%" cellpadding="2px" cellspacing="1px">
-                    <thead>
-                        <tr class="ui-widget-header">
-                            <th><wicket:message key="delete"/></th>
-                            <th><wicket:message key="field"/></th>
-                            <th><wicket:message key="roleSchema"/></th>
-                            <th><wicket:message key="nullable"/></th>
-                            <th><wicket:message key="accountId"/></th>
-                            <th><wicket:message key="password"/></th>
-                        </tr>
-                    </thead>
-                    <tfoot>
-                        <tr>
-                            <td>
-                                <input type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
-                                       wicket:id="addRoleSchemaMappingBtn" />
-                            </td>
-                        </tr>
-                    </tfoot>
-                    <tbody wicket:id="mappingRoleSchemaContainer">
-                        <tr wicket:id="mappingsRoleSchema">
-                            <td align="center" valign="middle">
-                                <input type="checkbox" class="text ui-widget-content ui-corner-all"  wicket:id="toRemove"/>
-                            </td>
-                            <td align="center" valign="middle">
-                                <input type="text" class="text ui-widget-content ui-corner-all"  wicket:id="field"/>
-                            </td>
-                            <td>
-                                <select class="text ui-widget-content ui-corner-all" wicket:id="roleSchema"/>
-                            </td>
-                            <td align="center" valign="middle">
-                                <input type="checkbox" class="checkbox" wicket:id="nullable"/>
-                            </td>
-                            <td align="center" valign="middle">
-                                <input type="checkbox"  class="checkbox" wicket:id="accountId"/>
-                            </td>
-                            <td align="center" valign="middle">
-                                <input type="checkbox"  class="checkbox" wicket:id="password"/>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                <label for="mandatoryConstraint"><wicket:message key="forceMandatoryConstraint"/></label>
+                <input type="checkbox" class="checkbox"  wicket:id="forceMandatoryConstraint"/>
 
                 <div>
                     &nbsp;

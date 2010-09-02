@@ -15,7 +15,6 @@
 package org.syncope.console.pages;
 
 import org.apache.wicket.PageParameters;
-import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.syncope.console.SyncopeSession;
 import org.syncope.console.SyncopeUser;
@@ -23,7 +22,7 @@ import org.syncope.console.SyncopeUser;
 /**
  * Syncope Wicket base-page.
  */
-public class BasePage extends WebPage
+public class BasePage extends CustomizableBasePage
 {
 
     private static final long serialVersionUID = 1L;
@@ -36,6 +35,8 @@ public class BasePage extends WebPage
      */
     public BasePage( final PageParameters parameters )
     {
+        super(parameters);
+        
         add(new BookmarkablePageLink("schema", Schema.class));
 
         add(new BookmarkablePageLink("users", Users.class));

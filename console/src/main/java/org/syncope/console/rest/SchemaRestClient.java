@@ -298,6 +298,31 @@ public class SchemaRestClient {
     }
 
     /**
+     * Get all role's schemas names.
+     * @return String list of role schemas' names
+     */
+    public List<String> getAllMembershipSchemasNames() {
+
+        SchemaTOs membershipSchemas = null;
+        List<String> membershipSchemasNames = new ArrayList<String>();
+
+        try {
+            membershipSchemas =
+                    restClient.getRestTemplate().getForObject(restClient.getBaseURL()
+                    + "schema/membership/list.json", SchemaTOs.class);
+        } catch (SyncopeClientCompositeErrorException e) {
+        } catch (RestClientException e) {
+            e.printStackTrace();
+        }
+
+        for (SchemaTO schemaTO : membershipSchemas) {
+            membershipSchemasNames.add(schemaTO.getName());
+        }
+
+        return membershipSchemasNames;
+    }
+
+    /**
      * Create new user schema.
      * @param schemaTO
      */
