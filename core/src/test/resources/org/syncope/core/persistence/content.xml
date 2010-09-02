@@ -226,6 +226,12 @@
                    schemaName="userId" schemaType="UserSchema" nullable="T"
                    accountid="F" password="F"/>
     <UserSchema_SchemaMapping UserSchema_name="userId" mappings_id="111" />
+    
+    <SchemaMapping id="112" field="test3"
+                   resource_name="ws-target-resource-update"
+                   schemaName="username" schemaType="UserSchema" nullable="T"
+                   accountid="F" password="F"/>
+    <UserSchema_SchemaMapping UserSchema_name="username" mappings_id="112" />
 
     <Entitlement name="base"/>
     <Entitlement name="advanced" description="Advanced entitlement"/>
