@@ -298,6 +298,15 @@ public class Users extends BasePage {
                     attributesList.add(attributeWrapper);
                 }
             }
+               //case the attribute's value is blank
+               if(!found){
+               attributeWrapper = new AttributeWrapper();
+               attributeWrapper.setKey(name);
+               attributeWrapper.setValue("");
+               
+               attributesList.add(attributeWrapper);
+               }
+               else
                found = false;
         }
 
