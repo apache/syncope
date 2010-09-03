@@ -40,11 +40,11 @@
                           confValue="/tmp/bundles"/>
 
     <UserSchema name="surname" type="String" virtual="F"
-                mandatory="T" multivalue="F" uniquevalue="F"/>
+                mandatory="T" multivalue="F" uniquevalue="F" readonly='F'/>
     <UserSchema name="firstname" type="String" virtual="F"
-                mandatory="F" multivalue="F" uniquevalue="F"/>
+                mandatory="F" multivalue="F" uniquevalue="F" readonly='F'/>
     <UserSchema name="email" type="String" virtual="F"
-                mandatory="F" multivalue="T" uniquevalue="F"
+                mandatory="F" multivalue="T" uniquevalue="F" readonly='F'
                 validatorClass="org.syncope.core.persistence.validation.EmailAddressValidator"/>
                
     <UserDerivedSchema name="username" expression="firstname + '.' + surname"/>
@@ -57,7 +57,7 @@
     <SyncopeRole id="0" name="/" inheritAttributes="F" inheritDerivedAttributes="F"/>
 
     <MembershipSchema name="subscriptionDate" type="Date" virtual="F"
-                      mandatory="F" multivalue="F" uniquevalue="F"
+                      mandatory="F" multivalue="F" uniquevalue="F" readonly='F'
                       conversionPattern="yyyy-MM-dd'T'HH:mm:ss.SSSZ"/>
 
 </dataset>

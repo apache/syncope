@@ -32,6 +32,23 @@ public abstract class AbstractBaseBean implements Serializable {
             AbstractBaseBean.class);
 
     /**
+     * @param property the character representing a boolean value
+     * @return the boolean value corresponding to the property param
+     */
+    protected final boolean isBooleanAsCharacter(final Character property) {
+        return property != null && property == 'T';
+    }
+
+    /**
+     *
+     * @param value the boolean value to be represented as character
+     * @return the character corresponding to the property param
+     */
+    protected final Character getBooleanAsCharacter(final boolean value) {
+        return value ? 'T' : 'F';
+    }
+
+    /**
      * @return fields to be excluded when computing equals() or hashcode()
      */
     private String[] getExcludeFields() {

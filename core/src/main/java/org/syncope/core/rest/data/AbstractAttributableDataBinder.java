@@ -59,36 +59,27 @@ public abstract class AbstractAttributableDataBinder {
 
     protected static final Logger log = LoggerFactory.getLogger(
             AbstractAttributableDataBinder.class);
-
     @Autowired
     protected SyncopeRoleDAO syncopeRoleDAO;
-
     @Autowired
     protected SchemaDAO schemaDAO;
-
     @Autowired
     protected DerivedSchemaDAO derivedSchemaDAO;
-
     @Autowired
     protected AttributeDAO attributeDAO;
-
     @Autowired
     protected DerivedAttributeDAO derivedAttributeDAO;
-
     @Autowired
     protected AttributeValueDAO attributeValueDAO;
-
     @Autowired
     protected SyncopeUserDAO syncopeUserDAO;
-
     @Autowired
     protected ResourceDAO resourceDAO;
-
     @Autowired
     protected MembershipDAO membershipDAO;
 
-    private <T extends AbstractSchema> AbstractSchema getSchema(
-            String schemaName, Class<T> reference) {
+    private <T extends AbstractSchema> T getSchema(
+            final String schemaName, final Class<T> reference) {
 
         T schema = schemaDAO.find(schemaName, reference);
 
@@ -98,26 +89,25 @@ public abstract class AbstractAttributableDataBinder {
             if (log.isDebugEnabled()) {
                 log.debug("Ignoring invalid schema " + schemaName);
             }
-        } else if (schema.isVirtual()) {
-                schema = null;
+        } else if (schema.isVirtual() || schema.isReadonly()) {
+            schema = null;
 
-                if (log.isDebugEnabled()) {
-                    log.debug("Ignoring virtual schema " + schemaName);
-                }
+            if (log.isDebugEnabled()) {
+                log.debug("Ignoring virtual or readonly schema " + schemaName);
             }
+        }
 
         return schema;
     }
 
-    private <T extends AbstractDerivedSchema> AbstractDerivedSchema getDerivedSchema(
-            String derivedSchemaName, Class<T> reference) {
+    private <T extends AbstractDerivedSchema> T getDerivedSchema(
+            final String derivedSchemaName, final Class<T> reference) {
 
         T derivedSchema = derivedSchemaDAO.find(derivedSchemaName, reference);
 
-        if (derivedSchema == null) {
-            if (log.isDebugEnabled()) {
-                log.debug("Ignoring invalid derivedschema " + derivedSchemaName);
-            }
+        if (derivedSchema == null && log.isDebugEnabled()) {
+            log.debug("Ignoring invalid derivedschema "
+                    + derivedSchemaName);
         }
 
         return derivedSchema;
@@ -155,7 +145,8 @@ public abstract class AbstractAttributableDataBinder {
         for (String value : valuesProvided) {
             if (value == null || value.length() == 0) {
                 if (log.isDebugEnabled()) {
-                    log.debug("Null value for " + schema.getName() + ", ignoring");
+                    log.debug("Null value for " + schema.getName()
+                            + ", ignoring");
                 }
             } else {
                 attributeValue = attributableUtil.newAttributeValue();
@@ -164,7 +155,8 @@ public abstract class AbstractAttributableDataBinder {
                     attributeValue = attribute.addValue(value,
                             attributeValue);
                 } catch (ValidationException e) {
-                    log.error("Invalid value for attribute " + schema.getName() + ": " + value, e);
+                    log.error("Invalid value for attribute "
+                            + schema.getName() + ": " + value, e);
 
                     invalidValues.addElement(value);
                 }
@@ -180,13 +172,13 @@ public abstract class AbstractAttributableDataBinder {
                 new SyncopeClientException(
                 SyncopeClientExceptionType.RequiredValuesMissing);
 
-
         Set<TargetResource> resources = new HashSet<TargetResource>();
         resources.addAll(attributable.getTargetResources());
         resources.addAll(attributable.getInheritedTargetResources());
 
         if (log.isDebugEnabled()) {
-            log.debug("Check mandatory constraint among resources " + resources);
+            log.debug("Check mandatory constraint among resources "
+                    + resources);
         }
 
         // Check if there is some mandatory schema defined for which no value
@@ -194,14 +186,17 @@ public abstract class AbstractAttributableDataBinder {
         List<T> allSchemas = schemaDAO.findAll(referenceSchema);
 
         for (T schema : allSchemas) {
-            if (attributable.getAttribute(schema.getName()) == null && (schema.isMandatory() || schemaDAO.isMandatoryOnResource(schema, resources))) {
+            if (attributable.getAttribute(schema.getName()) == null
+                    && !schema.isVirtual() && !schema.isReadonly()
+                    && (schema.isMandatory()
+                    || schemaDAO.isMandatoryOnResource(schema, resources))) {
 
-                log.error("Mandatory schema " + schema.getName() + " not provided with values");
+                log.error("Mandatory schema " + schema.getName()
+                        + " not provided with values");
 
                 requiredValuesMissing.addElement(schema.getName());
             }
         }
-
 
         return requiredValuesMissing;
     }
@@ -242,7 +237,8 @@ public abstract class AbstractAttributableDataBinder {
                 attribute = attributable.getAttribute(schema.getName());
                 if (attribute == null) {
                     if (log.isDebugEnabled()) {
-                        log.debug("No attribute found for schema " + schema.getName());
+                        log.debug("No attribute found for schema "
+                                + schema.getName());
                     }
                 } else {
                     attributable.removeAttribute(attribute);
@@ -344,7 +340,8 @@ public abstract class AbstractAttributableDataBinder {
                         derivedSchema.getName());
                 if (derivedAttribute == null) {
                     if (log.isDebugEnabled()) {
-                        log.debug("No derived attribute found for schema " + derivedSchema.getName());
+                        log.debug("No derived attribute found for schema "
+                                + derivedSchema.getName());
                     }
                 } else {
                     derivedAttributeDAO.delete(derivedAttribute);
@@ -353,8 +350,8 @@ public abstract class AbstractAttributableDataBinder {
         }
 
         if (log.isDebugEnabled()) {
-            log.debug("About derived attributes to be removed:\n" +
-                    resourceOperations);
+            log.debug("About derived attributes to be removed:\n"
+                    + resourceOperations);
         }
 
         // 4. derived attributes to be added
@@ -379,8 +376,8 @@ public abstract class AbstractAttributableDataBinder {
         }
 
         if (log.isDebugEnabled()) {
-            log.debug("About derived attributes to be added:\n" +
-                    resourceOperations);
+            log.debug("About derived attributes to be added:\n"
+                    + resourceOperations);
         }
 
         // 5. resources to be removed
@@ -456,7 +453,8 @@ public abstract class AbstractAttributableDataBinder {
         AbstractAttributeValue attributeValue = null;
         for (AttributeTO attributeTO : attributableTO.getAttributes()) {
             // Only consider attributeTO with values
-            if (attributeTO.getValues() != null && !attributeTO.getValues().isEmpty()) {
+            if (attributeTO.getValues() != null
+                    && !attributeTO.getValues().isEmpty()) {
 
                 schema = getSchema(attributeTO.getSchema(),
                         attributableUtil.getSchemaClass());
@@ -542,6 +540,7 @@ public abstract class AbstractAttributableDataBinder {
             attributeTO.setSchema(attribute.getSchema().getName());
             attributeTO.setValues(new HashSet(
                     attribute.getAttributeValuesAsStrings()));
+            attributeTO.setReadonly(attribute.getSchema().isReadonly());
 
             abstractAttributableTO.addAttribute(attributeTO);
         }
@@ -552,6 +551,7 @@ public abstract class AbstractAttributableDataBinder {
             attributeTO.setSchema(
                     derivedAttribute.getDerivedSchema().getName());
             attributeTO.addValue(derivedAttribute.getValue(attributes));
+            attributeTO.setReadonly(true);
 
             abstractAttributableTO.addDerivedAttribute(attributeTO);
         }
@@ -574,10 +574,14 @@ public abstract class AbstractAttributableDataBinder {
             for (AbstractAttributeValue attributeValue :
                     attribute.getAttributeValues()) {
 
-                if (attribute.getSchema().isUniquevalue() && attributeValueDAO.nonUniqueAttributeValue(
+                if (attribute.getSchema().isUniquevalue()
+                        && attributeValueDAO.nonUniqueAttributeValue(
                         attributeValue)) {
 
-                    log.error("Unique value schema " + attribute.getSchema().getName() + " with no unique value: " + attributeValue.getValueAsString());
+                    log.error("Unique value schema "
+                            + attribute.getSchema().getName()
+                            + " with no unique value: "
+                            + attributeValue.getValueAsString());
 
                     invalidUniques.addElement(attribute.getSchema().getName());
                 }

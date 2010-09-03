@@ -36,14 +36,13 @@ public class SchemaDAOTest extends AbstractTest {
 
     @Autowired
     private SchemaDAO schemaDAO;
-
     @Autowired
     private ResourceDAO resourceDAO;
 
     @Test
     public final void findAll() {
         List<UserSchema> userList = schemaDAO.findAll(UserSchema.class);
-        assertEquals(8, userList.size());
+        assertEquals(9, userList.size());
 
         List<RoleSchema> roleList = schemaDAO.findAll(RoleSchema.class);
         assertEquals(2, roleList.size());
@@ -114,7 +113,7 @@ public class SchemaDAOTest extends AbstractTest {
 
         // multi choice
         TargetResource resource1 =
-                resourceDAO.find("ws-target-resource-1");
+                resourceDAO.find("ws-target-resource-list-mappings-2");
         TargetResource resource2 =
                 resourceDAO.find("ws-target-resource-update");
 

@@ -49,16 +49,14 @@ public abstract class AbstractAttributeValue extends AbstractBaseBean {
         if (booleanValue == null) {
             return null;
         }
-        return booleanValue == 'T' ? Boolean.TRUE : Boolean.FALSE;
+        return isBooleanAsCharacter(booleanValue);
     }
 
     public void setBooleanValue(Boolean booleanValue) {
         if (booleanValue == null) {
             this.booleanValue = null;
-        } else if (booleanValue == Boolean.TRUE) {
-            this.booleanValue = 'T';
         } else {
-            this.booleanValue = 'F';
+            this.booleanValue = getBooleanAsCharacter(booleanValue);
         }
     }
 

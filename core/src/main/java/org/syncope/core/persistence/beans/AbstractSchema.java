@@ -40,11 +40,9 @@ public abstract class AbstractSchema extends AbstractBaseBean {
 
     @Id
     private String name;
-
     @Column(nullable = false)
     @Enumerated(STRING)
     private SchemaValueType type;
-
     /**
      * All the mappings of the attribute schema.
      */
@@ -52,37 +50,33 @@ public abstract class AbstractSchema extends AbstractBaseBean {
     cascade = {CascadeType.MERGE, CascadeType.REFRESH},
     fetch = FetchType.EAGER)
     private List<SchemaMapping> mappings;
-
     /**
      * Specify if the attribute should be stored on the local repository.
      */
     @Basic
     private Character virtual;
-
     @Basic
     private Character mandatory;
-
     @Basic
     private Character multivalue;
-
     @Basic
     private Character uniquevalue;
-
+    @Basic
+    private Character readonly;
     @Column(nullable = true)
     private String conversionPattern;
-
     @Column(nullable = true)
     private String validatorClass;
-
     @Transient
     private AttributeValidator validator;
 
     public AbstractSchema() {
         type = SchemaValueType.String;
-        virtual = 'F';
-        mandatory = 'F';
-        multivalue = 'F';
-        uniquevalue = 'F';
+        virtual = getBooleanAsCharacter(false);
+        mandatory = getBooleanAsCharacter(false);
+        multivalue = getBooleanAsCharacter(false);
+        uniquevalue = getBooleanAsCharacter(false);
+        readonly = getBooleanAsCharacter(false);
     }
 
     public String getName() {
@@ -102,8 +96,9 @@ public abstract class AbstractSchema extends AbstractBaseBean {
     }
 
     public List<SchemaMapping> getMappings() {
-        if (this.mappings == null)
+        if (this.mappings == null) {
             this.mappings = new ArrayList<SchemaMapping>();
+        }
 
         return this.mappings;
     }
@@ -113,8 +108,9 @@ public abstract class AbstractSchema extends AbstractBaseBean {
     }
 
     public boolean addMapping(SchemaMapping mapping) {
-        if (this.mappings == null)
+        if (this.mappings == null) {
             this.mappings = new ArrayList<SchemaMapping>();
+        }
 
         return this.mappings.contains(mapping) || this.mappings.add(mapping);
     }
@@ -124,35 +120,43 @@ public abstract class AbstractSchema extends AbstractBaseBean {
     }
 
     public boolean isVirtual() {
-        return virtual != null && virtual == 'T';
+        return isBooleanAsCharacter(virtual);
     }
 
     public void setVirtual(boolean virtual) {
-        this.virtual = virtual ? 'T' : 'F';
+        this.virtual = getBooleanAsCharacter(virtual);
     }
 
     public boolean isMandatory() {
-        return mandatory != null && mandatory == 'T';
+        return isBooleanAsCharacter(mandatory);
     }
 
     public void setMandatory(boolean mandatory) {
-        this.mandatory = mandatory ? 'T' : 'F';
+        this.mandatory = getBooleanAsCharacter(mandatory);
     }
 
     public boolean isMultivalue() {
-        return multivalue != null && multivalue == 'T';
+        return isBooleanAsCharacter(multivalue);
     }
 
     public void setMultivalue(boolean multivalue) {
-        this.multivalue = multivalue ? 'T' : 'F';
+        this.multivalue = getBooleanAsCharacter(multivalue);
     }
 
     public boolean isUniquevalue() {
-        return uniquevalue != null && uniquevalue == 'T';
+        return isBooleanAsCharacter(uniquevalue);
     }
 
     public void setUniquevalue(boolean uniquevalue) {
-        this.uniquevalue = uniquevalue ? 'T' : 'F';
+        this.uniquevalue = getBooleanAsCharacter(uniquevalue);
+    }
+
+    public boolean isReadonly() {
+        return isBooleanAsCharacter(readonly);
+    }
+
+    public void setReadonly(boolean readonly) {
+        this.readonly = getBooleanAsCharacter(readonly);
     }
 
     public AttributeValidator getValidator() {
@@ -169,7 +173,9 @@ public abstract class AbstractSchema extends AbstractBaseBean {
                         (AttributeValidator) validatorConstructor.newInstance(
                         this);
             } catch (Exception e) {
-                log.error("Could not instantiate validator of type " + getValidatorClass() + ", reverting to AttributeBasicValidator", e);
+                log.error("Could not instantiate validator of type "
+                        + getValidatorClass()
+                        + ", reverting to AttributeBasicValidator", e);
             }
         }
 
@@ -191,7 +197,8 @@ public abstract class AbstractSchema extends AbstractBaseBean {
     public String getConversionPattern() {
         if (!getType().isConversionPatternNeeded() && log.isDebugEnabled()) {
 
-            log.debug("Conversion pattern is not needed: " + this + "'s type is " + getType());
+            log.debug("Conversion pattern is not needed: " + this
+                    + "'s type is " + getType());
         }
 
         return conversionPattern;
@@ -199,7 +206,8 @@ public abstract class AbstractSchema extends AbstractBaseBean {
 
     public void setConversionPattern(String conversionPattern) {
         if (!getType().isConversionPatternNeeded()) {
-            log.warn("Conversion pattern will be ignored: " + "this attribute type is " + getType());
+            log.warn("Conversion pattern will be ignored: "
+                    + "this attribute type is " + getType());
         }
 
         this.conversionPattern = conversionPattern;

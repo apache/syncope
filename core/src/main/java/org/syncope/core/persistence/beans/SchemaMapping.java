@@ -70,9 +70,11 @@ public class SchemaMapping extends AbstractBaseBean {
     private Character nullable;
 
     public SchemaMapping() {
-        accountid = 'F';
-        password = 'F';
-        nullable = 'T';
+        super();
+
+        accountid = getBooleanAsCharacter(false);
+        password = getBooleanAsCharacter(false);
+        nullable = getBooleanAsCharacter(true);
     }
 
     public Long getId() {
@@ -80,11 +82,11 @@ public class SchemaMapping extends AbstractBaseBean {
     }
 
     public boolean isAccountid() {
-        return accountid != null && accountid == 'T';
+        return isBooleanAsCharacter(accountid);
     }
 
     public void setAccountid(boolean accountid) {
-        this.accountid = accountid ? 'T' : 'F';
+        this.accountid = getBooleanAsCharacter(accountid);
     }
 
     public String getField() {
@@ -96,19 +98,19 @@ public class SchemaMapping extends AbstractBaseBean {
     }
 
     public boolean isNullable() {
-        return nullable != null && nullable == 'T';
+        return isBooleanAsCharacter(nullable);
     }
 
     public void setNullable(boolean nullable) {
-        this.nullable = nullable ? 'T' : 'F';
+        this.nullable = getBooleanAsCharacter(nullable);
     }
 
     public boolean isPassword() {
-        return password != null && password == 'T';
+        return isBooleanAsCharacter(password);
     }
 
     public void setPassword(boolean password) {
-        this.password = password ? 'T' : 'F';
+        this.password = getBooleanAsCharacter(password);
     }
 
     public TargetResource getResource() {

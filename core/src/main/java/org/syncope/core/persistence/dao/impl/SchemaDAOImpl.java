@@ -38,19 +38,22 @@ public class SchemaDAOImpl extends AbstractDAOImpl
 
     @Autowired
     private AttributeDAO attributeDAO;
-
     @Autowired
     private ResourceDAO resourceDAO;
 
     @Override
     @Transactional(readOnly = true)
-    public <T extends AbstractSchema> T find(String name, Class<T> reference) {
+    public <T extends AbstractSchema> T find(final String name,
+            final Class<T> reference) {
+
         return entityManager.find(reference, name);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public <T extends AbstractSchema> List<T> findAll(Class<T> reference) {
+    public <T extends AbstractSchema> List<T> findAll(
+            final Class<T> reference) {
+
         Query query = entityManager.createQuery(
                 "SELECT e FROM " + reference.getSimpleName() + " e");
         return query.getResultList();
@@ -73,7 +76,9 @@ public class SchemaDAOImpl extends AbstractDAOImpl
 
         T schema = find(name, reference);
 
-        if (schema == null) return;
+        if (schema == null) {
+            return;
+        }
 
         // --------------------------------------
         // Remove all mappings
@@ -81,12 +86,14 @@ public class SchemaDAOImpl extends AbstractDAOImpl
         List<SchemaMapping> mappings = schema.getMappings();
         schema.setMappings(Collections.EMPTY_LIST);
 
-        for (SchemaMapping mapping : mappings)
+        for (SchemaMapping mapping : mappings) {
             removeMapping(mapping.getId());
+        }
         // --------------------------------------
 
-        for (AbstractDerivedSchema derivedSchema : schema.getDerivedSchemas())
+        for (AbstractDerivedSchema derivedSchema : schema.getDerivedSchemas()) {
             derivedSchema.removeSchema(schema);
+        }
 
         schema.setDerivedSchemas(Collections.EMPTY_LIST);
 
@@ -124,7 +131,9 @@ public class SchemaDAOImpl extends AbstractDAOImpl
         // Get mapping object
         SchemaMapping mapping = findMapping(mappingId);
 
-        if (mapping == null) return;
+        if (mapping == null) {
+            return;
+        }
 
         // --------------------------------------
         // Synchronize schema
@@ -145,10 +154,12 @@ public class SchemaDAOImpl extends AbstractDAOImpl
             if (log.isDebugEnabled()) {
                 log.debug("Schema type " + schemaType.getClassName());
             }
-            AbstractSchema schema = find(schemaName, schemaType.getSchemaType());
+            AbstractSchema schema = find(schemaName,
+                    schemaType.getSchemaType());
 
-            if (schema != null)
+            if (schema != null) {
                 schema.removeMapping(mapping);
+            }
 
         } catch (ClassCastException e) {
             /**
@@ -168,8 +179,9 @@ public class SchemaDAOImpl extends AbstractDAOImpl
         TargetResource resource =
                 resourceDAO.find(mapping.getResource().getName());
 
-        if (resource != null)
+        if (resource != null) {
             resource.removeMapping(mapping);
+        }
 
         mapping.setResource(null);
         // --------------------------------------
@@ -184,15 +196,15 @@ public class SchemaDAOImpl extends AbstractDAOImpl
             AbstractSchema schema, TargetResource resource) {
 
         Query query = entityManager.createQuery(
-                "SELECT e " +
-                "FROM SchemaMapping e " +
-                "WHERE e.schemaName='" + schema.getName() + "' " +
-                "AND e.resource.name='" + resource.getName() + "' " +
-                "AND e.nullable='F'");
+                "SELECT e "
+                + "FROM SchemaMapping e "
+                + "WHERE e.schemaName='" + schema.getName() + "' "
+                + "AND e.resource.name='" + resource.getName() + "' "
+                + "AND e.nullable='F'");
 
-        return schema.isMandatory() ||
-                (resource.isForceMandatoryConstraint() &&
-                !query.getResultList().isEmpty());
+        return schema.isMandatory()
+                || (resource.isForceMandatoryConstraint()
+                && !query.getResultList().isEmpty());
     }
 
     @Override
@@ -204,28 +216,23 @@ public class SchemaDAOImpl extends AbstractDAOImpl
 
         for (TargetResource resource : resources) {
             if (resource.isForceMandatoryConstraint()) {
-
-                queryBuilder.append(
-                        (queryBuilder.length() > 0 ? " OR " : "") +
-                        "e.resource.name='" + resource.getName() + "'");
-
+                queryBuilder.append(queryBuilder.length() > 0 ? " OR " : "");
+                queryBuilder.append("e.resource.name='");
+                queryBuilder.append(resource.getName());
+                queryBuilder.append("'");
             }
         }
 
         Query query = null;
-
         if (queryBuilder.length() > 0) {
-
             query = entityManager.createQuery(
-                    "SELECT e " +
-                    "FROM SchemaMapping e " +
-                    "WHERE e.schemaName='" + schema.getName() + "' " +
-                    "AND (" + queryBuilder.toString() + ") " +
-                    "AND e.nullable='F'");
-
+                    "SELECT e "
+                    + "FROM SchemaMapping e "
+                    + "WHERE e.schemaName='" + schema.getName() + "' "
+                    + "AND (" + queryBuilder.toString() + ") "
+                    + "AND e.nullable='F'");
         }
 
-        return schema.isMandatory() ||
-                (query != null && !query.getResultList().isEmpty());
+        return query != null && !query.getResultList().isEmpty();
     }
 }

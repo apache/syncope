@@ -45,27 +45,19 @@ public class SyncopeRole extends AbstractAttributable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-
     private String name;
-
     @ManyToOne(optional = true)
     private SyncopeRole parent;
-
     @OneToMany(cascade = CascadeType.MERGE, mappedBy = "syncopeRole")
     private List<Membership> memberships;
-
     @ManyToMany(fetch = FetchType.LAZY)
     private Set<Entitlement> entitlements;
-
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     private List<RoleAttribute> attributes;
-
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     private List<RoleDerivedAttribute> derivedAttributes;
-
     @Basic
     private Character inheritAttributes;
-
     @Basic
     private Character inheritDerivedAttributes;
 
@@ -74,8 +66,8 @@ public class SyncopeRole extends AbstractAttributable {
         entitlements = new HashSet<Entitlement>();
         attributes = new ArrayList<RoleAttribute>();
         derivedAttributes = new ArrayList<RoleDerivedAttribute>();
-        inheritAttributes = 'F';
-        inheritDerivedAttributes = 'F';
+        inheritAttributes = getBooleanAsCharacter(false);
+        inheritDerivedAttributes = getBooleanAsCharacter(false);
     }
 
     public Long getId() {
@@ -171,7 +163,8 @@ public class SyncopeRole extends AbstractAttributable {
     public <T extends AbstractDerivedAttribute> boolean removeDerivedAttribute(
             T derivedAttribute) {
 
-        return derivedAttributes.remove((RoleDerivedAttribute) derivedAttribute);
+        return derivedAttributes.remove(
+                (RoleDerivedAttribute) derivedAttribute);
     }
 
     @Override
@@ -187,18 +180,20 @@ public class SyncopeRole extends AbstractAttributable {
     }
 
     public boolean isInheritAttributes() {
-        return inheritAttributes != null && inheritAttributes == 'T';
+        return isBooleanAsCharacter(inheritAttributes);
     }
 
     public void setInheritAttributes(boolean inheritAttributes) {
-        this.inheritAttributes = inheritAttributes ? 'T' : 'F';
+        this.inheritAttributes = getBooleanAsCharacter(inheritAttributes);
     }
 
     public boolean isInheritDerivedAttributes() {
-        return inheritDerivedAttributes != null && inheritDerivedAttributes == 'T';
+        return isBooleanAsCharacter(inheritDerivedAttributes);
     }
 
     public void setInheritDerivedAttributes(boolean inheritDerivedAttributes) {
-        this.inheritDerivedAttributes = inheritDerivedAttributes ? 'T' : 'F';
+        this.inheritDerivedAttributes =
+                getBooleanAsCharacter(inheritDerivedAttributes);
+
     }
 }
