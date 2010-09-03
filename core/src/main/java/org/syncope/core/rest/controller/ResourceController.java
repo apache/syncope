@@ -181,7 +181,7 @@ public class ResourceController extends AbstractController {
         ResourceDataBinder binder =
                 new ResourceDataBinder(schemaDAO, connectorInstanceDAO);
 
-        TargetResource actual = null;
+        TargetResource actual;
 
         try {
             if (log.isDebugEnabled()) {

@@ -105,14 +105,14 @@ public class ResourceDataBinder {
 
         resource.setName(resourceTO.getName());
 
-        resource.setMappings(
-                getSchemaMappings(resource, resourceTO.getMappings()));
-
         resource.setConnector(connector);
         connector.addResource(resource);
 
         resource.setForceMandatoryConstraint(
                 resourceTO.isForceMandatoryConstraint());
+        
+        resource.setMappings(
+                getSchemaMappings(resource, resourceTO.getMappings()));
 
         return resource;
     }
