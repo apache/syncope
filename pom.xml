@@ -128,7 +128,7 @@
 
         <dbunit.version>2.4.7</dbunit.version>
 
-        <jetty.version>6.1.24</jetty.version>
+        <jetty.version>6.1.25</jetty.version>
         <cargo.version>1.0.3</cargo.version>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

@@ -1,4 +1,3 @@
-
 /*
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -66,16 +65,12 @@ public class UserController extends AbstractController {
 
     @Autowired
     private SyncopeUserDAO syncopeUserDAO;
-
     @Autowired
     private UserDataBinder userDataBinder;
-
     @Autowired
     private Workflow userWorkflow;
-
     @Autowired(required = false)
     private SpringHibernateJPAWorkflowStore workflowStore;
-
     @Autowired
     private PropagationManager propagationManager;
 
@@ -146,7 +141,8 @@ public class UserController extends AbstractController {
             throws WorkflowException, NotFoundException {
 
         return userDataBinder.getUserTO(
-                doExecuteAction(actionName, userTO.getId(), null), userWorkflow);
+                doExecuteAction(actionName, userTO.getId(), null),
+                userWorkflow);
     }
 
     @RequestMapping(method = RequestMethod.POST,
@@ -291,8 +287,8 @@ public class UserController extends AbstractController {
     private Set<String> getSyncResourceNames(SyncopeUser user,
             Set<Long> syncRoles, Set<String> syncResources) {
 
-        if ((syncRoles == null || syncRoles.isEmpty() &&
-                (syncResources == null || syncResources.isEmpty()))) {
+        if ((syncRoles == null || syncRoles.isEmpty()
+                && (syncResources == null || syncResources.isEmpty()))) {
             return Collections.EMPTY_SET;
         }
 
@@ -326,7 +322,8 @@ public class UserController extends AbstractController {
             WorkflowException, PropagationException, NotFoundException {
 
         if (log.isDebugEnabled()) {
-            log.debug("create called with parameters " + userTO + "\n" + syncRoles + "\n" + syncResources);
+            log.debug("create called with parameters " + userTO + "\n"
+                    + syncRoles + "\n" + syncResources);
         }
 
         // By default, ignore id in UserTO:
@@ -394,7 +391,8 @@ public class UserController extends AbstractController {
                 getSyncResourceNames(user, syncRoles, syncResources);
 
         if (log.isDebugEnabled() && !syncResourceNames.isEmpty()) {
-            log.debug("About to propagate synchronously onto resources " + syncResourceNames);
+            log.debug("About to propagate synchronously onto resources "
+                    + syncResourceNames);
         }
 
         Set<String> propagatedResources =
@@ -452,8 +450,8 @@ public class UserController extends AbstractController {
         Set<String> syncResourceNames =
                 getSyncResourceNames(user, syncRoles, syncResources);
         if (log.isDebugEnabled() && !syncResourceNames.isEmpty()) {
-            log.debug("About to propagate synchronously onto resources " +
-                    syncResourceNames);
+            log.debug("About to propagate synchronously onto resources "
+                    + syncResourceNames);
         }
 
         Set<String> propagatedResources =
