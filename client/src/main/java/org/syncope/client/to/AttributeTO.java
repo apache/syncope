@@ -31,6 +31,10 @@ public class AttributeTO extends AbstractBaseBean {
      * Set of (string) values of this attribute.
      */
     private Set<String> values;
+    /**
+     * Wether this attribute is read-only or not.
+     */
+    private boolean readonly;
 
     /**
      * Default constructor.
@@ -38,6 +42,7 @@ public class AttributeTO extends AbstractBaseBean {
     public AttributeTO() {
         super();
         values = new HashSet<String>();
+        readonly = false;
     }
 
     /**
@@ -60,7 +65,7 @@ public class AttributeTO extends AbstractBaseBean {
      * @return wether the operation succeeded or not
      */
     public boolean addValue(final String value) {
-        return value == null ? false : values.add(value);
+        return value == null || isReadonly() ? false : values.add(value);
     }
 
     /**
@@ -68,7 +73,7 @@ public class AttributeTO extends AbstractBaseBean {
      * @return wether the operation succeeded or not
      */
     public boolean removeValue(final String value) {
-        return value == null ? false : values.remove(value);
+        return value == null || isReadonly() ? false : values.remove(value);
     }
 
     /**
@@ -82,6 +87,16 @@ public class AttributeTO extends AbstractBaseBean {
      * @param values set of (string) values
      */
     public void setValues(final Set<String> values) {
-        this.values = values;
+        if (!isReadonly()) {
+            this.values = values;
+        }
+    }
+
+    public boolean isReadonly() {
+        return readonly;
+    }
+
+    public void setReadonly(boolean readonly) {
+        this.readonly = readonly;
     }
 }
