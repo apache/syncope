@@ -26,7 +26,6 @@ public enum SchemaType {
     "AccountId"),
     Password(
     "Password");
-
     final private String className;
 
     SchemaType(String className) {
@@ -37,7 +36,7 @@ public enum SchemaType {
         return className;
     }
 
-    public Class getSchemaType() {
+    public Class getSchemaClass() {
         try {
             return Class.forName(getClassName());
         } catch (ClassNotFoundException e) {

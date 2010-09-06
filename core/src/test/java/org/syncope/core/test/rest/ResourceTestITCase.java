@@ -140,7 +140,7 @@ public class ResourceTestITCase extends AbstractTestITCase {
 
         assertNotNull(mappings);
 
-        assertTrue(mappings.getMappings().size() == 3);
+        assertEquals(3, mappings.getMappings().size());
     }
 
     @Test

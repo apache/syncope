@@ -43,7 +43,7 @@ public class SchemaMapping extends AbstractBaseBean {
      * Target resource that has fields to be mapped over user attribute schemas.
      */
     @ManyToOne(fetch = FetchType.EAGER,
-    cascade = {CascadeType.REFRESH, CascadeType.MERGE})
+    cascade = {CascadeType.MERGE, CascadeType.REFRESH})
     private TargetResource resource;
     /**
      * Target resource's field to be mapped.

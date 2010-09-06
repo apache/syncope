@@ -20,7 +20,6 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-import javax.persistence.EntityManager;
 import javax.sql.DataSource;
 import org.dbunit.database.DatabaseConfig;
 import org.dbunit.database.DatabaseConnection;
@@ -42,10 +41,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @ContextConfiguration(locations = {"classpath:persistenceContext.xml"})
 public abstract class AbstractTest {
 
-    protected static final Logger log = LoggerFactory.getLogger(
+    protected static final Logger LOG = LoggerFactory.getLogger(
             AbstractTest.class);
-    @Autowired
-    protected EntityManager entityManager;
     @Autowired
     private DataSource dataSource;
     @Autowired
@@ -61,7 +58,7 @@ public abstract class AbstractTest {
 
             rs = stmt.executeQuery("SELECT * FROM " + tableName);
             ResultSetMetaData metaData = rs.getMetaData();
-            log.debug("Table: " + tableName);
+            LOG.debug("Table: " + tableName);
             StringBuilder row = new StringBuilder();
             while (rs.next()) {
                 for (int i = 0; i < metaData.getColumnCount(); i++) {
@@ -69,11 +66,11 @@ public abstract class AbstractTest {
                             append(rs.getString(i + 1)).append(" ");
                 }
 
-                log.debug(row.toString());
+                LOG.debug(row.toString());
                 row.delete(0, row.length());
             }
         } catch (SQLException sqle) {
-            log.error("While dumping " + tableName + "content", sqle);
+            LOG.error("While dumping " + tableName + "content", sqle);
         } finally {
             rs.close();
             stmt.close();
@@ -96,12 +93,12 @@ public abstract class AbstractTest {
         try {
             DatabaseOperation.CLEAN_INSERT.execute(dbUnitConn, dataSet);
         } catch (Throwable t) {
-            log.error("While executing tests", t);
+            LOG.error("While executing tests", t);
         } finally {
             DataSourceUtils.releaseConnection(conn, dataSource);
         }
 
-        if (log.isDebugEnabled()) {
+        if (LOG.isDebugEnabled()) {
             conn = DataSourceUtils.getConnection(dataSource);
 
             DatabaseMetaData dbm = conn.getMetaData();

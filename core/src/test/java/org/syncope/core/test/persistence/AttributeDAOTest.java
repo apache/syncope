@@ -67,7 +67,7 @@ public class AttributeDAOTest extends AbstractTest {
             attribute.addValue("mario.rossi@gmail.com",
                     new UserAttributeValue());
         } catch (ValidationException e) {
-            log.error("Unexpected exception", e);
+            LOG.error("Unexpected exception", e);
             thrown = e;
         }
         assertNull("no validation exception expected here ", thrown);

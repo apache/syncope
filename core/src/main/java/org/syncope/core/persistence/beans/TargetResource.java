@@ -56,8 +56,7 @@ public class TargetResource extends AbstractBaseBean {
     /**
      * Attribute mappings.
      */
-    @OneToMany(cascade = {CascadeType.MERGE, CascadeType.REFRESH},
-    mappedBy = "resource")
+    @OneToMany(mappedBy = "resource")
     private List<SchemaMapping> mappings;
     @Column(nullable = false)
     @Basic

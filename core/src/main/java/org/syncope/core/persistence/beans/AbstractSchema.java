@@ -21,7 +21,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Basic;
-import javax.persistence.CascadeType;
 import static javax.persistence.EnumType.STRING;
 
 import javax.persistence.Column;
@@ -46,9 +45,7 @@ public abstract class AbstractSchema extends AbstractBaseBean {
     /**
      * All the mappings of the attribute schema.
      */
-    @OneToMany(targetEntity = SchemaMapping.class,
-    cascade = {CascadeType.MERGE, CascadeType.REFRESH},
-    fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.EAGER)
     private List<SchemaMapping> mappings;
     /**
      * Specify if the attribute should be stored on the local repository.

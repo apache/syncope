@@ -294,10 +294,10 @@ public class PropagationManager {
 
                 try {
                     // check for schema or constants (AccountId/Password)
-                    schemaType.getSchemaType().asSubclass(AbstractSchema.class);
+                    schemaType.getSchemaClass().asSubclass(AbstractSchema.class);
 
                     schema = schemaDAO.find(schemaName,
-                            schemaType.getSchemaType());
+                            schemaType.getSchemaClass());
                 } catch (ClassCastException e) {
                     // ignore exception ... check for AccountId or Password
                     if (LOG.isDebugEnabled()) {

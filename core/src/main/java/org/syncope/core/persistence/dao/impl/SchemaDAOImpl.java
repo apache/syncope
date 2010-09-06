@@ -143,7 +143,7 @@ public class SchemaDAOImpl extends AbstractDAOImpl
 
         try {
             // check for schema type
-            schemaType.getSchemaType().asSubclass(AbstractSchema.class);
+            schemaType.getSchemaClass().asSubclass(AbstractSchema.class);
 
             /**
              * Schema type could be:
@@ -155,7 +155,7 @@ public class SchemaDAOImpl extends AbstractDAOImpl
                 log.debug("Schema type " + schemaType.getClassName());
             }
             AbstractSchema schema = find(schemaName,
-                    schemaType.getSchemaType());
+                    schemaType.getSchemaClass());
 
             if (schema != null) {
                 schema.removeMapping(mapping);

@@ -56,7 +56,7 @@ public class PropagationManagerTest extends AbstractTest {
         try {
             provisioned = propagationManager.create(user);
         } catch (PropagationException e) {
-            log.error("While provisioning", e);
+            LOG.error("While provisioning", e);
         }
 
         assertNotNull(provisioned);
@@ -80,7 +80,7 @@ public class PropagationManagerTest extends AbstractTest {
             provisioned = propagationManager.update(
                     user, resourceOperations, null);
         } catch (PropagationException e) {
-            log.error("While updating", e);
+            LOG.error("While updating", e);
         }
 
         assertNotNull(provisioned);

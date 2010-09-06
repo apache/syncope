@@ -69,7 +69,7 @@ public class SchemaDAOTest extends AbstractTest {
         try {
             schemaDAO.save(attributeSchema);
         } catch (MultiUniqueValueException e) {
-            log.error("Unexpected exception", e);
+            LOG.error("Unexpected exception", e);
         }
 
         UserSchema actual = schemaDAO.find("secondaryEmail", UserSchema.class);

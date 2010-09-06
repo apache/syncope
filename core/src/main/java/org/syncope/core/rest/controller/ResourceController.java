@@ -38,7 +38,6 @@ import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
-import org.syncope.core.persistence.dao.ConnectorInstanceDAO;
 import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.SyncopeRoleDAO;
@@ -52,38 +51,34 @@ public class ResourceController extends AbstractController {
 
     @Autowired
     private ResourceDAO resourceDAO;
-
     @Autowired
     private SchemaDAO schemaDAO;
-
     @Autowired
     private SyncopeRoleDAO syncopeRoleDAO;
-
     @Autowired
-    ConnectorInstanceDAO connectorInstanceDAO;
+    private ResourceDataBinder binder;
 
     @RequestMapping(method = RequestMethod.POST,
     value = "/create")
     public ResourceTO create(HttpServletResponse response,
             @RequestBody ResourceTO resourceTO)
-            throws SyncopeClientCompositeErrorException {
+            throws SyncopeClientCompositeErrorException, NotFoundException {
 
         if (log.isDebugEnabled()) {
             log.debug("Creation request received");
         }
 
-        if (resourceTO == null) {
-            if (log.isErrorEnabled()) {
-                log.error("Missing resource");
-            }
+        SyncopeClientCompositeErrorException compositeErrorException =
+                new SyncopeClientCompositeErrorException(
+                HttpStatus.BAD_REQUEST);
 
-            throw new NullPointerException("Missing resource");
+        if (resourceTO == null) {
+            log.error("Missing resource");
+
+            throw new NotFoundException("Missing resource");
         }
 
-        ResourceDataBinder binder =
-                new ResourceDataBinder(schemaDAO, connectorInstanceDAO);
-
-        TargetResource actual = null;
+        TargetResource resource = null;
 
         try {
             if (log.isDebugEnabled()) {
@@ -95,45 +90,27 @@ public class ResourceController extends AbstractController {
                         SyncopeClientExceptionType.AlreadyExists);
 
                 ex.addElement(resourceTO.getName());
+                compositeErrorException.addException(ex);
 
-                throw ex;
+                throw compositeErrorException;
             }
 
             if (log.isDebugEnabled()) {
                 log.debug("Resource data binder ..");
             }
 
-            TargetResource resource = binder.getResource(resourceTO);
-
-            if (log.isInfoEnabled()) {
-                log.info("Create resource " + resource.getName());
-            }
-
-            actual = resourceDAO.save(resource);
-
-            if (actual == null) {
-                if (log.isErrorEnabled()) {
-                    log.error("Resource creation failed");
-                }
+            resource = binder.getResource(resourceTO);
+            if (resource == null) {
+                log.error("Resource creation failed");
 
                 SyncopeClientException ex = new SyncopeClientException(
                         SyncopeClientExceptionType.Unknown);
 
-                throw ex;
+                compositeErrorException.addException(ex);
+
+                throw compositeErrorException;
             }
-
-        } catch (SyncopeClientException ex) {
-
-            SyncopeClientCompositeErrorException compositeErrorException =
-                    new SyncopeClientCompositeErrorException(
-                    HttpStatus.BAD_REQUEST);
-
-            compositeErrorException.addException(ex);
-
-            throw compositeErrorException;
-
         } catch (Throwable t) {
-
             if (log.isErrorEnabled()) {
                 log.error("Unknown exception", t);
             }
@@ -141,17 +118,13 @@ public class ResourceController extends AbstractController {
             SyncopeClientException ex = new SyncopeClientException(
                     SyncopeClientExceptionType.Unknown);
 
-            SyncopeClientCompositeErrorException compositeErrorException =
-                    new SyncopeClientCompositeErrorException(
-                    HttpStatus.BAD_REQUEST);
-
             compositeErrorException.addException(ex);
 
             throw compositeErrorException;
         }
 
         response.setStatus(HttpServletResponse.SC_CREATED);
-        return binder.getResourceTO(actual);
+        return binder.getResourceTO(resource);
     }
 
     @RequestMapping(method = RequestMethod.POST,
@@ -171,17 +144,14 @@ public class ResourceController extends AbstractController {
         }
 
         if (resource == null) {
-            if (log.isErrorEnabled()) {
-                log.error("Missing resource");
-            }
+            log.error("Missing resource");
 
             throw new NotFoundException(resourceTO.getName());
         }
 
-        ResourceDataBinder binder =
-                new ResourceDataBinder(schemaDAO, connectorInstanceDAO);
-
-        TargetResource actual;
+        SyncopeClientCompositeErrorException compositeErrorException =
+                new SyncopeClientCompositeErrorException(
+                HttpStatus.BAD_REQUEST);
 
         try {
             if (log.isDebugEnabled()) {
@@ -194,20 +164,14 @@ public class ResourceController extends AbstractController {
                 mapping.setResource(null);
                 schemaDAO.removeMapping(mapping.getId());
             }
+            resource.getMappings().clear();
 
             if (log.isDebugEnabled()) {
                 log.debug("Resource data binder ..");
             }
 
             resource = binder.getResource(resource, resourceTO);
-
-            if (log.isInfoEnabled()) {
-                log.info("Update resource " + resource.getName());
-            }
-
-            actual = resourceDAO.save(resource);
-
-            if (actual == null) {
+            if (resource == null) {
                 if (log.isErrorEnabled()) {
                     log.error("Resource creation failed");
                 }
@@ -215,31 +179,14 @@ public class ResourceController extends AbstractController {
                 SyncopeClientException ex = new SyncopeClientException(
                         SyncopeClientExceptionType.Unknown);
 
-                throw ex;
+                compositeErrorException.addException(ex);
+                throw compositeErrorException;
             }
-
-        } catch (SyncopeClientException ex) {
-
-            SyncopeClientCompositeErrorException compositeErrorException =
-                    new SyncopeClientCompositeErrorException(
-                    HttpStatus.BAD_REQUEST);
-
-            compositeErrorException.addException(ex);
-
-            throw compositeErrorException;
-
         } catch (Throwable t) {
-
-            if (log.isErrorEnabled()) {
-                log.error("Unknown exception", t);
-            }
+            log.error("Unknown exception", t);
 
             SyncopeClientException ex = new SyncopeClientException(
                     SyncopeClientExceptionType.Unknown);
-
-            SyncopeClientCompositeErrorException compositeErrorException =
-                    new SyncopeClientCompositeErrorException(
-                    HttpStatus.BAD_REQUEST);
 
             compositeErrorException.addException(ex);
 
@@ -247,7 +194,7 @@ public class ResourceController extends AbstractController {
         }
 
         response.setStatus(HttpServletResponse.SC_CREATED);
-        return binder.getResourceTO(actual);
+        return binder.getResourceTO(resource);
     }
 
     @RequestMapping(method = RequestMethod.DELETE,
@@ -279,16 +226,9 @@ public class ResourceController extends AbstractController {
             @PathVariable("resourceName") String resourceName)
             throws NotFoundException {
 
-        ResourceDataBinder binder =
-                new ResourceDataBinder(schemaDAO, connectorInstanceDAO);
-
         TargetResource resource = resourceDAO.find(resourceName);
-
         if (resource == null) {
-
-            if (log.isErrorEnabled()) {
-                log.error("Could not find resource '" + resourceName + "'");
-            }
+            log.error("Could not find resource '" + resourceName + "'");
 
             throw new NotFoundException(resourceName);
         }
@@ -298,20 +238,15 @@ public class ResourceController extends AbstractController {
 
     @RequestMapping(method = RequestMethod.GET,
     value = "/list")
-    public ResourceTOs list(HttpServletResponse response) {
-
-        ResourceDataBinder binder =
-                new ResourceDataBinder(schemaDAO, connectorInstanceDAO);
+    public ResourceTOs list(HttpServletResponse response)
+            throws NotFoundException {
 
         List<TargetResource> resources = resourceDAO.findAll();
 
         if (resources == null) {
+            log.error("No resource found");
 
-            if (log.isErrorEnabled()) {
-                log.error("No resource found");
-            }
-
-            throw new NullPointerException("No resource found");
+            throw new NotFoundException("No resource found");
         }
 
         return binder.getResourceTOs(resources);
@@ -325,9 +260,6 @@ public class ResourceController extends AbstractController {
             throws SyncopeClientCompositeErrorException {
 
         Set<SchemaMapping> actuals = new HashSet<SchemaMapping>();
-
-        ResourceDataBinder binder =
-                new ResourceDataBinder(schemaDAO, connectorInstanceDAO);
 
         try {
 
@@ -395,7 +327,7 @@ public class ResourceController extends AbstractController {
 
                 try {
                     // check for schema type
-                    schemaType.getSchemaType().asSubclass(AbstractSchema.class);
+                    schemaType.getSchemaClass().asSubclass(AbstractSchema.class);
 
                     /**
                      * Schema type could be:
@@ -408,10 +340,11 @@ public class ResourceController extends AbstractController {
                     }
 
                     AbstractSchema schema = schemaDAO.find(
-                            schemaName, schemaType.getSchemaType());
+                            schemaName, schemaType.getSchemaClass());
 
-                    if (schema != null)
+                    if (schema != null) {
                         schema.removeMapping(schemaMapping);
+                    }
 
                 } catch (ClassCastException e) {
                     /**
@@ -420,8 +353,8 @@ public class ResourceController extends AbstractController {
                      * * Password
                      */
                     if (log.isDebugEnabled()) {
-                        log.debug("Wrong schema type " +
-                                schemaType.getClassName());
+                        log.debug("Wrong schema type "
+                                + schemaType.getClassName());
                     }
                 }
                 // --------------------------------------
@@ -530,9 +463,6 @@ public class ResourceController extends AbstractController {
 
         // resource.getMappings() can never return a null value
 
-        ResourceDataBinder binder =
-                new ResourceDataBinder(schemaDAO, connectorInstanceDAO);
-
         return binder.getSchemaMappingTOs(schemaMappings);
     }
 
@@ -571,9 +501,6 @@ public class ResourceController extends AbstractController {
 
         Set<TargetResource> resources = role.getTargetResources();
 
-        ResourceDataBinder binder =
-                new ResourceDataBinder(schemaDAO, connectorInstanceDAO);
-
         SchemaMappingTOs resourceMappings = null;
 
         for (TargetResource resource : resources) {
@@ -584,15 +511,15 @@ public class ResourceController extends AbstractController {
             List<SchemaMapping> schemaMappings = resource.getMappings();
 
             if (log.isDebugEnabled()) {
-                log.debug("The mappings of '" + resource + "' are '" +
-                        schemaMappings + "'");
+                log.debug("The mappings of '" + resource + "' are '"
+                        + schemaMappings + "'");
             }
 
             resourceMappings = binder.getSchemaMappingTOs(schemaMappings);
 
             if (log.isDebugEnabled()) {
-                log.debug("The mappings TO of '" + resource + "' are '" +
-                        resourceMappings.getMappings() + "'");
+                log.debug("The mappings TO of '" + resource + "' are '"
+                        + resourceMappings.getMappings() + "'");
             }
 
             roleMappings.getMappings().addAll(resourceMappings.getMappings());

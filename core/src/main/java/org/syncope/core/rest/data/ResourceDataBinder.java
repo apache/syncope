@@ -23,6 +23,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.syncope.client.to.ResourceTO;
 import org.syncope.client.to.ResourceTOs;
 import org.syncope.client.to.SchemaMappingTO;
@@ -36,29 +37,20 @@ import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.dao.ConnectorInstanceDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.validation.MultiUniqueValueException;
-import org.syncope.types.SchemaType;
 import org.syncope.types.SyncopeClientExceptionType;
 
 @Component
+@Transactional(rollbackFor = {Throwable.class})
 public class ResourceDataBinder {
 
-    private static final Logger log = LoggerFactory.getLogger(
+    private static final Logger LOG = LoggerFactory.getLogger(
             ResourceDataBinder.class);
-
     private static final String[] ignoreMappingProperties = {
         "id", "resource"};
-
-    private SchemaDAO schemaDAO;
-
-    private ConnectorInstanceDAO connectorInstanceDAO;
-
     @Autowired
-    public ResourceDataBinder(
-            SchemaDAO schemaDAO, ConnectorInstanceDAO connectorInstanceDAO) {
-
-        this.schemaDAO = schemaDAO;
-        this.connectorInstanceDAO = connectorInstanceDAO;
-    }
+    private SchemaDAO schemaDAO;
+    @Autowired
+    private ConnectorInstanceDAO connectorInstanceDAO;
 
     public TargetResource getResource(ResourceTO resourceTO)
             throws SyncopeClientCompositeErrorException {
@@ -66,7 +58,8 @@ public class ResourceDataBinder {
         return getResource(new TargetResource(), resourceTO);
     }
 
-    public TargetResource getResource(TargetResource resource, ResourceTO resourceTO)
+    public TargetResource getResource(TargetResource resource,
+            ResourceTO resourceTO)
             throws SyncopeClientCompositeErrorException {
 
         SyncopeClientCompositeErrorException compositeErrorException =
@@ -77,7 +70,9 @@ public class ResourceDataBinder {
                 new SyncopeClientException(
                 SyncopeClientExceptionType.RequiredValuesMissing);
 
-        if (resourceTO == null) return null;
+        if (resourceTO == null) {
+            return null;
+        }
 
         if (resourceTO.getName() == null) {
             requiredValuesMissing.addElement("name");
@@ -110,16 +105,45 @@ public class ResourceDataBinder {
 
         resource.setForceMandatoryConstraint(
                 resourceTO.isForceMandatoryConstraint());
-        
-        resource.setMappings(
-                getSchemaMappings(resource, resourceTO.getMappings()));
+
+        List<SchemaMapping> mappings =
+                getSchemaMappings(resource, resourceTO.getMappings());
+
+        for (SchemaMapping mapping : mappings) {
+            mapping = schemaDAO.saveMapping(mapping);
+            resource.addMapping(mapping);
+
+            try {
+                mapping.getSchemaType().getSchemaClass().asSubclass(
+                        AbstractSchema.class);
+
+                // search for the attribute schema
+                AbstractSchema schema = schemaDAO.find(
+                        mapping.getSchemaName(),
+                        mapping.getSchemaType().getSchemaClass());
+                if (schema != null) {
+                    schema.addMapping(mapping);
+                    schemaDAO.save(schema);
+                }
+            } catch (ClassCastException e) {
+                // no real schema provided
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Wrong schema type "
+                            + mapping.getSchemaType().getClassName());
+                }
+            } catch (MultiUniqueValueException mve) {
+                LOG.error("Error during schema persistence", mve);
+            }
+        }
 
         return resource;
     }
 
     public ResourceTOs getResourceTOs(Collection<TargetResource> resources) {
 
-        if (resources == null) return null;
+        if (resources == null) {
+            return null;
+        }
 
         ResourceTOs resourceTOs = new ResourceTOs();
 
@@ -132,7 +156,9 @@ public class ResourceDataBinder {
 
     public ResourceTO getResourceTO(TargetResource resource) {
 
-        if (resource == null) return null;
+        if (resource == null) {
+            return null;
+        }
 
         ResourceTO resourceTO = new ResourceTO();
 
@@ -158,20 +184,19 @@ public class ResourceDataBinder {
             TargetResource resource,
             SchemaMappingTOs mappings) {
 
-        if (mappings == null) return null;
+        if (mappings == null) {
+            return null;
+        }
 
         List<SchemaMapping> schemaMappings = new ArrayList<SchemaMapping>();
-
         for (SchemaMappingTO mapping : mappings) {
-
             schemaMappings.add(getSchemaMapping(resource, mapping));
-
         }
 
         return schemaMappings;
     }
 
-    public SchemaMapping getSchemaMapping(
+    private SchemaMapping getSchemaMapping(
             TargetResource resource,
             SchemaMappingTO mapping)
             throws SyncopeClientCompositeErrorException {
@@ -185,9 +210,7 @@ public class ResourceDataBinder {
                 SyncopeClientExceptionType.RequiredValuesMissing);
 
         if (mapping == null) {
-            if (log.isErrorEnabled()) {
-                log.error("Provided null mapping");
-            }
+            LOG.error("Provided null mapping");
 
             return null;
         }
@@ -226,42 +249,6 @@ public class ResourceDataBinder {
 
         schemaMapping.setResource(resource);
 
-        if (log.isInfoEnabled()) {
-            log.info("Save mapping " + mapping);
-        }
-
-        schemaDAO.saveMapping(schemaMapping);
-
-        SchemaType schemaType = mapping.getSchemaType();
-
-        try {
-            schemaType.getSchemaType().asSubclass(AbstractSchema.class);
-
-
-            // search for the attribute schema
-            AbstractSchema schema = schemaDAO.find(
-                    mapping.getSchemaName(),
-                    mapping.getSchemaType().getSchemaType());
-
-            if (schema != null)
-                schema.addMapping(schemaMapping);
-
-
-            if (log.isInfoEnabled()) {
-                log.info("Merge schema " + schema);
-            }
-
-            schemaDAO.save(schema);
-
-        } catch (ClassCastException e) {
-            // no real schema provided
-            if (log.isDebugEnabled()) {
-                log.debug("Wrong schema type " + schemaType.getClassName());
-            }
-        } catch (MultiUniqueValueException e) {
-            log.error("Error during schema persistence", e);
-        }
-
         return schemaMapping;
     }
 
@@ -269,9 +256,7 @@ public class ResourceDataBinder {
             Collection<SchemaMapping> mappings) {
 
         if (mappings == null) {
-            if (log.isErrorEnabled()) {
-                log.error("No mapping provided.");
-            }
+            LOG.error("No mapping provided.");
 
             return null;
         }
@@ -279,15 +264,15 @@ public class ResourceDataBinder {
         SchemaMappingTOs schemaMappingTOs = new SchemaMappingTOs();
 
         for (SchemaMapping mapping : mappings) {
-            if (log.isDebugEnabled()) {
-                log.debug("Ask for " + mapping + " TO");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Ask for " + mapping + " TO");
             }
 
             schemaMappingTOs.addMapping(getSchemaMappingTO(mapping));
         }
 
-        if (log.isDebugEnabled()) {
-            log.debug("Collected TOs " + schemaMappingTOs.getMappings());
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Collected TOs " + schemaMappingTOs.getMappings());
         }
 
         return schemaMappingTOs;
@@ -296,9 +281,7 @@ public class ResourceDataBinder {
     public SchemaMappingTO getSchemaMappingTO(
             SchemaMapping schemaMapping) {
         if (schemaMapping == null) {
-            if (log.isErrorEnabled()) {
-                log.error("Provided null mapping");
-            }
+            LOG.error("Provided null mapping");
 
             return null;
         }
@@ -310,8 +293,8 @@ public class ResourceDataBinder {
 
         schemaMappingTO.setId(schemaMapping.getId());
 
-        if (log.isDebugEnabled()) {
-            log.debug("Obtained TO " + schemaMappingTO);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Obtained TO " + schemaMappingTO);
         }
 
         return schemaMappingTO;

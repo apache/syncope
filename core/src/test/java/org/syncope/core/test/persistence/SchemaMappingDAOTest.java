@@ -44,16 +44,16 @@ public class SchemaMappingDAOTest extends AbstractTest {
     public final void checkBeforeForStoredData() {
         List<SchemaMapping> mappings = schemaDAO.findAllMappings();
 
-        if (log.isDebugEnabled()) {
-            log.debug("Found " + mappings);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Found " + mappings);
         }
 
         assertNotNull(mappings);
         assertFalse(mappings.isEmpty());
 
         for (SchemaMapping mapping : mappings) {
-            if (log.isDebugEnabled()) {
-                log.debug("Check for schema mapping " + mapping);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Check for schema mapping " + mapping);
             }
 
             String name = mapping.getSchemaName();
@@ -65,8 +65,8 @@ public class SchemaMappingDAOTest extends AbstractTest {
             TargetResource resource = mapping.getResource();
             assertNotNull(resource);
 
-            if (log.isDebugEnabled()) {
-                log.debug(
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(
                         "\nRelated schema name: " + name +
                         "\nRelated schema type: " + type.toString() +
                         "\nRelated resource name: " + resource.getName() +
@@ -77,22 +77,22 @@ public class SchemaMappingDAOTest extends AbstractTest {
 
             schema = schemaDAO.find(name, UserSchema.class);
 
-            if (log.isDebugEnabled()) {
-                log.debug("Brothers in UserSchema: " +
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Brothers in UserSchema: " +
                         (schema != null ? ((UserSchema)schema).getMappings() : ""));
             }
 
             schema = schemaDAO.find(name, RoleSchema.class);
 
-            if (log.isDebugEnabled()) {
-                log.debug("Brothers in RoleSchema: " +
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Brothers in RoleSchema: " +
                         (schema != null ? ((RoleSchema)schema).getMappings() : ""));
             }
 
             schema = schemaDAO.find(name, MembershipSchema.class);
 
-            if (log.isDebugEnabled()) {
-                log.debug("Brothers in MembershipSchema: " +
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Brothers in MembershipSchema: " +
                         (schema != null ? ((MembershipSchema)schema).getMappings() : ""));
             }
         }

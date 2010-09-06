@@ -25,6 +25,9 @@ import org.junit.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import org.syncope.client.to.ResourceTO;
+import org.syncope.client.to.SchemaMappingTO;
+import org.syncope.client.to.SchemaMappingTOs;
 import org.syncope.core.persistence.beans.ConnectorInstance;
 import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.SchemaMapping;
@@ -34,6 +37,7 @@ import org.syncope.core.persistence.dao.ConnectorInstanceDAO;
 import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.SyncopeUserDAO;
+import org.syncope.core.rest.data.ResourceDataBinder;
 import org.syncope.core.test.persistence.AbstractTest;
 import org.syncope.types.SchemaType;
 
@@ -42,15 +46,45 @@ public class ResourceTest extends AbstractTest {
 
     @Autowired
     private ResourceDAO resourceDAO;
-
     @Autowired
     private SchemaDAO schemaDAO;
-
     @Autowired
     private ConnectorInstanceDAO connectorInstanceDAO;
-
     @Autowired
     private SyncopeUserDAO syncopeUserDAO;
+    @Autowired
+    private ResourceDataBinder resourceDataBinder;
+
+    /**
+     * @see http://code.google.com/p/syncope/issues/detail?id=42
+     */
+    @Test
+    public final void issue42() {
+        SchemaMappingTO schemaMappingTO = new SchemaMappingTO();
+        schemaMappingTO.setSchemaName("userId");
+        schemaMappingTO.setSchemaType(SchemaType.UserSchema);
+        schemaMappingTO.setField("campo1");
+        schemaMappingTO.setAccountid(true);
+        schemaMappingTO.setPassword(false);
+        schemaMappingTO.setNullable(false);
+
+        SchemaMappingTOs schemaMappingTOs = new SchemaMappingTOs();
+        schemaMappingTOs.addMapping(schemaMappingTO);
+
+        ResourceTO resourceTO = new ResourceTO();
+        resourceTO.setName("resource-issue42");
+        resourceTO.setConnectorId(100L);
+        resourceTO.setMappings(schemaMappingTOs);
+        resourceTO.setForceMandatoryConstraint(true);
+
+        TargetResource resource = resourceDataBinder.getResource(resourceTO);
+
+        resourceDAO.flush();
+
+        TargetResource actual = resourceDAO.find("resource-issue42");
+
+        assertEquals(resource, actual);
+    }
 
     @Test
     public final void save() throws ClassNotFoundException {
@@ -82,6 +116,8 @@ public class ResourceTest extends AbstractTest {
             mapping.setSchemaType(SchemaType.UserSchema);
 
             mapping.setResource(resource);
+            
+            mapping = schemaDAO.saveMapping(mapping);
             resource.addMapping(mapping);
 
             mappings.add(mapping);
@@ -126,8 +162,7 @@ public class ResourceTest extends AbstractTest {
         List<SchemaMapping> schemaMappings = resource.getMappings();
 
         assertNotNull(schemaMappings);
-
-        assertTrue(schemaMappings.size() == 3);
+        assertEquals(3,schemaMappings.size());
     }
 
     @Test
