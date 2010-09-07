@@ -59,7 +59,9 @@ public class ResourceDAOImpl extends AbstractDAOImpl
     public void delete(String name) {
 
         TargetResource resource = find(name);
-        if (resource == null) return;
+        if (resource == null) {
+            return;
+        }
 
         // --------------------------------------
         // Remove all mappings

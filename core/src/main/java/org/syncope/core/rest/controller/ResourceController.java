@@ -123,6 +123,8 @@ public class ResourceController extends AbstractController {
             throw compositeErrorException;
         }
 
+        resource = resourceDAO.save(resource);
+
         response.setStatus(HttpServletResponse.SC_CREATED);
         return binder.getResourceTO(resource);
     }
@@ -193,7 +195,7 @@ public class ResourceController extends AbstractController {
             throw compositeErrorException;
         }
 
-        response.setStatus(HttpServletResponse.SC_CREATED);
+        resource = resourceDAO.save(resource);
         return binder.getResourceTO(resource);
     }
 

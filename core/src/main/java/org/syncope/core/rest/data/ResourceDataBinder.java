@@ -35,8 +35,8 @@ import org.syncope.core.persistence.beans.ConnectorInstance;
 import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.dao.ConnectorInstanceDAO;
+import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
-import org.syncope.core.persistence.validation.MultiUniqueValueException;
 import org.syncope.types.SyncopeClientExceptionType;
 
 @Component
@@ -51,6 +51,8 @@ public class ResourceDataBinder {
     private SchemaDAO schemaDAO;
     @Autowired
     private ConnectorInstanceDAO connectorInstanceDAO;
+    @Autowired
+    private ResourceDAO resourceDAO;
 
     public TargetResource getResource(ResourceTO resourceTO)
             throws SyncopeClientCompositeErrorException {
@@ -106,13 +108,12 @@ public class ResourceDataBinder {
         resource.setForceMandatoryConstraint(
                 resourceTO.isForceMandatoryConstraint());
 
-        List<SchemaMapping> mappings =
-                getSchemaMappings(resource, resourceTO.getMappings());
+        resource.setMappings(
+                getSchemaMappings(resource, resourceTO.getMappings()));
 
-        for (SchemaMapping mapping : mappings) {
-            mapping = schemaDAO.saveMapping(mapping);
-            resource.addMapping(mapping);
+        resource = resourceDAO.save(resource);
 
+        for (SchemaMapping mapping : resource.getMappings()) {
             try {
                 mapping.getSchemaType().getSchemaClass().asSubclass(
                         AbstractSchema.class);
@@ -123,7 +124,6 @@ public class ResourceDataBinder {
                         mapping.getSchemaType().getSchemaClass());
                 if (schema != null) {
                     schema.addMapping(mapping);
-                    schemaDAO.save(schema);
                 }
             } catch (ClassCastException e) {
                 // no real schema provided
@@ -131,8 +131,6 @@ public class ResourceDataBinder {
                     LOG.debug("Wrong schema type "
                             + mapping.getSchemaType().getClassName());
                 }
-            } catch (MultiUniqueValueException mve) {
-                LOG.error("Error during schema persistence", mve);
             }
         }
 

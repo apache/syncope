@@ -14,11 +14,6 @@
  */
 package org.syncope.core.test.persistence.relationships;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import org.syncope.core.persistence.validation.MultiUniqueValueException;
-import org.syncope.core.test.persistence.*;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
@@ -29,74 +24,53 @@ import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.beans.user.UserSchema;
 import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
+import org.syncope.core.persistence.validation.MultiUniqueValueException;
+import org.syncope.core.test.persistence.AbstractTest;
 import org.syncope.types.SchemaType;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Transactional
 public class SchemaMappingTest extends AbstractTest {
 
     @Autowired
     private SchemaDAO schemaDAO;
-
     @Autowired
     private ResourceDAO resourceDAO;
 
     @Test
-    public final void create() throws ClassNotFoundException, MultiUniqueValueException {
+    public final void create() throws
+            ClassNotFoundException, MultiUniqueValueException {
+
         SchemaMapping mapping = new SchemaMapping();
-
         mapping.setSchemaType(SchemaType.UserSchema);
-
-        UserSchema schema = schemaDAO.find("firstname", UserSchema.class);
-
-        assertNotNull(schema);
-
-        mapping.setSchemaName(schema.getName());
-
-        TargetResource resource = resourceDAO.find("ws-target-resource-1");
-
-        assertNotNull(resource);
-
-        mapping.setResource(resource);
-
+        mapping.setSchemaName("firstname");
         mapping.setField("name");
 
-        // update schema mapping
-        SchemaMapping actualMapping = schemaDAO.saveMapping(mapping);
-
-        assertNotNull(actualMapping);
-
-        assertTrue(actualMapping.isNullable());
-
-        assertFalse(actualMapping.isAccountid());
-
-        assertFalse(actualMapping.isPassword());
-
-        assertEquals("firstname", actualMapping.getSchemaName());
-
-        assertEquals("name", actualMapping.getField());
-
-        // update schema
-        schema.addMapping(actualMapping);
-        UserSchema actualSchema = schemaDAO.save(schema);
-
-        assertNotNull(actualSchema);
+        TargetResource resource = resourceDAO.find("ws-target-resource-delete");
+        assertNotNull(resource);
 
         // update resource
-        resource.addMapping(actualMapping);
+        resource.addMapping(mapping);
         TargetResource actualResource = resourceDAO.save(resource);
 
         assertNotNull(actualResource);
 
+        SchemaMapping actualMapping =
+                actualResource.getMappings().iterator().next();
+
+        assertNotNull(actualMapping);
+        assertTrue(actualMapping.isNullable());
+        assertFalse(actualMapping.isAccountid());
+        assertFalse(actualMapping.isPassword());
+        assertEquals("firstname", actualMapping.getSchemaName());
+        assertEquals("name", actualMapping.getField());
+
         // close the transaction
         schemaDAO.flush();
 
-        actualSchema = schemaDAO.find("firstname", UserSchema.class);
-
-        assertNotNull(actualSchema.getMappings());
-        assertFalse(actualSchema.getMappings().isEmpty());
-        assertTrue(actualSchema.getMappings().contains(actualMapping));
-
-        actualResource = resourceDAO.find("ws-target-resource-1");
+        actualResource = resourceDAO.find("ws-target-resource-delete");
 
         assertNotNull(actualResource.getMappings());
         assertFalse(actualResource.getMappings().isEmpty());

@@ -17,22 +17,23 @@ package org.syncope.core.persistence.beans;
 import static javax.persistence.EnumType.STRING;
 
 import javax.persistence.Basic;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.TableGenerator;
 import org.syncope.types.SchemaType;
 
 @Entity
 public class SchemaMapping extends AbstractBaseBean {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.TABLE,
+    generator = "SEQ_SchemaMapping")
+    @TableGenerator(name = "SEQ_SchemaMapping", allocationSize = 20)
     private Long id;
     @Column(nullable = false)
     private String schemaName;
@@ -42,8 +43,7 @@ public class SchemaMapping extends AbstractBaseBean {
     /**
      * Target resource that has fields to be mapped over user attribute schemas.
      */
-    @ManyToOne(fetch = FetchType.EAGER,
-    cascade = {CascadeType.MERGE, CascadeType.REFRESH})
+    @ManyToOne
     private TargetResource resource;
     /**
      * Target resource's field to be mapped.

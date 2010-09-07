@@ -32,6 +32,7 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.syncope.core.persistence.ConnectorInstanceLoader;
 import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.beans.ConnectorInstance;
 import org.syncope.core.persistence.beans.TargetResource;
@@ -430,8 +431,8 @@ public class PropagationManager {
 
         ConnectorInstance connectorInstance = resource.getConnector();
 
-        ConnectorFacade connector =
-                getConnectorFacade(connectorInstance.getId().toString());
+        ConnectorFacade connector = ConnectorInstanceLoader.getConnectorFacade(
+                connectorInstance.getId().toString());
 
         if (connector == null) {
             LOG.error("Connector instance bean "
@@ -477,16 +478,5 @@ public class PropagationManager {
 
             throw new IllegalStateException("Error creating user");
         }
-    }
-
-    private ConnectorFacade getConnectorFacade(String id) {
-
-        ConfigurableApplicationContext context =
-                ApplicationContextManager.getApplicationContext();
-
-        DefaultListableBeanFactory beanFactory =
-                (DefaultListableBeanFactory) context.getBeanFactory();
-
-        return (ConnectorFacade) beanFactory.getBean(id);
     }
 }

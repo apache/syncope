@@ -60,6 +60,9 @@ public class ResourceTest extends AbstractTest {
      */
     @Test
     public final void issue42() {
+        UserSchema userId = schemaDAO.find("userId", UserSchema.class);
+        int beforeUserIdMappings = userId.getMappings().size();
+
         SchemaMappingTO schemaMappingTO = new SchemaMappingTO();
         schemaMappingTO.setSchemaName("userId");
         schemaMappingTO.setSchemaType(SchemaType.UserSchema);
@@ -79,11 +82,17 @@ public class ResourceTest extends AbstractTest {
 
         TargetResource resource = resourceDataBinder.getResource(resourceTO);
 
+        resource = resourceDAO.save(resource);
+
         resourceDAO.flush();
 
         TargetResource actual = resourceDAO.find("resource-issue42");
-
         assertEquals(resource, actual);
+
+        userId = schemaDAO.find("userId", UserSchema.class);
+        int afterUserIdMappings = userId.getMappings().size();
+
+        assertEquals(beforeUserIdMappings, afterUserIdMappings - 1);
     }
 
     @Test
@@ -99,9 +108,6 @@ public class ResourceTest extends AbstractTest {
         resource.setConnector(connector);
         connector.addResource(resource);
 
-        // specify a mapping
-        List<SchemaMapping> mappings = new ArrayList<SchemaMapping>();
-
         // search for the user schema
         UserSchema userSchema =
                 schemaDAO.find("username", UserSchema.class);
@@ -115,12 +121,7 @@ public class ResourceTest extends AbstractTest {
             mapping.setSchemaName(userSchema.getName());
             mapping.setSchemaType(SchemaType.UserSchema);
 
-            mapping.setResource(resource);
-            
-            mapping = schemaDAO.saveMapping(mapping);
             resource.addMapping(mapping);
-
-            mappings.add(mapping);
         }
 
         // specify an user schema
@@ -128,7 +129,7 @@ public class ResourceTest extends AbstractTest {
 
         assertNotNull("user not found", user);
 
-        resource.setUsers(Collections.singleton(user));
+        resource.addUser(user);
         user.addTargetResource(resource);
 
         // save the resource
@@ -162,7 +163,7 @@ public class ResourceTest extends AbstractTest {
         List<SchemaMapping> schemaMappings = resource.getMappings();
 
         assertNotNull(schemaMappings);
-        assertEquals(3,schemaMappings.size());
+        assertEquals(3, schemaMappings.size());
     }
 
     @Test
