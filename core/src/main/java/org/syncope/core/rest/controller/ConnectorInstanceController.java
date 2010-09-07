@@ -30,7 +30,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.identityconnectors.common.IOUtil;
 import org.identityconnectors.framework.api.APIConfiguration;
 import org.identityconnectors.framework.api.ConfigurationProperties;
-import org.identityconnectors.framework.api.ConfigurationProperty;
 import org.identityconnectors.framework.api.ConnectorFacade;
 import org.identityconnectors.framework.api.ConnectorFacadeFactory;
 import org.identityconnectors.framework.api.ConnectorInfo;
@@ -63,7 +62,9 @@ public class ConnectorInstanceController extends AbstractController {
     @Autowired
     private ConnectorInstanceDAO connectorInstanceDAO;
     @Autowired
-    SyncopeConfigurationDAO syncopeConfigurationDAO;
+    private SyncopeConfigurationDAO syncopeConfigurationDAO;
+    @Autowired
+    private ConnectorInstanceDataBinder binder;
 
     @RequestMapping(method = RequestMethod.POST,
     value = "/create")
@@ -76,9 +77,6 @@ public class ConnectorInstanceController extends AbstractController {
             log.debug("Create called with configuration " + connectorTO);
         }
 
-        ConnectorInstanceDataBinder binder =
-                new ConnectorInstanceDataBinder(connectorInstanceDAO);
-
         ConnectorInstance actual = null;
 
         try {
@@ -88,7 +86,6 @@ public class ConnectorInstanceController extends AbstractController {
 
             // Everything went out fine, we can flush to the database
             actual = connectorInstanceDAO.save(connectorInstance);
-
         } catch (SyncopeClientCompositeErrorException e) {
             log.error("Could not create for " + connectorTO, e);
 
@@ -143,9 +140,6 @@ public class ConnectorInstanceController extends AbstractController {
             log.debug("update called with configuration " + connectorTO);
         }
 
-        ConnectorInstanceDataBinder binder =
-                new ConnectorInstanceDataBinder(connectorInstanceDAO);
-
         ConnectorInstance actual = null;
 
         try {
@@ -154,9 +148,7 @@ public class ConnectorInstanceController extends AbstractController {
                     connectorTO.getId(), connectorTO);
 
             // Everything went out fine, we can flush to the database
-            actual = connectorInstanceDAO.save(
-                    connectorInstance);
-
+            actual = connectorInstanceDAO.save(connectorInstance);
         } catch (SyncopeClientCompositeErrorException e) {
             log.error("Could not create for " + connectorTO, e);
 
@@ -254,9 +246,6 @@ public class ConnectorInstanceController extends AbstractController {
 
         ConnectorInstanceTOs connectorInstanceTOs = new ConnectorInstanceTOs();
 
-        ConnectorInstanceDataBinder binder =
-                new ConnectorInstanceDataBinder(connectorInstanceDAO);
-
         for (ConnectorInstance connector : connectorInstances) {
             connectorInstanceTOs.addInstance(
                     binder.getConnectorInstanceTO(connector));
@@ -279,9 +268,6 @@ public class ConnectorInstanceController extends AbstractController {
 
             throw new NotFoundException(String.valueOf(connectorId));
         }
-
-        ConnectorInstanceDataBinder binder =
-                new ConnectorInstanceDataBinder(connectorInstanceDAO);
 
         return binder.getConnectorInstanceTO(connectorInstance);
     }
@@ -445,15 +431,12 @@ public class ConnectorInstanceController extends AbstractController {
         }
 
         // Print out what the properties are (not necessary)
-        List<String> propertyNames = properties.getPropertyNames();
-
-        for (String propName : propertyNames) {
-            ConfigurationProperty prop = properties.getProperty(propName);
-
-            if (log.isDebugEnabled()) {
-                log.debug(
-                        "\nProperty Name: " + prop.getName()
-                        + "\nProperty Type: " + prop.getType());
+        if (log.isDebugEnabled()) {
+            for (String propName : properties.getPropertyNames()) {
+                log.debug("\nProperty Name: "
+                        + properties.getProperty(propName).getName()
+                        + "\nProperty Type: "
+                        + properties.getProperty(propName).getType());
             }
         }
 

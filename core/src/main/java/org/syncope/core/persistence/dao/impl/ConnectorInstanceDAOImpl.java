@@ -15,9 +15,11 @@
 package org.syncope.core.persistence.dao.impl;
 
 import java.util.List;
+import javassist.NotFoundException;
 import javax.persistence.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import org.syncope.core.persistence.ConnectorInstanceLoader;
 import org.syncope.core.persistence.beans.ConnectorInstance;
 import org.syncope.core.persistence.dao.ConnectorInstanceDAO;
 
@@ -27,25 +29,35 @@ public class ConnectorInstanceDAOImpl extends AbstractDAOImpl
 
     @Override
     @Transactional(readOnly = true)
-    public ConnectorInstance find(Long id) {
+    public final ConnectorInstance find(final Long id) {
         return entityManager.find(ConnectorInstance.class, id);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<ConnectorInstance> findAll() {
+    public final List<ConnectorInstance> findAll() {
         Query query = entityManager.createQuery(
                 "SELECT e FROM ConnectorInstance e");
         return query.getResultList();
     }
 
     @Override
-    public ConnectorInstance save(ConnectorInstance connector) {
-        return entityManager.merge(connector);
+    public final ConnectorInstance save(final ConnectorInstance connector) {
+        ConnectorInstance actual = entityManager.merge(connector);
+        try {
+            ConnectorInstanceLoader.registerConnectorFacade(actual);
+        } catch (NotFoundException e) {
+            LOG.error("While restingering the connector facade for instance "
+                    + actual, e);
+        }
+
+        return actual;
     }
 
     @Override
-    public void delete(Long id) {
+    public final void delete(final Long id) {
         entityManager.remove(find(id));
+
+        ConnectorInstanceLoader.removeConnectorFacade(id.toString());
     }
 }

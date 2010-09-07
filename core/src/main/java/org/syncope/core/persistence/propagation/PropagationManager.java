@@ -216,7 +216,6 @@ public class PropagationManager {
                             preparedAttributes.values().iterator().next());
                     propagate(resource, type, accountId, attributes);
 
-
                     provisioned.add(resource.getName());
                 } catch (Throwable t) {
                     LOG.error("Exception during provision on resource "

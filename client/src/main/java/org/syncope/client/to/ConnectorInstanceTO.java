@@ -21,13 +21,9 @@ import org.syncope.client.AbstractBaseBean;
 public class ConnectorInstanceTO extends AbstractBaseBean {
 
     private Long id;
-
     private String bundleName;
-
     private String version;
-
     private String connectorName;
-
     private Set<PropertyTO> configuration;
 
     public Long getId() {
@@ -55,19 +51,23 @@ public class ConnectorInstanceTO extends AbstractBaseBean {
     }
 
     public Set<PropertyTO> getConfiguration() {
-        if (this.configuration == null)
+        if (this.configuration == null) {
             this.configuration = new HashSet<PropertyTO>();
+        }
         return this.configuration;
     }
 
     public boolean addConfiguration(PropertyTO property) {
-        if (this.configuration == null)
+        if (this.configuration == null) {
             this.configuration = new HashSet<PropertyTO>();
+        }
         return this.configuration.add(property);
     }
 
     public boolean removeConfiguration(PropertyTO property) {
-        if (this.configuration == null) return true;
+        if (this.configuration == null) {
+            return true;
+        }
         return this.configuration.remove(property);
     }
 

@@ -28,7 +28,10 @@ import org.syncope.core.persistence.dao.DAO;
 @Transactional(rollbackFor = {Throwable.class})
 public abstract class AbstractDAOImpl implements DAO {
 
-    protected static final Logger log =
+    /**
+     * Logger.
+     */
+    protected static final Logger LOG =
             LoggerFactory.getLogger(AbstractDAOImpl.class);
 
     @PersistenceContext(type = PersistenceContextType.EXTENDED)

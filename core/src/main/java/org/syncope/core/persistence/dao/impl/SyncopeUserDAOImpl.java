@@ -84,8 +84,8 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
     @Transactional(readOnly = true)
     public List<SyncopeUser> search(NodeSearchCondition searchCondition) {
         String queryString = QueryUtils.getUserSearchQuery(searchCondition);
-        if (log.isDebugEnabled()) {
-            log.debug("About to execute query\n\t" + queryString + "\n");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("About to execute query\n\t" + queryString + "\n");
         }
 
         List<SyncopeUser> result = Collections.EMPTY_LIST;
@@ -93,7 +93,7 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
             Query query = entityManager.createQuery(queryString);
             result = query.getResultList();
         } catch (Throwable t) {
-            log.error("While executing query\n\t" + queryString + "\n", t);
+            LOG.error("While executing query\n\t" + queryString + "\n", t);
         }
 
         return result;

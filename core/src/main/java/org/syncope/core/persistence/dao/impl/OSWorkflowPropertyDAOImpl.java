@@ -47,7 +47,7 @@ public class OSWorkflowPropertyDAOImpl extends AbstractDAOImpl
             result = (OSWorkflowProperty) query.getSingleResult();
         } catch (NoResultException e) {
         } catch (Throwable t) {
-            log.error("Unexpected exception", t);
+            LOG.error("Unexpected exception", t);
         }
 
         return result;

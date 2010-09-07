@@ -58,7 +58,7 @@ public class SyncopeConfigurationDAOImpl extends AbstractDAOImpl
         try {
             entityManager.remove(find(name));
         } catch (MissingConfKeyException e) {
-            log.error("Could not find " + name, e);
+            LOG.error("Could not find " + name, e);
         }
     }
 }

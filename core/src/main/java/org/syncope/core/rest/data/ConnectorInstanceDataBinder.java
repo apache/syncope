@@ -43,13 +43,8 @@ public class ConnectorInstanceDataBinder {
             ConnectorInstanceDataBinder.class);
     private static final String[] ignoreProperties = {
         "id", "resources", "xmlConfiguration", "configuration"};
-    private ConnectorInstanceDAO connectorInstanceDAO;
-
     @Autowired
-    public ConnectorInstanceDataBinder(
-            ConnectorInstanceDAO connectorInstanceDAO) {
-        this.connectorInstanceDAO = connectorInstanceDAO;
-    }
+    private ConnectorInstanceDAO connectorInstanceDAO;
 
     public ConnectorInstance getConnectorInstance(
             ConnectorInstanceTO connectorTO)
@@ -145,8 +140,11 @@ public class ConnectorInstanceDataBinder {
         }
 
         try {
-            log.error(URLEncoder.encode(
-                    serializeToXML(connectorTO.getConfiguration()), "UTF-8"));
+            if (log.isDebugEnabled()) {
+                log.debug(URLEncoder.encode(
+                        serializeToXML(connectorTO.getConfiguration()),
+                        "UTF-8"));
+            }
             // Throw composite exception if there is at least one element set
             // in the composing exceptions
         } catch (UnsupportedEncodingException ex) {
@@ -169,7 +167,7 @@ public class ConnectorInstanceDataBinder {
 
     public ConnectorInstanceTO getConnectorInstanceTO(
             ConnectorInstance connectorInstance) {
-        
+
         ConnectorInstanceTO connectorInstanceTO =
                 new ConnectorInstanceTO();
 
@@ -187,7 +185,6 @@ public class ConnectorInstanceDataBinder {
 
     public static String serializeToXML(Object obj) {
         try {
-
             ByteArrayOutputStream tokenContentOS = new ByteArrayOutputStream();
             XMLEncoder encoder = new XMLEncoder(tokenContentOS);
             encoder.writeObject(obj);
@@ -198,16 +195,13 @@ public class ConnectorInstanceDataBinder {
 
             return URLEncoder.encode(res, "UTF-8");
         } catch (Throwable t) {
-            if (log.isInfoEnabled()) {
-                log.info("Exception during connector serialization", t);
-            }
+            log.error("Exception during connector serialization", t);
             return null;
         }
     }
 
     public static Object buildFromXML(String xml) {
         try {
-
             ByteArrayInputStream tokenContentIS = new ByteArrayInputStream(
                     URLDecoder.decode(xml, "UTF-8").getBytes());
 
@@ -216,11 +210,8 @@ public class ConnectorInstanceDataBinder {
             decoder.close();
 
             return object;
-
         } catch (Throwable t) {
-            if (log.isInfoEnabled()) {
-                log.info("Exception during connector serialization", t);
-            }
+            log.error("Exception during connector deserialization", t);
             return null;
         }
     }

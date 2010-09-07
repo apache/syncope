@@ -151,8 +151,8 @@ public class SchemaDAOImpl extends AbstractDAOImpl
              * * RoleSchema
              * * MembershipSchema
              */
-            if (log.isDebugEnabled()) {
-                log.debug("Schema type " + schemaType.getClassName());
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Schema type " + schemaType.getClassName());
             }
             AbstractSchema schema = find(schemaName,
                     schemaType.getSchemaClass());
@@ -167,8 +167,8 @@ public class SchemaDAOImpl extends AbstractDAOImpl
              * * AccountId
              * * Password
              */
-            if (log.isDebugEnabled()) {
-                log.debug("Wrong schema type " + schemaType.getClassName());
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Wrong schema type " + schemaType.getClassName());
             }
         }
         // --------------------------------------
