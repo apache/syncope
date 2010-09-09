@@ -14,27 +14,21 @@
  */
 package org.syncope.core.persistence.dao.impl;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import javax.persistence.Query;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import org.syncope.core.persistence.beans.ConnectorInstance;
 import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.ResourceDAO;
-import org.syncope.core.persistence.dao.SchemaDAO;
+import org.syncope.types.SchemaType;
 
 @Repository
 public class ResourceDAOImpl extends AbstractDAOImpl
         implements ResourceDAO {
-
-    @Autowired
-    private SchemaDAO schemaDAO;
 
     @Override
     @Transactional(readOnly = true)
@@ -56,8 +50,44 @@ public class ResourceDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    public void delete(String name) {
+    @Transactional(readOnly = true)
+    public List<SchemaMapping> getMappings(final String schemaName,
+            final SchemaType schemaType) {
 
+        Query query = entityManager.createQuery("SELECT m FROM "
+                + SchemaMapping.class.getSimpleName()
+                + " m WHERE m.schemaName=:schemaName "
+                + "AND m.schemaType=:schemaType");
+        query.setParameter("schemaName", schemaName);
+        query.setParameter("schemaType", schemaType);
+
+        return query.getResultList();
+    }
+
+    @Override
+    public void deleteMappings(final String schemaName,
+            final SchemaType schemaType) {
+
+        if (schemaType == SchemaType.AccountId
+                || schemaType == SchemaType.Password) {
+            return;
+        }
+
+        Query query = entityManager.createQuery("DELETE FROM "
+                + SchemaMapping.class.getSimpleName()
+                + " m WHERE m.schemaName=:schemaName "
+                + "AND m.schemaType=:schemaType");
+        query.setParameter("schemaName", schemaName);
+        query.setParameter("schemaType", schemaType);
+
+        int items = query.executeUpdate();
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Removed " + items + " schema mappings");
+        }
+    }
+
+    @Override
+    public void delete(String name) {
         TargetResource resource = find(name);
         if (resource == null) {
             return;
@@ -66,13 +96,7 @@ public class ResourceDAOImpl extends AbstractDAOImpl
         // --------------------------------------
         // Remove all mappings
         // --------------------------------------
-        List<SchemaMapping> mappings = resource.getMappings();
-        resource.setMappings(Collections.EMPTY_LIST);
-
-        for (SchemaMapping mapping : mappings) {
-            mapping.setResource(null);
-            schemaDAO.removeMapping(mapping.getId());
-        }
+        resource.getMappings().clear();
         // --------------------------------------
 
         Set<SyncopeUser> users = resource.getUsers();
@@ -81,7 +105,7 @@ public class ResourceDAOImpl extends AbstractDAOImpl
                 user.removeTargetResource(resource);
             }
         }
-        resource.setUsers(null);
+        resource.getUsers().clear();
 
         Set<SyncopeRole> roles = resource.getRoles();
         if (roles != null && !roles.isEmpty()) {
@@ -89,15 +113,13 @@ public class ResourceDAOImpl extends AbstractDAOImpl
                 role.removeTargetResource(resource);
             }
         }
-        resource.setRoles(null);
+        resource.getRoles().clear();
 
-        ConnectorInstance connector = resource.getConnector();
-        List<TargetResource> resources = null;
-        if (connector != null) {
-            resources = connector.getResources();
-        }
-        if (resources != null && !resources.isEmpty()) {
-            resources.remove(resource);
+        if (resource.getConnector() != null
+                && resource.getConnector().getResources() != null
+                && !resource.getConnector().getResources().isEmpty()) {
+
+            resource.getConnector().getResources().remove(resource);
         }
         resource.setConnector(null);
 

@@ -52,6 +52,7 @@ import org.syncope.core.persistence.dao.SyncopeUserDAO;
 import org.syncope.core.persistence.propagation.ResourceOperations;
 import org.syncope.core.persistence.propagation.ResourceOperations.Type;
 import org.syncope.core.persistence.validation.ValidationException;
+import org.syncope.types.SchemaType;
 import org.syncope.types.SyncopeClientExceptionType;
 
 @Transactional(rollbackFor = {Throwable.class})
@@ -189,7 +190,7 @@ public abstract class AbstractAttributableDataBinder {
             if (attributable.getAttribute(schema.getName()) == null
                     && !schema.isVirtual() && !schema.isReadonly()
                     && (schema.isMandatory()
-                    || schemaDAO.isMandatoryOnResource(schema, resources))) {
+                    || schemaDAO.isMandatoryOnResources(schema, resources))) {
 
                 LOG.error("Mandatory schema " + schema.getName()
                         + " not provided with values");
@@ -227,25 +228,27 @@ public abstract class AbstractAttributableDataBinder {
                     attributeToBeRemoved, attributableUtil.getSchemaClass());
 
             if (schema != null) {
-                for (SchemaMapping mapping : schema.getMappings()) {
+                for (SchemaMapping mapping : resourceDAO.getMappings(
+                        schema.getName(),
+                        SchemaType.byClass(attributableUtil.getSchemaClass()))) {
                     if (mapping.getResource() != null) {
                         resourceOperations.add(Type.UPDATE,
                                 mapping.getResource());
                     }
                 }
+            }
 
-                attribute = attributable.getAttribute(schema.getName());
-                if (attribute == null) {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("No attribute found for schema "
-                                + schema.getName());
-                    }
-                } else {
-                    attributable.removeAttribute(attribute);
-
-                    attributeDAO.delete(attribute.getId(),
-                            attributableUtil.getAttributeClass());
+            attribute = attributable.getAttribute(schema.getName());
+            if (attribute == null) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("No attribute found for schema "
+                            + schema.getName());
                 }
+            } else {
+                attributable.removeAttribute(attribute);
+
+                attributeDAO.delete(attribute.getId(),
+                        attributableUtil.getAttributeClass());
             }
         }
 
@@ -262,7 +265,9 @@ public abstract class AbstractAttributableDataBinder {
                     attributableUtil.getSchemaClass());
 
             if (schema != null) {
-                for (SchemaMapping mapping : schema.getMappings()) {
+                for (SchemaMapping mapping : resourceDAO.getMappings(
+                        schema.getName(),
+                        SchemaType.byClass(attributableUtil.getSchemaClass()))) {
                     if (mapping.getResource() != null) {
                         resourceOperations.add(Type.UPDATE,
                                 mapping.getResource());
@@ -282,10 +287,8 @@ public abstract class AbstractAttributableDataBinder {
                 valuesToBeRemoved = new HashSet<Long>();
                 for (String valueToBeRemoved :
                         attributeMod.getValuesToBeRemoved()) {
-
                     for (AbstractAttributeValue mav :
                             attribute.getAttributeValues()) {
-
                         if (valueToBeRemoved.equals(mav.getValueAsString())) {
                             valuesToBeRemoved.add(mav.getId());
                         }
@@ -451,8 +454,8 @@ public abstract class AbstractAttributableDataBinder {
         AbstractSchema schema = null;
         AbstractAttribute attribute = null;
         AbstractAttributeValue attributeValue = null;
-        for (AttributeTO attributeTO : attributableTO.getAttributes()) {
-            // Only consider attributeTO with values
+        for (AttributeTO attributeTO : attributableTO.getAttributes()) // Only consider attributeTO with values
+        {
             if (attributeTO.getValues() != null
                     && !attributeTO.getValues().isEmpty()) {
 
@@ -570,10 +573,8 @@ public abstract class AbstractAttributableDataBinder {
                 SyncopeClientExceptionType.InvalidUniques);
 
         for (AbstractAttribute attribute : attributable.getAttributes()) {
-
             for (AbstractAttributeValue attributeValue :
                     attribute.getAttributeValues()) {
-
                 if (attribute.getSchema().isUniquevalue()
                         && attributeValueDAO.nonUniqueAttributeValue(
                         attributeValue)) {

@@ -146,11 +146,9 @@ public class ResourceTestITCase extends AbstractTestITCase {
     @Test
     public void deleteWithException() {
         try {
-
             restTemplate.delete(
                     BASE_URL + "resource/delete/{resourceName}.json",
                     "resourcenotfound");
-
         } catch (HttpStatusCodeException e) {
             assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
         }
@@ -165,12 +163,10 @@ public class ResourceTestITCase extends AbstractTestITCase {
                 resourceName);
 
         try {
-
             restTemplate.getForObject(
                     BASE_URL + "resource/read/{resourceName}.json",
                     ResourceTO.class,
                     resourceName);
-
         } catch (HttpStatusCodeException e) {
             assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
         }

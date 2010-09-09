@@ -14,9 +14,7 @@
  */
 package org.syncope.core.test.persistence.relationships;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
@@ -28,24 +26,25 @@ import org.syncope.core.persistence.beans.user.UserDerivedSchema;
 import org.syncope.core.persistence.beans.user.UserSchema;
 import org.syncope.core.persistence.dao.AttributeDAO;
 import org.syncope.core.persistence.dao.DerivedSchemaDAO;
+import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.SyncopeUserDAO;
 import org.syncope.core.test.persistence.AbstractTest;
+import org.syncope.types.SchemaType;
 
 @Transactional
 public class SchemaTest extends AbstractTest {
 
     @Autowired
     private SyncopeUserDAO syncopeUserDAO;
-
     @Autowired
     private SchemaDAO schemaDAO;
-
     @Autowired
     private DerivedSchemaDAO derivedSchemaDAO;
-
     @Autowired
     private AttributeDAO attributeDAO;
+    @Autowired
+    private ResourceDAO resourceDAO;
 
     @Test
     public final void test1() {
@@ -55,16 +54,10 @@ public class SchemaTest extends AbstractTest {
         assertNotNull(schema);
 
         // check for associated mappings
-        List<SchemaMapping> mappings = schema.getMappings();
-
-        assertNotNull(mappings);
-
-        Set<Long> mappingIds = new HashSet<Long>();
-        for (SchemaMapping mapping : mappings) {
-            mappingIds.add(mapping.getId());
-        }
-
-        assertFalse(mappingIds.isEmpty());
+        List<SchemaMapping> mappings = resourceDAO.getMappings(
+                schema.getName(),
+                SchemaType.UserSchema);
+        assertFalse(mappings.isEmpty());
 
         // delete user schema username
         schemaDAO.delete("username", UserSchema.class);
@@ -77,10 +70,9 @@ public class SchemaTest extends AbstractTest {
         assertNull(schema);
 
         // check for mappings deletion
-        for (Long mappingId : mappingIds) {
-            SchemaMapping actualMapping = schemaDAO.findMapping(mappingId);
-            assertNull(actualMapping);
-        }
+        mappings = resourceDAO.getMappings("username",
+                SchemaType.UserSchema);
+        assertTrue(mappings.isEmpty());
 
         assertNull(attributeDAO.find(100L, UserAttribute.class));
         assertNull(attributeDAO.find(300L, UserAttribute.class));
@@ -97,16 +89,10 @@ public class SchemaTest extends AbstractTest {
         assertNotNull(schema);
 
         // check for associated mappings
-        List<SchemaMapping> mappings = schema.getMappings();
-
+        List<SchemaMapping> mappings = resourceDAO.getMappings(
+                schema.getName(),
+                SchemaType.UserSchema);
         assertNotNull(mappings);
-
-        Set<Long> mappingIds = new HashSet<Long>();
-        for (SchemaMapping mapping : mappings) {
-            mappingIds.add(mapping.getId());
-        }
-
-        assertFalse(mappingIds.isEmpty());
 
         // delete user schema username
         schemaDAO.delete("surname", UserSchema.class);
@@ -119,7 +105,7 @@ public class SchemaTest extends AbstractTest {
         assertNull(schema);
 
         assertNull(schemaDAO.find("surname", UserSchema.class));
-        
+
         assertEquals(1, derivedSchemaDAO.find("cn",
                 UserDerivedSchema.class).getSchemas().size());
     }

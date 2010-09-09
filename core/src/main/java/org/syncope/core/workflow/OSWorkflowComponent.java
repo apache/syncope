@@ -22,7 +22,10 @@ import org.syncope.core.persistence.util.ApplicationContextManager;
 
 public abstract class OSWorkflowComponent {
 
-    protected static final Logger log =
+    /**
+     * Logger.
+     */
+    protected static final Logger LOG =
             LoggerFactory.getLogger(OSWorkflowComponent.class);
     protected static final ConfigurableApplicationContext context =
             ApplicationContextManager.getApplicationContext();

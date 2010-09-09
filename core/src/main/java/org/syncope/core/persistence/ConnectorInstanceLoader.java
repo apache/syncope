@@ -14,13 +14,23 @@
  */
 package org.syncope.core.persistence;
 
+import java.io.File;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import javassist.NotFoundException;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+import org.identityconnectors.common.IOUtil;
+import org.identityconnectors.framework.api.APIConfiguration;
+import org.identityconnectors.framework.api.ConfigurationProperties;
 import org.identityconnectors.framework.api.ConnectorFacade;
+import org.identityconnectors.framework.api.ConnectorFacadeFactory;
+import org.identityconnectors.framework.api.ConnectorInfo;
 import org.identityconnectors.framework.api.ConnectorInfoManager;
+import org.identityconnectors.framework.api.ConnectorInfoManagerFactory;
+import org.identityconnectors.framework.api.ConnectorKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -33,7 +43,6 @@ import org.syncope.core.persistence.dao.ConnectorInstanceDAO;
 import org.syncope.core.persistence.dao.MissingConfKeyException;
 import org.syncope.core.persistence.dao.SyncopeConfigurationDAO;
 import org.syncope.core.persistence.util.ApplicationContextManager;
-import org.syncope.core.rest.controller.ConnectorInstanceController;
 import org.syncope.core.rest.data.ConnectorInstanceDataBinder;
 
 /**
@@ -47,25 +56,58 @@ public class ConnectorInstanceLoader implements ServletContextListener {
     private static final Logger LOG = LoggerFactory.getLogger(
             ConnectorInstanceLoader.class);
 
-    private static ConnectorInfoManager getConnectorManager() {
+    public static ConnectorInfoManager getConnectorManager()
+            throws NotFoundException {
+
         ConfigurableApplicationContext context =
                 ApplicationContextManager.getApplicationContext();
 
+        // 1. Bundles directory
         SyncopeConfigurationDAO syncopeConfigurationDAO =
                 (SyncopeConfigurationDAO) context.getBean(
                 "syncopeConfigurationDAOImpl");
-
-        ConnectorInfoManager manager = null;
+        SyncopeConfiguration connectorBundleDir = null;
         try {
-            SyncopeConfiguration connectorBundleDir =
-                    syncopeConfigurationDAO.find(
+            connectorBundleDir = syncopeConfigurationDAO.find(
                     "identityconnectors.bundle.directory");
-            manager = ConnectorInstanceController.getConnectorManager(
-                    connectorBundleDir.getConfValue());
         } catch (MissingConfKeyException e) {
             LOG.error("Missing configuration", e);
-        } catch (NotFoundException e) {
-            LOG.error("Could not find Connector Manager", e);
+        }
+
+        // 2. Find bundles inside that directory
+        File bundleDirectory = new File(connectorBundleDir.getConfValue());
+        String[] bundleFiles = bundleDirectory.list();
+        if (bundleFiles == null) {
+            throw new NotFoundException("Bundles from dir "
+                    + connectorBundleDir.getConfValue());
+        }
+
+        List<URL> bundleFileURLs = new ArrayList<URL>();
+        for (String file : bundleFiles) {
+            try {
+                bundleFileURLs.add(IOUtil.makeURL(bundleDirectory, file));
+            } catch (Exception ignore) {
+                // ignore exception and don't add bundle
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug(bundleDirectory.toString() + "/" + file + "\""
+                            + " is not a valid connector bundle.", ignore);
+                }
+            }
+        }
+        if (bundleFileURLs.isEmpty()) {
+            throw new NotFoundException("Bundles from dir "
+                    + connectorBundleDir.getConfValue());
+        }
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Bundle file URLs: " + bundleFileURLs);
+        }
+
+        // 3. Get connector info manager
+        ConnectorInfoManager manager =
+                ConnectorInfoManagerFactory.getInstance().getLocalManager(
+                bundleFileURLs.toArray(new URL[0]));
+        if (manager == null) {
+            throw new NotFoundException("Connector Info Manager");
         }
 
         return manager;
@@ -76,6 +118,80 @@ public class ConnectorInstanceLoader implements ServletContextListener {
                 ApplicationContextManager.getApplicationContext();
 
         return (DefaultListableBeanFactory) context.getBeanFactory();
+    }
+
+    private static ConnectorFacade getConnectorFacade(String bundlename,
+            String bundleversion, String connectorname,
+            Set<PropertyTO> configuration) throws NotFoundException {
+
+        // specify a connector.
+        ConnectorKey key = new ConnectorKey(
+                bundlename,
+                bundleversion,
+                connectorname);
+
+        if (key == null) {
+            throw new NotFoundException("Connector Key");
+        }
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("\nBundle name: " + key.getBundleName()
+                    + "\nBundle version: " + key.getBundleVersion()
+                    + "\nBundle class: " + key.getConnectorName());
+        }
+
+        // get the specified connector.
+        ConnectorInfo info = getConnectorManager().findConnectorInfo(key);
+
+        if (info == null) {
+            throw new NotFoundException("Connector Info");
+        }
+
+        // create default configuration
+        APIConfiguration apiConfig = info.createDefaultAPIConfiguration();
+
+        if (apiConfig == null) {
+            throw new NotFoundException("Default API configuration");
+        }
+
+        // retrieve the ConfigurationProperties.
+        ConfigurationProperties properties =
+                apiConfig.getConfigurationProperties();
+
+        if (properties == null) {
+            throw new NotFoundException("Configuration properties");
+        }
+
+        // Print out what the properties are (not necessary)
+        if (LOG.isDebugEnabled()) {
+            for (String propName : properties.getPropertyNames()) {
+                LOG.debug("\nProperty Name: "
+                        + properties.getProperty(propName).getName()
+                        + "\nProperty Type: "
+                        + properties.getProperty(propName).getType());
+            }
+        }
+
+        // Set all of the ConfigurationProperties needed by the connector.
+        for (PropertyTO property : configuration) {
+            properties.setPropertyValue(
+                    property.getKey(), property.getValue());
+        }
+
+        // Use the ConnectorFacadeFactory's newInstance() method to get
+        // a new connector.
+        ConnectorFacade connector =
+                ConnectorFacadeFactory.getInstance().newInstance(apiConfig);
+
+        if (connector == null) {
+            throw new NotFoundException("Connector");
+        }
+
+        // Make sure we have set up the Configuration properly
+        connector.validate();
+        //connector.test(); //needs a target resource deployed
+
+        return connector;
     }
 
     public static ConnectorFacade getConnectorFacade(final String id)
@@ -91,9 +207,7 @@ public class ConnectorInstanceLoader implements ServletContextListener {
             removeConnectorFacade(instance.getId().toString());
         }
 
-        ConnectorFacade connector =
-                ConnectorInstanceController.getConnectorFacade(
-                getConnectorManager(),
+        ConnectorFacade connector = getConnectorFacade(
                 instance.getBundleName(),
                 instance.getVersion(),
                 instance.getConnectorName(),

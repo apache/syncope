@@ -27,6 +27,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import org.hibernate.annotations.Cascade;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 
@@ -57,13 +58,15 @@ public class TargetResource extends AbstractBaseBean {
      * Attribute mappings.
      */
     @OneToMany(cascade = CascadeType.MERGE, mappedBy = "resource")
+    @Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
     private List<SchemaMapping> mappings;
     @Column(nullable = false)
     @Basic
     private Character forceMandatoryConstraint;
 
     public TargetResource() {
-        this.forceMandatoryConstraint = getBooleanAsCharacter(false);
+        forceMandatoryConstraint = getBooleanAsCharacter(false);
+        mappings = new ArrayList<SchemaMapping>();
     }
 
     public boolean isForceMandatoryConstraint() {
@@ -84,25 +87,22 @@ public class TargetResource extends AbstractBaseBean {
     }
 
     public List<SchemaMapping> getMappings() {
-        if (this.mappings == null) {
-            this.mappings = new ArrayList<SchemaMapping>();
-        }
-        return this.mappings;
+        return mappings;
     }
 
     public boolean removeMapping(SchemaMapping mapping) {
-        return this.mappings == null || this.mappings.remove(mapping);
+        return mappings == null || mappings.remove(mapping);
     }
 
     public boolean addMapping(SchemaMapping mapping) {
-        if (this.mappings == null) {
-            this.mappings = new ArrayList<SchemaMapping>();
-        }
-        return this.mappings.contains(mapping) || this.mappings.add(mapping);
+        return mappings.contains(mapping) || mappings.add(mapping);
     }
 
     public void setMappings(List<SchemaMapping> mappings) {
-        this.mappings = mappings;
+        this.mappings.clear();
+        if (mappings != null) {
+            this.mappings.addAll(mappings);
+        }
     }
 
     public String getName() {

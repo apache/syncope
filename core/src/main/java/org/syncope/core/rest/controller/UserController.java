@@ -107,7 +107,7 @@ public class UserController extends AbstractController {
 
         SyncopeUser user = syncopeUserDAO.find(userId);
         if (user == null) {
-            log.error("Could not find user '" + userId + "'");
+            LOG.error("Could not find user '" + userId + "'");
             throw new NotFoundException(String.valueOf(userId));
         }
 
@@ -204,7 +204,7 @@ public class UserController extends AbstractController {
         SyncopeUser user = syncopeUserDAO.find(userId);
 
         if (user == null) {
-            log.error("Could not find user '" + userId + "'");
+            LOG.error("Could not find user '" + userId + "'");
 
             throw new NotFoundException(String.valueOf(userId));
         }
@@ -219,7 +219,7 @@ public class UserController extends AbstractController {
 
         SyncopeUser user = syncopeUserDAO.find(userId);
         if (user == null) {
-            log.error("Could not find user '" + userId + "'");
+            LOG.error("Could not find user '" + userId + "'");
             throw new NotFoundException(String.valueOf(userId));
         }
 
@@ -242,12 +242,12 @@ public class UserController extends AbstractController {
     public UserTOs search(@RequestBody NodeSearchCondition searchCondition)
             throws InvalidSearchConditionException {
 
-        if (log.isDebugEnabled()) {
-            log.debug("search called with condition " + searchCondition);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("search called with condition " + searchCondition);
         }
 
         if (!searchCondition.checkValidity()) {
-            log.error("Invalid search condition: " + searchCondition);
+            LOG.error("Invalid search condition: " + searchCondition);
 
             throw new InvalidSearchConditionException();
         }
@@ -269,7 +269,7 @@ public class UserController extends AbstractController {
 
         SyncopeUser user = syncopeUserDAO.find(userId);
         if (user == null) {
-            log.error("Could not find user '" + userId + "'");
+            LOG.error("Could not find user '" + userId + "'");
             throw new NotFoundException(String.valueOf(userId));
         }
 
@@ -321,8 +321,8 @@ public class UserController extends AbstractController {
             throws SyncopeClientCompositeErrorException,
             WorkflowException, PropagationException, NotFoundException {
 
-        if (log.isDebugEnabled()) {
-            log.debug("create called with parameters " + userTO + "\n"
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("create called with parameters " + userTO + "\n"
                     + syncRoles + "\n" + syncResources);
         }
 
@@ -336,7 +336,7 @@ public class UserController extends AbstractController {
             workflowId = userWorkflow.initialize(Constants.USER_WORKFLOW, 0,
                     Collections.singletonMap(Constants.USER_TO, userTO));
         } catch (WorkflowInitException e) {
-            log.error("During workflow initialization: " + e);
+            LOG.error("During workflow initialization: " + e);
             wie = e;
 
             // Removing dirty workflow entry
@@ -390,16 +390,16 @@ public class UserController extends AbstractController {
         Set<String> syncResourceNames =
                 getSyncResourceNames(user, syncRoles, syncResources);
 
-        if (log.isDebugEnabled() && !syncResourceNames.isEmpty()) {
-            log.debug("About to propagate synchronously onto resources "
+        if (LOG.isDebugEnabled() && !syncResourceNames.isEmpty()) {
+            LOG.debug("About to propagate synchronously onto resources "
                     + syncResourceNames);
         }
 
         Set<String> propagatedResources =
                 propagationManager.create(user, syncResourceNames);
 
-        if (log.isDebugEnabled()) {
-            log.debug("Propagated onto resources " + propagatedResources);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Propagated onto resources " + propagatedResources);
         }
 
         // User is created locally and propagated, let's advance on the workflow
@@ -429,8 +429,8 @@ public class UserController extends AbstractController {
             required = false) Set<String> syncResources)
             throws NotFoundException, PropagationException, WorkflowException {
 
-        if (log.isDebugEnabled()) {
-            log.debug("update called with parameter " + userMod);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("update called with parameter " + userMod);
         }
 
         // First of all, let's check if update is allowed
@@ -449,16 +449,16 @@ public class UserController extends AbstractController {
         // Now that user is update locally, let's propagate
         Set<String> syncResourceNames =
                 getSyncResourceNames(user, syncRoles, syncResources);
-        if (log.isDebugEnabled() && !syncResourceNames.isEmpty()) {
-            log.debug("About to propagate synchronously onto resources "
+        if (LOG.isDebugEnabled() && !syncResourceNames.isEmpty()) {
+            LOG.debug("About to propagate synchronously onto resources "
                     + syncResourceNames);
         }
 
         Set<String> propagatedResources =
                 propagationManager.update(user,
                 resourceOperations, syncResourceNames);
-        if (log.isDebugEnabled()) {
-            log.debug("Propagated onto resources " + propagatedResources);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Propagated onto resources " + propagatedResources);
         }
 
         return userDataBinder.getUserTO(user, userWorkflow);
@@ -472,7 +472,7 @@ public class UserController extends AbstractController {
         SyncopeUser user = syncopeUserDAO.find(userId);
 
         if (user == null) {
-            log.error("Could not find user '" + userId + "'");
+            LOG.error("Could not find user '" + userId + "'");
 
             throw new NotFoundException(String.valueOf(userId));
         } else {

@@ -67,7 +67,7 @@ public class SchemaController extends AbstractController {
         Class reference = getAttributableUtil(kind).getSchemaClass();
         AbstractSchema schema = schemaDAO.find(schemaName, reference);
         if (schema == null) {
-            log.error("Could not find schema '" + schemaName + "'");
+            LOG.error("Could not find schema '" + schemaName + "'");
 
             throw new NotFoundException(schemaName);
         } else {
@@ -101,7 +101,7 @@ public class SchemaController extends AbstractController {
         Class reference = getAttributableUtil(kind).getSchemaClass();
         AbstractSchema schema = schemaDAO.find(schemaName, reference);
         if (schema == null) {
-            log.error("Could not find schema '" + schemaName + "'");
+            LOG.error("Could not find schema '" + schemaName + "'");
 
             throw new NotFoundException(schemaName);
         }
@@ -122,12 +122,12 @@ public class SchemaController extends AbstractController {
                     reference,
                     getAttributableUtil(kind).getDerivedSchemaClass());
             if (schema == null) {
-                log.error("Could not find schema '" + schemaTO.getName() + "'");
+                LOG.error("Could not find schema '" + schemaTO.getName() + "'");
 
                 throw new NotFoundException(schemaTO.getName());
             }
         } catch (SyncopeClientCompositeErrorException e) {
-            log.error("Could not update for " + schemaTO, e);
+            LOG.error("Could not update for " + schemaTO, e);
 
             throw e;
         }

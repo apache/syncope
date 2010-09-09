@@ -68,7 +68,7 @@ public class DerivedSchemaController extends AbstractController {
         AbstractDerivedSchema derivedSchema =
                 derivedSchemaDAO.find(derivedSchemaName, reference);
         if (derivedSchema == null) {
-            log.error("Could not find derived schema '"
+            LOG.error("Could not find derived schema '"
                     + derivedSchemaName + "'");
 
             throw new NotFoundException(derivedSchemaName);
@@ -108,7 +108,7 @@ public class DerivedSchemaController extends AbstractController {
         AbstractDerivedSchema derivedSchema =
                 derivedSchemaDAO.find(derivedSchemaName, reference);
         if (derivedSchema == null) {
-            log.error("Could not find derived schema '"
+            LOG.error("Could not find derived schema '"
                     + derivedSchemaName + "'");
 
             throw new NotFoundException(derivedSchemaName);
@@ -130,7 +130,7 @@ public class DerivedSchemaController extends AbstractController {
                 derivedSchemaTO, derivedSchema,
                 getAttributableUtil(kind).getSchemaClass());
         if (derivedSchema == null) {
-            log.error("Could not find schema '"
+            LOG.error("Could not find schema '"
                     + derivedSchemaTO.getName() + "'");
 
             throw new NotFoundException(derivedSchemaTO.getName());

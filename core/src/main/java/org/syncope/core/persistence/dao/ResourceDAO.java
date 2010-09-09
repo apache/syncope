@@ -15,7 +15,9 @@
 package org.syncope.core.persistence.dao;
 
 import java.util.List;
+import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.beans.TargetResource;
+import org.syncope.types.SchemaType;
 
 public interface ResourceDAO extends DAO {
 
@@ -24,6 +26,11 @@ public interface ResourceDAO extends DAO {
     List<TargetResource> findAll();
 
     TargetResource save(TargetResource resource);
+
+    List<SchemaMapping> getMappings(final String schemaName,
+            final SchemaType schemaType);
+
+    void deleteMappings(String schemaName, SchemaType schemaType);
 
     void delete(String name);
 }

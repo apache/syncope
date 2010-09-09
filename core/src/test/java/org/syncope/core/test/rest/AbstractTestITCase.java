@@ -29,7 +29,10 @@ import org.springframework.web.client.RestTemplate;
     "file:target/syncope/WEB-INF/syncope-core-rest-servlet.xml"})
 public abstract class AbstractTestITCase {
 
-    protected static final Logger log = LoggerFactory.getLogger(
+    /**
+     * Logger.
+     */
+    protected static final Logger LOG = LoggerFactory.getLogger(
             AbstractTestITCase.class);
     protected static final String BASE_URL =
             "http://localhost:8080/syncope/rest/";

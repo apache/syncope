@@ -30,13 +30,10 @@ import org.syncope.client.to.SchemaMappingTO;
 import org.syncope.client.to.SchemaMappingTOs;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
-import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.beans.ConnectorInstance;
 import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.dao.ConnectorInstanceDAO;
-import org.syncope.core.persistence.dao.ResourceDAO;
-import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.types.SyncopeClientExceptionType;
 
 @Component
@@ -48,11 +45,7 @@ public class ResourceDataBinder {
     private static final String[] ignoreMappingProperties = {
         "id", "resource"};
     @Autowired
-    private SchemaDAO schemaDAO;
-    @Autowired
     private ConnectorInstanceDAO connectorInstanceDAO;
-    @Autowired
-    private ResourceDAO resourceDAO;
 
     public TargetResource getResource(ResourceTO resourceTO)
             throws SyncopeClientCompositeErrorException {
@@ -110,29 +103,6 @@ public class ResourceDataBinder {
 
         resource.setMappings(
                 getSchemaMappings(resource, resourceTO.getMappings()));
-
-        resource = resourceDAO.save(resource);
-
-        for (SchemaMapping mapping : resource.getMappings()) {
-            try {
-                mapping.getSchemaType().getSchemaClass().asSubclass(
-                        AbstractSchema.class);
-
-                // search for the attribute schema
-                AbstractSchema schema = schemaDAO.find(
-                        mapping.getSchemaName(),
-                        mapping.getSchemaType().getSchemaClass());
-                if (schema != null) {
-                    schema.addMapping(mapping);
-                }
-            } catch (ClassCastException e) {
-                // no real schema provided
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Wrong schema type "
-                            + mapping.getSchemaType().getClassName());
-                }
-            }
-        }
 
         return resource;
     }

@@ -15,28 +15,19 @@
  */
 package org.syncope.core.rest.controller;
 
-import java.io.File;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import javassist.NotFoundException;
 import javax.servlet.http.HttpServletResponse;
-import org.identityconnectors.common.IOUtil;
-import org.identityconnectors.framework.api.APIConfiguration;
 import org.identityconnectors.framework.api.ConfigurationProperties;
 import org.identityconnectors.framework.api.ConnectorFacade;
-import org.identityconnectors.framework.api.ConnectorFacadeFactory;
 import org.identityconnectors.framework.api.ConnectorInfo;
 import org.identityconnectors.framework.api.ConnectorInfoManager;
-import org.identityconnectors.framework.api.ConnectorInfoManagerFactory;
 import org.identityconnectors.framework.api.ConnectorKey;
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -45,13 +36,11 @@ import org.syncope.client.to.ConnectorBundleTO;
 import org.syncope.client.to.ConnectorBundleTOs;
 import org.syncope.client.to.ConnectorInstanceTO;
 import org.syncope.client.to.ConnectorInstanceTOs;
-import org.syncope.client.to.PropertyTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.syncope.core.persistence.ConnectorInstanceLoader;
 import org.syncope.core.persistence.beans.ConnectorInstance;
-import org.syncope.core.persistence.beans.SyncopeConfiguration;
 import org.syncope.core.persistence.dao.ConnectorInstanceDAO;
 import org.syncope.core.persistence.dao.MissingConfKeyException;
-import org.syncope.core.persistence.dao.SyncopeConfigurationDAO;
 import org.syncope.core.persistence.util.ApplicationContextManager;
 import org.syncope.core.rest.data.ConnectorInstanceDataBinder;
 
@@ -62,8 +51,6 @@ public class ConnectorInstanceController extends AbstractController {
     @Autowired
     private ConnectorInstanceDAO connectorInstanceDAO;
     @Autowired
-    private SyncopeConfigurationDAO syncopeConfigurationDAO;
-    @Autowired
     private ConnectorInstanceDataBinder binder;
 
     @RequestMapping(method = RequestMethod.POST,
@@ -73,60 +60,24 @@ public class ConnectorInstanceController extends AbstractController {
             throws SyncopeClientCompositeErrorException, NotFoundException,
             MissingConfKeyException {
 
-        if (log.isDebugEnabled()) {
-            log.debug("Create called with configuration " + connectorTO);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Create called with configuration " + connectorTO);
         }
 
-        ConnectorInstance actual = null;
-
+        ConnectorInstance connectorInstance = null;
         try {
-
-            ConnectorInstance connectorInstance =
-                    binder.getConnectorInstance(connectorTO);
-
-            // Everything went out fine, we can flush to the database
-            actual = connectorInstanceDAO.save(connectorInstance);
+            connectorInstance = binder.getConnectorInstance(connectorTO);
         } catch (SyncopeClientCompositeErrorException e) {
-            log.error("Could not create for " + connectorTO, e);
+            LOG.error("Could not create for " + connectorTO, e);
 
             throw e;
         }
 
-        SyncopeConfiguration syncopeConfiguration =
-                syncopeConfigurationDAO.find(
-                "identityconnectors.bundle.directory");
+        // Everything went out fine, we can flush to the database
+        // and register the new connector instance for later usage
+        connectorInstance = connectorInstanceDAO.save(connectorInstance);
 
-        ConnectorInfoManager manager =
-                getConnectorManager(syncopeConfiguration.getConfValue());
-
-        ConnectorFacade connector = getConnectorFacade(
-                manager,
-                connectorTO.getBundleName(),
-                connectorTO.getVersion(),
-                connectorTO.getConnectorName(),
-                connectorTO.getConfiguration());
-
-        ConfigurableApplicationContext context =
-                ApplicationContextManager.getApplicationContext();
-
-        DefaultListableBeanFactory beanFactory =
-                (DefaultListableBeanFactory) context.getBeanFactory();
-
-        try {
-
-            beanFactory.destroySingleton(actual.getId().toString());
-
-        } catch (NoSuchBeanDefinitionException ignore) {
-            // ignore exception
-            if (log.isInfoEnabled()) {
-                log.info("No bean named '" + actual.getId() + "' is defined");
-            }
-        }
-
-        beanFactory.registerSingleton(actual.getId().toString(), connector);
-
-        response.setStatus(HttpServletResponse.SC_CREATED);
-        return binder.getConnectorInstanceTO(actual);
+        return binder.getConnectorInstanceTO(connectorInstance);
     }
 
     @RequestMapping(method = RequestMethod.POST,
@@ -136,66 +87,25 @@ public class ConnectorInstanceController extends AbstractController {
             throws SyncopeClientCompositeErrorException, NotFoundException,
             MissingConfKeyException {
 
-        if (log.isDebugEnabled()) {
-            log.debug("update called with configuration " + connectorTO);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("update called with configuration " + connectorTO);
         }
 
-        ConnectorInstance actual = null;
-
+        ConnectorInstance connectorInstance = null;
         try {
-            ConnectorInstance connectorInstance =
-                    binder.updateConnectorInstance(
+            connectorInstance = binder.updateConnectorInstance(
                     connectorTO.getId(), connectorTO);
-
-            // Everything went out fine, we can flush to the database
-            actual = connectorInstanceDAO.save(connectorInstance);
         } catch (SyncopeClientCompositeErrorException e) {
-            log.error("Could not create for " + connectorTO, e);
+            LOG.error("Could not create for " + connectorTO, e);
 
             throw e;
         }
 
-        ConfigurableApplicationContext context =
-                ApplicationContextManager.getApplicationContext();
+        // Everything went out fine, we can flush to the database
+        // and register the new connector instance for later usage
+        connectorInstance = connectorInstanceDAO.save(connectorInstance);
 
-        DefaultListableBeanFactory beanFactory =
-                (DefaultListableBeanFactory) context.getBeanFactory();
-
-        ConnectorFacade connector = (ConnectorFacade) beanFactory.getBean(
-                actual.getId().toString());
-
-        if (connector == null) {
-
-            SyncopeConfiguration syncopeConfiguration =
-                    syncopeConfigurationDAO.find(
-                    "identityconnectors.bundle.directory");
-
-            ConnectorInfoManager manager =
-                    getConnectorManager(syncopeConfiguration.getConfValue());
-
-            connector = getConnectorFacade(
-                    manager,
-                    connectorTO.getBundleName(),
-                    connectorTO.getVersion(),
-                    connectorTO.getConnectorName(),
-                    connectorTO.getConfiguration());
-        }
-
-        try {
-
-            beanFactory.destroySingleton(actual.getId().toString());
-
-        } catch (NoSuchBeanDefinitionException ignore) {
-            // ignore exception
-            if (log.isInfoEnabled()) {
-                log.info("No bean named '" + actual.getId() + "' is defined");
-            }
-        }
-
-        beanFactory.registerSingleton(actual.getId().toString(), connector);
-
-        response.setStatus(HttpServletResponse.SC_CREATED);
-        return binder.getConnectorInstanceTO(actual);
+        return binder.getConnectorInstanceTO(connectorInstance);
     }
 
     @RequestMapping(method = RequestMethod.DELETE,
@@ -208,33 +118,14 @@ public class ConnectorInstanceController extends AbstractController {
                 connectorInstanceDAO.find(connectorId);
 
         if (connectorInstance == null) {
-
-            if (log.isErrorEnabled()) {
-                log.error("Could not find connector '" + connectorId + "'");
+            if (LOG.isErrorEnabled()) {
+                LOG.error("Could not find connector '" + connectorId + "'");
             }
 
             throw new NotFoundException(String.valueOf(connectorId));
-
-        } else {
-            connectorInstanceDAO.delete(connectorId);
-
-            ConfigurableApplicationContext context =
-                    ApplicationContextManager.getApplicationContext();
-
-            DefaultListableBeanFactory beanFactory =
-                    (DefaultListableBeanFactory) context.getBeanFactory();
-
-            try {
-
-                beanFactory.destroySingleton(connectorId.toString());
-
-            } catch (NoSuchBeanDefinitionException ignore) {
-                // ignore exception
-                if (log.isInfoEnabled()) {
-                    log.info("No bean named '" + connectorId + "' is defined");
-                }
-            }
         }
+
+        connectorInstanceDAO.delete(connectorId);
     }
 
     @RequestMapping(method = RequestMethod.GET,
@@ -264,7 +155,7 @@ public class ConnectorInstanceController extends AbstractController {
                 connectorInstanceDAO.find(connectorId);
 
         if (connectorInstance == null) {
-            log.error("Could not find connector '" + connectorId + "'");
+            LOG.error("Could not find connector '" + connectorId + "'");
 
             throw new NotFoundException(String.valueOf(connectorId));
         }
@@ -283,8 +174,8 @@ public class ConnectorInstanceController extends AbstractController {
         DefaultListableBeanFactory beanFactory =
                 (DefaultListableBeanFactory) context.getBeanFactory();
 
-        if (log.isDebugEnabled()) {
-            log.debug("Singleton in bean factory: "
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Singleton in bean factory: "
                     + beanFactory.getSingletonNames());
         }
 
@@ -294,17 +185,14 @@ public class ConnectorInstanceController extends AbstractController {
         ModelAndView mav = new ModelAndView();
 
         Boolean verify = Boolean.FALSE;
-
         try {
-
             if (connector != null) {
                 connector.validate();
                 verify = Boolean.TRUE;
             }
-
         } catch (RuntimeException ignore) {
-            if (log.isInfoEnabled()) {
-                log.info("Connector validation failed", ignore);
+            if (LOG.isInfoEnabled()) {
+                LOG.info("Connector validation failed", ignore);
             }
         }
 
@@ -318,32 +206,32 @@ public class ConnectorInstanceController extends AbstractController {
     public ConnectorBundleTOs getBundles()
             throws NotFoundException, MissingConfKeyException {
 
-        ConnectorBundleTOs connectorBundleTOs = new ConnectorBundleTOs();
-
-        SyncopeConfiguration syncopeConfiguration =
-                syncopeConfigurationDAO.find(
-                "identityconnectors.bundle.directory");
-
         ConnectorInfoManager manager =
-                getConnectorManager(syncopeConfiguration.getConfValue());
+                ConnectorInstanceLoader.getConnectorManager();
 
-        List<ConnectorInfo> bundles = getBundles(manager);
+        List<ConnectorInfo> bundles = manager.getConnectorInfos();
+
+        if (LOG.isDebugEnabled() && bundles != null) {
+            LOG.debug("#Bundles: " + bundles.size());
+
+            for (ConnectorInfo bundle : bundles) {
+                LOG.debug("Bundle: " + bundle.getConnectorDisplayName());
+            }
+        }
 
         ConnectorBundleTO connectorBundleTO = null;
         ConnectorKey key = null;
         ConfigurationProperties properties = null;
 
+        ConnectorBundleTOs connectorBundleTOs = new ConnectorBundleTOs();
         for (ConnectorInfo bundle : bundles) {
-
             connectorBundleTO = new ConnectorBundleTO();
-
             connectorBundleTO.setDisplayName(bundle.getConnectorDisplayName());
 
             key = bundle.getConnectorKey();
 
-            if (log.isDebugEnabled()) {
-                log.debug(
-                        "\nBundle name: " + key.getBundleName()
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("\nBundle name: " + key.getBundleName()
                         + "\nBundle version: " + key.getBundleVersion()
                         + "\nBundle class: " + key.getConnectorName());
             }
@@ -357,8 +245,8 @@ public class ConnectorInstanceController extends AbstractController {
 
             connectorBundleTO.setProperties(properties.getPropertyNames());
 
-            if (log.isDebugEnabled()) {
-                log.debug("Bundle properties: "
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Bundle properties: "
                         + connectorBundleTO.getProperties());
             }
 
@@ -366,149 +254,5 @@ public class ConnectorInstanceController extends AbstractController {
         }
 
         return connectorBundleTOs;
-    }
-
-    public static List<ConnectorInfo> getBundles(
-            ConnectorInfoManager manager) {
-
-        List<ConnectorInfo> bundles = manager.getConnectorInfos();
-
-        if (log.isDebugEnabled() && bundles != null) {
-            log.debug("#Bundles: " + bundles.size());
-
-            for (ConnectorInfo bundle : bundles) {
-                log.debug("Bundle: " + bundle.getConnectorDisplayName());
-            }
-        }
-
-        return bundles;
-    }
-
-    public static ConnectorFacade getConnectorFacade(
-            ConnectorInfoManager manager,
-            String bundlename,
-            String bundleversion,
-            String connectorname,
-            Set<PropertyTO> configuration) throws NotFoundException {
-
-        // specify a connector.
-        ConnectorKey key = new ConnectorKey(
-                bundlename,
-                bundleversion,
-                connectorname);
-
-        if (key == null) {
-            throw new NotFoundException("Connector Key");
-        }
-
-        if (log.isDebugEnabled()) {
-            log.debug(
-                    "\nBundle name: " + key.getBundleName()
-                    + "\nBundle version: " + key.getBundleVersion()
-                    + "\nBundle class: " + key.getConnectorName());
-        }
-
-        // get the specified connector.
-        ConnectorInfo info = manager.findConnectorInfo(key);
-
-        if (info == null) {
-            throw new NotFoundException("Connector Info");
-        }
-
-        // create default configuration
-        APIConfiguration apiConfig = info.createDefaultAPIConfiguration();
-
-        if (apiConfig == null) {
-            throw new NotFoundException("Default API configuration");
-        }
-
-        // retrieve the ConfigurationProperties.
-        ConfigurationProperties properties =
-                apiConfig.getConfigurationProperties();
-
-        if (properties == null) {
-            throw new NotFoundException("Configuration properties");
-        }
-
-        // Print out what the properties are (not necessary)
-        if (log.isDebugEnabled()) {
-            for (String propName : properties.getPropertyNames()) {
-                log.debug("\nProperty Name: "
-                        + properties.getProperty(propName).getName()
-                        + "\nProperty Type: "
-                        + properties.getProperty(propName).getType());
-            }
-        }
-
-        // Set all of the ConfigurationProperties needed by the connector.
-        for (PropertyTO property : configuration) {
-            properties.setPropertyValue(
-                    property.getKey(), property.getValue());
-        }
-
-        // Use the ConnectorFacadeFactory's newInstance() method to get
-        // a new connector.
-        ConnectorFacade connector =
-                ConnectorFacadeFactory.getInstance().newInstance(apiConfig);
-
-        if (connector == null) {
-            throw new NotFoundException("Connector");
-        }
-
-        // Make sure we have set up the Configuration properly
-        connector.validate();
-        //connector.test(); //needs a target resource deployed
-
-        return connector;
-    }
-
-    public static ConnectorInfoManager getConnectorManager(
-            String bundledirectory) throws NotFoundException {
-
-        ConnectorInfoManagerFactory connectorInfoManagerFactory =
-                ConnectorInfoManagerFactory.getInstance();
-
-        File bundleDirectory = new File(bundledirectory);
-
-        List<URL> urls = new ArrayList<URL>();
-
-        String[] files = bundleDirectory.list();
-
-        if (files == null) {
-            throw new NotFoundException("Bundles");
-        }
-
-        for (String file : files) {
-            try {
-                urls.add(IOUtil.makeURL(bundleDirectory, file));
-            } catch (Exception ignore) {
-                // ignore exception and don't add bundle
-                if (log.isDebugEnabled()) {
-                    log.debug(
-                            "\""
-                            + bundleDirectory.toString() + "/" + file
-                            + "\""
-                            + " is not a valid connector bundle.", ignore);
-                }
-            }
-        }
-
-        if (urls.isEmpty()) {
-            throw new NotFoundException("Bundles");
-        }
-
-        if (log.isDebugEnabled()) {
-            log.debug("URL: " + urls.toString());
-        }
-
-        ConnectorInfoManager manager =
-                connectorInfoManagerFactory.getLocalManager(
-                urls.toArray(new URL[0]));
-
-        if (manager == null) {
-            throw new NotFoundException("Connector Info Manager");
-        }
-
-        return manager;
     }
 }

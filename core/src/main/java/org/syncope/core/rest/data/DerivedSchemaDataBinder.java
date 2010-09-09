@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.syncope.client.to.DerivedSchemaTO;
 import org.syncope.core.persistence.beans.AbstractDerivedSchema;
 import org.syncope.core.persistence.beans.AbstractSchema;
@@ -26,22 +27,20 @@ import org.syncope.core.persistence.dao.DerivedSchemaDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
 
 @Component
+@Transactional(rollbackFor = {Throwable.class})
 public class DerivedSchemaDataBinder {
 
-    private static final Logger log = LoggerFactory.getLogger(
+    /**
+     * Logger.
+     */
+    private static final Logger LOG = LoggerFactory.getLogger(
             DerivedSchemaDataBinder.class);
     private static final String[] ignoreDerivedSchemaProperties = {
         "schemas", "derivedAttributes"};
-    private SchemaDAO schemaDAO;
-    private DerivedSchemaDAO derivedSchemaDAO;
-
     @Autowired
-    public DerivedSchemaDataBinder(SchemaDAO schemaDAO,
-            DerivedSchemaDAO derivedSchemaDAO) {
-
-        this.schemaDAO = schemaDAO;
-        this.derivedSchemaDAO = derivedSchemaDAO;
-    }
+    private SchemaDAO schemaDAO;
+    @Autowired
+    private DerivedSchemaDAO derivedSchemaDAO;
 
     private <T extends AbstractDerivedSchema, K extends AbstractSchema> T populateDerivedSchema(
             T derivedSchema,
@@ -58,7 +57,7 @@ public class DerivedSchemaDataBinder {
             if (abstractSchema != null) {
                 derivedSchema.addSchema(abstractSchema);
             } else {
-                log.error("Unmatched schema name: " + schema);
+                LOG.error("Unmatched schema name: " + schema);
             }
         }
 

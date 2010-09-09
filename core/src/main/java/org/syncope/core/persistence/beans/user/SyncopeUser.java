@@ -147,8 +147,8 @@ public class SyncopeUser extends AbstractAttributable {
                 inheritedTargetResources.addAll(role.getTargetResources());
 
             } catch (Throwable t) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Invalid role " + role, t);
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Invalid role " + role, t);
                 }
             }
         }
@@ -167,7 +167,7 @@ public class SyncopeUser extends AbstractAttributable {
             result = new String(AsymmetricCipher.decrypt(password,
                     kp.getPrivate()));
         } catch (Throwable t) {
-            log.error("Could not get the key pair and the password", t);
+            LOG.error("Could not get the key pair and the password", t);
         }
 
         return result;
@@ -190,7 +190,7 @@ public class SyncopeUser extends AbstractAttributable {
                     kp.getPublic());
             this.passwordKeyPair = AsymmetricCipher.serializeKeyPair(kp);
         } catch (Throwable t) {
-            log.error("Could not set the password and the key pair", t);
+            LOG.error("Could not set the password and the key pair", t);
         }
     }
 

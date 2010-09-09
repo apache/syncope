@@ -50,15 +50,15 @@ public class RoleController extends AbstractController {
             @RequestBody RoleTO roleTO)
             throws SyncopeClientCompositeErrorException {
 
-        if (log.isDebugEnabled()) {
-            log.debug("create called with parameters " + roleTO);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("create called with parameters " + roleTO);
         }
 
         SyncopeRole role = null;
         try {
             role = roleDataBinder.create(roleTO);
         } catch (SyncopeClientCompositeErrorException e) {
-            log.error("Could not create for " + roleTO, e);
+            LOG.error("Could not create for " + roleTO, e);
 
             throw e;
         }
@@ -77,7 +77,7 @@ public class RoleController extends AbstractController {
         SyncopeRole role = syncopeRoleDAO.find(roleId);
 
         if (role == null) {
-            log.error("Could not find role '" + roleId + "'");
+            LOG.error("Could not find role '" + roleId + "'");
 
             throw new NotFoundException(String.valueOf(roleId));
         } else {
@@ -109,7 +109,7 @@ public class RoleController extends AbstractController {
         SyncopeRole role = syncopeRoleDAO.find(roleId);
 
         if (role == null) {
-            log.error("Could not find role '" + roleId + "'");
+            LOG.error("Could not find role '" + roleId + "'");
 
             throw new NotFoundException(String.valueOf(roleId));
         }
@@ -144,7 +144,7 @@ public class RoleController extends AbstractController {
         SyncopeRole role = syncopeRoleDAO.find(roleId);
 
         if (role == null) {
-            log.error("Could not find role '" + roleId + "'");
+            LOG.error("Could not find role '" + roleId + "'");
 
             throw new NotFoundException(String.valueOf(roleId));
         }
@@ -157,13 +157,13 @@ public class RoleController extends AbstractController {
     public RoleTO update(HttpServletResponse response,
             @RequestBody RoleMod roleMod) throws NotFoundException {
 
-        if (log.isDebugEnabled()) {
-            log.debug("update called with parameter " + roleMod);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("update called with parameter " + roleMod);
         }
 
         SyncopeRole role = syncopeRoleDAO.find(roleMod.getId());
         if (role == null) {
-            log.error("Could not find user '" + roleMod.getId() + "'");
+            LOG.error("Could not find user '" + roleMod.getId() + "'");
 
             throw new NotFoundException(String.valueOf(roleMod.getId()));
         }

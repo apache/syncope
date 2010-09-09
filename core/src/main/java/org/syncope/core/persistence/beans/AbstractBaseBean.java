@@ -28,7 +28,7 @@ import org.springframework.beans.BeanUtils;
 
 public abstract class AbstractBaseBean implements Serializable {
 
-    protected static final Logger log = LoggerFactory.getLogger(
+    protected static final Logger LOG = LoggerFactory.getLogger(
             AbstractBaseBean.class);
 
     /**
@@ -93,8 +93,8 @@ public abstract class AbstractBaseBean implements Serializable {
             try {
                 result.append(method.invoke(this));
             } catch (Exception e) {
-                if (log.isDebugEnabled()) {
-                    log.error("While serializing to string", e);
+                if (LOG.isDebugEnabled()) {
+                    LOG.error("While serializing to string", e);
                 }
             }
         }

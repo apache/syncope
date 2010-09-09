@@ -39,7 +39,10 @@ import org.w3c.dom.Document;
  */
 public class JPAPropertySet extends AbstractPropertySet {
 
-    protected static final Logger log =
+    /**
+     * Logger.
+     */
+    protected static final Logger LOG =
             LoggerFactory.getLogger(JPAPropertySet.class);
     private OSWorkflowPropertyDAO osWorkflowPropertyDAO;
     private long workflowEntryId;
@@ -129,7 +132,7 @@ public class JPAPropertySet extends AbstractPropertySet {
                     break;
             }
         } catch (Throwable t) {
-            log.error("While setting property value", t);
+            LOG.error("While setting property value", t);
             throw new PropertyException(t.getMessage());
         }
 

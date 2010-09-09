@@ -42,7 +42,10 @@ import org.syncope.core.persistence.beans.SyncopeConfiguration;
  */
 public class DefaultContentLoader implements ServletContextListener {
 
-    private static final Logger log = LoggerFactory.getLogger(
+    /**
+     * Logger.
+     */
+    private static final Logger LOG = LoggerFactory.getLogger(
             DefaultContentLoader.class);
 
     /**
@@ -74,10 +77,10 @@ public class DefaultContentLoader implements ServletContextListener {
             dbProps.load(dbPropsStream);
             dbSchema = dbProps.getProperty("database.schema");
         } catch (Throwable t) {
-            if (log.isDebugEnabled()) {
-                log.debug("Could not find db.properties", t);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Could not find db.properties", t);
             } else {
-                log.error("Could not find db.properties");
+                LOG.error("Could not find db.properties");
             }
 
             dbSchema = null;
@@ -99,7 +102,7 @@ public class DefaultContentLoader implements ServletContextListener {
 
             existingData = resultSet.getRow() > 0;
         } catch (SQLException e) {
-            log.error("Could not access to table "
+            LOG.error("Could not access to table "
                     + SyncopeConfiguration.class.getSimpleName(), e);
 
             // Setting this to true make nothing to be done below
@@ -109,7 +112,7 @@ public class DefaultContentLoader implements ServletContextListener {
                 resultSet.close();
                 statement.close();
             } catch (SQLException e) {
-                log.error("While closing SQL connection", e);
+                LOG.error("While closing SQL connection", e);
             }
         }
         try {
@@ -124,9 +127,9 @@ public class DefaultContentLoader implements ServletContextListener {
                     DatabaseConfig.FEATURE_SKIP_ORACLE_RECYCLEBIN_TABLES, true);
 
             if (existingData) {
-                log.info("Data found in the database, leaving untouched");
+                LOG.info("Data found in the database, leaving untouched");
             } else {
-                log.info("Empty database found, loading default content");
+                LOG.info("Empty database found, loading default content");
 
                 FlatXmlDataSetBuilder dataSetBuilder =
                         new FlatXmlDataSetBuilder();
@@ -137,7 +140,7 @@ public class DefaultContentLoader implements ServletContextListener {
                 DatabaseOperation.CLEAN_INSERT.execute(dbUnitConn, dataSet);
             }
         } catch (Throwable t) {
-            log.error("While loading default content", t);
+            LOG.error("While loading default content", t);
         } finally {
             DataSourceUtils.releaseConnection(conn, dataSource);
         }

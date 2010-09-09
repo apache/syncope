@@ -46,8 +46,8 @@ public class ConfigurationController extends AbstractController {
             HttpServletResponse response,
             @RequestBody ConfigurationTO configurationTO) {
 
-        if (log.isDebugEnabled()) {
-            log.debug("create called with parameters " + configurationTO);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("create called with parameters " + configurationTO);
         }
 
         SyncopeConfiguration syncopeConfiguration =

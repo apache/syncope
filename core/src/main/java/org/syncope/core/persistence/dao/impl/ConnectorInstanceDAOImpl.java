@@ -47,7 +47,7 @@ public class ConnectorInstanceDAOImpl extends AbstractDAOImpl
         try {
             ConnectorInstanceLoader.registerConnectorFacade(actual);
         } catch (NotFoundException e) {
-            LOG.error("While restingering the connector facade for instance "
+            LOG.error("While resgistering the connector facade for instance "
                     + actual, e);
         }
 

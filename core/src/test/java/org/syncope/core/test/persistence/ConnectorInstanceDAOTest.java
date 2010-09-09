@@ -25,6 +25,7 @@ import org.syncope.client.to.PropertyTO;
 import org.syncope.core.persistence.beans.ConnectorInstance;
 import org.syncope.core.persistence.dao.ConnectorInstanceDAO;
 import org.syncope.core.rest.data.ConnectorInstanceDataBinder;
+import org.syncope.identityconnectors.bundles.staticwebservice.WebServiceConnector;
 
 @Transactional
 public class ConnectorInstanceDAOTest extends AbstractTest {
@@ -38,9 +39,8 @@ public class ConnectorInstanceDAOTest extends AbstractTest {
 
         assertNotNull("findById did not work", connectorInstance);
 
-        assertEquals(
-                "invalid connector name",
-                "org.syncope.identityconnectors.bundles.staticwebservice.WebServiceConnector",
+        assertEquals("invalid connector name",
+                WebServiceConnector.class.getName(),
                 connectorInstance.getConnectorName());
 
         assertEquals("invalid bundle name",

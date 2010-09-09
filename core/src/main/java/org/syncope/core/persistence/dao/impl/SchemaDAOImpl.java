@@ -24,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.AbstractAttribute;
 import org.syncope.core.persistence.beans.AbstractDerivedSchema;
 import org.syncope.core.persistence.beans.AbstractSchema;
-import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.dao.AttributeDAO;
 import org.syncope.core.persistence.dao.ResourceDAO;
@@ -71,25 +70,13 @@ public class SchemaDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    public <T extends AbstractSchema> void delete(
-            String name, Class<T> reference) {
+    public <T extends AbstractSchema> void delete(String name,
+            Class<T> reference) {
 
         T schema = find(name, reference);
-
         if (schema == null) {
             return;
         }
-
-        // --------------------------------------
-        // Remove all mappings
-        // --------------------------------------
-        List<SchemaMapping> mappings = schema.getMappings();
-        schema.setMappings(Collections.EMPTY_LIST);
-
-        for (SchemaMapping mapping : mappings) {
-            removeMapping(mapping.getId());
-        }
-        // --------------------------------------
 
         for (AbstractDerivedSchema derivedSchema : schema.getDerivedSchemas()) {
             derivedSchema.removeSchema(schema);
@@ -103,91 +90,9 @@ public class SchemaDAOImpl extends AbstractDAOImpl
         }
         schema.setAttributes(Collections.EMPTY_LIST);
 
+        resourceDAO.deleteMappings(name, SchemaType.byClass(reference));
+
         entityManager.remove(schema);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public SchemaMapping findMapping(Long id) {
-        return entityManager.find(SchemaMapping.class, id);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<SchemaMapping> findAllMappings() {
-        Query query =
-                entityManager.createQuery("SELECT e FROM SchemaMapping e");
-        return query.getResultList();
-    }
-
-    @Override
-    public SchemaMapping saveMapping(SchemaMapping mapping) {
-        return entityManager.merge(mapping);
-    }
-
-    @Override
-    public void removeMapping(Long mappingId) {
-
-        // Get mapping object
-        SchemaMapping mapping = findMapping(mappingId);
-
-        if (mapping == null) {
-            return;
-        }
-
-        // --------------------------------------
-        // Synchronize schema
-        // --------------------------------------
-        String schemaName = mapping.getSchemaName();
-        SchemaType schemaType = mapping.getSchemaType();
-
-        try {
-            // check for schema type
-            schemaType.getSchemaClass().asSubclass(AbstractSchema.class);
-
-            /**
-             * Schema type could be:
-             * * UserSchema
-             * * RoleSchema
-             * * MembershipSchema
-             */
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Schema type " + schemaType.getClassName());
-            }
-            AbstractSchema schema = find(schemaName,
-                    schemaType.getSchemaClass());
-
-            if (schema != null) {
-                schema.removeMapping(mapping);
-            }
-
-        } catch (ClassCastException e) {
-            /**
-             * Schema type could be:
-             * * AccountId
-             * * Password
-             */
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Wrong schema type " + schemaType.getClassName());
-            }
-        }
-        // --------------------------------------
-
-        // --------------------------------------
-        // Synchronize resource
-        // --------------------------------------
-        TargetResource resource =
-                resourceDAO.find(mapping.getResource().getName());
-
-        if (resource != null) {
-            resource.removeMapping(mapping);
-        }
-
-        mapping.setResource(null);
-        // --------------------------------------
-
-        // Remove mapping
-        entityManager.remove(mapping);
     }
 
     @Override
@@ -202,14 +107,13 @@ public class SchemaDAOImpl extends AbstractDAOImpl
                 + "AND e.resource.name='" + resource.getName() + "' "
                 + "AND e.nullable='F'");
 
-        return schema.isMandatory()
-                || (resource.isForceMandatoryConstraint()
-                && !query.getResultList().isEmpty());
+        return resource.isForceMandatoryConstraint()
+                && !query.getResultList().isEmpty();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public boolean isMandatoryOnResource(
+    public boolean isMandatoryOnResources(
             AbstractSchema schema, Set<TargetResource> resources) {
 
         StringBuilder queryBuilder = new StringBuilder();

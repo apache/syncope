@@ -96,7 +96,7 @@ public class ConnectorInstanceTestITCase extends AbstractTestITCase {
                     connectorTO, ConnectorInstanceTO.class);
 
         } catch (HttpStatusCodeException e) {
-            log.error("update failed", e);
+            LOG.error("update failed", e);
             t = e;
         }
 
@@ -113,7 +113,7 @@ public class ConnectorInstanceTestITCase extends AbstractTestITCase {
                     actual.getId().toString());
 
         } catch (HttpStatusCodeException e) {
-            log.error("delete failed", e);
+            LOG.error("delete failed", e);
             t = e;
         }
 

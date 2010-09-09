@@ -43,4 +43,14 @@ public enum SchemaType {
             return String.class;
         }
     }
+
+    public static SchemaType byClass(Class theClass) {
+        for (SchemaType schemaType : SchemaType.values()) {
+            if (schemaType.getClassName().equals(theClass.getName())) {
+                return schemaType;
+            }
+        }
+
+        return null;
+    }
 }

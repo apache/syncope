@@ -43,8 +43,8 @@ public class BaseSendEmail extends OSWorkflowComponent
             String urlSuffix, String fallback) {
 
         String templateURL = urlPrefix + template + urlSuffix;
-        if (log.isDebugEnabled()) {
-            log.debug("Email template URL: " + templateURL);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Email template URL: " + templateURL);
         }
 
         StringBuilder templateContent = new StringBuilder();
@@ -59,7 +59,7 @@ public class BaseSendEmail extends OSWorkflowComponent
 
             reader.close();
         } catch (Exception e) {
-            log.error("While reading mail template " + template, e);
+            LOG.error("While reading mail template " + template, e);
         }
 
         return templateContent.length() == 0
@@ -97,7 +97,7 @@ public class BaseSendEmail extends OSWorkflowComponent
             email = getHtmlEmail(args, syncopeUser);
             email.send();
         } catch (EmailException e) {
-            log.error("Could not send e-mail " + email, e);
+            LOG.error("Could not send e-mail " + email, e);
         }
     }
 }

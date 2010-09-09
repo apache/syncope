@@ -18,17 +18,14 @@ import java.lang.reflect.Constructor;
 import java.text.DecimalFormat;
 import java.text.Format;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Basic;
 import static javax.persistence.EnumType.STRING;
 
 import javax.persistence.Column;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
-import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 import org.syncope.core.persistence.validation.AttributeBasicValidator;
 import org.syncope.core.persistence.validation.AttributeValidator;
@@ -42,11 +39,6 @@ public abstract class AbstractSchema extends AbstractBaseBean {
     @Column(nullable = false)
     @Enumerated(STRING)
     private SchemaValueType type;
-    /**
-     * All the mappings of the attribute schema.
-     */
-    @OneToMany(fetch = FetchType.EAGER)
-    private List<SchemaMapping> mappings;
     /**
      * Specify if the attribute should be stored on the local repository.
      */
@@ -90,30 +82,6 @@ public abstract class AbstractSchema extends AbstractBaseBean {
 
     public void setType(SchemaValueType type) {
         this.type = type;
-    }
-
-    public List<SchemaMapping> getMappings() {
-        if (this.mappings == null) {
-            this.mappings = new ArrayList<SchemaMapping>();
-        }
-
-        return this.mappings;
-    }
-
-    public void setMappings(List<SchemaMapping> mappings) {
-        this.mappings = mappings;
-    }
-
-    public boolean addMapping(SchemaMapping mapping) {
-        if (this.mappings == null) {
-            this.mappings = new ArrayList<SchemaMapping>();
-        }
-
-        return this.mappings.contains(mapping) || this.mappings.add(mapping);
-    }
-
-    public boolean removeMapping(SchemaMapping mapping) {
-        return this.mappings == null || this.mappings.remove(mapping);
     }
 
     public boolean isVirtual() {
@@ -170,7 +138,7 @@ public abstract class AbstractSchema extends AbstractBaseBean {
                         (AttributeValidator) validatorConstructor.newInstance(
                         this);
             } catch (Exception e) {
-                log.error("Could not instantiate validator of type "
+                LOG.error("Could not instantiate validator of type "
                         + getValidatorClass()
                         + ", reverting to AttributeBasicValidator", e);
             }
@@ -192,9 +160,8 @@ public abstract class AbstractSchema extends AbstractBaseBean {
     }
 
     public String getConversionPattern() {
-        if (!getType().isConversionPatternNeeded() && log.isDebugEnabled()) {
-
-            log.debug("Conversion pattern is not needed: " + this
+        if (!getType().isConversionPatternNeeded() && LOG.isDebugEnabled()) {
+            LOG.debug("Conversion pattern is not needed: " + this
                     + "'s type is " + getType());
         }
 
@@ -203,7 +170,7 @@ public abstract class AbstractSchema extends AbstractBaseBean {
 
     public void setConversionPattern(String conversionPattern) {
         if (!getType().isConversionPatternNeeded()) {
-            log.warn("Conversion pattern will be ignored: "
+            LOG.warn("Conversion pattern will be ignored: "
                     + "this attribute type is " + getType());
         }
 

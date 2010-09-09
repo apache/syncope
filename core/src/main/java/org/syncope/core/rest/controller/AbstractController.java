@@ -24,16 +24,19 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(rollbackFor = {Throwable.class})
 public abstract class AbstractController {
 
-    protected static final Logger log =
+    /**
+     * Logger.
+     */
+    protected static final Logger LOG =
             LoggerFactory.getLogger(AbstractController.class);
 
-    protected AttributableUtil getAttributableUtil(String kind) {
+    protected AttributableUtil getAttributableUtil(final String kind) {
         AttributableUtil result = null;
 
         try {
             result = AttributableUtil.valueOf(kind.toUpperCase());
         } catch (Exception e) {
-            log.error("Attributable not supported: " + kind);
+            LOG.error("Attributable not supported: " + kind);
 
             throw new TypeMismatchException(kind, AttributableUtil.class, e);
         }

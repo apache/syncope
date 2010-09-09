@@ -39,10 +39,10 @@
     <SyncopeConfiguration confKey="identityconnectors.bundle.directory"
                           confValue="/tmp/bundles"/>
                           
-    <SyncopeUser id="1" password="XXX" workflowId="0"/>
-    <SyncopeUser id="2" password="YYY" workflowId="0"/>
-    <SyncopeUser id="3" password="ZZZ" workflowId="0"/>
-    <SyncopeUser id="4" password="PPP" workflowId="0"/>
+    <SyncopeUser id="1" password="1" workflowId="0"/>
+    <SyncopeUser id="2" password="1" workflowId="0"/>
+    <SyncopeUser id="3" password="1" workflowId="0"/>
+    <SyncopeUser id="4" password="1" workflowId="0"/>
 
     <SyncopeRole id="1" name="root" inheritAttributes="F" inheritDerivedAttributes="F"/>
     <SyncopeRole id="2" name="child" parent_id="1" inheritAttributes="F" inheritDerivedAttributes="F"/>
@@ -170,37 +170,31 @@
                    resource_name="ws-target-resource-1"
                    schemaName="email" schemaType="UserSchema" nullable="F"
                    accountid="T" password="F"/>
-    <UserSchema_SchemaMapping UserSchema_name="email" mappings_id="100" />
 
     <SchemaMapping id="101" field="username"
                    resource_name="ws-target-resource-2"
                    schemaName="username" schemaType="UserSchema" nullable="F"
                    accountid="T" password="F"/>
-    <UserSchema_SchemaMapping UserSchema_name="username" mappings_id="101" />
 
     <SchemaMapping id="102" field="email"
                    resource_name="ws-target-resource-list-mappings-1"
                    schemaName="email" schemaType="UserSchema" nullable="F"
                    accountid="T" password="F"/>
-    <UserSchema_SchemaMapping UserSchema_name="email" mappings_id="102" />
 
     <SchemaMapping id="103" field="surname"
                    resource_name="ws-target-resource-list-mappings-1"
                    schemaName="surname" schemaType="UserSchema" nullable="F"
                    accountid="F" password="F"/>
-    <UserSchema_SchemaMapping UserSchema_name="surname" mappings_id="103" />
 
     <SchemaMapping id="104" field="userid"
                    resource_name="ws-target-resource-list-mappings-2"
                    schemaName="userId" schemaType="UserSchema" nullable="F"
                    accountid="T" password="F"/>
-    <UserSchema_SchemaMapping UserSchema_name="userId" mappings_id="104" />
 
     <SchemaMapping id="105" field="surname"
                    resource_name="ws-target-resource-1"
                    schemaName="surname" schemaType="UserSchema" nullable="F"
                    accountid="F" password="F"/>
-    <UserSchema_SchemaMapping UserSchema_name="surname" mappings_id="105" />
 
     <SchemaMapping id="106" field="password"
                    resource_name="ws-target-resource-1"
@@ -216,31 +210,26 @@
                    resource_name="ws-target-resource-2"
                    schemaName="type" schemaType="UserSchema" nullable="F"
                    accountid="F" password="F"/>
-    <UserSchema_SchemaMapping UserSchema_name="type" mappings_id="108" />
 
     <SchemaMapping id="109" field="surname"
                    resource_name="ws-target-resource-2"
                    schemaName="surname" schemaType="UserSchema" nullable="F"
                    accountid="F" password="F"/>
-    <UserSchema_SchemaMapping UserSchema_name="surname" mappings_id="109" />
 
     <SchemaMapping id="110" field="email"
                    resource_name="ws-target-resource-update"
                    schemaName="email" schemaType="UserSchema" nullable="T"
                    accountid="F" password="F"/>
-    <UserSchema_SchemaMapping UserSchema_name="email" mappings_id="110" />
 
     <SchemaMapping id="111" field="userId"
                    resource_name="ws-target-resource-update"
                    schemaName="userId" schemaType="UserSchema" nullable="T"
                    accountid="F" password="F"/>
-    <UserSchema_SchemaMapping UserSchema_name="userId" mappings_id="111" />
     
     <SchemaMapping id="112" field="test3"
                    resource_name="ws-target-resource-update"
                    schemaName="username" schemaType="UserSchema" nullable="T"
                    accountid="F" password="F"/>
-    <UserSchema_SchemaMapping UserSchema_name="username" mappings_id="112" />
 
     <Entitlement name="base"/>
     <Entitlement name="advanced" description="Advanced entitlement"/>

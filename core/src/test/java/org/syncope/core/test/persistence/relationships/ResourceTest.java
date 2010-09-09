@@ -14,9 +14,7 @@
  */
 package org.syncope.core.test.persistence.relationships;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -61,7 +59,9 @@ public class ResourceTest extends AbstractTest {
     @Test
     public final void issue42() {
         UserSchema userId = schemaDAO.find("userId", UserSchema.class);
-        int beforeUserIdMappings = userId.getMappings().size();
+        int beforeUserIdMappings = resourceDAO.getMappings(
+                userId.getName(),
+                SchemaType.UserSchema).size();
 
         SchemaMappingTO schemaMappingTO = new SchemaMappingTO();
         schemaMappingTO.setSchemaName("userId");
@@ -90,7 +90,9 @@ public class ResourceTest extends AbstractTest {
         assertEquals(resource, actual);
 
         userId = schemaDAO.find("userId", UserSchema.class);
-        int afterUserIdMappings = userId.getMappings().size();
+        int afterUserIdMappings = resourceDAO.getMappings(
+                userId.getName(),
+                SchemaType.UserSchema).size();
 
         assertEquals(beforeUserIdMappings, afterUserIdMappings - 1);
     }
@@ -168,23 +170,9 @@ public class ResourceTest extends AbstractTest {
 
     @Test
     public final void delete() {
-
         TargetResource resource = resourceDAO.find("ws-target-resource-2");
 
         assertNotNull("find to delete did not work", resource);
-
-        // -------------------------------------
-        // Get originally associated mappings
-        // -------------------------------------
-        List<SchemaMapping> mappings = resource.getMappings();
-
-        assertNotNull(mappings);
-
-        Set<Long> mappingIds = new HashSet<Long>();
-        for (SchemaMapping mapping : mappings) {
-            mappingIds.add(mapping.getId());
-        }
-        // -------------------------------------
 
         // -------------------------------------
         // Get originally associated connector
@@ -218,12 +206,6 @@ public class ResourceTest extends AbstractTest {
         // resource must be removed
         TargetResource actual = resourceDAO.find("ws-target-resource-2");
         assertNull("delete did not work", actual);
-
-        // mappings must be removed
-        for (Long id : mappingIds) {
-            assertNull("mapping delete did not work",
-                    schemaDAO.findMapping(id));
-        }
 
         // resource must be not referenced any more from users
         SyncopeUser actualUser = null;

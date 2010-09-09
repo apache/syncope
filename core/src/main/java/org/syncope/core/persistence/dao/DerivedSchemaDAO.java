@@ -25,5 +25,6 @@ public interface DerivedSchemaDAO extends DAO {
 
     <T extends AbstractDerivedSchema> T save(T derivedSchema);
 
-    <T extends AbstractDerivedSchema> void delete(String name, Class<T> reference);
+    <T extends AbstractDerivedSchema> void delete(
+            String name, Class<T> reference);
 }

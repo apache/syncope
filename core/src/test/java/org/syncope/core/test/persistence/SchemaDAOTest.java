@@ -108,9 +108,6 @@ public class SchemaDAOTest extends AbstractTest {
 
         schema = schemaDAO.find("userId", UserSchema.class);
 
-        // schema mandatory and field onto the resource not mandatory
-        assertTrue(schemaDAO.isMandatoryOnResource(schema, resource));
-
         // multi choice
         TargetResource resource1 =
                 resourceDAO.find("ws-target-resource-list-mappings-2");
@@ -121,6 +118,6 @@ public class SchemaDAOTest extends AbstractTest {
         resources.add(resource1);
         resources.add(resource2);
 
-        assertTrue(schemaDAO.isMandatoryOnResource(schema, resources));
+        assertTrue(schemaDAO.isMandatoryOnResources(schema, resources));
     }
 }

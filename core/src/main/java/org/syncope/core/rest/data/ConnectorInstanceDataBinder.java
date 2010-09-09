@@ -28,6 +28,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.syncope.client.to.ConnectorInstanceTO;
 import org.syncope.client.to.PropertyTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
@@ -37,9 +38,13 @@ import org.syncope.core.persistence.dao.ConnectorInstanceDAO;
 import org.syncope.types.SyncopeClientExceptionType;
 
 @Component
+@Transactional(rollbackFor = {Throwable.class})
 public class ConnectorInstanceDataBinder {
 
-    private static final Logger log = LoggerFactory.getLogger(
+    /**
+     * Logger.
+     */
+    private static final Logger LOG = LoggerFactory.getLogger(
             ConnectorInstanceDataBinder.class);
     private static final String[] ignoreProperties = {
         "id", "resources", "xmlConfiguration", "configuration"};
@@ -140,15 +145,15 @@ public class ConnectorInstanceDataBinder {
         }
 
         try {
-            if (log.isDebugEnabled()) {
-                log.debug(URLEncoder.encode(
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(URLEncoder.encode(
                         serializeToXML(connectorTO.getConfiguration()),
                         "UTF-8"));
             }
             // Throw composite exception if there is at least one element set
             // in the composing exceptions
         } catch (UnsupportedEncodingException ex) {
-            log.error("Unexpected exception", ex);
+            LOG.error("Unexpected exception", ex);
         }
 
         // Throw composite exception if there is at least one element set
@@ -195,7 +200,7 @@ public class ConnectorInstanceDataBinder {
 
             return URLEncoder.encode(res, "UTF-8");
         } catch (Throwable t) {
-            log.error("Exception during connector serialization", t);
+            LOG.error("Exception during connector serialization", t);
             return null;
         }
     }
@@ -211,7 +216,7 @@ public class ConnectorInstanceDataBinder {
 
             return object;
         } catch (Throwable t) {
-            log.error("Exception during connector deserialization", t);
+            LOG.error("Exception during connector deserialization", t);
             return null;
         }
     }
