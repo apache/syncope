@@ -15,19 +15,40 @@
 package org.syncope.core.persistence.beans;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.OneToMany;
+import org.hibernate.annotations.CollectionOfElements;
 
 @Entity
 public class ConnectorInstance extends AbstractBaseBean {
 
+    /**
+     * Enum of all possible capabilities that a connector instance can expose.
+     */
+    public enum Capabitily {
+
+        SYNC_CREATE,
+        ASYNC_CREATE,
+        SYNC_UPDATE,
+        ASYNC_UPDATE,
+        SYNC_DELETE,
+        ASYNC_DELETE,
+        SEARCH,
+        RESOLVE,
+        ONDEMAND_SYNC,
+        AUTO_SYNC
+    }
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -51,6 +72,12 @@ public class ConnectorInstance extends AbstractBaseBean {
     @Column(nullable = false)
     private String version;
     /**
+     * The set of capabilities supported by this connector instance.
+     */
+    @CollectionOfElements(targetElement = Capabitily.class)
+    @Enumerated(EnumType.STRING)
+    private Set<Capabitily> capabilities;
+    /**
      * The main configuration for the connector instance.
      * This is directly implemented by the Configuration bean class which
      * contains annotated ConfigurationProperties (@ConfigurationProperty).
@@ -65,6 +92,10 @@ public class ConnectorInstance extends AbstractBaseBean {
     @OneToMany(cascade = {CascadeType.REFRESH, CascadeType.MERGE},
     mappedBy = "connector")
     private List<TargetResource> resources;
+
+    public ConnectorInstance() {
+        capabilities = new HashSet<Capabitily>();
+    }
 
     public String getVersion() {
         return version;
@@ -125,5 +156,24 @@ public class ConnectorInstance extends AbstractBaseBean {
             return true;
         }
         return this.resources.remove(resource);
+    }
+
+    public boolean addCapability(Capabitily capabitily) {
+        return capabilities.add(capabitily);
+    }
+
+    public boolean removeCapability(Capabitily capabitily) {
+        return capabilities.remove(capabitily);
+    }
+
+    public Set<Capabitily> getCapabilities() {
+        return capabilities;
+    }
+
+    public void setCapabilities(Set<Capabitily> capabilities) {
+        capabilities.clear();
+        if (capabilities != null) {
+            this.capabilities.addAll(capabilities);
+        }
     }
 }

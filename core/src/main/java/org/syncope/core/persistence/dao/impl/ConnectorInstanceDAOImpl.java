@@ -23,6 +23,9 @@ import org.syncope.core.persistence.ConnectorInstanceLoader;
 import org.syncope.core.persistence.beans.ConnectorInstance;
 import org.syncope.core.persistence.dao.ConnectorInstanceDAO;
 
+/**
+ * Spring-JPA implementation.
+ */
 @Repository
 public class ConnectorInstanceDAOImpl extends AbstractDAOImpl
         implements ConnectorInstanceDAO {
@@ -45,9 +48,9 @@ public class ConnectorInstanceDAOImpl extends AbstractDAOImpl
     public final ConnectorInstance save(final ConnectorInstance connector) {
         ConnectorInstance actual = entityManager.merge(connector);
         try {
-            ConnectorInstanceLoader.registerConnectorFacade(actual);
+            ConnectorInstanceLoader.registerConnector(actual);
         } catch (NotFoundException e) {
-            LOG.error("While resgistering the connector facade for instance "
+            LOG.error("While registering the connector for instance "
                     + actual, e);
         }
 
@@ -58,6 +61,6 @@ public class ConnectorInstanceDAOImpl extends AbstractDAOImpl
     public final void delete(final Long id) {
         entityManager.remove(find(id));
 
-        ConnectorInstanceLoader.removeConnectorFacade(id.toString());
+        ConnectorInstanceLoader.removeConnector(id.toString());
     }
 }

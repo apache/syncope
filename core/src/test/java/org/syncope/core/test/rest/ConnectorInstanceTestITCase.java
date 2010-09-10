@@ -27,6 +27,7 @@ import org.syncope.client.to.ConnectorInstanceTO;
 import org.syncope.client.to.ConnectorInstanceTOs;
 import org.syncope.client.to.PropertyTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.syncope.identityconnectors.bundles.staticwebservice.WebServiceConnector;
 
 public class ConnectorInstanceTestITCase extends AbstractTestITCase {
 
@@ -48,8 +49,7 @@ public class ConnectorInstanceTestITCase extends AbstractTestITCase {
         connectorTO.setVersion("0.1-SNAPSHOT");
 
         // set connector name
-        connectorTO.setConnectorName(
-                "org.syncope.identityconnectors.bundles.staticwebservice.WebServiceConnector");
+        connectorTO.setConnectorName(WebServiceConnector.class.getSimpleName());
 
         // set bundle name
         connectorTO.setBundleName(
@@ -144,8 +144,7 @@ public class ConnectorInstanceTestITCase extends AbstractTestITCase {
         connectorTO.setVersion("0.1-SNAPSHOT");
 
         // set connector name
-        connectorTO.setConnectorName(
-                "org.syncope.identityconnectors.bundles.staticwebservice.WebServiceConnector");
+        connectorTO.setConnectorName(WebServiceConnector.class.getSimpleName());
 
         // set bundle name
         connectorTO.setBundleName(

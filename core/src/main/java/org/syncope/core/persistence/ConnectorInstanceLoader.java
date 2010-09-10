@@ -14,36 +14,34 @@
  */
 package org.syncope.core.persistence;
 
+import java.beans.XMLDecoder;
+import java.beans.XMLEncoder;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import javassist.NotFoundException;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import org.identityconnectors.common.IOUtil;
-import org.identityconnectors.framework.api.APIConfiguration;
-import org.identityconnectors.framework.api.ConfigurationProperties;
-import org.identityconnectors.framework.api.ConnectorFacade;
-import org.identityconnectors.framework.api.ConnectorFacadeFactory;
-import org.identityconnectors.framework.api.ConnectorInfo;
 import org.identityconnectors.framework.api.ConnectorInfoManager;
 import org.identityconnectors.framework.api.ConnectorInfoManagerFactory;
-import org.identityconnectors.framework.api.ConnectorKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.syncope.client.to.PropertyTO;
 import org.syncope.core.persistence.beans.ConnectorInstance;
 import org.syncope.core.persistence.beans.SyncopeConfiguration;
 import org.syncope.core.persistence.dao.ConnectorInstanceDAO;
 import org.syncope.core.persistence.dao.MissingConfKeyException;
 import org.syncope.core.persistence.dao.SyncopeConfigurationDAO;
+import org.syncope.core.persistence.propagation.ConnectorFacadeProxy;
 import org.syncope.core.persistence.util.ApplicationContextManager;
-import org.syncope.core.rest.data.ConnectorInstanceDataBinder;
 
 /**
  * Load identity connector instances on application startup.
@@ -120,102 +118,23 @@ public class ConnectorInstanceLoader implements ServletContextListener {
         return (DefaultListableBeanFactory) context.getBeanFactory();
     }
 
-    private static ConnectorFacade getConnectorFacade(String bundlename,
-            String bundleversion, String connectorname,
-            Set<PropertyTO> configuration) throws NotFoundException {
-
-        // specify a connector.
-        ConnectorKey key = new ConnectorKey(
-                bundlename,
-                bundleversion,
-                connectorname);
-
-        if (key == null) {
-            throw new NotFoundException("Connector Key");
-        }
-
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("\nBundle name: " + key.getBundleName()
-                    + "\nBundle version: " + key.getBundleVersion()
-                    + "\nBundle class: " + key.getConnectorName());
-        }
-
-        // get the specified connector.
-        ConnectorInfo info = getConnectorManager().findConnectorInfo(key);
-
-        if (info == null) {
-            throw new NotFoundException("Connector Info");
-        }
-
-        // create default configuration
-        APIConfiguration apiConfig = info.createDefaultAPIConfiguration();
-
-        if (apiConfig == null) {
-            throw new NotFoundException("Default API configuration");
-        }
-
-        // retrieve the ConfigurationProperties.
-        ConfigurationProperties properties =
-                apiConfig.getConfigurationProperties();
-
-        if (properties == null) {
-            throw new NotFoundException("Configuration properties");
-        }
-
-        // Print out what the properties are (not necessary)
-        if (LOG.isDebugEnabled()) {
-            for (String propName : properties.getPropertyNames()) {
-                LOG.debug("\nProperty Name: "
-                        + properties.getProperty(propName).getName()
-                        + "\nProperty Type: "
-                        + properties.getProperty(propName).getType());
-            }
-        }
-
-        // Set all of the ConfigurationProperties needed by the connector.
-        for (PropertyTO property : configuration) {
-            properties.setPropertyValue(
-                    property.getKey(), property.getValue());
-        }
-
-        // Use the ConnectorFacadeFactory's newInstance() method to get
-        // a new connector.
-        ConnectorFacade connector =
-                ConnectorFacadeFactory.getInstance().newInstance(apiConfig);
-
-        if (connector == null) {
-            throw new NotFoundException("Connector");
-        }
-
-        // Make sure we have set up the Configuration properly
-        connector.validate();
-        //connector.test(); //needs a target resource deployed
-
-        return connector;
-    }
-
-    public static ConnectorFacade getConnectorFacade(final String id)
+    public static ConnectorFacadeProxy getConnector(final String id)
             throws BeansException {
 
-        return (ConnectorFacade) getBeanFactory().getBean(id);
+        return (ConnectorFacadeProxy) getBeanFactory().getBean(id);
     }
 
-    public static void registerConnectorFacade(final ConnectorInstance instance)
+    public static void registerConnector(final ConnectorInstance instance)
             throws NotFoundException {
 
         if (getBeanFactory().containsSingleton(instance.getId().toString())) {
-            removeConnectorFacade(instance.getId().toString());
+            removeConnector(instance.getId().toString());
         }
 
-        ConnectorFacade connector = getConnectorFacade(
-                instance.getBundleName(),
-                instance.getVersion(),
-                instance.getConnectorName(),
-                (Set<PropertyTO>) ConnectorInstanceDataBinder.buildFromXML(
-                instance.getXmlConfiguration()));
+        ConnectorFacadeProxy connector = new ConnectorFacadeProxy(instance);
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Connector instance " + connector);
+            LOG.debug("Connector " + connector);
         }
 
         getBeanFactory().registerSingleton(
@@ -226,8 +145,45 @@ public class ConnectorInstanceLoader implements ServletContextListener {
         }
     }
 
-    public static void removeConnectorFacade(final String id) {
+    public static void removeConnector(final String id) {
         getBeanFactory().destroySingleton(id);
+    }
+
+    public static String serializeToXML(Object obj) {
+        String result = null;
+
+        try {
+            ByteArrayOutputStream tokenContentOS = new ByteArrayOutputStream();
+            XMLEncoder encoder = new XMLEncoder(tokenContentOS);
+            encoder.writeObject(obj);
+            encoder.flush();
+            encoder.close();
+
+            result = URLEncoder.encode(tokenContentOS.toString(), "UTF-8");
+        } catch (Throwable t) {
+            LOG.error("Exception during connector serialization", t);
+        }
+
+        return result;
+    }
+
+    public static Object buildFromXML(String xml) {
+        Object result = null;
+
+        try {
+            ByteArrayInputStream tokenContentIS = new ByteArrayInputStream(
+                    URLDecoder.decode(xml, "UTF-8").getBytes());
+
+            XMLDecoder decoder = new XMLDecoder(tokenContentIS);
+            Object object = decoder.readObject();
+            decoder.close();
+
+            result = object;
+        } catch (Throwable t) {
+            LOG.error("Exception during connector deserialization", t);
+        }
+
+        return result;
     }
 
     @Override
@@ -242,7 +198,7 @@ public class ConnectorInstanceLoader implements ServletContextListener {
         List<ConnectorInstance> instances = connectorInstanceDAO.findAll();
         for (ConnectorInstance instance : instances) {
             try {
-                registerConnectorFacade(instance);
+                registerConnector(instance);
             } catch (NotFoundException e) {
                 LOG.error("While loading connector bundle for instance "
                         + instance, e);

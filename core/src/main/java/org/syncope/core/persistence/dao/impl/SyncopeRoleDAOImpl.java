@@ -33,7 +33,7 @@ public class SyncopeRoleDAOImpl extends AbstractDAOImpl
 
     @Override
     @Transactional(readOnly = true)
-    public SyncopeRole find(String name, Long parentId) {
+    public SyncopeRole find(final String name, final Long parentId) {
         Query query = null;
 
         if (parentId != null) {
@@ -54,13 +54,13 @@ public class SyncopeRoleDAOImpl extends AbstractDAOImpl
 
     @Override
     @Transactional(readOnly = true)
-    public SyncopeRole find(Long id) {
+    public SyncopeRole find(final Long id) {
         return entityManager.find(SyncopeRole.class, id);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<SyncopeRole> findChildren(Long roleId) {
+    public List<SyncopeRole> findChildren(final Long roleId) {
         Query query = entityManager.createQuery(
                 "SELECT r FROM SyncopeRole r WHERE "
                 + "parent.id=:roleId");
@@ -68,8 +68,8 @@ public class SyncopeRoleDAOImpl extends AbstractDAOImpl
         return query.getResultList();
     }
 
-    private List<Long> getAncestors(SyncopeRole role,
-            List<Long> ancestors) {
+    private List<Long> getAncestors(final SyncopeRole role,
+            final List<Long> ancestors) {
 
         ancestors.add(role.getId());
 
@@ -82,7 +82,7 @@ public class SyncopeRoleDAOImpl extends AbstractDAOImpl
 
     @Override
     @Transactional(readOnly = true)
-    public List<RoleAttribute> findInheritedAttributes(SyncopeRole role) {
+    public List<RoleAttribute> findInheritedAttributes(final SyncopeRole role) {
         if (role.getParent() == null) {
             return Collections.EMPTY_LIST;
         }
@@ -114,7 +114,7 @@ public class SyncopeRoleDAOImpl extends AbstractDAOImpl
     @Override
     @Transactional(readOnly = true)
     public List<RoleDerivedAttribute> findInheritedDerivedAttributes(
-            SyncopeRole role) {
+            final SyncopeRole role) {
 
         if (role.getParent() == null) {
             return Collections.EMPTY_LIST;
@@ -152,12 +152,12 @@ public class SyncopeRoleDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    public SyncopeRole save(SyncopeRole syncopeRole) {
+    public SyncopeRole save(final SyncopeRole syncopeRole) {
         return entityManager.merge(syncopeRole);
     }
 
     @Override
-    public void delete(Long id) {
+    public void delete(final Long id) {
         SyncopeRole role = find(id);
         if (id == null) {
             return;

@@ -14,12 +14,7 @@
  */
 package org.syncope.core.rest.data;
 
-import java.beans.XMLDecoder;
-import java.beans.XMLEncoder;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.Set;
 import org.slf4j.Logger;
@@ -33,6 +28,7 @@ import org.syncope.client.to.ConnectorInstanceTO;
 import org.syncope.client.to.PropertyTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
+import org.syncope.core.persistence.ConnectorInstanceLoader;
 import org.syncope.core.persistence.beans.ConnectorInstance;
 import org.syncope.core.persistence.dao.ConnectorInstanceDAO;
 import org.syncope.types.SyncopeClientExceptionType;
@@ -86,7 +82,7 @@ public class ConnectorInstanceDataBinder {
                 connectorTO, connectorInstance, ignoreProperties);
 
         connectorInstance.setXmlConfiguration(
-                serializeToXML(
+                ConnectorInstanceLoader.serializeToXML(
                 connectorTO.getConfiguration()));
 
         // Throw composite exception if there is at least one element set
@@ -140,14 +136,15 @@ public class ConnectorInstanceDataBinder {
                 || connectorTO.getConfiguration().isEmpty()) {
 
             connectorInstance.setXmlConfiguration(
-                    serializeToXML(
+                    ConnectorInstanceLoader.serializeToXML(
                     connectorTO.getConfiguration()));
         }
 
         try {
             if (LOG.isDebugEnabled()) {
                 LOG.debug(URLEncoder.encode(
-                        serializeToXML(connectorTO.getConfiguration()),
+                        ConnectorInstanceLoader.serializeToXML(
+                        connectorTO.getConfiguration()),
                         "UTF-8"));
             }
             // Throw composite exception if there is at least one element set
@@ -180,44 +177,11 @@ public class ConnectorInstanceDataBinder {
                 connectorInstance, connectorInstanceTO, ignoreProperties);
 
         connectorInstanceTO.setConfiguration(
-                (Set<PropertyTO>) buildFromXML(
+                (Set<PropertyTO>) ConnectorInstanceLoader.buildFromXML(
                 connectorInstance.getXmlConfiguration()));
 
         connectorInstanceTO.setId(connectorInstance.getId());
 
         return connectorInstanceTO;
-    }
-
-    public static String serializeToXML(Object obj) {
-        try {
-            ByteArrayOutputStream tokenContentOS = new ByteArrayOutputStream();
-            XMLEncoder encoder = new XMLEncoder(tokenContentOS);
-            encoder.writeObject(obj);
-            encoder.flush();
-            encoder.close();
-
-            String res = tokenContentOS.toString();
-
-            return URLEncoder.encode(res, "UTF-8");
-        } catch (Throwable t) {
-            LOG.error("Exception during connector serialization", t);
-            return null;
-        }
-    }
-
-    public static Object buildFromXML(String xml) {
-        try {
-            ByteArrayInputStream tokenContentIS = new ByteArrayInputStream(
-                    URLDecoder.decode(xml, "UTF-8").getBytes());
-
-            XMLDecoder decoder = new XMLDecoder(tokenContentIS);
-            Object object = decoder.readObject();
-            decoder.close();
-
-            return object;
-        } catch (Throwable t) {
-            LOG.error("Exception during connector deserialization", t);
-            return null;
-        }
     }
 }

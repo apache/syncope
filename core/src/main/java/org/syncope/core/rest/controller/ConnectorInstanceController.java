@@ -24,12 +24,9 @@ import java.util.List;
 import javassist.NotFoundException;
 import javax.servlet.http.HttpServletResponse;
 import org.identityconnectors.framework.api.ConfigurationProperties;
-import org.identityconnectors.framework.api.ConnectorFacade;
 import org.identityconnectors.framework.api.ConnectorInfo;
 import org.identityconnectors.framework.api.ConnectorInfoManager;
 import org.identityconnectors.framework.api.ConnectorKey;
-import org.springframework.beans.factory.support.DefaultListableBeanFactory;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.servlet.ModelAndView;
 import org.syncope.client.to.ConnectorBundleTO;
@@ -41,7 +38,7 @@ import org.syncope.core.persistence.ConnectorInstanceLoader;
 import org.syncope.core.persistence.beans.ConnectorInstance;
 import org.syncope.core.persistence.dao.ConnectorInstanceDAO;
 import org.syncope.core.persistence.dao.MissingConfKeyException;
-import org.syncope.core.persistence.util.ApplicationContextManager;
+import org.syncope.core.persistence.propagation.ConnectorFacadeProxy;
 import org.syncope.core.rest.data.ConnectorInstanceDataBinder;
 
 @Controller
@@ -166,21 +163,10 @@ public class ConnectorInstanceController extends AbstractController {
     @RequestMapping(method = RequestMethod.GET,
     value = "/check/{connectorId}")
     public ModelAndView check(HttpServletResponse response,
-            @PathVariable("connectorId") Long connectorId) {
+            @PathVariable("connectorId") String connectorId) {
 
-        ConfigurableApplicationContext context =
-                ApplicationContextManager.getApplicationContext();
-
-        DefaultListableBeanFactory beanFactory =
-                (DefaultListableBeanFactory) context.getBeanFactory();
-
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Singleton in bean factory: "
-                    + beanFactory.getSingletonNames());
-        }
-
-        ConnectorFacade connector = (ConnectorFacade) beanFactory.getBean(
-                connectorId.toString());
+        ConnectorFacadeProxy connector =
+                ConnectorInstanceLoader.getConnector(connectorId);
 
         ModelAndView mav = new ModelAndView();
 

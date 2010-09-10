@@ -22,9 +22,9 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.client.to.PropertyTO;
+import org.syncope.core.persistence.ConnectorInstanceLoader;
 import org.syncope.core.persistence.beans.ConnectorInstance;
 import org.syncope.core.persistence.dao.ConnectorInstanceDAO;
-import org.syncope.core.rest.data.ConnectorInstanceDataBinder;
 import org.syncope.identityconnectors.bundles.staticwebservice.WebServiceConnector;
 
 @Transactional
@@ -80,7 +80,7 @@ public class ConnectorInstanceDAOTest extends AbstractTest {
         conf.add(servicename);
 
         // serialize configuration
-        String xmlconf = ConnectorInstanceDataBinder.serializeToXML(conf);
+        String xmlconf = ConnectorInstanceLoader.serializeToXML(conf);
 
         assertNotNull("xml configuration string is null", xmlconf);
 
@@ -110,7 +110,7 @@ public class ConnectorInstanceDAOTest extends AbstractTest {
 
         assertNotNull("configuration not found", xmlConfiguration);
 
-        conf = (Set<PropertyTO>) ConnectorInstanceDataBinder.buildFromXML(
+        conf = (Set<PropertyTO>) ConnectorInstanceLoader.buildFromXML(
                 xmlConfiguration);
 
         assertNotNull("configuration retrieving failed", conf);

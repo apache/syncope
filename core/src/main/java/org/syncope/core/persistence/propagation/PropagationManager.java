@@ -19,7 +19,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.identityconnectors.framework.api.ConnectorFacade;
 import org.identityconnectors.framework.common.FrameworkUtil;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
@@ -30,8 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.support.DefaultListableBeanFactory;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.syncope.core.persistence.ConnectorInstanceLoader;
 import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.beans.ConnectorInstance;
@@ -42,8 +39,6 @@ import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.beans.user.UserAttribute;
 import org.syncope.core.persistence.beans.user.UserAttributeValue;
 import org.syncope.core.persistence.dao.SchemaDAO;
-import org.syncope.core.persistence.propagation.ResourceOperations.Type;
-import org.syncope.core.persistence.util.ApplicationContextManager;
 import org.syncope.types.SchemaType;
 import org.syncope.types.SchemaValueType;
 
@@ -52,6 +47,10 @@ import org.syncope.types.SchemaValueType;
  */
 public class PropagationManager {
 
+    public enum PropagationMode {
+
+        SYNC, ASYNC
+    }
     /**
      * Logger.
      */
@@ -100,7 +99,7 @@ public class PropagationManager {
         }
 
         ResourceOperations resourceOperations = new ResourceOperations();
-        resourceOperations.set(Type.CREATE, resources);
+        resourceOperations.set(ResourceOperations.Type.CREATE, resources);
 
         return provision(user, resourceOperations, syncResourceNames);
     }
@@ -159,7 +158,7 @@ public class PropagationManager {
             syncResourceNames = Collections.EMPTY_SET;
         }
 
-        for (Type type : ResourceOperations.Type.values()) {
+        for (ResourceOperations.Type type : ResourceOperations.Type.values()) {
             for (TargetResource resource : resourceOperations.get(type)) {
                 if (syncResourceNames.contains(resource.getName())) {
                     syncOperations.add(type, resource);
@@ -175,8 +174,9 @@ public class PropagationManager {
                     + syncOperations);
         }
 
-        for (Type type : ResourceOperations.Type.values()) {
-            for (TargetResource resource : syncOperations.get(type)) {
+        for (ResourceOperations.Type resOpeType :
+                ResourceOperations.Type.values()) {
+            for (TargetResource resource : syncOperations.get(resOpeType)) {
                 try {
                     Map<String, Set<Attribute>> preparedAttributes =
                             prepareAttributes(user, resource);
@@ -185,7 +185,8 @@ public class PropagationManager {
                     Set<Attribute> attributes =
                             manipulateSyncAttributes(
                             preparedAttributes.values().iterator().next());
-                    propagate(resource, type, accountId, attributes);
+                    propagate(resource, resOpeType, PropagationMode.SYNC,
+                            accountId, attributes);
 
                     provisioned.add(resource.getName());
                 } catch (Throwable t) {
@@ -205,7 +206,7 @@ public class PropagationManager {
                     + asyncOperations);
         }
 
-        for (Type type : ResourceOperations.Type.values()) {
+        for (ResourceOperations.Type type : ResourceOperations.Type.values()) {
             for (TargetResource resource : asyncOperations.get(type)) {
                 try {
                     Map<String, Set<Attribute>> preparedAttributes =
@@ -215,7 +216,8 @@ public class PropagationManager {
                     Set<Attribute> attributes =
                             manipulateAsyncAttributes(
                             preparedAttributes.values().iterator().next());
-                    propagate(resource, type, accountId, attributes);
+                    propagate(resource, type, PropagationMode.ASYNC,
+                            accountId, attributes);
 
                     provisioned.add(resource.getName());
                 } catch (Throwable t) {
@@ -425,13 +427,15 @@ public class PropagationManager {
         return attributes;
     }
 
-    private void propagate(TargetResource resource, Type type,
+    private void propagate(TargetResource resource,
+            ResourceOperations.Type resourceOperationType,
+            PropagationMode operationMode,
             String accountId, Set<Attribute> attrs)
             throws NoSuchBeanDefinitionException, IllegalStateException {
 
         ConnectorInstance connectorInstance = resource.getConnector();
 
-        ConnectorFacade connector = ConnectorInstanceLoader.getConnectorFacade(
+        ConnectorFacadeProxy connector = ConnectorInstanceLoader.getConnector(
                 connectorInstance.getId().toString());
 
         if (connector == null) {
@@ -444,39 +448,40 @@ public class PropagationManager {
 
         Uid userUid = null;
 
-        switch (type) {
+        switch (resourceOperationType) {
             case CREATE:
-                userUid = connector.create(ObjectClass.ACCOUNT, attrs, null);
+                userUid = connector.create(operationMode,
+                        ObjectClass.ACCOUNT, attrs, null);
                 break;
 
             case UPDATE:
                 try {
                     userUid = connector.resolveUsername(
-                            ObjectClass.ACCOUNT, accountId, null);
+                            ObjectClass.ACCOUNT,
+                            accountId,
+                            null);
                 } catch (RuntimeException ignore) {
-                    // ignore exception
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("To be ignored, "
+                                + "when resolving username on connector",
+                                ignore);
+                    }
                 }
 
                 if (userUid != null) {
-                    userUid = connector.update(
+                    userUid = connector.update(operationMode,
                             ObjectClass.ACCOUNT, userUid, attrs, null);
                 } else {
-                    userUid = connector.create(
+                    userUid = connector.create(operationMode,
                             ObjectClass.ACCOUNT, attrs, null);
                 }
 
                 break;
 
             case DELETE:
-                connector.delete(ObjectClass.ACCOUNT, new Uid(accountId), null);
+                connector.delete(operationMode,
+                        ObjectClass.ACCOUNT, new Uid(accountId), null);
                 break;
-        }
-
-        if (userUid == null && type != Type.DELETE) {
-            LOG.error("Error creating / updating user onto resource "
-                    + resource);
-
-            throw new IllegalStateException("Error creating user");
         }
     }
 }
