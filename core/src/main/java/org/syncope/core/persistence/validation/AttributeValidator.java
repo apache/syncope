@@ -14,83 +14,11 @@
  */
 package org.syncope.core.persistence.validation;
 
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.beans.AbstractAttributeValue;
 
-public abstract class AttributeValidator {
+public interface AttributeValidator {
 
-    final protected AbstractSchema schema;
-
-    public AttributeValidator(AbstractSchema schema) {
-
-        this.schema = schema;
-    }
-
-    public <T extends AbstractAttributeValue> T getValue(String value,
+    <T extends AbstractAttributeValue> T getValue(String value,
             T attributeValue)
-            throws ParseException, ValidationFailedException {
-
-        attributeValue = parseValue(value, attributeValue);
-        doValidate(attributeValue);
-
-        return attributeValue;
-    }
-
-    private <T extends AbstractAttributeValue> T parseValue(String value,
-            T attributeValue) throws ParseException {
-        Exception exception = null;
-
-        switch (schema.getType()) {
-
-            case String:
-                attributeValue.setStringValue(value);
-                break;
-
-            case Boolean:
-                attributeValue.setBooleanValue(Boolean.parseBoolean(value));
-                break;
-
-            case Long:
-                try {
-                    attributeValue.setLongValue(Long.valueOf(
-                            schema.getFormatter(DecimalFormat.class).parse(
-                            value).longValue()));
-                } catch (java.text.ParseException pe) {
-                    exception = pe;
-                }
-                break;
-
-            case Double:
-                try {
-                    attributeValue.setDoubleValue(Double.valueOf(
-                            schema.getFormatter(DecimalFormat.class).parse(
-                            value).doubleValue()));
-                } catch (java.text.ParseException pe) {
-                    exception = pe;
-                }
-                break;
-
-            case Date:
-                try {
-                    attributeValue.setDateValue(new Date(schema.getFormatter(
-                            SimpleDateFormat.class).parse(value).getTime()));
-                } catch (java.text.ParseException pe) {
-                    exception = pe;
-                }
-                break;
-        }
-
-        if (exception != null) {
-            throw new ParseException("While trying to parse '" + value + "'",
-                    exception);
-        }
-
-        return attributeValue;
-    }
-
-    protected abstract <T extends AbstractAttributeValue> void doValidate(
-            T attributeValue) throws ValidationFailedException;
+            throws ParseException, ValidationFailedException;
 }

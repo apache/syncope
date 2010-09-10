@@ -27,8 +27,8 @@ import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
-import org.syncope.core.persistence.validation.AttributeBasicValidator;
-import org.syncope.core.persistence.validation.AttributeValidator;
+import org.syncope.core.persistence.validation.BasicAttributeValidator;
+import org.syncope.core.persistence.validation.AbstractAttributeValidator;
 import org.syncope.types.SchemaValueType;
 
 @MappedSuperclass
@@ -57,7 +57,7 @@ public abstract class AbstractSchema extends AbstractBaseBean {
     @Column(nullable = true)
     private String validatorClass;
     @Transient
-    private AttributeValidator validator;
+    private AbstractAttributeValidator validator;
 
     public AbstractSchema() {
         type = SchemaValueType.String;
@@ -124,7 +124,7 @@ public abstract class AbstractSchema extends AbstractBaseBean {
         this.readonly = getBooleanAsCharacter(readonly);
     }
 
-    public AttributeValidator getValidator() {
+    public AbstractAttributeValidator getValidator() {
         if (validator != null) {
             return validator;
         }
@@ -135,7 +135,7 @@ public abstract class AbstractSchema extends AbstractBaseBean {
                         Class.forName(getValidatorClass()).getConstructor(
                         new Class[]{getClass().getSuperclass()});
                 validator =
-                        (AttributeValidator) validatorConstructor.newInstance(
+                        (AbstractAttributeValidator) validatorConstructor.newInstance(
                         this);
             } catch (Exception e) {
                 LOG.error("Could not instantiate validator of type "
@@ -145,7 +145,7 @@ public abstract class AbstractSchema extends AbstractBaseBean {
         }
 
         if (validator == null) {
-            validator = new AttributeBasicValidator(this);
+            validator = new BasicAttributeValidator(this);
         }
 
         return validator;

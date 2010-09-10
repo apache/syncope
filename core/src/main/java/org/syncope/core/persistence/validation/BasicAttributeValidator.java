@@ -17,9 +17,9 @@ package org.syncope.core.persistence.validation;
 import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.beans.AbstractAttributeValue;
 
-public class AttributeBasicValidator extends AttributeValidator {
+public class BasicAttributeValidator extends AbstractAttributeValidator {
 
-    public AttributeBasicValidator(AbstractSchema schema) {
+    public BasicAttributeValidator(AbstractSchema schema) {
 
         super(schema);
     }

@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
 import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.beans.AbstractAttributeValue;
 
-public class EmailAddressValidator extends AttributeValidator {
+public class EmailAddressValidator extends AbstractAttributeValidator {
 
     final private static Pattern emailValidationPattern = Pattern.compile(
             "^[\\w\\-]([\\.\\w])+[\\w]+@([\\w\\-]+\\.)+[A-Z]{2,4}$",

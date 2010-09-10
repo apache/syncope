@@ -14,21 +14,27 @@
  */
 package org.syncope.core.rest.controller;
 
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.reflections.Reflections;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.ModelAndView;
 import org.syncope.client.to.ConfigurationTO;
 import org.syncope.client.to.ConfigurationTOs;
 import org.syncope.core.persistence.beans.SyncopeConfiguration;
 import org.syncope.core.persistence.dao.MissingConfKeyException;
 import org.syncope.core.persistence.dao.SyncopeConfigurationDAO;
+import org.syncope.core.persistence.validation.AttributeValidator;
 import org.syncope.core.rest.data.ConfigurationDataBinder;
 
 @Controller
@@ -115,5 +121,26 @@ public class ConfigurationController extends AbstractController {
         syncopeConfiguration.setConfValue(configurationTO.getConfValue());
 
         return configurationDataBinder.getConfigurationTO(syncopeConfiguration);
+    }
+
+    @RequestMapping(method = RequestMethod.GET,
+    value = "/validators")
+    public ModelAndView getValidators() {
+        Reflections reflections = new Reflections(
+                "org.syncope.core.persistence.validation");
+
+        Set<Class<? extends AttributeValidator>> subTypes =
+                reflections.getSubTypesOf(AttributeValidator.class);
+
+        Set<String> validators = new HashSet<String>();
+        for (Class validatorClass : subTypes) {
+            if (!Modifier.isAbstract(validatorClass.getModifiers())) {
+                validators.add(validatorClass.getName());
+            }
+        }
+
+        ModelAndView result = new ModelAndView();
+        result.addObject(validators);
+        return result;
     }
 }

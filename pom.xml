@@ -121,6 +121,8 @@
 
         <hsqldb.version>1.8.0.10</hsqldb.version>
 
+        <reflections.version>0.9.5-RC2</reflections.version>
+        
         <log4j.version>1.2.16</log4j.version>
         <slf4j.version>1.5.2</slf4j.version>
 
@@ -315,6 +317,12 @@
             </dependency>
 
             <dependency>
+                <groupId>org.reflections</groupId>
+                <artifactId>reflections</artifactId>
+                <version>${reflections.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>log4j</groupId>
                 <artifactId>log4j</artifactId>
                 <version>${log4j.version}</version>
@@ -359,6 +367,12 @@
         <repository>
             <id>atalassian</id>
             <url>https://maven.atlassian.com/3rdparty/</url>
+        </repository>
+
+        <repository>
+            <id>reflections-repo</id>
+            <name>Reflections Maven2 Repository</name>
+            <url>http://reflections.googlecode.com/svn/repo</url>
         </repository>
 
     </repositories>
