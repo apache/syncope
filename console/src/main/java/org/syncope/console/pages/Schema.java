@@ -256,7 +256,6 @@ public class Schema extends BasePage
 
                     @Override
                     public void onClick(AjaxRequestTarget target) {
-                        final SchemaTO schemaTO = (SchemaTO) item.getDefaultModelObject();
 
                         editUserSchemaWin.setPageCreator(new ModalWindow.PageCreator() {
 

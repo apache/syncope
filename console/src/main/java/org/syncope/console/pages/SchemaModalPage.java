@@ -21,6 +21,7 @@ import java.util.Arrays;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.RadioChoice;
@@ -28,6 +29,7 @@ import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.to.SchemaTO;
 import org.syncope.console.rest.SchemaRestClient;
@@ -82,10 +84,11 @@ public class SchemaModalPage extends SyncopeModalPage
         conversionPattern = new TextField("conversionPattern");
 
         ArrayList<String> validatorsList = new ArrayList<String>();
-        validatorsList.add("AlwaysTrueValidator");
-        validatorsList.add("EmailAddressValidator");
+        validatorsList.add("org.syncope.core.persistence.validation.AlwaysTrueValidator");
+        validatorsList.add("org.syncope.core.persistence.validation.EmailAddressValidator");
 
-        validatorClass = new DropDownChoice("validatorClass",validatorsList);
+        validatorClass = new DropDownChoice("validatorClass",new PropertyModel(schema, "validatorClass")
+                ,validatorsList);
 
         type = new DropDownChoice("type",Arrays.asList(SchemaValueType.values()));
         type.setRequired(true);

@@ -20,6 +20,7 @@ import org.syncope.client.mod.UserMod;
 import org.syncope.client.to.ConfigurationTO;
 import org.syncope.client.to.UserTO;
 import org.syncope.client.to.UserTOs;
+import org.syncope.client.to.WorkflowActionsTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 
 /**
@@ -54,9 +55,13 @@ public class UsersRestClient
                 + "user/create", userTO, UserTO.class);
         
         userTO.setId(newUserTO.getId());
-        userTO.setToken(newUserTO.getToken());
-        userTO.setTokenExpireTime(newUserTO.getTokenExpireTime());
+        //userTO.setToken(newUserTO.getToken());
+        //userTO.setTokenExpireTime(newUserTO.getTokenExpireTime());
         
+        WorkflowActionsTO workflowActions = restClient.getRestTemplate().getForObject(
+        restClient.getBaseURL() + "user/actions/{userId}", WorkflowActionsTO.class,
+        newUserTO.getId());
+
         // 2. activate user
         newUserTO = restClient.getRestTemplate().postForObject(restClient.getBaseURL() 
                 + "user/activate", newUserTO, UserTO.class);
@@ -64,6 +69,7 @@ public class UsersRestClient
         }
         catch (SyncopeClientCompositeErrorException e) {
             e.printStackTrace();
+            throw e;
         }
     }
 

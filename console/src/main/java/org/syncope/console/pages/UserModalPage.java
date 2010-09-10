@@ -22,6 +22,7 @@ import java.text.Format;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -38,8 +39,10 @@ import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 
+import org.apache.wicket.extensions.markup.html.form.palette.Palette;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.PasswordTextField;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -52,6 +55,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.mod.AttributeMod;
 import org.syncope.client.mod.MembershipMod;
@@ -74,7 +78,6 @@ import org.syncope.console.rest.UsersRestClient;
 import org.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.syncope.console.wicket.markup.html.form.DateFieldPanel;
-import org.syncope.console.wicket.markup.html.form.ListMultipleChoiceTransfer;
 import org.syncope.console.wicket.markup.html.tree.SyncopeRoleTree;
 import org.syncope.console.wicket.markup.html.tree.TreeModelBean;
 
@@ -114,11 +117,12 @@ public class UserModalPage extends SyncopeModalPage {
     public UserModalPage(final BasePage basePage, final ModalWindow window,
             final UserTO userTO, final boolean createFlag) {
 
-        if (!createFlag) 
+        if (!createFlag) {
             cloneOldUserTO(userTO);
+        }
 
         setupRolesMap();
-        
+
         schemaWrappers = new ArrayList<SchemaWrapper>();
 
         add(createUserWin = new ModalWindow("membershipWin"));
@@ -148,166 +152,130 @@ public class UserModalPage extends SyncopeModalPage {
 
                 item.add(new ListView("fields", schemaWrapper.getValues()) {
 
-                Panel panel;
-
-                @Override
-                protected void populateItem(final ListItem item) {
-
-                    if (schemaTO.getType().getClassName().equals("java.lang.String")) {
-                        panel = new AjaxTextFieldPanel("panel", schemaTO.getName(), new Model() {
-
-                            @Override
-                            public Serializable getObject() {
-                                return (String) item.getModelObject();
-                            }
-
-                            @Override
-                            public void setObject(Serializable object) {
-                                item.setModelObject((String) object);
-                            }
-                        }, schemaTO.isMandatory());
-                    } else if (schemaTO.getType().getClassName().equals("java.lang.Boolean")) {
-                        panel = new AjaxCheckBoxPanel("panel", schemaTO.getName(), new Model() {
-
-                            @Override
-                            public Serializable getObject() {
-                                return (String) item.getModelObject();
-                                //return "false";
-                            }
-
-                            @Override
-                            public void setObject(Serializable object) {
-                                Boolean val = (Boolean) object;
-                                item.setModelObject(val.toString());
-                            }
-                        }, schemaTO.isMandatory());
-
-                    } else if (schemaTO.getType().getClassName().equals("java.util.Date")) {
-                        panel = new DateFieldPanel("panel", schemaTO.getName(),
-                                new Model() {
-
-                                    @Override
-                                    public Serializable getObject() {
-                                        DateFormat formatter = new SimpleDateFormat(schemaTO.getConversionPattern());
-                                        Date date = new Date();
-
-                                        try {
-                                            String dateValue = (String) item.getModelObject();
-                                            formatter = new SimpleDateFormat("yyyy-MM-dd");
-
-                                            if (!dateValue.equals("")) {
-                                                date = formatter.parse((String) item.getModelObject());
-                                            }
-
-                                        } catch (ParseException ex) {
-                                            Logger.getLogger(UserModalPage.class.getName()).log(Level.SEVERE, null, ex);
-                                        }
-                                        return date;
-                                    }
-
-                                    @Override
-                                    public void setObject(Serializable object) {
-                                        Date date = (Date) object;
-                                        Format formatter = new SimpleDateFormat(schemaTO.getConversionPattern());
-                                        String val = formatter.format(date);
-                                        item.setModelObject(val);
-                                    }
-                                }, schemaTO.isMandatory());
-                    }
-
-                    item.add(panel);
-                }
-            });
-
-            AjaxButton addButton = new AjaxButton("add", new Model(getString("add"))) {
-
-                @Override
-                protected void onSubmit(AjaxRequestTarget target, Form form) {
-                    schemaWrapper.getValues().add("");
-
-                    target.addComponent(container);
-                }
-            };
-
-            AjaxButton dropButton = new AjaxButton("drop", new Model(getString("drop"))) {
-
-                @Override
-                protected void onSubmit(AjaxRequestTarget target, Form form) {
-                    //Drop the last component added
-                    schemaWrapper.getValues().remove(schemaWrapper.getValues().size() - 1);
-
-                    target.addComponent(container);
-                }
-            };
-
-            if (schemaTO.getType().getClassName().equals("java.lang.Boolean")) {
-                addButton.setVisible(false);
-                dropButton.setVisible(false);
-            }
-
-            addButton.setDefaultFormProcessing(false);
-            addButton.setVisible(schemaTO.isMultivalue());
-
-            dropButton.setDefaultFormProcessing(false);
-            dropButton.setVisible(schemaTO.isMultivalue());
-
-            if (schemaWrapper.getValues().size() == 1) {
-                dropButton.setVisible(false);
-            }
-
-            item.add(addButton);
-            item.add(dropButton);
-        }
-    };
-
-    userForm.add(userAttributesView);
-
-        final ListMultipleChoiceTransfer resourcesTransfer =
-                new ListMultipleChoiceTransfer("resourcesChoiceTransfer",
-                getString("firstResourcesList"), getString("secondResourcesList")) {
+                    Panel panel;
 
                     @Override
-                    public List<String> setupOriginals() {
-                        //Originals:user's resources
-                        List<String> resources = new ArrayList<String>();
+                    protected void populateItem(final ListItem item) {
 
-                        for (String resourceName : userTO.getResources()) {
-                            resources.add(resourceName);
-                        }
+                        if (schemaTO.getType().getClassName().equals("java.lang.String")) {
+                            panel = new AjaxTextFieldPanel("panel", schemaTO.getName(), new Model() {
 
-                        return resources;
-
-                    }
-
-                    @Override
-                    public List<String> setupDestinations() {
-                        //Destinations:available resources
-                        List<String> resources = new ArrayList<String>();
-
-                        ResourcesRestClient resourcesRestClient = (ResourcesRestClient) ((SyncopeApplication) Application.get()).getApplicationContext().getBean("resourcesRestClient");
-
-                        ResourceTOs resourcesTos = resourcesRestClient.getAllResources();
-
-                        if (userTO.getResources().size() == 0) {
-                            for (ResourceTO resourceTO : resourcesTos) {
-                                resources.add(resourceTO.getName());
-                            }
-
-                        } else {
-
-                            for (String resource : userTO.getResources()) {
-                                for (ResourceTO resourceTO : resourcesTos) {
-                                    if (!resource.equals(resourceTO.getName())) {
-                                        resources.add(resourceTO.getName());
-                                    }
+                                @Override
+                                public Serializable getObject() {
+                                    return (String) item.getModelObject();
                                 }
-                            }
+
+                                @Override
+                                public void setObject(Serializable object) {
+                                    item.setModelObject((String) object);
+                                }
+                            }, schemaTO.isMandatory());
+                        } else if (schemaTO.getType().getClassName().equals("java.lang.Boolean")) {
+                            panel = new AjaxCheckBoxPanel("panel", schemaTO.getName(), new Model() {
+
+                                @Override
+                                public Serializable getObject() {
+                                    return (String) item.getModelObject();
+                                    //return "false";
+                                }
+
+                                @Override
+                                public void setObject(Serializable object) {
+                                    Boolean val = (Boolean) object;
+                                    item.setModelObject(val.toString());
+                                }
+                            }, schemaTO.isMandatory());
+
+                        } else if (schemaTO.getType().getClassName().equals("java.util.Date")) {
+                            panel = new DateFieldPanel("panel", schemaTO.getName(),
+                                    new Model() {
+
+                                        @Override
+                                        public Serializable getObject() {
+                                            DateFormat formatter = new SimpleDateFormat(schemaTO.getConversionPattern());
+                                            Date date = new Date();
+
+                                            try {
+                                                String dateValue = (String) item.getModelObject();
+                                                formatter = new SimpleDateFormat("yyyy-MM-dd");
+
+                                                if (!dateValue.equals("")) {
+                                                    date = formatter.parse((String) item.getModelObject());
+                                                }
+
+                                            } catch (ParseException ex) {
+                                                Logger.getLogger(UserModalPage.class.getName()).log(Level.SEVERE, null, ex);
+                                            }
+                                            return date;
+                                        }
+
+                                        @Override
+                                        public void setObject(Serializable object) {
+                                            Date date = (Date) object;
+                                            Format formatter = new SimpleDateFormat(schemaTO.getConversionPattern());
+                                            String val = formatter.format(date);
+                                            item.setModelObject(val);
+                                        }
+                                    }, schemaTO.isMandatory());
                         }
-                        return resources;
+
+                        item.add(panel);
+                    }
+                });
+
+                AjaxButton addButton = new AjaxButton("add", new Model(getString("add"))) {
+
+                    @Override
+                    protected void onSubmit(AjaxRequestTarget target, Form form) {
+                        schemaWrapper.getValues().add("");
+
+                        target.addComponent(container);
                     }
                 };
 
-        userForm.add(resourcesTransfer);
+                AjaxButton dropButton = new AjaxButton("drop", new Model(getString("drop"))) {
+
+                    @Override
+                    protected void onSubmit(AjaxRequestTarget target, Form form) {
+                        //Drop the last component added
+                        schemaWrapper.getValues().remove(schemaWrapper.getValues().size() - 1);
+
+                        target.addComponent(container);
+                    }
+                };
+
+                if (schemaTO.getType().getClassName().equals("java.lang.Boolean")) {
+                    addButton.setVisible(false);
+                    dropButton.setVisible(false);
+                }
+
+                addButton.setDefaultFormProcessing(false);
+                addButton.setVisible(schemaTO.isMultivalue());
+
+                dropButton.setDefaultFormProcessing(false);
+                dropButton.setVisible(schemaTO.isMultivalue());
+
+                if (schemaWrapper.getValues().size() == 1) {
+                    dropButton.setVisible(false);
+                }
+
+                item.add(addButton);
+                item.add(dropButton);
+            }
+        };
+
+        userForm.add(userAttributesView);
+
+        ListModel<ResourceTO> originals = new ListModel<ResourceTO>();
+        originals.setObject(getOriginals(userTO));
+
+        ListModel<ResourceTO> destinations = new ListModel<ResourceTO>();
+        destinations.setObject(getDestinations(userTO));
+
+        ChoiceRenderer paletteRenderer = new ChoiceRenderer("name", "name");
+        final Palette resourcesPalette = new Palette("resourcesPalette", originals, destinations, paletteRenderer, 8, false);
+
+        userForm.add(resourcesPalette);
 
         container = new WebMarkupContainer("container");
         container.add(userAttributesView);
@@ -330,8 +298,7 @@ public class UserModalPage extends SyncopeModalPage {
                 boolean res = false;
 
                 try {
-
-                    userTO.setResources(getResourcesSet(resourcesTransfer.getFinalSelections()));
+                    userTO.setResources(getResourcesSet(resourcesPalette.getModelCollection()));
                     userTO.setAttributes(getUserAttributesSet());
                     userTO.setMemberships(getMembershipsSet());
 
@@ -347,7 +314,7 @@ public class UserModalPage extends SyncopeModalPage {
 
                     }
 
-                    Users callerPage = (Users)basePage;
+                    Users callerPage = (Users) basePage;
                     callerPage.setOperationResult(true);
 
                     window.close(target);
@@ -425,7 +392,7 @@ public class UserModalPage extends SyncopeModalPage {
                         (MembershipTO) item.getDefaultModelObject();
 
                 item.add(new Label("roleId", new Model(membershipTO.getRole())));
-                item.add(new Label("roleName", new Model((String)rolesMap.get(membershipTO.getRole()))));
+                item.add(new Label("roleName", new Model((String) rolesMap.get(membershipTO.getRole()))));
 
                 AjaxLink editLink = new AjaxLink("editLink") {
 
@@ -472,6 +439,51 @@ public class UserModalPage extends SyncopeModalPage {
     }
 
     /**
+     * Originals : user's resources
+     * @param userTO
+     * @return
+     */
+    public List<ResourceTO> getOriginals(UserTO userTO) {
+        List<ResourceTO> resources = new ArrayList<ResourceTO>();
+        ResourceTO clusterableResourceTO;
+
+        for (String resourceName : userTO.getResources()) {
+            clusterableResourceTO = new ResourceTO();
+            clusterableResourceTO.setName(resourceName);
+            resources.add(clusterableResourceTO);
+        }
+        return resources;
+    }
+
+    /**
+     * Destinations : available resources
+     * @param userTO
+     * @return
+     */
+    public List<ResourceTO> getDestinations(UserTO userTO) {
+
+        List<ResourceTO> resources = new ArrayList<ResourceTO>();
+
+        ResourcesRestClient resourcesRestClient = (ResourcesRestClient) ((SyncopeApplication) Application.get()).getApplicationContext().getBean("resourcesRestClient");
+
+        ResourceTOs resourcesTos = resourcesRestClient.getAllResources();
+
+        if (userTO.getResources().size() == 0) {
+            for (ResourceTO resourceTO : resourcesTos) 
+                resources.add(resourceTO);
+        } else {
+
+            for (String resource : userTO.getResources()) {
+                for (ResourceTO resourceTO : resourcesTos) {
+                    if (!resource.equals(resourceTO.getName())) 
+                        resources.add(resourceTO);
+                }
+            }
+        }
+        return resources;
+    }
+
+    /**
      * Create a copy of old userTO object.
      * @param userTO
      */
@@ -491,7 +503,6 @@ public class UserModalPage extends SyncopeModalPage {
             membership.setAttributes(membershipTO.getAttributes());
             oldUser.getMemberships().add(membership);
         }
-
     }
 
     /**
@@ -559,9 +570,9 @@ public class UserModalPage extends SyncopeModalPage {
                 if (!found) {
                     schemaWrapper = new SchemaWrapper(schema);
                     schemaWrappers.add(schemaWrapper);
-                }
-                else
+                } else {
                     found = false;
+                }
             }
         }
     }
@@ -630,11 +641,11 @@ public class UserModalPage extends SyncopeModalPage {
      * Covert a resources List<String> to Set<String>.
      * @return Set<String>
      */
-    public Set<String> getResourcesSet(List<String> resourcesList) {
+    public Set<String> getResourcesSet(Collection<ResourceTO> resourcesList) {
         Set<String> resourcesSet = new HashSet<String>();
 
-        for (String resource : resourcesList) {
-            resourcesSet.add(resource);
+       for (ResourceTO resourceTO : resourcesList) {
+            resourcesSet.add(resourceTO.getName());
         }
 
         return resourcesSet;
@@ -690,35 +701,6 @@ public class UserModalPage extends SyncopeModalPage {
 
     }
 
-    /**
-     * Search for the current attribute in the old user object and, if exists,
-     * replace it. Otherwise will be created from scratch.
-     * Old - To remove
-     * @param attributeTO
-     * @param userMod
-     * @return
-     */
-//    public void searchAndUpdateAttribute(AttributeTO attributeTO){
-//        boolean found = false;
-//
-//        AttributeMod attributeMod = new AttributeMod();
-//        attributeMod.setSchema(attributeTO.getSchema());
-//
-//        for(AttributeTO oldAttribute : oldUser.getAttributes()){
-//            if(attributeTO.getSchema().equals(oldAttribute.getSchema())){
-//            attributeMod.setValuesToBeAdded(attributeTO.getValues());
-//
-//            userMod.addAttributeToBeRemoved(oldAttribute.getSchema());
-//            userMod.addAttributeToBeUpdated(attributeMod);
-//            found = true;
-//            }
-//        }
-//
-//        if(!found){
-//        attributeMod.setValuesToBeAdded(attributeTO.getValues());
-//        userMod.addAttributeToBeUpdated(attributeMod);
-//       }
-//    }
     public void searchAndUpdateAttribute(AttributeTO attributeTO) {
         boolean found = false;
 
@@ -806,12 +788,12 @@ public class UserModalPage extends SyncopeModalPage {
                         if (!oldAttribute.equals(newAttribute)) {
                             attributeMod = new AttributeMod();
                             attributeMod.setSchema(newAttribute.getSchema());
-                            
+
                             attributeMod.setValuesToBeRemoved(oldAttribute.getValues());
                             attributeMod.setValuesToBeAdded(newAttribute.getValues());
 
                             membershipMod.addAttributeToBeUpdated(attributeMod);
-                            
+
                             userMod.addMembershipToBeAdded(membershipMod);
                             userMod.addMembershipToBeRemoved(oldMembership.getId());
                         }
