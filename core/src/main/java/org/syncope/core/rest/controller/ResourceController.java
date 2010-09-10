@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import java.util.List;
+import java.util.Set;
 import javassist.NotFoundException;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
@@ -28,10 +29,14 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.syncope.client.to.ResourceTO;
 import org.syncope.client.to.ResourceTOs;
+import org.syncope.client.to.SchemaMappingTOs;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
+import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.beans.TargetResource;
+import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.dao.ResourceDAO;
+import org.syncope.core.persistence.dao.SyncopeRoleDAO;
 import org.syncope.core.rest.data.ResourceDataBinder;
 import org.syncope.types.SyncopeClientExceptionType;
 
@@ -41,6 +46,8 @@ public class ResourceController extends AbstractController {
 
     @Autowired
     private ResourceDAO resourceDAO;
+    @Autowired
+    private SyncopeRoleDAO syncopeRoleDAO;
     @Autowired
     private ResourceDataBinder binder;
 
@@ -230,5 +237,69 @@ public class ResourceController extends AbstractController {
         }
 
         return binder.getResourceTOs(resources);
+    }
+
+    @RequestMapping(method = RequestMethod.GET,
+    value = "/{roleName}/mappings")
+    public SchemaMappingTOs getRoleResourcesMapping(
+            HttpServletResponse response,
+            @PathVariable("roleName") Long roleId)
+            throws SyncopeClientCompositeErrorException {
+
+        SyncopeRole role = null;
+        if (roleId != null) {
+            role = syncopeRoleDAO.find(roleId);
+        }
+
+        if (role == null) {
+            LOG.error("Role " + roleId + " not found.");
+
+            SyncopeClientCompositeErrorException compositeErrorException =
+                    new SyncopeClientCompositeErrorException(
+                    HttpStatus.BAD_REQUEST);
+
+            SyncopeClientException ex = new SyncopeClientException(
+                    SyncopeClientExceptionType.RequiredValuesMissing);
+
+            ex.addElement("resource");
+
+            compositeErrorException.addException(ex);
+
+            throw compositeErrorException;
+        }
+
+        SchemaMappingTOs roleMappings = new SchemaMappingTOs();
+
+        Set<TargetResource> resources = role.getTargetResources();
+
+        SchemaMappingTOs resourceMappings = null;
+
+        for (TargetResource resource : resources) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Ask for the mappings of '" + resource + "'");
+            }
+
+            List<SchemaMapping> schemaMappings = resource.getMappings();
+
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("The mappings of '" + resource + "' are '"
+                        + schemaMappings + "'");
+            }
+
+            resourceMappings = binder.getSchemaMappingTOs(schemaMappings);
+
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("The mappings TO of '" + resource + "' are '"
+                        + resourceMappings.getMappings() + "'");
+            }
+
+            roleMappings.getMappings().addAll(resourceMappings.getMappings());
+        }
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Mappings found: " + roleMappings.getMappings());
+        }
+
+        return roleMappings;
     }
 }
