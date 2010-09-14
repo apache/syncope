@@ -80,6 +80,7 @@ import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.syncope.console.wicket.markup.html.form.DateFieldPanel;
 import org.syncope.console.wicket.markup.html.tree.SyncopeRoleTree;
 import org.syncope.console.wicket.markup.html.tree.TreeModelBean;
+import org.syncope.types.SchemaValueType;
 
 /**
  * Modal window with User form.
@@ -562,7 +563,12 @@ public class UserModalPage extends SyncopeModalPage {
                 for (AttributeTO attribute : userTO.getAttributes()) {
                     if (schema.getName().equals(attribute.getSchema())) {
                         schemaWrapper = new SchemaWrapper(schema);
-                        schemaWrapper.setValues(attribute.getValues());
+
+                        if(schema.getType().equals(SchemaValueType.Boolean))
+                            schemaWrapper.setBooleanValues(attribute.getValues());
+                        else
+                            schemaWrapper.setValues(attribute.getValues());
+
                         schemaWrappers.add(schemaWrapper);
                         found = true;
                     }
@@ -873,6 +879,18 @@ public class UserModalPage extends SyncopeModalPage {
 
         public void setValues(List<String> values) {
             this.values = values;
+        }
+
+        public void setBooleanValues(Set<String> values) {
+            this.values = new ArrayList<String>();
+
+            for (String value : values) {
+                if("T".equals(value))
+                    this.values.add("true");
+                else
+                    this.values.add("");
+            }
+
         }
 
         public void setValues(Set<String> values) {
