@@ -69,14 +69,14 @@
         <dependency>
             <groupId>org.syncope.identityconnectors</groupId>
             <artifactId>framework</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>org.syncope.identityconnectors</groupId>
             <artifactId>framework-internal</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.version}</version>
             <scope>runtime</scope>
         </dependency>
 
@@ -92,7 +92,7 @@
         <dependency>
             <groupId>org.syncope.identityconnectors.bundles.staticws</groupId>
             <artifactId>utilities</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <!-- TEST -->
@@ -106,7 +106,7 @@
         <dependency>
             <groupId>org.syncope.identityconnectors</groupId>
             <artifactId>test-common</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
 
@@ -114,7 +114,7 @@
             <groupId>org.syncope.identityconnectors.bundles.staticws</groupId>
             <artifactId>ws-target-resource</artifactId>
             <type>war</type>
-            <version>${parent.version}</version>
+            <version>${project.version}</version>
             <scope>runtime</scope>
         </dependency>
 

@@ -50,7 +50,7 @@
         <dependency>
             <groupId>org.syncope</groupId>
             <artifactId>syncope-client</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
@@ -177,12 +177,12 @@
         <dependency>
             <groupId>org.syncope.identityconnectors</groupId>
             <artifactId>framework</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.syncope.identityconnectors</groupId>
             <artifactId>framework-internal</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <!-- /IdentityConnectors -->
 
@@ -199,7 +199,7 @@
         <dependency>
             <groupId>org.syncope.identityconnectors.bundles.staticws</groupId>
             <artifactId>staticwebservice</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -221,13 +221,13 @@
         <dependency>
             <groupId>org.syncope.identityconnectors</groupId>
             <artifactId>test-common</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.syncope.identityconnectors.bundles.staticws</groupId>
             <artifactId>ws-target-resource</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.version}</version>
             <type>war</type>
             <scope>test</scope>
         </dependency>
@@ -405,7 +405,7 @@
                                 <artifactItem>
                                     <groupId>org.syncope.identityconnectors.bundles.staticws</groupId>
                                     <artifactId>staticwebservice</artifactId>
-                                    <version>${parent.version}</version>
+                                    <version>${project.version}</version>
                                     <outputDirectory>/tmp/bundles</outputDirectory>
                                 </artifactItem>
                             </artifactItems>
@@ -476,7 +476,7 @@
                 <configuration>
                     <stopKey>foo</stopKey>
                     <stopPort>9999</stopPort>
-                    <webApp>${settings.localRepository}/org/syncope/identityconnectors/bundles/staticws/ws-target-resource/${parent.version}/ws-target-resource-${parent.version}.war</webApp>
+                    <webApp>${settings.localRepository}/org/syncope/identityconnectors/bundles/staticws/ws-target-resource/${project.version}/ws-target-resource-${project.version}.war</webApp>
                     <contextPath>wstarget</contextPath>
                     <connectors>
                         <connector implementation="org.mortbay.jetty.nio.SelectChannelConnector">

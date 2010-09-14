@@ -20,7 +20,7 @@
             <groupId>org.syncope.identityconnectors</groupId>
             <artifactId>framework</artifactId>
             <scope>compile</scope>
-            <version>${parent.version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
