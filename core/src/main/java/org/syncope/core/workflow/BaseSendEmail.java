@@ -24,7 +24,6 @@ import java.util.Map;
 import org.apache.commons.mail.Email;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.HtmlEmail;
-import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.MissingConfKeyException;
 import org.syncope.core.persistence.dao.SyncopeConfigurationDAO;
 
@@ -66,8 +65,8 @@ public class BaseSendEmail extends OSWorkflowComponent
                 ? fallback : templateContent.toString();
     }
 
-    protected HtmlEmail getHtmlEmail(Map<String, String> args,
-            SyncopeUser syncopeUser)
+    protected HtmlEmail getHtmlEmail(Map<String, Object> transientVars,
+            Map<String, String> args, PropertySet ps)
             throws EmailException, WorkflowException {
 
         HtmlEmail email = new HtmlEmail();
@@ -89,12 +88,9 @@ public class BaseSendEmail extends OSWorkflowComponent
     public void execute(Map transientVars, Map args, PropertySet ps)
             throws WorkflowException {
 
-        SyncopeUser syncopeUser = (SyncopeUser) transientVars.get(
-                Constants.SYNCOPE_USER);
-
         Email email = null;
         try {
-            email = getHtmlEmail(args, syncopeUser);
+            email = getHtmlEmail(transientVars, args, ps);
             email.send();
         } catch (EmailException e) {
             LOG.error("Could not send e-mail " + email, e);
