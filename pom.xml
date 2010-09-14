@@ -20,7 +20,7 @@
     <description>Syncope</description>
     <groupId>org.syncope</groupId>
     <artifactId>syncope</artifactId>
-    <version>0.1</version>
+    <version>0.2-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <!-- maven repository on sonatype -->
@@ -44,9 +44,9 @@
     </licenses>
 
     <scm>
-        <connection>scm:svn:http://syncope.googlecode.com/svn/tags/syncope-0.1</connection>
-        <developerConnection>scm:svn:https://syncope.googlecode.com/svn/tags/syncope-0.1</developerConnection>
-        <url>http://syncope.googlecode.com/svn/tags/syncope-0.1</url>
+        <connection>scm:svn:http://syncope.googlecode.com/svn/trunk/</connection>
+        <developerConnection>scm:svn:https://syncope.googlecode.com/svn/trunk/</developerConnection>
+        <url>http://syncope.googlecode.com/svn/trunk/</url>
     </scm>
 
     <issueManagement>
