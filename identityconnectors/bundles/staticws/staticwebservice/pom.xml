@@ -19,7 +19,7 @@
     <parent>
         <artifactId>staticws</artifactId>
         <groupId>org.syncope.identityconnectors.bundles.staticws</groupId>
-        <version>0.1-SNAPSHOT</version>
+        <version>0.1</version>
     </parent>
 
     <groupId>org.syncope.identityconnectors.bundles.staticws</groupId>
@@ -98,6 +98,14 @@
             <artifactId>spring-test</artifactId>
             <scope>test</scope>
             <type>jar</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.syncope.identityconnectors.bundles.staticws</groupId>
+            <artifactId>ws-target-resource</artifactId>
+            <version>${parent.version}</version>
+            <type>war</type>
+            <scope>test</scope>
         </dependency>
         
         <dependency>
@@ -205,7 +213,7 @@
                         </connector>
                     </connectors>
 
-                    <webApp>../ws-target-resource/target/ws-target-resource-${project.version}.war</webApp>
+                    <webApp>${settings.localRepository}/org/syncope/identityconnectors/bundles/staticws/ws-target-resource/${parent.version}/ws-target-resource-${parent.version}.war</webApp>
                     <contextPath>/wstarget</contextPath>
                 </configuration>
                 <executions>
@@ -235,10 +243,10 @@
         </plugins>
 
         <testResources>
-           <testResource>
-             <directory>src/test/resources</directory>
-             <filtering>true</filtering>
-           </testResource>
+            <testResource>
+                <directory>src/test/resources</directory>
+                <filtering>true</filtering>
+            </testResource>
         </testResources>
     </build>
 
