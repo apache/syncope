@@ -12,10 +12,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<project
-            xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
-            xmlns="http://maven.apache.org/POM/4.0.0"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
@@ -108,14 +105,6 @@
             <artifactId>test-common</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.syncope.identityconnectors.bundles.staticws</groupId>
-            <artifactId>ws-target-resource</artifactId>
-            <type>war</type>
-            <version>${project.version}</version>
-            <scope>runtime</scope>
         </dependency>
 
         <dependency>
@@ -216,10 +205,9 @@
                         </connector>
                     </connectors>
 
-                    <webApp>${settings.localRepository}/org/syncope/identityconnectors/bundles/staticws/ws-target-resource/${project.version}/ws-target-resource-${project.version}.war</webApp>
+                    <webApp>../ws-target-resource/target/ws-target-resource-${project.version}.war</webApp>
                     <contextPath>/wstarget</contextPath>
                 </configuration>
-
                 <executions>
                     <execution>
                         <id>start-jetty</id>
@@ -245,6 +233,13 @@
             </plugin>
 
         </plugins>
+
+        <testResources>
+           <testResource>
+             <directory>src/test/resources</directory>
+             <filtering>true</filtering>
+           </testResource>
+        </testResources>
     </build>
 
 </project>

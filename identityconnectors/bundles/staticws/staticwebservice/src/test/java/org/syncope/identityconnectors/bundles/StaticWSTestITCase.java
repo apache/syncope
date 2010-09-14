@@ -16,11 +16,13 @@ package org.syncope.identityconnectors.bundles;
 
 import static org.junit.Assert.*;
 
+import java.io.InputStream;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 import org.identityconnectors.common.IOUtil;
 import org.identityconnectors.common.security.GuardedString;
@@ -68,8 +70,7 @@ public class StaticWSTestITCase {
     final private String bundlename =
             "org.syncope.identityconnectors.bundles.staticws";
 
-    final private String bundleversion =
-            "0.1-SNAPSHOT";
+    private String bundleversion = null;
 
     final private String bundleclass =
             WebServiceConnector.class.getName();
@@ -84,6 +85,16 @@ public class StaticWSTestITCase {
      */
     @Before
     public void init() {
+
+        Properties props = new java.util.Properties();
+	try {
+		InputStream propStream = getClass().getResourceAsStream("/bundleversion.properties");
+		props.load(propStream);
+		bundleversion = props.getProperty("bundleversion");
+        } catch(Throwable t) {
+		log.error("Could not load bundleversion", t);	
+ 	}
+	assertNotNull(bundleversion);
 
         ConnectorInfoManagerFactory connectorInfoManagerFactory =
                 ConnectorInfoManagerFactory.getInstance();
