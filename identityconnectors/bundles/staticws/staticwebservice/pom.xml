@@ -216,7 +216,7 @@
                         </connector>
                     </connectors>
 
-                    <webApp>${basedir}/../ws-target-resource/target/ws-target-resource-0.1-SNAPSHOT.war</webApp>
+                    <webApp>${settings.localRepository}/org/syncope/identityconnectors/bundles/staticws/ws-target-resource/${project.version}/ws-target-resource-${project.version}.war</webApp>
                     <contextPath>/wstarget</contextPath>
                 </configuration>
 
