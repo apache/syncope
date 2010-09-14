@@ -125,6 +125,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <bundles.directory>/tmp/bundles</bundles.directory>
     </properties>
 
     <build>
@@ -182,6 +183,31 @@
             </plugin>
 
             <!-- Test Plugins -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <inherited>true</inherited>
+                <executions>
+                    <execution>
+                        <id>set-bundles</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.syncope.identityconnectors.bundles.staticws</groupId>
+                                    <artifactId>staticwebservice</artifactId>
+                                    <version>${project.version}</version>
+                                    <outputDirectory>${bundles.directory}</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>failsafe-maven-plugin</artifactId>

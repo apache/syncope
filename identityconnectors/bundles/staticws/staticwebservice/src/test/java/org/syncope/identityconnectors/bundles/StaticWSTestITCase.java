@@ -58,25 +58,18 @@ import org.syncope.identityconnectors.bundles.staticwebservice.provisioning.inte
 
 public class StaticWSTestITCase {
 
-    private static final Logger log =
+    private static final Logger LOG =
             LoggerFactory.getLogger(StaticWSTestITCase.class);
-
     final private String ENDPOINT_PREFIX =
             "http://localhost:8888/wstarget/services";
-
     final private String SERVICE =
             "/provisioning";
-
     final private String bundlename =
             "org.syncope.identityconnectors.bundles.staticws";
-
     private String bundleversion = null;
-
     final private String bundleclass =
             WebServiceConnector.class.getName();
-
-    final private String BUNDLE_DIRECTORY = "target";
-
+    private String bundledirectory;
     private ConnectorFacade connector;
 
     /**
@@ -87,19 +80,23 @@ public class StaticWSTestITCase {
     public void init() {
 
         Properties props = new java.util.Properties();
-	try {
-		InputStream propStream = getClass().getResourceAsStream("/bundleversion.properties");
-		props.load(propStream);
-		bundleversion = props.getProperty("bundleversion");
-        } catch(Throwable t) {
-		log.error("Could not load bundleversion", t);	
- 	}
-	assertNotNull(bundleversion);
+        try {
+            InputStream propStream =
+                    getClass().getResourceAsStream(
+                    "/bundle.properties");
+            props.load(propStream);
+            bundleversion = props.getProperty("bundleversion");
+            bundledirectory = props.getProperty("bundledirectory");
+        } catch (Throwable t) {
+            LOG.error("Could not load bundleversion", t);
+        }
+        assertNotNull(bundleversion);
+        assertNotNull(bundledirectory);
 
         ConnectorInfoManagerFactory connectorInfoManagerFactory =
                 ConnectorInfoManagerFactory.getInstance();
 
-        File bundleDirectory = new File(BUNDLE_DIRECTORY);
+        File bundleDirectory = new File(bundledirectory);
 
         APIConfiguration apiConfig = null;
 
@@ -114,20 +111,20 @@ public class StaticWSTestITCase {
                 urls.add(IOUtil.makeURL(bundleDirectory, file));
             } catch (Exception ignore) {
                 // ignore exception and don't add bundle
-                if (log.isDebugEnabled()) {
-                    log.debug(
-                            "\"" +
-                            bundleDirectory.toString() + "/" + file +
-                            "\"" +
-                            " is not a valid connector bundle.", ignore);
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug(
+                            "\""
+                            + bundleDirectory.toString() + "/" + file
+                            + "\""
+                            + " is not a valid connector bundle.", ignore);
                 }
             }
         }
 
         assertFalse(urls.isEmpty());
 
-        if (log.isDebugEnabled()) {
-            log.debug("URL: " + urls.toString());
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("URL: " + urls.toString());
         }
 
         ConnectorInfoManager manager =
@@ -141,17 +138,17 @@ public class StaticWSTestITCase {
 
         assertNotNull(infos);
 
-        log.debug("infos size: " + infos.size());
+        LOG.debug("infos size: " + infos.size());
 
         for (ConnectorInfo i : infos) {
-            log.debug("Name: " + i.getConnectorDisplayName());
+            LOG.debug("Name: " + i.getConnectorDisplayName());
         }
 
-        if (log.isDebugEnabled()) {
-            log.debug(
-                    "\nBundle name: " + bundlename +
-                    "\nBundle version: " + bundleversion +
-                    "\nBundle class: " + bundleclass);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug(
+                    "\nBundle name: " + bundlename
+                    + "\nBundle version: " + bundleversion
+                    + "\nBundle class: " + bundleclass);
         }
 
         // specify a connector.
@@ -184,10 +181,10 @@ public class StaticWSTestITCase {
         for (String propName : propertyNames) {
             ConfigurationProperty prop = properties.getProperty(propName);
 
-            if (log.isDebugEnabled()) {
-                log.debug(
-                        "\nProperty Name: " + prop.getName() +
-                        "\nProperty Type: " + prop.getType());
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(
+                        "\nProperty Name: " + prop.getName()
+                        + "\nProperty Type: " + prop.getType());
             }
         }
 
@@ -251,10 +248,10 @@ public class StaticWSTestITCase {
             assertNotNull(attrs);
 
             for (AttributeInfo attr : attrs) {
-                if (log.isDebugEnabled()) {
-                    log.debug(
-                            "\nAttribute name: " + attr.getName() +
-                            "\nAttribute type: " + attr.getType().getName());
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug(
+                            "\nAttribute name: " + attr.getName()
+                            + "\nAttribute type: " + attr.getType().getName());
                 }
             }
         }
@@ -272,8 +269,8 @@ public class StaticWSTestITCase {
             @Override
             public boolean handle(ConnectorObject obj) {
 
-                if (log.isDebugEnabled()) {
-                    log.debug("Add record " + obj);
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Add record " + obj);
                 }
 
                 results.add(obj);
@@ -302,11 +299,11 @@ public class StaticWSTestITCase {
          */
         assertFalse(results.isEmpty());
 
-        if (log.isDebugEnabled()) {
+        if (LOG.isDebugEnabled()) {
             for (ConnectorObject obj : results) {
-                log.debug(
-                        "\nName: " + obj.getName() +
-                        "\nUID: " + obj.getUid());
+                LOG.debug(
+                        "\nName: " + obj.getName()
+                        + "\nUID: " + obj.getUid());
             }
         }
     }
