@@ -501,16 +501,14 @@
                     <minimumTokens>100</minimumTokens>
                 </configuration>
             </plugin>
-	    <plugins>
-	      <plugin>
-		<groupId>org.apache.maven.plugins</groupId>
-		<artifactId>maven-release-plugin</artifactId>
-		<version>2.0</version>
-		<configuration>
-		  <tagBase>http://syncope.googlecode.com/svn/tags</tagBase>
-		</configuration>
-	      </plugin>
-	    </plugins>
+	    <plugin>
+	      <groupId>org.apache.maven.plugins</groupId>
+	      <artifactId>maven-release-plugin</artifactId>
+	      <version>2.0</version>
+	      <configuration>
+		<tagBase>http://syncope.googlecode.com/svn/tags</tagBase>
+	      </configuration>
+	    </plugin>
         </plugins>
     </reporting>
 
