@@ -77,7 +77,7 @@
         <dependency>
             <groupId>org.syncope.identityconnectors.bundles.staticws</groupId>
             <artifactId>utilities</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <!-- persistence dependencies -->
