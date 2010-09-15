@@ -75,7 +75,7 @@
         <dependency>
             <groupId>org.syncope</groupId>
             <artifactId>syncope-client</artifactId>
-            <version>0.2-SNAPSHOT</version>
+            <version>${project.version}</version>
             <type>jar</type>
         </dependency>
 
