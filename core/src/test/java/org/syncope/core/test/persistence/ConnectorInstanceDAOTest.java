@@ -48,7 +48,7 @@ public class ConnectorInstanceDAOTest extends AbstractTest {
                 connectorInstance.getBundleName());
 
         assertEquals("invalid bundle version",
-                "0.1-SNAPSHOT", connectorInstance.getVersion());
+                bundles_version, connectorInstance.getVersion());
     }
 
     @Test

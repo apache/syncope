@@ -25,6 +25,7 @@ import org.syncope.core.persistence.beans.ConnectorInstance;
 import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.dao.ResourceDAO;
+import org.syncope.identityconnectors.bundles.staticwebservice.WebServiceConnector;
 
 @Transactional
 public class ResourceDAOTest extends AbstractTest {
@@ -44,7 +45,7 @@ public class ResourceDAOTest extends AbstractTest {
         assertNotNull("connector not found", connector);
 
         assertEquals("invalid connector name",
-                "org.syncope.identityconnectors.bundles.staticwebservice.WebServiceConnector",
+                WebServiceConnector.class.getName(),
                 connector.getConnectorName());
 
         assertEquals("invalid bundle name",
@@ -52,7 +53,7 @@ public class ResourceDAOTest extends AbstractTest {
                 connector.getBundleName());
 
         assertEquals("invalid bundle version",
-                "0.1-SNAPSHOT", connector.getVersion());
+                bundles_version, connector.getVersion());
 
         List<SchemaMapping> mappings = resource.getMappings();
 
@@ -62,8 +63,9 @@ public class ResourceDAOTest extends AbstractTest {
 
         List<Long> mappingIds = new ArrayList<Long>();
 
-        for (SchemaMapping mapping : mappings)
+        for (SchemaMapping mapping : mappings) {
             mappingIds.add(mapping.getId());
+        }
 
         assertTrue(mappingIds.contains(100L));
     }

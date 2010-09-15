@@ -19,7 +19,7 @@
     <parent>
         <artifactId>staticws</artifactId>
         <groupId>org.syncope.identityconnectors.bundles.staticws</groupId>
-        <version>0.1</version>
+        <version>0.1.1-SNAPSHOT</version>
     </parent>
 
     <groupId>org.syncope.identityconnectors.bundles.staticws</groupId>
@@ -99,14 +99,6 @@
             <scope>test</scope>
             <type>jar</type>
         </dependency>
-
-        <dependency>
-            <groupId>org.syncope.identityconnectors.bundles.staticws</groupId>
-            <artifactId>ws-target-resource</artifactId>
-            <version>${parent.version}</version>
-            <type>war</type>
-            <scope>test</scope>
-        </dependency>
         
         <dependency>
             <groupId>org.syncope.identityconnectors</groupId>
@@ -185,43 +177,45 @@
             <!-- Test Plugins -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
+                <artifactId>maven-resources-plugin</artifactId>
                 <inherited>true</inherited>
                 <executions>
                     <execution>
                         <id>set-bundles</id>
                         <phase>pre-integration-test</phase>
                         <goals>
-                            <goal>copy</goal>
+                            <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>org.syncope.identityconnectors.bundles.staticws</groupId>
-                                    <artifactId>staticwebservice</artifactId>
-                                    <version>${project.version}</version>
-                                    <outputDirectory>${bundles.directory}</outputDirectory>
-                                </artifactItem>
-                            </artifactItems>
+                            <outputDirectory>${bundles.directory}</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${basedir}/target</directory>
+                                    <includes>
+                                        <include>*.jar</include>
+                                    </includes>
+                                </resource>
+                            </resources>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
 
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>failsafe-maven-plugin</artifactId>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <inherited>true</inherited>
+                <configuration>
+                    <redirectTestOutputToFile>true</redirectTestOutputToFile>
+                    <encoding>utf-8</encoding>
+                </configuration>
                 <executions>
                     <execution>
                         <goals>
-                            <goal>integration-test</goal>
                             <goal>verify</goal>
                         </goals>
                     </execution>
                 </executions>
-                <configuration>
-                    <encoding>utf-8</encoding>
-                </configuration>
             </plugin>
 
             <plugin>
@@ -239,7 +233,7 @@
                         </connector>
                     </connectors>
 
-                    <webApp>${settings.localRepository}/org/syncope/identityconnectors/bundles/staticws/ws-target-resource/${parent.version}/ws-target-resource-${parent.version}.war</webApp>
+                    <webApp>../ws-target-resource/target/ws-target-resource-${project.version}.war</webApp>
                     <contextPath>/wstarget</contextPath>
                 </configuration>
                 <executions>
