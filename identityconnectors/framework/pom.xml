@@ -6,7 +6,7 @@
     <parent>
         <artifactId>identityconnectors</artifactId>
         <groupId>org.syncope.identityconnectors</groupId>
-        <version>0.1.4-SNAPSHOT</version>
+        <version>0.1.4</version>
     </parent>
 
     <artifactId>framework</artifactId>
