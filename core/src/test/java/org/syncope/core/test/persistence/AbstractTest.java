@@ -14,12 +14,16 @@
  */
 package org.syncope.core.test.persistence;
 
+import static org.junit.Assert.*;
+
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Properties;
 import javax.sql.DataSource;
 import org.dbunit.database.DatabaseConfig;
 import org.dbunit.database.DatabaseConnection;
@@ -43,6 +47,8 @@ public abstract class AbstractTest {
 
     protected static final Logger LOG = LoggerFactory.getLogger(
             AbstractTest.class);
+    protected static String bundles_version;
+    protected static String bundles_directory;
     @Autowired
     private DataSource dataSource;
     @Autowired
@@ -114,5 +120,22 @@ public abstract class AbstractTest {
             } catch (SQLException e) {
             }
         }
+    }
+
+    @Before
+    public void init() {
+        Properties props = new java.util.Properties();
+        try {
+            InputStream propStream =
+                    getClass().getResourceAsStream(
+                    "/bundles.properties");
+            props.load(propStream);
+            bundles_version = props.getProperty("bundles.version");
+            bundles_directory = props.getProperty("bundles.directory");
+        } catch (Throwable t) {
+            LOG.error("Could not load bundles.properties", t);
+        }
+        assertNotNull(bundles_version);
+        assertNotNull(bundles_directory);
     }
 }

@@ -117,6 +117,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <bundles.directory>/tmp/bundles</bundles.directory>
     </properties>
 
     <build>
@@ -175,19 +176,46 @@
 
             <!-- Test Plugins -->
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>failsafe-maven-plugin</artifactId>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <inherited>true</inherited>
+                <executions>
+                    <execution>
+                        <id>set-bundles</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${bundles.directory}</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${basedir}/target</directory>
+                                    <includes>
+                                        <include>*.jar</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <inherited>true</inherited>
+                <configuration>
+                    <redirectTestOutputToFile>true</redirectTestOutputToFile>
+                    <encoding>utf-8</encoding>
+                </configuration>
                 <executions>
                     <execution>
                         <goals>
-                            <goal>integration-test</goal>
                             <goal>verify</goal>
                         </goals>
                     </execution>
                 </executions>
-                <configuration>
-                    <encoding>utf-8</encoding>
-                </configuration>
             </plugin>
 
             <plugin>
@@ -235,10 +263,10 @@
         </plugins>
 
         <testResources>
-           <testResource>
-             <directory>src/test/resources</directory>
-             <filtering>true</filtering>
-           </testResource>
+            <testResource>
+                <directory>src/test/resources</directory>
+                <filtering>true</filtering>
+            </testResource>
         </testResources>
     </build>
 

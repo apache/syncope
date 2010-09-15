@@ -14,10 +14,13 @@
  */
 package org.syncope.core.test.rest;
 
+import java.io.InputStream;
 import static org.junit.Assert.*;
 
 import java.util.HashSet;
+import java.util.Properties;
 import java.util.Set;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.annotation.ExpectedException;
@@ -30,6 +33,26 @@ import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.identityconnectors.bundles.staticwebservice.WebServiceConnector;
 
 public class ConnectorInstanceTestITCase extends AbstractTestITCase {
+
+    protected static String bundles_version;
+    protected static String bundles_directory;
+
+    @Before
+    public void init() {
+        Properties props = new java.util.Properties();
+        try {
+            InputStream propStream =
+                    getClass().getResourceAsStream(
+                    "/bundles.properties");
+            props.load(propStream);
+            bundles_version = props.getProperty("bundles.version");
+            bundles_directory = props.getProperty("bundles.directory");
+        } catch (Throwable t) {
+            LOG.error("Could not load bundles.properties", t);
+        }
+        assertNotNull(bundles_version);
+        assertNotNull(bundles_directory);
+    }
 
     @Test
     @ExpectedException(value = SyncopeClientCompositeErrorException.class)
@@ -46,7 +69,7 @@ public class ConnectorInstanceTestITCase extends AbstractTestITCase {
         ConnectorInstanceTO connectorTO = new ConnectorInstanceTO();
 
         // set connector version
-        connectorTO.setVersion("0.1-SNAPSHOT");
+        connectorTO.setVersion(bundles_version);
 
         // set connector name
         connectorTO.setConnectorName(WebServiceConnector.class.getSimpleName());
@@ -141,7 +164,7 @@ public class ConnectorInstanceTestITCase extends AbstractTestITCase {
         connectorTO.setId(100L);
 
         // set connector version
-        connectorTO.setVersion("0.1-SNAPSHOT");
+        connectorTO.setVersion(bundles_version);
 
         // set connector name
         connectorTO.setConnectorName(WebServiceConnector.class.getSimpleName());

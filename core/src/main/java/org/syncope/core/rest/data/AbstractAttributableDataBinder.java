@@ -55,9 +55,14 @@ import org.syncope.core.persistence.validation.ValidationException;
 import org.syncope.types.SchemaType;
 import org.syncope.types.SyncopeClientExceptionType;
 
-@Transactional(rollbackFor = {Throwable.class})
+@Transactional(rollbackFor = {
+    Throwable.class
+})
 public abstract class AbstractAttributableDataBinder {
 
+    /**
+     * Logger.
+     */
     protected static final Logger LOG = LoggerFactory.getLogger(
             AbstractAttributableDataBinder.class);
     @Autowired
@@ -230,25 +235,26 @@ public abstract class AbstractAttributableDataBinder {
             if (schema != null) {
                 for (SchemaMapping mapping : resourceDAO.getMappings(
                         schema.getName(),
-                        SchemaType.byClass(attributableUtil.getSchemaClass()))) {
+                        SchemaType.byClass(
+                        attributableUtil.getSchemaClass()))) {
+
                     if (mapping.getResource() != null) {
                         resourceOperations.add(Type.UPDATE,
                                 mapping.getResource());
                     }
                 }
-            }
 
-            attribute = attributable.getAttribute(schema.getName());
-            if (attribute == null) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("No attribute found for schema "
-                            + schema.getName());
+                attribute = attributable.getAttribute(schema.getName());
+                if (attribute == null) {
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("No attribute found for schema " + schema);
+                    }
+                } else {
+                    attributable.removeAttribute(attribute);
+
+                    attributeDAO.delete(attribute.getId(),
+                            attributableUtil.getAttributeClass());
                 }
-            } else {
-                attributable.removeAttribute(attribute);
-
-                attributeDAO.delete(attribute.getId(),
-                        attributableUtil.getAttributeClass());
             }
         }
 
@@ -267,7 +273,9 @@ public abstract class AbstractAttributableDataBinder {
             if (schema != null) {
                 for (SchemaMapping mapping : resourceDAO.getMappings(
                         schema.getName(),
-                        SchemaType.byClass(attributableUtil.getSchemaClass()))) {
+                        SchemaType.byClass(
+                        attributableUtil.getSchemaClass()))) {
+
                     if (mapping.getResource() != null) {
                         resourceOperations.add(Type.UPDATE,
                                 mapping.getResource());
