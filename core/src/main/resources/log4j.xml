@@ -44,6 +44,16 @@
         </layout>
     </appender>
 
+    <appender name="identityconnectors" class="org.apache.log4j.RollingFileAppender">
+        <param name="File" value="${logfile.identityconnectors}"/>
+        <param name="Append" value="true"/>
+        <param name="MaxFileSize" value="10240KB" />
+        <param name="MaxBackupIndex" value="10" />
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%-5p %d %C.%M:%L %m%n"/>
+        </layout>
+    </appender>
+
     <appender name="test" class="org.apache.log4j.RollingFileAppender">
         <param name="File" value="${logfile.test}"/>
         <param name="Append" value="true"/>
@@ -62,6 +72,11 @@
     <logger name="org.syncope.core.rest" additivity="false">
         <level value="INFO"/>
         <appender-ref ref="rest"/>
+    </logger>
+    
+    <logger name="org.syncope.core.identityconnectors" additivity="false">
+        <level value="DEBUG"/>
+        <appender-ref ref="identityconnectors"/>
     </logger>
 
     <logger name="org.syncope.core.test" additivity="false">
@@ -86,7 +101,7 @@
 
     <logger name="org.springframework.web" additivity="false">
         <level value="INFO"/>
-        <appender-ref ref="persistence"/>
+        <appender-ref ref="rest"/>
     </logger>
 
     <logger name="org.hibernate" additivity="false">
@@ -102,9 +117,5 @@
     <root>
         <priority value="INFO"/>
         <appender-ref ref="main"/>
-        <appender-ref ref="persistence"/>
-        <appender-ref ref="rest"/>
-        <appender-ref ref="test"/>
     </root>
 </log4j:configuration>
-

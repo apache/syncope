@@ -49,14 +49,14 @@ public class DefaultContentLoader implements ServletContextListener {
             DefaultContentLoader.class);
 
     /**
-     * <em>WARNING</em>: this method connects to the database by mean of the 
+     * <em>WARNING</em>: this method connects to the database by mean of the
      * underlying Spring's datasource, not using the provided one, to be fetched
      * via JNDI. This in order to avoid potential conflicts and problems with
      * DbUnit.
-     * @param sce
+     * @param sce ServletContext event
      */
     @Override
-    public void contextInitialized(final ServletContextEvent sce) {
+    public final void contextInitialized(final ServletContextEvent sce) {
         WebApplicationContext springContext =
                 WebApplicationContextUtils.getWebApplicationContext(
                 sce.getServletContext());
@@ -82,8 +82,6 @@ public class DefaultContentLoader implements ServletContextListener {
             } else {
                 LOG.error("Could not find db.properties");
             }
-
-            dbSchema = null;
         }
 
         Connection conn = DataSourceUtils.getConnection(dataSource);

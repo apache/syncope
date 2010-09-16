@@ -40,6 +40,7 @@
         <logfile>/tmp/syncope-core.log</logfile>
         <logfile.persistence>/tmp/syncope-core-persistence.log</logfile.persistence>
         <logfile.rest>/tmp/syncope-core-rest.log</logfile.rest>
+        <logfile.identityconnectors>/tmp/syncope-core-identityconnectors.log</logfile.identityconnectors>
         <logfile.test>/tmp/syncope-core-test.log</logfile.test>
 
         <bundles.directory>/tmp/bundles</bundles.directory>
@@ -401,6 +402,10 @@
                                     <includes>
                                         <include>*.jar</include>
                                     </includes>
+                                    <excludes>
+                                        <exclude>*-javadoc.jar</exclude>
+                                        <exclude>*-sources.jar</exclude>
+                                    </excludes>
                                 </resource>
                             </resources>
                         </configuration>
