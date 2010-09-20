@@ -112,20 +112,7 @@ public class RoleModalPage extends SyncopeModalPage {
                     @Override
                     protected void populateItem(final ListItem item) {
 
-                        if (schemaTO.getType().getClassName().equals("java.lang.String")) {
-                            panel = new AjaxTextFieldPanel("panel", schemaTO.getName(), new Model() {
-
-                                @Override
-                                public Serializable getObject() {
-                                    return (String) item.getModelObject();
-                                }
-
-                                @Override
-                                public void setObject(Serializable object) {
-                                    item.setModelObject((String) object);
-                                }
-                            }, schemaTO.isMandatory());
-                        } else if (schemaTO.getType().getClassName().equals("java.lang.Boolean")) {
+                      if (schemaTO.getType().getClassName().equals("java.lang.Boolean")) {
                             panel = new AjaxCheckBoxPanel("panel", schemaTO.getName(), new Model() {
 
                                 @Override
@@ -167,6 +154,21 @@ public class RoleModalPage extends SyncopeModalPage {
                                             item.setModelObject(val);
                                         }
                                     }, schemaTO.isMandatory());
+                        }
+                        //Common other cases : java.lang.String,java.lang.Double,java.lang.Long
+                        else  {
+                            panel = new AjaxTextFieldPanel("panel", schemaTO.getName(), new Model() {
+
+                                @Override
+                                public Serializable getObject() {
+                                    return (String) item.getModelObject();
+                                }
+
+                                @Override
+                                public void setObject(Serializable object) {
+                                    item.setModelObject((String) object);
+                                }
+                            }, schemaTO.isMandatory());
                         }
 
                         item.add(panel);
