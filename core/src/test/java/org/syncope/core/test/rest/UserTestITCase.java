@@ -99,7 +99,7 @@ public class UserTestITCase extends AbstractTestITCase {
 
         // add a membership
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRole(8L);
+        membershipTO.setRoleId(8L);
         userTO.addMembership(membershipTO);
 
         // add an attribute with no values: must be ignored
@@ -179,7 +179,7 @@ public class UserTestITCase extends AbstractTestITCase {
         userTO.removeAttribute(type);
 
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRole(8L);
+        membershipTO.setRoleId(8L);
         userTO.addMembership(membershipTO);
 
         SyncopeClientCompositeErrorException ex = null;
@@ -285,7 +285,7 @@ public class UserTestITCase extends AbstractTestITCase {
     public final void update() {
         UserTO userTO = getSampleTO("g.h@t.com");
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRole(8L);
+        membershipTO.setRoleId(8L);
         userTO.addMembership(membershipTO);
 
         userTO = restTemplate.postForObject(BASE_URL + "user/create",

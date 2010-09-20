@@ -364,7 +364,7 @@ public class UserModalPage extends SyncopeModalPage {
                         public Page createPage() {
 
                             membershipTO = new MembershipTO();
-                            membershipTO.setRole(treeModel.getTreeNode().getId());
+                            membershipTO.setRoleId(treeModel.getTreeNode().getId());
                             String title = treeModel.getTreeNode().getName();
 
                             MembershipModalPage form =
@@ -392,8 +392,8 @@ public class UserModalPage extends SyncopeModalPage {
                 final MembershipTO membershipTO =
                         (MembershipTO) item.getDefaultModelObject();
 
-                item.add(new Label("roleId", new Model(membershipTO.getRole())));
-                item.add(new Label("roleName", new Model((String) rolesMap.get(membershipTO.getRole()))));
+                item.add(new Label("roleId", new Model(membershipTO.getRoleId())));
+                item.add(new Label("roleName", new Model((String) rolesMap.get(membershipTO.getRoleId()))));
 
                 AjaxLink editLink = new AjaxLink("editLink") {
 
@@ -500,7 +500,7 @@ public class UserModalPage extends SyncopeModalPage {
 
         for (MembershipTO membershipTO : userTO.getMemberships()) {
             membership = new MembershipTO();
-            membership.setRole(membershipTO.getRole());
+            membership.setRoleId(membershipTO.getRoleId());
             membership.setAttributes(membershipTO.getAttributes());
             oldUser.getMemberships().add(membership);
         }
@@ -781,13 +781,13 @@ public class UserModalPage extends SyncopeModalPage {
     public void searchAndUpdateMembership(MembershipTO membershipTO) {
         boolean found = false;
         MembershipMod membershipMod = new MembershipMod();
-        membershipMod.setRole(membershipTO.getRole());
+        membershipMod.setRole(membershipTO.getRoleId());
 
         AttributeMod attributeMod;
 
         //1. If the membership exists and it's changed, update it
         for (MembershipTO oldMembership : oldUser.getMemberships()) {
-            if (membershipTO.getRole() == oldMembership.getRole()) {
+            if (membershipTO.getRoleId() == oldMembership.getRoleId()) {
 
                 for (AttributeTO oldAttribute : oldMembership.getAttributes()) {
                     for (AttributeTO newAttribute : membershipTO.getAttributes()) {

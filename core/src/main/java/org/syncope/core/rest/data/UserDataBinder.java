@@ -92,12 +92,12 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         // memberships
         SyncopeRole role = null;
         for (MembershipTO membershipTO : userTO.getMemberships()) {
-            role = syncopeRoleDAO.find(membershipTO.getRole());
+            role = syncopeRoleDAO.find(membershipTO.getRoleId());
 
             if (role == null) {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Ignoring invalid role " +
-                            membershipTO.getRole());
+                            membershipTO.getRoleName());
                 }
             } else {
                 Membership membership = null;
@@ -251,7 +251,8 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         for (Membership membership : user.getMemberships()) {
             membershipTO = new MembershipTO();
             membershipTO.setId(membership.getId());
-            membershipTO.setRole(membership.getSyncopeRole().getId());
+            membershipTO.setRoleId(membership.getSyncopeRole().getId());
+            membershipTO.setRoleName(membership.getSyncopeRole().getName());
 
             membershipTO = (MembershipTO) fillTO(membershipTO,
                     membership.getAttributes(),
