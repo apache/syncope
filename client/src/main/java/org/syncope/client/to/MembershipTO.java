@@ -19,14 +19,24 @@ import java.util.Set;
 
 public class MembershipTO extends AbstractAttributableTO {
 
-    private long role;
+    private Long roleId;
 
-    public long getRole() {
-        return role;
+    private String roleName;
+
+    public long getRoleId() {
+        return roleId;
     }
 
-    public void setRole(long role) {
-        this.role = role;
+    public void setRoleId(long roleId) {
+        this.roleId = roleId;
+    }
+
+    public String getRoleName() {
+        return roleName;
+    }
+
+    public void setRoleName(String roleName) {
+        this.roleName = roleName;
     }
 
     @Override
