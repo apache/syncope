@@ -70,20 +70,20 @@ public class Login extends WebPage {
             public void onSubmit() {
                 inputStream = ((SyncopeApplication)getApplication()).getAuthenticationFile();
                 Authentication auth = new Authentication();
-                Boolean authenticated = auth.authentication(usernameField.getRawInput(), passwordField.getRawInput(), inputStream);
+                Boolean authenticated = auth.authentication(usernameField.getRawInput(),
+                        passwordField.getRawInput(), inputStream);
                 if (authenticated == true) {
                     SyncopeUser user = new SyncopeUser();
                     user.setUsername(usernameField.getRawInput());
                     ((SyncopeSession)Session.get()).setUser(user);
                     setResponsePage(new WelcomePage(null));
-                    info("");
                     try {
                         inputStream.close();
                     } catch (IOException ex) {
                         Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 } else {
-                    info("Username e/o password errati");
+                    error(getString("login-error"));
                 }
             }
         };

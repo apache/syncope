@@ -20,7 +20,7 @@
 
     <groupId>org.syncope</groupId>
     <artifactId>syncope-archetype</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.2-SNAPSHOT</version>
     <packaging>maven-archetype</packaging>
 
     <name>syncope-archetype</name>
@@ -29,7 +29,7 @@
     <parent>
         <groupId>org.sonatype.oss</groupId>
         <artifactId>oss-parent</artifactId>
-        <version>3</version>
+        <version>5</version>
     </parent>
 
     <url>http://syncope.googlecode.com/</url>
