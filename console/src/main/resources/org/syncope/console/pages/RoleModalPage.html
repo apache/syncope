@@ -12,8 +12,15 @@
  limitations under the License.
  under the License.
 -->
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<wicket:head>
+    <style>
+        table.palette td.header {
+            background:url("images/ui-bg_glass_75_e6e6e6_1x400.png")
+                repeat-x scroll 50% 50% #E6E6E6 !important;
+        }
+    </style>
+</wicket:head>
+
 <wicket:extend>
     <div style="margin:10px" title="Create new Resource-Mappings">
         <p class="ui-widget ui-corner-all ui-widget-header"><wicket:message key="title"/></p>
@@ -49,7 +56,7 @@
                          </table>
                     </div>
                     <div id="tabs-3">
-                        <span wicket:id="resourcesChoiceTransfer"/>
+                        <span wicket:id="resourcesPalette"/>
                     </div>
                 </div>
                 <div>

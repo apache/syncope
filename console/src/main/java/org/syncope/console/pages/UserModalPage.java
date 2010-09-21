@@ -267,15 +267,15 @@ public class UserModalPage extends SyncopeModalPage {
 
         userForm.add(userAttributesView);
 
-        ListModel<ResourceTO> originals = new ListModel<ResourceTO>();
-        originals.setObject(getOriginals(userTO));
+        ListModel<ResourceTO> selectedResources = new ListModel<ResourceTO>();
+        selectedResources.setObject(getSelectedResources(userTO));
 
-        ListModel<ResourceTO> destinations = new ListModel<ResourceTO>();
-        destinations.setObject(getDestinations(userTO));
+        ListModel<ResourceTO> availableResources = new ListModel<ResourceTO>();
+        availableResources.setObject(getAvailableResources(userTO));
 
         ChoiceRenderer paletteRenderer = new ChoiceRenderer("name", "name");
-        final Palette resourcesPalette = new Palette("resourcesPalette", originals, destinations, paletteRenderer, 8, false);
-
+        final Palette resourcesPalette = new Palette("resourcesPalette", selectedResources,
+                availableResources, paletteRenderer, 8, false);
         userForm.add(resourcesPalette);
 
         container = new WebMarkupContainer("container");
@@ -444,7 +444,7 @@ public class UserModalPage extends SyncopeModalPage {
      * @param userTO
      * @return
      */
-    public List<ResourceTO> getOriginals(UserTO userTO) {
+    public List<ResourceTO> getSelectedResources(UserTO userTO) {
         List<ResourceTO> resources = new ArrayList<ResourceTO>();
         ResourceTO clusterableResourceTO;
 
@@ -461,7 +461,7 @@ public class UserModalPage extends SyncopeModalPage {
      * @param userTO
      * @return
      */
-    public List<ResourceTO> getDestinations(UserTO userTO) {
+    public List<ResourceTO> getAvailableResources(UserTO userTO) {
 
         List<ResourceTO> resources = new ArrayList<ResourceTO>();
 
@@ -469,7 +469,11 @@ public class UserModalPage extends SyncopeModalPage {
 
         ResourceTOs resourcesTos = resourcesRestClient.getAllResources();
 
-        if (userTO.getResources().size() == 0) {
+        for (ResourceTO resourceTO : resourcesTos)
+                resources.add(resourceTO);
+
+
+        /*if (userTO.getResources().size() == 0) {
             for (ResourceTO resourceTO : resourcesTos) 
                 resources.add(resourceTO);
         } else {
@@ -480,7 +484,7 @@ public class UserModalPage extends SyncopeModalPage {
                         resources.add(resourceTO);
                 }
             }
-        }
+        }*/
         return resources;
     }
 

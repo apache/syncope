@@ -16,6 +16,7 @@ package org.syncope.console.rest;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.client.RestClientException;
@@ -529,6 +530,20 @@ public class SchemaRestClient {
         }
     }
 
+    /**
+     * Populator for Validator Schema DropDown components.
+     */
+    public Set<String> getAllValidatorClasses() {
+        Set<String> validators = null;
+
+        try {
+            validators = restClient.getRestTemplate().getForObject(
+                    restClient.getBaseURL() + "configuration/validators.json", Set.class);
+        } catch (SyncopeClientCompositeErrorException e) {
+            e.printStackTrace();
+        }
+        return validators;
+    }
     /**
      * Get all membership's derived schemas.
      * @return DerivedSchemaTOs

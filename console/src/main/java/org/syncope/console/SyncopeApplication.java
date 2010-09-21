@@ -78,17 +78,6 @@ public class SyncopeApplication extends WebApplication implements ApplicationCon
         return (user == null) ? Login.class :  WelcomePage.class;
     }
 
-    /**
-     * Use this method to switch from DEVELOPMENT to DEPLOYMENT mode
-     * on production enviroment.
-     *
-     * @return String : Configuration type
-     */
-    @Override
-    public String getConfigurationType()
-    {
-        return DEVELOPMENT;
-    }
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
