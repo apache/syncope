@@ -48,7 +48,7 @@ public class Roles extends BasePage {
 
     WebMarkupContainer container;
 
-        /** Response flag set by the Modal Window after the operation is completed  */
+    /** Response flag set by the Modal Window after the operation is completed  */
     boolean operationResult = false;
     FeedbackPanel feedbackPanel;
     
