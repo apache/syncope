@@ -27,6 +27,7 @@ public class SchemaTO extends AbstractBaseBean {
     private boolean mandatory;
     private boolean multivalue;
     private boolean uniquevalue;
+    private boolean readonly;
     private String conversionPattern;
     private String validatorClass;
     private Set<String> derivedSchemas;
@@ -74,6 +75,14 @@ public class SchemaTO extends AbstractBaseBean {
 
     public void setUniquevalue(boolean uniquevalue) {
         this.uniquevalue = uniquevalue;
+    }
+
+    public boolean isReadonly() {
+        return readonly;
+    }
+
+    public void setReadonly(boolean readonly) {
+        this.readonly = readonly;
     }
 
     public String getName() {
