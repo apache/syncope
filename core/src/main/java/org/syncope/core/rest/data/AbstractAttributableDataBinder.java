@@ -222,6 +222,10 @@ public abstract class AbstractAttributableDataBinder {
             final SyncopeClientCompositeErrorException compositeErrorException)
             throws SyncopeClientCompositeErrorException {
 
+        Set<TargetResource> resources = new HashSet<TargetResource>();
+        resources.addAll(attributable.getTargetResources());
+        resources.addAll(attributable.getInheritedTargetResources());
+
         ResourceOperations resourceOperations = new ResourceOperations();
 
         SyncopeClientException invalidValues = new SyncopeClientException(
@@ -243,7 +247,8 @@ public abstract class AbstractAttributableDataBinder {
                         SchemaType.byClass(
                         attributableUtil.getSchemaClass()))) {
 
-                    if (mapping.getResource() != null) {
+                    if (mapping.getResource() != null
+                            && resources.contains(mapping.getResource())) {
                         resourceOperations.add(Type.UPDATE,
                                 mapping.getResource());
                     }
@@ -283,7 +288,8 @@ public abstract class AbstractAttributableDataBinder {
                         SchemaType.byClass(
                         attributableUtil.getSchemaClass()))) {
 
-                    if (mapping.getResource() != null) {
+                    if (mapping.getResource() != null
+                            && resources.contains(mapping.getResource())) {
                         resourceOperations.add(Type.UPDATE,
                                 mapping.getResource());
                     }
@@ -351,7 +357,8 @@ public abstract class AbstractAttributableDataBinder {
                     attributableUtil.getDerivedSchemaClass());
             if (derivedSchema != null) {
                 for (SchemaMapping mapping : derivedSchema.getMappings()) {
-                    if (mapping.getResource() != null) {
+                    if (mapping.getResource() != null
+                            && resources.contains(mapping.getResource())) {
                         resourceOperations.add(Type.UPDATE,
                                 mapping.getResource());
                     }
@@ -383,7 +390,8 @@ public abstract class AbstractAttributableDataBinder {
                     attributableUtil.getDerivedSchemaClass());
             if (derivedSchema != null) {
                 for (SchemaMapping mapping : derivedSchema.getMappings()) {
-                    if (mapping.getResource() != null) {
+                    if (mapping.getResource() != null
+                            && resources.contains(mapping.getResource())) {
                         resourceOperations.add(Type.UPDATE,
                                 mapping.getResource());
                     }

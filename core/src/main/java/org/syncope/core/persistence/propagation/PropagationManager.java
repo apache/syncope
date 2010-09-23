@@ -50,12 +50,14 @@ public class PropagationManager {
     public enum PropagationMode {
 
         SYNC, ASYNC
+
     }
     /**
      * Logger.
      */
     private static final Logger LOG =
             LoggerFactory.getLogger(PropagationManager.class);
+
     /**
      * Schema DAO.
      */
@@ -132,8 +134,9 @@ public class PropagationManager {
      * @return provisioned resources
      * @throws PropagationException
      */
-    private Set<String> provision(SyncopeUser user,
-            ResourceOperations resourceOperations,
+    private Set<String> provision(
+            final SyncopeUser user,
+            final ResourceOperations resourceOperations,
             Set<String> syncResourceNames)
             throws PropagationException {
 
@@ -143,16 +146,16 @@ public class PropagationManager {
         }
 
         // set of provisioned resources
-        Set<String> provisioned = new HashSet<String>();
+        final Set<String> provisioned = new HashSet<String>();
 
         // Avoid duplicates - see javadoc
         resourceOperations.purge();
 
         // Resource to be provisioned synchronously
-        ResourceOperations syncOperations = new ResourceOperations();
+        final ResourceOperations syncOperations = new ResourceOperations();
 
         // Resource to be provisioned asynchronously
-        ResourceOperations asyncOperations = new ResourceOperations();
+        final ResourceOperations asyncOperations = new ResourceOperations();
 
         if (syncResourceNames == null) {
             syncResourceNames = Collections.EMPTY_SET;
@@ -389,7 +392,7 @@ public class PropagationManager {
                 }
 
                 if (!mapping.isPassword() && !mapping.isAccountid()) {
-                    if (schema.isMultivalue()) {
+                    if (schema != null && schema.isMultivalue()) {
                         attributes.add(AttributeBuilder.build(
                                 field,
                                 objValues));

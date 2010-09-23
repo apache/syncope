@@ -70,6 +70,19 @@
                 <property name="databasePlatform" value="${hibernate.dialect}"/>
             </bean>
         </property>
+        <property name="persistenceUnitPostProcessors">
+            <list>
+                <bean class="org.syncope.core.persistence.JTAPersistenceUnitPostProcessor">
+                    <property name="jtaMode" value="${jtaMode}"/>
+                    <property name="jtaDataSource" ref="dataSource"/>
+                    <property name="transactionManagerLookupKey"
+                              value="hibernate.transaction.manager_lookup_class"/>
+                    <!-- Configure here as per your production J2EE container -->
+                    <property name="transactionManagerLookupValue"
+                              value="org.hibernate.transaction.SunONETransactionManagerLookup"/>
+                </bean>
+            </list>
+        </property>
     </bean>
 
     <bean id="entityManager"
@@ -78,11 +91,15 @@
     </bean>
 
     <tx:annotation-driven/>
-    <bean id="transactionManager"
+    <bean id="jpaTransactionManager"
           class="org.springframework.orm.jpa.JpaTransactionManager">
         <property name="entityManagerFactory" ref="entityManagerFactory"/>
     </bean>
-
+    <bean id="transactionManager"
+          class="org.syncope.core.persistence.OmniTransactionManager">
+        <property name="jpaTransactionManager" ref="jpaTransactionManager"/>
+    </bean>
+    
     <bean id="propagationManager"
           class="org.syncope.core.persistence.propagation.PropagationManager"/>
 </beans>

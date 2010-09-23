@@ -423,7 +423,7 @@
                         <containerId>tomcat6x</containerId>
                         <zipUrlInstaller>
                             <url>http://www.apache.org/dist/tomcat/tomcat-6/v6.0.29/bin/apache-tomcat-6.0.29.zip</url>
-                            <installDir>${java.io.tmpdir}/tomcat</installDir>
+                            <installDir>${java.io.tmpdir}/tomcat6x</installDir>
                         </zipUrlInstaller>
                         <log>${cargo.log}</log>
                         <output>${cargo.output}</output>
