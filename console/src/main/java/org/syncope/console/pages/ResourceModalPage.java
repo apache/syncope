@@ -215,11 +215,13 @@ public class ResourceModalPage extends SyncopeModalPage {
                 }
                 else if (mappingTO.getSchemaType().equals(SchemaType.AccountId)){
                     schemaAttributeChoice.setEnabled(false);
+                    schemaAttributeChoice.setRequired(false);
                     schemaAttributeChoice.setChoices(Collections.emptyList());
                     mappingTO.setSchemaName("AccountId");
                 }
                 else if (mappingTO.getSchemaType().equals(SchemaType.Password)){
                     schemaAttributeChoice.setEnabled(false);
+                    schemaAttributeChoice.setRequired(false);
                     schemaAttributeChoice.setChoices(Collections.emptyList());
                     mappingTO.setSchemaName("Password");
                 }
