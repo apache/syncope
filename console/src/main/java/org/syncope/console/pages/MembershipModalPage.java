@@ -125,7 +125,7 @@ public class MembershipModalPage extends SyncopeModalPage {
                                             Date date = new Date();
                                             try {
                                                 String dateValue = (String) item.getModelObject();
-                                                formatter = new SimpleDateFormat("yyyy-MM-dd");
+                                                formatter = new SimpleDateFormat(schemaTO.getConversionPattern());//Default value:yyyy-MM-dd
 
                                                 if(!dateValue.equals(""))
                                                     date = formatter.parse((String) item.getModelObject());

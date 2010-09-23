@@ -72,6 +72,7 @@ public class Connectors extends BasePage {
                 final ConnectorInstanceTO connectorTO =
                         (ConnectorInstanceTO) item.getDefaultModelObject();
 
+                item.add(new Label("id", connectorTO.getId()+""));
                 item.add(new Label("name", connectorTO.getConnectorName()));
                 item.add(new Label("version", connectorTO.getVersion()));
                 item.add(new Label("bundleName", connectorTO.getBundleName()));

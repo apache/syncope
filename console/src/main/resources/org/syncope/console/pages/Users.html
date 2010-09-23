@@ -12,8 +12,6 @@
  limitations under the License.
  under the License.
 -->
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <wicket:extend>
     <div id="testa">
         <img src="img/logo.png" alt="syncope" title="syncope" id="logo" />
@@ -79,6 +77,8 @@
                     <thead>
                         <tr class="ui-widget-header">
                             <th><wicket:message key="id"/></th>
+                            <th><wicket:message key="status"/></th>
+                            <th><wicket:message key="token"/></th>
                             <th wicket:id="usersSchema">
                                 <span wicket:id="attribute"/>
                             </th>
@@ -90,6 +90,12 @@
                         <tr wicket:id="users">
                             <td>
                                 <span wicket:id="id">[id]</span>
+                            </td>
+                            <td>
+                                <span wicket:id="status">[status]</span>
+                            </td>
+                            <td>
+                                <span wicket:id="token">[token]</span>
                             </td>
                             <td wicket:id="selectedAttributes">
                                 <span wicket:id="name">[selected attribute]</span>
@@ -107,9 +113,6 @@
                         </tr>
                     </tbody>
                 </table>
-
-                <!--table id="usersTable" class="ui-widget ui-widget-content" wicket:id="usersTable"/-->
-
             </div>
 
             <div wicket:id="createUserWin">[Show modal window for creating user]</div>

@@ -77,15 +77,17 @@
                 <table id="connectors" class="ui-widget ui-widget-content" wicket:id="connectorsContainer">
                     <thead>
                         <tr class="ui-widget-header">
+                            <th><wicket:message key="id"/></th>
                             <th><wicket:message key="name"/></th>
-                    <th><wicket:message key="version"/></th>
-                    <th><wicket:message key="bundleName"/></th>
-                    <th><wicket:message key="edit"/></th>
-                    <th><wicket:message key="delete"/></th>
+                            <th><wicket:message key="version"/></th>
+                            <th><wicket:message key="bundleName"/></th>
+                            <th><wicket:message key="edit"/></th>
+                            <th><wicket:message key="delete"/></th>
                     </tr>
                     </thead>
                     <tbody>
                         <tr wicket:id="connectors" >
+                            <td><span wicket:id="id">[label id]</span></td>
                             <td><span wicket:id="name">[label name]</span></td>
                             <td><span wicket:id="version">[label version]</span></td>
                             <td><span wicket:id="bundleName">[label bundle-name]</span></td>

@@ -1,6 +1,4 @@
-/*
- *  Copyright 2010 luis.
- * 
+/* 
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
@@ -14,7 +12,6 @@
  *  limitations under the License.
  *  under the License.
  */
-
 package org.syncope.console.wicket.markup.html.form;
 
 import java.util.Date;
@@ -35,7 +32,8 @@ public class DateFieldPanel extends Panel {
      * @param IModel<?> object
      * @param required flag
      */
-    public DateFieldPanel(String id, String name ,IModel<?> model, boolean required) {
+    public DateFieldPanel(String id, String name ,IModel<?> model,
+                          boolean required) {
         super(id, model);
 
         if (required) {
@@ -44,8 +42,37 @@ public class DateFieldPanel extends Panel {
             add(new Label("required", ""));
         }
 
-        UpdatingTextField dateField = new UpdatingTextField("dateField", model, Date.class);
+        UpdatingTextField dateField = new UpdatingTextField("dateField",
+                                      model, Date.class);
         dateField.setRequired(required);
+        dateField.setLabel(new Model(name));
+        dateField.add(new DatePicker());
+
+        add(dateField);
+    }
+
+    /**
+     * Build a DateFieldPanel.
+     * @param component id
+     * @param label name
+     * @param IModel<?> object
+     * @param required flag
+     * @param readonly flag
+     */
+    public DateFieldPanel(String id, String name ,IModel<?> model, 
+                          boolean required,boolean readonly) {
+        super(id, model);
+
+        if (required) {
+            add(new Label("required", "*"));
+        } else {
+            add(new Label("required", ""));
+        }
+
+        UpdatingTextField dateField = new UpdatingTextField("dateField",
+                                      model, Date.class);
+        dateField.setRequired(required);
+        dateField.setEnabled(!readonly);
         dateField.setLabel(new Model(name));
         dateField.add(new DatePicker());
 

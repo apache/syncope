@@ -49,6 +49,7 @@ public class SchemaModalPage extends SyncopeModalPage
     public RadioChoice mandatory;
     public RadioChoice virtual;
     public RadioChoice multivalue;
+    public RadioChoice readonly;
     public AjaxButton submit;
 
     public enum Entity {USER,ROLE,MEMBERSHIP};
@@ -99,6 +100,7 @@ public class SchemaModalPage extends SyncopeModalPage
 
         multivalue = new RadioChoice("multivalue",Arrays.asList(new Boolean[]{true,false}));
 
+        readonly = new RadioChoice("readonly",Arrays.asList(new Boolean[]{true,false}));
 
         submit = new AjaxButton("submit", new Model(getString("submit"))) {
 
@@ -159,6 +161,7 @@ public class SchemaModalPage extends SyncopeModalPage
         schemaForm.add(mandatory);
         schemaForm.add(virtual);
         schemaForm.add(multivalue);
+        schemaForm.add(readonly);
 
         schemaForm.add(submit);
 
