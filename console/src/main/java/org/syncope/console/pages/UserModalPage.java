@@ -472,19 +472,6 @@ public class UserModalPage extends SyncopeModalPage {
         for (ResourceTO resourceTO : resourcesTos)
                 resources.add(resourceTO);
 
-
-        /*if (userTO.getResources().size() == 0) {
-            for (ResourceTO resourceTO : resourcesTos) 
-                resources.add(resourceTO);
-        } else {
-
-            for (String resource : userTO.getResources()) {
-                for (ResourceTO resourceTO : resourcesTos) {
-                    if (!resource.equals(resourceTO.getName())) 
-                        resources.add(resourceTO);
-                }
-            }
-        }*/
         return resources;
     }
 

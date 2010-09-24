@@ -40,13 +40,24 @@
         <script type="text/javascript">
             $(function() {
                 $("#tabs").tabs();
-                /*$('.stripedTable tr:even').addClass("alt");*/
             });
         </script>
 
         <style type="text/css">
             input[disabled] {
                 background-color: #ddd;
+            }
+
+            table.palette td.header {
+            background:url("images/ui-bg_glass_75_e6e6e6_1x400.png")
+                repeat-x scroll 50% 50% #E6E6E6 !important;
+            }
+            tr.alt td {
+            background: #eff3ea;
+            }
+
+            .stripedTable{
+            border:1px solid #AAAAAA;
             }
         </style>
     </head>
