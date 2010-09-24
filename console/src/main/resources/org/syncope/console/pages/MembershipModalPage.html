@@ -12,8 +12,6 @@
  limitations under the License.
  under the License.
 -->
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <wicket:extend>
         <p class="ui-widget ui-corner-all ui-widget-header"><wicket:message key="title"/></p>
         <form wicket:id="MembershipForm">
@@ -36,6 +34,12 @@
                                     <input type="button" wicket:id="drop"/>
                                 </td>
                             </tr>
+                            <!-- each time this table is rendered, stripe rows' color -->
+                            <script type="text/javascript">
+                                $(function() {
+                                    $('.stripedTable tr:even').addClass("alt");
+                                });
+                            </script>
                          </table>
                     </div>
                     </div>

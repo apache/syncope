@@ -28,7 +28,8 @@ public class AjaxTextFieldPanel extends Panel {
      * @param IModel<?> object
      * @param required flag
      */
-    public AjaxTextFieldPanel(String id,String name,IModel model,boolean required) {
+    public AjaxTextFieldPanel(String id,String name,IModel model,
+                              boolean required) {
         super(id,model);
 
         if(required)
@@ -38,5 +39,27 @@ public class AjaxTextFieldPanel extends Panel {
         
         add(new UpdatingTextField("textField", model).setRequired(required)
                                  .setLabel(new Model(name)));
+    }
+
+    /**
+     * Build AjaxTextFieldPanel.
+     * @param component id
+     * @param label name
+     * @param IModel<?> object
+     * @param required flag
+     * @param readonly flag
+     */
+    public AjaxTextFieldPanel(String id,String name,IModel model,
+                              boolean required,boolean readonly) {
+        super(id,model);
+
+        if(required)
+            add(new Label("required","*"));
+        else
+            add(new Label("required",""));
+
+        add(new UpdatingTextField("textField", model).setRequired(required)
+                                 .setLabel(new Model(name))
+                                 .setEnabled(!readonly));
     }
 }

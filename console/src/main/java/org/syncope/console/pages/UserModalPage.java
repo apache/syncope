@@ -170,7 +170,7 @@ public class UserModalPage extends SyncopeModalPage {
                                 public void setObject(Serializable object) {
                                     item.setModelObject((String) object);
                                 }
-                            }, schemaTO.isMandatory());
+                            }, schemaTO.isMandatory(),schemaTO.isReadonly());
                         } else if (schemaTO.getType().getClassName().equals("java.lang.Boolean")) {
                             panel = new AjaxCheckBoxPanel("panel", schemaTO.getName(), new Model() {
 
@@ -198,7 +198,7 @@ public class UserModalPage extends SyncopeModalPage {
 
                                             try {
                                                 String dateValue = (String) item.getModelObject();
-                                                formatter = new SimpleDateFormat("yyyy-MM-dd");
+                                                formatter = new SimpleDateFormat(schemaTO.getConversionPattern());//Default value:yyyy-MM-dd
 
                                                 if (!dateValue.equals("")) {
                                                     date = formatter.parse((String) item.getModelObject());
@@ -472,19 +472,6 @@ public class UserModalPage extends SyncopeModalPage {
         for (ResourceTO resourceTO : resourcesTos)
                 resources.add(resourceTO);
 
-
-        /*if (userTO.getResources().size() == 0) {
-            for (ResourceTO resourceTO : resourcesTos) 
-                resources.add(resourceTO);
-        } else {
-
-            for (String resource : userTO.getResources()) {
-                for (ResourceTO resourceTO : resourcesTos) {
-                    if (!resource.equals(resourceTO.getName())) 
-                        resources.add(resourceTO);
-                }
-            }
-        }*/
         return resources;
     }
 

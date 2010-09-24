@@ -126,6 +126,13 @@ public class Users extends BasePage {
 
                 item.add(new Label("id",userTO.getId()+""));
 
+                item.add(new Label("status",userTO.getStatus()));
+
+                if(userTO.getToken() != null && !userTO.getToken().equals(""))
+                    item.add(new Label("token",getString("tokenValued")));
+                else
+                    item.add(new Label("token",getString("tokenNotValued")));
+
                 item.add(new ListView("selectedAttributes", attributesToDisplay(userTO)) {
 
                     @Override

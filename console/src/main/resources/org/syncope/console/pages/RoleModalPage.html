@@ -12,14 +12,14 @@
  limitations under the License.
  under the License.
 -->
-<wicket:head>
+<!--wicket:head>
     <style>
         table.palette td.header {
             background:url("images/ui-bg_glass_75_e6e6e6_1x400.png")
                 repeat-x scroll 50% 50% #E6E6E6 !important;
         }
     </style>
-</wicket:head>
+</wicket:head-->
 
 <wicket:extend>
     <div style="margin:10px" title="Create new Resource-Mappings">
@@ -32,7 +32,7 @@
                     <li><a href="#tabs-3"><span><wicket:message key="tab3"/></span></a></li>
                 </ul>
                     <div id="tabs-1">
-                        <table style="font-size:14px" width="100%" wicket:id="container">
+                        <table class="stripedTable" style="font-size:14px" width="100%" wicket:id="container">
                             <tr>
                                 <td><wicket:message key="name"/></td>
                                 <td>
@@ -53,6 +53,12 @@
                                     <input type="button" wicket:id="drop"/>
                                 </td>
                             </tr>
+                            <!-- each time this table is rendered, stripe rows' color -->
+                            <script type="text/javascript">
+                                $(function() {
+                                    $('.stripedTable tr:even').addClass("alt");
+                                });
+                            </script>
                          </table>
                     </div>
                     <div id="tabs-3">

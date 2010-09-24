@@ -14,8 +14,6 @@
  */
 package org.syncope.console.wicket.markup.html.form;
 
-import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -31,9 +29,27 @@ public class AjaxCheckBoxPanel extends Panel {
      * @param IModel<?> object
      * @param required flag
      */
-    public AjaxCheckBoxPanel(String id, String name, IModel<Boolean> model,boolean required) {
+    public AjaxCheckBoxPanel(String id, String name, IModel<Boolean> model,
+                             boolean required) {
         super(id,model);
 
-        add(new UpdatingCheckBox("checkboxField", model).setLabel(new Model(name)));
+        add(new UpdatingCheckBox("checkboxField", model)
+                .setLabel(new Model(name)));
+    }
+
+    /**
+     * Build a AjaxCheckBoxPanel.
+     * @param component id
+     * @param label name
+     * @param IModel<?> object
+     * @param required flag
+     * @param readonly flag
+     */
+    public AjaxCheckBoxPanel(String id, String name, IModel<Boolean> model,
+                             boolean required,boolean readonly) {
+        super(id,model);
+
+        add(new UpdatingCheckBox("checkboxField", model)
+                .setLabel(new Model(name)).setEnabled(!readonly));
     }
 }

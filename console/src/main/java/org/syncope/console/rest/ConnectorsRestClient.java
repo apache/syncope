@@ -45,9 +45,11 @@ public class ConnectorsRestClient {
      * @param schemaTO
      */
     public void createConnector(ConnectorInstanceTO connectorTO) {
+      ConnectorInstanceTO actual = null;
+
         try {
-        restClient.getRestTemplate().postForObject(restClient.getBaseURL() +
-                "connector/create", connectorTO, ConnectorInstanceTO.class);
+       actual = restClient.getRestTemplate().postForObject(restClient.getBaseURL() +
+                "connector/create.json", connectorTO, ConnectorInstanceTO.class);
         }
         catch (SyncopeClientCompositeErrorException e) {
             e.printStackTrace();

@@ -14,9 +14,11 @@
  */
 package org.syncope.client.to;
 
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
 import org.syncope.client.AbstractBaseBean;
+import org.syncope.types.ConnectorCapability;
 
 public class ConnectorInstanceTO extends AbstractBaseBean {
 
@@ -25,6 +27,12 @@ public class ConnectorInstanceTO extends AbstractBaseBean {
     private String version;
     private String connectorName;
     private Set<PropertyTO> configuration;
+    private Set<ConnectorCapability> capabilities;
+
+    public ConnectorInstanceTO() {
+        configuration = new HashSet<PropertyTO>();
+        capabilities = EnumSet.noneOf(ConnectorCapability.class);
+    }
 
     public Long getId() {
         return id;
@@ -51,28 +59,23 @@ public class ConnectorInstanceTO extends AbstractBaseBean {
     }
 
     public Set<PropertyTO> getConfiguration() {
-        if (this.configuration == null) {
-            this.configuration = new HashSet<PropertyTO>();
-        }
         return this.configuration;
     }
 
     public boolean addConfiguration(PropertyTO property) {
-        if (this.configuration == null) {
-            this.configuration = new HashSet<PropertyTO>();
-        }
         return this.configuration.add(property);
     }
 
     public boolean removeConfiguration(PropertyTO property) {
-        if (this.configuration == null) {
-            return true;
-        }
         return this.configuration.remove(property);
     }
 
     public void setConfiguration(Set<PropertyTO> configuration) {
-        this.configuration = configuration;
+        if (configuration == null || configuration.isEmpty()) {
+            this.configuration.clear();
+        } else {
+            this.configuration = configuration;
+        }
     }
 
     public String getConnectorName() {
@@ -81,5 +84,25 @@ public class ConnectorInstanceTO extends AbstractBaseBean {
 
     public void setConnectorName(String connectorname) {
         this.connectorName = connectorname;
+    }
+
+    public boolean addCapability(ConnectorCapability capability) {
+        return capabilities.add(capability);
+    }
+
+    public boolean removeCapability(ConnectorCapability capability) {
+        return capabilities.remove(capability);
+    }
+
+    public Set<ConnectorCapability> getCapabilities() {
+        return capabilities;
+    }
+
+    public void setCapabilities(Set<ConnectorCapability> capabilities) {
+        if (capabilities == null || capabilities.isEmpty()) {
+            this.capabilities.clear();
+        } else {
+            this.capabilities = capabilities;
+        }
     }
 }

@@ -42,13 +42,12 @@ public class ConnectorInstanceDataBinder {
      */
     private static final Logger LOG = LoggerFactory.getLogger(
             ConnectorInstanceDataBinder.class);
-    private static final String[] ignoreProperties = {
-        "id", "resources", "xmlConfiguration", "configuration"};
+    private static final String[] ignoreProperties = {"id", "resources"};
     @Autowired
     private ConnectorInstanceDAO connectorInstanceDAO;
 
     public ConnectorInstance getConnectorInstance(
-            ConnectorInstanceTO connectorTO)
+            ConnectorInstanceTO connectorInstanceTO)
             throws SyncopeClientCompositeErrorException {
 
         SyncopeClientCompositeErrorException compositeErrorException =
@@ -59,31 +58,33 @@ public class ConnectorInstanceDataBinder {
                 new SyncopeClientException(
                 SyncopeClientExceptionType.RequiredValuesMissing);
 
-        if (connectorTO.getBundleName() == null) {
+        if (connectorInstanceTO.getBundleName() == null) {
             requiredValuesMissing.addElement("bundlename");
         }
 
-        if (connectorTO.getVersion() == null) {
+        if (connectorInstanceTO.getVersion() == null) {
             requiredValuesMissing.addElement("bundleversion");
         }
 
-        if (connectorTO.getConnectorName() == null) {
+        if (connectorInstanceTO.getConnectorName() == null) {
             requiredValuesMissing.addElement("connectorname");
         }
 
-        if (connectorTO.getConfiguration() == null
-                || connectorTO.getConfiguration().isEmpty()) {
+        if (connectorInstanceTO.getConfiguration() == null
+                || connectorInstanceTO.getConfiguration().isEmpty()) {
             requiredValuesMissing.addElement("configuration");
         }
 
         ConnectorInstance connectorInstance = new ConnectorInstance();
 
         BeanUtils.copyProperties(
-                connectorTO, connectorInstance, ignoreProperties);
+                connectorInstanceTO, connectorInstance, ignoreProperties);
+        connectorInstance.getCapabilities().addAll(
+                connectorInstanceTO.getCapabilities());
 
         connectorInstance.setXmlConfiguration(
                 ConnectorInstanceLoader.serializeToXML(
-                connectorTO.getConfiguration()));
+                connectorInstanceTO.getConfiguration()));
 
         // Throw composite exception if there is at least one element set
         // in the composing exceptions
@@ -101,7 +102,7 @@ public class ConnectorInstanceDataBinder {
 
     public ConnectorInstance updateConnectorInstance(
             Long connectorInstanceId,
-            ConnectorInstanceTO connectorTO)
+            ConnectorInstanceTO connectorInstanceTO)
             throws SyncopeClientCompositeErrorException {
 
         SyncopeClientCompositeErrorException compositeErrorException =
@@ -119,47 +120,48 @@ public class ConnectorInstanceDataBinder {
         ConnectorInstance connectorInstance =
                 connectorInstanceDAO.find(connectorInstanceId);
 
-
-        if (connectorTO.getBundleName() != null) {
-            connectorInstance.setBundleName(connectorTO.getBundleName());
+        if (connectorInstanceTO.getBundleName() != null) {
+            connectorInstance.setBundleName(
+                    connectorInstanceTO.getBundleName());
         }
 
-        if (connectorTO.getVersion() != null) {
-            connectorInstance.setVersion(connectorTO.getVersion());
+        if (connectorInstanceTO.getVersion() != null) {
+            connectorInstance.setVersion(connectorInstanceTO.getVersion());
         }
 
-        if (connectorTO.getConnectorName() != null) {
-            connectorInstance.setConnectorName(connectorTO.getConnectorName());
+        if (connectorInstanceTO.getConnectorName() != null) {
+            connectorInstance.setConnectorName(
+                    connectorInstanceTO.getConnectorName());
         }
 
-        if (connectorTO.getConfiguration() != null
-                || connectorTO.getConfiguration().isEmpty()) {
+        if (connectorInstanceTO.getConfiguration() != null
+                || connectorInstanceTO.getConfiguration().isEmpty()) {
 
             connectorInstance.setXmlConfiguration(
                     ConnectorInstanceLoader.serializeToXML(
-                    connectorTO.getConfiguration()));
+                    connectorInstanceTO.getConfiguration()));
         }
 
         try {
             if (LOG.isDebugEnabled()) {
                 LOG.debug(URLEncoder.encode(
                         ConnectorInstanceLoader.serializeToXML(
-                        connectorTO.getConfiguration()),
+                        connectorInstanceTO.getConfiguration()),
                         "UTF-8"));
             }
-            // Throw composite exception if there is at least one element set
-            // in the composing exceptions
         } catch (UnsupportedEncodingException ex) {
             LOG.error("Unexpected exception", ex);
         }
 
-        // Throw composite exception if there is at least one element set
-        // in the composing exceptions
+        connectorInstance.setCapabilities(
+                connectorInstanceTO.getCapabilities());
 
         if (!requiredValuesMissing.getElements().isEmpty()) {
             compositeErrorException.addException(requiredValuesMissing);
         }
 
+        // Throw composite exception if there is at least one element set
+        // in the composing exceptions
         if (compositeErrorException.hasExceptions()) {
             throw compositeErrorException;
         }
@@ -175,6 +177,8 @@ public class ConnectorInstanceDataBinder {
 
         BeanUtils.copyProperties(
                 connectorInstance, connectorInstanceTO, ignoreProperties);
+        connectorInstanceTO.getCapabilities().addAll(
+                connectorInstance.getCapabilities());
 
         connectorInstanceTO.setConfiguration(
                 (Set<PropertyTO>) ConnectorInstanceLoader.buildFromXML(

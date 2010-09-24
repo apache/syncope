@@ -17,6 +17,8 @@
 package org.syncope.console.pages;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -26,6 +28,7 @@ import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.CheckBoxMultipleChoice;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
@@ -44,6 +47,7 @@ import org.syncope.client.to.ConnectorBundleTOs;
 import org.syncope.client.to.ConnectorInstanceTO;
 import org.syncope.client.to.PropertyTO;
 import org.syncope.console.rest.ConnectorsRestClient;
+import org.syncope.types.ConnectorCapability;
 
 /**
  * Modal window with Connector form.
@@ -53,6 +57,7 @@ public class ConnectorsModalPage extends SyncopeModalPage {
     public TextField connectorName;
     public DropDownChoice bundle;
     public TextField version;
+    public CheckBoxMultipleChoice capabilitiesPalette;
 
     ConnectorBundleTOs bundlesTOs;
     ConnectorBundleTO selectedBundleTO = new ConnectorBundleTO();
@@ -65,7 +70,8 @@ public class ConnectorsModalPage extends SyncopeModalPage {
     
     //WebMarkupContainer container;
     WebMarkupContainer propertiesContainer;
-    
+
+    List<ConnectorCapability> selections;
     /**
      *
      * @param basePage base
@@ -79,6 +85,9 @@ public class ConnectorsModalPage extends SyncopeModalPage {
         Form connectorForm = new Form("ConnectorForm");
         
         connectorForm.setModel(new CompoundPropertyModel(connectorTO));
+
+        if(!createFlag)
+            setupSelections(connectorTO);
 
         IModel bundles =  new LoadableDetachableModel()
         {
@@ -182,6 +191,8 @@ public class ConnectorsModalPage extends SyncopeModalPage {
 
                 //Set the model object configuration's properties to connectorPropertiesMap reference
                 connector.setBundleName(bundle.getModelValue());
+                //Set the model object's capabilites to capabilitiesPalette's converted Set
+               connector.setCapabilities(getResourcesSet(selections));
 
                 try {
 
@@ -196,7 +207,7 @@ public class ConnectorsModalPage extends SyncopeModalPage {
                     window.close(target);
 
                 } catch (Exception e) {
-                    error(getString("error") + ":" + e.getMessage());
+                     error(getString("error") + ":" + e.getMessage());
                 }
             }
 
@@ -211,9 +222,77 @@ public class ConnectorsModalPage extends SyncopeModalPage {
         connectorForm.add(connectorName);
         connectorForm.add(bundle);
         connectorForm.add(version);
+
+        final IModel capabilities = new LoadableDetachableModel() {
+
+            @Override
+            protected Object load() {
+                return Arrays.asList(ConnectorCapability.values());
+            }
+        };
+
+        capabilitiesPalette = new CheckBoxMultipleChoice("capabilitiesPalette",
+                               new PropertyModel(this,"selections"), capabilities);
+        connectorForm.add(capabilitiesPalette);
+
         connectorForm.add(submit);
 
         add(connectorForm);
+    }
+
+    /**
+     * Setup capabilities.
+     * @return void
+     */
+    public void setupSelections(ConnectorInstanceTO connectorTO){
+        selections = new ArrayList<ConnectorCapability>();
+        
+        for(ConnectorCapability capability : connectorTO.getCapabilities())
+            selections.add(capability);
+
+    }
+
+    /**
+     * Covert a capabilities List<ConnectorCapability> to Set<ConnectorCapability>.
+     * @return Set<ConnectorCapability>
+     */
+    public Set<ConnectorCapability> getResourcesSet(Collection<ConnectorCapability> capabilitiesList) {
+        Set<ConnectorCapability> capabilitiesSet = new HashSet<ConnectorCapability>();
+
+        for (ConnectorCapability capability : capabilitiesList) {
+            capabilitiesSet.add(capability);
+        }
+
+        return capabilitiesSet;
+    }
+
+    /**
+     * Originals : connector's  capabilities
+     * @param connectorTO
+     * @return List<ConnectorCapability>
+     */
+    public List<ConnectorCapability> getSelectedCapabilities(ConnectorInstanceTO connectorTO) {
+
+        List<ConnectorCapability> capabilities = new ArrayList<ConnectorCapability>();
+
+        for(ConnectorCapability capability : connectorTO.getCapabilities())
+            capabilities.add(capability);
+
+        return capabilities;
+    }
+
+    /**
+     * Destinations : available capabilities
+     * @param connectorTO
+     * @return List<ConnectorCapability>
+     */
+    public List<ConnectorCapability> getAvailableCapabilities() {
+
+        List<ConnectorCapability> capabilities = new ArrayList<ConnectorCapability>();
+
+        capabilities = Arrays.asList(ConnectorCapability.values());
+
+        return capabilities;
     }
 
     /**

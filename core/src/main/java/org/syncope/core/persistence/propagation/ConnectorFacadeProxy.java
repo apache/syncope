@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.syncope.client.to.PropertyTO;
 import org.syncope.core.persistence.ConnectorInstanceLoader;
 import org.syncope.core.persistence.beans.ConnectorInstance;
+import org.syncope.types.ConnectorCapability;
 
 /**
  * Intercept calls to ConnectorFacade's methods and check if the correspondant
@@ -52,7 +53,7 @@ public class ConnectorFacadeProxy {
      * Set of configure connecto instance capabilities.
      * @see org.syncope.core.persistence.beans.ConnectorInstance
      */
-    private final Set<ConnectorInstance.Capabitily> capabitilies;
+    private final Set<ConnectorCapability> capabitilies;
 
     /**
      * Use the passed connector instance to build a ConnectorFacade that will
@@ -154,9 +155,9 @@ public class ConnectorFacadeProxy {
 
         if (propagationMode == PropagationManager.PropagationMode.SYNC
                 ? capabitilies.contains(
-                ConnectorInstance.Capabitily.SYNC_CREATE)
+                ConnectorCapability.SYNC_CREATE)
                 : capabitilies.contains(
-                ConnectorInstance.Capabitily.ASYNC_CREATE)) {
+                ConnectorCapability.ASYNC_CREATE)) {
 
             result = connector.create(oclass, attrs, options);
             if (result == null) {
@@ -173,7 +174,7 @@ public class ConnectorFacadeProxy {
 
         Uid result = null;
 
-        if (capabitilies.contains(ConnectorInstance.Capabitily.RESOLVE)) {
+        if (capabitilies.contains(ConnectorCapability.RESOLVE)) {
             result = connector.resolveUsername(objectClass, username, options);
         }
 
@@ -190,9 +191,9 @@ public class ConnectorFacadeProxy {
 
         if (propagationMode == PropagationManager.PropagationMode.SYNC
                 ? capabitilies.contains(
-                ConnectorInstance.Capabitily.SYNC_UPDATE)
+                ConnectorCapability.SYNC_UPDATE)
                 : capabitilies.contains(
-                ConnectorInstance.Capabitily.ASYNC_UPDATE)) {
+                ConnectorCapability.ASYNC_UPDATE)) {
 
             result = connector.update(
                     objclass, uid, replaceAttributes, options);
@@ -211,9 +212,9 @@ public class ConnectorFacadeProxy {
 
         if (propagationMode == PropagationManager.PropagationMode.SYNC
                 ? capabitilies.contains(
-                ConnectorInstance.Capabitily.SYNC_DELETE)
+                ConnectorCapability.SYNC_DELETE)
                 : capabitilies.contains(
-                ConnectorInstance.Capabitily.ASYNC_DELETE)) {
+                ConnectorCapability.ASYNC_DELETE)) {
 
             connector.delete(objClass, uid, options);
         }

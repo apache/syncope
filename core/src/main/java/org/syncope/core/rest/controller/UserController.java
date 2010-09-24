@@ -74,7 +74,8 @@ public class UserController extends AbstractController {
     @Autowired
     private PropagationManager propagationManager;
 
-    private Integer findWorkflowAction(Long workflowId, String actionName) {
+    public Integer findWorkflowAction(final Long workflowId,
+            final String actionName) {
 
         WorkflowDescriptor workflowDescriptor =
                 userWorkflow.getWorkflowDescriptor(Constants.USER_WORKFLOW);
@@ -101,8 +102,9 @@ public class UserController extends AbstractController {
         return actionId;
     }
 
-    public SyncopeUser doExecuteAction(String actionName, Long userId,
-            Map<String, Object> moreInputs)
+    public SyncopeUser doExecuteAction(final String actionName,
+            final Long userId,
+            final Map<String, Object> moreInputs)
             throws WorkflowException, NotFoundException {
 
         SyncopeUser user = syncopeUserDAO.find(userId);
@@ -225,13 +227,12 @@ public class UserController extends AbstractController {
 
         WorkflowActionsTO result = new WorkflowActionsTO();
 
-        WorkflowDescriptor workflowDescriptor =
-                userWorkflow.getWorkflowDescriptor(Constants.USER_WORKFLOW);
         int[] availableActions = userWorkflow.getAvailableActions(
                 user.getWorkflowId(), Collections.EMPTY_MAP);
         for (int i = 0; i < availableActions.length; i++) {
-            result.addAction(workflowDescriptor.getAction(
-                    availableActions[i]).getName());
+            result.addAction(
+                    userWorkflow.getWorkflowDescriptor(Constants.USER_WORKFLOW).
+                    getAction(availableActions[i]).getName());
         }
 
         return result;
@@ -275,12 +276,12 @@ public class UserController extends AbstractController {
 
         List<Step> currentSteps = userWorkflow.getCurrentSteps(
                 user.getWorkflowId());
-        if (currentSteps == null || currentSteps.isEmpty()) {
-            return null;
-        }
 
         ModelAndView mav = new ModelAndView();
-        mav.addObject(currentSteps.iterator().next().getStatus());
+        if (currentSteps != null && !currentSteps.isEmpty()) {
+            mav.addObject(currentSteps.iterator().next().getStatus());
+        }
+
         return mav;
     }
 
