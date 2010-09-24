@@ -14,6 +14,7 @@
  */
 package org.syncope.console.pages;
 
+import java.util.List;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -28,7 +29,10 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.to.ConnectorInstanceTO;
+import org.syncope.client.to.ResourceTO;
+import org.syncope.client.to.ResourceTOs;
 import org.syncope.console.rest.ConnectorsRestClient;
+import org.syncope.console.rest.ResourcesRestClient;
 
 /**
  * Connectors WebPage.
@@ -37,6 +41,9 @@ public class Connectors extends BasePage {
 
     @SpringBean(name = "connectorsRestClient")
     ConnectorsRestClient restClient;
+
+    @SpringBean(name = "resourcesRestClient")
+    ResourcesRestClient resourcesRestClient;
 
     final ModalWindow createConnectorWin;
     final ModalWindow editConnectorWin;
@@ -63,7 +70,7 @@ public class Connectors extends BasePage {
             protected Object load() {
                 return restClient.getAllConnectors().getInstances();
             }
-        };
+        };        
 
         ListView connectorsView = new ListView("connectors", connectors) {
 
@@ -104,14 +111,19 @@ public class Connectors extends BasePage {
 
                     @Override
                     public void onClick(AjaxRequestTarget target) {
-                        restClient.deleteConnector(connectorTO.getId());
 
+                        if(!checkDeleteIsForbidden(connectorTO)){
+                        restClient.deleteConnector(connectorTO.getId());
                         info(getString("operation_succeded"));
-                        target.addComponent(feedbackPanel);
-                        
+                        }
+
+                        else
+                            error(getString("delete_error"));
+                            
                         target.addComponent(connectorsContainer);
-                    }
-                };
+                        target.addComponent(feedbackPanel);
+                    
+                }};
 
                 item.add(deleteLink);
             }
@@ -155,9 +167,27 @@ public class Connectors extends BasePage {
     }
 
     /**
+     * Check if the delete action is forbidden
+     * @param ConnectorInstanceTO object to check
+     * @return true if the action is forbidden, false otherwise
+     */
+    public boolean checkDeleteIsForbidden(ConnectorInstanceTO connectorTO){
+
+        boolean forbidden = false;
+        List<ResourceTO> resources = resourcesRestClient.getAllResources().getResources();
+
+        for(ResourceTO resourceTO : resources) {
+            if(resourceTO.getConnectorId() == connectorTO.getId())
+                forbidden = true;
+        }
+
+        return forbidden;
+    }
+
+    /**
      * Set a WindowClosedCallback for a ModalWindow instance.
-     * @param window
-     * @param container
+     * @param current window
+     * @param container to refresh
      */
     public void setWindowClosedCallback(ModalWindow window, final WebMarkupContainer container) {
 
