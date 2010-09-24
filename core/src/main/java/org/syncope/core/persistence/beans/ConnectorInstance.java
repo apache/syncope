@@ -15,7 +15,7 @@
 package org.syncope.core.persistence.beans;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import javax.persistence.CascadeType;
@@ -29,26 +29,11 @@ import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.OneToMany;
 import org.hibernate.annotations.CollectionOfElements;
+import org.syncope.types.ConnectorCapability;
 
 @Entity
 public class ConnectorInstance extends AbstractBaseBean {
 
-    /**
-     * Enum of all possible capabilities that a connector instance can expose.
-     */
-    public enum Capabitily {
-
-        SYNC_CREATE,
-        ASYNC_CREATE,
-        SYNC_UPDATE,
-        ASYNC_UPDATE,
-        SYNC_DELETE,
-        ASYNC_DELETE,
-        SEARCH,
-        RESOLVE,
-        ONDEMAND_SYNC,
-        AUTO_SYNC
-    }
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -74,9 +59,9 @@ public class ConnectorInstance extends AbstractBaseBean {
     /**
      * The set of capabilities supported by this connector instance.
      */
-    @CollectionOfElements(targetElement = Capabitily.class)
+    @CollectionOfElements(targetElement = ConnectorCapability.class)
     @Enumerated(EnumType.STRING)
-    private Set<Capabitily> capabilities;
+    private Set<ConnectorCapability> capabilities;
     /**
      * The main configuration for the connector instance.
      * This is directly implemented by the Configuration bean class which
@@ -94,7 +79,7 @@ public class ConnectorInstance extends AbstractBaseBean {
     private List<TargetResource> resources;
 
     public ConnectorInstance() {
-        capabilities = new HashSet<Capabitily>();
+        capabilities = EnumSet.noneOf(ConnectorCapability.class);
     }
 
     public String getVersion() {
@@ -158,22 +143,23 @@ public class ConnectorInstance extends AbstractBaseBean {
         return this.resources.remove(resource);
     }
 
-    public boolean addCapability(Capabitily capabitily) {
+    public boolean addCapability(ConnectorCapability capabitily) {
         return capabilities.add(capabitily);
     }
 
-    public boolean removeCapability(Capabitily capabitily) {
+    public boolean removeCapability(ConnectorCapability capabitily) {
         return capabilities.remove(capabitily);
     }
 
-    public Set<Capabitily> getCapabilities() {
+    public Set<ConnectorCapability> getCapabilities() {
         return capabilities;
     }
 
-    public void setCapabilities(Set<Capabitily> capabilities) {
-        capabilities.clear();
-        if (capabilities != null) {
-            this.capabilities.addAll(capabilities);
+    public void setCapabilities(Set<ConnectorCapability> capabilities) {
+        if (capabilities == null || capabilities.isEmpty()) {
+            this.capabilities.clear();
+        } else {
+            this.capabilities = capabilities;
         }
     }
 }

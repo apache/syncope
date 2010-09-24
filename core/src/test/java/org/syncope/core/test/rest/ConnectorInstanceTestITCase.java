@@ -31,6 +31,7 @@ import org.syncope.client.to.ConnectorInstanceTOs;
 import org.syncope.client.to.PropertyTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.identityconnectors.bundles.staticwebservice.WebServiceConnector;
+import org.syncope.types.ConnectorCapability;
 
 public class ConnectorInstanceTestITCase extends AbstractTestITCase {
 
@@ -65,7 +66,6 @@ public class ConnectorInstanceTestITCase extends AbstractTestITCase {
 
     @Test
     public void create() {
-
         ConnectorInstanceTO connectorTO = new ConnectorInstanceTO();
 
         // set connector version
@@ -95,6 +95,11 @@ public class ConnectorInstanceTestITCase extends AbstractTestITCase {
         // set connector configuration
         connectorTO.setConfiguration(conf);
 
+        // set connector capabilities
+        connectorTO.addCapability(ConnectorCapability.ASYNC_CREATE);
+        connectorTO.addCapability(ConnectorCapability.SYNC_CREATE);
+        connectorTO.addCapability(ConnectorCapability.ASYNC_UPDATE);
+
         ConnectorInstanceTO actual =
                 (ConnectorInstanceTO) restTemplate.postForObject(
                 BASE_URL + "connector/create.json",
@@ -105,36 +110,32 @@ public class ConnectorInstanceTestITCase extends AbstractTestITCase {
         assertEquals(actual.getBundleName(), connectorTO.getBundleName());
         assertEquals(actual.getConnectorName(), connectorTO.getConnectorName());
         assertEquals(actual.getVersion(), connectorTO.getVersion());
+        assertEquals(connectorTO.getCapabilities(), actual.getCapabilities());
 
         Throwable t = null;
 
         // check for the updating
-
         connectorTO.setId(actual.getId());
-
+        connectorTO.removeCapability(ConnectorCapability.ASYNC_UPDATE);
+        actual = null;
         try {
-
-            restTemplate.postForObject(
+            actual = restTemplate.postForObject(
                     BASE_URL + "connector/update.json",
                     connectorTO, ConnectorInstanceTO.class);
-
         } catch (HttpStatusCodeException e) {
             LOG.error("update failed", e);
             t = e;
         }
 
         assertNull(t);
+        assertNotNull(actual);
+        assertEquals(connectorTO.getCapabilities(), actual.getCapabilities());
 
         // check also for the deletion of the created object
-
-        t = null;
-
         try {
-
             restTemplate.delete(
                     BASE_URL + "connector/delete/{connectorId}.json",
                     actual.getId().toString());
-
         } catch (HttpStatusCodeException e) {
             LOG.error("delete failed", e);
             t = e;
@@ -143,14 +144,11 @@ public class ConnectorInstanceTestITCase extends AbstractTestITCase {
         assertNull(t);
 
         // check the non existence
-
         try {
-
             restTemplate.getForObject(
                     BASE_URL + "connector/read/{connectorId}",
                     ConnectorInstanceTO.class,
                     actual.getId().toString());
-
         } catch (HttpStatusCodeException e) {
             assertEquals(e.getStatusCode(), HttpStatus.NOT_FOUND);
         }
