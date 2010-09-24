@@ -74,7 +74,7 @@ public class UserController extends AbstractController {
     @Autowired
     private PropagationManager propagationManager;
 
-    public final Integer findWorkflowAction(final Long workflowId,
+    public Integer findWorkflowAction(final Long workflowId,
             final String actionName) {
 
         WorkflowDescriptor workflowDescriptor =
@@ -102,7 +102,7 @@ public class UserController extends AbstractController {
         return actionId;
     }
 
-    public final SyncopeUser doExecuteAction(final String actionName,
+    public SyncopeUser doExecuteAction(final String actionName,
             final Long userId,
             final Map<String, Object> moreInputs)
             throws WorkflowException, NotFoundException {
