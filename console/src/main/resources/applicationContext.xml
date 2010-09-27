@@ -64,4 +64,8 @@
     <bean id="rolesRestClient" class="org.syncope.console.rest.RolesRestClient">
         <property name="restClient" ref="restClient"/>
     </bean>
+
+    <bean id="configurationsRestClient" class="org.syncope.console.rest.ConfigurationsRestClient">
+        <property name="restClient" ref="restClient"/>
+    </bean>
 </beans>

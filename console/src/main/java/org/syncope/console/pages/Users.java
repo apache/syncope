@@ -38,6 +38,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.to.AttributeTO;
 import org.syncope.client.to.ConfigurationTO;
 import org.syncope.client.to.UserTO;
+import org.syncope.console.rest.ConfigurationsRestClient;
 import org.syncope.console.rest.UsersRestClient;
 
 /**
@@ -46,7 +47,10 @@ import org.syncope.console.rest.UsersRestClient;
 public class Users extends BasePage {
 
     @SpringBean(name = "usersRestClient")
-    UsersRestClient restClient;
+    UsersRestClient usersRestClient;
+
+    @SpringBean(name = "configurationsRestClient")
+    ConfigurationsRestClient configurationsRestClient;
 
     final ModalWindow createUserWin;
     final ModalWindow editUserWin;
@@ -64,6 +68,7 @@ public class Users extends BasePage {
 
     /** Response flag set by the Modal Window after the operation is completed  */
     boolean operationResult = false;
+
     FeedbackPanel feedbackPanel;
     
     public Users(PageParameters parameters) {
@@ -82,7 +87,7 @@ public class Users extends BasePage {
         final IModel columns = new LoadableDetachableModel() {
 
             protected Object load() {
-                ConfigurationTO configuration = restClient.readConfigurationAttributes();
+                ConfigurationTO configuration = configurationsRestClient.readConfiguration();
                 columnsList = new ArrayList<String>();
 
                 if (configuration != null && !configuration.getConfValue().equals("")) {
@@ -113,7 +118,7 @@ public class Users extends BasePage {
         final IModel users = new LoadableDetachableModel() {
 
             protected Object load() {
-                return restClient.getAllUsers().getUsers();
+                return usersRestClient.getAllUsers().getUsers();
             }
         };
 
@@ -181,7 +186,7 @@ public class Users extends BasePage {
 
                     @Override
                     public void onClick(AjaxRequestTarget target) {
-                        restClient.deleteUser(userTO.getId()+"");
+                        usersRestClient.deleteUser(userTO.getId()+"");
 
                         info(getString("operation_succeded"));
                         target.addComponent(feedbackPanel);
@@ -276,7 +281,7 @@ public class Users extends BasePage {
         Set<AttributeTO> attributes = user.getAttributes();
         List<AttributeWrapper> attributesList = new ArrayList<AttributeWrapper>();
 
-        ConfigurationTO configuration = restClient.readConfigurationAttributes();
+        ConfigurationTO configuration = configurationsRestClient.readConfiguration();
         columnsList = new ArrayList<String>();
         
         if (configuration != null && !configuration.getConfValue().equals("")) {

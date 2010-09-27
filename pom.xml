@@ -113,7 +113,7 @@
 
         <hibernate.version>3.4.0.GA</hibernate.version>
 
-        <wicket.version>1.4.10</wicket.version>
+        <wicket.version>1.4.12</wicket.version>
 
         <org.apache.cxf.version>2.2.9</org.apache.cxf.version>
 

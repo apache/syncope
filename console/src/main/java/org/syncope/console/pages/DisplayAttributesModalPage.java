@@ -34,16 +34,16 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.to.ConfigurationTO;
 
 import org.syncope.console.SyncopeApplication;
+import org.syncope.console.rest.ConfigurationsRestClient;
 import org.syncope.console.rest.SchemaRestClient;
-import org.syncope.console.rest.UsersRestClient;
 
 /**
- * Modal window with User form.
+ * Modal window with Display attributes form.
  */
 public class DisplayAttributesModalPage extends SyncopeModalPage {
 
-    @SpringBean(name = "usersRestClient")
-    UsersRestClient restClient;
+    @SpringBean(name = "configurationsRestClient")
+    ConfigurationsRestClient restClient;
     
     List<String> selections;
     ConfigurationTO configuration;
@@ -102,7 +102,7 @@ public class DisplayAttributesModalPage extends SyncopeModalPage {
      */
     public void setupSelections(){
 
-        configuration = restClient.readConfigurationAttributes();
+        configuration = restClient.readConfiguration();
 
         if(configuration != null) {
             String conf = configuration.getConfValue();
@@ -139,13 +139,13 @@ public class DisplayAttributesModalPage extends SyncopeModalPage {
 
         if (create) {
 
-            if (!restClient.createConfigurationAttributes(configuration))
+            if (!restClient.createConfiguration(configuration))
                 return false;
         }
 
         else  if (!create) {
 
-            if (!restClient.updateConfigurationAttributes(configuration)) 
+            if (!restClient.updateConfiguration(configuration))
                 return false;
         }
 

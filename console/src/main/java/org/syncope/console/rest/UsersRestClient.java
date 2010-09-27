@@ -116,55 +116,6 @@ public class UsersRestClient
         return userTO;
     }
 
-    /**
-     * Create a new configuration.
-     * @param configurationTO
-     * @return true if the operation ends succesfully, false otherwise
-     */
-    public boolean createConfigurationAttributes(ConfigurationTO configurationTO) {
-
-        ConfigurationTO newConfigurationTO = restClient.getRestTemplate().postForObject(
-                restClient.getBaseURL() + "configuration/create",
-                configurationTO, ConfigurationTO.class);
-
-        return (configurationTO.equals(newConfigurationTO))?true:false;
-    }
-
-    /**
-     * Update an existent configuration.
-     * @param configurationTO
-     * @return true if the operation ends succesfully, false otherwise
-     */
-    public boolean updateConfigurationAttributes(ConfigurationTO configurationTO) {
-
-        ConfigurationTO newConfigurationTO = restClient.getRestTemplate().postForObject(
-                 restClient.getBaseURL() + "configuration/update",
-                 configurationTO, ConfigurationTO.class);
-
-        return (configurationTO.equals(newConfigurationTO))?true:false;
-    }
-
-    /**
-     * Load an existent configuration.
-     * @return ConfigurationTO object if the configuration exists, null otherwise
-     */
-    public ConfigurationTO readConfigurationAttributes() {
-        
-        ConfigurationTO configurationTO;
-        try {
-            configurationTO = restClient.getRestTemplate().getForObject(
-                    restClient.getBaseURL() + "configuration/read/{confKey}.json",
-                    ConfigurationTO.class, "users.attributes.view");
-        } catch (SyncopeClientCompositeErrorException e) {
-            e.printStackTrace();
-            return null;
-        }
-
-        return configurationTO;
-    }
-
-
-
     public RestClient getRestClient() {
         return restClient;
     }

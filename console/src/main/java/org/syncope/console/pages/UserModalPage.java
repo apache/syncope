@@ -309,10 +309,9 @@ public class UserModalPage extends SyncopeModalPage {
                         setupUserMod(userTO);
                         res = usersRestClient.updateUser(userMod);
 
-                        if (!res) {
+                        if (!res) 
                             error(getString("error_updating"));
-                        }
-
+                        
                     }
 
                     Users callerPage = (Users) basePage;

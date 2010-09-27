@@ -63,10 +63,56 @@
         </ul>
     </div>
 
+    <div wicket:id="feedback"/>
 
-    <div style="margin:auto;vertical-align: middle">
-        <img src="img/under-construction.jpg" alt="under_construction"
-             style="display:block; margin:auto;"/>
+
+    <div id="tabs">
+        <ul>
+            <li  class="tabs-selected"><a href="#tabs-1"><span><wicket:message key="tab1"/></span></a></li>
+        </ul>
+        <div id="tabs-1">
+
+            <div id="users-contain" class="ui-widget">
+
+                <h1><wicket:message key="title"/></h1>
+
+                <table id="configurations" class="ui-widget ui-widget-content" wicket:id="container">
+                    <thead>
+                        <tr class="ui-widget-header">
+                            <th><wicket:message key="key"/></th>
+                    <th><wicket:message key="value"/></th>
+                    <th><wicket:message key="edit"/></th>
+                    <th><wicket:message key="delete"/></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        <tr wicket:id="configurations">
+                            <td>
+                                <span wicket:id="key">[key]</span>
+                            </td>
+                            <td>
+                                <span wicket:id="value">[value]</span>
+                            </td>
+                            <td>
+                                <a href="#" wicket:id="editLink">
+                                    <wicket:message key="edit"/>
+                                </a>
+                            </td>
+                            <td>
+                                <a href="#" wicket:id="deleteLink">
+                                    <wicket:message key="delete"/>
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div wicket:id="createConfigurationWin">[Show modal window for creating configuration]</div>
+            <div wicket:id="editConfigurationWin">[Show modal window for editing configuration]</div>
+
+            <a class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" wicket:id="createConfigurationLink">
+                <wicket:message key="create_configuration"/>
+            </a>
+        </div>
     </div>
-
 </wicket:extend>
