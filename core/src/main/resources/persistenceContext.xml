@@ -72,14 +72,13 @@
         </property>
         <property name="persistenceUnitPostProcessors">
             <list>
-                <bean class="org.syncope.core.persistence.JTAPersistenceUnitPostProcessor">
+                <bean class="org.syncope.core.persistence.transaction.JTAPersistenceUnitPostProcessor">
                     <property name="jtaMode" value="${jtaMode}"/>
                     <property name="jtaDataSource" ref="dataSource"/>
                     <property name="transactionManagerLookupKey"
                               value="hibernate.transaction.manager_lookup_class"/>
-                    <!-- Configure here as per your production J2EE container -->
                     <property name="transactionManagerLookupValue"
-                              value="org.hibernate.transaction.SunONETransactionManagerLookup"/>
+                              value="${transactionManagerLookupValue}"/>
                 </bean>
             </list>
         </property>
@@ -96,7 +95,7 @@
         <property name="entityManagerFactory" ref="entityManagerFactory"/>
     </bean>
     <bean id="transactionManager"
-          class="org.syncope.core.persistence.OmniTransactionManager">
+          class="org.syncope.core.persistence.transaction.SpringJTAWithJPAFallbackTransactionManager">
         <property name="jpaTransactionManager" ref="jpaTransactionManager"/>
     </bean>
     

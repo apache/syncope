@@ -12,7 +12,7 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.persistence;
+package org.syncope.core.persistence.transaction;
 
 import java.io.Serializable;
 import javax.transaction.NotSupportedException;
@@ -29,32 +29,52 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.jta.JtaTransactionManager;
 import org.springframework.transaction.jta.TransactionFactory;
 
-public class OmniTransactionManager implements PlatformTransactionManager,
+/**
+ * TransactionManager for usage with Spring.
+ * It normally goes as per <tx:jta-transaction-manager/> but,
+ * when not available, uses a configured JpaTransactionManager as fallback.
+ *
+ * @see JtaTransactionManager
+ * @see JpaTransactionManager
+ */
+public class SpringJTAWithJPAFallbackTransactionManager
+        implements PlatformTransactionManager,
         TransactionFactory, InitializingBean, Serializable {
 
     /**
      * Logger.
      */
     private static final Logger LOG = LoggerFactory.getLogger(
-            OmniTransactionManager.class);
+            SpringJTAWithJPAFallbackTransactionManager.class);
+    /**
+     * Spring's JPA Transaction Manager.
+     */
     private JpaTransactionManager jpaTransactionManager;
+    /**
+     * Spring's JTA Transaction Manager.
+     */
     private JtaTransactionManager jtaTransactionManager;
 
-    public OmniTransactionManager() {
+    public SpringJTAWithJPAFallbackTransactionManager() {
         jtaTransactionManager = new JtaTransactionManager();
     }
 
-    public OmniTransactionManager(JpaTransactionManager jpaTransactionManager) {
-        super();
+    public SpringJTAWithJPAFallbackTransactionManager(
+            final JpaTransactionManager jpaTransactionManager) {
+
+        this();
         setJpaTransactionManager(jpaTransactionManager);
     }
 
-    public JpaTransactionManager getJpaTransactionManager() {
+    /**
+     * @return fallback JPA Transaction Manager
+     */
+    public final JpaTransactionManager getJpaTransactionManager() {
         return jpaTransactionManager;
     }
 
-    public void setJpaTransactionManager(
-            JpaTransactionManager jpaTransactionManager) {
+    public final void setJpaTransactionManager(
+            final JpaTransactionManager jpaTransactionManager) {
 
         this.jpaTransactionManager = jpaTransactionManager;
     }
@@ -70,7 +90,8 @@ public class OmniTransactionManager implements PlatformTransactionManager,
     }
 
     @Override
-    public TransactionStatus getTransaction(TransactionDefinition definition)
+    public final TransactionStatus getTransaction(
+            final TransactionDefinition definition)
             throws TransactionException {
 
         return getPlatformTransactionManager().getTransaction(definition);

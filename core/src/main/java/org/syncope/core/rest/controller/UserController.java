@@ -476,12 +476,12 @@ public class UserController extends AbstractController {
             LOG.error("Could not find user '" + userId + "'");
 
             throw new NotFoundException(String.valueOf(userId));
-        } else {
-            if (workflowStore != null && user.getWorkflowId() != null) {
-                workflowStore.delete(user.getWorkflowId());
-            }
-
-            syncopeUserDAO.delete(userId);
         }
+
+        if (workflowStore != null && user.getWorkflowId() != null) {
+            workflowStore.delete(user.getWorkflowId());
+        }
+
+        syncopeUserDAO.delete(userId);
     }
 }

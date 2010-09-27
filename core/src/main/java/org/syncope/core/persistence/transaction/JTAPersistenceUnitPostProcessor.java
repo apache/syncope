@@ -12,7 +12,7 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.persistence;
+package org.syncope.core.persistence.transaction;
 
 import java.util.Properties;
 import javax.persistence.spi.PersistenceUnitTransactionType;
