@@ -64,6 +64,16 @@
         </layout>
     </appender>
 
+    <appender name="monitor" class="org.apache.log4j.RollingFileAppender">
+        <param name="File" value="${logfile.monitor}"/>
+        <param name="Append" value="true"/>
+        <param name="MaxFileSize" value="10240KB" />
+        <param name="MaxBackupIndex" value="10" />
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%-5p %d %C.%M:%L %m%n"/>
+        </layout>
+    </appender>
+
     <logger name="org.syncope.core.persistence" additivity="false">
         <level value="INFO"/>
         <appender-ref ref="persistence"/>
@@ -82,6 +92,16 @@
     <logger name="org.syncope.core.test" additivity="false">
         <level value="INFO"/>
         <appender-ref ref="test"/>
+    </logger>
+
+    <logger name="org.syncope.core.monitor" additivity="false">
+        <level value="DEBUG"/>
+        <appender-ref ref="monitor"/>
+    </logger>
+
+    <logger name="org.hibernate.cache" additivity="false">
+        <level value="DEBUG"/>
+        <appender-ref ref="monitor"/>
     </logger>
 
     <logger name="org.springframework" additivity="false">

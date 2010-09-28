@@ -42,6 +42,7 @@
         <logfile.rest>/tmp/syncope-core-rest.log</logfile.rest>
         <logfile.identityconnectors>/tmp/syncope-core-identityconnectors.log</logfile.identityconnectors>
         <logfile.test>/tmp/syncope-core-test.log</logfile.test>
+        <logfile.monitor>/tmp/syncope-core-monitor.log</logfile.monitor>
 
         <bundles.directory>/tmp/bundles</bundles.directory>
     </properties>
@@ -151,8 +152,25 @@
         </dependency>
 
         <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjrt</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-entitymanager</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-jbosscache2</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.cache</groupId>
+            <artifactId>jbosscache-core</artifactId>
         </dependency>
 
         <dependency>
@@ -345,6 +363,7 @@
                             <includes>
                                 <include>**/db.properties</include>
                                 <include>**/content.xml</include>
+                                <include>**/treecache.xml</include>
                             </includes>
                         </configuration>
                     </execution>
@@ -369,6 +388,7 @@
                             <packagingExcludes>
                                 WEB-INF/classes/org/syncope/core/persistence/db.properties,
                                 WEB-INF/classes/org/syncope/core/persistence/content.xml,
+                                WEB-INF/classes/treecache.xml,
                                 WEB-INF/classes/beans.xml
                             </packagingExcludes>
                         </configuration>

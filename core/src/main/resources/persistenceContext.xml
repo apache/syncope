@@ -17,6 +17,7 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:p="http://www.springframework.org/schema/p"
        xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
        http://www.springframework.org/schema/beans/spring-beans.xsd
        http://www.springframework.org/schema/context
@@ -24,15 +25,20 @@
        http://www.springframework.org/schema/p
        http://www.springframework.org/schema/p/spring-p.xsd
        http://www.springframework.org/schema/tx
-       http://www.springframework.org/schema/tx/spring-tx.xsd">
+       http://www.springframework.org/schema/tx/spring-tx.xsd
+       http://www.springframework.org/schema/aop
+       http://www.springframework.org/schema/aop/spring-aop.xsd">
 
     <context:annotation-config/>
     <context:component-scan base-package="org.syncope.core.persistence"/>
     <context:component-scan base-package="org.syncope.core.rest.data"/>
 
+    <aop:aspectj-autoproxy/>
+    <bean class="org.syncope.core.monitor.CacheMonitor"/>
+    
     <bean id="contextApplicationContextProvider"
           class="org.syncope.core.persistence.util.ApplicationContextProvider"/>
-          
+
     <bean id="propertyConfigurer"
           class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
         <property name="locations">
@@ -69,6 +75,17 @@
                 <property name="generateDdl" value="true"/>
                 <property name="databasePlatform" value="${hibernate.dialect}"/>
             </bean>
+        </property>
+        <property name="jpaPropertyMap">
+            <map>
+                <entry key="hibernate.cache.use_second_level_cache" value="true"/>
+                <entry key="hibernate.cache.use_query_cache" value="true"/>
+                <entry key="hibernate.cache.region.factory_class"
+                       value="org.hibernate.cache.jbc2.SharedJBossCacheRegionFactory"/>
+                <entry key="hibernate.cache.region_prefix"
+                       value="syncopecache"/>
+                <entry key="hibernate.generate_statistics" value="true"/>
+            </map>
         </property>
         <property name="persistenceUnitPostProcessors">
             <list>

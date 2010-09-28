@@ -31,12 +31,17 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
+import javax.persistence.QueryHint;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import org.apache.commons.lang.RandomStringUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.syncope.core.persistence.security.AsymmetricCipher;
 import org.syncope.core.persistence.beans.AbstractAttributable;
 import org.syncope.core.persistence.beans.AbstractAttribute;
@@ -46,6 +51,19 @@ import org.syncope.core.persistence.beans.membership.Membership;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 
 @Entity
+@Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@NamedQueries({
+    @NamedQuery(name = "SyncopeUser.find",
+    query = "SELECT e FROM SyncopeUser e WHERE e.id = :id",
+    hints = {
+        @QueryHint(name = "org.hibernate.cacheable", value = "true")
+    }),
+    @NamedQuery(name = "SyncopeUser.findByWorkflowId",
+    query = "SELECT e FROM SyncopeUser e WHERE e.workflowId = :workflowId",
+    hints = {
+        @QueryHint(name = "org.hibernate.cacheable", value = "true")
+    })
+})
 public class SyncopeUser extends AbstractAttributable {
 
     static {

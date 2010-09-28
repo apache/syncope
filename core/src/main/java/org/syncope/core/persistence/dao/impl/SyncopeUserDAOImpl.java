@@ -16,6 +16,7 @@ package org.syncope.core.persistence.dao.impl;
 
 import java.util.Collections;
 import java.util.List;
+import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,16 +33,23 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
     @Override
     @Transactional(readOnly = true)
     public final SyncopeUser find(final Long id) {
-        return entityManager.find(SyncopeUser.class, id);
+        Query query = entityManager.createNamedQuery("SyncopeUser.find");
+        query.setParameter("id", id);
+
+        try {
+            return (SyncopeUser) query.getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
     }
 
     @Override
     @Transactional(readOnly = true)
     public final SyncopeUser findByWorkflowId(final Long workflowId) {
-        Query query = entityManager.createQuery("SELECT e FROM SyncopeUser e "
-                + "WHERE e.workflowId = :workflowId");
+        Query query = entityManager.createNamedQuery(
+                "SyncopeUser.findByWorkflowId");
         query.setParameter("workflowId", workflowId);
-        
+
         return (SyncopeUser) query.getSingleResult();
     }
 
@@ -84,7 +92,7 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
     @Transactional(readOnly = true)
     public final List<SyncopeUser> search(
             final NodeSearchCondition searchCondition) {
-        
+
         String queryString = QueryUtils.getUserSearchQuery(searchCondition);
         if (LOG.isDebugEnabled()) {
             LOG.debug("About to execute query\n\t" + queryString + "\n");
