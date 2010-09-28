@@ -116,7 +116,7 @@
         <hibernate-jbosscache.version>3.3.2.GA</hibernate-jbosscache.version>
         <jbosscache.version>3.2.6.GA</jbosscache.version>
 
-        <wicket.version>1.4.10</wicket.version>
+        <wicket.version>1.4.12</wicket.version>
 
         <org.apache.cxf.version>2.2.9</org.apache.cxf.version>
 

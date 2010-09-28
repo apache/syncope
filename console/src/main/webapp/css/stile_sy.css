@@ -136,7 +136,7 @@ body {
     padding: 5px;
 }
 
-.feedbackPanelERROR {
+/*.feedbackPanelERROR {
     color: black;
     font-weight: bold;
     margin: 0px;
@@ -154,7 +154,8 @@ body {
     border:0 none;
     font-size:12px;
     padding-left: 24px;
-}
+}*/
+
 .feedbackPanelINFO span {
     background: url("../img/ok.png") no-repeat left;
     border:0 none;
