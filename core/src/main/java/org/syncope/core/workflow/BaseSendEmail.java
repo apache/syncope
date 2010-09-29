@@ -91,7 +91,9 @@ public class BaseSendEmail extends OSWorkflowComponent
         Email email = null;
         try {
             email = getHtmlEmail(transientVars, args, ps);
-            email.send();
+            if (email != null) {
+                email.send();
+            }
         } catch (EmailException e) {
             LOG.error("Could not send e-mail " + email, e);
         }
