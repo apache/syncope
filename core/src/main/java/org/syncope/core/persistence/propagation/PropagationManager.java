@@ -50,14 +50,12 @@ public class PropagationManager {
     public enum PropagationMode {
 
         SYNC, ASYNC
-
     }
     /**
      * Logger.
      */
     private static final Logger LOG =
             LoggerFactory.getLogger(PropagationManager.class);
-
     /**
      * Schema DAO.
      */
@@ -299,7 +297,8 @@ public class PropagationManager {
 
                 try {
                     // check for schema or constants (AccountId/Password)
-                    schemaType.getSchemaClass().asSubclass(AbstractSchema.class);
+                    schemaType.getSchemaClass().asSubclass(
+                            AbstractSchema.class);
 
                     schema = schemaDAO.find(schemaName,
                             schemaType.getSchemaClass());
@@ -449,15 +448,10 @@ public class PropagationManager {
                     "Connector instance bean not found");
         }
 
-        Uid userUid = null;
-
         switch (resourceOperationType) {
             case CREATE:
-                userUid = connector.create(operationMode,
-                        ObjectClass.ACCOUNT, attrs, null);
-                break;
-
             case UPDATE:
+                Uid userUid = null;
                 try {
                     userUid = connector.resolveUsername(
                             ObjectClass.ACCOUNT,
@@ -472,10 +466,10 @@ public class PropagationManager {
                 }
 
                 if (userUid != null) {
-                    userUid = connector.update(operationMode,
+                    connector.update(operationMode,
                             ObjectClass.ACCOUNT, userUid, attrs, null);
                 } else {
-                    userUid = connector.create(operationMode,
+                    connector.create(operationMode,
                             ObjectClass.ACCOUNT, attrs, null);
                 }
 
