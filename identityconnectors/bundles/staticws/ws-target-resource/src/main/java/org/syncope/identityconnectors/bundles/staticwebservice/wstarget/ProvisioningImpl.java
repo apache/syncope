@@ -143,8 +143,12 @@ public class ProvisioningImpl implements Provisioning {
                     if (set.length() > 0) {
                         set.append(",");
                     }
-                    set.append(attr.getName() + "='"
-                            + attr.getValue().toString() + "'");
+                    if (attr.getValue() != null) {
+                        set.append(attr.getName()
+                                + "='"
+                                + attr.getValue().toString()
+                                + "'");
+                    }
                 }
             }
 
@@ -577,7 +581,7 @@ public class ProvisioningImpl implements Provisioning {
     @Override
     public String authenticate(String username, String password)
             throws ProvisioningException {
-        
+
         if (LOG.isDebugEnabled()) {
             LOG.debug("Operation request received");
         }
