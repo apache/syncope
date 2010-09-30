@@ -14,7 +14,9 @@
  */
 package org.syncope.core.persistence.dao.impl;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import javax.persistence.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,16 +38,22 @@ public class AttributeValueDAOImpl extends AbstractDAOImpl
     @Override
     @Transactional(readOnly = true)
     public <T extends AbstractAttributeValue> boolean nonUniqueAttributeValue(
-            T attributeValue) {
+            final T attributeValue) {
 
         Query query = entityManager.createQuery(
-                "SELECT DISTINCT e FROM " + attributeValue.getClass().getSimpleName()
+                "SELECT DISTINCT e FROM "
+                + attributeValue.getClass().getSimpleName()
                 + " e WHERE e.attribute.schema = :schema AND "
-                + " ((e.stringValue IS NOT NULL AND e.stringValue = :stringValue)"
-                + " OR (e.booleanValue IS NOT NULL AND e.booleanValue = :booleanValue)"
-                + " OR (e.dateValue IS NOT NULL AND e.dateValue = :dateValue)"
-                + " OR (e.longValue IS NOT NULL AND e.longValue = :longValue)"
-                + " OR (e.doubleValue IS NOT NULL AND e.doubleValue = :doubleValue))");
+                + " ((e.stringValue IS NOT NULL "
+                + "AND e.stringValue = :stringValue)"
+                + " OR (e.booleanValue IS NOT NULL "
+                + "AND e.booleanValue = :booleanValue)"
+                + " OR (e.dateValue IS NOT NULL "
+                + "AND e.dateValue = :dateValue)"
+                + " OR (e.longValue IS NOT NULL "
+                + "AND e.longValue = :longValue)"
+                + " OR (e.doubleValue IS NOT NULL "
+                + "AND e.doubleValue = :doubleValue))");
 
         query.setParameter("schema", attributeValue.getAttribute().getSchema());
         query.setParameter("stringValue", attributeValue.getStringValue());
@@ -54,7 +62,12 @@ public class AttributeValueDAOImpl extends AbstractDAOImpl
         query.setParameter("longValue", attributeValue.getLongValue());
         query.setParameter("doubleValue", attributeValue.getDoubleValue());
 
-        return query.getResultList().size() > 1;
+        Set<Long> distinctOwners = new HashSet<Long>();
+        for (Object foundValue : query.getResultList()) {
+            distinctOwners.add(
+                    ((T) foundValue).getAttribute().getOwner().getId());
+        }
+        return distinctOwners.size() > 1;
     }
 
     @Override

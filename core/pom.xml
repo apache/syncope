@@ -33,7 +33,7 @@
 
         <jetty.port>8888</jetty.port>
 
-        <cargo.servlet.port>8080</cargo.servlet.port>
+        <cargo.servlet.port>9080</cargo.servlet.port>
         <cargo.log>/tmp/syncope-core-cargo.log</cargo.log>
         <cargo.output>/tmp/syncope-core-cargo-output.log</cargo.output>
 

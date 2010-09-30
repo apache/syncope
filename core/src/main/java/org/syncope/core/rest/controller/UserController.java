@@ -353,13 +353,15 @@ public class UserController extends AbstractController {
             switch (wie.getExceptionOperation()) {
 
                 case OVERWRITE:
-                    Integer resetActionId = findWorkflowAction(
+                    final Integer resetActionId = findWorkflowAction(
                             wie.getWorkflowId(), Constants.ACTION_RESET);
                     if (resetActionId != null) {
-                        doExecuteAction(Constants.ACTION_RESET,
+                        syncopeUserDAO.save(
+                                doExecuteAction(
+                                Constants.ACTION_RESET,
                                 wie.getSyncopeUserId(),
                                 Collections.singletonMap(Constants.USER_TO,
-                                (Object) userTO));
+                                (Object) userTO)));
                     }
 
                     userTO.setId(wie.getSyncopeUserId());
@@ -468,7 +470,7 @@ public class UserController extends AbstractController {
     @RequestMapping(method = RequestMethod.DELETE,
     value = "/delete/{userId}")
     public void delete(@PathVariable("userId") Long userId)
-            throws NotFoundException {
+            throws NotFoundException, WorkflowException {
 
         SyncopeUser user = syncopeUserDAO.find(userId);
 
@@ -477,6 +479,8 @@ public class UserController extends AbstractController {
 
             throw new NotFoundException(String.valueOf(userId));
         } else {
+            doExecuteAction(Constants.ACTION_DELETE, userId, null);
+
             if (workflowStore != null && user.getWorkflowId() != null) {
                 workflowStore.delete(user.getWorkflowId());
             }

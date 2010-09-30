@@ -107,7 +107,7 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
     @Override
     public void delete(Long id) {
         SyncopeUser user = find(id);
-        if (id == null) {
+        if (user == null) {
             return;
         }
 
