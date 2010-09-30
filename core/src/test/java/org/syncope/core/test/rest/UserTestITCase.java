@@ -330,9 +330,8 @@ public class UserTestITCase extends AbstractTestITCase {
 
         assertEquals("newPassword", userTO.getPassword());
         assertTrue(userTO.getMemberships().size() == 1);
-        assertTrue(
-                userTO.getMemberships().iterator().next().getAttributes().size()
-                == 1);
+        assertEquals(1, userTO.getMemberships().iterator().next().
+                getAttributes().size());
         assertTrue(userTO.getDerivedAttributes().size() == 1);
         boolean attributeFound = false;
         for (AttributeTO attributeTO : userTO.getAttributes()) {

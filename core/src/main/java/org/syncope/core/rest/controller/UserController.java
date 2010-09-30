@@ -109,8 +109,7 @@ public class UserController extends AbstractController {
 
         SyncopeUser user = syncopeUserDAO.find(userId);
         if (user == null) {
-            LOG.error("Could not find user '" + userId + "'");
-            throw new NotFoundException(String.valueOf(userId));
+            throw new NotFoundException("User " + userId);
         }
 
         Map<String, Object> inputs = new HashMap<String, Object>();
@@ -204,11 +203,8 @@ public class UserController extends AbstractController {
             throws NotFoundException {
 
         SyncopeUser user = syncopeUserDAO.find(userId);
-
         if (user == null) {
-            LOG.error("Could not find user '" + userId + "'");
-
-            throw new NotFoundException(String.valueOf(userId));
+            throw new NotFoundException("User " + userId);
         }
 
         return userDataBinder.getUserTO(user, userWorkflow);
@@ -221,8 +217,7 @@ public class UserController extends AbstractController {
 
         SyncopeUser user = syncopeUserDAO.find(userId);
         if (user == null) {
-            LOG.error("Could not find user '" + userId + "'");
-            throw new NotFoundException(String.valueOf(userId));
+            throw new NotFoundException("User " + userId);
         }
 
         WorkflowActionsTO result = new WorkflowActionsTO();
@@ -270,8 +265,7 @@ public class UserController extends AbstractController {
 
         SyncopeUser user = syncopeUserDAO.find(userId);
         if (user == null) {
-            LOG.error("Could not find user '" + userId + "'");
-            throw new NotFoundException(String.valueOf(userId));
+            throw new NotFoundException("User " + userId);
         }
 
         List<Step> currentSteps = userWorkflow.getCurrentSteps(
@@ -436,8 +430,13 @@ public class UserController extends AbstractController {
             LOG.debug("update called with parameter " + userMod);
         }
 
+        SyncopeUser user = syncopeUserDAO.find(userMod.getId());
+        if (user == null) {
+            throw new NotFoundException("User " + userMod.getId());
+        }
+
         // First of all, let's check if update is allowed
-        SyncopeUser user = doExecuteAction(Constants.ACTION_UPDATE,
+        user = doExecuteAction(Constants.ACTION_UPDATE,
                 userMod.getId(), Collections.singletonMap(Constants.USER_MOD,
                 (Object) userMod));
 
@@ -469,23 +468,38 @@ public class UserController extends AbstractController {
 
     @RequestMapping(method = RequestMethod.DELETE,
     value = "/delete/{userId}")
-    public void delete(@PathVariable("userId") Long userId)
-            throws NotFoundException, WorkflowException {
+    public void delete(@PathVariable("userId") Long userId,
+            @RequestParam(value = "syncRoles",
+            required = false) Set<Long> syncRoles,
+            @RequestParam(value = "syncResources",
+            required = false) Set<String> syncResources)
+            throws NotFoundException, WorkflowException, PropagationException {
 
         SyncopeUser user = syncopeUserDAO.find(userId);
-
         if (user == null) {
-            LOG.error("Could not find user '" + userId + "'");
-
-            throw new NotFoundException(String.valueOf(userId));
-        } else {
-            doExecuteAction(Constants.ACTION_DELETE, userId, null);
-
-            if (workflowStore != null && user.getWorkflowId() != null) {
-                workflowStore.delete(user.getWorkflowId());
-            }
-
-            syncopeUserDAO.delete(userId);
+            throw new NotFoundException("User " + userId);
         }
+
+        doExecuteAction(Constants.ACTION_DELETE, userId, null);
+
+        // Propagate delete
+        Set<String> syncResourceNames =
+                getSyncResourceNames(user, syncRoles, syncResources);
+        if (LOG.isDebugEnabled() && !syncResourceNames.isEmpty()) {
+            LOG.debug("About to propagate synchronously onto resources "
+                    + syncResourceNames);
+        }
+
+        Set<String> propagatedResources =
+                propagationManager.delete(user, syncResourceNames);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Propagated onto resources " + propagatedResources);
+        }
+
+        // Now that delete has been propagated, let's remove everything
+        if (workflowStore != null && user.getWorkflowId() != null) {
+            workflowStore.delete(user.getWorkflowId());
+        }
+        syncopeUserDAO.delete(userId);
     }
 }

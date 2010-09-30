@@ -124,6 +124,23 @@ public class PropagationManager {
         return provision(user, resourceOperations, syncResourceNames);
     }
 
+    public Set<String> delete(SyncopeUser user, Set<String> syncResourceNames)
+            throws PropagationException {
+
+        Set<TargetResource> resources = new HashSet<TargetResource>();
+        for (TargetResource resource : user.getTargetResources()) {
+            resources.add(resource);
+        }
+        for (Membership membership : user.getMemberships()) {
+            resources.addAll(membership.getSyncopeRole().getTargetResources());
+        }
+
+        ResourceOperations resourceOperations = new ResourceOperations();
+        resourceOperations.set(ResourceOperations.Type.DELETE, resources);
+
+        return provision(user, resourceOperations, syncResourceNames);
+    }
+
     /**
      * Implementation of the provisioning feature.
      * @param user
