@@ -102,7 +102,7 @@ public class DisplayAttributesModalPage extends SyncopeModalPage {
      */
     public void setupSelections(){
 
-        configuration = restClient.readConfiguration();
+        configuration = restClient.readConfiguration("users.attributes.view");
 
         if(configuration != null) {
             String conf = configuration.getConfValue();

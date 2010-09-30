@@ -27,18 +27,21 @@ import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.to.AttributeTO;
 import org.syncope.client.to.ConfigurationTO;
 import org.syncope.client.to.UserTO;
+
+import org.syncope.console.commons.SearchConditionWrapper;
+import org.syncope.console.rest.SchemaRestClient;
+
 import org.syncope.console.rest.ConfigurationsRestClient;
+
 import org.syncope.console.rest.UsersRestClient;
 
 /**
@@ -48,6 +51,9 @@ public class Users extends BasePage {
 
     @SpringBean(name = "usersRestClient")
     UsersRestClient usersRestClient;
+
+    @SpringBean(name = "schemaRestClient")
+    SchemaRestClient schemaRestClient;
 
     @SpringBean(name = "configurationsRestClient")
     ConfigurationsRestClient configurationsRestClient;
@@ -66,17 +72,23 @@ public class Users extends BasePage {
 
     List<String> columnsList;
 
-    /** Response flag set by the Modal Window after the operation is completed  */
+    /** Response flag set by the Modal Window after the operation is completed*/
     boolean operationResult = false;
 
     FeedbackPanel feedbackPanel;
+
+    final ModalWindow searchUsersWin;
+    List<SearchConditionWrapper> searchConditionsList;
     
     public Users(PageParameters parameters) {
         super(parameters);
 
+        setupSearchConditions();
+
         add(createUserWin = new ModalWindow("createUserWin"));
         add(editUserWin = new ModalWindow("editUserWin"));
         add(changeAttribsViewWin = new ModalWindow("changeAttributesViewWin"));
+        add(searchUsersWin = new ModalWindow("searchUsersWin"));
 
         feedbackPanel = new FeedbackPanel("feedback");
         feedbackPanel.setOutputMarkupId( true );
@@ -87,7 +99,9 @@ public class Users extends BasePage {
         final IModel columns = new LoadableDetachableModel() {
 
             protected Object load() {
-                ConfigurationTO configuration = configurationsRestClient.readConfiguration();
+
+                ConfigurationTO configuration = configurationsRestClient.readConfiguration("users.attributes.view");
+
                 columnsList = new ArrayList<String>();
 
                 if (configuration != null && !configuration.getConfValue().equals("")) {
@@ -224,6 +238,12 @@ public class Users extends BasePage {
         changeAttribsViewWin.setPageMapName("change-attribs-modal");
         changeAttribsViewWin.setCookieName("change-attribs-modal");
 
+        searchUsersWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+        searchUsersWin.setInitialHeight(WIN_USER_HEIGHT);
+        searchUsersWin.setInitialWidth(WIN_USER_HEIGHT);
+        searchUsersWin.setPageMapName("search-users-modal");
+        searchUsersWin.setCookieName("search-users-modal");
+
         setWindowClosedCallback(createUserWin, usersContainer);
         setWindowClosedCallback(editUserWin, usersContainer);
 
@@ -266,10 +286,10 @@ public class Users extends BasePage {
                 changeAttribsViewWin.show(target);
             }
         });
-
-        //TAB 2 - Search Start
-        add(new TextField("search", new Model(getString("search"))));
-
+        
+       //TAB 2 - Search section start 
+       /* PLACE SEARCH CODE HERE */
+        
     }
 
     /**
@@ -281,7 +301,9 @@ public class Users extends BasePage {
         Set<AttributeTO> attributes = user.getAttributes();
         List<AttributeWrapper> attributesList = new ArrayList<AttributeWrapper>();
 
-        ConfigurationTO configuration = configurationsRestClient.readConfiguration();
+
+        ConfigurationTO configuration = configurationsRestClient.readConfiguration("users.attributes.view");
+
         columnsList = new ArrayList<String>();
         
         if (configuration != null && !configuration.getConfValue().equals("")) {
@@ -355,6 +377,15 @@ public class Users extends BasePage {
 
     public void setOperationResult(boolean operationResult) {
         this.operationResult = operationResult;
+    }
+
+    /**
+     * Init search conditions list.
+     */
+    private void setupSearchConditions() {
+        searchConditionsList = new ArrayList<SearchConditionWrapper>();
+
+        searchConditionsList.add(new SearchConditionWrapper());
     }
 
     /**

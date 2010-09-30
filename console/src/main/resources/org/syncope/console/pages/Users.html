@@ -22,9 +22,9 @@
                 </a>
             </li>
             <li><span class="users">
-                <a href=#" wicket:id="users"><img src="img/menu/users.png" alt="Users" width="80" height="80" /><br />
-                    <wicket:message key="users"/>
-                </a>
+                    <a href=#" wicket:id="users"><img src="img/menu/users.png" alt="Users" width="80" height="80" /><br />
+                        <wicket:message key="users"/>
+                    </a>
                 </span>
             </li>
             <li>
@@ -61,7 +61,7 @@
     </div>
 
     <div wicket:id="feedback"/>
-    
+
     <div id="tabs">
         <ul>
             <li  class="tabs-selected"><a href="#tabs-1"><span><wicket:message key="tab1"/></span></a></li>
@@ -71,20 +71,20 @@
 
             <div id="users-contain" class="ui-widget">
 
-                <h1><wicket:message key="title"/></h1>
+                <h1><wicket:message key="users_title"/></h1>
 
                 <table id="users" class="ui-widget ui-widget-content" wicket:id="usersContainer">
                     <thead>
                         <tr class="ui-widget-header">
                             <th><wicket:message key="id"/></th>
-                            <th><wicket:message key="status"/></th>
-                            <th><wicket:message key="token"/></th>
-                            <th wicket:id="usersSchema">
-                                <span wicket:id="attribute"/>
-                            </th>
-                            <th><wicket:message key="edit"/></th>
-                            <th><wicket:message key="delete"/></th>
-                        </tr>
+                    <th><wicket:message key="status"/></th>
+                    <th><wicket:message key="token"/></th>
+                    <th wicket:id="usersSchema">
+                        <span wicket:id="attribute"/>
+                    </th>
+                    <th><wicket:message key="edit"/></th>
+                    <th><wicket:message key="delete"/></th>
+                    </tr>
                     </thead>
                     <tbody>
                         <tr wicket:id="users">
@@ -117,6 +117,7 @@
 
             <div wicket:id="createUserWin">[Show modal window for creating user]</div>
             <div wicket:id="editUserWin">[Show modal window for editing user]</div>
+            <div wicket:id="searchUsersWin">[Show modal window for searching users]</div>
             <div wicket:id="changeAttributesViewWin">[Show modal window for editing user]</div>
 
             <a class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" wicket:id="createUserLink">
@@ -128,10 +129,12 @@
             </a>
 
         </div>
+        
         <div id="tabs-2">
-            <div id="searchBox">
-                <label for="search"><wicket:message key="search"/></label>
-                <input type="text" wicket:id="search" id="search" />
+            <!-- PLACE SEARCH FORM HERE -->
+            <div style="margin:auto;vertical-align: middle">
+                <img src="img/under-construction.jpg" alt="under_construction"
+                     style="display:block; margin:auto;"/>
             </div>
         </div>
     </div>

@@ -124,8 +124,6 @@ public class UserModalPage extends SyncopeModalPage {
 
         setupRolesMap();
 
-        schemaWrappers = new ArrayList<SchemaWrapper>();
-
         add(createUserWin = new ModalWindow("membershipWin"));
 
         createUserWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
@@ -185,7 +183,7 @@ public class UserModalPage extends SyncopeModalPage {
                                     Boolean val = (Boolean) object;
                                     item.setModelObject(val.toString());
                                 }
-                            }, schemaTO.isMandatory());
+                            }, schemaTO.isMandatory(), schemaTO.isReadonly());
 
                         } else if (schemaTO.getType().getClassName().equals("java.util.Date")) {
                             panel = new DateFieldPanel("panel", schemaTO.getName(),
@@ -217,7 +215,7 @@ public class UserModalPage extends SyncopeModalPage {
                                             String val = formatter.format(date);
                                             item.setModelObject(val);
                                         }
-                                    }, schemaTO.isMandatory());
+                                    }, schemaTO.isMandatory(),schemaTO.isReadonly());
                         }
 
                         item.add(panel);
@@ -258,6 +256,11 @@ public class UserModalPage extends SyncopeModalPage {
 
                 if (schemaWrapper.getValues().size() == 1) {
                     dropButton.setVisible(false);
+                }
+
+                if(schemaTO.isReadonly()) {
+                    addButton.setEnabled(false);
+                    dropButton.setEnabled(false);
                 }
 
                 item.add(addButton);
@@ -392,7 +395,8 @@ public class UserModalPage extends SyncopeModalPage {
                         (MembershipTO) item.getDefaultModelObject();
 
                 item.add(new Label("roleId", new Model(membershipTO.getRoleId())));
-                item.add(new Label("roleName", new Model((String) rolesMap.get(membershipTO.getRoleId()))));
+                item.add(new Label("roleName", new Model((String) rolesMap
+                        .get(membershipTO.getRoleId()))));
 
                 AjaxLink editLink = new AjaxLink("editLink") {
 
@@ -464,7 +468,9 @@ public class UserModalPage extends SyncopeModalPage {
 
         List<ResourceTO> resources = new ArrayList<ResourceTO>();
 
-        ResourcesRestClient resourcesRestClient = (ResourcesRestClient) ((SyncopeApplication) Application.get()).getApplicationContext().getBean("resourcesRestClient");
+        ResourcesRestClient resourcesRestClient = (ResourcesRestClient) 
+                ((SyncopeApplication) Application.get()).getApplicationContext()
+                .getBean("resourcesRestClient");
 
         ResourceTOs resourcesTos = resourcesRestClient.getAllResources();
 
@@ -481,15 +487,18 @@ public class UserModalPage extends SyncopeModalPage {
     public void cloneOldUserTO(UserTO userTO) {
 
         oldUser = new UserTO();
+
         oldUser.setId(userTO.getId());
         oldUser.setPassword(userTO.getPassword());
         oldUser.setAttributes(userTO.getAttributes());
-
+        oldUser.setResources(userTO.getResources());
         oldUser.setMemberships(new HashSet<MembershipTO>());
+        
         MembershipTO membership;
 
         for (MembershipTO membershipTO : userTO.getMemberships()) {
             membership = new MembershipTO();
+            membership.setId(membershipTO.getId());
             membership.setRoleId(membershipTO.getRoleId());
             membership.setAttributes(membershipTO.getAttributes());
             oldUser.getMemberships().add(membership);
@@ -537,7 +546,9 @@ public class UserModalPage extends SyncopeModalPage {
         schemaWrappers = new ArrayList<SchemaWrapper>();
         SchemaWrapper schemaWrapper;
 
-        SchemaRestClient schemaRestClient = (SchemaRestClient) ((SyncopeApplication) Application.get()).getApplicationContext().getBean("schemaRestClient");
+        SchemaRestClient schemaRestClient = (SchemaRestClient) 
+                ((SyncopeApplication) Application.get()).getApplicationContext()
+                .getBean("schemaRestClient");
 
         SchemaTOs schemas = schemaRestClient.getAllUserSchemas();
 
@@ -607,6 +618,7 @@ public class UserModalPage extends SyncopeModalPage {
             attribute = new AttributeTO();
             attribute.setSchema(schemaWrapper.getSchemaTO().getName());
             attribute.setValues(new HashSet<String>());
+            attribute.setReadonly(schemaWrapper.getSchemaTO().isReadonly());
 
             for (String value : schemaWrapper.getValues()) {
                 attribute.getValues().add(value);
@@ -690,7 +702,6 @@ public class UserModalPage extends SyncopeModalPage {
             searchAndUpdateMembership(membership);
         }
 
-        //5.Drop user's memberships marked
         for (MembershipTO membership : oldUser.getMemberships()) {
             searchAndDropMembership(membership, userTO);
         }
@@ -699,6 +710,7 @@ public class UserModalPage extends SyncopeModalPage {
 
     public void searchAndUpdateAttribute(AttributeTO attributeTO) {
         boolean found = false;
+        boolean changed = false;
 
         AttributeMod attributeMod = new AttributeMod();
         attributeMod.setSchema(attributeTO.getSchema());
@@ -706,20 +718,30 @@ public class UserModalPage extends SyncopeModalPage {
         for (AttributeTO oldAttribute : oldUser.getAttributes()) {
             if (attributeTO.getSchema().equals(oldAttribute.getSchema())) {
 
-                if (!attributeTO.equals(oldAttribute)) {
-                    attributeMod.setValuesToBeAdded(attributeTO.getValues());
+                if (!attributeTO.equals(oldAttribute) && !oldAttribute.isReadonly()) {
+
+                    if (attributeTO.getValues().size() > 1)
+                        attributeMod.setValuesToBeAdded(attributeTO.getValues());
+                    else
+                        attributeMod.addValueToBeAdded(attributeTO.getValues().iterator().next());
 
                     userMod.addAttributeToBeRemoved(oldAttribute.getSchema());
                     userMod.addAttributeToBeUpdated(attributeMod);
-                }
 
-                found = true;
+                    changed = true;
+                    break;
+                }
+                    found = true;
             }
         }
 
-        if (!found) {
-            attributeMod.setValuesToBeAdded(attributeTO.getValues());
-            userMod.addAttributeToBeUpdated(attributeMod);
+        if (!found & !changed && !attributeTO.isReadonly() && attributeTO.getValues() != null) {
+
+            if(attributeTO.getValues().iterator().next() != null ){
+                attributeMod.setValuesToBeAdded(attributeTO.getValues());
+                userMod.addAttributeToBeUpdated(attributeMod);
+            }
+            else attributeMod = null;
         }
     }
 
@@ -768,47 +790,54 @@ public class UserModalPage extends SyncopeModalPage {
      * Update the Membership.
      * @param new membershipTO
      */
-    public void searchAndUpdateMembership(MembershipTO membershipTO) {
+    public void searchAndUpdateMembership(MembershipTO newMembership) {
         boolean found = false;
+
         MembershipMod membershipMod = new MembershipMod();
-        membershipMod.setRole(membershipTO.getRoleId());
+        membershipMod.setRole(newMembership.getRoleId());
 
         AttributeMod attributeMod;
 
-        //1. If the membership exists and it's changed, update it
+        //1. If the membership exists (and it's changed) update it
         for (MembershipTO oldMembership : oldUser.getMemberships()) {
-            if (membershipTO.getRoleId() == oldMembership.getRoleId()) {
+            if (newMembership.getRoleId() == oldMembership.getRoleId()) {
 
                 for (AttributeTO oldAttribute : oldMembership.getAttributes()) {
-                    for (AttributeTO newAttribute : membershipTO.getAttributes()) {
-                        if (!oldAttribute.equals(newAttribute)) {
+                    for (AttributeTO newAttribute : newMembership.getAttributes()) {
+
+                        if(oldAttribute.getSchema().equals(newAttribute.getSchema())) {
+
                             attributeMod = new AttributeMod();
                             attributeMod.setSchema(newAttribute.getSchema());
 
-                            attributeMod.setValuesToBeRemoved(oldAttribute.getValues());
                             attributeMod.setValuesToBeAdded(newAttribute.getValues());
 
                             membershipMod.addAttributeToBeUpdated(attributeMod);
-
-                            userMod.addMembershipToBeAdded(membershipMod);
-                            userMod.addMembershipToBeRemoved(oldMembership.getId());
+                            //membershipMod.addAttributeToBeRemoved(oldAttribute.getSchema());
+                            break;
                         }
+
                     }
                 }
+                
+                userMod.addMembershipToBeRemoved(oldMembership.getId());
+                userMod.addMembershipToBeAdded(membershipMod);
+                
                 found = true;
+                break;
             }
         }
 
         //2.Otherwise, if it doesn't exist, create it from scratch
         if (!found) {
             Set<AttributeMod> attributes = new HashSet<AttributeMod>();
-            AttributeMod attrMod;
-            for (AttributeTO attr : membershipTO.getAttributes()) {
-                attrMod = new AttributeMod();
-                attrMod.setSchema(attr.getSchema());
-                attrMod.setValuesToBeAdded(attr.getValues());
+            
+            for (AttributeTO newAttribute : newMembership.getAttributes()) {
+                attributeMod = new AttributeMod();
+                attributeMod.setSchema(newAttribute.getSchema());
+                attributeMod.setValuesToBeAdded(newAttribute.getValues());
 
-                attributes.add(attrMod);
+                attributes.add(attributeMod);
             }
 
             membershipMod.setAttributesToBeUpdated(attributes);
@@ -821,18 +850,18 @@ public class UserModalPage extends SyncopeModalPage {
      * @param membershipTO
      * @param userTO
      */
-    public void searchAndDropMembership(MembershipTO membershipTO, UserTO userTO) {
+    public void searchAndDropMembership(MembershipTO oldMembership, UserTO userTO) {
         boolean found = false;
 
         //Check if the current resource was existent before the update
         for (MembershipTO newMembership : userTO.getMemberships()) {
-            if (newMembership.getId() == membershipTO.getId()) {
+            if (newMembership.getId() == oldMembership.getId()) {
                 found = true;
             }
         }
 
         if (!found) {
-            userMod.addMembershipToBeRemoved(membershipTO.getId());
+            userMod.addMembershipToBeRemoved(oldMembership.getId());
         }
     }
 
