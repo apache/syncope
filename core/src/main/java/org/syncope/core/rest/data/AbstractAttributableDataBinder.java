@@ -164,7 +164,7 @@ public abstract class AbstractAttributableDataBinder {
                     LOG.error("Invalid value for attribute "
                             + schema.getName() + ": " + value, e);
 
-                    invalidValues.addElement(value);
+                    invalidValues.addElement(schema.getName() + ": " + value);
                 }
             }
         }
@@ -470,8 +470,8 @@ public abstract class AbstractAttributableDataBinder {
         AbstractSchema schema = null;
         AbstractAttribute attribute = null;
         AbstractAttributeValue attributeValue = null;
-        for (AttributeTO attributeTO : attributableTO.getAttributes()) // Only consider attributeTO with values
-        {
+        // Only consider attributeTO with values
+        for (AttributeTO attributeTO : attributableTO.getAttributes()) {
             if (attributeTO.getValues() != null
                     && !attributeTO.getValues().isEmpty()) {
 

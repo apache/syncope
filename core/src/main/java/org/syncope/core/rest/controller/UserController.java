@@ -376,7 +376,21 @@ public class UserController extends AbstractController {
             }
         }
 
-        SyncopeUser user = userDataBinder.create(userTO);
+        // Check if UserTO has a valued id: if so,
+        // try to read the user from the db
+        SyncopeUser user = null;
+        if (userTO.getId() == 0) {
+            user = new SyncopeUser();
+        } else {
+            user = syncopeUserDAO.find(userTO.getId());
+            if (user == null) {
+                throw new NotFoundException("User " + userTO.getId());
+            }
+        }
+
+        ResourceOperations resourceOperations =
+                userDataBinder.create(user, userTO);
+
         user.setWorkflowId(workflowId);
         user = syncopeUserDAO.save(user);
 
@@ -392,8 +406,10 @@ public class UserController extends AbstractController {
                     + syncResourceNames);
         }
 
-        Set<String> propagatedResources =
-                propagationManager.create(user, syncResourceNames);
+        Set<String> propagatedResources = resourceOperations.isEmpty()
+                ? propagationManager.create(user, syncResourceNames)
+                : propagationManager.update(user, resourceOperations,
+                syncResourceNames);
 
         if (LOG.isDebugEnabled()) {
             LOG.debug("Propagated onto resources " + propagatedResources);

@@ -16,7 +16,6 @@ package org.syncope.core.rest.data;
 
 import com.opensymphony.workflow.Workflow;
 import com.opensymphony.workflow.spi.Step;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -41,7 +40,7 @@ import org.syncope.types.SyncopeClientExceptionType;
 @Component
 public class UserDataBinder extends AbstractAttributableDataBinder {
 
-    public SyncopeUser create(UserTO userTO)
+    public ResourceOperations create(SyncopeUser user, UserTO userTO)
             throws SyncopeClientCompositeErrorException, NotFoundException {
 
         SyncopeClientCompositeErrorException scce =
@@ -50,33 +49,17 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
         // In case of overwrite, take into account memberships formerly
         // assigned to this user
-        Set<Long> formerMembershipIds = Collections.EMPTY_SET;
-
-        // Check if UserTO has a valued id: if so,
-        // try to read the user from the db
-        SyncopeUser user = null;
-        if (userTO.getId() == 0) {
-            user = new SyncopeUser();
-        } else {
-            user = syncopeUserDAO.find(userTO.getId());
-            if (user == null) {
-                LOG.error("Could not find user '" + userTO.getId() + "'");
-
-                throw new NotFoundException(String.valueOf(userTO.getId()));
-            }
-
-            formerMembershipIds = new HashSet<Long>();
-            for (Membership membership : user.getMemberships()) {
-                formerMembershipIds.add(membership.getId());
-            }
+        Set<Long> formerMembershipIds = new HashSet<Long>();
+        for (Membership membership : user.getMemberships()) {
+            formerMembershipIds.add(membership.getId());
         }
 
         // password
         // TODO: check password policies
         SyncopeClientException invalidPassword = new SyncopeClientException(
                 SyncopeClientExceptionType.InvalidPassword);
-        if (userTO.getPassword() == null ||
-                userTO.getPassword().length() == 0) {
+        if (userTO.getPassword() == null
+                || userTO.getPassword().length() == 0) {
 
             LOG.error("No password provided");
 
@@ -96,8 +79,8 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
             if (role == null) {
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("Ignoring invalid role " +
-                            membershipTO.getRoleName());
+                    LOG.debug("Ignoring invalid role "
+                            + membershipTO.getRoleName());
                 }
             } else {
                 Membership membership = null;
@@ -118,17 +101,19 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
                         AttributableUtil.MEMBERSHIP, scce);
             }
         }
-        // Remove from the DB any former membership that has not been
-        // renewed in this overwrite
-        for (Long membershipId : formerMembershipIds) {
-            membershipDAO.delete(membershipId);
-        }
 
         // attributes, derived attributes and resources
         user = (SyncopeUser) fill(
                 user, userTO, AttributableUtil.USER, scce);
 
-        return user;
+        // remove from the DB any former membership that has not been
+        // renewed in this overwrite
+        UserMod userMod = new UserMod();
+        for (Long membershipId : formerMembershipIds) {
+            userMod.addMembershipToBeRemoved(membershipId);
+        }
+
+        return update(user, userMod);
     }
 
     public ResourceOperations update(SyncopeUser user, UserMod userMod)
@@ -153,16 +138,16 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
                 userMod.getMembershipsToBeRemoved()) {
 
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Membership to be removed: " +
-                        membershipToBeRemovedId);
+                LOG.debug("Membership to be removed: "
+                        + membershipToBeRemovedId);
             }
 
             membership = membershipDAO.find(membershipToBeRemovedId);
             if (membership == null) {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug(
-                            "Invalid membership id specified to be removed: " +
-                            membershipToBeRemovedId);
+                            "Invalid membership id specified to be removed: "
+                            + membershipToBeRemovedId);
                 }
             } else {
                 for (TargetResource resource :
@@ -190,15 +175,15 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
                 userMod.getMembershipsToBeAdded()) {
 
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Membership to be added: role(" +
-                        membershipMod.getRole() + ")");
+                LOG.debug("Membership to be added: role("
+                        + membershipMod.getRole() + ")");
             }
 
             role = syncopeRoleDAO.find(membershipMod.getRole());
             if (role == null) {
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("Ignoring invalid role " +
-                            membershipMod.getRole());
+                    LOG.debug("Ignoring invalid role "
+                            + membershipMod.getRole());
                 }
             } else {
                 membership = membershipDAO.find(user, role);
@@ -239,8 +224,8 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
                 LOG.error("Could not find status information for " + user);
             }
         } catch (EntityNotFoundException e) {
-            LOG.error("Could not find workflow entry with id " +
-                    user.getWorkflowId());
+            LOG.error("Could not find workflow entry with id "
+                    + user.getWorkflowId());
         }
         userTO.setStatus(status);
 
