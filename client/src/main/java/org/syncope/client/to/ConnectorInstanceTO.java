@@ -105,4 +105,8 @@ public class ConnectorInstanceTO extends AbstractBaseBean {
             this.capabilities = capabilities;
         }
     }
+
+    public String getDisplayName() {
+        return getId() + " | " + getConnectorName();
+    }
 }

@@ -140,7 +140,7 @@ public class ProvisioningImpl implements Provisioning {
             StringBuilder set = new StringBuilder();
             for (WSAttributeValue attr : data) {
                 if (!attr.isKey()) {
-                    if (set.length() > 0) {
+                    if (set.length() > 0 && attr.getValue() != null) {
                         set.append(",");
                     }
                     if (attr.getValue() != null) {
