@@ -41,8 +41,8 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
                 result == null && itor.hasNext();) {
 
             attribute = (T) itor.next();
-            if (attribute.getSchema() != null &&
-                    schemaName.equals(attribute.getSchema().getName())) {
+            if (attribute.getSchema() != null
+                    && schemaName.equals(attribute.getSchema().getName())) {
 
                 result = attribute;
             }
@@ -61,8 +61,8 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
                 result == null && itor.hasNext();) {
 
             derivedAttribute = (T) itor.next();
-            if (derivedAttribute.getDerivedSchema() != null &&
-                    derivedSchemaName.equals(
+            if (derivedAttribute.getDerivedSchema() != null
+                    && derivedSchemaName.equals(
                     derivedAttribute.getDerivedSchema().getName())) {
 
                 result = derivedAttribute;
@@ -104,6 +104,8 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
     public void setResources(Set<TargetResource> resources) {
         this.targetResources = resources;
     }
+
+    public abstract Long getId();
 
     public abstract <T extends AbstractAttribute> boolean addAttribute(
             T attribute);

@@ -102,6 +102,7 @@ public class SyncopeUser extends AbstractAttributable {
         derivedAttributes = new ArrayList<UserDerivedAttribute>();
     }
 
+    @Override
     public Long getId() {
         return id;
     }

@@ -28,6 +28,7 @@ public class ConnectorInstanceTO extends AbstractBaseBean {
     private String connectorName;
     private Set<PropertyTO> configuration;
     private Set<ConnectorCapability> capabilities;
+    private String displayName;
 
     public ConnectorInstanceTO() {
         configuration = new HashSet<PropertyTO>();
@@ -104,5 +105,12 @@ public class ConnectorInstanceTO extends AbstractBaseBean {
         } else {
             this.capabilities = capabilities;
         }
+    }
+
+    public void setDisplayName(final String displayName) {
+    }
+
+    public String getDisplayName() {
+        return getId() + " | " + getConnectorName();
     }
 }

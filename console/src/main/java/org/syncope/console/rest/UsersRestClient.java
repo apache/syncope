@@ -80,13 +80,14 @@ public class UsersRestClient
      */
     public boolean updateUser(UserMod userModTO) {
         UserTO newUserTO = null;
-        
+
         try {
         newUserTO = restClient.getRestTemplate().postForObject(restClient.getBaseURL()
                 + "user/update", userModTO, UserTO.class);
         }
         catch (SyncopeClientCompositeErrorException e) {
             e.printStackTrace();
+            throw e;
         }
 
         return (userModTO.getId() == newUserTO.getId())?true:false;
@@ -114,6 +115,67 @@ public class UsersRestClient
             e.printStackTrace();
         }
         return userTO;
+    }
+
+    /**
+     * Create a new configuration.
+     * @param configurationTO
+     * @return true if the operation ends succesfully, false otherwise
+     */
+    public boolean createConfigurationAttributes(ConfigurationTO configurationTO) {
+
+        ConfigurationTO newConfigurationTO = restClient.getRestTemplate().postForObject(
+                restClient.getBaseURL() + "configuration/create",
+                configurationTO, ConfigurationTO.class);
+
+        return (configurationTO.equals(newConfigurationTO))?true:false;
+    }
+
+    /**
+     * Update an existent configuration.
+     * @param configurationTO
+     * @return true if the operation ends succesfully, false otherwise
+     */
+    public boolean updateConfigurationAttributes(ConfigurationTO configurationTO) {
+
+        ConfigurationTO newConfigurationTO = restClient.getRestTemplate().postForObject(
+                 restClient.getBaseURL() + "configuration/update",
+                 configurationTO, ConfigurationTO.class);
+
+        return (configurationTO.equals(newConfigurationTO))?true:false;
+    }
+
+    /**
+     * Load an existent configuration.
+     * @return ConfigurationTO object if the configuration exists, null otherwise
+     */
+    public ConfigurationTO readConfigurationDisplayAttributes() {
+        
+        ConfigurationTO configurationTO;
+        try {
+            configurationTO = restClient.getRestTemplate().getForObject(
+                    restClient.getBaseURL() + "configuration/read/{confKey}.json",
+                    ConfigurationTO.class, "users.attributes.view");
+        } catch (SyncopeClientCompositeErrorException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        return configurationTO;
+    }
+
+    /**
+     * Search an user by its schema values.
+     * @param userTO
+     * @return UserTOs
+     */
+    public UserTOs searchUsers(UserTO userTO) {
+
+        UserTOs matchedUsers = restClient.getRestTemplate().postForObject(
+                restClient.getBaseURL() + "user/search",
+                null, UserTOs.class);
+
+        return matchedUsers;
     }
 
     public RestClient getRestClient() {

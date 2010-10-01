@@ -206,10 +206,17 @@ public class UserTestITCase extends AbstractTestITCase {
             assertEquals(e.getStatusCode(), HttpStatus.NOT_FOUND);
         }
 
-        restTemplate.delete(BASE_URL + "user/delete/{userId}", 2);
+        UserTO userTO = getSampleTO("qqgf.z@nn.com");
+
+        userTO = restTemplate.postForObject(BASE_URL + "user/create",
+                userTO, UserTO.class);
+        userTO = restTemplate.postForObject(BASE_URL + "user/activate",
+                userTO, UserTO.class);
+
+        restTemplate.delete(BASE_URL + "user/delete/{userId}", userTO.getId());
         try {
             restTemplate.getForObject(BASE_URL + "user/read/{userId}.json",
-                    UserTO.class, 2);
+                    UserTO.class, userTO.getId());
         } catch (HttpStatusCodeException e) {
             assertEquals(e.getStatusCode(), HttpStatus.NOT_FOUND);
         }
@@ -323,9 +330,8 @@ public class UserTestITCase extends AbstractTestITCase {
 
         assertEquals("newPassword", userTO.getPassword());
         assertTrue(userTO.getMemberships().size() == 1);
-        assertTrue(
-                userTO.getMemberships().iterator().next().getAttributes().size()
-                == 1);
+        assertEquals(1, userTO.getMemberships().iterator().next().
+                getAttributes().size());
         assertTrue(userTO.getDerivedAttributes().size() == 1);
         boolean attributeFound = false;
         for (AttributeTO attributeTO : userTO.getAttributes()) {

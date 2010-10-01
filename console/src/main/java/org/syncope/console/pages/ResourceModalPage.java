@@ -149,7 +149,7 @@ public class ResourceModalPage extends SyncopeModalPage {
         forceMandatoryConstraint.setOutputMarkupId(true);
         resourceForm.add(forceMandatoryConstraint);
 
-        ChoiceRenderer renderer = new ChoiceRenderer("connectorName", "id");
+        ChoiceRenderer renderer = new ChoiceRenderer("displayName", "id");
         connector = new DropDownChoice("connectors", new Model(connectorTO), connectors, renderer);
         connector.setEnabled(createFlag);
         connector.setModel(new IModel() {

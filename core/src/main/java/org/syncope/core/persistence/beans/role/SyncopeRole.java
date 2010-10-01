@@ -70,6 +70,7 @@ public class SyncopeRole extends AbstractAttributable {
         inheritDerivedAttributes = getBooleanAsCharacter(false);
     }
 
+    @Override
     public Long getId() {
         return id;
     }

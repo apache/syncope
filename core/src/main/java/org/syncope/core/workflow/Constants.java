@@ -14,19 +14,26 @@
  */
 package org.syncope.core.workflow;
 
-public class Constants {
+/**
+ * Commonly used workflow constants.
+ */
+public final class Constants {
 
-    final public static String ACTION_ACTIVATE = "activate";
-    final public static String ACTION_GENERATE_TOKEN = "generateToken";
-    final public static String ACTION_RESET = "reset";
-    final public static String ACTION_UPDATE = "update";
-    final public static String ACTION_VERIFY_TOKEN = "verifyToken";
-    final public static String ENTRY = "entry";
-    final public static String SYNCOPE_USER = "syncopeUser";
-    final public static String SYNCOPE_ROLE = "syncopeRole";
-    final public static String MEMBERSHIP = "membership";
-    final public static String TOKEN = "token";
-    final public static String USER_TO = "userTO";
-    final public static String USER_MOD = "userMod";
-    final public static String USER_WORKFLOW = "userWorkflow";
+    public static final String ACTION_ACTIVATE = "activate";
+    public static final String ACTION_GENERATE_TOKEN = "generateToken";
+    public static final String ACTION_RESET = "reset";
+    public static final String ACTION_DELETE = "delete";
+    public static final String ACTION_UPDATE = "update";
+    public static final String ACTION_VERIFY_TOKEN = "verifyToken";
+    public static final String ENTRY = "entry";
+    public static final String SYNCOPE_USER = "syncopeUser";
+    public static final String SYNCOPE_ROLE = "syncopeRole";
+    public static final String MEMBERSHIP = "membership";
+    public static final String TOKEN = "token";
+    public static final String USER_TO = "userTO";
+    public static final String USER_MOD = "userMod";
+    public static final String USER_WORKFLOW = "userWorkflow";
+
+    private Constants() {
+    }
 }

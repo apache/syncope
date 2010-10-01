@@ -24,12 +24,9 @@ public class ResourceOperations {
     public enum Type {
 
         CREATE, UPDATE, DELETE
-
     }
     private Set<TargetResource> toBeCreated;
-
     private Set<TargetResource> toBeUpdated;
-
     private Set<TargetResource> toBeDeleted;
 
     public ResourceOperations() {
@@ -43,7 +40,7 @@ public class ResourceOperations {
      * resource for which a delete is requested, and by not doing any create
      * on any resource for which an update is requested.
      */
-    public void purge() {
+    public final void purge() {
         for (TargetResource resource : toBeDeleted) {
             toBeCreated.remove(resource);
             toBeUpdated.remove(resource);
@@ -53,7 +50,9 @@ public class ResourceOperations {
         }
     }
 
-    public boolean add(Type type, TargetResource resource) {
+    public final boolean add(final Type type,
+            final TargetResource resource) {
+
         boolean result = false;
 
         switch (type) {
@@ -66,6 +65,7 @@ public class ResourceOperations {
             case DELETE:
                 result = toBeDeleted.add(resource);
                 break;
+            default:
         }
 
         return result;
@@ -89,7 +89,9 @@ public class ResourceOperations {
         return result;
     }
 
-    public boolean remove(Type type, TargetResource resource) {
+    public final boolean remove(final Type type,
+            final TargetResource resource) {
+
         boolean result = false;
 
         switch (type) {
@@ -102,12 +104,13 @@ public class ResourceOperations {
             case DELETE:
                 result = toBeDeleted.remove(resource);
                 break;
+            default:
         }
 
         return result;
     }
 
-    public Set<TargetResource> get(Type type) {
+    public final Set<TargetResource> get(final Type type) {
         Set<TargetResource> result = Collections.EMPTY_SET;
 
         switch (type) {
@@ -120,12 +123,15 @@ public class ResourceOperations {
             case DELETE:
                 result = toBeDeleted;
                 break;
+            default:
         }
 
         return result;
     }
 
-    public void set(Type type, Set<TargetResource> resources) {
+    public final void set(final Type type,
+            final Set<TargetResource> resources) {
+
         switch (type) {
             case CREATE:
                 toBeCreated.clear();
@@ -139,19 +145,26 @@ public class ResourceOperations {
                 toBeDeleted.clear();
                 toBeDeleted.addAll(resources);
                 break;
+            default:
         }
     }
 
-    public void merge(ResourceOperations resourceOperations) {
+    public final void merge(final ResourceOperations resourceOperations) {
         toBeCreated.addAll(resourceOperations.get(Type.CREATE));
         toBeUpdated.addAll(resourceOperations.get(Type.UPDATE));
         toBeDeleted.addAll(resourceOperations.get(Type.DELETE));
     }
 
+    public final boolean isEmpty() {
+        return toBeCreated.isEmpty()
+                && toBeUpdated.isEmpty()
+                && toBeUpdated.isEmpty();
+    }
+
     @Override
     public String toString() {
-        return "To Be Created: " + toBeCreated + ";" +
-                "To Be Updated: " + toBeUpdated + ";" +
-                "To Be Deleted: " + toBeDeleted;
+        return "To Be Created: " + toBeCreated + ";"
+                + "To Be Updated: " + toBeUpdated + ";"
+                + "To Be Deleted: " + toBeDeleted;
     }
 }

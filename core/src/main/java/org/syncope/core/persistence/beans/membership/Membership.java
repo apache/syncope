@@ -57,6 +57,7 @@ public class Membership extends AbstractAttributable {
         targetResources = Collections.EMPTY_SET;
     }
 
+    @Override
     public Long getId() {
         return id;
     }

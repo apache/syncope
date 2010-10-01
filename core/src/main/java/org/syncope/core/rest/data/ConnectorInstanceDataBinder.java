@@ -42,7 +42,8 @@ public class ConnectorInstanceDataBinder {
      */
     private static final Logger LOG = LoggerFactory.getLogger(
             ConnectorInstanceDataBinder.class);
-    private static final String[] ignoreProperties = {"id", "resources"};
+    private static final String[] ignoreProperties = {
+        "id", "resources", "displayName"};
     @Autowired
     private ConnectorInstanceDAO connectorInstanceDAO;
 

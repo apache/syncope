@@ -38,14 +38,16 @@ import org.syncope.identityconnectors.bundles.staticwebservice.utilities.Operand
 serviceName = "Provisioning")
 public class ProvisioningImpl implements Provisioning {
 
-    private static final Logger log =
+    /**
+     * Logger.
+     */
+    private static final Logger LOG =
             LoggerFactory.getLogger(Provisioning.class);
 
     @Override
     public String delete(String accountid) throws ProvisioningException {
-
-        if (log.isInfoEnabled()) {
-            log.info("Operation request received");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Operation request received");
         }
 
         Connection conn = null;
@@ -58,8 +60,8 @@ public class ProvisioningImpl implements Provisioning {
             String query =
                     "DELETE FROM user WHERE userId='" + accountid + "';";
 
-            if (log.isDebugEnabled()) {
-                log.debug("Execute query: " + query);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Execute query: " + query);
             }
 
             statement.executeUpdate(query);
@@ -83,8 +85,8 @@ public class ProvisioningImpl implements Provisioning {
 
     @Override
     public Boolean isSyncSupported() {
-        if (log.isInfoEnabled()) {
-            log.info("Operation request received");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Operation request received");
         }
 
         return Boolean.FALSE;
@@ -92,24 +94,24 @@ public class ProvisioningImpl implements Provisioning {
 
     @Override
     public String checkAlive() {
-        if (log.isInfoEnabled()) {
-            log.info("Operation request received");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Operation request received");
         }
 
         try {
 
             close(connect());
 
-            if (log.isInfoEnabled()) {
-                log.info("Services available");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Services available");
             }
 
             return "OK";
 
         } catch (Exception e) {
 
-            if (log.isInfoEnabled()) {
-                log.info("Services not available");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Services not available");
             }
 
             return "KO";
@@ -120,42 +122,49 @@ public class ProvisioningImpl implements Provisioning {
     public String update(String accountid, List<WSAttributeValue> data)
             throws ProvisioningException {
 
-        if (log.isInfoEnabled()) {
-            log.info("Operation request received");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Operation request received");
+        }
+
+        if (data == null || data.isEmpty()) {
+            LOG.warn("Empty data recevied");
+            return accountid;
         }
 
         Connection conn = null;
 
         try {
-
             conn = connect();
             Statement statement = conn.createStatement();
 
-            StringBuffer set = new StringBuffer();
-
+            StringBuilder set = new StringBuilder();
             for (WSAttributeValue attr : data) {
                 if (!attr.isKey()) {
-
-                    if (set.length() > 0) set.append(",");
-                    set.append(attr.getName() + "='" + attr.getValue().toString() + "'");
-
+                    if (set.length() > 0 && attr.getValue() != null) {
+                        set.append(",");
+                    }
+                    if (attr.getValue() != null) {
+                        set.append(attr.getName()
+                                + "='"
+                                + attr.getValue().toString()
+                                + "'");
+                    }
                 }
             }
 
             String query =
-                    "UPDATE user SET " + set.toString() +
-                    " WHERE userId='" + accountid + "';";
+                    "UPDATE user SET " + set.toString()
+                    + " WHERE userId='" + accountid + "';";
 
-            if (log.isDebugEnabled()) {
-                log.debug("Execute query: " + query);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Execute query: " + query);
             }
 
             statement.executeUpdate(query);
 
             return accountid;
-
         } catch (SQLException ex) {
-            log.error("Update failed", ex);
+            LOG.error("Update failed", ex);
             throw new ProvisioningException("Update operation failed");
         } finally {
 
@@ -172,8 +181,8 @@ public class ProvisioningImpl implements Provisioning {
 
     @Override
     public List<WSUser> query(Operand query) {
-        if (log.isInfoEnabled()) {
-            log.info("Operation request received");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Operation request received");
         }
 
         List<WSUser> results = new ArrayList<WSUser>();
@@ -184,12 +193,13 @@ public class ProvisioningImpl implements Provisioning {
             String queryString =
                     "SELECT * FROM user WHERE " + query.toString();
 
-            if (log.isDebugEnabled()) {
-                log.debug("Execute query: " + queryString);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Execute query: " + queryString);
             }
 
-            if (queryString == null || queryString.length() == 0)
+            if (queryString == null || queryString.length() == 0) {
                 throw new SQLException("Invalid query [" + queryString + "]");
+            }
 
             conn = connect();
             Statement statement = conn.createStatement();
@@ -198,8 +208,8 @@ public class ProvisioningImpl implements Provisioning {
 
             ResultSetMetaData metaData = rs.getMetaData();
 
-            if (log.isDebugEnabled()) {
-                log.debug("Metadata: " + metaData.toString());
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Metadata: " + metaData.toString());
             }
 
             WSUser user = null;
@@ -226,12 +236,12 @@ public class ProvisioningImpl implements Provisioning {
                 results.add(user);
             }
 
-            if (log.isDebugEnabled()) {
-                log.debug("Retrieved users: " + results);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Retrieved users: " + results);
             }
 
         } catch (SQLException ex) {
-            log.error("Search operation failed", ex);
+            LOG.error("Search operation failed", ex);
         } finally {
 
             if (conn != null) {
@@ -251,8 +261,8 @@ public class ProvisioningImpl implements Provisioning {
     public String create(List<WSAttributeValue> data)
             throws ProvisioningException {
 
-        if (log.isInfoEnabled()) {
-            log.info("Operation request received");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Operation request received");
         }
 
         Connection conn = null;
@@ -266,14 +276,18 @@ public class ProvisioningImpl implements Provisioning {
             String accountid = null;
 
             for (WSAttributeValue attr : data) {
-                if (keys.length() > 0) keys.append(",");
+                if (keys.length() > 0) {
+                    keys.append(",");
+                }
                 keys.append(attr.getName());
 
-                if (values.length() > 0) values.append(",");
+                if (values.length() > 0) {
+                    values.append(",");
+                }
                 values.append(
-                        "'" +
-                        (attr.getValue() == null ? null : attr.getValue().toString()) +
-                        "'");
+                        "'"
+                        + (attr.getValue() == null ? null : attr.getValue().toString())
+                        + "'");
 
                 if (attr.isKey()) {
                     accountid = attr.getValue().toString();
@@ -281,18 +295,18 @@ public class ProvisioningImpl implements Provisioning {
             }
 
             String query =
-                    "INSERT INTO user (" + keys.toString() + ")" +
-                    "VALUES (" + values.toString() + ");";
+                    "INSERT INTO user (" + keys.toString() + ")"
+                    + "VALUES (" + values.toString() + ");";
 
-            if (log.isDebugEnabled()) {
-                log.debug("Execute query: " + query);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Execute query: " + query);
             }
 
             statement.executeUpdate(query);
 
             return accountid;
         } catch (SQLException ex) {
-            log.error("Creation failed", ex);
+            LOG.error("Creation failed", ex);
             throw new ProvisioningException("Create operation failed");
         } finally {
 
@@ -309,8 +323,8 @@ public class ProvisioningImpl implements Provisioning {
 
     @Override
     public int getLatestChangeNumber() throws ProvisioningException {
-        if (log.isInfoEnabled()) {
-            log.info("Operation request received");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Operation request received");
         }
 
         return 0;
@@ -318,8 +332,8 @@ public class ProvisioningImpl implements Provisioning {
 
     @Override
     public List<WSChange> sync() throws ProvisioningException {
-        if (log.isInfoEnabled()) {
-            log.info("Operation request received");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Operation request received");
         }
 
         return Collections.EMPTY_LIST;
@@ -327,8 +341,8 @@ public class ProvisioningImpl implements Provisioning {
 
     @Override
     public String resolve(String username) throws ProvisioningException {
-        if (log.isInfoEnabled()) {
-            log.info("Operation request received");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Operation request received");
         }
 
         Connection conn = null;
@@ -340,16 +354,17 @@ public class ProvisioningImpl implements Provisioning {
             String query =
                     "SELECT userId FROM user WHERE userId='" + username + "';";
 
-            if (log.isDebugEnabled()) {
-                log.debug("Execute query: " + query);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Execute query: " + query);
             }
 
             ResultSet rs = statement.executeQuery(query);
 
-            if (rs.next())
+            if (rs.next()) {
                 return rs.getString(1);
-            else
+            } else {
                 return null;
+            }
 
         } catch (SQLException ex) {
             throw new ProvisioningException("Resolve operation failed");
@@ -368,8 +383,8 @@ public class ProvisioningImpl implements Provisioning {
 
     @Override
     public List<WSAttribute> schema() {
-        if (log.isInfoEnabled()) {
-            log.info("Operation request received");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Operation request received");
         }
 
         List<WSAttribute> attrs = new ArrayList<WSAttribute>();
@@ -566,8 +581,9 @@ public class ProvisioningImpl implements Provisioning {
     @Override
     public String authenticate(String username, String password)
             throws ProvisioningException {
-        if (log.isInfoEnabled()) {
-            log.info("Operation request received");
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Operation request received");
         }
 
         return username;
@@ -575,8 +591,8 @@ public class ProvisioningImpl implements Provisioning {
 
     @Override
     public Boolean isAuthenticationSupported() {
-        if (log.isInfoEnabled()) {
-            log.info("Operation request received");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Operation request received");
         }
 
         return Boolean.FALSE;
@@ -591,7 +607,7 @@ public class ProvisioningImpl implements Provisioning {
     private Connection connect() throws SQLException {
 
         if (DefaultContentLoader.localDataSource == null) {
-            log.error("Data Source is null");
+            LOG.error("Data Source is null");
             return null;
         }
 
@@ -599,7 +615,7 @@ public class ProvisioningImpl implements Provisioning {
                 DefaultContentLoader.localDataSource);
 
         if (conn == null) {
-            log.error("Connection is null");
+            LOG.error("Connection is null");
         }
 
         return conn;
