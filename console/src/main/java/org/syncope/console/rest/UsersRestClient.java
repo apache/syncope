@@ -13,61 +13,52 @@
  *  limitations under the License.
  *  under the License.
  */
-
 package org.syncope.console.rest;
 
 import org.syncope.client.mod.UserMod;
 import org.syncope.client.to.ConfigurationTO;
 import org.syncope.client.to.UserTO;
 import org.syncope.client.to.UserTOs;
-import org.syncope.client.to.WorkflowActionsTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.syncope.console.commons.Constants;
 
 /**
  * Console client for invoking rest users services.
  */
-public class UsersRestClient
+public class UsersRestClient {
 
-{    
-     RestClient restClient;
+    protected RestClient restClient;
 
-     public UserTOs getAllUsers() {
-       UserTOs users = null;
-       try {
-        users = restClient.getRestTemplate().getForObject(restClient.getBaseURL()
-                + "user/list.json", UserTOs.class);
-       }
-       catch (SyncopeClientCompositeErrorException e) {
+    public final UserTOs getAllUsers() {
+        UserTOs users = null;
+        try {
+            users = restClient.getRestTemplate().getForObject(
+                    restClient.getBaseURL() + "user/list.json", UserTOs.class);
+        } catch (SyncopeClientCompositeErrorException e) {
             e.printStackTrace();
         }
         return users;
     }
+
     /**
      * Create a new user and start off the workflow.
      * @param userTO instance
      */
-    public void createUser(UserTO userTO) {
+    public final void createUser(UserTO userTO) {
         UserTO newUserTO;
-        
-        try {
-        // 1. create user
-        newUserTO = restClient.getRestTemplate().postForObject(restClient.getBaseURL()
-                + "user/create", userTO, UserTO.class);
-        
-        userTO.setId(newUserTO.getId());
-        //userTO.setToken(newUserTO.getToken());
-        //userTO.setTokenExpireTime(newUserTO.getTokenExpireTime());
-        
-        WorkflowActionsTO workflowActions = restClient.getRestTemplate().getForObject(
-        restClient.getBaseURL() + "user/actions/{userId}", WorkflowActionsTO.class,
-        newUserTO.getId());
 
-        // 2. activate user
-        newUserTO = restClient.getRestTemplate().postForObject(restClient.getBaseURL() 
-                + "user/activate", newUserTO, UserTO.class);
-        
-        }
-        catch (SyncopeClientCompositeErrorException e) {
+        try {
+            // 1. create user
+            userTO = restClient.getRestTemplate().postForObject(
+                    restClient.getBaseURL()
+                    + "user/create", userTO, UserTO.class);
+
+            // 2. activate user
+            userTO = restClient.getRestTemplate().postForObject(
+                    restClient.getBaseURL()
+                    + "user/activate", userTO, UserTO.class);
+
+        } catch (SyncopeClientCompositeErrorException e) {
             e.printStackTrace();
             throw e;
         }
@@ -78,28 +69,26 @@ public class UsersRestClient
      * @param userTO
      * @return true is the opertion ends succesfully, false otherwise
      */
-    public boolean updateUser(UserMod userModTO) {
+    public boolean updateUser(final UserMod userModTO) {
         UserTO newUserTO = null;
 
         try {
-        newUserTO = restClient.getRestTemplate().postForObject(restClient.getBaseURL()
-                + "user/update", userModTO, UserTO.class);
-        }
-        catch (SyncopeClientCompositeErrorException e) {
+            newUserTO = restClient.getRestTemplate().postForObject(
+                    restClient.getBaseURL()
+                    + "user/update", userModTO, UserTO.class);
+        } catch (SyncopeClientCompositeErrorException e) {
             e.printStackTrace();
             throw e;
         }
 
-        return (userModTO.getId() == newUserTO.getId())?true:false;
+        return userModTO.getId() == newUserTO.getId();
     }
-
 
     public void deleteUser(String id) {
         try {
-        restClient.getRestTemplate().delete(restClient.getBaseURL()
-                + "user/delete/{userId}", new Integer(id));
-        }
-        catch (SyncopeClientCompositeErrorException e) {
+            restClient.getRestTemplate().delete(restClient.getBaseURL()
+                    + "user/delete/{userId}", new Integer(id));
+        } catch (SyncopeClientCompositeErrorException e) {
             e.printStackTrace();
         }
     }
@@ -107,11 +96,11 @@ public class UsersRestClient
     public UserTO getUser(String id) {
         UserTO userTO = null;
         try {
-        userTO = restClient.getRestTemplate().getForObject(restClient.getBaseURL()
-                + "user/read/{userId}.json",
-                UserTO.class, id);
-        }
-        catch (SyncopeClientCompositeErrorException e) {
+            userTO = restClient.getRestTemplate().getForObject(
+                    restClient.getBaseURL()
+                    + "user/read/{userId}.json",
+                    UserTO.class, id);
+        } catch (SyncopeClientCompositeErrorException e) {
             e.printStackTrace();
         }
         return userTO;
@@ -122,13 +111,15 @@ public class UsersRestClient
      * @param configurationTO
      * @return true if the operation ends succesfully, false otherwise
      */
-    public boolean createConfigurationAttributes(ConfigurationTO configurationTO) {
+    public boolean createConfigurationAttributes(
+            ConfigurationTO configurationTO) {
 
-        ConfigurationTO newConfigurationTO = restClient.getRestTemplate().postForObject(
+        ConfigurationTO newConfigurationTO =
+                restClient.getRestTemplate().postForObject(
                 restClient.getBaseURL() + "configuration/create",
                 configurationTO, ConfigurationTO.class);
 
-        return (configurationTO.equals(newConfigurationTO))?true:false;
+        return configurationTO.equals(newConfigurationTO);
     }
 
     /**
@@ -136,26 +127,30 @@ public class UsersRestClient
      * @param configurationTO
      * @return true if the operation ends succesfully, false otherwise
      */
-    public boolean updateConfigurationAttributes(ConfigurationTO configurationTO) {
+    public boolean updateConfigurationAttributes(
+            ConfigurationTO configurationTO) {
 
-        ConfigurationTO newConfigurationTO = restClient.getRestTemplate().postForObject(
-                 restClient.getBaseURL() + "configuration/update",
-                 configurationTO, ConfigurationTO.class);
+        ConfigurationTO newConfigurationTO =
+                restClient.getRestTemplate().postForObject(
+                restClient.getBaseURL() + "configuration/update",
+                configurationTO, ConfigurationTO.class);
 
-        return (configurationTO.equals(newConfigurationTO))?true:false;
+        return configurationTO.equals(newConfigurationTO);
     }
 
     /**
      * Load an existent configuration.
-     * @return ConfigurationTO object if the configuration exists, null otherwise
+     * @return ConfigurationTO object if the configuration exists,
+     * null otherwise
      */
     public ConfigurationTO readConfigurationDisplayAttributes() {
-        
+
         ConfigurationTO configurationTO;
         try {
             configurationTO = restClient.getRestTemplate().getForObject(
-                    restClient.getBaseURL() + "configuration/read/{confKey}.json",
-                    ConfigurationTO.class, "users.attributes.view");
+                    restClient.getBaseURL() + "configuration/read/{confKey}",
+                    ConfigurationTO.class,
+                    Constants.CONF_USERS_ATTRIBUTES_VIEW);
         } catch (SyncopeClientCompositeErrorException e) {
             e.printStackTrace();
             return null;
@@ -184,5 +179,5 @@ public class UsersRestClient
 
     public void setRestClient(RestClient restClient) {
         this.restClient = restClient;
-    }    
+    }
 }
