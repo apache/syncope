@@ -168,17 +168,17 @@ public class PropagationManager {
 
         // Resource to be provisioned synchronously
         final ResourceOperations syncOperations = new ResourceOperations();
+        syncOperations.setOldAccountId(resourceOperations.getOldAccountId());
 
         // Resource to be provisioned asynchronously
         final ResourceOperations asyncOperations = new ResourceOperations();
-
-        if (syncResourceNames == null) {
-            syncResourceNames = Collections.EMPTY_SET;
-        }
+        asyncOperations.setOldAccountId(resourceOperations.getOldAccountId());
 
         for (ResourceOperations.Type type : ResourceOperations.Type.values()) {
             for (TargetResource resource : resourceOperations.get(type)) {
-                if (syncResourceNames.contains(resource.getName())) {
+                if (syncResourceNames != null
+                        && syncResourceNames.contains(resource.getName())) {
+
                     syncOperations.add(type, resource);
                 } else {
                     asyncOperations.add(type, resource);
@@ -204,7 +204,8 @@ public class PropagationManager {
                             manipulateSyncAttributes(
                             preparedAttributes.values().iterator().next());
                     propagate(resource, resOpeType, PropagationMode.SYNC,
-                            accountId, attributes);
+                            accountId, syncOperations.getOldAccountId(),
+                            attributes);
 
                     provisioned.add(resource.getName());
                 } catch (Throwable t) {
@@ -235,7 +236,8 @@ public class PropagationManager {
                             manipulateAsyncAttributes(
                             preparedAttributes.values().iterator().next());
                     propagate(resource, type, PropagationMode.ASYNC,
-                            accountId, attributes);
+                            accountId, asyncOperations.getOldAccountId(),
+                            attributes);
 
                     provisioned.add(resource.getName());
                 } catch (Throwable t) {
@@ -335,7 +337,7 @@ public class PropagationManager {
                     userAttribute = user.getAttribute(schemaName);
 
                     values = userAttribute != null
-                            ? userAttribute.getAttributeValues()
+                            ? userAttribute.getValues()
                             : Collections.EMPTY_LIST;
 
                     if (LOG.isDebugEnabled()) {
@@ -449,7 +451,7 @@ public class PropagationManager {
     private void propagate(TargetResource resource,
             ResourceOperations.Type resourceOperationType,
             PropagationMode operationMode,
-            String accountId, Set<Attribute> attrs)
+            String accountId, String oldAccountId, Set<Attribute> attrs)
             throws NoSuchBeanDefinitionException, IllegalStateException {
 
         ConnectorInstance connectorInstance = resource.getConnector();
@@ -470,9 +472,8 @@ public class PropagationManager {
             case UPDATE:
                 Uid userUid = null;
                 try {
-                    userUid = connector.resolveUsername(
-                            ObjectClass.ACCOUNT,
-                            accountId,
+                    userUid = connector.resolveUsername(ObjectClass.ACCOUNT,
+                            oldAccountId == null ? accountId : oldAccountId,
                             null);
                 } catch (RuntimeException ignore) {
                     if (LOG.isDebugEnabled()) {

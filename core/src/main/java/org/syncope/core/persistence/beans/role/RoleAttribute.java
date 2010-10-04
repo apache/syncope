@@ -63,26 +63,26 @@ public class RoleAttribute extends AbstractAttribute {
     }
 
     @Override
-    public <T extends AbstractAttributeValue> boolean addAttributeValue(
+    public <T extends AbstractAttributeValue> boolean addValue(
             T attributeValue) {
 
         return attributeValues.add((RoleAttributeValue) attributeValue);
     }
 
     @Override
-    public <T extends AbstractAttributeValue> boolean removeAttributeValue(
+    public <T extends AbstractAttributeValue> boolean removeValue(
             T attributeValue) {
 
         return attributeValues.remove((RoleAttributeValue) attributeValue);
     }
 
     @Override
-    public <T extends AbstractAttributeValue> List<T> getAttributeValues() {
+    public <T extends AbstractAttributeValue> List<T> getValues() {
         return (List<T>) attributeValues;
     }
 
     @Override
-    public <T extends AbstractAttributeValue> void setAttributeValues(
+    public <T extends AbstractAttributeValue> void setValues(
             List<T> attributeValues) {
 
         this.attributeValues = (List<RoleAttributeValue>) attributeValues;

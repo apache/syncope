@@ -29,7 +29,7 @@ public class UsersRestClient {
 
     protected RestClient restClient;
 
-    public final UserTOs getAllUsers() {
+    public UserTOs getAllUsers() {
         UserTOs users = null;
         try {
             users = restClient.getRestTemplate().getForObject(
@@ -44,7 +44,7 @@ public class UsersRestClient {
      * Create a new user and start off the workflow.
      * @param userTO instance
      */
-    public final void createUser(UserTO userTO) {
+    public void createUser(UserTO userTO) {
         UserTO newUserTO;
 
         try {

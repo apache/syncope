@@ -103,10 +103,21 @@ public class ConfigurationController extends AbstractController {
             @PathVariable("confKey") String confKey)
             throws MissingConfKeyException {
 
-        SyncopeConfiguration syncopeConfiguration =
-                syncopeConfigurationDAO.find(confKey);
+        ConfigurationTO result = null;
+        try {
+            SyncopeConfiguration syncopeConfiguration =
+                    syncopeConfigurationDAO.find(confKey);
+            result = configurationDataBinder.getConfigurationTO(
+                    syncopeConfiguration);
+        } catch (MissingConfKeyException e) {
+            LOG.error("Could not find configuration key '" + confKey
+                    + "', returning null");
 
-        return configurationDataBinder.getConfigurationTO(syncopeConfiguration);
+            result = new ConfigurationTO();
+            result.setConfKey(confKey);
+        }
+
+        return result;
     }
 
     @RequestMapping(method = RequestMethod.POST,

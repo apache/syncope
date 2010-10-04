@@ -38,8 +38,8 @@ public class StoreText extends AbstractStoreAttributeValue {
         textAttributeValue.setStringValue(text);
         textAttributeValue.setAttribute(attribute);
         if (!attribute.getSchema().isMultivalue()) {
-            attribute.getAttributeValues().clear();
+            attribute.getValues().clear();
         }
-        attribute.addAttributeValue(textAttributeValue);
+        attribute.addValue(textAttributeValue);
     }
 }

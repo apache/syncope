@@ -33,8 +33,8 @@ public class StoreDate extends AbstractStoreAttributeValue {
         date.setDateValue(new Date());
         date.setAttribute(attribute);
         if (!attribute.getSchema().isMultivalue()) {
-            attribute.getAttributeValues().clear();
+            attribute.getValues().clear();
         }
-        attribute.addAttributeValue(date);
+        attribute.addValue(date);
     }
 }

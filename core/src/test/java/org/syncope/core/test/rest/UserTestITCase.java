@@ -291,8 +291,13 @@ public class UserTestITCase extends AbstractTestITCase {
     @Test
     public final void update() {
         UserTO userTO = getSampleTO("g.h@t.com");
+
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(8L);
+        AttributeTO membershipAttr = new AttributeTO();
+        membershipAttr.setSchema("subscriptionDate");
+        membershipAttr.addValue("2009-08-18T16:33:12.203+0200");
+        membershipTO.addAttribute(membershipAttr);
         userTO.addMembership(membershipTO);
 
         userTO = restTemplate.postForObject(BASE_URL + "user/create",
@@ -301,14 +306,14 @@ public class UserTestITCase extends AbstractTestITCase {
                 userTO, UserTO.class);
 
         assertTrue(userTO.getDerivedAttributes().isEmpty());
-        assertTrue(userTO.getMemberships().size() == 1);
+        assertEquals(1, userTO.getMemberships().size());
 
         AttributeMod attributeMod = new AttributeMod();
         attributeMod.setSchema("subscriptionDate");
         attributeMod.addValueToBeAdded("2010-08-18T16:33:12.203+0200");
 
         MembershipMod membershipMod = new MembershipMod();
-        membershipMod.setRole(7L);
+        membershipMod.setRole(8L);
         membershipMod.addAttributeToBeUpdated(attributeMod);
 
         attributeMod = new AttributeMod();
@@ -329,10 +334,10 @@ public class UserTestITCase extends AbstractTestITCase {
                 userMod, UserTO.class);
 
         assertEquals("newPassword", userTO.getPassword());
-        assertTrue(userTO.getMemberships().size() == 1);
+        assertEquals(1, userTO.getMemberships().size());
         assertEquals(1, userTO.getMemberships().iterator().next().
                 getAttributes().size());
-        assertTrue(userTO.getDerivedAttributes().size() == 1);
+        assertEquals(1, userTO.getDerivedAttributes().size());
         boolean attributeFound = false;
         for (AttributeTO attributeTO : userTO.getAttributes()) {
             if ("userId".equals(attributeTO.getSchema())) {

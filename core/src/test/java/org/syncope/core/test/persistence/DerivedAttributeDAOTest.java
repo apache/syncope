@@ -76,10 +76,10 @@ public class DerivedAttributeDAOTest extends AbstractTest {
 
         UserAttributeValue firstnameAttribute =
                 (UserAttributeValue) owner.getAttribute(
-                "firstname").getAttributeValues().iterator().next();
+                "firstname").getValues().iterator().next();
         UserAttributeValue surnameAttribute =
                 (UserAttributeValue) owner.getAttribute(
-                "surname").getAttributeValues().iterator().next();
+                "surname").getValues().iterator().next();
         
         assertEquals(surnameAttribute.getValue() + ", "
                 + firstnameAttribute.getValue(),

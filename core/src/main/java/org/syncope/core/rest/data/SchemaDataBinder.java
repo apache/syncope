@@ -98,7 +98,7 @@ public class SchemaDataBinder {
 
                 attribute = attributeItor.next();
                 for (Iterator<? extends AbstractAttributeValue> attributeValueItor =
-                        attribute.getAttributeValues().iterator();
+                        attribute.getValues().iterator();
                         attributeValueItor.hasNext()
                         && !validationExceptionFound;) {
 

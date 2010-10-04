@@ -22,21 +22,20 @@ import org.syncope.console.SyncopeUser;
 /**
  * Syncope Wicket base-page.
  */
-public class BasePage extends CustomizableBasePage
-{
+public class BasePage extends CustomizableBasePage {
 
     private static final long serialVersionUID = 1L;
 
     /**
-     * Constructor that is invoked when page is invoked without a sessadd(new BookmarkablePageLink("roles", Roles.class));ion.
+     * Constructor that is invoked when page is invoked without a
+     * sessadd(new BookmarkablePageLink("roles", Roles.class));ion.
      *
      * @param PageParameters parameters
      *            
      */
-    public BasePage( final PageParameters parameters )
-    {
+    public BasePage(final PageParameters parameters) {
         super(parameters);
-        
+
         add(new BookmarkablePageLink("schema", Schema.class));
 
         add(new BookmarkablePageLink("users", Users.class));
@@ -54,16 +53,18 @@ public class BasePage extends CustomizableBasePage
         add(new BookmarkablePageLink("logout", Logout.class));
     }
 
-    /** Returns the current SyncopeSession */
-    public SyncopeSession getSyncopeSession()
-    {
-        return ( SyncopeSession ) getSession();
+    /**
+     * @return the current SyncopeSession
+     */
+    public SyncopeSession getSyncopeSession() {
+        return (SyncopeSession) getSession();
     }
 
-    /** Returns the current SyncopeUser logged-in from the session */
-    public SyncopeUser getSyncopeUser()
-    {
-        return ( SyncopeUser ) getSyncopeSession().getUser();
+    /**
+     * @return the current SyncopeUser logged-in from the session
+     */
+    public SyncopeUser getSyncopeUser() {
+        return (SyncopeUser) getSyncopeSession().getUser();
 
     }
 }
