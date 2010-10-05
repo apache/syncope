@@ -28,6 +28,9 @@ import org.springframework.beans.BeanUtils;
 
 public abstract class AbstractBaseBean implements Serializable {
 
+    /**
+     * Logger.
+     */
     protected static final Logger LOG = LoggerFactory.getLogger(
             AbstractBaseBean.class);
 
@@ -40,7 +43,6 @@ public abstract class AbstractBaseBean implements Serializable {
     }
 
     /**
-     *
      * @param value the boolean value to be represented as character
      * @return the character corresponding to the property param
      */
