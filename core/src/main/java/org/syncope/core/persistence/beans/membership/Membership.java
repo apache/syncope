@@ -145,4 +145,11 @@ public class Membership extends AbstractAttributable {
     @Override
     public void setResources(Set<TargetResource> resources) {
     }
+
+    @Override
+    public String toString() {
+        return "Membership[" + "id=" + id
+                + ", " + syncopeUser
+                + ", " + syncopeRole + ']';
+    }
 }
