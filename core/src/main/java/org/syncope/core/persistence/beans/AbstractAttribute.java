@@ -42,10 +42,10 @@ public abstract class AbstractAttribute extends AbstractBaseBean {
         actualValue.setAttribute(this);
 
         if (!getSchema().isMultivalue()) {
-            getAttributeValues().clear();
+            getValues().clear();
         }
 
-        addAttributeValue(actualValue);
+        addValue(actualValue);
 
         return actualValue;
     }
@@ -58,14 +58,14 @@ public abstract class AbstractAttribute extends AbstractBaseBean {
 
     public abstract <T extends AbstractSchema> void setSchema(T schema);
 
-    public abstract <T extends AbstractAttributeValue> boolean addAttributeValue(
+    public abstract <T extends AbstractAttributeValue> boolean addValue(
             T attributeValue);
 
-    public abstract <T extends AbstractAttributeValue> boolean removeAttributeValue(
+    public abstract <T extends AbstractAttributeValue> boolean removeValue(
             T attributeValue);
 
-    public <T extends AbstractAttributeValue> List<String> getAttributeValuesAsStrings() {
-        List<T> values = getAttributeValues();
+    public <T extends AbstractAttributeValue> List<String> getValuesAsStrings() {
+        List<T> values = getValues();
 
         List<String> result = new ArrayList<String>(values.size());
         for (T attributeValue : values) {
@@ -75,8 +75,8 @@ public abstract class AbstractAttribute extends AbstractBaseBean {
         return result;
     }
 
-    public abstract <T extends AbstractAttributeValue> List<T> getAttributeValues();
+    public abstract <T extends AbstractAttributeValue> List<T> getValues();
 
-    public abstract <T extends AbstractAttributeValue> void setAttributeValues(
+    public abstract <T extends AbstractAttributeValue> void setValues(
             List<T> attributeValues);
 }

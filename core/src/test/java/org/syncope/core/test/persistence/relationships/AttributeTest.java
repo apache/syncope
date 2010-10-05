@@ -48,7 +48,7 @@ public class AttributeTest extends AbstractTest {
         UserAttributeValue value =
                 attributeValueDAO.find(20L, UserAttributeValue.class);
         int attributeValueNumber =
-                value.getAttribute().getAttributeValues().size();
+                value.getAttribute().getValues().size();
 
         attributeValueDAO.delete(20L, UserAttributeValue.class);
 
@@ -57,7 +57,7 @@ public class AttributeTest extends AbstractTest {
         assertNull(attributeValueDAO.find(20L, UserAttributeValue.class));
 
         UserAttribute attribute = attributeDAO.find(200L, UserAttribute.class);
-        assertEquals(attribute.getAttributeValues().size(),
+        assertEquals(attribute.getValues().size(),
                 attributeValueNumber - 1);
     }
 }

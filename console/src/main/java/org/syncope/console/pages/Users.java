@@ -36,12 +36,10 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.to.AttributeTO;
 import org.syncope.client.to.ConfigurationTO;
 import org.syncope.client.to.UserTO;
-
+import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.SearchConditionWrapper;
 import org.syncope.console.rest.SchemaRestClient;
-
 import org.syncope.console.rest.ConfigurationsRestClient;
-
 import org.syncope.console.rest.UsersRestClient;
 
 /**
@@ -50,36 +48,28 @@ import org.syncope.console.rest.UsersRestClient;
 public class Users extends BasePage {
 
     @SpringBean(name = "usersRestClient")
-    UsersRestClient usersRestClient;
-
+    private UsersRestClient usersRestClient;
     @SpringBean(name = "schemaRestClient")
-    SchemaRestClient schemaRestClient;
-
+    private SchemaRestClient schemaRestClient;
     @SpringBean(name = "configurationsRestClient")
-    ConfigurationsRestClient configurationsRestClient;
+    private ConfigurationsRestClient configurationsRestClient;
+    private final ModalWindow createUserWin;
+    private final ModalWindow editUserWin;
+    private final ModalWindow changeAttribsViewWin;
+    private static final int WIN_ATTRIBUTES_HEIGHT = 515;
+    private static final int WIN_ATTRIBUTES_WIDTH = 775;
+    private static final int WIN_USER_HEIGHT = 680;
+    private static final int WIN_USER_WIDTH = 1133;
+    private WebMarkupContainer usersContainer;
+    private List<String> columnsList;
+    /** 
+     * Response flag set by the Modal Window after the operation is completed
+     */
+    private boolean operationResult = false;
+    private FeedbackPanel feedbackPanel;
+    private final ModalWindow searchUsersWin;
+    private List<SearchConditionWrapper> searchConditionsList;
 
-    final ModalWindow createUserWin;
-    final ModalWindow editUserWin;
-    final ModalWindow changeAttribsViewWin;
-
-    final int WIN_ATTRIBUTES_HEIGHT = 515;
-    final int WIN_ATTRIBUTES_WIDTH = 775;
-
-    final int WIN_USER_HEIGHT = 680;
-    final int WIN_USER_WIDTH = 1133;
-
-    WebMarkupContainer usersContainer;
-
-    List<String> columnsList;
-
-    /** Response flag set by the Modal Window after the operation is completed*/
-    boolean operationResult = false;
-
-    FeedbackPanel feedbackPanel;
-
-    final ModalWindow searchUsersWin;
-    List<SearchConditionWrapper> searchConditionsList;
-    
     public Users(PageParameters parameters) {
         super(parameters);
 
@@ -91,20 +81,24 @@ public class Users extends BasePage {
         add(searchUsersWin = new ModalWindow("searchUsersWin"));
 
         feedbackPanel = new FeedbackPanel("feedback");
-        feedbackPanel.setOutputMarkupId( true );
+        feedbackPanel.setOutputMarkupId(true);
 
         add(feedbackPanel);
-        
+
         //table's columnsList = attributes to view
         final IModel columns = new LoadableDetachableModel() {
 
+            @Override
             protected Object load() {
-
-                ConfigurationTO configuration = configurationsRestClient.readConfiguration("users.attributes.view");
+                ConfigurationTO configuration =
+                        configurationsRestClient.readConfiguration(
+                        Constants.CONF_USERS_ATTRIBUTES_VIEW);
 
                 columnsList = new ArrayList<String>();
 
-                if (configuration != null && !configuration.getConfValue().equals("")) {
+                if (configuration != null
+                        && configuration.getConfValue() != null) {
+
                     String conf = configuration.getConfValue();
                     StringTokenizer st = new StringTokenizer(conf, ";");
 
@@ -118,13 +112,13 @@ public class Users extends BasePage {
             }
         };
 
-        ListView columnsView = new ListView("usersSchema",columns) {
+        ListView columnsView = new ListView("usersSchema", columns) {
 
             @Override
             protected void populateItem(final ListItem item) {
                 final String name =
                         (String) item.getDefaultModelObject();
-                
+
                 item.add(new Label("attribute", name));
             }
         };
@@ -136,42 +130,41 @@ public class Users extends BasePage {
             }
         };
 
-        ListView usersView = new ListView("users",users) {
+        ListView usersView = new ListView("users", users) {
 
             @Override
             protected void populateItem(final ListItem item) {
                 final UserTO userTO =
                         (UserTO) item.getDefaultModelObject();
 
-                item.add(new Label("id",userTO.getId()+""));
+                item.add(new Label("id", userTO.getId() + ""));
 
-                item.add(new Label("status",userTO.getStatus()));
+                item.add(new Label("status", userTO.getStatus()));
 
-                if(userTO.getToken() != null && !userTO.getToken().equals(""))
-                    item.add(new Label("token",getString("tokenValued")));
-                else
-                    item.add(new Label("token",getString("tokenNotValued")));
+                if (userTO.getToken() != null
+                        && !"".equals(userTO.getToken())) {
 
-                item.add(new ListView("selectedAttributes", attributesToDisplay(userTO)) {
+                    item.add(new Label("token", getString("tokenValued")));
+                } else {
+                    item.add(new Label("token", getString("tokenNotValued")));
+                }
+
+                item.add(new ListView("selectedAttributes",
+                        attributesToDisplay(userTO)) {
 
                     @Override
                     protected void populateItem(ListItem item) {
                         AttributeWrapper attribute =
                                 (AttributeWrapper) item.getDefaultModelObject();
 
-                        for(String name : columnsList){
-
-                             if( name.equalsIgnoreCase(attribute.getKey())) {
-                                 item.add(new Label("name",attribute.getValue()));
-                             }
-                             else if(!name.equalsIgnoreCase(attribute.getKey())) {
-
-                             }
-                                   
+                        for (String name : columnsList) {
+                            if (name.equalsIgnoreCase(attribute.getKey())) {
+                                item.add(new Label("name",
+                                        attribute.getValue()));
+                            }
                         }
 
                     }
-
                 });
 
                 AjaxLink editLink = new AjaxLink("editLink") {
@@ -181,14 +174,15 @@ public class Users extends BasePage {
                         final UserTO userTO =
                                 (UserTO) item.getDefaultModelObject();
 
-                        editUserWin.setPageCreator(new ModalWindow.PageCreator() {
+                        editUserWin.setPageCreator(
+                                new ModalWindow.PageCreator() {
 
-                            public Page createPage() {
-                                UserModalPage form = new UserModalPage
-                                        (Users.this, editUserWin, userTO, false);
-                                return form;
-                            }
-                        });
+                                    public Page createPage() {
+                                        UserModalPage form = new UserModalPage(
+                                                Users.this, editUserWin, userTO, false);
+                                        return form;
+                                    }
+                                });
 
                         editUserWin.show(target);
                     }
@@ -200,7 +194,7 @@ public class Users extends BasePage {
 
                     @Override
                     public void onClick(AjaxRequestTarget target) {
-                        usersRestClient.deleteUser(userTO.getId()+"");
+                        usersRestClient.deleteUser(userTO.getId() + "");
 
                         info(getString("operation_succeded"));
                         target.addComponent(feedbackPanel);
@@ -275,21 +269,24 @@ public class Users extends BasePage {
             @Override
             public void onClick(AjaxRequestTarget target) {
 
-                changeAttribsViewWin.setPageCreator(new ModalWindow.PageCreator() {
+                changeAttribsViewWin.setPageCreator(
+                        new ModalWindow.PageCreator() {
 
-                    public Page createPage() {
-                        DisplayAttributesModalPage form = new DisplayAttributesModalPage(Users.this, changeAttribsViewWin, true);
-                        return form;
-                    }
-                });
+                            public Page createPage() {
+                                DisplayAttributesModalPage form =
+                                        new DisplayAttributesModalPage(Users.this,
+                                        changeAttribsViewWin, true);
+                                return form;
+                            }
+                        });
 
                 changeAttribsViewWin.show(target);
             }
         });
-        
-       //TAB 2 - Search section start 
+
+        //TAB 2 - Search section start
        /* PLACE SEARCH CODE HERE */
-        
+
     }
 
     /**
@@ -297,15 +294,17 @@ public class Users extends BasePage {
      * @param userTO instance
      * @return attributes columnsList to view depending the selection
      */
-      public List<AttributeWrapper> attributesToDisplay(UserTO user) {
+    public List<AttributeWrapper> attributesToDisplay(UserTO user) {
         Set<AttributeTO> attributes = user.getAttributes();
-        List<AttributeWrapper> attributesList = new ArrayList<AttributeWrapper>();
+        List<AttributeWrapper> attributesList =
+                new ArrayList<AttributeWrapper>();
 
-
-        ConfigurationTO configuration = configurationsRestClient.readConfiguration("users.attributes.view");
+        ConfigurationTO configuration =
+                configurationsRestClient.readConfiguration(
+                Constants.CONF_USERS_ATTRIBUTES_VIEW);
 
         columnsList = new ArrayList<String>();
-        
+
         if (configuration != null && !configuration.getConfValue().equals("")) {
             String conf = configuration.getConfValue();
             StringTokenizer st = new StringTokenizer(conf, ";");
@@ -314,34 +313,34 @@ public class Users extends BasePage {
                 columnsList.add(st.nextToken());
             }
         }
-        
+
         Collections.sort(columnsList);
 
         AttributeWrapper attributeWrapper = null;
 
-            boolean found = false;
-            for (String name : columnsList) {
-               for (AttributeTO attribute : attributes) {
+        boolean found = false;
+        for (String name : columnsList) {
+            for (AttributeTO attribute : attributes) {
                 if (name.equals(attribute.getSchema()) && !found) {
                     attributeWrapper = new AttributeWrapper();
                     attributeWrapper.setKey(attribute.getSchema());
-                        for(String value : attribute.getValues()){
-                            attributeWrapper.setValue(value);
-                            found=true;
-                        }
+                    for (String value : attribute.getValues()) {
+                        attributeWrapper.setValue(value);
+                        found = true;
+                    }
                     attributesList.add(attributeWrapper);
                 }
             }
-               //case the attribute's value is blank
-               if(!found){
-               attributeWrapper = new AttributeWrapper();
-               attributeWrapper.setKey(name);
-               attributeWrapper.setValue("");
-               
-               attributesList.add(attributeWrapper);
-               }
-               else
-               found = false;
+            //case the attribute's value is blank
+            if (!found) {
+                attributeWrapper = new AttributeWrapper();
+                attributeWrapper.setKey(name);
+                attributeWrapper.setValue("");
+
+                attributesList.add(attributeWrapper);
+            } else {
+                found = false;
+            }
         }
 
 
@@ -362,11 +361,11 @@ public class Users extends BasePage {
 
                     public void onClose(AjaxRequestTarget target) {
                         target.addComponent(container);
-                        if(operationResult){
-                        info(getString("operation_succeded"));
-                        target.addComponent(feedbackPanel);
-                        operationResult = false;
-                    }
+                        if (operationResult) {
+                            info(getString("operation_succeded"));
+                            target.addComponent(feedbackPanel);
+                            operationResult = false;
+                        }
                     }
                 });
     }
@@ -392,8 +391,9 @@ public class Users extends BasePage {
      * Wrapper class for displaying attribute
      */
     public class AttributeWrapper {
-        String key;
-        String value;
+
+        private String key;
+        private String value;
 
         public String getKey() {
             return key;

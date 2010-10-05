@@ -34,6 +34,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.to.ConfigurationTO;
 
 import org.syncope.console.SyncopeApplication;
+import org.syncope.console.commons.Constants;
 import org.syncope.console.rest.ConfigurationsRestClient;
 import org.syncope.console.rest.SchemaRestClient;
 
@@ -43,112 +44,90 @@ import org.syncope.console.rest.SchemaRestClient;
 public class DisplayAttributesModalPage extends SyncopeModalPage {
 
     @SpringBean(name = "configurationsRestClient")
-    ConfigurationsRestClient restClient;
-    
-    List<String> selections;
-    ConfigurationTO configuration;
-
+    private ConfigurationsRestClient restClient;
+    private List<String> selections;
+    private ConfigurationTO configuration;
     public AjaxButton submit;
-    
-    public DisplayAttributesModalPage(final BasePage basePage, final ModalWindow window,
-            final boolean createFlag) {
+
+    public DisplayAttributesModalPage(final BasePage basePage,
+            final ModalWindow window, final boolean createFlag) {
 
         Form userAttributesForm = new Form("UserAttributesForm");
-
         userAttributesForm.setModel(new CompoundPropertyModel(this));
-
         setupSelections();
-
 
         final IModel attributes = new LoadableDetachableModel() {
 
             @Override
             protected Object load() {
-                SchemaRestClient schemaRestClient = (SchemaRestClient)
-                        ((SyncopeApplication)Application.get()).getApplicationContext().
+                SyncopeApplication app = (SyncopeApplication) Application.get();
+                SchemaRestClient schemaRestClient =
+                        (SchemaRestClient) app.getApplicationContext().
                         getBean("schemaRestClient");
 
                 return schemaRestClient.getAllUserSchemasNames();
             }
         };
 
-
         userAttributesForm.add(new CheckBoxMultipleChoice("usersSchemasList",
-                               new PropertyModel(this,"selections"), attributes));
+                new PropertyModel(this, "selections"), attributes));
 
         submit = new AjaxButton("submit", new Model(getString("submit"))) {
 
             @Override
-            protected void onSubmit(AjaxRequestTarget target, Form form) {
-                
-                boolean res = saveConfiguration();
+            protected void onSubmit(final AjaxRequestTarget target,
+                    final Form form) {
 
-                if(res)
+                if (saveConfiguration()) {
                     window.close(target);
-
-                else
+                } else {
                     error(getString("generic_error"));
-                
+                }
+
             }
         };
         userAttributesForm.add(submit);
-
         add(userAttributesForm);
     }
-    
+
     /**
      * Setup user selections.
      * @return selections' names.
      */
-    public void setupSelections(){
+    public final void setupSelections() {
+        selections = new ArrayList<String>();
 
-        configuration = restClient.readConfiguration("users.attributes.view");
+        configuration = restClient.readConfiguration(
+                Constants.CONF_USERS_ATTRIBUTES_VIEW);
 
-        if(configuration != null) {
+        if (configuration != null && configuration.getConfValue() != null) {
             String conf = configuration.getConfValue();
-            StringTokenizer st = new StringTokenizer(conf,";");
+            StringTokenizer st = new StringTokenizer(conf, ";");
 
-            selections = new ArrayList<String>();
-            
-            while(st.hasMoreTokens()) {
-                  this.selections.add(st.nextToken());
-             }
+            while (st.hasMoreTokens()) {
+                this.selections.add(st.nextToken());
+            }
         }
-        else 
-            selections = new ArrayList<String>();
-
     }
-    
-     /**
+
+    /**
      * Store the selected selections into db.
      */
     public boolean saveConfiguration() {
-
         boolean create = (configuration == null) ? true : false;
 
         configuration = new ConfigurationTO();
 
-        String value = "";
-
-        for (String name : selections) 
-            value += name + ";";
-        
-
-        configuration.setConfKey("users.attributes.view");
-        configuration.setConfValue(value);
-
-        if (create) {
-
-            if (!restClient.createConfiguration(configuration))
-                return false;
+        StringBuilder value = new StringBuilder();
+        for (String name : selections) {
+            value.append(name).append(';');
         }
 
-        else  if (!create) {
+        configuration.setConfKey(Constants.CONF_USERS_ATTRIBUTES_VIEW);
+        configuration.setConfValue(value.toString());
 
-            if (!restClient.updateConfiguration(configuration))
-                return false;
-        }
-
-        return true;
+        return create
+                ? restClient.createConfiguration(configuration)
+                : restClient.updateConfiguration(configuration);
     }
 }

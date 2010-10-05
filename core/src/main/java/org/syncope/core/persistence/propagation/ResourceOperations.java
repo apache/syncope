@@ -28,6 +28,7 @@ public class ResourceOperations {
     private Set<TargetResource> toBeCreated;
     private Set<TargetResource> toBeUpdated;
     private Set<TargetResource> toBeDeleted;
+    private String oldAccountId;
 
     public ResourceOperations() {
         toBeCreated = new HashSet<TargetResource>();
@@ -59,12 +60,15 @@ public class ResourceOperations {
             case CREATE:
                 result = toBeCreated.add(resource);
                 break;
+
             case UPDATE:
                 result = toBeUpdated.add(resource);
                 break;
+
             case DELETE:
                 result = toBeDeleted.add(resource);
                 break;
+
             default:
         }
 
@@ -78,12 +82,16 @@ public class ResourceOperations {
             case CREATE:
                 result = toBeCreated.addAll(resource);
                 break;
+
             case UPDATE:
                 result = toBeUpdated.addAll(resource);
                 break;
+
             case DELETE:
                 result = toBeDeleted.addAll(resource);
                 break;
+
+            default:
         }
 
         return result;
@@ -98,12 +106,15 @@ public class ResourceOperations {
             case CREATE:
                 result = toBeCreated.remove(resource);
                 break;
+
             case UPDATE:
                 result = toBeUpdated.remove(resource);
                 break;
+
             case DELETE:
                 result = toBeDeleted.remove(resource);
                 break;
+
             default:
         }
 
@@ -117,12 +128,15 @@ public class ResourceOperations {
             case CREATE:
                 result = toBeCreated;
                 break;
+
             case UPDATE:
                 result = toBeUpdated;
                 break;
+
             case DELETE:
                 result = toBeDeleted;
                 break;
+
             default:
         }
 
@@ -133,18 +147,22 @@ public class ResourceOperations {
             final Set<TargetResource> resources) {
 
         switch (type) {
+
             case CREATE:
                 toBeCreated.clear();
                 toBeCreated.addAll(resources);
                 break;
+
             case UPDATE:
                 toBeUpdated.clear();
                 toBeUpdated.addAll(resources);
                 break;
+
             case DELETE:
                 toBeDeleted.clear();
                 toBeDeleted.addAll(resources);
                 break;
+
             default:
         }
     }
@@ -161,10 +179,19 @@ public class ResourceOperations {
                 && toBeUpdated.isEmpty();
     }
 
+    public String getOldAccountId() {
+        return oldAccountId;
+    }
+
+    public void setOldAccountId(final String oldAccountId) {
+        this.oldAccountId = oldAccountId;
+    }
+
     @Override
     public String toString() {
         return "To Be Created: " + toBeCreated + ";"
                 + "To Be Updated: " + toBeUpdated + ";"
-                + "To Be Deleted: " + toBeDeleted;
+                + "To Be Deleted: " + toBeDeleted + ";"
+                + "Old account Id: " + oldAccountId;
     }
 }

@@ -64,7 +64,7 @@ public abstract class AbstractDerivedAttribute extends AbstractBaseBean {
                 attributes.iterator(); itor.hasNext();) {
 
             attribute = itor.next();
-            attributeValues = attribute.getAttributeValues();
+            attributeValues = attribute.getValues();
             if (attributeValues.isEmpty()
                     || !getDerivedSchema().getSchemas().contains(
                     attribute.getSchema())) {

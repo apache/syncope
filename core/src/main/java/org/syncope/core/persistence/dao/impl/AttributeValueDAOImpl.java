@@ -100,7 +100,7 @@ public class AttributeValueDAOImpl extends AbstractDAOImpl
     @Override
     public <T extends AbstractAttributeValue> void delete(T attributeValue) {
         if (attributeValue.getAttribute() != null) {
-            attributeValue.getAttribute().removeAttributeValue(attributeValue);
+            attributeValue.getAttribute().removeValue(attributeValue);
         }
 
         entityManager.remove(attributeValue);

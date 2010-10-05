@@ -44,12 +44,15 @@ public class SyncopeConfigurationDAOImpl extends AbstractDAOImpl
     @Override
     @Transactional(readOnly = true)
     public List<SyncopeConfiguration> findAll() {
-        Query query = entityManager.createQuery("SELECT e FROM SyncopeConfiguration e");
+        Query query = entityManager.createQuery(
+                "SELECT e FROM SyncopeConfiguration e");
         return query.getResultList();
     }
 
     @Override
-    public SyncopeConfiguration save(SyncopeConfiguration syncopeConfiguration) {
+    public SyncopeConfiguration save(
+            final SyncopeConfiguration syncopeConfiguration) {
+
         return entityManager.merge(syncopeConfiguration);
     }
 
@@ -58,7 +61,7 @@ public class SyncopeConfigurationDAOImpl extends AbstractDAOImpl
         try {
             entityManager.remove(find(name));
         } catch (MissingConfKeyException e) {
-            LOG.error("Could not find " + name, e);
+            LOG.error("Could not find configuration key '" + name + "'");
         }
     }
 }

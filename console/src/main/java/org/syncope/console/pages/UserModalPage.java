@@ -216,6 +216,19 @@ public class UserModalPage extends SyncopeModalPage {
                                             item.setModelObject(val);
                                         }
                                     }, schemaTO.isMandatory(),schemaTO.isReadonly());
+                        } else {
+                            panel = new AjaxTextFieldPanel("panel", schemaTO.getName(), new Model() {
+
+                                @Override
+                                public Serializable getObject() {
+                                    return (String) item.getModelObject();
+                                }
+
+                                @Override
+                                public void setObject(Serializable object) {
+                                    item.setModelObject((String) object);
+                                }
+                            }, schemaTO.isMandatory(),schemaTO.isReadonly());
                         }
 
                         item.add(panel);
@@ -819,7 +832,7 @@ public class UserModalPage extends SyncopeModalPage {
 
                     }
                 }
-                
+                //TO BE FIXED CORE-SIDE
                 userMod.addMembershipToBeRemoved(oldMembership.getId());
                 userMod.addMembershipToBeAdded(membershipMod);
                 

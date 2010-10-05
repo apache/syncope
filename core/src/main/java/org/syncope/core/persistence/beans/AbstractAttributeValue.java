@@ -93,11 +93,11 @@ public abstract class AbstractAttributeValue extends AbstractBaseBean {
     }
 
     public <T> T getValue() {
-        return (T) (booleanValue != null
-                ? getBooleanValue() : (dateValue != null
-                ? getDateValue() : (doubleValue != null
-                ? getDoubleValue() : (longValue != null
-                ? getLongValue() : stringValue))));
+        return (T) (booleanValue != null ? getBooleanValue()
+                : (dateValue != null ? getDateValue()
+                : (doubleValue != null ? getDoubleValue()
+                : (longValue != null ? getLongValue()
+                : stringValue))));
     }
 
     public String getValueAsString() {
@@ -106,26 +106,28 @@ public abstract class AbstractAttributeValue extends AbstractBaseBean {
         switch (getAttribute().getSchema().getType()) {
 
             case String:
-                result = stringValue;
+                result = getStringValue();
                 break;
 
             case Boolean:
-                result = booleanValue.toString();
+                result = getBooleanValue().toString();
                 break;
 
             case Long:
                 result = getAttribute().getSchema().getFormatter(
-                        DecimalFormat.class).format(longValue);
+                        DecimalFormat.class).format(getLongValue());
                 break;
 
             case Double:
                 result = getAttribute().getSchema().getFormatter(
-                        DecimalFormat.class).format(doubleValue);
+                        DecimalFormat.class).format(getDoubleValue());
                 break;
 
             case Date:
                 result = getAttribute().getSchema().getFormatter(
-                        SimpleDateFormat.class).format(dateValue);
+                        SimpleDateFormat.class).format(getDateValue());
+
+            default:
         }
 
         return result;

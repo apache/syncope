@@ -242,18 +242,6 @@ public abstract class AbstractAttributableDataBinder {
                     attributeToBeRemoved, attributableUtil.getSchemaClass());
 
             if (schema != null) {
-                for (SchemaMapping mapping : resourceDAO.getMappings(
-                        schema.getName(),
-                        SchemaType.byClass(
-                        attributableUtil.getSchemaClass()))) {
-
-                    if (mapping.getResource() != null
-                            && resources.contains(mapping.getResource())) {
-                        resourceOperations.add(Type.UPDATE,
-                                mapping.getResource());
-                    }
-                }
-
                 attribute = attributable.getAttribute(schema.getName());
                 if (attribute == null) {
                     if (LOG.isDebugEnabled()) {
@@ -264,6 +252,27 @@ public abstract class AbstractAttributableDataBinder {
 
                     attributeDAO.delete(attribute.getId(),
                             attributableUtil.getAttributeClass());
+                }
+
+                for (SchemaMapping mapping : resourceDAO.getMappings(
+                        schema.getName(),
+                        SchemaType.byClass(
+                        attributableUtil.getSchemaClass()))) {
+
+                    if (mapping.getResource() != null
+                            && resources.contains(mapping.getResource())) {
+
+                        resourceOperations.add(Type.UPDATE,
+                                mapping.getResource());
+
+                        if (mapping.isAccountid() && attribute != null
+                                && !attribute.getValuesAsStrings().isEmpty()) {
+
+                            resourceOperations.setOldAccountId(
+                                    attribute.getValuesAsStrings().
+                                    iterator().next());
+                        }
+                    }
                 }
             }
         }
@@ -290,6 +299,7 @@ public abstract class AbstractAttributableDataBinder {
 
                     if (mapping.getResource() != null
                             && resources.contains(mapping.getResource())) {
+
                         resourceOperations.add(Type.UPDATE,
                                 mapping.getResource());
                     }
@@ -308,8 +318,9 @@ public abstract class AbstractAttributableDataBinder {
                 valuesToBeRemoved = new HashSet<Long>();
                 for (String valueToBeRemoved :
                         attributeMod.getValuesToBeRemoved()) {
-                    for (AbstractAttributeValue mav :
-                            attribute.getAttributeValues()) {
+
+                    for (AbstractAttributeValue mav : attribute.getValues()) {
+
                         if (valueToBeRemoved.equals(mav.getValueAsString())) {
                             valuesToBeRemoved.add(mav.getId());
                         }
@@ -326,7 +337,7 @@ public abstract class AbstractAttributableDataBinder {
                         attributeValue, invalidValues);
 
                 // if no values are in, the attribute can be safely removed
-                if (attribute.getAttributeValues().isEmpty()) {
+                if (attribute.getValues().isEmpty()) {
                     attributeDAO.delete(attribute);
                 }
             }
@@ -496,7 +507,7 @@ public abstract class AbstractAttributableDataBinder {
                             attributableUtil, schema, attribute,
                             attributeValue, invalidValues);
 
-                    if (!attribute.getAttributeValues().isEmpty()) {
+                    if (!attribute.getValues().isEmpty()) {
                         attributable.addAttribute(attribute);
                         attribute.setOwner(attributable);
                     }
@@ -567,8 +578,7 @@ public abstract class AbstractAttributableDataBinder {
 
             attributeTO = new AttributeTO();
             attributeTO.setSchema(attribute.getSchema().getName());
-            attributeTO.setValues(new HashSet(
-                    attribute.getAttributeValuesAsStrings()));
+            attributeTO.setValues(new HashSet(attribute.getValuesAsStrings()));
             attributeTO.setReadonly(attribute.getSchema().isReadonly());
 
             abstractAttributableTO.addAttribute(attributeTO);
@@ -600,7 +610,8 @@ public abstract class AbstractAttributableDataBinder {
 
         for (AbstractAttribute attribute : attributable.getAttributes()) {
             for (AbstractAttributeValue attributeValue :
-                    attribute.getAttributeValues()) {
+                    attribute.getValues()) {
+
                 if (attribute.getSchema().isUniquevalue()
                         && attributeValueDAO.nonUniqueAttributeValue(
                         attributeValue)) {

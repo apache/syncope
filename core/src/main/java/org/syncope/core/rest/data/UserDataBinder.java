@@ -29,8 +29,12 @@ import org.syncope.client.to.MembershipTO;
 import org.syncope.client.to.UserTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
+import org.syncope.core.persistence.beans.AbstractAttribute;
+import org.syncope.core.persistence.beans.AbstractDerivedAttribute;
 import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.membership.Membership;
+import org.syncope.core.persistence.beans.membership.MembershipAttribute;
+import org.syncope.core.persistence.beans.membership.MembershipDerivedAttribute;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.propagation.ResourceOperations;
@@ -132,6 +136,14 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         ResourceOperations resourceOperations =
                 fill(user, userMod, AttributableUtil.USER, scce);
 
+        // store the role ids of membership required to be added
+        Set<Long> membershipToBeAddedRoleIds = new HashSet<Long>();
+        for (MembershipMod membershipToBeAdded :
+                userMod.getMembershipsToBeAdded()) {
+
+            membershipToBeAddedRoleIds.add(membershipToBeAdded.getRole());
+        }
+
         // memberships to be removed
         Membership membership = null;
         for (Long membershipToBeRemovedId :
@@ -153,8 +165,12 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
                 for (TargetResource resource :
                         membership.getSyncopeRole().getTargetResources()) {
 
-                    resourceOperations.add(ResourceOperations.Type.DELETE,
-                            resource);
+                    if (!membershipToBeAddedRoleIds.contains(
+                            membership.getSyncopeRole().getId())) {
+
+                        resourceOperations.add(ResourceOperations.Type.DELETE,
+                                resource);
+                    }
                 }
 
                 // In order to make the removeMembership() below to work,
@@ -163,9 +179,29 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
                 // some modifications compared to the one stored in the DB
                 membership = user.getMembership(
                         membership.getSyncopeRole().getId());
-                user.removeMembership(membership);
+                if (membershipToBeAddedRoleIds.contains(
+                        membership.getSyncopeRole().getId())) {
 
-                membershipDAO.delete(membershipToBeRemovedId);
+                    for (AbstractAttribute attribute :
+                            membership.getAttributes()) {
+
+                        attributeDAO.delete(attribute.getId(),
+                                MembershipAttribute.class);
+                    }
+                    membership.getAttributes().clear();
+
+                    for (AbstractDerivedAttribute derivedAttribute :
+                            membership.getDerivedAttributes()) {
+
+                        derivedAttributeDAO.delete(derivedAttribute.getId(),
+                                MembershipDerivedAttribute.class);
+                    }
+                    membership.getDerivedAttributes().clear();
+                } else {
+                    user.removeMembership(membership);
+
+                    membershipDAO.delete(membershipToBeRemovedId);
+                }
             }
         }
 
@@ -186,7 +222,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
                             + membershipMod.getRole());
                 }
             } else {
-                membership = membershipDAO.find(user, role);
+                membership = user.getMembership(role.getId());
                 if (membership == null) {
                     membership = new Membership();
                     membership.setSyncopeRole(role);
