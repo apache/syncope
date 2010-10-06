@@ -20,8 +20,8 @@ import java.util.List;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.syncope.client.to.LeafSearchCondition;
-import org.syncope.client.to.NodeSearchCondition;
+import org.syncope.client.search.AttributeCond;
+import org.syncope.client.search.NodeCond;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.SyncopeUserDAO;
 
@@ -60,26 +60,25 @@ public class SyncopeUserDAOTest extends AbstractTest {
 
     @Test
     public final void search() {
-        LeafSearchCondition usernameLeafCond1 =
-                new LeafSearchCondition(LeafSearchCondition.Type.LIKE);
+        AttributeCond usernameLeafCond1 =
+                new AttributeCond(AttributeCond.Type.LIKE);
         usernameLeafCond1.setSchema("username");
         usernameLeafCond1.setExpression("%o%");
 
-        LeafSearchCondition usernameLeafCond2 =
-                new LeafSearchCondition(LeafSearchCondition.Type.LIKE);
+        AttributeCond usernameLeafCond2 =
+                new AttributeCond(AttributeCond.Type.LIKE);
         usernameLeafCond2.setSchema("username");
         usernameLeafCond2.setExpression("%i%");
 
-        NodeSearchCondition searchCondition =
-                NodeSearchCondition.getAndSearchCondition(
-                NodeSearchCondition.getLeafCondition(usernameLeafCond1),
-                NodeSearchCondition.getLeafCondition(usernameLeafCond2));
+        NodeCond searchCondition = NodeCond.getAndCond(
+                NodeCond.getLeafCond(usernameLeafCond1),
+                NodeCond.getLeafCond(usernameLeafCond2));
 
         assertTrue(searchCondition.checkValidity());
 
         List<SyncopeUser> users = syncopeUserDAO.search(searchCondition);
         assertNotNull(users);
-        assertFalse(users.isEmpty());
+        assertEquals(2, users.size());
     }
 
     @Test
@@ -91,7 +90,7 @@ public class SyncopeUserDAOTest extends AbstractTest {
         SyncopeUser actual = syncopeUserDAO.find(3L);
         assertNull("delete did not work", actual);
     }
-    
+
     @Test
     public final void getRoleResources() {
         SyncopeUser user = syncopeUserDAO.find(1L);

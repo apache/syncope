@@ -15,7 +15,7 @@
 package org.syncope.core.persistence.dao;
 
 import java.util.List;
-import org.syncope.client.to.NodeSearchCondition;
+import org.syncope.client.search.NodeCond;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.beans.user.UserAttributeValue;
 
@@ -29,7 +29,7 @@ public interface SyncopeUserDAO extends DAO {
 
     List<SyncopeUser> findAll();
 
-    List<SyncopeUser> search(NodeSearchCondition searchCondition);
+    List<SyncopeUser> search(NodeCond searchCondition);
 
     SyncopeUser save(SyncopeUser syncopeUser);
 

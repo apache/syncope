@@ -36,10 +36,10 @@ public class RoleAttribute extends AbstractAttribute {
     private RoleSchema schema;
     @OneToMany(cascade = CascadeType.MERGE, mappedBy = "attribute")
     @Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
-    private List<RoleAttributeValue> attributeValues;
+    private List<RoleAttributeValue> values;
 
     public RoleAttribute() {
-        attributeValues = new ArrayList<RoleAttributeValue>();
+        values = new ArrayList<RoleAttributeValue>();
     }
 
     @Override
@@ -66,26 +66,26 @@ public class RoleAttribute extends AbstractAttribute {
     public <T extends AbstractAttributeValue> boolean addValue(
             T attributeValue) {
 
-        return attributeValues.add((RoleAttributeValue) attributeValue);
+        return values.add((RoleAttributeValue) attributeValue);
     }
 
     @Override
     public <T extends AbstractAttributeValue> boolean removeValue(
             T attributeValue) {
 
-        return attributeValues.remove((RoleAttributeValue) attributeValue);
+        return values.remove((RoleAttributeValue) attributeValue);
     }
 
     @Override
     public <T extends AbstractAttributeValue> List<T> getValues() {
-        return (List<T>) attributeValues;
+        return (List<T>) values;
     }
 
     @Override
     public <T extends AbstractAttributeValue> void setValues(
             List<T> attributeValues) {
 
-        this.attributeValues = (List<RoleAttributeValue>) attributeValues;
+        this.values = (List<RoleAttributeValue>) attributeValues;
 
     }
 }

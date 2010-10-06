@@ -44,7 +44,7 @@ import javassist.NotFoundException;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
 import org.syncope.client.mod.UserMod;
-import org.syncope.client.to.NodeSearchCondition;
+import org.syncope.client.search.NodeCond;
 import org.syncope.client.to.UserTO;
 import org.syncope.client.to.WorkflowActionsTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
@@ -235,7 +235,7 @@ public class UserController extends AbstractController {
 
     @RequestMapping(method = RequestMethod.POST,
     value = "/search")
-    public UserTOs search(@RequestBody NodeSearchCondition searchCondition)
+    public UserTOs search(@RequestBody NodeCond searchCondition)
             throws InvalidSearchConditionException {
 
         if (LOG.isDebugEnabled()) {
@@ -244,7 +244,6 @@ public class UserController extends AbstractController {
 
         if (!searchCondition.checkValidity()) {
             LOG.error("Invalid search condition: " + searchCondition);
-
             throw new InvalidSearchConditionException();
         }
 
