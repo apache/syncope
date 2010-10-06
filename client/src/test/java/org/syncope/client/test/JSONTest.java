@@ -21,25 +21,24 @@ import java.io.StringWriter;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Test;
 import org.syncope.client.search.AttributeCond;
+import org.syncope.client.search.MembershipCond;
 import org.syncope.client.search.NodeCond;
 
 public class JSONTest {
 
     @Test
     public void testSearchCondition() throws IOException {
-        AttributeCond usernameLeafCond1 =
+        final AttributeCond usernameCond =
                 new AttributeCond(AttributeCond.Type.LIKE);
-        usernameLeafCond1.setSchema("username");
-        usernameLeafCond1.setExpression("%o%");
+        usernameCond.setSchema("username");
+        usernameCond.setExpression("%o%");
 
-        AttributeCond usernameLeafCond2 =
-                new AttributeCond(AttributeCond.Type.LIKE);
-        usernameLeafCond2.setSchema("username");
-        usernameLeafCond2.setExpression("%i%");
+        final MembershipCond membershipCond = new MembershipCond();
+        membershipCond.setRoleName("root");
 
-        NodeCond searchCondition = NodeCond.getAndCond(
-                NodeCond.getLeafCond(usernameLeafCond1),
-                NodeCond.getLeafCond(usernameLeafCond2));
+        final NodeCond searchCondition = NodeCond.getAndCond(
+                NodeCond.getLeafCond(usernameCond),
+                NodeCond.getLeafCond(membershipCond));
 
         assertTrue(searchCondition.checkValidity());
 

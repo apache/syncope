@@ -83,15 +83,15 @@ public class NodeCond extends AbstractBaseBean {
         return attributeCond;
     }
 
-    public void setAttributeCond(AttributeCond attributeCond) {
+    public final void setAttributeCond(final AttributeCond attributeCond) {
         this.attributeCond = attributeCond;
     }
 
-    public MembershipCond getMembershipCond() {
+    public final MembershipCond getMembershipCond() {
         return membershipCond;
     }
 
-    public void setMembershipCond(MembershipCond membershipCond) {
+    public final void setMembershipCond(final MembershipCond membershipCond) {
         this.membershipCond = membershipCond;
     }
 
@@ -126,9 +126,10 @@ public class NodeCond extends AbstractBaseBean {
 
         switch (type) {
             case LEAF:
-                return ((attributeCond != null && membershipCond == null)
-                        || (attributeCond == null && membershipCond != null))
-                        && attributeCond.checkValidity();
+                return (attributeCond != null && membershipCond == null
+                        && attributeCond.checkValidity())
+                        || (attributeCond == null && membershipCond != null
+                        && membershipCond.checkValidity());
             case AND:
             case OR:
                 return (leftNodeCond == null || rightNodeCond == null)
