@@ -12,24 +12,22 @@
  *  limitations under the License.
  *  under the License.
  */
-
 package org.syncope.console.commons;
 
-import org.syncope.client.to.LeafSearchCondition.Type;
+import org.syncope.client.search.NodeCond;
 
 /**
  * Generic search condition wrapper class.
  */
 public class SearchConditionWrapper {
 
-    public enum ConditionType {AND,OR,NOT};
+    public enum ConditionType {
 
+        AND, OR, NOT
+    };
     private ConditionType conditionType;
-
-    private Type type;
-
+    private NodeCond.Type type;
     private String schemaName;
-
     private String schemaValue;
 
     public ConditionType getConditionType() {
@@ -39,7 +37,7 @@ public class SearchConditionWrapper {
     public void setConditionType(ConditionType expressionType) {
         this.conditionType = expressionType;
     }
-    
+
     public String getSchemaName() {
         return schemaName;
     }
@@ -56,11 +54,11 @@ public class SearchConditionWrapper {
         this.schemaValue = schemaValue;
     }
 
-    public Type getType() {
+    public NodeCond.Type getType() {
         return type;
     }
 
-    public void setType(Type type) {
+    public void setType(NodeCond.Type type) {
         this.type = type;
     }
 }

@@ -18,9 +18,12 @@ import java.util.Collections;
 import java.util.List;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
+import org.hibernate.Criteria;
+import org.hibernate.Session;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import org.syncope.client.to.NodeSearchCondition;
+import org.syncope.client.search.NodeCond;
 import org.syncope.core.persistence.beans.membership.Membership;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.beans.user.UserAttributeValue;
@@ -29,6 +32,9 @@ import org.syncope.core.persistence.dao.SyncopeUserDAO;
 @Repository
 public class SyncopeUserDAOImpl extends AbstractDAOImpl
         implements SyncopeUserDAO {
+
+    @Autowired
+    private SearchUtils searchUtils;
 
     @Override
     @Transactional(readOnly = true)
@@ -90,20 +96,24 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
 
     @Override
     @Transactional(readOnly = true)
-    public final List<SyncopeUser> search(
-            final NodeSearchCondition searchCondition) {
-
-        String queryString = QueryUtils.getUserSearchQuery(searchCondition);
+    public final List<SyncopeUser> search(final NodeCond searchCondition) {
         if (LOG.isDebugEnabled()) {
-            LOG.debug("About to execute query\n\t" + queryString + "\n");
+            LOG.debug("Search condition:\n" + searchCondition);
         }
+
+        Session hibernateSess = ((Session) entityManager.getDelegate());
 
         List<SyncopeUser> result = Collections.EMPTY_LIST;
         try {
-            Query query = entityManager.createQuery(queryString);
-            result = query.getResultList();
+            Criteria userCriteria = searchUtils.buildUserCriteria(
+                    hibernateSess, searchCondition);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Criteria to be performed:\n" + userCriteria);
+            }
+
+            result = userCriteria.list();
         } catch (Throwable t) {
-            LOG.error("While executing query\n\t" + queryString + "\n", t);
+            LOG.error("While searching users", t);
         }
 
         return result;

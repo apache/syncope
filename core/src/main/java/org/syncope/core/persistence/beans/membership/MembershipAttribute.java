@@ -36,10 +36,10 @@ public class MembershipAttribute extends AbstractAttribute {
     private MembershipSchema schema;
     @OneToMany(cascade = CascadeType.MERGE, mappedBy = "attribute")
     @Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
-    private List<MembershipAttributeValue> attributeValues;
+    private List<MembershipAttributeValue> values;
 
     public MembershipAttribute() {
-        attributeValues = new ArrayList<MembershipAttributeValue>();
+        values = new ArrayList<MembershipAttributeValue>();
     }
 
     @Override
@@ -66,26 +66,26 @@ public class MembershipAttribute extends AbstractAttribute {
     public <T extends AbstractAttributeValue> boolean addValue(
             T attributeValue) {
 
-        return attributeValues.add((MembershipAttributeValue) attributeValue);
+        return values.add((MembershipAttributeValue) attributeValue);
     }
 
     @Override
     public <T extends AbstractAttributeValue> boolean removeValue(
             T attributeValue) {
 
-        return attributeValues.remove((MembershipAttributeValue) attributeValue);
+        return values.remove((MembershipAttributeValue) attributeValue);
     }
 
     @Override
     public <T extends AbstractAttributeValue> List<T> getValues() {
-        return (List<T>) attributeValues;
+        return (List<T>) values;
     }
 
     @Override
     public <T extends AbstractAttributeValue> void setValues(
             List<T> attributeValues) {
 
-        this.attributeValues = (List<MembershipAttributeValue>) attributeValues;
+        this.values = (List<MembershipAttributeValue>) attributeValues;
 
     }
 }

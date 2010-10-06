@@ -28,9 +28,9 @@ import org.syncope.client.mod.AttributeMod;
 import org.syncope.client.mod.MembershipMod;
 import org.syncope.client.mod.UserMod;
 import org.syncope.client.to.AttributeTO;
-import org.syncope.client.to.LeafSearchCondition;
+import org.syncope.client.search.AttributeCond;
 import org.syncope.client.to.MembershipTO;
-import org.syncope.client.to.NodeSearchCondition;
+import org.syncope.client.search.NodeCond;
 import org.syncope.client.to.UserTO;
 import org.syncope.client.to.UserTOs;
 import org.syncope.client.to.WorkflowActionsTO;
@@ -263,20 +263,19 @@ public class UserTestITCase extends AbstractTestITCase {
 
     @Test
     public final void search() {
-        LeafSearchCondition usernameLeafCond1 =
-                new LeafSearchCondition(LeafSearchCondition.Type.LIKE);
+        AttributeCond usernameLeafCond1 =
+                new AttributeCond(AttributeCond.Type.LIKE);
         usernameLeafCond1.setSchema("username");
         usernameLeafCond1.setExpression("%o%");
 
-        LeafSearchCondition usernameLeafCond2 =
-                new LeafSearchCondition(LeafSearchCondition.Type.LIKE);
+        AttributeCond usernameLeafCond2 =
+                new AttributeCond(AttributeCond.Type.LIKE);
         usernameLeafCond2.setSchema("username");
         usernameLeafCond2.setExpression("%i%");
 
-        NodeSearchCondition searchCondition =
-                NodeSearchCondition.getAndSearchCondition(
-                NodeSearchCondition.getLeafCondition(usernameLeafCond1),
-                NodeSearchCondition.getLeafCondition(usernameLeafCond2));
+        NodeCond searchCondition = NodeCond.getAndCond(
+                NodeCond.getLeafCond(usernameLeafCond1),
+                NodeCond.getLeafCond(usernameLeafCond2));
 
         assertTrue(searchCondition.checkValidity());
 

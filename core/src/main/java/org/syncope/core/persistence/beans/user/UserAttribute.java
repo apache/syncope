@@ -38,10 +38,10 @@ public class UserAttribute extends AbstractAttribute {
 
     @OneToMany(cascade = CascadeType.MERGE, mappedBy = "attribute")
     @Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
-    private List<UserAttributeValue> attributeValues;
+    private List<UserAttributeValue> values;
 
     public UserAttribute() {
-        attributeValues = new ArrayList<UserAttributeValue>();
+        values = new ArrayList<UserAttributeValue>();
     }
 
     @Override
@@ -68,26 +68,26 @@ public class UserAttribute extends AbstractAttribute {
     public <T extends AbstractAttributeValue> boolean addValue(
             T attributeValue) {
 
-        return attributeValues.add((UserAttributeValue) attributeValue);
+        return values.add((UserAttributeValue) attributeValue);
     }
 
     @Override
     public <T extends AbstractAttributeValue> boolean removeValue(
             T attributeValue) {
 
-        return attributeValues.remove((UserAttributeValue) attributeValue);
+        return values.remove((UserAttributeValue) attributeValue);
     }
 
     @Override
     public <T extends AbstractAttributeValue> List<T> getValues() {
-        return (List<T>) attributeValues;
+        return (List<T>) values;
     }
 
     @Override
     public <T extends AbstractAttributeValue> void setValues(
             List<T> attributeValues) {
 
-        this.attributeValues = (List<UserAttributeValue>) attributeValues;
+        this.values = (List<UserAttributeValue>) attributeValues;
 
     }
 }
