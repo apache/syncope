@@ -189,9 +189,9 @@ public class ResourceOperations {
 
     @Override
     public String toString() {
-        return "To Be Created: " + toBeCreated + ";"
-                + "To Be Updated: " + toBeUpdated + ";"
-                + "To Be Deleted: " + toBeDeleted + ";"
+        return "To be Created: " + toBeCreated + ";\n"
+                + "To be Updated: " + toBeUpdated + ";\n"
+                + "To be Deleted: " + toBeDeleted + ";\n"
                 + "Old account Id: " + oldAccountId;
     }
 }

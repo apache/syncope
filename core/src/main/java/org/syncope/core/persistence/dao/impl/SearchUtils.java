@@ -116,17 +116,10 @@ public class SearchUtils {
                 break;
 
             case LIKE:
+                // LIKE operator is meaningful for strings only
                 result = Restrictions.disjunction().
                         add(Restrictions.like("av.stringValue",
-                        example.getStringValue())).
-                        add(Restrictions.like("av.booleanValue",
-                        example.getBooleanValue())).
-                        add(Restrictions.like("av.longValue",
-                        example.getLongValue())).
-                        add(Restrictions.like("av.doubleValue",
-                        example.getDoubleValue())).
-                        add(Restrictions.like("av.dateValue",
-                        example.getDateValue()));
+                        example.getStringValue()));
                 break;
 
             case LT:
