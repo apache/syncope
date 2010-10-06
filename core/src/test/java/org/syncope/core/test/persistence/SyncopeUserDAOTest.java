@@ -21,6 +21,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.client.search.AttributeCond;
+import org.syncope.client.search.MembershipCond;
 import org.syncope.client.search.NodeCond;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.SyncopeUserDAO;
@@ -60,19 +61,17 @@ public class SyncopeUserDAOTest extends AbstractTest {
 
     @Test
     public final void search() {
-        AttributeCond usernameLeafCond1 =
+        AttributeCond usernameLeafCond =
                 new AttributeCond(AttributeCond.Type.LIKE);
-        usernameLeafCond1.setSchema("username");
-        usernameLeafCond1.setExpression("%o%");
+        usernameLeafCond.setSchema("username");
+        usernameLeafCond.setExpression("%o%");
 
-        AttributeCond usernameLeafCond2 =
-                new AttributeCond(AttributeCond.Type.LIKE);
-        usernameLeafCond2.setSchema("username");
-        usernameLeafCond2.setExpression("%i%");
+        MembershipCond membershipCond = new MembershipCond();
+        membershipCond.setRoleId(1L);
 
         NodeCond searchCondition = NodeCond.getAndCond(
-                NodeCond.getLeafCond(usernameLeafCond1),
-                NodeCond.getLeafCond(usernameLeafCond2));
+                NodeCond.getLeafCond(usernameLeafCond),
+                NodeCond.getLeafCond(membershipCond));
 
         assertTrue(searchCondition.checkValidity());
 

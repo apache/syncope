@@ -156,11 +156,11 @@ public class SearchUtils {
             case LEAF:
                 if (nodeCond.getMembershipCond() != null) {
                     if (nodeCond.getMembershipCond().getRoleId() != null) {
-                        result = Restrictions.eq("m.syncopeRole.id",
+                        result = Restrictions.eq("r.id",
                                 nodeCond.getMembershipCond().getRoleId());
                     }
                     if (nodeCond.getMembershipCond().getRoleName() != null) {
-                        result = Restrictions.eq("m.syncopeRole.name",
+                        result = Restrictions.eq("r.name",
                                 nodeCond.getMembershipCond().getRoleName());
                     }
                 } else if (nodeCond.getAttributeCond() != null) {
@@ -232,6 +232,7 @@ public class SearchUtils {
 
         Criteria userCriteria = hibernateSess.createCriteria(SyncopeUser.class).
                 createAlias("memberships", "m").
+                createAlias("m.syncopeRole", "r").
                 createAlias("attributes", "a").
                 createAlias("a.values", "av");
 
