@@ -175,7 +175,8 @@ public class ResourceModalPage extends SyncopeModalPage {
 
         resourceForm.add(connector);
 
-        mappingUserSchemaView = new ListView("mappingsUserSchema", schemaMappingTOs.getMappings()) {
+        mappingUserSchemaView = new ListView("mappingsUserSchema",
+                schemaMappingTOs.getMappings()) {
 
             SchemaMappingTO mappingTO = null;
             UpdatingDropDownChoice schemaAttributeChoice = null;

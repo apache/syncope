@@ -91,6 +91,14 @@ body {
     margin: 0px;
 }
 
+input[disabled] {
+    background-color: #ddd;
+}
+
+select[disabled] {
+    background-color: #ddd;
+}
+
 #feedbackDiv {
     height: 20px;
     margin: 0px;

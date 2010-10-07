@@ -60,17 +60,21 @@ public class Login extends WebPage {
         passwordField.setMarkupId("password");
         form.add(passwordField);
 
-        languageSelect = new LocaleDropDown("language",Arrays.asList(new Locale[]{Locale.ENGLISH, Locale.ITALIAN}));
+        languageSelect = new LocaleDropDown("language",Arrays.asList
+                (new Locale[]{Locale.ENGLISH, Locale.ITALIAN}));
         
         form.add(languageSelect);
 
-        Button submitButton = new Button("submit", new Model(getString("submit"))) {
+        Button submitButton = new Button("submit", new Model(
+                getString("submit"))) {
 
             @Override
             public void onSubmit() {
-                inputStream = ((SyncopeApplication)getApplication()).getAuthenticationFile();
+                inputStream = ((SyncopeApplication)getApplication())
+                        .getAuthenticationFile();
                 Authentication auth = new Authentication();
-                Boolean authenticated = auth.authentication(usernameField.getRawInput(),
+                Boolean authenticated = auth.authentication(usernameField
+                        .getRawInput(),
                         passwordField.getRawInput(), inputStream);
                 if (authenticated == true) {
                     SyncopeUser user = new SyncopeUser();
@@ -80,7 +84,8 @@ public class Login extends WebPage {
                     try {
                         inputStream.close();
                     } catch (IOException ex) {
-                        Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(Login.class.getName())
+                                .log(Level.SEVERE, null, ex);
                     }
                 } else {
                     error(getString("login-error"));

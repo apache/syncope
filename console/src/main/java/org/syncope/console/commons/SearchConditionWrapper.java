@@ -14,51 +14,87 @@
  */
 package org.syncope.console.commons;
 
-import org.syncope.client.search.NodeCond;
+import java.io.Serializable;
+import org.syncope.client.search.AttributeCond;
+import org.syncope.client.search.AttributeCond.Type;
 
 /**
  * Generic search condition wrapper class.
  */
-public class SearchConditionWrapper {
+public class SearchConditionWrapper implements Serializable {
 
-    public enum ConditionType {
+    public enum OperationType {AND,OR};
 
-        AND, OR, NOT
-    };
-    private ConditionType conditionType;
-    private NodeCond.Type type;
-    private String schemaName;
-    private String schemaValue;
+    public enum FilterType {ATTRIBUTE,MEMBERSHIP};
 
-    public ConditionType getConditionType() {
-        return conditionType;
+    //public enum NotOperator {NOT};
+
+    /** Not value: true if provided, false otherwise */
+    private boolean notOperator;
+
+    private OperationType operationType = null;
+
+    private Type type;
+
+    private FilterType filterType;
+    
+    private String filterName;
+
+    private String filterValue;
+
+    public boolean isNotOperator() {
+        return notOperator;
     }
 
-    public void setConditionType(ConditionType expressionType) {
-        this.conditionType = expressionType;
+    public void setNotOperator(boolean notOperator) {
+        this.notOperator = notOperator;
     }
 
-    public String getSchemaName() {
-        return schemaName;
+//    public NotOperator getNotOperator() {
+//        return notOperator;
+//    }
+//
+//    public void setNotOperator(NotOperator notOperator) {
+//        this.notOperator = notOperator;
+//    }
+
+    public OperationType getOperationType() {
+        return operationType;
     }
 
-    public void setSchemaName(String schemaName) {
-        this.schemaName = schemaName;
+    public void setOperationType(OperationType operationType) {
+        this.operationType = operationType;
     }
 
-    public String getSchemaValue() {
-        return schemaValue;
-    }
-
-    public void setSchemaValue(String schemaValue) {
-        this.schemaValue = schemaValue;
-    }
-
-    public NodeCond.Type getType() {
+    public AttributeCond.Type getType() {
         return type;
     }
 
-    public void setType(NodeCond.Type type) {
+    public void setType(AttributeCond.Type type) {
         this.type = type;
+    }
+
+    public FilterType getFilterType() {
+        return filterType;
+    }
+
+    public void setFilterType(FilterType filterType) {
+        this.filterType = filterType;
+    }
+
+    public String getFilterName() {
+        return filterName;
+    }
+
+    public void setFilterName(String filterName) {
+        this.filterName = filterName;
+    }
+
+    public String getFilterValue() {
+        return filterValue;
+    }
+
+    public void setFilterValue(String filterValue) {
+        this.filterValue = filterValue;
     }
 }
