@@ -20,7 +20,7 @@ public class NodeCond extends AbstractBaseBean {
 
     public enum Type {
 
-        LEAF, AND, OR, NOT
+        LEAF, NOT_LEAF, AND, OR
     }
     private Type type;
     private AttributeCond attributeCond;
@@ -46,6 +46,18 @@ public class NodeCond extends AbstractBaseBean {
         return nodeCond;
     }
 
+    public static NodeCond getNotLeafCond(final AttributeCond attributeCond) {
+        NodeCond nodeCond = getLeafCond(attributeCond);
+        nodeCond.type = Type.NOT_LEAF;
+        return nodeCond;
+    }
+
+    public static NodeCond getNotLeafCond(final MembershipCond membershipCond) {
+        NodeCond nodeCond = getLeafCond(membershipCond);
+        nodeCond.type = Type.NOT_LEAF;
+        return nodeCond;
+    }
+
     public static NodeCond getAndCond(final NodeCond leftCond,
             final NodeCond rightCond) {
 
@@ -66,15 +78,6 @@ public class NodeCond extends AbstractBaseBean {
         nodeCond.type = Type.OR;
         nodeCond.leftNodeCond = leftCond;
         nodeCond.rightNodeCond = rightCond;
-
-        return nodeCond;
-    }
-
-    public static NodeCond getNotCond(final NodeCond leftCond) {
-        NodeCond nodeCond = new NodeCond();
-
-        nodeCond.type = Type.NOT;
-        nodeCond.leftNodeCond = nodeCond;
 
         return nodeCond;
     }
@@ -126,6 +129,7 @@ public class NodeCond extends AbstractBaseBean {
 
         switch (type) {
             case LEAF:
+            case NOT_LEAF:
                 return (attributeCond != null && membershipCond == null
                         && attributeCond.checkValidity())
                         || (attributeCond == null && membershipCond != null
@@ -136,12 +140,8 @@ public class NodeCond extends AbstractBaseBean {
                         ? false
                         : leftNodeCond.checkValidity()
                         && rightNodeCond.checkValidity();
-            case NOT:
-                return leftNodeCond == null
-                        ? false
-                        : leftNodeCond.checkValidity();
+            default:
+                return false;
         }
-
-        return false;
     }
 }

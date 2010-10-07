@@ -69,15 +69,24 @@ public class SyncopeUserDAOTest extends AbstractTest {
         MembershipCond membershipCond = new MembershipCond();
         membershipCond.setRoleId(1L);
 
-        NodeCond searchCondition = NodeCond.getAndCond(
+        AttributeCond loginDateCond = new AttributeCond(AttributeCond.Type.EQ);
+        loginDateCond.setSchema("loginDate");
+        loginDateCond.setExpression("2009-05-26");
+
+        NodeCond subCond = NodeCond.getAndCond(
                 NodeCond.getLeafCond(usernameLeafCond),
                 NodeCond.getLeafCond(membershipCond));
 
-        assertTrue(searchCondition.checkValidity());
+        assertTrue(subCond.checkValidity());
 
-        List<SyncopeUser> users = syncopeUserDAO.search(searchCondition);
+        NodeCond cond = NodeCond.getAndCond(subCond,
+                NodeCond.getLeafCond(loginDateCond));
+
+        assertTrue(cond.checkValidity());
+
+        List<SyncopeUser> users = syncopeUserDAO.search(cond);
         assertNotNull(users);
-        assertEquals(2, users.size());
+        assertEquals(1, users.size());
     }
 
     @Test
