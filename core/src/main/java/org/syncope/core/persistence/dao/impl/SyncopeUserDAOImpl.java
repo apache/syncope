@@ -149,13 +149,11 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Criteria to be performed:\n" + criteria);
                 }
-                LOG.info("XXXXXXX\n" + criteria);
 
                 result = criteria.list();
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Criteria result:\n" + result);
                 }
-                LOG.info("XXXXXXX\n" + result);
                 break;
 
             case AND:
