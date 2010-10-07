@@ -80,856 +80,894 @@ import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.syncope.console.wicket.markup.html.form.DateFieldPanel;
 import org.syncope.console.wicket.markup.html.tree.SyncopeRoleTree;
 import org.syncope.console.wicket.markup.html.tree.TreeModelBean;
-import org.syncope.types.SchemaValueType;
 
 /**
  * Modal window with User form.
  */
 public class UserModalPage extends SyncopeModalPage {
 
-    @SpringBean(name = "usersRestClient")
-    UsersRestClient usersRestClient;
+@SpringBean(name = "usersRestClient")
+UsersRestClient usersRestClient;
 
-    @SpringBean(name = "rolesRestClient")
-    RolesRestClient rolesRestClient;
+@SpringBean(name = "rolesRestClient")
+RolesRestClient rolesRestClient;
 
-    WebMarkupContainer container;
-    WebMarkupContainer membershipsContainer;
+WebMarkupContainer container;
+WebMarkupContainer membershipsContainer;
 
-    AjaxButton submit;
+AjaxButton submit;
 
-    List<SchemaWrapper> schemaWrappers;
-    List<MembershipTO> membershipTOs;
+List<SchemaWrapper> schemaWrappers;
+List<MembershipTO> membershipTOs;
 
-    final ModalWindow createUserWin;
+final ModalWindow createUserWin;
 
-    UserTO oldUser;
-    UserMod userMod;
+UserTO oldUser;
+UserMod userMod;
 
-    Map rolesMap;
+Map rolesMap;
 
-    /**
-     *
-     * @param basePage base
-     * @param modalWindow modal window
-     * @param connectorTO
-     * @param create : set to true only if a CREATE operation is required
-     */
-    public UserModalPage(final BasePage basePage, final ModalWindow window,
-            final UserTO userTO, final boolean createFlag) {
+/**
+ *
+ * @param basePage base
+ * @param modalWindow modal window
+ * @param connectorTO
+ * @param create : set to true only if a CREATE operation is required
+ */
+public UserModalPage(final BasePage basePage, final ModalWindow window,
+    final UserTO userTO, final boolean createFlag) {
 
-        if (!createFlag) {
-            cloneOldUserTO(userTO);
+if (!createFlag) {
+    cloneOldUserTO(userTO);
+}
+
+setupRolesMap();
+
+add(createUserWin = new ModalWindow("membershipWin"));
+
+createUserWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+createUserWin.setPageMapName("create-membership-modal");
+createUserWin.setCookieName("create-membership-modal");
+
+Form userForm = new Form("UserForm");
+
+userForm.setModel(new CompoundPropertyModel(userTO));
+
+setupSchemaWrappers(createFlag, userTO);
+setupMemberships(createFlag, userTO);
+
+final ListView userAttributesView = new ListView("userSchemas",
+        schemaWrappers) {
+
+@Override
+protected void populateItem(ListItem item) {
+final SchemaWrapper schemaWrapper =
+        (SchemaWrapper) item.getDefaultModelObject();
+
+final SchemaTO schemaTO = schemaWrapper.getSchemaTO();
+
+item.add(new Label("name", schemaWrapper.getSchemaTO()
+        .getName()));
+
+item.add(new ListView("fields", schemaWrapper.getValues()) {
+
+Panel panel;
+
+    @Override
+    protected void populateItem(final ListItem item) {
+
+        if (schemaTO.getType().getClassName()
+                .equals("java.lang.String")) {
+            panel = new AjaxTextFieldPanel("panel",
+                    schemaTO.getName(), new Model() {
+
+                @Override
+                public Serializable getObject() {
+                    return (String) item.getModelObject();
+                }
+
+                @Override
+                public void setObject(Serializable object) {
+                    item.setModelObject((String) object);
+                }
+            }, schemaTO.isMandatory(),schemaTO.isReadonly());
         }
+        else if (schemaTO.getType().getClassName()
+                .equals("java.lang.Boolean")) {
+            panel = new AjaxCheckBoxPanel("panel",
+                    schemaTO.getName(), new Model() {
 
-        setupRolesMap();
-
-        add(createUserWin = new ModalWindow("membershipWin"));
-
-        createUserWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
-//        createUserWin.setInitialHeight(WIN_USER_HEIGHT);
-//        createUserWin.setInitialWidth(WIN_USER_WIDTH);
-        createUserWin.setPageMapName("create-membership-modal");
-        createUserWin.setCookieName("create-membership-modal");
-
-        Form userForm = new Form("UserForm");
-
-        userForm.setModel(new CompoundPropertyModel(userTO));
-
-        setupSchemaWrappers(createFlag, userTO);
-        setupMemberships(createFlag, userTO);
-
-        final ListView userAttributesView = new ListView("userSchemas", schemaWrappers) {
-
-            @Override
-            protected void populateItem(ListItem item) {
-                final SchemaWrapper schemaWrapper = (SchemaWrapper) item.getDefaultModelObject();
-
-                final SchemaTO schemaTO = schemaWrapper.getSchemaTO();
-
-                item.add(new Label("name", schemaWrapper.getSchemaTO().getName()));
-
-                item.add(new ListView("fields", schemaWrapper.getValues()) {
-
-                    Panel panel;
-
-                    @Override
-                    protected void populateItem(final ListItem item) {
-
-                        if (schemaTO.getType().getClassName().equals("java.lang.String")) {
-                            panel = new AjaxTextFieldPanel("panel", schemaTO.getName(), new Model() {
-
-                                @Override
-                                public Serializable getObject() {
-                                    return (String) item.getModelObject();
-                                }
-
-                                @Override
-                                public void setObject(Serializable object) {
-                                    item.setModelObject((String) object);
-                                }
-                            }, schemaTO.isMandatory(),schemaTO.isReadonly());
-                        } else if (schemaTO.getType().getClassName().equals("java.lang.Boolean")) {
-                            panel = new AjaxCheckBoxPanel("panel", schemaTO.getName(), new Model() {
-
-                                @Override
-                                public Serializable getObject() {
-                                    return (String) item.getModelObject();
-                                    //return "false";
-                                }
-
-                                @Override
-                                public void setObject(Serializable object) {
-                                    Boolean val = (Boolean) object;
-                                    item.setModelObject(val.toString());
-                                }
-                            }, schemaTO.isMandatory(), schemaTO.isReadonly());
-
-                        } else if (schemaTO.getType().getClassName().equals("java.util.Date")) {
-                            panel = new DateFieldPanel("panel", schemaTO.getName(),
-                                    new Model() {
-
-                                        @Override
-                                        public Serializable getObject() {
-                                            DateFormat formatter = new SimpleDateFormat(schemaTO.getConversionPattern());
-                                            Date date = new Date();
-
-                                            try {
-                                                String dateValue = (String) item.getModelObject();
-                                                formatter = new SimpleDateFormat(schemaTO.getConversionPattern());//Default value:yyyy-MM-dd
-
-                                                if (!dateValue.equals("")) {
-                                                    date = formatter.parse((String) item.getModelObject());
-                                                }
-
-                                            } catch (ParseException ex) {
-                                                Logger.getLogger(UserModalPage.class.getName()).log(Level.SEVERE, null, ex);
-                                            }
-                                            return date;
-                                        }
-
-                                        @Override
-                                        public void setObject(Serializable object) {
-                                            Date date = (Date) object;
-                                            Format formatter = new SimpleDateFormat(schemaTO.getConversionPattern());
-                                            String val = formatter.format(date);
-                                            item.setModelObject(val);
-                                        }
-                                    }, schemaTO.isMandatory(),schemaTO.isReadonly());
-                        } else {
-                            panel = new AjaxTextFieldPanel("panel", schemaTO.getName(), new Model() {
-
-                                @Override
-                                public Serializable getObject() {
-                                    return (String) item.getModelObject();
-                                }
-
-                                @Override
-                                public void setObject(Serializable object) {
-                                    item.setModelObject((String) object);
-                                }
-                            }, schemaTO.isMandatory(),schemaTO.isReadonly());
-                        }
-
-                        item.add(panel);
-                    }
-                });
-
-                AjaxButton addButton = new AjaxButton("add", new Model(getString("add"))) {
-
-                    @Override
-                    protected void onSubmit(AjaxRequestTarget target, Form form) {
-                        schemaWrapper.getValues().add("");
-
-                        target.addComponent(container);
-                    }
-                };
-
-                AjaxButton dropButton = new AjaxButton("drop", new Model(getString("drop"))) {
-
-                    @Override
-                    protected void onSubmit(AjaxRequestTarget target, Form form) {
-                        //Drop the last component added
-                        schemaWrapper.getValues().remove(schemaWrapper.getValues().size() - 1);
-
-                        target.addComponent(container);
-                    }
-                };
-
-                if (schemaTO.getType().getClassName().equals("java.lang.Boolean")) {
-                    addButton.setVisible(false);
-                    dropButton.setVisible(false);
+                @Override
+                public Serializable getObject() {
+                    return (String) item.getModelObject();
                 }
 
-                addButton.setDefaultFormProcessing(false);
-                addButton.setVisible(schemaTO.isMultivalue());
-
-                dropButton.setDefaultFormProcessing(false);
-                dropButton.setVisible(schemaTO.isMultivalue());
-
-                if (schemaWrapper.getValues().size() == 1) {
-                    dropButton.setVisible(false);
+                @Override
+                public void setObject(Serializable object) {
+                    Boolean val = (Boolean) object;
+                    item.setModelObject(val.toString());
                 }
+            }, schemaTO.isMandatory(), schemaTO.isReadonly());
 
-                if(schemaTO.isReadonly()) {
-                    addButton.setEnabled(false);
-                    dropButton.setEnabled(false);
-                }
-
-                item.add(addButton);
-                item.add(dropButton);
-            }
-        };
-
-        userForm.add(userAttributesView);
-
-        ListModel<ResourceTO> selectedResources = new ListModel<ResourceTO>();
-        selectedResources.setObject(getSelectedResources(userTO));
-
-        ListModel<ResourceTO> availableResources = new ListModel<ResourceTO>();
-        availableResources.setObject(getAvailableResources(userTO));
-
-        ChoiceRenderer paletteRenderer = new ChoiceRenderer("name", "name");
-        final Palette resourcesPalette = new Palette("resourcesPalette", selectedResources,
-                availableResources, paletteRenderer, 8, false);
-        userForm.add(resourcesPalette);
-
-        container = new WebMarkupContainer("container");
-        container.add(userAttributesView);
-
-        PasswordTextField password = new PasswordTextField("password");
-        password.setRequired(createFlag);
-        password.setResetPassword(false);
-        container.add(password);
-
-        container.setOutputMarkupId(true);
-
-        userForm.add(container);
-
-        submit = new AjaxButton("submit", new Model(getString("submit"))) {
-
-            @Override
-            protected void onSubmit(AjaxRequestTarget target, Form form) {
-                UserTO userTO = (UserTO) form.getDefaultModelObject();
-
-                boolean res = false;
-
-                try {
-                    userTO.setResources(getResourcesSet(resourcesPalette.getModelCollection()));
-                    userTO.setAttributes(getUserAttributesSet());
-                    userTO.setMemberships(getMembershipsSet());
-
-                    if (createFlag) {
-                        usersRestClient.createUser(userTO);
-                    } else {
-                        setupUserMod(userTO);
-                        res = usersRestClient.updateUser(userMod);
-
-                        if (!res) 
-                            error(getString("error_updating"));
-                        
-                    }
-
-                    Users callerPage = (Users) basePage;
-                    callerPage.setOperationResult(true);
-
-                    window.close(target);
-
-                } catch (Exception e) {
-                    error(getString("error") + ":" + e.getMessage());
-                }
-            }
-
-            @Override
-            protected void onError(AjaxRequestTarget target, Form form) {
-                target.addComponent(form.get("feedback"));
-            }
-        };
-
-        userForm.add(submit);
-
-        userForm.add(new FeedbackPanel("feedback").setOutputMarkupId(true));
-
-        //Roles Tab
-        SyncopeRoleTree roleTree = new SyncopeRoleTree(rolesRestClient);
-
-        BaseTree tree;
-
-        tree = new LinkTree("treeTable", roleTree.createTreeModel()) {
-
-            @Override
-            protected IModel<Object> getNodeTextModel(IModel<Object> model) {
-                return new PropertyModel(model, "userObject.treeNode.name");
-            }
-
-            @Override
-            protected void onNodeLinkClicked(final Object node, final BaseTree tree,
-                    final AjaxRequestTarget target) {
-
-                DefaultMutableTreeNode syncopeTreeNode = (DefaultMutableTreeNode) node;
-                final TreeModelBean treeModel = (TreeModelBean) syncopeTreeNode.getUserObject();
-
-                if (treeModel.getTreeNode() != null) {
-
-                    createUserWin.setPageCreator(new ModalWindow.PageCreator() {
-
-                        MembershipTO membershipTO;
+        } else if (schemaTO.getType().getClassName().equals("java.util.Date")) {
+            panel = new DateFieldPanel("panel", schemaTO.getName(),
+                    new Model() {
 
                         @Override
-                        public Page createPage() {
+                        public Serializable getObject() {
+                            DateFormat formatter = new SimpleDateFormat(
+                                    schemaTO.getConversionPattern());
+                            Date date = new Date();
 
-                            membershipTO = new MembershipTO();
-                            membershipTO.setRoleId(treeModel.getTreeNode().getId());
-                            String title = treeModel.getTreeNode().getName();
+                            try {
+                                String dateValue = (String) item.getModelObject();
+                                formatter = new SimpleDateFormat(
+                                        schemaTO.getConversionPattern());
 
-                            MembershipModalPage form =
-                                    new MembershipModalPage(getPage(), createUserWin,
-                                    membershipTO, true);
+                                if (!dateValue.equals("")) {
+                                    date = formatter.parse((String)
+                                            item.getModelObject());
+                                }
 
-                            return form;
+                            } catch (ParseException ex) {
+                                Logger.getLogger(UserModalPage.class.getName())
+                                        .log(Level.SEVERE, null, ex);
+                            }
+                            return date;
                         }
-                    });
-                    createUserWin.show(target);
+
+                        @Override
+                        public void setObject(Serializable object) {
+                            Date date = (Date) object;
+                            Format formatter = new SimpleDateFormat(schemaTO
+                                    .getConversionPattern());
+                            String val = formatter.format(date);
+                            item.setModelObject(val);
+                        }
+                    }, schemaTO.isMandatory(),
+                            schemaTO.isReadonly());
+        } else {
+            panel = new AjaxTextFieldPanel("panel",
+                    schemaTO.getName(), new Model() {
+
+                @Override
+                public Serializable getObject() {
+                    return (String) item.getModelObject();
                 }
-            }
-        };
 
-        tree.getTreeState().expandAll();
-        tree.updateTree();
+                @Override
+                public void setObject(Serializable object) {
+                    item.setModelObject((String) object);
+                }
+            }, schemaTO.isMandatory(),schemaTO.isReadonly());
+        }
 
-        userForm.add(tree);
+        item.add(panel);
+    }
+    });
 
-
-        ListView membershipsView = new ListView("memberships", membershipTOs) {
+        AjaxButton addButton = new AjaxButton("add",
+                new Model(getString("add"))) {
 
             @Override
-            protected void populateItem(final ListItem item) {
-                final MembershipTO membershipTO =
-                        (MembershipTO) item.getDefaultModelObject();
+            protected void onSubmit(AjaxRequestTarget target,
+                    Form form) {
+                schemaWrapper.getValues().add("");
 
-                item.add(new Label("roleId", new Model(membershipTO.getRoleId())));
-                item.add(new Label("roleName", new Model((String) rolesMap
-                        .get(membershipTO.getRoleId()))));
-
-                AjaxLink editLink = new AjaxLink("editLink") {
-
-                    @Override
-                    public void onClick(AjaxRequestTarget target) {
-                        createUserWin.setPageCreator(new ModalWindow.PageCreator() {
-
-                            public Page createPage() {
-
-                                MembershipModalPage form = new MembershipModalPage(
-                                        getPage(), createUserWin, membershipTO, false);
-
-                                return form;
-
-                            }
-                        });
-                        createUserWin.show(target);
-                    }
-                };
-                item.add(editLink);
-
-                AjaxLink deleteLink = new AjaxLink("deleteLink") {
-
-                    @Override
-                    public void onClick(AjaxRequestTarget target) {
-                        int componentId = new Integer(getParent().getId());
-                        membershipTOs.remove(componentId);
-
-                        target.addComponent(membershipsContainer);
-                    }
-                };
-                item.add(deleteLink);
+                target.addComponent(container);
             }
         };
 
-        membershipsContainer = new WebMarkupContainer("membershipsContainer");
-        membershipsContainer.add(membershipsView);
-        membershipsContainer.setOutputMarkupId(true);
+        AjaxButton dropButton = new AjaxButton("drop",
+                new Model(getString("drop"))) {
 
-        setWindowClosedCallback(createUserWin, membershipsContainer);
+            @Override
+            protected void onSubmit(AjaxRequestTarget target,
+                    Form form) {
+                //Drop the last component added
+                schemaWrapper.getValues().remove(schemaWrapper
+                        .getValues().size() - 1);
 
-        userForm.add(membershipsContainer);
-        add(userForm);
-    }
+                target.addComponent(container);
+            }
+        };
 
-    /**
-     * Originals : user's resources
-     * @param userTO
-     * @return
-     */
-    public List<ResourceTO> getSelectedResources(UserTO userTO) {
-        List<ResourceTO> resources = new ArrayList<ResourceTO>();
-        ResourceTO clusterableResourceTO;
-
-        for (String resourceName : userTO.getResources()) {
-            clusterableResourceTO = new ResourceTO();
-            clusterableResourceTO.setName(resourceName);
-            resources.add(clusterableResourceTO);
+        if (schemaTO.getType().getClassName()
+                .equals("java.lang.Boolean")) {
+            addButton.setVisible(false);
+            dropButton.setVisible(false);
         }
-        return resources;
+
+        addButton.setDefaultFormProcessing(false);
+        addButton.setVisible(schemaTO.isMultivalue());
+
+        dropButton.setDefaultFormProcessing(false);
+        dropButton.setVisible(schemaTO.isMultivalue());
+
+        if (schemaWrapper.getValues().size() == 1) {
+            dropButton.setVisible(false);
+        }
+
+        if(schemaTO.isReadonly()) {
+            addButton.setEnabled(false);
+            dropButton.setEnabled(false);
+        }
+
+        item.add(addButton);
+        item.add(dropButton);
     }
+};
 
-    /**
-     * Destinations : available resources
-     * @param userTO
-     * @return
-     */
-    public List<ResourceTO> getAvailableResources(UserTO userTO) {
+userForm.add(userAttributesView);
 
-        List<ResourceTO> resources = new ArrayList<ResourceTO>();
+ListModel<ResourceTO> selectedResources = new ListModel<ResourceTO>();
+selectedResources.setObject(getSelectedResources(userTO));
 
-        ResourcesRestClient resourcesRestClient = (ResourcesRestClient) 
-                ((SyncopeApplication) Application.get()).getApplicationContext()
-                .getBean("resourcesRestClient");
+ListModel<ResourceTO> availableResources = new ListModel<ResourceTO>();
+availableResources.setObject(getAvailableResources(userTO));
 
-        ResourceTOs resourcesTos = resourcesRestClient.getAllResources();
+ChoiceRenderer paletteRenderer = new ChoiceRenderer("name", "name");
+final Palette resourcesPalette = new Palette("resourcesPalette", 
+        selectedResources, availableResources, paletteRenderer,
+        8, false);
+userForm.add(resourcesPalette);
 
-        for (ResourceTO resourceTO : resourcesTos)
-                resources.add(resourceTO);
+container = new WebMarkupContainer("container");
+container.add(userAttributesView);
 
-        return resources;
-    }
+PasswordTextField password = new PasswordTextField("password");
+password.setRequired(createFlag);
+password.setResetPassword(false);
+container.add(password);
 
-    /**
-     * Create a copy of old userTO object.
-     * @param userTO
-     */
-    public void cloneOldUserTO(UserTO userTO) {
+container.setOutputMarkupId(true);
 
-        oldUser = new UserTO();
+userForm.add(container);
 
-        oldUser.setId(userTO.getId());
-        oldUser.setPassword(userTO.getPassword());
-        oldUser.setAttributes(userTO.getAttributes());
-        oldUser.setResources(userTO.getResources());
-        oldUser.setMemberships(new HashSet<MembershipTO>());
-        
-        MembershipTO membership;
+submit = new AjaxButton("submit", new Model(getString("submit"))) {
 
-        for (MembershipTO membershipTO : userTO.getMemberships()) {
-            membership = new MembershipTO();
-            membership.setId(membershipTO.getId());
-            membership.setRoleId(membershipTO.getRoleId());
-            membership.setAttributes(membershipTO.getAttributes());
-            oldUser.getMemberships().add(membership);
+    @Override
+    protected void onSubmit(AjaxRequestTarget target, Form form) {
+        UserTO userTO = (UserTO) form.getDefaultModelObject();
+
+        boolean res = false;
+
+        try {
+            userTO.setResources(getResourcesSet(resourcesPalette
+                    .getModelCollection()));
+            userTO.setAttributes(getUserAttributesSet());
+            userTO.setMemberships(getMembershipsSet());
+
+            if (createFlag) {
+                usersRestClient.createUser(userTO);
+            } else {
+                setupUserMod(userTO);
+
+                //Update user just if it is changed
+                if(userMod != null){
+
+                res = usersRestClient.updateUser(userMod);
+
+                if (!res)
+                    error(getString("error_updating"));
+
+                Users callerPage = (Users) basePage;
+                callerPage.setOperationResult(true);
+                }
+
+            }
+
+            window.close(target);
+
+        } catch (Exception e) {
+            error(getString("error") + ":" + e.getMessage());
         }
     }
 
-    /**
-     * Populate a roles hashmap of type (roleId,roleName)
-     */
-    public void setupRolesMap() {
+    @Override
+    protected void onError(AjaxRequestTarget target, Form form) {
+        target.addComponent(form.get("feedback"));
+    }
+};
 
-        rolesMap = new HashMap();
+userForm.add(submit);
 
-        RoleTOs roleTOs = rolesRestClient.getAllRoles();
+userForm.add(new FeedbackPanel("feedback").setOutputMarkupId(true));
 
-        for (RoleTO roleTO : roleTOs) {
-            rolesMap.put(roleTO.getId(), roleTO.getName());
-        }
+//Roles Tab
+SyncopeRoleTree roleTree = new SyncopeRoleTree(rolesRestClient);
+
+BaseTree tree;
+
+tree = new LinkTree("treeTable", roleTree.createTreeModel()) {
+
+    @Override
+    protected IModel<Object> getNodeTextModel(IModel<Object> model) {
+        return new PropertyModel(model, "userObject.treeNode.name");
     }
 
-    /**
-     * Set a WindowClosedCallback for a ModalWindow instance.
-     * @param window
-     * @param container
-     */
-    public void setWindowClosedCallback(ModalWindow window,
-            final WebMarkupContainer container) {
+    @Override
+    protected void onNodeLinkClicked(final Object node,
+            final BaseTree tree, final AjaxRequestTarget target) {
 
-        window.setWindowClosedCallback(
-                new ModalWindow.WindowClosedCallback() {
+        DefaultMutableTreeNode syncopeTreeNode =
+                (DefaultMutableTreeNode) node;
+        final TreeModelBean treeModel = (TreeModelBean) syncopeTreeNode
+                .getUserObject();
 
-                    public void onClose(AjaxRequestTarget target) {
-                        target.addComponent(container);
+        if (treeModel.getTreeNode() != null) {
+
+            createUserWin.setPageCreator(new ModalWindow.PageCreator() {
+
+                MembershipTO membershipTO;
+
+                @Override
+                public Page createPage() {
+
+                    membershipTO = new MembershipTO();
+                    membershipTO.setRoleId(treeModel.getTreeNode()
+                            .getId());
+                    String title = treeModel.getTreeNode().getName();
+
+                    MembershipModalPage form =
+                            new MembershipModalPage(getPage(),
+                            createUserWin, membershipTO, true);
+
+                    return form;
+                }
+            });
+            createUserWin.show(target);
+        }
+    }
+};
+
+tree.getTreeState().expandAll();
+tree.updateTree();
+
+userForm.add(tree);
+
+
+ListView membershipsView = new ListView("memberships", membershipTOs) {
+
+    @Override
+    protected void populateItem(final ListItem item) {
+        final MembershipTO membershipTO =
+                (MembershipTO) item.getDefaultModelObject();
+
+        item.add(new Label("roleId", new Model(membershipTO.getRoleId())));
+        item.add(new Label("roleName", new Model((String) rolesMap
+                .get(membershipTO.getRoleId()))));
+
+        AjaxLink editLink = new AjaxLink("editLink") {
+
+            @Override
+            public void onClick(AjaxRequestTarget target) {
+                createUserWin.setPageCreator(new ModalWindow.PageCreator() {
+
+                    public Page createPage() {
+
+                        MembershipModalPage form = new MembershipModalPage(
+                                getPage(), createUserWin, membershipTO, false);
+
+                        return form;
+
                     }
                 });
+                createUserWin.show(target);
+            }
+        };
+        item.add(editLink);
+
+        AjaxLink deleteLink = new AjaxLink("deleteLink") {
+
+            @Override
+            public void onClick(AjaxRequestTarget target) {
+                int componentId = new Integer(getParent().getId());
+                membershipTOs.remove(componentId);
+
+                target.addComponent(membershipsContainer);
+            }
+        };
+        item.add(deleteLink);
     }
+};
 
-    /**
-     * Initialize the SchemaWrapper collection
-     * @param create
-     * @param userTO
-     */
-    public void setupSchemaWrappers(boolean create, UserTO userTO) {
+membershipsContainer = new WebMarkupContainer("membershipsContainer");
+membershipsContainer.add(membershipsView);
+membershipsContainer.setOutputMarkupId(true);
 
-        schemaWrappers = new ArrayList<SchemaWrapper>();
-        SchemaWrapper schemaWrapper;
+setWindowClosedCallback(createUserWin, membershipsContainer);
 
-        SchemaRestClient schemaRestClient = (SchemaRestClient) 
-                ((SyncopeApplication) Application.get()).getApplicationContext()
-                .getBean("schemaRestClient");
+userForm.add(membershipsContainer);
+add(userForm);
+}
 
-        SchemaTOs schemas = schemaRestClient.getAllUserSchemas();
+/**
+ * Originals : user's resources
+ * @param userTO
+ * @return
+ */
+public List<ResourceTO> getSelectedResources(UserTO userTO) {
+    List<ResourceTO> resources = new ArrayList<ResourceTO>();
+    ResourceTO clusterableResourceTO;
 
-        boolean found = false;
+    for (String resourceName : userTO.getResources()) {
+        clusterableResourceTO = new ResourceTO();
+        clusterableResourceTO.setName(resourceName);
+        resources.add(clusterableResourceTO);
+    }
+    return resources;
+}
 
-        if (create) {
-            for (SchemaTO schema : schemas) {
+/**
+ * Destinations : available resources
+ * @param userTO
+ * @return
+ */
+public List<ResourceTO> getAvailableResources(UserTO userTO) {
+
+    List<ResourceTO> resources = new ArrayList<ResourceTO>();
+
+    ResourcesRestClient resourcesRestClient = (ResourcesRestClient)
+            ((SyncopeApplication) Application.get()).getApplicationContext()
+            .getBean("resourcesRestClient");
+
+    ResourceTOs resourcesTos = resourcesRestClient.getAllResources();
+
+    for (ResourceTO resourceTO : resourcesTos)
+            resources.add(resourceTO);
+
+    return resources;
+}
+
+/**
+ * Create a copy of old userTO object.
+ * @param userTO
+ */
+public void cloneOldUserTO(UserTO userTO) {
+
+    oldUser = new UserTO();
+
+    oldUser.setId(userTO.getId());
+    oldUser.setPassword(userTO.getPassword());
+    oldUser.setAttributes(userTO.getAttributes());
+    oldUser.setResources(userTO.getResources());
+    oldUser.setMemberships(new HashSet<MembershipTO>());
+
+    MembershipTO membership;
+
+    for (MembershipTO membershipTO : userTO.getMemberships()) {
+        membership = new MembershipTO();
+        membership.setId(membershipTO.getId());
+        membership.setRoleId(membershipTO.getRoleId());
+        membership.setAttributes(membershipTO.getAttributes());
+        oldUser.getMemberships().add(membership);
+    }
+}
+
+/**
+ * Populate a roles hashmap of type (roleId,roleName)
+ */
+public void setupRolesMap() {
+
+    rolesMap = new HashMap();
+
+    RoleTOs roleTOs = rolesRestClient.getAllRoles();
+
+    for (RoleTO roleTO : roleTOs) {
+        rolesMap.put(roleTO.getId(), roleTO.getName());
+    }
+}
+
+/**
+ * Set a WindowClosedCallback for a ModalWindow instance.
+ * @param window
+ * @param container
+ */
+public void setWindowClosedCallback(ModalWindow window,
+        final WebMarkupContainer container) {
+
+    window.setWindowClosedCallback(
+            new ModalWindow.WindowClosedCallback() {
+
+                public void onClose(AjaxRequestTarget target) {
+                    target.addComponent(container);
+                }
+            });
+}
+
+/**
+ * Initialize the SchemaWrapper collection
+ * @param create
+ * @param userTO
+ */
+public void setupSchemaWrappers(boolean create, UserTO userTO) {
+
+    schemaWrappers = new ArrayList<SchemaWrapper>();
+    SchemaWrapper schemaWrapper;
+
+    SchemaRestClient schemaRestClient = (SchemaRestClient)
+            ((SyncopeApplication) Application.get()).getApplicationContext()
+            .getBean("schemaRestClient");
+
+    SchemaTOs schemas = schemaRestClient.getAllUserSchemas();
+
+    boolean found = false;
+
+    if (create) {
+        for (SchemaTO schema : schemas) {
+            schemaWrapper = new SchemaWrapper(schema);
+            schemaWrappers.add(schemaWrapper);
+        }
+    } else {
+        for (SchemaTO schema : schemas) {
+            for (AttributeTO attribute : userTO.getAttributes()) {
+                if (schema.getName().equals(attribute.getSchema())) {
+                    schemaWrapper = new SchemaWrapper(schema);
+
+                    schemaWrapper.setValues(attribute.getValues());
+
+                    schemaWrappers.add(schemaWrapper);
+                    found = true;
+                }
+            }
+            if (!found) {
                 schemaWrapper = new SchemaWrapper(schema);
                 schemaWrappers.add(schemaWrapper);
-            }
-        } else {
-            for (SchemaTO schema : schemas) {
-                for (AttributeTO attribute : userTO.getAttributes()) {
-                    if (schema.getName().equals(attribute.getSchema())) {
-                        schemaWrapper = new SchemaWrapper(schema);
-
-                        if(schema.getType().equals(SchemaValueType.Boolean))
-                            schemaWrapper.setBooleanValues(attribute.getValues());
-                        else
-                            schemaWrapper.setValues(attribute.getValues());
-
-                        schemaWrappers.add(schemaWrapper);
-                        found = true;
-                    }
-                }
-                if (!found) {
-                    schemaWrapper = new SchemaWrapper(schema);
-                    schemaWrappers.add(schemaWrapper);
-                } else {
-                    found = false;
-                }
+            } else {
+                found = false;
             }
         }
     }
+}
 
-    /**
-     * Initialize the membershipTOs
-     * @param creation flag: true if a new User is being created, false otherwise
-     * @param userTO object
-     */
-    public void setupMemberships(boolean create, UserTO userTO) {
+/**
+ * Initialize the membershipTOs
+ * @param creation flag: true if a new User is being created, false otherwise
+ * @param userTO object
+ */
+public void setupMemberships(boolean create, UserTO userTO) {
 
-        membershipTOs = new ArrayList<MembershipTO>();
+    membershipTOs = new ArrayList<MembershipTO>();
 
-        if (!create) {
-            Set<MembershipTO> memberships = userTO.getMemberships();
+    if (!create) {
+        Set<MembershipTO> memberships = userTO.getMemberships();
 
-            for (MembershipTO membership : memberships) {
-                membershipTOs.add(membership);
-            }
+        for (MembershipTO membership : memberships) {
+            membershipTOs.add(membership);
         }
     }
+}
 
-    /**
-     * Initialize the user's attributes
-     * @param creation flag: true if a new User is being created, false otherwise
-     * @param userTO object
-     */
-    public Set<AttributeTO> getUserAttributesSet() {
+/**
+ * Initialize the user's attributes
+ * @param creation flag: true if a new User is being created, false otherwise
+ * @param userTO object
+ */
+public Set<AttributeTO> getUserAttributesSet() {
 
-        Set<AttributeTO> attributes = new HashSet<AttributeTO>();
+    Set<AttributeTO> attributes = new HashSet<AttributeTO>();
 
-        AttributeTO attribute;
+    AttributeTO attribute;
 
-        for (SchemaWrapper schemaWrapper : schemaWrappers) {
+    for (SchemaWrapper schemaWrapper : schemaWrappers) {
 
-            attribute = new AttributeTO();
-            attribute.setSchema(schemaWrapper.getSchemaTO().getName());
-            attribute.setValues(new HashSet<String>());
-            attribute.setReadonly(schemaWrapper.getSchemaTO().isReadonly());
+        attribute = new AttributeTO();
+        attribute.setSchema(schemaWrapper.getSchemaTO().getName());
+        attribute.setValues(new HashSet<String>());
+        attribute.setReadonly(schemaWrapper.getSchemaTO().isReadonly());
 
-            for (String value : schemaWrapper.getValues()) {
-                attribute.getValues().add(value);
-            }
-
-            attributes.add(attribute);
+        for (String value : schemaWrapper.getValues()) {
+            attribute.getValues().add(value);
         }
 
-        return attributes;
+        attributes.add(attribute);
     }
 
-    /**
-     * Convert a memberships ArrayList in a memberships HashSet list.
-     * @return Set<MembershipTO> selected for a new user.
-     */
-    public Set<MembershipTO> getMembershipsSet() {
+    return attributes;
+}
 
-        HashSet<MembershipTO> memberships = new HashSet<MembershipTO>();
+/**
+ * Convert a memberships ArrayList in a memberships HashSet list.
+ * @return Set<MembershipTO> selected for a new user.
+ */
+public Set<MembershipTO> getMembershipsSet() {
 
-        for (MembershipTO membership : membershipTOs) {
-            memberships.add(membership);
-        }
+    HashSet<MembershipTO> memberships = new HashSet<MembershipTO>();
 
-        return memberships;
+    for (MembershipTO membership : membershipTOs) {
+        memberships.add(membership);
     }
 
-    /**
-     * Covert a resources List<String> to Set<String>.
-     * @return Set<String>
-     */
-    public Set<String> getResourcesSet(Collection<ResourceTO> resourcesList) {
-        Set<String> resourcesSet = new HashSet<String>();
+    return memberships;
+}
 
-       for (ResourceTO resourceTO : resourcesList) {
-            resourcesSet.add(resourceTO.getName());
-        }
+/**
+ * Covert a resources List<String> to Set<String>.
+ * @return Set<String>
+ */
+public Set<String> getResourcesSet(Collection<ResourceTO> resourcesList) {
+    Set<String> resourcesSet = new HashSet<String>();
 
-        return resourcesSet;
+   for (ResourceTO resourceTO : resourcesList) {
+        resourcesSet.add(resourceTO.getName());
     }
 
-    public List<MembershipTO> getMembershipTOs() {
-        return membershipTOs;
-    }
+    return resourcesSet;
+}
 
-    public void setMembershipTOs(List<MembershipTO> membershipTOs) {
-        this.membershipTOs = membershipTOs;
-    }
+public List<MembershipTO> getMembershipTOs() {
+    return membershipTOs;
+}
 
-    /**
-     * Updates the modified user object.
-     * @param updated userTO
-     * @return UserMod object
-     */
-    public void setupUserMod(UserTO userTO) {
+public void setMembershipTOs(List<MembershipTO> membershipTOs) {
+    this.membershipTOs = membershipTOs;
+}
 
+/**
+ * Updates the modified user object.
+ * @param updated userTO
+ * @return
+ */
+public void setupUserMod(UserTO userTO) {
+
+    //1.Check if the password has been changed and update it
+    if (!oldUser.getPassword().equals(userTO.getPassword())) {
         userMod = new UserMod();
+        userMod.setPassword(userTO.getPassword());
+    }
+
+    //2.Update user's schema attributes
+    for (AttributeTO attributeTO : userTO.getAttributes()) {
+        searchAndUpdateAttribute(attributeTO);
+    }
+
+    //3.Update user's resources
+    for (String resource : userTO.getResources()) {
+        searchAndAddResource(resource);
+    }
+
+
+    for (String resource : oldUser.getResources()) {
+        searchAndDropResource(resource, userTO);
+    }
+
+    //4.Update user's memberships
+    for (MembershipTO membership : userTO.getMemberships()) {
+        searchAndUpdateMembership(membership);
+    }
+
+    for (MembershipTO membership : oldUser.getMemberships()) {
+        searchAndDropMembership(membership, userTO);
+    }
+
+    if(userMod != null)
         userMod.setId(oldUser.getId());
+}
 
-        //1.Check if the password has been changed and update it
-        if (!oldUser.getPassword().equals(userTO.getPassword())) {
-            userMod.setPassword(userTO.getPassword());
-        }
+public void searchAndUpdateAttribute(AttributeTO attributeTO) {
+    boolean found = false;
+    boolean changed = false;
 
-        //2.Update user's schema attributes
-        for (AttributeTO attributeTO : userTO.getAttributes()) {
-            searchAndUpdateAttribute(attributeTO);
-        }
+    AttributeMod attributeMod = new AttributeMod();
+    attributeMod.setSchema(attributeTO.getSchema());
 
-        //3.Update user's resources
-        for (String resource : userTO.getResources()) {
-            searchAndAddResource(resource);
-        }
+    for (AttributeTO oldAttribute : oldUser.getAttributes()) {
+        if (attributeTO.getSchema().equals(oldAttribute.getSchema())) {
 
+            if (!attributeTO.equals(oldAttribute) && !oldAttribute
+                    .isReadonly()) {
 
-        for (String resource : oldUser.getResources()) {
-            searchAndDropResource(resource, userTO);
-        }
+                if (attributeTO.getValues().size() > 1)
+                    attributeMod.setValuesToBeAdded(attributeTO.getValues());
+                else
+                    attributeMod.addValueToBeAdded(attributeTO.getValues()
+                            .iterator().next());
 
-        //4.Update user's memberships
-        for (MembershipTO membership : userTO.getMemberships()) {
-            searchAndUpdateMembership(membership);
-        }
+                if(userMod == null)
+                    userMod = new UserMod();
 
-        for (MembershipTO membership : oldUser.getMemberships()) {
-            searchAndDropMembership(membership, userTO);
-        }
-
-    }
-
-    public void searchAndUpdateAttribute(AttributeTO attributeTO) {
-        boolean found = false;
-        boolean changed = false;
-
-        AttributeMod attributeMod = new AttributeMod();
-        attributeMod.setSchema(attributeTO.getSchema());
-
-        for (AttributeTO oldAttribute : oldUser.getAttributes()) {
-            if (attributeTO.getSchema().equals(oldAttribute.getSchema())) {
-
-                if (!attributeTO.equals(oldAttribute) && !oldAttribute.isReadonly()) {
-
-                    if (attributeTO.getValues().size() > 1)
-                        attributeMod.setValuesToBeAdded(attributeTO.getValues());
-                    else
-                        attributeMod.addValueToBeAdded(attributeTO.getValues().iterator().next());
-
-                    userMod.addAttributeToBeRemoved(oldAttribute.getSchema());
-                    userMod.addAttributeToBeUpdated(attributeMod);
-
-                    changed = true;
-                    break;
-                }
-                    found = true;
-            }
-        }
-
-        if (!found & !changed && !attributeTO.isReadonly() && attributeTO.getValues() != null) {
-
-            if(attributeTO.getValues().iterator().next() != null ){
-                attributeMod.setValuesToBeAdded(attributeTO.getValues());
+                userMod.addAttributeToBeRemoved(oldAttribute.getSchema());
                 userMod.addAttributeToBeUpdated(attributeMod);
-            }
-            else attributeMod = null;
-        }
-    }
 
-    /**
-     * Search for a resource and add that one to the UserMod object if
-     * it doesn't exist.
-     * @param resource, new resource added
-     */
-    public void searchAndAddResource(String resource) {
-        boolean found = false;
-
-        //Check if the current resource was existent before the update
-        for (String oldResource : oldUser.getResources()) {
-            if (resource.equals(oldResource)) {
-                found = true;
-            }
-        }
-
-        if (!found) {
-            userMod.addResourceToBeAdded(resource);
-        }
-    }
-
-    /**
-     * Search for a resource and drop that one from the UserMod object if
-     * it doesn't exist anymore.
-     * @param resource
-     * @param userTO
-     */
-    public void searchAndDropResource(String resource, UserTO userTO) {
-        boolean found = false;
-
-        //Check if the current resource was existent before the update
-        for (String newResource : userTO.getResources()) {
-            if (resource.equals(newResource)) {
-                found = true;
-            }
-        }
-
-        if (!found) {
-            userMod.addResourceToBeRemoved(resource);
-        }
-    }
-
-    /**
-     * Update the Membership.
-     * @param new membershipTO
-     */
-    public void searchAndUpdateMembership(MembershipTO newMembership) {
-        boolean found = false;
-
-        MembershipMod membershipMod = new MembershipMod();
-        membershipMod.setRole(newMembership.getRoleId());
-
-        AttributeMod attributeMod;
-
-        //1. If the membership exists (and it's changed) update it
-        for (MembershipTO oldMembership : oldUser.getMemberships()) {
-            if (newMembership.getRoleId() == oldMembership.getRoleId()) {
-
-                for (AttributeTO oldAttribute : oldMembership.getAttributes()) {
-                    for (AttributeTO newAttribute : newMembership.getAttributes()) {
-
-                        if(oldAttribute.getSchema().equals(newAttribute.getSchema())) {
-
-                            attributeMod = new AttributeMod();
-                            attributeMod.setSchema(newAttribute.getSchema());
-
-                            attributeMod.setValuesToBeAdded(newAttribute.getValues());
-
-                            membershipMod.addAttributeToBeUpdated(attributeMod);
-                            //membershipMod.addAttributeToBeRemoved(oldAttribute.getSchema());
-                            break;
-                        }
-
-                    }
-                }
-                //TO BE FIXED CORE-SIDE
-                userMod.addMembershipToBeRemoved(oldMembership.getId());
-                userMod.addMembershipToBeAdded(membershipMod);
-                
-                found = true;
+                changed = true;
                 break;
             }
-        }
-
-        //2.Otherwise, if it doesn't exist, create it from scratch
-        if (!found) {
-            Set<AttributeMod> attributes = new HashSet<AttributeMod>();
-            
-            for (AttributeTO newAttribute : newMembership.getAttributes()) {
-                attributeMod = new AttributeMod();
-                attributeMod.setSchema(newAttribute.getSchema());
-                attributeMod.setValuesToBeAdded(newAttribute.getValues());
-
-                attributes.add(attributeMod);
-            }
-
-            membershipMod.setAttributesToBeUpdated(attributes);
-            userMod.addMembershipToBeAdded(membershipMod);
-        }
-    }
-
-    /**
-     * Drop membership not present anymore.
-     * @param membershipTO
-     * @param userTO
-     */
-    public void searchAndDropMembership(MembershipTO oldMembership, UserTO userTO) {
-        boolean found = false;
-
-        //Check if the current resource was existent before the update
-        for (MembershipTO newMembership : userTO.getMemberships()) {
-            if (newMembership.getId() == oldMembership.getId()) {
                 found = true;
-            }
-        }
-
-        if (!found) {
-            userMod.addMembershipToBeRemoved(oldMembership.getId());
         }
     }
 
-    /**
-     * Wrapper for User's Schema - Attribute.
+    if (!found & !changed && !attributeTO.isReadonly() && attributeTO.getValues() != null) {
+
+        if(attributeTO.getValues().iterator().next() != null ){
+            attributeMod.setValuesToBeAdded(attributeTO.getValues());
+
+        if(userMod == null)
+            userMod = new UserMod();
+
+            userMod.addAttributeToBeUpdated(attributeMod);
+        }
+        else attributeMod = null;
+    }
+}
+
+/**
+ * Search for a resource and add that one to the UserMod object if
+ * it doesn't exist.
+ * @param resource, new resource added
+ */
+public void searchAndAddResource(String resource) {
+    boolean found = false;
+
+    /*Check if the current resource was existent before the update and in this case
+      just ignore it
      */
-    public class SchemaWrapper {
-
-        SchemaTO schemaTO;
-        List<String> values;
-
-        public SchemaWrapper(SchemaTO schemaTO) {
-            this.schemaTO = schemaTO;
-            values = new ArrayList<String>();
-
-            if (schemaTO.getType().getClassName().equals("java.lang.Boolean")) {
-                values.add("");//false
-            } else {
-                values.add("");
-            }
-        }
-
-        public SchemaTO getSchemaTO() {
-            return schemaTO;
-        }
-
-        public void setSchemaTO(SchemaTO schemaTO) {
-            this.schemaTO = schemaTO;
-        }
-
-        public List<String> getValues() {
-            return values;
-        }
-
-        public void setValues(List<String> values) {
-            this.values = values;
-        }
-
-        public void setBooleanValues(Set<String> values) {
-            this.values = new ArrayList<String>();
-
-            for (String value : values) {
-                if("T".equals(value))
-                    this.values.add("true");
-                else
-                    this.values.add("");
-            }
-
-        }
-
-        public void setValues(Set<String> values) {
-            this.values = new ArrayList<String>();
-            for (String value : values) {
-                this.values.add(value);
-            }
+    for (String oldResource : oldUser.getResources()) {
+        if (resource.equals(oldResource)) {
+            found = true;
         }
     }
+
+    if (!found) {
+        if(userMod == null)
+          userMod = new UserMod();
+
+          userMod.addResourceToBeAdded(resource);
+    }
+}
+
+/**
+ * Search for a resource and drop that one from the UserMod object if
+ * it doesn't exist anymore.
+ * @param resource
+ * @param userTO
+ */
+public void searchAndDropResource(String resource, UserTO userTO) {
+    boolean found = false;
+
+    /*Check if the current resource was existent before the update and in this case
+      just ignore it
+     */
+    for (String newResource : userTO.getResources()) {
+        if (resource.equals(newResource)) {
+            found = true;
+        }
+    }
+
+    if (!found) {
+       if(userMod == null)
+           userMod = new UserMod();
+        userMod.addResourceToBeRemoved(resource);
+    }
+}
+
+/**
+ * Update the Membership.
+ * @param new membershipTO
+ */
+public void searchAndUpdateMembership(MembershipTO newMembership) {
+    boolean found = false;
+
+    MembershipMod membershipMod = new MembershipMod();
+    membershipMod.setRole(newMembership.getRoleId());
+
+    AttributeMod attributeMod;
+
+    //1. If the membership exists update it
+    for (MembershipTO oldMembership : oldUser.getMemberships()) {
+        if (newMembership.getRoleId() == oldMembership.getRoleId()) {
+
+            for (AttributeTO oldAttribute : oldMembership.getAttributes()) {
+                for (AttributeTO newAttribute : newMembership.getAttributes()) {
+
+                    if(oldAttribute.getSchema().equals(newAttribute.getSchema())) {
+
+                        attributeMod = new AttributeMod();
+                        attributeMod.setSchema(newAttribute.getSchema());
+
+                        attributeMod.setValuesToBeAdded(newAttribute.getValues());
+
+                        membershipMod.addAttributeToBeUpdated(attributeMod);
+                        //membershipMod.addAttributeToBeRemoved(oldAttribute.getSchema());
+                        break;
+                    }
+
+                }
+            }
+
+            if(userMod == null)
+                userMod = new UserMod();
+
+            userMod.addMembershipToBeRemoved(oldMembership.getId());
+            userMod.addMembershipToBeAdded(membershipMod);
+
+            found = true;
+            break;
+        }
+    }
+
+    //2.Otherwise, if it doesn't exist, create it from scratch
+    if (!found) {
+        Set<AttributeMod> attributes = new HashSet<AttributeMod>();
+
+        for (AttributeTO newAttribute : newMembership.getAttributes()) {
+            attributeMod = new AttributeMod();
+            attributeMod.setSchema(newAttribute.getSchema());
+            attributeMod.setValuesToBeAdded(newAttribute.getValues());
+
+            attributes.add(attributeMod);
+        }
+
+        membershipMod.setAttributesToBeUpdated(attributes);
+
+        if(userMod == null)
+           userMod = new UserMod();
+
+        userMod.addMembershipToBeAdded(membershipMod);
+    }
+}
+
+/**
+ * Drop membership not present anymore.
+ * @param membershipTO
+ * @param userTO
+ */
+public void searchAndDropMembership(MembershipTO oldMembership,
+        UserTO userTO) {
+    boolean found = false;
+
+    /*Check if the current resource was existent before the update and
+     in this case just ignore it*/
+    for (MembershipTO newMembership : userTO.getMemberships()) {
+        if (newMembership.getId() == oldMembership.getId()) {
+            found = true;
+        }
+    }
+
+    if (!found) {
+        if(userMod == null)
+           userMod = new UserMod();
+
+        userMod.addMembershipToBeRemoved(oldMembership.getId());
+    }
+}
+
+/**
+ * Wrapper for User's Schema - Attribute.
+ */
+public class SchemaWrapper {
+
+    SchemaTO schemaTO;
+    List<String> values;
+
+    public SchemaWrapper(SchemaTO schemaTO) {
+        this.schemaTO = schemaTO;
+        values = new ArrayList<String>();
+
+        values.add("");
+    }
+
+    public SchemaTO getSchemaTO() {
+        return schemaTO;
+    }
+
+    public void setSchemaTO(SchemaTO schemaTO) {
+        this.schemaTO = schemaTO;
+    }
+
+    public List<String> getValues() {
+        return values;
+    }
+
+    public void setValues(List<String> values) {
+        this.values = values;
+    }
+
+    public void setValues(Set<String> values) {
+        this.values = new ArrayList<String>();
+        for (String value : values) {
+            this.values.add(value);
+        }
+    }
+}
 }

@@ -15,10 +15,13 @@
  */
 package org.syncope.console.rest;
 
+import org.springframework.web.client.HttpServerErrorException;
 import org.syncope.client.mod.UserMod;
 import org.syncope.client.to.ConfigurationTO;
+import org.syncope.client.search.NodeCond;
 import org.syncope.client.to.UserTO;
 import org.syncope.client.to.UserTOs;
+import org.syncope.client.to.WorkflowActionsTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.commons.Constants;
 
@@ -49,14 +52,17 @@ public class UsersRestClient {
 
         try {
             // 1. create user
-            userTO = restClient.getRestTemplate().postForObject(
-                    restClient.getBaseURL()
-                    + "user/create", userTO, UserTO.class);
+            newUserTO = restClient.getRestTemplate().postForObject(
+            restClient.getBaseURL() + "user/create", userTO, UserTO.class);
+
+            userTO.setId(newUserTO.getId());
+            //userTO.setToken(newUserTO.getToken());
+            //userTO.setTokenExpireTime(newUserTO.getTokenExpireTime());
 
             // 2. activate user
-            userTO = restClient.getRestTemplate().postForObject(
+            newUserTO = restClient.getRestTemplate().postForObject(
                     restClient.getBaseURL()
-                    + "user/activate", userTO, UserTO.class);
+                    + "user/activate", newUserTO, UserTO.class);
 
         } catch (SyncopeClientCompositeErrorException e) {
             e.printStackTrace();
@@ -73,9 +79,9 @@ public class UsersRestClient {
         UserTO newUserTO = null;
 
         try {
+
             newUserTO = restClient.getRestTemplate().postForObject(
-                    restClient.getBaseURL()
-                    + "user/update", userModTO, UserTO.class);
+            restClient.getBaseURL() + "user/update", userModTO, UserTO.class);
         } catch (SyncopeClientCompositeErrorException e) {
             e.printStackTrace();
             throw e;
@@ -87,7 +93,7 @@ public class UsersRestClient {
     public void deleteUser(String id) {
         try {
             restClient.getRestTemplate().delete(restClient.getBaseURL()
-                    + "user/delete/{userId}", new Integer(id));
+            + "user/delete/{userId}", new Integer(id));
         } catch (SyncopeClientCompositeErrorException e) {
             e.printStackTrace();
         }
@@ -164,11 +170,17 @@ public class UsersRestClient {
      * @param userTO
      * @return UserTOs
      */
-    public UserTOs searchUsers(UserTO userTO) {
+    public UserTOs searchUsers(NodeCond nodeSearchCondition) {
+        UserTOs matchedUsers = null;
 
-        UserTOs matchedUsers = restClient.getRestTemplate().postForObject(
-                restClient.getBaseURL() + "user/search",
-                null, UserTOs.class);
+        try {
+            matchedUsers = restClient.getRestTemplate().postForObject(
+                    restClient.getBaseURL() + "user/search",
+                    nodeSearchCondition, UserTOs.class);
+        } catch (HttpServerErrorException e) {
+            e.printStackTrace();
+            throw e;
+        }
 
         return matchedUsers;
     }
