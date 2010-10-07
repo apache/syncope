@@ -18,11 +18,12 @@ import org.apache.wicket.Page;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigator;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
-import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.markup.html.list.PageableListView;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
@@ -70,6 +71,9 @@ public class Schema extends BasePage
     /** Response flag set by the Modal Window after the operation is completed  */
     boolean operationResult = false;
     FeedbackPanel feedbackPanel;
+
+    /** Navigator's rows to display for single view */
+    final int ROWS_TO_DISPLAY = 10;
     
     public Schema(PageParameters parameters)
     {
@@ -140,7 +144,8 @@ public class Schema extends BasePage
             }
         };
 
-        ListView roleSchemasView = new ListView("roleSchemas", roleSchemas) {
+        PageableListView roleSchemasView = new PageableListView("roleSchemas",
+                roleSchemas, ROWS_TO_DISPLAY) {
 
             @Override
             protected void populateItem(final ListItem item) {
@@ -190,7 +195,10 @@ public class Schema extends BasePage
             }
         };
 
-        ListView roleDerSchemasView = new ListView("roleDerivedSchemas", roleDerivedSchemas) {
+        add(new AjaxPagingNavigator("rolesNavigator", roleSchemasView));
+
+        PageableListView roleDerSchemasView = new PageableListView("roleDerivedSchemas",
+                roleDerivedSchemas, ROWS_TO_DISPLAY) {
 
             @Override
             protected void populateItem(final ListItem item) {
@@ -240,8 +248,10 @@ public class Schema extends BasePage
             }
         };
 
+        add(new AjaxPagingNavigator("rolesDerivedNavigator", roleDerSchemasView));
 
-        ListView userSchemasView = new ListView("userSchemas", userSchemas) {
+        PageableListView userSchemasView = new PageableListView("userSchemas",
+                userSchemas, ROWS_TO_DISPLAY) {
 
             @Override
             protected void populateItem(final ListItem item) {
@@ -290,8 +300,10 @@ public class Schema extends BasePage
             }
         };
 
+        add(new AjaxPagingNavigator("usersSchemaNavigator", userSchemasView));
 
-        ListView userDerSchemasView = new ListView("userDerivedSchemas", userDerivedSchemas) {
+        PageableListView userDerSchemasView = new PageableListView("userDerivedSchemas",
+                userDerivedSchemas, ROWS_TO_DISPLAY) {
 
             @Override
             protected void populateItem(final ListItem item) {
@@ -340,9 +352,13 @@ public class Schema extends BasePage
                 item.add(deleteLink);
             }
         };
-       add(userDerSchemasView);
+       
+        add(new AjaxPagingNavigator("usersDerivedSchemaNavigator", userSchemasView));
 
-       ListView membershipSchemasView = new ListView("membershipSchemas", membershipSchemas) {
+        add(userDerSchemasView);
+
+       PageableListView membershipSchemasView = new PageableListView("membershipSchemas",
+               membershipSchemas, ROWS_TO_DISPLAY) {
 
             @Override
             protected void populateItem(final ListItem item) {
@@ -392,9 +408,10 @@ public class Schema extends BasePage
                 item.add(deleteLink);
             }
         };
-       // add(membershipSchemasView);
+       add(new AjaxPagingNavigator("membershipsNavigator", membershipSchemasView));
 
-       ListView membershipDerSchemasView = new ListView("membershipDerivedSchemas", membershipDerivedSchemas) {
+       PageableListView membershipDerSchemasView = new PageableListView
+               ("membershipDerivedSchemas", membershipDerivedSchemas, ROWS_TO_DISPLAY) {
 
             @Override
             protected void populateItem(final ListItem item) {
@@ -443,6 +460,9 @@ public class Schema extends BasePage
                 item.add(deleteLink);
             }
         };
+
+        add(new AjaxPagingNavigator("membershipsDerNavigator",
+                membershipDerSchemasView));
 
         roleSchemasContainer = new WebMarkupContainer("roleSchemasContainer");
         roleSchemasContainer.add(roleSchemasView);

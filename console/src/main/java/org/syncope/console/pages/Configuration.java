@@ -21,17 +21,17 @@ import org.apache.wicket.Page;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigator;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
-import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.markup.html.list.PageableListView;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.to.ConfigurationTO;
-import org.syncope.console.pages.Configuration;
 import org.syncope.console.rest.ConfigurationsRestClient;
 
 /**
@@ -50,11 +50,15 @@ public class Configuration extends BasePage{
 
     WebMarkupContainer container;
 
-    /** Response flag set by the Modal Window after the operation is completed  */
+    /** Response flag set by the Modal Window after the operation
+     * is completed  */
     boolean operationResult = false;
 
     FeedbackPanel feedbackPanel;
 
+    /** Navigator's rows to display for single view */
+    final int ROWS_TO_DISPLAY = 5;
+    
     public Configuration(PageParameters parameters) {
         super(parameters);
 
@@ -73,12 +77,14 @@ public class Configuration extends BasePage{
             }
         };
 
-        ListView configurationsView = new ListView("configurations",configurations) {
+        PageableListView configurationsView = new PageableListView
+                ("configurations",configurations, ROWS_TO_DISPLAY) {
 
             @Override
             protected void populateItem(final ListItem item) {
 
-                final ConfigurationTO configurationTO = (ConfigurationTO)item.getModelObject();
+                final ConfigurationTO configurationTO =
+                        (ConfigurationTO)item.getModelObject();
 
                 item.add(new Label("key",configurationTO.getConfKey()));
                 item.add(new Label("value",configurationTO.getConfValue()));
@@ -88,10 +94,12 @@ public class Configuration extends BasePage{
                     @Override
                     public void onClick(AjaxRequestTarget target) {
 
-                        editConfigWin.setPageCreator(new ModalWindow.PageCreator() {
+                        editConfigWin.setPageCreator(
+                                new ModalWindow.PageCreator() {
 
                             public Page createPage() {
-                                ConfigurationModalPage window = new ConfigurationModalPage
+                                ConfigurationModalPage window =
+                                        new ConfigurationModalPage
                                         (Configuration.this, editConfigWin, configurationTO, false);
                                 return window;
                             }
@@ -127,6 +135,8 @@ public class Configuration extends BasePage{
                 
             }
         };
+
+        add(new AjaxPagingNavigator("configurationsNavigator", configurationsView));
 
         container = new WebMarkupContainer("container");
         container.add(configurationsView);
