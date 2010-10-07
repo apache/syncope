@@ -19,18 +19,18 @@ import org.apache.wicket.Page;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigator;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
-import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.markup.html.list.PageableListView;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.to.ConnectorInstanceTO;
 import org.syncope.client.to.ResourceTO;
-import org.syncope.client.to.ResourceTOs;
 import org.syncope.console.rest.ConnectorsRestClient;
 import org.syncope.console.rest.ResourcesRestClient;
 
@@ -50,10 +50,14 @@ public class Connectors extends BasePage {
     
     WebMarkupContainer connectorsContainer;
 
-        /** Response flag set by the Modal Window after the operation is completed  */
+    /** Response flag set by the Modal Window after the operation is completed
+     */
     boolean operationResult = false;
     FeedbackPanel feedbackPanel;
 
+    /** Navigator's rows to display for single view */
+    final int ROWS_TO_DISPLAY = 5;
+    
     public Connectors(PageParameters parameters) {
         super(parameters);
 
@@ -72,7 +76,8 @@ public class Connectors extends BasePage {
             }
         };        
 
-        ListView connectorsView = new ListView("connectors", connectors) {
+        PageableListView connectorsView = new PageableListView("connectors",
+                connectors, ROWS_TO_DISPLAY) {
 
             @Override
             protected void populateItem(final ListItem item) {
@@ -128,6 +133,8 @@ public class Connectors extends BasePage {
                 item.add(deleteLink);
             }
         };
+
+        add(new AjaxPagingNavigator("connectorsNavigator", connectorsView));
 
         connectorsContainer = new WebMarkupContainer("connectorsContainer");
         connectorsContainer.add(connectorsView);

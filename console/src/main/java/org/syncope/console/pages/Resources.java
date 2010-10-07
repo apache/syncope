@@ -18,11 +18,12 @@ import org.apache.wicket.Page;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigator;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
-import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.markup.html.list.PageableListView;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
@@ -52,6 +53,9 @@ public class Resources extends BasePage {
     boolean operationResult = false;
     FeedbackPanel feedbackPanel;
 
+    /** Navigator's rows to display for single view*/
+    final int ROWS_TO_DISPLAY = 5;
+
     public Resources(PageParameters parameters) {
         super(parameters);
 
@@ -70,7 +74,8 @@ public class Resources extends BasePage {
             }
         };
 
-        ListView resourcesView = new ListView("resources", resources) {
+        PageableListView resourcesView = new PageableListView("resources",
+                resources, ROWS_TO_DISPLAY) {
 
             @Override
             protected void populateItem(final ListItem item) {
@@ -87,11 +92,13 @@ public class Resources extends BasePage {
                         final ResourceTO resourceTO =
                                 (ResourceTO) item.getDefaultModelObject();
 
-                        editResourceWin.setPageCreator(new ModalWindow.PageCreator() {
+                        editResourceWin.setPageCreator(new ModalWindow
+                                .PageCreator() {
 
                             public Page createPage() {
                                 ResourceModalPage form = new ResourceModalPage
-                                        (Resources.this, editResourceWin, resourceTO, false);
+                                        (Resources.this, editResourceWin,
+                                        resourceTO, false);
                                 return form;
                             }
                         });
@@ -118,6 +125,8 @@ public class Resources extends BasePage {
                 item.add(deleteLink);
             }
         };
+
+        add(new AjaxPagingNavigator("resourcesNavigator", resourcesView));
 
         resourcesContainer = new WebMarkupContainer("resourcesContainer");
         resourcesContainer.add(resourcesView);

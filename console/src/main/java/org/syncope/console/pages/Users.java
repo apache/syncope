@@ -27,12 +27,14 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigator;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.markup.html.list.PageableListView;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
@@ -79,16 +81,25 @@ public class Users extends BasePage {
     final ModalWindow createUserWin;
     final ModalWindow editUserWin;
     final ModalWindow changeAttribsViewWin;
+
     final int WIN_ATTRIBUTES_HEIGHT = 515;
     final int WIN_ATTRIBUTES_WIDTH = 775;
+
     final int WIN_USER_HEIGHT = 680;
     final int WIN_USER_WIDTH = 1133;
+
+    /** Navigator's rows to display for single view */
+    final int ROWS_TO_DISPLAY = 10;
+
     WebMarkupContainer usersContainer;
     List<String> columnsList;
+
     /** Response flag set by the Modal Window after the operation is completed*/
     boolean operationResult = false;
+
     FeedbackPanel feedbackPanel;
     List<SearchConditionWrapper> searchConditionsList;
+
     UserTOs searchMatchedUsers;
 
     public Users(PageParameters parameters) {
@@ -152,7 +163,8 @@ public class Users extends BasePage {
             }
         };
 
-        ListView usersView = new ListView("users", users) {
+        PageableListView usersView = new PageableListView("users", users,
+                ROWS_TO_DISPLAY) {
 
             @Override
             protected void populateItem(final ListItem item) {
@@ -236,6 +248,8 @@ public class Users extends BasePage {
                 item.add(deleteLink);
             }
         };
+
+        add(new AjaxPagingNavigator("usersNavigator", usersView));
 
         usersContainer = new WebMarkupContainer("usersContainer");
         usersContainer.add(usersView);
