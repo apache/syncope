@@ -749,6 +749,10 @@ public class WebServiceConnector implements
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Resolve username failed", e);
             }
+        } catch (IllegalArgumentException e) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Unexpected exception while resolving username", e);
+            }
         }
 
         return uuid;

@@ -114,7 +114,8 @@ public class DisplayAttributesModalPage extends SyncopeModalPage {
      * Store the selected selections into db.
      */
     public boolean saveConfiguration() {
-        boolean create = (configuration == null) ? true : false;
+        boolean create = (configuration == null
+                || configuration.getConfValue() == null) ? true : false;
 
         configuration = new ConfigurationTO();
 

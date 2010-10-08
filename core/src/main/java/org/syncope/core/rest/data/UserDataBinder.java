@@ -62,9 +62,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         // TODO: check password policies
         SyncopeClientException invalidPassword = new SyncopeClientException(
                 SyncopeClientExceptionType.InvalidPassword);
-        if (userTO.getPassword() == null
-                || userTO.getPassword().length() == 0) {
-
+        if (userTO.getPassword() == null || userTO.getPassword().isEmpty()) {
             LOG.error("No password provided");
 
             invalidPassword.addElement("Null password");
@@ -89,7 +87,9 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
             } else {
                 Membership membership = null;
                 if (user.getId() != null) {
-                    membership = membershipDAO.find(user, role);
+                    membership = user.getMembership(role.getId()) == null
+                            ? membershipDAO.find(user, role)
+                            : user.getMembership(role.getId());
                 }
                 if (membership == null) {
                     membership = new Membership();
@@ -112,12 +112,16 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
         // remove from the DB any former membership that has not been
         // renewed in this overwrite
-        UserMod userMod = new UserMod();
-        for (Long membershipId : formerMembershipIds) {
-            userMod.addMembershipToBeRemoved(membershipId);
+        ResourceOperations resourceOperations = new ResourceOperations();
+        if (!formerMembershipIds.isEmpty()) {
+            UserMod userMod = new UserMod();
+            for (Long membershipId : formerMembershipIds) {
+                userMod.addMembershipToBeRemoved(membershipId);
+            }
+            resourceOperations = update(user, userMod);
         }
 
-        return update(user, userMod);
+        return resourceOperations;
     }
 
     public ResourceOperations update(SyncopeUser user, UserMod userMod)
