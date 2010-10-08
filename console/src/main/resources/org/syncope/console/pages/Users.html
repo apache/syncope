@@ -14,63 +14,68 @@
 -->
 <wicket:head>
     <style type="text/css">
-      /* SET THE DEFAULT ERROR PANEL'S' STYLE, INVALIDATING THE CSS RENDERING
-      FOR THE CURRENT PAGE  */
-     .feedbackPanelERROR {
-        background: none !important;
-        font-weight: normal;
-        color: red;
-        border:0 none !important;
-        list-style-type: disc;
-        padding: 0px;
-        margin: 0px;
-     }
+        /* SET THE DEFAULT ERROR PANEL'S' STYLE, INVALIDATING THE CSS RENDERING
+        FOR THE CURRENT PAGE  */
+        .feedbackPanelERROR {
+            background: none !important;
+            font-weight: normal;
+            color: red;
+            border:0 none !important;
+            list-style-type: disc;
+            padding: 0px;
+            margin: 0px;
+        }
 
-    .feedbackPanelERROR span {
-        padding: 0px;
-        margin: 0px;
-     }
+        .feedbackPanelERROR span {
+            padding: 0px;
+            margin: 0px;
+        }
     </style>
 </wicket:head>
 <wicket:extend>
     <div id="testa">
         <img src="img/logo.png" alt="syncope" title="syncope" id="logo" />
         <ul>
-            <li>
-                <a href=#" wicket:id="schema"><img src="img/menu/notsel/schema.png" alt="Schema" width="80" height="80" /><br />
-                    <wicket:message key="schema"/>
-                </a>
+            <li><span>
+                    <a href=#" wicket:id="schema"><img src="img/menu/notsel/schema.png" alt="Schema" width="80" height="80" /><br />
+                        <wicket:message key="schema"/>
+                    </a>
+                </span>
             </li>
-            <li><span class="users">
-                    <a href=#" wicket:id="users"><img src="img/menu/users.png" alt="Users" width="80" height="80" /><br />
+            <li><span>
+                    <a href=#" class="users" wicket:id="users"><img src="img/menu/users.png" alt="Users" width="80" height="80" /><br />
                         <wicket:message key="users"/>
                     </a>
                 </span>
             </li>
-            <li>
-                <a href=#" wicket:id="roles"><img src="img/menu/notsel/roles.png" alt="Roles" width="80" height="80" /><br />
-                    <wicket:message key="roles"/>
-                </a>
+            <li><span>
+                    <a href=#" wicket:id="roles"><img src="img/menu/notsel/roles.png" alt="Roles" width="80" height="80" /><br />
+                        <wicket:message key="roles"/>
+                    </a>
+                </span>
             </li>
-            <li>
-                <a href="#" wicket:id="resources"><img src="img/menu/notsel/resources.png" alt="Resources" width="80" height="80" /><br />
-                    <wicket:message key="resources"/>
-                </a>
+            <li><span>
+                    <a href="#" wicket:id="resources"><img src="img/menu/notsel/resources.png" alt="Resources" width="80" height="80" /><br />
+                        <wicket:message key="resources"/>
+                    </a>
+                </span>
             </li>
-            <li>
-                <a href="#" wicket:id="connectors"><img src="img/menu/notsel/connectors.png" alt="Connectors" width="80" height="80" /><br />
-                    <wicket:message key="connectors"/>
-                </a>
+            <li><span>
+                    <a href="#" wicket:id="connectors"><img src="img/menu/notsel/connectors.png" alt="Connectors" width="80" height="80" /><br />
+                        <wicket:message key="connectors"/>
+                    </a>
+                </span>
             </li>
-            <li>
-                <a href="#" wicket:id="report"><img src="img/menu/notsel/reports.png" alt="Report" width="80" height="80" /><br />
-                    <wicket:message key="report"/>
-                </a>
+            <li><span>
+                    <a href="#" wicket:id="report"><img src="img/menu/notsel/reports.png" alt="Report" width="80" height="80" /><br />
+                        <wicket:message key="report"/>
+                    </a>
+                </span>
             </li>
-            <li>
-                <a href="#" wicket:id="configuration"><img src="img/menu/notsel/configuration.png" alt="Configuration" width="80" height="80" /><br />
-                    <wicket:message key="configuration"/>
-                </a>
+            <li><span>
+                    <a href="#" wicket:id="configuration"><img src="img/menu/notsel/configuration.png" alt="Configuration" width="80" height="80" /><br />
+                        <wicket:message key="configuration"/>
+                    </a></span>
             </li>
             <li style="float:right">
                 <a href="#" wicket:id="logout"><img src="img/menu/notsel/logout.png" alt="Roles" width="80" height="80" /><br />
@@ -97,13 +102,13 @@
                     <thead>
                         <tr class="ui-widget-header">
                             <th><wicket:message key="id"/></th>
-                            <th><wicket:message key="status"/></th>
-                            <th><wicket:message key="token"/></th>
-                            <th wicket:id="usersSchema">
-                                <span wicket:id="attribute"/>
-                            </th>
-                            <th><wicket:message key="edit"/></th>
-                            <th><wicket:message key="delete"/></th>
+                    <th><wicket:message key="status"/></th>
+                    <th><wicket:message key="token"/></th>
+                    <th wicket:id="usersSchema">
+                        <span wicket:id="attribute"/>
+                    </th>
+                    <th><wicket:message key="edit"/></th>
+                    <th><wicket:message key="delete"/></th>
                     </tr>
                     </thead>
                     <tbody>
@@ -159,11 +164,11 @@
                         <thead>
                             <tr>
                                 <th></th>
-                                <th>Not value</th>
-                                <th>Filter type</th>
-                                <th>Filter name</th>
-                                <th>Type</th>
-                                <th>Filter value</th>
+                                <th><wicket:message key="search_not_value"/></th>
+                                <th><wicket:message key="search_filter_type"/></th>
+                                <th><wicket:message key="search_filter_name"/></th>
+                                <th><wicket:message key="search_type_cond"/></th>
+                                <th><wicket:message key="search_filter_value"/></th>
                                 <th></th>
                             </tr>
                         </thead>
@@ -179,7 +184,7 @@
                                     <select class="text ui-widget-content ui-corner-all"
                                             wicket:id="filterType"/>
                                 </td>
-                                                                <td>
+                                <td>
                                     <select class="text ui-widget-content ui-corner-all"
                                             wicket:id="filterName"/>
                                 </td>
@@ -211,7 +216,7 @@
 
                     <input type="button" class="text ui-widget-content ui-corner-all"
                            wicket:id="search"/>
-                    
+
                     <!-- SEARCH RESULTS -->
                     <div class="ui-widget" id="users-contain">
                         <p>
@@ -219,40 +224,40 @@
                         </p>
                         <img src="img/search.png" alt="search"/>
                         <h1 style="display:inline"><wicket:message key="search_results_title"/></h1>
-                            <table id="users" class="ui-widget ui-widget-content" wicket:id="searchResultsContainer">
-                                <thead>
-                                    <tr class="ui-widget-header">
-                                        <th><wicket:message key="id"/></th>
-                                        <th><wicket:message key="status"/></th>
-                                        <th><wicket:message key="token"/></th>
-                                        <th><wicket:message key="edit"/></th>
-                                        <th><wicket:message key="delete"/></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr wicket:id="results">
-                                        <td>
-                                            <span wicket:id="id">[id]</span>
-                                        </td>
-                                        <td>
-                                            <span wicket:id="status">[status]</span>
-                                        </td>
-                                        <td>
-                                            <span wicket:id="token">[token]</span>
-                                        </td>
-                                        <td>
-                                            <a href="#" wicket:id="editLink">
-                                                <wicket:message key="edit"/>
-                                            </a>
-                                        </td>
-                                        <td>
-                                            <a href="#" wicket:id="deleteLink">
-                                                <wicket:message key="delete"/>
-                                            </a>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                        <table id="users" class="ui-widget ui-widget-content" wicket:id="searchResultsContainer">
+                            <thead>
+                                <tr class="ui-widget-header">
+                                    <th><wicket:message key="id"/></th>
+                            <th><wicket:message key="status"/></th>
+                            <th><wicket:message key="token"/></th>
+                            <th><wicket:message key="edit"/></th>
+                            <th><wicket:message key="delete"/></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                <tr wicket:id="results">
+                                    <td>
+                                        <span wicket:id="id">[id]</span>
+                                    </td>
+                                    <td>
+                                        <span wicket:id="status">[status]</span>
+                                    </td>
+                                    <td>
+                                        <span wicket:id="token">[token]</span>
+                                    </td>
+                                    <td>
+                                        <a href="#" wicket:id="editLink">
+                                            <wicket:message key="edit"/>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a href="#" wicket:id="deleteLink">
+                                            <wicket:message key="delete"/>
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </form>
