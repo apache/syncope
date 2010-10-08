@@ -32,6 +32,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.to.ConfigurationTO;
+import org.syncope.console.commons.Utility;
 import org.syncope.console.rest.ConfigurationsRestClient;
 
 /**
@@ -41,6 +42,9 @@ public class Configuration extends BasePage{
 
     @SpringBean(name = "configurationsRestClient")
     ConfigurationsRestClient restClient;
+
+    @SpringBean(name = "utility")
+    Utility utility;
 
     final ModalWindow createConfigWin;
     final ModalWindow editConfigWin;
@@ -55,9 +59,6 @@ public class Configuration extends BasePage{
     boolean operationResult = false;
 
     FeedbackPanel feedbackPanel;
-
-    /** Navigator's rows to display for single view */
-    final int ROWS_TO_DISPLAY = 5;
     
     public Configuration(PageParameters parameters) {
         super(parameters);
@@ -78,7 +79,8 @@ public class Configuration extends BasePage{
         };
 
         PageableListView configurationsView = new PageableListView
-                ("configurations",configurations, ROWS_TO_DISPLAY) {
+                ("configurations",configurations, 
+                utility.getPaginatorRowsToDisplay("configuration")) {
 
             @Override
             protected void populateItem(final ListItem item) {
@@ -178,7 +180,7 @@ public class Configuration extends BasePage{
         });
     }
 
-        /**
+   /**
      * Set a WindowClosedCallback for a ModalWindow instance.
      * @param window
      * @param container

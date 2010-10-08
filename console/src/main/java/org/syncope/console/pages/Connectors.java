@@ -31,6 +31,7 @@ import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.to.ConnectorInstanceTO;
 import org.syncope.client.to.ResourceTO;
+import org.syncope.console.commons.Utility;
 import org.syncope.console.rest.ConnectorsRestClient;
 import org.syncope.console.rest.ResourcesRestClient;
 
@@ -45,6 +46,9 @@ public class Connectors extends BasePage {
     @SpringBean(name = "resourcesRestClient")
     ResourcesRestClient resourcesRestClient;
 
+    @SpringBean(name = "utility")
+    Utility utility;
+
     final ModalWindow createConnectorWin;
     final ModalWindow editConnectorWin;
     
@@ -54,9 +58,6 @@ public class Connectors extends BasePage {
      */
     boolean operationResult = false;
     FeedbackPanel feedbackPanel;
-
-    /** Navigator's rows to display for single view */
-    final int ROWS_TO_DISPLAY = 5;
     
     public Connectors(PageParameters parameters) {
         super(parameters);
@@ -77,7 +78,7 @@ public class Connectors extends BasePage {
         };        
 
         PageableListView connectorsView = new PageableListView("connectors",
-                connectors, ROWS_TO_DISPLAY) {
+                connectors, utility.getPaginatorRowsToDisplay("connectors")) {
 
             @Override
             protected void populateItem(final ListItem item) {

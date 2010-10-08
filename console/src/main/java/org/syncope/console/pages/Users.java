@@ -53,6 +53,7 @@ import org.syncope.console.commons.Constants;
 import org.syncope.client.to.UserTOs;
 import org.syncope.console.commons.SearchConditionWrapper;
 import org.syncope.console.commons.SearchConditionWrapper.OperationType;
+import org.syncope.console.commons.Utility;
 import org.syncope.console.rest.SchemaRestClient;
 import org.syncope.console.rest.ConfigurationsRestClient;
 import org.syncope.console.rest.RolesRestClient;
@@ -78,6 +79,9 @@ public class Users extends BasePage {
     @SpringBean(name = "configurationsRestClient")
     private ConfigurationsRestClient configurationsRestClient;
 
+    @SpringBean(name = "utility")
+    Utility utility;
+
     final ModalWindow createUserWin;
     final ModalWindow editUserWin;
     final ModalWindow changeAttribsViewWin;
@@ -87,9 +91,6 @@ public class Users extends BasePage {
 
     final int WIN_USER_HEIGHT = 680;
     final int WIN_USER_WIDTH = 1133;
-
-    /** Navigator's rows to display for single view */
-    final int ROWS_TO_DISPLAY = 10;
 
     WebMarkupContainer usersContainer;
     List<String> columnsList;
@@ -164,7 +165,7 @@ public class Users extends BasePage {
         };
 
         PageableListView usersView = new PageableListView("users", users,
-                ROWS_TO_DISPLAY) {
+                utility.getPaginatorRowsToDisplay("users")) {
 
             @Override
             protected void populateItem(final ListItem item) {

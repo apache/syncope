@@ -18,6 +18,21 @@ public final class Constants {
 
     public static final String CONF_USERS_ATTRIBUTES_VIEW =
             "users.attributes.view";
+    
+    public static final String CONF_SCHEMA_PAGINATOR_ROWS =
+            "schema.attributes.view";
+
+    public static final String CONF_USERS_PAGINATOR_ROWS =
+            "users.paginator.rows";
+
+    public static final String CONF_RESOURCES_PAGINATOR_ROWS =
+            "resources.paginator.rows";
+
+    public static final String CONF_CONNECTORS_PAGINATOR_ROWS =
+            "connectors.paginator.rows";
+
+    public static final String CONF_CONFIGURATION_PAGINATOR_ROWS =
+            "configuration.attributes.view";
 
     private Constants() {
     }
