@@ -55,14 +55,13 @@ public class UsersRestClient {
             newUserTO = restClient.getRestTemplate().postForObject(
             restClient.getBaseURL() + "user/create", userTO, UserTO.class);
 
-            userTO.setId(newUserTO.getId());
+            //userTO.setId(newUserTO.getId());
             //userTO.setToken(newUserTO.getToken());
             //userTO.setTokenExpireTime(newUserTO.getTokenExpireTime());
-
-            // 2. activate user
-            newUserTO = restClient.getRestTemplate().postForObject(
-                    restClient.getBaseURL()
-                    + "user/activate", newUserTO, UserTO.class);
+            
+//            newUserTO = restClient.getRestTemplate().postForObject(
+//                    restClient.getBaseURL()
+//                    + "user/activate", newUserTO, UserTO.class);
 
         } catch (SyncopeClientCompositeErrorException e) {
             e.printStackTrace();
