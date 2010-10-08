@@ -135,10 +135,9 @@ public abstract class AbstractAttributableDataBinder {
             AttributableUtil attributableUtil,
             AbstractSchema schema,
             AbstractAttribute attribute,
-            AbstractAttributeValue attributeValue,
             SyncopeClientException invalidValues) {
 
-        // if the schema is multivale, all values are considered for
+        // if the schema is multivalue, all values are considered for
         // addition, otherwise only the fist one - if provided - is
         // considered
         Set<String> valuesProvided = schema.isMultivalue()
@@ -148,6 +147,7 @@ public abstract class AbstractAttributableDataBinder {
                 : Collections.singleton(
                 values.iterator().next()));
 
+        AbstractAttributeValue attributeValue;
         for (String value : valuesProvided) {
             if (value == null || value.length() == 0) {
                 if (LOG.isDebugEnabled()) {
@@ -225,7 +225,6 @@ public abstract class AbstractAttributableDataBinder {
 
         AbstractSchema schema = null;
         AbstractAttribute attribute = null;
-        AbstractAttributeValue attributeValue = null;
         AbstractDerivedSchema derivedSchema = null;
         AbstractDerivedAttribute derivedAttribute = null;
 
@@ -326,8 +325,7 @@ public abstract class AbstractAttributableDataBinder {
 
                 // 1.2 add values
                 fillAttribute(attributeMod.getValuesToBeAdded(),
-                        attributableUtil, schema, attribute,
-                        attributeValue, invalidValues);
+                        attributableUtil, schema, attribute, invalidValues);
 
                 // if no values are in, the attribute can be safely removed
                 if (attribute.getValues().isEmpty()) {
@@ -480,7 +478,6 @@ public abstract class AbstractAttributableDataBinder {
 
         AbstractSchema schema = null;
         AbstractAttribute attribute = null;
-        AbstractAttributeValue attributeValue = null;
         // Only consider attributeTO with values
         for (AttributeTO attributeTO : attributableTO.getAttributes()) {
             if (attributeTO.getValues() != null
@@ -490,12 +487,14 @@ public abstract class AbstractAttributableDataBinder {
                         attributableUtil.getSchemaClass());
 
                 if (schema != null) {
-                    attribute = attributableUtil.newAttribute();
+                    attribute =
+                            attributable.getAttribute(schema.getName()) == null
+                            ? attributableUtil.newAttribute()
+                            : attributable.getAttribute(schema.getName());
                     attribute.setSchema(schema);
 
                     fillAttribute(attributeTO.getValues(),
-                            attributableUtil, schema, attribute,
-                            attributeValue, invalidValues);
+                            attributableUtil, schema, attribute, invalidValues);
 
                     if (!attribute.getValues().isEmpty()) {
                         attributable.addAttribute(attribute);
