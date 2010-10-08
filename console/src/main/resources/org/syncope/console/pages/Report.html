@@ -12,72 +12,59 @@
  limitations under the License.
  under the License.
 -->
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
-<html
-    xmlns="http://www.w3.org/1999/xhtml"
-    xmlns:wicket="http://wicket.sourceforge.net/"
-    xml:lang="en"
-    lang="en">
-
-    <body>
-
-        <wicket:extend>
-        <div id="testa">
-            <img src="img/logo.png" alt="syncope" title="syncope" id="logo" />
-            <ul>
-                <li>
+<wicket:extend>
+    <div id="testa">
+        <img src="img/logo.png" alt="syncope" title="syncope" id="logo" />
+        <ul>
+            <li><span>
                     <a href=#" wicket:id="schema"><img src="img/menu/notsel/schema.png" alt="Schema" width="80" height="80" /><br />
                         <wicket:message key="schema"/>
-                    </a>
-                </li>
-                <li>
+                    </a></span>
+            </li>
+            <li><span>
                     <a href=#" wicket:id="users"><img src="img/menu/notsel/users.png" alt="Users" width="80" height="80" /><br />
                         <wicket:message key="users"/>
                     </a>
-                </li>
-                <li>
+                </span>
+            </li>
+            <li><span>
                     <a href=#" wicket:id="roles"><img src="img/menu/notsel/roles.png" alt="Roles" width="80" height="80" /><br />
                         <wicket:message key="roles"/>
                     </a>
-                </li>
-                <li>
+                </span>
+            </li>
+            <li><span>
                     <a href="#" wicket:id="resources"><img src="img/menu/notsel/resources.png" alt="Resources" width="80" height="80" /><br />
                         <wicket:message key="resources"/>
-                    </a>
-                </li>
-                <li>
+                    </a></span>
+            </li>
+            <li><span>
                     <a href="#" wicket:id="connectors"><img src="img/menu/notsel/connectors.png" alt="Connectors" width="80" height="80" /><br />
                         <wicket:message key="connectors"/>
-                    </a>
-                </li>
-                <li><span class="report">
-                    <a href="#" wicket:id="report"><img src="img/menu/reports.png" alt="Report" width="80" height="80" /><br />
+                    </a></span>
+            </li>
+            <li><span>
+                    <a href="#" class="report" wicket:id="report"><img src="img/menu/reports.png" alt="Report" width="80" height="80" /><br />
                         <wicket:message key="report"/>
                     </a>
-                        </span>
-                </li>
-                <li>
+                </span>
+            </li>
+            <li><span>
                     <a href="#" wicket:id="configuration"><img src="img/menu/notsel/configuration.png" alt="Configuration" width="80" height="80" /><br />
                         <wicket:message key="configuration"/>
-                    </a>
-                </li>
-                <li style="float:right">
-                    <a href="#" wicket:id="logout"><img src="img/menu/logout.png" alt="Roles" width="80" height="80" /><br />
-                        <wicket:message key="logout"/>
-                    </a>
-                </li>
-            </ul>
-        </div>
+                    </a></span>
+            </li>
+            <li style="float:right">
+                <a href="#" wicket:id="logout"><img src="img/menu/logout.png" alt="Roles" width="80" height="80" /><br />
+                    <wicket:message key="logout"/>
+                </a>
+            </li>
+        </ul>
+    </div>
 
-            <div style="margin:auto;vertical-align: middle">
-                <img src="img/under-construction.jpg" alt="under_construction"
-                 style="display:block; margin:auto;"/>
-            </div>
+    <div style="margin:auto;vertical-align: middle">
+        <img src="img/under-construction.jpg" alt="under_construction"
+             style="display:block; margin:auto;"/>
+    </div>
 
-        </wicket:extend>
-
-    </body>
-
-</html>
+</wicket:extend>

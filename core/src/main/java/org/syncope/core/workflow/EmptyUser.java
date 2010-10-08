@@ -38,28 +38,28 @@ public class EmptyUser extends OSWorkflowComponent
     public void execute(Map transientVars, Map args, PropertySet ps)
             throws WorkflowException {
 
-        SyncopeUser syncopeUser = (SyncopeUser) transientVars.get(
+        SyncopeUser user = (SyncopeUser) transientVars.get(
                 Constants.SYNCOPE_USER);
 
         AttributeDAO attributeDAO =
                 (AttributeDAO) context.getBean("attributeDAOImpl");
-        for (AbstractAttribute attribute : syncopeUser.getAttributes()) {
+        for (AbstractAttribute attribute : user.getAttributes()) {
             attributeDAO.delete(attribute.getId(), UserAttribute.class);
         }
-        syncopeUser.getAttributes().clear();
+        user.getAttributes().clear();
 
         DerivedAttributeDAO derivedAttributeDAO =
                 (DerivedAttributeDAO) context.getBean(
                 "derivedAttributeDAOImpl");
         for (AbstractDerivedAttribute derivedAttribute :
-                syncopeUser.getDerivedAttributes()) {
+                user.getDerivedAttributes()) {
 
             derivedAttributeDAO.delete(derivedAttribute.getId(),
                     UserDerivedAttribute.class);
         }
-        syncopeUser.getDerivedAttributes().clear();
+        user.getDerivedAttributes().clear();
 
-        for (Membership membership : syncopeUser.getMemberships()) {
+        for (Membership membership : user.getMemberships()) {
             for (AbstractAttribute attribute : membership.getAttributes()) {
                 attributeDAO.delete(attribute.getId(),
                         MembershipAttribute.class);
@@ -75,8 +75,8 @@ public class EmptyUser extends OSWorkflowComponent
             membership.getDerivedAttributes().clear();
         }
 
-        syncopeUser.setPassword(null);
+        user.setPassword(null);
 
-        transientVars.put(Constants.SYNCOPE_USER, syncopeUser);
+        transientVars.put(Constants.SYNCOPE_USER, user);
     }
 }

@@ -31,6 +31,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 
 import org.syncope.client.to.DerivedSchemaTO;
 import org.syncope.client.to.SchemaTO;
+import org.syncope.console.commons.Utility;
 import org.syncope.console.rest.SchemaRestClient;
 
 /**
@@ -40,6 +41,9 @@ public class Schema extends BasePage
 {
     @SpringBean(name = "schemaRestClient")
     SchemaRestClient restClient;
+
+    @SpringBean(name = "utility")
+    Utility utility;
 
     final ModalWindow createUserSchemaWin;
     final ModalWindow editUserSchemaWin;
@@ -71,9 +75,6 @@ public class Schema extends BasePage
     /** Response flag set by the Modal Window after the operation is completed  */
     boolean operationResult = false;
     FeedbackPanel feedbackPanel;
-
-    /** Navigator's rows to display for single view */
-    final int ROWS_TO_DISPLAY = 10;
     
     public Schema(PageParameters parameters)
     {
@@ -145,7 +146,7 @@ public class Schema extends BasePage
         };
 
         PageableListView roleSchemasView = new PageableListView("roleSchemas",
-                roleSchemas, ROWS_TO_DISPLAY) {
+                roleSchemas, utility.getPaginatorRowsToDisplay("schema")) {
 
             @Override
             protected void populateItem(final ListItem item) {
@@ -198,7 +199,7 @@ public class Schema extends BasePage
         add(new AjaxPagingNavigator("rolesNavigator", roleSchemasView));
 
         PageableListView roleDerSchemasView = new PageableListView("roleDerivedSchemas",
-                roleDerivedSchemas, ROWS_TO_DISPLAY) {
+                roleDerivedSchemas, utility.getPaginatorRowsToDisplay("schema")) {
 
             @Override
             protected void populateItem(final ListItem item) {
@@ -251,7 +252,7 @@ public class Schema extends BasePage
         add(new AjaxPagingNavigator("rolesDerivedNavigator", roleDerSchemasView));
 
         PageableListView userSchemasView = new PageableListView("userSchemas",
-                userSchemas, ROWS_TO_DISPLAY) {
+                userSchemas, utility.getPaginatorRowsToDisplay("schema")) {
 
             @Override
             protected void populateItem(final ListItem item) {
@@ -303,7 +304,7 @@ public class Schema extends BasePage
         add(new AjaxPagingNavigator("usersSchemaNavigator", userSchemasView));
 
         PageableListView userDerSchemasView = new PageableListView("userDerivedSchemas",
-                userDerivedSchemas, ROWS_TO_DISPLAY) {
+                userDerivedSchemas, utility.getPaginatorRowsToDisplay("schema")) {
 
             @Override
             protected void populateItem(final ListItem item) {
@@ -358,7 +359,7 @@ public class Schema extends BasePage
         add(userDerSchemasView);
 
        PageableListView membershipSchemasView = new PageableListView("membershipSchemas",
-               membershipSchemas, ROWS_TO_DISPLAY) {
+               membershipSchemas, utility.getPaginatorRowsToDisplay("schema")) {
 
             @Override
             protected void populateItem(final ListItem item) {
@@ -411,7 +412,8 @@ public class Schema extends BasePage
        add(new AjaxPagingNavigator("membershipsNavigator", membershipSchemasView));
 
        PageableListView membershipDerSchemasView = new PageableListView
-               ("membershipDerivedSchemas", membershipDerivedSchemas, ROWS_TO_DISPLAY) {
+               ("membershipDerivedSchemas", membershipDerivedSchemas, 
+               utility.getPaginatorRowsToDisplay("schema")) {
 
             @Override
             protected void populateItem(final ListItem item) {

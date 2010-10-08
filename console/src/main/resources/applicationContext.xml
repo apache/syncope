@@ -68,4 +68,8 @@
     <bean id="configurationsRestClient" class="org.syncope.console.rest.ConfigurationsRestClient">
         <property name="restClient" ref="restClient"/>
     </bean>
+
+    <bean id="utility" class="org.syncope.console.commons.Utility">
+        <property name="configurationsRestClient" ref="configurationsRestClient"/>
+    </bean>
 </beans>

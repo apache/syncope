@@ -29,6 +29,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.to.ResourceTO;
+import org.syncope.console.commons.Utility;
 import org.syncope.console.rest.ResourcesRestClient;
 
 /**
@@ -38,6 +39,9 @@ public class Resources extends BasePage {
 
     @SpringBean(name = "resourcesRestClient")
     ResourcesRestClient restClient;
+
+    @SpringBean(name = "utility")
+    Utility utility;
 
     final ModalWindow createResourceWin;
     final ModalWindow editResourceWin;
@@ -52,9 +56,6 @@ public class Resources extends BasePage {
      */
     boolean operationResult = false;
     FeedbackPanel feedbackPanel;
-
-    /** Navigator's rows to display for single view*/
-    final int ROWS_TO_DISPLAY = 5;
 
     public Resources(PageParameters parameters) {
         super(parameters);
@@ -75,7 +76,7 @@ public class Resources extends BasePage {
         };
 
         PageableListView resourcesView = new PageableListView("resources",
-                resources, ROWS_TO_DISPLAY) {
+                resources, utility.getPaginatorRowsToDisplay("resources")) {
 
             @Override
             protected void populateItem(final ListItem item) {
@@ -157,14 +158,21 @@ public class Resources extends BasePage {
                 createResourceWin.setPageCreator(new ModalWindow.PageCreator() {
 
                     public Page createPage() {
-                        ResourceModalPage form = new ResourceModalPage(Resources.this, editResourceWin, new ResourceTO(), true);
-                        return form;
+                        ResourceModalPage windows = new ResourceModalPage
+                                (Resources.this, editResourceWin,
+                                new ResourceTO(), true);
+                        return windows;
                     }
                 });
 
                 createResourceWin.show(target);
             }
         });
+
+//        Form paginatorForm = new Form("PaginatorForm");
+//
+//        DropDownChoice rowsChooser = new DropDownChoice
+//        add(paginatorForm);
     }
 
     public boolean isOperationResult() {
@@ -180,7 +188,8 @@ public class Resources extends BasePage {
      * @param window
      * @param container
      */
-    public void setWindowClosedCallback(ModalWindow window, final WebMarkupContainer container) {
+    public void setWindowClosedCallback(ModalWindow window,
+            final WebMarkupContainer container) {
 
         window.setWindowClosedCallback(
                 new ModalWindow.WindowClosedCallback() {
