@@ -39,7 +39,9 @@ public class CacheMonitor {
     private EntityManager entityManager;
 
     @Around("execution(* org.syncope.core.persistence.dao..*.*(..))")
-    public final Object log(final ProceedingJoinPoint pjp) throws Throwable {
+    public final Object log(final ProceedingJoinPoint pjp)
+            throws Throwable {
+
         Object result;
         if (!LOG.isDebugEnabled()) {
             result = pjp.proceed();

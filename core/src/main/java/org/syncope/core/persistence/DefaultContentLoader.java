@@ -71,16 +71,15 @@ public class DefaultContentLoader implements ServletContextListener {
         try {
             InputStream dbPropsStream =
                     sce.getServletContext().getResourceAsStream(
-                    "WEB-INF/classes/"
-                    + "org/syncope/core/persistence/db.properties");
+                    "WEB-INF/classes/persistence.properties");
             Properties dbProps = new Properties();
             dbProps.load(dbPropsStream);
             dbSchema = dbProps.getProperty("database.schema");
         } catch (Throwable t) {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Could not find db.properties", t);
+                LOG.debug("Could not find persistence.properties", t);
             } else {
-                LOG.error("Could not find db.properties");
+                LOG.error("Could not find persistence.properties");
             }
         }
 
@@ -133,7 +132,7 @@ public class DefaultContentLoader implements ServletContextListener {
                         new FlatXmlDataSetBuilder();
                 dataSetBuilder.setColumnSensing(true);
                 IDataSet dataSet = dataSetBuilder.build(
-                        getClass().getResourceAsStream("content.xml"));
+                        getClass().getResourceAsStream("/content.xml"));
 
                 DatabaseOperation.CLEAN_INSERT.execute(dbUnitConn, dataSet);
             }

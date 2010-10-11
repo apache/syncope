@@ -312,7 +312,7 @@
                     </components>
                     <componentProperties>
                         <jdk5>true</jdk5>
-                        <propertyfile>${project.build.directory}/test-classes/org/syncope/core/persistence/db.properties</propertyfile>
+                        <propertyfile>${project.build.directory}/test-classes/persistence.properties</propertyfile>
                         <skip>${maven.test.skip}</skip>
                         <format>true</format>
                     </componentProperties>
@@ -361,7 +361,7 @@
                             <finalName>integration-test</finalName>
                             <classesDirectory>${project.build.directory}/test-classes</classesDirectory>
                             <includes>
-                                <include>**/db.properties</include>
+                                <include>**/persistence.properties</include>
                                 <include>**/content.xml</include>
                                 <include>**/treecache.xml</include>
                             </includes>
@@ -386,8 +386,8 @@
                         </goals>
                         <configuration>
                             <packagingExcludes>
-                                WEB-INF/classes/org/syncope/core/persistence/db.properties,
-                                WEB-INF/classes/org/syncope/core/persistence/content.xml,
+                                WEB-INF/classes/persistence.properties,
+                                WEB-INF/classes/content.xml,
                                 WEB-INF/classes/treecache.xml,
                                 WEB-INF/classes/beans.xml
                             </packagingExcludes>

@@ -20,7 +20,6 @@ import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
@@ -47,34 +46,45 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 })
 public abstract class AbstractTest {
 
+    /**
+     * Logger.
+     */
     protected static final Logger LOG = LoggerFactory.getLogger(
             AbstractTest.class);
-    protected static String bundles_version;
-    protected static String bundles_directory;
+    protected static String bundlesVersion;
+    protected static String bundlesDirectory;
     @Autowired
     private DataSource dataSource;
     @Autowired
     private DefaultDataTypeFactory dbUnitDataTypeFactory;
 
-    private void logTableContent(Connection conn, String tableName)
+    private void logTableContent(final Connection conn,
+            final String tableName)
             throws SQLException {
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Table: " + tableName);
+        }
 
         Statement stmt = null;
         ResultSet rs = null;
         try {
             stmt = conn.createStatement();
-
             rs = stmt.executeQuery("SELECT * FROM " + tableName);
-            ResultSetMetaData metaData = rs.getMetaData();
-            LOG.debug("Table: " + tableName);
-            StringBuilder row = new StringBuilder();
+
+            final StringBuilder row = new StringBuilder();
             while (rs.next()) {
-                for (int i = 0; i < metaData.getColumnCount(); i++) {
-                    row.append(metaData.getColumnLabel(i + 1)).append("=").
-                            append(rs.getString(i + 1)).append(" ");
+                for (int i = 0; i < rs.getMetaData().getColumnCount(); i++) {
+                    row.append(rs.getMetaData().getColumnLabel(i + 1)).
+                            append("=").
+                            append(rs.getString(i + 1)).
+                            append(" ");
                 }
 
-                LOG.debug(row.toString());
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug(row.toString());
+                }
+
                 row.delete(0, row.length());
             }
         } catch (SQLException sqle) {
@@ -86,7 +96,8 @@ public abstract class AbstractTest {
     }
 
     @Before
-    public void setUpTestDataWithinTransaction() throws Exception {
+    public void setUpTestDataWithinTransaction()
+            throws Exception {
         Connection conn = DataSourceUtils.getConnection(dataSource);
         IDatabaseConnection dbUnitConn = new DatabaseConnection(conn);
 
@@ -97,7 +108,7 @@ public abstract class AbstractTest {
         FlatXmlDataSetBuilder dataSetBuilder = new FlatXmlDataSetBuilder();
         dataSetBuilder.setColumnSensing(true);
         IDataSet dataSet = dataSetBuilder.build(getClass().getResourceAsStream(
-                "/org/syncope/core/persistence/content.xml"));
+                "/content.xml"));
         try {
             DatabaseOperation.CLEAN_INSERT.execute(dbUnitConn, dataSet);
         } catch (Throwable t) {
@@ -125,19 +136,19 @@ public abstract class AbstractTest {
     }
 
     @Before
-    public void init() {
+    public void setUpIdentityConnectorsBundles() {
         Properties props = new java.util.Properties();
         try {
             InputStream propStream =
                     getClass().getResourceAsStream(
                     "/bundles.properties");
             props.load(propStream);
-            bundles_version = props.getProperty("bundles.version");
-            bundles_directory = props.getProperty("bundles.directory");
+            bundlesVersion = props.getProperty("bundles.version");
+            bundlesDirectory = props.getProperty("bundles.directory");
         } catch (Throwable t) {
             LOG.error("Could not load bundles.properties", t);
         }
-        assertNotNull(bundles_version);
-        assertNotNull(bundles_directory);
+        assertNotNull(bundlesVersion);
+        assertNotNull(bundlesDirectory);
     }
 }

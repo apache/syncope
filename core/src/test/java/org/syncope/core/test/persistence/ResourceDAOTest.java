@@ -53,7 +53,7 @@ public class ResourceDAOTest extends AbstractTest {
                 connector.getBundleName());
 
         assertEquals("invalid bundle version",
-                bundles_version, connector.getVersion());
+                bundlesVersion, connector.getVersion());
 
         List<SchemaMapping> mappings = resource.getMappings();
 

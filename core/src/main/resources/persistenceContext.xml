@@ -43,7 +43,7 @@
           class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
         <property name="locations">
             <list>
-                <value>classpath:org/syncope/core/persistence/db.properties</value>
+                <value>classpath:persistence.properties</value>
             </list>
         </property>
     </bean>
