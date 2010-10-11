@@ -76,7 +76,7 @@
             </li>
         </ul>
         <div id="tabs-1">
-            <div id="users-contain" class="ui-widget">
+            <div id="users-contain" class="ui-widget" style="width:inherit">
 
                 <h1><wicket:message key="title"/></h1>
 
@@ -110,7 +110,13 @@
                         </tr>
                     </tbody>
                 </table>
-                <div wicket:id="connectorsNavigator"/>
+                <span wicket:id="connectorsNavigator"/>
+                <span style="float:right">
+                    <form wicket:id="PaginatorForm" style="display:inline">
+                        <label><wicket:message key="displayRows"/></label>
+                        <select wicket:id="rowsChooser"/>
+                    </form>
+                </span>
             </div>
 
             <div wicket:id="createConnectorWin">[Show modal window for creating connector]</div>

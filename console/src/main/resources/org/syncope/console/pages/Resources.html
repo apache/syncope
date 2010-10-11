@@ -86,7 +86,7 @@
                             <th><wicket:message key="name"/></th>
                             <th><wicket:message key="edit"/></th>
                             <th><wicket:message key="delete"/></th>
-                    </tr>
+                        </tr>
                     </thead>
                     <tbody>
                         <tr wicket:id="resources">
@@ -104,10 +104,13 @@
                         </tr>
                     </tbody>
                 </table>
-                <div wicket:id="resourcesNavigator"/>
-                <!--form wicket:id="PaginatorForm">
-                    <select wicket:id="resourcesNavigator"/>
-                </form-->
+                <span wicket:id="resourcesNavigator"/>
+                <span style="float:right">
+                    <form wicket:id="PaginatorForm" style="display:inline">
+                        <label><wicket:message key="displayRows"/></label>
+                        <select wicket:id="rowsChooser"/>
+                    </form>
+                </span>
             </div>
 
             <div wicket:id="createResourceWin">[Show modal window for creating resource]</div>

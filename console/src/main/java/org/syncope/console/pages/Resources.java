@@ -14,21 +14,27 @@
  */
 package org.syncope.console.pages;
 
+
 import org.apache.wicket.Page;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigator;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.DropDownChoice;
+import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.PageableListView;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
+import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.to.ResourceTO;
+import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.Utility;
 import org.syncope.console.rest.ResourcesRestClient;
 
@@ -57,6 +63,8 @@ public class Resources extends BasePage {
     boolean operationResult = false;
     FeedbackPanel feedbackPanel;
 
+    private int paginatorRows;
+
     public Resources(PageParameters parameters) {
         super(parameters);
 
@@ -75,8 +83,11 @@ public class Resources extends BasePage {
             }
         };
 
-        PageableListView resourcesView = new PageableListView("resources",
-                resources, utility.getPaginatorRowsToDisplay("resources")) {
+        paginatorRows = utility.getPaginatorRowsToDisplay(Constants
+                .CONF_RESOURCES_PAGINATOR_ROWS);
+
+        final PageableListView resourcesView = new PageableListView("resources",
+                resources, paginatorRows) {
 
             @Override
             protected void populateItem(final ListItem item) {
@@ -127,7 +138,8 @@ public class Resources extends BasePage {
             }
         };
 
-        add(new AjaxPagingNavigator("resourcesNavigator", resourcesView));
+        add(new AjaxPagingNavigator("resourcesNavigator", resourcesView)
+                .setOutputMarkupId(true));
 
         resourcesContainer = new WebMarkupContainer("resourcesContainer");
         resourcesContainer.add(resourcesView);
@@ -169,10 +181,27 @@ public class Resources extends BasePage {
             }
         });
 
-//        Form paginatorForm = new Form("PaginatorForm");
-//
-//        DropDownChoice rowsChooser = new DropDownChoice
-//        add(paginatorForm);
+        Form paginatorForm = new Form("PaginatorForm");
+
+        final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser",
+        new PropertyModel(this,"paginatorRows"),utility.paginatorRowsChooser());
+
+        rowsChooser.add(new AjaxFormComponentUpdatingBehavior( "onchange" ){
+          protected void onUpdate( AjaxRequestTarget target )
+            {
+              utility.updatePaginatorRows(Constants.CONF_RESOURCES_PAGINATOR_ROWS,
+                      paginatorRows);
+
+              resourcesView.setRowsPerPage(paginatorRows);
+              
+              target.addComponent(resourcesContainer);
+              target.addComponent(getPage().get("resourcesNavigator"));
+            }
+
+          });
+
+        paginatorForm.add(rowsChooser);
+        add(paginatorForm);
     }
 
     public boolean isOperationResult() {

@@ -138,7 +138,13 @@
                         </tr>
                     </tbody>
                 </table>
-                <div wicket:id="usersNavigator"/>
+                <span wicket:id="usersNavigator"/>
+                <span style="float:right">
+                    <form wicket:id="PaginatorForm" style="display:inline">
+                        <label><wicket:message key="displayRows"/></label>
+                        <select wicket:id="rowsChooser"/>
+                    </form>
+                </span>
             </div>
 
             <div wicket:id="createUserWin">[Show modal window for creating user]</div>

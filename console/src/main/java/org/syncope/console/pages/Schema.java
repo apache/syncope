@@ -17,20 +17,25 @@ package org.syncope.console.pages;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigator;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.DropDownChoice;
+import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.PageableListView;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
+import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
 import org.syncope.client.to.DerivedSchemaTO;
 import org.syncope.client.to.SchemaTO;
+import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.Utility;
 import org.syncope.console.rest.SchemaRestClient;
 
@@ -72,6 +77,18 @@ public class Schema extends BasePage
     WebMarkupContainer membershipSchemaContainer;
     WebMarkupContainer membershipDerivedSchemaContainer;
 
+    private int userSchemaPageRows;
+
+    private int userDerSchemaPageRows;
+
+    private int rolePageRows;
+
+    private int roleDerPageRows;
+
+    private int membershipPageRows;
+
+    private int membershipDerPageRows;
+
     /** Response flag set by the Modal Window after the operation is completed  */
     boolean operationResult = false;
     FeedbackPanel feedbackPanel;
@@ -102,6 +119,24 @@ public class Schema extends BasePage
         feedbackPanel.setOutputMarkupId( true );
         
         add(feedbackPanel);
+
+        rolePageRows = utility.getPaginatorRowsToDisplay(Constants
+                .CONF_ROLE_SCHEMA_PAGINATOR_ROWS);
+
+        roleDerPageRows = utility.getPaginatorRowsToDisplay(Constants
+                .CONF_ROLE_DER_SCHEMA_PAGINATOR_ROWS);
+
+        userSchemaPageRows = utility.getPaginatorRowsToDisplay(Constants
+                .CONF_USER_SCHEMA_PAGINATOR_ROWS);
+
+        userDerSchemaPageRows = utility.getPaginatorRowsToDisplay(Constants
+                .CONF_USER_DER_SCHEMA_PAGINATOR_ROWS);
+
+        membershipPageRows = utility.getPaginatorRowsToDisplay(Constants
+                .CONF_MEMBERSHIP_SCHEMA_PAGINATOR_ROWS);
+
+        membershipDerPageRows = utility.getPaginatorRowsToDisplay(Constants
+                .CONF_MEMBERSHIP_DER_SCHEMA_PAGINATOR_ROWS);
 
         IModel userSchemas =  new LoadableDetachableModel()
         {
@@ -145,8 +180,8 @@ public class Schema extends BasePage
             }
         };
 
-        PageableListView roleSchemasView = new PageableListView("roleSchemas",
-                roleSchemas, utility.getPaginatorRowsToDisplay("schema")) {
+        final PageableListView roleSchemasView = new PageableListView("roleSchemas",
+                roleSchemas, rolePageRows) {
 
             @Override
             protected void populateItem(final ListItem item) {
@@ -196,10 +231,33 @@ public class Schema extends BasePage
             }
         };
 
-        add(new AjaxPagingNavigator("rolesNavigator", roleSchemasView));
+        add(new AjaxPagingNavigator("rolesNavigator", roleSchemasView)
+                .setOutputMarkupId(true));
 
-        PageableListView roleDerSchemasView = new PageableListView("roleDerivedSchemas",
-                roleDerivedSchemas, utility.getPaginatorRowsToDisplay("schema")) {
+        Form rolesPaginatorForm = new Form("RolesPaginatorForm");
+
+        final DropDownChoice rowsRoleChooser = new DropDownChoice("rowsChooser",
+        new PropertyModel(this,"rolePageRows"),utility.paginatorRowsChooser());
+
+        rowsRoleChooser.add(new AjaxFormComponentUpdatingBehavior( "onchange" ){
+          protected void onUpdate( AjaxRequestTarget target )
+            {
+              utility.updatePaginatorRows(Constants.CONF_ROLE_SCHEMA_PAGINATOR_ROWS,
+                      rolePageRows);
+
+              roleSchemasView.setRowsPerPage(rolePageRows);
+              
+              target.addComponent(roleSchemasContainer);
+              target.addComponent(getPage().get("rolesNavigator"));
+            }
+
+          });
+
+        rolesPaginatorForm.add(rowsRoleChooser);
+        add(rolesPaginatorForm);
+
+        final PageableListView roleDerSchemasView = new PageableListView("roleDerivedSchemas",
+                roleDerivedSchemas, roleDerPageRows) {
 
             @Override
             protected void populateItem(final ListItem item) {
@@ -249,10 +307,33 @@ public class Schema extends BasePage
             }
         };
 
-        add(new AjaxPagingNavigator("rolesDerivedNavigator", roleDerSchemasView));
+        add(new AjaxPagingNavigator("rolesDerivedNavigator", roleDerSchemasView)
+                .setOutputMarkupId(true));
 
-        PageableListView userSchemasView = new PageableListView("userSchemas",
-                userSchemas, utility.getPaginatorRowsToDisplay("schema")) {
+        Form rolesDerPaginatorForm = new Form("RolesDerPaginatorForm");
+
+        DropDownChoice rowsRolesDerChooser = new DropDownChoice("rowsChooser",
+        new PropertyModel(this,"roleDerPageRows"),utility.paginatorRowsChooser());
+
+        rowsRolesDerChooser.add(new AjaxFormComponentUpdatingBehavior( "onchange" ){
+          protected void onUpdate( AjaxRequestTarget target )
+            {
+              utility.updatePaginatorRows(Constants.
+                      CONF_ROLE_DER_SCHEMA_PAGINATOR_ROWS, rolePageRows);
+
+              roleDerSchemasView.setRowsPerPage(roleDerPageRows);
+
+              target.addComponent(roleDerivedSchemasContainer);
+              target.addComponent(getPage().get("rolesDerivedNavigator"));
+            }
+
+          });
+
+        rolesDerPaginatorForm.add(rowsRolesDerChooser);
+        add(rolesDerPaginatorForm);
+
+       final PageableListView userSchemasView = new PageableListView("userSchemas",
+                userSchemas, userSchemaPageRows) {
 
             @Override
             protected void populateItem(final ListItem item) {
@@ -271,7 +352,8 @@ public class Schema extends BasePage
                         editUserSchemaWin.setPageCreator(new ModalWindow.PageCreator() {
 
                         public Page createPage() {
-                            SchemaModalPage form = new SchemaModalPage(Schema.this, editUserSchemaWin, schemaTO, false);
+                            SchemaModalPage form = new SchemaModalPage(
+                            Schema.this, editUserSchemaWin, schemaTO, false);
                             form.setEntity(SchemaModalPage.Entity.USER);
                             return form;
                         }
@@ -301,10 +383,34 @@ public class Schema extends BasePage
             }
         };
 
-        add(new AjaxPagingNavigator("usersSchemaNavigator", userSchemasView));
+        add(new AjaxPagingNavigator("usersSchemaNavigator", userSchemasView)
+                .setOutputMarkupId(true));
 
-        PageableListView userDerSchemasView = new PageableListView("userDerivedSchemas",
-                userDerivedSchemas, utility.getPaginatorRowsToDisplay("schema")) {
+        Form usersPaginatorForm = new Form("UsersPaginatorForm");
+
+        final DropDownChoice usersRowsChooser = new DropDownChoice("rowsChooser",
+               new PropertyModel(this,"userSchemaPageRows"),
+               utility.paginatorRowsChooser());
+
+        usersRowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+          protected void onUpdate( AjaxRequestTarget target )
+            {
+              utility.updatePaginatorRows(Constants.CONF_USER_SCHEMA_PAGINATOR_ROWS,
+                      userSchemaPageRows);
+
+              userSchemasView.setRowsPerPage(userSchemaPageRows);
+
+              target.addComponent(userSchemaContainer);
+              target.addComponent(getPage().get("usersSchemaNavigator"));
+            }
+
+          });
+
+        usersPaginatorForm.add(usersRowsChooser);
+        add(usersPaginatorForm);
+
+        final PageableListView userDerSchemasView = new PageableListView("userDerivedSchemas",
+                userDerivedSchemas, userDerSchemaPageRows) {
 
             @Override
             protected void populateItem(final ListItem item) {
@@ -354,12 +460,37 @@ public class Schema extends BasePage
             }
         };
        
-        add(new AjaxPagingNavigator("usersDerivedSchemaNavigator", userSchemasView));
+        add(new AjaxPagingNavigator("usersDerivedSchemaNavigator", userSchemasView)
+                .setOutputMarkupId(true));
+
+        Form usersDerPaginatorForm = new Form("UsersDerPaginatorForm");
+
+        final DropDownChoice usersDerRowsChooser = new DropDownChoice(
+                "rowsChooser",
+                new PropertyModel(this,"userDerSchemaPageRows"),
+                utility.paginatorRowsChooser());
+
+        usersDerRowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+          protected void onUpdate( AjaxRequestTarget target )
+            {
+              utility.updatePaginatorRows(Constants.CONF_USER_DER_SCHEMA_PAGINATOR_ROWS,
+                      userDerSchemaPageRows);
+
+              userDerSchemasView.setRowsPerPage(userDerSchemaPageRows);
+
+              target.addComponent(userDerivedSchemaContainer);
+              target.addComponent(getPage().get("usersDerivedSchemaNavigator"));
+            }
+
+          });
+
+        usersDerPaginatorForm.add(usersDerRowsChooser);
+        add(usersDerPaginatorForm);
 
         add(userDerSchemasView);
 
-       PageableListView membershipSchemasView = new PageableListView("membershipSchemas",
-               membershipSchemas, utility.getPaginatorRowsToDisplay("schema")) {
+       final PageableListView membershipSchemasView = new PageableListView("membershipSchemas",
+               membershipSchemas, membershipPageRows) {
 
             @Override
             protected void populateItem(final ListItem item) {
@@ -409,11 +540,37 @@ public class Schema extends BasePage
                 item.add(deleteLink);
             }
         };
-       add(new AjaxPagingNavigator("membershipsNavigator", membershipSchemasView));
+       add(new AjaxPagingNavigator("membershipsNavigator", membershipSchemasView)
+               .setOutputMarkupId(true));
 
-       PageableListView membershipDerSchemasView = new PageableListView
+       Form membershipPaginatorForm = new Form("MembershipPaginatorForm");
+
+        final DropDownChoice membershipRowsChooser = new DropDownChoice(
+                "rowsChooser",
+                new PropertyModel(this,"membershipPageRows"),
+                utility.paginatorRowsChooser());
+
+        membershipRowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+          protected void onUpdate( AjaxRequestTarget target )
+            {
+              utility.updatePaginatorRows(
+                      Constants.CONF_MEMBERSHIP_SCHEMA_PAGINATOR_ROWS,
+                      membershipPageRows);
+
+              membershipSchemasView.setRowsPerPage(membershipPageRows);
+
+              target.addComponent(membershipSchemaContainer);
+              target.addComponent(getPage().get("membershipsNavigator"));
+            }
+
+          });
+
+        membershipPaginatorForm.add(membershipRowsChooser);
+        add(membershipPaginatorForm);
+
+       final PageableListView membershipDerSchemasView = new PageableListView
                ("membershipDerivedSchemas", membershipDerivedSchemas, 
-               utility.getPaginatorRowsToDisplay("schema")) {
+               membershipDerPageRows) {
 
             @Override
             protected void populateItem(final ListItem item) {
@@ -455,6 +612,7 @@ public class Schema extends BasePage
                         target.addComponent(feedbackPanel);
 
                         target.addComponent(membershipDerivedSchemaContainer);
+                        target.addComponent(getPage().get(""));
                     }
 
                 };
@@ -464,7 +622,32 @@ public class Schema extends BasePage
         };
 
         add(new AjaxPagingNavigator("membershipsDerNavigator",
-                membershipDerSchemasView));
+                membershipDerSchemasView).setOutputMarkupId(true));
+
+        Form membershipDerPaginatorForm = new Form("MembershipDerPaginatorForm");
+
+        final DropDownChoice membershipDerRowsChooser = new DropDownChoice(
+                "rowsChooser",
+                new PropertyModel(this,"membershipDerPageRows"),
+                utility.paginatorRowsChooser());
+
+        membershipDerRowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+          protected void onUpdate( AjaxRequestTarget target )
+            {
+              utility.updatePaginatorRows(
+                      Constants.CONF_MEMBERSHIP_DER_SCHEMA_PAGINATOR_ROWS,
+                      membershipDerPageRows);
+
+              membershipDerSchemasView.setRowsPerPage(membershipDerPageRows);
+
+              target.addComponent(membershipDerivedSchemaContainer);
+              target.addComponent(getPage().get("membershipsDerNavigator"));
+            }
+
+          });
+
+        membershipDerPaginatorForm.add(membershipDerRowsChooser);
+        add(membershipDerPaginatorForm);
 
         roleSchemasContainer = new WebMarkupContainer("roleSchemasContainer");
         roleSchemasContainer.add(roleSchemasView);

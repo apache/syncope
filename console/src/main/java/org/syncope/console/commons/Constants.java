@@ -19,8 +19,23 @@ public final class Constants {
     public static final String CONF_USERS_ATTRIBUTES_VIEW =
             "users.attributes.view";
     
-    public static final String CONF_SCHEMA_PAGINATOR_ROWS =
-            "schema.attributes.view";
+    public static final String CONF_USER_SCHEMA_PAGINATOR_ROWS =
+            "user.schema.paginator.rows";
+
+    public static final String CONF_USER_DER_SCHEMA_PAGINATOR_ROWS =
+            "user.derived.schema.paginator.rows";
+
+    public static final String CONF_ROLE_SCHEMA_PAGINATOR_ROWS =
+            "role.schema.paginator.rows";
+
+    public static final String CONF_ROLE_DER_SCHEMA_PAGINATOR_ROWS =
+            "role.derived.schema.paginator.rows";
+
+    public static final String CONF_MEMBERSHIP_SCHEMA_PAGINATOR_ROWS =
+            "membership.schema.paginator.rows";
+
+    public static final String CONF_MEMBERSHIP_DER_SCHEMA_PAGINATOR_ROWS =
+            "membership.derived.aschema.paginator.rows";
 
     public static final String CONF_USERS_PAGINATOR_ROWS =
             "users.paginator.rows";
@@ -32,7 +47,7 @@ public final class Constants {
             "connectors.paginator.rows";
 
     public static final String CONF_CONFIGURATION_PAGINATOR_ROWS =
-            "configuration.attributes.view";
+            "configuration.paginator.rows";
 
     private Constants() {
     }

@@ -15,11 +15,13 @@
 
 package org.syncope.console.commons;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.syncope.client.to.ConfigurationTO;
 import org.syncope.console.rest.ConfigurationsRestClient;
 
 /**
- * Class with utilities shared with other classes.
+ * Class with utilities shared among classes.
  */
 public class Utility {
     private ConfigurationsRestClient configurationsRestClient;
@@ -27,29 +29,12 @@ public class Utility {
     private ConfigurationTO configuration;
     /**
      * Get the rows number to display for single page, stored as configuration.
-     * @param Page name
+     * @param confProperty
      */
     public int getPaginatorRowsToDisplay(
-            String page){
+            String confProperty){
        //Set rows to display to default value
        int rows = 5;
-
-       String confProperty = null;
-
-       if(page.equals("resources"))
-           confProperty = Constants.CONF_RESOURCES_PAGINATOR_ROWS;
-
-       else if(page.equals("configuration"))
-           confProperty = Constants.CONF_CONFIGURATION_PAGINATOR_ROWS;
-
-       else if(page.equals("users"))
-           confProperty = Constants.CONF_USERS_PAGINATOR_ROWS;
-
-       else if(page.equals("schema"))
-           confProperty = Constants.CONF_SCHEMA_PAGINATOR_ROWS;
-
-       else//Connectors final case
-           confProperty = Constants.CONF_CONNECTORS_PAGINATOR_ROWS;
 
        configuration = configurationsRestClient.readConfiguration(
                 confProperty);
@@ -75,6 +60,35 @@ public class Utility {
        }
 
        return rows;
+    }
+
+    /**
+     * Paginator rows values populator.
+     * @return List<Integer>
+     */
+    public List<Integer> paginatorRowsChooser() {
+    List<Integer> list = new ArrayList<Integer>();
+
+        list.add(5);
+        list.add(10);
+        list.add(15);
+        
+    return list;
+    }
+
+    /**
+     * Update display rows for the section specified as configuration key.
+     * @param confKey
+     * @param rows number to store
+     */
+    public void updatePaginatorRows(String confKey,int rows) {
+        ConfigurationTO config = new ConfigurationTO();
+
+        config.setConfKey(confKey);
+        config.setConfValue(String.valueOf(rows));
+        
+        configurationsRestClient.updateConfiguration(config);
+
     }
 
     public ConfigurationsRestClient getConfigurationsRestClient() {

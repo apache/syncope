@@ -117,7 +117,13 @@
                         </tr>
                     </tbody>
                 </table>
-                <div wicket:id="rolesNavigator"/>
+                <span wicket:id="rolesNavigator"/>
+                <span style="float:right">
+                    <form wicket:id="RolesPaginatorForm" style="display:inline">
+                        <label><wicket:message key="displayRows"/></label>
+                        <select wicket:id="rowsChooser"/>
+                    </form>
+                </span>
             </div>
 
             <div wicket:id="createRoleSchemaWin">[Show modal window for creating schema]</div>
@@ -162,7 +168,13 @@
                     </tr>
                     </tbody>
                 </table>
-                <div wicket:id="rolesDerivedNavigator"/>
+                <span wicket:id="rolesDerivedNavigator"/>
+                <span style="float:right">
+                    <form wicket:id="RolesDerPaginatorForm" style="display:inline">
+                        <label><wicket:message key="displayRows"/></label>
+                        <select wicket:id="rowsChooser"/>
+                    </form>
+                </span>
             </div>
 
             <div wicket:id="createRoleDerivedSchemaWin">[Show modal window for creating schema]</div>
@@ -206,7 +218,13 @@
                         </tr>
                     </tbody>
                 </table>
-                <div wicket:id="usersSchemaNavigator"/>
+                <span wicket:id="usersSchemaNavigator"/>
+                <span style="float:right">
+                    <form wicket:id="UsersPaginatorForm" style="display:inline">
+                        <label><wicket:message key="displayRows"/></label>
+                        <select wicket:id="rowsChooser"/>
+                    </form>
+                </span>
             </div>
 
             <div wicket:id="createUserSchemaWin">[Show modal window for creating schema]</div>
@@ -250,7 +268,13 @@
                         </tr>
                     </tbody>
                 </table>
-                <div wicket:id="usersDerivedSchemaNavigator"/>
+                <span wicket:id="usersDerivedSchemaNavigator"/>
+                <span style="float:right">
+                    <form wicket:id="UsersDerPaginatorForm" style="display:inline">
+                        <label><wicket:message key="displayRows"/></label>
+                        <select wicket:id="rowsChooser"/>
+                    </form>
+                </span>
             </div>
             <div wicket:id="createUserDerSchemaWin">[Show modal window for creating schema]</div>
             <div wicket:id="editUserDerSchemaWin">[Show modal window for editing schema]</div>
@@ -292,7 +316,14 @@
                         </tr>
                     </tbody>
                 </table>
-                <div wicket:id="membershipsNavigator"/>
+                <span wicket:id="membershipsNavigator"/>
+                <span style="float:right">
+                    <form wicket:id="MembershipPaginatorForm"
+                          style="display:inline">
+                        <label><wicket:message key="displayRows"/></label>
+                        <select wicket:id="rowsChooser"/>
+                    </form>
+                </span>
             </div>
             <div wicket:id="createMembershipSchemaWin">[Show modal window for creating schema]</div>
             <div wicket:id="editMembershipSchemaWin">[Show modal window for editing schema]</div>
@@ -334,7 +365,13 @@
                         </tr>
                     </tbody>
                 </table>
-                <div wicket:id="membershipsDerNavigator"/>
+                <span wicket:id="membershipsDerNavigator"/>
+                <span style="float:right">
+                    <form wicket:id="MembershipDerPaginatorForm" style="display:inline">
+                        <label><wicket:message key="displayRows"/></label>
+                        <select wicket:id="rowsChooser"/>
+                    </form>
+                </span>
             </div>
             <div wicket:id="createMembershipDerSchemaWin">[Show modal window for creating schema]</div>
             <div wicket:id="editMembershipDerSchemaWin">[Show modal window for editing schema]</div>

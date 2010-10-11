@@ -20,18 +20,23 @@ import java.util.logging.Logger;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigator;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.DropDownChoice;
+import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.PageableListView;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
+import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.to.ConfigurationTO;
+import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.Utility;
 import org.syncope.console.rest.ConfigurationsRestClient;
 
@@ -52,13 +57,15 @@ public class Configuration extends BasePage{
     final int WIN_USER_HEIGHT = 680;
     final int WIN_USER_WIDTH = 1133;
 
-    WebMarkupContainer container;
+    WebMarkupContainer configContainer;
 
     /** Response flag set by the Modal Window after the operation
      * is completed  */
     boolean operationResult = false;
 
     FeedbackPanel feedbackPanel;
+
+    private int paginatorRows;
     
     public Configuration(PageParameters parameters) {
         super(parameters);
@@ -78,9 +85,11 @@ public class Configuration extends BasePage{
             }
         };
 
-        PageableListView configurationsView = new PageableListView
-                ("configurations",configurations, 
-                utility.getPaginatorRowsToDisplay("configuration")) {
+        paginatorRows = utility.getPaginatorRowsToDisplay(Constants
+                .CONF_CONFIGURATION_PAGINATOR_ROWS);
+
+        final PageableListView configurationsView = new PageableListView
+                ("configurations",configurations, paginatorRows) {
 
             @Override
             protected void populateItem(final ListItem item) {
@@ -102,7 +111,8 @@ public class Configuration extends BasePage{
                             public Page createPage() {
                                 ConfigurationModalPage window =
                                         new ConfigurationModalPage
-                                        (Configuration.this, editConfigWin, configurationTO, false);
+                                        (Configuration.this, editConfigWin,
+                                        configurationTO, false);
                                 return window;
                             }
                         });
@@ -119,9 +129,11 @@ public class Configuration extends BasePage{
                     public void onClick(AjaxRequestTarget target) {
 
                         try {
-                            restClient.deleteConfiguration(configurationTO.getConfKey());
+                            restClient.deleteConfiguration(configurationTO
+                                    .getConfKey());
                         } catch (UnsupportedEncodingException ex) {
-                            Logger.getLogger(Configuration.class.getName()).log(Level.SEVERE, null, ex);
+                            Logger.getLogger(Configuration.class.getName())
+                                    .log(Level.SEVERE, null, ex);
                             error(ex.getMessage());
                             return;
                         }
@@ -129,7 +141,7 @@ public class Configuration extends BasePage{
                         info(getString("operation_succeded"));
                         target.addComponent(feedbackPanel);
 
-                        target.addComponent(container);
+                        target.addComponent(configContainer);
                     }
                 };
 
@@ -138,11 +150,12 @@ public class Configuration extends BasePage{
             }
         };
 
-        add(new AjaxPagingNavigator("configurationsNavigator", configurationsView));
+        add(new AjaxPagingNavigator("configurationsNavigator",
+                configurationsView).setOutputMarkupId(true));
 
-        container = new WebMarkupContainer("container");
-        container.add(configurationsView);
-        container.setOutputMarkupId(true);
+        configContainer = new WebMarkupContainer("container");
+        configContainer.add(configurationsView);
+        configContainer.setOutputMarkupId(true);
 
         createConfigWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         createConfigWin.setInitialHeight(WIN_USER_HEIGHT);
@@ -156,10 +169,10 @@ public class Configuration extends BasePage{
         editConfigWin.setPageMapName("edit-configuration-modal");
         editConfigWin.setCookieName("edit-configuration-modal");
 
-        setWindowClosedCallback(createConfigWin, container);
-        setWindowClosedCallback(editConfigWin, container);
+        setWindowClosedCallback(createConfigWin, configContainer);
+        setWindowClosedCallback(editConfigWin, configContainer);
 
-        add(container);
+        add(configContainer);
 
         add(new AjaxLink("createConfigurationLink") {
 
@@ -169,7 +182,8 @@ public class Configuration extends BasePage{
                 createConfigWin.setPageCreator(new ModalWindow.PageCreator() {
 
                     public Page createPage() {
-                        ConfigurationModalPage window = new ConfigurationModalPage(Configuration.this,
+                        ConfigurationModalPage window =
+                                new ConfigurationModalPage(Configuration.this,
                                 createConfigWin, new ConfigurationTO(), true);
                         return window;
                     }
@@ -178,12 +192,35 @@ public class Configuration extends BasePage{
                 createConfigWin.show(target);
             }
         });
+
+        Form paginatorForm = new Form("PaginatorForm");
+
+        final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser",
+        new PropertyModel(this,"paginatorRows"),utility.paginatorRowsChooser());
+
+        rowsChooser.add(new AjaxFormComponentUpdatingBehavior( "onchange" ){
+          protected void onUpdate( AjaxRequestTarget target )
+            {
+              utility.updatePaginatorRows(
+                      Constants.CONF_CONFIGURATION_PAGINATOR_ROWS,
+                      paginatorRows);
+              configurationsView.setRowsPerPage(paginatorRows);
+              target.addComponent(configContainer);
+              target.addComponent(getPage().get("configurationsNavigator"));
+            }
+
+          });
+
+        paginatorForm.add(rowsChooser);
+        add(paginatorForm);
+
+        add(paginatorForm);
     }
 
    /**
      * Set a WindowClosedCallback for a ModalWindow instance.
      * @param window
-     * @param container
+     * @param configContainer
      */
     public void setWindowClosedCallback(ModalWindow window,
             final WebMarkupContainer container) {

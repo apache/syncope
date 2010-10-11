@@ -31,6 +31,7 @@ import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigator;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
@@ -103,6 +104,8 @@ public class Users extends BasePage {
 
     UserTOs searchMatchedUsers;
 
+    private int paginatorRows;
+
     public Users(PageParameters parameters) {
         super(parameters);
 
@@ -164,8 +167,11 @@ public class Users extends BasePage {
             }
         };
 
-        PageableListView usersView = new PageableListView("users", users,
-                utility.getPaginatorRowsToDisplay("users")) {
+        paginatorRows = utility.getPaginatorRowsToDisplay(Constants
+                .CONF_USERS_PAGINATOR_ROWS);
+
+        final PageableListView usersView = new PageableListView("users", users,
+                paginatorRows) {
 
             @Override
             protected void populateItem(final ListItem item) {
@@ -191,15 +197,6 @@ public class Users extends BasePage {
                         AttributeWrapper attribute =
                                 (AttributeWrapper) item.getDefaultModelObject();
 
-/*
-                        for (String name : columnsList) {
-
-                            if (name.equalsIgnoreCase(attribute.getKey())) {
-                                item.add(new Label("name", attribute.getValue()));
-                            } else if (!name.equalsIgnoreCase(attribute.getKey())) {
-                            }
-
-*/
                         for (String name : columnsList) {
                             if (name.equalsIgnoreCase(attribute.getKey())) {
                                 item.add(new Label("name",
@@ -250,7 +247,8 @@ public class Users extends BasePage {
             }
         };
 
-        add(new AjaxPagingNavigator("usersNavigator", usersView));
+        add(new AjaxPagingNavigator("usersNavigator", usersView).
+                setOutputMarkupId(true));
 
         usersContainer = new WebMarkupContainer("usersContainer");
         usersContainer.add(usersView);
@@ -302,6 +300,28 @@ public class Users extends BasePage {
                 createUserWin.show(target);
             }
         });
+
+        Form paginatorForm = new Form("PaginatorForm");
+
+        final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser",
+        new PropertyModel(this,"paginatorRows"),utility.paginatorRowsChooser());
+
+        rowsChooser.add(new AjaxFormComponentUpdatingBehavior( "onchange" ){
+          protected void onUpdate( AjaxRequestTarget target )
+            {
+              utility.updatePaginatorRows(Constants.CONF_USERS_PAGINATOR_ROWS,
+                      paginatorRows);
+
+              usersView.setRowsPerPage(paginatorRows);
+
+              target.addComponent(usersContainer);
+              target.addComponent(getPage().get("usersNavigator"));
+            }
+
+          });
+
+        paginatorForm.add(rowsChooser);
+        add(paginatorForm);
 
         add(new AjaxLink("changeAttributesViewLink") {
 

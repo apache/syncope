@@ -18,19 +18,24 @@ import java.util.List;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigator;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.DropDownChoice;
+import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.PageableListView;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
+import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.to.ConnectorInstanceTO;
 import org.syncope.client.to.ResourceTO;
+import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.Utility;
 import org.syncope.console.rest.ConnectorsRestClient;
 import org.syncope.console.rest.ResourcesRestClient;
@@ -58,6 +63,8 @@ public class Connectors extends BasePage {
      */
     boolean operationResult = false;
     FeedbackPanel feedbackPanel;
+
+    private int paginatorRows;
     
     public Connectors(PageParameters parameters) {
         super(parameters);
@@ -77,8 +84,11 @@ public class Connectors extends BasePage {
             }
         };        
 
-        PageableListView connectorsView = new PageableListView("connectors",
-                connectors, utility.getPaginatorRowsToDisplay("connectors")) {
+        paginatorRows = utility.getPaginatorRowsToDisplay(Constants
+                .CONF_CONNECTORS_PAGINATOR_ROWS);
+
+        final PageableListView connectorsView = new PageableListView("connectors",
+                connectors, paginatorRows) {
 
             @Override
             protected void populateItem(final ListItem item) {
@@ -135,7 +145,8 @@ public class Connectors extends BasePage {
             }
         };
 
-        add(new AjaxPagingNavigator("connectorsNavigator", connectorsView));
+        add(new AjaxPagingNavigator("connectorsNavigator", connectorsView)
+                .setOutputMarkupId(true));
 
         connectorsContainer = new WebMarkupContainer("connectorsContainer");
         connectorsContainer.add(connectorsView);
@@ -171,6 +182,28 @@ public class Connectors extends BasePage {
                 createConnectorWin.show(target);
             }
         });
+
+        Form paginatorForm = new Form("PaginatorForm");
+
+        final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser",
+        new PropertyModel(this,"paginatorRows"),utility.paginatorRowsChooser());
+
+        rowsChooser.add(new AjaxFormComponentUpdatingBehavior( "onchange" ){
+          protected void onUpdate( AjaxRequestTarget target )
+            {
+              utility.updatePaginatorRows(Constants.CONF_CONNECTORS_PAGINATOR_ROWS,
+                      paginatorRows);
+
+              connectorsView.setRowsPerPage(paginatorRows);
+
+              target.addComponent(connectorsContainer);
+              target.addComponent(getPage().get("connectorsNavigator"));
+            }
+
+          });
+
+        paginatorForm.add(rowsChooser);
+        add(paginatorForm);
 
     }
 
