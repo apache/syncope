@@ -69,6 +69,10 @@ public class SyncopeUser extends AbstractAttributable {
     static {
         BouncyCastleProvider securityProvider = new BouncyCastleProvider();
         if (Security.getProvider(securityProvider.getName()) == null) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Setting BouncyCastle as security provider");
+            }
+
             Security.addProvider(securityProvider);
         }
     }

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="http://ehcache.org/ehcache.xsd">
+  
+  <diskStore path="java.io.tmpdir/syncope-cache"/>
+  
+  <cacheManagerPeerProviderFactory
+      class="net.sf.ehcache.distribution.jgroups.JGroupsCacheManagerPeerProviderFactory"
+      properties="connect=UDP(mcast_addr=231.12.21.132;mcast_port=45566;ip_ttl=32;
+		  mcast_send_buf_size=150000;mcast_recv_buf_size=80000):
+		  PING(timeout=2000;num_initial_members=6):
+		  MERGE2(min_interval=5000;max_interval=10000):
+		  FD_SOCK:VERIFY_SUSPECT(timeout=1500):
+		  pbcast.NAKACK(gc_lag=10;retransmit_timeout=3000):
+		  UNICAST(timeout=5000):
+		  pbcast.STABLE(desired_avg_gossip=20000):
+		  FRAG:
+		  pbcast.GMS(join_timeout=5000;join_retry_timeout=2000;
+		  shun=false;print_local_addr=true)"
+      propertySeparator="::"/>
+  
+  <defaultCache
+      maxElementsInMemory="1000"
+      eternal="false"
+      timeToIdleSeconds="1000"
+      timeToLiveSeconds="1000"
+      overflowToDisk="false">
+    <cacheEventListenerFactory
+	class="net.sf.ehcache.distribution.jgroups.JGroupsCacheReplicatorFactory"
+	properties="replicateAsynchronously=true, replicatePuts=true,
+		    replicateUpdates=true, replicateUpdatesViaCopy=false,
+		    replicateRemovals=true" />
+  </defaultCache>
+  
+</ehcache>

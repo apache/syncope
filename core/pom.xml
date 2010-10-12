@@ -165,12 +165,17 @@
             <artifactId>hibernate-entitymanager</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-jbosscache2</artifactId>
+            <groupId>net.sf.ehcache</groupId>
+            <artifactId>ehcache</artifactId>
+            <type>pom</type>
         </dependency>
         <dependency>
-            <groupId>org.jboss.cache</groupId>
-            <artifactId>jbosscache-core</artifactId>
+            <groupId>net.sf.ehcache</groupId>
+            <artifactId>ehcache-jgroupsreplication</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jgroups</groupId>
+            <artifactId>jgroups</artifactId>
         </dependency>
 
         <dependency>
@@ -363,7 +368,6 @@
                             <includes>
                                 <include>**/persistence.properties</include>
                                 <include>**/content.xml</include>
-                                <include>**/treecache.xml</include>
                             </includes>
                         </configuration>
                     </execution>
@@ -388,7 +392,6 @@
                             <packagingExcludes>
                                 WEB-INF/classes/persistence.properties,
                                 WEB-INF/classes/content.xml,
-                                WEB-INF/classes/treecache.xml,
                                 WEB-INF/classes/beans.xml
                             </packagingExcludes>
                         </configuration>
