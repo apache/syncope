@@ -14,17 +14,23 @@
  */
 package org.syncope.core.rest.data;
 
+import org.apache.commons.jexl2.JexlEngine;
+import org.apache.commons.jexl2.JexlException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.client.to.DerivedSchemaTO;
+import org.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.syncope.client.validation.SyncopeClientException;
 import org.syncope.core.persistence.beans.AbstractDerivedSchema;
 import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.dao.DerivedSchemaDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
+import org.syncope.types.SyncopeClientExceptionType;
 
 @Component
 @Transactional(rollbackFor = {Throwable.class})
@@ -41,18 +47,49 @@ public class DerivedSchemaDataBinder {
     private SchemaDAO schemaDAO;
     @Autowired
     private DerivedSchemaDAO derivedSchemaDAO;
+    @Autowired
+    private JexlEngine jexlEngine;
 
-    private <T extends AbstractDerivedSchema, K extends AbstractSchema> T populateDerivedSchema(
-            T derivedSchema,
-            DerivedSchemaTO derivedSchemaTO,
-            Class<K> reference) {
+    private <T extends AbstractSchema> AbstractDerivedSchema populate(
+            AbstractDerivedSchema derivedSchema,
+            final DerivedSchemaTO derivedSchemaTO,
+            final Class<T> reference,
+            final SyncopeClientCompositeErrorException scce)
+            throws SyncopeClientCompositeErrorException {
+
+        if (derivedSchemaTO.getExpression() == null) {
+            SyncopeClientException requiredValuesMissing =
+                    new SyncopeClientException(
+                    SyncopeClientExceptionType.RequiredValuesMissing);
+            requiredValuesMissing.addElement("expression");
+
+            scce.addException(requiredValuesMissing);
+        }
+
+        try {
+            jexlEngine.createExpression(derivedSchemaTO.getExpression());
+        } catch (JexlException e) {
+            LOG.error("Invalid derived schema expression: "
+                    + derivedSchemaTO.getExpression(), e);
+
+            SyncopeClientException invalidMandatoryCondition =
+                    new SyncopeClientException(
+                    SyncopeClientExceptionType.InvalidValues);
+            invalidMandatoryCondition.addElement(
+                    derivedSchemaTO.getExpression());
+
+            scce.addException(invalidMandatoryCondition);
+        }
+
+        if (scce.hasExceptions()) {
+            throw scce;
+        }
 
         BeanUtils.copyProperties(derivedSchemaTO, derivedSchema,
                 ignoreDerivedSchemaProperties);
 
         AbstractSchema abstractSchema = null;
         for (String schema : derivedSchemaTO.getSchemas()) {
-
             abstractSchema = schemaDAO.find(schema, reference);
             if (abstractSchema != null) {
                 derivedSchema.addSchema(abstractSchema);
@@ -64,31 +101,28 @@ public class DerivedSchemaDataBinder {
         return derivedSchema;
     }
 
-    public <T extends AbstractDerivedSchema, K extends AbstractSchema> T createDerivedSchema(
-            DerivedSchemaTO derivedSchemaTO,
-            T derivedSchema,
-            Class<K> reference) {
+    public <T extends AbstractSchema> AbstractDerivedSchema create(
+            final DerivedSchemaTO derivedSchemaTO,
+            AbstractDerivedSchema derivedSchema,
+            final Class<T> reference) {
 
-        return populateDerivedSchema(derivedSchema, derivedSchemaTO, reference);
+        return populate(derivedSchema, derivedSchemaTO, reference,
+                new SyncopeClientCompositeErrorException(
+                HttpStatus.BAD_REQUEST));
     }
 
-    public <T extends AbstractDerivedSchema, K extends AbstractSchema> T updateDerivedSchema(
-            DerivedSchemaTO derivedSchemaTO,
-            Class<T> derivedReference,
-            Class<K> reference) {
+    public <K extends AbstractSchema> AbstractDerivedSchema update(
+            final DerivedSchemaTO derivedSchemaTO,
+            AbstractDerivedSchema derivedSchema,
+            final Class<K> reference) {
 
-        T derivedSchema = derivedSchemaDAO.find(derivedSchemaTO.getName(),
-                derivedReference);
-        if (derivedSchema != null) {
-            return populateDerivedSchema(
-                    derivedSchema, derivedSchemaTO, reference);
-        }
-
-        return null;
+        return populate(derivedSchema, derivedSchemaTO, reference,
+                new SyncopeClientCompositeErrorException(
+                HttpStatus.BAD_REQUEST));
     }
 
     public <T extends AbstractDerivedSchema> DerivedSchemaTO getDerivedSchemaTO(
-            T derivedSchema) {
+            final T derivedSchema) {
 
         DerivedSchemaTO derivedSchemaTO = new DerivedSchemaTO();
         BeanUtils.copyProperties(derivedSchema, derivedSchemaTO,

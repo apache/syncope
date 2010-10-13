@@ -61,35 +61,35 @@
     <Membership id="5" syncopeUser_id="1" syncopeRole_id="8"/>
 
     <UserSchema name="username" type="String" virtual="F"
-                mandatory="T" multivalue="F" uniquevalue="T" readonly='F'/>
+                mandatoryCondition="true" multivalue="F" uniquevalue="T" readonly='F'/>
     <UserSchema name="userId" type="String" virtual="F"
-                mandatory="T" multivalue="F" uniquevalue="T" readonly='F'
+                mandatoryCondition="true" multivalue="F" uniquevalue="T" readonly='F'
                 validatorClass="org.syncope.core.persistence.validation.EmailAddressValidator"/>
     <UserSchema name="loginDate" type="Date" virtual="F"
-                mandatory="F" multivalue="T" uniquevalue="F" readonly='F'
+                mandatoryCondition="false" multivalue="T" uniquevalue="F" readonly='F'
                 conversionPattern="yyyy-MM-dd"/>
     <UserSchema name="firstname" type="String" virtual="F"
-                mandatory="F" multivalue="F" uniquevalue="F" readonly='F'/>
+                mandatoryCondition="false" multivalue="F" uniquevalue="F" readonly='F'/>
     <UserSchema name="surname" type="String" virtual="F"
-                mandatory="T" multivalue="F" uniquevalue="F" readonly='F'/>
+                mandatoryCondition="true" multivalue="F" uniquevalue="F" readonly='F'/>
     <UserSchema name="type" type="String" virtual="F"
-                mandatory="F" multivalue="F" uniquevalue="F" readonly='F'/>
+                mandatoryCondition="false" multivalue="F" uniquevalue="F" readonly='F'/>
     <UserSchema name="email" type="String" virtual="F"
-                mandatory="F" multivalue="F" uniquevalue="T" readonly='F'
+                mandatoryCondition="false" multivalue="F" uniquevalue="T" readonly='F'
                 validatorClass="org.syncope.core.persistence.validation.EmailAddressValidator"/>
     <UserSchema name="activationDate" type="Date" virtual="F"
-                mandatory="F" multivalue="F" uniquevalue="F" readonly='F'
+                mandatoryCondition="false" multivalue="F" uniquevalue="F" readonly='F'
                 conversionPattern="yyyy-MM-dd'T'HH:mm:ss.SSSZ"/>
     <UserSchema name="uselessReadonly" type="String" virtual="F"
-                mandatory="F" multivalue="F" uniquevalue="F" readonly='T'/>
+                mandatoryCondition="false" multivalue="F" uniquevalue="F" readonly='T'/>
 
     <RoleSchema name="icon" type="String" virtual="F"
-                mandatory="F" multivalue="F" uniquevalue="F" readonly='F'/>
+                mandatoryCondition="false" multivalue="F" uniquevalue="F" readonly='F'/>
     <RoleSchema name="show" type="Boolean" virtual="F"
-                mandatory="F" multivalue="F" uniquevalue="F" readonly='F'/>
+                mandatoryCondition="false" multivalue="F" uniquevalue="F" readonly='F'/>
 
     <MembershipSchema name="subscriptionDate" type="Date" virtual="F"
-                      mandatory="F" multivalue="F" uniquevalue="F" readonly='F'
+                      mandatoryCondition="false" multivalue="F" uniquevalue="F" readonly='F'
                       conversionPattern="yyyy-MM-dd'T'HH:mm:ss.SSSZ"/>
 
     <UserAttribute id="100" owner_id="1" schema_name="username"/>
@@ -185,72 +185,77 @@
 
     <SchemaMapping id="99" field="userid"
                    resource_name="ws-target-resource-1"
-                   schemaName="AccountId" schemaType="AccountId" nullable="F"
+                   schemaName="AccountId" schemaType="AccountId" mandatoryCondition="true"
                    accountid="T" password="F"/>
 
     <SchemaMapping id="100" field="email"
                    resource_name="ws-target-resource-1"
-                   schemaName="email" schemaType="UserSchema" nullable="F"
+                   schemaName="email" schemaType="UserSchema" mandatoryCondition="true"
                    accountid="T" password="F"/>
 
     <SchemaMapping id="101" field="username"
                    resource_name="ws-target-resource-2"
-                   schemaName="username" schemaType="UserSchema" nullable="F"
+                   schemaName="username" schemaType="UserSchema" mandatoryCondition="true"
                    accountid="T" password="F"/>
 
     <SchemaMapping id="102" field="email"
                    resource_name="ws-target-resource-list-mappings-1"
-                   schemaName="email" schemaType="UserSchema" nullable="F"
+                   schemaName="email" schemaType="UserSchema" mandatoryCondition="true"
                    accountid="T" password="F"/>
 
     <SchemaMapping id="103" field="surname"
                    resource_name="ws-target-resource-list-mappings-1"
-                   schemaName="surname" schemaType="UserSchema" nullable="F"
+                   schemaName="surname" schemaType="UserSchema" mandatoryCondition="true"
                    accountid="F" password="F"/>
 
     <SchemaMapping id="104" field="userid"
                    resource_name="ws-target-resource-list-mappings-2"
-                   schemaName="userId" schemaType="UserSchema" nullable="F"
+                   schemaName="userId" schemaType="UserSchema" mandatoryCondition="true"
                    accountid="T" password="F"/>
 
     <SchemaMapping id="105" field="surname"
                    resource_name="ws-target-resource-1"
-                   schemaName="surname" schemaType="UserSchema" nullable="F"
+                   schemaName="surname" schemaType="UserSchema" mandatoryCondition="true"
                    accountid="F" password="F"/>
 
     <SchemaMapping id="106" field="password"
                    resource_name="ws-target-resource-1"
-                   schemaName="Password" schemaType="Password" nullable="F"
+                   schemaName="Password" schemaType="Password" mandatoryCondition="true"
                    accountid="F" password="T"/>
 
     <SchemaMapping id="107" field="password"
                    resource_name="ws-target-resource-2"
-                   schemaName="Password" schemaType="Password" nullable="F"
+                   schemaName="Password" schemaType="Password" mandatoryCondition="true"
                    accountid="F" password="T"/>
 
     <SchemaMapping id="108" field="type"
                    resource_name="ws-target-resource-2"
-                   schemaName="type" schemaType="UserSchema" nullable="F"
+                   schemaName="type" schemaType="UserSchema" mandatoryCondition="true"
                    accountid="F" password="F"/>
 
     <SchemaMapping id="109" field="surname"
                    resource_name="ws-target-resource-2"
-                   schemaName="surname" schemaType="UserSchema" nullable="F"
+                   schemaName="surname" schemaType="UserSchema" mandatoryCondition="true"
                    accountid="F" password="F"/>
 
     <SchemaMapping id="110" field="email"
                    resource_name="ws-target-resource-update"
-                   schemaName="email" schemaType="UserSchema" nullable="T"
+                   schemaName="email" schemaType="UserSchema" mandatoryCondition="false"
                    accountid="F" password="F"/>
 
     <SchemaMapping id="111" field="userId"
                    resource_name="ws-target-resource-update"
-                   schemaName="userId" schemaType="UserSchema" nullable="T"
+                   schemaName="userId" schemaType="UserSchema" mandatoryCondition="false"
                    accountid="F" password="F"/>
     
     <SchemaMapping id="112" field="test3"
                    resource_name="ws-target-resource-update"
-                   schemaName="username" schemaType="UserSchema" nullable="T"
+                   schemaName="username" schemaType="UserSchema" mandatoryCondition="false"
+                   accountid="F" password="F"/>
+
+    <SchemaMapping id="113" field="name"
+                   resource_name="ws-target-resource-2"
+                   schemaName="firstname" schemaType="UserSchema" mandatoryCondition="type == 'F'"
                    accountid="F" password="F"/>
 
     <Entitlement name="base"/>

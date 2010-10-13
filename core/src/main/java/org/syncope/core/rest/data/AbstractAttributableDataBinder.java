@@ -17,8 +17,14 @@ package org.syncope.core.rest.data;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import org.apache.commons.jexl2.Expression;
+import org.apache.commons.jexl2.JexlContext;
+import org.apache.commons.jexl2.JexlEngine;
+import org.apache.commons.jexl2.JexlException;
+import org.apache.commons.jexl2.MapContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,6 +89,8 @@ public abstract class AbstractAttributableDataBinder {
     protected ResourceDAO resourceDAO;
     @Autowired
     protected MembershipDAO membershipDAO;
+    @Autowired
+    private JexlEngine jexlEngine;
 
     private <T extends AbstractSchema> T getSchema(
             final String schemaName, final Class<T> reference) {
@@ -170,9 +178,92 @@ public abstract class AbstractAttributableDataBinder {
         }
     }
 
+    private <T extends AbstractSchema> boolean evaluateMandatoryCondition(
+            final String mandatoryCondition,
+            final List<? extends AbstractAttribute> attributes,
+            final Class<T> referenceSchema) {
+
+        JexlContext jexlContext = new MapContext();
+
+        List<T> allSchemas = schemaDAO.findAll(referenceSchema);
+        for (AbstractAttribute attribute : attributes) {
+            jexlContext.set(attribute.getSchema().getName(),
+                    attribute.getValues().isEmpty()
+                    ? null
+                    : (!attribute.getSchema().isMultivalue()
+                    ? attribute.getValuesAsStrings().iterator().next()
+                    : attribute.getValuesAsStrings()));
+
+            allSchemas.remove((T) attribute.getSchema());
+        }
+        for (T schema : allSchemas) {
+            jexlContext.set(schema.getName(), null);
+        }
+
+        boolean result = false;
+
+        try {
+            Expression jexlExpression = jexlEngine.createExpression(
+                    mandatoryCondition);
+            result = Boolean.parseBoolean(
+                    jexlExpression.evaluate(jexlContext).toString());
+        } catch (JexlException e) {
+            LOG.error("Invalid jexl expression: " + mandatoryCondition, e);
+        }
+
+        return result;
+    }
+
+    private <T extends AbstractSchema> boolean evaluateMandatoryCondition(
+            final String resourceName,
+            final List<? extends AbstractAttribute> attributes,
+            final String schemaName,
+            final Class<T> referenceSchema) {
+
+        List<SchemaMapping> mappings = resourceDAO.getMappings(schemaName,
+                SchemaType.byClass(referenceSchema), resourceName);
+
+        boolean result = mappings == null || mappings.isEmpty()
+                ? false : true;
+
+        SchemaMapping mapping;
+        for (Iterator<SchemaMapping> itor = mappings.iterator();
+                itor.hasNext() && result;) {
+
+            mapping = itor.next();
+            result &= evaluateMandatoryCondition(
+                    mapping.getMandatoryCondition(),
+                    attributes,
+                    referenceSchema);
+        }
+
+        return result;
+    }
+
+    private <T extends AbstractSchema> boolean evaluateMandatoryCondition(
+            final Set<TargetResource> resources,
+            final List<? extends AbstractAttribute> attributes,
+            final String schemaName,
+            final Class<T> referenceSchema) {
+
+        boolean result = resources == null || resources.isEmpty()
+                ? false : true;
+
+        TargetResource resource;
+        for (Iterator<TargetResource> itor = resources.iterator();
+                itor.hasNext() && result;) {
+
+            resource = itor.next();
+            result &= evaluateMandatoryCondition(resource.getName(),
+                    attributes, schemaName, referenceSchema);
+        }
+
+        return result;
+    }
+
     private <T extends AbstractSchema> SyncopeClientException checkMandatory(
-            Class<T> referenceSchema,
-            AbstractAttributable attributable) {
+            final Class<T> referenceSchema,
+            final AbstractAttributable attributable) {
 
         SyncopeClientException requiredValuesMissing =
                 new SyncopeClientException(
@@ -193,9 +284,16 @@ public abstract class AbstractAttributableDataBinder {
 
         for (T schema : allSchemas) {
             if (attributable.getAttribute(schema.getName()) == null
-                    && !schema.isVirtual() && !schema.isReadonly()
-                    && (schema.isMandatory()
-                    || schemaDAO.isMandatoryOnResources(schema, resources))) {
+                    && !schema.isVirtual()
+                    && !schema.isReadonly()
+                    && (evaluateMandatoryCondition(
+                    schema.getMandatoryCondition(),
+                    attributable.getAttributes(),
+                    referenceSchema)
+                    || evaluateMandatoryCondition(resources,
+                    attributable.getAttributes(),
+                    schema.getName(),
+                    referenceSchema))) {
 
                 LOG.error("Mandatory schema " + schema.getName()
                         + " not provided with values");

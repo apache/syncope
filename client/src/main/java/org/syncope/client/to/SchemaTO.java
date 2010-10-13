@@ -24,7 +24,7 @@ public class SchemaTO extends AbstractBaseBean {
     private String name;
     private SchemaValueType type;
     private boolean virtual;
-    private boolean mandatory;
+    private String mandatoryCondition;
     private boolean multivalue;
     private boolean uniquevalue;
     private boolean readonly;
@@ -34,6 +34,7 @@ public class SchemaTO extends AbstractBaseBean {
     private int attributes;
 
     public SchemaTO() {
+        mandatoryCondition = "false";
         derivedSchemas = new HashSet<String>();
     }
 
@@ -53,12 +54,12 @@ public class SchemaTO extends AbstractBaseBean {
         this.virtual = virtual;
     }
 
-    public boolean isMandatory() {
-        return mandatory;
+    public String getMandatoryCondition() {
+        return mandatoryCondition;
     }
 
-    public void setMandatory(boolean mandatory) {
-        this.mandatory = mandatory;
+    public void setMandatoryCondition(String mandatoryCondition) {
+        this.mandatoryCondition = mandatoryCondition;
     }
 
     public boolean isMultivalue() {

@@ -283,7 +283,7 @@ public class WebServiceConnector implements
             if (value == null && !wsAttributeValue.isNullable()) {
                 // TODO: provisioningexception
                 throw new IllegalArgumentException(
-                        "Missing required parameter " + attr.getName());
+                        "Missing required parameter '" + attr.getName() + "'");
             }
 
             if (value instanceof GuardedString

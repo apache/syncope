@@ -42,11 +42,11 @@
                           confValue="/tmp/bundles"/>
 
     <UserSchema name="surname" type="String" virtual="F"
-                mandatory="T" multivalue="F" uniquevalue="F" readonly='F'/>
+                mandatoryCondition="true" multivalue="F" uniquevalue="F" readonly='F'/>
     <UserSchema name="firstname" type="String" virtual="F"
-                mandatory="F" multivalue="F" uniquevalue="F" readonly='F'/>
+                mandatoryCondition="false" multivalue="F" uniquevalue="F" readonly='F'/>
     <UserSchema name="email" type="String" virtual="F"
-                mandatory="F" multivalue="T" uniquevalue="F" readonly='F'
+                mandatoryCondition="false" multivalue="T" uniquevalue="F" readonly='F'
                 validatorClass="org.syncope.core.persistence.validation.EmailAddressValidator"/>
                
     <UserDerivedSchema name="username" expression="firstname + '.' + surname"/>

@@ -366,7 +366,8 @@ public class PropagationManager {
                             + "\n* is accountId " + mapping.isAccountid()
                             + "\n* is password " + (mapping.isPassword()
                             || schemaType.equals(SchemaType.Password))
-                            + "\n* is nullable " + mapping.isNullable()
+                            + "\n* nullable condition "
+                            + mapping.getMandatoryCondition()
                             + "\n* Schema " + schemaName
                             + "\n* SchemaType " + schemaType.toString()
                             + "\n* ClassType " + schemaValueType.getClassName()

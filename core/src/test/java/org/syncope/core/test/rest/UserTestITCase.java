@@ -167,13 +167,11 @@ public class UserTestITCase extends AbstractTestITCase {
         UserTO userTO = getSampleTO("a.b@c.it");
 
         AttributeTO type = null;
-
         for (AttributeTO attr : userTO.getAttributes()) {
             if ("type".equals(attr.getSchema())) {
                 type = attr;
             }
         }
-
         assertNotNull(type);
 
         userTO.removeAttribute(type);
@@ -183,16 +181,32 @@ public class UserTestITCase extends AbstractTestITCase {
         userTO.addMembership(membershipTO);
 
         SyncopeClientCompositeErrorException ex = null;
-
         try {
-            // 1. create user
+            // 1. create user without type (mandatory by UserSchema)
             restTemplate.postForObject(
                     BASE_URL + "user/create?syncRoles=8",
                     userTO, UserTO.class);
         } catch (SyncopeClientCompositeErrorException e) {
             ex = e;
         }
+        assertNotNull(ex);
+        assertNotNull(ex.getException(
+                SyncopeClientExceptionType.RequiredValuesMissing));
 
+        AttributeTO fType = new AttributeTO();
+        fType.setSchema("type");
+        fType.addValue("F");
+        userTO.addAttribute(fType);
+
+        ex = null;
+        try {
+            // 2. create user without firstname (mandatory when type == 'F')
+            restTemplate.postForObject(
+                    BASE_URL + "user/create?syncRoles=8",
+                    userTO, UserTO.class);
+        } catch (SyncopeClientCompositeErrorException e) {
+            ex = e;
+        }
         assertNotNull(ex);
         assertNotNull(ex.getException(
                 SyncopeClientExceptionType.RequiredValuesMissing));

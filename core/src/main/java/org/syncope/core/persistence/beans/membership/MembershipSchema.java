@@ -18,20 +18,32 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.ManyToMany;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
+import javax.persistence.QueryHint;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.syncope.core.persistence.beans.AbstractAttribute;
 import org.syncope.core.persistence.beans.AbstractDerivedSchema;
 import org.syncope.core.persistence.beans.AbstractSchema;
 
 @Entity
+@Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@NamedQueries({
+    @NamedQuery(name = "MembershipSchema.findAll",
+    query = "SELECT e FROM MembershipSchema e",
+    hints = {
+        @QueryHint(name = "org.hibernate.cacheable", value = "true")
+    })
+})
 public class MembershipSchema extends AbstractSchema {
 
     @OneToMany(mappedBy = "schema")
     private List<MembershipAttribute> attributes;
-
     @ManyToMany(mappedBy = "schemas")
     private List<MembershipDerivedSchema> derivedSchemas;
-    
+
     public MembershipSchema() {
         attributes = new ArrayList<MembershipAttribute>();
         derivedSchemas = new ArrayList<MembershipDerivedSchema>();

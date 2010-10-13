@@ -20,14 +20,12 @@ import org.syncope.types.SchemaType;
 public class SchemaMappingTO extends AbstractBaseBean {
 
     private Long id;
-
     /**
      * Attribute schema to be mapped.
      * Consider that we can associate tha same attribute schema more
      * than once, with different aliases, to different resource attributes.
      */
     private String schemaName;
-
     /**
      * Schema type to be mapped.
      * Possible values are:
@@ -38,26 +36,22 @@ public class SchemaMappingTO extends AbstractBaseBean {
      * * MembershipSchema for a membership schema.
      */
     private SchemaType schemaType;
-
     /**
      * Target resource's field to be mapped.
      */
     private String field;
-
     /**
      * Specify if the mapped target resource's field is the key.
      */
     private boolean accountid;
-
     /**
      * Specify if the mapped target resource's field is the password.
      */
     private boolean password;
-
     /**
      * Specify if the mapped target resource's field is nullable.
      */
-    private boolean nullable;
+    private String mandatoryCondition = "false";
 
     public boolean isAccountid() {
         return accountid;
@@ -83,12 +77,12 @@ public class SchemaMappingTO extends AbstractBaseBean {
         this.id = id;
     }
 
-    public boolean isNullable() {
-        return nullable;
+    public String getMandatoryCondition() {
+        return mandatoryCondition;
     }
 
-    public void setNullable(boolean nullable) {
-        this.nullable = nullable;
+    public void setMandatoryCondition(String mandatoryCondition) {
+        this.mandatoryCondition = mandatoryCondition;
     }
 
     public boolean isPassword() {

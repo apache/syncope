@@ -44,8 +44,8 @@ public abstract class AbstractSchema extends AbstractBaseBean {
      */
     @Basic
     private Character virtual;
-    @Basic
-    private Character mandatory;
+    @Column(nullable = false)
+    private String mandatoryCondition;
     @Basic
     private Character multivalue;
     @Basic
@@ -60,9 +60,11 @@ public abstract class AbstractSchema extends AbstractBaseBean {
     private AbstractAttributeValidator validator;
 
     public AbstractSchema() {
+        super();
+
         type = SchemaValueType.String;
         virtual = getBooleanAsCharacter(false);
-        mandatory = getBooleanAsCharacter(false);
+        mandatoryCondition = Boolean.FALSE.toString();
         multivalue = getBooleanAsCharacter(false);
         uniquevalue = getBooleanAsCharacter(false);
         readonly = getBooleanAsCharacter(false);
@@ -92,12 +94,12 @@ public abstract class AbstractSchema extends AbstractBaseBean {
         this.virtual = getBooleanAsCharacter(virtual);
     }
 
-    public boolean isMandatory() {
-        return isBooleanAsCharacter(mandatory);
+    public String getMandatoryCondition() {
+        return mandatoryCondition;
     }
 
-    public void setMandatory(boolean mandatory) {
-        this.mandatory = getBooleanAsCharacter(mandatory);
+    public void setMandatoryCondition(String mandatoryCondition) {
+        this.mandatoryCondition = mandatoryCondition;
     }
 
     public boolean isMultivalue() {
@@ -135,7 +137,8 @@ public abstract class AbstractSchema extends AbstractBaseBean {
                         Class.forName(getValidatorClass()).getConstructor(
                         new Class[]{getClass().getSuperclass()});
                 validator =
-                        (AbstractAttributeValidator) validatorConstructor.newInstance(
+                        (AbstractAttributeValidator) validatorConstructor.
+                        newInstance(
                         this);
             } catch (Exception e) {
                 LOG.error("Could not instantiate validator of type "

@@ -53,8 +53,8 @@ public class ResourceController extends AbstractController {
 
     @RequestMapping(method = RequestMethod.POST,
     value = "/create")
-    public ResourceTO create(HttpServletResponse response,
-            @RequestBody ResourceTO resourceTO)
+    public ResourceTO create(final HttpServletResponse response,
+            final @RequestBody ResourceTO resourceTO)
             throws SyncopeClientCompositeErrorException, NotFoundException {
 
         if (LOG.isDebugEnabled()) {
@@ -71,42 +71,23 @@ public class ResourceController extends AbstractController {
             throw new NotFoundException("Missing resource");
         }
 
-        TargetResource resource = null;
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Verify that resource dosn't exist");
+        }
 
-        try {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Verify that resource dosn't exist");
-            }
+        if (resourceDAO.find(resourceTO.getName()) != null) {
+            SyncopeClientException ex = new SyncopeClientException(
+                    SyncopeClientExceptionType.AlreadyExists);
 
-            if (resourceDAO.find(resourceTO.getName()) != null) {
-                SyncopeClientException ex = new SyncopeClientException(
-                        SyncopeClientExceptionType.AlreadyExists);
+            ex.addElement(resourceTO.getName());
+            compositeErrorException.addException(ex);
 
-                ex.addElement(resourceTO.getName());
-                compositeErrorException.addException(ex);
+            throw compositeErrorException;
+        }
 
-                throw compositeErrorException;
-            }
-
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Resource data binder ..");
-            }
-
-            resource = binder.getResource(resourceTO);
-            if (resource == null) {
-                LOG.error("Resource creation failed");
-
-                SyncopeClientException ex = new SyncopeClientException(
-                        SyncopeClientExceptionType.Unknown);
-
-                compositeErrorException.addException(ex);
-
-                throw compositeErrorException;
-            }
-        } catch (Throwable t) {
-            if (LOG.isErrorEnabled()) {
-                LOG.error("Unknown exception", t);
-            }
+        TargetResource resource = binder.getResource(resourceTO);
+        if (resource == null) {
+            LOG.error("Resource creation failed");
 
             SyncopeClientException ex = new SyncopeClientException(
                     SyncopeClientExceptionType.Unknown);
@@ -124,8 +105,8 @@ public class ResourceController extends AbstractController {
 
     @RequestMapping(method = RequestMethod.POST,
     value = "/update")
-    public ResourceTO update(HttpServletResponse response,
-            @RequestBody ResourceTO resourceTO)
+    public ResourceTO update(final HttpServletResponse response,
+            final @RequestBody ResourceTO resourceTO)
             throws SyncopeClientCompositeErrorException, NotFoundException {
 
         if (LOG.isDebugEnabled()) {
@@ -133,53 +114,37 @@ public class ResourceController extends AbstractController {
         }
 
         TargetResource resource = null;
-
         if (resourceTO != null && resourceTO.getName() != null) {
             resource = resourceDAO.find(resourceTO.getName());
         }
-
         if (resource == null) {
-            LOG.error("Missing resource");
-
-            throw new NotFoundException(resourceTO.getName());
+            LOG.error("Missing resource: " + resourceTO.getName());
+            throw new NotFoundException(
+                    "Resource '" + resourceTO.getName() + "'");
         }
 
         SyncopeClientCompositeErrorException compositeErrorException =
                 new SyncopeClientCompositeErrorException(
                 HttpStatus.BAD_REQUEST);
 
-        try {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Remove old mappings ..");
-            }
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Remove old mappings ..");
+        }
+        // remove older mappings
+        resource.getMappings().clear();
 
-            // remove older mappings
-            resource.getMappings().clear();
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Resource data binder ..");
+        }
 
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Resource data binder ..");
-            }
-
-            resource = binder.getResource(resource, resourceTO);
-            if (resource == null) {
-                if (LOG.isErrorEnabled()) {
-                    LOG.error("Resource creation failed");
-                }
-
-                SyncopeClientException ex = new SyncopeClientException(
-                        SyncopeClientExceptionType.Unknown);
-
-                compositeErrorException.addException(ex);
-                throw compositeErrorException;
-            }
-        } catch (Throwable t) {
-            LOG.error("Unknown exception", t);
+        resource = binder.getResource(resource, resourceTO);
+        if (resource == null) {
+            LOG.error("Resource update failed");
 
             SyncopeClientException ex = new SyncopeClientException(
                     SyncopeClientExceptionType.Unknown);
 
             compositeErrorException.addException(ex);
-
             throw compositeErrorException;
         }
 
@@ -189,34 +154,31 @@ public class ResourceController extends AbstractController {
 
     @RequestMapping(method = RequestMethod.DELETE,
     value = "/delete/{resourceName}")
-    public void delete(HttpServletResponse response,
-            @PathVariable("resourceName") String resourceName)
+    public void delete(final HttpServletResponse response,
+            final @PathVariable("resourceName") String resourceName)
             throws NotFoundException {
 
         TargetResource resource = resourceDAO.find(resourceName);
 
         if (resource == null) {
-            if (LOG.isErrorEnabled()) {
-                LOG.error("Could not find resource '" + resourceName + "'");
-            }
-            throw new NotFoundException(resourceName);
-        } else {
-            resourceDAO.delete(resourceName);
+            LOG.error("Could not find resource '" + resourceName + "'");
+            throw new NotFoundException("Resource '" + resourceName + "'");
         }
+
+        resourceDAO.delete(resourceName);
     }
 
     @Transactional(readOnly = true)
     @RequestMapping(method = RequestMethod.GET,
     value = "/read/{resourceName}")
-    public ResourceTO read(HttpServletResponse response,
-            @PathVariable("resourceName") String resourceName)
+    public ResourceTO read(final HttpServletResponse response,
+            final @PathVariable("resourceName") String resourceName)
             throws NotFoundException {
 
         TargetResource resource = resourceDAO.find(resourceName);
         if (resource == null) {
             LOG.error("Could not find resource '" + resourceName + "'");
-
-            throw new NotFoundException(resourceName);
+            throw new NotFoundException("Resource '" + resourceName + "'");
         }
 
         return binder.getResourceTO(resource);
@@ -229,11 +191,9 @@ public class ResourceController extends AbstractController {
             throws NotFoundException {
 
         List<TargetResource> resources = resourceDAO.findAll();
-
         if (resources == null) {
-            LOG.error("No resource found");
-
-            throw new NotFoundException("No resource found");
+            LOG.error("No resources found");
+            throw new NotFoundException("No resources found");
         }
 
         return binder.getResourceTOs(resources);

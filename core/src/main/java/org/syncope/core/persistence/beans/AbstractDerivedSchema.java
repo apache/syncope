@@ -16,6 +16,7 @@ package org.syncope.core.persistence.beans;
 
 import java.util.List;
 import java.util.Set;
+import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 
@@ -24,6 +25,7 @@ public abstract class AbstractDerivedSchema extends AbstractBaseBean {
 
     @Id
     private String name;
+    @Column(nullable = false)
     private String expression;
 
     public String getName() {

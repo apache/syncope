@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.syncope.client.to.DerivedSchemaTO;
 import org.syncope.client.to.DerivedSchemaTOs;
+import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.core.persistence.beans.AbstractDerivedSchema;
 import org.syncope.core.persistence.dao.DerivedSchemaDAO;
 import org.syncope.core.rest.data.DerivedSchemaDataBinder;
@@ -40,15 +41,15 @@ public class DerivedSchemaController extends AbstractController {
     private DerivedSchemaDataBinder derivedSchemaDataBinder;
 
     @RequestMapping(method = RequestMethod.POST, value = "/{kind}/create")
-    public DerivedSchemaTO create(HttpServletResponse response,
-            @RequestBody DerivedSchemaTO derivedSchemaTO,
-            @PathVariable("kind") String kind) {
+    public DerivedSchemaTO create(final HttpServletResponse response,
+            @RequestBody final DerivedSchemaTO derivedSchemaTO,
+            @PathVariable("kind") final String kind)
+            throws SyncopeClientCompositeErrorException {
 
         AbstractDerivedSchema derivedSchema =
-                getAttributableUtil(kind).newDerivedSchema();
-        derivedSchema =
-                derivedSchemaDataBinder.createDerivedSchema(
-                derivedSchemaTO, derivedSchema,
+                derivedSchemaDataBinder.create(
+                derivedSchemaTO,
+                getAttributableUtil(kind).newDerivedSchema(),
                 getAttributableUtil(kind).getSchemaClass());
 
         derivedSchema = derivedSchemaDAO.save(derivedSchema);
@@ -60,8 +61,8 @@ public class DerivedSchemaController extends AbstractController {
     @RequestMapping(method = RequestMethod.DELETE,
     value = "/{kind}/delete/{schema}")
     public void delete(HttpServletResponse response,
-            @PathVariable("kind") String kind,
-            @PathVariable("schema") String derivedSchemaName)
+            @PathVariable("kind") final String kind,
+            @PathVariable("schema") final String derivedSchemaName)
             throws NotFoundException {
 
         Class reference = getAttributableUtil(kind).getDerivedSchemaClass();
@@ -78,7 +79,7 @@ public class DerivedSchemaController extends AbstractController {
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/{kind}/list")
-    public DerivedSchemaTOs list(@PathVariable("kind") String kind) {
+    public DerivedSchemaTOs list(@PathVariable("kind") final String kind) {
 
         Class reference = getAttributableUtil(kind).getDerivedSchemaClass();
         List<AbstractDerivedSchema> derivedAttributeSchemas =
@@ -99,9 +100,8 @@ public class DerivedSchemaController extends AbstractController {
 
     @RequestMapping(method = RequestMethod.GET,
     value = "/{kind}/read/{derivedSchema}")
-    public DerivedSchemaTO read(HttpServletResponse response,
-            @PathVariable("kind") String kind,
-            @PathVariable("derivedSchema") String derivedSchemaName)
+    public DerivedSchemaTO read(@PathVariable("kind") final String kind,
+            @PathVariable("derivedSchema") final String derivedSchemaName)
             throws NotFoundException {
 
         Class reference = getAttributableUtil(kind).getDerivedSchemaClass();
@@ -110,7 +110,6 @@ public class DerivedSchemaController extends AbstractController {
         if (derivedSchema == null) {
             LOG.error("Could not find derived schema '"
                     + derivedSchemaName + "'");
-
             throw new NotFoundException(derivedSchemaName);
         }
 
@@ -118,23 +117,22 @@ public class DerivedSchemaController extends AbstractController {
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/{kind}/update")
-    public DerivedSchemaTO update(HttpServletResponse response,
-            @RequestBody DerivedSchemaTO derivedSchemaTO,
-            @PathVariable("kind") String kind)
-            throws NotFoundException {
+    public DerivedSchemaTO update(
+            @RequestBody final DerivedSchemaTO derivedSchemaTO,
+            @PathVariable("kind") final String kind)
+            throws SyncopeClientCompositeErrorException, NotFoundException {
 
+        Class reference = getAttributableUtil(kind).getDerivedSchemaClass();
         AbstractDerivedSchema derivedSchema =
-                getAttributableUtil(kind).newDerivedSchema();
-        derivedSchema =
-                derivedSchemaDataBinder.createDerivedSchema(
-                derivedSchemaTO, derivedSchema,
-                getAttributableUtil(kind).getSchemaClass());
+                derivedSchemaDAO.find(derivedSchemaTO.getName(), reference);
         if (derivedSchema == null) {
-            LOG.error("Could not find schema '"
+            LOG.error("Could not find derived schema '"
                     + derivedSchemaTO.getName() + "'");
-
             throw new NotFoundException(derivedSchemaTO.getName());
         }
+
+        derivedSchema = derivedSchemaDataBinder.update(derivedSchemaTO,
+                derivedSchema, getAttributableUtil(kind).getSchemaClass());
 
         derivedSchema = derivedSchemaDAO.save(derivedSchema);
         return derivedSchemaDataBinder.getDerivedSchemaTO(derivedSchema);

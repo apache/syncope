@@ -15,6 +15,8 @@
 package org.syncope.core.rest.data;
 
 import java.util.Iterator;
+import org.apache.commons.jexl2.JexlEngine;
+import org.apache.commons.jexl2.JexlException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -34,7 +36,9 @@ import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.types.SyncopeClientExceptionType;
 
 @Component
-@Transactional(rollbackFor = {Throwable.class})
+@Transactional(rollbackFor = {
+    Throwable.class
+})
 public class SchemaDataBinder {
 
     /**
@@ -48,17 +52,48 @@ public class SchemaDataBinder {
     private SchemaDAO schemaDAO;
     @Autowired
     private DerivedSchemaDAO derivedSchemaDAO;
+    @Autowired
+    private JexlEngine jexlEngine;
 
-    private <T extends AbstractSchema, K extends AbstractDerivedSchema> T populateSchema(
-            T schema,
-            SchemaTO schemaTO,
-            Class<K> derivedReference) {
+    private <T extends AbstractDerivedSchema> AbstractSchema populate(
+            final AbstractSchema schema,
+            final SchemaTO schemaTO,
+            final Class<T> derivedReference,
+            final SyncopeClientCompositeErrorException scce)
+            throws SyncopeClientCompositeErrorException {
+
+        if (schemaTO.getMandatoryCondition() == null) {
+            SyncopeClientException requiredValuesMissing =
+                    new SyncopeClientException(
+                    SyncopeClientExceptionType.RequiredValuesMissing);
+            requiredValuesMissing.addElement("mandatoryCondition");
+
+            scce.addException(requiredValuesMissing);
+        }
+
+        try {
+            jexlEngine.createExpression(schemaTO.getMandatoryCondition());
+        } catch (JexlException e) {
+            LOG.error("Invalid mandatory condition: "
+                    + schemaTO.getMandatoryCondition(), e);
+
+            SyncopeClientException invalidMandatoryCondition =
+                    new SyncopeClientException(
+                    SyncopeClientExceptionType.InvalidValues);
+            invalidMandatoryCondition.addElement(
+                    schemaTO.getMandatoryCondition());
+
+            scce.addException(invalidMandatoryCondition);
+        }
+
+        if (scce.hasExceptions()) {
+            throw scce;
+        }
 
         BeanUtils.copyProperties(schemaTO, schema, ignoreSchemaProperties);
 
-        AbstractDerivedSchema abstractDerivedSchema = null;
+        AbstractDerivedSchema abstractDerivedSchema;
         for (String derivedSchema : schemaTO.getDerivedSchemas()) {
-
             abstractDerivedSchema =
                     derivedSchemaDAO.find(derivedSchema, derivedReference);
             if (abstractDerivedSchema != null) {
@@ -71,66 +106,62 @@ public class SchemaDataBinder {
         return schema;
     }
 
-    public <T extends AbstractSchema, K extends AbstractDerivedSchema> T createSchema(
-            SchemaTO schemaTO,
-            T schema,
-            Class<K> derivedReference) {
-
-        return populateSchema(schema, schemaTO, derivedReference);
-    }
-
-    public <T extends AbstractSchema, K extends AbstractDerivedSchema> T updateSchema(
-            SchemaTO schemaTO,
-            Class<T> reference,
-            Class<K> derivedReference)
+    public <T extends AbstractDerivedSchema> AbstractSchema create(
+            final SchemaTO schemaTO,
+            AbstractSchema schema,
+            final Class<T> derivedReference)
             throws SyncopeClientCompositeErrorException {
 
-        T schema = schemaDAO.find(schemaTO.getName(), reference);
-        if (schema != null) {
-            schema = populateSchema(schema, schemaTO, derivedReference);
+        return populate(schema, schemaTO, derivedReference,
+                new SyncopeClientCompositeErrorException(
+                HttpStatus.BAD_REQUEST));
+    }
 
-            boolean validationExceptionFound = false;
-            AbstractAttribute attribute = null;
-            AbstractAttributeValue attributeValue = null;
-            for (Iterator<? extends AbstractAttribute> attributeItor =
-                    schema.getAttributes().iterator();
-                    attributeItor.hasNext() && !validationExceptionFound;) {
+    public <T extends AbstractDerivedSchema> AbstractSchema update(
+            final SchemaTO schemaTO,
+            AbstractSchema schema,
+            final Class<T> derivedReference)
+            throws SyncopeClientCompositeErrorException {
 
-                attribute = attributeItor.next();
-                for (Iterator<? extends AbstractAttributeValue> attributeValueItor =
-                        attribute.getValues().iterator();
-                        attributeValueItor.hasNext()
-                        && !validationExceptionFound;) {
+        SyncopeClientCompositeErrorException scce =
+                new SyncopeClientCompositeErrorException(
+                HttpStatus.BAD_REQUEST);
 
-                    attributeValue = attributeValueItor.next();
-                    try {
-                        schema.getValidator().getValue(
-                                attributeValue.getValueAsString(),
-                                attributeValue);
-                    } catch (Exception e) {
-                        validationExceptionFound = true;
-                    }
+        schema = populate(schema, schemaTO, derivedReference, scce);
+
+        boolean validationExceptionFound = false;
+        AbstractAttribute attribute;
+        AbstractAttributeValue attributeValue;
+        for (Iterator<? extends AbstractAttribute> aItor =
+                schema.getAttributes().iterator();
+                aItor.hasNext() && !validationExceptionFound;) {
+
+            attribute = aItor.next();
+            for (Iterator<? extends AbstractAttributeValue> avItor =
+                    attribute.getValues().iterator();
+                    avItor.hasNext() && !validationExceptionFound;) {
+
+                attributeValue = avItor.next();
+                try {
+                    schema.getValidator().getValue(
+                            attributeValue.getValueAsString(),
+                            attributeValue);
+                } catch (Exception e) {
+                    validationExceptionFound = true;
                 }
             }
-
-            if (validationExceptionFound) {
-                SyncopeClientCompositeErrorException sccee =
-                        new SyncopeClientCompositeErrorException(
-                        HttpStatus.BAD_REQUEST);
-
-                SyncopeClientException e = new SyncopeClientException(
-                        SyncopeClientExceptionType.InvalidUpdate);
-
-                e.addElement(schema.getName());
-                sccee.addException(e);
-
-                throw sccee;
-            }
-
-            return schema;
         }
 
-        return null;
+        if (validationExceptionFound) {
+            SyncopeClientException e = new SyncopeClientException(
+                    SyncopeClientExceptionType.InvalidUpdate);
+            e.addElement(schema.getName());
+
+            scce.addException(e);
+            throw scce;
+        }
+
+        return schema;
     }
 
     public <T extends AbstractSchema> SchemaTO getSchemaTO(T schema) {

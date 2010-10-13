@@ -26,12 +26,39 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
+import javax.persistence.QueryHint;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 
 @Entity
+@Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@NamedQueries({
+    @NamedQuery(name = "TargetResource.find",
+    query = "SELECT e FROM TargetResource e WHERE e.name = :name",
+    hints = {
+        @QueryHint(name = "org.hibernate.cacheable", value = "true")
+    }),
+    @NamedQuery(name = "TargetResource.getMappings",
+    query = "SELECT m FROM SchemaMapping m WHERE m.schemaName=:schemaName "
+    + "AND m.schemaType=:schemaType",
+    hints = {
+        @QueryHint(name = "org.hibernate.cacheable", value = "true"),
+        @QueryHint(name = "org.hibernate.cacheMode", value = "refresh")
+    }),
+    @NamedQuery(name = "TargetResource.getMappingsByTargetResource",
+    query = "SELECT m FROM SchemaMapping m WHERE m.schemaName=:schemaName "
+    + "AND m.schemaType=:schemaType AND m.resource.name=:resourceName",
+    hints = {
+        @QueryHint(name = "org.hibernate.cacheable", value = "true"),
+        @QueryHint(name = "org.hibernate.cacheMode", value = "refresh")
+    })
+})
 public class TargetResource extends AbstractBaseBean {
 
     /**

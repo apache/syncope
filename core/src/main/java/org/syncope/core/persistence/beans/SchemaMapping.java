@@ -70,15 +70,14 @@ public class SchemaMapping extends AbstractBaseBean {
      * Specify if the mapped target resource's field is nullable.
      */
     @Column(nullable = false)
-    @Basic
-    private Character nullable;
+    private String mandatoryCondition;
 
     public SchemaMapping() {
         super();
 
         accountid = getBooleanAsCharacter(false);
         password = getBooleanAsCharacter(false);
-        nullable = getBooleanAsCharacter(true);
+        mandatoryCondition = Boolean.FALSE.toString();
     }
 
     public Long getId() {
@@ -101,12 +100,12 @@ public class SchemaMapping extends AbstractBaseBean {
         this.field = field;
     }
 
-    public boolean isNullable() {
-        return isBooleanAsCharacter(nullable);
+    public String getMandatoryCondition() {
+        return mandatoryCondition;
     }
 
-    public void setNullable(boolean nullable) {
-        this.nullable = getBooleanAsCharacter(nullable);
+    public void setMandatoryCondition(String mandatoryCondition) {
+        this.mandatoryCondition = mandatoryCondition;
     }
 
     public boolean isPassword() {

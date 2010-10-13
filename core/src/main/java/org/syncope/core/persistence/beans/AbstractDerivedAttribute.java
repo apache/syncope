@@ -24,7 +24,10 @@ import javax.persistence.MappedSuperclass;
 import org.apache.commons.jexl2.Expression;
 import org.apache.commons.jexl2.JexlContext;
 import org.apache.commons.jexl2.JexlEngine;
+import org.apache.commons.jexl2.JexlException;
 import org.apache.commons.jexl2.MapContext;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.syncope.core.persistence.util.ApplicationContextManager;
 
 /**
  * @see http://commons.apache.org/jexl/reference/index.html
@@ -32,13 +35,6 @@ import org.apache.commons.jexl2.MapContext;
 @MappedSuperclass
 public abstract class AbstractDerivedAttribute extends AbstractBaseBean {
 
-    private static final JexlEngine jexlEngine = new JexlEngine();
-
-    static {
-        jexlEngine.setCache(512);
-        jexlEngine.setLenient(true);
-        jexlEngine.setSilent(false);
-    }
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     protected Long id;
@@ -49,11 +45,13 @@ public abstract class AbstractDerivedAttribute extends AbstractBaseBean {
 
     /**
      * @see http://commons.apache.org/jexl/reference/index.html
-     * @return
+     * @param attributes the set of attributes against which evaluate this
+     * derived attribute
+     * @return the value of this derived attribute
      */
-    public String getValue(Collection<? extends AbstractAttribute> attributes) {
-        Expression jexlExpression = jexlEngine.createExpression(
-                getDerivedSchema().getExpression());
+    public String getValue(
+            final Collection<? extends AbstractAttribute> attributes) {
+
         JexlContext jexlContext = new MapContext();
 
         List<? extends AbstractAttributeValue> attributeValues = null;
@@ -78,7 +76,20 @@ public abstract class AbstractDerivedAttribute extends AbstractBaseBean {
             jexlContext.set(attribute.getSchema().getName(), expressionValue);
         }
 
-        return jexlExpression.evaluate(jexlContext).toString();
+        ConfigurableApplicationContext context =
+                ApplicationContextManager.getApplicationContext();
+        JexlEngine jexlEngine = (JexlEngine) context.getBean("jexlEngine");
+        String result = null;
+        try {
+            Expression jexlExpression = jexlEngine.createExpression(
+                    getDerivedSchema().getExpression());
+            result = jexlExpression.evaluate(jexlContext).toString();
+        } catch (JexlException e) {
+            LOG.error("Invalid jexl expression: "
+                    + getDerivedSchema().getExpression(), e);
+        }
+
+        return result;
     }
 
     public abstract <T extends AbstractAttributable> T getOwner();

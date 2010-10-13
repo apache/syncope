@@ -14,8 +14,10 @@
  */
 package org.syncope.core.persistence.dao.impl;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,8 +34,15 @@ public class ResourceDAOImpl extends AbstractDAOImpl
 
     @Override
     @Transactional(readOnly = true)
-    public TargetResource find(String name) {
-        return entityManager.find(TargetResource.class, name);
+    public TargetResource find(final String name) {
+        Query query = entityManager.createNamedQuery("TargetResource.find");
+        query.setParameter("name", name);
+
+        try {
+            return (TargetResource) query.getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
     }
 
     @Override
@@ -65,12 +74,24 @@ public class ResourceDAOImpl extends AbstractDAOImpl
     public List<SchemaMapping> getMappings(final String schemaName,
             final SchemaType schemaType) {
 
-        Query query = entityManager.createQuery("SELECT m FROM "
-                + SchemaMapping.class.getSimpleName()
-                + " m WHERE m.schemaName=:schemaName "
-                + "AND m.schemaType=:schemaType");
+        Query query = entityManager.createNamedQuery(
+                "TargetResource.getMappings");
         query.setParameter("schemaName", schemaName);
         query.setParameter("schemaType", schemaType);
+
+        return query.getResultList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<SchemaMapping> getMappings(final String schemaName,
+            final SchemaType schemaType, final String resourceName) {
+
+        Query query = entityManager.createNamedQuery(
+                "TargetResource.getMappingsByTargetResource");
+        query.setParameter("schemaName", schemaName);
+        query.setParameter("schemaType", schemaType);
+        query.setParameter("resourceName", resourceName);
 
         return query.getResultList();
     }

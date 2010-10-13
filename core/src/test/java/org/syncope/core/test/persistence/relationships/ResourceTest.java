@@ -69,7 +69,7 @@ public class ResourceTest extends AbstractTest {
         schemaMappingTO.setField("campo1");
         schemaMappingTO.setAccountid(true);
         schemaMappingTO.setPassword(false);
-        schemaMappingTO.setNullable(false);
+        schemaMappingTO.setMandatoryCondition("false");
 
         SchemaMappingTOs schemaMappingTOs = new SchemaMappingTOs();
         schemaMappingTOs.addMapping(schemaMappingTO);
@@ -122,6 +122,7 @@ public class ResourceTest extends AbstractTest {
 
             mapping.setSchemaName(userSchema.getName());
             mapping.setSchemaType(SchemaType.UserSchema);
+            mapping.setMandatoryCondition("false");
 
             resource.addMapping(mapping);
         }

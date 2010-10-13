@@ -126,7 +126,14 @@
           class="org.syncope.core.persistence.transaction.SpringJTAWithJPAFallbackTransactionManager">
         <property name="jpaTransactionManager" ref="jpaTransactionManager"/>
     </bean>
-    
+
+    <bean id="jexlEngine"
+          class="org.apache.commons.jexl2.JexlEngine">
+        <property name="cache" value="512"/>
+        <property name="lenient" value="true"/>
+        <property name="silent" value="false"/>
+    </bean>
+
     <bean id="propagationManager"
           class="org.syncope.core.persistence.propagation.PropagationManager"/>
 </beans>

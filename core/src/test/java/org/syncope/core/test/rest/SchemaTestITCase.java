@@ -31,7 +31,7 @@ public class SchemaTestITCase extends AbstractTestITCase {
     public void create() {
         SchemaTO schemaTO = new SchemaTO();
         schemaTO.setName("testAttribute");
-        schemaTO.setMandatory(true);
+        schemaTO.setMandatoryCondition("true");
         schemaTO.setType(SchemaValueType.String);
 
         SchemaTO newSchemaTO = restTemplate.postForObject(BASE_URL
@@ -56,8 +56,8 @@ public class SchemaTestITCase extends AbstractTestITCase {
         }
         assertNull(username);
 
-        restTemplate.delete(BASE_URL +
-                "schema/membership/delete/subscriptionDate.json");
+        restTemplate.delete(BASE_URL
+                + "schema/membership/delete/subscriptionDate.json");
         SchemaTO subscriptionDate = null;
         try {
             subscriptionDate = restTemplate.getForObject(BASE_URL
@@ -100,8 +100,8 @@ public class SchemaTestITCase extends AbstractTestITCase {
         try {
             restTemplate.postForObject(BASE_URL
                     + "schema/role/update", updatedTO, SchemaTO.class);
-        } catch (SyncopeClientCompositeErrorException e) {
-            syncopeClientException = e.getException(
+        } catch (SyncopeClientCompositeErrorException scce) {
+            syncopeClientException = scce.getException(
                     SyncopeClientExceptionType.InvalidUpdate);
         }
         assertNotNull(syncopeClientException);

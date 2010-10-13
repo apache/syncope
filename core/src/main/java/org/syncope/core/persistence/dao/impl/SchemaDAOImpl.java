@@ -16,7 +16,6 @@ package org.syncope.core.persistence.dao.impl;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import javax.persistence.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -24,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.AbstractAttribute;
 import org.syncope.core.persistence.beans.AbstractDerivedSchema;
 import org.syncope.core.persistence.beans.AbstractSchema;
-import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.dao.AttributeDAO;
 import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
@@ -53,13 +51,14 @@ public class SchemaDAOImpl extends AbstractDAOImpl
     public <T extends AbstractSchema> List<T> findAll(
             final Class<T> reference) {
 
-        Query query = entityManager.createQuery(
-                "SELECT e FROM " + reference.getSimpleName() + " e");
+        Query query = entityManager.createNamedQuery(
+                reference.getSimpleName() + ".findAll");
+
         return query.getResultList();
     }
 
     @Override
-    public <T extends AbstractSchema> T save(T schema)
+    public <T extends AbstractSchema> T save(final T schema)
             throws MultiUniqueValueException {
 
         if (schema.isMultivalue() && schema.isUniquevalue()) {
@@ -93,50 +92,5 @@ public class SchemaDAOImpl extends AbstractDAOImpl
         resourceDAO.deleteMappings(name, SchemaType.byClass(reference));
 
         entityManager.remove(schema);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public boolean isMandatoryOnResource(
-            AbstractSchema schema, TargetResource resource) {
-
-        Query query = entityManager.createQuery(
-                "SELECT e "
-                + "FROM SchemaMapping e "
-                + "WHERE e.schemaName='" + schema.getName() + "' "
-                + "AND e.resource.name='" + resource.getName() + "' "
-                + "AND e.nullable='F'");
-
-        return resource.isForceMandatoryConstraint()
-                && !query.getResultList().isEmpty();
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public boolean isMandatoryOnResources(
-            AbstractSchema schema, Set<TargetResource> resources) {
-
-        StringBuilder queryBuilder = new StringBuilder();
-
-        for (TargetResource resource : resources) {
-            if (resource.isForceMandatoryConstraint()) {
-                queryBuilder.append(queryBuilder.length() > 0 ? " OR " : "");
-                queryBuilder.append("e.resource.name='");
-                queryBuilder.append(resource.getName());
-                queryBuilder.append("'");
-            }
-        }
-
-        Query query = null;
-        if (queryBuilder.length() > 0) {
-            query = entityManager.createQuery(
-                    "SELECT e "
-                    + "FROM SchemaMapping e "
-                    + "WHERE e.schemaName='" + schema.getName() + "' "
-                    + "AND (" + queryBuilder.toString() + ") "
-                    + "AND e.nullable='F'");
-        }
-
-        return query != null && !query.getResultList().isEmpty();
     }
 }

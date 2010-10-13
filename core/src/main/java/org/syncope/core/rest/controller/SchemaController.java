@@ -42,13 +42,14 @@ public class SchemaController extends AbstractController {
     private SchemaDataBinder schemaDataBinder;
 
     @RequestMapping(method = RequestMethod.POST, value = "/{kind}/create")
-    public SchemaTO create(HttpServletResponse response,
-            @RequestBody SchemaTO schemaTO,
-            @PathVariable("kind") String kind)
-            throws MultiUniqueValueException {
+    public SchemaTO create(final HttpServletResponse response,
+            @RequestBody final SchemaTO schemaTO,
+            @PathVariable("kind") final String kind)
+            throws MultiUniqueValueException,
+            SyncopeClientCompositeErrorException {
 
-        AbstractSchema schema = getAttributableUtil(kind).newSchema();
-        schema = schemaDataBinder.createSchema(schemaTO, schema,
+        AbstractSchema schema = schemaDataBinder.create(schemaTO,
+                getAttributableUtil(kind).newSchema(),
                 getAttributableUtil(kind).getDerivedSchemaClass());
 
         schema = schemaDAO.save(schema);
@@ -59,9 +60,8 @@ public class SchemaController extends AbstractController {
 
     @RequestMapping(method = RequestMethod.DELETE,
     value = "/{kind}/delete/{schema}")
-    public void delete(HttpServletResponse response,
-            @PathVariable("kind") String kind,
-            @PathVariable("schema") String schemaName)
+    public void delete(@PathVariable("kind") final String kind,
+            @PathVariable("schema") final String schemaName)
             throws NotFoundException {
 
         Class reference = getAttributableUtil(kind).getSchemaClass();
@@ -76,7 +76,7 @@ public class SchemaController extends AbstractController {
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/{kind}/list")
-    public SchemaTOs list(@PathVariable("kind") String kind) {
+    public SchemaTOs list(@PathVariable("kind") final String kind) {
 
         Class reference = getAttributableUtil(kind).getSchemaClass();
         List<AbstractSchema> schemas = schemaDAO.findAll(reference);
@@ -93,45 +93,35 @@ public class SchemaController extends AbstractController {
 
     @RequestMapping(method = RequestMethod.GET,
     value = "/{kind}/read/{schema}")
-    public SchemaTO read(HttpServletResponse response,
-            @PathVariable("kind") String kind,
-            @PathVariable("schema") String schemaName)
+    public SchemaTO read(@PathVariable("kind") final String kind,
+            @PathVariable("schema") final String schemaName)
             throws NotFoundException {
 
         Class reference = getAttributableUtil(kind).getSchemaClass();
         AbstractSchema schema = schemaDAO.find(schemaName, reference);
         if (schema == null) {
             LOG.error("Could not find schema '" + schemaName + "'");
-
-            throw new NotFoundException(schemaName);
+            throw new NotFoundException("Schema '" + schemaName + "'");
         }
 
         return schemaDataBinder.getSchemaTO(schema);
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/{kind}/update")
-    public SchemaTO update(HttpServletResponse response,
-            @RequestBody SchemaTO schemaTO, @PathVariable("kind") String kind)
+    public SchemaTO update(@RequestBody final SchemaTO schemaTO,
+            @PathVariable("kind") final String kind)
             throws SyncopeClientCompositeErrorException,
             MultiUniqueValueException, NotFoundException {
 
         Class reference = getAttributableUtil(kind).getSchemaClass();
-        AbstractSchema schema = null;
-        try {
-            schema = schemaDataBinder.updateSchema(schemaTO,
-                    reference,
-                    getAttributableUtil(kind).getDerivedSchemaClass());
-            if (schema == null) {
-                LOG.error("Could not find schema '" + schemaTO.getName() + "'");
-
-                throw new NotFoundException(schemaTO.getName());
-            }
-        } catch (SyncopeClientCompositeErrorException e) {
-            LOG.error("Could not update for " + schemaTO, e);
-
-            throw e;
+        AbstractSchema schema = schemaDAO.find(schemaTO.getName(), reference);
+        if (schema == null) {
+            LOG.error("Could not find schema '" + schemaTO.getName() + "'");
+            throw new NotFoundException("Schema '" + schemaTO.getName() + "'");
         }
 
+        schema = schemaDataBinder.update(schemaTO,
+                schema, getAttributableUtil(kind).getDerivedSchemaClass());
         schema = schemaDAO.save(schema);
 
         return schemaDataBinder.getSchemaTO(schema);

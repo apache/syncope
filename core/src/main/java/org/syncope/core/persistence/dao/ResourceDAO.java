@@ -29,6 +29,9 @@ public interface ResourceDAO extends DAO {
 
     List<SchemaMapping> getMappings(String schemaName, SchemaType schemaType);
 
+    List<SchemaMapping> getMappings(String schemaName, SchemaType schemaType,
+            String resourceName);
+
     void deleteMappings(String schemaName, SchemaType schemaType);
 
     void delete(String name);

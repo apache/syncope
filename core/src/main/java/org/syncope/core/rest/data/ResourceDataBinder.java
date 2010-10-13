@@ -17,6 +17,8 @@ package org.syncope.core.rest.data;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import org.apache.commons.jexl2.JexlEngine;
+import org.apache.commons.jexl2.JexlException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -40,12 +42,17 @@ import org.syncope.types.SyncopeClientExceptionType;
 @Transactional(rollbackFor = {Throwable.class})
 public class ResourceDataBinder {
 
+    /**
+     * Logger.
+     */
     private static final Logger LOG = LoggerFactory.getLogger(
             ResourceDataBinder.class);
     private static final String[] ignoreMappingProperties = {
         "id", "resource"};
     @Autowired
     private ConnectorInstanceDAO connectorInstanceDAO;
+    @Autowired
+    private JexlEngine jexlEngine;
 
     public TargetResource getResource(ResourceTO resourceTO)
             throws SyncopeClientCompositeErrorException {
@@ -148,7 +155,7 @@ public class ResourceDataBinder {
         return resourceTO;
     }
 
-    public List<SchemaMapping> getSchemaMappings(
+    private List<SchemaMapping> getSchemaMappings(
             TargetResource resource,
             SchemaMappingTOs mappings) {
 
@@ -166,7 +173,7 @@ public class ResourceDataBinder {
 
     private SchemaMapping getSchemaMapping(
             TargetResource resource,
-            SchemaMappingTO mapping)
+            SchemaMappingTO mappingTO)
             throws SyncopeClientCompositeErrorException {
 
         SyncopeClientCompositeErrorException compositeErrorException =
@@ -177,22 +184,23 @@ public class ResourceDataBinder {
                 new SyncopeClientException(
                 SyncopeClientExceptionType.RequiredValuesMissing);
 
-        if (mapping == null) {
-            LOG.error("Provided null mapping");
+        if (mappingTO == null) {
+            LOG.error("Null mappingTO provided");
 
             return null;
         }
 
-        if (mapping.getSchemaName() == null) {
+        if (mappingTO.getSchemaName() == null) {
             requiredValuesMissing.addElement("schema");
         }
-
-        if (mapping.getField() == null) {
+        if (mappingTO.getField() == null) {
             requiredValuesMissing.addElement("field");
         }
-
-        if (mapping.getSchemaType() == null) {
+        if (mappingTO.getSchemaType() == null) {
             requiredValuesMissing.addElement("type");
+        }
+        if (mappingTO.getMandatoryCondition() == null) {
+            requiredValuesMissing.addElement("mandatoryCondition");
         }
 
         // a resource must be provided
@@ -206,6 +214,21 @@ public class ResourceDataBinder {
             compositeErrorException.addException(requiredValuesMissing);
         }
 
+        try {
+            jexlEngine.createExpression(mappingTO.getMandatoryCondition());
+        } catch (JexlException e) {
+            LOG.error("Invalid mandatory condition: "
+                    + mappingTO.getMandatoryCondition(), e);
+
+            SyncopeClientException invalidMandatoryCondition =
+                    new SyncopeClientException(
+                    SyncopeClientExceptionType.InvalidValues);
+            invalidMandatoryCondition.addElement(
+                    mappingTO.getMandatoryCondition());
+
+            compositeErrorException.addException(invalidMandatoryCondition);
+        }
+
         if (compositeErrorException.hasExceptions()) {
             throw compositeErrorException;
         }
@@ -213,7 +236,7 @@ public class ResourceDataBinder {
         SchemaMapping schemaMapping = new SchemaMapping();
 
         BeanUtils.copyProperties(
-                mapping, schemaMapping, ignoreMappingProperties);
+                mappingTO, schemaMapping, ignoreMappingProperties);
 
         schemaMapping.setResource(resource);
 
@@ -246,8 +269,7 @@ public class ResourceDataBinder {
         return schemaMappingTOs;
     }
 
-    public SchemaMappingTO getSchemaMappingTO(
-            SchemaMapping schemaMapping) {
+    public SchemaMappingTO getSchemaMappingTO(SchemaMapping schemaMapping) {
         if (schemaMapping == null) {
             LOG.error("Provided null mapping");
 
