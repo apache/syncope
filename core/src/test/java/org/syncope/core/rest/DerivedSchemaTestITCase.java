@@ -12,14 +12,14 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.test.rest;
+package org.syncope.core.rest;
 
 import org.syncope.client.to.DerivedSchemaTOs;
 import org.syncope.client.to.DerivedSchemaTO;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-public class DerivedSchemaTestITCase extends AbstractTestITCase {
+public class DerivedSchemaTestITCase extends AbstractTest {
 
     @Test
     public void derivedList() {

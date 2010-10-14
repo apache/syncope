@@ -12,7 +12,7 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.test.rest;
+package org.syncope.core.rest;
 
 import static org.junit.Assert.*;
 
@@ -27,7 +27,7 @@ import org.syncope.client.to.SchemaMappingTOs;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.types.SchemaType;
 
-public class ResourceTestITCase extends AbstractTestITCase {
+public class ResourceTestITCase extends AbstractTest {
 
     @Test
     @ExpectedException(value = SyncopeClientCompositeErrorException.class)

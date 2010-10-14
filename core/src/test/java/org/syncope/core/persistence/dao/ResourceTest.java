@@ -12,7 +12,7 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.test.persistence;
+package org.syncope.core.persistence.dao;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,10 +25,11 @@ import org.syncope.core.persistence.beans.ConnectorInstance;
 import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.dao.ResourceDAO;
+import org.syncope.core.persistence.AbstractTest;
 import org.syncope.identityconnectors.bundles.staticwebservice.WebServiceConnector;
 
 @Transactional
-public class ResourceDAOTest extends AbstractTest {
+public class ResourceTest extends AbstractTest {
 
     @Autowired
     private ResourceDAO resourceDAO;

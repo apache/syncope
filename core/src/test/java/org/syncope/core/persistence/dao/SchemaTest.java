@@ -12,7 +12,7 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.test.persistence;
+package org.syncope.core.persistence.dao;
 
 import static org.junit.Assert.*;
 
@@ -25,10 +25,11 @@ import org.syncope.core.persistence.beans.user.UserSchema;
 import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.validation.MultiUniqueValueException;
+import org.syncope.core.persistence.AbstractTest;
 import org.syncope.types.SchemaValueType;
 
 @Transactional
-public class SchemaDAOTest extends AbstractTest {
+public class SchemaTest extends AbstractTest {
 
     @Autowired
     private SchemaDAO schemaDAO;

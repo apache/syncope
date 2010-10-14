@@ -12,7 +12,7 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.test.persistence;
+package org.syncope.core.persistence.dao;
 
 import static org.junit.Assert.*;
 
@@ -26,9 +26,10 @@ import org.syncope.core.persistence.beans.user.UserSchema;
 import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.AttributeDAO;
 import org.syncope.core.persistence.validation.ValidationException;
+import org.syncope.core.persistence.AbstractTest;
 
 @Transactional
-public class AttributeDAOTest extends AbstractTest {
+public class AttributeTest extends AbstractTest {
 
     @Autowired
     private AttributeDAO attributeDAO;

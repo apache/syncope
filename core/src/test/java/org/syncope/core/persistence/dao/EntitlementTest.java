@@ -12,7 +12,7 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.test.persistence;
+package org.syncope.core.persistence.dao;
 
 import static org.junit.Assert.*;
 
@@ -24,9 +24,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.Entitlement;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.dao.EntitlementDAO;
+import org.syncope.core.persistence.AbstractTest;
 
 @Transactional
-public class EntitlementDAOTest extends AbstractTest {
+public class EntitlementTest extends AbstractTest {
 
     @Autowired
     private EntitlementDAO entitlementDAO;

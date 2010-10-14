@@ -12,7 +12,7 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.test.rest;
+package org.syncope.core.rest;
 
 import java.io.InputStream;
 import static org.junit.Assert.*;
@@ -33,7 +33,7 @@ import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.identityconnectors.bundles.staticwebservice.WebServiceConnector;
 import org.syncope.types.ConnectorCapability;
 
-public class ConnectorInstanceTestITCase extends AbstractTestITCase {
+public class ConnectorInstanceTestITCase extends AbstractTest {
 
     protected static String bundles_version;
     protected static String bundles_directory;

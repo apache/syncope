@@ -12,7 +12,7 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.test.rest;
+package org.syncope.core.rest;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -39,7 +39,7 @@ import org.syncope.client.validation.SyncopeClientException;
 import org.syncope.core.workflow.Constants;
 import org.syncope.types.SyncopeClientExceptionType;
 
-public class UserTestITCase extends AbstractTestITCase {
+public class UserTestITCase extends AbstractTest {
 
     private UserTO getSampleTO(final String email) {
         UserTO userTO = new UserTO();

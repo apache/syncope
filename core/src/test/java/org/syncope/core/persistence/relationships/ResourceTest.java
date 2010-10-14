@@ -12,7 +12,7 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.test.persistence.relationships;
+package org.syncope.core.persistence.relationships;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -36,7 +36,7 @@ import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.SyncopeUserDAO;
 import org.syncope.core.rest.data.ResourceDataBinder;
-import org.syncope.core.test.persistence.AbstractTest;
+import org.syncope.core.persistence.AbstractTest;
 import org.syncope.types.SchemaType;
 
 @Transactional

@@ -12,7 +12,7 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.test.rest;
+package org.syncope.core.rest;
 
 import java.io.UnsupportedEncodingException;
 import static org.junit.Assert.*;
@@ -23,7 +23,7 @@ import org.springframework.web.client.HttpStatusCodeException;
 import org.syncope.client.to.ConfigurationTO;
 import org.syncope.client.to.ConfigurationTOs;
 
-public class ConfigurationTestITCase extends AbstractTestITCase {
+public class ConfigurationTestITCase extends AbstractTest {
 
     @Test
     public void create() {

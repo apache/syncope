@@ -12,7 +12,7 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.test.persistence.relationships;
+package org.syncope.core.persistence.relationships;
 
 import static org.junit.Assert.*;
 import org.junit.Test;
@@ -29,7 +29,7 @@ import org.syncope.core.persistence.dao.EntitlementDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.SyncopeRoleDAO;
 import org.syncope.core.persistence.dao.SyncopeUserDAO;
-import org.syncope.core.test.persistence.AbstractTest;
+import org.syncope.core.persistence.AbstractTest;
 
 @Transactional
 public class RoleTest extends AbstractTest {

@@ -12,7 +12,7 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.test.persistence;
+package org.syncope.core.persistence.dao;
 
 import static org.junit.Assert.*;
 
@@ -25,9 +25,10 @@ import org.syncope.client.search.MembershipCond;
 import org.syncope.client.search.NodeCond;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.SyncopeUserDAO;
+import org.syncope.core.persistence.AbstractTest;
 
 @Transactional
-public class SyncopeUserDAOTest extends AbstractTest {
+public class SyncopeUserTest extends AbstractTest {
 
     @Autowired
     private SyncopeUserDAO syncopeUserDAO;

@@ -12,7 +12,7 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.test.rest;
+package org.syncope.core.rest;
 
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -28,13 +28,13 @@ import org.springframework.web.client.RestTemplate;
     "classpath:workflowContext.xml",
     "file:target/syncope/WEB-INF/syncope-core-rest-servlet.xml"
 })
-public abstract class AbstractTestITCase {
+public abstract class AbstractTest {
 
     /**
      * Logger.
      */
     protected static final Logger LOG = LoggerFactory.getLogger(
-            AbstractTestITCase.class);
+            AbstractTest.class);
     protected static final String BASE_URL =
             "http://localhost:9080/syncope/rest/";
     @Autowired

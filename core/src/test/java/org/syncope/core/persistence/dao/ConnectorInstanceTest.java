@@ -12,7 +12,7 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.test.persistence;
+package org.syncope.core.persistence.dao;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -25,10 +25,11 @@ import org.syncope.client.to.PropertyTO;
 import org.syncope.core.persistence.ConnectorInstanceLoader;
 import org.syncope.core.persistence.beans.ConnectorInstance;
 import org.syncope.core.persistence.dao.ConnectorInstanceDAO;
+import org.syncope.core.persistence.AbstractTest;
 import org.syncope.identityconnectors.bundles.staticwebservice.WebServiceConnector;
 
 @Transactional
-public class ConnectorInstanceDAOTest extends AbstractTest {
+public class ConnectorInstanceTest extends AbstractTest {
 
     @Autowired
     private ConnectorInstanceDAO connectorInstanceDAO;

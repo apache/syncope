@@ -12,49 +12,47 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.test.persistence.relationships;
+package org.syncope.core.persistence.relationships;
 
 import static org.junit.Assert.*;
 import org.junit.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.syncope.core.persistence.beans.user.UserDerivedAttribute;
-import org.syncope.core.persistence.beans.user.UserDerivedSchema;
+import org.syncope.core.persistence.beans.user.UserAttribute;
+import org.syncope.core.persistence.beans.user.UserAttributeValue;
 import org.syncope.core.persistence.beans.user.UserSchema;
 import org.syncope.core.persistence.dao.AttributeDAO;
-import org.syncope.core.persistence.dao.DerivedAttributeDAO;
-import org.syncope.core.persistence.dao.DerivedSchemaDAO;
+import org.syncope.core.persistence.dao.AttributeValueDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
+import org.syncope.core.persistence.dao.SyncopeRoleDAO;
 import org.syncope.core.persistence.dao.SyncopeUserDAO;
-import org.syncope.core.test.persistence.AbstractTest;
+import org.syncope.core.persistence.AbstractTest;
 
 @Transactional
-public class DerivedSchemaTest extends AbstractTest {
+public class UserTest extends AbstractTest {
 
     @Autowired
     private SyncopeUserDAO syncopeUserDAO;
     @Autowired
-    private SchemaDAO schemaDAO;
+    private SyncopeRoleDAO syncopeRoleDAO;
     @Autowired
-    private DerivedSchemaDAO derivedSchemaDAO;
+    private SchemaDAO schemaDAO;
     @Autowired
     private AttributeDAO attributeDAO;
     @Autowired
-    DerivedAttributeDAO derivedAttributeDAO;
+    private AttributeValueDAO attributeValueDAO;
 
     @Test
     public final void test() {
-        derivedSchemaDAO.delete("cn", UserDerivedSchema.class);
+        syncopeUserDAO.delete(4L);
 
-        derivedSchemaDAO.flush();
+        syncopeUserDAO.flush();
 
-        assertNull(derivedSchemaDAO.find("cn", UserDerivedSchema.class));
-        assertNull(derivedAttributeDAO.find(1000L, UserDerivedAttribute.class));
-        assertTrue(schemaDAO.find("surname",
-                UserSchema.class).getDerivedSchemas().isEmpty());
-        assertTrue(schemaDAO.find("firstname",
-                UserSchema.class).getDerivedSchemas().isEmpty());
-        assertNull(syncopeUserDAO.find(3L).getDerivedAttribute("cn"));
+        assertNull(syncopeUserDAO.find(4L));
+        assertNull(attributeDAO.find(550L, UserAttribute.class));
+        assertNull(attributeValueDAO.find(22L, UserAttributeValue.class));
+        assertNotNull(schemaDAO.find("loginDate", UserSchema.class));
+        assertTrue(syncopeRoleDAO.find(7L).getUsers().isEmpty());
     }
 }

@@ -12,7 +12,7 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.test.persistence;
+package org.syncope.core.persistence.dao;
 
 import static org.junit.Assert.*;
 
@@ -20,58 +20,57 @@ import java.util.List;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import org.syncope.core.persistence.beans.membership.Membership;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
+import org.syncope.core.persistence.beans.user.SyncopeUser;
+import org.syncope.core.persistence.dao.MembershipDAO;
 import org.syncope.core.persistence.dao.SyncopeRoleDAO;
+import org.syncope.core.persistence.dao.SyncopeUserDAO;
+import org.syncope.core.persistence.AbstractTest;
 
 @Transactional
-public class SyncopeRoleDAOTest extends AbstractTest {
+public class MembershipTest extends AbstractTest {
 
+    @Autowired
+    private MembershipDAO membershipDAO;
+    @Autowired
+    private SyncopeUserDAO syncopeUserDAO;
     @Autowired
     private SyncopeRoleDAO syncopeRoleDAO;
 
     @Test
     public final void findAll() {
-        List<SyncopeRole> list = syncopeRoleDAO.findAll();
-        assertEquals("did not get expected number of roles ", 8, list.size());
-    }
-
-    @Test
-    public final void findChildren() {
-        assertEquals(2, syncopeRoleDAO.findChildren(4L).size());
+        List<Membership> list = membershipDAO.findAll();
+        assertEquals(5, list.size());
     }
 
     @Test
     public final void find() {
-        SyncopeRole role = syncopeRoleDAO.find("root", null);
-        assertNotNull("did not find expected role", role);
-        role = syncopeRoleDAO.find(null, null);
-        assertNull("found role but did not expect it", role);
+        Membership membership = membershipDAO.find(1L);
+        assertNotNull("did not find expected membership", membership);
     }
 
     @Test
     public final void save() {
-        SyncopeRole role = new SyncopeRole();
-        role.setName("secondChild");
+        SyncopeUser user = syncopeUserDAO.find(4L);
+        SyncopeRole role = syncopeRoleDAO.find(1L);
 
-        SyncopeRole rootRole = syncopeRoleDAO.find("root", null);
-        role.setParent(rootRole);
+        Membership membership = new Membership();
+        membership.setSyncopeUser(user);
+        membership.setSyncopeRole(role);
 
-        role = syncopeRoleDAO.save(role);
+        membership = membershipDAO.save(membership);
 
-        SyncopeRole actual = syncopeRoleDAO.find(role.getId());
+        Membership actual = membershipDAO.find(membership.getId());
         assertNotNull("expected save to work", actual);
     }
 
     @Test
     public final void delete() {
-        SyncopeRole role = syncopeRoleDAO.find(4L);
-        syncopeRoleDAO.delete(role.getId());
+        Membership membership = membershipDAO.find(4L);
+        membershipDAO.delete(membership.getId());
 
-        SyncopeRole actual = syncopeRoleDAO.find(4L);
+        Membership actual = membershipDAO.find(4L);
         assertNull("delete did not work", actual);
-
-        SyncopeRole children = syncopeRoleDAO.find(7L);
-        assertNull("delete of successors did not work", children);
-
     }
 }
