@@ -59,7 +59,7 @@
     <SyncopeRole id="0" name="/" inheritAttributes="F" inheritDerivedAttributes="F"/>
 
     <MembershipSchema name="subscriptionDate" type="Date" virtual="F"
-                      mandatory="F" multivalue="F" uniquevalue="F" readonly='F'
+                      mandatoryCondition="false" multivalue="F" uniquevalue="F" readonly='F'
                       conversionPattern="yyyy-MM-dd'T'HH:mm:ss.SSSZ"/>
 
 </dataset>

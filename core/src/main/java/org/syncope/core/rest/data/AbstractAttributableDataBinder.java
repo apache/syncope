@@ -223,15 +223,14 @@ public abstract class AbstractAttributableDataBinder {
         List<SchemaMapping> mappings = resourceDAO.getMappings(schemaName,
                 SchemaType.byClass(referenceSchema), resourceName);
 
-        boolean result = mappings == null || mappings.isEmpty()
-                ? false : true;
+        boolean result = false;
 
         SchemaMapping mapping;
         for (Iterator<SchemaMapping> itor = mappings.iterator();
-                itor.hasNext() && result;) {
+                itor.hasNext() && !result;) {
 
             mapping = itor.next();
-            result &= evaluateMandatoryCondition(
+            result |= evaluateMandatoryCondition(
                     mapping.getMandatoryCondition(),
                     attributes,
                     referenceSchema);
@@ -246,16 +245,17 @@ public abstract class AbstractAttributableDataBinder {
             final String schemaName,
             final Class<T> referenceSchema) {
 
-        boolean result = resources == null || resources.isEmpty()
-                ? false : true;
+        boolean result = false;
 
         TargetResource resource;
         for (Iterator<TargetResource> itor = resources.iterator();
-                itor.hasNext() && result;) {
+                itor.hasNext() && !result;) {
 
             resource = itor.next();
-            result &= evaluateMandatoryCondition(resource.getName(),
-                    attributes, schemaName, referenceSchema);
+            if (resource.isForceMandatoryConstraint()) {
+                result |= evaluateMandatoryCondition(resource.getName(),
+                        attributes, schemaName, referenceSchema);
+            }
         }
 
         return result;
