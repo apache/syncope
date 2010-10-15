@@ -2,9 +2,9 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,20 +14,22 @@
  */
 package org.syncope.client.to;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import org.syncope.client.AbstractBaseBean;
 
 public abstract class AbstractAttributableTO extends AbstractBaseBean {
 
     private long id;
-    private Set<AttributeTO> attributes;
-    private Set<AttributeTO> derivedAttributes;
+    private List<AttributeTO> attributes;
+    private List<AttributeTO> derivedAttributes;
     private Set<String> resources;
 
     protected AbstractAttributableTO() {
-        attributes = new HashSet<AttributeTO>();
-        derivedAttributes = new HashSet<AttributeTO>();
+        attributes = new ArrayList<AttributeTO>();
+        derivedAttributes = new ArrayList<AttributeTO>();
         resources = new HashSet<String>();
     }
 
@@ -47,11 +49,11 @@ public abstract class AbstractAttributableTO extends AbstractBaseBean {
         return attributes.remove(attribute);
     }
 
-    public Set<AttributeTO> getAttributes() {
+    public List<AttributeTO> getAttributes() {
         return attributes;
     }
 
-    public void setAttributes(final Set<AttributeTO> attributes) {
+    public void setAttributes(final List<AttributeTO> attributes) {
         this.attributes = attributes;
     }
 
@@ -63,11 +65,13 @@ public abstract class AbstractAttributableTO extends AbstractBaseBean {
         return derivedAttributes.remove(derivedAttribute);
     }
 
-    public Set<AttributeTO> getDerivedAttributes() {
+    public List<AttributeTO> getDerivedAttributes() {
         return derivedAttributes;
     }
 
-    public void setDerivedAttributes(final Set<AttributeTO> derivedAttributes) {
+    public void setDerivedAttributes(
+            final List<AttributeTO> derivedAttributes) {
+
         this.derivedAttributes = derivedAttributes;
     }
 

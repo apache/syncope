@@ -14,14 +14,14 @@
  */
 package org.syncope.client.to;
 
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 public class UserTO extends AbstractAttributableTO {
 
     private String password;
-    private Set<MembershipTO> memberships;
+    private List<MembershipTO> memberships;
     private String status;
     private String token;
     private Date tokenExpireTime;
@@ -29,7 +29,7 @@ public class UserTO extends AbstractAttributableTO {
     public UserTO() {
         super();
 
-        memberships = new HashSet<MembershipTO>();
+        memberships = new ArrayList<MembershipTO>();
     }
 
     public String getPassword() {
@@ -48,11 +48,11 @@ public class UserTO extends AbstractAttributableTO {
         return memberships.remove(membershipTO);
     }
 
-    public Set<MembershipTO> getMemberships() {
+    public List<MembershipTO> getMemberships() {
         return memberships;
     }
 
-    public void setMemberships(Set<MembershipTO> memberships) {
+    public void setMemberships(List<MembershipTO> memberships) {
         this.memberships = memberships;
     }
 

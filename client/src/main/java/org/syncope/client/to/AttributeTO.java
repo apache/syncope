@@ -2,9 +2,9 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,8 +14,8 @@
  */
 package org.syncope.client.to;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import org.syncope.client.AbstractBaseBean;
 
 /**
@@ -30,7 +30,7 @@ public class AttributeTO extends AbstractBaseBean {
     /**
      * Set of (string) values of this attribute.
      */
-    private Set<String> values;
+    private List<String> values;
     /**
      * Wether this attribute is read-only or not.
      */
@@ -41,7 +41,7 @@ public class AttributeTO extends AbstractBaseBean {
      */
     public AttributeTO() {
         super();
-        values = new HashSet<String>();
+        values = new ArrayList<String>();
         readonly = false;
     }
 
@@ -79,14 +79,14 @@ public class AttributeTO extends AbstractBaseBean {
     /**
      * @return attribute values as strings
      */
-    public Set<String> getValues() {
+    public List<String> getValues() {
         return values;
     }
 
     /**
      * @param values set of (string) values
      */
-    public void setValues(final Set<String> values) {
+    public void setValues(final List<String> values) {
         if (!isReadonly()) {
             this.values = values;
         }
