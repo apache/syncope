@@ -15,6 +15,7 @@
  */
 package org.syncope.core.rest.controller;
 
+import java.util.ArrayList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,9 +31,7 @@ import org.identityconnectors.framework.api.ConnectorKey;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.servlet.ModelAndView;
 import org.syncope.client.to.ConnectorBundleTO;
-import org.syncope.client.to.ConnectorBundleTOs;
 import org.syncope.client.to.ConnectorInstanceTO;
-import org.syncope.client.to.ConnectorInstanceTOs;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.core.persistence.ConnectorInstanceLoader;
 import org.syncope.core.persistence.beans.ConnectorInstance;
@@ -127,19 +126,18 @@ public class ConnectorInstanceController extends AbstractController {
 
     @RequestMapping(method = RequestMethod.GET,
     value = "/list")
-    public ConnectorInstanceTOs list() {
+    public ModelAndView list() {
 
         List<ConnectorInstance> connectorInstances =
                 connectorInstanceDAO.findAll();
 
-        ConnectorInstanceTOs connectorInstanceTOs = new ConnectorInstanceTOs();
-
+        List<ConnectorInstanceTO> connectorInstanceTOs =
+                new ArrayList<ConnectorInstanceTO>();
         for (ConnectorInstance connector : connectorInstances) {
-            connectorInstanceTOs.addInstance(
-                    binder.getConnectorInstanceTO(connector));
+            connectorInstanceTOs.add(binder.getConnectorInstanceTO(connector));
         }
 
-        return connectorInstanceTOs;
+        return new ModelAndView().addObject(connectorInstanceTOs);
     }
 
     @RequestMapping(method = RequestMethod.GET,
@@ -189,7 +187,7 @@ public class ConnectorInstanceController extends AbstractController {
 
     @RequestMapping(method = RequestMethod.GET,
     value = "/getBundles")
-    public ConnectorBundleTOs getBundles()
+    public ModelAndView getBundles()
             throws NotFoundException, MissingConfKeyException {
 
         ConnectorInfoManager manager =
@@ -209,7 +207,8 @@ public class ConnectorInstanceController extends AbstractController {
         ConnectorKey key = null;
         ConfigurationProperties properties = null;
 
-        ConnectorBundleTOs connectorBundleTOs = new ConnectorBundleTOs();
+        List<ConnectorBundleTO> connectorBundleTOs =
+                new ArrayList<ConnectorBundleTO>();
         for (ConnectorInfo bundle : bundles) {
             connectorBundleTO = new ConnectorBundleTO();
             connectorBundleTO.setDisplayName(bundle.getConnectorDisplayName());
@@ -236,9 +235,9 @@ public class ConnectorInstanceController extends AbstractController {
                         + connectorBundleTO.getProperties());
             }
 
-            connectorBundleTOs.addBundle(connectorBundleTO);
+            connectorBundleTOs.add(connectorBundleTO);
         }
 
-        return connectorBundleTOs;
+        return new ModelAndView().addObject(connectorBundleTOs);
     }
 }

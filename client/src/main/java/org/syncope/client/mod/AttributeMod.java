@@ -14,19 +14,19 @@
  */
 package org.syncope.client.mod;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import org.syncope.client.AbstractBaseBean;
 
 public class AttributeMod extends AbstractBaseBean {
 
     private String schema;
-    private Set<String> valuesToBeAdded;
-    private Set<String> valuesToBeRemoved;
+    private List<String> valuesToBeAdded;
+    private List<String> valuesToBeRemoved;
 
     public AttributeMod() {
-        valuesToBeAdded = new HashSet<String>();
-        valuesToBeRemoved = new HashSet<String>();
+        valuesToBeAdded = new ArrayList<String>();
+        valuesToBeRemoved = new ArrayList<String>();
     }
 
     public String getSchema() {
@@ -45,11 +45,11 @@ public class AttributeMod extends AbstractBaseBean {
         return valuesToBeAdded.remove(value);
     }
 
-    public Set<String> getValuesToBeAdded() {
+    public List<String> getValuesToBeAdded() {
         return valuesToBeAdded;
     }
 
-    public void setValuesToBeAdded(Set<String> valuesToBeAdded) {
+    public void setValuesToBeAdded(List<String> valuesToBeAdded) {
         this.valuesToBeAdded = valuesToBeAdded;
     }
 
@@ -61,11 +61,11 @@ public class AttributeMod extends AbstractBaseBean {
         return valuesToBeRemoved.remove(value);
     }
 
-    public Set<String> getValuesToBeRemoved() {
+    public List<String> getValuesToBeRemoved() {
         return valuesToBeRemoved;
     }
 
-    public void setValuesToBeRemoved(Set<String> valuesToBeRemoved) {
+    public void setValuesToBeRemoved(List<String> valuesToBeRemoved) {
         this.valuesToBeRemoved = valuesToBeRemoved;
     }
 }

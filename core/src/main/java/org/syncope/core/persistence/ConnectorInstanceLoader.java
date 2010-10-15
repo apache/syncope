@@ -2,9 +2,9 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,14 +14,8 @@
  */
 package org.syncope.core.persistence;
 
-import java.beans.XMLDecoder;
-import java.beans.XMLEncoder;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.net.URL;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import javassist.NotFoundException;
@@ -131,6 +125,9 @@ public class ConnectorInstanceLoader implements ServletContextListener {
             removeConnector(instance.getId().toString());
         }
 
+        ConfigurableApplicationContext context =
+                ApplicationContextManager.getApplicationContext();
+
         ConnectorFacadeProxy connector = new ConnectorFacadeProxy(instance);
 
         if (LOG.isDebugEnabled()) {
@@ -147,43 +144,6 @@ public class ConnectorInstanceLoader implements ServletContextListener {
 
     public static void removeConnector(final String id) {
         getBeanFactory().destroySingleton(id);
-    }
-
-    public static String serializeToXML(Object obj) {
-        String result = null;
-
-        try {
-            ByteArrayOutputStream tokenContentOS = new ByteArrayOutputStream();
-            XMLEncoder encoder = new XMLEncoder(tokenContentOS);
-            encoder.writeObject(obj);
-            encoder.flush();
-            encoder.close();
-
-            result = URLEncoder.encode(tokenContentOS.toString(), "UTF-8");
-        } catch (Throwable t) {
-            LOG.error("Exception during connector serialization", t);
-        }
-
-        return result;
-    }
-
-    public static Object buildFromXML(String xml) {
-        Object result = null;
-
-        try {
-            ByteArrayInputStream tokenContentIS = new ByteArrayInputStream(
-                    URLDecoder.decode(xml, "UTF-8").getBytes());
-
-            XMLDecoder decoder = new XMLDecoder(tokenContentIS);
-            Object object = decoder.readObject();
-            decoder.close();
-
-            result = object;
-        } catch (Throwable t) {
-            LOG.error("Exception during connector deserialization", t);
-        }
-
-        return result;
     }
 
     @Override

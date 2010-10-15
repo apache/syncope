@@ -14,7 +14,10 @@
  */
 package org.syncope.core.persistence.propagation;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -29,28 +32,34 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.ConnectorInstanceLoader;
 import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.beans.ConnectorInstance;
 import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.SchemaMapping;
+import org.syncope.core.persistence.beans.Task;
+import org.syncope.core.persistence.beans.TaskExecution;
 import org.syncope.core.persistence.beans.membership.Membership;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.beans.user.UserAttribute;
 import org.syncope.core.persistence.beans.user.UserAttributeValue;
 import org.syncope.core.persistence.dao.SchemaDAO;
+import org.syncope.core.persistence.dao.TaskDAO;
+import org.syncope.types.PropagationMode;
+import org.syncope.types.ResourceOperationType;
 import org.syncope.types.SchemaType;
 import org.syncope.types.SchemaValueType;
+import org.syncope.types.TaskExecutionStatus;
 
 /**
  * Manage the data propagation to target resources.
  */
+@Transactional(rollbackFor = {
+    Throwable.class
+})
 public class PropagationManager {
 
-    public enum PropagationMode {
-
-        SYNC, ASYNC
-    }
     /**
      * Logger.
      */
@@ -61,18 +70,22 @@ public class PropagationManager {
      */
     @Autowired
     private SchemaDAO schemaDAO;
+    /**
+     * Task DAO.
+     */
+    @Autowired
+    private TaskDAO taskDAO;
 
     /**
      * Create the user on every associated resource.
      * Exceptions will be ignored.
      * @param user to be created.
-     * @return a set of provisioned resources.
      * @throws PropagationException
      */
-    public final Set<String> create(final SyncopeUser user)
+    public void create(final SyncopeUser user)
             throws PropagationException {
 
-        return create(user, null);
+        create(user, Collections.EMPTY_SET);
     }
 
     /**
@@ -84,11 +97,14 @@ public class PropagationManager {
      * @param user to be created.
      * @param syncResourceNames to ask for a synchronous or
      * asynchronous provisioning.
-     * @return a set of provisioned resources.
      * @throws PropagationException
      */
-    public Set<String> create(SyncopeUser user, Set<String> syncResourceNames)
+    public void create(SyncopeUser user, Set<String> syncResourceNames)
             throws PropagationException {
+
+        if (syncResourceNames == null) {
+            syncResourceNames = Collections.EMPTY_SET;
+        }
 
         Set<TargetResource> resources = new HashSet<TargetResource>();
         for (TargetResource resource : user.getTargetResources()) {
@@ -99,9 +115,9 @@ public class PropagationManager {
         }
 
         ResourceOperations resourceOperations = new ResourceOperations();
-        resourceOperations.set(ResourceOperations.Type.CREATE, resources);
+        resourceOperations.set(ResourceOperationType.CREATE, resources);
 
-        return provision(user, resourceOperations, syncResourceNames);
+        provision(user, resourceOperations, syncResourceNames);
     }
 
     /**
@@ -113,19 +129,26 @@ public class PropagationManager {
      * @param user to be updated.
      * @param affectedResources resources affected by this update
      * @param syncResourceNames to ask for a synchronous or asynchronous update.
-     * @return a set of updated resources.
      * @throws PropagationException
      */
-    public Set<String> update(SyncopeUser user,
+    public void update(SyncopeUser user,
             ResourceOperations resourceOperations,
             Set<String> syncResourceNames)
             throws PropagationException {
 
-        return provision(user, resourceOperations, syncResourceNames);
+        if (syncResourceNames == null) {
+            syncResourceNames = Collections.EMPTY_SET;
+        }
+
+        provision(user, resourceOperations, syncResourceNames);
     }
 
-    public Set<String> delete(SyncopeUser user, Set<String> syncResourceNames)
+    public void delete(SyncopeUser user, Set<String> syncResourceNames)
             throws PropagationException {
+
+        if (syncResourceNames == null) {
+            syncResourceNames = Collections.EMPTY_SET;
+        }
 
         Set<TargetResource> resources = new HashSet<TargetResource>();
         for (TargetResource resource : user.getTargetResources()) {
@@ -136,9 +159,9 @@ public class PropagationManager {
         }
 
         ResourceOperations resourceOperations = new ResourceOperations();
-        resourceOperations.set(ResourceOperations.Type.DELETE, resources);
+        resourceOperations.set(ResourceOperationType.DELETE, resources);
 
-        return provision(user, resourceOperations, syncResourceNames);
+        provision(user, resourceOperations, syncResourceNames);
     }
 
     /**
@@ -146,13 +169,12 @@ public class PropagationManager {
      * @param user
      * @param syncResourceNames
      * @param merge
-     * @return provisioned resources
      * @throws PropagationException
      */
-    private Set<String> provision(
+    private void provision(
             final SyncopeUser user,
             final ResourceOperations resourceOperations,
-            Set<String> syncResourceNames)
+            final Set<String> syncResourceNames)
             throws PropagationException {
 
         if (LOG.isDebugEnabled()) {
@@ -160,100 +182,64 @@ public class PropagationManager {
                     + resourceOperations);
         }
 
-        // set of provisioned resources
-        final Set<String> provisioned = new HashSet<String>();
-
         // Avoid duplicates - see javadoc
         resourceOperations.purge();
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("After purge: " + resourceOperations);
+        }
 
-        // Resource to be provisioned synchronously
-        final ResourceOperations syncOperations = new ResourceOperations();
-        syncOperations.setOldAccountId(resourceOperations.getOldAccountId());
-
-        // Resource to be provisioned asynchronously
-        final ResourceOperations asyncOperations = new ResourceOperations();
-        asyncOperations.setOldAccountId(resourceOperations.getOldAccountId());
-
-        for (ResourceOperations.Type type : ResourceOperations.Type.values()) {
+        Task task;
+        TaskExecution taskExecution;
+        for (ResourceOperationType type : ResourceOperationType.values()) {
             for (TargetResource resource : resourceOperations.get(type)) {
-                if (syncResourceNames != null
-                        && syncResourceNames.contains(resource.getName())) {
+                Map<String, Set<Attribute>> preparedAttributes =
+                        prepareAttributes(user, resource);
+                String accountId =
+                        preparedAttributes.keySet().iterator().next();
+                Set<Attribute> attributes =
+                        manipulateSyncAttributes(
+                        preparedAttributes.values().iterator().next());
 
-                    syncOperations.add(type, resource);
-                } else {
-                    asyncOperations.add(type, resource);
+                task = new Task();
+                task.setResource(resource);
+                task.setResourceOperationType(type);
+                task.setPropagationMode(
+                        syncResourceNames.contains(resource.getName())
+                        ? PropagationMode.SYNC : PropagationMode.ASYNC);
+                task.setAccountId(accountId);
+                task.setOldAccountId(resourceOperations.getOldAccountId());
+                task.setAttributes(attributes);
+
+                taskExecution = new TaskExecution();
+                taskExecution.setTask(task);
+                task.addExecution(taskExecution);
+
+                task = taskDAO.save(task);
+                // re-read it after saving
+                taskExecution = task.getExecutions().get(0);
+
+                propagate(taskExecution);
+                if (syncResourceNames.contains(resource.getName())
+                        && taskExecution.getStatus()
+                        != TaskExecutionStatus.SUCCESS) {
+
+                    throw new PropagationException(resource.getName(),
+                            taskExecution.getMessage());
                 }
             }
         }
+    }
 
-        // synchronous propagation ...
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Synchronous provisioning with user " + user + ":\n"
-                    + syncOperations);
-        }
+    protected Set<Attribute> manipulateSyncAttributes(
+            final Set<Attribute> attributes) {
 
-        for (ResourceOperations.Type resOpeType :
-                ResourceOperations.Type.values()) {
-            for (TargetResource resource : syncOperations.get(resOpeType)) {
-                try {
-                    Map<String, Set<Attribute>> preparedAttributes =
-                            prepareAttributes(user, resource);
-                    String accountId =
-                            preparedAttributes.keySet().iterator().next();
-                    Set<Attribute> attributes =
-                            manipulateSyncAttributes(
-                            preparedAttributes.values().iterator().next());
-                    propagate(resource, resOpeType, PropagationMode.SYNC,
-                            accountId, syncOperations.getOldAccountId(),
-                            attributes);
+        return attributes;
+    }
 
-                    provisioned.add(resource.getName());
-                } catch (Throwable t) {
-                    LOG.error("Exception during provision on resource "
-                            + resource.getName(), t);
+    protected Set<Attribute> manipulateAsyncAttributes(
+            final Set<Attribute> attributes) {
 
-                    throw new PropagationException(
-                            "Exception during provision on resource "
-                            + resource.getName(), resource.getName(), t);
-                }
-            }
-        }
-
-        // asynchronous propagation ...
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Asynchronous provisioning with user " + user + ":\n"
-                    + asyncOperations);
-        }
-
-        for (ResourceOperations.Type type : ResourceOperations.Type.values()) {
-            for (TargetResource resource : asyncOperations.get(type)) {
-                try {
-                    Map<String, Set<Attribute>> preparedAttributes =
-                            prepareAttributes(user, resource);
-                    String accountId =
-                            preparedAttributes.keySet().iterator().next();
-                    Set<Attribute> attributes =
-                            manipulateAsyncAttributes(
-                            preparedAttributes.values().iterator().next());
-                    propagate(resource, type, PropagationMode.ASYNC,
-                            accountId, asyncOperations.getOldAccountId(),
-                            attributes);
-
-                    provisioned.add(resource.getName());
-                } catch (Throwable t) {
-                    LOG.error("Exception during provision on resource "
-                            + resource.getName(), t);
-                }
-            }
-        }
-
-        if (LOG.isDebugEnabled()) {
-            LOG.debug(
-                    "Provisioned " + provisioned
-                    + " with user " + user.getId());
-        }
-
-        return provisioned;
+        return attributes;
     }
 
     private Map<String, Set<Attribute>> prepareAttributes(SyncopeUser user,
@@ -265,12 +251,6 @@ public class PropagationManager {
                     + " with attributes: " + user.getAttributes());
         }
 
-        // get password
-        String password = user.getPassword();
-
-        // get mapping
-        List<SchemaMapping> mappings = resource.getMappings();
-
         // set of user attributes
         Set<Attribute> attributes = new HashSet<Attribute>();
 
@@ -280,15 +260,8 @@ public class PropagationManager {
         // account id
         String accountId = null;
 
-        // resource field
-        String field = null;
         // resource field values
         Set objValues = null;
-
-        // syncope attribute schema name
-        String schemaName = null;
-        // schema type
-        SchemaType schemaType = null;
 
         // syncope user attribute
         UserAttribute userAttribute = null;
@@ -297,35 +270,27 @@ public class PropagationManager {
         // syncope user attribute values
         List<UserAttributeValue> values = null;
 
-        for (SchemaMapping mapping : mappings) {
+        for (SchemaMapping mapping : resource.getMappings()) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Process schema " + mapping.getSchemaName()
+                        + "(" + mapping.getSchemaType().getClassName()
+                        + ")");
+            }
+
             try {
-                // get field name on target resource
-                field = mapping.getField();
-
-                // get schema name on syncope
-                schemaName = mapping.getSchemaName();
-                schemaType = mapping.getSchemaType();
-
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug(
-                            "Process schema " + schemaName
-                            + "(" + schemaType.getClassName() + ").");
-                }
-
                 AbstractSchema schema = null;
-
                 try {
                     // check for schema or constants (AccountId/Password)
-                    schemaType.getSchemaClass().asSubclass(
+                    mapping.getSchemaType().getSchemaClass().asSubclass(
                             AbstractSchema.class);
 
-                    schema = schemaDAO.find(schemaName,
-                            schemaType.getSchemaClass());
+                    schema = schemaDAO.find(mapping.getSchemaName(),
+                            mapping.getSchemaType().getSchemaClass());
                 } catch (ClassCastException e) {
                     // ignore exception ... check for AccountId or Password
                     if (LOG.isDebugEnabled()) {
                         LOG.debug("Wrong schema type "
-                                + schemaType.getClassName());
+                                + mapping.getSchemaType().getClassName());
                     }
                 }
 
@@ -334,7 +299,7 @@ public class PropagationManager {
                     schemaValueType = schema.getType();
 
                     // get user attribute object
-                    userAttribute = user.getAttribute(schemaName);
+                    userAttribute = user.getAttribute(mapping.getSchemaName());
 
                     values = userAttribute != null
                             ? userAttribute.getValues()
@@ -342,11 +307,11 @@ public class PropagationManager {
 
                     if (LOG.isDebugEnabled()) {
                         LOG.debug("Retrieved attribute " + userAttribute
-                                + "\n* Schema " + schemaName
-                                + "\n* Schema type " + schemaType.getClassName()
+                                + "\n* Schema " + mapping.getSchemaName()
+                                + "\n* Schema type "
+                                + mapping.getSchemaType().getClassName()
                                 + "\n* Attribute values " + values);
                     }
-
                 } else {
                     schemaValueType = SchemaValueType.String;
 
@@ -354,22 +319,24 @@ public class PropagationManager {
                             new UserAttributeValue();
 
                     userAttributeValue.setStringValue(
-                            SchemaType.AccountId.equals(schemaType)
-                            ? user.getId().toString() : password);
+                            SchemaType.AccountId.equals(mapping.getSchemaType())
+                            ? user.getId().toString() : user.getPassword());
 
                     values = Collections.singletonList(userAttributeValue);
                 }
 
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Define mapping for: "
-                            + "\n* Field " + field
+                            + "\n* Field " + mapping.getField()
                             + "\n* is accountId " + mapping.isAccountid()
                             + "\n* is password " + (mapping.isPassword()
-                            || schemaType.equals(SchemaType.Password))
+                            || mapping.getSchemaType().equals(
+                            SchemaType.Password))
                             + "\n* nullable condition "
                             + mapping.getMandatoryCondition()
-                            + "\n* Schema " + schemaName
-                            + "\n* SchemaType " + schemaType.toString()
+                            + "\n* Schema " + mapping.getSchemaName()
+                            + "\n* SchemaType "
+                            + mapping.getSchemaType().toString()
                             + "\n* ClassType " + schemaValueType.getClassName()
                             + "\n* Values " + values);
                 }
@@ -405,30 +372,26 @@ public class PropagationManager {
                             toCharArray()));
                 }
 
-                Object objValue = null;
-                if (!objValues.isEmpty()) {
-                    objValue = objValues.iterator().next();
-                }
-
                 if (!mapping.isPassword() && !mapping.isAccountid()) {
                     if (schema != null && schema.isMultivalue()) {
                         attributes.add(AttributeBuilder.build(
-                                field,
+                                mapping.getField(),
                                 objValues));
                     } else {
-                        attributes.add(AttributeBuilder.build(
-                                field,
-                                castToBeApplied.cast(objValue)));
+                        attributes.add(objValues.isEmpty()
+                                ? AttributeBuilder.build(
+                                mapping.getField())
+                                : AttributeBuilder.build(
+                                mapping.getField(),
+                                objValues.iterator().next()));
                     }
                 }
             } catch (ClassNotFoundException e) {
-                if (LOG.isWarnEnabled()) {
-                    LOG.warn("Unsupported attribute type "
-                            + schemaValueType.getClassName(), e);
-                }
+                LOG.warn("Unsupported attribute type "
+                        + schemaValueType.getClassName(), e);
             } catch (Throwable t) {
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("Attribute '" + schemaName
+                    LOG.debug("Attribute '" + mapping.getSchemaName()
                             + "' processing failed", t);
                 }
             }
@@ -437,67 +400,93 @@ public class PropagationManager {
         return Collections.singletonMap(accountId, attributes);
     }
 
-    protected Set<Attribute> manipulateSyncAttributes(
-            final Set<Attribute> attributes) {
+    public void propagate(final TaskExecution execution) {
+        execution.setStartDate(new Date());
 
-        return attributes;
-    }
+        try {
+            ConnectorInstance connectorInstance = execution.getTask().
+                    getResource().
+                    getConnector();
 
-    protected Set<Attribute> manipulateAsyncAttributes(
-            final Set<Attribute> attributes) {
+            ConnectorFacadeProxy connector = ConnectorInstanceLoader.
+                    getConnector(
+                    connectorInstance.getId().toString());
 
-        return attributes;
-    }
+            if (connector == null) {
+                LOG.error("Connector instance bean "
+                        + connectorInstance.getId().toString() + " not found");
 
-    private void propagate(TargetResource resource,
-            ResourceOperations.Type resourceOperationType,
-            PropagationMode operationMode,
-            String accountId, String oldAccountId, Set<Attribute> attrs)
-            throws NoSuchBeanDefinitionException, IllegalStateException {
+                throw new NoSuchBeanDefinitionException(
+                        "Connector instance bean not found");
+            }
 
-        ConnectorInstance connectorInstance = resource.getConnector();
-
-        ConnectorFacadeProxy connector = ConnectorInstanceLoader.getConnector(
-                connectorInstance.getId().toString());
-
-        if (connector == null) {
-            LOG.error("Connector instance bean "
-                    + connectorInstance.getId().toString() + " not found");
-
-            throw new NoSuchBeanDefinitionException(
-                    "Connector instance bean not found");
-        }
-
-        switch (resourceOperationType) {
-            case CREATE:
-            case UPDATE:
-                Uid userUid = null;
-                try {
-                    userUid = connector.resolveUsername(ObjectClass.ACCOUNT,
-                            oldAccountId == null ? accountId : oldAccountId,
-                            null);
-                } catch (RuntimeException ignore) {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("To be ignored, "
-                                + "when resolving username on connector",
-                                ignore);
+            switch (execution.getTask().getResourceOperationType()) {
+                case CREATE:
+                case UPDATE:
+                    Uid userUid = null;
+                    try {
+                        userUid = connector.resolveUsername(ObjectClass.ACCOUNT,
+                                execution.getTask().getOldAccountId() == null
+                                ? execution.getTask().getAccountId()
+                                : execution.getTask().getOldAccountId(),
+                                null);
+                    } catch (RuntimeException ignore) {
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("To be ignored, "
+                                    + "when resolving username on connector",
+                                    ignore);
+                        }
                     }
-                }
 
-                if (userUid != null) {
-                    connector.update(operationMode,
-                            ObjectClass.ACCOUNT, userUid, attrs, null);
-                } else {
-                    connector.create(operationMode,
-                            ObjectClass.ACCOUNT, attrs, null);
-                }
+                    if (userUid != null) {
+                        connector.update(
+                                execution.getTask().getPropagationMode(),
+                                ObjectClass.ACCOUNT,
+                                userUid,
+                                execution.getTask().getAttributes(),
+                                null);
+                    } else {
+                        connector.create(
+                                execution.getTask().getPropagationMode(),
+                                ObjectClass.ACCOUNT,
+                                execution.getTask().getAttributes(),
+                                null);
+                    }
+                    break;
 
-                break;
+                case DELETE:
+                    connector.delete(execution.getTask().getPropagationMode(),
+                            ObjectClass.ACCOUNT,
+                            new Uid(execution.getTask().getAccountId()),
+                            null);
+                    break;
 
-            case DELETE:
-                connector.delete(operationMode,
-                        ObjectClass.ACCOUNT, new Uid(accountId), null);
-                break;
+                default:
+            }
+
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Succesfully propagated to resource "
+                        + execution.getTask().getResource().getName());
+            }
+
+            execution.setStatus(execution.getTask().getPropagationMode()
+                    == PropagationMode.SYNC
+                    ? TaskExecutionStatus.SUCCESS
+                    : TaskExecutionStatus.SUBMITTED);
+        } catch (Throwable t) {
+            LOG.error("Exception during provision on resource "
+                    + execution.getTask().getResource().getName(), t);
+
+            StringWriter execeptionWriter = new StringWriter();
+            t.printStackTrace(new PrintWriter(execeptionWriter));
+            execution.setMessage(execeptionWriter.toString());
+
+            execution.setStatus(execution.getTask().getPropagationMode()
+                    == PropagationMode.SYNC
+                    ? TaskExecutionStatus.FAILURE
+                    : TaskExecutionStatus.UNSUBMITTED);
+        } finally {
+            execution.setEndDate(new Date());
         }
     }
 }

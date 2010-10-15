@@ -14,6 +14,7 @@
  */
 package org.syncope.core.persistence.relationships;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -25,7 +26,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.client.to.ResourceTO;
 import org.syncope.client.to.SchemaMappingTO;
-import org.syncope.client.to.SchemaMappingTOs;
 import org.syncope.core.persistence.beans.ConnectorInstance;
 import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.SchemaMapping;
@@ -37,6 +37,8 @@ import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.SyncopeUserDAO;
 import org.syncope.core.rest.data.ResourceDataBinder;
 import org.syncope.core.persistence.AbstractTest;
+import org.syncope.core.persistence.beans.Task;
+import org.syncope.core.persistence.dao.TaskDAO;
 import org.syncope.types.SchemaType;
 
 @Transactional
@@ -50,6 +52,8 @@ public class ResourceTest extends AbstractTest {
     private ConnectorInstanceDAO connectorInstanceDAO;
     @Autowired
     private SyncopeUserDAO syncopeUserDAO;
+    @Autowired
+    private TaskDAO taskDAO;
     @Autowired
     private ResourceDataBinder resourceDataBinder;
 
@@ -71,8 +75,9 @@ public class ResourceTest extends AbstractTest {
         schemaMappingTO.setPassword(false);
         schemaMappingTO.setMandatoryCondition("false");
 
-        SchemaMappingTOs schemaMappingTOs = new SchemaMappingTOs();
-        schemaMappingTOs.addMapping(schemaMappingTO);
+        List<SchemaMappingTO> schemaMappingTOs =
+                new ArrayList<SchemaMappingTO>();
+        schemaMappingTOs.add(schemaMappingTO);
 
         ResourceTO resourceTO = new ResourceTO();
         resourceTO.setName("resource-issue42");
@@ -98,7 +103,8 @@ public class ResourceTest extends AbstractTest {
     }
 
     @Test
-    public final void save() throws ClassNotFoundException {
+    public final void save()
+            throws ClassNotFoundException {
         TargetResource resource = new TargetResource();
         resource.setName("ws-target-resource-save");
 
@@ -198,6 +204,9 @@ public class ResourceTest extends AbstractTest {
         }
         // -------------------------------------
 
+        // Get tasks
+        List<Task> tasks = resource.getTasks();
+
         // delete resource
         resourceDAO.delete(resource.getName());
 
@@ -209,8 +218,8 @@ public class ResourceTest extends AbstractTest {
         assertNull("delete did not work", actual);
 
         // resource must be not referenced any more from users
-        SyncopeUser actualUser = null;
-        Collection<TargetResource> resources = null;
+        SyncopeUser actualUser;
+        Collection<TargetResource> resources;
         for (Long id : userIds) {
             actualUser = syncopeUserDAO.find(id);
             assertNotNull(actualUser);
@@ -227,6 +236,11 @@ public class ResourceTest extends AbstractTest {
         resources = actualConnector.getResources();
         for (TargetResource res : resources) {
             assertFalse(res.getName().equalsIgnoreCase(resource.getName()));
+        }
+
+        // there must be no tasks
+        for (Task task : tasks) {
+            assertNull(taskDAO.find(task.getId()));
         }
     }
 }

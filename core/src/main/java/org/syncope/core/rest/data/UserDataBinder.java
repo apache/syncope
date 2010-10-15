@@ -38,7 +38,7 @@ import org.syncope.core.persistence.beans.membership.MembershipDerivedAttribute;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.propagation.ResourceOperations;
-import org.syncope.core.persistence.propagation.ResourceOperations.Type;
+import org.syncope.types.ResourceOperationType;
 import org.syncope.types.SyncopeClientExceptionType;
 
 @Component
@@ -172,7 +172,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
                     if (!membershipToBeAddedRoleIds.contains(
                             membership.getSyncopeRole().getId())) {
 
-                        resourceOperations.add(ResourceOperations.Type.DELETE,
+                        resourceOperations.add(ResourceOperationType.DELETE,
                                 resource);
                     }
                 }
@@ -234,8 +234,8 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
                     user.addMembership(membership);
 
-                    resourceOperations.addAll(
-                            Type.UPDATE, role.getTargetResources());
+                    resourceOperations.addAll(ResourceOperationType.UPDATE,
+                            role.getTargetResources());
                 }
 
                 resourceOperations.merge(fill(membership, membershipMod,

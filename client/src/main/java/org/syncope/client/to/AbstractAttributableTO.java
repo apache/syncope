@@ -15,9 +15,12 @@
 package org.syncope.client.to;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.syncope.client.AbstractBaseBean;
 
 public abstract class AbstractAttributableTO extends AbstractBaseBean {
@@ -55,6 +58,17 @@ public abstract class AbstractAttributableTO extends AbstractBaseBean {
 
     public void setAttributes(final List<AttributeTO> attributes) {
         this.attributes = attributes;
+    }
+
+    @JsonIgnore
+    public Map<String, List<String>> getAttributeMap() {
+        Map<String, List<String>> result =
+                new HashMap<String, List<String>>(attributes.size());
+        for (AttributeTO attributeTO : getAttributes()) {
+            result.put(attributeTO.getSchema(), attributeTO.getValues());
+        }
+
+        return result;
     }
 
     public boolean addDerivedAttribute(final AttributeTO derivedAttribute) {

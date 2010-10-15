@@ -14,6 +14,8 @@
  */
 package org.syncope.core.rest;
 
+import java.util.ArrayList;
+import java.util.List;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
@@ -21,9 +23,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.annotation.ExpectedException;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.syncope.client.to.ResourceTO;
-import org.syncope.client.to.ResourceTOs;
 import org.syncope.client.to.SchemaMappingTO;
-import org.syncope.client.to.SchemaMappingTOs;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.types.SchemaType;
 
@@ -43,29 +43,23 @@ public class ResourceTestITCase extends AbstractTest {
 
     @Test
     public void create() {
-        final String resourceName = "ws-target-resource-create";
+        String resourceName = "ws-target-resource-create";
         ResourceTO resourceTO = new ResourceTO();
 
         resourceTO.setName(resourceName);
         resourceTO.setConnectorId(102L);
 
-        SchemaMappingTOs schemaMappingTOs = new SchemaMappingTOs();
-
-        SchemaMappingTO schemaMappingTO = null;
-
-        schemaMappingTO = new SchemaMappingTO();
+        SchemaMappingTO schemaMappingTO = new SchemaMappingTO();
         schemaMappingTO.setField("uid");
         schemaMappingTO.setSchemaName("userId");
         schemaMappingTO.setSchemaType(SchemaType.UserSchema);
-        schemaMappingTOs.addMapping(schemaMappingTO);
+        resourceTO.addMapping(schemaMappingTO);
 
         schemaMappingTO = new SchemaMappingTO();
         schemaMappingTO.setField("icon");
         schemaMappingTO.setSchemaName("icon");
         schemaMappingTO.setSchemaType(SchemaType.RoleSchema);
-        schemaMappingTOs.addMapping(schemaMappingTO);
-
-        resourceTO.setMappings(schemaMappingTOs);
+        resourceTO.addMapping(schemaMappingTO);
 
         ResourceTO actual = restTemplate.postForObject(
                 BASE_URL + "resource/create.json",
@@ -86,14 +80,12 @@ public class ResourceTestITCase extends AbstractTest {
     @Test
     public void updateWithException() {
         try {
-
             ResourceTO resourceTO = new ResourceTO();
 
             resourceTO.setName("resourcenotfound");
 
             restTemplate.postForObject(BASE_URL + "resource/update.json",
                     resourceTO, ResourceTO.class);
-
         } catch (HttpStatusCodeException e) {
             assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
         }
@@ -107,7 +99,8 @@ public class ResourceTestITCase extends AbstractTest {
         resourceTO.setName(resourceName);
         resourceTO.setConnectorId(101L);
 
-        SchemaMappingTOs schemaMappingTOs = new SchemaMappingTOs();
+        List<SchemaMappingTO> schemaMappingTOs =
+                new ArrayList<SchemaMappingTO>();
 
         // Update with an existing and already assigned mapping
         SchemaMappingTO schemaMappingTO = new SchemaMappingTO();
@@ -115,7 +108,7 @@ public class ResourceTestITCase extends AbstractTest {
         schemaMappingTO.setField("test3");
         schemaMappingTO.setSchemaName("username");
         schemaMappingTO.setSchemaType(SchemaType.UserSchema);
-        schemaMappingTOs.addMapping(schemaMappingTO);
+        schemaMappingTOs.add(schemaMappingTO);
 
         // Update defining new mapping
         for (int i = 4; i < 6; i++) {
@@ -123,7 +116,7 @@ public class ResourceTestITCase extends AbstractTest {
             schemaMappingTO.setField("test" + i);
             schemaMappingTO.setSchemaName("username");
             schemaMappingTO.setSchemaType(SchemaType.UserSchema);
-            schemaMappingTOs.addMapping(schemaMappingTO);
+            schemaMappingTOs.add(schemaMappingTO);
         }
 
         resourceTO.setMappings(schemaMappingTOs);
@@ -136,11 +129,11 @@ public class ResourceTestITCase extends AbstractTest {
 
         // check the existence
 
-        SchemaMappingTOs mappings = actual.getMappings();
+        List<SchemaMappingTO> mappings = actual.getMappings();
 
         assertNotNull(mappings);
 
-        assertEquals(3, mappings.getMappings().size());
+        assertEquals(3, mappings.size());
     }
 
     @Test
@@ -174,11 +167,11 @@ public class ResourceTestITCase extends AbstractTest {
 
     @Test
     public void list() {
-        ResourceTOs actuals = restTemplate.getForObject(
-                BASE_URL + "resource/list.json", ResourceTOs.class);
+        List<ResourceTO> actuals = restTemplate.getForObject(
+                BASE_URL + "resource/list.json", List.class);
 
         assertNotNull(actuals);
 
-        assertFalse(actuals.getResources().isEmpty());
+        assertFalse(actuals.isEmpty());
     }
 }

@@ -17,7 +17,6 @@ package org.syncope.core.persistence.relationships;
 import static org.junit.Assert.*;
 
 import java.util.Collections;
-import java.util.Set;
 import org.junit.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,14 +51,14 @@ public class PropagationManagerTest extends AbstractTest {
 
         user.setResources(Collections.singleton(resource));
 
-        Set<String> provisioned = null;
+        PropagationException pe = null;
         try {
-            provisioned = propagationManager.create(user);
+            propagationManager.create(user);
         } catch (PropagationException e) {
-            LOG.error("While provisioning", e);
+            pe = e;
         }
 
-        assertNotNull(provisioned);
+        assertNull(pe);
     }
 
     @Test
@@ -75,15 +74,14 @@ public class PropagationManagerTest extends AbstractTest {
         ResourceOperations resourceOperations = new ResourceOperations();
         resourceOperations.add(ResourceOperationType.UPDATE, resource);
 
-        Set<String> provisioned = null;
+        PropagationException pe = null;
         try {
-            provisioned = propagationManager.update(
-                    user, resourceOperations, null);
+            propagationManager.update(user, resourceOperations, null);
         } catch (PropagationException e) {
-            LOG.error("While updating", e);
+            pe = e;
         }
 
-        assertNotNull(provisioned);
+        assertNull(pe);
     }
 
     @Test

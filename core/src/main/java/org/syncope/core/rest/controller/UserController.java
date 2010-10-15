@@ -28,7 +28,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-import org.syncope.client.to.UserTOs;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.SyncopeUserDAO;
 import org.syncope.core.persistence.propagation.PropagationException;
@@ -184,7 +183,7 @@ public class UserController extends AbstractController {
 
     @RequestMapping(method = RequestMethod.GET,
     value = "/list")
-    public UserTOs list() {
+    public ModelAndView list() {
         List<SyncopeUser> users = syncopeUserDAO.findAll();
         List<UserTO> userTOs = new ArrayList<UserTO>(users.size());
 
@@ -192,9 +191,7 @@ public class UserController extends AbstractController {
             userTOs.add(userDataBinder.getUserTO(user, userWorkflow));
         }
 
-        UserTOs result = new UserTOs();
-        result.setUsers(userTOs);
-        return result;
+        return new ModelAndView().addObject(userTOs);
     }
 
     @RequestMapping(method = RequestMethod.GET,
@@ -235,7 +232,7 @@ public class UserController extends AbstractController {
 
     @RequestMapping(method = RequestMethod.POST,
     value = "/search")
-    public UserTOs search(@RequestBody NodeCond searchCondition)
+    public ModelAndView search(@RequestBody NodeCond searchCondition)
             throws InvalidSearchConditionException {
 
         if (LOG.isDebugEnabled()) {
@@ -249,12 +246,12 @@ public class UserController extends AbstractController {
 
         List<SyncopeUser> matchingUsers =
                 syncopeUserDAO.search(searchCondition);
-        UserTOs result = new UserTOs();
+        List<UserTO> result = new ArrayList<UserTO>(matchingUsers.size());
         for (SyncopeUser user : matchingUsers) {
-            result.addUser(userDataBinder.getUserTO(user, userWorkflow));
+            result.add(userDataBinder.getUserTO(user, userWorkflow));
         }
 
-        return result;
+        return new ModelAndView().addObject(result);
     }
 
     @RequestMapping(method = RequestMethod.GET,
@@ -405,13 +402,11 @@ public class UserController extends AbstractController {
                     + syncResourceNames);
         }
 
-        Set<String> propagatedResources = resourceOperations.isEmpty()
-                ? propagationManager.create(user, syncResourceNames)
-                : propagationManager.update(user, resourceOperations,
-                syncResourceNames);
-
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Propagated onto resources " + propagatedResources);
+        if (resourceOperations.isEmpty()) {
+            propagationManager.create(user, syncResourceNames);
+        } else {
+            propagationManager.update(user, resourceOperations,
+                    syncResourceNames);
         }
 
         // User is created locally and propagated, let's advance on the workflow
@@ -471,12 +466,7 @@ public class UserController extends AbstractController {
                     + syncResourceNames);
         }
 
-        Set<String> propagatedResources =
-                propagationManager.update(user,
-                resourceOperations, syncResourceNames);
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Propagated onto resources " + propagatedResources);
-        }
+        propagationManager.update(user, resourceOperations, syncResourceNames);
 
         return userDataBinder.getUserTO(user, userWorkflow);
     }
@@ -505,11 +495,7 @@ public class UserController extends AbstractController {
                     + syncResourceNames);
         }
 
-        Set<String> propagatedResources =
-                propagationManager.delete(user, syncResourceNames);
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Propagated onto resources " + propagatedResources);
-        }
+        propagationManager.delete(user, syncResourceNames);
 
         // Now that delete has been propagated, let's remove everything
         if (workflowStore != null && user.getWorkflowId() != null) {

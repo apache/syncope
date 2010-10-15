@@ -2,9 +2,9 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -32,6 +32,7 @@ import org.syncope.client.to.PropertyTO;
 import org.syncope.core.persistence.ConnectorInstanceLoader;
 import org.syncope.core.persistence.beans.ConnectorInstance;
 import org.syncope.types.ConnectorCapability;
+import org.syncope.types.PropagationMode;
 
 /**
  * Intercept calls to ConnectorFacade's methods and check if the correspondant
@@ -121,10 +122,7 @@ public class ConnectorFacadeProxy {
         }
 
         // Set all of the ConfigurationProperties needed by the connector.
-        Set<PropertyTO> configuration =
-                (Set<PropertyTO>) ConnectorInstanceLoader.buildFromXML(
-                connectorInstance.getXmlConfiguration());
-        for (PropertyTO property : configuration) {
+        for (PropertyTO property : connectorInstance.getConfiguration()) {
             properties.setPropertyValue(
                     property.getKey(), property.getValue());
         }
@@ -146,14 +144,14 @@ public class ConnectorFacadeProxy {
         this.capabitilies = connectorInstance.getCapabilities();
     }
 
-    public Uid create(final PropagationManager.PropagationMode propagationMode,
+    public Uid create(final PropagationMode propagationMode,
             final ObjectClass oclass,
             final Set<Attribute> attrs,
             final OperationOptions options) {
 
         Uid result = null;
 
-        if (propagationMode == PropagationManager.PropagationMode.SYNC
+        if (propagationMode == PropagationMode.SYNC
                 ? capabitilies.contains(
                 ConnectorCapability.SYNC_CREATE)
                 : capabitilies.contains(
@@ -181,7 +179,7 @@ public class ConnectorFacadeProxy {
         return result;
     }
 
-    public Uid update(final PropagationManager.PropagationMode propagationMode,
+    public Uid update(final PropagationMode propagationMode,
             final ObjectClass objclass,
             final Uid uid,
             final Set<Attribute> replaceAttributes,
@@ -189,7 +187,7 @@ public class ConnectorFacadeProxy {
 
         Uid result = uid;
 
-        if (propagationMode == PropagationManager.PropagationMode.SYNC
+        if (propagationMode == PropagationMode.SYNC
                 ? capabitilies.contains(
                 ConnectorCapability.SYNC_UPDATE)
                 : capabitilies.contains(
@@ -205,12 +203,12 @@ public class ConnectorFacadeProxy {
         return result;
     }
 
-    public void delete(final PropagationManager.PropagationMode propagationMode,
+    public void delete(final PropagationMode propagationMode,
             final ObjectClass objClass,
             final Uid uid,
             final OperationOptions options) {
 
-        if (propagationMode == PropagationManager.PropagationMode.SYNC
+        if (propagationMode == PropagationMode.SYNC
                 ? capabitilies.contains(
                 ConnectorCapability.SYNC_DELETE)
                 : capabitilies.contains(

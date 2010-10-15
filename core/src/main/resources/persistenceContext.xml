@@ -50,6 +50,8 @@
 
     <bean id="dbUnitDataTypeFactory" class="${dbUnitDataTypeFactory}"/>
 
+    <bean id="xStream" class="com.thoughtworks.xstream.XStream"/>
+
     <!-- Use JNDI datasource as default but, when not available, revert to
          local datasource, using different properties for execution and testing -->
     <bean id="dataSource"

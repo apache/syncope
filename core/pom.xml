@@ -274,7 +274,7 @@
                         <configuration>
                             <skip>false</skip>
                             <includes>
-                                <include>**/*Test.java</include>
+                                <include>**/dao/*Test.java</include>
                             </includes>
                             <excludes>
                                 <exclude>**/relationships/**Test.java</exclude>

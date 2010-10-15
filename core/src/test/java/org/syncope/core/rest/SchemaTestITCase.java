@@ -14,13 +14,13 @@
  */
 package org.syncope.core.rest;
 
+import java.util.List;
 import org.junit.Test;
 import org.syncope.types.SyncopeClientExceptionType;
 import org.syncope.client.validation.SyncopeClientException;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.http.HttpStatus;
 import org.syncope.client.to.SchemaTO;
-import org.syncope.client.to.SchemaTOs;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.types.SchemaValueType;
 import static org.junit.Assert.*;
@@ -70,18 +70,18 @@ public class SchemaTestITCase extends AbstractTest {
 
     @Test
     public void list() {
-        SchemaTOs userSchemas =
+        List<SchemaTO> userSchemas =
                 restTemplate.getForObject(BASE_URL
-                + "schema/user/list.json", SchemaTOs.class);
-        assertFalse(userSchemas.getSchemas().isEmpty());
+                + "schema/user/list.json", List.class);
+        assertFalse(userSchemas.isEmpty());
 
-        SchemaTOs roleSchemas = restTemplate.getForObject(BASE_URL
-                + "schema/role/list.json", SchemaTOs.class);
-        assertFalse(roleSchemas.getSchemas().isEmpty());
+        List<SchemaTO> roleSchemas = restTemplate.getForObject(BASE_URL
+                + "schema/role/list.json", List.class);
+        assertFalse(roleSchemas.isEmpty());
 
-        SchemaTOs membershipSchemas = restTemplate.getForObject(BASE_URL
-                + "schema/membership/list.json", SchemaTOs.class);
-        assertFalse(membershipSchemas.getSchemas().isEmpty());
+        List<SchemaTO> membershipSchemas = restTemplate.getForObject(BASE_URL
+                + "schema/membership/list.json", List.class);
+        assertFalse(membershipSchemas.isEmpty());
     }
 
     @Test

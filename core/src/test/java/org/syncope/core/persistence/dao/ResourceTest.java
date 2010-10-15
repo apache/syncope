@@ -24,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.ConnectorInstance;
 import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.SchemaMapping;
-import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.AbstractTest;
 import org.syncope.identityconnectors.bundles.staticwebservice.WebServiceConnector;
 
@@ -33,6 +32,8 @@ public class ResourceTest extends AbstractTest {
 
     @Autowired
     private ResourceDAO resourceDAO;
+    @Autowired
+    private TaskDAO taskDAO;
 
     @Test
     public final void findById() {
@@ -72,7 +73,8 @@ public class ResourceTest extends AbstractTest {
     }
 
     @Test
-    public final void save() throws ClassNotFoundException {
+    public final void save()
+            throws ClassNotFoundException {
         TargetResource resource = new TargetResource();
         resource.setName("ws-target-resource-basic-save");
 
@@ -85,12 +87,11 @@ public class ResourceTest extends AbstractTest {
     @Test
     public final void delete() {
         TargetResource resource = resourceDAO.find("ws-target-resource-2");
-
-        assertNotNull("find to delete did not work", resource);
+        assertNotNull(resource);
 
         resourceDAO.delete(resource.getName());
 
         TargetResource actual = resourceDAO.find("ws-target-resource-2");
-        assertNull("delete did not work", actual);
+        assertNull(actual);
     }
 }

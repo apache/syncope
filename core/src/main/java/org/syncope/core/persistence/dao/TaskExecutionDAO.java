@@ -12,31 +12,20 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.client.to;
+package org.syncope.core.persistence.dao;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import org.syncope.client.AbstractBaseBean;
+import org.syncope.core.persistence.beans.TaskExecution;
 
-public class SchemaTOs extends AbstractBaseBean implements Iterable<SchemaTO> {
+public interface TaskExecutionDAO extends DAO {
 
-    private List<SchemaTO> schemas;
+    TaskExecution find(Long id);
 
-    public SchemaTOs() {
-        schemas = new ArrayList<SchemaTO>();
-    }
+    List<TaskExecution> findAll();
 
-    public List<SchemaTO> getSchemas() {
-        return schemas;
-    }
+    TaskExecution save(TaskExecution execution);
 
-    public void setSchemas(List<SchemaTO> schemas) {
-        this.schemas = schemas;
-    }
+    void delete(Long id);
 
-    @Override
-    public Iterator<SchemaTO> iterator() {
-        return schemas.iterator();
-    }
+    void delete(TaskExecution execution);
 }

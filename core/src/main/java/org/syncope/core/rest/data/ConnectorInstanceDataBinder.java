@@ -2,9 +2,9 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,9 +14,6 @@
  */
 package org.syncope.core.rest.data;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -25,10 +22,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.client.to.ConnectorInstanceTO;
-import org.syncope.client.to.PropertyTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
-import org.syncope.core.persistence.ConnectorInstanceLoader;
 import org.syncope.core.persistence.beans.ConnectorInstance;
 import org.syncope.core.persistence.dao.ConnectorInstanceDAO;
 import org.syncope.types.SyncopeClientExceptionType;
@@ -80,12 +75,6 @@ public class ConnectorInstanceDataBinder {
 
         BeanUtils.copyProperties(
                 connectorInstanceTO, connectorInstance, ignoreProperties);
-        connectorInstance.getCapabilities().addAll(
-                connectorInstanceTO.getCapabilities());
-
-        connectorInstance.setXmlConfiguration(
-                ConnectorInstanceLoader.serializeToXML(
-                connectorInstanceTO.getConfiguration()));
 
         // Throw composite exception if there is at least one element set
         // in the composing exceptions
@@ -138,20 +127,8 @@ public class ConnectorInstanceDataBinder {
         if (connectorInstanceTO.getConfiguration() != null
                 || connectorInstanceTO.getConfiguration().isEmpty()) {
 
-            connectorInstance.setXmlConfiguration(
-                    ConnectorInstanceLoader.serializeToXML(
-                    connectorInstanceTO.getConfiguration()));
-        }
-
-        try {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(URLEncoder.encode(
-                        ConnectorInstanceLoader.serializeToXML(
-                        connectorInstanceTO.getConfiguration()),
-                        "UTF-8"));
-            }
-        } catch (UnsupportedEncodingException ex) {
-            LOG.error("Unexpected exception", ex);
+            connectorInstance.setConfiguration(
+                    connectorInstanceTO.getConfiguration());
         }
 
         connectorInstance.setCapabilities(
@@ -178,12 +155,6 @@ public class ConnectorInstanceDataBinder {
 
         BeanUtils.copyProperties(
                 connectorInstance, connectorInstanceTO, ignoreProperties);
-        connectorInstanceTO.getCapabilities().addAll(
-                connectorInstance.getCapabilities());
-
-        connectorInstanceTO.setConfiguration(
-                (Set<PropertyTO>) ConnectorInstanceLoader.buildFromXML(
-                connectorInstance.getXmlConfiguration()));
 
         connectorInstanceTO.setId(connectorInstance.getId());
 

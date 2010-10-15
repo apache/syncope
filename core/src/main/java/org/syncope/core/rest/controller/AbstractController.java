@@ -21,7 +21,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional(rollbackFor = {Throwable.class})
+@Transactional(rollbackFor = {
+    Throwable.class
+})
 public abstract class AbstractController {
 
     /**

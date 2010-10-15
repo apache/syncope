@@ -27,9 +27,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.client.to.ResourceTO;
-import org.syncope.client.to.ResourceTOs;
 import org.syncope.client.to.SchemaMappingTO;
-import org.syncope.client.to.SchemaMappingTOs;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
 import org.syncope.core.persistence.beans.ConnectorInstance;
@@ -39,7 +37,9 @@ import org.syncope.core.persistence.dao.ConnectorInstanceDAO;
 import org.syncope.types.SyncopeClientExceptionType;
 
 @Component
-@Transactional(rollbackFor = {Throwable.class})
+@Transactional(rollbackFor = {
+    Throwable.class
+})
 public class ResourceDataBinder {
 
     /**
@@ -47,7 +47,7 @@ public class ResourceDataBinder {
      */
     private static final Logger LOG = LoggerFactory.getLogger(
             ResourceDataBinder.class);
-    private static final String[] ignoreMappingProperties = {
+    private static final String[] MAPPING_IGNORE_PROPERTIES = {
         "id", "resource"};
     @Autowired
     private ConnectorInstanceDAO connectorInstanceDAO;
@@ -114,16 +114,16 @@ public class ResourceDataBinder {
         return resource;
     }
 
-    public ResourceTOs getResourceTOs(Collection<TargetResource> resources) {
+    public List<ResourceTO> getResourceTOs(
+            Collection<TargetResource> resources) {
 
         if (resources == null) {
             return null;
         }
 
-        ResourceTOs resourceTOs = new ResourceTOs();
-
+        List<ResourceTO> resourceTOs = new ArrayList<ResourceTO>();
         for (TargetResource resource : resources) {
-            resourceTOs.addResource(getResourceTO(resource));
+            resourceTOs.add(getResourceTO(resource));
         }
 
         return resourceTOs;
@@ -157,7 +157,7 @@ public class ResourceDataBinder {
 
     private List<SchemaMapping> getSchemaMappings(
             TargetResource resource,
-            SchemaMappingTOs mappings) {
+            List<SchemaMappingTO> mappings) {
 
         if (mappings == null) {
             return null;
@@ -236,14 +236,14 @@ public class ResourceDataBinder {
         SchemaMapping schemaMapping = new SchemaMapping();
 
         BeanUtils.copyProperties(
-                mappingTO, schemaMapping, ignoreMappingProperties);
+                mappingTO, schemaMapping, MAPPING_IGNORE_PROPERTIES);
 
         schemaMapping.setResource(resource);
 
         return schemaMapping;
     }
 
-    public SchemaMappingTOs getSchemaMappingTOs(
+    public List<SchemaMappingTO> getSchemaMappingTOs(
             Collection<SchemaMapping> mappings) {
 
         if (mappings == null) {
@@ -252,18 +252,18 @@ public class ResourceDataBinder {
             return null;
         }
 
-        SchemaMappingTOs schemaMappingTOs = new SchemaMappingTOs();
-
+        List<SchemaMappingTO> schemaMappingTOs =
+                new ArrayList<SchemaMappingTO>();
         for (SchemaMapping mapping : mappings) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Ask for " + mapping + " TO");
             }
 
-            schemaMappingTOs.addMapping(getSchemaMappingTO(mapping));
+            schemaMappingTOs.add(getSchemaMappingTO(mapping));
         }
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Collected TOs " + schemaMappingTOs.getMappings());
+            LOG.debug("Collected TOs " + schemaMappingTOs);
         }
 
         return schemaMappingTOs;
@@ -279,7 +279,7 @@ public class ResourceDataBinder {
         SchemaMappingTO schemaMappingTO = new SchemaMappingTO();
 
         BeanUtils.copyProperties(
-                schemaMapping, schemaMappingTO, ignoreMappingProperties);
+                schemaMapping, schemaMappingTO, MAPPING_IGNORE_PROPERTIES);
 
         schemaMappingTO.setId(schemaMapping.getId());
 

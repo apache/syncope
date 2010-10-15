@@ -18,13 +18,10 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import org.syncope.core.persistence.beans.TargetResource;
+import org.syncope.types.ResourceOperationType;
 
 public class ResourceOperations {
 
-    public enum Type {
-
-        CREATE, UPDATE, DELETE
-    }
     private Set<TargetResource> toBeCreated;
     private Set<TargetResource> toBeUpdated;
     private Set<TargetResource> toBeDeleted;
@@ -51,7 +48,7 @@ public class ResourceOperations {
         }
     }
 
-    public final boolean add(final Type type,
+    public final boolean add(final ResourceOperationType type,
             final TargetResource resource) {
 
         boolean result = false;
@@ -75,7 +72,9 @@ public class ResourceOperations {
         return result;
     }
 
-    public boolean addAll(Type type, Set<TargetResource> resource) {
+    public boolean addAll(final ResourceOperationType type,
+            final Set<TargetResource> resource) {
+
         boolean result = false;
 
         switch (type) {
@@ -97,7 +96,7 @@ public class ResourceOperations {
         return result;
     }
 
-    public final boolean remove(final Type type,
+    public final boolean remove(final ResourceOperationType type,
             final TargetResource resource) {
 
         boolean result = false;
@@ -121,7 +120,7 @@ public class ResourceOperations {
         return result;
     }
 
-    public final Set<TargetResource> get(final Type type) {
+    public final Set<TargetResource> get(final ResourceOperationType type) {
         Set<TargetResource> result = Collections.EMPTY_SET;
 
         switch (type) {
@@ -143,7 +142,7 @@ public class ResourceOperations {
         return result;
     }
 
-    public final void set(final Type type,
+    public final void set(final ResourceOperationType type,
             final Set<TargetResource> resources) {
 
         switch (type) {
@@ -168,9 +167,12 @@ public class ResourceOperations {
     }
 
     public final void merge(final ResourceOperations resourceOperations) {
-        toBeCreated.addAll(resourceOperations.get(Type.CREATE));
-        toBeUpdated.addAll(resourceOperations.get(Type.UPDATE));
-        toBeDeleted.addAll(resourceOperations.get(Type.DELETE));
+        toBeCreated.addAll(
+                resourceOperations.get(ResourceOperationType.CREATE));
+        toBeUpdated.addAll(
+                resourceOperations.get(ResourceOperationType.UPDATE));
+        toBeDeleted.addAll(
+                resourceOperations.get(ResourceOperationType.DELETE));
     }
 
     public final boolean isEmpty() {

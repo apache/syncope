@@ -2,9 +2,9 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,9 +25,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.ModelAndView;
 import org.syncope.client.mod.RoleMod;
 import org.syncope.client.to.RoleTO;
-import org.syncope.client.to.RoleTOs;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.dao.SyncopeRoleDAO;
@@ -87,17 +87,14 @@ public class RoleController extends AbstractController {
 
     @RequestMapping(method = RequestMethod.GET,
     value = "/list")
-    public RoleTOs list(HttpServletRequest request) {
+    public ModelAndView list(HttpServletRequest request) {
         List<SyncopeRole> roles = syncopeRoleDAO.findAll();
         List<RoleTO> roleTOs = new ArrayList<RoleTO>(roles.size());
-
         for (SyncopeRole role : roles) {
             roleTOs.add(roleDataBinder.getRoleTO(role));
         }
 
-        RoleTOs result = new RoleTOs();
-        result.setRoles(roleTOs);
-        return result;
+        return new ModelAndView().addObject(roleTOs);
     }
 
     @RequestMapping(method = RequestMethod.GET,
@@ -120,19 +117,16 @@ public class RoleController extends AbstractController {
 
     @RequestMapping(method = RequestMethod.GET,
     value = "/children/{roleId}")
-    public RoleTOs children(HttpServletResponse response,
+    public ModelAndView children(HttpServletResponse response,
             @PathVariable("roleId") Long roleId) {
 
         List<SyncopeRole> roles = syncopeRoleDAO.findChildren(roleId);
         List<RoleTO> roleTOs = new ArrayList<RoleTO>(roles.size());
-
         for (SyncopeRole role : roles) {
             roleTOs.add(roleDataBinder.getRoleTO(role));
         }
 
-        RoleTOs result = new RoleTOs();
-        result.setRoles(roleTOs);
-        return result;
+        return new ModelAndView().addObject(roleTOs);
     }
 
     @RequestMapping(method = RequestMethod.GET,
@@ -155,7 +149,8 @@ public class RoleController extends AbstractController {
     @RequestMapping(method = RequestMethod.POST,
     value = "/update")
     public RoleTO update(HttpServletResponse response,
-            @RequestBody RoleMod roleMod) throws NotFoundException {
+            @RequestBody RoleMod roleMod)
+            throws NotFoundException {
 
         if (LOG.isDebugEnabled()) {
             LOG.debug("update called with parameter " + roleMod);

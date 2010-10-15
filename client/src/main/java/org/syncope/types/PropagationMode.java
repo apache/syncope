@@ -12,31 +12,9 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.client.to;
+package org.syncope.types;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import org.syncope.client.AbstractBaseBean;
+public enum PropagationMode {
 
-public class RoleTOs extends AbstractBaseBean implements Iterable<RoleTO> {
-
-    private List<RoleTO> roles;
-
-    public RoleTOs() {
-        roles = new ArrayList<RoleTO>();
-    }
-
-    public List<RoleTO> getRoles() {
-        return roles;
-    }
-
-    public void setRoles(List<RoleTO> roles) {
-        this.roles = roles;
-    }
-
-    @Override
-    public Iterator<RoleTO> iterator() {
-        return roles.iterator();
-    }
+    SYNC, ASYNC
 }

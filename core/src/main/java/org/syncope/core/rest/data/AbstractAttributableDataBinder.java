@@ -56,8 +56,8 @@ import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.SyncopeRoleDAO;
 import org.syncope.core.persistence.dao.SyncopeUserDAO;
 import org.syncope.core.persistence.propagation.ResourceOperations;
-import org.syncope.core.persistence.propagation.ResourceOperations.Type;
 import org.syncope.core.persistence.validation.ValidationException;
+import org.syncope.types.ResourceOperationType;
 import org.syncope.types.SchemaType;
 import org.syncope.types.SyncopeClientExceptionType;
 
@@ -139,7 +139,7 @@ public abstract class AbstractAttributableDataBinder {
         return resource;
     }
 
-    private void fillAttribute(Set<String> values,
+    private void fillAttribute(List<String> values,
             AttributableUtil attributableUtil,
             AbstractSchema schema,
             AbstractAttribute attribute,
@@ -148,11 +148,11 @@ public abstract class AbstractAttributableDataBinder {
         // if the schema is multivalue, all values are considered for
         // addition, otherwise only the fist one - if provided - is
         // considered
-        Set<String> valuesProvided = schema.isMultivalue()
+        List<String> valuesProvided = schema.isMultivalue()
                 ? values
                 : (values.isEmpty()
-                ? Collections.EMPTY_SET
-                : Collections.singleton(
+                ? Collections.EMPTY_LIST
+                : Collections.singletonList(
                 values.iterator().next()));
 
         AbstractAttributeValue attributeValue;
@@ -354,7 +354,7 @@ public abstract class AbstractAttributableDataBinder {
                     if (mapping.getResource() != null
                             && resources.contains(mapping.getResource())) {
 
-                        resourceOperations.add(Type.UPDATE,
+                        resourceOperations.add(ResourceOperationType.UPDATE,
                                 mapping.getResource());
 
                         if (mapping.isAccountid() && attribute != null
@@ -390,7 +390,7 @@ public abstract class AbstractAttributableDataBinder {
                     if (mapping.getResource() != null
                             && resources.contains(mapping.getResource())) {
 
-                        resourceOperations.add(Type.UPDATE,
+                        resourceOperations.add(ResourceOperationType.UPDATE,
                                 mapping.getResource());
                     }
                 }
@@ -456,7 +456,7 @@ public abstract class AbstractAttributableDataBinder {
                 for (SchemaMapping mapping : derivedSchema.getMappings()) {
                     if (mapping.getResource() != null
                             && resources.contains(mapping.getResource())) {
-                        resourceOperations.add(Type.UPDATE,
+                        resourceOperations.add(ResourceOperationType.UPDATE,
                                 mapping.getResource());
                     }
                 }
@@ -489,7 +489,7 @@ public abstract class AbstractAttributableDataBinder {
                 for (SchemaMapping mapping : derivedSchema.getMappings()) {
                     if (mapping.getResource() != null
                             && resources.contains(mapping.getResource())) {
-                        resourceOperations.add(Type.UPDATE,
+                        resourceOperations.add(ResourceOperationType.UPDATE,
                                 mapping.getResource());
                     }
                 }
@@ -514,7 +514,7 @@ public abstract class AbstractAttributableDataBinder {
             resource = getResource(resourceToBeRemoved);
 
             if (resource != null) {
-                resourceOperations.add(Type.DELETE, resource);
+                resourceOperations.add(ResourceOperationType.DELETE, resource);
 
                 attributable.removeTargetResource(resource);
 
@@ -538,7 +538,7 @@ public abstract class AbstractAttributableDataBinder {
             resource = getResource(resourceToBeAdded);
 
             if (resource != null) {
-                resourceOperations.add(Type.CREATE, resource);
+                resourceOperations.add(ResourceOperationType.CREATE, resource);
 
                 attributable.addTargetResource(resource);
 
@@ -660,12 +660,11 @@ public abstract class AbstractAttributableDataBinder {
             Collection<? extends AbstractDerivedAttribute> derivedAttributes,
             Collection<TargetResource> resources) {
 
-        AttributeTO attributeTO = null;
+        AttributeTO attributeTO;
         for (AbstractAttribute attribute : attributes) {
-
             attributeTO = new AttributeTO();
             attributeTO.setSchema(attribute.getSchema().getName());
-            attributeTO.setValues(new HashSet(attribute.getValuesAsStrings()));
+            attributeTO.setValues(attribute.getValuesAsStrings());
             attributeTO.setReadonly(attribute.getSchema().isReadonly());
 
             abstractAttributableTO.addAttribute(attributeTO);

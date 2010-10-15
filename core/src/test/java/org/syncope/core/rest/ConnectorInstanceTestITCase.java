@@ -18,6 +18,7 @@ import java.io.InputStream;
 import static org.junit.Assert.*;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import org.junit.Before;
@@ -25,9 +26,8 @@ import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.annotation.ExpectedException;
 import org.springframework.web.client.HttpStatusCodeException;
-import org.syncope.client.to.ConnectorBundleTOs;
+import org.syncope.client.to.ConnectorBundleTO;
 import org.syncope.client.to.ConnectorInstanceTO;
-import org.syncope.client.to.ConnectorInstanceTOs;
 import org.syncope.client.to.PropertyTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.identityconnectors.bundles.staticwebservice.WebServiceConnector;
@@ -220,11 +220,12 @@ public class ConnectorInstanceTestITCase extends AbstractTest {
 
     @Test
     public void list() {
-        ConnectorInstanceTOs connectorInstanceTOs = restTemplate.getForObject(
-                BASE_URL + "connector/list.json", ConnectorInstanceTOs.class);
+        List<ConnectorInstanceTO> connectorInstanceTOs =
+                restTemplate.getForObject(
+                BASE_URL + "connector/list.json", List.class);
 
         assertNotNull(connectorInstanceTOs);
-        assertFalse(connectorInstanceTOs.getInstances().isEmpty());
+        assertFalse(connectorInstanceTOs.isEmpty());
     }
 
     @Test
@@ -247,12 +248,12 @@ public class ConnectorInstanceTestITCase extends AbstractTest {
 
     @Test
     public void getBundles() {
-        ConnectorBundleTOs bundles = restTemplate.getForObject(
+        List<ConnectorBundleTO> bundles = restTemplate.getForObject(
                 BASE_URL + "connector/getBundles.json",
-                ConnectorBundleTOs.class);
+                List.class);
 
         assertNotNull(bundles);
 
-        assertFalse(bundles.getBundles().isEmpty());
+        assertFalse(bundles.isEmpty());
     }
 }

@@ -15,6 +15,7 @@
  */
 package org.syncope.core.rest.controller;
 
+import java.util.ArrayList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,9 +28,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.servlet.ModelAndView;
 import org.syncope.client.to.ResourceTO;
-import org.syncope.client.to.ResourceTOs;
-import org.syncope.client.to.SchemaMappingTOs;
+import org.syncope.client.to.SchemaMappingTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
 import org.syncope.core.persistence.beans.SchemaMapping;
@@ -187,7 +188,7 @@ public class ResourceController extends AbstractController {
     @Transactional(readOnly = true)
     @RequestMapping(method = RequestMethod.GET,
     value = "/list")
-    public ResourceTOs list(HttpServletResponse response)
+    public ModelAndView list(HttpServletResponse response)
             throws NotFoundException {
 
         List<TargetResource> resources = resourceDAO.findAll();
@@ -196,12 +197,12 @@ public class ResourceController extends AbstractController {
             throw new NotFoundException("No resources found");
         }
 
-        return binder.getResourceTOs(resources);
+        return new ModelAndView().addObject(binder.getResourceTOs(resources));
     }
 
     @RequestMapping(method = RequestMethod.GET,
     value = "/{roleName}/mappings")
-    public SchemaMappingTOs getRoleResourcesMapping(
+    public ModelAndView getRoleResourcesMapping(
             HttpServletResponse response,
             @PathVariable("roleName") Long roleId)
             throws SyncopeClientCompositeErrorException {
@@ -228,11 +229,11 @@ public class ResourceController extends AbstractController {
             throw compositeErrorException;
         }
 
-        SchemaMappingTOs roleMappings = new SchemaMappingTOs();
+        List<SchemaMappingTO> roleMappings = new ArrayList<SchemaMappingTO>();
 
         Set<TargetResource> resources = role.getTargetResources();
 
-        SchemaMappingTOs resourceMappings = null;
+        List<SchemaMappingTO> resourceMappings = null;
 
         for (TargetResource resource : resources) {
             if (LOG.isDebugEnabled()) {
@@ -250,16 +251,16 @@ public class ResourceController extends AbstractController {
 
             if (LOG.isDebugEnabled()) {
                 LOG.debug("The mappings TO of '" + resource + "' are '"
-                        + resourceMappings.getMappings() + "'");
+                        + resourceMappings + "'");
             }
 
-            roleMappings.getMappings().addAll(resourceMappings.getMappings());
+            roleMappings.addAll(resourceMappings);
         }
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Mappings found: " + roleMappings.getMappings());
+            LOG.debug("Mappings found: " + roleMappings);
         }
 
-        return roleMappings;
+        return new ModelAndView().addObject(roleMappings);
     }
 }

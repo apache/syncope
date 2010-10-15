@@ -47,7 +47,7 @@
                         SyncopeClientExceptionType.Propagation.getHeaderValue());
                 response.setHeader(
                         SyncopeClientExceptionType.Propagation.getElementHeaderName(),
-                        ((PropagationException) ex).getResource());
+                        ((PropagationException) ex).getResourceName());
 
                 statusCode = HttpServletResponse.SC_BAD_REQUEST;
             } else if (ex instanceof SyncopeClientCompositeErrorException) {

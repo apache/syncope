@@ -14,6 +14,7 @@
  */
 package org.syncope.core.rest;
 
+import java.util.List;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
@@ -24,7 +25,6 @@ import org.syncope.client.mod.AttributeMod;
 import org.syncope.client.mod.RoleMod;
 import org.syncope.client.to.AttributeTO;
 import org.syncope.client.to.RoleTO;
-import org.syncope.client.to.RoleTOs;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 
 public class RoleTestITCase extends AbstractTest {
@@ -79,11 +79,11 @@ public class RoleTestITCase extends AbstractTest {
 
     @Test
     public void list() {
-        RoleTOs roleTOs = restTemplate.getForObject(BASE_URL
-                + "role/list.json", RoleTOs.class);
+        List<RoleTO> roleTOs = restTemplate.getForObject(BASE_URL
+                + "role/list.json", List.class);
 
         assertNotNull(roleTOs);
-        assertEquals(8, roleTOs.getRoles().size());
+        assertEquals(8, roleTOs.size());
     }
 
     @Test

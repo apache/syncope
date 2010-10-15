@@ -14,7 +14,14 @@
  */
 package org.syncope.core.persistence.beans;
 
+import java.beans.XMLDecoder;
+import java.beans.XMLEncoder;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -30,6 +37,7 @@ import javax.persistence.Lob;
 import javax.persistence.OneToMany;
 import javax.persistence.TableGenerator;
 import org.hibernate.annotations.CollectionOfElements;
+import org.syncope.client.to.PropertyTO;
 import org.syncope.types.ConnectorCapability;
 
 @Entity
@@ -113,12 +121,38 @@ public class ConnectorInstance extends AbstractBaseBean {
         this.connectorName = connectorName;
     }
 
-    public String getXmlConfiguration() {
-        return xmlConfiguration;
+    public Set<PropertyTO> getConfiguration() {
+        Set<PropertyTO> result = Collections.EMPTY_SET;
+
+        try {
+            ByteArrayInputStream tokenContentIS = new ByteArrayInputStream(
+                    URLDecoder.decode(xmlConfiguration, "UTF-8").getBytes());
+
+            XMLDecoder decoder = new XMLDecoder(tokenContentIS);
+            Object object = decoder.readObject();
+            decoder.close();
+
+            result = (Set<PropertyTO>) object;
+        } catch (Throwable t) {
+            LOG.error("During connector properties deserialization", t);
+        }
+
+        return result;
     }
 
-    public void setXmlConfiguration(String xmlConfiguration) {
-        this.xmlConfiguration = xmlConfiguration;
+    public void setConfiguration(Set<PropertyTO> configuration) {
+        try {
+            ByteArrayOutputStream tokenContentOS = new ByteArrayOutputStream();
+            XMLEncoder encoder = new XMLEncoder(tokenContentOS);
+            encoder.writeObject(configuration);
+            encoder.flush();
+            encoder.close();
+
+            xmlConfiguration = URLEncoder.encode(tokenContentOS.toString(),
+                    "UTF-8");
+        } catch (Throwable t) {
+            LOG.error("During connector properties serialization", t);
+        }
     }
 
     public Long getId() {

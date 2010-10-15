@@ -2,9 +2,9 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -36,6 +36,9 @@ import org.hibernate.annotations.Cascade;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 
+/**
+ * A resource to which propagation occurs.
+ */
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 @NamedQueries({
@@ -67,6 +70,12 @@ public class TargetResource extends AbstractBaseBean {
     @Id
     private String name;
     /**
+     * Should this resource enforce the mandatory constraints?
+     */
+    @Column(nullable = false)
+    @Basic
+    private Character forceMandatoryConstraint;
+    /**
      * The resource type is identified by the associated connector.
      */
     @ManyToOne(fetch = FetchType.EAGER)
@@ -87,13 +96,24 @@ public class TargetResource extends AbstractBaseBean {
     @OneToMany(cascade = CascadeType.MERGE, mappedBy = "resource")
     @Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
     private List<SchemaMapping> mappings;
-    @Column(nullable = false)
-    @Basic
-    private Character forceMandatoryConstraint;
+    /**
+     * Tasks associated to this resource.
+     */
+    @OneToMany(cascade = CascadeType.MERGE, mappedBy = "resource")
+    @Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
+    private List<Task> tasks;
 
+    /**
+     * Default constructor.
+     */
     public TargetResource() {
+        super();
+
         forceMandatoryConstraint = getBooleanAsCharacter(false);
+        users = new HashSet<SyncopeUser>();
+        roles = new HashSet<SyncopeRole>();
         mappings = new ArrayList<SchemaMapping>();
+        tasks = new ArrayList<Task>();
     }
 
     public boolean isForceMandatoryConstraint() {
@@ -111,6 +131,25 @@ public class TargetResource extends AbstractBaseBean {
 
     public void setConnector(ConnectorInstance connector) {
         this.connector = connector;
+    }
+
+    public List<Task> getTasks() {
+        return tasks;
+    }
+
+    public boolean addTask(Task task) {
+        return this.tasks.add(task);
+    }
+
+    public boolean removeTask(Task task) {
+        return this.tasks.remove(task);
+    }
+
+    public void setTasks(List<Task> tasks) {
+        this.tasks.clear();
+        if (tasks != null && !tasks.isEmpty()) {
+            this.tasks.addAll(tasks);
+        }
     }
 
     public List<SchemaMapping> getMappings() {
@@ -140,53 +179,41 @@ public class TargetResource extends AbstractBaseBean {
         this.name = name;
     }
 
-    public Set<SyncopeRole> getRoles() {
-        if (this.roles == null) {
-            this.roles = new HashSet<SyncopeRole>();
-        }
-        return this.roles;
-    }
-
     public boolean addRole(SyncopeRole role) {
-        if (this.roles == null) {
-            this.roles = new HashSet<SyncopeRole>();
-        }
-        return this.roles.add(role);
+        return roles.add(role);
     }
 
     public boolean removeRole(SyncopeRole role) {
-        if (this.roles == null) {
-            return true;
-        }
-        return this.roles.remove(role);
+        return roles.remove(role);
+    }
+
+    public Set<SyncopeRole> getRoles() {
+        return roles;
     }
 
     public void setRoles(Set<SyncopeRole> roles) {
-        this.roles = roles;
-    }
-
-    public Set<SyncopeUser> getUsers() {
-        if (this.users == null) {
-            this.users = new HashSet<SyncopeUser>();
+        this.roles.clear();
+        if (roles != null && !roles.isEmpty()) {
+            this.roles.addAll(roles);
         }
-        return this.users;
     }
 
     public boolean addUser(SyncopeUser user) {
-        if (this.users == null) {
-            this.users = new HashSet<SyncopeUser>();
-        }
-        return this.users.add(user);
+        return users.add(user);
     }
 
     public boolean removeUser(SyncopeUser user) {
-        if (this.users == null) {
-            return true;
-        }
-        return this.users.remove(user);
+        return users.remove(user);
+    }
+
+    public Set<SyncopeUser> getUsers() {
+        return users;
     }
 
     public void setUsers(Set<SyncopeUser> users) {
-        this.users = users;
+        this.users.clear();
+        if (users != null && !users.isEmpty()) {
+            this.users.addAll(users);
+        }
     }
 }

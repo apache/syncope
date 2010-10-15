@@ -2,9 +2,9 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,9 +14,7 @@
  */
 package org.syncope.core.persistence.dao.impl;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import org.springframework.stereotype.Repository;
@@ -119,31 +117,23 @@ public class ResourceDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    public void delete(String name) {
+    public void delete(final String name) {
         TargetResource resource = find(name);
         if (resource == null) {
             return;
         }
 
-        // --------------------------------------
-        // Remove all mappings
-        // --------------------------------------
         resource.getMappings().clear();
-        // --------------------------------------
 
-        Set<SyncopeUser> users = resource.getUsers();
-        if (users != null && !users.isEmpty()) {
-            for (SyncopeUser user : users) {
-                user.removeTargetResource(resource);
-            }
+        resource.getTasks().clear();
+
+        for (SyncopeUser user : resource.getUsers()) {
+            user.removeTargetResource(resource);
         }
         resource.getUsers().clear();
 
-        Set<SyncopeRole> roles = resource.getRoles();
-        if (roles != null && !roles.isEmpty()) {
-            for (SyncopeRole role : roles) {
-                role.removeTargetResource(resource);
-            }
+        for (SyncopeRole role : resource.getRoles()) {
+            role.removeTargetResource(resource);
         }
         resource.getRoles().clear();
 

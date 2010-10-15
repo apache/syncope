@@ -22,9 +22,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.client.to.PropertyTO;
-import org.syncope.core.persistence.ConnectorInstanceLoader;
 import org.syncope.core.persistence.beans.ConnectorInstance;
-import org.syncope.core.persistence.dao.ConnectorInstanceDAO;
 import org.syncope.core.persistence.AbstractTest;
 import org.syncope.identityconnectors.bundles.staticwebservice.WebServiceConnector;
 
@@ -53,7 +51,8 @@ public class ConnectorInstanceTest extends AbstractTest {
     }
 
     @Test
-    public final void save() throws ClassNotFoundException {
+    public final void save()
+            throws ClassNotFoundException {
         ConnectorInstance connectorInstance = new ConnectorInstance();
 
         // set connector version
@@ -80,13 +79,9 @@ public class ConnectorInstanceTest extends AbstractTest {
         conf.add(endpoint);
         conf.add(servicename);
 
-        // serialize configuration
-        String xmlconf = ConnectorInstanceLoader.serializeToXML(conf);
-
-        assertNotNull("xml configuration string is null", xmlconf);
-
         // set connector configuration
-        connectorInstance.setXmlConfiguration(xmlconf);
+        connectorInstance.setConfiguration(conf);
+        assertFalse(connectorInstance.getConfiguration().isEmpty());
 
         // perform save operation
         ConnectorInstance actual =
@@ -107,12 +102,8 @@ public class ConnectorInstanceTest extends AbstractTest {
         assertEquals("save did not work for \"majorVersion\" attribute",
                 "1.0", connectorInstance.getVersion());
 
-        String xmlConfiguration = connectorInstance.getXmlConfiguration();
-
-        assertNotNull("configuration not found", xmlConfiguration);
-
-        conf = (Set<PropertyTO>) ConnectorInstanceLoader.buildFromXML(
-                xmlConfiguration);
+        conf = connectorInstance.getConfiguration();
+        assertFalse(conf.isEmpty());
 
         assertNotNull("configuration retrieving failed", conf);
         assertTrue(conf.size() == 2);

@@ -24,8 +24,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.ModelAndView;
 import org.syncope.client.to.DerivedSchemaTO;
-import org.syncope.client.to.DerivedSchemaTOs;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.core.persistence.beans.AbstractDerivedSchema;
 import org.syncope.core.persistence.dao.DerivedSchemaDAO;
@@ -79,8 +79,7 @@ public class DerivedSchemaController extends AbstractController {
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/{kind}/list")
-    public DerivedSchemaTOs list(@PathVariable("kind") final String kind) {
-
+    public ModelAndView list(@PathVariable("kind") final String kind) {
         Class reference = getAttributableUtil(kind).getDerivedSchemaClass();
         List<AbstractDerivedSchema> derivedAttributeSchemas =
                 derivedSchemaDAO.findAll(reference);
@@ -93,9 +92,7 @@ public class DerivedSchemaController extends AbstractController {
                     derivedSchema));
         }
 
-        DerivedSchemaTOs result = new DerivedSchemaTOs();
-        result.setDerivedSchemas(derivedSchemaTOs);
-        return result;
+        return new ModelAndView().addObject(derivedSchemaTOs);
     }
 
     @RequestMapping(method = RequestMethod.GET,

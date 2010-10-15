@@ -24,8 +24,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.ModelAndView;
 import org.syncope.client.to.SchemaTO;
-import org.syncope.client.to.SchemaTOs;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.core.rest.data.SchemaDataBinder;
 import org.syncope.core.persistence.beans.AbstractSchema;
@@ -76,7 +76,7 @@ public class SchemaController extends AbstractController {
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/{kind}/list")
-    public SchemaTOs list(@PathVariable("kind") final String kind) {
+    public ModelAndView list(@PathVariable("kind") final String kind) {
 
         Class reference = getAttributableUtil(kind).getSchemaClass();
         List<AbstractSchema> schemas = schemaDAO.findAll(reference);
@@ -86,9 +86,7 @@ public class SchemaController extends AbstractController {
             schemaTOs.add(schemaDataBinder.getSchemaTO(schema));
         }
 
-        SchemaTOs result = new SchemaTOs();
-        result.setSchemas(schemaTOs);
-        return result;
+        return new ModelAndView().addObject(schemaTOs);
     }
 
     @RequestMapping(method = RequestMethod.GET,

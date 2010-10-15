@@ -12,22 +12,9 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.persistence.propagation;
+package org.syncope.types;
 
-public class PropagationException extends Exception {
+public enum TaskExecutionStatus {
 
-    private final String resourceName;
-
-    public PropagationException(final String resourceName,
-            final String stackTrace) {
-
-        super("Exception during provision on resource " + resourceName
-                + "\n" + stackTrace);
-
-        this.resourceName = resourceName;
-    }
-
-    public String getResourceName() {
-        return resourceName;
-    }
+    CREATED, SUBMITTED, UNSUBMITTED, SUCCESS, FAILURE
 }

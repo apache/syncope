@@ -2,9 +2,9 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *
+ * 
  *       http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -12,22 +12,20 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.persistence.propagation;
+package org.syncope.core.persistence.dao;
 
-public class PropagationException extends Exception {
+import java.util.List;
+import org.syncope.core.persistence.beans.Task;
 
-    private final String resourceName;
+public interface TaskDAO extends DAO {
 
-    public PropagationException(final String resourceName,
-            final String stackTrace) {
+    Task find(Long id);
 
-        super("Exception during provision on resource " + resourceName
-                + "\n" + stackTrace);
+    List<Task> findAll();
 
-        this.resourceName = resourceName;
-    }
+    Task save(Task task);
 
-    public String getResourceName() {
-        return resourceName;
-    }
+    void delete(Long id);
+
+    void delete(Task task);
 }

@@ -14,6 +14,8 @@
  */
 package org.syncope.client.to;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.syncope.client.AbstractBaseBean;
 
 public class ResourceTO extends AbstractBaseBean {
@@ -29,11 +31,15 @@ public class ResourceTO extends AbstractBaseBean {
     /**
      * Attribute mappings.
      */
-    private SchemaMappingTOs mappings;
+    private List<SchemaMappingTO> mappings;
     /**
      * Force mandatory constraint.
      */
     private boolean forceMandatoryConstraint;
+
+    public ResourceTO() {
+        mappings = new ArrayList<SchemaMappingTO>();
+    }
 
     public boolean isForceMandatoryConstraint() {
         return forceMandatoryConstraint;
@@ -51,11 +57,19 @@ public class ResourceTO extends AbstractBaseBean {
         this.connectorId = connectorId;
     }
 
-    public SchemaMappingTOs getMappings() {
+    public boolean addMapping(SchemaMappingTO mapping) {
+        return mappings.add(mapping);
+    }
+
+    public boolean removeMapping(SchemaMappingTO mapping) {
+        return mappings.remove(mapping);
+    }
+
+    public List<SchemaMappingTO> getMappings() {
         return mappings;
     }
 
-    public void setMappings(SchemaMappingTOs mappings) {
+    public void setMappings(List<SchemaMappingTO> mappings) {
         this.mappings = mappings;
     }
 

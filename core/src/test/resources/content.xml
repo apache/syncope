@@ -258,6 +258,9 @@
                    schemaName="firstname" schemaType="UserSchema" mandatoryCondition="type == 'F'"
                    accountid="F" password="F"/>
 
+    <Task id="1" xmlAttributes="" propagationMode="ASYNC" resourceOperationType="UPDATE" resource_name="ws-target-resource-2"/>
+    <TaskExecution id="1" task_id="1"/>
+
     <Entitlement name="base"/>
     <Entitlement name="advanced" description="Advanced entitlement"/>
 

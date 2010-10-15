@@ -20,6 +20,7 @@ import java.util.Collections;
 import static org.junit.Assert.*;
 
 import java.util.Date;
+import java.util.List;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.annotation.ExpectedException;
@@ -32,7 +33,6 @@ import org.syncope.client.search.AttributeCond;
 import org.syncope.client.to.MembershipTO;
 import org.syncope.client.search.NodeCond;
 import org.syncope.client.to.UserTO;
-import org.syncope.client.to.UserTOs;
 import org.syncope.client.to.WorkflowActionsTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
@@ -238,11 +238,11 @@ public class UserTestITCase extends AbstractTest {
 
     @Test
     public final void list() {
-        UserTOs users = restTemplate.getForObject(
-                BASE_URL + "user/list.json", UserTOs.class);
+        List<UserTO> users = restTemplate.getForObject(
+                BASE_URL + "user/list.json", List.class);
 
         assertNotNull(users);
-        assertEquals(4, users.getUsers().size());
+        assertEquals(4, users.size());
     }
 
     @Test
@@ -293,12 +293,12 @@ public class UserTestITCase extends AbstractTest {
 
         assertTrue(searchCondition.checkValidity());
 
-        UserTOs matchedUsers = restTemplate.postForObject(
+        List<UserTO> matchedUsers = restTemplate.postForObject(
                 BASE_URL + "user/search",
-                searchCondition, UserTOs.class);
+                searchCondition, List.class);
 
         assertNotNull(matchedUsers);
-        assertFalse(matchedUsers.getUsers().isEmpty());
+        assertFalse(matchedUsers.isEmpty());
     }
 
     @Test
@@ -356,7 +356,7 @@ public class UserTestITCase extends AbstractTest {
             if ("userId".equals(attributeTO.getSchema())) {
                 attributeFound = true;
 
-                assertEquals(Collections.singleton("t.w@spre.net"),
+                assertEquals(Collections.singletonList("t.w@spre.net"),
                         attributeTO.getValues());
             }
         }
