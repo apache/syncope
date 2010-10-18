@@ -74,19 +74,23 @@ public class WebServiceConnector implements
      */
     private static final Logger LOG =
             LoggerFactory.getLogger(WebServiceConnector.class);
+
     /**
      * Place holder for the Connection created in the init method.
      */
     private WebServiceConnection connection;
+
     /**
      * Place holder for the {@link Configuration} passed into the init() method
      * {@link WebServiceConnector#init}.
      */
     private WebServiceConfiguration config;
+
     /**
      * Schema.
      */
     private Schema schema = null;
+
     /**
      * Web Service Attributes.
      */
@@ -240,51 +244,40 @@ public class WebServiceConnector implements
             LOG.debug("Account to be created: " + accountName);
         }
 
-        // check schema
-        if (schema == null || wsAttributes == null) {
-
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Reload schema");
-            }
-
-            schema();
-        }
-
-        // to be used in order to check for mandatory attributes
-        Set<String> mandatoryAttributes = new HashSet<String>();
-
-        for (WSAttribute wsAttr : wsAttributes.values()) {
-            if (!wsAttr.isNullable()) {
-                mandatoryAttributes.add(getAttributeName(wsAttr));
-            }
-        }
-
         // to be user in order to pass information to the web service
-        List<WSAttributeValue> attributes =
+        final List<WSAttributeValue> attributes =
                 new ArrayList<WSAttributeValue>();
 
-        WSAttributeValue wsAttributeValue = null;
-
-        String attribute = null;
+        WSAttributeValue wsAttributeValue;
+        WSAttribute wsAttribute;
 
         // retrieve attributes
         for (Attribute attr : attrs) {
-            attribute = attr.getName();
+
+            wsAttribute = new WSAttribute(attr.getName());
+
+            if (attr.is(Name.NAME)) {
+                wsAttribute.setKey(true);
+                wsAttribute.setNullable(false);
+            }
+
+            if (attr.is(OperationalAttributeInfos.PASSWORD.getName())) {
+                wsAttribute.setName(
+                        OperationalAttributeInfos.PASSWORD.getName());
+                wsAttribute.setPassword(true);
+            }
 
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Attribute name: " + attribute);
+                LOG.debug(
+                        "\nAttribute: "
+                        + "\n\tName: " + wsAttribute.getName()
+                        + "\n\tIsKey: " + wsAttribute.isKey()
+                        + "\n\tIsPassword: " + wsAttribute.isPassword());
             }
 
-            wsAttributeValue =
-                    new WSAttributeValue(wsAttributes.get(attribute));
+            wsAttributeValue = new WSAttributeValue(wsAttribute);
 
             Object value = AttributeUtil.getSingleValue(attr);
-
-            if (value == null && !wsAttributeValue.isNullable()) {
-                // TODO: provisioningexception
-                throw new IllegalArgumentException(
-                        "Missing required parameter '" + attr.getName() + "'");
-            }
 
             if (value instanceof GuardedString
                     || value instanceof GuardedByteArray) {
@@ -295,16 +288,6 @@ public class WebServiceConnector implements
             }
 
             attributes.add(wsAttributeValue);
-
-            if (!wsAttributeValue.isNullable()) {
-                mandatoryAttributes.remove(attribute);
-            }
-        }
-
-        // check for mandatory attributes
-        if (!mandatoryAttributes.isEmpty()) {
-            throw new IllegalArgumentException(
-                    "Missing required parameters: " + mandatoryAttributes);
         }
 
         if (LOG.isDebugEnabled()) {
@@ -574,42 +557,40 @@ public class WebServiceConnector implements
             throw new IllegalStateException("Web Service client not found");
         }
 
-        // check schema
-        if (schema == null || wsAttributes == null) {
-
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Reload schema");
-            }
-
-            schema();
-        }
-
         // to be user in order to pass information to the web service
-        List<WSAttributeValue> attributes =
+        final List<WSAttributeValue> attributes =
                 new ArrayList<WSAttributeValue>();
 
-        WSAttributeValue wsAttributeValue = null;
-
-        String attribute = null;
+        WSAttributeValue wsAttributeValue;
+        WSAttribute wsAttribute;
 
         // retrieve attributes
         for (Attribute attr : replaceAttributes) {
-            attribute = attr.getName();
+
+            wsAttribute = new WSAttribute(attr.getName());
+
+            if (attr.is(Name.NAME)) {
+                wsAttribute.setKey(true);
+                wsAttribute.setNullable(false);
+            }
+
+            if (attr.is(OperationalAttributeInfos.PASSWORD.getName())) {
+                wsAttribute.setName(
+                        OperationalAttributeInfos.PASSWORD.getName());
+                wsAttribute.setPassword(true);
+            }
 
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Attribute name: " + attribute);
+                LOG.debug(
+                        "\nAttribute: "
+                        + "\n\tName: " + wsAttribute.getName()
+                        + "\n\tIsKey: " + wsAttribute.isKey()
+                        + "\n\tIsPassword: " + wsAttribute.isPassword());
             }
 
-            wsAttributeValue =
-                    new WSAttributeValue(wsAttributes.get(attribute));
+            wsAttributeValue = new WSAttributeValue(wsAttribute);
 
             Object value = AttributeUtil.getSingleValue(attr);
-
-            if (value == null && !wsAttributeValue.isNullable()) {
-                // TODO: provisioningexception
-                throw new IllegalArgumentException(
-                        "Missing required parameter");
-            }
 
             if (value instanceof GuardedString
                     || value instanceof GuardedByteArray) {

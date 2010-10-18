@@ -50,6 +50,7 @@ import org.identityconnectors.framework.common.objects.Uid;
 import org.identityconnectors.framework.common.objects.filter.Filter;
 import org.identityconnectors.framework.common.objects.filter.FilterBuilder;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -231,6 +232,7 @@ public class StaticWSTestITCase {
      * Gets schema from the target resource.
      */
     @Test
+    @Ignore
     public void schema() {
         Schema schema = connector.schema();
 

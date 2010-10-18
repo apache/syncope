@@ -139,12 +139,20 @@ public class ProvisioningImpl implements Provisioning {
 
             StringBuilder set = new StringBuilder();
             for (WSAttributeValue attr : data) {
-                if (!attr.isKey()) {
+                if (!attr.isKey()
+                        || !accountid.equals(attr.getValue().toString())) {
                     if (set.length() > 0) {
                         set.append(",");
                     }
 
-                    set.append(attr.getName()).append('=');
+                    if ("__NAME__".equals(attr.getName())) {
+                        set.append("userId=");
+                    } else if ("__PASSWORD__".equals(attr.getName())) {
+                            set.append("password=");
+                        } else {
+                            set.append(attr.getName()).append('=');
+                        }
+
                     if (attr.getValue() != null) {
                         set.append("'").
                                 append(attr.getValue().toString()).
@@ -282,11 +290,19 @@ public class ProvisioningImpl implements Provisioning {
                 if (keys.length() > 0) {
                     keys.append(",");
                 }
-                keys.append(attr.getName());
+
+                if ("__NAME__".equals(attr.getName())) {
+                    keys.append("userId");
+                } else if ("__PASSWORD__".equals(attr.getName())) {
+                        keys.append("password");
+                    } else {
+                        keys.append(attr.getName());
+                    }
 
                 if (values.length() > 0) {
                     values.append(",");
                 }
+
                 values.append(
                         "'"
                         + (attr.getValue() == null ? null : attr.getValue().toString())
