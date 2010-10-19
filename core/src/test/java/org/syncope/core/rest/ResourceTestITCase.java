@@ -15,6 +15,7 @@
 package org.syncope.core.rest;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import static org.junit.Assert.*;
 
@@ -38,7 +39,7 @@ public class ResourceTestITCase extends AbstractTest {
         resourceTO.setName(resourceName);
 
         restTemplate.postForObject(BASE_URL + "resource/create.json",
-                resourceTO, ResourceTO.class);
+                                   resourceTO, ResourceTO.class);
     }
 
     @Test
@@ -85,7 +86,7 @@ public class ResourceTestITCase extends AbstractTest {
             resourceTO.setName("resourcenotfound");
 
             restTemplate.postForObject(BASE_URL + "resource/update.json",
-                    resourceTO, ResourceTO.class);
+                                       resourceTO, ResourceTO.class);
         } catch (HttpStatusCodeException e) {
             assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
         }
@@ -167,11 +168,13 @@ public class ResourceTestITCase extends AbstractTest {
 
     @Test
     public void list() {
-        List<ResourceTO> actuals = restTemplate.getForObject(
-                BASE_URL + "resource/list.json", List.class);
-
+        List<ResourceTO> actuals = Arrays.asList(
+                restTemplate.getForObject(
+                BASE_URL + "resource/list.json", ResourceTO[].class));
         assertNotNull(actuals);
-
         assertFalse(actuals.isEmpty());
+        for (ResourceTO resourceTO : actuals) {
+            assertNotNull(resourceTO);
+        }
     }
 }

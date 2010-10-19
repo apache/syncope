@@ -1,4 +1,3 @@
-
 /*
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -87,7 +86,7 @@ public class ConnectorInstanceController extends AbstractController {
             LOG.debug("update called with configuration " + connectorTO);
         }
 
-        ConnectorInstance connectorInstance = null;
+        ConnectorInstance connectorInstance;
         try {
             connectorInstance = binder.updateConnectorInstance(
                     connectorTO.getId(), connectorTO);
@@ -126,8 +125,7 @@ public class ConnectorInstanceController extends AbstractController {
 
     @RequestMapping(method = RequestMethod.GET,
     value = "/list")
-    public ModelAndView list() {
-
+    public List<ConnectorInstanceTO> list() {
         List<ConnectorInstance> connectorInstances =
                 connectorInstanceDAO.findAll();
 
@@ -137,7 +135,7 @@ public class ConnectorInstanceController extends AbstractController {
             connectorInstanceTOs.add(binder.getConnectorInstanceTO(connector));
         }
 
-        return new ModelAndView().addObject(connectorInstanceTOs);
+        return connectorInstanceTOs;
     }
 
     @RequestMapping(method = RequestMethod.GET,
@@ -187,7 +185,7 @@ public class ConnectorInstanceController extends AbstractController {
 
     @RequestMapping(method = RequestMethod.GET,
     value = "/getBundles")
-    public ModelAndView getBundles()
+    public List<ConnectorBundleTO> getBundles()
             throws NotFoundException, MissingConfKeyException {
 
         ConnectorInfoManager manager =
@@ -238,6 +236,6 @@ public class ConnectorInstanceController extends AbstractController {
             connectorBundleTOs.add(connectorBundleTO);
         }
 
-        return new ModelAndView().addObject(connectorBundleTOs);
+        return connectorBundleTOs;
     }
 }

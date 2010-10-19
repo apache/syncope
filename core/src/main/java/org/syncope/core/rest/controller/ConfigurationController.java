@@ -30,7 +30,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.syncope.client.to.ConfigurationTO;
-import org.syncope.client.to.ConfigurationTOs;
 import org.syncope.core.persistence.beans.SyncopeConfiguration;
 import org.syncope.core.persistence.dao.MissingConfKeyException;
 import org.syncope.core.persistence.dao.SyncopeConfigurationDAO;
@@ -81,7 +80,7 @@ public class ConfigurationController extends AbstractController {
 
     @RequestMapping(method = RequestMethod.GET,
     value = "/list")
-    public ConfigurationTOs list(HttpServletRequest request) {
+    public List<ConfigurationTO> list(HttpServletRequest request) {
         List<SyncopeConfiguration> configurations =
                 syncopeConfigurationDAO.findAll();
         List<ConfigurationTO> configurationTOs =
@@ -92,9 +91,7 @@ public class ConfigurationController extends AbstractController {
                     configurationDataBinder.getConfigurationTO(configuration));
         }
 
-        ConfigurationTOs result = new ConfigurationTOs();
-        result.setConfigurations(configurationTOs);
-        return result;
+        return configurationTOs;
     }
 
     @RequestMapping(method = RequestMethod.GET,

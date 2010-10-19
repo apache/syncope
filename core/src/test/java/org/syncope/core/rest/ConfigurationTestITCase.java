@@ -15,13 +15,14 @@
 package org.syncope.core.rest;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
+import java.util.List;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.syncope.client.to.ConfigurationTO;
-import org.syncope.client.to.ConfigurationTOs;
 
 public class ConfigurationTestITCase extends AbstractTest {
 
@@ -70,11 +71,14 @@ public class ConfigurationTestITCase extends AbstractTest {
 
     @Test
     public void list() {
-        ConfigurationTOs configurations = restTemplate.getForObject(
+        List<ConfigurationTO> configurations = Arrays.asList(
+                restTemplate.getForObject(
                 BASE_URL + "configuration/list.json",
-                ConfigurationTOs.class);
-
+                ConfigurationTO[].class));
         assertNotNull(configurations);
+        for (ConfigurationTO configuration : configurations) {
+            assertNotNull(configuration);
+        }
     }
 
     @Test

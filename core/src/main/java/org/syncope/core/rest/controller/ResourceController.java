@@ -28,7 +28,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.servlet.ModelAndView;
 import org.syncope.client.to.ResourceTO;
 import org.syncope.client.to.SchemaMappingTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
@@ -188,7 +187,7 @@ public class ResourceController extends AbstractController {
     @Transactional(readOnly = true)
     @RequestMapping(method = RequestMethod.GET,
     value = "/list")
-    public ModelAndView list(HttpServletResponse response)
+    public List<ResourceTO> list(HttpServletResponse response)
             throws NotFoundException {
 
         List<TargetResource> resources = resourceDAO.findAll();
@@ -197,12 +196,12 @@ public class ResourceController extends AbstractController {
             throw new NotFoundException("No resources found");
         }
 
-        return new ModelAndView().addObject(binder.getResourceTOs(resources));
+        return binder.getResourceTOs(resources);
     }
 
     @RequestMapping(method = RequestMethod.GET,
     value = "/{roleName}/mappings")
-    public ModelAndView getRoleResourcesMapping(
+    public List<SchemaMappingTO> getRoleResourcesMapping(
             HttpServletResponse response,
             @PathVariable("roleName") Long roleId)
             throws SyncopeClientCompositeErrorException {
@@ -234,7 +233,6 @@ public class ResourceController extends AbstractController {
         Set<TargetResource> resources = role.getTargetResources();
 
         List<SchemaMappingTO> resourceMappings = null;
-
         for (TargetResource resource : resources) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Ask for the mappings of '" + resource + "'");
@@ -261,6 +259,6 @@ public class ResourceController extends AbstractController {
             LOG.debug("Mappings found: " + roleMappings);
         }
 
-        return new ModelAndView().addObject(roleMappings);
+        return roleMappings;
     }
 }

@@ -14,6 +14,7 @@
  */
 package org.syncope.core.rest;
 
+import java.util.Arrays;
 import java.util.List;
 import org.syncope.client.to.DerivedSchemaTO;
 import org.junit.Test;
@@ -23,10 +24,13 @@ public class DerivedSchemaTestITCase extends AbstractTest {
 
     @Test
     public void derivedList() {
-        List<DerivedSchemaTO> derivedSchemas =
+        List<DerivedSchemaTO> derivedSchemas = Arrays.asList(
                 restTemplate.getForObject(BASE_URL
-                + "derivedSchema/user/list.json", List.class);
+                + "derivedSchema/user/list.json", DerivedSchemaTO[].class));
         assertFalse(derivedSchemas.isEmpty());
+        for (DerivedSchemaTO derivedSchemaTO: derivedSchemas) {
+            assertNotNull(derivedSchemaTO);
+        }
     }
 
     @Test

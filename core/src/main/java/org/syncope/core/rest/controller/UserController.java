@@ -27,7 +27,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.ModelAndView;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.SyncopeUserDAO;
 import org.syncope.core.persistence.propagation.PropagationException;
@@ -42,6 +41,7 @@ import java.util.Set;
 import javassist.NotFoundException;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.servlet.ModelAndView;
 import org.syncope.client.mod.UserMod;
 import org.syncope.client.search.NodeCond;
 import org.syncope.client.to.UserTO;
@@ -183,15 +183,14 @@ public class UserController extends AbstractController {
 
     @RequestMapping(method = RequestMethod.GET,
     value = "/list")
-    public ModelAndView list() {
+    public List<UserTO> list() {
         List<SyncopeUser> users = syncopeUserDAO.findAll();
         List<UserTO> userTOs = new ArrayList<UserTO>(users.size());
-
         for (SyncopeUser user : users) {
             userTOs.add(userDataBinder.getUserTO(user, userWorkflow));
         }
 
-        return new ModelAndView().addObject(userTOs);
+        return userTOs;
     }
 
     @RequestMapping(method = RequestMethod.GET,
@@ -232,7 +231,7 @@ public class UserController extends AbstractController {
 
     @RequestMapping(method = RequestMethod.POST,
     value = "/search")
-    public ModelAndView search(@RequestBody NodeCond searchCondition)
+    public List<UserTO> search(@RequestBody NodeCond searchCondition)
             throws InvalidSearchConditionException {
 
         if (LOG.isDebugEnabled()) {
@@ -251,7 +250,7 @@ public class UserController extends AbstractController {
             result.add(userDataBinder.getUserTO(user, userWorkflow));
         }
 
-        return new ModelAndView().addObject(result);
+        return result;
     }
 
     @RequestMapping(method = RequestMethod.GET,

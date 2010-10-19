@@ -15,6 +15,7 @@
 package org.syncope.core.rest;
 
 import java.io.InputStream;
+import java.util.Arrays;
 import static org.junit.Assert.*;
 
 import java.util.HashSet;
@@ -61,7 +62,7 @@ public class ConnectorInstanceTestITCase extends AbstractTest {
         ConnectorInstanceTO connectorTO = new ConnectorInstanceTO();
 
         restTemplate.postForObject(BASE_URL + "connector/create.json",
-                connectorTO, ConnectorInstanceTO.class);
+                                   connectorTO, ConnectorInstanceTO.class);
     }
 
     @Test
@@ -209,10 +210,8 @@ public class ConnectorInstanceTestITCase extends AbstractTest {
     @Test
     public void deleteWithException() {
         try {
-
             restTemplate.delete(
                     BASE_URL + "connector/delete/{connectorId}.json", "0");
-
         } catch (HttpStatusCodeException e) {
             assertEquals(e.getStatusCode(), HttpStatus.NOT_FOUND);
         }
@@ -220,12 +219,14 @@ public class ConnectorInstanceTestITCase extends AbstractTest {
 
     @Test
     public void list() {
-        List<ConnectorInstanceTO> connectorInstanceTOs =
+        List<ConnectorInstanceTO> connectorInstanceTOs = Arrays.asList(
                 restTemplate.getForObject(
-                BASE_URL + "connector/list.json", List.class);
-
+                BASE_URL + "connector/list.json", ConnectorInstanceTO[].class));
         assertNotNull(connectorInstanceTOs);
         assertFalse(connectorInstanceTOs.isEmpty());
+        for (ConnectorInstanceTO instance : connectorInstanceTOs) {
+            assertNotNull(instance);
+        }
     }
 
     @Test
@@ -248,12 +249,14 @@ public class ConnectorInstanceTestITCase extends AbstractTest {
 
     @Test
     public void getBundles() {
-        List<ConnectorBundleTO> bundles = restTemplate.getForObject(
+        List<ConnectorBundleTO> bundles = Arrays.asList(
+                restTemplate.getForObject(
                 BASE_URL + "connector/getBundles.json",
-                List.class);
-
+                ConnectorBundleTO[].class));
         assertNotNull(bundles);
-
         assertFalse(bundles.isEmpty());
+        for (ConnectorBundleTO bundle : bundles) {
+            assertNotNull(bundle);
+        }
     }
 }

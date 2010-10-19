@@ -14,6 +14,7 @@
  */
 package org.syncope.core.rest;
 
+import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
 import org.syncope.types.SyncopeClientExceptionType;
@@ -70,18 +71,29 @@ public class SchemaTestITCase extends AbstractTest {
 
     @Test
     public void list() {
-        List<SchemaTO> userSchemas =
+        List<SchemaTO> userSchemas = Arrays.asList(
                 restTemplate.getForObject(BASE_URL
-                + "schema/user/list.json", List.class);
+                + "schema/user/list.json", SchemaTO[].class));
         assertFalse(userSchemas.isEmpty());
+        for (SchemaTO schemaTO : userSchemas) {
+            assertNotNull(schemaTO);
+        }
 
-        List<SchemaTO> roleSchemas = restTemplate.getForObject(BASE_URL
-                + "schema/role/list.json", List.class);
+        List<SchemaTO> roleSchemas = Arrays.asList(
+                restTemplate.getForObject(BASE_URL
+                + "schema/role/list.json", SchemaTO[].class));
         assertFalse(roleSchemas.isEmpty());
+        for (SchemaTO schemaTO : roleSchemas) {
+            assertNotNull(schemaTO);
+        }
 
-        List<SchemaTO> membershipSchemas = restTemplate.getForObject(BASE_URL
-                + "schema/membership/list.json", List.class);
+        List<SchemaTO> membershipSchemas = Arrays.asList(
+                restTemplate.getForObject(BASE_URL
+                + "schema/membership/list.json", SchemaTO[].class));
         assertFalse(membershipSchemas.isEmpty());
+        for (SchemaTO schemaTO : membershipSchemas) {
+            assertNotNull(schemaTO);
+        }
     }
 
     @Test

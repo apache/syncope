@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.servlet.ModelAndView;
 import org.syncope.client.mod.RoleMod;
 import org.syncope.client.to.RoleTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
@@ -87,14 +86,14 @@ public class RoleController extends AbstractController {
 
     @RequestMapping(method = RequestMethod.GET,
     value = "/list")
-    public ModelAndView list(HttpServletRequest request) {
+    public List<RoleTO> list(HttpServletRequest request) {
         List<SyncopeRole> roles = syncopeRoleDAO.findAll();
         List<RoleTO> roleTOs = new ArrayList<RoleTO>(roles.size());
         for (SyncopeRole role : roles) {
             roleTOs.add(roleDataBinder.getRoleTO(role));
         }
 
-        return new ModelAndView().addObject(roleTOs);
+        return roleTOs;
     }
 
     @RequestMapping(method = RequestMethod.GET,
@@ -117,7 +116,7 @@ public class RoleController extends AbstractController {
 
     @RequestMapping(method = RequestMethod.GET,
     value = "/children/{roleId}")
-    public ModelAndView children(HttpServletResponse response,
+    public List<RoleTO> children(HttpServletResponse response,
             @PathVariable("roleId") Long roleId) {
 
         List<SyncopeRole> roles = syncopeRoleDAO.findChildren(roleId);
@@ -126,7 +125,7 @@ public class RoleController extends AbstractController {
             roleTOs.add(roleDataBinder.getRoleTO(role));
         }
 
-        return new ModelAndView().addObject(roleTOs);
+        return roleTOs;
     }
 
     @RequestMapping(method = RequestMethod.GET,
