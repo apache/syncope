@@ -49,8 +49,6 @@ public class SchemaDataBinder {
     private static final String[] ignoreSchemaProperties = {
         "derivedSchemas", "attributes"};
     @Autowired
-    private SchemaDAO schemaDAO;
-    @Autowired
     private DerivedSchemaDAO derivedSchemaDAO;
     @Autowired
     private JexlEngine jexlEngine;

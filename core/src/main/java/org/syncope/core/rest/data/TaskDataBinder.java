@@ -14,31 +14,51 @@
  */
 package org.syncope.core.rest.data;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.client.to.TaskExecutionTO;
+import org.syncope.client.to.TaskTO;
+import org.syncope.core.persistence.beans.Task;
 import org.syncope.core.persistence.beans.TaskExecution;
 
 @Component
 @Transactional(rollbackFor = {
     Throwable.class
 })
-public class TaskExecutionDataBinder {
+public class TaskDataBinder {
 
     /**
-     * Properties to be ignored during bean copy.
-     * @see BeanUtils
+     * Logger.
      */
-    private static final String[] IGNORE_PROPERTIES = {"id", "task"};
+    private static final Logger LOG = LoggerFactory.getLogger(
+            TaskDataBinder.class);
+    private static final String[] IGNORE_TASK_PROPERTIES = {
+        "executions", "resource"};
+    private static final String[] IGNORE_TASK_EXECUTION_PROPERTIES = {
+        "task"};
 
     public TaskExecutionTO getTaskExecutionTO(final TaskExecution execution) {
         TaskExecutionTO executionTO = new TaskExecutionTO();
-
-        BeanUtils.copyProperties(execution, executionTO, IGNORE_PROPERTIES);
-        executionTO.setId(execution.getId());
+        BeanUtils.copyProperties(execution, executionTO,
+                                 IGNORE_TASK_EXECUTION_PROPERTIES);
         executionTO.setTask(execution.getTask().getId());
 
         return executionTO;
+    }
+
+    public TaskTO getTaskTO(final Task task) {
+        TaskTO taskTO = new TaskTO();
+        BeanUtils.copyProperties(task, taskTO, IGNORE_TASK_PROPERTIES);
+
+        for (TaskExecution execution : task.getExecutions()) {
+            taskTO.addExecution(getTaskExecutionTO(execution));
+        }
+
+        taskTO.setResource(task.getResource().getName());
+
+        return taskTO;
     }
 }

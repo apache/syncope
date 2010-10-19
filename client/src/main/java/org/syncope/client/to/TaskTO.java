@@ -14,6 +14,7 @@
  */
 package org.syncope.client.to;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.syncope.client.AbstractBaseBean;
 import org.syncope.types.PropagationMode;
@@ -28,7 +29,11 @@ public class TaskTO extends AbstractBaseBean {
     private String oldAccountId;
     private String xmlAttributes;
     private String resource;
-    private List<Long> executions;
+    private List<TaskExecutionTO> executions;
+
+    public TaskTO() {
+        executions = new ArrayList<TaskExecutionTO>();
+    }
 
     public String getAccountId() {
         return accountId;
@@ -38,19 +43,19 @@ public class TaskTO extends AbstractBaseBean {
         this.accountId = accountId;
     }
 
-    public boolean addExecution(Long execution) {
+    public boolean addExecution(TaskExecutionTO execution) {
         return executions.add(execution);
     }
 
-    public boolean removeExecution(Long execution) {
+    public boolean removeExecution(TaskExecutionTO execution) {
         return executions.add(execution);
     }
 
-    public List<Long> getExecutions() {
+    public List<TaskExecutionTO> getExecutions() {
         return executions;
     }
 
-    public void setExecutions(List<Long> executions) {
+    public void setExecutions(List<TaskExecutionTO> executions) {
         this.executions = executions;
     }
 

@@ -15,6 +15,8 @@
 package org.syncope.core.persistence.beans;
 
 import com.thoughtworks.xstream.XStream;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -125,7 +127,8 @@ public class Task extends AbstractBaseBean {
                 ApplicationContextManager.getApplicationContext();
         XStream xStream = (XStream) context.getBean("xStream");
         try {
-            result = (Set<Attribute>) xStream.fromXML(xmlAttributes);
+            result = (Set<Attribute>) xStream.fromXML(
+                    URLDecoder.decode(xmlAttributes, "UTF-8"));
         } catch (Throwable t) {
             LOG.error("During attribute deserialization", t);
         }
@@ -138,7 +141,8 @@ public class Task extends AbstractBaseBean {
                 ApplicationContextManager.getApplicationContext();
         XStream xStream = (XStream) context.getBean("xStream");
         try {
-            xmlAttributes = xStream.toXML(attributes);
+            xmlAttributes = URLEncoder.encode(
+                    xStream.toXML(attributes), "UTF-8");
         } catch (Throwable t) {
             LOG.error("During attribute serialization", t);
         }

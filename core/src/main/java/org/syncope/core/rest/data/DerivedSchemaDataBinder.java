@@ -46,8 +46,6 @@ public class DerivedSchemaDataBinder {
     @Autowired
     private SchemaDAO schemaDAO;
     @Autowired
-    private DerivedSchemaDAO derivedSchemaDAO;
-    @Autowired
     private JexlEngine jexlEngine;
 
     private <T extends AbstractSchema> AbstractDerivedSchema populate(
