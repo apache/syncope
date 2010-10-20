@@ -16,11 +16,16 @@ package org.syncope.identityconnectors.bundles.commons.staticwebservice.to;
 
 import java.io.File;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 
+@XmlAccessorType(XmlAccessType.FIELD)
 public class WSAttributeValue extends WSAttribute {
 
-    private Object value = null;
+    private List values = null;
 
     public WSAttributeValue() {
         super();
@@ -38,12 +43,24 @@ public class WSAttributeValue extends WSAttribute {
         }
     }
 
-    public Object getValue() {
-        return value;
+    public List getValues() {
+        return values;
     }
 
-    public void setValue(Object value) {
-        this.value = value;
+    public void setValues(List values) {
+        if (this.values == null) {
+            this.values = new ArrayList();
+        }
+
+        this.values = values;
+    }
+
+    public final boolean addValue(Object value) {
+        if (this.values == null) {
+            this.values = new ArrayList();
+        }
+
+        return this.values.add(value);
     }
 
     public String getStringValue() {
@@ -51,7 +68,15 @@ public class WSAttributeValue extends WSAttribute {
             throw new IllegalArgumentException("Invalid type declaration");
         }
 
-        return (String) value;
+        String res;
+
+        if (values == null && values.isEmpty()) {
+            res = null;
+        } else {
+            res = values.iterator().next().toString();
+        }
+
+        return res;
     }
 
     public Boolean getBooleanValue() {
@@ -59,7 +84,15 @@ public class WSAttributeValue extends WSAttribute {
             throw new IllegalArgumentException("Invalid type declaration");
         }
 
-        return (Boolean) value;
+        Boolean res;
+
+        if (values == null && values.isEmpty()) {
+            res = null;
+        } else {
+            res = (Boolean) values.iterator().next();
+        }
+
+        return res;
     }
 
     public Long getLongValue() {
@@ -67,7 +100,15 @@ public class WSAttributeValue extends WSAttribute {
             throw new IllegalArgumentException("Invalid type declaration");
         }
 
-        return (Long) value;
+        Long res;
+
+        if (values == null && values.isEmpty()) {
+            res = null;
+        } else {
+            res = (Long) values.iterator().next();
+        }
+
+        return res;
     }
 
     public Float getFloadValue() {
@@ -75,7 +116,15 @@ public class WSAttributeValue extends WSAttribute {
             throw new IllegalArgumentException("Invalid type declaration");
         }
 
-        return (Float) value;
+        Float res;
+
+        if (values == null && values.isEmpty()) {
+            res = null;
+        } else {
+            res = (Float) values.iterator().next();
+        }
+
+        return res;
     }
 
     public Double getDoubleValue() {
@@ -83,7 +132,15 @@ public class WSAttributeValue extends WSAttribute {
             throw new IllegalArgumentException("Invalid type declaration");
         }
 
-        return (Double) value;
+        Double res;
+
+        if (values == null && values.isEmpty()) {
+            res = null;
+        } else {
+            res = (Double) values.iterator().next();
+        }
+
+        return res;
     }
 
     public Integer getIntegerValue() {
@@ -91,7 +148,15 @@ public class WSAttributeValue extends WSAttribute {
             throw new IllegalArgumentException("Invalid type declaration");
         }
 
-        return (Integer) value;
+        Integer res;
+
+        if (values == null && values.isEmpty()) {
+            res = null;
+        } else {
+            res = (Integer) values.iterator().next();
+        }
+
+        return res;
     }
 
     public Date getDateValue() {
@@ -99,7 +164,15 @@ public class WSAttributeValue extends WSAttribute {
             throw new IllegalArgumentException("Invalid type declaration");
         }
 
-        return (Date) value;
+        Date res;
+
+        if (values == null && values.isEmpty()) {
+            res = null;
+        } else {
+            res = (Date) values.iterator().next();
+        }
+
+        return res;
     }
 
     public Character getCharacterValue() {
@@ -107,7 +180,15 @@ public class WSAttributeValue extends WSAttribute {
             throw new IllegalArgumentException("Invalid type declaration");
         }
 
-        return (Character) value;
+        Character res;
+
+        if (values == null && values.isEmpty()) {
+            res = null;
+        } else {
+            res = (Character) values.iterator().next();
+        }
+
+        return res;
     }
 
     public URI getURIValue() {
@@ -115,7 +196,15 @@ public class WSAttributeValue extends WSAttribute {
             throw new IllegalArgumentException("Invalid type declaration");
         }
 
-        return (URI) value;
+        URI res;
+
+        if (values == null && values.isEmpty()) {
+            res = null;
+        } else {
+            res = (URI) values.iterator().next();
+        }
+
+        return res;
     }
 
     public File getFileValue() {
@@ -123,6 +212,14 @@ public class WSAttributeValue extends WSAttribute {
             throw new IllegalArgumentException("Invalid type declaration");
         }
 
-        return (File) value;
+        File res;
+
+        if (values == null && values.isEmpty()) {
+            res = null;
+        } else {
+            res = (File) values.iterator().next();
+        }
+
+        return res;
     }
 }

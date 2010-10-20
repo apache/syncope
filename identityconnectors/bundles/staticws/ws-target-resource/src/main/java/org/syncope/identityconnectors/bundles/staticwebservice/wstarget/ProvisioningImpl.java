@@ -137,10 +137,21 @@ public class ProvisioningImpl implements Provisioning {
             conn = connect();
             Statement statement = conn.createStatement();
 
+            String value;
+
             StringBuilder set = new StringBuilder();
             for (WSAttributeValue attr : data) {
+
+                if (attr.getValues() == null || attr.getValues().isEmpty()) {
+                    value = null;
+                } else if (attr.getValues().size() == 1) {
+                        value = attr.getValues().get(0).toString();
+                    } else {
+                        value = attr.getValues().toString();
+                    }
+
                 if (!attr.isKey()
-                        || !accountid.equals(attr.getValue().toString())) {
+                        || !accountid.equals(value)) {
                     if (set.length() > 0) {
                         set.append(",");
                     }
@@ -153,13 +164,7 @@ public class ProvisioningImpl implements Provisioning {
                             set.append(attr.getName()).append('=');
                         }
 
-                    if (attr.getValue() != null) {
-                        set.append("'").
-                                append(attr.getValue().toString()).
-                                append("'");
-                    } else {
-                        set.append("null");
-                    }
+                    set.append(value == null ? null : "'" + value + "'");
                 }
             }
 
@@ -233,12 +238,13 @@ public class ProvisioningImpl implements Provisioning {
                 for (int i = 0; i < metaData.getColumnCount(); i++) {
                     attr = new WSAttributeValue();
                     attr.setName(metaData.getColumnLabel(i + 1));
-                    attr.setValue(rs.getString(i + 1));
+                    attr.setValues(
+                            Collections.singletonList(rs.getString(i + 1)));
 
                     if ("userId".equalsIgnoreCase(
                             metaData.getColumnName(i + 1))) {
                         attr.setKey(true);
-                        user.setAccountid(attr.getValue().toString());
+                        user.setAccountid(rs.getString(i + 1));
                     }
 
                     user.addAttribute(attr);
@@ -285,8 +291,21 @@ public class ProvisioningImpl implements Provisioning {
             StringBuffer values = new StringBuffer();
 
             String accountid = null;
+            String value;
 
             for (WSAttributeValue attr : data) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Bind attribute: " + attr);
+                }
+
+                if (attr.getValues() == null || attr.getValues().isEmpty()) {
+                    value = null;
+                } else if (attr.getValues().size() == 1) {
+                        value = attr.getValues().get(0).toString();
+                    } else {
+                        value = attr.getValues().toString();
+                    }
+
                 if (keys.length() > 0) {
                     keys.append(",");
                 }
@@ -303,13 +322,10 @@ public class ProvisioningImpl implements Provisioning {
                     values.append(",");
                 }
 
-                values.append(
-                        "'"
-                        + (attr.getValue() == null ? null : attr.getValue().toString())
-                        + "'");
+                values.append(value == null ? null : "'" + value + "'");
 
-                if (attr.isKey()) {
-                    accountid = attr.getValue().toString();
+                if (attr.isKey() && !attr.getValues().isEmpty()) {
+                    accountid = attr.getValues().get(0).toString();
                 }
             }
 

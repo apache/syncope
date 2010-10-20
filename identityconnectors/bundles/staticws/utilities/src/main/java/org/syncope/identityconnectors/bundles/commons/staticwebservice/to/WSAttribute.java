@@ -14,7 +14,11 @@
  */
 package org.syncope.identityconnectors.bundles.commons.staticwebservice.to;
 
-public class WSAttribute {
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+
+@XmlAccessorType(XmlAccessType.FIELD)
+public class WSAttribute extends AbstractData{
 
     /**
      * The name of the attribute.

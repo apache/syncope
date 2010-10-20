@@ -1,6 +1,7 @@
 package org.syncope.identityconnectors.bundles.staticwebservice;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import org.syncope.identityconnectors.bundles.staticwebservice.provisioning.interfaces.Provisioning;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -276,18 +277,19 @@ public class WebServiceConnector implements
             }
 
             wsAttributeValue = new WSAttributeValue(wsAttribute);
-
-            Object value = AttributeUtil.getSingleValue(attr);
-
-            if (value instanceof GuardedString
-                    || value instanceof GuardedByteArray) {
-
-                wsAttributeValue.setValue(value.toString());
-            } else {
-                wsAttributeValue.setValue(value);
-            }
-
             attributes.add(wsAttributeValue);
+
+            List value = attr.getValue();
+
+            if (value != null && value.size() == 1
+                    && (value.get(0) instanceof GuardedString
+                    || value.get(0) instanceof GuardedByteArray)) {
+
+                wsAttributeValue.setValues(
+                        Collections.singletonList(value.toString()));
+            } else {
+                wsAttributeValue.setValues(value);
+            }
         }
 
         if (LOG.isDebugEnabled()) {
@@ -589,18 +591,19 @@ public class WebServiceConnector implements
             }
 
             wsAttributeValue = new WSAttributeValue(wsAttribute);
-
-            Object value = AttributeUtil.getSingleValue(attr);
-
-            if (value instanceof GuardedString
-                    || value instanceof GuardedByteArray) {
-
-                wsAttributeValue.setValue(value.toString());
-            } else {
-                wsAttributeValue.setValue(value);
-            }
-
             attributes.add(wsAttributeValue);
+
+            List value = attr.getValue();
+
+            if (value != null && value.size() == 1
+                    && (value.get(0) instanceof GuardedString
+                    || value.get(0) instanceof GuardedByteArray)) {
+
+                wsAttributeValue.setValues(
+                        Collections.singletonList(value.toString()));
+            } else {
+                wsAttributeValue.setValues(value);
+            }
         }
 
         Uid uuid = null;
@@ -795,17 +798,17 @@ public class WebServiceConnector implements
                 uid = attribute.getStringValue();
                 bld.setName(uid);
                 bld.addAttribute(AttributeBuilder.build(
-                        attribute.getName(), attribute.getValue()));
+                        attribute.getName(), attribute.getValues()));
             }
 
             if (!attribute.isKey() && !attribute.isPassword()) {
 
-                if (attribute.getValue() == null) {
+                if (attribute.getValues() == null) {
                     bld.addAttribute(AttributeBuilder.build(
                             attribute.getName()));
                 } else {
                     bld.addAttribute(AttributeBuilder.build(
-                            attribute.getName(), attribute.getValue()));
+                            attribute.getName(), attribute.getValues()));
                 }
 
             }

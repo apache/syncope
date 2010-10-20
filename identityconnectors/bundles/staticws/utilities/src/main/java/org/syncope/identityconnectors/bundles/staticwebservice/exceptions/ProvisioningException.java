@@ -14,6 +14,9 @@
  */
 package org.syncope.identityconnectors.bundles.staticwebservice.exceptions;
 
+import javax.xml.ws.WebFault;
+
+@WebFault(name = "ProvisioningException")
 public class ProvisioningException extends Exception {
 
     /**
@@ -21,7 +24,6 @@ public class ProvisioningException extends Exception {
      */
     public ProvisioningException() {
     }
-
 
     /**
      * Constructs an instance of <code>ProvisioningException</code> with the specified detail message.

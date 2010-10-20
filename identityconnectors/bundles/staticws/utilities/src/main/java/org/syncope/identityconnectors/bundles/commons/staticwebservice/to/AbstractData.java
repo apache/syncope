@@ -2,9 +2,9 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *
+ * 
  *       http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,51 +14,30 @@
  */
 package org.syncope.identityconnectors.bundles.commons.staticwebservice.to;
 
-import java.util.Set;
+import java.io.Serializable;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-public class WSChange extends AbstractData {
+public abstract class AbstractData implements Serializable {
 
-    /**
-     * Attributes changed.
-     */
-    private Set<WSAttributeValue> attributes;
-
-    /**
-     * ID of the change.
-     */
-    private int id;
-
-    /**
-     * Type of the change:
-     * - CREATE_OR_UPDATE
-     * - DELETE
-     */
-    private String type;
-
-    public Set<WSAttributeValue> getAttributes() {
-        return attributes;
+    @Override
+    public boolean equals(Object obj) {
+        return EqualsBuilder.reflectionEquals(this, obj);
     }
 
-    public void setAttributes(Set<WSAttributeValue> attributes) {
-        this.attributes = attributes;
+    @Override
+    public int hashCode() {
+        return HashCodeBuilder.reflectionHashCode(this);
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
+    @Override
+    public String toString() {
+        return ReflectionToStringBuilder.toString(this,
+                ToStringStyle.MULTI_LINE_STYLE);
     }
 }

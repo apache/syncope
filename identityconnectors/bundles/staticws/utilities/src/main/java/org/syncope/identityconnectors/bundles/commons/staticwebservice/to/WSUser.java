@@ -16,8 +16,11 @@ package org.syncope.identityconnectors.bundles.commons.staticwebservice.to;
 
 import java.util.HashSet;
 import java.util.Set;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 
-public class WSUser {
+@XmlAccessorType(XmlAccessType.FIELD)
+public class WSUser extends AbstractData {
 
     private String accountid;
 
