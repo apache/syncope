@@ -14,9 +14,10 @@
  */
 package org.syncope.console.rest;
 
+import java.util.Arrays;
+import java.util.List;
 import org.syncope.client.mod.RoleMod;
 import org.syncope.client.to.RoleTO;
-import org.syncope.client.to.RoleTOs;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 
 /**
@@ -30,17 +31,17 @@ public class RolesRestClient {
      * Get all Roles.
      * @return SchemaTOs
      */
-    public RoleTOs getAllRoles() {
-        RoleTOs roles = null;
+    public List<RoleTO> getAllRoles() {
+        List<RoleTO> roles = null;
 
         try{
-        roles = restClient.getRestTemplate().getForObject(restClient.getBaseURL()
-                + "role/list.json", RoleTOs.class);
+        roles =  Arrays.asList(restClient.getRestTemplate().getForObject(
+                restClient.getBaseURL() + "role/list.json", RoleTO[].class));
         }
         catch (SyncopeClientCompositeErrorException e) {
             e.printStackTrace();
         }
-
+        
         return roles;
     }
 
@@ -51,8 +52,8 @@ public class RolesRestClient {
     public void createRole(RoleTO roleTO) {
         RoleTO newRoleTO;
         try{
-        newRoleTO = restClient.getRestTemplate().postForObject(restClient.getBaseURL() +
-                "role/create", roleTO, RoleTO.class);
+        newRoleTO = restClient.getRestTemplate().postForObject(
+                restClient.getBaseURL() + "role/create", roleTO, RoleTO.class);
         }
         catch (SyncopeClientCompositeErrorException e) {
             e.printStackTrace();

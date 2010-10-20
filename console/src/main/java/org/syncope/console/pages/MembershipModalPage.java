@@ -22,9 +22,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.wicket.Application;
@@ -44,8 +42,8 @@ import org.apache.wicket.model.Model;
 import org.syncope.client.to.AttributeTO;
 import org.syncope.client.to.MembershipTO;
 import org.syncope.client.to.SchemaTO;
-import org.syncope.client.to.SchemaTOs;
 import org.syncope.console.SyncopeApplication;
+import org.syncope.console.commons.SchemaWrapper;
 import org.syncope.console.rest.SchemaRestClient;
 import org.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
@@ -69,125 +67,152 @@ public class MembershipModalPage extends SyncopeModalPage {
 
         setupSchemaWrappers(createFlag,membershipTO);
 
-        final ListView userAttributesView = new ListView("membershipSchemas", schemaWrappers) {
+        final ListView userAttributesView = new ListView("membershipSchemas",
+                schemaWrappers) {
 
             @Override
             protected void populateItem(ListItem item) {
-                final SchemaWrapper schemaWrapper = (SchemaWrapper) item.getDefaultModelObject();
+            final SchemaWrapper schemaWrapper = (SchemaWrapper) item
+                    .getDefaultModelObject();
 
-                final SchemaTO schemaTO = schemaWrapper.getSchemaTO();
+            final SchemaTO schemaTO = schemaWrapper.getSchemaTO();
 
-                item.add(new Label("name", schemaWrapper.getSchemaTO().getName()));
+            item.add(new Label("name", schemaWrapper.getSchemaTO().getName()));
 
-                item.add(new ListView("fields", schemaWrapper.getValues()) {
+            item.add(new ListView("fields", schemaWrapper.getValues()) {
 
-                    Panel panel;
+                Panel panel;
 
-                    @Override
-                    protected void populateItem(final ListItem item) {
+                @Override
+                protected void populateItem(final ListItem item) {
+                    String mandatoryCondition =
+                            schemaTO.getMandatoryCondition();
 
-                        if (schemaTO.getType().getClassName().equals("java.lang.String")) {
-                            panel = new AjaxTextFieldPanel("panel", schemaTO.getName(), new Model() {
+                    boolean required = false;
 
-                                @Override
-                                public Serializable getObject() {
-                                    return (String) item.getModelObject();
-                                }
+                    if (mandatoryCondition.equalsIgnoreCase("true"))
+                        required = true;
 
-                                @Override
-                                public void setObject(Serializable object) {
-                                    item.setModelObject((String) object);
-                                }
-                            }, schemaTO.isMandatory());
-                        } else if (schemaTO.getType().getClassName().equals("java.lang.Boolean")) {
-                            panel = new AjaxCheckBoxPanel("panel", schemaTO.getName(), new Model() {
+                    if (schemaTO.getType().getClassName()
+                            .equals("java.lang.String")) {
+                        panel = new AjaxTextFieldPanel("panel",
+                                schemaTO.getName(), new Model() {
 
-                                @Override
-                                public Serializable getObject() {
-                                    //return (String) item.getModelObject();
-                                    return "false";
-                                }
+                            @Override
+                            public Serializable getObject() {
+                                return (String) item.getModelObject();
+                            }
 
-                                @Override
-                                public void setObject(Serializable object) {
-                                    Boolean val = (Boolean) object;
-                                    item.setModelObject(val.toString());
-                                }
-                            }, schemaTO.isMandatory());
+                            @Override
+                            public void setObject(Serializable object) {
+                                item.setModelObject((String) object);
+                            }
+                        }, required);
+                    } else if (schemaTO.getType().getClassName()
+                            .equals("java.lang.Boolean")) {
+                        panel = new AjaxCheckBoxPanel("panel", schemaTO
+                                .getName(), new Model() {
 
-                        } else if (schemaTO.getType().getClassName().equals("java.util.Date")) {
-                            panel = new DateFieldPanel("panel", schemaTO.getName(),
-                                    new Model() {
+                            @Override
+                            public Serializable getObject() {
+                                //return (String) item.getModelObject();
+                                return "false";
+                            }
 
-                                        @Override
-                                        public Serializable getObject() {
-                                            DateFormat formatter = new SimpleDateFormat(schemaTO.getConversionPattern());
-                                            Date date = new Date();
-                                            try {
-                                                String dateValue = (String) item.getModelObject();
-                                                formatter = new SimpleDateFormat(schemaTO.getConversionPattern());//Default value:yyyy-MM-dd
+                            @Override
+                            public void setObject(Serializable object) {
+                                Boolean val = (Boolean) object;
+                                item.setModelObject(val.toString());
+                            }
+                        }, required);
 
-                                                if(!dateValue.equals(""))
-                                                    date = formatter.parse((String) item.getModelObject());
-                                            } catch (ParseException ex) {
-                                                Logger.getLogger(UserModalPage.class.getName()).log(Level.SEVERE, null, ex);
-                                            }
-                                            return date;
+                    } else if (schemaTO.getType().getClassName()
+                            .equals("java.util.Date")) {
+                        panel = new DateFieldPanel("panel", schemaTO
+                                .getName(),
+                                new Model() {
+
+                                    @Override
+                                    public Serializable getObject() {
+                                        DateFormat formatter =
+                                                new SimpleDateFormat(schemaTO
+                                                .getConversionPattern());
+                                        Date date = new Date();
+                                        try {
+                                            String dateValue = (String) item
+                                                    .getModelObject();
+                                            formatter = new SimpleDateFormat(
+                                                    schemaTO
+                                                    .getConversionPattern());//Default value:yyyy-MM-dd
+
+                                            if(!dateValue.equals(""))
+                                                date = formatter.parse((String)
+                                                        item.getModelObject());
+                                        } catch (ParseException ex) {
+                                            Logger.getLogger(UserModalPage
+                                                    .class.getName())
+                                                    .log(Level.SEVERE, null, ex);
                                         }
+                                        return date;
+                                    }
 
-                                        @Override
-                                        public void setObject(Serializable object) {
-                                            Date date = (Date) object;
-                                            Format formatter = new SimpleDateFormat(schemaTO.getConversionPattern());
-                                            String val = formatter.format(date);
-                                            item.setModelObject(val);
-                                        }
-                                    }, schemaTO.isMandatory());
-                        }
-
-                        item.add(panel);
+                                    @Override
+                                    public void setObject(Serializable object) {
+                                        Date date = (Date) object;
+                                        Format formatter = new SimpleDateFormat(
+                                                schemaTO.getConversionPattern());
+                                        String val = formatter.format(date);
+                                        item.setModelObject(val);
+                                    }
+                                }, required);
                     }
-                });
 
-                AjaxButton addButton = new AjaxButton("add", new Model(getString("add"))) {
-
-                    @Override
-                    protected void onSubmit(AjaxRequestTarget target, Form form) {
-                        schemaWrapper.getValues().add("");
-
-                        target.addComponent(container);
-                    }
-                };
-
-                AjaxButton dropButton = new AjaxButton("drop", new Model(getString("drop"))) {
-
-                    @Override
-                    protected void onSubmit(AjaxRequestTarget target, Form form) {
-                        //Drop the last component added
-                        schemaWrapper.getValues().remove(schemaWrapper.getValues().size() - 1);
-
-                        target.addComponent(container);
-                    }
-                };
-
-                if (schemaTO.getType().getClassName().equals("java.lang.Boolean")) {
-                    addButton.setVisible(false);
-                    dropButton.setVisible(false);
+                    item.add(panel);
                 }
+            });
 
-                addButton.setDefaultFormProcessing(false);
-                addButton.setVisible(schemaTO.isMultivalue());
+            AjaxButton addButton = new AjaxButton("add",
+                    new Model(getString("add"))) {
 
-                dropButton.setDefaultFormProcessing(false);
-                dropButton.setVisible(schemaTO.isMultivalue());
+                @Override
+                protected void onSubmit(AjaxRequestTarget target, Form form) {
+                    schemaWrapper.getValues().add("");
 
-                if (schemaWrapper.getValues().size() == 1) {
-                    dropButton.setVisible(false);
+                    target.addComponent(container);
                 }
+            };
 
-                item.add(addButton);
-                item.add(dropButton);
+            AjaxButton dropButton = new AjaxButton("drop",
+                    new Model(getString("drop"))) {
+
+                @Override
+                protected void onSubmit(AjaxRequestTarget target, Form form) {
+                    //Drop the last component added
+                    schemaWrapper.getValues().remove(schemaWrapper.getValues()
+                            .size() - 1);
+
+                    target.addComponent(container);
+                }
+            };
+
+            if (schemaTO.getType().getClassName().equals("java.lang.Boolean")) {
+                addButton.setVisible(false);
+                dropButton.setVisible(false);
             }
+
+            addButton.setDefaultFormProcessing(false);
+            addButton.setVisible(schemaTO.isMultivalue());
+
+            dropButton.setDefaultFormProcessing(false);
+            dropButton.setVisible(schemaTO.isMultivalue());
+
+            if (schemaWrapper.getValues().size() == 1) {
+                dropButton.setVisible(false);
+            }
+
+            item.add(addButton);
+            item.add(dropButton);
+        }
         };
 
         submit = new AjaxButton("submit", new Model(getString("submit"))) {
@@ -195,7 +220,8 @@ public class MembershipModalPage extends SyncopeModalPage {
             @Override
             protected void onSubmit(AjaxRequestTarget target, Form form) {
 
-                MembershipTO membershipTO = (MembershipTO) form.getDefaultModelObject();
+                MembershipTO membershipTO = (MembershipTO) form
+                        .getDefaultModelObject();
                 membershipTO.setAttributes(getMembershipAttributes());
                 
                 UserModalPage userModalPage = (UserModalPage) basePage;
@@ -228,9 +254,9 @@ public class MembershipModalPage extends SyncopeModalPage {
         add(form);
     }
 
-        public Set<AttributeTO> getMembershipAttributes() {
+        public List<AttributeTO> getMembershipAttributes() {
 
-        Set<AttributeTO> attributes = new HashSet<AttributeTO>();
+        List<AttributeTO> attributes = new ArrayList<AttributeTO>();
 
         AttributeTO attribute;
 
@@ -238,7 +264,7 @@ public class MembershipModalPage extends SyncopeModalPage {
 
             attribute = new AttributeTO();
             attribute.setSchema(schemaWrapper.getSchemaTO().getName());
-            attribute.setValues(new HashSet<String>());
+            attribute.setValues(new ArrayList<String>());
 
             for (String value : schemaWrapper.getValues()) {
                 attribute.getValues().add(value);
@@ -255,10 +281,11 @@ public class MembershipModalPage extends SyncopeModalPage {
         schemaWrappers = new ArrayList<SchemaWrapper>();
         SchemaWrapper schemaWrapper;
 
-        SchemaRestClient schemaRestClient = (SchemaRestClient) ((SyncopeApplication)
-                Application.get()).getApplicationContext().getBean("schemaRestClient");
+        SchemaRestClient schemaRestClient = (SchemaRestClient) 
+                ((SyncopeApplication) Application.get()).getApplicationContext()
+                .getBean("schemaRestClient");
 
-        SchemaTOs schemas = schemaRestClient.getAllMemberhipSchemas();
+        List<SchemaTO> schemas = schemaRestClient.getAllMemberhipSchemas();
 
         if(create) {
             for (SchemaTO schema : schemas) {
@@ -275,44 +302,6 @@ public class MembershipModalPage extends SyncopeModalPage {
                         schemaWrappers.add(schemaWrapper);
                     }
                 }
-            }
-        }
-    }
-
-  /**
-     * Wrapper for User's Schema - Attribute.
-     */
-    public class SchemaWrapper {
-
-        SchemaTO schemaTO;
-        List<String> values;
-
-        public SchemaWrapper(SchemaTO schemaTO) {
-            this.schemaTO = schemaTO;
-            values = new ArrayList<String>();
-            values.add("");
-        }
-
-        public SchemaTO getSchemaTO() {
-            return schemaTO;
-        }
-
-        public void setSchemaTO(SchemaTO schemaTO) {
-            this.schemaTO = schemaTO;
-        }
-
-        public List<String> getValues() {
-            return values;
-        }
-
-        public void setValues(List<String> values) {
-            this.values = values;
-        }
-
-        public void setValues(Set<String> values) {
-            this.values = new ArrayList<String>();
-            for (String value : values) {
-                this.values.add(value);
             }
         }
     }

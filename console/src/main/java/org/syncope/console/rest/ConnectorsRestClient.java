@@ -14,9 +14,10 @@
  */
 package org.syncope.console.rest;
 
+import java.util.Arrays;
+import java.util.List;
+import org.syncope.client.to.ConnectorBundleTO;
 import org.syncope.client.to.ConnectorInstanceTO;
-import org.syncope.client.to.ConnectorInstanceTOs;
-import org.syncope.client.to.ConnectorBundleTOs;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 
 /**
@@ -30,12 +31,12 @@ public class ConnectorsRestClient {
      * Get all connectors.
      * @return ConnectorInstanceTOs
      */
-    public ConnectorInstanceTOs getAllConnectors() {
-        ConnectorInstanceTOs connectors = null;
+    public List<ConnectorInstanceTO> getAllConnectors() {
+        List<ConnectorInstanceTO> connectors = null;
 
-        connectors = restClient.getRestTemplate().getForObject
-                (restClient.getBaseURL() + "connector/list.json",
-                  ConnectorInstanceTOs.class);
+        connectors = Arrays.asList(restClient.getRestTemplate().getForObject(
+                restClient.getBaseURL() + "connector/list.json", 
+                ConnectorInstanceTO[].class));
 
         return connectors;
     }
@@ -106,13 +107,13 @@ public class ConnectorsRestClient {
         }
     }
 
-    public ConnectorBundleTOs getAllBundles() {
-        ConnectorBundleTOs bundles = null;
+    public List<ConnectorBundleTO> getAllBundles() {
+        List<ConnectorBundleTO> bundles = null;
 
         try {
-        bundles = restClient.getRestTemplate().getForObject(
+        bundles = Arrays.asList(restClient.getRestTemplate().getForObject(
                 restClient.getBaseURL() + "connector/getBundles.json",
-                ConnectorBundleTOs.class);
+                ConnectorBundleTO[].class));
         }
         catch (SyncopeClientCompositeErrorException e) {
             e.printStackTrace();

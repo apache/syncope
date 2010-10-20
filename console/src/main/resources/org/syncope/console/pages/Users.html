@@ -94,55 +94,20 @@
         </ul>
         <div id="tabs-1">
 
-            <div id="users-contain" class="ui-widget">
+            <div id="users-contain" class="ui-widget" style="width:auto">
 
                 <h1><wicket:message key="users_title"/></h1>
 
-                <table id="users" class="ui-widget ui-widget-content" wicket:id="usersContainer">
-                    <thead>
-                        <tr class="ui-widget-header">
-                            <th><wicket:message key="id"/></th>
-                    <th><wicket:message key="status"/></th>
-                    <th><wicket:message key="token"/></th>
-                    <th wicket:id="usersSchema">
-                        <span wicket:id="attribute"/>
-                    </th>
-                    <th><wicket:message key="edit"/></th>
-                    <th><wicket:message key="delete"/></th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                        <tr wicket:id="users">
-                            <td>
-                                <span wicket:id="id">[id]</span>
-                            </td>
-                            <td>
-                                <span wicket:id="status">[status]</span>
-                            </td>
-                            <td>
-                                <span wicket:id="token">[token]</span>
-                            </td>
-                            <td wicket:id="selectedAttributes">
-                                <span wicket:id="name">[selected attribute]</span>
-                            </td>
-                            <td>
-                                <a href="#" wicket:id="editLink">
-                                    <wicket:message key="edit"/>
-                                </a>
-                            </td>
-                            <td>
-                                <a href="#" wicket:id="deleteLink">
-                                    <wicket:message key="delete"/>
-                                </a>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-                <span wicket:id="usersNavigator"/>
+                <span wicket:id="container">
+                    <table class="ui-widget ui-widget-content"
+                           wicket:id="datatable"/>
+                </span>
+
                 <span style="float:right">
                     <form wicket:id="PaginatorForm" style="display:inline">
                         <label><wicket:message key="displayRows"/></label>
-                        <select wicket:id="rowsChooser"/>
+                        <select class="text ui-widget-content ui-corner-all"
+                                wicket:id="rowsChooser"/>
                     </form>
                 </span>
             </div>

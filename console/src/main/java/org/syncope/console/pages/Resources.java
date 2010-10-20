@@ -14,29 +14,41 @@
  */
 package org.syncope.console.pages;
 
-
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigator;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table
+        .AjaxFallbackDefaultDataTable;
+import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
+import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.list.ListItem;
-import org.apache.wicket.markup.html.list.PageableListView;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
+import org.apache.wicket.markup.repeater.Item;
+import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.LoadableDetachableModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.to.ResourceTO;
 import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.Utility;
 import org.syncope.console.rest.ResourcesRestClient;
+import org.syncope.console.wicket.markup.html.form.DeleteLinkPanel;
+import org.syncope.console.wicket.markup.html.form.EditLinkPanel;
 
 /**
  * Resources WebPage.
@@ -55,10 +67,11 @@ public class Resources extends BasePage {
     final int WIN_INITIAL_HEIGHT = 515;
     final int WIN_INITIAL_WIDTH = 775;
 
-    WebMarkupContainer resourcesContainer;
+    WebMarkupContainer container;
 
-    /** Response flag set by the Modal Window after the operation is completed:
-     *  TRUE if the operation succedes, FALSE otherwise
+    /*
+     Response flag set by the Modal Window after the operation is completed:
+     TRUE if the operation succedes, FALSE otherwise
      */
     boolean operationResult = false;
     FeedbackPanel feedbackPanel;
@@ -76,33 +89,26 @@ public class Resources extends BasePage {
 
         add(feedbackPanel);
 
-        IModel resources = new LoadableDetachableModel() {
-
-            protected Object load() {
-                return restClient.getAllResources().getResources();
-            }
-        };
-
         paginatorRows = utility.getPaginatorRowsToDisplay(Constants
                 .CONF_RESOURCES_PAGINATOR_ROWS);
 
-        final PageableListView resourcesView = new PageableListView("resources",
-                resources, paginatorRows) {
+        List<IColumn> columns = new ArrayList<IColumn>();
 
-            @Override
-            protected void populateItem(final ListItem item) {
-                final ResourceTO resourceTO =
-                        (ResourceTO) item.getDefaultModelObject();
+        columns.add(new PropertyColumn(new Model(getString("name")),
+                "name", "name"));
 
-                item.add(new Label("name", resourceTO.getName()));
+        columns.add(new AbstractColumn<ResourceTO>(new Model<String>(
+                getString("edit")))
+        {
+            public void populateItem(Item<ICellPopulator<ResourceTO>>
+                    cellItem, String componentId, IModel<ResourceTO> model)
+            {
+                    final ResourceTO resourceTO = model.getObject();
 
-
-                AjaxLink editLink = new AjaxLink("editLink") {
+                    AjaxLink editLink = new AjaxLink("editLink") {
 
                     @Override
                     public void onClick(AjaxRequestTarget target) {
-                        final ResourceTO resourceTO =
-                                (ResourceTO) item.getDefaultModelObject();
 
                         editResourceWin.setPageCreator(new ModalWindow
                                 .PageCreator() {
@@ -117,11 +123,23 @@ public class Resources extends BasePage {
 
                         editResourceWin.show(target);
                     }
-                };
+                    };
 
-                item.add(editLink);
+                    EditLinkPanel panel = new EditLinkPanel(componentId, model);
+                    panel.add(editLink);
 
-                AjaxLink deleteLink = new AjaxLink("deleteLink") {
+                    cellItem.add(panel);
+            }
+        });
+
+        columns.add(new AbstractColumn<ResourceTO>(new Model<String>
+                (getString("delete"))) {
+            public void populateItem(Item<ICellPopulator<ResourceTO>>
+                    cellItem, String componentId, IModel<ResourceTO> model)
+            {
+                    final ResourceTO resourceTO = model.getObject();
+
+                    AjaxLink deleteLink = new AjaxLink("deleteLink") {
 
                     @Override
                     public void onClick(AjaxRequestTarget target) {
@@ -130,25 +148,30 @@ public class Resources extends BasePage {
                         info(getString("operation_succeded"));
                         target.addComponent(feedbackPanel);
 
-                        target.addComponent(resourcesContainer);
+                        target.addComponent(container);
                     }
-                };
+                 };
+                    DeleteLinkPanel panel = new DeleteLinkPanel(componentId,
+                            model);
+                    panel.add(deleteLink);
 
-                item.add(deleteLink);
+                    cellItem.add(panel);
             }
-        };
+        });
 
-        add(new AjaxPagingNavigator("resourcesNavigator", resourcesView)
-                .setOutputMarkupId(true));
 
-        resourcesContainer = new WebMarkupContainer("resourcesContainer");
-        resourcesContainer.add(resourcesView);
-        resourcesContainer.setOutputMarkupId(true);
+        final AjaxFallbackDefaultDataTable table =
+                new AjaxFallbackDefaultDataTable("datatable", columns,
+                new ResourcesProvider(), paginatorRows);
 
-        add(resourcesContainer);
+        container = new WebMarkupContainer("container");
+        container.add(table);
+        container.setOutputMarkupId(true);
 
-        setWindowClosedCallback(createResourceWin, resourcesContainer);
-        setWindowClosedCallback(editResourceWin, resourcesContainer);
+        add(container);
+
+        setWindowClosedCallback(createResourceWin, container);
+        setWindowClosedCallback(editResourceWin, container);
 
         createResourceWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         createResourceWin.setInitialHeight(WIN_INITIAL_HEIGHT);
@@ -192,9 +215,9 @@ public class Resources extends BasePage {
               utility.updatePaginatorRows(Constants.CONF_RESOURCES_PAGINATOR_ROWS,
                       paginatorRows);
 
-              resourcesView.setRowsPerPage(paginatorRows);
+              table.setRowsPerPage(paginatorRows);
               
-              target.addComponent(resourcesContainer);
+              target.addComponent(container);
               target.addComponent(getPage().get("resourcesNavigator"));
             }
 
@@ -232,5 +255,77 @@ public class Resources extends BasePage {
                         }
                     }
                 });
+    }
+
+    class ResourcesProvider extends SortableDataProvider<ResourceTO> {
+
+        private SortableDataProviderComparator comparator =
+                new SortableDataProviderComparator();
+
+        public ResourcesProvider() {
+            //Default sorting
+            setSort("name",true);
+        }
+
+        @Override
+        public Iterator<ResourceTO> iterator(int first, int count) {
+            List<ResourceTO> list = getResourcesListDB();
+
+            Collections.sort(list, comparator);
+
+            return list.subList(first, first+count).iterator();
+        }
+
+        @Override
+        public int size() {
+            return getResourcesListDB().size();
+        }
+
+        @Override
+        public IModel<ResourceTO> model(final ResourceTO
+                resource) {
+            return new AbstractReadOnlyModel<ResourceTO>() {
+
+                @Override
+                public ResourceTO getObject() {
+                    return resource;
+                }
+            };
+        }
+
+        public List<ResourceTO> getResourcesListDB(){
+        List<ResourceTO> list = restClient.getAllResources();
+
+        return list;
+        }
+
+        class SortableDataProviderComparator implements
+                Comparator<ResourceTO>, Serializable {
+            public int compare(final ResourceTO o1,
+                    final ResourceTO o2) {
+                    PropertyModel<Comparable> model1 =
+                            new PropertyModel<Comparable>(o1, getSort()
+                            .getProperty());
+                    PropertyModel<Comparable> model2 =
+                            new PropertyModel<Comparable>(o2, getSort()
+                            .getProperty());
+
+                    int result = 1;
+
+                    if(model1.getObject() == null && model2.getObject() == null)
+                        result = 0;
+                    else if(model1.getObject() == null)
+                        result = 1;
+                    else if(model2.getObject() == null)
+                        result = -1;
+                    else
+                        result = ((Comparable)model1.getObject()).compareTo(
+                                model2.getObject());
+
+                    result = getSort().isAscending() ? result : -result;
+
+                    return result;
+            }
+	}
     }
 }

@@ -14,23 +14,32 @@
  */
 package org.syncope.console.pages;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigator;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
+import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
+import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.list.ListItem;
-import org.apache.wicket.markup.html.list.PageableListView;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
+import org.apache.wicket.markup.repeater.Item;
+import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.LoadableDetachableModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.to.ConnectorInstanceTO;
@@ -39,6 +48,8 @@ import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.Utility;
 import org.syncope.console.rest.ConnectorsRestClient;
 import org.syncope.console.rest.ResourcesRestClient;
+import org.syncope.console.wicket.markup.html.form.DeleteLinkPanel;
+import org.syncope.console.wicket.markup.html.form.EditLinkPanel;
 
 /**
  * Connectors WebPage.
@@ -57,9 +68,9 @@ public class Connectors extends BasePage {
     final ModalWindow createConnectorWin;
     final ModalWindow editConnectorWin;
     
-    WebMarkupContainer connectorsContainer;
-
-    /** Response flag set by the Modal Window after the operation is completed
+    WebMarkupContainer container;
+    /*
+     Response flag set by the Modal Window after the operation is completed
      */
     boolean operationResult = false;
     FeedbackPanel feedbackPanel;
@@ -75,44 +86,46 @@ public class Connectors extends BasePage {
         feedbackPanel = new FeedbackPanel("feedback");
         feedbackPanel.setOutputMarkupId( true );
 
-        add(feedbackPanel);
-
-        IModel connectors = new LoadableDetachableModel() {
-
-            protected Object load() {
-                return restClient.getAllConnectors().getInstances();
-            }
-        };        
+        add(feedbackPanel);       
 
         paginatorRows = utility.getPaginatorRowsToDisplay(Constants
                 .CONF_CONNECTORS_PAGINATOR_ROWS);
 
-        final PageableListView connectorsView = new PageableListView("connectors",
-                connectors, paginatorRows) {
+         List<IColumn> columns = new ArrayList<IColumn>();
 
-            @Override
-            protected void populateItem(final ListItem item) {
-                final ConnectorInstanceTO connectorTO =
-                        (ConnectorInstanceTO) item.getDefaultModelObject();
+        columns.add(new PropertyColumn(new Model(getString("id")),
+                "id", "id"));
 
-                item.add(new Label("id", connectorTO.getId()+""));
-                item.add(new Label("name", connectorTO.getConnectorName()));
-                item.add(new Label("version", connectorTO.getVersion()));
-                item.add(new Label("bundleName", connectorTO.getBundleName()));
+        columns.add(new PropertyColumn(new Model(getString("name")),
+                "connectorName", "connectorName"));
 
+        columns.add(new PropertyColumn(new Model(getString("version")),
+                "version", "version"));
 
-                AjaxLink editLink = new AjaxLink("editLink") {
+        columns.add(new PropertyColumn(new Model(getString("bundleName")),
+                "bundleName", "bundleName"));
+
+        columns.add(new AbstractColumn<ConnectorInstanceTO>(new Model<String>(
+                getString("edit")))
+        {
+            public void populateItem(Item<ICellPopulator<ConnectorInstanceTO>>
+                    cellItem, String componentId, IModel<ConnectorInstanceTO>
+                    model)
+            {
+                    final ConnectorInstanceTO connectorTO = model.getObject();
+
+                    AjaxLink editLink = new AjaxLink("editLink") {
 
                     @Override
                     public void onClick(AjaxRequestTarget target) {
-                        final ConnectorInstanceTO connectorTO =
-                                (ConnectorInstanceTO) item.getDefaultModelObject();
 
-                        editConnectorWin.setPageCreator(new ModalWindow.PageCreator() {
+                        editConnectorWin.setPageCreator(new ModalWindow
+                                .PageCreator() {
 
                             public Page createPage() {
-                                ConnectorsModalPage form = new ConnectorsModalPage
-                                        (Connectors.this, editConnectorWin, connectorTO, false);
+                                ConnectorsModalPage form = 
+                                        new ConnectorsModalPage(Connectors.this,
+                                        editConnectorWin, connectorTO, false);
                                 return form;
                             }
                         });
@@ -121,9 +134,23 @@ public class Connectors extends BasePage {
                     }
                 };
 
-                item.add(editLink);
+                EditLinkPanel panel = new EditLinkPanel(componentId, model);
+                panel.add(editLink);
 
-                AjaxLink deleteLink = new AjaxLink("deleteLink") {
+                cellItem.add(panel);
+            }
+        });
+
+        columns.add(new AbstractColumn<ConnectorInstanceTO>(new Model<String>
+                (getString("delete")))
+        {
+            public void populateItem(Item<ICellPopulator<ConnectorInstanceTO>>
+                    cellItem, String componentId, IModel<ConnectorInstanceTO>
+                    model)
+            {
+                    final ConnectorInstanceTO connectorTO = model.getObject();
+
+                    AjaxLink deleteLink = new AjaxLink("deleteLink") {
 
                     @Override
                     public void onClick(AjaxRequestTarget target) {
@@ -135,27 +162,32 @@ public class Connectors extends BasePage {
 
                         else
                             error(getString("delete_error"));
-                            
-                        target.addComponent(connectorsContainer);
+
+                        target.addComponent(container);
                         target.addComponent(feedbackPanel);
-                    
+
                 }};
 
-                item.add(deleteLink);
+                DeleteLinkPanel panel = new DeleteLinkPanel(componentId, model);
+                panel.add(deleteLink);
+
+                cellItem.add(panel);
             }
-        };
+        });
 
-        add(new AjaxPagingNavigator("connectorsNavigator", connectorsView)
-                .setOutputMarkupId(true));
 
-        connectorsContainer = new WebMarkupContainer("connectorsContainer");
-        connectorsContainer.add(connectorsView);
-        connectorsContainer.setOutputMarkupId(true);
+        final AjaxFallbackDefaultDataTable table =
+                new AjaxFallbackDefaultDataTable("datatable", columns,
+                new ConnectorsProvider(), paginatorRows);
 
-        add(connectorsContainer);
+        container = new WebMarkupContainer("container");
+        container.add(table);
+        container.setOutputMarkupId(true);
 
-        setWindowClosedCallback(createConnectorWin, connectorsContainer);
-        setWindowClosedCallback(editConnectorWin, connectorsContainer);
+        add(container);
+
+        setWindowClosedCallback(createConnectorWin, container);
+        setWindowClosedCallback(editConnectorWin, container);
 
         createConnectorWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         createConnectorWin.setPageMapName("create-conn-modal");
@@ -173,8 +205,9 @@ public class Connectors extends BasePage {
                 createConnectorWin.setPageCreator(new ModalWindow.PageCreator() {
 
                     public Page createPage() {
-                        ConnectorsModalPage form = new ConnectorsModalPage(Connectors.this,
-                                editConnectorWin, new ConnectorInstanceTO(), true);
+                        ConnectorsModalPage form = new ConnectorsModalPage(
+                                Connectors.this, editConnectorWin,
+                                new ConnectorInstanceTO(), true);
                         return form;
                     }
                 });
@@ -191,20 +224,18 @@ public class Connectors extends BasePage {
         rowsChooser.add(new AjaxFormComponentUpdatingBehavior( "onchange" ){
           protected void onUpdate( AjaxRequestTarget target )
             {
-              utility.updatePaginatorRows(Constants.CONF_CONNECTORS_PAGINATOR_ROWS,
-                      paginatorRows);
+              utility.updatePaginatorRows(
+                      Constants.CONF_CONNECTORS_PAGINATOR_ROWS, paginatorRows);
 
-              connectorsView.setRowsPerPage(paginatorRows);
+              table.setRowsPerPage(paginatorRows);
 
-              target.addComponent(connectorsContainer);
-              target.addComponent(getPage().get("connectorsNavigator"));
+              target.addComponent(container);
             }
 
           });
 
         paginatorForm.add(rowsChooser);
         add(paginatorForm);
-
     }
 
     /**
@@ -215,7 +246,7 @@ public class Connectors extends BasePage {
     public boolean checkDeleteIsForbidden(ConnectorInstanceTO connectorTO){
 
         boolean forbidden = false;
-        List<ResourceTO> resources = resourcesRestClient.getAllResources().getResources();
+        List<ResourceTO> resources = resourcesRestClient.getAllResources();
 
         for(ResourceTO resourceTO : resources) {
             if(resourceTO.getConnectorId() == connectorTO.getId())
@@ -230,7 +261,8 @@ public class Connectors extends BasePage {
      * @param current window
      * @param container to refresh
      */
-    public void setWindowClosedCallback(ModalWindow window, final WebMarkupContainer container) {
+    public void setWindowClosedCallback(ModalWindow window,
+            final WebMarkupContainer container) {
 
         window.setWindowClosedCallback(
                 new ModalWindow.WindowClosedCallback() {
@@ -252,5 +284,77 @@ public class Connectors extends BasePage {
 
     public void setOperationResult(boolean operationResult) {
         this.operationResult = operationResult;
+    }
+
+    class ConnectorsProvider extends SortableDataProvider<ConnectorInstanceTO> {
+
+        private SortableDataProviderComparator comparator =
+                new SortableDataProviderComparator();
+
+        public ConnectorsProvider() {
+            //Default sorting
+            setSort("id",true);
+        }
+
+        @Override
+        public Iterator<ConnectorInstanceTO> iterator(int first, int count) {
+            List<ConnectorInstanceTO> list = getConnectorsListDB();
+
+            Collections.sort(list, comparator);
+
+            return list.subList(first, first+count).iterator();
+        }
+
+        @Override
+        public int size() {
+            return getConnectorsListDB().size();
+        }
+
+        @Override
+        public IModel<ConnectorInstanceTO> model(final ConnectorInstanceTO
+                connector) {
+            return new AbstractReadOnlyModel<ConnectorInstanceTO>() {
+
+                @Override
+                public ConnectorInstanceTO getObject() {
+                    return connector;
+                }
+            };
+        }
+
+        public List<ConnectorInstanceTO> getConnectorsListDB(){
+        List<ConnectorInstanceTO> list = restClient.getAllConnectors();
+
+        return list;
+        }
+
+        class SortableDataProviderComparator implements
+                Comparator<ConnectorInstanceTO>, Serializable {
+            public int compare(final ConnectorInstanceTO o1,
+                    final ConnectorInstanceTO o2) {
+                    PropertyModel<Comparable> model1 =
+                            new PropertyModel<Comparable>(o1, getSort()
+                            .getProperty());
+                    PropertyModel<Comparable> model2 =
+                            new PropertyModel<Comparable>(o2, getSort()
+                            .getProperty());
+
+                    int result = 1;
+
+                    if(model1.getObject() == null && model2.getObject() == null)
+                        result = 0;
+                    else if(model1.getObject() == null)
+                        result = 1;
+                    else if(model2.getObject() == null)
+                        result = -1;
+                    else
+                        result = ((Comparable)model1.getObject()).compareTo(
+                                model2.getObject());
+
+                    result = getSort().isAscending() ? result : -result;
+
+                    return result;
+            }
+	}
     }
 }

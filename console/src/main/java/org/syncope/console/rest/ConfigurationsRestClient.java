@@ -15,9 +15,10 @@
 package org.syncope.console.rest;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
+import java.util.List;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.syncope.client.to.ConfigurationTO;
-import org.syncope.client.to.ConfigurationTOs;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 
 /**
@@ -31,11 +32,12 @@ public class ConfigurationsRestClient {
      * Get all stored configurations.
      * @return ConfigurationTOs
      */
-    public ConfigurationTOs getAllConfigurations() {
+    public List<ConfigurationTO> getAllConfigurations() {
 
-        ConfigurationTOs configurations = restClient.getRestTemplate().getForObject(
+        List<ConfigurationTO> configurations = Arrays.asList(
+                restClient.getRestTemplate().getForObject(
                 restClient.getBaseURL() + "configuration/list.json",
-                ConfigurationTOs.class);
+                ConfigurationTO[].class));
 
         return configurations;
 

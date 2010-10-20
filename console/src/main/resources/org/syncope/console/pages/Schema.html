@@ -89,39 +89,16 @@
 
                 <h1><wicket:message key="title"/></h1>
 
-                <table id="roleSchemas" class="ui-widget ui-widget-content" wicket:id="roleSchemasContainer">
-                    <thead>
-                        <tr class="ui-widget-header ">
-                            <th><wicket:message key="name"/></th>
-                            <th><wicket:message key="type"/></th>
-                            <th><wicket:message key="attributes"/></th>
-                            <th><wicket:message key="edit"/></th>
-                            <th><wicket:message key="delete"/></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr wicket:id="roleSchemas" >
-                            <td><span wicket:id="name">[label name]</span></td>
-                            <td><span wicket:id="type">[label type]</span></td>
-                            <td><span wicket:id="attributes">[label attributes]</span></td>
-                            <td>
-                                <a href="#" wicket:id="editLink">
-                                    <wicket:message key="edit"/>
-                                </a>
-                            </td>
-                            <td>
-                                <a href="#" wicket:id="deleteLink">
-                                    <wicket:message key="delete"/>
-                                </a>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-                <span wicket:id="rolesNavigator"/>
+               <span wicket:id="roleSchemasContainer">
+                    <table class="ui-widget ui-widget-content"
+                           wicket:id="datatable"/>
+                </span>
+
                 <span style="float:right">
                     <form wicket:id="RolesPaginatorForm" style="display:inline">
                         <label><wicket:message key="displayRows"/></label>
-                        <select wicket:id="rowsChooser"/>
+                        <select class="text ui-widget-content ui-corner-all"
+                                wicket:id="rowsChooser"/>
                     </form>
                 </span>
             </div>
@@ -129,7 +106,8 @@
             <div wicket:id="createRoleSchemaWin">[Show modal window for creating schema]</div>
             <div wicket:id="editRoleSchemaWin">[Show modal window for editing schema]</div>
 
-            <a wicket:id="createRoleSchemaWinLink" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+            <a wicket:id="createRoleSchemaWinLink"
+               class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
                 <wicket:message key="create_attribute"/>
             </a>
         </div>
@@ -139,40 +117,16 @@
 
                 <h1><wicket:message key="title"/></h1>
 
-                <table id="roleSchemas" class="ui-widget ui-widget-content" wicket:id="roleDerivedSchemasContainer">
-                    <thead>
-                        <tr class="ui-widget-header ">
-                            <th><wicket:message key="name"/></th>
-                    <th><wicket:message key="expression"/></th>
-                    <th><wicket:message key="attributes"/></th>
-                    <th><wicket:message key="edit"/></th>
-                    <th><wicket:message key="delete"/></th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                        <tr wicket:id="roleDerivedSchemas" >
-                            <td><span wicket:id="name">[label name]</span></td>
-                            <td><span wicket:id="expression">[label expression]</span></td>
-                            <td><span wicket:id="attributes">[label attributes]</span></td>
+                <span wicket:id="roleDerivedSchemasContainer">
+                    <table class="ui-widget ui-widget-content"
+                           wicket:id="datatable"/>
+                </span>
 
-                    <td>
-                        <a href="#" wicket:id="editLink">
-                            <wicket:message key="edit"/>
-                        </a>
-                    </td>
-                    <td>
-                        <a href="#" wicket:id="deleteLink">
-                            <wicket:message key="delete"/>
-                        </a>
-                    </td>
-                    </tr>
-                    </tbody>
-                </table>
-                <span wicket:id="rolesDerivedNavigator"/>
                 <span style="float:right">
                     <form wicket:id="RolesDerPaginatorForm" style="display:inline">
                         <label><wicket:message key="displayRows"/></label>
-                        <select wicket:id="rowsChooser"/>
+                        <select class="text ui-widget-content ui-corner-all"
+                                wicket:id="rowsChooser"/>
                     </form>
                 </span>
             </div>
@@ -180,7 +134,8 @@
             <div wicket:id="createRoleDerivedSchemaWin">[Show modal window for creating schema]</div>
             <div wicket:id="editRoleDerivedSchemaWin">[Show modal window for editing schema]</div>
 
-            <a wicket:id="createRoleDerivedSchemaWinLink" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+            <a wicket:id="createRoleDerivedSchemaWinLink"
+               class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
                 <wicket:message key="create_attribute"/>
             </a>
 
@@ -189,40 +144,17 @@
 
             <div id="users-contain" class="ui-widget">
                 <h1><wicket:message key="title"/></h1>
-                <!--div wicket:id="feedbackUserSchema"/-->
-                <table id="users" class="ui-widget ui-widget-content" wicket:id="userSchemaContainer">
-                    <thead>
-                        <tr class="ui-widget-header ">
-                            <th><wicket:message key="name"/></th>
-                    <th><wicket:message key="type"/></th>
-                    <th><wicket:message key="attributes"/></th>
-                    <th><wicket:message key="edit"/></th>
-                    <th><wicket:message key="delete"/></th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                        <tr wicket:id="userSchemas" >
-                            <td><span wicket:id="name">[label name]</span></td>
-                            <td><span wicket:id="type">[label type]</span></td>
-                            <td><span wicket:id="attributes">[label attributes]</span></td>
-                            <td>
-                                <a href="#" wicket:id="editLink">
-                                    <wicket:message key="edit"/>
-                                </a>
-                            </td>
-                            <td>
-                                <a href="#" wicket:id="deleteLink">
-                                    <wicket:message key="delete"/>
-                                </a>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-                <span wicket:id="usersSchemaNavigator"/>
+
+                <span wicket:id="userSchemaContainer">
+                    <table class="ui-widget ui-widget-content"
+                           wicket:id="datatable"/>
+                </span>
+
                 <span style="float:right">
                     <form wicket:id="UsersPaginatorForm" style="display:inline">
                         <label><wicket:message key="displayRows"/></label>
-                        <select wicket:id="rowsChooser"/>
+                        <select class="text ui-widget-content ui-corner-all"
+                                wicket:id="rowsChooser"/>
                     </form>
                 </span>
             </div>
@@ -230,7 +162,8 @@
             <div wicket:id="createUserSchemaWin">[Show modal window for creating schema]</div>
             <div wicket:id="editUserSchemaWin">[Show modal window for editing schema]</div>
 
-            <a wicket:id="createUserSchemaWinLink" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+            <a wicket:id="createUserSchemaWinLink"
+               class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
                 <wicket:message key="create_attribute"/>
             </a>
 
@@ -240,46 +173,23 @@
 
                 <h1><wicket:message key="title"/></h1>
 
-                <table id="users" class="ui-widget ui-widget-content" wicket:id="userDerivedSchemaContainer">
-                    <thead>
-                        <tr class="ui-widget-header ">
-                            <th><wicket:message key="name"/></th>
-                    <th><wicket:message key="expression"/></th>
-                    <th><wicket:message key="attributes"/></th>
-                    <th><wicket:message key="edit"/></th>
-                    <th><wicket:message key="delete"/></th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                        <tr wicket:id="userDerivedSchemas" >
-                            <td><span wicket:id="name">[label name]</span></td>
-                            <td><span wicket:id="expression">[label expression]</span></td>
-                            <td><span wicket:id="attributes">[label attributes]</span></td>
-                            <td>
-                                <a href="#" wicket:id="editLink">
-                                    <wicket:message key="edit"/>
-                                </a>
-                            </td>
-                            <td>
-                                <a href="#" wicket:id="deleteLink">
-                                    <wicket:message key="delete"/>
-                                </a>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-                <span wicket:id="usersDerivedSchemaNavigator"/>
+                <span wicket:id="userDerivedSchemaContainer">
+                    <table class="ui-widget ui-widget-content"
+                           wicket:id="datatable"/>
+                </span>
                 <span style="float:right">
                     <form wicket:id="UsersDerPaginatorForm" style="display:inline">
                         <label><wicket:message key="displayRows"/></label>
-                        <select wicket:id="rowsChooser"/>
+                        <select class="text ui-widget-content ui-corner-all"
+                                wicket:id="rowsChooser"/>
                     </form>
                 </span>
             </div>
             <div wicket:id="createUserDerSchemaWin">[Show modal window for creating schema]</div>
             <div wicket:id="editUserDerSchemaWin">[Show modal window for editing schema]</div>
 
-            <a wicket:id="createUserDerSchemaWinLink" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+            <a wicket:id="createUserDerSchemaWinLink"
+               class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
                 <wicket:message key="create_attribute"/>
             </a>
         </div>
@@ -287,48 +197,26 @@
             <div id="users-contain" class="ui-widget">
 
                 <h1><wicket:message key="title"/></h1>
+                
+                <span wicket:id="membershipSchemaContainer">
+                    <table class="ui-widget ui-widget-content"
+                           wicket:id="datatable"/>
+                </span>
 
-                <table id="membership" class="ui-widget ui-widget-content" wicket:id="membershipSchemaContainer">
-                    <thead>
-                        <tr class="ui-widget-header ">
-                            <th><wicket:message key="name"/></th>
-                    <th><wicket:message key="type"/></th>
-                    <th><wicket:message key="attributes"/></th>
-                    <th><wicket:message key="edit"/></th>
-                    <th><wicket:message key="delete"/></th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                        <tr wicket:id="membershipSchemas" >
-                            <td><span wicket:id="name">[label name]</span></td>
-                            <td><span wicket:id="type">[label expression]</span></td>
-                            <td><span wicket:id="attributes">[label attributes]</span></td>
-                            <td>
-                                <a href="#" wicket:id="editLink">
-                                    <wicket:message key="edit"/>
-                                </a>
-                            </td>
-                            <td>
-                                <a href="#" wicket:id="deleteLink">
-                                    <wicket:message key="delete"/>
-                                </a>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-                <span wicket:id="membershipsNavigator"/>
                 <span style="float:right">
                     <form wicket:id="MembershipPaginatorForm"
                           style="display:inline">
                         <label><wicket:message key="displayRows"/></label>
-                        <select wicket:id="rowsChooser"/>
+                        <select class="text ui-widget-content ui-corner-all"
+                                wicket:id="rowsChooser"/>
                     </form>
                 </span>
             </div>
             <div wicket:id="createMembershipSchemaWin">[Show modal window for creating schema]</div>
             <div wicket:id="editMembershipSchemaWin">[Show modal window for editing schema]</div>
 
-            <a wicket:id="createMembershipSchemaWinLink" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+            <a wicket:id="createMembershipSchemaWinLink"
+               class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
                 <wicket:message key="create_attribute"/>
             </a>
         </div>
@@ -337,46 +225,23 @@
 
                 <h1><wicket:message key="title"/></h1>
 
-                <table id="derivedMembership" class="ui-widget ui-widget-content" wicket:id="membershipDerivedSchemaContainer">
-                    <thead>
-                        <tr class="ui-widget-header ">
-                            <th><wicket:message key="name"/></th>
-                    <th><wicket:message key="expression"/></th>
-                    <th><wicket:message key="attributes"/></th>
-                    <th><wicket:message key="edit"/></th>
-                    <th><wicket:message key="delete"/></th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                        <tr wicket:id="membershipDerivedSchemas" >
-                            <td><span wicket:id="name">[label name]</span></td>
-                            <td><span wicket:id="expression">[label expression]</span></td>
-                            <td><span wicket:id="attributes">[label attributes]</span></td>
-                            <td>
-                                <a href="#" wicket:id="editLink">
-                                    <wicket:message key="edit"/>
-                                </a>
-                            </td>
-                            <td>
-                                <a href="#" wicket:id="deleteLink">
-                                    <wicket:message key="delete"/>
-                                </a>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-                <span wicket:id="membershipsDerNavigator"/>
+                <span wicket:id="membershipDerivedSchemaContainer">
+                    <table class="ui-widget ui-widget-content"
+                           wicket:id="datatable"/>
+                </span>
                 <span style="float:right">
                     <form wicket:id="MembershipDerPaginatorForm" style="display:inline">
                         <label><wicket:message key="displayRows"/></label>
-                        <select wicket:id="rowsChooser"/>
+                        <select class="text ui-widget-content ui-corner-all"
+                                wicket:id="rowsChooser"/>
                     </form>
                 </span>
             </div>
             <div wicket:id="createMembershipDerSchemaWin">[Show modal window for creating schema]</div>
             <div wicket:id="editMembershipDerSchemaWin">[Show modal window for editing schema]</div>
 
-            <a wicket:id="createMembershipDerSchemaWinLink" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+            <a wicket:id="createMembershipDerSchemaWinLink"
+               class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
                 <wicket:message key="create_attribute"/>    
             </a>
         </div>

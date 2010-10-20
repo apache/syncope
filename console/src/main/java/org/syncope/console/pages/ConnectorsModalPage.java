@@ -43,7 +43,6 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.to.ConnectorBundleTO;
-import org.syncope.client.to.ConnectorBundleTOs;
 import org.syncope.client.to.ConnectorInstanceTO;
 import org.syncope.client.to.PropertyTO;
 import org.syncope.console.rest.ConnectorsRestClient;
@@ -59,7 +58,7 @@ public class ConnectorsModalPage extends SyncopeModalPage {
     public TextField version;
     public CheckBoxMultipleChoice capabilitiesPalette;
 
-    ConnectorBundleTOs bundlesTOs;
+    List<ConnectorBundleTO> bundlesTOs;
     ConnectorBundleTO selectedBundleTO = new ConnectorBundleTO();
     List<PropertyTO> connectorProperties = new ArrayList<PropertyTO>();
 
@@ -92,7 +91,7 @@ public class ConnectorsModalPage extends SyncopeModalPage {
         IModel bundles =  new LoadableDetachableModel()
         {
             protected Object load() {
-                return restClient.getAllBundles().getBundles();
+                return restClient.getAllBundles();
             }
         };
 

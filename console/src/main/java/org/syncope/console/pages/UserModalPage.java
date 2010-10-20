@@ -63,13 +63,11 @@ import org.syncope.client.mod.UserMod;
 import org.syncope.client.to.AttributeTO;
 import org.syncope.client.to.MembershipTO;
 import org.syncope.client.to.ResourceTO;
-import org.syncope.client.to.ResourceTOs;
 import org.syncope.client.to.RoleTO;
-import org.syncope.client.to.RoleTOs;
 import org.syncope.client.to.SchemaTO;
-import org.syncope.client.to.SchemaTOs;
 import org.syncope.client.to.UserTO;
 import org.syncope.console.SyncopeApplication;
+import org.syncope.console.commons.SchemaWrapper;
 import org.syncope.console.rest.ResourcesRestClient;
 import org.syncope.console.rest.RolesRestClient;
 import org.syncope.console.rest.SchemaRestClient;
@@ -156,6 +154,12 @@ Panel panel;
     @Override
     protected void populateItem(final ListItem item) {
 
+        String mandatoryCondition = schemaTO.getMandatoryCondition();
+        boolean required = false;
+
+        if (mandatoryCondition.equalsIgnoreCase("true"))
+            required = true;
+
         if (schemaTO.getType().getClassName()
                 .equals("java.lang.String")) {
             panel = new AjaxTextFieldPanel("panel",
@@ -170,7 +174,7 @@ Panel panel;
                 public void setObject(Serializable object) {
                     item.setModelObject((String) object);
                 }
-            }, schemaTO.isMandatory(),schemaTO.isReadonly());
+            }, required,schemaTO.isReadonly());
         }
         else if (schemaTO.getType().getClassName()
                 .equals("java.lang.Boolean")) {
@@ -187,7 +191,7 @@ Panel panel;
                     Boolean val = (Boolean) object;
                     item.setModelObject(val.toString());
                 }
-            }, schemaTO.isMandatory(), schemaTO.isReadonly());
+            }, required, schemaTO.isReadonly());
 
         } else if (schemaTO.getType().getClassName().equals("java.util.Date")) {
             panel = new DateFieldPanel("panel", schemaTO.getName(),
@@ -224,8 +228,7 @@ Panel panel;
                             String val = formatter.format(date);
                             item.setModelObject(val);
                         }
-                    }, schemaTO.isMandatory(),
-                            schemaTO.isReadonly());
+                    }, required, schemaTO.isReadonly());
         } else {
             panel = new AjaxTextFieldPanel("panel",
                     schemaTO.getName(), new Model() {
@@ -239,7 +242,7 @@ Panel panel;
                 public void setObject(Serializable object) {
                     item.setModelObject((String) object);
                 }
-            }, schemaTO.isMandatory(),schemaTO.isReadonly());
+            }, required,schemaTO.isReadonly());
         }
 
         item.add(panel);
@@ -512,7 +515,7 @@ public List<ResourceTO> getAvailableResources(UserTO userTO) {
             ((SyncopeApplication) Application.get()).getApplicationContext()
             .getBean("resourcesRestClient");
 
-    ResourceTOs resourcesTos = resourcesRestClient.getAllResources();
+    List<ResourceTO> resourcesTos = resourcesRestClient.getAllResources();
 
     for (ResourceTO resourceTO : resourcesTos)
             resources.add(resourceTO);
@@ -532,7 +535,7 @@ public void cloneOldUserTO(UserTO userTO) {
     oldUser.setPassword(userTO.getPassword());
     oldUser.setAttributes(userTO.getAttributes());
     oldUser.setResources(userTO.getResources());
-    oldUser.setMemberships(new HashSet<MembershipTO>());
+    oldUser.setMemberships(new ArrayList<MembershipTO>());
 
     MembershipTO membership;
 
@@ -552,7 +555,7 @@ public void setupRolesMap() {
 
     rolesMap = new HashMap();
 
-    RoleTOs roleTOs = rolesRestClient.getAllRoles();
+    List<RoleTO> roleTOs = rolesRestClient.getAllRoles();
 
     for (RoleTO roleTO : roleTOs) {
         rolesMap.put(roleTO.getId(), roleTO.getName());
@@ -590,7 +593,7 @@ public void setupSchemaWrappers(boolean create, UserTO userTO) {
             ((SyncopeApplication) Application.get()).getApplicationContext()
             .getBean("schemaRestClient");
 
-    SchemaTOs schemas = schemaRestClient.getAllUserSchemas();
+    List<SchemaTO> schemas = schemaRestClient.getAllUserSchemas();
 
     boolean found = false;
 
@@ -631,7 +634,7 @@ public void setupMemberships(boolean create, UserTO userTO) {
     membershipTOs = new ArrayList<MembershipTO>();
 
     if (!create) {
-        Set<MembershipTO> memberships = userTO.getMemberships();
+        List<MembershipTO> memberships = userTO.getMemberships();
 
         for (MembershipTO membership : memberships) {
             membershipTOs.add(membership);
@@ -644,9 +647,9 @@ public void setupMemberships(boolean create, UserTO userTO) {
  * @param creation flag: true if a new User is being created, false otherwise
  * @param userTO object
  */
-public Set<AttributeTO> getUserAttributesSet() {
+public List<AttributeTO> getUserAttributesSet() {
 
-    Set<AttributeTO> attributes = new HashSet<AttributeTO>();
+    List<AttributeTO> attributes = new ArrayList<AttributeTO>();
 
     AttributeTO attribute;
 
@@ -654,7 +657,7 @@ public Set<AttributeTO> getUserAttributesSet() {
 
         attribute = new AttributeTO();
         attribute.setSchema(schemaWrapper.getSchemaTO().getName());
-        attribute.setValues(new HashSet<String>());
+        attribute.setValues(new ArrayList<String>());
         attribute.setReadonly(schemaWrapper.getSchemaTO().isReadonly());
 
         for (String value : schemaWrapper.getValues()) {
@@ -671,9 +674,9 @@ public Set<AttributeTO> getUserAttributesSet() {
  * Convert a memberships ArrayList in a memberships HashSet list.
  * @return Set<MembershipTO> selected for a new user.
  */
-public Set<MembershipTO> getMembershipsSet() {
+public List<MembershipTO> getMembershipsSet() {
 
-    HashSet<MembershipTO> memberships = new HashSet<MembershipTO>();
+    List<MembershipTO> memberships = new ArrayList<MembershipTO>();
 
     for (MembershipTO membership : membershipTOs) {
         memberships.add(membership);
@@ -929,45 +932,6 @@ public void searchAndDropMembership(MembershipTO oldMembership,
            userMod = new UserMod();
 
         userMod.addMembershipToBeRemoved(oldMembership.getId());
-    }
-}
-
-/**
- * Wrapper for User's Schema - Attribute.
- */
-public class SchemaWrapper {
-
-    SchemaTO schemaTO;
-    List<String> values;
-
-    public SchemaWrapper(SchemaTO schemaTO) {
-        this.schemaTO = schemaTO;
-        values = new ArrayList<String>();
-
-        values.add("");
-    }
-
-    public SchemaTO getSchemaTO() {
-        return schemaTO;
-    }
-
-    public void setSchemaTO(SchemaTO schemaTO) {
-        this.schemaTO = schemaTO;
-    }
-
-    public List<String> getValues() {
-        return values;
-    }
-
-    public void setValues(List<String> values) {
-        this.values = values;
-    }
-
-    public void setValues(Set<String> values) {
-        this.values = new ArrayList<String>();
-        for (String value : values) {
-            this.values.add(value);
-        }
     }
 }
 }

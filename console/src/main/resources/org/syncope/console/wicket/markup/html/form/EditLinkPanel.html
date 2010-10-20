@@ -12,19 +12,8 @@
  limitations under the License.
  under the License.
 -->
-<wicket:head>
-    <style type="text/css">
-    /* WICKET DATATABLE HEADERS */
-    .headers {
-       border: 1px solid #aaaaaa;
-       background: #cccccc url(css/images/ui-bg_highlight-soft_75_cccccc_1x100.png)
-           50% 50% repeat-x;
-    }
-    </style>
-</wicket:head>
-
-<wicket:extend>
-    
-    <wicket:child />
-    
-</wicket:extend>
+<wicket:panel>
+  <a href="#" wicket:id="editLink">
+       <wicket:message key="edit"/>
+  </a>
+</wicket:panel>

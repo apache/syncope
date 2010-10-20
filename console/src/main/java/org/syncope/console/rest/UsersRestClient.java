@@ -15,13 +15,13 @@
  */
 package org.syncope.console.rest;
 
+import java.util.Arrays;
+import java.util.List;
 import org.springframework.web.client.HttpServerErrorException;
 import org.syncope.client.mod.UserMod;
 import org.syncope.client.to.ConfigurationTO;
 import org.syncope.client.search.NodeCond;
 import org.syncope.client.to.UserTO;
-import org.syncope.client.to.UserTOs;
-import org.syncope.client.to.WorkflowActionsTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.commons.Constants;
 
@@ -32,11 +32,11 @@ public class UsersRestClient {
 
     protected RestClient restClient;
 
-    public UserTOs getAllUsers() {
-        UserTOs users = null;
+    public List<UserTO> getAllUsers() {
+        List<UserTO> users = null;
         try {
-            users = restClient.getRestTemplate().getForObject(
-                    restClient.getBaseURL() + "user/list.json", UserTOs.class);
+            users = Arrays.asList(restClient.getRestTemplate().getForObject(
+                    restClient.getBaseURL() + "user/list.json", UserTO[].class));
         } catch (SyncopeClientCompositeErrorException e) {
             e.printStackTrace();
         }
@@ -169,13 +169,13 @@ public class UsersRestClient {
      * @param userTO
      * @return UserTOs
      */
-    public UserTOs searchUsers(NodeCond nodeSearchCondition) {
-        UserTOs matchedUsers = null;
+    public List<UserTO> searchUsers(NodeCond nodeSearchCondition) {
+        List<UserTO> matchedUsers = null;
 
         try {
             matchedUsers = restClient.getRestTemplate().postForObject(
                     restClient.getBaseURL() + "user/search",
-                    nodeSearchCondition, UserTOs.class);
+                    nodeSearchCondition, List.class);
         } catch (HttpServerErrorException e) {
             e.printStackTrace();
             throw e;

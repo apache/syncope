@@ -79,7 +79,11 @@ public class DisplayAttributesModalPage extends SyncopeModalPage {
                     final Form form) {
 
                 if (saveConfiguration()) {
-                    window.close(target);
+
+                Users callerPage = (Users)basePage;
+                callerPage.setOperationResult(true);
+                window.close(target);
+
                 } else {
                     error(getString("generic_error"));
                 }

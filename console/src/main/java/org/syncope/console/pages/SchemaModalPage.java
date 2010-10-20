@@ -18,8 +18,12 @@ package org.syncope.console.pages;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteTextField;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
@@ -31,8 +35,10 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.apache.wicket.util.string.Strings;
 import org.syncope.client.to.SchemaTO;
 import org.syncope.console.rest.SchemaRestClient;
+import org.syncope.console.wicket.markup.html.form.UpdatingAutoCompleteTextField;
 import org.syncope.types.SchemaValueType;
 
 
@@ -46,7 +52,7 @@ public class SchemaModalPage extends SyncopeModalPage
     public DropDownChoice validatorClass;
     public DropDownChoice type;
     public DropDownChoice action;
-    public RadioChoice mandatory;
+    public AutoCompleteTextField mandatoryCondition;
     public RadioChoice virtual;
     public RadioChoice multivalue;
     public RadioChoice readonly;
@@ -85,16 +91,39 @@ public class SchemaModalPage extends SyncopeModalPage
         conversionPattern = new TextField("conversionPattern");
 
         ArrayList<String> validatorsList = new ArrayList<String>();
-        validatorsList.add("org.syncope.core.persistence.validation.AlwaysTrueValidator");
-        validatorsList.add("org.syncope.core.persistence.validation.EmailAddressValidator");
+        validatorsList.add("org.syncope.core.persistence.validation" +
+                ".AlwaysTrueValidator");
+        validatorsList.add("org.syncope.core.persistence.validation" +
+                ".EmailAddressValidator");
 
-        validatorClass = new DropDownChoice("validatorClass",new PropertyModel(schema, "validatorClass")
+        validatorClass = new DropDownChoice("validatorClass",
+                new PropertyModel(schema, "validatorClass")
                 ,validatorsList);
 
         type = new DropDownChoice("type",Arrays.asList(SchemaValueType.values()));
         type.setRequired(true);
 
-        mandatory = new RadioChoice("mandatory",Arrays.asList(new Boolean[]{true,false}));
+        mandatoryCondition = new AutoCompleteTextField("mandatoryCondition") {
+
+            @Override
+            protected Iterator getChoices(String input) {
+                List<String> choices = new ArrayList<String>();
+
+                if (Strings.isEmpty(input))
+                {
+                    choices = Collections.emptyList();
+                    return choices.iterator();
+                }
+
+                if("true".startsWith(input.toLowerCase()))
+                    choices.add("true");
+                else if ("false".startsWith(input.toLowerCase()))
+                       choices.add("false");
+
+
+                return choices.iterator();
+            }
+        };
 
         virtual = new RadioChoice("virtual",Arrays.asList(new Boolean[]{true,false}));
 
@@ -158,7 +187,7 @@ public class SchemaModalPage extends SyncopeModalPage
         schemaForm.add(conversionPattern);
         schemaForm.add(validatorClass);
         schemaForm.add(type);
-        schemaForm.add(mandatory);
+        schemaForm.add(mandatoryCondition);
         schemaForm.add(virtual);
         schemaForm.add(multivalue);
         schemaForm.add(readonly);

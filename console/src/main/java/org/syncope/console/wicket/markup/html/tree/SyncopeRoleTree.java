@@ -44,7 +44,7 @@ public class SyncopeRoleTree {
      */
     public TreeModel createTreeModel() {
 
-        List<RoleTO> roles = restClient.getAllRoles().getRoles();
+        List<RoleTO> roles = restClient.getAllRoles();
 
         List<SyncopeTreeNode> roleTree = new ArrayList<SyncopeTreeNode>();
         List<SyncopeTreeNode> parentNodes = new ArrayList<SyncopeTreeNode>();

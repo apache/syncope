@@ -17,18 +17,19 @@ package org.syncope.console.wicket.markup.html.form;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
-import org.apache.wicket.markup.html.form.TextField;
+import org.apache.wicket.extensions.ajax.markup.html.autocomplete
+        .AutoCompleteTextField;
 import org.apache.wicket.model.IModel;
 
 /**
- * Extension class of TextField. It's purposed for storing values in the
- * corresponding property model after pressing 'Add' button.
+ * Extension class of AutoCompleteTextField. It's purposed for storing values in
+ * the corresponding property model after pressing 'Add' button.
  */
-public class UpdatingTextField extends TextField
-{
+public abstract class UpdatingAutoCompleteTextField
+                                                extends AutoCompleteTextField {
 
-    public UpdatingTextField(String id, IModel model, Class type) {
-        super(id, model, type);
+    public UpdatingAutoCompleteTextField(String id,IModel model) {
+        super(id,model);
         add( new AjaxFormComponentUpdatingBehavior( "onblur" )
         {
             protected void onUpdate( AjaxRequestTarget target )
@@ -37,15 +38,4 @@ public class UpdatingTextField extends TextField
         } );
     }
 
-
-    public UpdatingTextField( String id, IModel model )
-    {
-        super( id, model );
-        add( new AjaxFormComponentUpdatingBehavior( "onblur" )
-        {
-            protected void onUpdate( AjaxRequestTarget target )
-            {
-            }
-        } );
-    }
 }

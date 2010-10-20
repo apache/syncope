@@ -14,8 +14,9 @@
  */
 package org.syncope.console.rest;
 
+import java.util.Arrays;
+import java.util.List;
 import org.syncope.client.to.ResourceTO;
-import org.syncope.client.to.ResourceTOs;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 
 /**
@@ -29,12 +30,13 @@ public class ResourcesRestClient {
      * Get all Connectors.
      * @return ResourceTOs
      */
-    public ResourceTOs getAllResources() {
-        ResourceTOs resources = null;
+    public List<ResourceTO> getAllResources() {
+        List<ResourceTO> resources = null;
 
         try{
-        resources = restClient.getRestTemplate().getForObject(restClient.getBaseURL()
-                + "resource/list.json", ResourceTOs.class);
+        resources = Arrays.asList(restClient.getRestTemplate()
+                .getForObject(restClient.getBaseURL() + "resource/list.json",
+                ResourceTO[].class));
         }
         catch (SyncopeClientCompositeErrorException e) {
             e.printStackTrace();
