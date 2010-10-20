@@ -15,6 +15,7 @@
 package org.syncope.identityconnectors.bundles.staticwebservice.wstarget.test;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import static org.junit.Assert.*;
 
 import java.util.HashSet;
@@ -141,29 +142,29 @@ public class ProvisioningTestITCase {
         try {
             WSAttributeValue uid = new WSAttributeValue();
             uid.setName("userId");
-            uid.setValue("john.doe@gmail.com");
+            uid.setValues(Collections.singletonList("john.doe@gmail.com"));
             uid.setKey(true);
 
             WSAttributeValue password = new WSAttributeValue();
             password.setName("password");
-            password.setValue("password");
+            password.setValues(Collections.singletonList("password"));
             password.setPassword(true);
 
             WSAttributeValue type = new WSAttributeValue();
             type.setName("type");
-            type.setValue("person");
+            type.setValues(Collections.singletonList("person"));
 
             WSAttributeValue name = new WSAttributeValue();
             name.setName("name");
-            name.setValue("john");
+            name.setValues(Collections.singletonList("john"));
 
             WSAttributeValue surname = new WSAttributeValue();
             surname.setName("surname");
-            surname.setValue("doe");
+            surname.setValues(Collections.singletonList("doe"));
 
             WSAttributeValue birthdate = new WSAttributeValue();
             birthdate.setName("birthdate");
-            birthdate.setValue("01/01/1990");
+            birthdate.setValues(Collections.singletonList("01/01/1990"));
 
             List<WSAttributeValue> attrs = new ArrayList<WSAttributeValue>();
             attrs.add(uid);
@@ -199,12 +200,12 @@ public class ProvisioningTestITCase {
 
             WSAttributeValue surname = new WSAttributeValue();
             surname.setName("surname");
-            surname.setValue("verde");
+            surname.setValues(Collections.singletonList("verde"));
             surname.setKey(true);
 
             WSAttributeValue name = new WSAttributeValue();
             name.setName("name");
-            name.setValue("pino");
+            name.setValues(Collections.singletonList("pino"));
 
 
             List<WSAttributeValue> attrs = new ArrayList<WSAttributeValue>();
