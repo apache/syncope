@@ -197,7 +197,10 @@ public class PropagationManager {
                 String accountId =
                         preparedAttributes.keySet().iterator().next();
                 Set<Attribute> attributes =
-                        manipulateSyncAttributes(
+                        syncResourceNames.contains(resource.getName())
+                        ? manipulateSyncAttributes(
+                        preparedAttributes.values().iterator().next())
+                        : manipulateAsyncAttributes(
                         preparedAttributes.values().iterator().next());
 
                 task = new Task();
