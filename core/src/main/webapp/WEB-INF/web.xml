@@ -20,10 +20,6 @@
     <display-name>Syncope</display-name>
 
     <context-param>
-        <param-name>log4jConfigLocation</param-name>
-        <param-value>/WEB-INF/classes/log4j.xml</param-value>
-    </context-param>
-    <context-param>
         <param-name>contextConfigLocation</param-name>
         <param-value>classpath:*Context.xml</param-value>
     </context-param>

@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<configuration scan="true">
+    <appender name="main" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${logfile}</file>
+        <append>true</append>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${logfile}.%d{yyyy-MM-dd}</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %-5level %logger - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="persistence" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${logfile.persistence}</file>
+        <append>true</append>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${logfile.persistence}.%d{yyyy-MM-dd}</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %-5level %logger - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="rest" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${logfile.rest}</file>
+        <append>true</append>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${logfile.rest}.%d{yyyy-MM-dd}</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %-5level %logger - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="identityconnectors" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${logfile.identityconnectors}</file>
+        <append>true</append>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${logfile.identityconnectors}.%d{yyyy-MM-dd}</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %-5level %logger - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="test" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${logfile.test}</file>
+        <append>true</append>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${logfile.test}.%d{yyyy-MM-dd}</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %-5level %logger - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="monitor" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${logfile.monitor}</file>
+        <append>true</append>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${logfile.monitor}.%d{yyyy-MM-dd}</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %-5level %logger - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="org.syncope.core.persistence" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="persistence"/>
+    </logger>
+
+    <logger name="org.syncope.core.rest" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="rest"/>
+    </logger>
+    
+    <logger name="org.syncope.core.identityconnectors" additivity="false">
+        <level value="DEBUG"/>
+        <appender-ref ref="identityconnectors"/>
+    </logger>
+
+    <logger name="org.syncope.core.test" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="test"/>
+    </logger>
+
+    <logger name="org.syncope.core.monitor" additivity="false">
+        <level value="DEBUG"/>
+        <appender-ref ref="monitor"/>
+    </logger>
+
+    <logger name="org.hibernate.cache" additivity="false">
+        <level value="DEBUG"/>
+        <appender-ref ref="monitor"/>
+    </logger>
+
+    <logger name="org.springframework" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="main"/>
+    </logger>
+
+    <logger name="org.springframework.orm" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="persistence"/>
+    </logger>
+
+    <logger name="org.springframework.test" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="test"/>
+    </logger>
+
+    <logger name="org.springframework.web" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="rest"/>
+    </logger>
+
+    <logger name="org.hibernate" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="persistence"/>
+    </logger>
+
+    <logger name="org.dbunit" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="test"/>
+    </logger>
+
+    <root>
+        <priority value="INFO"/>
+        <appender-ref ref="main"/>
+    </root>
+</configuration>
