@@ -69,7 +69,8 @@ public class ConfigurationsRestClient {
      */
     public boolean createConfiguration(ConfigurationTO configurationTO) {
 
-        ConfigurationTO newConfigurationTO = restClient.getRestTemplate().postForObject(
+        ConfigurationTO newConfigurationTO = restClient.getRestTemplate()
+                .postForObject(
                 restClient.getBaseURL() + "configuration/create",
                 configurationTO, ConfigurationTO.class);
 
@@ -83,7 +84,8 @@ public class ConfigurationsRestClient {
      */
     public boolean updateConfiguration(ConfigurationTO configurationTO) {
 
-        ConfigurationTO newConfigurationTO = restClient.getRestTemplate().postForObject(
+        ConfigurationTO newConfigurationTO = restClient.getRestTemplate()
+                .postForObject(
                 restClient.getBaseURL() + "configuration/update",
                 configurationTO, ConfigurationTO.class);
 
@@ -94,9 +96,11 @@ public class ConfigurationsRestClient {
      * Deelete a configuration by confKey
      * @throws UnsupportedEncodingException
      */
-    public void deleteConfiguration(String confKey) throws UnsupportedEncodingException {
+    public void deleteConfiguration(String confKey)
+                                        throws UnsupportedEncodingException {
         try {
-            restClient.getRestTemplate().delete( restClient.getBaseURL() + "configuration/delete/{confKey}.json",
+            restClient.getRestTemplate().delete( restClient.getBaseURL()
+                    + "configuration/delete/{confKey}.json",
                     confKey);
         } catch (HttpStatusCodeException e) {
             //assertEquals(e.getStatusCode(), HttpStatus.NOT_FOUND);

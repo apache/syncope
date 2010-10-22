@@ -100,7 +100,8 @@ setupSchemaWrappers(createFlag, roleTO);
 if(!createFlag)
     cloneOldRoleTO(roleTO);
 
-final ListView roleAttributesView = new ListView("roleSchemas", schemaWrappers) {
+final ListView roleAttributesView = new ListView("roleSchemas"
+                                                            , schemaWrappers) {
 
     @Override
     protected void populateItem(ListItem item) {
@@ -156,12 +157,9 @@ final ListView roleAttributesView = new ListView("roleSchemas", schemaWrappers) 
                                     try {
                                         String dateValue = (String) item
                                                 .getModelObject();
-                                        formatter = new SimpleDateFormat(
-                                                schemaTO.getConversionPattern());
                                         //Default value:yyyy-MM-dd
                                         if(!dateValue.equals(""))
-                                            date = formatter.parse((String)
-                                                    item.getModelObject());
+                                            date = formatter.parse(dateValue);
                                     } catch (ParseException ex) {
                                         Logger.getLogger(
                                                 RoleModalPage.class.getName())
@@ -178,9 +176,10 @@ final ListView roleAttributesView = new ListView("roleSchemas", schemaWrappers) 
                                     String val = formatter.format(date);
                                     item.setModelObject(val);
                                 }
-                            }, required);
+                            }, schemaTO.getConversionPattern(),required);
                 }
-                //Common other cases : java.lang.String,java.lang.Double,java.lang.Long
+                /*Common other cases : java.lang.String,java.lang.Double,
+                java.lang.Long*/
                 else  {
                     panel = new AjaxTextFieldPanel("panel", schemaTO.getName(),
                             new Model() {

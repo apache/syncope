@@ -15,7 +15,19 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <wicket:panel>
-<input type="text" class="text ui-widget-content ui-corner-all" style="margin-bottom:10px;width:45%;padding:.4em;" wicket:id="dateField"/>
+
+<span wicket:id="datePanel"/>
+
+<wicket:fragment wicket:id="dateField">
+    <input type="text" class="text ui-widget-content ui-corner-all"
+           style="margin-bottom:10px;width:80%;padding:.4em;"
+           wicket:id="field"/>
+</wicket:fragment>
+
+<wicket:fragment wicket:id="dateTimeField">
+    <span wicket:id="field"/>
+</wicket:fragment>
+
 <span wicket:id="required"/>
 <br/>
 </wicket:panel>

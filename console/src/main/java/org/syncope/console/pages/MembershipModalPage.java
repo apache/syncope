@@ -143,11 +143,11 @@ public class MembershipModalPage extends SyncopeModalPage {
                                                     .getModelObject();
                                             formatter = new SimpleDateFormat(
                                                     schemaTO
-                                                    .getConversionPattern());//Default value:yyyy-MM-dd
+                                                    .getConversionPattern());
 
                                             if(!dateValue.equals(""))
-                                                date = formatter.parse((String)
-                                                        item.getModelObject());
+                                                date = formatter
+                                                        .parse(dateValue);
                                         } catch (ParseException ex) {
                                             Logger.getLogger(UserModalPage
                                                     .class.getName())
@@ -164,7 +164,7 @@ public class MembershipModalPage extends SyncopeModalPage {
                                         String val = formatter.format(date);
                                         item.setModelObject(val);
                                     }
-                                }, required);
+                                }, schemaTO.getConversionPattern(),required);
                     }
 
                     item.add(panel);

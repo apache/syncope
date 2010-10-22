@@ -202,19 +202,15 @@ Panel panel;
                             DateFormat formatter = new SimpleDateFormat(
                                     schemaTO.getConversionPattern());
                             Date date = new Date();
-
                             try {
-                                String dateValue = (String) item.getModelObject();
-                                formatter = new SimpleDateFormat(
-                                        schemaTO.getConversionPattern());
-
-                                if (!dateValue.equals("")) {
-                                    date = formatter.parse((String)
-                                            item.getModelObject());
-                                }
-
+                                String dateValue = (String) item
+                                        .getModelObject();
+                                //Default value:yyyy-MM-dd
+                                if(!dateValue.equals(""))
+                                    date = formatter.parse(dateValue);
                             } catch (ParseException ex) {
-                                Logger.getLogger(UserModalPage.class.getName())
+                                Logger.getLogger(
+                                        RoleModalPage.class.getName())
                                         .log(Level.SEVERE, null, ex);
                             }
                             return date;
@@ -228,7 +224,8 @@ Panel panel;
                             String val = formatter.format(date);
                             item.setModelObject(val);
                         }
-                    }, required, schemaTO.isReadonly());
+                    }, schemaTO.getConversionPattern(),required,
+                            schemaTO.isReadonly());
         } else {
             panel = new AjaxTextFieldPanel("panel",
                     schemaTO.getName(), new Model() {
@@ -338,7 +335,7 @@ submit = new AjaxButton("submit", new Model(getString("submit"))) {
         try {
             userTO.setResources(getResourcesSet(resourcesPalette
                     .getModelCollection()));
-            userTO.setAttributes(getUserAttributesSet());
+            userTO.setAttributes(getUserAttributesList());
             userTO.setMemberships(getMembershipsSet());
 
             if (createFlag) {
@@ -647,7 +644,7 @@ public void setupMemberships(boolean create, UserTO userTO) {
  * @param creation flag: true if a new User is being created, false otherwise
  * @param userTO object
  */
-public List<AttributeTO> getUserAttributesSet() {
+public List<AttributeTO> getUserAttributesList() {
 
     List<AttributeTO> attributes = new ArrayList<AttributeTO>();
 

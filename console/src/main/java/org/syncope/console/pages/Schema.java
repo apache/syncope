@@ -991,7 +991,8 @@ public class Schema extends BasePage
 
             public Page createPage() {
                 DerivedSchemaModalPage form = new DerivedSchemaModalPage(Schema.this,
-                        new ModalWindow("createMembershipDerivedSchemaWin"), null, true);
+                        new ModalWindow("createMembershipDerivedSchemaWin"),
+                        null, true);
                 form.setEntity(DerivedSchemaModalPage.Entity.MEMBERSHIP);
 
                 return form;
@@ -1009,7 +1010,8 @@ public class Schema extends BasePage
      * @param window
      * @param container
      */
-    public void setWindowClosedCallback(ModalWindow window,final WebMarkupContainer container) {
+    public void setWindowClosedCallback(ModalWindow window,
+            final WebMarkupContainer container) {
 
         window.setWindowClosedCallback(
             new ModalWindow.WindowClosedCallback() {
