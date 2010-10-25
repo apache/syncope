@@ -36,5 +36,7 @@ public interface ResourceDAO extends DAO {
 
     void deleteMappings(String schemaName, SchemaType schemaType);
 
+    void deleteAllMappings(TargetResource resource);
+
     void delete(String name);
 }

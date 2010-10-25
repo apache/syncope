@@ -46,8 +46,10 @@ public class ResourceController extends AbstractController {
 
     @Autowired
     private ResourceDAO resourceDAO;
+
     @Autowired
     private SyncopeRoleDAO syncopeRoleDAO;
+
     @Autowired
     private ResourceDataBinder binder;
 
@@ -130,8 +132,8 @@ public class ResourceController extends AbstractController {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Remove old mappings ..");
         }
-        // remove older mappings
-        resource.getMappings().clear();
+        // remove old mappings
+        resourceDAO.deleteAllMappings(resource);
 
         if (LOG.isDebugEnabled()) {
             LOG.debug("Resource data binder ..");

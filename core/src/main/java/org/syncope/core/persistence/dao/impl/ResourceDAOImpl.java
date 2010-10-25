@@ -129,6 +129,20 @@ public class ResourceDAOImpl extends AbstractDAOImpl
     }
 
     @Override
+    public void deleteAllMappings(final TargetResource resource) {
+        Query query = entityManager.createQuery("DELETE FROM "
+                + SchemaMapping.class.getSimpleName()
+                + " m WHERE m.resource=:resource");
+        query.setParameter("resource", resource);
+        int items = query.executeUpdate();
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Removed " + items + " schema mappings");
+        }
+
+        resource.getMappings().clear();
+    }
+
+    @Override
     public void delete(final String name) {
         TargetResource resource = find(name);
         if (resource == null) {
