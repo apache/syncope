@@ -65,11 +65,13 @@ public class PropagationManager {
      */
     private static final Logger LOG =
             LoggerFactory.getLogger(PropagationManager.class);
+
     /**
      * Schema DAO.
      */
     @Autowired
     private SchemaDAO schemaDAO;
+
     /**
      * Task DAO.
      */
@@ -196,12 +198,6 @@ public class PropagationManager {
                         prepareAttributes(user, resource);
                 String accountId =
                         preparedAttributes.keySet().iterator().next();
-                Set<Attribute> attributes =
-                        syncResourceNames.contains(resource.getName())
-                        ? manipulateSyncAttributes(
-                        preparedAttributes.values().iterator().next())
-                        : manipulateAsyncAttributes(
-                        preparedAttributes.values().iterator().next());
 
                 task = new Task();
                 task.setResource(resource);
@@ -211,7 +207,8 @@ public class PropagationManager {
                         ? PropagationMode.SYNC : PropagationMode.ASYNC);
                 task.setAccountId(accountId);
                 task.setOldAccountId(resourceOperations.getOldAccountId());
-                task.setAttributes(attributes);
+                task.setAttributes(
+                        preparedAttributes.values().iterator().next());
 
                 taskExecution = new TaskExecution();
                 taskExecution.setTask(task);
@@ -231,18 +228,6 @@ public class PropagationManager {
                 }
             }
         }
-    }
-
-    protected Set<Attribute> manipulateSyncAttributes(
-            final Set<Attribute> attributes) {
-
-        return attributes;
-    }
-
-    protected Set<Attribute> manipulateAsyncAttributes(
-            final Set<Attribute> attributes) {
-
-        return attributes;
     }
 
     private Map<String, Set<Attribute>> prepareAttributes(SyncopeUser user,

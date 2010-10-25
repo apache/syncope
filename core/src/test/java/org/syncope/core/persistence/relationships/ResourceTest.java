@@ -46,14 +46,19 @@ public class ResourceTest extends AbstractTest {
 
     @Autowired
     private ResourceDAO resourceDAO;
+
     @Autowired
     private SchemaDAO schemaDAO;
+
     @Autowired
     private ConnectorInstanceDAO connectorInstanceDAO;
+
     @Autowired
     private SyncopeUserDAO syncopeUserDAO;
+
     @Autowired
     private TaskDAO taskDAO;
+
     @Autowired
     private ResourceDataBinder resourceDataBinder;
 
@@ -132,6 +137,14 @@ public class ResourceTest extends AbstractTest {
 
             resource.addMapping(mapping);
         }
+        SchemaMapping accountId = new SchemaMapping();
+        accountId.setResource(resource);
+        accountId.setAccountid(true);
+        accountId.setField("username");
+        accountId.setSchemaName(userSchema.getName());
+        accountId.setSchemaType(SchemaType.AccountId);
+
+        resource.addMapping(accountId);
 
         // specify an user schema
         SyncopeUser user = syncopeUserDAO.find(1L);
@@ -172,7 +185,7 @@ public class ResourceTest extends AbstractTest {
         List<SchemaMapping> schemaMappings = resource.getMappings();
 
         assertNotNull(schemaMappings);
-        assertEquals(3, schemaMappings.size());
+        assertEquals(4, schemaMappings.size());
     }
 
     @Test

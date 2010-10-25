@@ -30,7 +30,12 @@
         <appender-ref ref="main"/>
     </logger>
 
-    <logger name="org.springframework.orm" additivity="false">
+    <logger name="org.springframework" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="main"/>
+    </logger>
+
+    <logger name="org.dbunit" additivity="false">
         <level value="INFO"/>
         <appender-ref ref="main"/>
     </logger>
@@ -40,8 +45,13 @@
         <appender-ref ref="main"/>
     </logger>
 
+    <logger name="ch.qos.logback" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="main"/>
+    </logger>
+    
     <root>
-        <priority value="INFO"/>
+        <level value="INFO"/>
         <appender-ref ref="main"/>
     </root>
 </configuration>

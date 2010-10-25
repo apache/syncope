@@ -26,12 +26,14 @@ import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.AbstractTest;
 import org.syncope.identityconnectors.bundles.staticwebservice.WebServiceConnector;
+import org.syncope.types.SchemaType;
 
 @Transactional
 public class ResourceTest extends AbstractTest {
 
     @Autowired
     private ResourceDAO resourceDAO;
+
     @Autowired
     private TaskDAO taskDAO;
 
@@ -73,10 +75,25 @@ public class ResourceTest extends AbstractTest {
     }
 
     @Test
+    public final void getAccountId() {
+        assertEquals("username",
+                resourceDAO.getSchemaNameForAccountId("ws-target-resource-2"));
+    }
+
+    @Test
     public final void save()
             throws ClassNotFoundException {
         TargetResource resource = new TargetResource();
         resource.setName("ws-target-resource-basic-save");
+
+        SchemaMapping accountId = new SchemaMapping();
+        accountId.setResource(resource);
+        accountId.setAccountid(true);
+        accountId.setField("username");
+        accountId.setSchemaName("username");
+        accountId.setSchemaType(SchemaType.AccountId);
+
+        resource.addMapping(accountId);
 
         // save the resource
         TargetResource actual = resourceDAO.save(resource);

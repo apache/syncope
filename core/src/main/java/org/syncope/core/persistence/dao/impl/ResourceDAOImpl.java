@@ -59,7 +59,7 @@ public class ResourceDAOImpl extends AbstractDAOImpl
                 accountIds++;
             }
         }
-        if (accountIds > 1) {
+        if (accountIds == 0 || accountIds > 1) {
             throw new IllegalArgumentException("Found '" + accountIds
                     + "' mappings for account id");
         }
@@ -92,6 +92,18 @@ public class ResourceDAOImpl extends AbstractDAOImpl
         query.setParameter("resourceName", resourceName);
 
         return query.getResultList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public String getSchemaNameForAccountId(final String resourceName) {
+        Query query = entityManager.createQuery(
+                "SELECT m FROM SchemaMapping m "
+                + "WHERE m.resource.name=:resourceName "
+                + "AND m.accountid = 'T'");
+        query.setParameter("resourceName", resourceName);
+
+        return ((SchemaMapping) query.getSingleResult()).getSchemaName();
     }
 
     @Override

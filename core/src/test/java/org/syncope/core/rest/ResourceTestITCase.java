@@ -39,7 +39,7 @@ public class ResourceTestITCase extends AbstractTest {
         resourceTO.setName(resourceName);
 
         restTemplate.postForObject(BASE_URL + "resource/create.json",
-                                   resourceTO, ResourceTO.class);
+                resourceTO, ResourceTO.class);
     }
 
     @Test
@@ -60,6 +60,13 @@ public class ResourceTestITCase extends AbstractTest {
         schemaMappingTO.setField("icon");
         schemaMappingTO.setSchemaName("icon");
         schemaMappingTO.setSchemaType(SchemaType.RoleSchema);
+        resourceTO.addMapping(schemaMappingTO);
+
+        schemaMappingTO = new SchemaMappingTO();
+        schemaMappingTO.setField("username");
+        schemaMappingTO.setSchemaName("username");
+        schemaMappingTO.setSchemaType(SchemaType.AccountId);
+        schemaMappingTO.setAccountid(true);
         resourceTO.addMapping(schemaMappingTO);
 
         ResourceTO actual = restTemplate.postForObject(
@@ -86,7 +93,7 @@ public class ResourceTestITCase extends AbstractTest {
             resourceTO.setName("resourcenotfound");
 
             restTemplate.postForObject(BASE_URL + "resource/update.json",
-                                       resourceTO, ResourceTO.class);
+                    resourceTO, ResourceTO.class);
         } catch (HttpStatusCodeException e) {
             assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
         }
@@ -111,7 +118,7 @@ public class ResourceTestITCase extends AbstractTest {
         schemaMappingTO.setSchemaType(SchemaType.UserSchema);
         schemaMappingTOs.add(schemaMappingTO);
 
-        // Update defining new mapping
+        // Update defining new mappings
         for (int i = 4; i < 6; i++) {
             schemaMappingTO = new SchemaMappingTO();
             schemaMappingTO.setField("test" + i);
@@ -119,6 +126,12 @@ public class ResourceTestITCase extends AbstractTest {
             schemaMappingTO.setSchemaType(SchemaType.UserSchema);
             schemaMappingTOs.add(schemaMappingTO);
         }
+        schemaMappingTO = new SchemaMappingTO();
+        schemaMappingTO.setField("username");
+        schemaMappingTO.setSchemaName("username");
+        schemaMappingTO.setSchemaType(SchemaType.AccountId);
+        schemaMappingTO.setAccountid(true);
+        schemaMappingTOs.add(schemaMappingTO);
 
         resourceTO.setMappings(schemaMappingTOs);
 
@@ -134,7 +147,7 @@ public class ResourceTestITCase extends AbstractTest {
 
         assertNotNull(mappings);
 
-        assertEquals(3, mappings.size());
+        assertEquals(4, mappings.size());
     }
 
     @Test

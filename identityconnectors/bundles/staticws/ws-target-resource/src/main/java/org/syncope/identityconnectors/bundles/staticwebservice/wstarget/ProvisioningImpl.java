@@ -21,7 +21,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import javax.jws.WebService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +47,8 @@ public class ProvisioningImpl implements Provisioning {
             LoggerFactory.getLogger(Provisioning.class);
 
     @Override
-    public String delete(String accountid) throws ProvisioningException {
+    public String delete(String accountid)
+            throws ProvisioningException {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Operation request received");
         }
@@ -131,6 +134,14 @@ public class ProvisioningImpl implements Provisioning {
             return accountid;
         }
 
+        List<WSAttribute> schema = schema();
+        Set<String> schemaNames = new HashSet<String>();
+        for (WSAttribute attr : schema) {
+            schemaNames.add(attr.getName());
+        }
+        schemaNames.add("__NAME__");
+        schemaNames.add("__PASSWORD__");
+
         Connection conn = null;
 
         try {
@@ -141,42 +152,47 @@ public class ProvisioningImpl implements Provisioning {
 
             StringBuilder set = new StringBuilder();
             for (WSAttributeValue attr : data) {
+                if (schemaNames.contains(attr.getName())) {
+                    if (attr.getValues() == null
+                            || attr.getValues().isEmpty()) {
 
-                if (attr.getValues() == null || attr.getValues().isEmpty()) {
-                    value = null;
-                } else if (attr.getValues().size() == 1) {
+                        value = null;
+                    } else if (attr.getValues().size() == 1) {
                         value = attr.getValues().get(0).toString();
                     } else {
                         value = attr.getValues().toString();
                     }
 
-                if (!attr.isKey()
-                        || !accountid.equals(value)) {
-                    if (set.length() > 0) {
-                        set.append(",");
-                    }
+                    if (!attr.isKey()
+                            || !accountid.equals(value)) {
+                        if (set.length() > 0) {
+                            set.append(",");
+                        }
 
-                    if ("__NAME__".equals(attr.getName())) {
-                        set.append("userId=");
-                    } else if ("__PASSWORD__".equals(attr.getName())) {
+                        if ("__NAME__".equals(attr.getName())) {
+                            set.append("userId=");
+                        } else if ("__PASSWORD__".equals(attr.getName())) {
                             set.append("password=");
                         } else {
                             set.append(attr.getName()).append('=');
                         }
 
-                    set.append(value == null ? null : "'" + value + "'");
+                        set.append(value == null ? null : "'" + value + "'");
+                    }
                 }
             }
 
-            String query =
-                    "UPDATE user SET " + set.toString()
-                    + " WHERE userId='" + accountid + "';";
+            if (set.length() > 0) {
+                String query =
+                        "UPDATE user SET " + set.toString()
+                        + " WHERE userId='" + accountid + "';";
 
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Execute query: " + query);
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Execute query: " + query);
+                }
+
+                statement.executeUpdate(query);
             }
-
-            statement.executeUpdate(query);
 
             return accountid;
         } catch (SQLException ex) {
@@ -282,6 +298,14 @@ public class ProvisioningImpl implements Provisioning {
             LOG.debug("Operation request received");
         }
 
+        List<WSAttribute> schema = schema();
+        Set<String> schemaNames = new HashSet<String>();
+        for (WSAttribute attr : schema) {
+            schemaNames.add(attr.getName());
+        }
+        schemaNames.add("__NAME__");
+        schemaNames.add("__PASSWORD__");
+
         Connection conn = null;
         try {
             conn = connect();
@@ -294,38 +318,42 @@ public class ProvisioningImpl implements Provisioning {
             String value;
 
             for (WSAttributeValue attr : data) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Bind attribute: " + attr);
-                }
+                if (schemaNames.contains(attr.getName())) {
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Bind attribute: " + attr);
+                    }
 
-                if (attr.getValues() == null || attr.getValues().isEmpty()) {
-                    value = null;
-                } else if (attr.getValues().size() == 1) {
+                    if (attr.getValues() == null
+                            || attr.getValues().isEmpty()) {
+
+                        value = null;
+                    } else if (attr.getValues().size() == 1) {
                         value = attr.getValues().get(0).toString();
                     } else {
                         value = attr.getValues().toString();
                     }
 
-                if (keys.length() > 0) {
-                    keys.append(",");
-                }
+                    if (keys.length() > 0) {
+                        keys.append(",");
+                    }
 
-                if ("__NAME__".equals(attr.getName())) {
-                    keys.append("userId");
-                } else if ("__PASSWORD__".equals(attr.getName())) {
+                    if ("__NAME__".equals(attr.getName())) {
+                        keys.append("userId");
+                    } else if ("__PASSWORD__".equals(attr.getName())) {
                         keys.append("password");
                     } else {
                         keys.append(attr.getName());
                     }
 
-                if (values.length() > 0) {
-                    values.append(",");
-                }
+                    if (values.length() > 0) {
+                        values.append(",");
+                    }
 
-                values.append(value == null ? null : "'" + value + "'");
+                    values.append(value == null ? null : "'" + value + "'");
 
-                if (attr.isKey() && !attr.getValues().isEmpty()) {
-                    accountid = attr.getValues().get(0).toString();
+                    if (attr.isKey() && !attr.getValues().isEmpty()) {
+                        accountid = attr.getValues().get(0).toString();
+                    }
                 }
             }
 
@@ -357,7 +385,8 @@ public class ProvisioningImpl implements Provisioning {
     }
 
     @Override
-    public int getLatestChangeNumber() throws ProvisioningException {
+    public int getLatestChangeNumber()
+            throws ProvisioningException {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Operation request received");
         }
@@ -366,7 +395,8 @@ public class ProvisioningImpl implements Provisioning {
     }
 
     @Override
-    public List<WSChange> sync() throws ProvisioningException {
+    public List<WSChange> sync()
+            throws ProvisioningException {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Operation request received");
         }
@@ -375,7 +405,8 @@ public class ProvisioningImpl implements Provisioning {
     }
 
     @Override
-    public String resolve(String username) throws ProvisioningException {
+    public String resolve(String username)
+            throws ProvisioningException {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Operation request received");
         }
@@ -639,7 +670,8 @@ public class ProvisioningImpl implements Provisioning {
      * @throws ClassNotFoundException
      * @throws SQLException
      */
-    private Connection connect() throws SQLException {
+    private Connection connect()
+            throws SQLException {
 
         if (DefaultContentLoader.localDataSource == null) {
             LOG.error("Data Source is null");
@@ -661,7 +693,8 @@ public class ProvisioningImpl implements Provisioning {
      * Close connection to db addressbook
      * @throws SQLException
      */
-    private void close(Connection conn) throws SQLException {
+    private void close(Connection conn)
+            throws SQLException {
         conn.close();
     }
 }

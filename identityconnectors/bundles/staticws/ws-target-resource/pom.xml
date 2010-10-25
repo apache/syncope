@@ -203,6 +203,12 @@
                         <configuration>
                             <scanIntervalSeconds>0</scanIntervalSeconds>
                             <daemon>true</daemon>
+                            <systemProperties>
+                                <systemProperty>
+                                    <name>logback.configurationFile</name>
+                                    <value>file:${project.build.directory}/classes/logback.xml</value>
+                                </systemProperty>
+                            </systemProperties>
                         </configuration>
                     </execution>
                     <execution>
