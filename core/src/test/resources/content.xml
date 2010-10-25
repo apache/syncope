@@ -40,10 +40,10 @@
     <SyncopeConfiguration confKey="identityconnectors.bundle.directory"
                           confValue="/tmp/bundles"/>
                           
-    <SyncopeUser id="1" password="1" workflowId="0"/>
-    <SyncopeUser id="2" password="1" workflowId="0"/>
-    <SyncopeUser id="3" password="1" workflowId="0"/>
-    <SyncopeUser id="4" password="1" workflowId="0"/>
+    <SyncopeUser id="1" workflowId="0"/>
+    <SyncopeUser id="2" workflowId="0"/>
+    <SyncopeUser id="3" workflowId="0"/>
+    <SyncopeUser id="4" workflowId="0"/>
 
     <SyncopeRole id="1" name="root" inheritAttributes="F" inheritDerivedAttributes="F"/>
     <SyncopeRole id="2" name="child" parent_id="1" inheritAttributes="F" inheritDerivedAttributes="F"/>

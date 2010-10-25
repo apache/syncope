@@ -42,12 +42,16 @@ public class Membership extends AbstractAttributable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
     @ManyToOne
     private SyncopeUser syncopeUser;
+
     @ManyToOne
     private SyncopeRole syncopeRole;
+
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     private List<MembershipAttribute> attributes;
+
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     private List<MembershipDerivedAttribute> derivedAttributes;
 

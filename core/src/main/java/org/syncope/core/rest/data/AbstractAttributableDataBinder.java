@@ -157,7 +157,7 @@ public abstract class AbstractAttributableDataBinder {
 
         AbstractAttributeValue attributeValue;
         for (String value : valuesProvided) {
-            if (value == null || value.length() == 0) {
+            if (value == null || value.isEmpty()) {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Null value for " + schema.getName()
                             + ", ignoring");
@@ -410,7 +410,6 @@ public abstract class AbstractAttributableDataBinder {
                         attributeMod.getValuesToBeRemoved()) {
 
                     for (AbstractAttributeValue mav : attribute.getValues()) {
-
                         if (valueToBeRemoved.equals(mav.getValueAsString())) {
                             valuesToBeRemoved.add(mav.getId());
                         }

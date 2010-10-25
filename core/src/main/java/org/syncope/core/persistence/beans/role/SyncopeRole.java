@@ -39,25 +39,36 @@ import org.syncope.core.persistence.beans.user.SyncopeUser;
 
 @Entity
 @Table(uniqueConstraints =
-@UniqueConstraint(columnNames = {"name", "parent_id"}))
+@UniqueConstraint(columnNames = {
+    "name",
+    "parent_id"
+}))
 public class SyncopeRole extends AbstractAttributable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
     private String name;
+
     @ManyToOne(optional = true)
     private SyncopeRole parent;
+
     @OneToMany(cascade = CascadeType.MERGE, mappedBy = "syncopeRole")
     private List<Membership> memberships;
+
     @ManyToMany(fetch = FetchType.LAZY)
     private Set<Entitlement> entitlements;
+
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     private List<RoleAttribute> attributes;
+
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     private List<RoleDerivedAttribute> derivedAttributes;
+
     @Basic
     private Character inheritAttributes;
+
     @Basic
     private Character inheritDerivedAttributes;
 
@@ -79,7 +90,8 @@ public class SyncopeRole extends AbstractAttributable {
         return name;
     }
 
-    public void setName(String name) throws IllegalArgumentException {
+    public void setName(String name)
+            throws IllegalArgumentException {
         this.name = name;
     }
 

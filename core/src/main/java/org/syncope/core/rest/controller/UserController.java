@@ -64,12 +64,16 @@ public class UserController extends AbstractController {
 
     @Autowired
     private SyncopeUserDAO syncopeUserDAO;
+
     @Autowired
     private UserDataBinder userDataBinder;
+
     @Autowired
     private Workflow userWorkflow;
+
     @Autowired(required = false)
     private SpringHibernateJPAWorkflowStore workflowStore;
+
     @Autowired
     private PropagationManager propagationManager;
 

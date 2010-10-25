@@ -42,6 +42,7 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Cascade;
 import org.syncope.core.persistence.security.AsymmetricCipher;
 import org.syncope.core.persistence.beans.AbstractAttributable;
 import org.syncope.core.persistence.beans.AbstractAttribute;
@@ -81,22 +82,30 @@ public class SyncopeUser extends AbstractAttributable {
     generator = "SEQ_SyncopeUser")
     @TableGenerator(name = "SEQ_SyncopeUser", allocationSize = 100)
     private Long id;
+
     @Basic
     @Lob
     private byte[] passwordKeyPair;
+
     @Basic
     @Lob
     private byte[] password;
+
     @OneToMany(cascade = CascadeType.MERGE, mappedBy = "syncopeUser")
     private List<Membership> memberships;
+
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     private List<UserAttribute> attributes;
+
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     private List<UserDerivedAttribute> derivedAttributes;
+
     @Column(nullable = true)
     private Long workflowId;
+
     @Lob
     private String token;
+
     @Temporal(TemporalType.TIMESTAMP)
     private Date tokenExpireTime;
 
@@ -142,7 +151,10 @@ public class SyncopeUser extends AbstractAttributable {
     }
 
     public void setMemberships(List<Membership> memberships) {
-        this.memberships = memberships;
+        this.memberships.clear();
+        if (memberships != null && !memberships.isEmpty()) {
+            this.memberships.addAll(memberships);
+        }
     }
 
     public Set<SyncopeRole> getRoles() {
