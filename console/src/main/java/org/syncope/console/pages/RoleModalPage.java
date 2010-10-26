@@ -460,6 +460,7 @@ return resourcesSet;
 public void cloneOldRoleTO(RoleTO roleTO){
 oldRole = new RoleTO();
 
+oldRole.setId(roleTO.getId());
 oldRole.setName(new String(roleTO.getName()));
 oldRole.setParent(new Long(roleTO.getParent()));
 
@@ -543,9 +544,8 @@ public void searchAndAddResource(String resource) {
 public void searchAndDropResource(String resource, RoleTO roleTO) {
     boolean found = false;
 
-    /*Check if the current resource was existent before the update and in this case
-      just ignore it
-     */
+    /* Check if the current resource was existent before the update and in this
+      case just ignore it */
     for (String newResource : roleTO.getResources()) {
         if (resource.equals(newResource)) {
             found = true;
