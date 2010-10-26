@@ -91,14 +91,14 @@ RoleMod roleMod;
 public RoleModalPage(final BasePage basePage, final ModalWindow window,
     final RoleTO roleTO, final boolean createFlag) {
 
+if(!createFlag)
+    cloneOldRoleTO(roleTO);
+
 Form form = new Form("RoleForm");
 
 form.setModel(new CompoundPropertyModel(roleTO));
 
 setupSchemaWrappers(createFlag, roleTO);
-
-if(!createFlag)
-    cloneOldRoleTO(roleTO);
 
 final ListView roleAttributesView = new ListView("roleSchemas"
                                                             , schemaWrappers) {
@@ -292,15 +292,19 @@ submit = new AjaxButton("submit", new Model(getString("submit"))) {
                 window.close(target);
             } else {
                 setupRoleMod(roleTO);
+                //Update role just if it is changed
+                if(roleMod != null){
+
                 res = restClient.updateRole(roleMod);
-                if (!res) {
+
+                if (!res) 
                     error(getString("error"));
-                } else {
+                 else {
                     Roles callerPage = (Roles)basePage;
                     callerPage.setOperationResult(true);
-
-                    window.close(target);
                 }
+                }
+                window.close(target);
             }
 
         } catch (Exception e) {
@@ -461,8 +465,6 @@ oldRole.setParent(new Long(roleTO.getParent()));
 
 List<AttributeTO> attributes = new ArrayList<AttributeTO>();
 
-oldRole.setAttributes(attributes);
-
 AttributeTO attributeTO;
 List<String> values;
 for (AttributeTO attribute : roleTO.getAttributes()) {
@@ -474,23 +476,92 @@ for (AttributeTO attribute : roleTO.getAttributes()) {
         values.add(val);
     }
     attributeTO.setValues(values);
+
+    attributes.add(attributeTO);
 }
+
+oldRole.setAttributes(attributes);
+
+oldRole.setResources(roleTO.getResources());
 }
 
 public void setupRoleMod(RoleTO roleTO){
-roleMod = new RoleMod();
-
-roleMod.setId(roleTO.getId());
-
-if(!oldRole.getName().equals(roleTO.getName()))
+//1.Check if the role's name has been changed
+if(!oldRole.getName().equals(roleTO.getName())) {
+    roleMod = new RoleMod();
     roleMod.setName(roleTO.getName());
+}
 
+//2.Search and update role's attributes
 for(AttributeTO attributeTO : roleTO.getAttributes())
     searchAndUpdateAttribute(attributeTO);
+
+//3.Search and update role's resources
+for (String resource : roleTO.getResources()) 
+    searchAndAddResource(resource);
+
+
+for (String resource : oldRole.getResources()) 
+    searchAndDropResource(resource, roleTO);
+
+if(roleMod != null)
+        roleMod.setId(oldRole.getId());
+}
+
+/**
+ * Search for a resource and add that one to the RoleMod object if
+ * it doesn't exist.
+ * @param resource, new resource added
+ */
+public void searchAndAddResource(String resource) {
+    boolean found = false;
+
+    /*
+     Check if the current resource was existent before the update and in this case
+     just ignore it
+     */
+    for (String oldResource : oldRole.getResources()) {
+        if (resource.equals(oldResource)) 
+            found = true;
+        
+    }
+
+    if (!found) {
+        if(roleMod == null)
+          roleMod = new RoleMod();
+
+          roleMod.addResourceToBeAdded(resource);
+    }
+}
+
+/**
+ * Search for a resource and drop that one from the RoleMod object if
+ * it doesn't exist anymore.
+ * @param resource
+ * @param roleTO
+ */
+public void searchAndDropResource(String resource, RoleTO roleTO) {
+    boolean found = false;
+
+    /*Check if the current resource was existent before the update and in this case
+      just ignore it
+     */
+    for (String newResource : roleTO.getResources()) {
+        if (resource.equals(newResource)) {
+            found = true;
+        }
+    }
+
+    if (!found) {
+       if(roleMod == null)
+           roleMod = new RoleMod();
+           roleMod.addResourceToBeRemoved(resource);
+    }
 }
 
 public void searchAndUpdateAttribute(AttributeTO attributeTO){
 boolean found = false;
+boolean changed = false;
 
 AttributeMod attributeMod = new AttributeMod();
 attributeMod.setSchema(attributeTO.getSchema());
@@ -498,20 +569,43 @@ attributeMod.setSchema(attributeTO.getSchema());
 for(AttributeTO oldAttribute : oldRole.getAttributes()){
     if (attributeTO.getSchema().equals(oldAttribute.getSchema())) {
 
-        if (!attributeTO.equals(oldAttribute)) {
-            attributeMod.setValuesToBeAdded(attributeTO.getValues());
+        if (attributeTO.getSchema().equals(oldAttribute.getSchema())) {
 
-            roleMod.addAttributeToBeRemoved(oldAttribute.getSchema());
-            roleMod.addAttributeToBeUpdated(attributeMod);
+            if (!attributeTO.equals(oldAttribute) && !oldAttribute
+                    .isReadonly()) {
+
+                if (attributeTO.getValues().size() > 1)
+                    attributeMod.setValuesToBeAdded(attributeTO.getValues());
+                else
+                    attributeMod.addValueToBeAdded(attributeTO.getValues()
+                            .iterator().next());
+
+                if(roleMod == null) 
+                    roleMod = new RoleMod();
+
+                roleMod.addAttributeToBeRemoved(oldAttribute.getSchema());
+                roleMod.addAttributeToBeUpdated(attributeMod);
+
+                changed = true;
+                break;
+            }
+                found = true;
         }
-
-        found = true;
     }
 }
 
-if(!found){
-    attributeMod.setValuesToBeAdded(attributeTO.getValues());
-    roleMod.addAttributeToBeUpdated(attributeMod);
+if (!found && !changed && !attributeTO.isReadonly()
+                                       && attributeTO.getValues() != null) {
+
+    if(attributeTO.getValues().iterator().next() != null ){
+        attributeMod.setValuesToBeAdded(attributeTO.getValues());
+
+    if(roleMod == null) 
+        roleMod = new RoleMod();
+
+        roleMod.addAttributeToBeUpdated(attributeMod);
+    }
+    else attributeMod = null;
 }
 }
 
