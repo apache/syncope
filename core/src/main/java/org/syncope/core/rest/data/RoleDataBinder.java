@@ -2,9 +2,9 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -28,7 +28,7 @@ import org.syncope.types.SyncopeClientExceptionType;
 @Component
 public class RoleDataBinder extends AbstractAttributableDataBinder {
 
-    public SyncopeRole create(RoleTO roleTO)
+    public SyncopeRole create(final RoleTO roleTO)
             throws SyncopeClientCompositeErrorException {
 
         SyncopeRole role = new SyncopeRole();
@@ -73,8 +73,7 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
         }
 
         // attributes, derived attributes and resources
-        role = (SyncopeRole) fill(role, roleTO,
-                AttributableUtil.ROLE, scce);
+        fill(role, roleTO, AttributableUtil.ROLE, scce);
 
         return role;
     }
@@ -130,11 +129,11 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
             roleTO.setParent(role.getParent().getId());
         }
 
-        roleTO = (RoleTO) fillTO(roleTO, role.getAttributes(),
+        fillTO(roleTO, role.getAttributes(),
                 role.getDerivedAttributes(), role.getTargetResources());
 
         if (role.isInheritAttributes() || role.isInheritDerivedAttributes()) {
-            roleTO = (RoleTO) fillTO(roleTO,
+            fillTO(roleTO,
                     role.isInheritAttributes()
                     ? syncopeRoleDAO.findInheritedAttributes(role)
                     : Collections.EMPTY_SET,

@@ -2,9 +2,9 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -33,6 +33,7 @@ import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.beans.user.UserAttributeValue;
 import org.syncope.core.persistence.beans.user.UserSchema;
 import org.syncope.core.persistence.dao.SchemaDAO;
+import org.syncope.core.persistence.dao.SyncopeRoleDAO;
 import org.syncope.core.persistence.dao.SyncopeUserDAO;
 import org.syncope.core.persistence.validation.ValidationException;
 
@@ -42,6 +43,9 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
 
     @Autowired
     private SchemaDAO schemaDAO;
+
+    @Autowired
+    private SyncopeRoleDAO syncopeRoleDAO;
 
     @Override
     @Transactional(readOnly = true)
@@ -102,7 +106,7 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    public SyncopeUser save(SyncopeUser syncopeUser) {
+    public SyncopeUser save(final SyncopeUser syncopeUser) {
         return entityManager.merge(syncopeUser);
     }
 
@@ -113,14 +117,19 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
             return;
         }
 
+        // Not calling membershipDAO.delete() here because it would try
+        // to save this user as well, thus going into
+        // ConcurrentModificationException
         for (Membership membership : user.getMemberships()) {
             membership.setSyncopeUser(null);
+
             membership.getSyncopeRole().removeMembership(membership);
+            syncopeRoleDAO.save(membership.getSyncopeRole());
             membership.setSyncopeRole(null);
 
             entityManager.remove(membership);
         }
-        user.setMemberships(Collections.EMPTY_LIST);
+        user.getMemberships().clear();
 
         entityManager.remove(user);
     }
@@ -131,8 +140,6 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
         if (LOG.isDebugEnabled()) {
             LOG.debug("Search condition:\n" + searchCondition);
         }
-
-        Session hibernateSess = ((Session) entityManager.getDelegate());
 
         List<SyncopeUser> result = Collections.EMPTY_LIST;
         try {

@@ -39,6 +39,7 @@ public class RoleController extends AbstractController {
 
     @Autowired
     private SyncopeRoleDAO syncopeRoleDAO;
+
     @Autowired
     private RoleDataBinder roleDataBinder;
 

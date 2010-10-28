@@ -2,9 +2,9 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,18 +17,19 @@ package org.syncope.core.workflow;
 import com.opensymphony.module.propertyset.PropertySet;
 import com.opensymphony.workflow.FunctionProvider;
 import com.opensymphony.workflow.WorkflowException;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.AbstractAttribute;
 import org.syncope.core.persistence.beans.AbstractDerivedAttribute;
 import org.syncope.core.persistence.beans.membership.Membership;
-import org.syncope.core.persistence.beans.membership.MembershipAttribute;
-import org.syncope.core.persistence.beans.membership.MembershipDerivedAttribute;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.beans.user.UserAttribute;
 import org.syncope.core.persistence.beans.user.UserDerivedAttribute;
 import org.syncope.core.persistence.dao.AttributeDAO;
 import org.syncope.core.persistence.dao.DerivedAttributeDAO;
+import org.syncope.core.persistence.dao.MembershipDAO;
 
 public class EmptyUser extends OSWorkflowComponent
         implements FunctionProvider {
@@ -41,14 +42,14 @@ public class EmptyUser extends OSWorkflowComponent
         SyncopeUser user = (SyncopeUser) transientVars.get(
                 Constants.SYNCOPE_USER);
 
-        AttributeDAO attributeDAO =
+        final AttributeDAO attributeDAO =
                 (AttributeDAO) context.getBean("attributeDAOImpl");
         for (AbstractAttribute attribute : user.getAttributes()) {
             attributeDAO.delete(attribute.getId(), UserAttribute.class);
         }
         user.getAttributes().clear();
 
-        DerivedAttributeDAO derivedAttributeDAO =
+        final DerivedAttributeDAO derivedAttributeDAO =
                 (DerivedAttributeDAO) context.getBean(
                 "derivedAttributeDAOImpl");
         for (AbstractDerivedAttribute derivedAttribute :
@@ -59,20 +60,15 @@ public class EmptyUser extends OSWorkflowComponent
         }
         user.getDerivedAttributes().clear();
 
+        final MembershipDAO membershipDAO =
+                (MembershipDAO) context.getBean("membershipDAOImpl");
+        final Set<Long> membershipIds =
+                new HashSet<Long>(user.getMemberships().size());
         for (Membership membership : user.getMemberships()) {
-            for (AbstractAttribute attribute : membership.getAttributes()) {
-                attributeDAO.delete(attribute.getId(),
-                        MembershipAttribute.class);
-            }
-            membership.getAttributes().clear();
-
-            for (AbstractDerivedAttribute derivedAttribute :
-                    membership.getDerivedAttributes()) {
-
-                derivedAttributeDAO.delete(derivedAttribute.getId(),
-                        MembershipDerivedAttribute.class);
-            }
-            membership.getDerivedAttributes().clear();
+            membershipIds.add(membership.getId());
+        }
+        for (Long membershipId : membershipIds) {
+            membershipDAO.delete(membershipId);
         }
 
         user.setPassword(null);

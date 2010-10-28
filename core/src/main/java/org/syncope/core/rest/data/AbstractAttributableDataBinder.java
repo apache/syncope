@@ -2,9 +2,9 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -71,24 +71,34 @@ public abstract class AbstractAttributableDataBinder {
      */
     protected static final Logger LOG = LoggerFactory.getLogger(
             AbstractAttributableDataBinder.class);
+
     @Autowired
     protected SyncopeRoleDAO syncopeRoleDAO;
+
     @Autowired
     protected SchemaDAO schemaDAO;
+
     @Autowired
     protected DerivedSchemaDAO derivedSchemaDAO;
+
     @Autowired
     protected AttributeDAO attributeDAO;
+
     @Autowired
     protected DerivedAttributeDAO derivedAttributeDAO;
+
     @Autowired
     protected AttributeValueDAO attributeValueDAO;
+
     @Autowired
     protected SyncopeUserDAO syncopeUserDAO;
+
     @Autowired
     protected ResourceDAO resourceDAO;
+
     @Autowired
     protected MembershipDAO membershipDAO;
+
     @Autowired
     private JexlEngine jexlEngine;
 
@@ -563,7 +573,7 @@ public abstract class AbstractAttributableDataBinder {
         return resourceOperations;
     }
 
-    protected AbstractAttributable fill(AbstractAttributable attributable,
+    protected void fill(AbstractAttributable attributable,
             AbstractAttributableTO attributableTO,
             AttributableUtil attributableUtil,
             SyncopeClientCompositeErrorException compositeErrorException)
@@ -584,11 +594,11 @@ public abstract class AbstractAttributableDataBinder {
                         attributableUtil.getSchemaClass());
 
                 if (schema != null) {
-                    attribute =
-                            attributable.getAttribute(schema.getName()) == null
-                            ? attributableUtil.newAttribute()
-                            : attributable.getAttribute(schema.getName());
-                    attribute.setSchema(schema);
+                    attribute = attributable.getAttribute(schema.getName());
+                    if (attribute == null) {
+                        attribute = attributableUtil.newAttribute();
+                        attribute.setSchema(schema);
+                    }
 
                     fillAttribute(attributeTO.getValues(),
                             attributableUtil, schema, attribute, invalidValues);
@@ -649,11 +659,9 @@ public abstract class AbstractAttributableDataBinder {
         if (compositeErrorException.hasExceptions()) {
             throw compositeErrorException;
         }
-
-        return attributable;
     }
 
-    protected AbstractAttributableTO fillTO(
+    protected void fillTO(
             AbstractAttributableTO abstractAttributableTO,
             Collection<? extends AbstractAttribute> attributes,
             Collection<? extends AbstractDerivedAttribute> derivedAttributes,
@@ -683,8 +691,6 @@ public abstract class AbstractAttributableDataBinder {
         for (TargetResource resource : resources) {
             abstractAttributableTO.addResource(resource.getName());
         }
-
-        return abstractAttributableTO;
     }
 
     public void checkUniqueness(AbstractAttributable attributable)

@@ -320,9 +320,8 @@ public class UserController extends AbstractController {
                     + syncRoles + "\n" + syncResources);
         }
 
-        // By default, ignore id in UserTO:
-        // set it explicitely in case of overwrite
-        userTO.setId(0);
+        // The user to be created
+        SyncopeUser user = null;
 
         WorkflowInitException wie = null;
         Long workflowId = null;
@@ -348,16 +347,19 @@ public class UserController extends AbstractController {
                 case OVERWRITE:
                     final Integer resetActionId = findWorkflowAction(
                             wie.getWorkflowId(), Constants.ACTION_RESET);
-                    if (resetActionId != null) {
-                        syncopeUserDAO.save(
-                                doExecuteAction(
+                    if (resetActionId == null) {
+                        user = syncopeUserDAO.find(wie.getSyncopeUserId());
+                        if (user == null) {
+                            throw new NotFoundException("User "
+                                    + wie.getSyncopeUserId());
+                        }
+                    } else {
+                        user = doExecuteAction(
                                 Constants.ACTION_RESET,
                                 wie.getSyncopeUserId(),
                                 Collections.singletonMap(Constants.USER_TO,
-                                (Object) userTO)));
+                                (Object) userTO));
                     }
-
-                    userTO.setId(wie.getSyncopeUserId());
                     break;
 
                 case REJECT:
@@ -375,20 +377,12 @@ public class UserController extends AbstractController {
             }
         }
 
-        // Check if UserTO has a valued id: if so,
-        // try to read the user from the db
-        SyncopeUser user = null;
-        if (userTO.getId() == 0) {
+        // No overwrite: let's create a fresh new user
+        if (user == null) {
             user = new SyncopeUser();
-        } else {
-            user = syncopeUserDAO.find(userTO.getId());
-            if (user == null) {
-                throw new NotFoundException("User " + userTO.getId());
-            }
         }
 
-        ResourceOperations resourceOperations =
-                userDataBinder.create(user, userTO);
+        userDataBinder.create(user, userTO);
 
         user.setWorkflowId(workflowId);
         user = syncopeUserDAO.save(user);
@@ -400,17 +394,12 @@ public class UserController extends AbstractController {
         Set<String> syncResourceNames =
                 getSyncResourceNames(user, syncRoles, syncResources);
 
-        if (LOG.isDebugEnabled() && !syncResourceNames.isEmpty()) {
-            LOG.debug("About to propagate synchronously onto resources "
-                    + syncResourceNames);
-        }
-
-        if (resourceOperations.isEmpty()) {
-            propagationManager.create(user, syncResourceNames);
-        } else {
-            propagationManager.update(user, resourceOperations,
+        if (!syncResourceNames.isEmpty()) {
+            LOG.debug("About to propagate synchronously onto resources {}",
                     syncResourceNames);
         }
+
+        propagationManager.create(user, syncResourceNames);
 
         // User is created locally and propagated, let's advance on the workflow
         Map<String, Object> inputs = new HashMap<String, Object>();
@@ -418,6 +407,8 @@ public class UserController extends AbstractController {
 
         int[] availableWorkflowActions =
                 userWorkflow.getAvailableActions(workflowId, null);
+        LOG.debug("Available workflow actions for user {}: {}",
+                user, availableWorkflowActions);
 
         for (int availableWorkflowAction : availableWorkflowActions) {
             userWorkflow.doAction(

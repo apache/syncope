@@ -44,19 +44,12 @@ import org.syncope.types.SyncopeClientExceptionType;
 @Component
 public class UserDataBinder extends AbstractAttributableDataBinder {
 
-    public ResourceOperations create(SyncopeUser user, UserTO userTO)
+    public void create(final SyncopeUser user, final UserTO userTO)
             throws SyncopeClientCompositeErrorException, NotFoundException {
 
         SyncopeClientCompositeErrorException scce =
                 new SyncopeClientCompositeErrorException(
                 HttpStatus.BAD_REQUEST);
-
-        // In case of overwrite, take into account memberships formerly
-        // assigned to this user
-        Set<Long> formerMembershipIds = new HashSet<Long>();
-        for (Membership membership : user.getMemberships()) {
-            formerMembershipIds.add(membership.getId());
-        }
 
         // password
         // TODO: check password policies
@@ -97,31 +90,15 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
                     membership.setSyncopeUser(user);
 
                     user.addMembership(membership);
-                } else {
-                    formerMembershipIds.remove(membership.getId());
                 }
 
-                membership = (Membership) fill(membership, membershipTO,
-                        AttributableUtil.MEMBERSHIP, scce);
+                fill(membership, membershipTO, AttributableUtil.MEMBERSHIP,
+                        scce);
             }
         }
 
         // attributes, derived attributes and resources
-        user = (SyncopeUser) fill(
-                user, userTO, AttributableUtil.USER, scce);
-
-        // remove from the DB any former membership that has not been
-        // renewed in this overwrite
-        ResourceOperations resourceOperations = new ResourceOperations();
-        if (!formerMembershipIds.isEmpty()) {
-            UserMod userMod = new UserMod();
-            for (Long membershipId : formerMembershipIds) {
-                userMod.addMembershipToBeRemoved(membershipId);
-            }
-            resourceOperations = update(user, userMod);
-        }
-
-        return resourceOperations;
+        fill(user, userTO, AttributableUtil.USER, scce);
     }
 
     public ResourceOperations update(SyncopeUser user, UserMod userMod)
@@ -253,13 +230,12 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         userTO.setTokenExpireTime(user.getTokenExpireTime());
         userTO.setPassword(user.getPassword());
 
-        String status = null;
         try {
             List<Step> currentSteps = userWorkflow.getCurrentSteps(
                     user.getWorkflowId());
 
             if (currentSteps != null && !currentSteps.isEmpty()) {
-                status = currentSteps.iterator().next().getStatus();
+                userTO.setStatus(currentSteps.iterator().next().getStatus());
             } else {
                 LOG.error("Could not find status information for " + user);
             }
@@ -267,19 +243,18 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
             LOG.error("Could not find workflow entry with id "
                     + user.getWorkflowId());
         }
-        userTO.setStatus(status);
 
-        userTO = (UserTO) fillTO(userTO, user.getAttributes(),
+        fillTO(userTO, user.getAttributes(),
                 user.getDerivedAttributes(), user.getTargetResources());
 
-        MembershipTO membershipTO = null;
+        MembershipTO membershipTO;
         for (Membership membership : user.getMemberships()) {
             membershipTO = new MembershipTO();
             membershipTO.setId(membership.getId());
             membershipTO.setRoleId(membership.getSyncopeRole().getId());
             membershipTO.setRoleName(membership.getSyncopeRole().getName());
 
-            membershipTO = (MembershipTO) fillTO(membershipTO,
+            fillTO(membershipTO,
                     membership.getAttributes(),
                     membership.getDerivedAttributes(),
                     membership.getTargetResources());

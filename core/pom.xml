@@ -379,6 +379,7 @@
                             <classesDirectory>${project.build.directory}/test-classes</classesDirectory>
                             <includes>
                                 <include>**/persistence.properties</include>
+                                <include>**/ehcache.xml</include>
                                 <include>**/content.xml</include>
                             </includes>
                         </configuration>
@@ -403,6 +404,7 @@
                         <configuration>
                             <packagingExcludes>
                                 WEB-INF/classes/persistence.properties,
+                                WEB-INF/classes/ehcache.xml,
                                 WEB-INF/classes/content.xml,
                                 WEB-INF/classes/beans.xml
                             </packagingExcludes>

@@ -91,7 +91,7 @@ public class UserTestITCase extends AbstractTest {
         newUserTO.addAttribute(attributeTO);
 
         restTemplate.postForObject(BASE_URL + "user/create",
-                                   newUserTO, UserTO.class);
+                newUserTO, UserTO.class);
     }
 
     @Test
@@ -118,7 +118,6 @@ public class UserTestITCase extends AbstractTest {
         // add an attribute with null value: must be ignored
         nullValueAttributeTO = new AttributeTO();
         nullValueAttributeTO.setSchema("activationDate");
-        //nullValueAttributeTO.setValues(null);
         nullValueAttributeTO.addValue(null);
         userTO.addAttribute(nullValueAttributeTO);
 
@@ -139,22 +138,24 @@ public class UserTestITCase extends AbstractTest {
 
         // 2. activate user
         newUserTO = restTemplate.postForObject(BASE_URL + "user/activate",
-                                               newUserTO, UserTO.class);
+                newUserTO, UserTO.class);
         assertEquals("active",
-                     restTemplate.getForObject(BASE_URL + "user/status/"
+                restTemplate.getForObject(BASE_URL + "user/status/"
                 + newUserTO.getId(), String.class));
 
         // 3. try (and fail) to create another user with same (unique) values
         userTO = getSampleTO("pippo@c.com");
-        AttributeTO userIdTO = new AttributeTO();
-        userIdTO.setSchema("userId");
-        userIdTO.addValue("a.b@c.com");
-        userTO.addAttribute(userIdTO);
+        for (AttributeTO attr : userTO.getAttributes()) {
+            if ("userId".equals(attr.getSchema())) {
+                attr.getValues().clear();
+                attr.addValue("a.b@c.com");
+            }
+        }
 
         SyncopeClientException syncopeClientException = null;
         try {
             restTemplate.postForObject(BASE_URL + "user/create",
-                                       userTO, UserTO.class);
+                    userTO, UserTO.class);
         } catch (SyncopeClientCompositeErrorException e) {
             syncopeClientException =
                     e.getException(SyncopeClientExceptionType.InvalidUniques);
@@ -224,14 +225,14 @@ public class UserTestITCase extends AbstractTest {
         UserTO userTO = getSampleTO("qqgf.z@nn.com");
 
         userTO = restTemplate.postForObject(BASE_URL + "user/create",
-                                            userTO, UserTO.class);
+                userTO, UserTO.class);
         userTO = restTemplate.postForObject(BASE_URL + "user/activate",
-                                            userTO, UserTO.class);
+                userTO, UserTO.class);
 
         restTemplate.delete(BASE_URL + "user/delete/{userId}", userTO.getId());
         try {
             restTemplate.getForObject(BASE_URL + "user/read/{userId}.json",
-                                      UserTO.class, userTO.getId());
+                    UserTO.class, userTO.getId());
         } catch (HttpStatusCodeException e) {
             assertEquals(e.getStatusCode(), HttpStatus.NOT_FOUND);
         }
@@ -243,7 +244,7 @@ public class UserTestITCase extends AbstractTest {
                 restTemplate.getForObject(
                 BASE_URL + "user/list.json", UserTO[].class));
         assertNotNull(users);
-        assertEquals(4, users.size());
+        assertFalse(users.isEmpty());
         for (UserTO user : users) {
             assertNotNull(user);
         }
@@ -264,9 +265,9 @@ public class UserTestITCase extends AbstractTest {
         UserTO userTO = getSampleTO("d.e@f.com");
 
         userTO = restTemplate.postForObject(BASE_URL + "user/create",
-                                            userTO, UserTO.class);
+                userTO, UserTO.class);
         userTO = restTemplate.postForObject(BASE_URL + "user/activate",
-                                            userTO, UserTO.class);
+                userTO, UserTO.class);
         assertNull(userTO.getToken());
 
         userTO = restTemplate.getForObject(
@@ -275,7 +276,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(userTO.getToken());
 
         userTO = restTemplate.postForObject(BASE_URL + "user/verifyToken",
-                                            userTO, UserTO.class);
+                userTO, UserTO.class);
         assertNull(userTO.getToken());
     }
 
@@ -321,9 +322,9 @@ public class UserTestITCase extends AbstractTest {
         userTO.addMembership(membershipTO);
 
         userTO = restTemplate.postForObject(BASE_URL + "user/create",
-                                            userTO, UserTO.class);
+                userTO, UserTO.class);
         userTO = restTemplate.postForObject(BASE_URL + "user/activate",
-                                            userTO, UserTO.class);
+                userTO, UserTO.class);
 
         assertTrue(userTO.getDerivedAttributes().isEmpty());
         assertEquals(1, userTO.getMemberships().size());
@@ -351,7 +352,7 @@ public class UserTestITCase extends AbstractTest {
                 userTO.getMemberships().iterator().next().getId());
 
         userTO = restTemplate.postForObject(BASE_URL + "user/update",
-                                            userMod, UserTO.class);
+                userMod, UserTO.class);
 
         assertEquals("newPassword", userTO.getPassword());
         assertEquals(1, userTO.getMemberships().size());
@@ -364,7 +365,7 @@ public class UserTestITCase extends AbstractTest {
                 attributeFound = true;
 
                 assertEquals(Collections.singletonList("t.w@spre.net"),
-                             attributeTO.getValues());
+                        attributeTO.getValues());
             }
         }
         assertTrue(attributeFound);
