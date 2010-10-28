@@ -49,6 +49,9 @@ public final class Constants {
     public static final String CONF_CONFIGURATION_PAGINATOR_ROWS =
             "configuration.paginator.rows";
 
+    public static final String CONF_TASKS_PAGINATOR_ROWS =
+            "tasks.paginator.rows";
+
     private Constants() {
     }
 }

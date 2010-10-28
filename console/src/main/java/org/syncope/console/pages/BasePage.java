@@ -50,6 +50,8 @@ public class BasePage extends CustomizableBasePage {
 
         add(new BookmarkablePageLink("configuration", Configuration.class));
 
+        add(new BookmarkablePageLink("task", Tasks.class));
+
         add(new BookmarkablePageLink("logout", Logout.class));
     }
 

@@ -1,0 +1,64 @@
+<!--
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ under the License.
+-->
+<wicket:head>
+    <style type="text/css">
+    /* WICKET DATATABLE HEADERS */
+    .headers {
+       border: 1px solid #aaaaaa;
+       background: #cccccc url(css/images/ui-bg_highlight-soft_75_cccccc_1x100.png)
+           50% 50% repeat-x;
+    }
+    </style>
+    <script type="text/javascript">
+        jQuery(function() {
+            $("#dialog").dialog({
+                autoOpen: false, height: 500,  width: 700, modal: true,
+                show: "fade",
+                hide: "fade"
+            });
+        });
+    </script>
+</wicket:head>
+<wicket:extend>
+    <div id="dialog-form" title="Task Modal window">
+        <p class="ui-widget ui-corner-all ui-widget-header"><wicket:message key="title"/></p>
+        <form wicket:id="TaskForm">
+            <div wicket:id="feedback" style="color:red;padding:5px"/>
+            <div id="users-contain" class="ui-widget">
+                <fieldset style="font-size: 12px">
+                    <label for="id"><wicket:message key="id"/></label>
+                    <input type="text" id="id" class="text ui-widget-content ui-corner-all" wicket:id="id" />
+
+                    <label for="accountId"><wicket:message key="accountId"/></label>
+                    <input type="text" id="accountId" class="text ui-widget-content ui-corner-all" wicket:id="accountId" />
+
+                    <label for="resource"><wicket:message key="resource"/></label>
+                    <input type="text" id="resource" class="text ui-widget-content ui-corner-all" wicket:id="resource" />
+
+                    <span wicket:id="container">
+                        <label for="executions"><wicket:message key="taskExecutions"/></label>
+                        <table id="executions" class="ui-widget ui-widget-content"
+                           wicket:id="executionsTable"/>
+                    </span>
+                </fieldset>
+            </div>
+        </form>
+    </div>
+    <div id="dialog" title="Task Execution - Message">&nbsp;
+            <span wicket:id="dialogContent">
+                [Task execution's message to show]
+            </span>
+    </div>
+</wicket:extend>

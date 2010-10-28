@@ -69,8 +69,10 @@ public class ResourceModalPage extends SyncopeModalPage {
     public CheckBox forceMandatoryConstraint;
 
     ConnectorInstanceTO connectorTO = new ConnectorInstanceTO();
-    List<SchemaMappingTO> schemaMappingTOs =
-            new ArrayList<SchemaMappingTO>();
+//    List<SchemaMappingTO> schemaMappingTOs =
+//            new ArrayList<SchemaMappingTO>();
+
+    private ResourceTO resource;
 
     public AjaxButton submit;
     public AjaxButton addSchemaMappingBtn;
@@ -103,12 +105,14 @@ public class ResourceModalPage extends SyncopeModalPage {
     public ResourceModalPage(final BasePage basePage, final ModalWindow window,
             final ResourceTO resourceTO, final boolean createFlag) {
 
+        this.resource = resourceTO;
+
         schemaRestClient = (SchemaRestClient) ((SyncopeApplication) Application
                 .get()).getApplicationContext().getBean("schemaRestClient");
 
         setupChoiceListsPopulators();
 
-        setupSchemaMappingsList(resourceTO.getMappings());
+        //setupSchemaMappingsList(resourceTO.getMappings());
 
         Form resourceForm = new Form("ResourceForm");
 
@@ -180,7 +184,7 @@ public class ResourceModalPage extends SyncopeModalPage {
         resourceForm.add(connector);
 
         mappingUserSchemaView = new ListView("mappingsUserSchema",
-                schemaMappingTOs) {
+                resourceTO.getMappings()) {
 
             SchemaMappingTO mappingTO = null;
             UpdatingDropDownChoice schemaAttributeChoice = null;
@@ -194,7 +198,7 @@ public class ResourceModalPage extends SyncopeModalPage {
                     @Override
                     protected void onUpdate(AjaxRequestTarget target) {
                         int id = new Integer(getParent().getId());
-                        schemaMappingTOs.remove(id);
+                        resourceTO.getMappings().remove(id);
                         target.addComponent(mappingUserSchemaContainer);
                     }
                 });
@@ -283,7 +287,7 @@ public class ResourceModalPage extends SyncopeModalPage {
 
             @Override
             protected void onSubmit(AjaxRequestTarget target, Form form) {
-                schemaMappingTOs.add(new SchemaMappingTO());
+                resourceTO.getMappings().add(new SchemaMappingTO());
                 target.addComponent(mappingUserSchemaContainer);
             }
         };
@@ -298,7 +302,7 @@ public class ResourceModalPage extends SyncopeModalPage {
             protected void onSubmit(AjaxRequestTarget target, Form form) {
 
                 ResourceTO resourceTO = (ResourceTO) form.getDefaultModelObject();
-                resourceTO.setMappings(schemaMappingTOs);
+                //resourceTO.setMappings(schemaMappingTOs);
 
                 try {
                     resourceFormCustomValidation();
@@ -351,7 +355,7 @@ public class ResourceModalPage extends SyncopeModalPage {
     public void resourceFormCustomValidation() {
         int count = 0;
 
-        for (SchemaMappingTO schemaMapping : schemaMappingTOs) {
+        for (SchemaMappingTO schemaMapping : resource.getMappings()) {
 
             if (schemaMapping.isAccountid()) 
                 count++;
@@ -365,7 +369,7 @@ public class ResourceModalPage extends SyncopeModalPage {
 
         count = 0;
 
-        for (SchemaMappingTO schemaMapping : schemaMappingTOs) {
+        for (SchemaMappingTO schemaMapping : resource.getMappings()) {
 
             if (schemaMapping.isPassword())
                 count++;
@@ -386,18 +390,18 @@ public class ResourceModalPage extends SyncopeModalPage {
     /**
      * Set User and Role Schemas list for populating different views.
      * @param schemaMappingTos
-     */
-    public void setupSchemaMappingsList(List<SchemaMappingTO> schemaMappingTos) {
+    
+    public void setupSchemaMappingsList(List<SchemaMappingTO> mappings) {
         schemaMappingTOs = new ArrayList<SchemaMappingTO>();
 
-        if (schemaMappingTos != null) {
-            for (SchemaMappingTO schemaMappingTO :  schemaMappingTos) {
+        if (mappings != null) {
+            for (SchemaMappingTO schemaMappingTO :  mappings) {
                 schemaMappingTOs.add(schemaMappingTO);
             }
         } else {
             schemaMappingTOs.add(new SchemaMappingTO());
         }
-    }
+    }*/
 
     /**
      * Setup choice-list populators.

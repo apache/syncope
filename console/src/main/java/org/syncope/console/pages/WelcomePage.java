@@ -40,6 +40,8 @@ public class WelcomePage extends WebPage {
 
         add(new BookmarkablePageLink("configuration", Configuration.class));
 
+        add(new BookmarkablePageLink("task", Tasks.class));
+
         add(new BookmarkablePageLink("logout", Logout.class));
 
     }

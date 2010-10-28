@@ -79,8 +79,8 @@ body {
 
 #splash ul {
     height: 210px;
-    margin-left: 10px;
-    padding-left: 10px;
+    margin-left: 37px;
+    padding-left: 28px;
 }
 
 #splash ul li {
@@ -127,9 +127,9 @@ select[disabled] {
 
 /* FEEDBACK PANEL'S INFO STYLE */
 .feedbackPanel {
-    padding-left:8px;
+    /*padding-left:8px;
     padding-right:8px;
-    padding-top:8px;
+    padding-top:8px;*/
 }
 
 .feedbackPanelINFO {
@@ -249,6 +249,10 @@ div#users-contain table td, div#users-contain table th { border: 1px solid #eee;
 
 #testa .resources {
     color: #FD0;
+}
+
+#testa .task {
+    color: #f3c98e;
 }
 
 #testa .connectors {

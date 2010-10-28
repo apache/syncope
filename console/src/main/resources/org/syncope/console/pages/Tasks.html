@@ -12,12 +12,31 @@
  limitations under the License.
  under the License.
 -->
+<wicket:head>
+    <style type="text/css">
+        /* SET THE DEFAULT ERROR PANEL'S' STYLE, INVALIDATING THE CSS RENDERING
+        FOR THE CURRENT PAGE  */
+        .feedbackPanelERROR {
+            background: none !important;
+            font-weight: normal;
+            color: red;
+            border:0 none !important;
+            list-style-type: disc;
+            padding: 5px;
+            margin: 5px;
+        }
+
+        .feedbackPanelERROR span {
+            padding: 0px;
+            margin: 0px;
+        }
+    </style>
+</wicket:head>
 <wicket:extend>
     <div id="testa">
         <img src="img/logo.png" alt="syncope" title="syncope" id="logo" />
         <ul>
-            <li>
-                <span>
+            <li><span>
                     <a href=#" wicket:id="schema"><img src="img/menu/notsel/schema.png" alt="Schema" width="80" height="80" /><br />
                         <wicket:message key="schema"/>
                     </a>
@@ -53,15 +72,14 @@
                     </a>
                 </span>
             </li>
-            <li>
-                <span>
-                    <a href="#" class="configuration" wicket:id="configuration"><img src="img/menu/configuration.png" alt="Configuration" width="80" height="80" /><br />
+            <li><span>
+                    <a href="#" wicket:id="configuration"><img src="img/menu/notsel/configuration.png" alt="Configuration" width="80" height="80" /><br />
                         <wicket:message key="configuration"/>
                     </a>
                 </span>
             </li>
             <li><span>
-                    <a href="#" wicket:id="task"><img src="img/menu/notsel/task.png" alt="Task" width="80" height="80" /><br />
+                    <a href="#" class="task" wicket:id="task"><img src="img/menu/task.png" alt="Task" width="80" height="80" /><br />
                         <wicket:message key="task"/>
                     </a>
                 </span>
@@ -74,22 +92,22 @@
         </ul>
     </div>
 
-    <div wicket:id="feedback"/>
-
+    <div wicket:id="feedback" style="color:red;padding:5px"/>
 
     <div id="tabs">
         <ul>
-            <li  class="tabs-selected">
-                <a href="#tabs-1"><span><wicket:message key="tab1"/></span>
+            <li class="tabs-selected">
+                <a href="#tabs-1">
+                    <span><wicket:message key="tab1"/>
+                    </span>
                 </a>
             </li>
         </ul>
         <div id="tabs-1">
-
-            <div id="users-contain" class="ui-widget" style="width:inherit">
+            <div id="users-contain" class="ui-widget">
 
                 <h1><wicket:message key="title"/></h1>
-               
+
                 <span wicket:id="container">
                     <table class="ui-widget ui-widget-content"
                            wicket:id="datatable"/>
@@ -103,13 +121,10 @@
                     </form>
                 </span>
             </div>
-                
-            <div wicket:id="createConfigurationWin">[Show modal window for creating configuration]</div>
-            <div wicket:id="editConfigurationWin">[Show modal window for editing configuration]</div>
-
-            <a class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" wicket:id="createConfigurationLink">
-                <wicket:message key="create_configuration"/>
-            </a>
+            <div wicket:id="taskWin">
+                [Show modal window for viewing task]
+            </div>
         </div>
     </div>
+
 </wicket:extend>
