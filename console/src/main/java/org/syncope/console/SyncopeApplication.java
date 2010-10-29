@@ -16,9 +16,12 @@ package org.syncope.console;
 
 import java.io.InputStream;
 import org.apache.wicket.Request;
+import org.apache.wicket.RequestCycle;
 import org.apache.wicket.Response;
 import org.apache.wicket.Session;
 import org.apache.wicket.protocol.http.WebApplication;
+import org.apache.wicket.protocol.http.WebRequest;
+import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -29,8 +32,8 @@ import org.syncope.console.pages.WelcomePage;
 /**
  * SyncopeApplication class.
  */
-public class SyncopeApplication extends WebApplication implements ApplicationContextAware
-{
+public class SyncopeApplication extends WebApplication 
+        implements ApplicationContextAware {
     SyncopeUser user = null;
 
     String file;
@@ -48,6 +51,9 @@ public class SyncopeApplication extends WebApplication implements ApplicationCon
         file = getServletContext().getInitParameter("authenticationFile");
         addComponentInstantiationListener(new SpringComponentInjector(this));
         getResourceSettings().setThrowExceptionOnMissingResource( true );
+
+        /*getExceptionSettings().setUnexpectedExceptionDisplay(IExceptionSettings.
+                SHOW_INTERNAL_ERROR_PAGE);*/
     }
 
     /**
@@ -59,7 +65,6 @@ public class SyncopeApplication extends WebApplication implements ApplicationCon
     @Override
     public Session newSession( Request request, Response response )
     {
-
         SyncopeSession session = new SyncopeSession( request );
         
         if ( user != null )
@@ -78,9 +83,9 @@ public class SyncopeApplication extends WebApplication implements ApplicationCon
         return (user == null) ? Login.class :  WelcomePage.class;
     }
 
-
     @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+    public void setApplicationContext(ApplicationContext applicationContext)
+            throws BeansException {
           this.applicationContext = applicationContext;
     }
 
@@ -90,6 +95,13 @@ public class SyncopeApplication extends WebApplication implements ApplicationCon
     
     public InputStream getAuthenticationFile(){
     return getServletContext().getResourceAsStream(file);
+    }
+
+    @Override
+    public final RequestCycle newRequestCycle(final Request request,
+            final Response response) {
+        return new SyncopeRequestCycle(this, (WebRequest) request,
+                (WebResponse) response);
     }
 }
 

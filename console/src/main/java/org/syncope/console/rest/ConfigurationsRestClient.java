@@ -18,6 +18,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.List;
 import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.client.RestClientException;
 import org.syncope.client.to.ConfigurationTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 
@@ -32,32 +33,30 @@ public class ConfigurationsRestClient {
      * Get all stored configurations.
      * @return ConfigurationTOs
      */
-    public List<ConfigurationTO> getAllConfigurations() {
+    public List<ConfigurationTO> getAllConfigurations() throws
+            RestClientException {
+        List<ConfigurationTO> configurations = null;
 
-        List<ConfigurationTO> configurations = Arrays.asList(
-                restClient.getRestTemplate().getForObject(
-                restClient.getBaseURL() + "configuration/list.json",
-                ConfigurationTO[].class));
+        configurations = Arrays.asList(restClient.getRestTemplate()
+                .getForObject(restClient.getBaseURL() +
+                "configuration/list.json",ConfigurationTO[].class));
 
         return configurations;
-
     }
 
    /**
      * Load an existent configuration.
-     * @return ConfigurationTO object if the configuration exists, null otherwise
+     * @return ConfigurationTO object if the configuration exists,
+     * null otherwise
      */
-    public ConfigurationTO readConfiguration(String confKey) {
+    public ConfigurationTO readConfiguration(String confKey) throws
+            SyncopeClientCompositeErrorException, RestClientException {
 
-        ConfigurationTO configurationTO;
-        try {
-            configurationTO = restClient.getRestTemplate().getForObject(
-                    restClient.getBaseURL() + "configuration/read/{confKey}.json",
-                    ConfigurationTO.class, confKey);
-        } catch (SyncopeClientCompositeErrorException e) {
-            e.printStackTrace();
-            return null;
-        }
+        ConfigurationTO configurationTO = restClient.getRestTemplate()
+                .getForObject(restClient.getBaseURL() +
+                "configuration/read/{confKey}.json", ConfigurationTO.class,
+                confKey);
+
 
         return configurationTO;
     }
@@ -96,17 +95,12 @@ public class ConfigurationsRestClient {
      * Deelete a configuration by confKey
      * @throws UnsupportedEncodingException
      */
-    public void deleteConfiguration(String confKey)
-                                        throws UnsupportedEncodingException {
-        try {
+    public void deleteConfiguration(String confKey) throws
+            UnsupportedEncodingException, HttpStatusCodeException {
+
             restClient.getRestTemplate().delete( restClient.getBaseURL()
                     + "configuration/delete/{confKey}.json",
                     confKey);
-        } catch (HttpStatusCodeException e) {
-            //assertEquals(e.getStatusCode(), HttpStatus.NOT_FOUND);
-            throw e;
-        }
-
     }
 
     /**

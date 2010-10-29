@@ -22,6 +22,7 @@ import java.util.List;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeModel;
+import org.springframework.web.client.RestClientException;
 import org.syncope.client.to.RoleTO;
 import org.syncope.console.rest.RolesRestClient;
 
@@ -42,7 +43,7 @@ public class SyncopeRoleTree {
      *
      * @return New instance of tree model.
      */
-    public TreeModel createTreeModel() {
+    public TreeModel createTreeModel() throws RestClientException {
 
         List<RoleTO> roles = restClient.getAllRoles();
 
@@ -121,7 +122,8 @@ public class SyncopeRoleTree {
      * @param child to be added to list
      * @return List<SyncopeTreeNode>
      */
-    public List<SyncopeTreeNode> addChildToParent(List<SyncopeTreeNode> nodes, SyncopeTreeNode child) {
+    public List<SyncopeTreeNode> addChildToParent(List<SyncopeTreeNode> nodes,
+            SyncopeTreeNode child) {
         if (nodes.size() == 0) {
             nodes.add(child);
             return nodes;
@@ -146,7 +148,8 @@ public class SyncopeRoleTree {
 
     public TreeModel convertToTreeModel(List<SyncopeTreeNode> list) {
         TreeModel model = null;
-        DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode(new TreeModelBean("Root"));
+        DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode(
+                new TreeModelBean("Root"));
         add(rootNode, list);
         model = new DefaultTreeModel(rootNode);
         return model;
@@ -156,11 +159,13 @@ public class SyncopeRoleTree {
         for (Iterator<SyncopeTreeNode> i = sub.iterator(); i.hasNext();) {
             SyncopeTreeNode node = i.next();
             if (node.getChildren().size() > 0) {
-                DefaultMutableTreeNode child = new DefaultMutableTreeNode(new TreeModelBean(node));
+                DefaultMutableTreeNode child = new DefaultMutableTreeNode(
+                        new TreeModelBean(node));
                 parent.add(child);
                 add(child, node.getChildren());
             } else {
-                DefaultMutableTreeNode child = new DefaultMutableTreeNode(new TreeModelBean(node));
+                DefaultMutableTreeNode child = new DefaultMutableTreeNode(
+                        new TreeModelBean(node));
                 parent.add(child);
             }
         }

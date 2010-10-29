@@ -45,6 +45,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.springframework.web.client.RestClientException;
 import org.syncope.client.to.TaskExecutionTO;
 import org.syncope.client.to.TaskTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
@@ -91,8 +92,8 @@ public class Tasks extends BasePage {
         add(new FeedbackPanel("feedback").setOutputMarkupId(true));
 
         paginatorRows = utility.getPaginatorRowsToDisplay(Constants
-                .CONF_TASKS_PAGINATOR_ROWS);
-
+                    .CONF_TASKS_PAGINATOR_ROWS);
+        
         List<IColumn> columns = new ArrayList<IColumn>();
 
         columns.add(new PropertyColumn(new Model(getString("id")),

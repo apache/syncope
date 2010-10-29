@@ -66,6 +66,7 @@ import org.syncope.client.to.ResourceTO;
 import org.syncope.client.to.RoleTO;
 import org.syncope.client.to.SchemaTO;
 import org.syncope.client.to.UserTO;
+import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.SyncopeApplication;
 import org.syncope.console.commons.SchemaWrapper;
 import org.syncope.console.rest.ResourcesRestClient;
@@ -359,7 +360,8 @@ submit = new AjaxButton("submit", new Model(getString("submit"))) {
 
             window.close(target);
 
-        } catch (Exception e) {
+        } catch (SyncopeClientCompositeErrorException e) {
+            e.printStackTrace();
             error(getString("error") + ":" + e.getMessage());
         }
     }
@@ -446,10 +448,10 @@ ListView membershipsView = new ListView("memberships", membershipTOs) {
 
                     public Page createPage() {
 
-                        MembershipModalPage form = new MembershipModalPage(
+                        MembershipModalPage window = new MembershipModalPage(
                                 getPage(), createUserWin, membershipTO, false);
 
-                        return form;
+                        return window;
 
                     }
                 });

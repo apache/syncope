@@ -47,26 +47,13 @@ public class UsersRestClient {
      * Create a new user and start off the workflow.
      * @param userTO instance
      */
-    public void createUser(UserTO userTO) {
+    public void createUser(UserTO userTO)
+            throws SyncopeClientCompositeErrorException {
         UserTO newUserTO;
 
-        try {
-            // 1. create user
-            newUserTO = restClient.getRestTemplate().postForObject(
+        // Create user
+        newUserTO = restClient.getRestTemplate().postForObject(
             restClient.getBaseURL() + "user/create", userTO, UserTO.class);
-
-            //userTO.setId(newUserTO.getId());
-            //userTO.setToken(newUserTO.getToken());
-            //userTO.setTokenExpireTime(newUserTO.getTokenExpireTime());
-            
-//            newUserTO = restClient.getRestTemplate().postForObject(
-//                    restClient.getBaseURL()
-//                    + "user/activate", newUserTO, UserTO.class);
-
-        } catch (SyncopeClientCompositeErrorException e) {
-            e.printStackTrace();
-            throw e;
-        }
     }
 
     /**
@@ -74,17 +61,12 @@ public class UsersRestClient {
      * @param userTO
      * @return true is the opertion ends succesfully, false otherwise
      */
-    public boolean updateUser(final UserMod userModTO) {
+    public boolean updateUser(UserMod userModTO) throws
+            SyncopeClientCompositeErrorException{
         UserTO newUserTO = null;
 
-        try {
-
-            newUserTO = restClient.getRestTemplate().postForObject(
-            restClient.getBaseURL() + "user/update", userModTO, UserTO.class);
-        } catch (SyncopeClientCompositeErrorException e) {
-            e.printStackTrace();
-            throw e;
-        }
+        newUserTO = restClient.getRestTemplate().postForObject(
+        restClient.getBaseURL() + "user/update", userModTO, UserTO.class);
 
         return userModTO.getId() == newUserTO.getId();
     }
@@ -135,9 +117,8 @@ public class UsersRestClient {
     public boolean updateConfigurationAttributes(
             ConfigurationTO configurationTO) {
 
-        ConfigurationTO newConfigurationTO =
-                restClient.getRestTemplate().postForObject(
-                restClient.getBaseURL() + "configuration/update",
+        ConfigurationTO newConfigurationTO =  restClient.getRestTemplate()
+                .postForObject(restClient.getBaseURL() + "configuration/update",
                 configurationTO, ConfigurationTO.class);
 
         return configurationTO.equals(newConfigurationTO);
@@ -169,17 +150,13 @@ public class UsersRestClient {
      * @param userTO
      * @return UserTOs
      */
-    public List<UserTO> searchUsers(NodeCond nodeSearchCondition) {
+    public List<UserTO> searchUsers(NodeCond nodeSearchCondition) 
+            throws HttpServerErrorException {
         List<UserTO> matchedUsers = null;
 
-        try {
-            matchedUsers = restClient.getRestTemplate().postForObject(
+        matchedUsers = restClient.getRestTemplate().postForObject(
                     restClient.getBaseURL() + "user/search",
                     nodeSearchCondition, List.class);
-        } catch (HttpServerErrorException e) {
-            e.printStackTrace();
-            throw e;
-        }
 
         return matchedUsers;
     }

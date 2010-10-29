@@ -45,6 +45,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
+import org.springframework.web.client.RestClientException;
 import org.syncope.client.to.DerivedSchemaTO;
 import org.syncope.client.to.SchemaTO;
 import org.syncope.console.commons.Constants;
@@ -164,7 +165,7 @@ public class Schema extends BasePage
 
         membershipDerPageRows = utility.getPaginatorRowsToDisplay(Constants
                 .CONF_MEMBERSHIP_DER_SCHEMA_PAGINATOR_ROWS);
-
+        
         List<IColumn> rolesColumns = new ArrayList<IColumn>();
 
         rolesColumns.add(new PropertyColumn(new Model(getString("name")),

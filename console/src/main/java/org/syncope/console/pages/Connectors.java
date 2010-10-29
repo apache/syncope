@@ -86,12 +86,12 @@ public class Connectors extends BasePage {
         feedbackPanel = new FeedbackPanel("feedback");
         feedbackPanel.setOutputMarkupId( true );
 
-        add(feedbackPanel);       
+        add(feedbackPanel);
 
         paginatorRows = utility.getPaginatorRowsToDisplay(Constants
-                .CONF_CONNECTORS_PAGINATOR_ROWS);
+                    .CONF_CONNECTORS_PAGINATOR_ROWS);
 
-         List<IColumn> columns = new ArrayList<IColumn>();
+        List<IColumn> columns = new ArrayList<IColumn>();
 
         columns.add(new PropertyColumn(new Model(getString("id")),
                 "id", "id"));

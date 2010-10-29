@@ -30,7 +30,8 @@ import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
+import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table
+        .AjaxFallbackDefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
@@ -50,6 +51,7 @@ import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.springframework.web.client.HttpServerErrorException;
 import org.syncope.client.search.AttributeCond;
 import org.syncope.client.search.MembershipCond;
 import org.syncope.client.search.NodeCond;
@@ -130,8 +132,23 @@ public class Users extends BasePage {
 
         add(feedbackPanel);
 
+        /*try {
+            paginatorRows = utility.getPaginatorRowsToDisplay(Constants
+                    .CONF_USERS_PAGINATOR_ROWS);
+        }
+        catch(RestClientException e){
+           PageParameters errorParameters = new PageParameters();
+
+           errorParameters.add("errorTitle", getString("alert"));
+           errorParameters.add("errorMessage", getString("connectionError"));
+
+           setResponsePage(new ErrorPage(errorParameters));
+
+           return;
+        }*/
+        
         paginatorRows = utility.getPaginatorRowsToDisplay(Constants
-                .CONF_USERS_PAGINATOR_ROWS);
+                    .CONF_USERS_PAGINATOR_ROWS);
 
         List<IColumn> columns = new ArrayList<IColumn>();
 
@@ -600,7 +617,8 @@ public class Users extends BasePage {
 
                         //Clean the feedback panel if the operation succedes
                         target.addComponent(form.get("feedback"));
-                    } catch (Exception e) {
+                    } catch (HttpServerErrorException e) {
+                        e.printStackTrace();
                         error(e.getMessage());
                         return;
                     }
@@ -806,7 +824,7 @@ public class Users extends BasePage {
     /**
      * Wrapper class for displaying attribute
      */
-    public class AttributeWrapper {
+    public class AttributeWrapper implements Serializable {
 
         private String key;
         private String value;

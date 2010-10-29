@@ -16,6 +16,7 @@ package org.syncope.console.rest;
 
 import java.util.Arrays;
 import java.util.List;
+import org.springframework.web.client.RestClientException;
 import org.syncope.client.mod.RoleMod;
 import org.syncope.client.to.RoleTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
@@ -31,16 +32,12 @@ public class RolesRestClient {
      * Get all Roles.
      * @return SchemaTOs
      */
-    public List<RoleTO> getAllRoles() {
+    public List<RoleTO> getAllRoles()
+            throws SyncopeClientCompositeErrorException, RestClientException {
         List<RoleTO> roles = null;
 
-        try{
         roles =  Arrays.asList(restClient.getRestTemplate().getForObject(
                 restClient.getBaseURL() + "role/list.json", RoleTO[].class));
-        }
-        catch (SyncopeClientCompositeErrorException e) {
-            e.printStackTrace();
-        }
         
         return roles;
     }

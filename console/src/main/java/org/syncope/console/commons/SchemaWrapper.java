@@ -15,6 +15,7 @@
 
 package org.syncope.console.commons;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -23,7 +24,7 @@ import org.syncope.client.to.SchemaTO;
 /**
  * Wrapper for User's Schema - Attribute.
  */
-public class SchemaWrapper {
+public class SchemaWrapper implements Serializable {
 
     SchemaTO schemaTO;
     List<String> values;

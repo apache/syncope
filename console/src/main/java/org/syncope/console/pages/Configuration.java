@@ -46,6 +46,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.springframework.web.client.RestClientException;
 import org.syncope.client.to.ConfigurationTO;
 import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.Utility;
@@ -93,7 +94,7 @@ public class Configuration extends BasePage{
         add(editConfigWin = new ModalWindow("editConfigurationWin"));
 
         paginatorRows = utility.getPaginatorRowsToDisplay(Constants
-                .CONF_CONFIGURATION_PAGINATOR_ROWS);
+                    .CONF_CONFIGURATION_PAGINATOR_ROWS);
 
         List<IColumn> columns = new ArrayList<IColumn>();
 
@@ -311,9 +312,15 @@ public class Configuration extends BasePage{
         }
 
         public List<ConfigurationTO> getConfigurationsListDB(){
-        List<ConfigurationTO> list = restClient.getAllConfigurations();
-        
-        return list;
+        List<ConfigurationTO> list = null;
+
+            try {
+                list = restClient.getAllConfigurations();
+        }
+        catch(RestClientException rce) {
+            throw rce;
+        }
+            return list;
         }
 
         class SortableDataProviderComparator implements

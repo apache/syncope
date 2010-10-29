@@ -1,0 +1,105 @@
+<!--
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ under the License.
+-->
+<wicket:head>
+    <style type="text/css">
+        .ui-state-error, .ui-widget-content .ui-state-error, .ui-widget-header .ui-state-error  {
+            background:url("images/ui-bg_glass_95_fef1ec_1x400.png") repeat-x scroll 50% 50% #FEF1EC;
+            border:1px solid #CD0A0A;
+            color:#CD0A0A;
+            width: 400px;
+            padding: 0px;
+            margin-top: 200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        body {
+        background: url("css/images/ui-bg_diagonals-thick_20_666666_40x40.png") 
+            repeat scroll 50% 50% #666666;
+        }
+    </style>
+</wicket:head>
+<wicket:extend>
+    <div id="testa">
+        <img src="img/logo.png" alt="syncope" title="syncope" id="logo" />
+        <ul>
+            <li><span>
+                    <a href=#" wicket:id="schema"><img src="img/menu/notsel/schema.png" alt="Schema" width="80" height="80" /><br />
+                        <wicket:message key="schema"/>
+                    </a></span>
+            </li>
+            <li><span>
+                    <a href=#" wicket:id="users"><img src="img/menu/notsel/users.png" alt="Users" width="80" height="80" /><br />
+                        <wicket:message key="users"/>
+                    </a>
+                </span>
+            </li>
+            <li><span>
+                    <a href=#" wicket:id="roles"><img src="img/menu/notsel/roles.png" alt="Roles" width="80" height="80" /><br />
+                        <wicket:message key="roles"/>
+                    </a>
+                </span>
+            </li>
+            <li><span>
+                    <a href="#" wicket:id="resources"><img src="img/menu/notsel/resources.png" alt="Resources" width="80" height="80" /><br />
+                        <wicket:message key="resources"/>
+                    </a></span>
+            </li>
+            <li><span>
+                    <a href="#" wicket:id="connectors"><img src="img/menu/notsel/connectors.png" alt="Connectors" width="80" height="80" /><br />
+                        <wicket:message key="connectors"/>
+                    </a></span>
+            </li>
+            <li><span>
+                    <a href="#" wicket:id="report"><img src="img/menu/notsel/reports.png" alt="Report" width="80" height="80" /><br />
+                        <wicket:message key="report"/>
+                    </a>
+                </span>
+            </li>
+            <li><span>
+                    <a href="#" wicket:id="configuration"><img src="img/menu/notsel/configuration.png" alt="Configuration" width="80" height="80" /><br />
+                        <wicket:message key="configuration"/>
+                    </a></span>
+            </li>
+            <li><span>
+                    <a href="#" wicket:id="task"><img src="img/menu/notsel/task.png" alt="Task" width="80" height="80" /><br />
+                        <wicket:message key="task"/>
+                    </a>
+                </span>
+            </li>
+            <li style="float:right">
+                <a href="#" wicket:id="logout">
+                    <img src="img/menu/logout.png" alt="Roles" width="80"
+                         height="80" /><br />
+                    <wicket:message key="logout"/>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="ui-widget">
+        <div style="padding: 0pt 0.7em;" class="ui-state-error ui-corner-all">
+            <p><span style="float: left; margin-right: 0.3em;"
+                     class="ui-icon ui-icon-alert"></span>
+                <strong><span wicket:id="errorTitle"/></strong>
+                <div><span wicket:id="errorMessage"/></div>
+                <p>
+                    <a href="" wicket:id="home">
+                        <wicket:message key="home"/>
+                    </a>
+                </p>
+            </p>
+        </div>
+    </div>
+</wicket:extend>

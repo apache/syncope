@@ -43,6 +43,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.springframework.web.client.RestClientException;
 import org.syncope.client.to.ResourceTO;
 import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.Utility;
@@ -90,7 +91,7 @@ public class Resources extends BasePage {
         add(feedbackPanel);
 
         paginatorRows = utility.getPaginatorRowsToDisplay(Constants
-                .CONF_RESOURCES_PAGINATOR_ROWS);
+                    .CONF_RESOURCES_PAGINATOR_ROWS);
 
         List<IColumn> columns = new ArrayList<IColumn>();
 
