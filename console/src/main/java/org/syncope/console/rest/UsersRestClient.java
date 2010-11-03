@@ -154,9 +154,9 @@ public class UsersRestClient {
             throws HttpServerErrorException {
         List<UserTO> matchedUsers = null;
 
-        matchedUsers = restClient.getRestTemplate().postForObject(
+        matchedUsers = Arrays.asList(restClient.getRestTemplate().postForObject(
                     restClient.getBaseURL() + "user/search",
-                    nodeSearchCondition, List.class);
+                    nodeSearchCondition, UserTO[].class));
 
         return matchedUsers;
     }
