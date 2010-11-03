@@ -310,7 +310,7 @@ public class Tasks extends BasePage {
         List<TaskTO> list = restClient.getAllTasks();
 
         //Mock task for test purpose
-        if(list == null || list.size() == 0) {
+        /*if(list == null || list.size() == 0) {
         list = new ArrayList<TaskTO>();
         
         TaskTO task1 = new TaskTO();
@@ -330,7 +330,7 @@ public class Tasks extends BasePage {
         task1.setExecutions(executions);
 
         list.add(task1);
-        }
+        }*/
 
         return list;
         }
