@@ -25,6 +25,8 @@ import java.util.List;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.IAjaxCallDecorator;
+import org.apache.wicket.ajax.calldecorator.AjaxPreprocessingCallDecorator;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
@@ -45,7 +47,6 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.springframework.web.client.RestClientException;
 import org.syncope.client.to.TaskExecutionTO;
 import org.syncope.client.to.TaskTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
@@ -193,6 +194,19 @@ public class Tasks extends BasePage {
                             error(scce.getMessage());
                         }
                         target.addComponent(container);
+                    }
+
+                    @Override
+                    protected IAjaxCallDecorator getAjaxCallDecorator() {
+                        return new AjaxPreprocessingCallDecorator(super.getAjaxCallDecorator()) {
+                            private static final long serialVersionUID = 1L;
+
+                            @Override
+                            public CharSequence preDecorateScript(CharSequence script) {
+                                return "if (confirm('"+getString("confirmDelete")+"'))"
+                                        +"{"+script+"}";
+                            }
+                        };
                     }
                  };
                     DeleteLinkPanel panel = new DeleteLinkPanel(componentId,

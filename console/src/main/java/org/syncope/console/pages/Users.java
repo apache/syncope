@@ -26,6 +26,8 @@ import java.util.StringTokenizer;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.IAjaxCallDecorator;
+import org.apache.wicket.ajax.calldecorator.AjaxPreprocessingCallDecorator;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -212,6 +214,19 @@ public class Users extends BasePage {
                         target.addComponent(feedbackPanel);
 
                         target.addComponent(container);
+                    }
+
+                    @Override
+                    protected IAjaxCallDecorator getAjaxCallDecorator() {
+                        return new AjaxPreprocessingCallDecorator(super.getAjaxCallDecorator()) {
+                            private static final long serialVersionUID = 1L;
+
+                            @Override
+                            public CharSequence preDecorateScript(CharSequence script) {
+                                return "if (confirm('"+getString("confirmDelete")+"'))"
+                                        +"{"+script+"}";
+                            }
+                        };
                     }
                 };
 

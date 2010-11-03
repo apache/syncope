@@ -32,6 +32,8 @@ import java.util.logging.Logger;
 
 import org.apache.wicket.Application;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.IAjaxCallDecorator;
+import org.apache.wicket.ajax.calldecorator.AjaxPreprocessingCallDecorator;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.markup.html.form.palette.Palette;
@@ -221,6 +223,19 @@ final ListView roleAttributesView = new ListView("roleSchemas"
                         .size() - 1);
 
                 target.addComponent(container);
+            }
+
+            @Override
+            protected IAjaxCallDecorator getAjaxCallDecorator() {
+                return new AjaxPreprocessingCallDecorator(super.getAjaxCallDecorator()) {
+                    private static final long serialVersionUID = 1L;
+
+                    @Override
+                    public CharSequence preDecorateScript(CharSequence script) {
+                        return "if (confirm('"+getString("confirmDelete")+"'))"
+                                +"{"+script+"}";
+                    }
+                };
             }
         };
 

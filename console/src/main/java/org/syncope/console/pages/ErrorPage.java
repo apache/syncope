@@ -24,8 +24,6 @@ import org.apache.wicket.model.Model;
  */
 public class ErrorPage extends BasePage {
 
-    
-
     public ErrorPage(PageParameters parameters) {
         super(parameters);
         

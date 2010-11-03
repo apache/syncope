@@ -14,13 +14,14 @@
  */
 package org.syncope.console.wicket.markup.html.tree;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * SyncopeTreeNode wrapper class for RoleTO object.
  */
-public class SyncopeTreeNode {
+public class SyncopeTreeNode implements Serializable {
 
     Long id;
     Long parentId;
