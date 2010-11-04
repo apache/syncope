@@ -115,6 +115,11 @@
         <appender-ref ref="monitor"/>
     </logger>
 
+    <logger name="net.sf.ehcache.hibernate" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="monitor"/>
+    </logger>
+
     <logger name="org.springframework" additivity="false">
         <level value="INFO"/>
         <appender-ref ref="main"/>

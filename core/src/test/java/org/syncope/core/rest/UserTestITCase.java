@@ -21,7 +21,9 @@ import java.util.Collections;
 import static org.junit.Assert.*;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.annotation.ExpectedException;
@@ -282,6 +284,7 @@ public class UserTestITCase extends AbstractTest {
 
     @Test
     public final void search() {
+        // LIKE
         AttributeCond usernameLeafCond1 =
                 new AttributeCond(AttributeCond.Type.LIKE);
         usernameLeafCond1.setSchema("username");
@@ -307,6 +310,25 @@ public class UserTestITCase extends AbstractTest {
         for (UserTO user : matchedUsers) {
             assertNotNull(user);
         }
+
+        // ISNULL
+        AttributeCond isNullCond = new AttributeCond(AttributeCond.Type.ISNULL);
+        isNullCond.setSchema("loginDate");
+        searchCondition = NodeCond.getLeafCond(isNullCond);
+
+        matchedUsers = Arrays.asList(
+                restTemplate.postForObject(
+                BASE_URL + "user/search",
+                searchCondition, UserTO[].class));
+        assertNotNull(matchedUsers);
+        assertFalse(matchedUsers.isEmpty());
+        Set<Long> userIds = new HashSet<Long>(matchedUsers.size());
+        for (UserTO user : matchedUsers) {
+            userIds.add(user.getId());
+        }
+        assertEquals(2, userIds.size());
+        assertTrue(userIds.contains(2L));
+        assertTrue(userIds.contains(3L));
     }
 
     @Test

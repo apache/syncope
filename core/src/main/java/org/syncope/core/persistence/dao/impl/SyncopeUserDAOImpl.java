@@ -141,11 +141,13 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
             LOG.debug("Search condition:\n" + searchCondition);
         }
 
-        List<SyncopeUser> result = Collections.EMPTY_LIST;
+        List<SyncopeUser> result;
         try {
             result = doSearch(searchCondition);
         } catch (Throwable t) {
             LOG.error("While searching users", t);
+
+            result = Collections.EMPTY_LIST;
         }
 
         return result;
@@ -153,22 +155,43 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
 
     @Transactional(readOnly = true)
     private List<SyncopeUser> doSearch(final NodeCond nodeCond) {
-        List<SyncopeUser> result = null;
-        List<SyncopeUser> rightResult = null;
+        List<SyncopeUser> result;
+        List<SyncopeUser> rightResult;
 
         switch (nodeCond.getType()) {
             case LEAF:
             case NOT_LEAF:
-                Criteria criteria = getBaseCriteria().
-                        add(getCriterion(nodeCond));
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Criteria to be performed:\n" + criteria);
+                if (nodeCond.getAttributeCond() != null
+                        && nodeCond.getAttributeCond().getType()
+                        == AttributeCond.Type.ISNULL) {
+
+                    if (nodeCond.getType() == NodeCond.Type.NOT_LEAF) {
+                        nodeCond.setType(NodeCond.Type.LEAF);
+                        nodeCond.getAttributeCond().setType(
+                                AttributeCond.Type.ISNOTNULL);
+
+                        result = doSearch(nodeCond);
+                    } else {
+                        Query query = entityManager.createQuery(
+                                "SELECT e FROM SyncopeUser e WHERE e NOT IN ("
+                                + "SELECT u FROM SyncopeUser u "
+                                + "LEFT OUTER JOIN u.attributes ua "
+                                + "WHERE ua.schema.name = :schemaName)");
+                        query.setParameter("schemaName",
+                                nodeCond.getAttributeCond().getSchema());
+                        LOG.debug("Search query to be performed: {}", query);
+
+                        result = query.getResultList();
+                    }
+                } else {
+                    Criteria criteria = getBaseCriteria().
+                            add(getCriterion(nodeCond));
+                    LOG.debug("Criteria to be performed: {}", criteria);
+
+                    result = criteria.list();
                 }
 
-                result = criteria.list();
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Criteria result:\n" + result);
-                }
+                LOG.debug("Leaf result: {}", result);
                 break;
 
             case AND:
@@ -184,6 +207,7 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
                 break;
 
             default:
+                result = Collections.EMPTY_LIST;
         }
 
         return result;
@@ -227,37 +251,36 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
                                 + leafCond.getAttributeCond().getSchema()
                                 + "'");
                     } else {
-                        if (leafCond.getAttributeCond().getType()
-                                == AttributeCond.Type.ISNULL) {
+                        UserAttributeValue example =
+                                new UserAttributeValue();
+                        try {
+                            if (leafCond.getAttributeCond().getType()
+                                    == AttributeCond.Type.LIKE) {
+
+                                example.setStringValue(
+                                        leafCond.getAttributeCond().
+                                        getExpression());
+                            } else {
+                                example = userSchema.getValidator().
+                                        getValue(
+                                        leafCond.getAttributeCond().
+                                        getExpression(),
+                                        example);
+                            }
 
                             criterion = Restrictions.and(
                                     Restrictions.eq("a.schema.name",
                                     leafCond.getAttributeCond().getSchema()),
-                                    Restrictions.isEmpty("a.values"));
-                        } else {
-                            try {
-                                UserAttributeValue example =
-                                        userSchema.getValidator().
-                                        getValue(leafCond.getAttributeCond().
-                                        getExpression(),
-                                        new UserAttributeValue());
-                                criterion = Restrictions.and(
-                                        Restrictions.eq("a.schema.name",
-                                        leafCond.getAttributeCond().
-                                        getSchema()),
-                                        getCriterion(
-                                        leafCond.getAttributeCond().getType(),
-                                        example));
-                            } catch (ValidationException e) {
-                                LOG.error("Could not validate expression '"
-                                        + leafCond.getAttributeCond().
-                                        getExpression() + "'", e);
-                            }
+                                    getCriterion(
+                                    leafCond.getAttributeCond().getType(),
+                                    example));
+                        } catch (ValidationException e) {
+                            LOG.error("Could not validate expression '"
+                                    + leafCond.getAttributeCond().
+                                    getExpression() + "'", e);
                         }
                     }
-
                 }
-
 
                 break;
 
@@ -265,6 +288,8 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
                 leafCond.setType(NodeCond.Type.LEAF);
                 criterion = Restrictions.not(getCriterion(leafCond));
                 break;
+
+            default:
         }
 
         return criterion;
@@ -343,9 +368,8 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
 
             case LIKE:
                 // LIKE operator is meaningful for strings only
-                result = Restrictions.disjunction().
-                        add(Restrictions.like("av.stringValue",
-                        example.getStringValue()));
+                result = Restrictions.like("av.stringValue",
+                        example.getStringValue());
                 break;
 
             case LT:
