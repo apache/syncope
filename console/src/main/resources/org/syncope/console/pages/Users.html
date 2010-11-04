@@ -201,40 +201,47 @@
                         </p>
                         <img src="img/search.png" alt="search"/>
                         <h1 style="display:inline"><wicket:message key="search_results_title"/></h1>
-                        <table id="users" class="ui-widget ui-widget-content" wicket:id="searchResultsContainer">
-                            <thead>
-                                <tr class="ui-widget-header">
-                                    <th><wicket:message key="id"/></th>
-                            <th><wicket:message key="status"/></th>
-                            <th><wicket:message key="token"/></th>
-                            <th><wicket:message key="edit"/></th>
-                            <th><wicket:message key="delete"/></th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                                <tr wicket:id="results">
-                                    <td>
-                                        <span wicket:id="id">[id]</span>
-                                    </td>
-                                    <td>
-                                        <span wicket:id="status">[status]</span>
-                                    </td>
-                                    <td>
-                                        <span wicket:id="token">[token]</span>
-                                    </td>
-                                    <td>
-                                        <a href="#" wicket:id="editLink">
-                                            <wicket:message key="edit"/>
-                                        </a>
-                                    </td>
-                                    <td>
-                                        <a href="#" wicket:id="deleteLink">
-                                            <wicket:message key="delete"/>
-                                        </a>
-                                    </td>
+                        <span wicket:id="searchResultsContainer">
+                            <table id="users" class="ui-widget ui-widget-content">
+                                <thead>
+                                    <tr class="ui-widget-header">
+                                        <th><wicket:message key="id"/></th>
+                                <th><wicket:message key="status"/></th>
+                                <th><wicket:message key="token"/></th>
+                                <th><wicket:message key="edit"/></th>
+                                <th><wicket:message key="delete"/></th>
                                 </tr>
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    <tr wicket:id="results">
+                                        <td>
+                                            <span wicket:id="id">[id]</span>
+                                        </td>
+                                        <td>
+                                            <span wicket:id="status">[status]</span>
+                                        </td>
+                                        <td>
+                                            <span wicket:id="token">[token]</span>
+                                        </td>
+                                        <td>
+                                            <a href="#" wicket:id="editLink">
+                                                <wicket:message key="edit"/>
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <a href="#" wicket:id="deleteLink">
+                                                <wicket:message key="delete"/>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <span>
+                                <b>
+                                    <span wicket:id="noResults"/>
+                                </b>
+                            </span>
+                        </span>
                     </div>
                 </div>
             </form>

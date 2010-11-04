@@ -614,6 +614,11 @@ public class Users extends BasePage {
         searchResultsContainer.setOutputMarkupId(true);
         searchResultsContainer.add(resultsView);
 
+        //Display warning message if no serach matches have been found
+        final Label noResults = new Label("noResults",new Model<String>(""));
+        noResults.setOutputMarkupId(true);
+        searchResultsContainer.add(noResults);
+
         setWindowClosedCallback(editUserWin, searchResultsContainer);
 
         form.add(new AjaxButton("search", new Model(getString("search"))) {
@@ -640,6 +645,12 @@ public class Users extends BasePage {
                 } else {
                     error(getString("search_error"));
                 }
+
+                if(searchMatchedUsers.isEmpty())
+                    noResults.setDefaultModel(new Model<String>(
+                            getString("search_noResults")));
+                else
+                     noResults.setDefaultModel(new Model<String>(""));
 
                 target.addComponent(searchResultsContainer);
             }
