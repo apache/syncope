@@ -14,16 +14,23 @@
  */
 package org.syncope.client.to;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 
 public class UserTO extends AbstractAttributableTO {
 
     private String password;
+
     private List<MembershipTO> memberships;
+
     private String status;
+
     private String token;
+
     private Date tokenExpireTime;
 
     public UserTO() {
@@ -78,5 +85,16 @@ public class UserTO extends AbstractAttributableTO {
 
     public void setTokenExpireTime(Date tokenExpireTime) {
         this.tokenExpireTime = tokenExpireTime;
+    }
+
+    @Override
+    public String toString() {
+        return (new ReflectionToStringBuilder(this,
+                ToStringStyle.MULTI_LINE_STYLE) {
+
+            protected boolean accept(Field f) {
+                return super.accept(f) && !f.getName().equals("password");
+            }
+        }).toString();
     }
 }
