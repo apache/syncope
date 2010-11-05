@@ -80,14 +80,6 @@
         </property>
         <property name="jpaPropertyMap">
             <map>
-                <!-- JTA support for Hibernate -->
-                <entry key="hibernate.transaction.flush_before_completion"
-                       value="true"/>
-                <entry key="hibernate.current_session_context_class"
-                       value="jta"/>
-                <entry key="hibernate.connection.release_mode"
-                       value="auto"/>
-
                 <!-- Second level cache -->
                 <entry key="hibernate.cache.use_second_level_cache" value="true"/>
                 <entry key="hibernate.cache.use_query_cache" value="true"/>
@@ -100,18 +92,6 @@
                 <entry key="hibernate.generate_statistics" value="true"/>
             </map>
         </property>
-        <property name="persistenceUnitPostProcessors">
-            <list>
-                <bean class="org.syncope.core.persistence.transaction.JTAPersistenceUnitPostProcessor">
-                    <property name="jtaMode" value="${jtaMode}"/>
-                    <property name="jtaDataSource" ref="dataSource"/>
-                    <property name="transactionManagerLookupKey"
-                              value="hibernate.transaction.manager_lookup_class"/>
-                    <property name="transactionManagerLookupValue"
-                              value="${transactionManagerLookupValue}"/>
-                </bean>
-            </list>
-        </property>
     </bean>
 
     <bean id="entityManager"
@@ -120,17 +100,12 @@
     </bean>
 
     <tx:annotation-driven/>
-    <bean id="jpaTransactionManager"
+    <bean id="transactionManager"
           class="org.springframework.orm.jpa.JpaTransactionManager">
         <property name="entityManagerFactory" ref="entityManagerFactory"/>
     </bean>
-    <bean id="transactionManager"
-          class="org.syncope.core.persistence.transaction.SpringJTAWithJPAFallbackTransactionManager">
-        <property name="jpaTransactionManager" ref="jpaTransactionManager"/>
-    </bean>
 
-    <bean id="jexlEngine"
-          class="org.apache.commons.jexl2.JexlEngine">
+    <bean id="jexlEngine" class="org.apache.commons.jexl2.JexlEngine">
         <property name="cache" value="512"/>
         <property name="lenient" value="true"/>
         <property name="silent" value="false"/>

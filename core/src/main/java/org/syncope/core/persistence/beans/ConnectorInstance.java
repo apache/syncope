@@ -2,9 +2,9 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -30,6 +30,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -52,11 +53,13 @@ public class ConnectorInstance extends AbstractBaseBean {
     generator = "SEQ_ConnectorInstance")
     @TableGenerator(name = "SEQ_ConnectorInstance", allocationSize = 20)
     private Long id;
+
     /**
-     * Connector class name prefix used to retrieve configuration bean
+     * Connector class name prefix used to retrieve configuration bean.
      */
     @Column(nullable = false)
     private String connectorName;
+
     /**
      * ConnectorBundle-Name: Qualified name for the connector bundle.
      * Within a given deployment, the pair (ConnectorBundle-Name,
@@ -64,6 +67,7 @@ public class ConnectorInstance extends AbstractBaseBean {
      */
     @Column(nullable = false)
     private String bundleName;
+
     /**
      * ConnectorBundle-Version: The version of the bundle. Within a given
      * deployment, the pair (ConnectorBundle-Name, ConnectorBundle-Version)
@@ -71,12 +75,14 @@ public class ConnectorInstance extends AbstractBaseBean {
      */
     @Column(nullable = false)
     private String version;
+
     /**
      * The set of capabilities supported by this connector instance.
      */
-    @CollectionOfElements(targetElement = ConnectorCapability.class)
+    @CollectionOfElements(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
     private Set<ConnectorCapability> capabilities;
+
     /**
      * The main configuration for the connector instance.
      * This is directly implemented by the Configuration bean class which
@@ -85,6 +91,7 @@ public class ConnectorInstance extends AbstractBaseBean {
     @Lob
     @Column(nullable = false)
     private String xmlConfiguration;
+
     /**
      * Provisioning target resources associated to the connector.
      * The connector can be considered the resource's type.
