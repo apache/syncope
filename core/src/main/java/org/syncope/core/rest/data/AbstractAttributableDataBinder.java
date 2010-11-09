@@ -114,12 +114,12 @@ public abstract class AbstractAttributableDataBinder {
                 LOG.debug("Ignoring invalid schema " + schemaName);
             }
         } else if (schema.isVirtual() || schema.isReadonly()) {
-            schema = null;
+                schema = null;
 
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Ignoring virtual or readonly schema " + schemaName);
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Ignoring virtual or readonly schema " + schemaName);
+                }
             }
-        }
 
         return schema;
     }
@@ -601,7 +601,10 @@ public abstract class AbstractAttributableDataBinder {
                     }
 
                     fillAttribute(attributeTO.getValues(),
-                            attributableUtil, schema, attribute, invalidValues);
+                            attributableUtil,
+                            schema,
+                            attribute,
+                            invalidValues);
 
                     if (!attribute.getValues().isEmpty()) {
                         attributable.addAttribute(attribute);

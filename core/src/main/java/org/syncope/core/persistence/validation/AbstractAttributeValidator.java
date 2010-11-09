@@ -76,8 +76,11 @@ public abstract class AbstractAttributeValidator implements AttributeValidator {
 
             case Date:
                 try {
-                    attributeValue.setDateValue(new Date(schema.getFormatter(
-                            SimpleDateFormat.class).parse(value).getTime()));
+                    final SimpleDateFormat formatter =
+                            schema.getFormatter(SimpleDateFormat.class);
+                    formatter.setLenient(false);
+                    attributeValue.setDateValue(
+                            new Date(formatter.parse(value).getTime()));
                 } catch (java.text.ParseException pe) {
                     exception = pe;
                 }
