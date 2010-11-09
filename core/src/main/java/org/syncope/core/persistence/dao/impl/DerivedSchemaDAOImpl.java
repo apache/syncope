@@ -2,9 +2,9 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,8 +14,9 @@
  */
 package org.syncope.core.persistence.dao.impl;
 
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import javax.persistence.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -35,8 +36,8 @@ public class DerivedSchemaDAOImpl extends AbstractDAOImpl
 
     @Override
     @Transactional(readOnly = true)
-    public <T extends AbstractDerivedSchema> T find(String name,
-            Class<T> reference) {
+    public <T extends AbstractDerivedSchema> T find(final String name,
+            final Class<T> reference) {
 
         return entityManager.find(reference, name);
     }
@@ -44,7 +45,7 @@ public class DerivedSchemaDAOImpl extends AbstractDAOImpl
     @Override
     @Transactional(readOnly = true)
     public <T extends AbstractDerivedSchema> List<T> findAll(
-            Class<T> reference) {
+            final Class<T> reference) {
 
         Query query = entityManager.createQuery(
                 "SELECT e FROM " + reference.getSimpleName() + " e");
@@ -52,13 +53,13 @@ public class DerivedSchemaDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    public <T extends AbstractDerivedSchema> T save(T derivedSchema) {
+    public <T extends AbstractDerivedSchema> T save(final T derivedSchema) {
         return entityManager.merge(derivedSchema);
     }
 
     @Override
-    public <T extends AbstractDerivedSchema> void delete(String name,
-            Class<T> reference) {
+    public <T extends AbstractDerivedSchema> void delete(final String name,
+            final Class<T> reference) {
 
         T derivedSchema = find(name, reference);
         if (derivedSchema == null) {
@@ -68,16 +69,20 @@ public class DerivedSchemaDAOImpl extends AbstractDAOImpl
         for (AbstractSchema schema : derivedSchema.getSchemas()) {
             schema.removeDerivedSchema(derivedSchema);
         }
-        derivedSchema.setSchemas(Collections.EMPTY_SET);
+        derivedSchema.getSchemas().clear();
 
-        for (AbstractDerivedAttribute derivedAttribute :
+        Set<Long> derivedAttributeIds =
+                new HashSet<Long>(derivedSchema.getDerivedAttributes().size());
+        Class attributeClass = null;
+        for (AbstractDerivedAttribute attribute :
                 derivedSchema.getDerivedAttributes()) {
 
-            derivedAttribute.setDerivedSchema(null);
-            derivedAttributeDAO.delete(derivedAttribute.getId(),
-                    derivedAttribute.getClass());
+            derivedAttributeIds.add(attribute.getId());
+            attributeClass = attribute.getClass();
         }
-        derivedSchema.setDerivedAttributes(Collections.EMPTY_LIST);
+        for (Long derivedAttributeId : derivedAttributeIds) {
+            derivedAttributeDAO.delete(derivedAttributeId, attributeClass);
+        }
 
         entityManager.remove(derivedSchema);
     }

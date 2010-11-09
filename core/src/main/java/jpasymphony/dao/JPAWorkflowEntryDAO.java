@@ -12,13 +12,21 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.persistence.validation;
+package jpasymphony.dao;
 
-import org.syncope.core.persistence.beans.AbstractAttributeValue;
+import java.util.List;
+import jpasymphony.beans.JPAWorkflowEntry;
+import org.syncope.core.persistence.dao.DAO;
 
-public interface AttributeValidator {
+public interface JPAWorkflowEntryDAO extends DAO {
 
-    <T extends AbstractAttributeValue> T getValue(String value,
-            T attributeValue)
-            throws ParseException, ValidationFailedException;
+    JPAWorkflowEntry find(Long id);
+
+    List<JPAWorkflowEntry> findAll();
+
+    JPAWorkflowEntry save(JPAWorkflowEntry entry);
+
+    void delete(Long id);
+
+    void deleteCurrentStep(Long stepId);
 }

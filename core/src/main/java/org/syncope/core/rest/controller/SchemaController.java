@@ -37,6 +37,7 @@ public class SchemaController extends AbstractController {
 
     @Autowired
     private SchemaDAO schemaDAO;
+
     @Autowired
     private SchemaDataBinder schemaDataBinder;
 

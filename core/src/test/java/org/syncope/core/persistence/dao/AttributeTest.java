@@ -21,16 +21,17 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.user.UserAttribute;
-import org.syncope.core.persistence.beans.user.UserAttributeValue;
 import org.syncope.core.persistence.beans.user.UserSchema;
 import org.syncope.core.persistence.validation.ValidationException;
 import org.syncope.core.persistence.AbstractTest;
+import org.syncope.core.rest.data.AttributableUtil;
 
 @Transactional
 public class AttributeTest extends AbstractTest {
 
     @Autowired
     private AttributeDAO attributeDAO;
+
     @Autowired
     private SchemaDAO userSchemaDAO;
 
@@ -52,7 +53,8 @@ public class AttributeTest extends AbstractTest {
     }
 
     @Test
-    public final void save() throws ClassNotFoundException {
+    public final void save()
+            throws ClassNotFoundException {
         UserSchema emailSchema = userSchemaDAO.find("email", UserSchema.class);
         assertNotNull(emailSchema);
 
@@ -61,10 +63,8 @@ public class AttributeTest extends AbstractTest {
 
         Exception thrown = null;
         try {
-            attribute.addValue("john.doe@gmail.com",
-                    new UserAttributeValue());
-            attribute.addValue("mario.rossi@gmail.com",
-                    new UserAttributeValue());
+            attribute.addValue("john.doe@gmail.com", AttributableUtil.USER);
+            attribute.addValue("mario.rossi@gmail.com", AttributableUtil.USER);
         } catch (ValidationException e) {
             LOG.error("Unexpected exception", e);
             thrown = e;
@@ -72,8 +72,7 @@ public class AttributeTest extends AbstractTest {
         assertNull("no validation exception expected here ", thrown);
 
         try {
-            attribute.addValue("http://www.apache.org",
-                    new UserAttributeValue());
+            attribute.addValue("http://www.apache.org", AttributableUtil.USER);
         } catch (ValidationException e) {
             thrown = e;
         }

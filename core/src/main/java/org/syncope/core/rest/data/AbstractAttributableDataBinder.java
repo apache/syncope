@@ -114,12 +114,12 @@ public abstract class AbstractAttributableDataBinder {
                 LOG.debug("Ignoring invalid schema " + schemaName);
             }
         } else if (schema.isVirtual() || schema.isReadonly()) {
-                schema = null;
+            schema = null;
 
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Ignoring virtual or readonly schema " + schemaName);
-                }
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Ignoring virtual or readonly schema " + schemaName);
             }
+        }
 
         return schema;
     }
@@ -137,13 +137,11 @@ public abstract class AbstractAttributableDataBinder {
         return derivedSchema;
     }
 
-    private TargetResource getResource(String resourceName) {
+    private TargetResource getResource(final String resourceName) {
         TargetResource resource = resourceDAO.find(resourceName);
 
         if (resource == null) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Ignoring invalid resource " + resourceName);
-            }
+            LOG.debug("Ignoring invalid resource {} ", resourceName);
         }
 
         return resource;
@@ -168,16 +166,11 @@ public abstract class AbstractAttributableDataBinder {
         AbstractAttributeValue attributeValue;
         for (String value : valuesProvided) {
             if (value == null || value.isEmpty()) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Null value for " + schema.getName()
-                            + ", ignoring");
-                }
+                LOG.debug("Null value for {}, ignoring", schema.getName());
             } else {
-                attributeValue = attributableUtil.newAttributeValue();
-
                 try {
                     attributeValue = attribute.addValue(value,
-                            attributeValue);
+                            attributableUtil);
                 } catch (ValidationException e) {
                     LOG.error("Invalid value for attribute "
                             + schema.getName() + ": " + value, e);
@@ -283,10 +276,7 @@ public abstract class AbstractAttributableDataBinder {
         resources.addAll(attributable.getTargetResources());
         resources.addAll(attributable.getInheritedTargetResources());
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Check mandatory constraint among resources "
-                    + resources);
-        }
+        LOG.debug("Check mandatory constraint among resources {}", resources);
 
         // Check if there is some mandatory schema defined for which no value
         // has been provided
@@ -384,7 +374,7 @@ public abstract class AbstractAttributableDataBinder {
         }
 
         // 2. attributes to be updated
-        Set<Long> valuesToBeRemoved = null;
+        Set<Long> valuesToBeRemoved;
         for (AttributeMod attributeMod :
                 attributableMod.getAttributesToBeUpdated()) {
 
@@ -451,9 +441,7 @@ public abstract class AbstractAttributableDataBinder {
             compositeErrorException.addException(requiredValuesMissing);
         }
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("About attributes to be updated:\n" + resourceOperations);
-        }
+        LOG.debug("About attributes to be updated:\n{}", resourceOperations);
 
         // 3. derived attributes to be removed
         for (String derivedAttributeToBeRemoved :
@@ -473,20 +461,16 @@ public abstract class AbstractAttributableDataBinder {
                 derivedAttribute = attributable.getDerivedAttribute(
                         derivedSchema.getName());
                 if (derivedAttribute == null) {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("No derived attribute found for schema "
-                                + derivedSchema.getName());
-                    }
+                    LOG.debug("No derived attribute found for schema {}",
+                            derivedSchema.getName());
                 } else {
                     derivedAttributeDAO.delete(derivedAttribute);
                 }
             }
         }
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("About derived attributes to be removed:\n"
-                    + resourceOperations);
-        }
+        LOG.debug("About derived attributes to be removed:\n{}",
+                resourceOperations);
 
         // 4. derived attributes to be added
         for (String derivedAttributeToBeAdded :
@@ -510,13 +494,11 @@ public abstract class AbstractAttributableDataBinder {
             }
         }
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("About derived attributes to be added:\n"
-                    + resourceOperations);
-        }
+        LOG.debug("About derived attributes to be added:\n{}",
+                resourceOperations);
 
         // 5. resources to be removed
-        TargetResource resource = null;
+        TargetResource resource;
         for (String resourceToBeRemoved :
                 attributableMod.getResourcesToBeRemoved()) {
 
@@ -536,9 +518,7 @@ public abstract class AbstractAttributableDataBinder {
             }
         }
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("About resources to be removed:\n" + resourceOperations);
-        }
+        LOG.debug("About resources to be removed:\n{}", resourceOperations);
 
         // 6. resources to be added
         for (String resourceToBeAdded :
@@ -560,9 +540,7 @@ public abstract class AbstractAttributableDataBinder {
             }
         }
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("About resources to be added:\n" + resourceOperations);
-        }
+        LOG.debug("About resources to be added:\n{}", resourceOperations);
 
         // Throw composite exception if there is at least one element set
         // in the composing exceptions
@@ -625,8 +603,8 @@ public abstract class AbstractAttributableDataBinder {
         }
 
         // 2. derived attributes
-        AbstractDerivedSchema derivedSchema = null;
-        AbstractDerivedAttribute derivedAttribute = null;
+        AbstractDerivedSchema derivedSchema;
+        AbstractDerivedAttribute derivedAttribute;
         for (AttributeTO attributeTO : attributableTO.getDerivedAttributes()) {
 
             derivedSchema = getDerivedSchema(attributeTO.getSchema(),
@@ -641,7 +619,7 @@ public abstract class AbstractAttributableDataBinder {
         }
 
         // 3. resources
-        TargetResource resource = null;
+        TargetResource resource;
         for (String resourceName : attributableTO.getResources()) {
             resource = getResource(resourceName);
 

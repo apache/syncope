@@ -166,8 +166,7 @@
         </dependency>
         <dependency>
             <groupId>net.sf.ehcache</groupId>
-            <artifactId>ehcache</artifactId>
-            <type>pom</type>
+            <artifactId>ehcache-core</artifactId>
         </dependency>
         <dependency>
             <groupId>net.sf.ehcache</groupId>

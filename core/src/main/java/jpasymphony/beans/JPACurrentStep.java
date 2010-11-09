@@ -12,13 +12,24 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.persistence.validation;
+package jpasymphony.beans;
 
-import org.syncope.core.persistence.beans.AbstractAttributeValue;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
-public interface AttributeValidator {
+@Entity
+@Table(name = "os_currentstep")
+public class JPACurrentStep extends AbstractJPAStep {
 
-    <T extends AbstractAttributeValue> T getValue(String value,
-            T attributeValue)
-            throws ParseException, ValidationFailedException;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
+
+    @Override
+    public long getId() {
+        return id;
+    }
 }

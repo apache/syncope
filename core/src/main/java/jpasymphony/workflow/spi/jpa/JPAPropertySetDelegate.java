@@ -2,9 +2,9 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -12,32 +12,30 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.workflow;
+package jpasymphony.workflow.spi.jpa;
 
 import com.opensymphony.module.propertyset.PropertySet;
 import com.opensymphony.module.propertyset.PropertySetManager;
 import com.opensymphony.workflow.util.PropertySetDelegate;
 import java.util.HashMap;
 import java.util.Map;
+import jpasymphony.dao.JPAPropertySetItemDAO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.syncope.core.persistence.dao.OSWorkflowPropertyDAO;
 
-public class PropertySetDelegateImpl implements PropertySetDelegate {
+public class JPAPropertySetDelegate implements PropertySetDelegate {
 
-    private OSWorkflowPropertyDAO osWorkflowPropertyDAO;
+    final public static String DAO = "propertySetItemDAO";
+
+    final public static String ENTRY_ID = "entryId";
 
     @Autowired
-    public PropertySetDelegateImpl(
-            OSWorkflowPropertyDAO osWorkflowPropertyDAO) {
-
-        this.osWorkflowPropertyDAO = osWorkflowPropertyDAO;
-    }
+    private JPAPropertySetItemDAO propertySetItemDAO;
 
     @Override
     public PropertySet getPropertySet(long entryId) {
         Map<String, Object> args = new HashMap<String, Object>();
-        args.put("entryId", Long.valueOf(entryId));
-        args.put("osWorkflowPropertyDAO", osWorkflowPropertyDAO);
+        args.put(ENTRY_ID, Long.valueOf(entryId));
+        args.put(DAO, propertySetItemDAO);
 
         return PropertySetManager.getInstance("jpa", args);
     }

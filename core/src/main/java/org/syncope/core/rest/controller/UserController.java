@@ -40,6 +40,7 @@ import java.util.Map;
 import java.util.Set;
 import javassist.NotFoundException;
 import javax.servlet.http.HttpServletResponse;
+import jpasymphony.dao.JPAWorkflowEntryDAO;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.servlet.ModelAndView;
 import org.syncope.client.mod.UserMod;
@@ -54,7 +55,6 @@ import org.syncope.core.persistence.propagation.PropagationManager;
 import org.syncope.core.persistence.propagation.ResourceOperations;
 import org.syncope.core.rest.data.InvalidSearchConditionException;
 import org.syncope.core.workflow.Constants;
-import org.syncope.core.workflow.SpringHibernateJPAWorkflowStore;
 import org.syncope.core.workflow.WorkflowInitException;
 import org.syncope.types.SyncopeClientExceptionType;
 
@@ -66,13 +66,13 @@ public class UserController extends AbstractController {
     private SyncopeUserDAO syncopeUserDAO;
 
     @Autowired
+    private JPAWorkflowEntryDAO workflowEntryDAO;
+
+    @Autowired
     private UserDataBinder userDataBinder;
 
     @Autowired
     private Workflow userWorkflow;
-
-    @Autowired(required = false)
-    private SpringHibernateJPAWorkflowStore workflowStore;
 
     @Autowired
     private PropagationManager propagationManager;
@@ -333,8 +333,8 @@ public class UserController extends AbstractController {
             wie = e;
 
             // Removing dirty workflow entry
-            if (workflowStore != null && e.getWorkflowEntryId() != null) {
-                workflowStore.delete(e.getWorkflowEntryId());
+            if (e.getWorkflowEntryId() != null) {
+                workflowEntryDAO.delete(e.getWorkflowEntryId());
             }
 
             // Use the found workflow id
@@ -492,8 +492,8 @@ public class UserController extends AbstractController {
         propagationManager.delete(user, syncResourceNames);
 
         // Now that delete has been propagated, let's remove everything
-        if (workflowStore != null && user.getWorkflowId() != null) {
-            workflowStore.delete(user.getWorkflowId());
+        if (user.getWorkflowId() != null) {
+            workflowEntryDAO.delete(user.getWorkflowId());
         }
         syncopeUserDAO.delete(userId);
     }

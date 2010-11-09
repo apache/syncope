@@ -17,6 +17,5 @@
              xsi:schemaLocation="http://java.sun.com/xml/ns/persistence
              http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd"
              version="1.0">
-    <!-- transaction-type is set to non-JTA by default, but changed by Spring, if configured -->
     <persistence-unit name="syncopePersistenceUnit" transaction-type="RESOURCE_LOCAL"/>
 </persistence>

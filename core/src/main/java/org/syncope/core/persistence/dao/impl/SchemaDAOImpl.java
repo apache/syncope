@@ -2,9 +2,9 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,8 +14,9 @@
  */
 package org.syncope.core.persistence.dao.impl;
 
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import javax.persistence.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -35,6 +36,7 @@ public class SchemaDAOImpl extends AbstractDAOImpl
 
     @Autowired
     private AttributeDAO attributeDAO;
+
     @Autowired
     private ResourceDAO resourceDAO;
 
@@ -80,14 +82,18 @@ public class SchemaDAOImpl extends AbstractDAOImpl
         for (AbstractDerivedSchema derivedSchema : schema.getDerivedSchemas()) {
             derivedSchema.removeSchema(schema);
         }
+        schema.getDerivedSchemas().clear();
 
-        schema.setDerivedSchemas(Collections.EMPTY_LIST);
-
+        Set<Long> attributeIds =
+                new HashSet<Long>(schema.getAttributes().size());
+        Class attributeClass = null;
         for (AbstractAttribute attribute : schema.getAttributes()) {
-            attribute.setSchema(null);
-            attributeDAO.delete(attribute.getId(), attribute.getClass());
+            attributeIds.add(attribute.getId());
+            attributeClass = attribute.getClass();
         }
-        schema.setAttributes(Collections.EMPTY_LIST);
+        for (Long attributeId : attributeIds) {
+            attributeDAO.delete(attributeId, attributeClass);
+        }
 
         resourceDAO.deleteMappings(name, SchemaType.byClass(reference));
 

@@ -2,9 +2,9 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,8 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.role.RoleSchema;
 import org.syncope.core.persistence.beans.user.UserSchema;
-import org.syncope.core.persistence.dao.ResourceDAO;
-import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.validation.MultiUniqueValueException;
 import org.syncope.core.persistence.AbstractTest;
 import org.syncope.types.SchemaValueType;
@@ -33,8 +31,9 @@ public class SchemaTest extends AbstractTest {
 
     @Autowired
     private SchemaDAO schemaDAO;
+
     @Autowired
-    private ResourceDAO resourceDAO;
+    private AttributeDAO attributeDAO;
 
     @Test
     public final void findAll() {

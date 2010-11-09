@@ -163,21 +163,29 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
                 if (membershipToBeAddedRoleIds.contains(
                         membership.getSyncopeRole().getId())) {
 
+                    Set<Long> attributeIds = new HashSet<Long>(
+                            membership.getAttributes().size());
                     for (AbstractAttribute attribute :
                             membership.getAttributes()) {
 
-                        attributeDAO.delete(attribute.getId(),
+                        attributeIds.add(attribute.getId());
+                    }
+                    for (Long attributeId : attributeIds) {
+                        attributeDAO.delete(attributeId,
                                 MembershipAttribute.class);
                     }
-                    membership.getAttributes().clear();
 
+                    Set<Long> derivedAttributeIds = new HashSet<Long>(
+                            membership.getDerivedAttributes().size());
                     for (AbstractDerivedAttribute derivedAttribute :
                             membership.getDerivedAttributes()) {
 
-                        derivedAttributeDAO.delete(derivedAttribute.getId(),
+                        derivedAttributeIds.add(derivedAttribute.getId());
+                    }
+                    for (Long derivedAttributeId : derivedAttributeIds) {
+                        derivedAttributeDAO.delete(derivedAttributeId,
                                 MembershipDerivedAttribute.class);
                     }
-                    membership.getDerivedAttributes().clear();
                 } else {
                     user.removeMembership(membership);
 

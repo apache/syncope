@@ -2,9 +2,9 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -28,7 +28,7 @@ public class DerivedAttributeDAOImpl extends AbstractDAOImpl
     @Override
     @Transactional(readOnly = true)
     public <T extends AbstractDerivedAttribute> T find(
-            Long id, Class<T> reference) {
+            final Long id, final Class<T> reference) {
 
         return entityManager.find(reference, id);
     }
@@ -36,7 +36,7 @@ public class DerivedAttributeDAOImpl extends AbstractDAOImpl
     @Override
     @Transactional(readOnly = true)
     public <T extends AbstractDerivedAttribute> List<T> findAll(
-            Class<T> reference) {
+            final Class<T> reference) {
 
         Query query = entityManager.createQuery(
                 "SELECT e FROM " + reference.getSimpleName() + " e");
@@ -45,13 +45,15 @@ public class DerivedAttributeDAOImpl extends AbstractDAOImpl
 
     @Override
     @Transactional
-    public <T extends AbstractDerivedAttribute> T save(T derivedAttribute) {
+    public <T extends AbstractDerivedAttribute> T save(
+            final T derivedAttribute) {
+
         return entityManager.merge(derivedAttribute);
     }
 
     @Override
     public <T extends AbstractDerivedAttribute> void delete(
-            Long id, Class<T> reference) {
+            final Long id, final Class<T> reference) {
 
         T derivedAttribute = find(id, reference);
         if (derivedAttribute == null) {
@@ -63,7 +65,7 @@ public class DerivedAttributeDAOImpl extends AbstractDAOImpl
 
     @Override
     public <T extends AbstractDerivedAttribute> void delete(
-            T derivedAttribute) {
+            final T derivedAttribute) {
 
         if (derivedAttribute.getOwner() != null) {
             derivedAttribute.getOwner().removeDerivedAttribute(

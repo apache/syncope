@@ -81,16 +81,20 @@ public class MembershipAttribute extends AbstractAttribute {
 
     @Override
     public <T extends AbstractAttributeValue> boolean addValue(
-            T attributeValue) {
+            final T attributeValue) {
 
+        attributeValue.setAttribute(this);
         return values.add((MembershipAttributeValue) attributeValue);
     }
 
     @Override
     public <T extends AbstractAttributeValue> boolean removeValue(
-            T attributeValue) {
+            final T attributeValue) {
 
-        return values.remove((MembershipAttributeValue) attributeValue);
+        boolean result = values.remove(
+                (MembershipAttributeValue) attributeValue);
+        attributeValue.setAttribute(null);
+        return result;
     }
 
     @Override
@@ -100,9 +104,16 @@ public class MembershipAttribute extends AbstractAttribute {
 
     @Override
     public <T extends AbstractAttributeValue> void setValues(
-            List<T> attributeValues) {
+            final List<T> attributeValues) {
 
-        this.values = (List<MembershipAttributeValue>) attributeValues;
+        this.values.clear();
+        if (attributeValues != null && !attributeValues.isEmpty()) {
+            for (T mav : attributeValues) {
+                mav.setAttribute(this);
+            }
+            this.values.addAll(
+                    (List<MembershipAttributeValue>) attributeValues);
+        }
 
     }
 }

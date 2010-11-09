@@ -2,9 +2,9 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -12,9 +12,10 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.persistence.beans;
+package jpasymphony.beans;
 
 import java.util.Date;
+import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -25,31 +26,56 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
+import org.syncope.core.persistence.beans.AbstractBaseBean;
 
 @Entity
 @Table(name = "os_propertyset", uniqueConstraints =
 @UniqueConstraint(columnNames = {"workflowEntryId", "propertyKey"}))
-public class OSWorkflowProperty extends AbstractBaseBean {
+public class JPAPropertySetItem extends AbstractBaseBean {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
+    @Column(nullable = false)
+    private Integer type;
+
     @Column(nullable = false)
     private Long workflowEntryId;
+
     @Column(nullable = false)
     private String propertyKey;
+
     private Boolean booleanValue;
+
     private Integer intValue;
+
     private Long longValue;
+
     private Double doubleValue;
+
     private String stringValue;
+
     @Lob
     private String textValue;
+
     @Temporal(TemporalType.TIMESTAMP)
     private Date dateValue;
 
+    @Basic
+    @Lob
+    private byte[] dataValue;
+
     public Long getId() {
         return id;
+    }
+
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
     }
 
     public String getPropertyKey() {
@@ -122,5 +148,13 @@ public class OSWorkflowProperty extends AbstractBaseBean {
 
     public void setTextValue(String textValue) {
         this.textValue = textValue;
+    }
+
+    public byte[] getDataValue() {
+        return dataValue;
+    }
+
+    public void setDataValue(byte[] dataValue) {
+        this.dataValue = dataValue;
     }
 }

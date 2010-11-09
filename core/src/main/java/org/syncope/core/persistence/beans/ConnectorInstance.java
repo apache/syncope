@@ -203,11 +203,10 @@ public class ConnectorInstance extends AbstractBaseBean {
         return capabilities;
     }
 
-    public void setCapabilities(Set<ConnectorCapability> capabilities) {
-        if (capabilities == null || capabilities.isEmpty()) {
-            this.capabilities.clear();
-        } else {
-            this.capabilities = capabilities;
+    public void setCapabilities(final Set<ConnectorCapability> capabilities) {
+        this.capabilities.clear();
+        if (capabilities != null && !capabilities.isEmpty()) {
+            this.capabilities.addAll(capabilities);
         }
     }
 }

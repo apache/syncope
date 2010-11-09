@@ -2,9 +2,9 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -36,26 +36,35 @@ public abstract class AbstractSchema extends AbstractBaseBean {
 
     @Id
     private String name;
+
     @Column(nullable = false)
     @Enumerated(STRING)
     private SchemaValueType type;
+
     /**
      * Specify if the attribute should be stored on the local repository.
      */
     @Basic
     private Character virtual;
+
     @Column(nullable = false)
     private String mandatoryCondition;
+
     @Basic
     private Character multivalue;
+
     @Basic
     private Character uniquevalue;
+
     @Basic
     private Character readonly;
+
     @Column(nullable = true)
     private String conversionPattern;
+
     @Column(nullable = true)
     private String validatorClass;
+
     @Transient
     private AbstractAttributeValidator validator;
 
@@ -163,9 +172,9 @@ public abstract class AbstractSchema extends AbstractBaseBean {
     }
 
     public String getConversionPattern() {
-        if (!getType().isConversionPatternNeeded() && LOG.isDebugEnabled()) {
-            LOG.debug("Conversion pattern is not needed: " + this
-                    + "'s type is " + getType());
+        if (!getType().isConversionPatternNeeded()) {
+            LOG.debug("Conversion pattern is not needed: {}'s type is {}",
+                    this, getType());
         }
 
         return conversionPattern;
@@ -180,7 +189,7 @@ public abstract class AbstractSchema extends AbstractBaseBean {
         this.conversionPattern = conversionPattern;
     }
 
-    public <T extends Format> T getFormatter(Class<T> reference) {
+    public <T extends Format> T getFormatter(final Class<T> reference) {
         T result = null;
 
         switch (getType()) {
@@ -204,9 +213,12 @@ public abstract class AbstractSchema extends AbstractBaseBean {
                 SimpleDateFormat dateFormatter =
                         (SimpleDateFormat) getType().getBasicFormatter();
                 dateFormatter.applyPattern(getConversionPattern());
+                dateFormatter.setLenient(false);
 
                 result = (T) dateFormatter;
                 break;
+
+            default:
         }
 
         return result;

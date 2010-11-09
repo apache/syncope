@@ -69,33 +69,39 @@ public class TargetResource extends AbstractBaseBean {
      */
     @Id
     private String name;
+
     /**
      * Should this resource enforce the mandatory constraints?
      */
     @Column(nullable = false)
     @Basic
     private Character forceMandatoryConstraint;
+
     /**
      * The resource type is identified by the associated connector.
      */
     @ManyToOne(fetch = FetchType.EAGER)
     private ConnectorInstance connector;
+
     /**
      * Users associated to this resource.
      */
     @ManyToMany(fetch = FetchType.EAGER, mappedBy = "targetResources")
     private Set<SyncopeUser> users;
+
     /**
      * Roles associated to this resource.
      */
     @ManyToMany(fetch = FetchType.EAGER, mappedBy = "targetResources")
     private Set<SyncopeRole> roles;
+
     /**
      * Attribute mappings.
      */
     @OneToMany(cascade = CascadeType.MERGE, mappedBy = "resource")
     @Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
     private List<SchemaMapping> mappings;
+
     /**
      * Tasks associated to this resource.
      */

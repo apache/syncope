@@ -2,9 +2,9 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -41,6 +41,7 @@ public class MembershipSchema extends AbstractSchema {
 
     @OneToMany(mappedBy = "schema")
     private List<MembershipAttribute> attributes;
+
     @ManyToMany(mappedBy = "schemas")
     private List<MembershipDerivedSchema> derivedSchemas;
 
@@ -71,14 +72,14 @@ public class MembershipSchema extends AbstractSchema {
 
     @Override
     public <T extends AbstractDerivedSchema> boolean addDerivedSchema(
-            T derivedSchema) {
+            final T derivedSchema) {
 
         return derivedSchemas.add((MembershipDerivedSchema) derivedSchema);
     }
 
     @Override
     public <T extends AbstractDerivedSchema> boolean removeDerivedSchema(
-            T derivedSchema) {
+            final T derivedSchema) {
 
         return derivedSchemas.remove((MembershipDerivedSchema) derivedSchema);
     }
@@ -90,8 +91,12 @@ public class MembershipSchema extends AbstractSchema {
 
     @Override
     public void setDerivedSchemas(
-            List<? extends AbstractDerivedSchema> derivedSchemas) {
+            final List<? extends AbstractDerivedSchema> derivedSchemas) {
 
-        this.derivedSchemas = (List<MembershipDerivedSchema>) derivedSchemas;
+        this.derivedSchemas.clear();
+        if (derivedSchemas != null && !derivedSchemas.isEmpty()) {
+            this.derivedSchemas.addAll(
+                    (List<MembershipDerivedSchema>) derivedSchemas);
+        }
     }
 }

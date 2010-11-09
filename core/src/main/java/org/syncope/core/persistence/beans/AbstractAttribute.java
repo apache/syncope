@@ -19,18 +19,19 @@ import java.util.List;
 import javax.persistence.MappedSuperclass;
 import org.syncope.core.persistence.validation.ParseException;
 import org.syncope.core.persistence.validation.ValidationFailedException;
+import org.syncope.core.rest.data.AttributableUtil;
 
 @MappedSuperclass
 public abstract class AbstractAttribute extends AbstractBaseBean {
 
     public abstract Long getId();
 
-    public <T extends AbstractAttributeValue> T addValue(String value,
-            T attributeValue)
+    public <T extends AbstractAttributeValue> T addValue(final String value,
+            final AttributableUtil attributableUtil)
             throws ParseException, ValidationFailedException {
 
         T actualValue = getSchema().getValidator().getValue(value,
-                attributeValue);
+                (T) attributableUtil.newAttributeValue());
         actualValue.setAttribute(this);
 
         if (!getSchema().isMultivalue()) {

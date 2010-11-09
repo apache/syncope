@@ -13,19 +13,22 @@
   limitations under the License.
 -->
 <beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
-       http://www.springframework.org/schema/beans/spring-beans.xsd">
-    
-    <bean id="workflowStore" class="org.syncope.core.workflow.SpringHibernateJPAWorkflowStore">
-        <property name="propertySetDelegate">
-            <bean id="propertySetDelegate"
-                  class="org.syncope.core.workflow.PropertySetDelegateImpl"/>
-        </property>
-    </bean>
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <context:component-scan base-package="jpasymphony.dao"/>
+
+    <bean id="propertySetDelegate"
+          class="jpasymphony.workflow.spi.jpa.JPAPropertySetDelegate"/>
+    <bean id="workflowStore"
+          class="jpasymphony.workflow.spi.jpa.JPAWorkflowStore"/>
 
     <bean id="workflowFactory"
-          class="com.opensymphony.workflow.spi.hibernate.SpringWorkflowFactory"
+          class="jpasymphony.workflow.spi.jpa.SpringWorkflowFactory"
           init-method="init">
         <property name="resource">
             <value>workflows.xml</value>
@@ -35,7 +38,8 @@
         </property>
     </bean>
 
-    <bean id="osworkflowConfiguration" class="com.opensymphony.workflow.config.SpringConfiguration">
+    <bean id="osworkflowConfiguration"
+          class="com.opensymphony.workflow.config.SpringConfiguration">
         <property name="store">
             <ref local="workflowStore"/>
         </property>
@@ -44,9 +48,11 @@
         </property>
     </bean>
 
-    <bean id="workflowTypeResolver" class="com.opensymphony.workflow.util.SpringTypeResolver"/>
+    <bean id="workflowTypeResolver"
+          class="com.opensymphony.workflow.util.SpringTypeResolver"/>
 
-    <bean id="userWorkflow" class="com.opensymphony.workflow.basic.BasicWorkflow">
+    <bean id="userWorkflow"
+          class="com.opensymphony.workflow.basic.BasicWorkflow">
         <constructor-arg>
             <value>userWorkflow</value>
         </constructor-arg>
