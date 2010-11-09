@@ -209,6 +209,8 @@ Panel panel;
                                 //Default value:yyyy-MM-dd
                                 if(!dateValue.equals(""))
                                     date = formatter.parse(dateValue);
+                                else
+                                    date = null;
                             } catch (ParseException ex) {
                                 Logger.getLogger(
                                         RoleModalPage.class.getName())

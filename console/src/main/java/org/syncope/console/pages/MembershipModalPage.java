@@ -148,6 +148,8 @@ public class MembershipModalPage extends SyncopeModalPage {
                                             if(!dateValue.equals(""))
                                                 date = formatter
                                                         .parse(dateValue);
+                                            else
+                                                date = null;
                                         } catch (ParseException ex) {
                                             Logger.getLogger(UserModalPage
                                                     .class.getName())
