@@ -115,7 +115,6 @@
         <hibernate.version>3.4.0.GA</hibernate.version>
         <ehcache.version>2.3.0</ehcache.version>
         <ehcache-jgroupsreplication.version>1.4</ehcache-jgroupsreplication.version>
-        <jgroups.version>2.6.13.GA</jgroups.version>
 
         <wicket.version>1.4.12</wicket.version>
 
@@ -226,11 +225,6 @@
                         <artifactId>ehcache</artifactId>
                     </exclusion>
                 </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>jgroups</groupId>
-                <artifactId>jgroups</artifactId>
-                <version>${jgroups.version}</version>
             </dependency>
 
             <dependency>
