@@ -2,9 +2,9 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,8 +14,6 @@
  */
 package org.syncope.core.persistence.beans;
 
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import javax.persistence.Basic;
 import javax.persistence.GeneratedValue;
@@ -33,12 +31,17 @@ public abstract class AbstractAttributeValue extends AbstractBaseBean {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     protected Long id;
+
     private String stringValue;
+
     @Temporal(TemporalType.TIMESTAMP)
     private Date dateValue;
+
     @Basic
     private Character booleanValue;
+
     private Long longValue;
+
     private Double doubleValue;
 
     public Long getId() {
@@ -114,18 +117,18 @@ public abstract class AbstractAttributeValue extends AbstractBaseBean {
                 break;
 
             case Long:
-                result = getAttribute().getSchema().getFormatter(
-                        DecimalFormat.class).format(getLongValue());
+                result = getAttribute().getSchema().getFormatter().
+                        format(getLongValue());
                 break;
 
             case Double:
-                result = getAttribute().getSchema().getFormatter(
-                        DecimalFormat.class).format(getDoubleValue());
+                result = getAttribute().getSchema().getFormatter().
+                        format(getDoubleValue());
                 break;
 
             case Date:
-                result = getAttribute().getSchema().getFormatter(
-                        SimpleDateFormat.class).format(getDateValue());
+                result = getAttribute().getSchema().getFormatter().
+                        format(getDateValue());
 
             default:
         }

@@ -34,6 +34,24 @@ import org.syncope.types.SchemaValueType;
 @MappedSuperclass
 public abstract class AbstractSchema extends AbstractBaseBean {
 
+    private static final ThreadLocal<SimpleDateFormat> DATE_FORMAT =
+            new ThreadLocal<SimpleDateFormat>() {
+
+                @Override
+                protected SimpleDateFormat initialValue() {
+                    return new SimpleDateFormat();
+                }
+            };
+
+    private static final ThreadLocal<DecimalFormat> DECIMAL_FORMAT =
+            new ThreadLocal<DecimalFormat>() {
+
+                @Override
+                protected DecimalFormat initialValue() {
+                    return new DecimalFormat();
+                }
+            };
+
     @Id
     private String name;
 
@@ -189,29 +207,26 @@ public abstract class AbstractSchema extends AbstractBaseBean {
         this.conversionPattern = conversionPattern;
     }
 
-    public <T extends Format> T getFormatter(final Class<T> reference) {
+    public <T extends Format> T getFormatter() {
         T result = null;
 
         switch (getType()) {
             case Long:
-                DecimalFormat longFormatter =
-                        ((DecimalFormat) getType().getBasicFormatter());
+                DecimalFormat longFormatter = DECIMAL_FORMAT.get();
                 longFormatter.applyPattern(getConversionPattern());
 
                 result = (T) longFormatter;
                 break;
 
             case Double:
-                DecimalFormat doubleFormatter =
-                        ((DecimalFormat) getType().getBasicFormatter());
+                DecimalFormat doubleFormatter = DECIMAL_FORMAT.get();
                 doubleFormatter.applyPattern(getConversionPattern());
 
                 result = (T) doubleFormatter;
                 break;
 
             case Date:
-                SimpleDateFormat dateFormatter =
-                        (SimpleDateFormat) getType().getBasicFormatter();
+                SimpleDateFormat dateFormatter = DATE_FORMAT.get();
                 dateFormatter.applyPattern(getConversionPattern());
                 dateFormatter.setLenient(false);
 

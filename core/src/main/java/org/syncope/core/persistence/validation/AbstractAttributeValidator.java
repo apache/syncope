@@ -29,7 +29,7 @@ public abstract class AbstractAttributeValidator implements AttributeValidator {
     }
 
     @Override
-    public <T extends AbstractAttributeValue> T getValue(String value,
+    public <T extends AbstractAttributeValue> T getValue(final String value,
             T attributeValue)
             throws ParseException, ValidationFailedException {
 
@@ -39,9 +39,10 @@ public abstract class AbstractAttributeValidator implements AttributeValidator {
         return attributeValue;
     }
 
-    private <T extends AbstractAttributeValue> T parseValue(String value,
+    private <T extends AbstractAttributeValue> T parseValue(final String value,
             T attributeValue)
             throws ParseException {
+
         Exception exception = null;
 
         switch (schema.getType()) {
@@ -57,7 +58,7 @@ public abstract class AbstractAttributeValidator implements AttributeValidator {
             case Long:
                 try {
                     attributeValue.setLongValue(Long.valueOf(
-                            schema.getFormatter(DecimalFormat.class).parse(
+                            ((DecimalFormat) schema.getFormatter()).parse(
                             value).longValue()));
                 } catch (java.text.ParseException pe) {
                     exception = pe;
@@ -67,7 +68,7 @@ public abstract class AbstractAttributeValidator implements AttributeValidator {
             case Double:
                 try {
                     attributeValue.setDoubleValue(Double.valueOf(
-                            schema.getFormatter(DecimalFormat.class).parse(
+                            ((DecimalFormat) schema.getFormatter()).parse(
                             value).doubleValue()));
                 } catch (java.text.ParseException pe) {
                     exception = pe;
@@ -76,8 +77,9 @@ public abstract class AbstractAttributeValidator implements AttributeValidator {
 
             case Date:
                 try {
-                    attributeValue.setDateValue(new Date(schema.getFormatter(
-                            SimpleDateFormat.class).parse(value).getTime()));
+                    attributeValue.setDateValue(new Date(
+                            ((SimpleDateFormat) schema.getFormatter()).parse(
+                            value).getTime()));
                 } catch (java.text.ParseException pe) {
                     exception = pe;
                 }
