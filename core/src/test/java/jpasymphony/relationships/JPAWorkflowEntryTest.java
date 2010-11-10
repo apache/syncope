@@ -60,6 +60,7 @@ public class JPAWorkflowEntryTest {
 
         ((JPACurrentStep) step).setActionId(999);
         workflowStore.moveToHistory(step);
+
         step = workflowStore.createCurrentStep(entry.getId(), 12,
                 "owner", new Date(), new Date(), "status", new long[0]);
 

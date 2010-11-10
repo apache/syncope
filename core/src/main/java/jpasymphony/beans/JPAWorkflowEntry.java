@@ -24,7 +24,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import org.hibernate.annotations.Cascade;
 import org.syncope.core.persistence.beans.AbstractBaseBean;
 
 @Entity
@@ -41,11 +40,9 @@ public class JPAWorkflowEntry extends AbstractBaseBean
     private Integer workflowState;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "workflowEntry")
-    @Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
     private List<JPACurrentStep> currentSteps;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "workflowEntry")
-    @Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
     private List<JPAHistoryStep> historySteps;
 
     public JPAWorkflowEntry() {

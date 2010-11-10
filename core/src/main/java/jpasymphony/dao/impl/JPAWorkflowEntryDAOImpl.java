@@ -67,6 +67,20 @@ public class JPAWorkflowEntryDAOImpl extends AbstractDAOImpl
             }
         }
 
+        // Force loading all of JPACurrentSteps belonging to this entry
+        Query query = entityManager.createQuery(
+                "SELECT e FROM JPACurrentStep e "
+                + "WHERE e.workflowEntry=:workflowEntry");
+        query.setParameter("workflowEntry", entry);
+        query.getResultList();
+
+        // Force loading all of JPAHistorySteps belonging to this entry
+        query = entityManager.createQuery(
+                "SELECT e FROM JPAHistoryStep e "
+                + "WHERE e.workflowEntry=:workflowEntry");
+        query.setParameter("workflowEntry", entry);
+        query.getResultList();
+
         entityManager.remove(entry);
     }
 
