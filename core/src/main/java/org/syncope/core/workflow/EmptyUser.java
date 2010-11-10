@@ -17,6 +17,7 @@ package org.syncope.core.workflow;
 import com.opensymphony.module.propertyset.PropertySet;
 import com.opensymphony.workflow.FunctionProvider;
 import com.opensymphony.workflow.WorkflowException;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -44,10 +45,16 @@ public class EmptyUser extends OSWorkflowComponent
 
         final AttributeDAO attributeDAO =
                 (AttributeDAO) context.getBean("attributeDAOImpl");
+        final Map<Long, String> attrsToRemove = new HashMap<Long, String>();
         for (AbstractAttribute attribute : user.getAttributes()) {
-            attributeDAO.delete(attribute.getId(), UserAttribute.class);
+            attrsToRemove.put(attribute.getId(),
+                    attribute.getSchema().getName());
         }
-        user.getAttributes().clear();
+        for (Long attrId : attrsToRemove.keySet()) {
+            attributeDAO.delete(attrId, UserAttribute.class);
+            user.removeAttribute(
+                    user.getAttribute(attrsToRemove.get(attrId)));
+        }
 
         final DerivedAttributeDAO derivedAttributeDAO =
                 (DerivedAttributeDAO) context.getBean(
