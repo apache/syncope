@@ -15,6 +15,7 @@
 package org.syncope.console.wicket.markup.html.form;
 
 import java.util.Date;
+import java.util.StringTokenizer;
 import org.apache.wicket.extensions.markup.html.form.DateTextField;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
@@ -43,7 +44,7 @@ public class DateFieldPanel extends Panel {
      * @param readonly TRUE if it can't be valued, FALSE otherwise
      * @param form form where it will be included
      */
-    public DateFieldPanel(String id, String name ,IModel<Date> model,
+    public DateFieldPanel(String id, String name ,final IModel<Date> model,
             final String datePattern, boolean required,boolean readonly,
             Form form) {
         super(id, model);
@@ -130,16 +131,36 @@ public class DateFieldPanel extends Panel {
          */
         @Override
         public void validate(Form form) {
-        DateTimeField dateTimeField = (DateTimeField) dateTimeComponents[0];
+            DateTimeField dateTimeField = (DateTimeField) dateTimeComponents[0];
 
-        if(dateTimeField.getDate() == null || dateTimeField.getHours() == null
-                || dateTimeField.getMinutes() == null) {
+            StringTokenizer inputDateTokenizer = new StringTokenizer(
+                    dateTimeField.getInput(), ",");
 
-            ValidationError ve = new ValidationError();
-            ve.setVariables(DateTimeFormValidator.this.variablesMap());
-            ve.addMessageKey(resourceKey());
-            dateTimeComponents[0].error((IValidationError) ve);
+            int tokens = inputDateTokenizer.countTokens();
+
+            boolean isValid = true;
+
+            if (tokens < 2) {
+                isValid = false;
+            } else {
+                //First token = date
+                String date = inputDateTokenizer.nextToken();
+                //Second token = time
+                StringTokenizer timeTokenizer = new StringTokenizer(
+                        inputDateTokenizer.nextToken(), ":");
+
+                if (timeTokenizer.countTokens() < 2) {
+                    isValid = false;
+                }
+
+            }
+
+            if (!isValid) {
+                ValidationError ve = new ValidationError();
+                ve.setVariables(DateTimeFormValidator.this.variablesMap());
+                ve.addMessageKey(resourceKey());
+                dateTimeComponents[0].error((IValidationError) ve);
+            }
         }
-      }
     }
 }
