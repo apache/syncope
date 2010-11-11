@@ -96,7 +96,7 @@ public RoleModalPage(final BasePage basePage, final ModalWindow window,
 if(!createFlag)
     cloneOldRoleTO(roleTO);
 
-Form form = new Form("RoleForm");
+final Form form = new Form("RoleForm");
 
 form.setModel(new CompoundPropertyModel(roleTO));
 
@@ -180,7 +180,8 @@ final ListView roleAttributesView = new ListView("roleSchemas"
                                     String val = formatter.format(date);
                                     item.setModelObject(val);
                                 }
-                            }, schemaTO.getConversionPattern(),required);
+                            }, schemaTO.getConversionPattern(),required,
+                                    schemaTO.isReadonly(),form);
                 }
                 /*Common other cases : java.lang.String,java.lang.Double,
                 java.lang.Long*/

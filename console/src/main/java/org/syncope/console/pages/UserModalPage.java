@@ -128,7 +128,7 @@ createUserWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
 createUserWin.setPageMapName("create-membership-modal");
 createUserWin.setCookieName("create-membership-modal");
 
-Form userForm = new Form("UserForm");
+final Form userForm = new Form("UserForm");
 
 userForm.setModel(new CompoundPropertyModel(userTO));
 
@@ -228,7 +228,7 @@ Panel panel;
                             item.setModelObject(val);
                         }
                     }, schemaTO.getConversionPattern(),required,
-                            schemaTO.isReadonly());
+                            schemaTO.isReadonly(),userForm);
         } else {
             panel = new AjaxTextFieldPanel("panel",
                     schemaTO.getName(), new Model() {

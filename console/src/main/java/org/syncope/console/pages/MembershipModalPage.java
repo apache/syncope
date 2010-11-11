@@ -61,7 +61,7 @@ public class MembershipModalPage extends SyncopeModalPage {
     public MembershipModalPage(final Page basePage, final ModalWindow window,
             final MembershipTO membershipTO, final boolean createFlag) {
 
-        Form form = new Form("MembershipForm");
+        final Form form = new Form("MembershipForm");
 
         form.setModel(new CompoundPropertyModel(membershipTO));
 
@@ -166,7 +166,8 @@ public class MembershipModalPage extends SyncopeModalPage {
                                         String val = formatter.format(date);
                                         item.setModelObject(val);
                                     }
-                                }, schemaTO.getConversionPattern(),required);
+                                }, schemaTO.getConversionPattern(),required,
+                                        schemaTO.isReadonly(), form);
                     }
 
                     item.add(panel);

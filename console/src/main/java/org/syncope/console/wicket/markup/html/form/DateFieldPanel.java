@@ -17,71 +17,35 @@ package org.syncope.console.wicket.markup.html.form;
 import java.util.Date;
 import org.apache.wicket.extensions.markup.html.form.DateTextField;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.FormComponent;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.extensions.yui.calendar.DatePicker;
 import org.apache.wicket.extensions.yui.calendar.DateTimeField;
+import org.apache.wicket.markup.html.form.validation.AbstractFormValidator;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.markup.html.panel.Fragment;
+import org.apache.wicket.validation.IValidationError;
+import org.apache.wicket.validation.ValidationError;
 
 /**
  * DateFieldPanel
  */
 public class DateFieldPanel extends Panel {
     /**
-     * Build a DateFieldPanel.
-     * @param component id
-     * @param label name
-     * @param IModel<Date> date object
-     * @param schema attribute's date pattern
-     * @param required flag
+     *
+     * @param id wicket id
+     * @param name component name
+     * @param model model object
+     * @param datePattern schema attribute date pattern defined for it
+     * @param required TRUE if it is required, FALSE otherwise
+     * @param readonly TRUE if it can't be valued, FALSE otherwise
+     * @param form form where it will be included
      */
     public DateFieldPanel(String id, String name ,IModel<Date> model,
-                          final String datePattern, boolean required) {
-        super(id, model);
-
-        if (required) {
-            add(new Label("required", "*"));
-        } else {
-            add(new Label("required", ""));
-        }
-
-        Fragment datePanel = null;
-        
-        if(!datePattern.contains("H")) {
-            datePanel = new Fragment("datePanel","dateField",this);
-            
-            DateTextField field = new DateTextField("field", model,datePattern);
-            field.add(getDatePicker());
-
-            datePanel.add(field);
-        }
-
-        else {
-            datePanel = new Fragment("datePanel","dateTimeField",this);
-
-            DateTimeField field = new DateTimeField("field", model);
-
-            field.setRequired(required);
-            field.setLabel(new Model(name));
-            
-            datePanel.add(field);
-        }
-
-        add(datePanel);
-    }
-
-    /**
-     * Build a DateFieldPanel.
-     * @param component id
-     * @param label name
-     * @param IModel<Date> date object
-     * @param schema attribute's date pattern
-     * @param required flag
-     * @param readonly flag
-     */
-    public DateFieldPanel(String id, String name ,IModel<Date> model,
-            final String datePattern, boolean required,boolean readonly) {
+            final String datePattern, boolean required,boolean readonly,
+            Form form) {
         super(id, model);
 
         if (required) {
@@ -98,7 +62,6 @@ public class DateFieldPanel extends Panel {
             DateTextField field = new DateTextField("field", model,datePattern);
             field.add(getDatePicker());
 
-            field.setRequired(required);
             field.setEnabled(!readonly);
             field.setLabel(new Model(name));
 
@@ -110,11 +73,13 @@ public class DateFieldPanel extends Panel {
 
             DateTimeField field = new DateTimeField("field", model);
 
-            field.setRequired(required);
             field.setEnabled(!readonly);
             field.setLabel(new Model(name));
 
             datePanel.add(field);
+
+            if(required)
+                form.add(new DateTimeFormValidator(field));
         }
 
         add(datePanel);
@@ -131,11 +96,50 @@ public class DateFieldPanel extends Panel {
             protected boolean enableMonthYearSelection() {
                 return true;
             }
-
         };
 
         picker.setShowOnFieldClick(true);
 
         return picker;
+    }
+
+    /**
+     * Custom form validator for registering and handling DateTimeField
+     * components that are in it.
+     */
+    public class DateTimeFormValidator extends AbstractFormValidator {
+        private FormComponent[] dateTimeComponents;
+
+        public DateTimeFormValidator(DateTimeField dateTimeComponent) {
+            if(dateTimeComponent == null)
+                throw new IllegalArgumentException(
+					"argument dateTimeComponent cannot " +
+                                        "be null");
+
+            dateTimeComponents = new FormComponent[] {dateTimeComponent};
+        }
+        
+        @Override
+        public FormComponent[] getDependentFormComponents() {
+            return dateTimeComponents;
+        }
+
+        /**
+         * Validation rule : all 3 fields (date,hours,minutes) must be not-null.
+         * @param form
+         */
+        @Override
+        public void validate(Form form) {
+        DateTimeField dateTimeField = (DateTimeField) dateTimeComponents[0];
+
+        if(dateTimeField.getDate() == null || dateTimeField.getHours() == null
+                || dateTimeField.getMinutes() == null) {
+
+            ValidationError ve = new ValidationError();
+            ve.setVariables(DateTimeFormValidator.this.variablesMap());
+            ve.addMessageKey(resourceKey());
+            dateTimeComponents[0].error((IValidationError) ve);
+        }
+      }
     }
 }
