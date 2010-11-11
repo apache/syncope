@@ -16,9 +16,6 @@ package org.syncope.core.persistence.beans;
 
 import java.util.Date;
 import javax.persistence.Basic;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -27,10 +24,6 @@ import org.apache.commons.lang.builder.ToStringStyle;
 
 @MappedSuperclass
 public abstract class AbstractAttributeValue extends AbstractBaseBean {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    protected Long id;
 
     private String stringValue;
 
@@ -44,9 +37,7 @@ public abstract class AbstractAttributeValue extends AbstractBaseBean {
 
     private Double doubleValue;
 
-    public Long getId() {
-        return id;
-    }
+    public abstract Long getId();
 
     public Boolean getBooleanValue() {
         if (booleanValue == null) {

@@ -15,15 +15,30 @@
 package org.syncope.core.persistence.beans.user;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.TableGenerator;
 import org.syncope.core.persistence.beans.AbstractAttribute;
 import org.syncope.core.persistence.beans.AbstractAttributeValue;
 
 @Entity
 public class UserAttributeValue extends AbstractAttributeValue {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.TABLE,
+    generator = "SEQ_UserAttributeValue")
+    @TableGenerator(name = "SEQ_UserAttributeValue", allocationSize = 200)
+    private Long id;
+
     @ManyToOne
     private UserAttribute attribute;
+
+    @Override
+    public Long getId() {
+        return id;
+    }
 
     @Override
     public <T extends AbstractAttribute> T getAttribute() {
