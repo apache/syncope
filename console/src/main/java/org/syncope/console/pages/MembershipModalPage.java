@@ -1,5 +1,3 @@
-package org.syncope.console.pages;
-
 /*
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,6 +12,7 @@ package org.syncope.console.pages;
  *  limitations under the License.
  *  under the License.
  */
+package org.syncope.console.pages;
 
 import java.io.Serializable;
 import java.text.DateFormat;
@@ -290,6 +289,8 @@ public class MembershipModalPage extends SyncopeModalPage {
 
         List<SchemaTO> schemas = schemaRestClient.getAllMemberhipSchemas();
 
+        boolean found = false;
+
         if(create) {
             for (SchemaTO schema : schemas) {
                 schemaWrapper = new SchemaWrapper(schema);
@@ -303,8 +304,15 @@ public class MembershipModalPage extends SyncopeModalPage {
                         schemaWrapper = new SchemaWrapper(schema);
                         schemaWrapper.setValues(attribute.getValues());
                         schemaWrappers.add(schemaWrapper);
+                        found = true;
                     }
                 }
+           if (!found) {
+                schemaWrapper = new SchemaWrapper(schema);
+                schemaWrappers.add(schemaWrapper);
+            } else {
+                found = false;
+            }
             }
         }
     }

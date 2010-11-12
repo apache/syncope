@@ -781,7 +781,8 @@ public void searchAndUpdateAttribute(AttributeTO attributeTO) {
         }
     }
 
-    if (!found & !changed && !attributeTO.isReadonly() && attributeTO.getValues() != null) {
+    if (!found & !changed && !attributeTO.isReadonly() &&
+            attributeTO.getValues() != null) {
 
         if(attributeTO.getValues().iterator().next() != null ){
             attributeMod.setValuesToBeAdded(attributeTO.getValues());
@@ -803,9 +804,8 @@ public void searchAndUpdateAttribute(AttributeTO attributeTO) {
 public void searchAndAddResource(String resource) {
     boolean found = false;
 
-    /*Check if the current resource was existent before the update and in this case
-      just ignore it
-     */
+    /* Check if the current resource was existent before the update and in this
+     case just ignore it */
     for (String oldResource : oldUser.getResources()) {
         if (resource.equals(oldResource)) {
             found = true;
@@ -829,9 +829,8 @@ public void searchAndAddResource(String resource) {
 public void searchAndDropResource(String resource, UserTO userTO) {
     boolean found = false;
 
-    /*Check if the current resource was existent before the update and in this case
-      just ignore it
-     */
+    /*Check if the current resource was existent before the update and in this 
+     case just ignore it */
     for (String newResource : userTO.getResources()) {
         if (resource.equals(newResource)) {
             found = true;
@@ -851,6 +850,7 @@ public void searchAndDropResource(String resource, UserTO userTO) {
  */
 public void searchAndUpdateMembership(MembershipTO newMembership) {
     boolean found = false;
+    boolean attrFound = false;
 
     MembershipMod membershipMod = new MembershipMod();
     membershipMod.setRole(newMembership.getRoleId());
@@ -861,8 +861,8 @@ public void searchAndUpdateMembership(MembershipTO newMembership) {
     for (MembershipTO oldMembership : oldUser.getMemberships()) {
         if (newMembership.getRoleId() == oldMembership.getRoleId()) {
 
-            for (AttributeTO oldAttribute : oldMembership.getAttributes()) {
-                for (AttributeTO newAttribute : newMembership.getAttributes()) {
+            for (AttributeTO newAttribute : newMembership.getAttributes()) {
+                for (AttributeTO oldAttribute : oldMembership.getAttributes()) {
 
                     if(oldAttribute.getSchema().equals(newAttribute.getSchema())) {
 
@@ -873,10 +873,17 @@ public void searchAndUpdateMembership(MembershipTO newMembership) {
 
                         membershipMod.addAttributeToBeUpdated(attributeMod);
                         //membershipMod.addAttributeToBeRemoved(oldAttribute.getSchema());
+                        attrFound = true;
                         break;
                     }
-
                 }
+                if(!attrFound) {
+                    attributeMod = new AttributeMod();
+                    attributeMod.setSchema(newAttribute.getSchema());
+                    attributeMod.setValuesToBeAdded(newAttribute.getValues());
+                    membershipMod.addAttributeToBeUpdated(attributeMod);
+                }
+                attrFound = false;
             }
 
             if(userMod == null)
