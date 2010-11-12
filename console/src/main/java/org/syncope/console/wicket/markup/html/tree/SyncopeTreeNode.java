@@ -59,4 +59,8 @@ public class SyncopeTreeNode implements Serializable {
     public void setName(String name) {
         this.name = name;
     }
+
+    public String displayName(){
+    return getId()+"-"+getName();
+    }
 }

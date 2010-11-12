@@ -72,7 +72,7 @@ public class Roles extends BasePage {
 
         IColumn columns[] = new IColumn[]{
         new PropertyTreeColumn(new ColumnLocation(Alignment.LEFT, 30,
-            Unit.EM), getString("column1"), "userObject.treeNode.name"),
+            Unit.EM), getString("column1"), "userObject.treeNode.displayName"),
             new PropertyEditableColumn(new ColumnLocation(Alignment.LEFT, 20,
             Unit.EM), getString("column2"), "userObject.title",createRoleWin,
             Roles.this),
