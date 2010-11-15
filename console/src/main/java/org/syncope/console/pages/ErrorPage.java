@@ -32,6 +32,6 @@ public class ErrorPage extends BasePage {
         add(new Label("errorMessage",new Model<String>(
                 parameters.getString("errorMessage"))));
 
-        add(new BookmarkablePageLink("home", WelcomePage.class));
+        add(new BookmarkablePageLink("home", getApplication().getHomePage()));
     }
 }

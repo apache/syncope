@@ -20,6 +20,7 @@ import org.apache.wicket.PageParameters;
 import org.apache.wicket.Response;
 import org.apache.wicket.markup.html.pages.ExceptionErrorPage;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.protocol.http.PageExpiredException;
 import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.protocol.http.WebRequest;
 import org.apache.wicket.protocol.http.WebRequestCycle;
@@ -49,9 +50,23 @@ public class SyncopeRequestCycle extends WebRequestCycle {
 	@Override
 	public final Page onRuntimeException(final Page cause,
                 final RuntimeException e) {
-            //TODO : Log the exception
+            //TODO : Log the exceptions
 
-            if(e.getCause().getCause() instanceof RestClientException) {
+            if(e instanceof PageExpiredException) {
+                PageParameters errorParameters = new PageParameters();
+
+                errorParameters.add("errorTitle",
+                        new StringResourceModel("alert", null).getString());
+
+                errorParameters.add("errorMessage",
+                        new StringResourceModel("pageExpiredException", null)
+                        .getString());
+
+                return new ErrorPage(errorParameters);
+            }
+
+            else if(e.getCause().getCause() instanceof RestClientException) {
+                
                 PageParameters errorParameters = new PageParameters();
 
                 errorParameters.add("errorTitle",
@@ -63,7 +78,7 @@ public class SyncopeRequestCycle extends WebRequestCycle {
 
                 return new ErrorPage(errorParameters);
             }
-            //Default Wicket error page
+            //Redirect to default Wicket error page
             else return new ExceptionErrorPage(e, cause);
 	}
 }

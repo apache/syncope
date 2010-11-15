@@ -12,7 +12,6 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-
 <web-app xmlns="http://java.sun.com/xml/ns/j2ee"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/javaee/web-app_2_4.xsd"
@@ -33,6 +32,11 @@
         <servlet-name>SyncopeApplication</servlet-name>
         <url-pattern>/*</url-pattern>
     </servlet-mapping>
+
+    <!-- SESSION TIMEOUT (MINUTES)-->
+    <session-config>
+        <session-timeout>30</session-timeout>
+    </session-config>
 
     <context-param>
         <param-name>contextConfigLocation</param-name>

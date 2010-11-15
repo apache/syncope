@@ -51,9 +51,7 @@ public class SyncopeApplication extends WebApplication
         file = getServletContext().getInitParameter("authenticationFile");
         addComponentInstantiationListener(new SpringComponentInjector(this));
         getResourceSettings().setThrowExceptionOnMissingResource( true );
-
-        /*getExceptionSettings().setUnexpectedExceptionDisplay(IExceptionSettings.
-                SHOW_INTERNAL_ERROR_PAGE);*/
+     
     }
 
     /**
@@ -71,7 +69,7 @@ public class SyncopeApplication extends WebApplication
         {
             session.setUser( user );
         }
-
+        
         return session;
     }
 
