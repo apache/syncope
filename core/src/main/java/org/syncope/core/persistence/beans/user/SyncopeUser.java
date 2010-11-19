@@ -42,6 +42,7 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.syncope.core.persistence.dao.MissingConfKeyException;
 import org.syncope.core.persistence.security.AsymmetricCipher;
 import org.syncope.core.persistence.beans.AbstractAttributable;
 import org.syncope.core.persistence.beans.AbstractAttribute;
@@ -282,8 +283,16 @@ public class SyncopeUser extends AbstractAttributable {
         this.workflowId = workflowEntryId;
     }
 
-    public void generateToken(int tokenLength, int tokenExpireTime) {
-        token = RandomStringUtils.randomAlphanumeric(tokenLength);
+    public void generateToken(
+            int tokenLength, int tokenExpireTime, String prefix) {
+
+        if (prefix == null || prefix.isEmpty()) {
+            prefix = "";
+        } else {
+            prefix += "|";
+        }
+
+        token = prefix + RandomStringUtils.randomAlphanumeric(tokenLength);
 
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.MINUTE, tokenExpireTime);
@@ -303,7 +312,16 @@ public class SyncopeUser extends AbstractAttributable {
         return tokenExpireTime;
     }
 
-    public boolean checkToken(String token) {
-        return this.token.equals(token) && tokenExpireTime.after(new Date());
+    public boolean checkToken(String token, String prefix) {
+
+        if (prefix == null || prefix.isEmpty()) {
+            prefix = "";
+        } else {
+            prefix += "|";
+        }
+
+        return token.startsWith(prefix)
+                && this.token.equals(token)
+                && tokenExpireTime.after(new Date());
     }
 }

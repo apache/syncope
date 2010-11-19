@@ -33,6 +33,7 @@ public final class Constants {
     public static final String USER_TO = "userTO";
     public static final String USER_MOD = "userMod";
     public static final String USER_WORKFLOW = "userWorkflow";
+    public static final String PREFIX = "prefix";
 
     private Constants() {
     }
