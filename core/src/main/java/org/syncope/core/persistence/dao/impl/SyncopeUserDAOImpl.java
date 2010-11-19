@@ -49,7 +49,7 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
 
     @Override
     @Transactional(readOnly = true)
-    public final SyncopeUser find(final Long id) {
+    public SyncopeUser find(final Long id) {
         Query query = entityManager.createNamedQuery("SyncopeUser.find");
         query.setParameter("id", id);
 
@@ -62,7 +62,7 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
 
     @Override
     @Transactional(readOnly = true)
-    public final SyncopeUser findByWorkflowId(final Long workflowId) {
+    public SyncopeUser findByWorkflowId(final Long workflowId) {
         Query query = entityManager.createNamedQuery(
                 "SyncopeUser.findByWorkflowId");
         query.setParameter("workflowId", workflowId);
@@ -72,7 +72,7 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
 
     @Override
     @Transactional(readOnly = true)
-    public final List<SyncopeUser> findByAttributeValue(
+    public List<SyncopeUser> findByAttributeValue(
             final UserAttributeValue attributeValue) {
 
         Query query = entityManager.createQuery(
@@ -100,7 +100,7 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
 
     @Override
     @Transactional(readOnly = true)
-    public final List<SyncopeUser> findAll() {
+    public List<SyncopeUser> findAll() {
         Query query = entityManager.createQuery("SELECT e FROM SyncopeUser e");
         return query.getResultList();
     }
@@ -111,7 +111,7 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    public void delete(Long id) {
+    public void delete(final Long id) {
         SyncopeUser user = find(id);
         if (user == null) {
             return;
@@ -136,7 +136,7 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
 
     @Override
     @Transactional(readOnly = true)
-    public final List<SyncopeUser> search(final NodeCond searchCondition) {
+    public List<SyncopeUser> search(final NodeCond searchCondition) {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Search condition:\n" + searchCondition);
         }
