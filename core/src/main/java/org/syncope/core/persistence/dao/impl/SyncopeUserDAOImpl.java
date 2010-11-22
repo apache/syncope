@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.client.search.AttributeCond;
+import org.syncope.client.search.MembershipCond;
 import org.syncope.client.search.NodeCond;
 import org.syncope.core.persistence.beans.AbstractAttributeValue;
 import org.syncope.core.persistence.beans.membership.Membership;
@@ -75,7 +76,16 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
     public List<SyncopeUser> findByAttributeValue(
             final UserAttributeValue attributeValue) {
 
-        Query query = entityManager.createQuery(
+        return findByAttributeValue(attributeValue, -1, -1);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public final List<SyncopeUser> findByAttributeValue(
+            final UserAttributeValue attributeValue,
+            final int page, final int itemsPerPage) {
+
+        final Query query = entityManager.createQuery(
                 "SELECT u"
                 + " FROM SyncopeUser u, UserAttribute ua, UserAttributeValue e "
                 + " WHERE e.attribute = ua AND ua.owner = u"
@@ -88,20 +98,44 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
                 + " OR (e.longValue IS NOT NULL"
                 + " AND e.longValue = :longValue)"
                 + " OR (e.doubleValue IS NOT NULL"
-                + " AND e.doubleValue = :doubleValue))");
+                + " AND e.doubleValue = :doubleValue)) ORDER BY u.id");
         query.setParameter("stringValue", attributeValue.getStringValue());
         query.setParameter("booleanValue", attributeValue.getBooleanValue());
         query.setParameter("dateValue", attributeValue.getDateValue());
         query.setParameter("longValue", attributeValue.getLongValue());
         query.setParameter("doubleValue", attributeValue.getDoubleValue());
 
+        query.setFirstResult(
+                itemsPerPage * (page <= 0 ? 0 : page - 1));
+
+        if (itemsPerPage > 0) {
+            query.setMaxResults(itemsPerPage);
+        }
+
         return query.getResultList();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<SyncopeUser> findAll() {
-        Query query = entityManager.createQuery("SELECT e FROM SyncopeUser e");
+    public final List<SyncopeUser> findAll() {
+        return findAll(-1, -1);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public final List<SyncopeUser> findAll(
+            final int page, final int itemsPerPage) {
+
+        final Query query = entityManager.createQuery(
+                "SELECT e FROM SyncopeUser e ORDER BY e.id");
+
+        query.setFirstResult(
+                itemsPerPage * (page <= 0 ? 0 : page - 1));
+
+        if (itemsPerPage > 0) {
+            query.setMaxResults(itemsPerPage);
+        }
+
         return query.getResultList();
     }
 
@@ -137,6 +171,13 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
     @Override
     @Transactional(readOnly = true)
     public List<SyncopeUser> search(final NodeCond searchCondition) {
+        return search(searchCondition, -1, -1);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<SyncopeUser> search(final NodeCond searchCondition,
+            final int page, final int itemsPerPage) {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Search condition:\n" + searchCondition);
         }
@@ -150,11 +191,18 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
             result = Collections.EMPTY_LIST;
         }
 
-        return result;
+        // TODO: temporary solution to the paginated search
+        int from = itemsPerPage * (page <= 0 ? 0 : page - 1);
+
+        int to = itemsPerPage <= 0 || from + itemsPerPage > result.size()
+                ? result.size() : from + itemsPerPage;
+
+        return from > to ? Collections.EMPTY_LIST : result.subList(from, to);
     }
 
     @Transactional(readOnly = true)
-    private List<SyncopeUser> doSearch(final NodeCond nodeCond) {
+    private List<SyncopeUser> doSearch(
+            final NodeCond nodeCond) {
         List<SyncopeUser> result;
         List<SyncopeUser> rightResult;
 
@@ -195,15 +243,33 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
                 break;
 
             case AND:
+                // TODO: not paginable
                 result = doSearch(nodeCond.getLeftNodeCond());
                 rightResult = doSearch(nodeCond.getRightNodeCond());
                 result.retainAll(rightResult);
                 break;
 
             case OR:
+                // TODO: not paginable
                 result = doSearch(nodeCond.getLeftNodeCond());
                 rightResult = doSearch(nodeCond.getRightNodeCond());
-                result.addAll(rightResult);
+
+                List<SyncopeUser> from = null;
+                List<SyncopeUser> to = null;
+
+                if (rightResult.size() > result.size()) {
+                    from = result;
+                    to = rightResult;
+                } else {
+                    from = rightResult;
+                    to = result;
+                }
+
+                for (SyncopeUser user : from) {
+                    if (!to.contains(user)) to.add(user);
+                }
+
+                result = to;
                 break;
 
             default:
@@ -243,6 +309,55 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
                                 leafCond.getMembershipCond().getRoleName());
                     }
                 } else if (leafCond.getAttributeCond() != null) {
+                        UserSchema userSchema = schemaDAO.find(
+                                leafCond.getAttributeCond().getSchema(),
+                                UserSchema.class);
+                        if (userSchema == null) {
+                            LOG.warn("Ignoring invalid schema '"
+                                    + leafCond.getAttributeCond().getSchema()
+                                    + "'");
+                        } else {
+                            UserAttributeValue attributeValue =
+                                    new UserAttributeValue();
+                            try {
+                                if (leafCond.getAttributeCond().getType()
+                                        == AttributeCond.Type.LIKE) {
+
+                                    attributeValue.setStringValue(
+                                            leafCond.getAttributeCond().
+                                            getExpression());
+                                } else {
+                                    attributeValue =
+                                            userSchema.getValidator().
+                                            getValue(
+                                            leafCond.getAttributeCond().
+                                            getExpression(),
+                                            attributeValue);
+                                }
+
+                                criterion = Restrictions.and(
+                                        Restrictions.eq("a.schema.name",
+                                        leafCond.getAttributeCond().getSchema()),
+                                        getCriterion(
+                                        leafCond.getAttributeCond().getType(),
+                                        attributeValue));
+                            } catch (ValidationException e) {
+                                LOG.error("Could not validate expression '"
+                                        + leafCond.getAttributeCond().
+                                        getExpression() + "'", e);
+                            }
+                        }
+                    }
+
+                break;
+
+            case NOT_LEAF:
+                leafCond.setType(NodeCond.Type.LEAF);
+
+                final AttributeCond attributeCondition =
+                        leafCond.getAttributeCond();
+
+                if (attributeCondition != null) {
                     UserSchema userSchema = schemaDAO.find(
                             leafCond.getAttributeCond().getSchema(),
                             UserSchema.class);
@@ -251,42 +366,43 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
                                 + leafCond.getAttributeCond().getSchema()
                                 + "'");
                     } else {
-                        UserAttributeValue example =
+                        UserAttributeValue attributeValue =
                                 new UserAttributeValue();
                         try {
                             if (leafCond.getAttributeCond().getType()
                                     == AttributeCond.Type.LIKE) {
 
-                                example.setStringValue(
+                                attributeValue.setStringValue(
                                         leafCond.getAttributeCond().
                                         getExpression());
                             } else {
-                                example = userSchema.getValidator().
+                                attributeValue =
+                                        userSchema.getValidator().
                                         getValue(
                                         leafCond.getAttributeCond().
                                         getExpression(),
-                                        example);
+                                        attributeValue);
                             }
 
                             criterion = Restrictions.and(
                                     Restrictions.eq("a.schema.name",
                                     leafCond.getAttributeCond().getSchema()),
-                                    getCriterion(
+                                    Restrictions.not(getCriterion(
                                     leafCond.getAttributeCond().getType(),
-                                    example));
+                                    attributeValue)));
+
+                            // if user doesn't have the attribute it won't be returned
+
                         } catch (ValidationException e) {
                             LOG.error("Could not validate expression '"
                                     + leafCond.getAttributeCond().
                                     getExpression() + "'", e);
                         }
                     }
+                } else {
+                    leafCond.setType(NodeCond.Type.LEAF);
+                    criterion = Restrictions.not(getCriterion(leafCond));
                 }
-
-                break;
-
-            case NOT_LEAF:
-                leafCond.setType(NodeCond.Type.LEAF);
-                criterion = Restrictions.not(getCriterion(leafCond));
                 break;
 
             default:
@@ -297,50 +413,50 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
 
     @Transactional(readOnly = true)
     private Criterion getCriterion(final AttributeCond.Type type,
-            final AbstractAttributeValue example) {
+            final AbstractAttributeValue attributeValue) {
 
         Criterion result = null;
         switch (type) {
             case EQ:
                 result = Restrictions.disjunction().
                         add(Restrictions.eq("av.stringValue",
-                        example.getStringValue())).
+                        attributeValue.getStringValue())).
                         add(Restrictions.eq("av.booleanValue",
-                        example.getBooleanValue())).
+                        attributeValue.getBooleanValue())).
                         add(Restrictions.eq("av.longValue",
-                        example.getLongValue())).
+                        attributeValue.getLongValue())).
                         add(Restrictions.eq("av.doubleValue",
-                        example.getDoubleValue())).
+                        attributeValue.getDoubleValue())).
                         add(Restrictions.eq("av.dateValue",
-                        example.getDateValue()));
+                        attributeValue.getDateValue()));
                 break;
 
             case GE:
                 result = Restrictions.disjunction().
                         add(Restrictions.ge("av.stringValue",
-                        example.getStringValue())).
+                        attributeValue.getStringValue())).
                         add(Restrictions.ge("av.booleanValue",
-                        example.getBooleanValue())).
+                        attributeValue.getBooleanValue())).
                         add(Restrictions.ge("av.longValue",
-                        example.getLongValue())).
+                        attributeValue.getLongValue())).
                         add(Restrictions.ge("av.doubleValue",
-                        example.getDoubleValue())).
+                        attributeValue.getDoubleValue())).
                         add(Restrictions.ge("av.dateValue",
-                        example.getDateValue()));
+                        attributeValue.getDateValue()));
                 break;
 
             case GT:
                 result = Restrictions.disjunction().
                         add(Restrictions.gt("av.stringValue",
-                        example.getStringValue())).
+                        attributeValue.getStringValue())).
                         add(Restrictions.gt("av.booleanValue",
-                        example.getBooleanValue())).
+                        attributeValue.getBooleanValue())).
                         add(Restrictions.gt("av.longValue",
-                        example.getLongValue())).
+                        attributeValue.getLongValue())).
                         add(Restrictions.gt("av.doubleValue",
-                        example.getDoubleValue())).
+                        attributeValue.getDoubleValue())).
                         add(Restrictions.gt("av.dateValue",
-                        example.getDateValue()));
+                        attributeValue.getDateValue()));
                 break;
 
             case ISNOTNULL:
@@ -355,35 +471,35 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
             case LE:
                 result = Restrictions.disjunction().
                         add(Restrictions.le("av.stringValue",
-                        example.getStringValue())).
+                        attributeValue.getStringValue())).
                         add(Restrictions.le("av.booleanValue",
-                        example.getBooleanValue())).
+                        attributeValue.getBooleanValue())).
                         add(Restrictions.le("av.longValue",
-                        example.getLongValue())).
+                        attributeValue.getLongValue())).
                         add(Restrictions.le("av.doubleValue",
-                        example.getDoubleValue())).
+                        attributeValue.getDoubleValue())).
                         add(Restrictions.le("av.dateValue",
-                        example.getDateValue()));
+                        attributeValue.getDateValue()));
                 break;
 
             case LIKE:
                 // LIKE operator is meaningful for strings only
                 result = Restrictions.like("av.stringValue",
-                        example.getStringValue());
+                        attributeValue.getStringValue());
                 break;
 
             case LT:
                 result = Restrictions.disjunction().
                         add(Restrictions.lt("av.stringValue",
-                        example.getStringValue())).
+                        attributeValue.getStringValue())).
                         add(Restrictions.lt("av.booleanValue",
-                        example.getBooleanValue())).
+                        attributeValue.getBooleanValue())).
                         add(Restrictions.lt("av.longValue",
-                        example.getLongValue())).
+                        attributeValue.getLongValue())).
                         add(Restrictions.lt("av.doubleValue",
-                        example.getDoubleValue())).
+                        attributeValue.getDoubleValue())).
                         add(Restrictions.lt("av.dateValue",
-                        example.getDateValue()));
+                        attributeValue.getDateValue()));
                 break;
 
             default:

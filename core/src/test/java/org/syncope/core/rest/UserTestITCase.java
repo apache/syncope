@@ -253,6 +253,39 @@ public class UserTestITCase extends AbstractTest {
     }
 
     @Test
+    public final void paginatedList() {
+        List<UserTO> users = Arrays.asList(
+                restTemplate.getForObject(
+                BASE_URL + "user/paginatedList/{page}/{size}.json",
+                UserTO[].class, 1, 2));
+
+        assertNotNull(users);
+        assertFalse(users.isEmpty());
+        assertEquals(2, users.size());
+
+        for (UserTO user : users) {
+            assertNotNull(user);
+        }
+
+        users = Arrays.asList(
+                restTemplate.getForObject(
+                BASE_URL + "user/paginatedList/{page}/{size}.json",
+                UserTO[].class, 2, 2));
+
+        assertNotNull(users);
+        assertFalse(users.isEmpty());
+        assertEquals(2, users.size());
+
+        users = Arrays.asList(
+                restTemplate.getForObject(
+                BASE_URL + "user/paginatedList/{page}/{size}.json",
+                UserTO[].class, 100, 2));
+
+        assertNotNull(users);
+        assertTrue(users.isEmpty());
+    }
+
+    @Test
     public final void read() {
         UserTO userTO = restTemplate.getForObject(
                 BASE_URL + "user/read/{userId}.json", UserTO.class, 1);
@@ -320,6 +353,55 @@ public class UserTestITCase extends AbstractTest {
                 restTemplate.postForObject(
                 BASE_URL + "user/search",
                 searchCondition, UserTO[].class));
+        assertNotNull(matchedUsers);
+        assertFalse(matchedUsers.isEmpty());
+        Set<Long> userIds = new HashSet<Long>(matchedUsers.size());
+        for (UserTO user : matchedUsers) {
+            userIds.add(user.getId());
+        }
+        assertEquals(2, userIds.size());
+        assertTrue(userIds.contains(2L));
+        assertTrue(userIds.contains(3L));
+    }
+
+    @Test
+    public final void paginatedSearch() {
+        // LIKE
+        AttributeCond usernameLeafCond1 =
+                new AttributeCond(AttributeCond.Type.LIKE);
+        usernameLeafCond1.setSchema("username");
+        usernameLeafCond1.setExpression("%o%");
+
+        AttributeCond usernameLeafCond2 =
+                new AttributeCond(AttributeCond.Type.LIKE);
+        usernameLeafCond2.setSchema("username");
+        usernameLeafCond2.setExpression("%i%");
+
+        NodeCond searchCondition = NodeCond.getAndCond(
+                NodeCond.getLeafCond(usernameLeafCond1),
+                NodeCond.getLeafCond(usernameLeafCond2));
+
+        assertTrue(searchCondition.checkValidity());
+
+        List<UserTO> matchedUsers = Arrays.asList(
+                restTemplate.postForObject(
+                BASE_URL + "user/paginatedSearch/{page}/{size}",
+                searchCondition, UserTO[].class, 1, 2));
+        assertNotNull(matchedUsers);
+        assertFalse(matchedUsers.isEmpty());
+        for (UserTO user : matchedUsers) {
+            assertNotNull(user);
+        }
+
+        // ISNULL
+        AttributeCond isNullCond = new AttributeCond(AttributeCond.Type.ISNULL);
+        isNullCond.setSchema("loginDate");
+        searchCondition = NodeCond.getLeafCond(isNullCond);
+
+        matchedUsers = Arrays.asList(
+                restTemplate.postForObject(
+                BASE_URL + "user/paginatedSearch/{page}/{size}",
+                searchCondition, UserTO[].class, 1, 2));
         assertNotNull(matchedUsers);
         assertFalse(matchedUsers.isEmpty());
         Set<Long> userIds = new HashSet<Long>(matchedUsers.size());

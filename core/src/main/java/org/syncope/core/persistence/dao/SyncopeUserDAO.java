@@ -27,9 +27,17 @@ public interface SyncopeUserDAO extends DAO {
 
     List<SyncopeUser> findByAttributeValue(UserAttributeValue attributeValue);
 
+    List<SyncopeUser> findByAttributeValue(UserAttributeValue attributeValue,
+            int page, int itemsPerPage);
+
     List<SyncopeUser> findAll();
 
+    List<SyncopeUser> findAll(int page, int itemsPerPage);
+
     List<SyncopeUser> search(NodeCond searchCondition);
+
+    List<SyncopeUser> search(NodeCond searchCondition,
+            int page, int itemsPerPage);
 
     SyncopeUser save(SyncopeUser syncopeUser);
 

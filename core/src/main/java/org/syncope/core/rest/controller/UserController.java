@@ -198,6 +198,20 @@ public class UserController extends AbstractController {
     }
 
     @RequestMapping(method = RequestMethod.GET,
+    value = "/paginatedList/{page}/{size}")
+    public List<UserTO> paginatedList(
+            @PathVariable("page") final int page,
+            @PathVariable("size") final int size) {
+        List<SyncopeUser> users = syncopeUserDAO.findAll(page, size);
+        List<UserTO> userTOs = new ArrayList<UserTO>(users.size());
+        for (SyncopeUser user : users) {
+            userTOs.add(userDataBinder.getUserTO(user, userWorkflow));
+        }
+
+        return userTOs;
+    }
+
+    @RequestMapping(method = RequestMethod.GET,
     value = "/read/{userId}")
     public UserTO read(@PathVariable("userId") Long userId)
             throws NotFoundException {
@@ -249,6 +263,33 @@ public class UserController extends AbstractController {
 
         List<SyncopeUser> matchingUsers =
                 syncopeUserDAO.search(searchCondition);
+        List<UserTO> result = new ArrayList<UserTO>(matchingUsers.size());
+        for (SyncopeUser user : matchingUsers) {
+            result.add(userDataBinder.getUserTO(user, userWorkflow));
+        }
+
+        return result;
+    }
+
+    @RequestMapping(method = RequestMethod.POST,
+    value = "/paginatedSearch/{page}/{size}")
+    public List<UserTO> paginatedSearch(
+            @RequestBody final NodeCond searchCondition,
+            @PathVariable("page") final int page,
+            @PathVariable("size") final int size)
+            throws InvalidSearchConditionException {
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("search called with condition " + searchCondition);
+        }
+
+        if (!searchCondition.checkValidity()) {
+            LOG.error("Invalid search condition: " + searchCondition);
+            throw new InvalidSearchConditionException();
+        }
+
+        List<SyncopeUser> matchingUsers =
+                syncopeUserDAO.search(searchCondition, page, size);
         List<UserTO> result = new ArrayList<UserTO>(matchingUsers.size());
         for (SyncopeUser user : matchingUsers) {
             result.add(userDataBinder.getUserTO(user, userWorkflow));
