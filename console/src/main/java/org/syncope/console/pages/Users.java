@@ -208,7 +208,8 @@ public class Users extends BasePage {
                     AjaxLink deleteLink = new AjaxLink("deleteLink") {
                     @Override
                     public void onClick(AjaxRequestTarget target) {
-                        usersRestClient.deleteUser(userTO.getId() + "");
+                        usersRestClient.deleteUser(String.valueOf(userTO
+                                .getId()));
 
                         info(getString("operation_succeded"));
                         target.addComponent(feedbackPanel);
