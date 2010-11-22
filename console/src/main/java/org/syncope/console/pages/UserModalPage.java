@@ -37,6 +37,7 @@ import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 
 import org.apache.wicket.extensions.markup.html.form.palette.Palette;
@@ -327,7 +328,7 @@ container.setOutputMarkupId(true);
 
 userForm.add(container);
 
-submit = new AjaxButton("submit", new Model(getString("submit"))) {
+submit = new IndicatingAjaxButton ("submit", new Model(getString("submit"))){
 
     @Override
     protected void onSubmit(AjaxRequestTarget target, Form form) {
@@ -372,9 +373,24 @@ submit = new AjaxButton("submit", new Model(getString("submit"))) {
     protected void onError(AjaxRequestTarget target, Form form) {
         target.addComponent(form.get("feedback"));
     }
+
+//    @Override
+//    protected IAjaxCallDecorator getAjaxCallDecorator() {
+//        return new AjaxPostprocessingCallDecorator(super.getAjaxCallDecorator()) {
+//            private static final long serialVersionUID = 1L;
+//
+//            @Override
+//            public CharSequence postDecorateScript(CharSequence script) {
+//                return script + "for(i = 0;i<document.forms[0].length;i++) " +
+//                        "{document.forms[0].elements[i].disabled ='disabled'}";
+//            }
+//        };
+//    }
 };
 
 userForm.add(submit);
+
+//userForm.add(new NiceButton("submit", new Model(getString("submit"))));
 
 userForm.add(new FeedbackPanel("feedback").setOutputMarkupId(true));
 
@@ -534,7 +550,20 @@ public void cloneOldUserTO(UserTO userTO) {
 
     oldUser.setId(userTO.getId());
     oldUser.setPassword(userTO.getPassword());
-    oldUser.setAttributes(userTO.getAttributes());
+
+    AttributeTO tempAttr;
+    for(AttributeTO attribute : userTO.getAttributes()) {
+        tempAttr = new AttributeTO();
+        tempAttr.setReadonly(attribute.isReadonly());
+
+        tempAttr.setSchema(attribute.getSchema());
+
+        for (String tempVal : attribute.getValues() )
+            tempAttr.getValues().add(tempVal);
+
+        oldUser.getAttributes().add(tempAttr);
+    }
+
     oldUser.setResources(userTO.getResources());
     oldUser.setMemberships(new ArrayList<MembershipTO>());
 

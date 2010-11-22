@@ -15,9 +15,11 @@
 
 package org.syncope.console.wicket.markup.html.form;
 
+import java.util.List;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.markup.html.form.DropDownChoice;
+import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 
@@ -29,6 +31,17 @@ import org.apache.wicket.model.PropertyModel;
  {
     public UpdatingDropDownChoice(String id, PropertyModel model, IModel imodel) {
         super(id, model, imodel);
+        add( new AjaxFormComponentUpdatingBehavior( "onblur" )
+        {
+            protected void onUpdate( AjaxRequestTarget target )
+            {
+            }
+        } );
+    }
+
+     public UpdatingDropDownChoice(String id, IModel model,
+             List<String> choices, IChoiceRenderer renderer) {
+        super(id, model, choices,renderer);
         add( new AjaxFormComponentUpdatingBehavior( "onblur" )
         {
             protected void onUpdate( AjaxRequestTarget target )
