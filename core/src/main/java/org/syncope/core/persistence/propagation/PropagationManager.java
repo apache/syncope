@@ -407,7 +407,7 @@ public class PropagationManager {
         return Collections.singletonMap(accountId, attributes);
     }
 
-    private void propagate(final TaskExecution execution) {
+    protected void propagate(final TaskExecution execution) {
         execution.setStartDate(new Date());
 
         try {
