@@ -71,18 +71,18 @@ public class TaskTestITCase extends AbstractTest {
         assertNotNull(taskTO);
     }
 
-        @Test
+    @Test
     public final void deal() {
         try {
             restTemplate.delete(BASE_URL + "task/delete/{taskId}", 0);
         } catch (HttpStatusCodeException e) {
-            assertEquals(e.getStatusCode(), HttpStatus.NOT_FOUND);
+            assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
         }
 
         TaskExecutionTO execution = restTemplate.getForObject(
                 BASE_URL + "task/execute/{taskId}",
                 TaskExecutionTO.class, 1);
-        assertEquals(execution.getStatus(), TaskExecutionStatus.SUBMITTED);
+        assertEquals(TaskExecutionStatus.CREATED, execution.getStatus());
 
         Exception exception = null;
         try {
@@ -98,8 +98,8 @@ public class TaskTestITCase extends AbstractTest {
                 BASE_URL + "task/execution/report/{executionId}"
                 + "?executionStatus=SUCCESS&message=OK",
                 TaskExecutionTO.class, execution.getId());
-        assertEquals(execution.getStatus(), TaskExecutionStatus.SUCCESS);
-        assertEquals(execution.getMessage(), "OK");
+        assertEquals(TaskExecutionStatus.SUCCESS, execution.getStatus());
+        assertEquals("OK", execution.getMessage());
 
         restTemplate.delete(BASE_URL + "task/delete/{taskId}", 1);
         try {
@@ -107,8 +107,7 @@ public class TaskTestITCase extends AbstractTest {
                     BASE_URL + "task/execution/read/{executionId}",
                     TaskExecutionTO.class, execution.getId());
         } catch (HttpStatusCodeException e) {
-            assertEquals(e.getStatusCode(), HttpStatus.NOT_FOUND);
+            assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
         }
     }
-
 }

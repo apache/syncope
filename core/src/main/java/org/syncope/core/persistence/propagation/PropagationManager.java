@@ -32,7 +32,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Component;
 import org.syncope.core.persistence.ConnectorInstanceLoader;
 import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.beans.ConnectorInstance;
@@ -46,6 +47,7 @@ import org.syncope.core.persistence.beans.user.UserAttribute;
 import org.syncope.core.persistence.beans.user.UserAttributeValue;
 import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.TaskDAO;
+import org.syncope.core.rest.data.TaskDataBinder;
 import org.syncope.types.PropagationMode;
 import org.syncope.types.ResourceOperationType;
 import org.syncope.types.SchemaType;
@@ -55,9 +57,7 @@ import org.syncope.types.TaskExecutionStatus;
 /**
  * Manage the data propagation to target resources.
  */
-@Transactional(rollbackFor = {
-    Throwable.class
-})
+@Component
 public class PropagationManager {
 
     /**
@@ -78,10 +78,14 @@ public class PropagationManager {
     @Autowired
     private TaskDAO taskDAO;
 
+    @Autowired
+    private TaskDataBinder taskDataBinder;
+
     /**
      * Create the user on every associated resource.
      * Exceptions will be ignored.
      * @param user to be created.
+     * @param password to be set.
      * @throws PropagationException
      */
     public void create(final SyncopeUser user, final String password)
@@ -97,6 +101,7 @@ public class PropagationManager {
      * Exceptions won't be ignored and the process will be stopped if the
      * creation fails onto a synchronous resource.
      * @param user to be created.
+     * @param password to be set.
      * @param syncResourceNames to ask for a synchronous or
      * asynchronous provisioning.
      * @throws PropagationException
@@ -130,6 +135,7 @@ public class PropagationManager {
      * Exceptions won't be ignored and the process will be stoppend if the
      * provisioning fails onto a synchronous resource.
      * @param user to be updated.
+     * @param password to be updated.
      * @param affectedResources resources affected by this update
      * @param syncResourceNames to ask for a synchronous or asynchronous update.
      * @throws PropagationException
@@ -190,7 +196,7 @@ public class PropagationManager {
         LOG.debug("After purge: {}", resourceOperations);
 
         Task task;
-        TaskExecution taskExecution;
+        TaskExecution execution;
         for (ResourceOperationType type : ResourceOperationType.values()) {
             for (TargetResource resource : resourceOperations.get(type)) {
                 Map<String, Set<Attribute>> preparedAttributes =
@@ -209,31 +215,32 @@ public class PropagationManager {
                 task.setAttributes(
                         preparedAttributes.values().iterator().next());
 
-                taskExecution = new TaskExecution();
-                taskExecution.setTask(task);
-                task.addExecution(taskExecution);
+                execution = new TaskExecution();
+                execution.setTask(task);
+                task.addExecution(execution);
 
                 task = taskDAO.save(task);
                 // re-read it after saving
-                taskExecution = task.getExecutions().get(0);
+                execution = task.getExecutions().get(0);
 
-                LOG.debug("Start propagation ...");
+                LOG.debug("Execution started for {}", task);
 
-                if (PropagationMode.SYNC.equals(
-                        taskExecution.getTask().getPropagationMode())) {
-                    propagate(taskExecution);
+                if (PropagationMode.SYNC
+                        == execution.getTask().getPropagationMode()) {
+
+                    syncPropagate(execution);
                 } else {
-                    asyncPropagate(taskExecution);
+                    asyncPropagate(execution);
                 }
 
-                LOG.debug("Returned from propagation...");
+                LOG.debug("Execution finished for {}", task);
 
                 if (syncResourceNames.contains(resource.getName())
-                        && taskExecution.getStatus()
+                        && execution.getStatus()
                         != TaskExecutionStatus.SUCCESS) {
 
                     throw new PropagationException(resource.getName(),
-                            taskExecution.getMessage());
+                            execution.getMessage());
                 }
             }
         }
@@ -400,16 +407,15 @@ public class PropagationManager {
         return Collections.singletonMap(accountId, attributes);
     }
 
-    public void propagate(final TaskExecution execution) {
+    private void propagate(final TaskExecution execution) {
         execution.setStartDate(new Date());
 
         try {
             ConnectorInstance connectorInstance = execution.getTask().
-                    getResource().
-                    getConnector();
+                    getResource().getConnector();
 
-            ConnectorFacadeProxy connector = ConnectorInstanceLoader.getConnector(
-                    connectorInstance.getId().toString());
+            ConnectorFacadeProxy connector = ConnectorInstanceLoader.
+                    getConnector(connectorInstance.getId().toString());
 
             if (connector == null) {
                 LOG.error("Connector instance bean "
@@ -463,10 +469,8 @@ public class PropagationManager {
                 default:
             }
 
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Succesfully propagated to resource "
-                        + execution.getTask().getResource().getName());
-            }
+            LOG.debug("Succesfully propagated to resource {}",
+                    execution.getTask().getResource().getName());
 
             execution.setStatus(execution.getTask().getPropagationMode()
                     == PropagationMode.SYNC
@@ -489,17 +493,17 @@ public class PropagationManager {
         }
     }
 
+    public void syncPropagate(final TaskExecution execution) {
+        LOG.debug("Synchronous execution {}", execution);
+
+        propagate(execution);
+    }
+
+    @Async
     public void asyncPropagate(final TaskExecution execution) {
-        LOG.debug("Asynchronous task execution");
+        LOG.debug("Asynchronous execution {}", execution);
 
-        // @Async doesn't work so we go on, temporary, with a simple thread
-        
-        new Thread() {
-
-            @Override
-            public void run() {
-                propagate(execution);
-            }
-        }.start();
+        propagate(execution);
+        taskDataBinder.storeTaskExecution(execution);
     }
 }

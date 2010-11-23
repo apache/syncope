@@ -14,15 +14,15 @@
  */
 package org.syncope.core.rest.data;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.client.to.TaskExecutionTO;
 import org.syncope.client.to.TaskTO;
 import org.syncope.core.persistence.beans.Task;
 import org.syncope.core.persistence.beans.TaskExecution;
+import org.syncope.core.persistence.dao.TaskExecutionDAO;
 
 @Component
 @Transactional(rollbackFor = {
@@ -30,20 +30,23 @@ import org.syncope.core.persistence.beans.TaskExecution;
 })
 public class TaskDataBinder {
 
-    /**
-     * Logger.
-     */
-    private static final Logger LOG = LoggerFactory.getLogger(
-            TaskDataBinder.class);
     private static final String[] IGNORE_TASK_PROPERTIES = {
         "executions", "resource"};
+
     private static final String[] IGNORE_TASK_EXECUTION_PROPERTIES = {
         "task"};
+
+    @Autowired
+    private TaskExecutionDAO taskExecutionDAO;
+
+    public TaskExecution storeTaskExecution(final TaskExecution execution) {
+        return taskExecutionDAO.save(execution);
+    }
 
     public TaskExecutionTO getTaskExecutionTO(final TaskExecution execution) {
         TaskExecutionTO executionTO = new TaskExecutionTO();
         BeanUtils.copyProperties(execution, executionTO,
-                                 IGNORE_TASK_EXECUTION_PROPERTIES);
+                IGNORE_TASK_EXECUTION_PROPERTIES);
         executionTO.setTask(execution.getTask().getId());
 
         return executionTO;

@@ -44,10 +44,13 @@ public class TaskController extends AbstractController {
 
     @Autowired
     private TaskDAO taskDAO;
+
     @Autowired
     private TaskExecutionDAO taskExecutionDAO;
+
     @Autowired
     private TaskDataBinder taskDataBinder;
+
     @Autowired
     private PropagationManager propagationManager;
 
@@ -116,8 +119,20 @@ public class TaskController extends AbstractController {
         TaskExecution execution = new TaskExecution();
         execution.setTask(task);
         task.addExecution(execution);
+        execution = taskExecutionDAO.save(execution);
 
-        propagationManager.propagate(execution);
+        LOG.debug("Execution started for {}", task);
+
+        if (PropagationMode.SYNC
+                == execution.getTask().getPropagationMode()) {
+
+            propagationManager.syncPropagate(execution);
+        } else {
+            propagationManager.asyncPropagate(execution);
+        }
+
+        LOG.debug("Execution finished for {}", task);
+
         execution = taskExecutionDAO.save(execution);
 
         return taskDataBinder.getTaskExecutionTO(execution);

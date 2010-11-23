@@ -31,8 +31,7 @@ public class TaskDAOImpl extends AbstractDAOImpl
 
     @Override
     public List<Task> findAll() {
-        Query query = entityManager.createQuery(
-                "SELECT e FROM Task e");
+        Query query = entityManager.createQuery("SELECT e FROM Task e");
         return query.getResultList();
     }
 

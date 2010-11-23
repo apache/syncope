@@ -90,9 +90,7 @@ public class ConnectorInstanceLoader implements ServletContextListener {
             throw new NotFoundException("Bundles from dir "
                     + connectorBundleDir.getConfValue());
         }
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Bundle file URLs: " + bundleFileURLs);
-        }
+        LOG.debug("Bundle file URLs: {}", bundleFileURLs);
 
         // 3. Get connector info manager
         ConnectorInfoManager manager =
@@ -125,21 +123,13 @@ public class ConnectorInstanceLoader implements ServletContextListener {
             removeConnector(instance.getId().toString());
         }
 
-        ConfigurableApplicationContext context =
-                ApplicationContextManager.getApplicationContext();
-
         ConnectorFacadeProxy connector = new ConnectorFacadeProxy(instance);
-
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Connector " + connector);
-        }
+        LOG.debug("Connector to be registered: {}", connector);
 
         getBeanFactory().registerSingleton(
                 instance.getId().toString(), connector);
-
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Registered bean " + instance.getId().toString());
-        }
+        LOG.debug("Successfully registered bean {}",
+                instance.getId().toString());
     }
 
     public static void removeConnector(final String id) {

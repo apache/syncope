@@ -41,26 +41,31 @@ public class TaskExecution extends AbstractBaseBean {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
     /**
      * Start instant of this execution.
      */
     @Temporal(TemporalType.TIMESTAMP)
     private Date startDate;
+
     /**
      * End instant of this execution.
      */
     @Temporal(TemporalType.TIMESTAMP)
     private Date endDate;
+
     /**
      * Did this execution completed with success?
      */
     @Enumerated(EnumType.STRING)
     private TaskExecutionStatus status;
+
     /**
      * Any information to be accompained to this execution's result.
      */
     @Lob
     private String message;
+
     /**
      * The referred task.
      */

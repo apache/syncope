@@ -26,7 +26,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -52,42 +51,48 @@ public class Task extends AbstractBaseBean {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
     /**
      * @see PropagationMode
      */
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private PropagationMode propagationMode;
+
     /**
      * @see ResourceOperationType
      */
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ResourceOperationType resourceOperationType;
+
     /**
      * The accountId on the target resource.
      */
     private String accountId;
+
     /**
      * The (optional) former accountId on the target resource.
      */
     private String oldAccountId;
+
     /**
      * Attributes to be propagated.
      */
     @Lob
     @Column(nullable = false)
     private String xmlAttributes;
+
     /**
      * TargetResource to which the propagation happens.
      */
     @ManyToOne
     private TargetResource resource;
+
     /**
      * When this task has been (or will be) executed, what its result was.
      */
-    @OneToMany(cascade = CascadeType.MERGE, mappedBy = "task",
-    fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.MERGE, mappedBy = "task")
     @Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
     private List<TaskExecution> executions;
 
