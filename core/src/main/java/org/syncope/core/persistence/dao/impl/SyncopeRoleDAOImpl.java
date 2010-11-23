@@ -2,9 +2,9 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,7 +19,6 @@ import java.util.Collections;
 import java.util.List;
 import javax.persistence.Query;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.Entitlement;
 import org.syncope.core.persistence.beans.membership.Membership;
 import org.syncope.core.persistence.beans.role.RoleAttribute;
@@ -32,7 +31,6 @@ public class SyncopeRoleDAOImpl extends AbstractDAOImpl
         implements SyncopeRoleDAO {
 
     @Override
-    @Transactional(readOnly = true)
     public SyncopeRole find(final String name, final Long parentId) {
         Query query = null;
 
@@ -53,13 +51,11 @@ public class SyncopeRoleDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    @Transactional(readOnly = true)
     public SyncopeRole find(final Long id) {
         return entityManager.find(SyncopeRole.class, id);
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<SyncopeRole> findChildren(final Long roleId) {
         Query query = entityManager.createQuery(
                 "SELECT r FROM SyncopeRole r WHERE "
@@ -81,7 +77,6 @@ public class SyncopeRoleDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<RoleAttribute> findInheritedAttributes(final SyncopeRole role) {
         if (role.getParent() == null) {
             return Collections.EMPTY_LIST;
@@ -112,7 +107,6 @@ public class SyncopeRoleDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<RoleDerivedAttribute> findInheritedDerivedAttributes(
             final SyncopeRole role) {
 
@@ -145,7 +139,6 @@ public class SyncopeRoleDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<SyncopeRole> findAll() {
         Query query = entityManager.createQuery("SELECT e FROM SyncopeRole e");
         return query.getResultList();
@@ -159,7 +152,7 @@ public class SyncopeRoleDAOImpl extends AbstractDAOImpl
     @Override
     public void delete(final Long id) {
         SyncopeRole role = find(id);
-        if (id == null) {
+        if (role == null) {
             return;
         }
 

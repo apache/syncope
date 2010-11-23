@@ -96,8 +96,6 @@
         <jsp-api.version>2.1</jsp-api.version>
         <jstl.version>1.2</jstl.version>
 
-        <bouncycastle.version>140</bouncycastle.version>
-
         <commons-jexl.version>2.0.1</commons-jexl.version>
         <commons-lang.version>2.5</commons-lang.version>
         <commons-email.version>1.2</commons-email.version>
@@ -159,12 +157,6 @@
                 <groupId>javax.servlet</groupId>
                 <artifactId>jstl</artifactId>
                 <version>${jstl.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>bouncycastle</groupId>
-                <artifactId>bcprov-jdk16</artifactId>
-                <version>${bouncycastle.version}</version>
             </dependency>
 
             <dependency>

@@ -17,7 +17,6 @@ package org.syncope.core.persistence.dao.impl;
 import java.util.List;
 import javax.persistence.Query;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.AbstractAttribute;
 import org.syncope.core.persistence.dao.AttributeDAO;
 
@@ -26,7 +25,6 @@ public class AttributeDAOImpl extends AbstractDAOImpl
         implements AttributeDAO {
 
     @Override
-    @Transactional(readOnly = true)
     public <T extends AbstractAttribute> T find(final Long id,
             final Class<T> reference) {
 
@@ -34,7 +32,6 @@ public class AttributeDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    @Transactional(readOnly = true)
     public <T extends AbstractAttribute> List<T> findAll(
             final Class<T> reference) {
 

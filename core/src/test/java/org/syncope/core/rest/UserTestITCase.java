@@ -39,6 +39,7 @@ import org.syncope.client.to.UserTO;
 import org.syncope.client.to.WorkflowActionsTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
+import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.workflow.Constants;
 import org.syncope.types.SyncopeClientExceptionType;
 
@@ -458,7 +459,10 @@ public class UserTestITCase extends AbstractTest {
         userTO = restTemplate.postForObject(BASE_URL + "user/update",
                 userMod, UserTO.class);
 
-        assertEquals("newPassword", userTO.getPassword());
+        SyncopeUser passwordTestUser = new SyncopeUser();
+        passwordTestUser.setPassword("newPassword");
+        assertEquals(passwordTestUser.getPassword(), userTO.getPassword());
+        
         assertEquals(1, userTO.getMemberships().size());
         assertEquals(1, userTO.getMemberships().iterator().next().
                 getAttributes().size());

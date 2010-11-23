@@ -84,10 +84,10 @@ public class PropagationManager {
      * @param user to be created.
      * @throws PropagationException
      */
-    public void create(final SyncopeUser user)
+    public void create(final SyncopeUser user, final String password)
             throws PropagationException {
 
-        create(user, Collections.EMPTY_SET);
+        create(user, password, Collections.EMPTY_SET);
     }
 
     /**
@@ -101,7 +101,8 @@ public class PropagationManager {
      * asynchronous provisioning.
      * @throws PropagationException
      */
-    public void create(SyncopeUser user, Set<String> syncResourceNames)
+    public void create(final SyncopeUser user,
+            final String password, Set<String> syncResourceNames)
             throws PropagationException {
 
         if (syncResourceNames == null) {
@@ -119,7 +120,7 @@ public class PropagationManager {
         ResourceOperations resourceOperations = new ResourceOperations();
         resourceOperations.set(ResourceOperationType.CREATE, resources);
 
-        provision(user, resourceOperations, syncResourceNames);
+        provision(user, password, resourceOperations, syncResourceNames);
     }
 
     /**
@@ -133,8 +134,9 @@ public class PropagationManager {
      * @param syncResourceNames to ask for a synchronous or asynchronous update.
      * @throws PropagationException
      */
-    public void update(SyncopeUser user,
-            ResourceOperations resourceOperations,
+    public void update(final SyncopeUser user,
+            final String password,
+            final ResourceOperations resourceOperations,
             Set<String> syncResourceNames)
             throws PropagationException {
 
@@ -142,7 +144,7 @@ public class PropagationManager {
             syncResourceNames = Collections.EMPTY_SET;
         }
 
-        provision(user, resourceOperations, syncResourceNames);
+        provision(user, password, resourceOperations, syncResourceNames);
     }
 
     public void delete(SyncopeUser user, Set<String> syncResourceNames)
@@ -163,7 +165,7 @@ public class PropagationManager {
         ResourceOperations resourceOperations = new ResourceOperations();
         resourceOperations.set(ResourceOperationType.DELETE, resources);
 
-        provision(user, resourceOperations, syncResourceNames);
+        provision(user, null, resourceOperations, syncResourceNames);
     }
 
     /**
@@ -175,27 +177,24 @@ public class PropagationManager {
      */
     private void provision(
             final SyncopeUser user,
+            final String password,
             final ResourceOperations resourceOperations,
             final Set<String> syncResourceNames)
             throws PropagationException {
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Provisioning with user " + user + ":\n"
-                    + resourceOperations);
-        }
+        LOG.debug("Provisioning with user {}:\n{}",
+                user, resourceOperations);
 
         // Avoid duplicates - see javadoc
         resourceOperations.purge();
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("After purge: " + resourceOperations);
-        }
+        LOG.debug("After purge: {}", resourceOperations);
 
         Task task;
         TaskExecution taskExecution;
         for (ResourceOperationType type : ResourceOperationType.values()) {
             for (TargetResource resource : resourceOperations.get(type)) {
                 Map<String, Set<Attribute>> preparedAttributes =
-                        prepareAttributes(user, resource);
+                        prepareAttributes(user, password, resource);
                 String accountId =
                         preparedAttributes.keySet().iterator().next();
 
@@ -241,7 +240,7 @@ public class PropagationManager {
     }
 
     private Map<String, Set<Attribute>> prepareAttributes(SyncopeUser user,
-            TargetResource resource) {
+            String password, TargetResource resource) {
 
         if (LOG.isDebugEnabled()) {
             LOG.debug("Preparing resource attributes for " + user
@@ -253,27 +252,24 @@ public class PropagationManager {
         Set<Attribute> attributes = new HashSet<Attribute>();
 
         // cast to be applied on SchemaValueType
-        Class castToBeApplied = null;
+        Class castToBeApplied;
 
         // account id
         String accountId = null;
 
         // resource field values
-        Set objValues = null;
+        Set objValues;
 
         // syncope user attribute
-        UserAttribute userAttribute = null;
+        UserAttribute userAttribute;
         // syncope user attribute schema type
         SchemaValueType schemaValueType = null;
         // syncope user attribute values
-        List<UserAttributeValue> values = null;
+        List<UserAttributeValue> values;
 
         for (SchemaMapping mapping : resource.getMappings()) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Process schema " + mapping.getSchemaName()
-                        + "(" + mapping.getSchemaType().getClassName()
-                        + ")");
-            }
+            LOG.debug("Processing schema {} ({})", mapping.getSchemaName(),
+                    mapping.getSchemaType().getClassName());
 
             try {
                 AbstractSchema schema = null;
@@ -316,9 +312,15 @@ public class PropagationManager {
                     UserAttributeValue userAttributeValue =
                             new UserAttributeValue();
 
-                    userAttributeValue.setStringValue(
-                            SchemaType.AccountId.equals(mapping.getSchemaType())
-                            ? user.getId().toString() : user.getPassword());
+                    if (SchemaType.AccountId.equals(mapping.getSchemaType())) {
+                        userAttributeValue.setStringValue(
+                                user.getId().toString());
+                    }
+                    if (SchemaType.Password.equals(mapping.getSchemaType())
+                            && password != null) {
+
+                        userAttributeValue.setStringValue(password);
+                    }
 
                     values = Collections.singletonList(userAttributeValue);
                 }

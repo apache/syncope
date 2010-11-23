@@ -36,7 +36,10 @@ import org.syncope.core.persistence.beans.user.SyncopeUser;
 
 @Entity
 @Table(uniqueConstraints =
-@UniqueConstraint(columnNames = {"syncopeUser_id", "syncopeRole_id"}))
+@UniqueConstraint(columnNames = {
+    "syncopeUser_id",
+    "syncopeRole_id"
+}))
 public class Membership extends AbstractAttributable {
 
     @Id

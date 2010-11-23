@@ -20,7 +20,6 @@ import java.util.Set;
 import javax.persistence.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.AbstractAttribute;
 import org.syncope.core.persistence.beans.AbstractDerivedSchema;
 import org.syncope.core.persistence.beans.AbstractSchema;
@@ -41,7 +40,6 @@ public class SchemaDAOImpl extends AbstractDAOImpl
     private ResourceDAO resourceDAO;
 
     @Override
-    @Transactional(readOnly = true)
     public <T extends AbstractSchema> T find(final String name,
             final Class<T> reference) {
 
@@ -49,7 +47,6 @@ public class SchemaDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    @Transactional(readOnly = true)
     public <T extends AbstractSchema> List<T> findAll(
             final Class<T> reference) {
 

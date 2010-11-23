@@ -34,17 +34,17 @@
         <jetty.port>8888</jetty.port>
 
         <cargo.servlet.port>9080</cargo.servlet.port>
-        <cargo.log>/tmp/syncope-core-cargo.log</cargo.log>
-        <cargo.output>/tmp/syncope-core-cargo-output.log</cargo.output>
+        <cargo.log>/var/tmp/syncope-core-cargo.log</cargo.log>
+        <cargo.output>/var/tmp/syncope-core-cargo-output.log</cargo.output>
 
-        <logfile>/tmp/syncope-core.log</logfile>
-        <logfile.persistence>/tmp/syncope-core-persistence.log</logfile.persistence>
-        <logfile.rest>/tmp/syncope-core-rest.log</logfile.rest>
-        <logfile.identityconnectors>/tmp/syncope-core-identityconnectors.log</logfile.identityconnectors>
-        <logfile.test>/tmp/syncope-core-test.log</logfile.test>
-        <logfile.monitor>/tmp/syncope-core-monitor.log</logfile.monitor>
+        <logfile>/var/tmp/syncope-core.log</logfile>
+        <logfile.persistence>/var/tmp/syncope-core-persistence.log</logfile.persistence>
+        <logfile.rest>/var/tmp/syncope-core-rest.log</logfile.rest>
+        <logfile.identityconnectors>/var/tmp/syncope-core-identityconnectors.log</logfile.identityconnectors>
+        <logfile.test>/var/tmp/syncope-core-test.log</logfile.test>
+        <logfile.monitor>/var/tmp/syncope-core-monitor.log</logfile.monitor>
 
-        <bundles.directory>/tmp/bundles</bundles.directory>
+        <bundles.directory>/var/tmp/bundles</bundles.directory>
     </properties>
 
     <dependencies>
@@ -68,11 +68,6 @@
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>jstl</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>bouncycastle</groupId>
-            <artifactId>bcprov-jdk16</artifactId>
         </dependency>
 
         <dependency>

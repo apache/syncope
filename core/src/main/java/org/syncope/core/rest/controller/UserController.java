@@ -440,7 +440,8 @@ public class UserController extends AbstractController {
                     syncResourceNames);
         }
 
-        propagationManager.create(user, syncResourceNames);
+        propagationManager.create(
+                user, userTO.getPassword(), syncResourceNames);
 
         // User is created locally and propagated, let's advance on the workflow
         Map<String, Object> inputs = new HashMap<String, Object>();
@@ -501,7 +502,8 @@ public class UserController extends AbstractController {
                     + syncResourceNames);
         }
 
-        propagationManager.update(user, resourceOperations, syncResourceNames);
+        propagationManager.update(user, userMod.getPassword(),
+                resourceOperations, syncResourceNames);
 
         return userDataBinder.getUserTO(user, userWorkflow);
     }

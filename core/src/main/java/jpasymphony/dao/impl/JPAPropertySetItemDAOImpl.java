@@ -18,7 +18,6 @@ import java.util.List;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 import jpasymphony.beans.JPAPropertySetItem;
 import jpasymphony.dao.JPAPropertySetItemDAO;
 import org.syncope.core.persistence.dao.impl.AbstractDAOImpl;
@@ -28,13 +27,11 @@ public class JPAPropertySetItemDAOImpl extends AbstractDAOImpl
         implements JPAPropertySetItemDAO {
 
     @Override
-    @Transactional(readOnly = true)
     public JPAPropertySetItem find(final Long id) {
         return entityManager.find(JPAPropertySetItem.class, id);
     }
 
     @Override
-    @Transactional(readOnly = true)
     public JPAPropertySetItem find(final Long workflowEntryId,
             final String propertyKey) {
 
@@ -57,7 +54,6 @@ public class JPAPropertySetItemDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<JPAPropertySetItem> findAll() {
         Query query = entityManager.createQuery(
                 "SELECT e FROM JPAPropertySetItem e");
@@ -65,7 +61,6 @@ public class JPAPropertySetItemDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<JPAPropertySetItem> findAll(final Long workflowEntryId) {
         Query query = entityManager.createQuery(
                 "SELECT e FROM JPAPropertySetItem e "

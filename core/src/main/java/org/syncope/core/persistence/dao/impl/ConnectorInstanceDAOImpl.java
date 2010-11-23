@@ -18,26 +18,20 @@ import java.util.List;
 import javassist.NotFoundException;
 import javax.persistence.Query;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.ConnectorInstanceLoader;
 import org.syncope.core.persistence.beans.ConnectorInstance;
 import org.syncope.core.persistence.dao.ConnectorInstanceDAO;
 
-/**
- * Spring-JPA implementation.
- */
 @Repository
 public class ConnectorInstanceDAOImpl extends AbstractDAOImpl
         implements ConnectorInstanceDAO {
 
     @Override
-    @Transactional(readOnly = true)
     public ConnectorInstance find(final Long id) {
         return entityManager.find(ConnectorInstance.class, id);
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<ConnectorInstance> findAll() {
         Query query = entityManager.createQuery(
                 "SELECT e FROM ConnectorInstance e");

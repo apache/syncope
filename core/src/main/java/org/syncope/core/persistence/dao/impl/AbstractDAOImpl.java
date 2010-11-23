@@ -20,14 +20,10 @@ import javax.persistence.PersistenceContextType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Configurable;
-import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.AbstractBaseBean;
 import org.syncope.core.persistence.dao.DAO;
 
 @Configurable
-@Transactional(rollbackFor = {
-    Throwable.class
-})
 public abstract class AbstractDAOImpl implements DAO {
 
     /**

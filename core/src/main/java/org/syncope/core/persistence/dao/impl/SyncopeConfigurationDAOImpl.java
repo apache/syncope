@@ -2,9 +2,9 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,7 +17,6 @@ package org.syncope.core.persistence.dao.impl;
 import java.util.List;
 import javax.persistence.Query;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.SyncopeConfiguration;
 import org.syncope.core.persistence.dao.MissingConfKeyException;
 import org.syncope.core.persistence.dao.SyncopeConfigurationDAO;
@@ -27,8 +26,7 @@ public class SyncopeConfigurationDAOImpl extends AbstractDAOImpl
         implements SyncopeConfigurationDAO {
 
     @Override
-    @Transactional(readOnly = true)
-    public SyncopeConfiguration find(String name)
+    public SyncopeConfiguration find(final String name)
             throws MissingConfKeyException {
 
         SyncopeConfiguration syncopeConfiguration =
@@ -42,7 +40,6 @@ public class SyncopeConfigurationDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<SyncopeConfiguration> findAll() {
         Query query = entityManager.createQuery(
                 "SELECT e FROM SyncopeConfiguration e");
@@ -57,7 +54,7 @@ public class SyncopeConfigurationDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    public void delete(String name) {
+    public void delete(final String name) {
         try {
             entityManager.remove(find(name));
         } catch (MissingConfKeyException e) {

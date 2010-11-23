@@ -43,8 +43,7 @@
     <SyncopeConfiguration confKey="verifyToken.email.subject" confValue="Syncope: reset successful"/>
     <SyncopeConfiguration confKey="verifyToken.email.template.html" confValue="verifyToken.html"/>
     <SyncopeConfiguration confKey="verifyToken.email.template.txt" confValue="verifyToken.txt"/>
-    <SyncopeConfiguration confKey="identityconnectors.bundle.directory"
-                          confValue="/tmp/bundles"/>
+    <SyncopeConfiguration confKey="identityconnectors.bundle.directory" confValue="${bundles.directory}"/>
                           
     <SyncopeUser id="1" workflowId="0"/>
     <SyncopeUser id="2" workflowId="0"/>

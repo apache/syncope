@@ -36,8 +36,10 @@ public class PropagationManagerTest extends AbstractTest {
 
     @Autowired
     private ResourceDAO resourceDAO;
+
     @Autowired
     private SyncopeUserDAO syncopeUserDAO;
+
     @Autowired
     private PropagationManager propagationManager;
 
@@ -53,7 +55,7 @@ public class PropagationManagerTest extends AbstractTest {
 
         PropagationException pe = null;
         try {
-            propagationManager.create(user);
+            propagationManager.create(user, "password");
         } catch (PropagationException e) {
             pe = e;
         }
@@ -76,7 +78,8 @@ public class PropagationManagerTest extends AbstractTest {
 
         PropagationException pe = null;
         try {
-            propagationManager.update(user, resourceOperations, null);
+            propagationManager.update(
+                    user, "password", resourceOperations, null);
         } catch (PropagationException e) {
             pe = e;
         }
@@ -96,8 +99,8 @@ public class PropagationManagerTest extends AbstractTest {
 
         PropagationException re = null;
         try {
-            propagationManager.create(
-                    user, Collections.singleton("ws-target-resource-2"));
+            propagationManager.create(user, "password",
+                    Collections.singleton("ws-target-resource-2"));
         } catch (PropagationException e) {
             re = e;
         }
@@ -119,7 +122,7 @@ public class PropagationManagerTest extends AbstractTest {
 
         PropagationException re = null;
         try {
-            propagationManager.update(user, resourceOperations,
+            propagationManager.update(user, "password", resourceOperations,
                     Collections.singleton("ws-target-resource-2"));
         } catch (PropagationException e) {
             re = e;

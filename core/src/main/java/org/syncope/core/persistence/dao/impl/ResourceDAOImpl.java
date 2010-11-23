@@ -18,7 +18,6 @@ import java.util.List;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
@@ -31,7 +30,6 @@ public class ResourceDAOImpl extends AbstractDAOImpl
         implements ResourceDAO {
 
     @Override
-    @Transactional(readOnly = true)
     public TargetResource find(final String name) {
         Query query = entityManager.createNamedQuery("TargetResource.find");
         query.setParameter("name", name);
@@ -44,7 +42,6 @@ public class ResourceDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<TargetResource> findAll() {
         Query query = entityManager.createQuery(
                 "SELECT e FROM TargetResource e");
@@ -68,7 +65,6 @@ public class ResourceDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<SchemaMapping> getMappings(final String schemaName,
             final SchemaType schemaType) {
 
@@ -81,7 +77,6 @@ public class ResourceDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<SchemaMapping> getMappings(final String schemaName,
             final SchemaType schemaType, final String resourceName) {
 
@@ -95,7 +90,6 @@ public class ResourceDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    @Transactional(readOnly = true)
     public String getSchemaNameForAccountId(final String resourceName) {
         Query query = entityManager.createQuery(
                 "SELECT m FROM SchemaMapping m "
@@ -123,9 +117,8 @@ public class ResourceDAOImpl extends AbstractDAOImpl
         query.setParameter("schemaType", schemaType);
 
         int items = query.executeUpdate();
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Removed " + items + " schema mappings");
-        }
+        LOG.debug("Removed {} schema mappings", items);
+
     }
 
     @Override
@@ -134,10 +127,9 @@ public class ResourceDAOImpl extends AbstractDAOImpl
                 + SchemaMapping.class.getSimpleName()
                 + " m WHERE m.resource=:resource");
         query.setParameter("resource", resource);
+
         int items = query.executeUpdate();
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Removed " + items + " schema mappings");
-        }
+        LOG.debug("Removed {} schema mappings", items);
 
         resource.getMappings().clear();
     }

@@ -24,7 +24,6 @@ import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 import org.syncope.client.search.AttributeCond;
 import org.syncope.client.search.MembershipCond;
 import org.syncope.client.search.NodeCond;
@@ -49,7 +48,6 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
     private SyncopeRoleDAO syncopeRoleDAO;
 
     @Override
-    @Transactional(readOnly = true)
     public SyncopeUser find(final Long id) {
         Query query = entityManager.createNamedQuery("SyncopeUser.find");
         query.setParameter("id", id);
@@ -62,7 +60,6 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    @Transactional(readOnly = true)
     public SyncopeUser findByWorkflowId(final Long workflowId) {
         Query query = entityManager.createNamedQuery(
                 "SyncopeUser.findByWorkflowId");
@@ -72,7 +69,6 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<SyncopeUser> findByAttributeValue(
             final UserAttributeValue attributeValue) {
 
@@ -80,7 +76,6 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    @Transactional(readOnly = true)
     public final List<SyncopeUser> findByAttributeValue(
             final UserAttributeValue attributeValue,
             final int page, final int itemsPerPage) {
@@ -116,13 +111,11 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    @Transactional(readOnly = true)
     public final List<SyncopeUser> findAll() {
         return findAll(-1, -1);
     }
 
     @Override
-    @Transactional(readOnly = true)
     public final List<SyncopeUser> findAll(
             final int page, final int itemsPerPage) {
 
@@ -169,13 +162,11 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<SyncopeUser> search(final NodeCond searchCondition) {
         return search(searchCondition, -1, -1);
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<SyncopeUser> search(final NodeCond searchCondition,
             final int page, final int itemsPerPage) {
         if (LOG.isDebugEnabled()) {
@@ -200,7 +191,6 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
         return from > to ? Collections.EMPTY_LIST : result.subList(from, to);
     }
 
-    @Transactional(readOnly = true)
     private List<SyncopeUser> doSearch(
             final NodeCond nodeCond) {
         List<SyncopeUser> result;
@@ -279,7 +269,6 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
         return result;
     }
 
-    @Transactional(readOnly = true)
     private Criteria getBaseCriteria() {
         Session hibernateSess = (Session) entityManager.getDelegate();
         Criteria baseCriteria = hibernateSess.createCriteria(SyncopeUser.class).
@@ -293,7 +282,6 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
         return baseCriteria;
     }
 
-    @Transactional(readOnly = true)
     private Criterion getCriterion(final NodeCond leafCond) {
         Criterion criterion = null;
 
@@ -411,7 +399,6 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
         return criterion;
     }
 
-    @Transactional(readOnly = true)
     private Criterion getCriterion(final AttributeCond.Type type,
             final AbstractAttributeValue attributeValue) {
 

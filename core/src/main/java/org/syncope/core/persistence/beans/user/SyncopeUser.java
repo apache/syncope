@@ -14,8 +14,8 @@
  */
 package org.syncope.core.persistence.beans.user;
 
-import java.security.KeyPair;
-import java.security.Security;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -23,7 +23,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -39,11 +38,8 @@ import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import org.apache.commons.lang.RandomStringUtils;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.syncope.core.persistence.dao.MissingConfKeyException;
-import org.syncope.core.persistence.security.AsymmetricCipher;
 import org.syncope.core.persistence.beans.AbstractAttributable;
 import org.syncope.core.persistence.beans.AbstractAttribute;
 import org.syncope.core.persistence.beans.AbstractDerivedAttribute;
@@ -67,29 +63,13 @@ import org.syncope.core.persistence.beans.role.SyncopeRole;
 })
 public class SyncopeUser extends AbstractAttributable {
 
-    static {
-        BouncyCastleProvider securityProvider = new BouncyCastleProvider();
-        if (Security.getProvider(securityProvider.getName()) == null) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Setting BouncyCastle as security provider");
-            }
-
-            Security.addProvider(securityProvider);
-        }
-    }
     @Id
     @GeneratedValue(strategy = GenerationType.TABLE,
     generator = "SEQ_SyncopeUser")
     @TableGenerator(name = "SEQ_SyncopeUser", allocationSize = 100)
     private Long id;
 
-    @Basic
-    @Lob
-    private byte[] passwordKeyPair;
-
-    @Basic
-    @Lob
-    private byte[] password;
+    private String password;
 
     @OneToMany(cascade = CascadeType.MERGE, mappedBy = "syncopeUser")
     private List<Membership> memberships;
@@ -192,40 +172,25 @@ public class SyncopeUser extends AbstractAttributable {
     }
 
     public String getPassword() {
-        if (password == null || passwordKeyPair == null) {
-            return null;
-        }
-
-        String result = null;
-        try {
-            KeyPair kp = AsymmetricCipher.deserializeKeyPair(passwordKeyPair);
-            result = new String(AsymmetricCipher.decrypt(password,
-                    kp.getPrivate()));
-        } catch (Throwable t) {
-            LOG.error("Could not get the key pair and the password", t);
-        }
-
-        return result;
+        return password;
     }
 
     /**
-     * TODO: password policies
+     * TODO: password policies.
      * @param password
      */
-    public void setPassword(String password) {
+    public void setPassword(final String password) {
         if (password == null) {
             this.password = null;
-            this.passwordKeyPair = null;
-            return;
-        }
-
-        try {
-            KeyPair kp = AsymmetricCipher.generateKeyPair();
-            this.password = AsymmetricCipher.encrypt(password.getBytes(),
-                    kp.getPublic());
-            this.passwordKeyPair = AsymmetricCipher.serializeKeyPair(kp);
-        } catch (Throwable t) {
-            LOG.error("Could not set the password and the key pair", t);
+        } else {
+            MessageDigest md = null;
+            try {
+                md = MessageDigest.getInstance("MD5");
+                md.update(password.getBytes());
+                this.password = new String(md.digest());
+            } catch (NoSuchAlgorithmException e) {
+                LOG.error("Could not find required digest ");
+            }
         }
     }
 
@@ -312,8 +277,7 @@ public class SyncopeUser extends AbstractAttributable {
         return tokenExpireTime;
     }
 
-    public boolean checkToken(String token, String prefix) {
-
+    public boolean checkToken(final String token, String prefix) {
         if (prefix == null || prefix.isEmpty()) {
             prefix = "";
         } else {

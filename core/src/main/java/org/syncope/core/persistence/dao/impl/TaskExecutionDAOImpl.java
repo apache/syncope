@@ -17,7 +17,6 @@ package org.syncope.core.persistence.dao.impl;
 import java.util.List;
 import javax.persistence.Query;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.TaskExecution;
 import org.syncope.core.persistence.dao.TaskExecutionDAO;
 
@@ -26,13 +25,11 @@ public class TaskExecutionDAOImpl extends AbstractDAOImpl
         implements TaskExecutionDAO {
 
     @Override
-    @Transactional(readOnly = true)
     public TaskExecution find(final Long id) {
         return entityManager.find(TaskExecution.class, id);
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<TaskExecution> findAll() {
         Query query = entityManager.createQuery(
                 "SELECT e FROM TaskExecution e");

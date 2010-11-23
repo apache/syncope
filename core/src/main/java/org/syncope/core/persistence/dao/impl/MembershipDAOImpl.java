@@ -19,7 +19,6 @@ import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.membership.Membership;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
@@ -38,13 +37,11 @@ public class MembershipDAOImpl extends AbstractDAOImpl
     private SyncopeRoleDAO syncopeRoleDAO;
 
     @Override
-    @Transactional(readOnly = true)
     public Membership find(final Long id) {
         return entityManager.find(Membership.class, id);
     }
 
     @Override
-    @Transactional(readOnly = true)
     public Membership find(final SyncopeUser user, final SyncopeRole role) {
         Query query = entityManager.createQuery("SELECT e FROM Membership e "
                 + "WHERE e.syncopeUser = :user AND e.syncopeRole = :role");
@@ -66,7 +63,6 @@ public class MembershipDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<Membership> findAll() {
         Query query = entityManager.createQuery("SELECT e FROM Membership e");
         return query.getResultList();

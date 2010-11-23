@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Set;
 import javax.persistence.Query;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.AbstractAttributeValue;
 import org.syncope.core.persistence.dao.AttributeValueDAO;
 
@@ -28,7 +27,6 @@ public class AttributeValueDAOImpl extends AbstractDAOImpl
         implements AttributeValueDAO {
 
     @Override
-    @Transactional(readOnly = true)
     public <T extends AbstractAttributeValue> T find(
             final Long id, final Class<T> reference) {
 
@@ -36,7 +34,6 @@ public class AttributeValueDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    @Transactional(readOnly = true)
     public <T extends AbstractAttributeValue> boolean nonUniqueAttributeValue(
             final T attributeValue) {
 
@@ -71,7 +68,6 @@ public class AttributeValueDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    @Transactional(readOnly = true)
     public <T extends AbstractAttributeValue> List<T> findAll(
             final Class<T> reference) {
 

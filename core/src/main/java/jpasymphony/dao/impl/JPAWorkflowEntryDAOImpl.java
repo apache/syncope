@@ -23,7 +23,6 @@ import jpasymphony.dao.JPAPropertySetItemDAO;
 import jpasymphony.dao.JPAWorkflowEntryDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.dao.impl.AbstractDAOImpl;
 
 @Repository
@@ -34,13 +33,11 @@ public class JPAWorkflowEntryDAOImpl extends AbstractDAOImpl
     private JPAPropertySetItemDAO propertySetItemDAO;
 
     @Override
-    @Transactional(readOnly = true)
     public JPAWorkflowEntry find(final Long id) {
         return entityManager.find(JPAWorkflowEntry.class, id);
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<JPAWorkflowEntry> findAll() {
         Query query = entityManager.createQuery(
                 "SELECT e FROM JPAWorkflowEntry e");
