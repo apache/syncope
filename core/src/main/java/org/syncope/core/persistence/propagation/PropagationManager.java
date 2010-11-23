@@ -218,7 +218,17 @@ public class PropagationManager {
                 // re-read it after saving
                 taskExecution = task.getExecutions().get(0);
 
-                propagate(taskExecution);
+                LOG.debug("Start propagation ...");
+
+                if (PropagationMode.SYNC.equals(
+                        taskExecution.getTask().getPropagationMode())) {
+                    propagate(taskExecution);
+                } else {
+                    asyncPropagate(taskExecution);
+                }
+
+                LOG.debug("Returned from propagation...");
+
                 if (syncResourceNames.contains(resource.getName())
                         && taskExecution.getStatus()
                         != TaskExecutionStatus.SUCCESS) {
@@ -396,8 +406,7 @@ public class PropagationManager {
                     getResource().
                     getConnector();
 
-            ConnectorFacadeProxy connector = ConnectorInstanceLoader.
-                    getConnector(
+            ConnectorFacadeProxy connector = ConnectorInstanceLoader.getConnector(
                     connectorInstance.getId().toString());
 
             if (connector == null) {
@@ -476,5 +485,19 @@ public class PropagationManager {
         } finally {
             execution.setEndDate(new Date());
         }
+    }
+
+    public void asyncPropagate(final TaskExecution execution) {
+        LOG.debug("Asynchronous task execution");
+
+        // @Async doesn't work so we go on, temporary, with a simple thread
+        
+        new Thread() {
+
+            @Override
+            public void run() {
+                propagate(execution);
+            }
+        }.start();
     }
 }
