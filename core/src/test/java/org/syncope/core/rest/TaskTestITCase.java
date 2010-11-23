@@ -15,6 +15,8 @@
 package org.syncope.core.rest;
 
 import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import static org.junit.Assert.*;
 
 import java.util.List;
@@ -83,6 +85,12 @@ public class TaskTestITCase extends AbstractTest {
                 BASE_URL + "task/execute/{taskId}",
                 TaskExecutionTO.class, 1);
         assertEquals(TaskExecutionStatus.CREATED, execution.getStatus());
+
+        // To be sure that the execution above has time to start
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+        }
 
         Exception exception = null;
         try {
