@@ -46,15 +46,11 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * JPA implementation of OSWorkflow's WorkflowStore.
  * Still using Hibernate's criteria API (available since JPA 2.0).
  */
-@Transactional(rollbackFor = {
-    Throwable.class
-})
 public class JPAWorkflowStore implements WorkflowStore {
 
     @PersistenceContext(type = PersistenceContextType.TRANSACTION)
@@ -87,7 +83,6 @@ public class JPAWorkflowStore implements WorkflowStore {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public PropertySet getPropertySet(final long entryId)
             throws StoreException {
 
@@ -138,7 +133,6 @@ public class JPAWorkflowStore implements WorkflowStore {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List findCurrentSteps(final long entryId)
             throws StoreException {
 
@@ -147,7 +141,6 @@ public class JPAWorkflowStore implements WorkflowStore {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public WorkflowEntry findEntry(final long entryId)
             throws StoreException {
 
@@ -161,7 +154,6 @@ public class JPAWorkflowStore implements WorkflowStore {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List findHistorySteps(final long entryId)
             throws StoreException {
 
@@ -227,7 +219,6 @@ public class JPAWorkflowStore implements WorkflowStore {
      * #query(com.opensymphony.workflow.query.WorkflowExpressionQuery)
      */
     @Override
-    @Transactional(readOnly = true)
     public List query(final WorkflowExpressionQuery query)
             throws StoreException {
 

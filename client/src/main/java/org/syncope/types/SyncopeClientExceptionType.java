@@ -19,6 +19,9 @@ public enum SyncopeClientExceptionType {
     AlreadyExists(
     "Syncope.AlreadyExists",
     "Syncope.AlreadyExists.name"),
+    Deadlock(
+    "Syncope.Deadlock",
+    ""),
     InvalidPassword(
     "Syncope.InvalidPassword",
     "Syncope.InvalidPassword.reason"),
@@ -64,7 +67,9 @@ public enum SyncopeClientExceptionType {
     Workflow(
     "Syncope.Workflow",
     "Syncope.Workflow.message");
+
     private String headerValue;
+
     private String elementHeaderName;
 
     private SyncopeClientExceptionType(String headerValue,

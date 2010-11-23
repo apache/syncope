@@ -14,7 +14,18 @@
  */
 package org.syncope.types;
 
+/**
+ * Status of a TaskExecution.
+ *
+ * CREATED -> SUBMITTED or UBSUBMITTED (depending on the external resource to
+ * return success or failure).
+ * SUBMITTED -> SUCCESS or FAILURE (depending on the external resource to
+ * report success or failure).
+ *
+ * @see TaskExecution
+ */
 public enum TaskExecutionStatus {
 
     CREATED, SUBMITTED, UNSUBMITTED, SUCCESS, FAILURE
+
 }

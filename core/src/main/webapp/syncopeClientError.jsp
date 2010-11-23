@@ -1,3 +1,4 @@
+<%@page import="org.hibernate.exception.LockAcquisitionException"%>
 <%@page isErrorPage="true" contentType="application/json" pageEncoding="UTF-8"%>
 <%@page import="org.syncope.core.rest.data.InvalidSearchConditionException"%>
 <%@page import="org.syncope.core.persistence.dao.MissingConfKeyException"%>
@@ -46,13 +47,15 @@
                         SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
                         SyncopeClientExceptionType.Propagation.getHeaderValue());
                 response.setHeader(
-                        SyncopeClientExceptionType.Propagation.getElementHeaderName(),
+                        SyncopeClientExceptionType.Propagation.
+                        getElementHeaderName(),
                         ((PropagationException) ex).getResourceName());
 
                 statusCode = HttpServletResponse.SC_BAD_REQUEST;
             } else if (ex instanceof SyncopeClientCompositeErrorException) {
                 for (SyncopeClientException sce :
-                        ((SyncopeClientCompositeErrorException) ex).getExceptions()) {
+                        ((SyncopeClientCompositeErrorException) ex).
+                        getExceptions()) {
 
                     response.addHeader(
                             SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
@@ -65,11 +68,13 @@
                     }
                 }
 
-                statusCode = ((SyncopeClientCompositeErrorException) ex).getStatusCode().value();
+                statusCode = ((SyncopeClientCompositeErrorException) ex).
+                        getStatusCode().value();
             } else if (ex instanceof MultiUniqueValueException) {
                 response.setHeader(
                         SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
-                        SyncopeClientExceptionType.InvalidSchemaDefinition.getHeaderValue());
+                        SyncopeClientExceptionType.InvalidSchemaDefinition.
+                        getHeaderValue());
 
                 statusCode = HttpServletResponse.SC_BAD_REQUEST;
             } else if (ex instanceof MissingConfKeyException) {
@@ -84,7 +89,14 @@
             } else if (ex instanceof InvalidSearchConditionException) {
                 response.setHeader(
                         SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
-                        SyncopeClientExceptionType.InvalidSearchCondition.getHeaderValue());
+                        SyncopeClientExceptionType.InvalidSearchCondition.
+                        getHeaderValue());
+
+                statusCode = HttpServletResponse.SC_BAD_REQUEST;
+            } else if (ex.getCause() instanceof LockAcquisitionException) {
+                response.setHeader(
+                        SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
+                        SyncopeClientExceptionType.Deadlock.getHeaderValue());
 
                 statusCode = HttpServletResponse.SC_BAD_REQUEST;
             }

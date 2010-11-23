@@ -29,30 +29,35 @@ import org.syncope.types.SyncopeClientExceptionType;
 public class SyncopeClientErrorHandler extends DefaultResponseErrorHandler {
 
     public static final String EXCEPTION_TYPE_HEADER = "ExceptionType";
-    private static final Logger log = LoggerFactory.getLogger(
+
+    /**
+     * Logger.
+     */
+    private static final Logger LOG = LoggerFactory.getLogger(
             SyncopeClientErrorHandler.class);
-    public static final HttpStatus[] managedStatuses = new HttpStatus[]{
+
+    public static final HttpStatus[] MANAGED_STATUSES = new HttpStatus[]{
         HttpStatus.BAD_REQUEST, HttpStatus.NOT_FOUND};
 
     @Override
-    public void handleError(ClientHttpResponse response) throws IOException {
-        if (!ArrayUtils.contains(managedStatuses, response.getStatusCode())) {
+    public void handleError(final ClientHttpResponse response)
+            throws IOException {
+
+        if (!ArrayUtils.contains(MANAGED_STATUSES, response.getStatusCode())) {
             super.handleError(response);
+        }
+
+        List<String> exceptionTypesInHeaders = response.getHeaders().get(
+                EXCEPTION_TYPE_HEADER);
+        if (exceptionTypesInHeaders == null) {
+            LOG.debug("No " + EXCEPTION_TYPE_HEADER + " provided");
+
+            return;
         }
 
         SyncopeClientCompositeErrorException compositeException =
                 new SyncopeClientCompositeErrorException(
                 response.getStatusCode());
-
-        List<String> exceptionTypesInHeaders = response.getHeaders().get(
-                EXCEPTION_TYPE_HEADER);
-        if (exceptionTypesInHeaders == null) {
-            if (log.isDebugEnabled()) {
-                log.debug("No " + EXCEPTION_TYPE_HEADER + " provided");
-            }
-
-            return;
-        }
 
         SyncopeClientExceptionType exceptionType = null;
         SyncopeClientException clientException = null;
@@ -62,7 +67,7 @@ public class SyncopeClientErrorHandler extends DefaultResponseErrorHandler {
                 exceptionType = SyncopeClientExceptionType.getFromHeaderValue(
                         exceptionTypeAsString);
             } catch (IllegalArgumentException e) {
-                log.error("Unexpected value of "
+                LOG.error("Unexpected value of "
                         + EXCEPTION_TYPE_HEADER + ": " + exceptionTypeAsString,
                         e);
             }
@@ -86,7 +91,7 @@ public class SyncopeClientErrorHandler extends DefaultResponseErrorHandler {
 
         exceptionTypesInHeaders.removeAll(handledExceptions);
         if (!exceptionTypesInHeaders.isEmpty()) {
-            log.error("Unmanaged exceptions: " + exceptionTypesInHeaders);
+            LOG.error("Unmanaged exceptions: " + exceptionTypesInHeaders);
         }
 
         if (compositeException.hasExceptions()) {
