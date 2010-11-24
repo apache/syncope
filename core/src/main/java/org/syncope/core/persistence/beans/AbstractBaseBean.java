@@ -2,9 +2,9 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -35,19 +35,19 @@ public abstract class AbstractBaseBean implements Serializable {
             AbstractBaseBean.class);
 
     /**
-     * @param property the character representing a boolean value
+     * @param property the integer representing a boolean value
      * @return the boolean value corresponding to the property param
      */
-    protected final boolean isBooleanAsCharacter(final Character property) {
-        return property != null && property == 'T';
+    protected final boolean isBooleanAsInteger(final Integer property) {
+        return property != null && property == 1;
     }
 
     /**
-     * @param value the boolean value to be represented as character
-     * @return the character corresponding to the property param
+     * @param value the boolean value to be represented as integer
+     * @return the integer corresponding to the property param
      */
-    protected final Character getBooleanAsCharacter(final boolean value) {
-        return value ? 'T' : 'F';
+    protected final Integer getBooleanAsInteger(final boolean value) {
+        return value ? 1 : 0;
     }
 
     /**

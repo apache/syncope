@@ -31,7 +31,7 @@ public abstract class AbstractAttributeValue extends AbstractBaseBean {
     private Date dateValue;
 
     @Basic
-    private Character booleanValue;
+    private Integer booleanValue;
 
     private Long longValue;
 
@@ -43,14 +43,14 @@ public abstract class AbstractAttributeValue extends AbstractBaseBean {
         if (booleanValue == null) {
             return null;
         }
-        return isBooleanAsCharacter(booleanValue);
+        return isBooleanAsInteger(booleanValue);
     }
 
     public void setBooleanValue(Boolean booleanValue) {
         if (booleanValue == null) {
             this.booleanValue = null;
         } else {
-            this.booleanValue = getBooleanAsCharacter(booleanValue);
+            this.booleanValue = getBooleanAsInteger(booleanValue);
         }
     }
 

@@ -45,19 +45,19 @@
     <SyncopeConfiguration confKey="verifyToken.email.template.txt" confValue="verifyToken.txt"/>
     <SyncopeConfiguration confKey="identityconnectors.bundle.directory" confValue="${bundles.directory}"/>
                           
-    <SyncopeUser id="1" workflowId="0"/>
-    <SyncopeUser id="2" workflowId="0"/>
-    <SyncopeUser id="3" workflowId="0"/>
-    <SyncopeUser id="4" workflowId="0"/>
+    <SyncopeUser id="1" workflowId="0" password="password"/>
+    <SyncopeUser id="2" workflowId="0" password="password"/>
+    <SyncopeUser id="3" workflowId="0" password="password"/>
+    <SyncopeUser id="4" workflowId="0" password="password"/>
 
-    <SyncopeRole id="1" name="root" inheritAttributes="F" inheritDerivedAttributes="F"/>
-    <SyncopeRole id="2" name="child" parent_id="1" inheritAttributes="F" inheritDerivedAttributes="F"/>
-    <SyncopeRole id="3" name="citizen" inheritAttributes="F" inheritDerivedAttributes="F"/>
-    <SyncopeRole id="4" name="employee" parent_id="3" inheritAttributes="F" inheritDerivedAttributes="F"/>
-    <SyncopeRole id="5" name="secretary" parent_id="4" inheritAttributes="F" inheritDerivedAttributes="F"/>
-    <SyncopeRole id="6" name="director" parent_id="4" inheritAttributes="T" inheritDerivedAttributes="T"/>
-    <SyncopeRole id="7" name="managingDirector" parent_id="6" inheritAttributes="F" inheritDerivedAttributes="F"/>
-    <SyncopeRole id="8" name="otherchild" parent_id="1" inheritAttributes="F" inheritDerivedAttributes="F"/>
+    <SyncopeRole id="1" name="root" inheritAttributes="0" inheritDerivedAttributes="0"/>
+    <SyncopeRole id="2" name="child" parent_id="1" inheritAttributes="0" inheritDerivedAttributes="0"/>
+    <SyncopeRole id="3" name="citizen" inheritAttributes="0" inheritDerivedAttributes="0"/>
+    <SyncopeRole id="4" name="employee" parent_id="3" inheritAttributes="0" inheritDerivedAttributes="0"/>
+    <SyncopeRole id="5" name="secretary" parent_id="4" inheritAttributes="0" inheritDerivedAttributes="0"/>
+    <SyncopeRole id="6" name="director" parent_id="4" inheritAttributes="1" inheritDerivedAttributes="1"/>
+    <SyncopeRole id="7" name="managingDirector" parent_id="6" inheritAttributes="0" inheritDerivedAttributes="0"/>
+    <SyncopeRole id="8" name="otherchild" parent_id="1" inheritAttributes="0" inheritDerivedAttributes="0"/>
 
     <Membership id="1" syncopeUser_id="1" syncopeRole_id="1"/>
     <Membership id="2" syncopeUser_id="2" syncopeRole_id="1"/>
@@ -65,36 +65,36 @@
     <Membership id="4" syncopeUser_id="4" syncopeRole_id="7"/>
     <Membership id="5" syncopeUser_id="1" syncopeRole_id="8"/>
 
-    <UserSchema name="username" type="String" virtual="F"
-                mandatoryCondition="true" multivalue="F" uniquevalue="T" readonly='F'/>
-    <UserSchema name="userId" type="String" virtual="F"
-                mandatoryCondition="true" multivalue="F" uniquevalue="T" readonly='F'
+    <UserSchema name="username" type="String" virtual="0"
+                mandatoryCondition="true" multivalue="0" uniquevalue="1" readonly="0"/>
+    <UserSchema name="userId" type="String" virtual="0"
+                mandatoryCondition="true" multivalue="0" uniquevalue="1" readonly="0"
                 validatorClass="org.syncope.core.persistence.validation.EmailAddressValidator"/>
-    <UserSchema name="loginDate" type="Date" virtual="F"
-                mandatoryCondition="false" multivalue="T" uniquevalue="F" readonly='F'
+    <UserSchema name="loginDate" type="Date" virtual="0"
+                mandatoryCondition="false" multivalue="1" uniquevalue="0" readonly="0"
                 conversionPattern="yyyy-MM-dd"/>
-    <UserSchema name="firstname" type="String" virtual="F"
-                mandatoryCondition="false" multivalue="F" uniquevalue="F" readonly='F'/>
-    <UserSchema name="surname" type="String" virtual="F"
-                mandatoryCondition="true" multivalue="F" uniquevalue="F" readonly='F'/>
-    <UserSchema name="type" type="String" virtual="F"
-                mandatoryCondition="false" multivalue="F" uniquevalue="F" readonly='F'/>
-    <UserSchema name="email" type="String" virtual="F"
-                mandatoryCondition="false" multivalue="F" uniquevalue="T" readonly='F'
+    <UserSchema name="firstname" type="String" virtual="0"
+                mandatoryCondition="false" multivalue="0" uniquevalue="0" readonly="0"/>
+    <UserSchema name="surname" type="String" virtual="0"
+                mandatoryCondition="true" multivalue="0" uniquevalue="0" readonly="0"/>
+    <UserSchema name="type" type="String" virtual="0"
+                mandatoryCondition="false" multivalue="0" uniquevalue="0" readonly="0"/>
+    <UserSchema name="email" type="String" virtual="0"
+                mandatoryCondition="false" multivalue="0" uniquevalue="1" readonly="0"
                 validatorClass="org.syncope.core.persistence.validation.EmailAddressValidator"/>
-    <UserSchema name="activationDate" type="Date" virtual="F"
-                mandatoryCondition="false" multivalue="F" uniquevalue="F" readonly='F'
+    <UserSchema name="activationDate" type="Date" virtual="0"
+                mandatoryCondition="false" multivalue="0" uniquevalue="0" readonly="0"
                 conversionPattern="yyyy-MM-dd'T'HH:mm:ss.SSSZ"/>
-    <UserSchema name="uselessReadonly" type="String" virtual="F"
-                mandatoryCondition="false" multivalue="F" uniquevalue="F" readonly='T'/>
+    <UserSchema name="uselessReadonly" type="String" virtual="0"
+                mandatoryCondition="false" multivalue="0" uniquevalue="0" readonly="1"/>
 
-    <RoleSchema name="icon" type="String" virtual="F"
-                mandatoryCondition="false" multivalue="F" uniquevalue="F" readonly='F'/>
-    <RoleSchema name="show" type="Boolean" virtual="F"
-                mandatoryCondition="false" multivalue="F" uniquevalue="F" readonly='F'/>
+    <RoleSchema name="icon" type="String" virtual="0"
+                mandatoryCondition="false" multivalue="0" uniquevalue="0" readonly="0"/>
+    <RoleSchema name="show" type="Boolean" virtual="0"
+                mandatoryCondition="false" multivalue="0" uniquevalue="0" readonly="0"/>
 
-    <MembershipSchema name="subscriptionDate" type="Date" virtual="F"
-                      mandatoryCondition="false" multivalue="F" uniquevalue="F" readonly='F'
+    <MembershipSchema name="subscriptionDate" type="Date" virtual="0"
+                      mandatoryCondition="false" multivalue="0" uniquevalue="0" readonly="0"
                       conversionPattern="yyyy-MM-dd'T'HH:mm:ss.SSSZ"/>
 
     <UserAttribute id="100" owner_id="1" schema_name="username"/>
@@ -122,7 +122,7 @@
 
     <RoleAttributeValue attribute_id="600" id="40" stringValue="niceIcon"/>
     <RoleAttributeValue attribute_id="700" id="41" stringValue="badIcon"/>
-    <RoleAttributeValue attribute_id="800" id="42" booleanValue="T"/>
+    <RoleAttributeValue attribute_id="800" id="42" booleanValue="1"/>
     <RoleAttributeValue attribute_id="900" id="43" stringValue="icon6"/>
     <RoleAttributeValue attribute_id="950" id="44" stringValue="icon4"/>
 
@@ -175,12 +175,12 @@
     <ConnectorInstance_capabilities ConnectorInstance_id="102" element="ASYNC_DELETE"/>
     <ConnectorInstance_capabilities ConnectorInstance_id="102" element="RESOLVE"/>
 
-    <TargetResource name="ws-target-resource-1" connector_id="100" forceMandatoryConstraint="T"/>
-    <TargetResource name="ws-target-resource-2" connector_id="100" forceMandatoryConstraint="T"/>
-    <TargetResource name="ws-target-resource-list-mappings-1" connector_id="100" forceMandatoryConstraint="F"/>
-    <TargetResource name="ws-target-resource-list-mappings-2" connector_id="100" forceMandatoryConstraint="T"/>
-    <TargetResource name="ws-target-resource-delete" connector_id="102" forceMandatoryConstraint="F"/>
-    <TargetResource name="ws-target-resource-update" connector_id="100" forceMandatoryConstraint="T"/>
+    <TargetResource name="ws-target-resource-1" connector_id="100" forceMandatoryConstraint="1"/>
+    <TargetResource name="ws-target-resource-2" connector_id="100" forceMandatoryConstraint="1"/>
+    <TargetResource name="ws-target-resource-list-mappings-1" connector_id="100" forceMandatoryConstraint="0"/>
+    <TargetResource name="ws-target-resource-list-mappings-2" connector_id="100" forceMandatoryConstraint="1"/>
+    <TargetResource name="ws-target-resource-delete" connector_id="102" forceMandatoryConstraint="0"/>
+    <TargetResource name="ws-target-resource-update" connector_id="100" forceMandatoryConstraint="1"/>
 
     <SyncopeUser_TargetResource users_id="3" targetResources_name="ws-target-resource-delete" />
     <SyncopeRole_TargetResource roles_id="3" targetResources_name="ws-target-resource-list-mappings-1" />
@@ -191,77 +191,77 @@
     <SchemaMapping id="99" field="userid"
                    resource_name="ws-target-resource-1"
                    schemaName="AccountId" schemaType="AccountId" mandatoryCondition="true"
-                   accountid="T" password="F"/>
+                   accountid="1" password="0"/>
 
     <SchemaMapping id="100" field="email"
                    resource_name="ws-target-resource-1"
                    schemaName="email" schemaType="UserSchema" mandatoryCondition="true"
-                   accountid="T" password="F"/>
+                   accountid="1" password="0"/>
 
     <SchemaMapping id="101" field="username"
                    resource_name="ws-target-resource-2"
                    schemaName="username" schemaType="UserSchema" mandatoryCondition="true"
-                   accountid="T" password="F"/>
+                   accountid="1" password="0"/>
 
     <SchemaMapping id="102" field="email"
                    resource_name="ws-target-resource-list-mappings-1"
                    schemaName="email" schemaType="UserSchema" mandatoryCondition="true"
-                   accountid="T" password="F"/>
+                   accountid="1" password="0"/>
 
     <SchemaMapping id="103" field="surname"
                    resource_name="ws-target-resource-list-mappings-1"
                    schemaName="surname" schemaType="UserSchema" mandatoryCondition="true"
-                   accountid="F" password="F"/>
+                   accountid="0" password="0"/>
 
     <SchemaMapping id="104" field="userid"
                    resource_name="ws-target-resource-list-mappings-2"
                    schemaName="userId" schemaType="UserSchema" mandatoryCondition="true"
-                   accountid="T" password="F"/>
+                   accountid="1" password="0"/>
 
     <SchemaMapping id="105" field="surname"
                    resource_name="ws-target-resource-1"
                    schemaName="surname" schemaType="UserSchema" mandatoryCondition="true"
-                   accountid="F" password="F"/>
+                   accountid="0" password="0"/>
 
     <SchemaMapping id="106" field="password"
                    resource_name="ws-target-resource-1"
                    schemaName="Password" schemaType="Password" mandatoryCondition="true"
-                   accountid="F" password="T"/>
+                   accountid="0" password="1"/>
 
     <SchemaMapping id="107" field="password"
                    resource_name="ws-target-resource-2"
                    schemaName="Password" schemaType="Password" mandatoryCondition="true"
-                   accountid="F" password="T"/>
+                   accountid="0" password="1"/>
 
     <SchemaMapping id="108" field="type"
                    resource_name="ws-target-resource-2"
                    schemaName="type" schemaType="UserSchema" mandatoryCondition="true"
-                   accountid="F" password="F"/>
+                   accountid="0" password="0"/>
 
     <SchemaMapping id="109" field="surname"
                    resource_name="ws-target-resource-2"
                    schemaName="surname" schemaType="UserSchema" mandatoryCondition="true"
-                   accountid="F" password="F"/>
+                   accountid="0" password="0"/>
 
     <SchemaMapping id="110" field="email"
                    resource_name="ws-target-resource-update"
                    schemaName="email" schemaType="UserSchema" mandatoryCondition="false"
-                   accountid="F" password="F"/>
+                   accountid="0" password="0"/>
 
     <SchemaMapping id="111" field="userId"
                    resource_name="ws-target-resource-update"
                    schemaName="userId" schemaType="UserSchema" mandatoryCondition="false"
-                   accountid="F" password="F"/>
+                   accountid="0" password="0"/>
     
     <SchemaMapping id="112" field="test3"
                    resource_name="ws-target-resource-update"
                    schemaName="username" schemaType="UserSchema" mandatoryCondition="false"
-                   accountid="F" password="F"/>
+                   accountid="0" password="0"/>
 
     <SchemaMapping id="113" field="name"
                    resource_name="ws-target-resource-2"
                    schemaName="firstname" schemaType="UserSchema" mandatoryCondition="type == 'F'"
-                   accountid="F" password="F"/>
+                   accountid="0" password="0"/>
 
     <Task id="1" propagationMode="ASYNC" resourceOperationType="UPDATE"
                  resource_name="ws-target-resource-2"
@@ -271,24 +271,16 @@
     <Entitlement name="base"/>
     <Entitlement name="advanced" description="Advanced entitlement"/>
 
-    <SyncopeRole_Entitlement entitlements_name="base"
-                             roles_id="1"/>
-    <SyncopeRole_Entitlement entitlements_name="advanced"
-                             roles_id="1"/>
-    <SyncopeRole_Entitlement entitlements_name="base"
-                             roles_id="2"/>
+    <SyncopeRole_Entitlement entitlements_name="base" roles_id="1"/>
+    <SyncopeRole_Entitlement entitlements_name="advanced" roles_id="1"/>
+    <SyncopeRole_Entitlement entitlements_name="base" roles_id="2"/>
 
-    <RoleDerivedSchema name="displayProperty"
-                       expression="icon + ': ' + show"/>
+    <RoleDerivedSchema name="displayProperty" expression="icon + ': ' + show"/>
 
-    <RoleSchemaDerivation derivedSchemas_name="displayProperty"
-                                  schemas_name="icon" />
-    <RoleSchemaDerivation derivedSchemas_name="displayProperty"
-                                  schemas_name="show" />
+    <RoleSchemaDerivation derivedSchemas_name="displayProperty" schemas_name="icon" />
+    <RoleSchemaDerivation derivedSchemas_name="displayProperty" schemas_name="show" />
 
-    <RoleDerivedAttribute id="1001" derivedSchema_name="displayProperty"
-                          owner_id="1"/>
-    <RoleDerivedAttribute id="1002" derivedSchema_name="displayProperty"
-                          owner_id="4"/>
+    <RoleDerivedAttribute id="1001" derivedSchema_name="displayProperty" owner_id="1"/>
+    <RoleDerivedAttribute id="1002" derivedSchema_name="displayProperty" owner_id="4"/>
 
 </dataset>

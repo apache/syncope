@@ -46,12 +46,12 @@
     <SyncopeConfiguration confKey="servicelayer.baseurl" confValue="http://www.google.it/"/>
     <SyncopeConfiguration confKey="identityconnectors.bundle.directory" confValue="${bundles.directory}"/>
 
-    <UserSchema name="surname" type="String" virtual="F"
-                mandatoryCondition="true" multivalue="F" uniquevalue="F" readonly='F'/>
-    <UserSchema name="firstname" type="String" virtual="F"
-                mandatoryCondition="false" multivalue="F" uniquevalue="F" readonly='F'/>
-    <UserSchema name="email" type="String" virtual="F"
-                mandatoryCondition="false" multivalue="T" uniquevalue="F" readonly='F'
+    <UserSchema name="surname" type="String" virtual="0"
+                mandatoryCondition="true" multivalue="0" uniquevalue="0" readonly="0"/>
+    <UserSchema name="firstname" type="String" virtual="0"
+                mandatoryCondition="false" multivalue="0" uniquevalue="0" readonly="0"/>
+    <UserSchema name="email" type="String" virtual="0"
+                mandatoryCondition="false" multivalue="1" uniquevalue="0" readonly="0"
                 validatorClass="org.syncope.core.persistence.validation.EmailAddressValidator"/>
                
     <UserDerivedSchema name="username" expression="firstname + '.' + surname"/>
@@ -61,10 +61,10 @@
     <UserSchemaDerivation derivedSchemas_name="username"
                           schemas_name="surname"/>
 
-    <SyncopeRole id="0" name="/" inheritAttributes="F" inheritDerivedAttributes="F"/>
+    <SyncopeRole id="0" name="/" inheritAttributes="0" inheritDerivedAttributes="0"/>
 
-    <MembershipSchema name="subscriptionDate" type="Date" virtual="F"
-                      mandatoryCondition="false" multivalue="F" uniquevalue="F" readonly='F'
+    <MembershipSchema name="subscriptionDate" type="Date" virtual="0"
+                      mandatoryCondition="false" multivalue="0" uniquevalue="0" readonly="0"
                       conversionPattern="yyyy-MM-dd'T'HH:mm:ss.SSSZ"/>
 
 </dataset>

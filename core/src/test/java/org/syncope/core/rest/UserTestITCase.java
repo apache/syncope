@@ -24,6 +24,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.identityconnectors.common.Base64;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.annotation.ExpectedException;
@@ -146,7 +147,17 @@ public class UserTestITCase extends AbstractTest {
                 restTemplate.getForObject(BASE_URL + "user/status/"
                 + newUserTO.getId(), String.class));
 
-        // 3. try (and fail) to create another user with same (unique) values
+        // 3. verify password
+        Boolean verify = restTemplate.getForObject(
+                BASE_URL + "user/verifyPassword/{userId}?password=password",
+                Boolean.class, newUserTO.getId());
+        assertTrue(verify);
+        verify = restTemplate.getForObject(
+                BASE_URL + "user/verifyPassword/{userId}?password=passwordXX",
+                Boolean.class, newUserTO.getId());
+        assertFalse(verify);
+
+        // 4. try (and fail) to create another user with same (unique) values
         userTO = getSampleTO("pippo@c.com");
         for (AttributeTO attr : userTO.getAttributes()) {
             if ("userId".equals(attr.getSchema())) {
@@ -461,8 +472,9 @@ public class UserTestITCase extends AbstractTest {
 
         SyncopeUser passwordTestUser = new SyncopeUser();
         passwordTestUser.setPassword("newPassword");
-        assertEquals(passwordTestUser.getPassword(), userTO.getPassword());
-        
+        assertEquals(passwordTestUser.getPassword(),
+                new String(Base64.decode(userTO.getPassword())));
+
         assertEquals(1, userTO.getMemberships().size());
         assertEquals(1, userTO.getMemberships().iterator().next().
                 getAttributes().size());

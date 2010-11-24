@@ -2,9 +2,9 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Set;
 import javassist.NotFoundException;
 import javax.persistence.EntityNotFoundException;
+import org.identityconnectors.common.Base64;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.syncope.client.mod.MembershipMod;
@@ -236,7 +237,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         userTO.setId(user.getId());
         userTO.setToken(user.getToken());
         userTO.setTokenExpireTime(user.getTokenExpireTime());
-        userTO.setPassword(user.getPassword());
+        userTO.setPassword(Base64.encode(user.getPassword().getBytes()));
 
         try {
             List<Step> currentSteps = userWorkflow.getCurrentSteps(

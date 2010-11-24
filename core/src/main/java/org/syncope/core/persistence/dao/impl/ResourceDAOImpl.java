@@ -94,7 +94,7 @@ public class ResourceDAOImpl extends AbstractDAOImpl
         Query query = entityManager.createQuery(
                 "SELECT m FROM SchemaMapping m "
                 + "WHERE m.resource.name=:resourceName "
-                + "AND m.accountid = 'T'");
+                + "AND m.accountid = 1");
         query.setParameter("resourceName", resourceName);
 
         return ((SchemaMapping) query.getSingleResult()).getSchemaName();
@@ -118,7 +118,6 @@ public class ResourceDAOImpl extends AbstractDAOImpl
 
         int items = query.executeUpdate();
         LOG.debug("Removed {} schema mappings", items);
-
     }
 
     @Override

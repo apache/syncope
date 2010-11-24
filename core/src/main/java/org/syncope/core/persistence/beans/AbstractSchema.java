@@ -63,19 +63,19 @@ public abstract class AbstractSchema extends AbstractBaseBean {
      * Specify if the attribute should be stored on the local repository.
      */
     @Basic
-    private Character virtual;
+    private Integer virtual;
 
     @Column(nullable = false)
     private String mandatoryCondition;
 
     @Basic
-    private Character multivalue;
+    private Integer multivalue;
 
     @Basic
-    private Character uniquevalue;
+    private Integer uniquevalue;
 
     @Basic
-    private Character readonly;
+    private Integer readonly;
 
     @Column(nullable = true)
     private String conversionPattern;
@@ -90,11 +90,11 @@ public abstract class AbstractSchema extends AbstractBaseBean {
         super();
 
         type = SchemaValueType.String;
-        virtual = getBooleanAsCharacter(false);
+        virtual = getBooleanAsInteger(false);
         mandatoryCondition = Boolean.FALSE.toString();
-        multivalue = getBooleanAsCharacter(false);
-        uniquevalue = getBooleanAsCharacter(false);
-        readonly = getBooleanAsCharacter(false);
+        multivalue = getBooleanAsInteger(false);
+        uniquevalue = getBooleanAsInteger(false);
+        readonly = getBooleanAsInteger(false);
     }
 
     public String getName() {
@@ -114,11 +114,11 @@ public abstract class AbstractSchema extends AbstractBaseBean {
     }
 
     public boolean isVirtual() {
-        return isBooleanAsCharacter(virtual);
+        return isBooleanAsInteger(virtual);
     }
 
     public void setVirtual(boolean virtual) {
-        this.virtual = getBooleanAsCharacter(virtual);
+        this.virtual = getBooleanAsInteger(virtual);
     }
 
     public String getMandatoryCondition() {
@@ -130,27 +130,27 @@ public abstract class AbstractSchema extends AbstractBaseBean {
     }
 
     public boolean isMultivalue() {
-        return isBooleanAsCharacter(multivalue);
+        return isBooleanAsInteger(multivalue);
     }
 
     public void setMultivalue(boolean multivalue) {
-        this.multivalue = getBooleanAsCharacter(multivalue);
+        this.multivalue = getBooleanAsInteger(multivalue);
     }
 
     public boolean isUniquevalue() {
-        return isBooleanAsCharacter(uniquevalue);
+        return isBooleanAsInteger(uniquevalue);
     }
 
     public void setUniquevalue(boolean uniquevalue) {
-        this.uniquevalue = getBooleanAsCharacter(uniquevalue);
+        this.uniquevalue = getBooleanAsInteger(uniquevalue);
     }
 
     public boolean isReadonly() {
-        return isBooleanAsCharacter(readonly);
+        return isBooleanAsInteger(readonly);
     }
 
     public void setReadonly(boolean readonly) {
-        this.readonly = getBooleanAsCharacter(readonly);
+        this.readonly = getBooleanAsInteger(readonly);
     }
 
     public AbstractAttributeValidator getValidator() {

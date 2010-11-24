@@ -42,6 +42,7 @@ import javassist.NotFoundException;
 import javax.servlet.http.HttpServletResponse;
 import jpasymphony.dao.JPAWorkflowEntryDAO;
 import org.springframework.http.HttpStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.ModelAndView;
 import org.syncope.client.mod.UserMod;
 import org.syncope.client.search.NodeCond;
@@ -186,7 +187,27 @@ public class UserController extends AbstractController {
     }
 
     @RequestMapping(method = RequestMethod.GET,
+    value = "/verifyPassword/{userId}")
+    @Transactional(readOnly = true)
+    public ModelAndView verifyPassword(@PathVariable("userId") Long userId,
+            @RequestParam("password") final String password)
+            throws NotFoundException {
+
+        SyncopeUser user = syncopeUserDAO.find(userId);
+        if (user == null) {
+            throw new NotFoundException("User " + userId);
+        }
+
+        SyncopeUser passwordUser = new SyncopeUser();
+        passwordUser.setPassword(password);
+
+        return new ModelAndView().addObject(
+                user.getPassword().equals(passwordUser.getPassword()));
+    }
+
+    @RequestMapping(method = RequestMethod.GET,
     value = "/list")
+    @Transactional(readOnly = true)
     public List<UserTO> list() {
         List<SyncopeUser> users = syncopeUserDAO.findAll();
         List<UserTO> userTOs = new ArrayList<UserTO>(users.size());
@@ -199,6 +220,7 @@ public class UserController extends AbstractController {
 
     @RequestMapping(method = RequestMethod.GET,
     value = "/paginatedList/{page}/{size}")
+    @Transactional(readOnly = true)
     public List<UserTO> paginatedList(
             @PathVariable("page") final int page,
             @PathVariable("size") final int size) {
@@ -213,6 +235,7 @@ public class UserController extends AbstractController {
 
     @RequestMapping(method = RequestMethod.GET,
     value = "/read/{userId}")
+    @Transactional(readOnly = true)
     public UserTO read(@PathVariable("userId") Long userId)
             throws NotFoundException {
 
@@ -226,6 +249,7 @@ public class UserController extends AbstractController {
 
     @RequestMapping(method = RequestMethod.GET,
     value = "/actions/{userId}")
+    @Transactional(readOnly = true)
     public WorkflowActionsTO getActions(@PathVariable("userId") Long userId)
             throws NotFoundException {
 
@@ -249,6 +273,7 @@ public class UserController extends AbstractController {
 
     @RequestMapping(method = RequestMethod.POST,
     value = "/search")
+    @Transactional(readOnly = true)
     public List<UserTO> search(@RequestBody NodeCond searchCondition)
             throws InvalidSearchConditionException {
 
@@ -273,6 +298,7 @@ public class UserController extends AbstractController {
 
     @RequestMapping(method = RequestMethod.POST,
     value = "/paginatedSearch/{page}/{size}")
+    @Transactional(readOnly = true)
     public List<UserTO> paginatedSearch(
             @RequestBody final NodeCond searchCondition,
             @PathVariable("page") final int page,
@@ -300,6 +326,7 @@ public class UserController extends AbstractController {
 
     @RequestMapping(method = RequestMethod.GET,
     value = "/status/{userId}")
+    @Transactional(readOnly = true)
     public ModelAndView getStatus(@PathVariable("userId") Long userId)
             throws NotFoundException {
 
@@ -472,9 +499,7 @@ public class UserController extends AbstractController {
             required = false) Set<String> syncResources)
             throws NotFoundException, PropagationException, WorkflowException {
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("update called with parameter " + userMod);
-        }
+        LOG.debug("update called with parameter {}", userMod);
 
         SyncopeUser user = syncopeUserDAO.find(userMod.getId());
         if (user == null) {

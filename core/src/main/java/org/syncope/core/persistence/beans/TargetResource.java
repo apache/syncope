@@ -75,7 +75,7 @@ public class TargetResource extends AbstractBaseBean {
      */
     @Column(nullable = false)
     @Basic
-    private Character forceMandatoryConstraint;
+    private Integer forceMandatoryConstraint;
 
     /**
      * The resource type is identified by the associated connector.
@@ -115,7 +115,7 @@ public class TargetResource extends AbstractBaseBean {
     public TargetResource() {
         super();
 
-        forceMandatoryConstraint = getBooleanAsCharacter(false);
+        forceMandatoryConstraint = getBooleanAsInteger(false);
         users = new HashSet<SyncopeUser>();
         roles = new HashSet<SyncopeRole>();
         mappings = new ArrayList<SchemaMapping>();
@@ -123,12 +123,12 @@ public class TargetResource extends AbstractBaseBean {
     }
 
     public boolean isForceMandatoryConstraint() {
-        return isBooleanAsCharacter(forceMandatoryConstraint);
+        return isBooleanAsInteger(forceMandatoryConstraint);
     }
 
     public void setForceMandatoryConstraint(boolean forceMandatoryConstraint) {
         this.forceMandatoryConstraint =
-                getBooleanAsCharacter(forceMandatoryConstraint);
+                getBooleanAsInteger(forceMandatoryConstraint);
     }
 
     public ConnectorInstance getConnector() {

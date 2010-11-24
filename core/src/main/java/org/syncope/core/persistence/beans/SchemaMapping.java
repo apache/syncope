@@ -2,9 +2,9 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -39,33 +39,40 @@ public class SchemaMapping extends AbstractBaseBean {
     generator = "SEQ_SchemaMapping")
     @TableGenerator(name = "SEQ_SchemaMapping", allocationSize = 20)
     private Long id;
+
     @Column(nullable = false)
     private String schemaName;
+
     @Column(nullable = false)
     @Enumerated(STRING)
     private SchemaType schemaType;
+
     /**
      * Target resource that has fields to be mapped over user attribute schemas.
      */
     @ManyToOne
     private TargetResource resource;
+
     /**
      * Target resource's field to be mapped.
      */
     @Column(nullable = false)
     private String field;
+
     /**
      * Specify if the mapped target resource's field is the key.
      */
     @Column(nullable = false)
     @Basic
-    private Character accountid;
+    private Integer accountid;
+
     /**
      * Specify if the mapped target resource's field is the password.
      */
     @Column(nullable = false)
     @Basic
-    private Character password;
+    private Integer password;
+
     /**
      * Specify if the mapped target resource's field is nullable.
      */
@@ -75,8 +82,8 @@ public class SchemaMapping extends AbstractBaseBean {
     public SchemaMapping() {
         super();
 
-        accountid = getBooleanAsCharacter(false);
-        password = getBooleanAsCharacter(false);
+        accountid = getBooleanAsInteger(false);
+        password = getBooleanAsInteger(false);
         mandatoryCondition = Boolean.FALSE.toString();
     }
 
@@ -85,11 +92,11 @@ public class SchemaMapping extends AbstractBaseBean {
     }
 
     public boolean isAccountid() {
-        return isBooleanAsCharacter(accountid);
+        return isBooleanAsInteger(accountid);
     }
 
     public void setAccountid(boolean accountid) {
-        this.accountid = getBooleanAsCharacter(accountid);
+        this.accountid = getBooleanAsInteger(accountid);
     }
 
     public String getField() {
@@ -109,11 +116,11 @@ public class SchemaMapping extends AbstractBaseBean {
     }
 
     public boolean isPassword() {
-        return isBooleanAsCharacter(password);
+        return isBooleanAsInteger(password);
     }
 
     public void setPassword(boolean password) {
-        this.password = getBooleanAsCharacter(password);
+        this.password = getBooleanAsInteger(password);
     }
 
     public TargetResource getResource() {

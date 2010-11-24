@@ -67,18 +67,20 @@ public class SyncopeRole extends AbstractAttributable {
     private List<RoleDerivedAttribute> derivedAttributes;
 
     @Basic
-    private Character inheritAttributes;
+    private Integer inheritAttributes;
 
     @Basic
-    private Character inheritDerivedAttributes;
+    private Integer inheritDerivedAttributes;
 
     public SyncopeRole() {
+        super();
+
         memberships = new ArrayList<Membership>();
         entitlements = new HashSet<Entitlement>();
         attributes = new ArrayList<RoleAttribute>();
         derivedAttributes = new ArrayList<RoleDerivedAttribute>();
-        inheritAttributes = getBooleanAsCharacter(false);
-        inheritDerivedAttributes = getBooleanAsCharacter(false);
+        inheritAttributes = getBooleanAsInteger(false);
+        inheritDerivedAttributes = getBooleanAsInteger(false);
     }
 
     @Override
@@ -193,20 +195,20 @@ public class SyncopeRole extends AbstractAttributable {
     }
 
     public boolean isInheritAttributes() {
-        return isBooleanAsCharacter(inheritAttributes);
+        return isBooleanAsInteger(inheritAttributes);
     }
 
     public void setInheritAttributes(boolean inheritAttributes) {
-        this.inheritAttributes = getBooleanAsCharacter(inheritAttributes);
+        this.inheritAttributes = getBooleanAsInteger(inheritAttributes);
     }
 
     public boolean isInheritDerivedAttributes() {
-        return isBooleanAsCharacter(inheritDerivedAttributes);
+        return isBooleanAsInteger(inheritDerivedAttributes);
     }
 
     public void setInheritDerivedAttributes(boolean inheritDerivedAttributes) {
         this.inheritDerivedAttributes =
-                getBooleanAsCharacter(inheritDerivedAttributes);
+                getBooleanAsInteger(inheritDerivedAttributes);
 
     }
 }
