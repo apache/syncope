@@ -65,7 +65,7 @@ public class JPAWorkflowStore implements WorkflowStore {
     private JPAWorkflowEntry getEntry(final long entryId)
             throws StoreException {
 
-        final JPAWorkflowEntry entry = workflowEntryDAO.find(entryId);
+        JPAWorkflowEntry entry = workflowEntryDAO.find(entryId);
         if (entry == null) {
             throw new StoreException(
                     "Could not find workflow entry " + entryId);
@@ -78,7 +78,8 @@ public class JPAWorkflowStore implements WorkflowStore {
     public void setEntryState(final long entryId, final int state)
             throws StoreException {
 
-        final JPAWorkflowEntry entry = getEntry(entryId);
+        JPAWorkflowEntry entry = getEntry(entryId);
+
         entry.setWorkflowState(state);
     }
 
@@ -106,7 +107,7 @@ public class JPAWorkflowStore implements WorkflowStore {
 
         JPAWorkflowEntry entry = getEntry(entryId);
 
-        final JPACurrentStep step = new JPACurrentStep();
+        JPACurrentStep step = new JPACurrentStep();
         step.setWorkflowEntry(entry);
         step.setStepId(stepId);
         step.setOwner(owner);
@@ -137,6 +138,7 @@ public class JPAWorkflowStore implements WorkflowStore {
             throws StoreException {
 
         JPAWorkflowEntry entry = getEntry(entryId);
+
         return entry.getCurrentSteps();
     }
 
@@ -144,20 +146,15 @@ public class JPAWorkflowStore implements WorkflowStore {
     public WorkflowEntry findEntry(final long entryId)
             throws StoreException {
 
-        JPAWorkflowEntry entry = workflowEntryDAO.find(entryId);
-        if (entry == null) {
-            throw new StoreException(
-                    "Could not find workflow entry " + entryId);
-        }
-
-        return entry;
+        return getEntry(entryId);
     }
 
     @Override
     public List findHistorySteps(final long entryId)
             throws StoreException {
 
-        final JPAWorkflowEntry entry = getEntry(entryId);
+        JPAWorkflowEntry entry = getEntry(entryId);
+
         return entry.getHistorySteps();
     }
 
@@ -181,6 +178,8 @@ public class JPAWorkflowStore implements WorkflowStore {
         currentStep.setStatus(status);
         currentStep.setCaller(caller);
 
+        workflowEntryDAO.save(currentStep.getWorkflowEntry());
+
         return currentStep;
     }
 
@@ -203,7 +202,10 @@ public class JPAWorkflowStore implements WorkflowStore {
         historyStep.setWorkflowEntry(entry);
 
         entry.removeCurrentStep(currentStep);
+        workflowEntryDAO.deleteCurrentStep(currentStep.getId());
+
         entry.addHistoryStep(historyStep);
+        workflowEntryDAO.save(entry);
     }
 
     @Override
