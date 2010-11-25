@@ -188,7 +188,7 @@ public class JPAWorkflowStore implements WorkflowStore {
             throws StoreException {
 
         final JPACurrentStep currentStep = (JPACurrentStep) step;
-        JPAWorkflowEntry entry = currentStep.getWorkflowEntry();
+        final JPAWorkflowEntry entry = currentStep.getWorkflowEntry();
 
         final JPAHistoryStep historyStep = new JPAHistoryStep();
         historyStep.setActionId(currentStep.getActionId());
@@ -205,7 +205,7 @@ public class JPAWorkflowStore implements WorkflowStore {
         workflowEntryDAO.deleteCurrentStep(currentStep.getId());
 
         entry.addHistoryStep(historyStep);
-        entry = workflowEntryDAO.save(entry);
+        workflowEntryDAO.save(entry);
     }
 
     @Override
