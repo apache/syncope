@@ -291,10 +291,8 @@ public class PropagationManager {
                             mapping.getSchemaType().getSchemaClass());
                 } catch (ClassCastException e) {
                     // ignore exception ... check for AccountId or Password
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Wrong schema type "
-                                + mapping.getSchemaType().getClassName());
-                    }
+                    LOG.debug("Wrong schema type {}",
+                            mapping.getSchemaType().getClassName());
                 }
 
                 if (schema != null) {
@@ -410,15 +408,14 @@ public class PropagationManager {
     }
 
     public void propagate(final TaskExecution execution) {
-        Date startDate = new Date();
+        final Date startDate = new Date();
         TaskExecutionStatus taskExecutionStatus = null;
         String taskExecutionMessage = null;
 
-        Task task = execution.getTask();
+        final Task task = execution.getTask();
 
         // Output parameter to verify the propagation request tryed
         final Set<String> triedPropagationRequests = new HashSet<String>();
-
 
         try {
             ConnectorInstance connectorInstance =
@@ -517,24 +514,13 @@ public class PropagationManager {
                     || execution.getId() != null) {
 
                 execution.setStartDate(startDate);
-
-                if (taskExecutionMessage != null) {
-                    execution.setMessage(taskExecutionMessage);
-                }
-
-                if (taskExecutionStatus != null) {
-                    execution.setStatus(taskExecutionStatus);
-                }
-
+                execution.setMessage(taskExecutionMessage);
+                execution.setStatus(taskExecutionStatus);
                 execution.setEndDate(new Date());
 
-                TaskExecution actualExecution =
-                        taskDataBinder.storeTaskExecution(execution);
+                taskDataBinder.storeTaskExecution(execution);
 
-                task.addExecution(actualExecution);
-                taskDAO.save(task);
-
-                LOG.debug("Updated {}", actualExecution);
+                LOG.debug("Execution finished: {}", execution);
             }
         }
     }

@@ -131,9 +131,7 @@ public class TaskController extends AbstractController {
             propagationManager.asyncPropagate(execution);
         }
 
-        LOG.debug("Execution finished for {}", task);
-
-        LOG.debug("Return execution {}", execution);
+        LOG.debug("Execution finished for {}, {}", task, execution);
 
         return taskDataBinder.getTaskExecutionTO(execution);
     }

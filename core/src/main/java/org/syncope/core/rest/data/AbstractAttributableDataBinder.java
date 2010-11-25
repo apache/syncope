@@ -29,7 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.transaction.annotation.Transactional;
 import org.syncope.client.mod.AbstractAttributableMod;
 import org.syncope.client.mod.AttributeMod;
 import org.syncope.client.to.AbstractAttributableTO;
@@ -61,9 +60,6 @@ import org.syncope.types.ResourceOperationType;
 import org.syncope.types.SchemaType;
 import org.syncope.types.SyncopeClientExceptionType;
 
-@Transactional(rollbackFor = {
-    Throwable.class
-})
 public abstract class AbstractAttributableDataBinder {
 
     /**

@@ -15,14 +15,10 @@
 package org.syncope.core.rest.data;
 
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import org.syncope.client.to.ConfigurationTO;
 import org.syncope.core.persistence.beans.SyncopeConfiguration;
 
 @Component
-@Transactional(rollbackFor = {
-    Throwable.class
-})
 public class ConfigurationDataBinder {
 
     public SyncopeConfiguration createSyncopeConfiguration(

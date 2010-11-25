@@ -25,9 +25,6 @@ import org.syncope.core.persistence.beans.TaskExecution;
 import org.syncope.core.persistence.dao.TaskExecutionDAO;
 
 @Component
-@Transactional(rollbackFor = {
-    Throwable.class
-})
 public class TaskDataBinder {
 
     private static final String[] IGNORE_TASK_PROPERTIES = {
@@ -39,6 +36,9 @@ public class TaskDataBinder {
     @Autowired
     private TaskExecutionDAO taskExecutionDAO;
 
+    @Transactional(rollbackFor = {
+        Throwable.class
+    })
     public TaskExecution storeTaskExecution(final TaskExecution execution) {
         return taskExecutionDAO.save(execution);
     }
