@@ -33,7 +33,7 @@ public class JPAWorkflowEntry extends AbstractBaseBean
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    private long id;
 
     private String workflowName;
 
@@ -84,7 +84,8 @@ public class JPAWorkflowEntry extends AbstractBaseBean
 
     public boolean addCurrentStep(final JPACurrentStep currentStep) {
         currentStep.setWorkflowEntry(this);
-        return currentSteps.add(currentStep);
+        return currentSteps.contains(currentStep)
+                ? false : currentSteps.add(currentStep);
     }
 
     public boolean removeCurrentStep(final JPACurrentStep currentStep) {
@@ -113,7 +114,8 @@ public class JPAWorkflowEntry extends AbstractBaseBean
 
     public boolean addHistoryStep(final JPAHistoryStep historyStep) {
         historyStep.setWorkflowEntry(this);
-        return historySteps.add(historyStep);
+        return historySteps.contains(historyStep)
+                ? false : historySteps.add(historyStep);
     }
 
     public boolean removeHistoryStep(final JPAHistoryStep historyStep) {

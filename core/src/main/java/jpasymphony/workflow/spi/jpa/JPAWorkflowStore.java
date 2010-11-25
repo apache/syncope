@@ -171,7 +171,7 @@ public class JPAWorkflowStore implements WorkflowStore {
             final String caller)
             throws StoreException {
 
-        JPACurrentStep currentStep = (JPACurrentStep) step;
+        final JPACurrentStep currentStep = (JPACurrentStep) step;
 
         currentStep.setActionId(actionId);
         currentStep.setFinishDate(finishDate);
@@ -187,10 +187,10 @@ public class JPAWorkflowStore implements WorkflowStore {
     public void moveToHistory(final Step step)
             throws StoreException {
 
-        JPACurrentStep currentStep = (JPACurrentStep) step;
+        final JPACurrentStep currentStep = (JPACurrentStep) step;
         JPAWorkflowEntry entry = currentStep.getWorkflowEntry();
 
-        JPAHistoryStep historyStep = new JPAHistoryStep();
+        final JPAHistoryStep historyStep = new JPAHistoryStep();
         historyStep.setActionId(currentStep.getActionId());
         historyStep.setCaller(currentStep.getCaller());
         historyStep.setDueDate(currentStep.getDueDate());
@@ -205,7 +205,7 @@ public class JPAWorkflowStore implements WorkflowStore {
         workflowEntryDAO.deleteCurrentStep(currentStep.getId());
 
         entry.addHistoryStep(historyStep);
-        workflowEntryDAO.save(entry);
+        entry = workflowEntryDAO.save(entry);
     }
 
     @Override
