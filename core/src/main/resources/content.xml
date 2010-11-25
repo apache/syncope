@@ -46,6 +46,7 @@
     <SyncopeConfiguration confKey="verifyToken.email.template.txt" confValue="verifyToken.txt"/>
     <SyncopeConfiguration confKey="servicelayer.baseurl" confValue="http://www.google.it/"/>
     <SyncopeConfiguration confKey="identityconnectors.bundle.directory" confValue="${bundles.directory}"/>
+    <SyncopeConfiguration confKey="users.attributes.view" confValue="userId;"/>
 
     <UserSchema name="surname" type="String" virtual="0"
                 mandatoryCondition="true" multivalue="0" uniquevalue="0" readonly="0"/>
