@@ -16,7 +16,6 @@ package org.syncope.console.wicket.markup.html.form;
 
 import java.util.Date;
 import java.util.StringTokenizer;
-import org.apache.wicket.extensions.markup.html.form.DateTextField;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.FormComponent;
@@ -29,7 +28,8 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.validation.IValidationError;
 import org.apache.wicket.validation.ValidationError;
-
+import org.apache.wicket.datetime.markup.html.form.DateTextField;
+//import org.apache.wicket.extensions.markup.html.form.DateTextField;
 /**
  * DateFieldPanel
  */
@@ -60,7 +60,9 @@ public class DateFieldPanel extends Panel {
         if(!datePattern.contains("H")) {
             datePanel = new Fragment("datePanel","dateField",this);
 
-            DateTextField field = new DateTextField("field", model,datePattern);
+           DateTextField field = DateTextField.forDatePattern("field", model,
+                   datePattern);
+
             field.add(getDatePicker());
 
             field.setEnabled(!readonly);
