@@ -93,7 +93,8 @@ public class Users extends BasePage {
     final int WIN_USER_HEIGHT = 680;
     final int WIN_USER_WIDTH = 1133;
 
-    WebMarkupContainer container;
+    WebMarkupContainer usersTableSearchContainer;
+    WebMarkupContainer usersTableContainer;
 
     /*
      Response flag set by the Modal Window after the operation is completed
@@ -138,21 +139,6 @@ public class Users extends BasePage {
         feedbackPanel.setOutputMarkupId(true);
 
         add(feedbackPanel);
-
-        /*try {
-            paginatorRows = utility.getPaginatorRowsToDisplay(Constants
-                    .CONF_USERS_PAGINATOR_ROWS);
-        }
-        catch(RestClientException e){
-           PageParameters errorParameters = new PageParameters();
-
-           errorParameters.add("errorTitle", getString("alert"));
-           errorParameters.add("errorMessage", getString("connectionError"));
-
-           setResponsePage(new ErrorPage(errorParameters));
-
-           return;
-        }*/
 
         //table's columnsList = attributes to view
         final IModel columns = new LoadableDetachableModel() {
@@ -219,8 +205,9 @@ public class Users extends BasePage {
             }
         };
 
-        
-            final PageableListView usersView = new PageableListView("results",
+        usersTableContainer = new WebMarkupContainer("usersTableContainer");
+
+        final PageableListView usersView = new PageableListView("results",
                     usersModel, paginatorRows) {
 
             @Override
@@ -295,7 +282,7 @@ public class Users extends BasePage {
                         info(getString("operation_succeded"));
                         target.addComponent(feedbackPanel);
 
-                        target.addComponent(container);
+                        target.addComponent(usersTableSearchContainer);
                     }
                     
                     @Override
@@ -313,9 +300,6 @@ public class Users extends BasePage {
                 });
             }
         };
-
-        final WebMarkupContainer usersTableContainer = new WebMarkupContainer(
-                "usersTableContainer");
 
         usersTableContainer.add(usersView);
         usersTableContainer.setOutputMarkupId(true);
@@ -345,7 +329,7 @@ public class Users extends BasePage {
             }
         };
 
-        //Add to container users' list navigation controls
+        //Add to usersTableSearchContainer users' list navigation controls
         usersTableContainer.add(incrementUserViewLink);
         usersTableContainer.add(currentPageUserViewLabel);
         usersTableContainer.add(decrementUserViewLink);
@@ -372,8 +356,8 @@ public class Users extends BasePage {
         changeAttribsViewWin.setPageMapName("change-attribs-modal");
         changeAttribsViewWin.setCookieName("change-attribs-modal");
 
-        setWindowClosedCallback(createUserWin, container);
-        setWindowClosedCallback(editUserWin, container);
+        setWindowClosedCallback(createUserWin, usersTableSearchContainer);
+        setWindowClosedCallback(editUserWin, usersTableSearchContainer);
 
         changeAttribsViewWin.setWindowClosedCallback(
                 new ModalWindow.WindowClosedCallback() {
@@ -488,8 +472,8 @@ public class Users extends BasePage {
 
         form.add(new FeedbackPanel("feedback").setOutputMarkupId(true));
 
-        container = new WebMarkupContainer("container");
-        container.setOutputMarkupId(true);
+        usersTableSearchContainer = new WebMarkupContainer("container");
+        usersTableSearchContainer.setOutputMarkupId(true);
 
         ListView searchView = new ListView("searchView", searchConditionsList) {
 
@@ -589,7 +573,7 @@ public class Users extends BasePage {
                         }
                     });
                     target.addComponent(filterNameChooser);
-                    target.addComponent(container);
+                    target.addComponent(usersTableSearchContainer);
                 }});
 
                 filterTypeChooser.setRequired(true);
@@ -604,7 +588,7 @@ public class Users extends BasePage {
                             Form form) {
                         final int parentId = new Integer(getParent().getId());
                         searchConditionsList.remove(parentId);
-                        target.addComponent(container);
+                        target.addComponent(usersTableSearchContainer);
                     }
                 };
 
@@ -618,7 +602,7 @@ public class Users extends BasePage {
             }
         };
 
-        container.add(searchView);
+        usersTableSearchContainer.add(searchView);
 
         AjaxButton addAndButton = new AjaxButton("addAndButton", new Model(
                 getString("addAndButton"))) {
@@ -629,12 +613,12 @@ public class Users extends BasePage {
                         new SearchConditionWrapper();
                 conditionWrapper.setOperationType(OperationType.AND);
                 searchConditionsList.add(conditionWrapper);
-                target.addComponent(container);
+                target.addComponent(usersTableSearchContainer);
             }
         };
 
         addAndButton.setDefaultFormProcessing(false);
-        container.add(addAndButton);
+        usersTableSearchContainer.add(addAndButton);
 
         AjaxButton addOrButton = new AjaxButton("addOrButton", new Model(
                 getString("addOrButton"))) {
@@ -645,14 +629,14 @@ public class Users extends BasePage {
                         new SearchConditionWrapper();
                 conditionWrapper.setOperationType(OperationType.OR);
                 searchConditionsList.add(conditionWrapper);
-                target.addComponent(container);
+                target.addComponent(usersTableSearchContainer);
             }
         };
 
         addOrButton.setDefaultFormProcessing(false);
-        container.add(addOrButton);
+        usersTableSearchContainer.add(addOrButton);
 
-        form.add(container);
+        form.add(usersTableSearchContainer);
 
        currentPageUserSearchLabel = new Label("currentSearchPage",
                 new Model<String>(String.valueOf(currentSearchPage)));
@@ -697,12 +681,13 @@ public class Users extends BasePage {
             }
         };
 
-        final ListView resultsView = new ListView("results", resultsModel) {
+        final PageableListView resultsView = new PageableListView("results",
+                resultsModel, paginatorSearchRows) {
 
             @Override
             protected void populateItem(final ListItem item) {
 
-                UserTO userTO = (UserTO) item.getModelObject();
+                final UserTO userTO = (UserTO) item.getModelObject();
 
                 item.add(new Label("id", String.valueOf(userTO.getId())));
 
@@ -720,8 +705,6 @@ public class Users extends BasePage {
 
                     @Override
                     protected void onSubmit(AjaxRequestTarget target, Form form) {
-                        final UserTO userTO =
-                                (UserTO) item.getDefaultModelObject();
 
                         editUserWin.setPageCreator(new ModalWindow.PageCreator() {
 
@@ -738,12 +721,20 @@ public class Users extends BasePage {
 
                 item.add(editButton);
 
-                item.add(new AjaxButton("deleteLink", new Model(
+                item.add(new AjaxLink("deleteLink", new Model(
                         getString("delete"))) {
 
                     @Override
-                    protected void onSubmit(AjaxRequestTarget target, Form form) {
+                    public void onClick(AjaxRequestTarget target) {
+                        usersRestClient.deleteUser(String
+                                .valueOf(userTO.getId()));
+
+                        info(getString("operation_succeded"));
+                        target.addComponent(feedbackPanel);
+
+                        target.addComponent(usersTableContainer);
                     }
+
                 });
             }
         };
@@ -775,7 +766,7 @@ public class Users extends BasePage {
             }
         };
 
-        //Add to container users'search list navigation controls
+        //Add to usersTableSearchContainer users'search list navigation controls
         searchResultsContainer.add(incrementUserSearchLink);
         searchResultsContainer.add(currentPageUserSearchLabel);
         searchResultsContainer.add(decrementUserSearchLink);
@@ -836,13 +827,13 @@ public class Users extends BasePage {
         final DropDownChoice rowsSearchChooser = new DropDownChoice("rowsSearchChooser",
         new PropertyModel(this,"paginatorSearchRows"),utility.paginatorRowsChooser());
 
-        rowsChooser.add(new AjaxFormComponentUpdatingBehavior( "onchange" ){
+        rowsSearchChooser.add(new AjaxFormComponentUpdatingBehavior( "onchange" ){
           protected void onUpdate( AjaxRequestTarget target )
             {
-              utility.updatePaginatorRows(Constants.CONF_USERS_SEARCH_PAGINATOR_ROWS,
+             utility.updatePaginatorRows(Constants.CONF_USERS_SEARCH_PAGINATOR_ROWS,
                       paginatorSearchRows);
 
-             //sea.setRowsPerPage(paginatorSearchRows);
+              resultsView.setRowsPerPage(paginatorSearchRows);
 
               target.addComponent(searchResultsContainer);
             }
@@ -910,7 +901,7 @@ public class Users extends BasePage {
     /**
      * Set a WindowClosedCallback for a ModalWindow instance.
      * @param window
-     * @param container
+     * @param usersTableSearchContainer
      */
     public void setWindowClosedCallback(final ModalWindow window,
             final WebMarkupContainer container) {
@@ -1063,30 +1054,6 @@ public class Users extends BasePage {
             }
         }
     }
-
-//    private List<IColumn> addCustomizedUserProperties(List<IColumn> columns) {
-//        ConfigurationTO configuration =
-//                        configurationsRestClient.readConfiguration(
-//                        Constants.CONF_USERS_ATTRIBUTES_VIEW);
-//
-//                if (configuration != null
-//                        && configuration.getConfValue() != null) {
-//
-//                    String conf = configuration.getConfValue();
-//                    StringTokenizer st = new StringTokenizer(conf, ";");
-//
-//                    String columnName = null;
-//
-//                    while (st.hasMoreTokens()) {
-//                        columnName = st.nextToken();
-//
-//                        columns.add(new PropertyColumn(new Model(columnName),
-//                        "attributeMap["+columnName+"]"));
-//                    }
-//                }
-//
-//                return columns;
-//    }
 
     /**
      * Wrapper class for displaying attribute
