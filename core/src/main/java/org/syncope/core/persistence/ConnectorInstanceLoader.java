@@ -148,6 +148,7 @@ public class ConnectorInstanceLoader implements ServletContextListener {
         List<ConnectorInstance> instances = connectorInstanceDAO.findAll();
         for (ConnectorInstance instance : instances) {
             try {
+                LOG.error("register connector {}", instance);
                 registerConnector(instance);
             } catch (NotFoundException e) {
                 LOG.error("While loading connector bundle for instance "

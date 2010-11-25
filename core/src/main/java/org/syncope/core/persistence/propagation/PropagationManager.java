@@ -32,7 +32,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.syncope.core.persistence.ConnectorInstanceLoader;
 import org.syncope.core.persistence.beans.AbstractSchema;
@@ -215,32 +214,35 @@ public class PropagationManager {
                 task.setAttributes(
                         preparedAttributes.values().iterator().next());
 
-                execution = new TaskExecution();
-                execution.setTask(task);
-                task.addExecution(execution);
-
-                task = taskDAO.save(task);
-                // re-read it after saving
-                execution = task.getExecutions().get(0);
-
                 LOG.debug("Execution started for {}", task);
 
-                if (PropagationMode.SYNC
-                        == execution.getTask().getPropagationMode()) {
+                task = taskDAO.save(task);
 
-                    syncPropagate(execution);
+                TaskExecution taskExecution = new TaskExecution();
+                taskExecution.setTask(task);
+
+                if (PropagationMode.SYNC.equals(task.getPropagationMode())) {
+                    syncPropagate(taskExecution);
+
+                    // read execution after saving
+                    taskExecution =
+                            task.getExecutions() != null
+                            && !task.getExecutions().isEmpty()
+                            ? task.getExecutions().get(0) : null;
+
                 } else {
-                    asyncPropagate(execution);
+                    asyncPropagate(taskExecution);
                 }
 
                 LOG.debug("Execution finished for {}", task);
 
-                if (syncResourceNames.contains(resource.getName())
-                        && execution.getStatus()
+                if (taskExecution != null
+                        && syncResourceNames.contains(resource.getName())
+                        && taskExecution.getStatus()
                         != TaskExecutionStatus.SUCCESS) {
 
                     throw new PropagationException(resource.getName(),
-                            execution.getMessage());
+                            taskExecution.getMessage());
                 }
             }
         }
@@ -407,103 +409,150 @@ public class PropagationManager {
         return Collections.singletonMap(accountId, attributes);
     }
 
-    protected void propagate(final TaskExecution execution) {
-        execution.setStartDate(new Date());
+    public void propagate(final TaskExecution execution) {
+        Date startDate = new Date();
+        TaskExecutionStatus taskExecutionStatus = null;
+        String taskExecutionMessage = null;
+
+        Task task = execution.getTask();
+
+        // Output parameter to verify the propagation request tryed
+        final Set<String> triedPropagationRequests = new HashSet<String>();
+
 
         try {
-            ConnectorInstance connectorInstance = execution.getTask().
-                    getResource().getConnector();
+            ConnectorInstance connectorInstance =
+                    task.getResource().getConnector();
 
-            ConnectorFacadeProxy connector = ConnectorInstanceLoader.
-                    getConnector(connectorInstance.getId().toString());
+            ConnectorFacadeProxy connector =
+                    ConnectorInstanceLoader.getConnector(
+                    connectorInstance.getId().toString());
 
             if (connector == null) {
                 LOG.error("Connector instance bean "
-                        + connectorInstance.getId().toString() + " not found");
+                        + connectorInstance.getId().toString()
+                        + " not found");
 
                 throw new NoSuchBeanDefinitionException(
                         "Connector instance bean not found");
             }
 
-            switch (execution.getTask().getResourceOperationType()) {
+            switch (task.getResourceOperationType()) {
                 case CREATE:
                 case UPDATE:
                     Uid userUid = null;
                     try {
-                        userUid = connector.resolveUsername(ObjectClass.ACCOUNT,
-                                execution.getTask().getOldAccountId() == null
-                                ? execution.getTask().getAccountId()
-                                : execution.getTask().getOldAccountId(),
+                        userUid = connector.resolveUsernameForUpdate(
+                                task.getPropagationMode(),
+                                task.getResourceOperationType(),
+                                ObjectClass.ACCOUNT,
+                                task.getOldAccountId() == null
+                                ? task.getAccountId()
+                                : task.getOldAccountId(),
                                 null);
                     } catch (RuntimeException ignore) {
                         if (LOG.isDebugEnabled()) {
-                            LOG.debug("To be ignored, "
-                                    + "when resolving username on connector",
-                                    ignore);
+                            LOG.debug("To be ignored, when resolving "
+                                    + "username on connector", ignore);
                         }
                     }
 
                     if (userUid != null) {
                         connector.update(
-                                execution.getTask().getPropagationMode(),
+                                task.getPropagationMode(),
                                 ObjectClass.ACCOUNT,
                                 userUid,
-                                execution.getTask().getAttributes(),
-                                null);
+                                task.getAttributes(),
+                                null,
+                                triedPropagationRequests);
                     } else {
                         connector.create(
-                                execution.getTask().getPropagationMode(),
+                                task.getPropagationMode(),
                                 ObjectClass.ACCOUNT,
-                                execution.getTask().getAttributes(),
-                                null);
+                                task.getAttributes(),
+                                null,
+                                triedPropagationRequests);
                     }
                     break;
 
                 case DELETE:
-                    connector.delete(execution.getTask().getPropagationMode(),
+                    connector.delete(task.getPropagationMode(),
                             ObjectClass.ACCOUNT,
-                            new Uid(execution.getTask().getAccountId()),
-                            null);
+                            new Uid(task.getAccountId()),
+                            null,
+                            triedPropagationRequests);
                     break;
 
                 default:
             }
 
-            LOG.debug("Succesfully propagated to resource {}",
-                    execution.getTask().getResource().getName());
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Succesfully propagated to resource "
+                        + task.getResource().getName());
+            }
 
-            execution.setStatus(execution.getTask().getPropagationMode()
+            taskExecutionStatus = task.getPropagationMode()
                     == PropagationMode.SYNC
                     ? TaskExecutionStatus.SUCCESS
-                    : TaskExecutionStatus.SUBMITTED);
+                    : TaskExecutionStatus.SUBMITTED;
         } catch (Throwable t) {
             LOG.error("Exception during provision on resource "
-                    + execution.getTask().getResource().getName(), t);
+                    + task.getResource().getName(), t);
 
             StringWriter execeptionWriter = new StringWriter();
             t.printStackTrace(new PrintWriter(execeptionWriter));
-            execution.setMessage(execeptionWriter.toString());
+            taskExecutionMessage = execeptionWriter.toString();
 
-            execution.setStatus(execution.getTask().getPropagationMode()
+            taskExecutionStatus = task.getPropagationMode()
                     == PropagationMode.SYNC
                     ? TaskExecutionStatus.FAILURE
-                    : TaskExecutionStatus.UNSUBMITTED);
+                    : TaskExecutionStatus.UNSUBMITTED;
+
+            triedPropagationRequests.add(
+                    task.getResourceOperationType().toString().toLowerCase());
         } finally {
-            execution.setEndDate(new Date());
+            LOG.debug("Update execution for {}", task);
+
+            if (!triedPropagationRequests.isEmpty()
+                    || execution.getId() != null) {
+
+                execution.setStartDate(startDate);
+
+                if (taskExecutionMessage != null) {
+                    execution.setMessage(taskExecutionMessage);
+                }
+
+                if (taskExecutionStatus != null) {
+                    execution.setStatus(taskExecutionStatus);
+                }
+
+                execution.setEndDate(new Date());
+
+                TaskExecution actualExecution =
+                        taskDataBinder.storeTaskExecution(execution);
+
+                task.addExecution(actualExecution);
+                taskDAO.save(task);
+
+                LOG.debug("Updated {}", actualExecution);
+            }
         }
     }
 
     public void syncPropagate(final TaskExecution execution) {
         LOG.debug("Synchronous execution {}", execution);
-
         propagate(execution);
     }
 
-    @Async
+    //@Async
     public void asyncPropagate(final TaskExecution execution) {
         LOG.debug("Asynchronous execution {}", execution);
+        new Thread() {
 
-        propagate(execution);
-        taskDataBinder.storeTaskExecution(execution);
+            @Override
+            public void run() {
+                propagate(execution);
+            }
+        }.start();
     }
 }

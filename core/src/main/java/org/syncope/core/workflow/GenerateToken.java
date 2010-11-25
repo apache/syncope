@@ -22,6 +22,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.MissingConfKeyException;
 import org.syncope.core.persistence.dao.SyncopeConfigurationDAO;
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.DESKeySpec;
+import org.identityconnectors.common.Base64;
 
 public class GenerateToken extends OSWorkflowComponent
         implements FunctionProvider {
@@ -44,19 +49,95 @@ public class GenerateToken extends OSWorkflowComponent
         SyncopeUser syncopeUser = (SyncopeUser) transientVars.get(
                 Constants.SYNCOPE_USER);
 
-        final String prefix = (String) transientVars.get(
-                Constants.PREFIX);
+        final String token = (String) transientVars.get(
+                Constants.TOKEN);
+
+        LOG.debug("Received token {}", token);
 
         try {
             syncopeUser.generateToken(
                     Integer.parseInt(syncopeConfigurationDAO.find(
                     "token.length").getConfValue()),
                     Integer.parseInt(syncopeConfigurationDAO.find(
-                    "token.expireTime").getConfValue()), prefix);
+                    "token.expireTime").getConfValue()), token);
         } catch (MissingConfKeyException e) {
             throw new WorkflowException(e);
         }
 
         transientVars.put(Constants.SYNCOPE_USER, syncopeUser);
+    }
+
+    public final String encrypt(final String toBeCrypted) {
+
+        String res = null;
+
+        try {
+
+            final DESKeySpec keySpec =
+                    new DESKeySpec(syncopeConfigurationDAO.find(
+                    "token.encryption.key").getConfValue().getBytes("UTF8"));
+
+            final SecretKeyFactory keyFactory =
+                    SecretKeyFactory.getInstance("DES");
+
+            final SecretKey key = keyFactory.generateSecret(keySpec);
+
+            final byte[] cleartext = toBeCrypted.getBytes("UTF8");
+
+            final Cipher cipher = Cipher.getInstance("DES");
+
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("To Be Encrypted: " + toBeCrypted);
+            }
+
+            cipher.init(Cipher.ENCRYPT_MODE, key);
+            res = Base64.encode(cipher.doFinal(cleartext));
+
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Encrypted: " + res);
+            }
+
+        } catch (Exception e) {
+            LOG.error("Encrypt operation failed", e);
+        }
+
+        return res;
+    }
+
+    public final String decrypt(final String toBeDecrypted) {
+        String res = null;
+
+        try {
+
+            final DESKeySpec keySpec =
+                    new DESKeySpec(syncopeConfigurationDAO.find(
+                    "token.encryption.key").getConfValue().getBytes("UTF8"));
+
+            final SecretKeyFactory keyFactory =
+                    SecretKeyFactory.getInstance("DES");
+
+            final SecretKey key = keyFactory.generateSecret(keySpec);
+
+            final byte[] encrypedPwdBytes =
+                    Base64.decode(toBeDecrypted);
+
+            final Cipher cipher = Cipher.getInstance("DES");
+
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("To Be Dencrypted: " + toBeDecrypted);
+            }
+
+            cipher.init(Cipher.DECRYPT_MODE, key);
+            res = new String(cipher.doFinal(encrypedPwdBytes));
+
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Dencrypted: " + res);
+            }
+
+        } catch (Exception e) {
+            LOG.error("Decrypt operation failed", e);
+        }
+
+        return res;
     }
 }

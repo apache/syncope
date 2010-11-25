@@ -249,15 +249,18 @@ public class SyncopeUser extends AbstractAttributable {
     }
 
     public void generateToken(
-            int tokenLength, int tokenExpireTime, String prefix) {
+            int tokenLength, int tokenExpireTime) {
+        generateToken(tokenLength, tokenExpireTime, null);
+    }
 
-        if (prefix == null || prefix.isEmpty()) {
-            prefix = "";
-        } else {
-            prefix += "|";
+    public void generateToken(
+            int tokenLength, int tokenExpireTime, String token) {
+
+        if (token == null) {
+            token = RandomStringUtils.randomAlphanumeric(tokenLength);
         }
 
-        token = prefix + RandomStringUtils.randomAlphanumeric(tokenLength);
+        this.token = token;
 
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.MINUTE, tokenExpireTime);
@@ -277,15 +280,9 @@ public class SyncopeUser extends AbstractAttributable {
         return tokenExpireTime;
     }
 
-    public boolean checkToken(final String token, String prefix) {
-        if (prefix == null || prefix.isEmpty()) {
-            prefix = "";
-        } else {
-            prefix += "|";
-        }
+    public boolean checkToken(final String token) {
 
-        return token.startsWith(prefix)
-                && this.token.equals(token)
+        return this.token.equals(token)
                 && tokenExpireTime.after(new Date());
     }
 }

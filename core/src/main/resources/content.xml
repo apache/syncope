@@ -29,6 +29,7 @@
 
     <SyncopeConfiguration confKey="token.length" confValue="256"/>
     <SyncopeConfiguration confKey="token.expireTime" confValue="60"/>
+    <SyncopeConfiguration confKey="token.encryption.key" confValue="1abcdefghil3mnopqrstuvz2"/>
     <SyncopeConfiguration confKey="smtp.host" confValue="smtp.ngi.it"/>
     <SyncopeConfiguration confKey="mail.templates.url" confValue="http://localhost:8080/syncope/mailTemplates/"/>
     <SyncopeConfiguration confKey="activate.email.from" confValue="syncope@googlecode.com"/>

@@ -133,7 +133,7 @@ public class TaskController extends AbstractController {
 
         LOG.debug("Execution finished for {}", task);
 
-        execution = taskExecutionDAO.save(execution);
+        LOG.debug("Return execution {}", execution);
 
         return taskDataBinder.getTaskExecutionTO(execution);
     }

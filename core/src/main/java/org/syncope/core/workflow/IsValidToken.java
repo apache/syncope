@@ -19,7 +19,6 @@ import com.opensymphony.workflow.Condition;
 import com.opensymphony.workflow.WorkflowException;
 import java.util.Map;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
-import org.syncope.core.persistence.dao.MissingConfKeyException;
 
 public class IsValidToken extends OSWorkflowComponent
         implements Condition {
@@ -28,26 +27,18 @@ public class IsValidToken extends OSWorkflowComponent
     public boolean passesCondition(Map transientVars, Map args, PropertySet ps)
             throws WorkflowException {
 
-        boolean validToken = false;
-
-        final String prefix = (String) transientVars.get(
-                Constants.PREFIX);
-
         SyncopeUser syncopeUser = (SyncopeUser) transientVars.get(
                 Constants.SYNCOPE_USER);
 
         final String token = (String) transientVars.get(Constants.TOKEN);
 
-        LOG.debug("Check for token validity with prefix '{}'", prefix);
-
-        validToken = syncopeUser.checkToken(token, prefix);
-
-        LOG.debug("Validated token '{}': " + validToken, token);
+        boolean validToken = syncopeUser.checkToken(token);
 
         if (validToken) {
+            LOG.debug("Remove valid token '{}': ", token);
             syncopeUser.removeToken();
         }
-        
+
         return validToken;
     }
 }

@@ -36,6 +36,7 @@ import org.syncope.client.to.AttributeTO;
 import org.syncope.client.search.AttributeCond;
 import org.syncope.client.to.MembershipTO;
 import org.syncope.client.search.NodeCond;
+import org.syncope.client.to.TaskTO;
 import org.syncope.client.to.UserTO;
 import org.syncope.client.to.WorkflowActionsTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
@@ -85,6 +86,79 @@ public class UserTestITCase extends AbstractTest {
     }
 
     @Test
+    public final void createUserWithNoPropagation() {
+
+        // get task list
+        List<TaskTO> tasks = Arrays.asList(
+                restTemplate.getForObject(
+                BASE_URL + "task/list", TaskTO[].class));
+
+        assertNotNull(tasks);
+        assertFalse(tasks.isEmpty());
+
+        // get max task id
+        long maxId = Long.MIN_VALUE;
+        for (TaskTO task : tasks) {
+            if (task.getId() > maxId) maxId = task.getId();
+        }
+
+        // create a new user
+        UserTO newUserTO = new UserTO();
+
+        AttributeTO attributeTO = new AttributeTO();
+        attributeTO.setSchema("firstname");
+        attributeTO.addValue("xxx");
+        newUserTO.addAttribute(attributeTO);
+
+        attributeTO = new AttributeTO();
+        attributeTO.setSchema("surname");
+        attributeTO.addValue("xxx");
+        newUserTO.addAttribute(attributeTO);
+
+        attributeTO = new AttributeTO();
+        attributeTO.setSchema("userId");
+        attributeTO.addValue("xxx@xxx.xxx");
+        newUserTO.addAttribute(attributeTO);
+
+        attributeTO = new AttributeTO();
+        attributeTO.setSchema("username");
+        attributeTO.addValue("xxx");
+        newUserTO.addAttribute(attributeTO);
+
+        newUserTO.setPassword("xxx");
+        newUserTO.addResource("ws-target-resource-nopropagation");
+
+        restTemplate.postForObject(BASE_URL + "user/create"
+                + "?syncResources=ws-target-resource-nopropagation",
+                newUserTO, UserTO.class);
+
+        // get the new task list
+        tasks = Arrays.asList(
+                restTemplate.getForObject(
+                BASE_URL + "task/list", TaskTO[].class));
+
+        assertNotNull(tasks);
+        assertFalse(tasks.isEmpty());
+
+        // get max task id
+        long newMaxId = Long.MIN_VALUE;
+        for (TaskTO task : tasks) {
+            if (task.getId() > newMaxId) newMaxId = task.getId();
+        }
+
+        assertTrue(newMaxId > maxId);
+
+        // get last task
+        TaskTO taskTO = restTemplate.getForObject(
+                BASE_URL + "task/read/{taskId}", TaskTO.class, newMaxId);
+
+        assertNotNull(taskTO);
+        assertTrue(taskTO.getExecutions() == null
+                || taskTO.getExecutions().isEmpty());
+
+    }
+
+    @Test
     @ExpectedException(value = SyncopeClientCompositeErrorException.class)
     public final void createWithException() {
         AttributeTO attributeTO = new AttributeTO();
@@ -100,6 +174,20 @@ public class UserTestITCase extends AbstractTest {
 
     @Test
     public final void create() {
+        // get task list
+        List<TaskTO> tasks = Arrays.asList(
+                restTemplate.getForObject(
+                BASE_URL + "task/list", TaskTO[].class));
+
+        assertNotNull(tasks);
+        assertFalse(tasks.isEmpty());
+
+        // get max task id
+        long maxId = Long.MIN_VALUE;
+        for (TaskTO task : tasks) {
+            if (task.getId() > maxId) maxId = task.getId();
+        }
+
         UserTO userTO = getSampleTO("a.b@c.com");
 
         // add a membership
@@ -146,6 +234,30 @@ public class UserTestITCase extends AbstractTest {
         assertEquals("active",
                 restTemplate.getForObject(BASE_URL + "user/status/"
                 + newUserTO.getId(), String.class));
+
+        // get the new task list
+        tasks = Arrays.asList(
+                restTemplate.getForObject(
+                BASE_URL + "task/list", TaskTO[].class));
+
+        assertNotNull(tasks);
+        assertFalse(tasks.isEmpty());
+
+        // get max task id
+        long newMaxId = Long.MIN_VALUE;
+        for (TaskTO task : tasks) {
+            if (task.getId() > newMaxId) newMaxId = task.getId();
+        }
+
+        assertTrue(newMaxId > maxId);
+
+        // get last task
+        TaskTO taskTO = restTemplate.getForObject(
+                BASE_URL + "task/read/{taskId}", TaskTO.class, newMaxId);
+
+        assertNotNull(taskTO);
+        assertFalse(taskTO.getExecutions() == null
+                || taskTO.getExecutions().isEmpty());
 
         // 3. verify password
         Boolean verify = restTemplate.getForObject(

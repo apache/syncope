@@ -26,6 +26,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -92,7 +93,8 @@ public class Task extends AbstractBaseBean {
     /**
      * When this task has been (or will be) executed, what its result was.
      */
-    @OneToMany(cascade = CascadeType.MERGE, mappedBy = "task")
+    @OneToMany(cascade = CascadeType.MERGE, mappedBy = "task",
+    fetch = FetchType.EAGER)
     @Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
     private List<TaskExecution> executions;
 

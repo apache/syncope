@@ -33,6 +33,7 @@ import org.syncope.core.persistence.ConnectorInstanceLoader;
 import org.syncope.core.persistence.beans.ConnectorInstance;
 import org.syncope.types.ConnectorCapability;
 import org.syncope.types.PropagationMode;
+import org.syncope.types.ResourceOperationType;
 
 /**
  * Intercept calls to ConnectorFacade's methods and check if the correspondant
@@ -46,10 +47,12 @@ public class ConnectorFacadeProxy {
      */
     private static final Logger LOG = LoggerFactory.getLogger(
             ConnectorFacadeProxy.class);
+
     /**
      * Connector facade wrapped instance.
      */
     private final ConnectorFacade connector;
+
     /**
      * Set of configure connecto instance capabilities.
      * @see org.syncope.core.persistence.beans.ConnectorInstance
@@ -144,10 +147,12 @@ public class ConnectorFacadeProxy {
         this.capabitilies = connectorInstance.getCapabilities();
     }
 
-    public Uid create(final PropagationMode propagationMode,
+    public Uid create(
+            final PropagationMode propagationMode,
             final ObjectClass oclass,
             final Set<Attribute> attrs,
-            final OperationOptions options) {
+            final OperationOptions options,
+            final Set<String> triedPropagationRequests) {
 
         Uid result = null;
 
@@ -156,6 +161,10 @@ public class ConnectorFacadeProxy {
                 ConnectorCapability.SYNC_CREATE)
                 : capabitilies.contains(
                 ConnectorCapability.ASYNC_CREATE)) {
+
+            if (triedPropagationRequests != null) {
+                triedPropagationRequests.add("create");
+            }
 
             result = connector.create(oclass, attrs, options);
             if (result == null) {
@@ -166,7 +175,8 @@ public class ConnectorFacadeProxy {
         return result;
     }
 
-    public Uid resolveUsername(final ObjectClass objectClass,
+    public Uid resolveUsername(
+            final ObjectClass objectClass,
             final String username,
             final OperationOptions options) {
 
@@ -179,19 +189,66 @@ public class ConnectorFacadeProxy {
         return result;
     }
 
+    public Uid resolveUsernameForUpdate(
+            final PropagationMode propagationMode,
+            final ResourceOperationType operationType,
+            final ObjectClass objectClass,
+            final String username,
+            final OperationOptions options) {
+
+        Uid result = null;
+
+        if (capabitilies.contains(ConnectorCapability.RESOLVE)) {
+            switch (operationType) {
+                case CREATE:
+                    if (propagationMode == PropagationMode.SYNC
+                            ? capabitilies.contains(
+                            ConnectorCapability.SYNC_CREATE)
+                            : capabitilies.contains(
+                            ConnectorCapability.ASYNC_CREATE)) {
+
+                        result = connector.resolveUsername(
+                                objectClass, username, options);
+                    }
+                    break;
+                case UPDATE:
+                    if (propagationMode == PropagationMode.SYNC
+                            ? capabitilies.contains(
+                            ConnectorCapability.SYNC_UPDATE)
+                            : capabitilies.contains(
+                            ConnectorCapability.ASYNC_UPDATE)) {
+
+                        result = connector.resolveUsername(
+                                objectClass, username, options);
+                    }
+                    break;
+                default:
+                    result = connector.resolveUsername(
+                            objectClass, username, options);
+            }
+        }
+
+        return result;
+    }
+
     public Uid update(final PropagationMode propagationMode,
             final ObjectClass objclass,
             final Uid uid,
             final Set<Attribute> replaceAttributes,
-            final OperationOptions options) {
+            final OperationOptions options,
+            final Set<String> triedPropagationRequests) {
 
-        Uid result = uid;
+        Uid result = null;
 
         if (propagationMode == PropagationMode.SYNC
                 ? capabitilies.contains(
                 ConnectorCapability.SYNC_UPDATE)
                 : capabitilies.contains(
                 ConnectorCapability.ASYNC_UPDATE)) {
+
+            if (triedPropagationRequests != null) {
+                triedPropagationRequests.add("update");
+            }
 
             result = connector.update(
                     objclass, uid, replaceAttributes, options);
@@ -206,13 +263,18 @@ public class ConnectorFacadeProxy {
     public void delete(final PropagationMode propagationMode,
             final ObjectClass objClass,
             final Uid uid,
-            final OperationOptions options) {
+            final OperationOptions options,
+            final Set<String> triedPropagationRequests) {
 
         if (propagationMode == PropagationMode.SYNC
                 ? capabitilies.contains(
                 ConnectorCapability.SYNC_DELETE)
                 : capabitilies.contains(
                 ConnectorCapability.ASYNC_DELETE)) {
+
+            if (triedPropagationRequests != null) {
+                triedPropagationRequests.add("delete");
+            }
 
             connector.delete(objClass, uid, options);
         }
