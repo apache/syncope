@@ -99,7 +99,9 @@ public class UserTestITCase extends AbstractTest {
         // get max task id
         long maxId = Long.MIN_VALUE;
         for (TaskTO task : tasks) {
-            if (task.getId() > maxId) maxId = task.getId();
+            if (task.getId() > maxId) {
+                maxId = task.getId();
+            }
         }
 
         // create a new user
@@ -143,7 +145,9 @@ public class UserTestITCase extends AbstractTest {
         // get max task id
         long newMaxId = Long.MIN_VALUE;
         for (TaskTO task : tasks) {
-            if (task.getId() > newMaxId) newMaxId = task.getId();
+            if (task.getId() > newMaxId) {
+                newMaxId = task.getId();
+            }
         }
 
         assertTrue(newMaxId > maxId);
@@ -185,7 +189,9 @@ public class UserTestITCase extends AbstractTest {
         // get max task id
         long maxId = Long.MIN_VALUE;
         for (TaskTO task : tasks) {
-            if (task.getId() > maxId) maxId = task.getId();
+            if (task.getId() > maxId) {
+                maxId = task.getId();
+            }
         }
 
         UserTO userTO = getSampleTO("a.b@c.com");
@@ -246,7 +252,9 @@ public class UserTestITCase extends AbstractTest {
         // get max task id
         long newMaxId = Long.MIN_VALUE;
         for (TaskTO task : tasks) {
-            if (task.getId() > newMaxId) newMaxId = task.getId();
+            if (task.getId() > newMaxId) {
+                newMaxId = task.getId();
+            }
         }
 
         assertTrue(newMaxId > maxId);
@@ -584,8 +592,9 @@ public class UserTestITCase extends AbstractTest {
 
         SyncopeUser passwordTestUser = new SyncopeUser();
         passwordTestUser.setPassword("newPassword");
-        assertEquals(passwordTestUser.getPassword(),
-                new String(Base64.decode(userTO.getPassword())));
+        assertEquals(new String(Base64.encode(
+                passwordTestUser.getPassword().getBytes())),
+                userTO.getPassword());
 
         assertEquals(1, userTO.getMemberships().size());
         assertEquals(1, userTO.getMemberships().iterator().next().
