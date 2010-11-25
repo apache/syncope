@@ -19,8 +19,6 @@ import java.util.ArrayList;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 import org.apache.wicket.Page;
@@ -32,22 +30,14 @@ import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table
-        .AjaxFallbackDefaultDataTable;
-import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
-import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.markup.html.list.PageableListView;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
-import org.apache.wicket.markup.repeater.Item;
-import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
@@ -57,6 +47,7 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.syncope.client.search.AttributeCond;
 import org.syncope.client.search.MembershipCond;
 import org.syncope.client.search.NodeCond;
+import org.syncope.client.to.AttributeTO;
 import org.syncope.client.to.ConfigurationTO;
 import org.syncope.client.to.RoleTO;
 import org.syncope.client.to.UserTO;
@@ -68,8 +59,6 @@ import org.syncope.console.rest.SchemaRestClient;
 import org.syncope.console.rest.ConfigurationsRestClient;
 import org.syncope.console.rest.RolesRestClient;
 import org.syncope.console.rest.UsersRestClient;
-import org.syncope.console.wicket.markup.html.form.DeleteLinkPanel;
-import org.syncope.console.wicket.markup.html.form.EditLinkPanel;
 import org.syncope.console.wicket.markup.html.form.UpdatingCheckBox;
 import org.syncope.console.wicket.markup.html.form.UpdatingDropDownChoice;
 import org.syncope.console.wicket.markup.html.form.UpdatingTextField;
@@ -117,6 +106,22 @@ public class Users extends BasePage {
     List<UserTO> searchMatchedUsers;
 
     private int paginatorRows;
+    private int paginatorSearchRows;
+
+    int currentViewPage = 1;
+    int currentSearchPage = 1;
+
+    AjaxLink incrementUserViewLink;
+    AjaxLink decrementUserViewLink;
+    Label currentPageUserViewLabel;
+
+    AjaxLink incrementUserSearchLink;
+    AjaxLink decrementUserSearchLink;
+    Label currentPageUserSearchLabel;
+
+    List<String> columnsList;
+
+    NodeCond nodeCond;
 
     public Users(PageParameters parameters) {
         super(parameters);
@@ -148,37 +153,122 @@ public class Users extends BasePage {
 
            return;
         }*/
-        
+
+        //table's columnsList = attributes to view
+        final IModel columns = new LoadableDetachableModel() {
+
+            protected Object load() {
+                ConfigurationTO configuration = configurationsRestClient
+                        .readConfiguration("users.attributes.view");
+                columnsList = new ArrayList<String>();
+
+                if (configuration != null && !configuration.getConfValue().equals("")) {
+                    String conf = configuration.getConfValue();
+                    StringTokenizer st = new StringTokenizer(conf, ";");
+
+                    while (st.hasMoreTokens()) {
+                        columnsList.add(st.nextToken());
+                    }
+                }
+
+                Collections.sort(columnsList);
+                return columnsList;
+            }
+        };
+
+       ListView columnsView = new ListView("usersSchema",columns) {
+
+            @Override
+            protected void populateItem(final ListItem item) {
+                final String name =
+                        (String) item.getDefaultModelObject();
+
+                item.add(new Label("attribute", name));
+            }
+        };
+
+
         paginatorRows = utility.getPaginatorRowsToDisplay(Constants
                     .CONF_USERS_PAGINATOR_ROWS);
 
-        List<IColumn> columns = new ArrayList<IColumn>();
+        paginatorSearchRows = utility.getPaginatorRowsToDisplay(Constants
+                    .CONF_USERS_SEARCH_PAGINATOR_ROWS);
 
-        columns.add(new PropertyColumn(new Model(getString("id")),
-                "id", "id"));
+        IModel usersModel = new LoadableDetachableModel() {
 
-        columns.add(new PropertyColumn(new Model(getString("status")),
-                "status", "status"));
+            @Override
+            protected Object load() {
 
-        columns.add(new PropertyColumn(new Model(getString("token")),
-                "token", "token"));
+                List<UserTO> list = usersRestClient.getPaginatedUsersList(
+                        currentViewPage, paginatorRows);
 
-        columns = addCustomizedUserProperties(columns);
+                List<UserTO> nextList = usersRestClient.getPaginatedUsersList(
+                        currentViewPage + 1, paginatorRows);
 
-        columns.add(new AbstractColumn<UserTO>(new Model<String>(
-                getString("edit")))
-        {
-            public void populateItem(Item<ICellPopulator<UserTO>>
-                    cellItem, String componentId, IModel<UserTO> model)
-            {
-                    final UserTO userTO = model.getObject();
-                    AjaxLink editLink = new AjaxLink("editLink") {
+                if(nextList.size() == 0)
+                    incrementUserViewLink.setVisible(false);
+                else
+                    incrementUserViewLink.setVisible(true);
 
-                        @Override
+                if(currentViewPage <= 1)
+                    decrementUserViewLink.setVisible(false);
+                else
+                    decrementUserViewLink.setVisible(true);
+
+                return list;
+            }
+        };
+
+        
+            final PageableListView usersView = new PageableListView("results",
+                    usersModel, paginatorRows) {
+
+            @Override
+            protected void populateItem(final ListItem item) {
+
+                final UserTO userTO = (UserTO) item.getModelObject();
+
+                item.add(new Label("id", String.valueOf(userTO.getId())));
+
+                item.add(new Label("status", String.valueOf(
+                        userTO.getStatus())));
+
+                if (userTO.getToken() != null && !userTO.getToken().equals("")) {
+                    item.add(new Label("token", getString("tokenValued")));
+                } else {
+                    item.add(new Label("token", getString("tokenNotValued")));
+                }
+
+                item.add(new ListView("selectedAttributes", attributesToDisplay(userTO)) {
+
+                    @Override
+                    protected void populateItem(ListItem item) {
+                        AttributeWrapper attribute =
+                                (AttributeWrapper) item.getDefaultModelObject();
+
+                        for(String name : columnsList){
+
+                             if( name.equalsIgnoreCase(attribute.getKey())) {
+                                 item.add(new Label("name",attribute.getValue()));
+                             }
+                             else if(!name.equalsIgnoreCase(attribute.getKey())) {
+
+                             }
+
+                        }
+
+                    }
+
+                });
+
+                AjaxLink editLink = new AjaxLink("editLink",
+                        new Model(getString("edit"))) {
+
+                    @Override
                     public void onClick(AjaxRequestTarget target) {
+                     final UserTO userTO = (UserTO) item.getDefaultModelObject();
 
-                        editUserWin.setPageCreator(
-                                new ModalWindow.PageCreator() {
+                        editUserWin.setPageCreator(new ModalWindow.PageCreator() {
 
                             public Page createPage() {
                                 UserModalPage window = new UserModalPage(
@@ -188,35 +278,26 @@ public class Users extends BasePage {
                         });
 
                         editUserWin.show(target);
-                        }};
+                    }
 
-                EditLinkPanel panel = new EditLinkPanel(componentId, model);
-                panel.add(editLink);
+                };
 
-                cellItem.add(panel);
-            }
-        });
+                item.add(editLink);
 
-        columns.add(new AbstractColumn<UserTO>(new Model<String>
-                (getString("delete")))
-        {
-            public void populateItem(Item<ICellPopulator<UserTO>>
-                    cellItem, String componentId, IModel<UserTO> model)
-            {
-                    final UserTO userTO = model.getObject();
+                item.add(new AjaxLink("deleteLink", new Model(
+                        getString("delete"))) {
 
-                    AjaxLink deleteLink = new AjaxLink("deleteLink") {
                     @Override
                     public void onClick(AjaxRequestTarget target) {
-                        usersRestClient.deleteUser(String.valueOf(userTO
-                                .getId()));
+                        usersRestClient.deleteUser(String
+                                .valueOf(userTO.getId()));
 
                         info(getString("operation_succeded"));
                         target.addComponent(feedbackPanel);
 
                         target.addComponent(container);
                     }
-
+                    
                     @Override
                     protected IAjaxCallDecorator getAjaxCallDecorator() {
                         return new AjaxPreprocessingCallDecorator(super.getAjaxCallDecorator()) {
@@ -229,25 +310,49 @@ public class Users extends BasePage {
                             }
                         };
                     }
-                };
-
-                DeleteLinkPanel panel = new DeleteLinkPanel(componentId, model);
-                panel.add(deleteLink);
-
-                cellItem.add(panel);
+                });
             }
-        });
+        };
 
+        final WebMarkupContainer usersTableContainer = new WebMarkupContainer(
+                "usersTableContainer");
 
-        final AjaxFallbackDefaultDataTable table =
-                new AjaxFallbackDefaultDataTable("datatable", columns,
-                new UsersProvider(), paginatorRows);
+        usersTableContainer.add(usersView);
+        usersTableContainer.setOutputMarkupId(true);
 
-        container = new WebMarkupContainer("container");
-        container.add(table);
-        container.setOutputMarkupId(true);
+        currentPageUserViewLabel = new Label("currentPageLabel",
+                new Model<String>(String.valueOf(currentViewPage)));
 
-        add(container);
+        incrementUserViewLink = new AjaxLink("incrementLink"){
+
+            @Override
+            public void onClick(AjaxRequestTarget target) {
+                currentViewPage++;
+                currentPageUserViewLabel.setDefaultModelObject(
+                        String.valueOf(currentViewPage));
+                target.addComponent(usersTableContainer);
+            }
+        };
+
+       decrementUserViewLink = new AjaxLink("decrementLink"){
+
+            @Override
+            public void onClick(AjaxRequestTarget target) {
+                currentViewPage--;
+                currentPageUserViewLabel.setDefaultModelObject(
+                        String.valueOf(currentViewPage));
+                target.addComponent(usersTableContainer);
+            }
+        };
+
+        //Add to container users' list navigation controls
+        usersTableContainer.add(incrementUserViewLink);
+        usersTableContainer.add(currentPageUserViewLabel);
+        usersTableContainer.add(decrementUserViewLink);
+
+        usersTableContainer.add(columnsView);
+
+        add(usersTableContainer);
 
         createUserWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         createUserWin.setInitialHeight(WIN_USER_HEIGHT);
@@ -313,11 +418,10 @@ public class Users extends BasePage {
               utility.updatePaginatorRows(Constants.CONF_USERS_PAGINATOR_ROWS,
                       paginatorRows);
 
-              table.setRowsPerPage(paginatorRows);
+              usersView.setRowsPerPage(paginatorRows);
 
-              target.addComponent(container);
+              target.addComponent(usersTableContainer);
             }
-
           });
 
         paginatorForm.add(rowsChooser);
@@ -344,7 +448,6 @@ public class Users extends BasePage {
         });
 
         //TAB 2 - Search section start
-        
         final IModel userAttributes = new LoadableDetachableModel() {
 
             protected Object load() {
@@ -551,10 +654,45 @@ public class Users extends BasePage {
 
         form.add(container);
 
+       currentPageUserSearchLabel = new Label("currentSearchPage",
+                new Model<String>(String.valueOf(currentSearchPage)));
+
         IModel resultsModel = new LoadableDetachableModel() {
 
             @Override
             protected Object load() {
+
+                if(nodeCond != null) {
+
+                 searchMatchedUsers = usersRestClient.paginatedSearchUsers(
+                                 nodeCond, currentSearchPage, 
+                                 paginatorSearchRows);
+
+                List<UserTO> nextList = usersRestClient.paginatedSearchUsers(
+                                 nodeCond, currentSearchPage + 1, 
+                                 paginatorSearchRows);
+
+                if(nextList.size() == 0)
+                    incrementUserSearchLink.setVisible(false);
+                else
+                    incrementUserSearchLink.setVisible(true);
+
+                if(currentSearchPage <= 1)
+                    decrementUserSearchLink.setVisible(false);
+                else
+                    decrementUserSearchLink.setVisible(true);
+
+                currentPageUserSearchLabel.setVisible(true);
+                }
+
+                else {
+
+                currentPageUserSearchLabel.setVisible(false);
+                incrementUserSearchLink.setVisible(false);
+                decrementUserSearchLink.setVisible(false);
+                
+                }
+                
                 return searchMatchedUsers;
             }
         };
@@ -615,6 +753,33 @@ public class Users extends BasePage {
         searchResultsContainer.setOutputMarkupId(true);
         searchResultsContainer.add(resultsView);
 
+        incrementUserSearchLink = new AjaxLink("incrementLink"){
+
+            @Override
+            public void onClick(AjaxRequestTarget target) {
+                currentSearchPage++;
+                currentPageUserSearchLabel.setDefaultModelObject(
+                        String.valueOf(currentSearchPage));
+                target.addComponent(searchResultsContainer);
+            }
+        };
+
+       decrementUserSearchLink = new AjaxLink("decrementLink"){
+
+            @Override
+            public void onClick(AjaxRequestTarget target) {
+                currentSearchPage--;
+                currentPageUserSearchLabel.setDefaultModelObject(
+                        String.valueOf(currentSearchPage));
+                target.addComponent(searchResultsContainer);
+            }
+        };
+
+        //Add to container users'search list navigation controls
+        searchResultsContainer.add(incrementUserSearchLink);
+        searchResultsContainer.add(currentPageUserSearchLabel);
+        searchResultsContainer.add(decrementUserSearchLink);
+
         //Display warning message if no serach matches have been found
         final Label noResults = new Label("noResults",new Model<String>(""));
         noResults.setOutputMarkupId(true);
@@ -627,14 +792,14 @@ public class Users extends BasePage {
             @Override
             protected void onSubmit(AjaxRequestTarget target, Form form) {
 
-                NodeCond nodeCond =
-                        buildSearchExpression(searchConditionsList);
+                nodeCond =  buildSearchExpression(searchConditionsList);
 
                 if (nodeCond != null) {
 
                     try {
-                        searchMatchedUsers =
-                                usersRestClient.searchUsers(nodeCond);
+                        
+                         searchMatchedUsers =  usersRestClient.paginatedSearchUsers(
+                                 nodeCond, currentViewPage = 1, paginatorSearchRows);
 
                         //Clean the feedback panel if the operation succedes
                         target.addComponent(form.get("feedback"));
@@ -661,10 +826,85 @@ public class Users extends BasePage {
                 target.addComponent(form.get("feedback"));
             }
         });
-        
-        form.add(searchResultsContainer);
 
         add(form);
+
+        form.add(searchResultsContainer);
+
+        Form paginatorSearchForm = new Form("PaginatorSearchForm");
+
+        final DropDownChoice rowsSearchChooser = new DropDownChoice("rowsSearchChooser",
+        new PropertyModel(this,"paginatorSearchRows"),utility.paginatorRowsChooser());
+
+        rowsChooser.add(new AjaxFormComponentUpdatingBehavior( "onchange" ){
+          protected void onUpdate( AjaxRequestTarget target )
+            {
+              utility.updatePaginatorRows(Constants.CONF_USERS_SEARCH_PAGINATOR_ROWS,
+                      paginatorSearchRows);
+
+             //sea.setRowsPerPage(paginatorSearchRows);
+
+              target.addComponent(searchResultsContainer);
+            }
+          });
+
+        paginatorSearchForm.add(rowsSearchChooser);
+
+        add(paginatorSearchForm);
+    }
+
+     /**
+     * Return the user's attributes columnsList to display, ordered
+     * @param userTO instance
+     * @return attributes columnsList to view depending the selection
+     */
+      public List<AttributeWrapper> attributesToDisplay(UserTO user) {
+        List<AttributeTO> attributes = user.getAttributes();
+        List<AttributeWrapper> attributesList = new ArrayList<AttributeWrapper>();
+
+        ConfigurationTO configuration =
+                configurationsRestClient.readConfiguration("users.attributes.view");
+        columnsList = new ArrayList<String>();
+
+        if (configuration != null && !configuration.getConfValue().equals("")) {
+            String conf = configuration.getConfValue();
+            StringTokenizer st = new StringTokenizer(conf, ";");
+
+            while (st.hasMoreTokens()) {
+                columnsList.add(st.nextToken());
+            }
+        }
+
+        Collections.sort(columnsList);
+
+        AttributeWrapper attributeWrapper = null;
+
+            boolean found = false;
+            for (String name : columnsList) {
+               for (AttributeTO attribute : attributes) {
+                if (name.equals(attribute.getSchema()) && !found) {
+                    attributeWrapper = new AttributeWrapper();
+                    attributeWrapper.setKey(attribute.getSchema());
+                        for(String value : attribute.getValues()){
+                            attributeWrapper.setValue(value);
+                         found=true;
+                        }
+                    attributesList.add(attributeWrapper);
+                }
+            }
+               //case the attribute's value is blank
+               if(!found){
+               attributeWrapper = new AttributeWrapper();
+               attributeWrapper.setKey(name);
+               attributeWrapper.setValue("");
+
+               attributesList.add(attributeWrapper);
+               }
+               else
+               found = false;
+        }
+
+        return attributesList;
     }
 
     /**
@@ -824,29 +1064,29 @@ public class Users extends BasePage {
         }
     }
 
-    private List<IColumn> addCustomizedUserProperties(List<IColumn> columns) {
-        ConfigurationTO configuration =
-                        configurationsRestClient.readConfiguration(
-                        Constants.CONF_USERS_ATTRIBUTES_VIEW);
-
-                if (configuration != null
-                        && configuration.getConfValue() != null) {
-
-                    String conf = configuration.getConfValue();
-                    StringTokenizer st = new StringTokenizer(conf, ";");
-
-                    String columnName = null;
-                    
-                    while (st.hasMoreTokens()) {
-                        columnName = st.nextToken();
-
-                        columns.add(new PropertyColumn(new Model(columnName),
-                        "attributeMap["+columnName+"]"));
-                    }
-                }
-
-                return columns;
-    }
+//    private List<IColumn> addCustomizedUserProperties(List<IColumn> columns) {
+//        ConfigurationTO configuration =
+//                        configurationsRestClient.readConfiguration(
+//                        Constants.CONF_USERS_ATTRIBUTES_VIEW);
+//
+//                if (configuration != null
+//                        && configuration.getConfValue() != null) {
+//
+//                    String conf = configuration.getConfValue();
+//                    StringTokenizer st = new StringTokenizer(conf, ";");
+//
+//                    String columnName = null;
+//
+//                    while (st.hasMoreTokens()) {
+//                        columnName = st.nextToken();
+//
+//                        columns.add(new PropertyColumn(new Model(columnName),
+//                        "attributeMap["+columnName+"]"));
+//                    }
+//                }
+//
+//                return columns;
+//    }
 
     /**
      * Wrapper class for displaying attribute
@@ -871,95 +1111,5 @@ public class Users extends BasePage {
         public void setValue(String value) {
             this.value = value;
         }
-    }
-
-    class UsersProvider extends SortableDataProvider<UserTO> {
-
-        private SortableUsersProviderComparator comparator =
-                new SortableUsersProviderComparator();
-
-        public UsersProvider() {
-            //Default sorting
-            setSort("id",true);
-        }
-
-        @Override
-        public Iterator<UserTO> iterator(int first, int count) {
-            List<UserTO> list = getUsersListDB();
-
-            Collections.sort(list, comparator);
-
-            return list.subList(first, first+count).iterator();
-        }
-
-        @Override
-        public int size() {
-            return getUsersListDB().size();
-        }
-
-        @Override
-        public IModel<UserTO> model(final UserTO
-                user) {
-            return new AbstractReadOnlyModel<UserTO>() {
-
-                @Override
-                public UserTO getObject() {
-                    return user;
-                }
-            };
-        }
-
-        public List<UserTO> getUsersListDB(){
-        List<UserTO> list = usersRestClient.getAllUsers();
-
-        for(UserTO user : list) {
-
-            if (user.getToken() != null
-                        && !user.getToken().equals("")) {
-                    user.setToken(getString("tokenValued"));
-                } else {
-                    user.setToken(getString("tokenNotValued"));
-                }
-        }
-
-        return list;
-        }
-
-        class SortableUsersProviderComparator implements
-                Comparator<UserTO>, Serializable {
-            public int compare(final UserTO o1,
-                    final UserTO o2) {
-
-                String expression = null;
-
-//                if(getSort().getProperty().contains("attributeMap["))
-//                    expression = getSort().getProperty().substring(13,
-//                            getSort().getProperty().length()-1);
-//
-//                else
-                    expression = getSort().getProperty();
-
-                    PropertyModel<Comparable> model1 =
-                            new PropertyModel<Comparable>(o1, expression);
-                    PropertyModel<Comparable> model2 =
-                            new PropertyModel<Comparable>(o2, expression);
-
-                    int result = 1;
-
-                    if(model1.getObject() == null && model2.getObject() == null)
-                        result = 0;
-                    else if(model1.getObject() == null)
-                        result = 1;
-                    else if(model2.getObject() == null)
-                        result = -1;
-                    else
-                        result = ((Comparable)model1.getObject()).compareTo(
-                                model2.getObject());
-
-                    result = getSort().isAscending() ? result : -result;
-
-                    return result;
-            }
-	}
     }
 }

@@ -40,6 +40,9 @@ public final class Constants {
     public static final String CONF_USERS_PAGINATOR_ROWS =
             "users.paginator.rows";
 
+    public static final String CONF_USERS_SEARCH_PAGINATOR_ROWS =
+            "users.paginator.search.rows";
+
     public static final String CONF_RESOURCES_PAGINATOR_ROWS =
             "resources.paginator.rows";
 

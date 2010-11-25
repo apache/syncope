@@ -43,6 +43,18 @@ public class UsersRestClient {
         return users;
     }
 
+    public List<UserTO> getPaginatedUsersList(int page,int size) {
+        List<UserTO> users = null;
+        try {
+            users = Arrays.asList(restClient.getRestTemplate().getForObject(
+                    restClient.getBaseURL() + "user/paginatedList/{page}/{size}",
+                    UserTO[].class,page,size));
+        } catch (SyncopeClientCompositeErrorException e) {
+            e.printStackTrace();
+        }
+        return users;
+    }
+
     /**
      * Create a new user and start off the workflow.
      * @param userTO instance
@@ -157,6 +169,23 @@ public class UsersRestClient {
         matchedUsers = Arrays.asList(restClient.getRestTemplate().postForObject(
                     restClient.getBaseURL() + "user/search",
                     nodeSearchCondition, UserTO[].class));
+
+        return matchedUsers;
+    }
+
+    /**
+     * Search an user by its schema values.
+     * @param userTO
+     * @return UserTOs
+     */
+    public List<UserTO> paginatedSearchUsers(NodeCond nodeSearchCondition,
+            int page,int size)
+            throws HttpServerErrorException {
+        List<UserTO> matchedUsers = null;
+
+        matchedUsers = Arrays.asList(restClient.getRestTemplate().postForObject(
+                    restClient.getBaseURL() + "user/paginatedSearch/{page}/{size}",
+                    nodeSearchCondition, UserTO[].class,page,size));
 
         return matchedUsers;
     }
