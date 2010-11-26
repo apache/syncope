@@ -15,7 +15,7 @@
 package org.syncope.core.persistence.validation;
 
 import org.syncope.core.persistence.beans.AbstractSchema;
-import org.syncope.core.persistence.beans.AbstractAttributeValue;
+import org.syncope.core.persistence.beans.AbstractAttrValue;
 
 public class BasicAttributeValidator extends AbstractAttributeValidator {
 
@@ -25,7 +25,7 @@ public class BasicAttributeValidator extends AbstractAttributeValidator {
     }
 
     @Override
-    protected void doValidate(AbstractAttributeValue attributeValue)
+    protected void doValidate(AbstractAttrValue attributeValue)
             throws ValidationFailedException {
     }
 }

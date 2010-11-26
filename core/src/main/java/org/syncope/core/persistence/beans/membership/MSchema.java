@@ -24,79 +24,79 @@ import javax.persistence.OneToMany;
 import javax.persistence.QueryHint;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.syncope.core.persistence.beans.AbstractAttribute;
-import org.syncope.core.persistence.beans.AbstractDerivedSchema;
+import org.syncope.core.persistence.beans.AbstractAttr;
+import org.syncope.core.persistence.beans.AbstractDerSchema;
 import org.syncope.core.persistence.beans.AbstractSchema;
 
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 @NamedQueries({
-    @NamedQuery(name = "MembershipSchema.findAll",
-    query = "SELECT e FROM MembershipSchema e",
+    @NamedQuery(name = "MSchema.findAll",
+    query = "SELECT e FROM MSchema e",
     hints = {
         @QueryHint(name = "org.hibernate.cacheable", value = "true")
     })
 })
-public class MembershipSchema extends AbstractSchema {
+public class MSchema extends AbstractSchema {
 
     @OneToMany(mappedBy = "schema")
-    private List<MembershipAttribute> attributes;
+    private List<MAttr> attributes;
 
     @ManyToMany(mappedBy = "schemas")
-    private List<MembershipDerivedSchema> derivedSchemas;
+    private List<MDerSchema> derivedSchemas;
 
-    public MembershipSchema() {
-        attributes = new ArrayList<MembershipAttribute>();
-        derivedSchemas = new ArrayList<MembershipDerivedSchema>();
+    public MSchema() {
+        attributes = new ArrayList<MAttr>();
+        derivedSchemas = new ArrayList<MDerSchema>();
     }
 
     @Override
-    public <T extends AbstractAttribute> boolean addAttribute(T attribute) {
-        return attributes.add((MembershipAttribute) attribute);
+    public <T extends AbstractAttr> boolean addAttribute(T attribute) {
+        return attributes.add((MAttr) attribute);
     }
 
     @Override
-    public <T extends AbstractAttribute> boolean removeAttribute(T attribute) {
-        return attributes.remove((MembershipAttribute) attribute);
+    public <T extends AbstractAttr> boolean removeAttribute(T attribute) {
+        return attributes.remove((MAttr) attribute);
     }
 
     @Override
-    public List<? extends AbstractAttribute> getAttributes() {
+    public List<? extends AbstractAttr> getAttributes() {
         return attributes;
     }
 
     @Override
-    public void setAttributes(List<? extends AbstractAttribute> attributes) {
-        this.attributes = (List<MembershipAttribute>) attributes;
+    public void setAttributes(List<? extends AbstractAttr> attributes) {
+        this.attributes = (List<MAttr>) attributes;
     }
 
     @Override
-    public <T extends AbstractDerivedSchema> boolean addDerivedSchema(
+    public <T extends AbstractDerSchema> boolean addDerivedSchema(
             final T derivedSchema) {
 
-        return derivedSchemas.add((MembershipDerivedSchema) derivedSchema);
+        return derivedSchemas.add((MDerSchema) derivedSchema);
     }
 
     @Override
-    public <T extends AbstractDerivedSchema> boolean removeDerivedSchema(
+    public <T extends AbstractDerSchema> boolean removeDerivedSchema(
             final T derivedSchema) {
 
-        return derivedSchemas.remove((MembershipDerivedSchema) derivedSchema);
+        return derivedSchemas.remove((MDerSchema) derivedSchema);
     }
 
     @Override
-    public List<? extends AbstractDerivedSchema> getDerivedSchemas() {
+    public List<? extends AbstractDerSchema> getDerivedSchemas() {
         return derivedSchemas;
     }
 
     @Override
     public void setDerivedSchemas(
-            final List<? extends AbstractDerivedSchema> derivedSchemas) {
+            final List<? extends AbstractDerSchema> derivedSchemas) {
 
         this.derivedSchemas.clear();
         if (derivedSchemas != null && !derivedSchemas.isEmpty()) {
             this.derivedSchemas.addAll(
-                    (List<MembershipDerivedSchema>) derivedSchemas);
+                    (List<MDerSchema>) derivedSchemas);
         }
     }
 }

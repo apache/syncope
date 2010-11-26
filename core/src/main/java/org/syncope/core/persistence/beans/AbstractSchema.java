@@ -72,7 +72,7 @@ public abstract class AbstractSchema extends AbstractBaseBean {
     private Integer multivalue;
 
     @Basic
-    private Integer uniquevalue;
+    private Integer uniqueConstraint;
 
     @Basic
     private Integer readonly;
@@ -93,7 +93,7 @@ public abstract class AbstractSchema extends AbstractBaseBean {
         virtual = getBooleanAsInteger(false);
         mandatoryCondition = Boolean.FALSE.toString();
         multivalue = getBooleanAsInteger(false);
-        uniquevalue = getBooleanAsInteger(false);
+        uniqueConstraint = getBooleanAsInteger(false);
         readonly = getBooleanAsInteger(false);
     }
 
@@ -137,12 +137,12 @@ public abstract class AbstractSchema extends AbstractBaseBean {
         this.multivalue = getBooleanAsInteger(multivalue);
     }
 
-    public boolean isUniquevalue() {
-        return isBooleanAsInteger(uniquevalue);
+    public boolean isUniqueConstraint() {
+        return isBooleanAsInteger(uniqueConstraint);
     }
 
-    public void setUniquevalue(boolean uniquevalue) {
-        this.uniquevalue = getBooleanAsInteger(uniquevalue);
+    public void setUniqueConstraint(boolean uniquevalue) {
+        this.uniqueConstraint = getBooleanAsInteger(uniquevalue);
     }
 
     public boolean isReadonly() {
@@ -239,25 +239,25 @@ public abstract class AbstractSchema extends AbstractBaseBean {
         return result;
     }
 
-    public abstract <T extends AbstractAttribute> boolean addAttribute(
+    public abstract <T extends AbstractAttr> boolean addAttribute(
             T attribute);
 
-    public abstract <T extends AbstractAttribute> boolean removeAttribute(
+    public abstract <T extends AbstractAttr> boolean removeAttribute(
             T attribute);
 
-    public abstract List<? extends AbstractAttribute> getAttributes();
+    public abstract List<? extends AbstractAttr> getAttributes();
 
     public abstract void setAttributes(
-            List<? extends AbstractAttribute> attributes);
+            List<? extends AbstractAttr> attributes);
 
-    public abstract <T extends AbstractDerivedSchema> boolean addDerivedSchema(
+    public abstract <T extends AbstractDerSchema> boolean addDerivedSchema(
             T derivedSchema);
 
-    public abstract <T extends AbstractDerivedSchema> boolean removeDerivedSchema(
+    public abstract <T extends AbstractDerSchema> boolean removeDerivedSchema(
             T derivedSchema);
 
-    public abstract List<? extends AbstractDerivedSchema> getDerivedSchemas();
+    public abstract List<? extends AbstractDerSchema> getDerivedSchemas();
 
     public abstract void setDerivedSchemas(
-            List<? extends AbstractDerivedSchema> derivedSchemas);
+            List<? extends AbstractDerSchema> derivedSchemas);
 }

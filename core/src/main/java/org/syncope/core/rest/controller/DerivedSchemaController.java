@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.syncope.client.to.DerivedSchemaTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.syncope.core.persistence.beans.AbstractDerivedSchema;
+import org.syncope.core.persistence.beans.AbstractDerSchema;
 import org.syncope.core.persistence.dao.DerivedSchemaDAO;
 import org.syncope.core.rest.data.DerivedSchemaDataBinder;
 
@@ -45,11 +45,11 @@ public class DerivedSchemaController extends AbstractController {
             @PathVariable("kind") final String kind)
             throws SyncopeClientCompositeErrorException {
 
-        AbstractDerivedSchema derivedSchema =
+        AbstractDerSchema derivedSchema =
                 derivedSchemaDataBinder.create(
                 derivedSchemaTO,
                 getAttributableUtil(kind).newDerivedSchema(),
-                getAttributableUtil(kind).getSchemaClass());
+                getAttributableUtil(kind).schemaClass());
 
         derivedSchema = derivedSchemaDAO.save(derivedSchema);
 
@@ -64,8 +64,8 @@ public class DerivedSchemaController extends AbstractController {
             @PathVariable("schema") final String derivedSchemaName)
             throws NotFoundException {
 
-        Class reference = getAttributableUtil(kind).getDerivedSchemaClass();
-        AbstractDerivedSchema derivedSchema =
+        Class reference = getAttributableUtil(kind).derivedSchemaClass();
+        AbstractDerSchema derivedSchema =
                 derivedSchemaDAO.find(derivedSchemaName, reference);
         if (derivedSchema == null) {
             LOG.error("Could not find derived schema '"
@@ -79,13 +79,13 @@ public class DerivedSchemaController extends AbstractController {
 
     @RequestMapping(method = RequestMethod.GET, value = "/{kind}/list")
     public List<DerivedSchemaTO> list(@PathVariable("kind") final String kind) {
-        Class reference = getAttributableUtil(kind).getDerivedSchemaClass();
-        List<AbstractDerivedSchema> derivedAttributeSchemas =
+        Class reference = getAttributableUtil(kind).derivedSchemaClass();
+        List<AbstractDerSchema> derivedAttributeSchemas =
                 derivedSchemaDAO.findAll(reference);
 
         List<DerivedSchemaTO> derivedSchemaTOs =
                 new ArrayList<DerivedSchemaTO>(derivedAttributeSchemas.size());
-        for (AbstractDerivedSchema derivedSchema : derivedAttributeSchemas) {
+        for (AbstractDerSchema derivedSchema : derivedAttributeSchemas) {
 
             derivedSchemaTOs.add(derivedSchemaDataBinder.getDerivedSchemaTO(
                     derivedSchema));
@@ -100,8 +100,8 @@ public class DerivedSchemaController extends AbstractController {
             @PathVariable("derivedSchema") final String derivedSchemaName)
             throws NotFoundException {
 
-        Class reference = getAttributableUtil(kind).getDerivedSchemaClass();
-        AbstractDerivedSchema derivedSchema =
+        Class reference = getAttributableUtil(kind).derivedSchemaClass();
+        AbstractDerSchema derivedSchema =
                 derivedSchemaDAO.find(derivedSchemaName, reference);
         if (derivedSchema == null) {
             LOG.error("Could not find derived schema '"
@@ -118,8 +118,8 @@ public class DerivedSchemaController extends AbstractController {
             @PathVariable("kind") final String kind)
             throws SyncopeClientCompositeErrorException, NotFoundException {
 
-        Class reference = getAttributableUtil(kind).getDerivedSchemaClass();
-        AbstractDerivedSchema derivedSchema =
+        Class reference = getAttributableUtil(kind).derivedSchemaClass();
+        AbstractDerSchema derivedSchema =
                 derivedSchemaDAO.find(derivedSchemaTO.getName(), reference);
         if (derivedSchema == null) {
             LOG.error("Could not find derived schema '"
@@ -128,7 +128,7 @@ public class DerivedSchemaController extends AbstractController {
         }
 
         derivedSchema = derivedSchemaDataBinder.update(derivedSchemaTO,
-                derivedSchema, getAttributableUtil(kind).getSchemaClass());
+                derivedSchema, getAttributableUtil(kind).schemaClass());
 
         derivedSchema = derivedSchemaDAO.save(derivedSchema);
         return derivedSchemaDataBinder.getDerivedSchemaTO(derivedSchema);

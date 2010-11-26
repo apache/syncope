@@ -20,8 +20,8 @@ import java.util.Set;
 import javax.persistence.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import org.syncope.core.persistence.beans.AbstractAttribute;
-import org.syncope.core.persistence.beans.AbstractDerivedSchema;
+import org.syncope.core.persistence.beans.AbstractAttr;
+import org.syncope.core.persistence.beans.AbstractDerSchema;
 import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.dao.AttributeDAO;
 import org.syncope.core.persistence.dao.ResourceDAO;
@@ -60,7 +60,7 @@ public class SchemaDAOImpl extends AbstractDAOImpl
     public <T extends AbstractSchema> T save(final T schema)
             throws MultiUniqueValueException {
 
-        if (schema.isMultivalue() && schema.isUniquevalue()) {
+        if (schema.isMultivalue() && schema.isUniqueConstraint()) {
             throw new MultiUniqueValueException(schema);
         }
 
@@ -76,7 +76,7 @@ public class SchemaDAOImpl extends AbstractDAOImpl
             return;
         }
 
-        for (AbstractDerivedSchema derivedSchema : schema.getDerivedSchemas()) {
+        for (AbstractDerSchema derivedSchema : schema.getDerivedSchemas()) {
             derivedSchema.removeSchema(schema);
         }
         schema.getDerivedSchemas().clear();
@@ -84,7 +84,7 @@ public class SchemaDAOImpl extends AbstractDAOImpl
         Set<Long> attributeIds =
                 new HashSet<Long>(schema.getAttributes().size());
         Class attributeClass = null;
-        for (AbstractAttribute attribute : schema.getAttributes()) {
+        for (AbstractAttr attribute : schema.getAttributes()) {
             attributeIds.add(attribute.getId());
             attributeClass = attribute.getClass();
         }

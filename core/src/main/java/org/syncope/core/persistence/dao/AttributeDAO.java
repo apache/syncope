@@ -15,17 +15,17 @@
 package org.syncope.core.persistence.dao;
 
 import java.util.List;
-import org.syncope.core.persistence.beans.AbstractAttribute;
+import org.syncope.core.persistence.beans.AbstractAttr;
 
 public interface AttributeDAO extends DAO {
 
-    <T extends AbstractAttribute> T find(Long id, Class<T> reference);
+    <T extends AbstractAttr> T find(Long id, Class<T> reference);
 
-    <T extends AbstractAttribute> List<T> findAll(Class<T> reference);
+    <T extends AbstractAttr> List<T> findAll(Class<T> reference);
 
-    <T extends AbstractAttribute> T save(T attribute);
+    <T extends AbstractAttr> T save(T attribute);
 
-    <T extends AbstractAttribute> void delete(Long id, Class<T> reference);
+    <T extends AbstractAttr> void delete(Long id, Class<T> reference);
 
-    <T extends AbstractAttribute> void delete(T attribute);
+    <T extends AbstractAttr> void delete(T attribute);
 }

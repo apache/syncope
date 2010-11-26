@@ -17,7 +17,7 @@ package org.syncope.core.persistence.dao;
 import java.util.List;
 import org.syncope.client.search.NodeCond;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
-import org.syncope.core.persistence.beans.user.UserAttributeValue;
+import org.syncope.core.persistence.beans.user.UAttrValue;
 
 public interface SyncopeUserDAO extends DAO {
 
@@ -25,9 +25,9 @@ public interface SyncopeUserDAO extends DAO {
 
     SyncopeUser findByWorkflowId(Long workflowId);
 
-    List<SyncopeUser> findByAttributeValue(UserAttributeValue attributeValue);
+    List<SyncopeUser> findByAttributeValue(UAttrValue attributeValue);
 
-    List<SyncopeUser> findByAttributeValue(UserAttributeValue attributeValue,
+    List<SyncopeUser> findByAttributeValue(UAttrValue attributeValue,
             int page, int itemsPerPage);
 
     List<SyncopeUser> findAll();

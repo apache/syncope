@@ -19,9 +19,9 @@ import org.junit.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.syncope.core.persistence.beans.role.RoleAttribute;
-import org.syncope.core.persistence.beans.role.RoleAttributeValue;
-import org.syncope.core.persistence.beans.role.RoleSchema;
+import org.syncope.core.persistence.beans.role.RAttr;
+import org.syncope.core.persistence.beans.role.RAttrValue;
+import org.syncope.core.persistence.beans.role.RSchema;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.dao.AttributeDAO;
 import org.syncope.core.persistence.dao.AttributeValueDAO;
@@ -56,9 +56,9 @@ public class RoleTest extends AbstractTest {
         assertNull(syncopeRoleDAO.find(2L));
         assertTrue(entitlementDAO.find("base").getRoles().size() == 1);
         assertTrue(syncopeUserDAO.find(2L).getRoles().size() == 1);
-        assertNull(attributeDAO.find(700L, RoleAttribute.class));
-        assertNull(attributeValueDAO.find(41L, RoleAttributeValue.class));
-        assertNotNull(schemaDAO.find("icon", RoleSchema.class));
+        assertNull(attributeDAO.find(700L, RAttr.class));
+        assertNull(attributeValueDAO.find(41L, RAttrValue.class));
+        assertNotNull(schemaDAO.find("icon", RSchema.class));
     }
 
     @Test

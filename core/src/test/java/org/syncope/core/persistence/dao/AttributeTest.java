@@ -20,8 +20,8 @@ import java.util.List;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.syncope.core.persistence.beans.user.UserAttribute;
-import org.syncope.core.persistence.beans.user.UserSchema;
+import org.syncope.core.persistence.beans.user.UAttr;
+import org.syncope.core.persistence.beans.user.USchema;
 import org.syncope.core.persistence.validation.ValidationException;
 import org.syncope.core.persistence.AbstractTest;
 import org.syncope.core.rest.data.AttributableUtil;
@@ -37,17 +37,17 @@ public class AttributeTest extends AbstractTest {
 
     @Test
     public final void findAll() {
-        List<UserAttribute> list = attributeDAO.findAll(UserAttribute.class);
+        List<UAttr> list = attributeDAO.findAll(UAttr.class);
         assertEquals("did not get expected number of attributes ",
                 6, list.size());
     }
 
     @Test
     public final void findById() {
-        UserAttribute attribute = attributeDAO.find(100L, UserAttribute.class);
+        UAttr attribute = attributeDAO.find(100L, UAttr.class);
         assertNotNull("did not find expected attribute schema",
                 attribute);
-        attribute = attributeDAO.find(200L, UserAttribute.class);
+        attribute = attributeDAO.find(200L, UAttr.class);
         assertNotNull("did not find expected attribute schema",
                 attribute);
     }
@@ -55,10 +55,10 @@ public class AttributeTest extends AbstractTest {
     @Test
     public final void save()
             throws ClassNotFoundException {
-        UserSchema emailSchema = userSchemaDAO.find("email", UserSchema.class);
+        USchema emailSchema = userSchemaDAO.find("email", USchema.class);
         assertNotNull(emailSchema);
 
-        UserAttribute attribute = new UserAttribute();
+        UAttr attribute = new UAttr();
         attribute.setSchema(emailSchema);
 
         Exception thrown = null;
@@ -80,22 +80,22 @@ public class AttributeTest extends AbstractTest {
 
         attribute = attributeDAO.save(attribute);
 
-        UserAttribute actual = attributeDAO.find(attribute.getId(),
-                UserAttribute.class);
+        UAttr actual = attributeDAO.find(attribute.getId(),
+                UAttr.class);
         assertNotNull("expected save to work", actual);
         assertEquals(attribute, actual);
     }
 
     @Test
     public final void delete() {
-        UserAttribute attribute = attributeDAO.find(200L, UserAttribute.class);
+        UAttr attribute = attributeDAO.find(200L, UAttr.class);
         String attributeSchemaName =
                 attribute.getSchema().getName();
 
-        attributeDAO.delete(attribute.getId(), UserAttribute.class);
+        attributeDAO.delete(attribute.getId(), UAttr.class);
 
-        UserSchema attributeSchema =
-                userSchemaDAO.find(attributeSchemaName, UserSchema.class);
+        USchema attributeSchema =
+                userSchemaDAO.find(attributeSchemaName, USchema.class);
         assertNotNull("user attribute schema deleted when deleting values",
                 attributeSchema);
     }

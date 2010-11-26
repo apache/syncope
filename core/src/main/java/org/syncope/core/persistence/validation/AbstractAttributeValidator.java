@@ -18,7 +18,7 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import org.syncope.core.persistence.beans.AbstractSchema;
-import org.syncope.core.persistence.beans.AbstractAttributeValue;
+import org.syncope.core.persistence.beans.AbstractAttrValue;
 
 public abstract class AbstractAttributeValidator implements AttributeValidator {
 
@@ -29,7 +29,7 @@ public abstract class AbstractAttributeValidator implements AttributeValidator {
     }
 
     @Override
-    public <T extends AbstractAttributeValue> T getValue(final String value,
+    public <T extends AbstractAttrValue> T getValue(final String value,
             T attributeValue)
             throws ParseException, ValidationFailedException {
 
@@ -39,7 +39,7 @@ public abstract class AbstractAttributeValidator implements AttributeValidator {
         return attributeValue;
     }
 
-    private <T extends AbstractAttributeValue> T parseValue(final String value,
+    private <T extends AbstractAttrValue> T parseValue(final String value,
             T attributeValue)
             throws ParseException {
 
@@ -94,7 +94,7 @@ public abstract class AbstractAttributeValidator implements AttributeValidator {
         return attributeValue;
     }
 
-    protected abstract <T extends AbstractAttributeValue> void doValidate(
+    protected abstract <T extends AbstractAttrValue> void doValidate(
             T attributeValue)
             throws ValidationFailedException;
 }

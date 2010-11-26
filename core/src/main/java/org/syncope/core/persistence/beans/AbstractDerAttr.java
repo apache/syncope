@@ -33,7 +33,7 @@ import org.syncope.core.persistence.util.ApplicationContextManager;
  * @see http://commons.apache.org/jexl/reference/index.html
  */
 @MappedSuperclass
-public abstract class AbstractDerivedAttribute extends AbstractBaseBean {
+public abstract class AbstractDerAttr extends AbstractBaseBean {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -50,15 +50,15 @@ public abstract class AbstractDerivedAttribute extends AbstractBaseBean {
      * @return the value of this derived attribute
      */
     public String getValue(
-            final Collection<? extends AbstractAttribute> attributes) {
+            final Collection<? extends AbstractAttr> attributes) {
 
         JexlContext jexlContext = new MapContext();
 
-        List<? extends AbstractAttributeValue> attributeValues = null;
+        List<? extends AbstractAttrValue> attributeValues = null;
         String expressionValue = null;
-        AbstractAttribute attribute = null;
-        AbstractAttributeValue attributeValue = null;
-        for (Iterator<? extends AbstractAttribute> itor =
+        AbstractAttr attribute = null;
+        AbstractAttrValue attributeValue = null;
+        for (Iterator<? extends AbstractAttr> itor =
                 attributes.iterator(); itor.hasNext();) {
 
             attribute = itor.next();
@@ -96,8 +96,8 @@ public abstract class AbstractDerivedAttribute extends AbstractBaseBean {
 
     public abstract <T extends AbstractAttributable> void setOwner(T owner);
 
-    public abstract <T extends AbstractDerivedSchema> T getDerivedSchema();
+    public abstract <T extends AbstractDerSchema> T getDerivedSchema();
 
-    public abstract <T extends AbstractDerivedSchema> void setDerivedSchema(
+    public abstract <T extends AbstractDerSchema> void setDerivedSchema(
             T derivedSchema);
 }

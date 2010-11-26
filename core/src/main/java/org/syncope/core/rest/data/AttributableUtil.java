@@ -14,43 +14,46 @@
  */
 package org.syncope.core.rest.data;
 
-import org.syncope.core.persistence.beans.AbstractAttribute;
-import org.syncope.core.persistence.beans.AbstractAttributeValue;
-import org.syncope.core.persistence.beans.AbstractDerivedAttribute;
-import org.syncope.core.persistence.beans.AbstractDerivedSchema;
+import org.syncope.core.persistence.beans.AbstractAttr;
+import org.syncope.core.persistence.beans.AbstractAttrValue;
+import org.syncope.core.persistence.beans.AbstractDerAttr;
+import org.syncope.core.persistence.beans.AbstractDerSchema;
 import org.syncope.core.persistence.beans.AbstractSchema;
-import org.syncope.core.persistence.beans.membership.MembershipAttribute;
-import org.syncope.core.persistence.beans.membership.MembershipAttributeValue;
-import org.syncope.core.persistence.beans.membership.MembershipDerivedAttribute;
-import org.syncope.core.persistence.beans.membership.MembershipDerivedSchema;
-import org.syncope.core.persistence.beans.membership.MembershipSchema;
-import org.syncope.core.persistence.beans.role.RoleAttribute;
-import org.syncope.core.persistence.beans.role.RoleAttributeValue;
-import org.syncope.core.persistence.beans.role.RoleDerivedAttribute;
-import org.syncope.core.persistence.beans.role.RoleDerivedSchema;
-import org.syncope.core.persistence.beans.role.RoleSchema;
-import org.syncope.core.persistence.beans.user.UserAttribute;
-import org.syncope.core.persistence.beans.user.UserAttributeValue;
-import org.syncope.core.persistence.beans.user.UserDerivedAttribute;
-import org.syncope.core.persistence.beans.user.UserDerivedSchema;
-import org.syncope.core.persistence.beans.user.UserSchema;
+import org.syncope.core.persistence.beans.membership.MAttr;
+import org.syncope.core.persistence.beans.membership.MAttrUniqueValue;
+import org.syncope.core.persistence.beans.membership.MAttrValue;
+import org.syncope.core.persistence.beans.membership.MDerAttr;
+import org.syncope.core.persistence.beans.membership.MDerSchema;
+import org.syncope.core.persistence.beans.membership.MSchema;
+import org.syncope.core.persistence.beans.role.RAttr;
+import org.syncope.core.persistence.beans.role.RAttrUniqueValue;
+import org.syncope.core.persistence.beans.role.RAttrValue;
+import org.syncope.core.persistence.beans.role.RDerAttr;
+import org.syncope.core.persistence.beans.role.RDerSchema;
+import org.syncope.core.persistence.beans.role.RSchema;
+import org.syncope.core.persistence.beans.user.UAttr;
+import org.syncope.core.persistence.beans.user.UAttrUniqueValue;
+import org.syncope.core.persistence.beans.user.UAttrValue;
+import org.syncope.core.persistence.beans.user.UDerAttr;
+import org.syncope.core.persistence.beans.user.UDerSchema;
+import org.syncope.core.persistence.beans.user.USchema;
 
 public enum AttributableUtil {
 
     USER, ROLE, MEMBERSHIP;
 
-    public <T extends AbstractSchema> Class<T> getSchemaClass() {
+    public <T extends AbstractSchema> Class<T> schemaClass() {
         Class result = null;
 
         switch (this) {
             case USER:
-                result = UserSchema.class;
+                result = USchema.class;
                 break;
             case ROLE:
-                result = RoleSchema.class;
+                result = RSchema.class;
                 break;
             case MEMBERSHIP:
-                result = MembershipSchema.class;
+                result = MSchema.class;
                 break;
         }
 
@@ -62,157 +65,175 @@ public enum AttributableUtil {
 
         switch (this) {
             case USER:
-                result = (T) new UserSchema();
+                result = (T) new USchema();
                 break;
             case ROLE:
-                result = (T) new RoleSchema();
+                result = (T) new RSchema();
                 break;
             case MEMBERSHIP:
-                result = (T) new MembershipSchema();
+                result = (T) new MSchema();
                 break;
         }
 
         return result;
     }
 
-    public <T extends AbstractDerivedSchema> Class<T> getDerivedSchemaClass() {
+    public <T extends AbstractDerSchema> Class<T> derivedSchemaClass() {
         Class result = null;
 
         switch (this) {
             case USER:
-                result = UserDerivedSchema.class;
+                result = UDerSchema.class;
                 break;
             case ROLE:
-                result = RoleDerivedSchema.class;
+                result = RDerSchema.class;
                 break;
             case MEMBERSHIP:
-                result = MembershipDerivedSchema.class;
+                result = MDerSchema.class;
                 break;
         }
 
         return result;
     }
 
-    public <T extends AbstractDerivedSchema> T newDerivedSchema() {
+    public <T extends AbstractDerSchema> T newDerivedSchema() {
         T result = null;
 
         switch (this) {
             case USER:
-                result = (T) new UserDerivedSchema();
+                result = (T) new UDerSchema();
                 break;
             case ROLE:
-                result = (T) new RoleDerivedSchema();
+                result = (T) new RDerSchema();
                 break;
             case MEMBERSHIP:
-                result = (T) new MembershipDerivedSchema();
+                result = (T) new MDerSchema();
                 break;
         }
 
         return result;
     }
 
-    public <T extends AbstractAttribute> Class<T> getAttributeClass() {
+    public <T extends AbstractAttr> Class<T> attributeClass() {
         Class result = null;
 
         switch (this) {
             case USER:
-                result = UserAttribute.class;
+                result = UAttr.class;
                 break;
             case ROLE:
-                result = RoleAttribute.class;
+                result = RAttr.class;
                 break;
             case MEMBERSHIP:
-                result = MembershipAttribute.class;
+                result = MAttr.class;
                 break;
         }
 
         return result;
     }
 
-    public <T extends AbstractAttribute> T newAttribute() {
+    public <T extends AbstractAttr> T newAttribute() {
         T result = null;
 
         switch (this) {
             case USER:
-                result = (T) new UserAttribute();
+                result = (T) new UAttr();
                 break;
             case ROLE:
-                result = (T) new RoleAttribute();
+                result = (T) new RAttr();
                 break;
             case MEMBERSHIP:
-                result = (T) new MembershipAttribute();
+                result = (T) new MAttr();
                 break;
         }
 
         return result;
     }
 
-    public <T extends AbstractDerivedAttribute> Class<T> getDerivedAttributeClass() {
+    public <T extends AbstractDerAttr> Class<T> derivedAttributeClass() {
         Class result = null;
 
         switch (this) {
             case USER:
-                result = UserDerivedAttribute.class;
+                result = UDerAttr.class;
                 break;
             case ROLE:
-                result = RoleDerivedAttribute.class;
+                result = RDerAttr.class;
                 break;
             case MEMBERSHIP:
-                result = MembershipDerivedAttribute.class;
+                result = MDerAttr.class;
                 break;
         }
 
         return result;
     }
 
-    public <T extends AbstractDerivedAttribute> T newDerivedAttribute() {
+    public <T extends AbstractDerAttr> T newDerivedAttribute() {
         T result = null;
 
         switch (this) {
             case USER:
-                result = (T) new UserDerivedAttribute();
+                result = (T) new UDerAttr();
                 break;
             case ROLE:
-                result = (T) new RoleDerivedAttribute();
+                result = (T) new RDerAttr();
                 break;
             case MEMBERSHIP:
-                result = (T) new MembershipDerivedAttribute();
+                result = (T) new MDerAttr();
                 break;
         }
 
         return result;
     }
 
-    public <T extends AbstractAttributeValue> Class<T> getAttributeValueClass() {
+    public <T extends AbstractAttrValue> Class<T> attributeValueClass() {
         Class result = null;
 
         switch (this) {
             case USER:
-                result = UserAttributeValue.class;
+                result = UAttrValue.class;
                 break;
             case ROLE:
-                result = RoleAttributeValue.class;
+                result = RAttrValue.class;
                 break;
             case MEMBERSHIP:
-                result = MembershipAttributeValue.class;
+                result = MAttrValue.class;
                 break;
         }
 
         return result;
     }
 
-    public <T extends AbstractAttributeValue> T newAttributeValue() {
+    public <T extends AbstractAttrValue> T newAttributeValue() {
         T result = null;
 
         switch (this) {
             case USER:
-                result = (T) new UserAttributeValue();
+                result = (T) new UAttrValue();
                 break;
             case ROLE:
-                result = (T) new RoleAttributeValue();
+                result = (T) new RAttrValue();
                 break;
             case MEMBERSHIP:
-                result = (T) new MembershipAttributeValue();
+                result = (T) new MAttrValue();
+                break;
+        }
+
+        return result;
+    }
+
+    public <T extends AbstractAttrValue> T newAttributeUniqueValue() {
+        T result = null;
+
+        switch (this) {
+            case USER:
+                result = (T) new UAttrUniqueValue();
+                break;
+            case ROLE:
+                result = (T) new RAttrUniqueValue();
+                break;
+            case MEMBERSHIP:
+                result = (T) new MAttrUniqueValue();
                 break;
         }
 

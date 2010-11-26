@@ -33,10 +33,10 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
     @ManyToMany(fetch = FetchType.EAGER)
     protected Set<TargetResource> targetResources;
 
-    public <T extends AbstractAttribute> T getAttribute(String schemaName) {
+    public <T extends AbstractAttr> T getAttribute(String schemaName) {
         T result = null;
         T attribute = null;
-        for (Iterator<? extends AbstractAttribute> itor =
+        for (Iterator<? extends AbstractAttr> itor =
                 getAttributes().iterator();
                 result == null && itor.hasNext();) {
 
@@ -51,12 +51,12 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
         return result;
     }
 
-    public <T extends AbstractDerivedAttribute> T getDerivedAttribute(
+    public <T extends AbstractDerAttr> T getDerivedAttribute(
             String derivedSchemaName) throws NoSuchElementException {
 
         T result = null;
         T derivedAttribute = null;
-        for (Iterator<? extends AbstractDerivedAttribute> itor =
+        for (Iterator<? extends AbstractDerAttr> itor =
                 getDerivedAttributes().iterator();
                 result == null && itor.hasNext();) {
 
@@ -107,25 +107,25 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
 
     public abstract Long getId();
 
-    public abstract <T extends AbstractAttribute> boolean addAttribute(
+    public abstract <T extends AbstractAttr> boolean addAttribute(
             T attribute);
 
-    public abstract <T extends AbstractAttribute> boolean removeAttribute(
+    public abstract <T extends AbstractAttr> boolean removeAttribute(
             T attribute);
 
-    public abstract List<? extends AbstractAttribute> getAttributes();
+    public abstract List<? extends AbstractAttr> getAttributes();
 
     public abstract void setAttributes(
-            List<? extends AbstractAttribute> attributes);
+            List<? extends AbstractAttr> attributes);
 
-    public abstract <T extends AbstractDerivedAttribute> boolean addDerivedAttribute(
+    public abstract <T extends AbstractDerAttr> boolean addDerivedAttribute(
             T derivedAttribute);
 
-    public abstract <T extends AbstractDerivedAttribute> boolean removeDerivedAttribute(
+    public abstract <T extends AbstractDerAttr> boolean removeDerivedAttribute(
             T derivedAttribute);
 
-    public abstract List<? extends AbstractDerivedAttribute> getDerivedAttributes();
+    public abstract List<? extends AbstractDerAttr> getDerivedAttributes();
 
     public abstract void setDerivedAttributes(
-            List<? extends AbstractDerivedAttribute> derivedAttributes);
+            List<? extends AbstractDerAttr> derivedAttributes);
 }

@@ -12,7 +12,7 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.persistence.beans.role;
+package org.syncope.core.persistence.beans.membership;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,34 +24,39 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.TableGenerator;
 import org.hibernate.annotations.Cascade;
 import org.syncope.core.persistence.beans.AbstractAttributable;
-import org.syncope.core.persistence.beans.AbstractAttribute;
-import org.syncope.core.persistence.beans.AbstractAttributeValue;
+import org.syncope.core.persistence.beans.AbstractAttr;
+import org.syncope.core.persistence.beans.AbstractAttrValue;
 import org.syncope.core.persistence.beans.AbstractSchema;
 
 @Entity
-public class RoleAttribute extends AbstractAttribute {
+public class MAttr extends AbstractAttr {
 
     @Id
     @GeneratedValue(strategy = GenerationType.TABLE,
-    generator = "SEQ_RoleAttribute")
-    @TableGenerator(name = "SEQ_RoleAttribute", allocationSize = 20)
+    generator = "SEQ_MAttr")
+    @TableGenerator(name = "SEQ_MAttr", allocationSize = 20)
     private Long id;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    private SyncopeRole owner;
+    private Membership owner;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    private RoleSchema schema;
+    private MSchema schema;
 
     @OneToMany(cascade = CascadeType.MERGE, mappedBy = "attribute")
     @Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
-    private List<RoleAttributeValue> values;
+    private List<MAttrValue> values;
 
-    public RoleAttribute() {
-        values = new ArrayList<RoleAttributeValue>();
+    @OneToOne(cascade = CascadeType.MERGE, mappedBy = "attribute")
+    @Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
+    private MAttrUniqueValue uniqueValue;
+
+    public MAttr() {
+        values = new ArrayList<MAttrValue>();
     }
 
     @Override
@@ -66,7 +71,7 @@ public class RoleAttribute extends AbstractAttribute {
 
     @Override
     public <T extends AbstractAttributable> void setOwner(T owner) {
-        this.owner = (SyncopeRole) owner;
+        this.owner = (Membership) owner;
     }
 
     @Override
@@ -76,33 +81,55 @@ public class RoleAttribute extends AbstractAttribute {
 
     @Override
     public <T extends AbstractSchema> void setSchema(T schema) {
-        this.schema = (RoleSchema) schema;
+        this.schema = (MSchema) schema;
     }
 
     @Override
-    public <T extends AbstractAttributeValue> boolean addValue(
-            T attributeValue) {
+    public <T extends AbstractAttrValue> boolean addValue(
+            final T attributeValue) {
 
-        return values.add((RoleAttributeValue) attributeValue);
+        attributeValue.setAttribute(this);
+        return values.add((MAttrValue) attributeValue);
     }
 
     @Override
-    public <T extends AbstractAttributeValue> boolean removeValue(
-            T attributeValue) {
+    public <T extends AbstractAttrValue> boolean removeValue(
+            final T attributeValue) {
 
-        return values.remove((RoleAttributeValue) attributeValue);
+        boolean result = values.remove(
+                (MAttrValue) attributeValue);
+        attributeValue.setAttribute(null);
+        return result;
     }
 
     @Override
-    public <T extends AbstractAttributeValue> List<T> getValues() {
+    public <T extends AbstractAttrValue> List<T> getValues() {
         return (List<T>) values;
     }
 
     @Override
-    public <T extends AbstractAttributeValue> void setValues(
-            List<T> attributeValues) {
+    public <T extends AbstractAttrValue> void setValues(
+            final List<T> attributeValues) {
 
-        this.values = (List<RoleAttributeValue>) attributeValues;
+        this.values.clear();
+        if (attributeValues != null && !attributeValues.isEmpty()) {
+            for (T mav : attributeValues) {
+                mav.setAttribute(this);
+            }
+            this.values.addAll(
+                    (List<MAttrValue>) attributeValues);
+        }
+    }
 
+    @Override
+    public <T extends AbstractAttrValue> T getUniqueValue() {
+        return (T) uniqueValue;
+    }
+
+    @Override
+    public <T extends AbstractAttrValue> void setUniqueValue(
+            final T uniqueAttributeValue) {
+
+        this.uniqueValue = (MAttrUniqueValue) uniqueAttributeValue;
     }
 }

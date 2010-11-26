@@ -30,12 +30,12 @@ import org.syncope.client.to.MembershipTO;
 import org.syncope.client.to.UserTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
-import org.syncope.core.persistence.beans.AbstractAttribute;
-import org.syncope.core.persistence.beans.AbstractDerivedAttribute;
+import org.syncope.core.persistence.beans.AbstractAttr;
+import org.syncope.core.persistence.beans.AbstractDerAttr;
 import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.membership.Membership;
-import org.syncope.core.persistence.beans.membership.MembershipAttribute;
-import org.syncope.core.persistence.beans.membership.MembershipDerivedAttribute;
+import org.syncope.core.persistence.beans.membership.MAttr;
+import org.syncope.core.persistence.beans.membership.MDerAttr;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.propagation.ResourceOperations;
@@ -166,26 +166,26 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
                     Set<Long> attributeIds = new HashSet<Long>(
                             membership.getAttributes().size());
-                    for (AbstractAttribute attribute :
+                    for (AbstractAttr attribute :
                             membership.getAttributes()) {
 
                         attributeIds.add(attribute.getId());
                     }
                     for (Long attributeId : attributeIds) {
                         attributeDAO.delete(attributeId,
-                                MembershipAttribute.class);
+                                MAttr.class);
                     }
 
                     Set<Long> derivedAttributeIds = new HashSet<Long>(
                             membership.getDerivedAttributes().size());
-                    for (AbstractDerivedAttribute derivedAttribute :
+                    for (AbstractDerAttr derivedAttribute :
                             membership.getDerivedAttributes()) {
 
                         derivedAttributeIds.add(derivedAttribute.getId());
                     }
                     for (Long derivedAttributeId : derivedAttributeIds) {
                         derivedAttributeDAO.delete(derivedAttributeId,
-                                MembershipDerivedAttribute.class);
+                                MDerAttr.class);
                     }
                 } else {
                     user.removeMembership(membership);

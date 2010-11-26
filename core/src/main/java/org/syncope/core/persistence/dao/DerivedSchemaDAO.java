@@ -15,16 +15,16 @@
 package org.syncope.core.persistence.dao;
 
 import java.util.List;
-import org.syncope.core.persistence.beans.AbstractDerivedSchema;
+import org.syncope.core.persistence.beans.AbstractDerSchema;
 
 public interface DerivedSchemaDAO extends DAO {
 
-    <T extends AbstractDerivedSchema> T find(String name, Class<T> reference);
+    <T extends AbstractDerSchema> T find(String name, Class<T> reference);
 
-    <T extends AbstractDerivedSchema> List<T> findAll(Class<T> reference);
+    <T extends AbstractDerSchema> List<T> findAll(Class<T> reference);
 
-    <T extends AbstractDerivedSchema> T save(T derivedSchema);
+    <T extends AbstractDerSchema> T save(T derivedSchema);
 
-    <T extends AbstractDerivedSchema> void delete(
+    <T extends AbstractDerSchema> void delete(
             String name, Class<T> reference);
 }

@@ -21,8 +21,8 @@ import javax.persistence.Query;
 import org.springframework.stereotype.Repository;
 import org.syncope.core.persistence.beans.Entitlement;
 import org.syncope.core.persistence.beans.membership.Membership;
-import org.syncope.core.persistence.beans.role.RoleAttribute;
-import org.syncope.core.persistence.beans.role.RoleDerivedAttribute;
+import org.syncope.core.persistence.beans.role.RAttr;
+import org.syncope.core.persistence.beans.role.RDerAttr;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.dao.SyncopeRoleDAO;
 
@@ -32,8 +32,7 @@ public class SyncopeRoleDAOImpl extends AbstractDAOImpl
 
     @Override
     public SyncopeRole find(final String name, final Long parentId) {
-        Query query = null;
-
+        Query query;
         if (parentId != null) {
             query = entityManager.createQuery(
                     "SELECT r FROM SyncopeRole r WHERE "
@@ -77,7 +76,7 @@ public class SyncopeRoleDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    public List<RoleAttribute> findInheritedAttributes(final SyncopeRole role) {
+    public List<RAttr> findInheritedAttributes(final SyncopeRole role) {
         if (role.getParent() == null) {
             return Collections.EMPTY_LIST;
         }
@@ -89,8 +88,9 @@ public class SyncopeRoleDAOImpl extends AbstractDAOImpl
         }
 
         StringBuilder queryExp = new StringBuilder();
-        queryExp.append("SELECT ra FROM RoleAttribute ra "
-                + "WHERE ra.owner.id = ");
+        queryExp.append("SELECT ra ").
+                append("FROM " + RAttr.class.getSimpleName() + " ra ").
+                append("WHERE ra.owner.id = ");
         queryExp.append(ancestors.get(0));
 
         if (ancestors.size() > 1) {
@@ -107,7 +107,7 @@ public class SyncopeRoleDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    public List<RoleDerivedAttribute> findInheritedDerivedAttributes(
+    public List<RDerAttr> findInheritedDerivedAttributes(
             final SyncopeRole role) {
 
         if (role.getParent() == null) {
@@ -121,8 +121,9 @@ public class SyncopeRoleDAOImpl extends AbstractDAOImpl
         }
 
         StringBuilder queryExp = new StringBuilder();
-        queryExp.append("SELECT rda FROM RoleDerivedAttribute rda "
-                + "WHERE rda.owner.id = ");
+        queryExp.append("SELECT rda ").
+                append("FROM " + RDerAttr.class.getSimpleName() + " rda ").
+                append("WHERE rda.owner.id = ");
         queryExp.append(ancestors.get(0));
 
         if (ancestors.size() > 1) {

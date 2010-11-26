@@ -15,8 +15,8 @@
 package org.syncope.core.persistence.dao;
 
 import java.util.List;
-import org.syncope.core.persistence.beans.role.RoleAttribute;
-import org.syncope.core.persistence.beans.role.RoleDerivedAttribute;
+import org.syncope.core.persistence.beans.role.RAttr;
+import org.syncope.core.persistence.beans.role.RDerAttr;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 
 public interface SyncopeRoleDAO extends DAO {
@@ -27,9 +27,9 @@ public interface SyncopeRoleDAO extends DAO {
 
     List<SyncopeRole> findChildren(Long roleId);
 
-    List<RoleAttribute> findInheritedAttributes(SyncopeRole role);
+    List<RAttr> findInheritedAttributes(SyncopeRole role);
 
-    List<RoleDerivedAttribute> findInheritedDerivedAttributes(SyncopeRole role);
+    List<RDerAttr> findInheritedDerivedAttributes(SyncopeRole role);
 
     List<SyncopeRole> findAll();
 

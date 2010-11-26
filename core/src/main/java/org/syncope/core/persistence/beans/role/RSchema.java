@@ -12,7 +12,7 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.persistence.beans.user;
+package org.syncope.core.persistence.beans.role;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,75 +24,75 @@ import javax.persistence.OneToMany;
 import javax.persistence.QueryHint;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.syncope.core.persistence.beans.AbstractAttribute;
-import org.syncope.core.persistence.beans.AbstractDerivedSchema;
+import org.syncope.core.persistence.beans.AbstractAttr;
+import org.syncope.core.persistence.beans.AbstractDerSchema;
 import org.syncope.core.persistence.beans.AbstractSchema;
 
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 @NamedQueries({
-    @NamedQuery(name = "UserSchema.findAll",
-    query = "SELECT e FROM UserSchema e",
+    @NamedQuery(name = "RSchema.findAll",
+    query = "SELECT e FROM RSchema e",
     hints = {
         @QueryHint(name = "org.hibernate.cacheable", value = "true")
     })
 })
-public class UserSchema extends AbstractSchema {
+public class RSchema extends AbstractSchema {
 
     @OneToMany(mappedBy = "schema")
-    private List<UserAttribute> attributes;
+    private List<RAttr> attributes;
 
     @ManyToMany(mappedBy = "schemas")
-    private List<UserDerivedSchema> derivedSchemas;
+    private List<RDerSchema> derivedSchemas;
 
-    public UserSchema() {
-        attributes = new ArrayList<UserAttribute>();
-        derivedSchemas = new ArrayList<UserDerivedSchema>();
+    public RSchema() {
+        attributes = new ArrayList<RAttr>();
+        derivedSchemas = new ArrayList<RDerSchema>();
     }
 
     @Override
-    public <T extends AbstractAttribute> boolean addAttribute(T attribute) {
-        return attributes.add((UserAttribute) attribute);
+    public <T extends AbstractAttr> boolean addAttribute(T attribute) {
+        return attributes.add((RAttr) attribute);
     }
 
     @Override
-    public <T extends AbstractAttribute> boolean removeAttribute(T attribute) {
-        return attributes.remove((UserAttribute) attribute);
+    public <T extends AbstractAttr> boolean removeAttribute(T attribute) {
+        return attributes.remove((RAttr) attribute);
     }
 
     @Override
-    public List<? extends AbstractAttribute> getAttributes() {
+    public List<? extends AbstractAttr> getAttributes() {
         return attributes;
     }
 
     @Override
-    public void setAttributes(List<? extends AbstractAttribute> attributes) {
-        this.attributes = (List<UserAttribute>) attributes;
+    public void setAttributes(List<? extends AbstractAttr> attributes) {
+        this.attributes = (List<RAttr>) attributes;
     }
 
     @Override
-    public <T extends AbstractDerivedSchema> boolean addDerivedSchema(
+    public <T extends AbstractDerSchema> boolean addDerivedSchema(
             T derivedSchema) {
 
-        return derivedSchemas.add((UserDerivedSchema) derivedSchema);
+        return derivedSchemas.add((RDerSchema) derivedSchema);
     }
 
     @Override
-    public <T extends AbstractDerivedSchema> boolean removeDerivedSchema(
+    public <T extends AbstractDerSchema> boolean removeDerivedSchema(
             T derivedSchema) {
 
-        return derivedSchemas.remove((UserDerivedSchema) derivedSchema);
+        return derivedSchemas.remove((RDerSchema) derivedSchema);
     }
 
     @Override
-    public List<? extends AbstractDerivedSchema> getDerivedSchemas() {
+    public List<? extends AbstractDerSchema> getDerivedSchemas() {
         return derivedSchemas;
     }
 
     @Override
     public void setDerivedSchemas(
-            List<? extends AbstractDerivedSchema> derivedSchemas) {
+            List<? extends AbstractDerSchema> derivedSchemas) {
 
-        this.derivedSchemas = (List<UserDerivedSchema>) derivedSchemas;
+        this.derivedSchemas = (List<RDerSchema>) derivedSchemas;
     }
 }

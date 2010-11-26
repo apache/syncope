@@ -21,9 +21,9 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.SchemaMapping;
-import org.syncope.core.persistence.beans.user.UserAttribute;
-import org.syncope.core.persistence.beans.user.UserDerivedSchema;
-import org.syncope.core.persistence.beans.user.UserSchema;
+import org.syncope.core.persistence.beans.user.UAttr;
+import org.syncope.core.persistence.beans.user.UDerSchema;
+import org.syncope.core.persistence.beans.user.USchema;
 import org.syncope.core.persistence.dao.AttributeDAO;
 import org.syncope.core.persistence.dao.DerivedSchemaDAO;
 import org.syncope.core.persistence.dao.ResourceDAO;
@@ -53,7 +53,7 @@ public class SchemaTest extends AbstractTest {
     @Test
     public final void test1() {
         // search for user schema username
-        UserSchema schema = schemaDAO.find("username", UserSchema.class);
+        USchema schema = schemaDAO.find("username", USchema.class);
 
         assertNotNull(schema);
 
@@ -64,12 +64,12 @@ public class SchemaTest extends AbstractTest {
         assertFalse(mappings.isEmpty());
 
         // delete user schema username
-        schemaDAO.delete("username", UserSchema.class);
+        schemaDAO.delete("username", USchema.class);
 
         schemaDAO.flush();
 
         // check for schema deletion
-        schema = schemaDAO.find("username", UserSchema.class);
+        schema = schemaDAO.find("username", USchema.class);
 
         assertNull(schema);
 
@@ -78,8 +78,8 @@ public class SchemaTest extends AbstractTest {
                 SchemaType.UserSchema);
         assertTrue(mappings.isEmpty());
 
-        assertNull(attributeDAO.find(100L, UserAttribute.class));
-        assertNull(attributeDAO.find(300L, UserAttribute.class));
+        assertNull(attributeDAO.find(100L, UAttr.class));
+        assertNull(attributeDAO.find(300L, UAttr.class));
         assertNull(syncopeUserDAO.find(1L).getAttribute("username"));
         assertNull(syncopeUserDAO.find(3L).getAttribute("username"));
     }
@@ -88,7 +88,7 @@ public class SchemaTest extends AbstractTest {
     public void test2() {
 
         // search for user schema username
-        UserSchema schema = schemaDAO.find("surname", UserSchema.class);
+        USchema schema = schemaDAO.find("surname", USchema.class);
 
         assertNotNull(schema);
 
@@ -99,18 +99,18 @@ public class SchemaTest extends AbstractTest {
         assertNotNull(mappings);
 
         // delete user schema username
-        schemaDAO.delete("surname", UserSchema.class);
+        schemaDAO.delete("surname", USchema.class);
 
         schemaDAO.flush();
 
         // check for schema deletion
-        schema = schemaDAO.find("surname", UserSchema.class);
+        schema = schemaDAO.find("surname", USchema.class);
 
         assertNull(schema);
 
-        assertNull(schemaDAO.find("surname", UserSchema.class));
+        assertNull(schemaDAO.find("surname", USchema.class));
 
         assertEquals(1, derivedSchemaDAO.find("cn",
-                UserDerivedSchema.class).getSchemas().size());
+                UDerSchema.class).getSchemas().size());
     }
 }

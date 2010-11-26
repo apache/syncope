@@ -111,6 +111,7 @@
         <aspectj.version>1.6.9</aspectj.version>
 
         <hibernate.version>3.4.0.GA</hibernate.version>
+        <hibernate-validator.version>4.0.2.GA</hibernate-validator.version>
         <ehcache.version>2.3.0</ehcache.version>
         <ehcache-jgroupsreplication.version>1.4</ehcache-jgroupsreplication.version>
 
@@ -197,6 +198,11 @@
                 <groupId>org.hibernate</groupId>
                 <artifactId>hibernate-entitymanager</artifactId>
                 <version>${hibernate.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.hibernate</groupId>
+                <artifactId>hibernate-validator</artifactId>
+                <version>${hibernate-validator.version}</version>
             </dependency>
             <dependency>
                 <groupId>net.sf.ehcache</groupId>

@@ -14,11 +14,11 @@
  */
 package org.syncope.core.persistence.validation;
 
-import org.syncope.core.persistence.beans.AbstractAttributeValue;
+import org.syncope.core.persistence.beans.AbstractAttrValue;
 
 public interface AttributeValidator {
 
-    <T extends AbstractAttributeValue> T getValue(String value,
+    <T extends AbstractAttrValue> T getValue(String value,
             T attributeValue)
             throws ParseException, ValidationFailedException;
 }

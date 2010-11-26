@@ -455,9 +455,6 @@ public class UserController extends AbstractController {
         user.setWorkflowId(workflowId);
         user = syncopeUserDAO.save(user);
 
-        // Check if attributes with unique schema have unique values
-        userDataBinder.checkUniqueness(user);
-
         // Now that user is created locally, let's propagate
         Set<String> syncResourceNames =
                 getSyncResourceNames(user, syncRoles, syncResources);
@@ -515,9 +512,6 @@ public class UserController extends AbstractController {
         ResourceOperations resourceOperations =
                 userDataBinder.update(user, userMod);
         user = syncopeUserDAO.save(user);
-
-        // Check if attributes with unique schema have unique values
-        userDataBinder.checkUniqueness(user);
 
         // Now that user is update locally, let's propagate
         Set<String> syncResourceNames =

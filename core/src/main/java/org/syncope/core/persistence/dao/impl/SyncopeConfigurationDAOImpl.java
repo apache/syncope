@@ -17,7 +17,7 @@ package org.syncope.core.persistence.dao.impl;
 import java.util.List;
 import javax.persistence.Query;
 import org.springframework.stereotype.Repository;
-import org.syncope.core.persistence.beans.SyncopeConfiguration;
+import org.syncope.core.persistence.beans.SyncopeConf;
 import org.syncope.core.persistence.dao.MissingConfKeyException;
 import org.syncope.core.persistence.dao.SyncopeConfigurationDAO;
 
@@ -26,11 +26,11 @@ public class SyncopeConfigurationDAOImpl extends AbstractDAOImpl
         implements SyncopeConfigurationDAO {
 
     @Override
-    public SyncopeConfiguration find(final String name)
+    public SyncopeConf find(final String name)
             throws MissingConfKeyException {
 
-        SyncopeConfiguration syncopeConfiguration =
-                entityManager.find(SyncopeConfiguration.class, name);
+        SyncopeConf syncopeConfiguration =
+                entityManager.find(SyncopeConf.class, name);
 
         if (syncopeConfiguration == null) {
             throw new MissingConfKeyException(name);
@@ -40,15 +40,15 @@ public class SyncopeConfigurationDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    public List<SyncopeConfiguration> findAll() {
+    public List<SyncopeConf> findAll() {
         Query query = entityManager.createQuery(
                 "SELECT e FROM SyncopeConfiguration e");
         return query.getResultList();
     }
 
     @Override
-    public SyncopeConfiguration save(
-            final SyncopeConfiguration syncopeConfiguration) {
+    public SyncopeConf save(
+            final SyncopeConf syncopeConfiguration) {
 
         return entityManager.merge(syncopeConfiguration);
     }

@@ -21,7 +21,7 @@ import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 
 @MappedSuperclass
-public abstract class AbstractDerivedSchema extends AbstractBaseBean {
+public abstract class AbstractDerSchema extends AbstractBaseBean {
 
     @Id
     private String name;
@@ -44,13 +44,13 @@ public abstract class AbstractDerivedSchema extends AbstractBaseBean {
         this.expression = expression;
     }
 
-    public abstract <T extends AbstractDerivedAttribute> boolean addDerivedAttribute(T derivedAttribute);
+    public abstract <T extends AbstractDerAttr> boolean addDerivedAttribute(T derivedAttribute);
 
-    public abstract <T extends AbstractDerivedAttribute> boolean removeDerivedAttribute(T derivedAttribute);
+    public abstract <T extends AbstractDerAttr> boolean removeDerivedAttribute(T derivedAttribute);
 
-    public abstract List<? extends AbstractDerivedAttribute> getDerivedAttributes();
+    public abstract List<? extends AbstractDerAttr> getDerivedAttributes();
 
-    public abstract <T extends AbstractDerivedAttribute> void setDerivedAttributes(List<T> derivedAttributes);
+    public abstract <T extends AbstractDerAttr> void setDerivedAttributes(List<T> derivedAttributes);
 
     public abstract <T extends AbstractSchema> boolean addSchema(T schema);
 

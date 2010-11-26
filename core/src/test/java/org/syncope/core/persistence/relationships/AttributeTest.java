@@ -19,8 +19,8 @@ import org.junit.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.syncope.core.persistence.beans.user.UserAttribute;
-import org.syncope.core.persistence.beans.user.UserAttributeValue;
+import org.syncope.core.persistence.beans.user.UAttr;
+import org.syncope.core.persistence.beans.user.UAttrValue;
 import org.syncope.core.persistence.dao.AttributeDAO;
 import org.syncope.core.persistence.dao.AttributeValueDAO;
 import org.syncope.core.persistence.AbstractTest;
@@ -35,28 +35,28 @@ public class AttributeTest extends AbstractTest {
 
     @Test
     public final void deleteAttribute() {
-        attributeDAO.delete(550L, UserAttribute.class);
+        attributeDAO.delete(550L, UAttr.class);
 
         attributeDAO.flush();
 
-        assertNull(attributeDAO.find(550L, UserAttribute.class));
-        assertNull(attributeValueDAO.find(22L, UserAttributeValue.class));
+        assertNull(attributeDAO.find(550L, UAttr.class));
+        assertNull(attributeValueDAO.find(22L, UAttrValue.class));
     }
 
     @Test
     public final void deleteAttributeValue() {
-        UserAttributeValue value =
-                attributeValueDAO.find(20L, UserAttributeValue.class);
+        UAttrValue value =
+                attributeValueDAO.find(20L, UAttrValue.class);
         int attributeValueNumber =
                 value.getAttribute().getValues().size();
 
-        attributeValueDAO.delete(20L, UserAttributeValue.class);
+        attributeValueDAO.delete(20L, UAttrValue.class);
 
         attributeValueDAO.flush();
 
-        assertNull(attributeValueDAO.find(20L, UserAttributeValue.class));
+        assertNull(attributeValueDAO.find(20L, UAttrValue.class));
 
-        UserAttribute attribute = attributeDAO.find(200L, UserAttribute.class);
+        UAttr attribute = attributeDAO.find(200L, UAttr.class);
         assertEquals(attribute.getValues().size(),
                 attributeValueNumber - 1);
     }

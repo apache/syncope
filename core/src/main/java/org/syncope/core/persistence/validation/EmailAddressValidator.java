@@ -17,7 +17,7 @@ package org.syncope.core.persistence.validation;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.syncope.core.persistence.beans.AbstractSchema;
-import org.syncope.core.persistence.beans.AbstractAttributeValue;
+import org.syncope.core.persistence.beans.AbstractAttrValue;
 
 public class EmailAddressValidator extends AbstractAttributeValidator {
 
@@ -31,7 +31,7 @@ public class EmailAddressValidator extends AbstractAttributeValidator {
     }
 
     @Override
-    protected void doValidate(AbstractAttributeValue attributeValue)
+    protected void doValidate(AbstractAttrValue attributeValue)
             throws ValidationFailedException {
 
         CharSequence emailAddress = attributeValue.getValue();

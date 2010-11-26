@@ -12,7 +12,7 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.persistence.beans.user;
+package org.syncope.core.persistence.beans.membership;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,70 +23,69 @@ import javax.persistence.Entity;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
-import org.syncope.core.persistence.beans.AbstractDerivedAttribute;
-import org.syncope.core.persistence.beans.AbstractDerivedSchema;
+import org.syncope.core.persistence.beans.AbstractDerAttr;
+import org.syncope.core.persistence.beans.AbstractDerSchema;
 import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.beans.SchemaMapping;
 
 @Entity
-public class UserDerivedSchema extends AbstractDerivedSchema {
+public class MDerSchema extends AbstractDerSchema {
 
     @ManyToMany
-    @JoinTable(name = "UserSchemaDerivation")
-    private Set<UserSchema> schemas;
-
+    @JoinTable(name = "MSchemaDerivation")
+    private Set<MSchema> schemas;
     @OneToMany(mappedBy = "derivedSchema")
-    private List<UserDerivedAttribute> derivedAttributes;
+    private List<MDerAttr> derivedAttributes;
 
-    public UserDerivedSchema() {
-        schemas = new HashSet<UserSchema>();
-        derivedAttributes = new ArrayList<UserDerivedAttribute>();
+    public MDerSchema() {
+        schemas = new HashSet<MSchema>();
+        derivedAttributes = new ArrayList<MDerAttr>();
     }
 
     @Override
     public <T extends AbstractSchema> boolean addSchema(T schema) {
-        return schemas.add((UserSchema) schema);
+        return schemas.add((MSchema) schema);
     }
 
     @Override
     public <T extends AbstractSchema> boolean removeSchema(T schema) {
-        return schemas.remove((UserSchema) schema);
+        return schemas.remove((MSchema) schema);
     }
 
     @Override
-    public Set<UserSchema> getSchemas() {
+    public Set<MSchema> getSchemas() {
         return schemas;
     }
 
     @Override
     public void setSchemas(Set<? extends AbstractSchema> schemas) {
-        this.schemas = (Set<UserSchema>) schemas;
+        this.schemas = (Set<MSchema>) schemas;
     }
 
     @Override
-    public <T extends AbstractDerivedAttribute> boolean addDerivedAttribute(
+    public <T extends AbstractDerAttr> boolean addDerivedAttribute(
             T derivedAttribute) {
 
-        return derivedAttributes.add((UserDerivedAttribute) derivedAttribute);
+        return derivedAttributes.add((MDerAttr) derivedAttribute);
     }
 
     @Override
-    public <T extends AbstractDerivedAttribute> boolean removeDerivedAttribute(
+    public <T extends AbstractDerAttr> boolean removeDerivedAttribute(
             T derivedAttribute) {
 
-        return derivedAttributes.remove((UserDerivedAttribute) derivedAttribute);
+        return derivedAttributes.remove((MDerAttr) derivedAttribute);
     }
 
     @Override
-    public List<? extends AbstractDerivedAttribute> getDerivedAttributes() {
+    public List<? extends AbstractDerAttr> getDerivedAttributes() {
         return derivedAttributes;
     }
 
     @Override
-    public <T extends AbstractDerivedAttribute> void setDerivedAttributes(
+    public <T extends AbstractDerAttr> void setDerivedAttributes(
             List<T> derivedAttributes) {
 
-        this.derivedAttributes = (List<UserDerivedAttribute>) derivedAttributes;
+        this.derivedAttributes = (List<MDerAttr>) derivedAttributes;
     }
 
     /**

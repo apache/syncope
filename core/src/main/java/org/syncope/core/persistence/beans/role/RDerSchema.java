@@ -12,7 +12,7 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.persistence.beans.membership;
+package org.syncope.core.persistence.beans.role;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,69 +23,69 @@ import javax.persistence.Entity;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
-import org.syncope.core.persistence.beans.AbstractDerivedAttribute;
-import org.syncope.core.persistence.beans.AbstractDerivedSchema;
+import org.syncope.core.persistence.beans.AbstractDerAttr;
+import org.syncope.core.persistence.beans.AbstractDerSchema;
 import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.beans.SchemaMapping;
 
 @Entity
-public class MembershipDerivedSchema extends AbstractDerivedSchema {
+public class RDerSchema extends AbstractDerSchema {
 
     @ManyToMany
-    @JoinTable(name = "MembershipSchemaDerivation")
-    private Set<MembershipSchema> schemas;
+    @JoinTable(name = "RSchemaDerivation")
+    private Set<RSchema> schemas;
     @OneToMany(mappedBy = "derivedSchema")
-    private List<MembershipDerivedAttribute> derivedAttributes;
+    private List<RDerAttr> derivedAttributes;
 
-    public MembershipDerivedSchema() {
-        schemas = new HashSet<MembershipSchema>();
-        derivedAttributes = new ArrayList<MembershipDerivedAttribute>();
+    public RDerSchema() {
+        schemas = new HashSet<RSchema>();
+        derivedAttributes = new ArrayList<RDerAttr>();
     }
 
     @Override
     public <T extends AbstractSchema> boolean addSchema(T schema) {
-        return schemas.add((MembershipSchema) schema);
+        return schemas.add((RSchema) schema);
     }
 
     @Override
     public <T extends AbstractSchema> boolean removeSchema(T schema) {
-        return schemas.remove((MembershipSchema) schema);
+        return schemas.remove((RSchema) schema);
     }
 
     @Override
-    public Set<MembershipSchema> getSchemas() {
+    public Set<RSchema> getSchemas() {
         return schemas;
     }
 
     @Override
     public void setSchemas(Set<? extends AbstractSchema> schemas) {
-        this.schemas = (Set<MembershipSchema>) schemas;
+        this.schemas = (Set<RSchema>) schemas;
     }
 
     @Override
-    public <T extends AbstractDerivedAttribute> boolean addDerivedAttribute(
+    public <T extends AbstractDerAttr> boolean addDerivedAttribute(
             T derivedAttribute) {
 
-        return derivedAttributes.add((MembershipDerivedAttribute) derivedAttribute);
+        return derivedAttributes.add((RDerAttr) derivedAttribute);
     }
 
     @Override
-    public <T extends AbstractDerivedAttribute> boolean removeDerivedAttribute(
+    public <T extends AbstractDerAttr> boolean removeDerivedAttribute(
             T derivedAttribute) {
 
-        return derivedAttributes.remove((MembershipDerivedAttribute) derivedAttribute);
+        return derivedAttributes.remove((RDerAttr) derivedAttribute);
     }
 
     @Override
-    public List<? extends AbstractDerivedAttribute> getDerivedAttributes() {
+    public List<? extends AbstractDerAttr> getDerivedAttributes() {
         return derivedAttributes;
     }
 
     @Override
-    public <T extends AbstractDerivedAttribute> void setDerivedAttributes(
+    public <T extends AbstractDerAttr> void setDerivedAttributes(
             List<T> derivedAttributes) {
 
-        this.derivedAttributes = (List<MembershipDerivedAttribute>) derivedAttributes;
+        this.derivedAttributes = (List<RDerAttr>) derivedAttributes;
     }
 
     /**

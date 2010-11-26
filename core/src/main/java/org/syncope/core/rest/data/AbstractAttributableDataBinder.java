@@ -28,7 +28,6 @@ import org.apache.commons.jexl2.MapContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.syncope.client.mod.AbstractAttributableMod;
 import org.syncope.client.mod.AttributeMod;
 import org.syncope.client.to.AbstractAttributableTO;
@@ -36,10 +35,10 @@ import org.syncope.client.to.AttributeTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
 import org.syncope.core.persistence.beans.AbstractAttributable;
-import org.syncope.core.persistence.beans.AbstractAttribute;
-import org.syncope.core.persistence.beans.AbstractAttributeValue;
-import org.syncope.core.persistence.beans.AbstractDerivedAttribute;
-import org.syncope.core.persistence.beans.AbstractDerivedSchema;
+import org.syncope.core.persistence.beans.AbstractAttr;
+import org.syncope.core.persistence.beans.AbstractAttrValue;
+import org.syncope.core.persistence.beans.AbstractDerAttr;
+import org.syncope.core.persistence.beans.AbstractDerSchema;
 import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.SchemaMapping;
@@ -106,28 +105,23 @@ public abstract class AbstractAttributableDataBinder {
         // safely ignore invalid schemas from AttributeTO
         // see http://code.google.com/p/syncope/issues/detail?id=17
         if (schema == null) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Ignoring invalid schema " + schemaName);
-            }
+            LOG.debug("Ignoring invalid schema {}", schemaName);
         } else if (schema.isVirtual() || schema.isReadonly()) {
             schema = null;
 
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Ignoring virtual or readonly schema " + schemaName);
-            }
+            LOG.debug("Ignoring virtual or readonly schema {}", schemaName);
         }
 
         return schema;
     }
 
-    private <T extends AbstractDerivedSchema> T getDerivedSchema(
-            final String derivedSchemaName, final Class<T> reference) {
+    private <T extends AbstractDerSchema> T getDerivedSchema(
+            final String derSchemaName, final Class<T> reference) {
 
-        T derivedSchema = derivedSchemaDAO.find(derivedSchemaName, reference);
+        T derivedSchema = derivedSchemaDAO.find(derSchemaName, reference);
 
-        if (derivedSchema == null && LOG.isDebugEnabled()) {
-            LOG.debug("Ignoring invalid derivedschema "
-                    + derivedSchemaName);
+        if (derivedSchema == null) {
+            LOG.debug("Ignoring invalid derivedschema {}", derSchemaName);
         }
 
         return derivedSchema;
@@ -143,11 +137,11 @@ public abstract class AbstractAttributableDataBinder {
         return resource;
     }
 
-    private void fillAttribute(List<String> values,
-            AttributableUtil attributableUtil,
-            AbstractSchema schema,
-            AbstractAttribute attribute,
-            SyncopeClientException invalidValues) {
+    private void fillAttribute(final List<String> values,
+            final AttributableUtil attributableUtil,
+            final AbstractSchema schema,
+            final AbstractAttr attribute,
+            final SyncopeClientException invalidValues) {
 
         // if the schema is multivalue, all values are considered for
         // addition, otherwise only the fist one - if provided - is
@@ -159,14 +153,12 @@ public abstract class AbstractAttributableDataBinder {
                 : Collections.singletonList(
                 values.iterator().next()));
 
-        AbstractAttributeValue attributeValue;
         for (String value : valuesProvided) {
             if (value == null || value.isEmpty()) {
                 LOG.debug("Null value for {}, ignoring", schema.getName());
             } else {
                 try {
-                    attributeValue = attribute.addValue(value,
-                            attributableUtil);
+                    attribute.addValue(value, attributableUtil);
                 } catch (ValidationException e) {
                     LOG.error("Invalid value for attribute "
                             + schema.getName() + ": " + value, e);
@@ -179,13 +171,13 @@ public abstract class AbstractAttributableDataBinder {
 
     private <T extends AbstractSchema> boolean evaluateMandatoryCondition(
             final String mandatoryCondition,
-            final List<? extends AbstractAttribute> attributes,
+            final List<? extends AbstractAttr> attributes,
             final Class<T> referenceSchema) {
 
         JexlContext jexlContext = new MapContext();
 
         List<T> allSchemas = schemaDAO.findAll(referenceSchema);
-        for (AbstractAttribute attribute : attributes) {
+        for (AbstractAttr attribute : attributes) {
             jexlContext.set(attribute.getSchema().getName(),
                     attribute.getValues().isEmpty()
                     ? null
@@ -215,7 +207,7 @@ public abstract class AbstractAttributableDataBinder {
 
     private <T extends AbstractSchema> boolean evaluateMandatoryCondition(
             final String resourceName,
-            final List<? extends AbstractAttribute> attributes,
+            final List<? extends AbstractAttr> attributes,
             final String schemaName,
             final Class<T> referenceSchema) {
 
@@ -240,7 +232,7 @@ public abstract class AbstractAttributableDataBinder {
 
     private <T extends AbstractSchema> boolean evaluateMandatoryCondition(
             final Set<TargetResource> resources,
-            final List<? extends AbstractAttribute> attributes,
+            final List<? extends AbstractAttr> attributes,
             final String schemaName,
             final Class<T> referenceSchema) {
 
@@ -317,35 +309,33 @@ public abstract class AbstractAttributableDataBinder {
         SyncopeClientException invalidValues = new SyncopeClientException(
                 SyncopeClientExceptionType.InvalidValues);
 
-        AbstractSchema schema = null;
-        AbstractAttribute attribute = null;
-        AbstractDerivedSchema derivedSchema = null;
-        AbstractDerivedAttribute derivedAttribute = null;
+        AbstractSchema schema;
+        AbstractAttr attribute;
+        AbstractDerSchema derivedSchema;
+        AbstractDerAttr derivedAttribute;
 
         // 1. attributes to be removed
         for (String attributeToBeRemoved :
                 attributableMod.getAttributesToBeRemoved()) {
 
             schema = getSchema(
-                    attributeToBeRemoved, attributableUtil.getSchemaClass());
+                    attributeToBeRemoved, attributableUtil.schemaClass());
 
             if (schema != null) {
                 attribute = attributable.getAttribute(schema.getName());
                 if (attribute == null) {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("No attribute found for schema " + schema);
-                    }
+                    LOG.debug("No attribute found for schema {}", schema);
                 } else {
                     attributable.removeAttribute(attribute);
 
                     attributeDAO.delete(attribute.getId(),
-                            attributableUtil.getAttributeClass());
+                            attributableUtil.attributeClass());
                 }
 
                 for (SchemaMapping mapping : resourceDAO.getMappings(
                         schema.getName(),
                         SchemaType.byClass(
-                        attributableUtil.getSchemaClass()))) {
+                        attributableUtil.schemaClass()))) {
 
                     if (mapping.getResource() != null
                             && resources.contains(mapping.getResource())) {
@@ -365,9 +355,7 @@ public abstract class AbstractAttributableDataBinder {
             }
         }
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("About attributes to be removed:\n" + resourceOperations);
-        }
+        LOG.debug("About attributes to be removed:\n{}", resourceOperations);
 
         // 2. attributes to be updated
         Set<Long> valuesToBeRemoved;
@@ -375,13 +363,13 @@ public abstract class AbstractAttributableDataBinder {
                 attributableMod.getAttributesToBeUpdated()) {
 
             schema = getSchema(attributeMod.getSchema(),
-                    attributableUtil.getSchemaClass());
+                    attributableUtil.schemaClass());
 
             if (schema != null) {
                 for (SchemaMapping mapping : resourceDAO.getMappings(
                         schema.getName(),
                         SchemaType.byClass(
-                        attributableUtil.getSchemaClass()))) {
+                        attributableUtil.schemaClass()))) {
 
                     if (mapping.getResource() != null
                             && resources.contains(mapping.getResource())) {
@@ -405,7 +393,7 @@ public abstract class AbstractAttributableDataBinder {
                 for (String valueToBeRemoved :
                         attributeMod.getValuesToBeRemoved()) {
 
-                    for (AbstractAttributeValue mav : attribute.getValues()) {
+                    for (AbstractAttrValue mav : attribute.getValues()) {
                         if (valueToBeRemoved.equals(mav.getValueAsString())) {
                             valuesToBeRemoved.add(mav.getId());
                         }
@@ -413,7 +401,7 @@ public abstract class AbstractAttributableDataBinder {
                 }
                 for (Long attributeValueId : valuesToBeRemoved) {
                     attributeValueDAO.delete(attributeValueId,
-                            attributableUtil.getAttributeValueClass());
+                            attributableUtil.attributeValueClass());
                 }
 
                 // 1.2 add values
@@ -432,7 +420,7 @@ public abstract class AbstractAttributableDataBinder {
         }
 
         SyncopeClientException requiredValuesMissing =
-                checkMandatory(attributableUtil.getSchemaClass(), attributable);
+                checkMandatory(attributableUtil.schemaClass(), attributable);
         if (!requiredValuesMissing.getElements().isEmpty()) {
             compositeErrorException.addException(requiredValuesMissing);
         }
@@ -444,7 +432,7 @@ public abstract class AbstractAttributableDataBinder {
                 attributableMod.getDerivedAttributesToBeRemoved()) {
 
             derivedSchema = getDerivedSchema(derivedAttributeToBeRemoved,
-                    attributableUtil.getDerivedSchemaClass());
+                    attributableUtil.derivedSchemaClass());
             if (derivedSchema != null) {
                 for (SchemaMapping mapping : derivedSchema.getMappings()) {
                     if (mapping.getResource() != null
@@ -473,7 +461,7 @@ public abstract class AbstractAttributableDataBinder {
                 attributableMod.getDerivedAttributesToBeAdded()) {
 
             derivedSchema = getDerivedSchema(derivedAttributeToBeAdded,
-                    attributableUtil.getDerivedSchemaClass());
+                    attributableUtil.derivedSchemaClass());
             if (derivedSchema != null) {
                 for (SchemaMapping mapping : derivedSchema.getMappings()) {
                     if (mapping.getResource() != null
@@ -557,15 +545,16 @@ public abstract class AbstractAttributableDataBinder {
         SyncopeClientException invalidValues = new SyncopeClientException(
                 SyncopeClientExceptionType.InvalidValues);
 
-        AbstractSchema schema = null;
-        AbstractAttribute attribute = null;
+        AbstractSchema schema;
+        AbstractAttr attribute;
+
         // Only consider attributeTO with values
         for (AttributeTO attributeTO : attributableTO.getAttributes()) {
             if (attributeTO.getValues() != null
                     && !attributeTO.getValues().isEmpty()) {
 
                 schema = getSchema(attributeTO.getSchema(),
-                        attributableUtil.getSchemaClass());
+                        attributableUtil.schemaClass());
 
                 if (schema != null) {
                     attribute = attributable.getAttribute(schema.getName());
@@ -593,18 +582,18 @@ public abstract class AbstractAttributableDataBinder {
         }
 
         SyncopeClientException requiredValuesMissing =
-                checkMandatory(attributableUtil.getSchemaClass(), attributable);
+                checkMandatory(attributableUtil.schemaClass(), attributable);
         if (!requiredValuesMissing.getElements().isEmpty()) {
             compositeErrorException.addException(requiredValuesMissing);
         }
 
         // 2. derived attributes
-        AbstractDerivedSchema derivedSchema;
-        AbstractDerivedAttribute derivedAttribute;
+        AbstractDerSchema derivedSchema;
+        AbstractDerAttr derivedAttribute;
         for (AttributeTO attributeTO : attributableTO.getDerivedAttributes()) {
 
             derivedSchema = getDerivedSchema(attributeTO.getSchema(),
-                    attributableUtil.getDerivedSchemaClass());
+                    attributableUtil.derivedSchemaClass());
 
             if (derivedSchema != null) {
                 derivedAttribute = attributableUtil.newDerivedAttribute();
@@ -640,12 +629,12 @@ public abstract class AbstractAttributableDataBinder {
 
     protected void fillTO(
             AbstractAttributableTO abstractAttributableTO,
-            Collection<? extends AbstractAttribute> attributes,
-            Collection<? extends AbstractDerivedAttribute> derivedAttributes,
+            Collection<? extends AbstractAttr> attributes,
+            Collection<? extends AbstractDerAttr> derivedAttributes,
             Collection<TargetResource> resources) {
 
         AttributeTO attributeTO;
-        for (AbstractAttribute attribute : attributes) {
+        for (AbstractAttr attribute : attributes) {
             attributeTO = new AttributeTO();
             attributeTO.setSchema(attribute.getSchema().getName());
             attributeTO.setValues(attribute.getValuesAsStrings());
@@ -654,7 +643,7 @@ public abstract class AbstractAttributableDataBinder {
             abstractAttributableTO.addAttribute(attributeTO);
         }
 
-        for (AbstractDerivedAttribute derivedAttribute : derivedAttributes) {
+        for (AbstractDerAttr derivedAttribute : derivedAttributes) {
 
             attributeTO = new AttributeTO();
             attributeTO.setSchema(
@@ -667,40 +656,6 @@ public abstract class AbstractAttributableDataBinder {
 
         for (TargetResource resource : resources) {
             abstractAttributableTO.addResource(resource.getName());
-        }
-    }
-
-    public void checkUniqueness(AbstractAttributable attributable)
-            throws SyncopeClientCompositeErrorException {
-
-        SyncopeClientException invalidUniques = new SyncopeClientException(
-                SyncopeClientExceptionType.InvalidUniques);
-
-        for (AbstractAttribute attribute : attributable.getAttributes()) {
-            for (AbstractAttributeValue attributeValue :
-                    attribute.getValues()) {
-
-                if (attribute.getSchema().isUniquevalue()
-                        && attributeValueDAO.nonUniqueAttributeValue(
-                        attributeValue)) {
-
-                    LOG.error("Unique value schema "
-                            + attribute.getSchema().getName()
-                            + " with no unique value: "
-                            + attributeValue.getValueAsString());
-
-                    invalidUniques.addElement(attribute.getSchema().getName());
-                }
-            }
-        }
-
-        if (!invalidUniques.getElements().isEmpty()) {
-            SyncopeClientCompositeErrorException scce =
-                    new SyncopeClientCompositeErrorException(
-                    HttpStatus.BAD_REQUEST);
-            scce.addException(invalidUniques);
-
-            throw scce;
         }
     }
 }

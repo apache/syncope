@@ -31,8 +31,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import org.syncope.core.persistence.beans.AbstractAttributable;
-import org.syncope.core.persistence.beans.AbstractAttribute;
-import org.syncope.core.persistence.beans.AbstractDerivedAttribute;
+import org.syncope.core.persistence.beans.AbstractAttr;
+import org.syncope.core.persistence.beans.AbstractDerAttr;
 import org.syncope.core.persistence.beans.Entitlement;
 import org.syncope.core.persistence.beans.membership.Membership;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
@@ -61,10 +61,10 @@ public class SyncopeRole extends AbstractAttributable {
     private Set<Entitlement> entitlements;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
-    private List<RoleAttribute> attributes;
+    private List<RAttr> attributes;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
-    private List<RoleDerivedAttribute> derivedAttributes;
+    private List<RDerAttr> derivedAttributes;
 
     @Basic
     private Integer inheritAttributes;
@@ -77,8 +77,8 @@ public class SyncopeRole extends AbstractAttributable {
 
         memberships = new ArrayList<Membership>();
         entitlements = new HashSet<Entitlement>();
-        attributes = new ArrayList<RoleAttribute>();
-        derivedAttributes = new ArrayList<RoleDerivedAttribute>();
+        attributes = new ArrayList<RAttr>();
+        derivedAttributes = new ArrayList<RDerAttr>();
         inheritAttributes = getBooleanAsInteger(false);
         inheritDerivedAttributes = getBooleanAsInteger(false);
     }
@@ -148,50 +148,50 @@ public class SyncopeRole extends AbstractAttributable {
     }
 
     @Override
-    public <T extends AbstractAttribute> boolean addAttribute(T attribute) {
-        return attributes.add((RoleAttribute) attribute);
+    public <T extends AbstractAttr> boolean addAttribute(T attribute) {
+        return attributes.add((RAttr) attribute);
     }
 
     @Override
-    public <T extends AbstractAttribute> boolean removeAttribute(T attribute) {
-        return attributes.remove((RoleAttribute) attribute);
+    public <T extends AbstractAttr> boolean removeAttribute(T attribute) {
+        return attributes.remove((RAttr) attribute);
     }
 
     @Override
-    public List<? extends AbstractAttribute> getAttributes() {
+    public List<? extends AbstractAttr> getAttributes() {
         return attributes;
     }
 
     @Override
-    public void setAttributes(List<? extends AbstractAttribute> attributes) {
-        this.attributes = (List<RoleAttribute>) attributes;
+    public void setAttributes(List<? extends AbstractAttr> attributes) {
+        this.attributes = (List<RAttr>) attributes;
     }
 
     @Override
-    public <T extends AbstractDerivedAttribute> boolean addDerivedAttribute(
+    public <T extends AbstractDerAttr> boolean addDerivedAttribute(
             T derivedAttribute) {
 
-        return derivedAttributes.add((RoleDerivedAttribute) derivedAttribute);
+        return derivedAttributes.add((RDerAttr) derivedAttribute);
     }
 
     @Override
-    public <T extends AbstractDerivedAttribute> boolean removeDerivedAttribute(
+    public <T extends AbstractDerAttr> boolean removeDerivedAttribute(
             T derivedAttribute) {
 
         return derivedAttributes.remove(
-                (RoleDerivedAttribute) derivedAttribute);
+                (RDerAttr) derivedAttribute);
     }
 
     @Override
-    public List<? extends AbstractDerivedAttribute> getDerivedAttributes() {
+    public List<? extends AbstractDerAttr> getDerivedAttributes() {
         return derivedAttributes;
     }
 
     @Override
     public void setDerivedAttributes(
-            List<? extends AbstractDerivedAttribute> derivedAttributes) {
+            List<? extends AbstractDerAttr> derivedAttributes) {
 
-        this.derivedAttributes = (List<RoleDerivedAttribute>) derivedAttributes;
+        this.derivedAttributes = (List<RDerAttr>) derivedAttributes;
     }
 
     public boolean isInheritAttributes() {

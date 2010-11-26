@@ -19,9 +19,9 @@ import org.junit.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.syncope.core.persistence.beans.user.UserAttribute;
-import org.syncope.core.persistence.beans.user.UserAttributeValue;
-import org.syncope.core.persistence.beans.user.UserSchema;
+import org.syncope.core.persistence.beans.user.UAttr;
+import org.syncope.core.persistence.beans.user.UAttrValue;
+import org.syncope.core.persistence.beans.user.USchema;
 import org.syncope.core.persistence.dao.AttributeDAO;
 import org.syncope.core.persistence.dao.AttributeValueDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
@@ -50,9 +50,9 @@ public class UserTest extends AbstractTest {
         syncopeUserDAO.flush();
 
         assertNull(syncopeUserDAO.find(4L));
-        assertNull(attributeDAO.find(550L, UserAttribute.class));
-        assertNull(attributeValueDAO.find(22L, UserAttributeValue.class));
-        assertNotNull(schemaDAO.find("loginDate", UserSchema.class));
+        assertNull(attributeDAO.find(550L, UAttr.class));
+        assertNull(attributeValueDAO.find(22L, UAttrValue.class));
+        assertNotNull(schemaDAO.find("loginDate", USchema.class));
         assertTrue(syncopeRoleDAO.find(7L).getUsers().isEmpty());
     }
 }

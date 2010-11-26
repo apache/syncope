@@ -12,28 +12,31 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.persistence.beans.user;
+package org.syncope.core.persistence.beans.membership;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 import javax.persistence.ManyToOne;
 import javax.persistence.TableGenerator;
-import org.syncope.core.persistence.beans.AbstractAttribute;
-import org.syncope.core.persistence.beans.AbstractAttributeValue;
+import org.syncope.core.persistence.beans.AbstractAttr;
+import org.syncope.core.persistence.beans.AbstractAttrValue;
 
 @Entity
-public class UserAttributeValue extends AbstractAttributeValue {
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+public class MAttrValue extends AbstractAttrValue {
 
     @Id
     @GeneratedValue(strategy = GenerationType.TABLE,
-    generator = "SEQ_UserAttributeValue")
-    @TableGenerator(name = "SEQ_UserAttributeValue", allocationSize = 200)
+    generator = "SEQ_MAttrValue")
+    @TableGenerator(name = "SEQ_MAttrValue", allocationSize = 200)
     private Long id;
 
     @ManyToOne
-    private UserAttribute attribute;
+    private MAttr attribute;
 
     @Override
     public Long getId() {
@@ -41,12 +44,12 @@ public class UserAttributeValue extends AbstractAttributeValue {
     }
 
     @Override
-    public <T extends AbstractAttribute> T getAttribute() {
+    public <T extends AbstractAttr> T getAttribute() {
         return (T) attribute;
     }
 
     @Override
-    public <T extends AbstractAttribute> void setAttribute(final T attribute) {
-        this.attribute = (UserAttribute) attribute;
+    public <T extends AbstractAttr> void setAttribute(T attribute) {
+        this.attribute = (MAttr) attribute;
     }
 }

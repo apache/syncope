@@ -12,7 +12,7 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.persistence.beans.membership;
+package org.syncope.core.persistence.beans.user;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,34 +24,39 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.TableGenerator;
 import org.hibernate.annotations.Cascade;
 import org.syncope.core.persistence.beans.AbstractAttributable;
-import org.syncope.core.persistence.beans.AbstractAttribute;
-import org.syncope.core.persistence.beans.AbstractAttributeValue;
+import org.syncope.core.persistence.beans.AbstractAttr;
+import org.syncope.core.persistence.beans.AbstractAttrValue;
 import org.syncope.core.persistence.beans.AbstractSchema;
 
 @Entity
-public class MembershipAttribute extends AbstractAttribute {
+public class UAttr extends AbstractAttr {
 
     @Id
     @GeneratedValue(strategy = GenerationType.TABLE,
-    generator = "SEQ_MembershipAttribute")
-    @TableGenerator(name = "SEQ_MembershipAttribute", allocationSize = 20)
+    generator = "SEQ_UAttr")
+    @TableGenerator(name = "SEQ_UAttr", allocationSize = 200)
     private Long id;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    private Membership owner;
+    private SyncopeUser owner;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    private MembershipSchema schema;
+    private USchema schema;
 
     @OneToMany(cascade = CascadeType.MERGE, mappedBy = "attribute")
     @Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
-    private List<MembershipAttributeValue> values;
+    private List<UAttrValue> values;
 
-    public MembershipAttribute() {
-        values = new ArrayList<MembershipAttributeValue>();
+    @OneToOne(cascade = CascadeType.MERGE, mappedBy = "attribute")
+    @Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
+    private UAttrUniqueValue uniqueValue;
+
+    public UAttr() {
+        values = new ArrayList<UAttrValue>();
     }
 
     @Override
@@ -65,8 +70,8 @@ public class MembershipAttribute extends AbstractAttribute {
     }
 
     @Override
-    public <T extends AbstractAttributable> void setOwner(T owner) {
-        this.owner = (Membership) owner;
+    public <T extends AbstractAttributable> void setOwner(final T owner) {
+        this.owner = (SyncopeUser) owner;
     }
 
     @Override
@@ -76,34 +81,30 @@ public class MembershipAttribute extends AbstractAttribute {
 
     @Override
     public <T extends AbstractSchema> void setSchema(T schema) {
-        this.schema = (MembershipSchema) schema;
+        this.schema = (USchema) schema;
     }
 
     @Override
-    public <T extends AbstractAttributeValue> boolean addValue(
+    public <T extends AbstractAttrValue> boolean addValue(
             final T attributeValue) {
 
-        attributeValue.setAttribute(this);
-        return values.add((MembershipAttributeValue) attributeValue);
+        return values.add((UAttrValue) attributeValue);
     }
 
     @Override
-    public <T extends AbstractAttributeValue> boolean removeValue(
+    public <T extends AbstractAttrValue> boolean removeValue(
             final T attributeValue) {
 
-        boolean result = values.remove(
-                (MembershipAttributeValue) attributeValue);
-        attributeValue.setAttribute(null);
-        return result;
+        return values.remove((UAttrValue) attributeValue);
     }
 
     @Override
-    public <T extends AbstractAttributeValue> List<T> getValues() {
+    public <T extends AbstractAttrValue> List<T> getValues() {
         return (List<T>) values;
     }
 
     @Override
-    public <T extends AbstractAttributeValue> void setValues(
+    public <T extends AbstractAttrValue> void setValues(
             final List<T> attributeValues) {
 
         this.values.clear();
@@ -111,9 +112,19 @@ public class MembershipAttribute extends AbstractAttribute {
             for (T mav : attributeValues) {
                 mav.setAttribute(this);
             }
-            this.values.addAll(
-                    (List<MembershipAttributeValue>) attributeValues);
+            this.values.addAll((List<UAttrValue>) attributeValues);
         }
+    }
 
+    @Override
+    public <T extends AbstractAttrValue> T getUniqueValue() {
+        return (T) uniqueValue;
+    }
+
+    @Override
+    public <T extends AbstractAttrValue> void setUniqueValue(
+            final T uniqueAttributeValue) {
+
+        this.uniqueValue = (UAttrUniqueValue) uniqueAttributeValue;
     }
 }

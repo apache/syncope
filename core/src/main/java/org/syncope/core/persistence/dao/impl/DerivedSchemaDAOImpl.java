@@ -20,8 +20,8 @@ import java.util.Set;
 import javax.persistence.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import org.syncope.core.persistence.beans.AbstractDerivedAttribute;
-import org.syncope.core.persistence.beans.AbstractDerivedSchema;
+import org.syncope.core.persistence.beans.AbstractDerAttr;
+import org.syncope.core.persistence.beans.AbstractDerSchema;
 import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.dao.DerivedAttributeDAO;
 import org.syncope.core.persistence.dao.DerivedSchemaDAO;
@@ -34,14 +34,14 @@ public class DerivedSchemaDAOImpl extends AbstractDAOImpl
     private DerivedAttributeDAO derivedAttributeDAO;
 
     @Override
-    public <T extends AbstractDerivedSchema> T find(final String name,
+    public <T extends AbstractDerSchema> T find(final String name,
             final Class<T> reference) {
 
         return entityManager.find(reference, name);
     }
 
     @Override
-    public <T extends AbstractDerivedSchema> List<T> findAll(
+    public <T extends AbstractDerSchema> List<T> findAll(
             final Class<T> reference) {
 
         Query query = entityManager.createQuery(
@@ -50,12 +50,12 @@ public class DerivedSchemaDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    public <T extends AbstractDerivedSchema> T save(final T derivedSchema) {
+    public <T extends AbstractDerSchema> T save(final T derivedSchema) {
         return entityManager.merge(derivedSchema);
     }
 
     @Override
-    public <T extends AbstractDerivedSchema> void delete(final String name,
+    public <T extends AbstractDerSchema> void delete(final String name,
             final Class<T> reference) {
 
         T derivedSchema = find(name, reference);
@@ -71,7 +71,7 @@ public class DerivedSchemaDAOImpl extends AbstractDAOImpl
         Set<Long> derivedAttributeIds =
                 new HashSet<Long>(derivedSchema.getDerivedAttributes().size());
         Class attributeClass = null;
-        for (AbstractDerivedAttribute attribute :
+        for (AbstractDerAttr attribute :
                 derivedSchema.getDerivedAttributes()) {
 
             derivedAttributeIds.add(attribute.getId());

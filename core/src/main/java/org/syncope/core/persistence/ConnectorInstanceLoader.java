@@ -30,7 +30,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.syncope.core.persistence.beans.ConnectorInstance;
-import org.syncope.core.persistence.beans.SyncopeConfiguration;
+import org.syncope.core.persistence.beans.SyncopeConf;
 import org.syncope.core.persistence.dao.ConnectorInstanceDAO;
 import org.syncope.core.persistence.dao.MissingConfKeyException;
 import org.syncope.core.persistence.dao.SyncopeConfigurationDAO;
@@ -58,7 +58,7 @@ public class ConnectorInstanceLoader implements ServletContextListener {
         SyncopeConfigurationDAO syncopeConfigurationDAO =
                 (SyncopeConfigurationDAO) context.getBean(
                 "syncopeConfigurationDAOImpl");
-        SyncopeConfiguration connectorBundleDir = null;
+        SyncopeConf connectorBundleDir = null;
         try {
             connectorBundleDir = syncopeConfigurationDAO.find(
                     "identityconnectors.bundle.directory");

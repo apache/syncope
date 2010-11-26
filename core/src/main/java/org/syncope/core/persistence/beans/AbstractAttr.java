@@ -22,16 +22,18 @@ import org.syncope.core.persistence.validation.ValidationFailedException;
 import org.syncope.core.rest.data.AttributableUtil;
 
 @MappedSuperclass
-public abstract class AbstractAttribute extends AbstractBaseBean {
+public abstract class AbstractAttr extends AbstractBaseBean {
 
     public abstract Long getId();
 
-    public <T extends AbstractAttributeValue> T addValue(final String value,
+    public <T extends AbstractAttrValue> T addValue(final String value,
             final AttributableUtil attributableUtil)
             throws ParseException, ValidationFailedException {
 
         T actualValue = getSchema().getValidator().getValue(value,
-                (T) attributableUtil.newAttributeValue());
+                getSchema().isUniqueConstraint()
+                ? (T) attributableUtil.newAttributeUniqueValue()
+                : (T) attributableUtil.newAttributeValue());
         actualValue.setAttribute(this);
 
         if (!getSchema().isMultivalue()) {
@@ -51,13 +53,13 @@ public abstract class AbstractAttribute extends AbstractBaseBean {
 
     public abstract <T extends AbstractSchema> void setSchema(T schema);
 
-    public abstract <T extends AbstractAttributeValue> boolean addValue(
+    public abstract <T extends AbstractAttrValue> boolean addValue(
             T attributeValue);
 
-    public abstract <T extends AbstractAttributeValue> boolean removeValue(
+    public abstract <T extends AbstractAttrValue> boolean removeValue(
             T attributeValue);
 
-    public <T extends AbstractAttributeValue> List<String> getValuesAsStrings() {
+    public <T extends AbstractAttrValue> List<String> getValuesAsStrings() {
         List<T> values = getValues();
 
         List<String> result = new ArrayList<String>(values.size());
@@ -68,8 +70,13 @@ public abstract class AbstractAttribute extends AbstractBaseBean {
         return result;
     }
 
-    public abstract <T extends AbstractAttributeValue> List<T> getValues();
+    public abstract <T extends AbstractAttrValue> List<T> getValues();
 
-    public abstract <T extends AbstractAttributeValue> void setValues(
+    public abstract <T extends AbstractAttrValue> void setValues(
             List<T> attributeValues);
+
+    public abstract <T extends AbstractAttrValue> T getUniqueValue();
+
+    public abstract <T extends AbstractAttrValue> void setUniqueValue(
+            T uniqueAttributeValue);
 }

@@ -17,15 +17,16 @@ package org.syncope.types;
 public enum SchemaType {
 
     UserSchema(
-    "org.syncope.core.persistence.beans.user.UserSchema"),
+    "org.syncope.core.persistence.beans.user.USchema"),
     RoleSchema(
-    "org.syncope.core.persistence.beans.role.RoleSchema"),
+    "org.syncope.core.persistence.beans.role.RSchema"),
     MembershipSchema(
-    "org.syncope.core.persistence.beans.membership.MembershipSchema"),
+    "org.syncope.core.persistence.beans.membership.MSchema"),
     AccountId(
     "AccountId"),
     Password(
     "Password");
+
     final private String className;
 
     SchemaType(String className) {

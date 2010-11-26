@@ -12,7 +12,7 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.persistence.beans.user;
+package org.syncope.core.persistence.beans.role;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,34 +24,39 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.TableGenerator;
 import org.hibernate.annotations.Cascade;
 import org.syncope.core.persistence.beans.AbstractAttributable;
-import org.syncope.core.persistence.beans.AbstractAttribute;
-import org.syncope.core.persistence.beans.AbstractAttributeValue;
+import org.syncope.core.persistence.beans.AbstractAttr;
+import org.syncope.core.persistence.beans.AbstractAttrValue;
 import org.syncope.core.persistence.beans.AbstractSchema;
 
 @Entity
-public class UserAttribute extends AbstractAttribute {
+public class RAttr extends AbstractAttr {
 
     @Id
     @GeneratedValue(strategy = GenerationType.TABLE,
-    generator = "SEQ_UserAttribute")
-    @TableGenerator(name = "SEQ_UserAttribute", allocationSize = 200)
+    generator = "SEQ_RAttr")
+    @TableGenerator(name = "SEQ_RAttr", allocationSize = 20)
     private Long id;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    private SyncopeUser owner;
+    private SyncopeRole owner;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    private UserSchema schema;
+    private RSchema schema;
 
     @OneToMany(cascade = CascadeType.MERGE, mappedBy = "attribute")
     @Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
-    private List<UserAttributeValue> values;
+    private List<RAttrValue> values;
 
-    public UserAttribute() {
-        values = new ArrayList<UserAttributeValue>();
+    @OneToOne(cascade = CascadeType.MERGE, mappedBy = "attribute")
+    @Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
+    private RAttrUniqueValue uniqueValue;
+
+    public RAttr() {
+        values = new ArrayList<RAttrValue>();
     }
 
     @Override
@@ -66,7 +71,7 @@ public class UserAttribute extends AbstractAttribute {
 
     @Override
     public <T extends AbstractAttributable> void setOwner(T owner) {
-        this.owner = (SyncopeUser) owner;
+        this.owner = (SyncopeRole) owner;
     }
 
     @Override
@@ -76,33 +81,50 @@ public class UserAttribute extends AbstractAttribute {
 
     @Override
     public <T extends AbstractSchema> void setSchema(T schema) {
-        this.schema = (UserSchema) schema;
+        this.schema = (RSchema) schema;
     }
 
     @Override
-    public <T extends AbstractAttributeValue> boolean addValue(
-            T attributeValue) {
+    public <T extends AbstractAttrValue> boolean addValue(
+            final T attributeValue) {
 
-        return values.add((UserAttributeValue) attributeValue);
+        return values.add((RAttrValue) attributeValue);
     }
 
     @Override
-    public <T extends AbstractAttributeValue> boolean removeValue(
-            T attributeValue) {
+    public <T extends AbstractAttrValue> boolean removeValue(
+            final T attributeValue) {
 
-        return values.remove((UserAttributeValue) attributeValue);
+        return values.remove((RAttrValue) attributeValue);
     }
 
     @Override
-    public <T extends AbstractAttributeValue> List<T> getValues() {
+    public <T extends AbstractAttrValue> List<T> getValues() {
         return (List<T>) values;
     }
 
     @Override
-    public <T extends AbstractAttributeValue> void setValues(
-            List<T> attributeValues) {
+    public <T extends AbstractAttrValue> void setValues(
+            final List<T> attributeValues) {
 
-        this.values = (List<UserAttributeValue>) attributeValues;
+        this.values.clear();
+        if (attributeValues != null && !attributeValues.isEmpty()) {
+            for (T mav : attributeValues) {
+                mav.setAttribute(this);
+            }
+            this.values.addAll((List<RAttrValue>) attributeValues);
+        }
+    }
 
+    @Override
+    public <T extends AbstractAttrValue> T getUniqueValue() {
+        return (T) uniqueValue;
+    }
+
+    @Override
+    public <T extends AbstractAttrValue> void setUniqueValue(
+            final T uniqueAttributeValue) {
+
+        this.uniqueValue = (RAttrUniqueValue) uniqueAttributeValue;
     }
 }

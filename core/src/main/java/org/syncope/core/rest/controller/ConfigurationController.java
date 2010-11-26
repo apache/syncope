@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.syncope.client.to.ConfigurationTO;
-import org.syncope.core.persistence.beans.SyncopeConfiguration;
+import org.syncope.core.persistence.beans.SyncopeConf;
 import org.syncope.core.persistence.dao.MissingConfKeyException;
 import org.syncope.core.persistence.dao.SyncopeConfigurationDAO;
 import org.syncope.core.persistence.validation.AttributeValidator;
@@ -55,7 +55,7 @@ public class ConfigurationController extends AbstractController {
             LOG.debug("create called with parameters " + configurationTO);
         }
 
-        SyncopeConfiguration syncopeConfiguration =
+        SyncopeConf syncopeConfiguration =
                 configurationDataBinder.createSyncopeConfiguration(
                 configurationTO);
 
@@ -73,7 +73,7 @@ public class ConfigurationController extends AbstractController {
             @PathVariable("confKey") String confKey)
             throws MissingConfKeyException {
 
-        SyncopeConfiguration syncopeConfiguration =
+        SyncopeConf syncopeConfiguration =
                 syncopeConfigurationDAO.find(confKey);
         syncopeConfigurationDAO.delete(confKey);
     }
@@ -81,12 +81,12 @@ public class ConfigurationController extends AbstractController {
     @RequestMapping(method = RequestMethod.GET,
     value = "/list")
     public List<ConfigurationTO> list(HttpServletRequest request) {
-        List<SyncopeConfiguration> configurations =
+        List<SyncopeConf> configurations =
                 syncopeConfigurationDAO.findAll();
         List<ConfigurationTO> configurationTOs =
                 new ArrayList<ConfigurationTO>(configurations.size());
 
-        for (SyncopeConfiguration configuration : configurations) {
+        for (SyncopeConf configuration : configurations) {
             configurationTOs.add(
                     configurationDataBinder.getConfigurationTO(configuration));
         }
@@ -102,7 +102,7 @@ public class ConfigurationController extends AbstractController {
 
         ConfigurationTO result = null;
         try {
-            SyncopeConfiguration syncopeConfiguration =
+            SyncopeConf syncopeConfiguration =
                     syncopeConfigurationDAO.find(confKey);
             result = configurationDataBinder.getConfigurationTO(
                     syncopeConfiguration);
@@ -123,7 +123,7 @@ public class ConfigurationController extends AbstractController {
             @RequestBody ConfigurationTO configurationTO)
             throws MissingConfKeyException {
 
-        SyncopeConfiguration syncopeConfiguration =
+        SyncopeConf syncopeConfiguration =
                 syncopeConfigurationDAO.find(configurationTO.getConfKey());
 
         syncopeConfiguration.setConfValue(configurationTO.getConfValue());

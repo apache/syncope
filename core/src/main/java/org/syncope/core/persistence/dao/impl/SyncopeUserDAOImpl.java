@@ -27,11 +27,11 @@ import org.springframework.stereotype.Repository;
 import org.syncope.client.search.AttributeCond;
 import org.syncope.client.search.MembershipCond;
 import org.syncope.client.search.NodeCond;
-import org.syncope.core.persistence.beans.AbstractAttributeValue;
+import org.syncope.core.persistence.beans.AbstractAttrValue;
 import org.syncope.core.persistence.beans.membership.Membership;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
-import org.syncope.core.persistence.beans.user.UserAttributeValue;
-import org.syncope.core.persistence.beans.user.UserSchema;
+import org.syncope.core.persistence.beans.user.UAttrValue;
+import org.syncope.core.persistence.beans.user.USchema;
 import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.SyncopeRoleDAO;
 import org.syncope.core.persistence.dao.SyncopeUserDAO;
@@ -70,14 +70,14 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
 
     @Override
     public List<SyncopeUser> findByAttributeValue(
-            final UserAttributeValue attributeValue) {
+            final UAttrValue attributeValue) {
 
         return findByAttributeValue(attributeValue, -1, -1);
     }
 
     @Override
     public final List<SyncopeUser> findByAttributeValue(
-            final UserAttributeValue attributeValue,
+            final UAttrValue attributeValue,
             final int page, final int itemsPerPage) {
 
         final Query query = entityManager.createQuery(
@@ -297,16 +297,16 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
                                 leafCond.getMembershipCond().getRoleName());
                     }
                 } else if (leafCond.getAttributeCond() != null) {
-                        UserSchema userSchema = schemaDAO.find(
+                        USchema userSchema = schemaDAO.find(
                                 leafCond.getAttributeCond().getSchema(),
-                                UserSchema.class);
+                                USchema.class);
                         if (userSchema == null) {
                             LOG.warn("Ignoring invalid schema '"
                                     + leafCond.getAttributeCond().getSchema()
                                     + "'");
                         } else {
-                            UserAttributeValue attributeValue =
-                                    new UserAttributeValue();
+                            UAttrValue attributeValue =
+                                    new UAttrValue();
                             try {
                                 if (leafCond.getAttributeCond().getType()
                                         == AttributeCond.Type.LIKE) {
@@ -346,16 +346,16 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
                         leafCond.getAttributeCond();
 
                 if (attributeCondition != null) {
-                    UserSchema userSchema = schemaDAO.find(
+                    USchema userSchema = schemaDAO.find(
                             leafCond.getAttributeCond().getSchema(),
-                            UserSchema.class);
+                            USchema.class);
                     if (userSchema == null) {
                         LOG.warn("Ignoring invalid schema '"
                                 + leafCond.getAttributeCond().getSchema()
                                 + "'");
                     } else {
-                        UserAttributeValue attributeValue =
-                                new UserAttributeValue();
+                        UAttrValue attributeValue =
+                                new UAttrValue();
                         try {
                             if (leafCond.getAttributeCond().getType()
                                     == AttributeCond.Type.LIKE) {
@@ -400,7 +400,7 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
     }
 
     private Criterion getCriterion(final AttributeCond.Type type,
-            final AbstractAttributeValue attributeValue) {
+            final AbstractAttrValue attributeValue) {
 
         Criterion result = null;
         switch (type) {

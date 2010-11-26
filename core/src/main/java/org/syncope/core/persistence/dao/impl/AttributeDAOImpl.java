@@ -17,7 +17,7 @@ package org.syncope.core.persistence.dao.impl;
 import java.util.List;
 import javax.persistence.Query;
 import org.springframework.stereotype.Repository;
-import org.syncope.core.persistence.beans.AbstractAttribute;
+import org.syncope.core.persistence.beans.AbstractAttr;
 import org.syncope.core.persistence.dao.AttributeDAO;
 
 @Repository
@@ -25,15 +25,14 @@ public class AttributeDAOImpl extends AbstractDAOImpl
         implements AttributeDAO {
 
     @Override
-    public <T extends AbstractAttribute> T find(final Long id,
+    public <T extends AbstractAttr> T find(final Long id,
             final Class<T> reference) {
 
         return entityManager.find(reference, id);
     }
 
     @Override
-    public <T extends AbstractAttribute> List<T> findAll(
-            final Class<T> reference) {
+    public <T extends AbstractAttr> List<T> findAll(final Class<T> reference) {
 
         Query query = entityManager.createQuery(
                 "SELECT e FROM " + reference.getSimpleName() + " e");
@@ -41,12 +40,12 @@ public class AttributeDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    public <T extends AbstractAttribute> T save(final T attribute) {
+    public <T extends AbstractAttr> T save(final T attribute) {
         return entityManager.merge(attribute);
     }
 
     @Override
-    public <T extends AbstractAttribute> void delete(
+    public <T extends AbstractAttr> void delete(
             final Long id, final Class<T> reference) {
 
         T attribute = find(id, reference);
@@ -58,7 +57,7 @@ public class AttributeDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    public <T extends AbstractAttribute> void delete(final T attribute) {
+    public <T extends AbstractAttr> void delete(final T attribute) {
         if (attribute.getOwner() != null) {
             attribute.getOwner().removeAttribute(attribute);
         }

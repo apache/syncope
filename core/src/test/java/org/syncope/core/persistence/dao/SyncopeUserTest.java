@@ -25,9 +25,9 @@ import org.syncope.client.search.MembershipCond;
 import org.syncope.client.search.NodeCond;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.AbstractTest;
-import org.syncope.core.persistence.beans.user.UserAttribute;
-import org.syncope.core.persistence.beans.user.UserAttributeValue;
-import org.syncope.core.persistence.beans.user.UserSchema;
+import org.syncope.core.persistence.beans.user.UAttr;
+import org.syncope.core.persistence.beans.user.UAttrValue;
+import org.syncope.core.persistence.beans.user.USchema;
 
 @Transactional
 public class SyncopeUserTest extends AbstractTest {
@@ -61,13 +61,13 @@ public class SyncopeUserTest extends AbstractTest {
     }
 
     public final void findByAttribute() {
-        final UserSchema schema = new UserSchema();
+        final USchema schema = new USchema();
         schema.setName("username");
 
-        final UserAttribute username = new UserAttribute();
+        final UAttr username = new UAttr();
         username.setSchema(schema);
 
-        final UserAttributeValue usernameValue = new UserAttributeValue();
+        final UAttrValue usernameValue = new UAttrValue();
         usernameValue.setStringValue("chicchiricco");
         usernameValue.setAttribute(username);
 
@@ -80,13 +80,13 @@ public class SyncopeUserTest extends AbstractTest {
     }
 
     public final void findByAttributePageAndSize() {
-        final UserSchema schema = new UserSchema();
+        final USchema schema = new USchema();
         schema.setName("username");
 
-        final UserAttribute username = new UserAttribute();
+        final UAttr username = new UAttr();
         username.setSchema(schema);
 
-        final UserAttributeValue usernameValue = new UserAttributeValue();
+        final UAttrValue usernameValue = new UAttrValue();
         usernameValue.setStringValue("chicchiricco");
         usernameValue.setAttribute(username);
 

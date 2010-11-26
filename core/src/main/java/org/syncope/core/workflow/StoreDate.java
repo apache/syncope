@@ -18,8 +18,8 @@ import com.opensymphony.module.propertyset.PropertySet;
 import com.opensymphony.workflow.WorkflowException;
 import java.util.Date;
 import java.util.Map;
-import org.syncope.core.persistence.beans.AbstractAttribute;
-import org.syncope.core.persistence.beans.AbstractAttributeValue;
+import org.syncope.core.persistence.beans.AbstractAttr;
+import org.syncope.core.persistence.beans.AbstractAttrValue;
 
 public class StoreDate extends AbstractStoreAttributeValue {
 
@@ -27,9 +27,9 @@ public class StoreDate extends AbstractStoreAttributeValue {
     public void execute(Map transientVars, Map args, PropertySet ps)
             throws WorkflowException {
 
-        AbstractAttribute attribute = getAttribute(transientVars, args);
+        AbstractAttr attribute = getAttribute(transientVars, args);
 
-        AbstractAttributeValue date = attributableUtil.newAttributeValue();
+        AbstractAttrValue date = attributableUtil.newAttributeValue();
         date.setDateValue(new Date());
         date.setAttribute(attribute);
         if (!attribute.getSchema().isMultivalue()) {

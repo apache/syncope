@@ -23,7 +23,7 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 @MappedSuperclass
-public abstract class AbstractAttributeValue extends AbstractBaseBean {
+public abstract class AbstractAttrValue extends AbstractBaseBean {
 
     private String stringValue;
 
@@ -127,9 +127,9 @@ public abstract class AbstractAttributeValue extends AbstractBaseBean {
         return result;
     }
 
-    public abstract <T extends AbstractAttribute> T getAttribute();
+    public abstract <T extends AbstractAttr> T getAttribute();
 
-    public abstract <T extends AbstractAttribute> void setAttribute(
+    public abstract <T extends AbstractAttr> void setAttribute(
             T attribute);
 
     @Override

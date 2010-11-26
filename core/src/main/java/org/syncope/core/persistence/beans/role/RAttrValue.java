@@ -18,22 +18,25 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 import javax.persistence.ManyToOne;
 import javax.persistence.TableGenerator;
-import org.syncope.core.persistence.beans.AbstractAttribute;
-import org.syncope.core.persistence.beans.AbstractAttributeValue;
+import org.syncope.core.persistence.beans.AbstractAttr;
+import org.syncope.core.persistence.beans.AbstractAttrValue;
 
 @Entity
-public class RoleAttributeValue extends AbstractAttributeValue {
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+public class RAttrValue extends AbstractAttrValue {
 
     @Id
     @GeneratedValue(strategy = GenerationType.TABLE,
-    generator = "SEQ_RoleAttributeValue")
-    @TableGenerator(name = "SEQ_RoleAttributeValue", allocationSize = 200)
+    generator = "SEQ_RAttrValue")
+    @TableGenerator(name = "SEQ_RAttrValue", allocationSize = 200)
     private Long id;
 
     @ManyToOne
-    private RoleAttribute attribute;
+    private RAttr attribute;
 
     @Override
     public Long getId() {
@@ -41,12 +44,12 @@ public class RoleAttributeValue extends AbstractAttributeValue {
     }
 
     @Override
-    public <T extends AbstractAttribute> T getAttribute() {
+    public <T extends AbstractAttr> T getAttribute() {
         return (T) attribute;
     }
 
     @Override
-    public <T extends AbstractAttribute> void setAttribute(T attribute) {
-        this.attribute = (RoleAttribute) attribute;
+    public <T extends AbstractAttr> void setAttribute(T attribute) {
+        this.attribute = (RAttr) attribute;
     }
 }

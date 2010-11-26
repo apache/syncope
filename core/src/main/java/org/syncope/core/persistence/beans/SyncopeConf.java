@@ -12,20 +12,31 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.persistence.dao;
+package org.syncope.core.persistence.beans;
 
-import java.util.List;
-import org.syncope.core.persistence.beans.AbstractDerAttr;
+import javax.persistence.Entity;
+import javax.persistence.Id;
 
-public interface DerivedAttributeDAO extends DAO {
+@Entity
+public class SyncopeConf extends AbstractBaseBean {
 
-    <T extends AbstractDerAttr> T find(Long id, Class<T> reference);
+    @Id
+    private String confKey;
+    private String confValue;
 
-    <T extends AbstractDerAttr> List<T> findAll(Class<T> reference);
+    public String getConfKey() {
+        return confKey;
+    }
 
-    <T extends AbstractDerAttr> T save(T derivedAttribute);
+    public void setConfKey(String confKey) {
+        this.confKey = confKey;
+    }
 
-    <T extends AbstractDerAttr> void delete(Long id, Class<T> reference);
+    public String getConfValue() {
+        return confValue;
+    }
 
-    <T extends AbstractDerAttr> void delete(T derivedAttribute);
+    public void setConfValue(String confValue) {
+        this.confValue = confValue;
+    }
 }

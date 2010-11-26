@@ -20,8 +20,8 @@ import java.util.List;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.syncope.core.persistence.beans.user.UserDerivedSchema;
-import org.syncope.core.persistence.beans.user.UserSchema;
+import org.syncope.core.persistence.beans.user.UDerSchema;
+import org.syncope.core.persistence.beans.user.USchema;
 import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.DerivedSchemaDAO;
 import org.syncope.core.persistence.AbstractTest;
@@ -36,49 +36,49 @@ public class DerivedSchemaTest extends AbstractTest {
 
     @Test
     public final void findAll() {
-        List<UserDerivedSchema> list =
-                derivedSchemaDAO.findAll(UserDerivedSchema.class);
+        List<UDerSchema> list =
+                derivedSchemaDAO.findAll(UDerSchema.class);
         assertEquals("did not get expected number of derived attribute schemas ",
                 1, list.size());
     }
 
     @Test
     public final void findByName() {
-        UserDerivedSchema attributeSchema =
-                derivedSchemaDAO.find("cn", UserDerivedSchema.class);
+        UDerSchema attributeSchema =
+                derivedSchemaDAO.find("cn", UDerSchema.class);
         assertNotNull("did not find expected derived attribute schema",
                 attributeSchema);
     }
 
     @Test
     public final void save() {
-        UserDerivedSchema derivedAttributeSchema =
-                new UserDerivedSchema();
+        UDerSchema derivedAttributeSchema =
+                new UDerSchema();
         derivedAttributeSchema.setName("cn2");
         derivedAttributeSchema.setExpression("firstname surname");
         derivedAttributeSchema.addSchema(
-                schemaDAO.find("firstname", UserSchema.class));
+                schemaDAO.find("firstname", USchema.class));
         derivedAttributeSchema.addSchema(
-                schemaDAO.find("surname", UserSchema.class));
+                schemaDAO.find("surname", USchema.class));
 
         derivedSchemaDAO.save(derivedAttributeSchema);
 
-        UserDerivedSchema actual =
-                derivedSchemaDAO.find("cn2", UserDerivedSchema.class);
+        UDerSchema actual =
+                derivedSchemaDAO.find("cn2", UDerSchema.class);
         assertNotNull("expected save to work", actual);
         assertEquals(derivedAttributeSchema, actual);
     }
 
     @Test
     public final void delete() {
-        UserDerivedSchema attributeSchema =
-                derivedSchemaDAO.find("cn", UserDerivedSchema.class);
+        UDerSchema attributeSchema =
+                derivedSchemaDAO.find("cn", UDerSchema.class);
 
         derivedSchemaDAO.delete(attributeSchema.getName(),
-                UserDerivedSchema.class);
+                UDerSchema.class);
 
-        UserDerivedSchema actual =
-                derivedSchemaDAO.find("cn", UserDerivedSchema.class);
+        UDerSchema actual =
+                derivedSchemaDAO.find("cn", UDerSchema.class);
         assertNull("delete did not work", actual);
     }
 }

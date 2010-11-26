@@ -17,8 +17,8 @@ package org.syncope.core.workflow;
 import com.opensymphony.module.propertyset.PropertySet;
 import com.opensymphony.workflow.WorkflowException;
 import java.util.Map;
-import org.syncope.core.persistence.beans.AbstractAttribute;
-import org.syncope.core.persistence.beans.AbstractAttributeValue;
+import org.syncope.core.persistence.beans.AbstractAttr;
+import org.syncope.core.persistence.beans.AbstractAttrValue;
 
 public class StoreText extends AbstractStoreAttributeValue {
 
@@ -26,14 +26,14 @@ public class StoreText extends AbstractStoreAttributeValue {
     public void execute(Map transientVars, Map args, PropertySet ps)
             throws WorkflowException {
 
-        AbstractAttribute attribute = getAttribute(transientVars, args);
+        AbstractAttr attribute = getAttribute(transientVars, args);
 
         String text = (String) transientVars.get(args.get("schema"));
         if (text == null) {
             throw new WorkflowException("Missing text");
         }
 
-        AbstractAttributeValue textAttributeValue =
+        AbstractAttrValue textAttributeValue =
                 attributableUtil.newAttributeValue();
         textAttributeValue.setStringValue(text);
         textAttributeValue.setAttribute(attribute);

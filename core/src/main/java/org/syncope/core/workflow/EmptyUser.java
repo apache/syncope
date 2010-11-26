@@ -22,12 +22,12 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import org.springframework.transaction.annotation.Transactional;
-import org.syncope.core.persistence.beans.AbstractAttribute;
-import org.syncope.core.persistence.beans.AbstractDerivedAttribute;
+import org.syncope.core.persistence.beans.AbstractAttr;
+import org.syncope.core.persistence.beans.AbstractDerAttr;
 import org.syncope.core.persistence.beans.membership.Membership;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
-import org.syncope.core.persistence.beans.user.UserAttribute;
-import org.syncope.core.persistence.beans.user.UserDerivedAttribute;
+import org.syncope.core.persistence.beans.user.UAttr;
+import org.syncope.core.persistence.beans.user.UDerAttr;
 import org.syncope.core.persistence.dao.AttributeDAO;
 import org.syncope.core.persistence.dao.DerivedAttributeDAO;
 import org.syncope.core.persistence.dao.MembershipDAO;
@@ -46,12 +46,12 @@ public class EmptyUser extends OSWorkflowComponent
         final AttributeDAO attributeDAO =
                 (AttributeDAO) context.getBean("attributeDAOImpl");
         final Map<Long, String> attrsToRemove = new HashMap<Long, String>();
-        for (AbstractAttribute attribute : user.getAttributes()) {
+        for (AbstractAttr attribute : user.getAttributes()) {
             attrsToRemove.put(attribute.getId(),
                     attribute.getSchema().getName());
         }
         for (Long attrId : attrsToRemove.keySet()) {
-            attributeDAO.delete(attrId, UserAttribute.class);
+            attributeDAO.delete(attrId, UAttr.class);
             user.removeAttribute(
                     user.getAttribute(attrsToRemove.get(attrId)));
         }
@@ -59,11 +59,11 @@ public class EmptyUser extends OSWorkflowComponent
         final DerivedAttributeDAO derivedAttributeDAO =
                 (DerivedAttributeDAO) context.getBean(
                 "derivedAttributeDAOImpl");
-        for (AbstractDerivedAttribute derivedAttribute :
+        for (AbstractDerAttr derivedAttribute :
                 user.getDerivedAttributes()) {
 
             derivedAttributeDAO.delete(derivedAttribute.getId(),
-                    UserDerivedAttribute.class);
+                    UDerAttr.class);
         }
         user.getDerivedAttributes().clear();
 

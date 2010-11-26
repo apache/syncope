@@ -42,8 +42,8 @@ import org.syncope.core.persistence.beans.Task;
 import org.syncope.core.persistence.beans.TaskExecution;
 import org.syncope.core.persistence.beans.membership.Membership;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
-import org.syncope.core.persistence.beans.user.UserAttribute;
-import org.syncope.core.persistence.beans.user.UserAttributeValue;
+import org.syncope.core.persistence.beans.user.UAttr;
+import org.syncope.core.persistence.beans.user.UAttrValue;
 import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.TaskDAO;
 import org.syncope.core.rest.data.TaskDataBinder;
@@ -270,11 +270,11 @@ public class PropagationManager {
         Set objValues;
 
         // syncope user attribute
-        UserAttribute userAttribute;
+        UAttr userAttribute;
         // syncope user attribute schema type
         SchemaValueType schemaValueType = null;
         // syncope user attribute values
-        List<UserAttributeValue> values;
+        List<UAttrValue> values;
 
         for (SchemaMapping mapping : resource.getMappings()) {
             LOG.debug("Processing schema {} ({})", mapping.getSchemaName(),
@@ -316,8 +316,8 @@ public class PropagationManager {
                 } else {
                     schemaValueType = SchemaValueType.String;
 
-                    UserAttributeValue userAttributeValue =
-                            new UserAttributeValue();
+                    UAttrValue userAttributeValue =
+                            new UAttrValue();
 
                     if (SchemaType.AccountId.equals(mapping.getSchemaType())) {
                         userAttributeValue.setStringValue(
@@ -353,7 +353,7 @@ public class PropagationManager {
                 // -----------------------------
                 objValues = new HashSet();
 
-                for (UserAttributeValue value : values) {
+                for (UAttrValue value : values) {
                     castToBeApplied =
                             Class.forName(schemaValueType.getClassName());
 

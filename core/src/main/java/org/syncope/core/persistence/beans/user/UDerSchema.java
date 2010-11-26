@@ -12,7 +12,7 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.persistence.beans.role;
+package org.syncope.core.persistence.beans.user;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,69 +23,70 @@ import javax.persistence.Entity;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
-import org.syncope.core.persistence.beans.AbstractDerivedAttribute;
-import org.syncope.core.persistence.beans.AbstractDerivedSchema;
+import org.syncope.core.persistence.beans.AbstractDerAttr;
+import org.syncope.core.persistence.beans.AbstractDerSchema;
 import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.beans.SchemaMapping;
 
 @Entity
-public class RoleDerivedSchema extends AbstractDerivedSchema {
+public class UDerSchema extends AbstractDerSchema {
 
     @ManyToMany
-    @JoinTable(name = "RoleSchemaDerivation")
-    private Set<RoleSchema> schemas;
-    @OneToMany(mappedBy = "derivedSchema")
-    private List<RoleDerivedAttribute> derivedAttributes;
+    @JoinTable(name = "USchemaDerivation")
+    private Set<USchema> schemas;
 
-    public RoleDerivedSchema() {
-        schemas = new HashSet<RoleSchema>();
-        derivedAttributes = new ArrayList<RoleDerivedAttribute>();
+    @OneToMany(mappedBy = "derivedSchema")
+    private List<UDerAttr> derivedAttributes;
+
+    public UDerSchema() {
+        schemas = new HashSet<USchema>();
+        derivedAttributes = new ArrayList<UDerAttr>();
     }
 
     @Override
     public <T extends AbstractSchema> boolean addSchema(T schema) {
-        return schemas.add((RoleSchema) schema);
+        return schemas.add((USchema) schema);
     }
 
     @Override
     public <T extends AbstractSchema> boolean removeSchema(T schema) {
-        return schemas.remove((RoleSchema) schema);
+        return schemas.remove((USchema) schema);
     }
 
     @Override
-    public Set<RoleSchema> getSchemas() {
+    public Set<USchema> getSchemas() {
         return schemas;
     }
 
     @Override
     public void setSchemas(Set<? extends AbstractSchema> schemas) {
-        this.schemas = (Set<RoleSchema>) schemas;
+        this.schemas = (Set<USchema>) schemas;
     }
 
     @Override
-    public <T extends AbstractDerivedAttribute> boolean addDerivedAttribute(
+    public <T extends AbstractDerAttr> boolean addDerivedAttribute(
             T derivedAttribute) {
 
-        return derivedAttributes.add((RoleDerivedAttribute) derivedAttribute);
+        return derivedAttributes.add((UDerAttr) derivedAttribute);
     }
 
     @Override
-    public <T extends AbstractDerivedAttribute> boolean removeDerivedAttribute(
+    public <T extends AbstractDerAttr> boolean removeDerivedAttribute(
             T derivedAttribute) {
 
-        return derivedAttributes.remove((RoleDerivedAttribute) derivedAttribute);
+        return derivedAttributes.remove((UDerAttr) derivedAttribute);
     }
 
     @Override
-    public List<? extends AbstractDerivedAttribute> getDerivedAttributes() {
+    public List<? extends AbstractDerAttr> getDerivedAttributes() {
         return derivedAttributes;
     }
 
     @Override
-    public <T extends AbstractDerivedAttribute> void setDerivedAttributes(
+    public <T extends AbstractDerAttr> void setDerivedAttributes(
             List<T> derivedAttributes) {
 
-        this.derivedAttributes = (List<RoleDerivedAttribute>) derivedAttributes;
+        this.derivedAttributes = (List<UDerAttr>) derivedAttributes;
     }
 
     /**

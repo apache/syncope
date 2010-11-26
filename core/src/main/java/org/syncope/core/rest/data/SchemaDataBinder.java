@@ -26,9 +26,9 @@ import org.springframework.stereotype.Component;
 import org.syncope.client.to.SchemaTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
-import org.syncope.core.persistence.beans.AbstractAttribute;
-import org.syncope.core.persistence.beans.AbstractAttributeValue;
-import org.syncope.core.persistence.beans.AbstractDerivedSchema;
+import org.syncope.core.persistence.beans.AbstractAttr;
+import org.syncope.core.persistence.beans.AbstractAttrValue;
+import org.syncope.core.persistence.beans.AbstractDerSchema;
 import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.dao.DerivedSchemaDAO;
 import org.syncope.types.SyncopeClientExceptionType;
@@ -51,7 +51,7 @@ public class SchemaDataBinder {
     @Autowired
     private JexlEngine jexlEngine;
 
-    private <T extends AbstractDerivedSchema> AbstractSchema populate(
+    private <T extends AbstractDerSchema> AbstractSchema populate(
             final AbstractSchema schema,
             final SchemaTO schemaTO,
             final Class<T> derivedReference,
@@ -88,7 +88,7 @@ public class SchemaDataBinder {
 
         BeanUtils.copyProperties(schemaTO, schema, ignoreSchemaProperties);
 
-        AbstractDerivedSchema abstractDerivedSchema;
+        AbstractDerSchema abstractDerivedSchema;
         for (String derivedSchema : schemaTO.getDerivedSchemas()) {
             abstractDerivedSchema =
                     derivedSchemaDAO.find(derivedSchema, derivedReference);
@@ -102,7 +102,7 @@ public class SchemaDataBinder {
         return schema;
     }
 
-    public <T extends AbstractDerivedSchema> AbstractSchema create(
+    public <T extends AbstractDerSchema> AbstractSchema create(
             final SchemaTO schemaTO,
             AbstractSchema schema,
             final Class<T> derivedReference)
@@ -113,7 +113,7 @@ public class SchemaDataBinder {
                 HttpStatus.BAD_REQUEST));
     }
 
-    public <T extends AbstractDerivedSchema> AbstractSchema update(
+    public <T extends AbstractDerSchema> AbstractSchema update(
             final SchemaTO schemaTO,
             AbstractSchema schema,
             final Class<T> derivedReference)
@@ -126,14 +126,14 @@ public class SchemaDataBinder {
         schema = populate(schema, schemaTO, derivedReference, scce);
 
         boolean validationExceptionFound = false;
-        AbstractAttribute attribute;
-        AbstractAttributeValue attributeValue;
-        for (Iterator<? extends AbstractAttribute> aItor =
+        AbstractAttr attribute;
+        AbstractAttrValue attributeValue;
+        for (Iterator<? extends AbstractAttr> aItor =
                 schema.getAttributes().iterator();
                 aItor.hasNext() && !validationExceptionFound;) {
 
             attribute = aItor.next();
-            for (Iterator<? extends AbstractAttributeValue> avItor =
+            for (Iterator<? extends AbstractAttrValue> avItor =
                     attribute.getValues().iterator();
                     avItor.hasNext() && !validationExceptionFound;) {
 
@@ -164,7 +164,7 @@ public class SchemaDataBinder {
         SchemaTO schemaTO = new SchemaTO();
         BeanUtils.copyProperties(schema, schemaTO, ignoreSchemaProperties);
 
-        for (AbstractDerivedSchema derivedSchema : schema.getDerivedSchemas()) {
+        for (AbstractDerSchema derivedSchema : schema.getDerivedSchemas()) {
             schemaTO.addDerivedSchema(derivedSchema.getName());
         }
         schemaTO.setAttributes(schema.getAttributes().size());

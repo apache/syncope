@@ -18,16 +18,16 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import org.syncope.core.persistence.beans.AbstractAttributable;
-import org.syncope.core.persistence.beans.AbstractDerivedAttribute;
-import org.syncope.core.persistence.beans.AbstractDerivedSchema;
+import org.syncope.core.persistence.beans.AbstractDerAttr;
+import org.syncope.core.persistence.beans.AbstractDerSchema;
 
 @Entity
-public class MembershipDerivedAttribute extends AbstractDerivedAttribute {
+public class MDerAttr extends AbstractDerAttr {
 
     @ManyToOne
     private Membership owner;
     @ManyToOne(fetch = FetchType.EAGER)
-    MembershipDerivedSchema derivedSchema;
+    MDerSchema derivedSchema;
 
     @Override
     public <T extends AbstractAttributable> T getOwner() {
@@ -40,14 +40,14 @@ public class MembershipDerivedAttribute extends AbstractDerivedAttribute {
     }
 
     @Override
-    public <T extends AbstractDerivedSchema> T getDerivedSchema() {
+    public <T extends AbstractDerSchema> T getDerivedSchema() {
         return (T) derivedSchema;
     }
 
     @Override
-    public <T extends AbstractDerivedSchema> void setDerivedSchema(
+    public <T extends AbstractDerSchema> void setDerivedSchema(
             T derivedSchema) {
 
-        this.derivedSchema = (MembershipDerivedSchema) derivedSchema;
+        this.derivedSchema = (MDerSchema) derivedSchema;
     }
 }
