@@ -2,7 +2,6 @@
 <%@page isErrorPage="true" contentType="application/json" pageEncoding="UTF-8"%>
 <%@page import="org.syncope.core.rest.data.InvalidSearchConditionException"%>
 <%@page import="org.syncope.core.persistence.dao.MissingConfKeyException"%>
-<%@page import="org.syncope.core.persistence.validation.MultiUniqueValueException"%>
 <%@page import="org.syncope.client.validation.SyncopeClientException"%>
 <%@page import="org.syncope.client.validation.SyncopeClientCompositeErrorException"%>
 <%@page import="org.syncope.core.persistence.propagation.PropagationException"%>
@@ -14,13 +13,13 @@
 <%@page import="org.slf4j.Logger"%>
 <%@page import="org.syncope.core.rest.controller.AbstractController"%>
 
-<%!    static final Logger log =
+<%!    static final Logger LOG =
             LoggerFactory.getLogger(AbstractController.class);%>
 
 <%
             Throwable ex = pageContext.getErrorData().getThrowable();
 
-            log.error("Exception thrown by REST methods", ex);
+            LOG.error("Exception thrown by REST methods", ex);
 
             int statusCode = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 
@@ -70,13 +69,6 @@
 
                 statusCode = ((SyncopeClientCompositeErrorException) ex).
                         getStatusCode().value();
-            } else if (ex instanceof MultiUniqueValueException) {
-                response.setHeader(
-                        SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
-                        SyncopeClientExceptionType.InvalidSchemaDefinition.
-                        getHeaderValue());
-
-                statusCode = HttpServletResponse.SC_BAD_REQUEST;
             } else if (ex instanceof MissingConfKeyException) {
                 response.setHeader(
                         SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,

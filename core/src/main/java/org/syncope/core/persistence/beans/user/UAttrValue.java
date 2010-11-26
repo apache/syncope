@@ -35,7 +35,7 @@ public class UAttrValue extends AbstractAttrValue {
     @TableGenerator(name = "SEQ_UAttrValue", allocationSize = 200)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
     private UAttr attribute;
 
     @Override

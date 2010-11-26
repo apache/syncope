@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.List;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
+import javax.validation.ValidationException;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
@@ -25,7 +26,6 @@ import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.syncope.client.search.AttributeCond;
-import org.syncope.client.search.MembershipCond;
 import org.syncope.client.search.NodeCond;
 import org.syncope.core.persistence.beans.AbstractAttrValue;
 import org.syncope.core.persistence.beans.membership.Membership;
@@ -35,7 +35,6 @@ import org.syncope.core.persistence.beans.user.USchema;
 import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.SyncopeRoleDAO;
 import org.syncope.core.persistence.dao.SyncopeUserDAO;
-import org.syncope.core.persistence.validation.ValidationException;
 
 @Repository
 public class SyncopeUserDAOImpl extends AbstractDAOImpl
@@ -100,8 +99,7 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
         query.setParameter("longValue", attributeValue.getLongValue());
         query.setParameter("doubleValue", attributeValue.getDoubleValue());
 
-        query.setFirstResult(
-                itemsPerPage * (page <= 0 ? 0 : page - 1));
+        query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
 
         if (itemsPerPage > 0) {
             query.setMaxResults(itemsPerPage);
@@ -122,8 +120,7 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
         final Query query = entityManager.createQuery(
                 "SELECT e FROM SyncopeUser e ORDER BY e.id");
 
-        query.setFirstResult(
-                itemsPerPage * (page <= 0 ? 0 : page - 1));
+        query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
 
         if (itemsPerPage > 0) {
             query.setMaxResults(itemsPerPage);
@@ -256,7 +253,9 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
                 }
 
                 for (SyncopeUser user : from) {
-                    if (!to.contains(user)) to.add(user);
+                    if (!to.contains(user)) {
+                        to.add(user);
+                    }
                 }
 
                 result = to;
@@ -297,45 +296,45 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
                                 leafCond.getMembershipCond().getRoleName());
                     }
                 } else if (leafCond.getAttributeCond() != null) {
-                        USchema userSchema = schemaDAO.find(
-                                leafCond.getAttributeCond().getSchema(),
-                                USchema.class);
-                        if (userSchema == null) {
-                            LOG.warn("Ignoring invalid schema '"
-                                    + leafCond.getAttributeCond().getSchema()
-                                    + "'");
-                        } else {
-                            UAttrValue attributeValue =
-                                    new UAttrValue();
-                            try {
-                                if (leafCond.getAttributeCond().getType()
-                                        == AttributeCond.Type.LIKE) {
+                    USchema userSchema = schemaDAO.find(
+                            leafCond.getAttributeCond().getSchema(),
+                            USchema.class);
+                    if (userSchema == null) {
+                        LOG.warn("Ignoring invalid schema '"
+                                + leafCond.getAttributeCond().getSchema()
+                                + "'");
+                    } else {
+                        UAttrValue attributeValue =
+                                new UAttrValue();
+                        try {
+                            if (leafCond.getAttributeCond().getType()
+                                    == AttributeCond.Type.LIKE) {
 
-                                    attributeValue.setStringValue(
-                                            leafCond.getAttributeCond().
-                                            getExpression());
-                                } else {
-                                    attributeValue =
-                                            userSchema.getValidator().
-                                            getValue(
-                                            leafCond.getAttributeCond().
-                                            getExpression(),
-                                            attributeValue);
-                                }
-
-                                criterion = Restrictions.and(
-                                        Restrictions.eq("a.schema.name",
-                                        leafCond.getAttributeCond().getSchema()),
-                                        getCriterion(
-                                        leafCond.getAttributeCond().getType(),
-                                        attributeValue));
-                            } catch (ValidationException e) {
-                                LOG.error("Could not validate expression '"
-                                        + leafCond.getAttributeCond().
-                                        getExpression() + "'", e);
+                                attributeValue.setStringValue(
+                                        leafCond.getAttributeCond().
+                                        getExpression());
+                            } else {
+                                attributeValue =
+                                        userSchema.getValidator().
+                                        getValue(
+                                        leafCond.getAttributeCond().
+                                        getExpression(),
+                                        attributeValue);
                             }
+
+                            criterion = Restrictions.and(
+                                    Restrictions.eq("a.schema.name",
+                                    leafCond.getAttributeCond().getSchema()),
+                                    getCriterion(
+                                    leafCond.getAttributeCond().getType(),
+                                    attributeValue));
+                        } catch (ValidationException e) {
+                            LOG.error("Could not validate expression '"
+                                    + leafCond.getAttributeCond().
+                                    getExpression() + "'", e);
                         }
                     }
+                }
 
                 break;
 
@@ -379,8 +378,8 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
                                     leafCond.getAttributeCond().getType(),
                                     attributeValue)));
 
-                            // if user doesn't have the attribute it won't be returned
-
+                            // if user doesn't have the attribute
+                            // it won't be returned
                         } catch (ValidationException e) {
                             LOG.error("Could not validate expression '"
                                     + leafCond.getAttributeCond().

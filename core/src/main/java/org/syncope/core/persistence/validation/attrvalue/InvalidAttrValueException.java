@@ -12,13 +12,14 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.persistence.validation;
+package org.syncope.core.persistence.validation.attrvalue;
 
+import javax.validation.ValidationException;
 import org.syncope.core.persistence.beans.AbstractAttrValue;
 
-public interface AttributeValidator {
+public class InvalidAttrValueException extends ValidationException {
 
-    <T extends AbstractAttrValue> T getValue(String value,
-            T attributeValue)
-            throws ParseException, ValidationFailedException;
+    public InvalidAttrValueException(AbstractAttrValue value) {
+        super("Could not validate " + value);
+    }
 }

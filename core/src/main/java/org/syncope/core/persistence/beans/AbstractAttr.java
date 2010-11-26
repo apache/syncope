@@ -17,47 +17,59 @@ package org.syncope.core.persistence.beans;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.MappedSuperclass;
-import org.syncope.core.persistence.validation.ParseException;
-import org.syncope.core.persistence.validation.ValidationFailedException;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import org.syncope.core.persistence.validation.attrvalue.ParseException;
+import org.syncope.core.persistence.validation.attrvalue.InvalidAttrValueException;
+import org.syncope.core.persistence.validation.entity.AttrCheck;
 import org.syncope.core.rest.data.AttributableUtil;
 
 @MappedSuperclass
+@AttrCheck
 public abstract class AbstractAttr extends AbstractBaseBean {
 
     public abstract Long getId();
 
     public <T extends AbstractAttrValue> T addValue(final String value,
             final AttributableUtil attributableUtil)
-            throws ParseException, ValidationFailedException {
+            throws ParseException, InvalidAttrValueException {
 
-        T actualValue = getSchema().getValidator().getValue(value,
-                getSchema().isUniqueConstraint()
-                ? (T) attributableUtil.newAttributeUniqueValue()
-                : (T) attributableUtil.newAttributeValue());
-        actualValue.setAttribute(this);
+        T attrValue;
+        if (getSchema().isUniqueConstraint()) {
+            attrValue = (T) attributableUtil.newAttributeUniqueValue();
+            ((IAttrUniqueValue) attrValue).setSchema(getSchema());
+        } else {
+            attrValue = (T) attributableUtil.newAttributeValue();
+        }
+
+        attrValue = getSchema().getValidator().getValue(value, attrValue);
+        attrValue.setAttribute(this);
 
         if (!getSchema().isMultivalue()) {
             getValues().clear();
         }
 
-        addValue(actualValue);
-
-        return actualValue;
+        addValue(attrValue);
+        return attrValue;
     }
 
+    @NotNull
+    @Valid
     public abstract <T extends AbstractAttributable> T getOwner();
 
     public abstract <T extends AbstractAttributable> void setOwner(T owner);
 
+    @NotNull
+    @Valid
     public abstract <T extends AbstractSchema> T getSchema();
 
     public abstract <T extends AbstractSchema> void setSchema(T schema);
 
     public abstract <T extends AbstractAttrValue> boolean addValue(
-            T attributeValue);
+            T attrValue);
 
     public abstract <T extends AbstractAttrValue> boolean removeValue(
-            T attributeValue);
+            T attrValue);
 
     public <T extends AbstractAttrValue> List<String> getValuesAsStrings() {
         List<T> values = getValues();
@@ -70,6 +82,8 @@ public abstract class AbstractAttr extends AbstractBaseBean {
         return result;
     }
 
+    @NotNull
+    @Valid
     public abstract <T extends AbstractAttrValue> List<T> getValues();
 
     public abstract <T extends AbstractAttrValue> void setValues(

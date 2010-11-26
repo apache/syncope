@@ -32,8 +32,8 @@ import org.springframework.web.servlet.ModelAndView;
 import org.syncope.client.to.ConfigurationTO;
 import org.syncope.core.persistence.beans.SyncopeConf;
 import org.syncope.core.persistence.dao.MissingConfKeyException;
-import org.syncope.core.persistence.dao.SyncopeConfigurationDAO;
-import org.syncope.core.persistence.validation.AttributeValidator;
+import org.syncope.core.persistence.dao.SyncopeConfDAO;
+import org.syncope.core.persistence.validation.attrvalue.Validator;
 import org.syncope.core.rest.data.ConfigurationDataBinder;
 
 @Controller
@@ -41,7 +41,7 @@ import org.syncope.core.rest.data.ConfigurationDataBinder;
 public class ConfigurationController extends AbstractController {
 
     @Autowired
-    private SyncopeConfigurationDAO syncopeConfigurationDAO;
+    private SyncopeConfDAO syncopeConfigurationDAO;
     @Autowired
     private ConfigurationDataBinder configurationDataBinder;
 
@@ -137,8 +137,8 @@ public class ConfigurationController extends AbstractController {
         Reflections reflections = new Reflections(
                 "org.syncope.core.persistence.validation");
 
-        Set<Class<? extends AttributeValidator>> subTypes =
-                reflections.getSubTypesOf(AttributeValidator.class);
+        Set<Class<? extends Validator>> subTypes =
+                reflections.getSubTypesOf(Validator.class);
 
         Set<String> validators = new HashSet<String>();
         for (Class validatorClass : subTypes) {

@@ -19,11 +19,12 @@ import static org.junit.Assert.*;
 import java.util.List;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.ExpectedException;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.role.RSchema;
 import org.syncope.core.persistence.beans.user.USchema;
-import org.syncope.core.persistence.validation.MultiUniqueValueException;
 import org.syncope.core.persistence.AbstractTest;
+import org.syncope.core.persistence.validation.entity.InvalidEntityException;
 import org.syncope.types.SchemaValueType;
 
 @Transactional
@@ -31,9 +32,6 @@ public class SchemaTest extends AbstractTest {
 
     @Autowired
     private SchemaDAO schemaDAO;
-
-    @Autowired
-    private AttributeDAO attributeDAO;
 
     @Test
     public final void findAll() {
@@ -62,15 +60,26 @@ public class SchemaTest extends AbstractTest {
         attributeSchema.setMandatoryCondition("false");
         attributeSchema.setMultivalue(true);
 
-        try {
-            schemaDAO.save(attributeSchema);
-        } catch (MultiUniqueValueException e) {
-            LOG.error("Unexpected exception", e);
-        }
+        schemaDAO.save(attributeSchema);
 
         USchema actual = schemaDAO.find("secondaryEmail", USchema.class);
         assertNotNull("expected save to work", actual);
         assertEquals(attributeSchema, actual);
+    }
+
+    @Test
+    @ExpectedException(InvalidEntityException.class)
+    public final void saveNonValid() {
+        USchema attributeSchema = new USchema();
+        attributeSchema.setName("secondaryEmail");
+        attributeSchema.setType(SchemaValueType.String);
+        attributeSchema.setValidatorClass(
+                "org.syncope.core.validation.EmailAddressValidator");
+        attributeSchema.setMandatoryCondition("false");
+        attributeSchema.setMultivalue(true);
+        attributeSchema.setUniqueConstraint(true);
+
+        schemaDAO.save(attributeSchema);
     }
 
     @Test

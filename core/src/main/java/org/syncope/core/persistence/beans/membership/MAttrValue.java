@@ -35,7 +35,7 @@ public class MAttrValue extends AbstractAttrValue {
     @TableGenerator(name = "SEQ_MAttrValue", allocationSize = 200)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
     private MAttr attribute;
 
     @Override

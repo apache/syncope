@@ -70,7 +70,7 @@
                 mandatoryCondition="true" multivalue="0" uniqueConstraint="1" readonly="0"/>
     <USchema name="userId" type="String" virtual="0"
                 mandatoryCondition="true" multivalue="0" uniqueConstraint="1" readonly="0"
-                validatorClass="org.syncope.core.persistence.validation.EmailAddressValidator"/>
+                validatorClass="org.syncope.core.persistence.validation.attrvalue.EmailAddressValidator"/>
     <USchema name="loginDate" type="Date" virtual="0"
                 mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"
                 conversionPattern="yyyy-MM-dd"/>
@@ -81,8 +81,8 @@
     <USchema name="type" type="String" virtual="0"
                 mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
     <USchema name="email" type="String" virtual="0"
-                mandatoryCondition="false" multivalue="0" uniqueConstraint="1" readonly="0"
-                validatorClass="org.syncope.core.persistence.validation.EmailAddressValidator"/>
+                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
+                validatorClass="org.syncope.core.persistence.validation.attrvalue.EmailAddressValidator"/>
     <USchema name="activationDate" type="Date" virtual="0"
                 mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
                 conversionPattern="yyyy-MM-dd'T'HH:mm:ss.SSSZ"/>

@@ -36,6 +36,7 @@ import org.syncope.core.persistence.beans.AbstractDerAttr;
 import org.syncope.core.persistence.beans.Entitlement;
 import org.syncope.core.persistence.beans.membership.Membership;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
+import org.hibernate.validator.constraints.Range;
 
 @Entity
 @Table(uniqueConstraints =
@@ -67,9 +68,11 @@ public class SyncopeRole extends AbstractAttributable {
     private List<RDerAttr> derivedAttributes;
 
     @Basic
+    @Range(min = 0, max = 1)
     private Integer inheritAttributes;
 
     @Basic
+    @Range(min = 0, max = 1)
     private Integer inheritDerivedAttributes;
 
     public SyncopeRole() {

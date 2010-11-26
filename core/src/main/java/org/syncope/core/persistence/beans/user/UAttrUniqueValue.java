@@ -15,7 +15,7 @@
 package org.syncope.core.persistence.beans.user;
 
 import javax.persistence.Entity;
-import javax.persistence.OneToOne;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import org.syncope.core.persistence.beans.AbstractSchema;
@@ -34,7 +34,7 @@ import org.syncope.core.persistence.beans.IAttrUniqueValue;
 public class UAttrUniqueValue extends UAttrValue
         implements IAttrUniqueValue {
 
-    @OneToOne
+    @ManyToOne(optional = false)
     private USchema schema;
 
     @Override

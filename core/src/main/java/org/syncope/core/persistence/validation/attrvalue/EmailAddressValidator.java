@@ -2,9 +2,9 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -12,33 +12,32 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.persistence.validation;
+package org.syncope.core.persistence.validation.attrvalue;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.beans.AbstractAttrValue;
 
-public class EmailAddressValidator extends AbstractAttributeValidator {
+public class EmailAddressValidator extends AbstractValidator {
 
-    final private static Pattern emailValidationPattern = Pattern.compile(
+    private static final Pattern EMAIL_PATTERN = Pattern.compile(
             "^[\\w\\-]([\\.\\w])+[\\w]+@([\\w\\-]+\\.)+[A-Z]{2,4}$",
             Pattern.CASE_INSENSITIVE);
 
     public EmailAddressValidator(AbstractSchema schema) {
-
         super(schema);
     }
 
     @Override
     protected void doValidate(AbstractAttrValue attributeValue)
-            throws ValidationFailedException {
+            throws InvalidAttrValueException {
 
         CharSequence emailAddress = attributeValue.getValue();
-        Matcher matcher = emailValidationPattern.matcher(emailAddress);
+        Matcher matcher = EMAIL_PATTERN.matcher(emailAddress);
 
         if (!matcher.matches()) {
-            throw new ValidationFailedException(attributeValue);
+            throw new InvalidAttrValueException(attributeValue);
         }
     }
 }

@@ -14,24 +14,27 @@
  */
 package org.syncope.core.persistence.beans;
 
+import static javax.persistence.EnumType.STRING;
+
 import java.lang.reflect.Constructor;
 import java.text.DecimalFormat;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import javax.persistence.Basic;
-import static javax.persistence.EnumType.STRING;
-
 import javax.persistence.Column;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
-import org.syncope.core.persistence.validation.BasicAttributeValidator;
-import org.syncope.core.persistence.validation.AbstractAttributeValidator;
+import org.hibernate.validator.constraints.Range;
+import org.syncope.core.persistence.validation.attrvalue.BasicValidator;
+import org.syncope.core.persistence.validation.attrvalue.AbstractValidator;
+import org.syncope.core.persistence.validation.entity.SchemaCheck;
 import org.syncope.types.SchemaValueType;
 
 @MappedSuperclass
+@SchemaCheck
 public abstract class AbstractSchema extends AbstractBaseBean {
 
     private static final ThreadLocal<SimpleDateFormat> DATE_FORMAT =
@@ -63,18 +66,22 @@ public abstract class AbstractSchema extends AbstractBaseBean {
      * Specify if the attribute should be stored on the local repository.
      */
     @Basic
+    @Range(min = 0, max = 1)
     private Integer virtual;
 
     @Column(nullable = false)
     private String mandatoryCondition;
 
     @Basic
+    @Range(min = 0, max = 1)
     private Integer multivalue;
 
     @Basic
+    @Range(min = 0, max = 1)
     private Integer uniqueConstraint;
 
     @Basic
+    @Range(min = 0, max = 1)
     private Integer readonly;
 
     @Column(nullable = true)
@@ -84,7 +91,7 @@ public abstract class AbstractSchema extends AbstractBaseBean {
     private String validatorClass;
 
     @Transient
-    private AbstractAttributeValidator validator;
+    private AbstractValidator validator;
 
     public AbstractSchema() {
         super();
@@ -153,7 +160,7 @@ public abstract class AbstractSchema extends AbstractBaseBean {
         this.readonly = getBooleanAsInteger(readonly);
     }
 
-    public AbstractAttributeValidator getValidator() {
+    public AbstractValidator getValidator() {
         if (validator != null) {
             return validator;
         }
@@ -164,8 +171,7 @@ public abstract class AbstractSchema extends AbstractBaseBean {
                         Class.forName(getValidatorClass()).getConstructor(
                         new Class[]{getClass().getSuperclass()});
                 validator =
-                        (AbstractAttributeValidator) validatorConstructor.
-                        newInstance(
+                        (AbstractValidator) validatorConstructor.newInstance(
                         this);
             } catch (Exception e) {
                 LOG.error("Could not instantiate validator of type "
@@ -175,7 +181,7 @@ public abstract class AbstractSchema extends AbstractBaseBean {
         }
 
         if (validator == null) {
-            validator = new BasicAttributeValidator(this);
+            validator = new BasicValidator(this);
         }
 
         return validator;

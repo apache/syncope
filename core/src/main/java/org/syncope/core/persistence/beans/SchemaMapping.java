@@ -25,6 +25,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.TableGenerator;
+import org.hibernate.validator.constraints.Range;
 import org.syncope.types.SchemaType;
 
 @Entity
@@ -64,6 +65,7 @@ public class SchemaMapping extends AbstractBaseBean {
      */
     @Column(nullable = false)
     @Basic
+    @Range(min = 0, max = 1)
     private Integer accountid;
 
     /**
@@ -71,6 +73,7 @@ public class SchemaMapping extends AbstractBaseBean {
      */
     @Column(nullable = false)
     @Basic
+    @Range(min = 0, max = 1)
     private Integer password;
 
     /**

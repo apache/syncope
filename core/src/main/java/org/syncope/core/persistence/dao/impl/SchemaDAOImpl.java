@@ -26,7 +26,6 @@ import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.dao.AttributeDAO;
 import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
-import org.syncope.core.persistence.validation.MultiUniqueValueException;
 import org.syncope.types.SchemaType;
 
 @Repository
@@ -57,13 +56,7 @@ public class SchemaDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    public <T extends AbstractSchema> T save(final T schema)
-            throws MultiUniqueValueException {
-
-        if (schema.isMultivalue() && schema.isUniqueConstraint()) {
-            throw new MultiUniqueValueException(schema);
-        }
-
+    public <T extends AbstractSchema> T save(final T schema) {
         return entityManager.merge(schema);
     }
 

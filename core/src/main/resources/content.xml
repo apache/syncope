@@ -20,12 +20,12 @@
     <hibernate_sequences sequence_name="SyncopeUser" sequence_next_hi_value="10"/>
     <hibernate_sequences sequence_name="SchemaMapping" sequence_next_hi_value="10"/>
     <hibernate_sequences sequence_name="ConnectorInstance" sequence_next_hi_value="10"/>
-    <hibernate_sequences sequence_name="UserAttribute" sequence_next_hi_value="1000"/>
-    <hibernate_sequences sequence_name="RoleAttribute" sequence_next_hi_value="1000"/>
-    <hibernate_sequences sequence_name="MembershipAttribute" sequence_next_hi_value="1000"/>
-    <hibernate_sequences sequence_name="UserAttributeValue" sequence_next_hi_value="1000"/>
-    <hibernate_sequences sequence_name="RoleAttributeValue" sequence_next_hi_value="1000"/>
-    <hibernate_sequences sequence_name="MembershipAttributeValue" sequence_next_hi_value="1000"/>
+    <hibernate_sequences sequence_name="UAttr" sequence_next_hi_value="1000"/>
+    <hibernate_sequences sequence_name="RAttr" sequence_next_hi_value="1000"/>
+    <hibernate_sequences sequence_name="MAttr" sequence_next_hi_value="1000"/>
+    <hibernate_sequences sequence_name="UAttrValue" sequence_next_hi_value="1000"/>
+    <hibernate_sequences sequence_name="RAttrValue" sequence_next_hi_value="1000"/>
+    <hibernate_sequences sequence_name="MAttrValue" sequence_next_hi_value="1000"/>
 
     <SyncopeConfiguration confKey="token.length" confValue="256"/>
     <SyncopeConfiguration confKey="token.expireTime" confValue="60"/>
@@ -48,24 +48,24 @@
     <SyncopeConfiguration confKey="identityconnectors.bundle.directory" confValue="${bundles.directory}"/>
     <SyncopeConfiguration confKey="users.attributes.view" confValue="userId;"/>
 
-    <UserSchema name="surname" type="String" virtual="0"
+    <USchema name="surname" type="String" virtual="0"
                 mandatoryCondition="true" multivalue="0" uniquevalue="0" readonly="0"/>
-    <UserSchema name="firstname" type="String" virtual="0"
+    <USchema name="firstname" type="String" virtual="0"
                 mandatoryCondition="false" multivalue="0" uniquevalue="0" readonly="0"/>
-    <UserSchema name="email" type="String" virtual="0"
+    <USchema name="email" type="String" virtual="0"
                 mandatoryCondition="false" multivalue="1" uniquevalue="0" readonly="0"
-                validatorClass="org.syncope.core.persistence.validation.EmailAddressValidator"/>
+                validatorClass="org.syncope.core.persistence.validation.attrvalue.EmailAddressValidator"/>
                
-    <UserDerivedSchema name="username" expression="firstname + '.' + surname"/>
+    <UDerSchema name="username" expression="firstname + '.' + surname"/>
 
-    <UserSchemaDerivation derivedSchemas_name="username"
+    <USchemaDerivation derivedSchemas_name="username"
                           schemas_name="firstname"/>
-    <UserSchemaDerivation derivedSchemas_name="username"
+    <USchemaDerivation derivedSchemas_name="username"
                           schemas_name="surname"/>
 
     <SyncopeRole id="0" name="/" inheritAttributes="0" inheritDerivedAttributes="0"/>
 
-    <MembershipSchema name="subscriptionDate" type="Date" virtual="0"
+    <MSchema name="subscriptionDate" type="Date" virtual="0"
                       mandatoryCondition="false" multivalue="0" uniquevalue="0" readonly="0"
                       conversionPattern="yyyy-MM-dd'T'HH:mm:ss.SSSZ"/>
 

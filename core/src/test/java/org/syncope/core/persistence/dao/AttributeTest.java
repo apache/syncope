@@ -14,20 +14,27 @@
  */
 package org.syncope.core.persistence.dao;
 
+import org.syncope.core.persistence.validation.entity.InvalidEntityException;
 import static org.junit.Assert.*;
 
 import java.util.List;
+import javax.validation.ValidationException;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.ExpectedException;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.user.UAttr;
 import org.syncope.core.persistence.beans.user.USchema;
-import org.syncope.core.persistence.validation.ValidationException;
 import org.syncope.core.persistence.AbstractTest;
+import org.syncope.core.persistence.beans.user.SyncopeUser;
+import org.syncope.core.persistence.beans.user.UAttrUniqueValue;
 import org.syncope.core.rest.data.AttributableUtil;
 
 @Transactional
 public class AttributeTest extends AbstractTest {
+
+    @Autowired
+    private SyncopeUserDAO syncopeUserDAO;
 
     @Autowired
     private AttributeDAO attributeDAO;
@@ -55,11 +62,15 @@ public class AttributeTest extends AbstractTest {
     @Test
     public final void save()
             throws ClassNotFoundException {
+
+        SyncopeUser user = syncopeUserDAO.find(1L);
+
         USchema emailSchema = userSchemaDAO.find("email", USchema.class);
         assertNotNull(emailSchema);
 
         UAttr attribute = new UAttr();
         attribute.setSchema(emailSchema);
+        attribute.setOwner(user);
 
         Exception thrown = null;
         try {
@@ -78,12 +89,35 @@ public class AttributeTest extends AbstractTest {
         }
         assertNotNull("validation exception expected here ", thrown);
 
-        attribute = attributeDAO.save(attribute);
+        try {
+            attribute = attributeDAO.save(attribute);
+        } catch (InvalidEntityException e) {
+            assertNull(e);
+        }
 
         UAttr actual = attributeDAO.find(attribute.getId(),
                 UAttr.class);
         assertNotNull("expected save to work", actual);
         assertEquals(attribute, actual);
+    }
+
+    @Test
+    @ExpectedException(InvalidEntityException.class)
+    public final void validateAndSave() {
+        USchema emailSchema = userSchemaDAO.find("email", USchema.class);
+        assertNotNull(emailSchema);
+
+        UAttr attribute = new UAttr();
+        attribute.setSchema(emailSchema);
+
+        UAttrUniqueValue uauv = new UAttrUniqueValue();
+        uauv.setAttribute(attribute);
+        uauv.setSchema(emailSchema);
+        uauv.setStringValue("a value");
+
+        attribute.setUniqueValue(uauv);
+
+        attribute = attributeDAO.save(attribute);
     }
 
     @Test

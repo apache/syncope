@@ -29,7 +29,6 @@ import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.core.rest.data.SchemaDataBinder;
 import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.dao.SchemaDAO;
-import org.syncope.core.persistence.validation.MultiUniqueValueException;
 
 @Controller
 @RequestMapping("/schema")
@@ -45,8 +44,7 @@ public class SchemaController extends AbstractController {
     public SchemaTO create(final HttpServletResponse response,
             @RequestBody final SchemaTO schemaTO,
             @PathVariable("kind") final String kind)
-            throws MultiUniqueValueException,
-            SyncopeClientCompositeErrorException {
+            throws SyncopeClientCompositeErrorException {
 
         AbstractSchema schema = schemaDataBinder.create(schemaTO,
                 getAttributableUtil(kind).newSchema(),
@@ -107,8 +105,7 @@ public class SchemaController extends AbstractController {
     @RequestMapping(method = RequestMethod.POST, value = "/{kind}/update")
     public SchemaTO update(@RequestBody final SchemaTO schemaTO,
             @PathVariable("kind") final String kind)
-            throws SyncopeClientCompositeErrorException,
-            MultiUniqueValueException, NotFoundException {
+            throws SyncopeClientCompositeErrorException, NotFoundException {
 
         Class reference = getAttributableUtil(kind).schemaClass();
         AbstractSchema schema = schemaDAO.find(schemaTO.getName(), reference);

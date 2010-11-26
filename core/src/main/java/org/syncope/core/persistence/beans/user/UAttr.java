@@ -32,30 +32,52 @@ import org.syncope.core.persistence.beans.AbstractAttr;
 import org.syncope.core.persistence.beans.AbstractAttrValue;
 import org.syncope.core.persistence.beans.AbstractSchema;
 
+/**
+ * User attribute.
+ */
 @Entity
 public class UAttr extends AbstractAttr {
 
+    /**
+     * Auto-generated id for this table.
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.TABLE,
     generator = "SEQ_UAttr")
     @TableGenerator(name = "SEQ_UAttr", allocationSize = 200)
     private Long id;
 
+    /**
+     * The owner of this attribute.
+     */
     @ManyToOne(fetch = FetchType.EAGER)
     private SyncopeUser owner;
 
+    /**
+     * The schema of this attribute.
+     */
     @ManyToOne(fetch = FetchType.EAGER)
     private USchema schema;
 
+    /**
+     * Values of this attribute (if schema is not UNIQUE).
+     */
     @OneToMany(cascade = CascadeType.MERGE, mappedBy = "attribute")
     @Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
     private List<UAttrValue> values;
 
+    /**
+     * Value of this attribute (if schema is UNIQUE).
+     */
     @OneToOne(cascade = CascadeType.MERGE, mappedBy = "attribute")
     @Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
     private UAttrUniqueValue uniqueValue;
 
+    /**
+     * Default constructor.
+     */
     public UAttr() {
+        super();
         values = new ArrayList<UAttrValue>();
     }
 

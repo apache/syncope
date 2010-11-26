@@ -33,6 +33,7 @@ import javax.persistence.QueryHint;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
+import org.hibernate.validator.constraints.Range;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 
@@ -75,6 +76,7 @@ public class TargetResource extends AbstractBaseBean {
      */
     @Column(nullable = false)
     @Basic
+    @Range(min = 0, max = 1)
     private Integer forceMandatoryConstraint;
 
     /**

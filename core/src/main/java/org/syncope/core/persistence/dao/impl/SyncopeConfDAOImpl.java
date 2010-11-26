@@ -19,11 +19,11 @@ import javax.persistence.Query;
 import org.springframework.stereotype.Repository;
 import org.syncope.core.persistence.beans.SyncopeConf;
 import org.syncope.core.persistence.dao.MissingConfKeyException;
-import org.syncope.core.persistence.dao.SyncopeConfigurationDAO;
+import org.syncope.core.persistence.dao.SyncopeConfDAO;
 
 @Repository
-public class SyncopeConfigurationDAOImpl extends AbstractDAOImpl
-        implements SyncopeConfigurationDAO {
+public class SyncopeConfDAOImpl extends AbstractDAOImpl
+        implements SyncopeConfDAO {
 
     @Override
     public SyncopeConf find(final String name)
@@ -42,7 +42,7 @@ public class SyncopeConfigurationDAOImpl extends AbstractDAOImpl
     @Override
     public List<SyncopeConf> findAll() {
         Query query = entityManager.createQuery(
-                "SELECT e FROM SyncopeConfiguration e");
+                "SELECT e FROM SyncopeConf e");
         return query.getResultList();
     }
 

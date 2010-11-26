@@ -21,8 +21,11 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.hibernate.validator.constraints.Range;
+import org.syncope.core.persistence.validation.entity.AttrValueCheck;
 
 @MappedSuperclass
+@AttrValueCheck
 public abstract class AbstractAttrValue extends AbstractBaseBean {
 
     private String stringValue;
@@ -31,6 +34,7 @@ public abstract class AbstractAttrValue extends AbstractBaseBean {
     private Date dateValue;
 
     @Basic
+    @Range(min = 0, max = 1)
     private Integer booleanValue;
 
     private Long longValue;

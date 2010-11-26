@@ -12,7 +12,7 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.persistence.validation;
+package org.syncope.core.persistence.validation.attrvalue;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -20,18 +20,18 @@ import java.util.Date;
 import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.beans.AbstractAttrValue;
 
-public abstract class AbstractAttributeValidator implements AttributeValidator {
+public abstract class AbstractValidator implements Validator {
 
-    final protected AbstractSchema schema;
+    protected final AbstractSchema schema;
 
-    public AbstractAttributeValidator(final AbstractSchema schema) {
+    public AbstractValidator(final AbstractSchema schema) {
         this.schema = schema;
     }
 
     @Override
     public <T extends AbstractAttrValue> T getValue(final String value,
             T attributeValue)
-            throws ParseException, ValidationFailedException {
+            throws ParseException, InvalidAttrValueException {
 
         attributeValue = parseValue(value, attributeValue);
         doValidate(attributeValue);
@@ -96,5 +96,5 @@ public abstract class AbstractAttributeValidator implements AttributeValidator {
 
     protected abstract <T extends AbstractAttrValue> void doValidate(
             T attributeValue)
-            throws ValidationFailedException;
+            throws InvalidAttrValueException;
 }

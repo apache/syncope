@@ -18,6 +18,7 @@ import javax.persistence.Entity;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import javax.validation.Valid;
 import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.beans.IAttrUniqueValue;
 
@@ -34,7 +35,8 @@ import org.syncope.core.persistence.beans.IAttrUniqueValue;
 public class RAttrUniqueValue extends RAttrValue
         implements IAttrUniqueValue {
 
-    @OneToOne
+    @OneToOne(optional = false)
+    @Valid
     private RSchema schema;
 
     @Override
