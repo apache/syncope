@@ -282,7 +282,7 @@ public class SyncopeUser extends AbstractAttributable {
 
     public boolean checkToken(final String token) {
 
-        return this.token.equals(token)
+        return this.token != null && this.token.equals(token)
                 && tokenExpireTime.after(new Date());
     }
 }
