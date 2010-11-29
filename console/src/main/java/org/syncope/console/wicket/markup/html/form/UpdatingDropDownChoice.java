@@ -40,7 +40,7 @@ import org.apache.wicket.model.PropertyModel;
     }
 
      public UpdatingDropDownChoice(String id, IModel model,
-             List<String> choices, IChoiceRenderer renderer) {
+             List choices, IChoiceRenderer renderer) {
         super(id, model, choices,renderer);
         add( new AjaxFormComponentUpdatingBehavior( "onblur" )
         {
