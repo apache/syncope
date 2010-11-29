@@ -16,6 +16,8 @@ package org.syncope.console.wicket.markup.html.form;
 
 import java.util.Date;
 import java.util.StringTokenizer;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.FormComponent;
@@ -68,6 +70,11 @@ public class DateFieldPanel extends Panel {
             field.setEnabled(!readonly);
             field.setLabel(new Model(name));
 
+            field.add( new AjaxFormComponentUpdatingBehavior( "onblur" ) {
+            protected void onUpdate( AjaxRequestTarget target ) {
+            }
+            } );
+
             datePanel.add(field);
         }
 
@@ -78,6 +85,11 @@ public class DateFieldPanel extends Panel {
 
             field.setEnabled(!readonly);
             field.setLabel(new Model(name));
+
+            field.add( new AjaxFormComponentUpdatingBehavior( "onblur" ) {
+            protected void onUpdate( AjaxRequestTarget target )  {
+            }
+            } );
 
             datePanel.add(field);
 

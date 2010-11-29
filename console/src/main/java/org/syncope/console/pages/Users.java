@@ -148,7 +148,8 @@ public class Users extends BasePage {
                         .readConfiguration("users.attributes.view");
                 columnsList = new ArrayList<String>();
 
-                if (configuration != null && !configuration.getConfValue().equals("")) {
+                if (configuration != null && !configuration.getConfValue()
+                        .equals("")) {
                     String conf = configuration.getConfValue();
                     StringTokenizer st = new StringTokenizer(conf, ";");
 

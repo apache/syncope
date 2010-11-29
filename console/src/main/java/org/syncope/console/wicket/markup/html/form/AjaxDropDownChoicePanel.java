@@ -30,7 +30,7 @@ public class AjaxDropDownChoicePanel extends Panel {
      * @param IModel<?> object
      * @param required flag
      */
-    public AjaxDropDownChoicePanel(String id,String name,IModel model,List<String> choices,
+    public AjaxDropDownChoicePanel(String id,String name,IModel model,List choices,
             IChoiceRenderer renderer,boolean required) {
         super(id,model);
 
