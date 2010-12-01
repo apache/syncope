@@ -28,9 +28,6 @@ public interface SyncopeUserDAO extends DAO {
 
     List<SyncopeUser> findByAttributeValue(UAttrValue attributeValue);
 
-    List<SyncopeUser> findByAttributeValue(UAttrValue attributeValue,
-            int page, int itemsPerPage);
-
     List<SyncopeUser> findAll();
 
     List<SyncopeUser> findAll(int page, int itemsPerPage);

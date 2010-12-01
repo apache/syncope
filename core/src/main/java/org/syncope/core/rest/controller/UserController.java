@@ -41,6 +41,7 @@ import java.util.Set;
 import javassist.NotFoundException;
 import javax.servlet.http.HttpServletResponse;
 import jpasymphony.dao.JPAWorkflowEntryDAO;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.ModelAndView;
@@ -55,8 +56,8 @@ import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.propagation.PropagationManager;
 import org.syncope.core.persistence.propagation.ResourceOperations;
 import org.syncope.core.rest.data.InvalidSearchConditionException;
+import org.syncope.core.rest.data.UserDataBinder.CheckInResult;
 import org.syncope.core.workflow.Constants;
-import org.syncope.core.workflow.WorkflowInitException;
 import org.syncope.types.SyncopeClientExceptionType;
 
 @Controller
@@ -224,6 +225,7 @@ public class UserController extends AbstractController {
     public List<UserTO> paginatedList(
             @PathVariable("page") final int page,
             @PathVariable("size") final int size) {
+
         List<SyncopeUser> users = syncopeUserDAO.findAll(page, size);
         List<UserTO> userTOs = new ArrayList<UserTO>(users.size());
         for (SyncopeUser user : users) {
@@ -277,9 +279,7 @@ public class UserController extends AbstractController {
     public List<UserTO> search(@RequestBody NodeCond searchCondition)
             throws InvalidSearchConditionException {
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("search called with condition " + searchCondition);
-        }
+        LOG.debug("User search called with condition {}", searchCondition);
 
         if (!searchCondition.checkValidity()) {
             LOG.error("Invalid search condition: " + searchCondition);
@@ -305,9 +305,7 @@ public class UserController extends AbstractController {
             @PathVariable("size") final int size)
             throws InvalidSearchConditionException {
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("search called with condition " + searchCondition);
-        }
+        LOG.debug("User search called with condition {}", searchCondition);
 
         if (!searchCondition.checkValidity()) {
             LOG.error("Invalid search condition: " + searchCondition);
@@ -381,78 +379,42 @@ public class UserController extends AbstractController {
             @RequestParam(value = "syncResources",
             required = false) Set<String> syncResources)
             throws SyncopeClientCompositeErrorException,
-            WorkflowException, PropagationException, NotFoundException {
+            DataIntegrityViolationException, WorkflowException,
+            PropagationException, NotFoundException {
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("create called with parameters " + userTO + "\n"
-                    + syncRoles + "\n" + syncResources);
+        LOG.debug("User create called with parameters {}\n{}\n{}",
+                new Object[]{userTO, syncRoles, syncResources});
+
+        CheckInResult checkInResult = userDataBinder.checkIn(userTO);
+        LOG.debug("Check-in result: {}", checkInResult);
+
+        switch (checkInResult.getAction()) {
+            case CREATE:
+                break;
+
+            case OVERWRITE:
+                delete(checkInResult.getSyncopeUserId(),
+                        syncRoles, syncResources);
+                break;
+
+            case REJECT:
+                SyncopeClientCompositeErrorException compositeException =
+                        new SyncopeClientCompositeErrorException(
+                        HttpStatus.BAD_REQUEST);
+                SyncopeClientException rejectedUserCreate =
+                        new SyncopeClientException(
+                        SyncopeClientExceptionType.RejectedUserCreate);
+                rejectedUserCreate.addElement(
+                        String.valueOf(checkInResult.getSyncopeUserId()));
+                compositeException.addException(rejectedUserCreate);
+
+                throw compositeException;
+
+            default:
         }
 
         // The user to be created
-        SyncopeUser user = null;
-
-        WorkflowInitException wie = null;
-        Long workflowId = null;
-        try {
-            workflowId = userWorkflow.initialize(Constants.USER_WORKFLOW, 0,
-                    Collections.singletonMap(Constants.USER_TO, userTO));
-        } catch (WorkflowInitException e) {
-            LOG.error("During workflow initialization: " + e);
-            wie = e;
-
-            // Removing dirty workflow entry
-            if (e.getWorkflowEntryId() != null) {
-                workflowEntryDAO.delete(e.getWorkflowEntryId());
-            }
-
-            // Use the found workflow id
-            workflowId = wie.getWorkflowId();
-        }
-
-        if (wie != null) {
-            switch (wie.getExceptionOperation()) {
-
-                case OVERWRITE:
-                    final Integer resetActionId = findWorkflowAction(
-                            wie.getWorkflowId(), Constants.ACTION_RESET);
-                    if (resetActionId == null) {
-                        user = syncopeUserDAO.find(wie.getSyncopeUserId());
-                        if (user == null) {
-                            throw new NotFoundException("User "
-                                    + wie.getSyncopeUserId());
-                        }
-                    } else {
-                        user = doExecuteAction(
-                                Constants.ACTION_RESET,
-                                wie.getSyncopeUserId(),
-                                Collections.singletonMap(Constants.USER_TO,
-                                (Object) userTO));
-                    }
-                    break;
-
-                case REJECT:
-                    SyncopeClientCompositeErrorException compositeException =
-                            new SyncopeClientCompositeErrorException(
-                            HttpStatus.BAD_REQUEST);
-                    SyncopeClientException rejectedUserCreate =
-                            new SyncopeClientException(
-                            SyncopeClientExceptionType.RejectedUserCreate);
-                    rejectedUserCreate.addElement(
-                            String.valueOf(wie.getSyncopeUserId()));
-                    compositeException.addException(rejectedUserCreate);
-
-                    throw compositeException;
-            }
-        }
-
-        // No overwrite: let's create a fresh new user
-        if (user == null) {
-            user = new SyncopeUser();
-        }
-
-        userDataBinder.create(user, userTO);
-
-        user.setWorkflowId(workflowId);
+        SyncopeUser user = userDataBinder.create(userTO);
         user = syncopeUserDAO.save(user);
 
         // Now that user is created locally, let's propagate
@@ -468,23 +430,31 @@ public class UserController extends AbstractController {
                 user, userTO.getPassword(), syncResourceNames);
 
         // User is created locally and propagated, let's advance on the workflow
+        final Long workflowId =
+                userWorkflow.initialize(Constants.USER_WORKFLOW, 0, null);
+        user.setWorkflowId(workflowId);
+
         Map<String, Object> inputs = new HashMap<String, Object>();
         inputs.put(Constants.SYNCOPE_USER, user);
+        inputs.put(Constants.USER_TO, userTO);
 
-        int[] availableWorkflowActions =
-                userWorkflow.getAvailableActions(workflowId, null);
+        int[] wfActions = userWorkflow.getAvailableActions(workflowId, null);
         LOG.debug("Available workflow actions for user {}: {}",
-                user, availableWorkflowActions);
+                user, wfActions);
 
-        for (int availableWorkflowAction : availableWorkflowActions) {
-            userWorkflow.doAction(
-                    workflowId, availableWorkflowAction, inputs);
+        for (int wfAction : wfActions) {
+            LOG.debug("About to execute action {} on user {}", wfAction, user);
+            userWorkflow.doAction(workflowId, wfAction, inputs);
+            LOG.debug("Action {} on user {} run successfully", wfAction, user);
         }
 
         user = syncopeUserDAO.save(user);
 
+        final UserTO savedTO = userDataBinder.getUserTO(user, userWorkflow);
+        LOG.debug("About to return create user\n{}", savedTO);
+
         response.setStatus(HttpServletResponse.SC_CREATED);
-        return userDataBinder.getUserTO(user, userWorkflow);
+        return savedTO;
     }
 
     @RequestMapping(method = RequestMethod.POST,
@@ -516,9 +486,9 @@ public class UserController extends AbstractController {
         // Now that user is update locally, let's propagate
         Set<String> syncResourceNames =
                 getSyncResourceNames(user, syncRoles, syncResources);
-        if (LOG.isDebugEnabled() && !syncResourceNames.isEmpty()) {
-            LOG.debug("About to propagate synchronously onto resources "
-                    + syncResourceNames);
+        if (!syncResourceNames.isEmpty()) {
+            LOG.debug("About to propagate synchronously onto resources {}",
+                    syncResourceNames);
         }
 
         propagationManager.update(user, userMod.getPassword(),

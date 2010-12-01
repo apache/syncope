@@ -30,6 +30,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import javax.validation.Valid;
 import org.syncope.core.persistence.beans.AbstractAttributable;
 import org.syncope.core.persistence.beans.AbstractAttr;
 import org.syncope.core.persistence.beans.AbstractDerAttr;
@@ -56,15 +57,18 @@ public class SyncopeRole extends AbstractAttributable {
     private SyncopeRole parent;
 
     @OneToMany(cascade = CascadeType.MERGE, mappedBy = "syncopeRole")
+    @Valid
     private List<Membership> memberships;
 
     @ManyToMany(fetch = FetchType.LAZY)
     private Set<Entitlement> entitlements;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
+    @Valid
     private List<RAttr> attributes;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
+    @Valid
     private List<RDerAttr> derivedAttributes;
 
     @Basic
@@ -95,8 +99,7 @@ public class SyncopeRole extends AbstractAttributable {
         return name;
     }
 
-    public void setName(String name)
-            throws IllegalArgumentException {
+    public void setName(String name) {
         this.name = name;
     }
 

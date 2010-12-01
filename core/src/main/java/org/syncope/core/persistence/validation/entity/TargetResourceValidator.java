@@ -16,18 +16,19 @@ package org.syncope.core.persistence.validation.entity;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-import org.syncope.core.persistence.beans.AbstractAttr;
+import org.syncope.core.persistence.beans.SchemaMapping;
+import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.types.EntityViolationType;
 
-public class AttrValidator
-        implements ConstraintValidator<AttrCheck, AbstractAttr> {
+public class TargetResourceValidator
+        implements ConstraintValidator<TargetResourceCheck, TargetResource> {
 
     @Override
-    public void initialize(final AttrCheck constraintAnnotation) {
+    public void initialize(final TargetResourceCheck constraintAnnotation) {
     }
 
     @Override
-    public boolean isValid(final AbstractAttr object,
+    public boolean isValid(final TargetResource object,
             final ConstraintValidatorContext context) {
 
         boolean isValid;
@@ -35,23 +36,18 @@ public class AttrValidator
         if (object == null) {
             isValid = true;
         } else {
-            if (object.getSchema().isUniqueConstraint()) {
-                isValid = object.getValues().isEmpty()
-                        && object.getUniqueValue() != null;
-            } else {
-                isValid = !object.getValues().isEmpty()
-                        && object.getUniqueValue() == null;
-
-                if (!object.getSchema().isMultivalue()) {
-                    isValid &= object.getValues().size() == 1
-                            && object.getUniqueValue() == null;
+            int accountIds = 0;
+            for (SchemaMapping mapping : object.getMappings()) {
+                if (mapping.isAccountid()) {
+                    accountIds++;
                 }
             }
+            isValid = accountIds == 1;
 
             if (!isValid) {
                 context.disableDefaultConstraintViolation();
                 context.buildConstraintViolationWithTemplate(
-                        EntityViolationType.InvalidValueList.toString()).
+                        EntityViolationType.MoreThanOneAccountId.toString()).
                         addConstraintViolation();
             }
         }

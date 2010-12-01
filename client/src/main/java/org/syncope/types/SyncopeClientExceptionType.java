@@ -16,9 +16,6 @@ package org.syncope.types;
 
 public enum SyncopeClientExceptionType {
 
-    AlreadyExists(
-    "Syncope.AlreadyExists",
-    "Syncope.AlreadyExists.name"),
     Deadlock(
     "Syncope.Deadlock",
     ""),
@@ -40,9 +37,15 @@ public enum SyncopeClientExceptionType {
     InvalidTaskExecutionReport(
     "Syncope.InvalidTaskExecutionReport",
     "Syncope.InvalidTaskExecutionReport.element"),
-    InvalidUniques(
-    "Syncope.InvalidUniques",
-    "Syncope.InvalidUniques.attributeName"),
+    DuplicateUniqueValue(
+    "Syncope.DuplicateUniqueValue",
+    "Syncope.DuplicateUniqueValue.name"),
+    GenericPersistence(
+    "Syncope.GenericPersistence",
+    "Syncope.GenericPersistence.cause"),
+    InvalidSchemaMapping(
+    "Syncope.InvalidSchemaMapping",
+    ""),
     InvalidUpdate(
     "Syncope.InvalidUpdate",
     "Syncope.InvalidUpdate.name"),

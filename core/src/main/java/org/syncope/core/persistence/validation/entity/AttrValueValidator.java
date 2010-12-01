@@ -17,6 +17,7 @@ package org.syncope.core.persistence.validation.entity;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import org.syncope.core.persistence.beans.AbstractAttrValue;
+import org.syncope.core.persistence.beans.IAttrUniqueValue;
 import org.syncope.types.EntityViolationType;
 
 public class AttrValueValidator
@@ -30,7 +31,7 @@ public class AttrValueValidator
     public boolean isValid(final AbstractAttrValue object,
             final ConstraintValidatorContext context) {
 
-        boolean isValid = false;
+        boolean isValid;
 
         if (object == null) {
             isValid = true;
@@ -58,6 +59,16 @@ public class AttrValueValidator
                 context.buildConstraintViolationWithTemplate(
                         EntityViolationType.MoreThanOneNonNull.toString()).
                         addConstraintViolation();
+            } else if (object instanceof IAttrUniqueValue) {
+                isValid = ((IAttrUniqueValue) object).getSchema().equals(
+                        object.getAttribute().getSchema());
+
+                if (!isValid) {
+                    context.disableDefaultConstraintViolation();
+                    context.buildConstraintViolationWithTemplate(
+                            EntityViolationType.InvalidSchema.toString()).
+                            addConstraintViolation();
+                }
             }
         }
 

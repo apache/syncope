@@ -179,11 +179,11 @@ public abstract class AbstractAttributableDataBinder {
         List<T> allSchemas = schemaDAO.findAll(referenceSchema);
         for (AbstractAttr attribute : attributes) {
             jexlContext.set(attribute.getSchema().getName(),
-                    attribute.getValues().isEmpty()
+                    attribute.getValuesAsStrings().isEmpty()
                     ? null
-                    : (!attribute.getSchema().isMultivalue()
-                    ? attribute.getValuesAsStrings().iterator().next()
-                    : attribute.getValuesAsStrings()));
+                    : (attribute.getSchema().isMultivalue()
+                    ? attribute.getValuesAsStrings()
+                    : attribute.getValuesAsStrings().iterator().next()));
 
             allSchemas.remove((T) attribute.getSchema());
         }
@@ -393,9 +393,18 @@ public abstract class AbstractAttributableDataBinder {
                 for (String valueToBeRemoved :
                         attributeMod.getValuesToBeRemoved()) {
 
-                    for (AbstractAttrValue mav : attribute.getValues()) {
-                        if (valueToBeRemoved.equals(mav.getValueAsString())) {
-                            valuesToBeRemoved.add(mav.getId());
+                    if (attribute.getSchema().isUniqueConstraint()) {
+                        if (valueToBeRemoved.equals(attribute.getUniqueValue().
+                                getValueAsString())) {
+
+                            valuesToBeRemoved.add(
+                                    attribute.getUniqueValue().getId());
+                        }
+                    } else {
+                        for (AbstractAttrValue mav : attribute.getValues()) {
+                            if (valueToBeRemoved.equals(mav.getValueAsString())) {
+                                valuesToBeRemoved.add(mav.getId());
+                            }
                         }
                     }
                 }
@@ -409,7 +418,7 @@ public abstract class AbstractAttributableDataBinder {
                         attributableUtil, schema, attribute, invalidValues);
 
                 // if no values are in, the attribute can be safely removed
-                if (attribute.getValues().isEmpty()) {
+                if (attribute.getValuesAsStrings().isEmpty()) {
                     attributeDAO.delete(attribute);
                 }
             }
@@ -569,7 +578,7 @@ public abstract class AbstractAttributableDataBinder {
                             attribute,
                             invalidValues);
 
-                    if (!attribute.getValues().isEmpty()) {
+                    if (!attribute.getValuesAsStrings().isEmpty()) {
                         attributable.addAttribute(attribute);
                         attribute.setOwner(attributable);
                     }

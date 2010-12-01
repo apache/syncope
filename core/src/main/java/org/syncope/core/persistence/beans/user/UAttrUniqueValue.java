@@ -15,27 +15,41 @@
 package org.syncope.core.persistence.beans.user;
 
 import javax.persistence.Entity;
+import javax.persistence.Id;
 import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
+import javax.persistence.OneToOne;
+import org.syncope.core.persistence.beans.AbstractAttr;
+import org.syncope.core.persistence.beans.AbstractAttrValue;
 import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.beans.IAttrUniqueValue;
 
 @Entity
-@Table(uniqueConstraints =
-@UniqueConstraint(columnNames = {
-    "booleanValue",
-    "dateValue",
-    "doubleValue",
-    "longValue",
-    "StringValue",
-    "schema_name"
-}))
-public class UAttrUniqueValue extends UAttrValue
+public class UAttrUniqueValue extends AbstractAttrValue
         implements IAttrUniqueValue {
+
+    @Id
+    private Long id;
+
+    @OneToOne(optional = false)
+    private UAttr attribute;
 
     @ManyToOne(optional = false)
     private USchema schema;
+
+    @Override
+    public Long getId() {
+        return id;
+    }
+
+    @Override
+    public <T extends AbstractAttr> T getAttribute() {
+        return (T) attribute;
+    }
+
+    @Override
+    public <T extends AbstractAttr> void setAttribute(final T attribute) {
+        this.attribute = (UAttr) attribute;
+    }
 
     @Override
     public <T extends AbstractSchema> T getSchema() {

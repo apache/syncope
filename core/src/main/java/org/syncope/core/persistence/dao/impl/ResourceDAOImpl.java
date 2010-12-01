@@ -50,17 +50,6 @@ public class ResourceDAOImpl extends AbstractDAOImpl
 
     @Override
     public TargetResource save(final TargetResource resource) {
-        int accountIds = 0;
-        for (SchemaMapping mapping : resource.getMappings()) {
-            if (mapping.isAccountid()) {
-                accountIds++;
-            }
-        }
-        if (accountIds == 0 || accountIds > 1) {
-            throw new IllegalArgumentException("Found '" + accountIds
-                    + "' mappings for account id");
-        }
-
         return entityManager.merge(resource);
     }
 

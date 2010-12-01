@@ -29,7 +29,7 @@
     <packaging>war</packaging>
 
     <properties>
-        <hsqldb.version>1.8.0.10</hsqldb.version>
+        <hsqldb.version>2.0.0</hsqldb.version>
 
         <jetty.port>8888</jetty.port>
 
@@ -241,7 +241,8 @@
         <dependency>
             <groupId>org.hsqldb</groupId>
             <artifactId>hsqldb</artifactId>
-            <version>${hsqldb.version}</version>
+            <!-- Putting here 2.0.0 will cause unit tests to hang -->
+            <version>1.8.0.10</version>
             <scope>test</scope>
         </dependency>
         <dependency>

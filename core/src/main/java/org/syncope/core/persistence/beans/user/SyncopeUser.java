@@ -26,17 +26,15 @@ import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.QueryHint;
-import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.Valid;
 import org.apache.commons.lang.RandomStringUtils;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -64,20 +62,20 @@ import org.syncope.core.persistence.beans.role.SyncopeRole;
 public class SyncopeUser extends AbstractAttributable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.TABLE,
-    generator = "SEQ_SyncopeUser")
-    @TableGenerator(name = "SEQ_SyncopeUser", allocationSize = 100)
     private Long id;
 
     private String password;
 
     @OneToMany(cascade = CascadeType.MERGE, mappedBy = "syncopeUser")
+    @Valid
     private List<Membership> memberships;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
+    @Valid
     private List<UAttr> attributes;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
+    @Valid
     private List<UDerAttr> derivedAttributes;
 
     @Column(nullable = true)
@@ -281,8 +279,7 @@ public class SyncopeUser extends AbstractAttributable {
     }
 
     public boolean checkToken(final String token) {
-
-        return this.token.equals(token)
+        return this.token != null && this.token.equals(token)
                 && tokenExpireTime.after(new Date());
     }
 }

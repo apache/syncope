@@ -56,6 +56,11 @@ public class UserTestITCase extends AbstractTest {
         usernameTO.addValue(email);
         userTO.addAttribute(usernameTO);
 
+        AttributeTO firstnameTO = new AttributeTO();
+        firstnameTO.setSchema("firstname");
+        firstnameTO.addValue(email);
+        userTO.addAttribute(firstnameTO);
+
         AttributeTO surnameTO = new AttributeTO();
         surnameTO.setSchema("surname");
         surnameTO.addValue("Surname");
@@ -87,7 +92,6 @@ public class UserTestITCase extends AbstractTest {
 
     @Test
     public final void createUserWithNoPropagation() {
-
         // get task list
         List<TaskTO> tasks = Arrays.asList(
                 restTemplate.getForObject(
@@ -105,34 +109,34 @@ public class UserTestITCase extends AbstractTest {
         }
 
         // create a new user
-        UserTO newUserTO = new UserTO();
+        UserTO userTO = new UserTO();
 
         AttributeTO attributeTO = new AttributeTO();
         attributeTO.setSchema("firstname");
         attributeTO.addValue("xxx");
-        newUserTO.addAttribute(attributeTO);
+        userTO.addAttribute(attributeTO);
 
         attributeTO = new AttributeTO();
         attributeTO.setSchema("surname");
         attributeTO.addValue("xxx");
-        newUserTO.addAttribute(attributeTO);
+        userTO.addAttribute(attributeTO);
 
         attributeTO = new AttributeTO();
         attributeTO.setSchema("userId");
         attributeTO.addValue("xxx@xxx.xxx");
-        newUserTO.addAttribute(attributeTO);
+        userTO.addAttribute(attributeTO);
 
         attributeTO = new AttributeTO();
         attributeTO.setSchema("username");
         attributeTO.addValue("xxx");
-        newUserTO.addAttribute(attributeTO);
+        userTO.addAttribute(attributeTO);
 
-        newUserTO.setPassword("xxx");
-        newUserTO.addResource("ws-target-resource-nopropagation");
+        userTO.setPassword("xxx");
+        userTO.addResource("ws-target-resource-nopropagation");
 
         restTemplate.postForObject(BASE_URL + "user/create"
                 + "?syncResources=ws-target-resource-nopropagation",
-                newUserTO, UserTO.class);
+                userTO, UserTO.class);
 
         // get the new task list
         tasks = Arrays.asList(
@@ -157,9 +161,7 @@ public class UserTestITCase extends AbstractTest {
                 BASE_URL + "task/read/{taskId}", TaskTO.class, newMaxId);
 
         assertNotNull(taskTO);
-        assertTrue(taskTO.getExecutions() == null
-                || taskTO.getExecutions().isEmpty());
-
+        assertTrue(taskTO.getExecutions().isEmpty());
     }
 
     @Test
@@ -264,8 +266,7 @@ public class UserTestITCase extends AbstractTest {
                 BASE_URL + "task/read/{taskId}", TaskTO.class, newMaxId);
 
         assertNotNull(taskTO);
-        assertFalse(taskTO.getExecutions() == null
-                || taskTO.getExecutions().isEmpty());
+        assertFalse(taskTO.getExecutions().isEmpty());
 
         // 3. verify password
         Boolean verify = restTemplate.getForObject(
@@ -286,16 +287,15 @@ public class UserTestITCase extends AbstractTest {
             }
         }
 
-        SyncopeClientException syncopeClientException = null;
+        SyncopeClientException sce = null;
         try {
             restTemplate.postForObject(BASE_URL + "user/create",
                     userTO, UserTO.class);
         } catch (SyncopeClientCompositeErrorException e) {
-            syncopeClientException =
-                    e.getException(SyncopeClientExceptionType.InvalidUniques);
+            sce = e.getException(
+                    SyncopeClientExceptionType.DuplicateUniqueValue);
         }
-        assertNotNull(syncopeClientException);
-        assertTrue(syncopeClientException.getElements().contains("userId"));
+        assertNotNull(sce);
     }
 
     @Test
@@ -334,9 +334,17 @@ public class UserTestITCase extends AbstractTest {
         fType.addValue("F");
         userTO.addAttribute(fType);
 
+        AttributeTO firstname = null;
+        for (AttributeTO attributeTO : userTO.getAttributes()) {
+            if ("firstname".equals(attributeTO.getSchema())) {
+                firstname = attributeTO;
+            }
+        }
+        userTO.removeAttribute(firstname);
+
+        // 2. create user without firstname (mandatory when type == 'F')
         ex = null;
         try {
-            // 2. create user without firstname (mandatory when type == 'F')
             restTemplate.postForObject(
                     BASE_URL + "user/create?syncRoles=8",
                     userTO, UserTO.class);

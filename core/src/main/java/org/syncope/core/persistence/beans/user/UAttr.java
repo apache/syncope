@@ -19,13 +19,11 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
-import javax.persistence.TableGenerator;
+import javax.validation.Valid;
 import org.hibernate.annotations.Cascade;
 import org.syncope.core.persistence.beans.AbstractAttributable;
 import org.syncope.core.persistence.beans.AbstractAttr;
@@ -42,9 +40,6 @@ public class UAttr extends AbstractAttr {
      * Auto-generated id for this table.
      */
     @Id
-    @GeneratedValue(strategy = GenerationType.TABLE,
-    generator = "SEQ_UAttr")
-    @TableGenerator(name = "SEQ_UAttr", allocationSize = 200)
     private Long id;
 
     /**
@@ -64,13 +59,14 @@ public class UAttr extends AbstractAttr {
      */
     @OneToMany(cascade = CascadeType.MERGE, mappedBy = "attribute")
     @Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
+    @Valid
     private List<UAttrValue> values;
 
     /**
      * Value of this attribute (if schema is UNIQUE).
      */
-    @OneToOne(cascade = CascadeType.MERGE, mappedBy = "attribute")
-    @Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "attribute")
+    @Valid
     private UAttrUniqueValue uniqueValue;
 
     /**

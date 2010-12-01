@@ -15,10 +15,9 @@
 package org.syncope.core.persistence.beans;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.persistence.MappedSuperclass;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import org.syncope.core.persistence.validation.attrvalue.ParseException;
 import org.syncope.core.persistence.validation.attrvalue.InvalidAttrValueException;
 import org.syncope.core.persistence.validation.entity.AttrCheck;
@@ -45,22 +44,22 @@ public abstract class AbstractAttr extends AbstractBaseBean {
         attrValue = getSchema().getValidator().getValue(value, attrValue);
         attrValue.setAttribute(this);
 
-        if (!getSchema().isMultivalue()) {
-            getValues().clear();
+        if (getSchema().isUniqueConstraint()) {
+            setUniqueValue(attrValue);
+        } else {
+            if (!getSchema().isMultivalue()) {
+                getValues().clear();
+            }
+            addValue(attrValue);
         }
 
-        addValue(attrValue);
         return attrValue;
     }
 
-    @NotNull
-    @Valid
     public abstract <T extends AbstractAttributable> T getOwner();
 
     public abstract <T extends AbstractAttributable> void setOwner(T owner);
 
-    @NotNull
-    @Valid
     public abstract <T extends AbstractSchema> T getSchema();
 
     public abstract <T extends AbstractSchema> void setSchema(T schema);
@@ -72,18 +71,23 @@ public abstract class AbstractAttr extends AbstractBaseBean {
             T attrValue);
 
     public <T extends AbstractAttrValue> List<String> getValuesAsStrings() {
-        List<T> values = getValues();
-
-        List<String> result = new ArrayList<String>(values.size());
-        for (T attributeValue : values) {
-            result.add(attributeValue.getValueAsString());
+        List<String> result;
+        if (getUniqueValue() != null) {
+            result = Collections.singletonList(
+                    getUniqueValue().getValueAsString());
+        } else {
+            result = new ArrayList<String>(getValues().size());
+            for (AbstractAttrValue attributeValue : getValues()) {
+                result.add(attributeValue.getValueAsString());
+            }
+            if (getUniqueValue() != null) {
+                result.add(getUniqueValue().getValueAsString());
+            }
         }
 
         return result;
     }
 
-    @NotNull
-    @Valid
     public abstract <T extends AbstractAttrValue> List<T> getValues();
 
     public abstract <T extends AbstractAttrValue> void setValues(

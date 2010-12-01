@@ -1,3 +1,6 @@
+<%@page import="org.hibernate.exception.ConstraintViolationException"%>
+<%@page import="javax.persistence.PersistenceException"%>
+<%@page import="org.springframework.dao.DataIntegrityViolationException"%>
 <%@page import="org.hibernate.exception.LockAcquisitionException"%>
 <%@page isErrorPage="true" contentType="application/json" pageEncoding="UTF-8"%>
 <%@page import="org.syncope.core.rest.data.InvalidSearchConditionException"%>
@@ -89,6 +92,31 @@
                 response.setHeader(
                         SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
                         SyncopeClientExceptionType.Deadlock.getHeaderValue());
+
+                statusCode = HttpServletResponse.SC_BAD_REQUEST;
+            } else if (ex instanceof DataIntegrityViolationException) {
+                response.setHeader(
+                        SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
+                        SyncopeClientExceptionType.DuplicateUniqueValue.
+                        getHeaderValue());
+
+                statusCode = HttpServletResponse.SC_BAD_REQUEST;
+            } else if (ex instanceof PersistenceException) {
+                if (ex.getCause() instanceof ConstraintViolationException) {
+                    response.setHeader(
+                            SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
+                            SyncopeClientExceptionType.DuplicateUniqueValue.
+                            getHeaderValue());
+                } else {
+                    response.setHeader(
+                            SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
+                            SyncopeClientExceptionType.GenericPersistence.
+                            getHeaderValue());
+                    response.setHeader(
+                            SyncopeClientExceptionType.GenericPersistence.
+                            getElementHeaderName(),
+                            ex.getCause().getClass().getName());
+                }
 
                 statusCode = HttpServletResponse.SC_BAD_REQUEST;
             }

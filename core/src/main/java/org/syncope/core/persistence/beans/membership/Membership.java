@@ -27,6 +27,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import javax.validation.Valid;
 import org.syncope.core.persistence.beans.AbstractAttributable;
 import org.syncope.core.persistence.beans.AbstractAttr;
 import org.syncope.core.persistence.beans.AbstractDerAttr;
@@ -53,9 +54,11 @@ public class Membership extends AbstractAttributable {
     private SyncopeRole syncopeRole;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
+    @Valid
     private List<MAttr> attributes;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
+    @Valid
     private List<MDerAttr> derivedAttributes;
 
     public Membership() {

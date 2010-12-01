@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<entity-mappings
+  xmlns="http://java.sun.com/xml/ns/persistence/orm"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://java.sun.com/xml/ns/persistence/orm orm_1_0.xsd"
+  version="1.0">
+
+    <table-generator name="SEQ_UAttrValue" pk-column-value="SEQ_UAttrValue" initial-value="100"/>
+    <table-generator name="SEQ_RAttrValue" pk-column-value="SEQ_RAttrValue" initial-value="100"/>
+    <table-generator name="SEQ_MAttrValue" pk-column-value="SEQ_MAttrValue" initial-value="100"/>
+
+    <entity class="org.syncope.core.persistence.beans.user.SyncopeUser">
+        <attributes>
+            <id name="id">
+                <generated-value generator="SEQ_SyncopeUser" strategy="TABLE"/>
+                <table-generator name="SEQ_SyncopeUser" pk-column-value="SEQ_SyncopeUser" initial-value="100"/>
+            </id>
+        </attributes>
+    </entity>
+
+    <entity class="org.syncope.core.persistence.beans.SchemaMapping">
+        <attributes>
+            <id name="id">
+                <generated-value generator="SEQ_SchemaMapping" strategy="TABLE"/>
+                <table-generator name="SEQ_SchemaMapping" pk-column-value="SEQ_SchemaMapping" initial-value="1000"/>
+            </id>
+        </attributes>
+    </entity>
+
+    <entity class="org.syncope.core.persistence.beans.ConnectorInstance">
+        <attributes>
+            <id name="id">
+                <generated-value generator="SEQ_ConnectorInstance" strategy="TABLE"/>
+                <table-generator name="SEQ_ConnectorInstance" pk-column-value="SEQ_ConnectorInstance" initial-value="1000"/>
+            </id>
+        </attributes>
+    </entity>
+
+    <entity class="org.syncope.core.persistence.beans.user.UAttr">
+        <attributes>
+            <id name="id">
+                <generated-value generator="SEQ_UAttr" strategy="TABLE"/>
+                <table-generator name="SEQ_UAttr" pk-column-value="SEQ_UAttr" initial-value="1000"/>
+            </id>
+        </attributes>
+    </entity>
+    <entity class="org.syncope.core.persistence.beans.role.RAttr">
+        <attributes>
+            <id name="id">
+                <generated-value generator="SEQ_RAttr" strategy="TABLE"/>
+                <table-generator name="SEQ_RAttr" pk-column-value="SEQ_RAttr" initial-value="1000"/>
+            </id>
+        </attributes>
+    </entity>
+    <entity class="org.syncope.core.persistence.beans.membership.MAttr">
+        <attributes>
+            <id name="id">
+                <generated-value generator="SEQ_MAttr" strategy="TABLE"/>
+                <table-generator name="SEQ_MAttr" pk-column-value="SEQ_MAttr" initial-value="1000"/>
+            </id>
+        </attributes>
+    </entity>
+
+    <entity class="org.syncope.core.persistence.beans.user.UAttrValue">
+        <attributes>
+            <id name="id">
+                <generated-value generator="SEQ_UAttrValue" strategy="TABLE"/>
+            </id>
+        </attributes>
+    </entity>
+    <entity class="org.syncope.core.persistence.beans.user.UAttrUniqueValue">
+        <table>
+            <unique-constraint>
+                <column-name>booleanValue</column-name>
+                <column-name>dateValue</column-name>
+                <column-name>stringValue</column-name>
+                <column-name>doubleValue</column-name>
+                <column-name>longValue</column-name>
+                <column-name>schema_name</column-name>
+            </unique-constraint>
+        </table>
+        <attributes>
+            <id name="id">
+                <generated-value generator="SEQ_UAttrValue" strategy="TABLE"/>
+            </id>
+        </attributes>
+    </entity>
+    <entity class="org.syncope.core.persistence.beans.role.RAttrValue">
+        <attributes>
+            <id name="id">
+                <generated-value generator="SEQ_RAttrValue" strategy="TABLE"/>
+            </id>
+        </attributes>
+    </entity>
+    <entity class="org.syncope.core.persistence.beans.role.RAttrUniqueValue">
+        <table>
+            <unique-constraint>
+                <column-name>booleanValue</column-name>
+                <column-name>dateValue</column-name>
+                <column-name>stringValue</column-name>
+                <column-name>doubleValue</column-name>
+                <column-name>longValue</column-name>
+                <column-name>schema_name</column-name>
+            </unique-constraint>
+        </table>
+        <attributes>
+            <id name="id">
+                <generated-value generator="SEQ_RAttrValue" strategy="TABLE"/>
+            </id>
+        </attributes>
+    </entity>
+    <entity class="org.syncope.core.persistence.beans.membership.MAttrValue">
+        <attributes>
+            <id name="id">
+                <generated-value generator="SEQ_MAttrValue" strategy="TABLE"/>
+            </id>
+        </attributes>
+    </entity>
+    <entity class="org.syncope.core.persistence.beans.membership.MAttrUniqueValue">
+        <table>
+            <unique-constraint>
+                <column-name>booleanValue</column-name>
+                <column-name>dateValue</column-name>
+                <column-name>stringValue</column-name>
+                <column-name>doubleValue</column-name>
+                <column-name>longValue</column-name>
+                <column-name>schema_name</column-name>
+            </unique-constraint>
+        </table>
+        <attributes>
+            <id name="id">
+                <generated-value generator="SEQ_MAttrValue" strategy="TABLE"/>
+            </id>
+        </attributes>
+    </entity>
+</entity-mappings>

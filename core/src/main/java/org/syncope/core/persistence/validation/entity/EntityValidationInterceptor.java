@@ -59,8 +59,7 @@ public class EntityValidationInterceptor {
                 validator.validate(pjp.getArgs()[0]);
         if (!violations.isEmpty()) {
             LOG.error("Bean validation errors found: {}", violations);
-            throw new InvalidEntityException(
-                    pjp.getArgs()[0].getClass(), violations);
+            throw new InvalidEntityException(violations);
         }
 
         return pjp.proceed();

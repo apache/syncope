@@ -17,16 +17,16 @@
     @TableGenerator.allocationSize * hibernate_sequences.sequence_next_hi_value,
     so since SyncopeUser.id@TableGenerator.allocationSize == 100, actual
     starting value for SyncopeUser.id is 1000 -->
-    <hibernate_sequences sequence_name="SyncopeUser" sequence_next_hi_value="10"/>
-    <hibernate_sequences sequence_name="SchemaMapping" sequence_next_hi_value="10"/>
-    <hibernate_sequences sequence_name="ConnectorInstance" sequence_next_hi_value="10"/>
-    <hibernate_sequences sequence_name="UAttr" sequence_next_hi_value="1000"/>
-    <hibernate_sequences sequence_name="RAttr" sequence_next_hi_value="1000"/>
-    <hibernate_sequences sequence_name="MAttr" sequence_next_hi_value="1000"/>
-    <hibernate_sequences sequence_name="UAttrValue" sequence_next_hi_value="1000"/>
-    <hibernate_sequences sequence_name="RAttrValue" sequence_next_hi_value="1000"/>
-    <hibernate_sequences sequence_name="MAttrValue" sequence_next_hi_value="1000"/>
-    
+    <hibernate_sequences sequence_name="SEQ_SyncopeUser" sequence_next_hi_value="10"/>
+    <hibernate_sequences sequence_name="SEQ_SchemaMapping" sequence_next_hi_value="10"/>
+    <hibernate_sequences sequence_name="SEQ_ConnectorInstance" sequence_next_hi_value="10"/>
+    <hibernate_sequences sequence_name="SEQ_UAttr" sequence_next_hi_value="1000"/>
+    <hibernate_sequences sequence_name="SEQ_RAttr" sequence_next_hi_value="1000"/>
+    <hibernate_sequences sequence_name="SEQ_MAttr" sequence_next_hi_value="1000"/>
+    <hibernate_sequences sequence_name="SEQ_UAttrValue" sequence_next_hi_value="1000"/>
+    <hibernate_sequences sequence_name="SEQ_RAttrValue" sequence_next_hi_value="1000"/>
+    <hibernate_sequences sequence_name="SEQ_MAttrValue" sequence_next_hi_value="1000"/>
+
     <SyncopeConf confKey="token.length" confValue="256"/>
     <SyncopeConf confKey="token.expireTime" confValue="60"/>
     <SyncopeConf confKey="token.encryption.key" confValue="1abcdefghil3mnopqrstuvz2"/>
@@ -88,6 +88,8 @@
                 conversionPattern="yyyy-MM-dd'T'HH:mm:ss.SSSZ"/>
     <USchema name="uselessReadonly" type="String" virtual="0"
                 mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="1"/>
+    <USchema name="cool" type="Boolean" virtual="0"
+                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
 
     <RSchema name="icon" type="String" virtual="0"
                 mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
@@ -104,6 +106,7 @@
     <UAttr id="400" owner_id="3" schema_name="firstname"/>
     <UAttr id="500" owner_id="3" schema_name="surname"/>
     <UAttr id="550" owner_id="4" schema_name="loginDate"/>
+    <UAttr id="560" owner_id="4" schema_name="cool"/>
 
     <RAttr id="600" owner_id="1" schema_name="icon"/>
     <RAttr id="700" owner_id="2" schema_name="icon"/>
@@ -113,13 +116,15 @@
 
     <MAttr id="1000" owner_id="4" schema_name="subscriptionDate"/>
 
-    <UAttrValue attribute_id="100" id="10" stringValue="chicchiricco"/>
-    <UAttrValue attribute_id="300" id="11" stringValue="fabio.martelli"/>
+    <UAttrUniqueValue id="10" attribute_id="100" schema_name="username" stringValue="chicchiricco"/>
+    <UAttrUniqueValue id="11"  attribute_id="300" schema_name="username" stringValue="fabio.martelli"/>
+
     <UAttrValue attribute_id="200" id="20" dateValue="2009-05-26"/>
     <UAttrValue attribute_id="200" id="21" dateValue="2010-05-26 15:40:04"/>
     <UAttrValue attribute_id="400" id="30" stringValue="John"/>
     <UAttrValue attribute_id="500" id="31" stringValue="Doe"/>
     <UAttrValue attribute_id="550" id="22" dateValue="2009-06-24"/>
+    <UAttrValue attribute_id="560" id="23" booleanValue="1"/>
 
     <RAttrValue attribute_id="600" id="40" stringValue="niceIcon"/>
     <RAttrValue attribute_id="700" id="41" stringValue="badIcon"/>

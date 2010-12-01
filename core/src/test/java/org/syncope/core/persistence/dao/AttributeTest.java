@@ -21,7 +21,6 @@ import java.util.List;
 import javax.validation.ValidationException;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.ExpectedException;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.user.UAttr;
 import org.syncope.core.persistence.beans.user.USchema;
@@ -29,6 +28,7 @@ import org.syncope.core.persistence.AbstractTest;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.beans.user.UAttrUniqueValue;
 import org.syncope.core.rest.data.AttributableUtil;
+import org.syncope.types.EntityViolationType;
 
 @Transactional
 public class AttributeTest extends AbstractTest {
@@ -46,7 +46,7 @@ public class AttributeTest extends AbstractTest {
     public final void findAll() {
         List<UAttr> list = attributeDAO.findAll(UAttr.class);
         assertEquals("did not get expected number of attributes ",
-                6, list.size());
+                7, list.size());
     }
 
     @Test
@@ -57,6 +57,15 @@ public class AttributeTest extends AbstractTest {
         attribute = attributeDAO.find(200L, UAttr.class);
         assertNotNull("did not find expected attribute schema",
                 attribute);
+    }
+
+    @Test
+    public final void read() {
+        UAttr attribute = attributeDAO.find(100L, UAttr.class);
+        assertNotNull(attribute);
+
+        assertTrue(attribute.getValues().isEmpty());
+        assertNotNull(attribute.getUniqueValue());
     }
 
     @Test
@@ -89,11 +98,13 @@ public class AttributeTest extends AbstractTest {
         }
         assertNotNull("validation exception expected here ", thrown);
 
+        InvalidEntityException iee = null;
         try {
             attribute = attributeDAO.save(attribute);
         } catch (InvalidEntityException e) {
-            assertNull(e);
+            iee = e;
         }
+        assertNull(iee);
 
         UAttr actual = attributeDAO.find(attribute.getId(),
                 UAttr.class);
@@ -102,35 +113,47 @@ public class AttributeTest extends AbstractTest {
     }
 
     @Test
-    @ExpectedException(InvalidEntityException.class)
     public final void validateAndSave() {
-        USchema emailSchema = userSchemaDAO.find("email", USchema.class);
+        final USchema emailSchema =
+                userSchemaDAO.find("email", USchema.class);
         assertNotNull(emailSchema);
+
+        final USchema usernameSchema =
+                userSchemaDAO.find("username", USchema.class);
+        assertNotNull(usernameSchema);
 
         UAttr attribute = new UAttr();
         attribute.setSchema(emailSchema);
 
         UAttrUniqueValue uauv = new UAttrUniqueValue();
         uauv.setAttribute(attribute);
-        uauv.setSchema(emailSchema);
+        uauv.setSchema(usernameSchema);
         uauv.setStringValue("a value");
 
         attribute.setUniqueValue(uauv);
 
-        attribute = attributeDAO.save(attribute);
+        InvalidEntityException iee = null;
+        try {
+            attribute = attributeDAO.save(attribute);
+        } catch (InvalidEntityException e) {
+            iee = e;
+        }
+        assertNotNull(iee);
+        // for attribute
+        assertTrue(iee.hasViolation(EntityViolationType.InvalidValueList));
+        // for uauv
+        assertTrue(iee.hasViolation(EntityViolationType.InvalidSchema));
     }
 
     @Test
     public final void delete() {
         UAttr attribute = attributeDAO.find(200L, UAttr.class);
-        String attributeSchemaName =
-                attribute.getSchema().getName();
+        String attrSchemaName = attribute.getSchema().getName();
 
         attributeDAO.delete(attribute.getId(), UAttr.class);
 
-        USchema attributeSchema =
-                userSchemaDAO.find(attributeSchemaName, USchema.class);
+        USchema schema = userSchemaDAO.find(attrSchemaName, USchema.class);
         assertNotNull("user attribute schema deleted when deleting values",
-                attributeSchema);
+                schema);
     }
 }

@@ -187,8 +187,7 @@ public class PropagationManager {
             final Set<String> syncResourceNames)
             throws PropagationException {
 
-        LOG.debug("Provisioning with user {}:\n{}",
-                user, resourceOperations);
+        LOG.debug("Provisioning with user {}:\n{}", user, resourceOperations);
 
         // Avoid duplicates - see javadoc
         resourceOperations.purge();
@@ -218,31 +217,31 @@ public class PropagationManager {
 
                 task = taskDAO.save(task);
 
-                TaskExecution taskExecution = new TaskExecution();
-                taskExecution.setTask(task);
+                execution = new TaskExecution();
+                execution.setTask(task);
 
                 if (PropagationMode.SYNC.equals(task.getPropagationMode())) {
-                    syncPropagate(taskExecution);
+                    syncPropagate(execution);
 
                     // read execution after saving
-                    taskExecution =
+                    execution =
                             task.getExecutions() != null
                             && !task.getExecutions().isEmpty()
-                            ? task.getExecutions().get(0) : null;
+                            ? task.getExecutions().iterator().next() : null;
 
                 } else {
-                    asyncPropagate(taskExecution);
+                    asyncPropagate(execution);
                 }
 
                 LOG.debug("Execution finished for {}", task);
 
-                if (taskExecution != null
+                if (execution != null
                         && syncResourceNames.contains(resource.getName())
-                        && taskExecution.getStatus()
+                        && execution.getStatus()
                         != TaskExecutionStatus.SUCCESS) {
 
                     throw new PropagationException(resource.getName(),
-                            taskExecution.getMessage());
+                            execution.getMessage());
                 }
             }
         }
@@ -510,9 +509,7 @@ public class PropagationManager {
         } finally {
             LOG.debug("Update execution for {}", task);
 
-            if (!triedPropagationRequests.isEmpty()
-                    || execution.getId() != null) {
-
+            if (!triedPropagationRequests.isEmpty()) {
                 execution.setStartDate(startDate);
                 execution.setMessage(taskExecutionMessage);
                 execution.setStatus(taskExecutionStatus);

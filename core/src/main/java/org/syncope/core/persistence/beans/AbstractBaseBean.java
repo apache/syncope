@@ -38,7 +38,7 @@ public abstract class AbstractBaseBean implements Serializable {
      * @param property the integer representing a boolean value
      * @return the boolean value corresponding to the property param
      */
-    protected final boolean isBooleanAsInteger(final Integer property) {
+    public final Boolean isBooleanAsInteger(final Integer property) {
         return property != null && property == 1;
     }
 
@@ -46,8 +46,8 @@ public abstract class AbstractBaseBean implements Serializable {
      * @param value the boolean value to be represented as integer
      * @return the integer corresponding to the property param
      */
-    protected final Integer getBooleanAsInteger(final boolean value) {
-        return value ? 1 : 0;
+    public final Integer getBooleanAsInteger(final Boolean value) {
+        return value.equals(Boolean.TRUE) ? 1 : 0;
     }
 
     /**

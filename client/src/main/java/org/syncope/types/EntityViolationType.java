@@ -19,10 +19,14 @@ public enum EntityViolationType {
     Standard(""),
     MultivalueAndUniqueConstraint(
     "org.syncope.core.validation.schema.multivalueAndUniqueConstraint"),
+    MoreThanOneAccountId(
+    "org.syncope.core.validation.targetresource.moreThanOneAccountId"),
     MoreThanOneNonNull(
     "org.syncope.core.validation.attrvalue.moreThanOneNonNull"),
-    InvalidValues(
-    "org.syncope.core.validation.attr.invalidValues");
+    InvalidSchema(
+    "org.syncope.core.validation.attrvalue.invalidSchema"),
+    InvalidValueList(
+    "org.syncope.core.validation.attr.invalidValueList");
 
     private String message;
 

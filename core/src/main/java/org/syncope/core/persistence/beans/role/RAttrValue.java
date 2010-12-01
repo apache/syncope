@@ -15,13 +15,10 @@
 package org.syncope.core.persistence.beans.role;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.ManyToOne;
-import javax.persistence.TableGenerator;
 import org.syncope.core.persistence.beans.AbstractAttr;
 import org.syncope.core.persistence.beans.AbstractAttrValue;
 
@@ -30,9 +27,6 @@ import org.syncope.core.persistence.beans.AbstractAttrValue;
 public class RAttrValue extends AbstractAttrValue {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.TABLE,
-    generator = "SEQ_RAttrValue")
-    @TableGenerator(name = "SEQ_RAttrValue", allocationSize = 200)
     private Long id;
 
     @ManyToOne(optional = false)

@@ -19,13 +19,11 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
-import javax.persistence.TableGenerator;
+import javax.validation.Valid;
 import org.hibernate.annotations.Cascade;
 import org.syncope.core.persistence.beans.AbstractAttributable;
 import org.syncope.core.persistence.beans.AbstractAttr;
@@ -36,9 +34,6 @@ import org.syncope.core.persistence.beans.AbstractSchema;
 public class MAttr extends AbstractAttr {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.TABLE,
-    generator = "SEQ_MAttr")
-    @TableGenerator(name = "SEQ_MAttr", allocationSize = 20)
     private Long id;
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -49,10 +44,11 @@ public class MAttr extends AbstractAttr {
 
     @OneToMany(cascade = CascadeType.MERGE, mappedBy = "attribute")
     @Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
+    @Valid
     private List<MAttrValue> values;
 
-    @OneToOne(cascade = CascadeType.MERGE, mappedBy = "attribute")
-    @Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "attribute")
+    @Valid
     private MAttrUniqueValue uniqueValue;
 
     public MAttr() {

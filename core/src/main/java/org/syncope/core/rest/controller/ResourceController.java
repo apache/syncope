@@ -1,4 +1,3 @@
-
 /*
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -37,6 +36,7 @@ import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.dao.SyncopeRoleDAO;
+import org.syncope.core.persistence.validation.entity.InvalidEntityException;
 import org.syncope.core.rest.data.ResourceDataBinder;
 import org.syncope.types.SyncopeClientExceptionType;
 
@@ -63,7 +63,7 @@ public class ResourceController extends AbstractController {
             LOG.debug("Creation request received");
         }
 
-        SyncopeClientCompositeErrorException compositeErrorException =
+        SyncopeClientCompositeErrorException scce =
                 new SyncopeClientCompositeErrorException(
                 HttpStatus.BAD_REQUEST);
 
@@ -79,12 +79,12 @@ public class ResourceController extends AbstractController {
 
         if (resourceDAO.find(resourceTO.getName()) != null) {
             SyncopeClientException ex = new SyncopeClientException(
-                    SyncopeClientExceptionType.AlreadyExists);
+                    SyncopeClientExceptionType.DuplicateUniqueValue);
 
             ex.addElement(resourceTO.getName());
-            compositeErrorException.addException(ex);
+            scce.addException(ex);
 
-            throw compositeErrorException;
+            throw scce;
         }
 
         TargetResource resource = binder.getResource(resourceTO);
@@ -94,12 +94,19 @@ public class ResourceController extends AbstractController {
             SyncopeClientException ex = new SyncopeClientException(
                     SyncopeClientExceptionType.Unknown);
 
-            compositeErrorException.addException(ex);
+            scce.addException(ex);
 
-            throw compositeErrorException;
+            throw scce;
         }
 
-        resource = resourceDAO.save(resource);
+        try {
+            resource = resourceDAO.save(resource);
+        } catch (InvalidEntityException e) {
+            SyncopeClientException ex = new SyncopeClientException(
+                    SyncopeClientExceptionType.InvalidSchemaMapping);
+            scce.addException(ex);
+            throw scce;
+        }
 
         response.setStatus(HttpServletResponse.SC_CREATED);
         return binder.getResourceTO(resource);
@@ -125,19 +132,13 @@ public class ResourceController extends AbstractController {
                     "Resource '" + resourceTO.getName() + "'");
         }
 
-        SyncopeClientCompositeErrorException compositeErrorException =
+        SyncopeClientCompositeErrorException scce =
                 new SyncopeClientCompositeErrorException(
                 HttpStatus.BAD_REQUEST);
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Remove old mappings ..");
-        }
+        LOG.debug("Removing old mappings ..");
         // remove old mappings
         resourceDAO.deleteAllMappings(resource);
-
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Resource data binder ..");
-        }
 
         resource = binder.getResource(resource, resourceTO);
         if (resource == null) {
@@ -145,12 +146,19 @@ public class ResourceController extends AbstractController {
 
             SyncopeClientException ex = new SyncopeClientException(
                     SyncopeClientExceptionType.Unknown);
-
-            compositeErrorException.addException(ex);
-            throw compositeErrorException;
+            scce.addException(ex);
+            throw scce;
         }
 
-        resource = resourceDAO.save(resource);
+        try {
+            resource = resourceDAO.save(resource);
+        } catch (InvalidEntityException e) {
+            SyncopeClientException ex = new SyncopeClientException(
+                    SyncopeClientExceptionType.InvalidSchemaMapping);
+            scce.addException(ex);
+            throw scce;
+        }
+
         return binder.getResourceTO(resource);
     }
 

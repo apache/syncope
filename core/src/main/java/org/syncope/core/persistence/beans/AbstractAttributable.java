@@ -2,9 +2,9 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,7 +18,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Set;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToMany;
@@ -33,9 +32,9 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
     @ManyToMany(fetch = FetchType.EAGER)
     protected Set<TargetResource> targetResources;
 
-    public <T extends AbstractAttr> T getAttribute(String schemaName) {
+    public <T extends AbstractAttr> T getAttribute(final String schemaName) {
         T result = null;
-        T attribute = null;
+        T attribute;
         for (Iterator<? extends AbstractAttr> itor =
                 getAttributes().iterator();
                 result == null && itor.hasNext();) {
@@ -52,10 +51,10 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
     }
 
     public <T extends AbstractDerAttr> T getDerivedAttribute(
-            String derivedSchemaName) throws NoSuchElementException {
+            final String derivedSchemaName) {
 
         T result = null;
-        T derivedAttribute = null;
+        T derivedAttribute;
         for (Iterator<? extends AbstractDerAttr> itor =
                 getDerivedAttributes().iterator();
                 result == null && itor.hasNext();) {
@@ -72,14 +71,14 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
         return result;
     }
 
-    public boolean addTargetResource(TargetResource targetResource) {
-        if (this.targetResources == null) {
-            this.targetResources = new HashSet<TargetResource>();
+    public boolean addTargetResource(final TargetResource targetResource) {
+        if (targetResources == null) {
+            targetResources = new HashSet<TargetResource>();
         }
-        return this.targetResources.add(targetResource);
+        return targetResources.add(targetResource);
     }
 
-    public boolean removeTargetResource(TargetResource targetResource) {
+    public boolean removeTargetResource(final TargetResource targetResource) {
         return targetResources == null
                 ? true
                 : targetResources.remove(targetResource);

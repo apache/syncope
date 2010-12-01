@@ -15,6 +15,8 @@
 package org.syncope.core.persistence.validation.entity;
 
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import javax.validation.ConstraintViolation;
 import javax.validation.ValidationException;
@@ -22,18 +24,14 @@ import org.syncope.types.EntityViolationType;
 
 public class InvalidEntityException extends ValidationException {
 
-    final private Class entityClass;
+    private final Map<Class, Set<EntityViolationType>> violations;
 
-    final private Set<EntityViolationType> violations;
-
-    public InvalidEntityException(final Class entityClass,
+    public InvalidEntityException(
             final Set<ConstraintViolation<Object>> violations) {
 
         super();
 
-        this.entityClass = entityClass;
-
-        this.violations = EnumSet.noneOf(EntityViolationType.class);
+        this.violations = new HashMap<Class, Set<EntityViolationType>>();
         EntityViolationType entityViolationType;
         for (ConstraintViolation<Object> violation : violations) {
             try {
@@ -46,12 +44,44 @@ public class InvalidEntityException extends ValidationException {
                         + violation.getMessage());
             }
 
-            this.violations.add(entityViolationType);
+            if (!this.violations.containsKey(
+                    violation.getLeafBean().getClass())) {
+
+                this.violations.put(violation.getLeafBean().getClass(),
+                        EnumSet.noneOf(EntityViolationType.class));
+            }
+
+            this.violations.get(violation.getLeafBean().getClass()).
+                    add(entityViolationType);
         }
+    }
+
+    public final boolean hasViolation(final EntityViolationType type) {
+        boolean found = false;
+        for (Class entity : violations.keySet()) {
+            if (violations.get(entity).contains(type)) {
+                found = true;
+            }
+        }
+
+        return found;
+    }
+
+    public final Map<Class, Set<EntityViolationType>> getViolations() {
+        return violations;
     }
 
     @Override
     public String getMessage() {
-        return entityClass.getSimpleName() + " " + violations.toString();
+        StringBuilder sb = new StringBuilder();
+
+        for (Class entity : violations.keySet()) {
+            sb.append(entity.getSimpleName()).append(" ").
+                    append(violations.get(entity).toString()).
+                    append(", ");
+        }
+        sb.delete(sb.lastIndexOf(", "), sb.length());
+
+        return sb.toString();
     }
 }

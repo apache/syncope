@@ -15,29 +15,41 @@
 package org.syncope.core.persistence.beans.membership;
 
 import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
-import javax.validation.Valid;
+import org.syncope.core.persistence.beans.AbstractAttr;
+import org.syncope.core.persistence.beans.AbstractAttrValue;
 import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.beans.IAttrUniqueValue;
 
 @Entity
-@Table(uniqueConstraints =
-@UniqueConstraint(columnNames = {
-    "booleanValue",
-    "dateValue",
-    "doubleValue",
-    "longValue",
-    "StringValue",
-    "schema_name"
-}))
-public class MAttrUniqueValue extends MAttrValue
+public class MAttrUniqueValue extends AbstractAttrValue
         implements IAttrUniqueValue {
 
+    @Id
+    private Long id;
+
     @OneToOne(optional = false)
-    @Valid
+    private MAttr attribute;
+
+    @ManyToOne(optional = false)
     private MSchema schema;
+
+    @Override
+    public Long getId() {
+        return id;
+    }
+
+    @Override
+    public <T extends AbstractAttr> T getAttribute() {
+        return (T) attribute;
+    }
+
+    @Override
+    public <T extends AbstractAttr> void setAttribute(final T attribute) {
+        this.attribute = (MAttr) attribute;
+    }
 
     @Override
     public <T extends AbstractSchema> T getSchema() {

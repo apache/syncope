@@ -45,8 +45,50 @@ import org.syncope.types.SyncopeClientExceptionType;
 @Component
 public class UserDataBinder extends AbstractAttributableDataBinder {
 
-    public void create(final SyncopeUser user, final UserTO userTO)
+    public enum CheckinResultAction {
+
+        CREATE, OVERWRITE, REJECT
+
+    }
+
+    public class CheckInResult {
+
+        private CheckinResultAction action;
+
+        private Long syncopeUserId;
+
+        private Long workflowId;
+
+        public CheckInResult(final CheckinResultAction action,
+                final Long syncopeUserId,
+                final Long workflowId) {
+
+            this.action = action;
+            this.syncopeUserId = syncopeUserId;
+            this.workflowId = workflowId;
+        }
+
+        public CheckinResultAction getAction() {
+            return action;
+        }
+
+        public Long getSyncopeUserId() {
+            return syncopeUserId;
+        }
+
+        public Long getWorkflowId() {
+            return workflowId;
+        }
+    }
+
+    public CheckInResult checkIn(final UserTO userTO) {
+        return new CheckInResult(CheckinResultAction.CREATE, null, null);
+    }
+
+    public SyncopeUser create(final UserTO userTO)
             throws SyncopeClientCompositeErrorException, NotFoundException {
+
+        SyncopeUser user = new SyncopeUser();
 
         SyncopeClientCompositeErrorException scce =
                 new SyncopeClientCompositeErrorException(
@@ -69,7 +111,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         }
 
         // memberships
-        SyncopeRole role = null;
+        SyncopeRole role;
         for (MembershipTO membershipTO : userTO.getMemberships()) {
             role = syncopeRoleDAO.find(membershipTO.getRoleId());
 
@@ -100,6 +142,8 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
         // attributes, derived attributes and resources
         fill(user, userTO, AttributableUtil.USER, scce);
+
+        return user;
     }
 
     public ResourceOperations update(SyncopeUser user, UserMod userMod)
