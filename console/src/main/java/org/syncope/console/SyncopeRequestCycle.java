@@ -18,6 +18,8 @@ package org.syncope.console;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.Response;
+import org.apache.wicket.authorization.UnauthorizedInstantiationException;
+import org.apache.wicket.markup.html.pages.AccessDeniedPage;
 import org.apache.wicket.markup.html.pages.ExceptionErrorPage;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.protocol.http.PageExpiredException;
@@ -51,8 +53,13 @@ public class SyncopeRequestCycle extends WebRequestCycle {
 	public final Page onRuntimeException(final Page cause,
                 final RuntimeException e) {
             //TODO : Log the exceptions
+            if(e instanceof UnauthorizedInstantiationException)
+                return new AccessDeniedPage();
+            else {
+           
+           SyncopeSession session = (SyncopeSession)getSession();
 
-            if(e instanceof PageExpiredException) {
+           if(e instanceof PageExpiredException || !session.isAuthenticated() ) {
                 PageParameters errorParameters = new PageParameters();
 
                 errorParameters.add("errorTitle",
@@ -66,13 +73,13 @@ public class SyncopeRequestCycle extends WebRequestCycle {
             }
 
             else if(e.getCause().getCause() instanceof RestClientException) {
-                
+
                 PageParameters errorParameters = new PageParameters();
 
                 errorParameters.add("errorTitle",
                         new StringResourceModel("alert", null).getString());
 
-                errorParameters.add("errorMessage", 
+                errorParameters.add("errorMessage",
                         new StringResourceModel("restClientException", null)
                         .getString());
 
@@ -81,4 +88,5 @@ public class SyncopeRequestCycle extends WebRequestCycle {
             //Redirect to default Wicket error page
             else return new ExceptionErrorPage(e, cause);
 	}
+}
 }

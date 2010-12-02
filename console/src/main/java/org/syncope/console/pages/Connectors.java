@@ -27,6 +27,7 @@ import org.apache.wicket.ajax.IAjaxCallDecorator;
 import org.apache.wicket.ajax.calldecorator.AjaxPreprocessingCallDecorator;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
@@ -139,6 +140,11 @@ public class Connectors extends BasePage {
                 EditLinkPanel panel = new EditLinkPanel(componentId, model);
                 panel.add(editLink);
 
+                String allowedRoles = xmlRolesReader.getAllAllowedRoles(
+                        "Connectors","read");
+                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
+                        allowedRoles);
+
                 cellItem.add(panel);
             }
         });
@@ -187,6 +193,11 @@ public class Connectors extends BasePage {
                 DeleteLinkPanel panel = new DeleteLinkPanel(componentId, model);
                 panel.add(deleteLink);
 
+                String allowedRoles = xmlRolesReader.getAllAllowedRoles(
+                        "Connectors","delete");
+                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
+                        allowedRoles);
+
                 cellItem.add(panel);
             }
         });
@@ -213,7 +224,7 @@ public class Connectors extends BasePage {
         editConnectorWin.setPageMapName("edit-conn-modal");
         editConnectorWin.setCookieName("edit-conn-modal");
 
-        add(new AjaxLink("createConnectorLink") {
+       AjaxLink createConnectorLink = new AjaxLink("createConnectorLink") {
 
             @Override
             public void onClick(AjaxRequestTarget target) {
@@ -230,7 +241,14 @@ public class Connectors extends BasePage {
 
                 createConnectorWin.show(target);
             }
-        });
+        };
+
+        String allowedRoles = xmlRolesReader.getAllAllowedRoles(
+                "Connectors","create");
+        MetaDataRoleAuthorizationStrategy.authorize(createConnectorLink, ENABLE,
+                allowedRoles);
+        
+        add(createConnectorLink);
 
         Form paginatorForm = new Form("PaginatorForm");
 

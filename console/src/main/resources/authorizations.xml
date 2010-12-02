@@ -1,0 +1,171 @@
+<?xml version="1.0"?>
+<!--
+action@id = list|create|read|update|delete
+
+page@id= Schema|Users|Roles|Resources|Connectors|Report|Configuration|Task 
+-->
+<auth>
+    <page id="Schema">
+        <action id="list">
+            <entitlement>SCHEMA_LIST</entitlement>
+        </action>
+
+        <action id="create">
+            <entitlement>SCHEMA_CREATE</entitlement>
+        </action>
+
+        <action id="read">
+            <entitlement>SCHEMA_READ</entitlement>
+        </action>
+
+        <action id="update">
+            <entitlement>SCHEMA_UPDATE</entitlement>
+        </action>
+
+        <action id="delete">
+            <entitlement>SCHEMA_DELETE</entitlement>
+        </action>
+    </page>
+
+    <page id="Users">
+        <action id="list">
+            <entitlement>USER_LIST</entitlement>
+        </action>
+
+        <action id="create">
+            <entitlement>USER_CREATE</entitlement>
+        </action>
+
+        <action id="read">
+            <entitlement>USER_READ</entitlement>
+        </action>
+
+        <action id="update">
+            <entitlement>USER_UPDATE</entitlement>
+        </action>
+
+        <action id="delete">
+            <entitlement>USER_DELETE</entitlement>
+        </action>
+
+        <action id="changeView">
+            <entitlement>USER_VIEW</entitlement>
+        </action>
+    </page>
+
+    <page id="Roles">
+        <action id="list">
+            <entitlement>ROLES_LIST</entitlement>
+        </action>
+
+        <action id="create">
+            <entitlement>ROLES_CREATE</entitlement>
+        </action>
+
+        <action id="read">
+            <entitlement>ROLES_READ</entitlement>
+        </action>
+
+        <action id="update">
+            <entitlement>ROLES_UPDATE</entitlement>
+        </action>
+
+        <action id="delete">
+            <entitlement>ROLES_DELETE</entitlement>
+        </action>
+    </page>
+
+    <page id="Resources">
+        <action id="list">
+            <entitlement>RESOURCES_LIST</entitlement>
+        </action>
+
+        <action id="create">
+            <entitlement>RESOURCES_CREATE</entitlement>
+        </action>
+
+        <action id="read">
+            <entitlement>RESOURCES_READ</entitlement>
+        </action>
+
+        <action id="update">
+            <entitlement>RESOURCES_UPDATE</entitlement>
+        </action>
+
+        <action id="delete">
+            <entitlement>RESOURCES_DELETE</entitlement>
+        </action>
+    </page>
+
+    <page id="Report">
+        <action id="list">
+            <entitlement>REPORT_LIST</entitlement>
+        </action>
+    </page>
+
+    <page id="Connectors">
+       <action id="list">
+            <entitlement>CONNECTORS_LIST</entitlement>
+        </action>
+
+        <action id="create">
+            <entitlement>CONNECTORS_CREATE</entitlement>
+        </action>
+
+        <action id="read">
+            <entitlement>CONNECTORS_READ</entitlement>
+        </action>
+
+        <action id="update">
+            <entitlement>CONNECTORS_UPDATE</entitlement>
+        </action>
+
+        <action id="delete">
+            <entitlement>CONNECTORS_DELETE</entitlement>
+        </action>
+    </page>
+
+    <page id="Report">
+
+    </page>
+
+    <page id="Configuration">
+       <action id="list">
+            <entitlement>CONFIGURATION_LIST</entitlement>
+        </action>
+
+        <action id="create">
+            <entitlement>CONFIGURATION_CREATE</entitlement>
+        </action>
+
+        <action id="read">
+            <entitlement>CONFIGURATION_READ</entitlement>
+        </action>
+
+        <action id="update">
+            <entitlement>CONFIGURATION_UPDATE</entitlement>
+        </action>
+
+        <action id="delete">
+            <entitlement>CONFIGURATION_DELETE</entitlement>
+        </action>
+    </page>
+
+    <page id="Tasks">
+       <action id="list">
+            <entitlement>TASKS_LIST</entitlement>
+        </action>
+
+        <action id="execute">
+            <entitlement>TASKS_EXECUTE</entitlement>
+        </action>
+
+        <action id="read">
+            <entitlement>TASKS_READ</entitlement>
+        </action>
+
+        <action id="delete">
+            <entitlement>TASKS_DELETE</entitlement>
+        </action>
+    </page>
+</auth>

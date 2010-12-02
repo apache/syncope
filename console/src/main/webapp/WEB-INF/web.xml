@@ -12,18 +12,22 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<web-app xmlns="http://java.sun.com/xml/ns/j2ee"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/javaee/web-app_2_4.xsd"
-         version="2.4">
+<web-app version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee
+        http://java.sun.com/xml/ns/javaee/web-app_2_4.xsd">
 
     <display-name>Syncope console</display-name>
     <servlet>
         <servlet-name>SyncopeApplication</servlet-name>
-        <servlet-class>org.apache.wicket.protocol.http.WicketServlet</servlet-class>
+        <servlet-class>
+            org.apache.wicket.protocol.http.WicketServlet
+        </servlet-class>
         <init-param>
             <param-name>applicationFactoryClassName</param-name>
-            <param-value>org.apache.wicket.spring.SpringWebApplicationFactory</param-value>
+            <param-value>
+                org.apache.wicket.spring.SpringWebApplicationFactory
+            </param-value>
         </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
@@ -45,11 +49,6 @@
     </context-param>
 
     <context-param>
-        <param-name>authenticationFile</param-name>
-        <param-value>/WEB-INF/authentication.xml</param-value>
-    </context-param>
-
-    <context-param>
         <param-name>configuration</param-name>
         <param-value>development</param-value>
     </context-param>
@@ -59,5 +58,4 @@
             org.springframework.web.context.ContextLoaderListener
         </listener-class>
     </listener>
-
 </web-app>

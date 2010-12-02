@@ -30,6 +30,7 @@ import org.apache.wicket.ajax.IAjaxCallDecorator;
 import org.apache.wicket.ajax.calldecorator.AjaxPreprocessingCallDecorator;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table
         .AjaxFallbackDefaultDataTable;
@@ -137,6 +138,12 @@ public class Configuration extends BasePage{
                 EditLinkPanel panel = new EditLinkPanel(componentId, model);
                 panel.add(editLink);
 
+                String allowedRoles = xmlRolesReader.getAllAllowedRoles(
+                        "Configuration","read");
+
+                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
+                        allowedRoles);
+
                 cellItem.add(panel);
             }
         });
@@ -187,6 +194,12 @@ public class Configuration extends BasePage{
                 DeleteLinkPanel panel = new DeleteLinkPanel(componentId, model);
                 panel.add(deleteLink);
 
+                String allowedRoles = xmlRolesReader.getAllAllowedRoles(
+                        "Configuration","delete");
+
+                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
+                        allowedRoles);
+
                 cellItem.add(panel);
             }
         });
@@ -217,7 +230,8 @@ public class Configuration extends BasePage{
         setWindowClosedCallback(createConfigWin, container);
         setWindowClosedCallback(editConfigWin, container);
 
-        add(new AjaxLink("createConfigurationLink") {
+        AjaxLink createConfigurationLink = new AjaxLink(
+                "createConfigurationLink") {
 
             @Override
             public void onClick(AjaxRequestTarget target) {
@@ -234,7 +248,14 @@ public class Configuration extends BasePage{
 
                 createConfigWin.show(target);
             }
-        });
+        };
+
+        String allowedRoles = xmlRolesReader.getAllAllowedRoles(
+                "Configuration","create");
+        MetaDataRoleAuthorizationStrategy.authorize(createConfigurationLink,
+                ENABLE, allowedRoles);
+
+        add(createConfigurationLink);
 
         Form paginatorForm = new Form("PaginatorForm");
 

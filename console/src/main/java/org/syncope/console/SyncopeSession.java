@@ -16,19 +16,20 @@ package org.syncope.console;
 
 import org.apache.wicket.Request;
 import org.apache.wicket.Session;
-import org.apache.wicket.protocol.http.WebSession;
+import org.apache.wicket.authentication.AuthenticatedWebSession;
+import org.apache.wicket.authorization.strategies.role.Roles;
 
 /**
  * Custom Syncope Session class.
  */
-public class SyncopeSession extends WebSession
+public class SyncopeSession extends AuthenticatedWebSession
 {
+    private SyncopeUser user;
 
     public static SyncopeSession get()
     {
         return ( SyncopeSession ) Session.get();
     }
-    private SyncopeUser user;
 
     public SyncopeSession( Request request )
     {
@@ -51,5 +52,22 @@ public class SyncopeSession extends WebSession
     {
         this.user = user;
         dirty();
+    }
+
+    /*
+     * Requested by AuthenticatedWebSession, but actually
+     * not used (replaced in Login page).
+     */
+    @Override
+    public boolean authenticate(String username, String password) {
+       if(((SyncopeSession)Session.get()).getUser() != null)
+            return true;
+       else
+           return false;
+    }
+
+    @Override
+    public Roles getRoles() {
+       return getUser().getRoles();
     }
 }

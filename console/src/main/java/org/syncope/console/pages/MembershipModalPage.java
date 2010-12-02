@@ -28,6 +28,7 @@ import org.apache.wicket.Application;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -242,6 +243,16 @@ public class MembershipModalPage extends SyncopeModalPage {
                 target.addComponent(form.get("feedback"));
             }
         };
+
+        String allowedRoles = null;
+
+        if(createFlag)
+            allowedRoles = xmlRolesReader.getAllAllowedRoles("Users","create");
+        else
+            allowedRoles = xmlRolesReader.getAllAllowedRoles("Users","update");
+
+        MetaDataRoleAuthorizationStrategy.authorize(submit, RENDER,
+                allowedRoles);
 
         form.add(submit);
 

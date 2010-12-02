@@ -27,6 +27,7 @@ import org.apache.wicket.ajax.IAjaxCallDecorator;
 import org.apache.wicket.ajax.calldecorator.AjaxPreprocessingCallDecorator;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table
         .AjaxFallbackDefaultDataTable;
@@ -70,6 +71,9 @@ public class Schema extends BasePage
 
     @SpringBean(name = "utility")
     Utility utility;
+
+    /*@SpringBean(name = "xmlRolesReader")
+    XMLRolesReader xmlRolesReader;*/
 
     final ModalWindow createUserSchemaWin;
     final ModalWindow editUserSchemaWin;
@@ -125,10 +129,12 @@ public class Schema extends BasePage
 
         add(createRoleDerivedSchemaWin
                 = new ModalWindow("createRoleDerivedSchemaWin"));
+
         add(editRoleDerivedSchemaWin
                 = new ModalWindow("editRoleDerivedSchemaWin"));
 
         add(createUserSchemaWin = new ModalWindow("createUserSchemaWin"));
+        
         add(editUserSchemaWin = new ModalWindow("editUserSchemaWin"));
         
         add(createUserDerivedSchemaWin
@@ -166,7 +172,16 @@ public class Schema extends BasePage
 
         membershipDerPageRows = utility.getPaginatorRowsToDisplay(Constants
                 .CONF_MEMBERSHIP_DER_SCHEMA_PAGINATOR_ROWS);
-        
+
+        final String allowedCreateRoles = xmlRolesReader.getAllAllowedRoles(
+                "Schema","create");
+
+        final String allowedReadRoles = xmlRolesReader.getAllAllowedRoles(
+                "Schema","read");
+
+        final String allowedDeleteRoles = xmlRolesReader.getAllAllowedRoles(
+                "Schema","delete");
+
         List<IColumn> rolesColumns = new ArrayList<IColumn>();
 
         rolesColumns.add(new PropertyColumn(new Model(getString("name")),
@@ -208,6 +223,9 @@ public class Schema extends BasePage
                 EditLinkPanel panel = new EditLinkPanel(componentId, model);
                 panel.add(editLink);
 
+                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE, 
+                        allowedReadRoles);
+
                 cellItem.add(panel);
             }
         });
@@ -247,6 +265,10 @@ public class Schema extends BasePage
                 };
 
                 DeleteLinkPanel panel = new DeleteLinkPanel(componentId, model);
+
+                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
+                        allowedDeleteRoles);
+
                 panel.add(deleteLink);
 
                 cellItem.add(panel);
@@ -317,6 +339,10 @@ public class Schema extends BasePage
                 };
 
                 EditLinkPanel panel = new EditLinkPanel(componentId, model);
+
+                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
+                allowedReadRoles);
+
                 panel.add(editLink);
 
                 cellItem.add(panel);
@@ -359,6 +385,10 @@ public class Schema extends BasePage
 
 
                 DeleteLinkPanel panel = new DeleteLinkPanel(componentId, model);
+
+                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
+                allowedDeleteRoles);
+
                 panel.add(deleteLink);
 
                 cellItem.add(panel);
@@ -433,6 +463,10 @@ public class Schema extends BasePage
                 };
 
                 EditLinkPanel panel = new EditLinkPanel(componentId, model);
+
+                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
+                allowedReadRoles);
+
                 panel.add(editLink);
 
                 cellItem.add(panel);
@@ -475,6 +509,10 @@ public class Schema extends BasePage
 
 
                 DeleteLinkPanel panel = new DeleteLinkPanel(componentId, model);
+
+                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
+                allowedDeleteRoles);
+
                 panel.add(deleteLink);
 
                 cellItem.add(panel);
@@ -549,6 +587,10 @@ public class Schema extends BasePage
                 };
 
                 EditLinkPanel panel = new EditLinkPanel(componentId, model);
+
+                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
+                allowedReadRoles);
+
                 panel.add(editLink);
 
                 cellItem.add(panel);
@@ -591,6 +633,10 @@ public class Schema extends BasePage
 
 
                 DeleteLinkPanel panel = new DeleteLinkPanel(componentId, model);
+
+                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
+                allowedDeleteRoles);
+
                 panel.add(deleteLink);
 
                 cellItem.add(panel);
@@ -666,6 +712,10 @@ public class Schema extends BasePage
                 };
 
                 EditLinkPanel panel = new EditLinkPanel(componentId, model);
+
+                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
+                allowedReadRoles);
+
                 panel.add(editLink);
 
                 cellItem.add(panel);
@@ -707,6 +757,10 @@ public class Schema extends BasePage
                 };
 
                 DeleteLinkPanel panel = new DeleteLinkPanel(componentId, model);
+
+                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
+                allowedDeleteRoles);
+
                 panel.add(deleteLink);
 
                 cellItem.add(panel);
@@ -782,6 +836,10 @@ public class Schema extends BasePage
                 };
 
                 EditLinkPanel panel = new EditLinkPanel(componentId, model);
+
+                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
+                allowedReadRoles);
+
                 panel.add(editLink);
 
                 cellItem.add(panel);
@@ -825,6 +883,10 @@ public class Schema extends BasePage
 
 
                 DeleteLinkPanel panel = new DeleteLinkPanel(componentId, model);
+
+                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
+                allowedDeleteRoles);
+
                 panel.add(deleteLink);
 
                 cellItem.add(panel);
@@ -959,7 +1021,7 @@ public class Schema extends BasePage
         setWindowClosedCallback(createMembershipDerivedSchemaWin, membershipDerivedSchemaContainer);
         setWindowClosedCallback(editMembershipDerivedSchemaWin, membershipDerivedSchemaContainer);
 
-        add(new AjaxLink("createRoleSchemaWinLink") {
+        AjaxLink createRoleSchemaWinLink = new AjaxLink("createRoleSchemaWinLink") {
 
             @Override
             public void onClick(AjaxRequestTarget target) {
@@ -976,9 +1038,15 @@ public class Schema extends BasePage
 
                 createRoleSchemaWin.show(target);
             }
-        });
+        };
 
-        add(new AjaxLink("createRoleDerivedSchemaWinLink") {
+        MetaDataRoleAuthorizationStrategy.authorize(createRoleSchemaWinLink, ENABLE,
+        allowedCreateRoles);
+        
+        add(createRoleSchemaWinLink);
+
+        
+       AjaxLink createRoleDerivedSchemaWinLink = new AjaxLink("createRoleDerivedSchemaWinLink") {
 
             @Override
             public void onClick(AjaxRequestTarget target) {
@@ -995,9 +1063,14 @@ public class Schema extends BasePage
 
                 createRoleDerivedSchemaWin.show(target);
             }
-        });
+        };
+        
+        MetaDataRoleAuthorizationStrategy.authorize(createRoleDerivedSchemaWinLink, ENABLE, 
+        allowedCreateRoles);
+        
+        add(createRoleDerivedSchemaWinLink);
 
-        add(new AjaxLink("createUserSchemaWinLink") {
+        AjaxLink createUserSchemaWinLink = new AjaxLink("createUserSchemaWinLink") {
 
             @Override
             public void onClick(AjaxRequestTarget target) {
@@ -1011,13 +1084,18 @@ public class Schema extends BasePage
                         return form;
                     }
                 });
-                
+
                 createUserSchemaWin.show(target);
             }
-        });
+        };
+        
+        add(createUserSchemaWinLink);
 
-        add(new AjaxLink("createUserDerSchemaWinLink") {
-            
+        MetaDataRoleAuthorizationStrategy.authorize(createUserSchemaWinLink, ENABLE,
+        allowedCreateRoles);
+
+        AjaxLink createUserDerSchemaWinLink = new AjaxLink("createUserDerSchemaWinLink") {
+
             @Override
             public void onClick(AjaxRequestTarget target) {
 
@@ -1027,16 +1105,23 @@ public class Schema extends BasePage
                 DerivedSchemaModalPage form = new DerivedSchemaModalPage(Schema.this,
                         new ModalWindow("createUserDerSchemaModalWin"), null, true);
                 form.setEntity(DerivedSchemaModalPage.Entity.USER);
-                
+
                 return form;
             }
             });
 
             createUserDerivedSchemaWin.show(target);
             }
-        });
+        };
+        
+        MetaDataRoleAuthorizationStrategy.authorize(createUserDerSchemaWinLink, 
+                ENABLE, allowedCreateRoles);
+        
+        add(createUserDerSchemaWinLink);
 
-        add(new AjaxLink("createMembershipSchemaWinLink") {
+        
+        AjaxLink createMembershipSchemaWinLink = new AjaxLink(
+            "createMembershipSchemaWinLink") {
 
             @Override
             public void onClick(AjaxRequestTarget target) {
@@ -1053,9 +1138,15 @@ public class Schema extends BasePage
 
                 createMembershipSchemaWin.show(target);
             }
-        });
+        };
 
-            add(new AjaxLink("createMembershipDerSchemaWinLink") {
+        MetaDataRoleAuthorizationStrategy.authorize(createMembershipSchemaWinLink,
+                ENABLE, allowedCreateRoles);
+
+        add(createMembershipSchemaWinLink);
+
+        AjaxLink createMembershipDerSchemaWinLink = new AjaxLink(
+                "createMembershipDerSchemaWinLink") {
 
             @Override
             public void onClick(AjaxRequestTarget target) {
@@ -1074,8 +1165,12 @@ public class Schema extends BasePage
 
             createMembershipDerivedSchemaWin.show(target);
             }
-        });
+        };
 
+        MetaDataRoleAuthorizationStrategy.authorize(createMembershipDerSchemaWinLink,
+                ENABLE, allowedCreateRoles);
+        
+        add(createMembershipDerSchemaWinLink);
     }
 
     /**

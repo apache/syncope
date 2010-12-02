@@ -1,10 +1,10 @@
-/*
+/* 
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *
+ * 
  *       http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -12,85 +12,31 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.console.pages;
+package org.syncope.console.rest;
 
-import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
-import org.apache.wicket.PageParameters;
-import org.apache.wicket.Session;
-import org.apache.wicket.markup.html.WebPage;
-import org.apache.wicket.markup.html.form.Button;
-import org.apache.wicket.markup.html.form.ChoiceRenderer;
-import org.apache.wicket.markup.html.form.DropDownChoice;
-import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.form.PasswordTextField;
-import org.apache.wicket.markup.html.form.TextField;
-import org.apache.wicket.markup.html.panel.FeedbackPanel;
-import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
-import org.syncope.console.SyncopeSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.syncope.console.SyncopeUser;
 
 /**
- * Syncope Login page.
+ * Console client for invoking authentication services.
  */
-public class Login extends WebPage {
-
-    public Form form;
-    public TextField usernameField;
-    public TextField passwordField;
-    public DropDownChoice<String> languageSelect;
-    public InputStream inputStream;
-
-    public Login(PageParameters parameters) {
-        super(parameters);
-        form = new Form("login");
-
-        usernameField = new TextField("username", new Model());
-        usernameField.setMarkupId("username");
-        form.add(usernameField);
-
-        passwordField = new PasswordTextField("password", new Model());
-        passwordField.setMarkupId("password");
-        form.add(passwordField);
-
-        languageSelect = new LocaleDropDown("language",Arrays.asList
-                (new Locale[]{Locale.ENGLISH, Locale.ITALIAN}));
-        
-        form.add(languageSelect);
-
-        Button submitButton = new Button("submit", new Model(
-                getString("submit"))) {
-
-            @Override
-            public void onSubmit() {
-               SyncopeUser user = authenticate(usernameField
-                       .getRawInput(), passwordField.getRawInput());
-
-               if(user != null) {
-                ((SyncopeSession)Session.get()).setUser(user);
-                setResponsePage(new WelcomePage(null));
-               }
-               else
-                    error(getString("login-error"));
-            }
-        };
-
-        submitButton.setDefaultFormProcessing(false);
-        form.add(submitButton);
-        
-        add(form);
-        add(new FeedbackPanel("feedback"));
-    }
+public class AuthRestClient {
 
     /**
-     *
+     * Logger.
+     */
+    private static final Logger LOG =
+            LoggerFactory.getLogger(AuthRestClient.class);
+    protected RestClient restClient;
+
+    /**
+     * Authenticate the user.
      * @param username
      * @param password
-     * @return
+     * @return SyncopeUser valued object
      */
     public SyncopeUser authenticate(String username, String password) {
 
@@ -98,7 +44,7 @@ public class Login extends WebPage {
         String roles = "";
 
         if ("admin".equals(username) && "password".equals(password)) {
-
+           
 
             List<String> rolesList = getAdminRoles();
 
@@ -137,7 +83,7 @@ public class Login extends WebPage {
 
     public List<String> getAdminRoles() {
         List<String> roles = new ArrayList<String>();
-
+        
         roles.add("USER_CREATE");
         roles.add("USER_LIST");
         roles.add("USER_READ");
@@ -216,45 +162,18 @@ public class Login extends WebPage {
     }
 
     /**
-     * Inner class which implements (custom) Locale DropDownChoice component.
+     * Getter for restClient attribute.
+     * @return RestClient instance
      */
-    public class LocaleDropDown extends DropDownChoice {
+    public RestClient getRestClient() {
+        return restClient;
+    }
 
-        private class LocaleRenderer extends ChoiceRenderer {
-
-            @Override
-            public String getDisplayValue(Object locale) {
-                return ((Locale) locale).getDisplayName(getLocale());
-            }
-        }
-
-        public LocaleDropDown(String id, List<Locale> supportedLocales) {
-            super(id, supportedLocales);
-            setChoiceRenderer(new LocaleRenderer());
-            setModel(new IModel() {
-
-                @Override
-                public Object getObject() {
-                    return getSession().getLocale();
-                }
-
-                @Override
-                public void setObject(Object object) {
-                    getSession().setLocale((Locale) object);
-                }
-
-                @Override
-                public void detach() {
-                }
-            });
-
-            //Set default value to English
-            getModel().setObject(Locale.ENGLISH);
-        }
-
-        @Override
-        protected boolean wantOnSelectionChangedNotifications() {
-            return true;
-        }
+    /**
+     * Setter for restClient attribute.
+     * @param restClient instance
+     */
+    public void setRestClient(RestClient restClient) {
+        this.restClient = restClient;
     }
 }

@@ -35,6 +35,8 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.IAjaxCallDecorator;
 import org.apache.wicket.ajax.calldecorator.AjaxPreprocessingCallDecorator;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.markup.html.form.palette.Palette;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -287,7 +289,7 @@ TextField name = new TextField("name");
 name.setRequired(true);
 container.add(name);
 
-submit = new AjaxButton("submit", new Model(getString("submit"))) {
+submit = new IndicatingAjaxButton("submit", new Model(getString("submit"))) {
 
     @Override
     protected void onSubmit(AjaxRequestTarget target, Form form) {
@@ -335,6 +337,15 @@ submit = new AjaxButton("submit", new Model(getString("submit"))) {
         target.addComponent(form.get("feedback"));
     }
 };
+
+String allowedRoles;
+
+if(createFlag)
+    allowedRoles = xmlRolesReader.getAllAllowedRoles("Roles","create");
+else
+    allowedRoles = xmlRolesReader.getAllAllowedRoles("Roles","update");
+
+MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE, allowedRoles);
 
 form.add(submit);
 

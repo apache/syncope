@@ -28,6 +28,8 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
+import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.CheckBox;
@@ -296,7 +298,7 @@ public class ResourceModalPage extends SyncopeModalPage {
 
         resourceForm.add(addSchemaMappingBtn);
 
-        submit = new AjaxButton("submit", new Model(getString("submit"))) {
+        submit = new IndicatingAjaxButton("submit", new Model(getString("submit"))) {
 
             @Override
             protected void onSubmit(AjaxRequestTarget target, Form form) {
@@ -340,6 +342,18 @@ public class ResourceModalPage extends SyncopeModalPage {
                 target.addComponent(form.get("feedback"));
             }
         };
+
+        String allowedRoles;
+
+        if(createFlag)
+            allowedRoles = xmlRolesReader.getAllAllowedRoles("Resources",
+                    "create");
+        else
+            allowedRoles = xmlRolesReader.getAllAllowedRoles("Resources",
+                    "update");
+
+        MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE,
+                        allowedRoles);
 
         resourceForm.add(submit);
 

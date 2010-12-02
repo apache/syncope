@@ -25,7 +25,11 @@ import java.util.Iterator;
 import java.util.List;
 import org.apache.wicket.Application;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.IAjaxCallDecorator;
+import org.apache.wicket.ajax.calldecorator.AjaxPreprocessingCallDecorator;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.authorization.strategies.role.metadata
+        .MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.datetime.DateConverter;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table
@@ -138,7 +142,8 @@ public class TaskModalPage extends SyncopeModalPage {
 
                        target.addComponent(dialogContent);
 
-                       target.appendJavascript("jQuery('#dialog').dialog('open')");
+                       target.appendJavascript("jQuery('#dialog')" +
+                               ".dialog('open')");
                     }
                 };
 
@@ -179,12 +184,36 @@ public class TaskModalPage extends SyncopeModalPage {
                         target.addComponent(form.get("feedback"));
                         target.addComponent(container);
                     }
+
+                   @Override
+                    protected IAjaxCallDecorator getAjaxCallDecorator() {
+                        return new AjaxPreprocessingCallDecorator(super
+                                .getAjaxCallDecorator()) {
+                            private static final long serialVersionUID = 1L;
+
+                            @Override
+                            public CharSequence preDecorateScript(
+                                    CharSequence script) {
+                                return "if (confirm('"+
+                                        getString("confirmDelete")+"'))"
+                                        +"{"+script+"}";
+                            }
+                        };
+                    }
                  };
                     DeleteLinkPanel panel = new DeleteLinkPanel(componentId,
                             model);
                     panel.add(deleteLink);
 
-                    cellItem.add(panel);
+                 String allowedRoles = null;
+
+                 allowedRoles = xmlRolesReader.getAllAllowedRoles("Tasks",
+                         "delete");
+
+                 MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
+                 allowedRoles);
+
+                 cellItem.add(panel);
             }
         });
 

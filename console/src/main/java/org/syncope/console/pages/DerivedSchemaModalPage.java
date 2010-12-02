@@ -18,6 +18,8 @@ package org.syncope.console.pages;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
@@ -70,7 +72,7 @@ public class DerivedSchemaModalPage extends SyncopeModalPage
 
         name.setEnabled(createFlag);
 
-        submit = new AjaxButton("submit") {
+        submit = new IndicatingAjaxButton("submit") {
 
             @Override
             protected void onSubmit(AjaxRequestTarget target, Form form) {
@@ -109,6 +111,18 @@ public class DerivedSchemaModalPage extends SyncopeModalPage
                 target.addComponent(form.get( "feedback" ));
             }
         };
+
+        String allowedRoles;
+
+        if(createFlag)
+            allowedRoles = xmlRolesReader.getAllAllowedRoles("Schema",
+                    "create");
+        else
+            allowedRoles = xmlRolesReader.getAllAllowedRoles("Schema",
+                    "update");
+
+        MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE,
+                        allowedRoles);
 
         schemaForm.add(name);
         schemaForm.add(expression);

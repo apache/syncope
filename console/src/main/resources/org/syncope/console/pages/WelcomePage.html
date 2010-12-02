@@ -21,14 +21,22 @@
 
         <title>Syncope - Login</title>
 
-        <!--link rel="shortcut icon" href="img/favicon.png" type="image/png" /-->
         <link rel="stylesheet" href="css/stile_sy.css" type="text/css" media="all"/>
-
+        <style type="text/css">
+            em {
+                font-size: 14px;
+                color: gray;
+            }
+            em img {
+                opacity:0.4;
+                filter:alpha(opacity=40);
+            }
+        </style>
     </head>
     <body>
     <div id="splash">
       <img src="img/logo.png" alt="syncope" title="syncope" id="logo" />
-      <h2>Benvenuto <strong>User</strong>!</h2>
+      <h2>Benvenuto <strong><span wicket:id="username"/></strong>!</h2>
       <ul>
         <li><a href="#" wicket:id="schema" class="schema"><img src="img/menu/schema.png" alt="Schema" width="80" height="80" /><br /><wicket:message key="schema"/></a></li>
         <li><a href="#" wicket:id="users" class="users"><img src="img/menu/users.png" alt="Users" width="80" height="80" /><br /><wicket:message key="users"/></a></li>

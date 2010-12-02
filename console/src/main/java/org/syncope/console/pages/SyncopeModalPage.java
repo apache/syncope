@@ -16,10 +16,15 @@
 package org.syncope.console.pages;
 
 import org.apache.wicket.markup.html.WebPage;
+import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.syncope.console.commons.XMLRolesReader;
 
 /**
  * Syncope Modal Window.
  */
 public class SyncopeModalPage extends WebPage {
+
+    @SpringBean(name = "xmlRolesReader")
+    protected XMLRolesReader xmlRolesReader;
 
 }

@@ -37,6 +37,8 @@ import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.authorization.strategies.role.metadata
+        .MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 
@@ -388,9 +390,16 @@ submit = new IndicatingAjaxButton ("submit", new Model(getString("submit"))){
 //    }
 };
 
-userForm.add(submit);
+String allowedRoles = null;
 
-//userForm.add(new NiceButton("submit", new Model(getString("submit"))));
+if(createFlag)
+    allowedRoles = xmlRolesReader.getAllAllowedRoles("Users","create");
+else
+    allowedRoles = xmlRolesReader.getAllAllowedRoles("Users","update");
+
+MetaDataRoleAuthorizationStrategy.authorize(submit, RENDER, allowedRoles);
+
+userForm.add(submit);
 
 userForm.add(new FeedbackPanel("feedback").setOutputMarkupId(true));
 
@@ -403,7 +412,7 @@ tree = new LinkTree("treeTable", roleTree.createTreeModel()) {
 
     @Override
     protected IModel<Object> getNodeTextModel(IModel<Object> model) {
-        return new PropertyModel(model, "userObject.treeNode.name");
+        return new PropertyModel(model, "userObject.treeNode.displayName");
     }
 
     @Override
