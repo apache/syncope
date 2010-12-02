@@ -14,6 +14,7 @@
  */
 package org.syncope.core.rest.data;
 
+import org.syncope.core.persistence.util.AttributableUtil;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -56,7 +57,6 @@ import org.syncope.core.persistence.dao.SyncopeRoleDAO;
 import org.syncope.core.persistence.dao.SyncopeUserDAO;
 import org.syncope.core.persistence.propagation.ResourceOperations;
 import org.syncope.types.ResourceOperationType;
-import org.syncope.types.SchemaType;
 import org.syncope.types.SyncopeClientExceptionType;
 
 public abstract class AbstractAttributableDataBinder {
@@ -169,14 +169,15 @@ public abstract class AbstractAttributableDataBinder {
         }
     }
 
-    private <T extends AbstractSchema> boolean evaluateMandatoryCondition(
+    private boolean evaluateMandatoryCondition(
             final String mandatoryCondition,
             final List<? extends AbstractAttr> attributes,
-            final Class<T> referenceSchema) {
+            final AttributableUtil attributableUtil) {
 
         JexlContext jexlContext = new MapContext();
 
-        List<T> allSchemas = schemaDAO.findAll(referenceSchema);
+        List<AbstractSchema> allSchemas =
+                schemaDAO.findAll(attributableUtil.schemaClass());
         for (AbstractAttr attribute : attributes) {
             jexlContext.set(attribute.getSchema().getName(),
                     attribute.getValuesAsStrings().isEmpty()
@@ -185,9 +186,9 @@ public abstract class AbstractAttributableDataBinder {
                     ? attribute.getValuesAsStrings()
                     : attribute.getValuesAsStrings().iterator().next()));
 
-            allSchemas.remove((T) attribute.getSchema());
+            allSchemas.remove(attribute.getSchema());
         }
-        for (T schema : allSchemas) {
+        for (AbstractSchema schema : allSchemas) {
             jexlContext.set(schema.getName(), null);
         }
 
@@ -205,14 +206,14 @@ public abstract class AbstractAttributableDataBinder {
         return result;
     }
 
-    private <T extends AbstractSchema> boolean evaluateMandatoryCondition(
+    private boolean evaluateMandatoryCondition(
             final String resourceName,
             final List<? extends AbstractAttr> attributes,
             final String schemaName,
-            final Class<T> referenceSchema) {
+            final AttributableUtil attributableUtil) {
 
         List<SchemaMapping> mappings = resourceDAO.getMappings(schemaName,
-                SchemaType.byClass(referenceSchema), resourceName);
+                attributableUtil.sourceMappingType(), resourceName);
 
         boolean result = false;
 
@@ -224,17 +225,17 @@ public abstract class AbstractAttributableDataBinder {
             result |= evaluateMandatoryCondition(
                     mapping.getMandatoryCondition(),
                     attributes,
-                    referenceSchema);
+                    attributableUtil);
         }
 
         return result;
     }
 
-    private <T extends AbstractSchema> boolean evaluateMandatoryCondition(
+    private boolean evaluateMandatoryCondition(
             final Set<TargetResource> resources,
             final List<? extends AbstractAttr> attributes,
             final String schemaName,
-            final Class<T> referenceSchema) {
+            final AttributableUtil attributableUtil) {
 
         boolean result = false;
 
@@ -245,15 +246,15 @@ public abstract class AbstractAttributableDataBinder {
             resource = itor.next();
             if (resource.isForceMandatoryConstraint()) {
                 result |= evaluateMandatoryCondition(resource.getName(),
-                        attributes, schemaName, referenceSchema);
+                        attributes, schemaName, attributableUtil);
             }
         }
 
         return result;
     }
 
-    private <T extends AbstractSchema> SyncopeClientException checkMandatory(
-            final Class<T> referenceSchema,
+    private SyncopeClientException checkMandatory(
+            final AttributableUtil attributableUtil,
             final AbstractAttributable attributable) {
 
         SyncopeClientException requiredValuesMissing =
@@ -265,23 +266,23 @@ public abstract class AbstractAttributableDataBinder {
         resources.addAll(attributable.getInheritedTargetResources());
 
         LOG.debug("Check mandatory constraint among resources {}", resources);
-
         // Check if there is some mandatory schema defined for which no value
         // has been provided
-        List<T> allSchemas = schemaDAO.findAll(referenceSchema);
+        List<AbstractSchema> allSchemas =
+                schemaDAO.findAll(attributableUtil.schemaClass());
 
-        for (T schema : allSchemas) {
+        for (AbstractSchema schema : allSchemas) {
             if (attributable.getAttribute(schema.getName()) == null
                     && !schema.isVirtual()
                     && !schema.isReadonly()
                     && (evaluateMandatoryCondition(
                     schema.getMandatoryCondition(),
                     attributable.getAttributes(),
-                    referenceSchema)
+                    attributableUtil)
                     || evaluateMandatoryCondition(resources,
                     attributable.getAttributes(),
                     schema.getName(),
-                    referenceSchema))) {
+                    attributableUtil))) {
 
                 LOG.error("Mandatory schema " + schema.getName()
                         + " not provided with values");
@@ -334,8 +335,7 @@ public abstract class AbstractAttributableDataBinder {
 
                 for (SchemaMapping mapping : resourceDAO.getMappings(
                         schema.getName(),
-                        SchemaType.byClass(
-                        attributableUtil.schemaClass()))) {
+                        attributableUtil.sourceMappingType())) {
 
                     if (mapping.getResource() != null
                             && resources.contains(mapping.getResource())) {
@@ -368,8 +368,7 @@ public abstract class AbstractAttributableDataBinder {
             if (schema != null) {
                 for (SchemaMapping mapping : resourceDAO.getMappings(
                         schema.getName(),
-                        SchemaType.byClass(
-                        attributableUtil.schemaClass()))) {
+                        attributableUtil.sourceMappingType())) {
 
                     if (mapping.getResource() != null
                             && resources.contains(mapping.getResource())) {
@@ -402,7 +401,9 @@ public abstract class AbstractAttributableDataBinder {
                         }
                     } else {
                         for (AbstractAttrValue mav : attribute.getValues()) {
-                            if (valueToBeRemoved.equals(mav.getValueAsString())) {
+                            if (valueToBeRemoved.equals(
+                                    mav.getValueAsString())) {
+
                                 valuesToBeRemoved.add(mav.getId());
                             }
                         }
@@ -429,7 +430,7 @@ public abstract class AbstractAttributableDataBinder {
         }
 
         SyncopeClientException requiredValuesMissing =
-                checkMandatory(attributableUtil.schemaClass(), attributable);
+                checkMandatory(attributableUtil, attributable);
         if (!requiredValuesMissing.getElements().isEmpty()) {
             compositeErrorException.addException(requiredValuesMissing);
         }
@@ -591,7 +592,7 @@ public abstract class AbstractAttributableDataBinder {
         }
 
         SyncopeClientException requiredValuesMissing =
-                checkMandatory(attributableUtil.schemaClass(), attributable);
+                checkMandatory(attributableUtil, attributable);
         if (!requiredValuesMissing.getElements().isEmpty()) {
             compositeErrorException.addException(requiredValuesMissing);
         }

@@ -31,7 +31,7 @@ import org.hibernate.validator.constraints.Range;
 import org.syncope.core.persistence.validation.attrvalue.BasicValidator;
 import org.syncope.core.persistence.validation.attrvalue.AbstractValidator;
 import org.syncope.core.persistence.validation.entity.SchemaCheck;
-import org.syncope.types.SchemaValueType;
+import org.syncope.types.SchemaType;
 
 @MappedSuperclass
 @SchemaCheck
@@ -60,7 +60,7 @@ public abstract class AbstractSchema extends AbstractBaseBean {
 
     @Column(nullable = false)
     @Enumerated(STRING)
-    private SchemaValueType type;
+    private SchemaType type;
 
     /**
      * Specify if the attribute should be stored on the local repository.
@@ -96,7 +96,7 @@ public abstract class AbstractSchema extends AbstractBaseBean {
     public AbstractSchema() {
         super();
 
-        type = SchemaValueType.String;
+        type = SchemaType.String;
         virtual = getBooleanAsInteger(false);
         mandatoryCondition = Boolean.FALSE.toString();
         multivalue = getBooleanAsInteger(false);
@@ -112,11 +112,11 @@ public abstract class AbstractSchema extends AbstractBaseBean {
         this.name = name;
     }
 
-    public SchemaValueType getType() {
+    public SchemaType getType() {
         return type;
     }
 
-    public void setType(SchemaValueType type) {
+    public void setType(SchemaType type) {
         this.type = type;
     }
 

@@ -14,9 +14,9 @@
  */
 package org.syncope.core.persistence.beans;
 
-public interface IAttrUniqueValue {
+public abstract class AbstractAttrUniqueValue extends AbstractAttrValue {
 
-    <T extends AbstractSchema> T getSchema();
+    public abstract <T extends AbstractSchema> T getSchema();
 
-    <T extends AbstractSchema> void setSchema(T schema);
+    public abstract <T extends AbstractSchema> void setSchema(T schema);
 }

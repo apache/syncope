@@ -37,7 +37,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.string.Strings;
 import org.syncope.client.to.SchemaTO;
 import org.syncope.console.rest.SchemaRestClient;
-import org.syncope.types.SchemaValueType;
+import org.syncope.types.SchemaType;
 
 
 /**
@@ -98,7 +98,7 @@ public class SchemaModalPage extends SyncopeModalPage
                 new PropertyModel(schema, "validatorClass")
                 ,validatorsList);
 
-        type = new DropDownChoice("type",Arrays.asList(SchemaValueType.values()));
+        type = new DropDownChoice("type",Arrays.asList(SchemaType.values()));
         type.setRequired(true);
 
         mandatoryCondition = new AutoCompleteTextField("mandatoryCondition") {

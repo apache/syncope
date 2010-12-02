@@ -26,7 +26,7 @@ import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.dao.AttributeDAO;
 import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
-import org.syncope.types.SchemaType;
+import org.syncope.core.persistence.util.AttributableUtil;
 
 @Repository
 public class SchemaDAOImpl extends AbstractDAOImpl
@@ -61,10 +61,10 @@ public class SchemaDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    public <T extends AbstractSchema> void delete(String name,
-            Class<T> reference) {
+    public void delete(final String name,
+            final AttributableUtil attributableUtil) {
 
-        T schema = find(name, reference);
+        AbstractSchema schema = find(name, attributableUtil.schemaClass());
         if (schema == null) {
             return;
         }
@@ -85,7 +85,7 @@ public class SchemaDAOImpl extends AbstractDAOImpl
             attributeDAO.delete(attributeId, attributeClass);
         }
 
-        resourceDAO.deleteMappings(name, SchemaType.byClass(reference));
+        resourceDAO.deleteMappings(name, attributableUtil.sourceMappingType());
 
         entityManager.remove(schema);
     }

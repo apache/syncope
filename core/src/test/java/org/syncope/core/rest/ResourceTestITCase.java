@@ -26,7 +26,7 @@ import org.springframework.web.client.HttpStatusCodeException;
 import org.syncope.client.to.ResourceTO;
 import org.syncope.client.to.SchemaMappingTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.syncope.types.SchemaType;
+import org.syncope.types.SourceMappingType;
 
 public class ResourceTestITCase extends AbstractTest {
 
@@ -51,21 +51,21 @@ public class ResourceTestITCase extends AbstractTest {
         resourceTO.setConnectorId(102L);
 
         SchemaMappingTO schemaMappingTO = new SchemaMappingTO();
-        schemaMappingTO.setField("uid");
-        schemaMappingTO.setSchemaName("userId");
-        schemaMappingTO.setSchemaType(SchemaType.UserSchema);
+        schemaMappingTO.setDestAttrName("uid");
+        schemaMappingTO.setSourceAttrName("userId");
+        schemaMappingTO.setSourceMappingType(SourceMappingType.UserSchema);
         resourceTO.addMapping(schemaMappingTO);
 
         schemaMappingTO = new SchemaMappingTO();
-        schemaMappingTO.setField("icon");
-        schemaMappingTO.setSchemaName("icon");
-        schemaMappingTO.setSchemaType(SchemaType.RoleSchema);
+        schemaMappingTO.setDestAttrName("icon");
+        schemaMappingTO.setSourceAttrName("icon");
+        schemaMappingTO.setSourceMappingType(SourceMappingType.RoleSchema);
         resourceTO.addMapping(schemaMappingTO);
 
         schemaMappingTO = new SchemaMappingTO();
-        schemaMappingTO.setField("username");
-        schemaMappingTO.setSchemaName("username");
-        schemaMappingTO.setSchemaType(SchemaType.AccountId);
+        schemaMappingTO.setDestAttrName("username");
+        schemaMappingTO.setSourceAttrName("username");
+        schemaMappingTO.setSourceMappingType(SourceMappingType.SyncopeUserId);
         schemaMappingTO.setAccountid(true);
         resourceTO.addMapping(schemaMappingTO);
 
@@ -113,23 +113,23 @@ public class ResourceTestITCase extends AbstractTest {
         // Update with an existing and already assigned mapping
         SchemaMappingTO schemaMappingTO = new SchemaMappingTO();
         schemaMappingTO.setId(112L);
-        schemaMappingTO.setField("test3");
-        schemaMappingTO.setSchemaName("username");
-        schemaMappingTO.setSchemaType(SchemaType.UserSchema);
+        schemaMappingTO.setDestAttrName("test3");
+        schemaMappingTO.setSourceAttrName("username");
+        schemaMappingTO.setSourceMappingType(SourceMappingType.UserSchema);
         schemaMappingTOs.add(schemaMappingTO);
 
         // Update defining new mappings
         for (int i = 4; i < 6; i++) {
             schemaMappingTO = new SchemaMappingTO();
-            schemaMappingTO.setField("test" + i);
-            schemaMappingTO.setSchemaName("username");
-            schemaMappingTO.setSchemaType(SchemaType.UserSchema);
+            schemaMappingTO.setDestAttrName("test" + i);
+            schemaMappingTO.setSourceAttrName("username");
+            schemaMappingTO.setSourceMappingType(SourceMappingType.UserSchema);
             schemaMappingTOs.add(schemaMappingTO);
         }
         schemaMappingTO = new SchemaMappingTO();
-        schemaMappingTO.setField("username");
-        schemaMappingTO.setSchemaName("username");
-        schemaMappingTO.setSchemaType(SchemaType.AccountId);
+        schemaMappingTO.setDestAttrName("username");
+        schemaMappingTO.setSourceAttrName("username");
+        schemaMappingTO.setSourceMappingType(SourceMappingType.SyncopeUserId);
         schemaMappingTO.setAccountid(true);
         schemaMappingTOs.add(schemaMappingTO);
 

@@ -1,3 +1,5 @@
+package org.syncope.types;
+
 /*
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -12,29 +14,12 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.types;
+public enum SourceMappingType {
 
-public enum SchemaValueType {
+    UserSchema,
+    RoleSchema,
+    MembershipSchema,
+    SyncopeUserId,
+    Password;
 
-    String("java.lang.String"),
-    Long("java.lang.Long"),
-    Double("java.lang.Double"),
-    Boolean("java.lang.Boolean"),
-    Date("java.util.Date");
-
-    final private String className;
-
-    SchemaValueType(String className) {
-        this.className = className;
-    }
-
-    public String getClassName() {
-        return className;
-    }
-
-    public boolean isConversionPatternNeeded() {
-        return this == SchemaValueType.Date
-                || this == SchemaValueType.Double
-                || this == SchemaValueType.Long;
-    }
 }

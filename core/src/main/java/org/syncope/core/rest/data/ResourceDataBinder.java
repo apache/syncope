@@ -189,14 +189,14 @@ public class ResourceDataBinder {
             return null;
         }
 
-        if (mappingTO.getSchemaName() == null) {
-            requiredValuesMissing.addElement("schema");
+        if (mappingTO.getSourceAttrName() == null) {
+            requiredValuesMissing.addElement("sourceAttrName");
         }
-        if (mappingTO.getField() == null) {
-            requiredValuesMissing.addElement("field");
+        if (mappingTO.getDestAttrName() == null) {
+            requiredValuesMissing.addElement("destAttrName");
         }
-        if (mappingTO.getSchemaType() == null) {
-            requiredValuesMissing.addElement("type");
+        if (mappingTO.getSourceMappingType() == null) {
+            requiredValuesMissing.addElement("sourceMappingType");
         }
         if (mappingTO.getMandatoryCondition() == null) {
             requiredValuesMissing.addElement("mandatoryCondition");
@@ -232,14 +232,13 @@ public class ResourceDataBinder {
             throw compositeErrorException;
         }
 
-        SchemaMapping schemaMapping = new SchemaMapping();
+        SchemaMapping mapping = new SchemaMapping();
 
-        BeanUtils.copyProperties(
-                mappingTO, schemaMapping, MAPPING_IGNORE_PROPERTIES);
+        BeanUtils.copyProperties(mappingTO, mapping, MAPPING_IGNORE_PROPERTIES);
 
-        schemaMapping.setResource(resource);
+        mapping.setResource(resource);
 
-        return schemaMapping;
+        return mapping;
     }
 
     public List<SchemaMappingTO> getSchemaMappingTOs(
@@ -254,16 +253,12 @@ public class ResourceDataBinder {
         List<SchemaMappingTO> schemaMappingTOs =
                 new ArrayList<SchemaMappingTO>();
         for (SchemaMapping mapping : mappings) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Ask for " + mapping + " TO");
-            }
+            LOG.debug("Asking for TO for {}", mapping);
 
             schemaMappingTOs.add(getSchemaMappingTO(mapping));
         }
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Collected TOs " + schemaMappingTOs);
-        }
+        LOG.debug("Collected TOs: {}", schemaMappingTOs);
 
         return schemaMappingTOs;
     }

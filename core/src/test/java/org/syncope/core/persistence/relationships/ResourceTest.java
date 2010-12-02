@@ -39,7 +39,7 @@ import org.syncope.core.rest.data.ResourceDataBinder;
 import org.syncope.core.persistence.AbstractTest;
 import org.syncope.core.persistence.beans.Task;
 import org.syncope.core.persistence.dao.TaskDAO;
-import org.syncope.types.SchemaType;
+import org.syncope.types.SourceMappingType;
 
 @Transactional
 public class ResourceTest extends AbstractTest {
@@ -70,12 +70,12 @@ public class ResourceTest extends AbstractTest {
         USchema userId = schemaDAO.find("userId", USchema.class);
         int beforeUserIdMappings = resourceDAO.getMappings(
                 userId.getName(),
-                SchemaType.UserSchema).size();
+                SourceMappingType.UserSchema).size();
 
         SchemaMappingTO schemaMappingTO = new SchemaMappingTO();
-        schemaMappingTO.setSchemaName("userId");
-        schemaMappingTO.setSchemaType(SchemaType.UserSchema);
-        schemaMappingTO.setField("campo1");
+        schemaMappingTO.setSourceAttrName("userId");
+        schemaMappingTO.setSourceMappingType(SourceMappingType.UserSchema);
+        schemaMappingTO.setDestAttrName("campo1");
         schemaMappingTO.setAccountid(true);
         schemaMappingTO.setPassword(false);
         schemaMappingTO.setMandatoryCondition("false");
@@ -91,9 +91,7 @@ public class ResourceTest extends AbstractTest {
         resourceTO.setForceMandatoryConstraint(true);
 
         TargetResource resource = resourceDataBinder.getResource(resourceTO);
-
         resource = resourceDAO.save(resource);
-
         resourceDAO.flush();
 
         TargetResource actual = resourceDAO.find("resource-issue42");
@@ -102,7 +100,7 @@ public class ResourceTest extends AbstractTest {
         userId = schemaDAO.find("userId", USchema.class);
         int afterUserIdMappings = resourceDAO.getMappings(
                 userId.getName(),
-                SchemaType.UserSchema).size();
+                SourceMappingType.UserSchema).size();
 
         assertEquals(beforeUserIdMappings, afterUserIdMappings - 1);
     }
@@ -129,10 +127,10 @@ public class ResourceTest extends AbstractTest {
 
         for (int i = 0; i < 3; i++) {
             mapping = new SchemaMapping();
-            mapping.setField("test" + i);
+            mapping.setDestAttrName("test" + i);
 
-            mapping.setSchemaName(userSchema.getName());
-            mapping.setSchemaType(SchemaType.UserSchema);
+            mapping.setSourceAttrName(userSchema.getName());
+            mapping.setSourceMappingType(SourceMappingType.UserSchema);
             mapping.setMandatoryCondition("false");
 
             resource.addMapping(mapping);
@@ -140,9 +138,9 @@ public class ResourceTest extends AbstractTest {
         SchemaMapping accountId = new SchemaMapping();
         accountId.setResource(resource);
         accountId.setAccountid(true);
-        accountId.setField("username");
-        accountId.setSchemaName(userSchema.getName());
-        accountId.setSchemaType(SchemaType.AccountId);
+        accountId.setDestAttrName("username");
+        accountId.setSourceAttrName(userSchema.getName());
+        accountId.setSourceMappingType(SourceMappingType.SyncopeUserId);
 
         resource.addMapping(accountId);
 

@@ -12,7 +12,7 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.rest.data;
+package org.syncope.core.persistence.util;
 
 import org.syncope.core.persistence.beans.AbstractAttr;
 import org.syncope.core.persistence.beans.AbstractAttrValue;
@@ -37,10 +37,29 @@ import org.syncope.core.persistence.beans.user.UAttrValue;
 import org.syncope.core.persistence.beans.user.UDerAttr;
 import org.syncope.core.persistence.beans.user.UDerSchema;
 import org.syncope.core.persistence.beans.user.USchema;
+import org.syncope.types.SourceMappingType;
 
 public enum AttributableUtil {
 
     USER, ROLE, MEMBERSHIP;
+
+    public SourceMappingType sourceMappingType() {
+        SourceMappingType result = null;
+
+        switch (this) {
+            case USER:
+                result = SourceMappingType.UserSchema;
+                break;
+            case ROLE:
+                result = SourceMappingType.RoleSchema;
+                break;
+            case MEMBERSHIP:
+                result = SourceMappingType.MembershipSchema;
+                break;
+        }
+
+        return result;
+    }
 
     public <T extends AbstractSchema> Class<T> schemaClass() {
         Class result = null;

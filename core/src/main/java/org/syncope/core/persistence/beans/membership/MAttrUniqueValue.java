@@ -19,13 +19,11 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import org.syncope.core.persistence.beans.AbstractAttr;
-import org.syncope.core.persistence.beans.AbstractAttrValue;
+import org.syncope.core.persistence.beans.AbstractAttrUniqueValue;
 import org.syncope.core.persistence.beans.AbstractSchema;
-import org.syncope.core.persistence.beans.IAttrUniqueValue;
 
 @Entity
-public class MAttrUniqueValue extends AbstractAttrValue
-        implements IAttrUniqueValue {
+public class MAttrUniqueValue extends AbstractAttrUniqueValue {
 
     @Id
     private Long id;

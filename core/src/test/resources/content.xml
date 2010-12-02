@@ -201,84 +201,84 @@
     <SyncopeRole_TargetResource roles_id="8" targetResources_name="ws-target-resource-2" />
     <SyncopeRole_TargetResource roles_id="3" targetResources_name="ws-target-resource-list-mappings-2" />
 
-    <SchemaMapping id="99" field="userid"
+    <SchemaMapping id="99" destAttrName="userid"
                    resource_name="ws-target-resource-1"
-                   schemaName="AccountId" schemaType="AccountId" mandatoryCondition="true"
+                   sourceAttrName="SyncopeUserId" sourceMappingType="SyncopeUserId" mandatoryCondition="true"
                    accountid="1" password="0"/>
 
-    <SchemaMapping id="100" field="email"
+    <SchemaMapping id="100" destAttrName="email"
                    resource_name="ws-target-resource-1"
-                   schemaName="email" schemaType="UserSchema" mandatoryCondition="true"
+                   sourceAttrName="email" sourceMappingType="UserSchema" mandatoryCondition="true"
                    accountid="1" password="0"/>
 
-    <SchemaMapping id="101" field="username"
+    <SchemaMapping id="101" destAttrName="username"
                    resource_name="ws-target-resource-2"
-                   schemaName="username" schemaType="UserSchema" mandatoryCondition="true"
+                   sourceAttrName="username" sourceMappingType="UserSchema" mandatoryCondition="true"
                    accountid="1" password="0"/>
 
-    <SchemaMapping id="102" field="email"
+    <SchemaMapping id="102" destAttrName="email"
                    resource_name="ws-target-resource-list-mappings-1"
-                   schemaName="email" schemaType="UserSchema" mandatoryCondition="true"
+                   sourceAttrName="email" sourceMappingType="UserSchema" mandatoryCondition="true"
                    accountid="1" password="0"/>
 
-    <SchemaMapping id="103" field="surname"
+    <SchemaMapping id="103" destAttrName="surname"
                    resource_name="ws-target-resource-list-mappings-1"
-                   schemaName="surname" schemaType="UserSchema" mandatoryCondition="true"
+                   sourceAttrName="surname" sourceMappingType="UserSchema" mandatoryCondition="true"
                    accountid="0" password="0"/>
 
-    <SchemaMapping id="104" field="userid"
+    <SchemaMapping id="104" destAttrName="userid"
                    resource_name="ws-target-resource-list-mappings-2"
-                   schemaName="userId" schemaType="UserSchema" mandatoryCondition="true"
+                   sourceAttrName="userId" sourceMappingType="UserSchema" mandatoryCondition="true"
                    accountid="1" password="0"/>
 
-    <SchemaMapping id="105" field="surname"
+    <SchemaMapping id="105" destAttrName="surname"
                    resource_name="ws-target-resource-1"
-                   schemaName="surname" schemaType="UserSchema" mandatoryCondition="true"
+                   sourceAttrName="surname" sourceMappingType="UserSchema" mandatoryCondition="true"
                    accountid="0" password="0"/>
 
-    <SchemaMapping id="106" field="password"
+    <SchemaMapping id="106" destAttrName="password"
                    resource_name="ws-target-resource-1"
-                   schemaName="Password" schemaType="Password" mandatoryCondition="true"
+                   sourceAttrName="Password" sourceMappingType="Password" mandatoryCondition="true"
                    accountid="0" password="1"/>
 
-    <SchemaMapping id="107" field="password"
+    <SchemaMapping id="107" destAttrName="password"
                    resource_name="ws-target-resource-2"
-                   schemaName="Password" schemaType="Password" mandatoryCondition="true"
+                   sourceAttrName="Password" sourceMappingType="Password" mandatoryCondition="true"
                    accountid="0" password="1"/>
 
-    <SchemaMapping id="108" field="type"
+    <SchemaMapping id="108" destAttrName="type"
                    resource_name="ws-target-resource-2"
-                   schemaName="type" schemaType="UserSchema" mandatoryCondition="true"
+                   sourceAttrName="type" sourceMappingType="UserSchema" mandatoryCondition="true"
                    accountid="0" password="0"/>
 
-    <SchemaMapping id="109" field="surname"
+    <SchemaMapping id="109" destAttrName="surname"
                    resource_name="ws-target-resource-2"
-                   schemaName="surname" schemaType="UserSchema" mandatoryCondition="true"
+                   sourceAttrName="surname" sourceMappingType="UserSchema" mandatoryCondition="true"
                    accountid="0" password="0"/>
 
-    <SchemaMapping id="110" field="email"
+    <SchemaMapping id="110" destAttrName="email"
                    resource_name="ws-target-resource-update"
-                   schemaName="email" schemaType="UserSchema" mandatoryCondition="false"
+                   sourceAttrName="email" sourceMappingType="UserSchema" mandatoryCondition="false"
                    accountid="0" password="0"/>
 
-    <SchemaMapping id="111" field="userId"
+    <SchemaMapping id="111" destAttrName="userId"
                    resource_name="ws-target-resource-update"
-                   schemaName="userId" schemaType="UserSchema" mandatoryCondition="false"
+                   sourceAttrName="userId" sourceMappingType="UserSchema" mandatoryCondition="false"
                    accountid="0" password="0"/>
     
-    <SchemaMapping id="112" field="test3"
+    <SchemaMapping id="112" destAttrName="test3"
                    resource_name="ws-target-resource-update"
-                   schemaName="username" schemaType="UserSchema" mandatoryCondition="false"
+                   sourceAttrName="username" sourceMappingType="UserSchema" mandatoryCondition="false"
                    accountid="0" password="0"/>
 
-    <SchemaMapping id="113" field="name"
+    <SchemaMapping id="113" destAttrName="name"
                    resource_name="ws-target-resource-2"
-                   schemaName="firstname" schemaType="UserSchema" mandatoryCondition="type == 'F'"
+                   sourceAttrName="firstname" sourceMappingType="UserSchema" mandatoryCondition="type == 'F'"
                    accountid="0" password="0"/>
 
-    <SchemaMapping id="114" field="name"
+    <SchemaMapping id="114" destAttrName="name"
                    resource_name="ws-target-resource-nopropagation"
-                   schemaName="firstname" schemaType="UserSchema" mandatoryCondition="true"
+                   sourceAttrName="firstname" sourceMappingType="UserSchema" mandatoryCondition="true"
                    accountid="0" password="0"/>
 
     <Task id="1" propagationMode="ASYNC" resourceOperationType="UPDATE"

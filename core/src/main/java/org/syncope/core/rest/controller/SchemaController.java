@@ -69,7 +69,7 @@ public class SchemaController extends AbstractController {
 
             throw new NotFoundException(schemaName);
         } else {
-            schemaDAO.delete(schemaName, reference);
+            schemaDAO.delete(schemaName, getAttributableUtil(kind));
         }
     }
 

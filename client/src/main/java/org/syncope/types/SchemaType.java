@@ -1,5 +1,3 @@
-package org.syncope.types;
-
 /*
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,18 +12,15 @@ package org.syncope.types;
  *  limitations under the License.
  *  under the License.
  */
+package org.syncope.types;
+
 public enum SchemaType {
 
-    UserSchema(
-    "org.syncope.core.persistence.beans.user.USchema"),
-    RoleSchema(
-    "org.syncope.core.persistence.beans.role.RSchema"),
-    MembershipSchema(
-    "org.syncope.core.persistence.beans.membership.MSchema"),
-    AccountId(
-    "AccountId"),
-    Password(
-    "Password");
+    String("java.lang.String"),
+    Long("java.lang.Long"),
+    Double("java.lang.Double"),
+    Boolean("java.lang.Boolean"),
+    Date("java.util.Date");
 
     final private String className;
 
@@ -37,21 +32,9 @@ public enum SchemaType {
         return className;
     }
 
-    public Class getSchemaClass() {
-        try {
-            return Class.forName(getClassName());
-        } catch (ClassNotFoundException e) {
-            return String.class;
-        }
-    }
-
-    public static SchemaType byClass(Class theClass) {
-        for (SchemaType schemaType : SchemaType.values()) {
-            if (schemaType.getClassName().equals(theClass.getName())) {
-                return schemaType;
-            }
-        }
-
-        return null;
+    public boolean isConversionPatternNeeded() {
+        return this == SchemaType.Date
+                || this == SchemaType.Double
+                || this == SchemaType.Long;
     }
 }

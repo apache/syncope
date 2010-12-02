@@ -14,6 +14,7 @@
  */
 package org.syncope.core.rest.data;
 
+import org.syncope.core.persistence.util.AttributableUtil;
 import com.opensymphony.workflow.Workflow;
 import com.opensymphony.workflow.spi.Step;
 import java.util.HashSet;

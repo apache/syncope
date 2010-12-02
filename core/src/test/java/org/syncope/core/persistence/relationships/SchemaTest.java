@@ -30,7 +30,8 @@ import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.SyncopeUserDAO;
 import org.syncope.core.persistence.AbstractTest;
-import org.syncope.types.SchemaType;
+import org.syncope.core.persistence.util.AttributableUtil;
+import org.syncope.types.SourceMappingType;
 
 @Transactional
 public class SchemaTest extends AbstractTest {
@@ -60,11 +61,11 @@ public class SchemaTest extends AbstractTest {
         // check for associated mappings
         List<SchemaMapping> mappings = resourceDAO.getMappings(
                 schema.getName(),
-                SchemaType.UserSchema);
+                SourceMappingType.UserSchema);
         assertFalse(mappings.isEmpty());
 
         // delete user schema username
-        schemaDAO.delete("username", USchema.class);
+        schemaDAO.delete("username", AttributableUtil.USER);
 
         schemaDAO.flush();
 
@@ -75,7 +76,7 @@ public class SchemaTest extends AbstractTest {
 
         // check for mappings deletion
         mappings = resourceDAO.getMappings("username",
-                SchemaType.UserSchema);
+                SourceMappingType.UserSchema);
         assertTrue(mappings.isEmpty());
 
         assertNull(attributeDAO.find(100L, UAttr.class));
@@ -95,11 +96,11 @@ public class SchemaTest extends AbstractTest {
         // check for associated mappings
         List<SchemaMapping> mappings = resourceDAO.getMappings(
                 schema.getName(),
-                SchemaType.UserSchema);
+                SourceMappingType.UserSchema);
         assertNotNull(mappings);
 
         // delete user schema username
-        schemaDAO.delete("surname", USchema.class);
+        schemaDAO.delete("surname", AttributableUtil.USER);
 
         schemaDAO.flush();
 

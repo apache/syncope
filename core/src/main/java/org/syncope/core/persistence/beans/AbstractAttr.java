@@ -21,7 +21,7 @@ import javax.persistence.MappedSuperclass;
 import org.syncope.core.persistence.validation.attrvalue.ParseException;
 import org.syncope.core.persistence.validation.attrvalue.InvalidAttrValueException;
 import org.syncope.core.persistence.validation.entity.AttrCheck;
-import org.syncope.core.rest.data.AttributableUtil;
+import org.syncope.core.persistence.util.AttributableUtil;
 
 @MappedSuperclass
 @AttrCheck
@@ -36,7 +36,7 @@ public abstract class AbstractAttr extends AbstractBaseBean {
         T attrValue;
         if (getSchema().isUniqueConstraint()) {
             attrValue = (T) attributableUtil.newAttributeUniqueValue();
-            ((IAttrUniqueValue) attrValue).setSchema(getSchema());
+            ((AbstractAttrUniqueValue) attrValue).setSchema(getSchema());
         } else {
             attrValue = (T) attributableUtil.newAttributeValue();
         }

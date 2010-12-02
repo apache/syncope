@@ -24,8 +24,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.role.RSchema;
 import org.syncope.core.persistence.beans.user.USchema;
 import org.syncope.core.persistence.AbstractTest;
+import org.syncope.core.persistence.util.AttributableUtil;
 import org.syncope.core.persistence.validation.entity.InvalidEntityException;
-import org.syncope.types.SchemaValueType;
+import org.syncope.types.SchemaType;
 
 @Transactional
 public class SchemaTest extends AbstractTest {
@@ -54,7 +55,7 @@ public class SchemaTest extends AbstractTest {
     public final void save() {
         USchema attributeSchema = new USchema();
         attributeSchema.setName("secondaryEmail");
-        attributeSchema.setType(SchemaValueType.String);
+        attributeSchema.setType(SchemaType.String);
         attributeSchema.setValidatorClass(
                 "org.syncope.core.validation.EmailAddressValidator");
         attributeSchema.setMandatoryCondition("false");
@@ -72,7 +73,7 @@ public class SchemaTest extends AbstractTest {
     public final void saveNonValid() {
         USchema attributeSchema = new USchema();
         attributeSchema.setName("secondaryEmail");
-        attributeSchema.setType(SchemaValueType.String);
+        attributeSchema.setType(SchemaType.String);
         attributeSchema.setValidatorClass(
                 "org.syncope.core.validation.EmailAddressValidator");
         attributeSchema.setMandatoryCondition("false");
@@ -84,10 +85,9 @@ public class SchemaTest extends AbstractTest {
 
     @Test
     public final void delete() {
-        USchema schema =
-                schemaDAO.find("username", USchema.class);
+        USchema schema = schemaDAO.find("username", USchema.class);
 
-        schemaDAO.delete(schema.getName(), USchema.class);
+        schemaDAO.delete(schema.getName(), AttributableUtil.USER);
 
         USchema actual = schemaDAO.find("username", USchema.class);
         assertNull("delete did not work", actual);

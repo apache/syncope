@@ -51,15 +51,18 @@ import org.syncope.core.persistence.validation.entity.TargetResourceCheck;
         @QueryHint(name = "org.hibernate.cacheable", value = "true")
     }),
     @NamedQuery(name = "TargetResource.getMappings",
-    query = "SELECT m FROM SchemaMapping m WHERE m.schemaName=:schemaName "
-    + "AND m.schemaType=:schemaType",
+    query = "SELECT m FROM SchemaMapping m "
+    + "WHERE m.sourceAttrName=:sourceAttrName "
+    + "AND m.sourceMappingType=:sourceMappingType",
     hints = {
         @QueryHint(name = "org.hibernate.cacheable", value = "true"),
         @QueryHint(name = "org.hibernate.cacheMode", value = "refresh")
     }),
     @NamedQuery(name = "TargetResource.getMappingsByTargetResource",
-    query = "SELECT m FROM SchemaMapping m WHERE m.schemaName=:schemaName "
-    + "AND m.schemaType=:schemaType AND m.resource.name=:resourceName",
+    query = "SELECT m FROM SchemaMapping m "
+    + "WHERE m.sourceAttrName=:sourceAttrName "
+    + "AND m.sourceMappingType=:sourceMappingType "
+    + "AND m.resource.name=:resourceName",
     hints = {
         @QueryHint(name = "org.hibernate.cacheable", value = "true"),
         @QueryHint(name = "org.hibernate.cacheMode", value = "refresh")

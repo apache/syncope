@@ -18,7 +18,7 @@ import java.util.List;
 import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.validation.entity.InvalidEntityException;
-import org.syncope.types.SchemaType;
+import org.syncope.types.SourceMappingType;
 
 public interface ResourceDAO extends DAO {
 
@@ -29,14 +29,16 @@ public interface ResourceDAO extends DAO {
     TargetResource save(TargetResource resource)
             throws InvalidEntityException;
 
-    List<SchemaMapping> getMappings(String schemaName, SchemaType schemaType);
+    List<SchemaMapping> getMappings(String schemaName,
+            SourceMappingType sourceMappingType);
 
-    List<SchemaMapping> getMappings(String schemaName, SchemaType schemaType,
+    List<SchemaMapping> getMappings(String schemaName,
+            SourceMappingType sourceMappingType,
             String resourceName);
 
     String getSchemaNameForAccountId(String resourceName);
 
-    void deleteMappings(String schemaName, SchemaType schemaType);
+    void deleteMappings(String schemaName, SourceMappingType sourceMappingType);
 
     void deleteAllMappings(TargetResource resource);
 

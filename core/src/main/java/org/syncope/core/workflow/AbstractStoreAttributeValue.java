@@ -24,7 +24,7 @@ import org.syncope.core.persistence.beans.membership.Membership;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.SchemaDAO;
-import org.syncope.core.rest.data.AttributableUtil;
+import org.syncope.core.persistence.util.AttributableUtil;
 
 abstract class AbstractStoreAttributeValue extends OSWorkflowComponent
         implements FunctionProvider {
