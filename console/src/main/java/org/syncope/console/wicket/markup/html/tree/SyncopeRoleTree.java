@@ -109,7 +109,7 @@ public class SyncopeRoleTree {
         boolean found = false;
 
         for (Long id : list) {
-            if (!found && id == parentId) {
+            if (!found && id.longValue() == parentId.longValue()) {
                 found = true;
             }
         }
@@ -117,7 +117,7 @@ public class SyncopeRoleTree {
     }
 
     /**
-     * Add a node child to the specific tree
+     * Add a node child to the specific parent
      * @param nodes list populate
      * @param child to be added to list
      * @return List<SyncopeTreeNode>
@@ -129,15 +129,16 @@ public class SyncopeRoleTree {
             return nodes;
         }
         //if child is the root it won't be a child, so just ignore it
-        if (child.getParentId() == child.getId()) {
+        if (child.getParentId().longValue() == child.getId().longValue()) {
             return nodes;
         } else {
             for (SyncopeTreeNode item : nodes) {
-                if (item.getId() == child.getParentId()) {
+                if (item.getId().longValue() == child.getParentId()
+                        .longValue()) {
                     item.getChildren().add(child);
                     break;
-                } else if (item.getId() != child.getParentId() &&
-                        item.getChildren().size() > 0) {
+                } else if (item.getId().longValue() != child.getParentId()
+                        .longValue() && item.getChildren().size() > 0) {
                     addChildToParent(item.getChildren(), child);
                 }
             }

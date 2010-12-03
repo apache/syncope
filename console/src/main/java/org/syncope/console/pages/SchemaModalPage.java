@@ -39,7 +39,9 @@ import org.syncope.client.to.SchemaTO;
 import org.syncope.console.rest.SchemaRestClient;
 import org.syncope.types.SchemaType;
 
-
+import org.apache.wicket.authorization.strategies.role.metadata
+        .MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 /**
  * Modal window with Schema form.
  */
@@ -129,7 +131,7 @@ public class SchemaModalPage extends SyncopeModalPage
 
         readonly = new RadioChoice("readonly",Arrays.asList(new Boolean[]{true,false}));
 
-        submit = new AjaxButton("submit", new Model(getString("submit"))) {
+        submit = new IndicatingAjaxButton("submit", new Model(getString("submit"))) {
 
             @Override
             protected void onSubmit(AjaxRequestTarget target, Form form) {
@@ -178,6 +180,18 @@ public class SchemaModalPage extends SyncopeModalPage
             }
             
         };
+
+        String allowedRoles;
+
+        if(createFlag)
+            allowedRoles = xmlRolesReader.getAllAllowedRoles("Schema",
+                    "create");
+        else
+            allowedRoles = xmlRolesReader.getAllAllowedRoles("Schema",
+                    "update");
+
+        MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE,
+                        allowedRoles);
 
         schemaForm.add(new FeedbackPanel("feedback").setOutputMarkupId( true ));
         

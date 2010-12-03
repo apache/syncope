@@ -29,6 +29,8 @@ import org.apache.wicket.ajax.calldecorator.AjaxPreprocessingCallDecorator;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.authorization.strategies.role.metadata
+        .MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -374,7 +376,7 @@ public class Users extends BasePage {
                     }
                 });
 
-        add(new AjaxLink("createUserLink") {
+        AjaxLink createUserLink = new AjaxLink("createUserLink") {
 
             @Override
             public void onClick(AjaxRequestTarget target) {
@@ -390,7 +392,16 @@ public class Users extends BasePage {
 
                 createUserWin.show(target);
             }
-        });
+        };
+
+        String allowedRoles = null;
+
+        allowedRoles = xmlRolesReader.getAllAllowedRoles("Users","create");
+
+        MetaDataRoleAuthorizationStrategy.authorize(createUserLink, ENABLE,
+                allowedRoles);
+                
+        add(createUserLink);
 
         Form paginatorForm = new Form("PaginatorForm");
 
@@ -412,7 +423,8 @@ public class Users extends BasePage {
         paginatorForm.add(rowsChooser);
         add(paginatorForm);
 
-        add(new AjaxLink("changeAttributesViewLink") {
+        AjaxLink changeAttributesViewLink = new AjaxLink(
+                "changeAttributesViewLink") {
 
             @Override
             public void onClick(AjaxRequestTarget target) {
@@ -430,7 +442,17 @@ public class Users extends BasePage {
 
                 changeAttribsViewWin.show(target);
             }
-        });
+        };
+
+        String allowedViewRoles = null;
+
+        allowedViewRoles = xmlRolesReader.getAllAllowedRoles("Users",
+                "changeView");
+
+        MetaDataRoleAuthorizationStrategy.authorize(changeAttributesViewLink,
+                RENDER, allowedViewRoles);
+        
+        add(changeAttributesViewLink);
 
         //TAB 2 - Search section start
         final IModel userAttributes = new LoadableDetachableModel() {

@@ -14,6 +14,8 @@
  */
 package org.syncope.console;
 
+import org.apache.wicket.authorization.strategies.role.Roles;
+
 /**
  * SyncopeUser to store in SyncopeSession after the authentication.
  */
@@ -21,59 +23,58 @@ public class SyncopeUser implements java.io.Serializable
 {
 
     private String username;
-    private String name;
-    private String surname;
+    
+    private final Roles roles;
 
-    private int role;
-    private String email;
+    /**
+     * Create a new Syncope session user
+     * @param username
+     * @param roles a comma seperated list of roles 
+     * (corresponding to Syncope's entitlements)
+     */
+    public SyncopeUser(String username, String roles) {
+
+        if (username == null)
+        {
+            throw new IllegalArgumentException("username must be not null");
+        }
+        if (roles == null)
+        {
+            throw new IllegalArgumentException("roles must be not null");
+        }
+        this.username = username;
+        this.roles = new Roles(roles);
+    }
 
     public String getUsername()
     {
         return username;
     }
 
-    public void setUsername( String username )
+    /**
+     * Whether this user has any of the given roles.
+     *
+     * @param roles
+     *            set of roles
+     * @return whether this user has any of the given roles
+     */
+    public boolean hasAnyRole(Roles roles)
     {
-        this.username = username;
+        return this.roles.hasAnyRole(roles);
     }
 
-    public String getEmail()
+   /**
+     * Whether this user has the given role.
+     *
+     * @param role
+     * @return whether this user has the given role
+     */
+    public boolean hasRole(String role)
     {
-        return email;
+        return this.roles.hasRole(role);
     }
 
-    public void setEmail( String email )
-    {
-        this.email = email;
-    }
-
-    public int getRole()
-    {
-        return role;
-    }
-
-    public void setRole( int role )
-    {
-        this.role = role;
-    }
-
-    public String getName()
-    {
-        return name;
-    }
-
-    public void setName( String name )
-    {
-        this.name = name;
-    }
-
-    public String getSurname()
-    {
-        return surname;
-    }
-
-    public void setSurname( String surname )
-    {
-        this.surname = surname;
+    public Roles getRoles() {
+        return roles;
     }
 }

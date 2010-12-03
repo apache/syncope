@@ -18,6 +18,8 @@ package org.syncope.console.pages;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
@@ -64,7 +66,7 @@ public class ConfigurationModalPage extends SyncopeModalPage {
 
         value.setRequired(true);
 
-        submit = new AjaxButton("submit", new Model<String>(getString("submit"))) {
+        submit = new IndicatingAjaxButton("submit", new Model<String>(getString("submit"))) {
 
             @Override
             protected void onSubmit(AjaxRequestTarget target, Form form) {
@@ -97,6 +99,18 @@ public class ConfigurationModalPage extends SyncopeModalPage {
                 target.addComponent(form.get("feedback"));
             }
         };
+
+        String allowedRoles;
+
+        if(createFlag)
+            allowedRoles = xmlRolesReader.getAllAllowedRoles("Configuration",
+                    "create");
+        else
+            allowedRoles = xmlRolesReader.getAllAllowedRoles("Configuration",
+                    "update");
+
+        MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE,
+                        allowedRoles);
 
         form.add(submit);
 

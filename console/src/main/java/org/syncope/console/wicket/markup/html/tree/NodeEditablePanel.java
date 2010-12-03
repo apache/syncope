@@ -21,12 +21,14 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.IAjaxCallDecorator;
 import org.apache.wicket.ajax.calldecorator.AjaxPreprocessingCallDecorator;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.to.RoleTO;
+import org.syncope.console.commons.XMLRolesReader;
 import org.syncope.console.pages.BasePage;
 import org.syncope.console.pages.RoleModalPage;
 import org.syncope.console.pages.Roles;
@@ -38,6 +40,9 @@ import org.syncope.console.rest.RolesRestClient;
 public class NodeEditablePanel extends Panel {
     @SpringBean(name = "rolesRestClient")
     RolesRestClient restClient;
+
+    @SpringBean(name = "xmlRolesReader")
+    protected XMLRolesReader xmlRolesReader;
 
     Fragment fragment;
     /**
@@ -61,7 +66,7 @@ public class NodeEditablePanel extends Panel {
         else {
             fragment = new Fragment("menuPanel", "frag1",this);
 
-        fragment.add(new AjaxLink("createRoleLink") {
+        AjaxLink createRoleLink = new AjaxLink("createRoleLink") {
 
             @Override
             public void onClick(AjaxRequestTarget target) {
@@ -78,9 +83,16 @@ public class NodeEditablePanel extends Panel {
 
                 window.show(target);
             }
-        });
+        };
 
-        fragment.add(new AjaxLink("updateRoleLink") {
+        String allowedCreateRoles = xmlRolesReader.getAllAllowedRoles(
+                "Roles","create");
+        MetaDataRoleAuthorizationStrategy.authorize(createRoleLink, ENABLE,
+                allowedCreateRoles);
+
+        fragment.add(createRoleLink);
+
+        AjaxLink updateRoleLink = new AjaxLink("updateRoleLink") {
 
             @Override
             public void onClick(AjaxRequestTarget target) {
@@ -96,9 +108,16 @@ public class NodeEditablePanel extends Panel {
 
                 window.show(target);
             }
-        });
+        };
 
-        fragment.add(new AjaxLink("dropRoleLink") {
+        String allowedReadRoles = xmlRolesReader.getAllAllowedRoles(
+                "Roles","read");
+        MetaDataRoleAuthorizationStrategy.authorize(updateRoleLink, ENABLE,
+                allowedReadRoles);
+        
+        fragment.add(updateRoleLink);
+
+        AjaxLink dropRoleLink = new AjaxLink("dropRoleLink") {
 
             @Override
             public void onClick(AjaxRequestTarget target) {
@@ -108,7 +127,7 @@ public class NodeEditablePanel extends Panel {
 
                 setResponsePage(new Roles(null));
             }
-            
+
             @Override
             protected IAjaxCallDecorator getAjaxCallDecorator() {
                 return new AjaxPreprocessingCallDecorator(super.getAjaxCallDecorator()) {
@@ -121,7 +140,14 @@ public class NodeEditablePanel extends Panel {
                     }
                 };
             }
-        });
+        };
+
+        String allowedDropRoles = xmlRolesReader.getAllAllowedRoles(
+                "Roles","delete");
+        MetaDataRoleAuthorizationStrategy.authorize(dropRoleLink, ENABLE,
+                allowedDropRoles);
+
+        fragment.add(dropRoleLink);
     }
 
     add(fragment);

@@ -19,7 +19,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.wicket.Page;
@@ -29,8 +28,10 @@ import org.apache.wicket.ajax.IAjaxCallDecorator;
 import org.apache.wicket.ajax.calldecorator.AjaxPreprocessingCallDecorator;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
+import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table
+        .AjaxFallbackDefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
@@ -47,16 +48,15 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.syncope.client.to.TaskExecutionTO;
 import org.syncope.client.to.TaskTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.Utility;
+import org.syncope.console.commons.XMLRolesReader;
 import org.syncope.console.rest.TasksRestClient;
 import org.syncope.console.wicket.markup.html.form.DeleteLinkPanel;
 import org.syncope.console.wicket.markup.html.form.EditLinkPanel;
 import org.syncope.console.wicket.markup.html.form.LinkPanel;
-import org.syncope.types.TaskExecutionStatus;
 
 /**
  * Tasks page.
@@ -68,6 +68,9 @@ public class Tasks extends BasePage {
 
     @SpringBean(name = "utility")
     Utility utility;
+
+    @SpringBean(name = "xmlRolesReader")
+    XMLRolesReader xmlRolesReader;
 
     private int paginatorRows;
 
@@ -129,11 +132,19 @@ public class Tasks extends BasePage {
 
                     }
                  };
-                    EditLinkPanel panel = new EditLinkPanel(componentId,
-                            model);
-                    panel.add(viewLink);
+                EditLinkPanel panel = new EditLinkPanel(componentId,
+                        model);
+                panel.add(viewLink);
 
-                    cellItem.add(panel);
+                String allowedRoles = null;
+
+                allowedRoles = xmlRolesReader.getAllAllowedRoles("Tasks",
+                        "read");
+
+                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
+                        allowedRoles);
+
+                cellItem.add(panel);
             }
         });
 
@@ -171,6 +182,14 @@ public class Tasks extends BasePage {
                  LinkPanel panel = new LinkPanel(componentId);
                  panel.add(executeLink);
 
+                 String allowedRoles = null;
+
+                 allowedRoles = xmlRolesReader.getAllAllowedRoles("Tasks",
+                         "execute");
+
+                 MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
+                 allowedRoles);
+
                  cellItem.add(panel);
             }
         });
@@ -198,22 +217,33 @@ public class Tasks extends BasePage {
 
                     @Override
                     protected IAjaxCallDecorator getAjaxCallDecorator() {
-                        return new AjaxPreprocessingCallDecorator(super.getAjaxCallDecorator()) {
+                        return new AjaxPreprocessingCallDecorator(super
+                                .getAjaxCallDecorator()) {
                             private static final long serialVersionUID = 1L;
 
                             @Override
-                            public CharSequence preDecorateScript(CharSequence script) {
-                                return "if (confirm('"+getString("confirmDelete")+"'))"
+                            public CharSequence preDecorateScript(CharSequence
+                                    script) {
+                                return "if (confirm('"+
+                                        getString("confirmDelete")+"'))"
                                         +"{"+script+"}";
                             }
                         };
                     }
                  };
-                    DeleteLinkPanel panel = new DeleteLinkPanel(componentId,
-                            model);
-                    panel.add(deleteLink);
+                DeleteLinkPanel panel = new DeleteLinkPanel(componentId,
+                        model);
+                panel.add(deleteLink);
 
-                    cellItem.add(panel);
+                 String allowedRoles = null;
+
+                 allowedRoles = xmlRolesReader.getAllAllowedRoles("Tasks",
+                         "delete");
+
+                 MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
+                 allowedRoles);
+
+                 cellItem.add(panel);
             }
         });
 

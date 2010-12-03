@@ -27,9 +27,12 @@ import org.apache.wicket.ajax.IAjaxCallDecorator;
 import org.apache.wicket.ajax.calldecorator.AjaxPreprocessingCallDecorator;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
-import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
+import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table
+        .AjaxFallbackDefaultDataTable;
+import org.apache.wicket.extensions.markup.html.repeater.data.grid
+        .ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
@@ -56,60 +59,47 @@ import org.syncope.console.wicket.markup.html.form.EditLinkPanel;
 /**
  * Schema WebPage.
  */
-public class Schema extends BasePage {
+public class Schema extends BasePage
+{
+    protected enum SchemaType {RoleSchema, UserSchema, MembershipSchema};
 
-    protected enum SourceMappingType {
+    protected enum SchemaDerivedType {RoleDerivedSchema, UserDerivedSchema,
+    MembershipDerivedSchema};
 
-        RoleSchema, UserSchema, MembershipSchema
-
-    };
-
-    protected enum SchemaDerivedType {
-
-        RoleDerivedSchema, UserDerivedSchema,
-        MembershipDerivedSchema
-
-    };
     @SpringBean(name = "schemaRestClient")
     SchemaRestClient restClient;
 
     @SpringBean(name = "utility")
     Utility utility;
 
-    final ModalWindow createUserSchemaWin;
+    /*@SpringBean(name = "xmlRolesReader")
+    XMLRolesReader xmlRolesReader;*/
 
+    final ModalWindow createUserSchemaWin;
     final ModalWindow editUserSchemaWin;
 
     final ModalWindow createUserDerivedSchemaWin;
-
     final ModalWindow editUserDerivedSchemaWin;
 
     final ModalWindow createRoleSchemaWin;
-
     final ModalWindow editRoleSchemaWin;
-
+    
     final ModalWindow createRoleDerivedSchemaWin;
-
     final ModalWindow editRoleDerivedSchemaWin;
 
     final ModalWindow createMembershipSchemaWin;
-
     final ModalWindow editMembershipSchemaWin;
 
     final ModalWindow createMembershipDerivedSchemaWin;
-
     final ModalWindow editMembershipDerivedSchemaWin;
-
+    
     WebMarkupContainer userSchemaContainer;
-
     WebMarkupContainer userDerivedSchemaContainer;
 
     WebMarkupContainer roleSchemasContainer;
-
     WebMarkupContainer roleDerivedSchemasContainer;
 
     WebMarkupContainer membershipSchemaContainer;
-
     WebMarkupContainer membershipDerivedSchemaContainer;
 
     private int userSchemaPageRows;
@@ -125,61 +115,72 @@ public class Schema extends BasePage {
     private int membershipDerPageRows;
 
     /*
-    Response flag set by the Modal Window after the operation is completed
+     Response flag set by the Modal Window after the operation is completed
      */
     boolean operationResult = false;
-
     FeedbackPanel feedbackPanel;
-
-    public Schema(PageParameters parameters) {
+    
+    public Schema(PageParameters parameters)
+    {
         super(parameters);
 
         add(createRoleSchemaWin = new ModalWindow("createRoleSchemaWin"));
         add(editRoleSchemaWin = new ModalWindow("editRoleSchemaWin"));
 
-        add(createRoleDerivedSchemaWin = new ModalWindow(
-                "createRoleDerivedSchemaWin"));
-        add(editRoleDerivedSchemaWin = new ModalWindow(
-                "editRoleDerivedSchemaWin"));
+        add(createRoleDerivedSchemaWin
+                = new ModalWindow("createRoleDerivedSchemaWin"));
+
+        add(editRoleDerivedSchemaWin
+                = new ModalWindow("editRoleDerivedSchemaWin"));
 
         add(createUserSchemaWin = new ModalWindow("createUserSchemaWin"));
+        
         add(editUserSchemaWin = new ModalWindow("editUserSchemaWin"));
-
-        add(createUserDerivedSchemaWin = new ModalWindow(
-                "createUserDerSchemaWin"));
+        
+        add(createUserDerivedSchemaWin
+                = new ModalWindow("createUserDerSchemaWin"));
         add(editUserDerivedSchemaWin = new ModalWindow("editUserDerSchemaWin"));
 
-        add(createMembershipSchemaWin = new ModalWindow(
-                "createMembershipSchemaWin"));
+        add(createMembershipSchemaWin
+                = new ModalWindow("createMembershipSchemaWin"));
         add(editMembershipSchemaWin = new ModalWindow("editMembershipSchemaWin"));
 
-        add(createMembershipDerivedSchemaWin = new ModalWindow(
-                "createMembershipDerSchemaWin"));
-        add(editMembershipDerivedSchemaWin = new ModalWindow(
-                "editMembershipDerSchemaWin"));
+        add(createMembershipDerivedSchemaWin
+                = new ModalWindow("createMembershipDerSchemaWin"));
+        add(editMembershipDerivedSchemaWin
+                = new ModalWindow("editMembershipDerSchemaWin"));
 
         feedbackPanel = new FeedbackPanel("feedback");
-        feedbackPanel.setOutputMarkupId(true);
-
+        feedbackPanel.setOutputMarkupId( true );
+        
         add(feedbackPanel);
 
-        rolePageRows = utility.getPaginatorRowsToDisplay(
-                Constants.CONF_ROLE_SCHEMA_PAGINATOR_ROWS);
+        rolePageRows = utility.getPaginatorRowsToDisplay(Constants
+                .CONF_ROLE_SCHEMA_PAGINATOR_ROWS);
 
-        roleDerPageRows = utility.getPaginatorRowsToDisplay(
-                Constants.CONF_ROLE_DER_SCHEMA_PAGINATOR_ROWS);
+        roleDerPageRows = utility.getPaginatorRowsToDisplay(Constants
+                .CONF_ROLE_DER_SCHEMA_PAGINATOR_ROWS);
 
-        userSchemaPageRows = utility.getPaginatorRowsToDisplay(
-                Constants.CONF_USER_SCHEMA_PAGINATOR_ROWS);
+        userSchemaPageRows = utility.getPaginatorRowsToDisplay(Constants
+                .CONF_USER_SCHEMA_PAGINATOR_ROWS);
 
-        userDerSchemaPageRows = utility.getPaginatorRowsToDisplay(
-                Constants.CONF_USER_DER_SCHEMA_PAGINATOR_ROWS);
+        userDerSchemaPageRows = utility.getPaginatorRowsToDisplay(Constants
+                .CONF_USER_DER_SCHEMA_PAGINATOR_ROWS);
 
-        membershipPageRows = utility.getPaginatorRowsToDisplay(
-                Constants.CONF_MEMBERSHIP_SCHEMA_PAGINATOR_ROWS);
+        membershipPageRows = utility.getPaginatorRowsToDisplay(Constants
+                .CONF_MEMBERSHIP_SCHEMA_PAGINATOR_ROWS);
 
-        membershipDerPageRows = utility.getPaginatorRowsToDisplay(
-                Constants.CONF_MEMBERSHIP_DER_SCHEMA_PAGINATOR_ROWS);
+        membershipDerPageRows = utility.getPaginatorRowsToDisplay(Constants
+                .CONF_MEMBERSHIP_DER_SCHEMA_PAGINATOR_ROWS);
+
+        final String allowedCreateRoles = xmlRolesReader.getAllAllowedRoles(
+                "Schema","create");
+
+        final String allowedReadRoles = xmlRolesReader.getAllAllowedRoles(
+                "Schema","read");
+
+        final String allowedDeleteRoles = xmlRolesReader.getAllAllowedRoles(
+                "Schema","delete");
 
         List<IColumn> rolesColumns = new ArrayList<IColumn>();
 
@@ -193,27 +194,26 @@ public class Schema extends BasePage {
                 "attributes", "attributes"));
 
         rolesColumns.add(new AbstractColumn<SchemaTO>(new Model<String>(
-                getString("name"))) {
+                getString("name")))
+        {
+            public void populateItem(Item<ICellPopulator<SchemaTO>>
+                    cellItem, String componentId, IModel<SchemaTO> model)
+            {
+                    final SchemaTO schemaTO = model.getObject();
 
-            public void populateItem(Item<ICellPopulator<SchemaTO>> cellItem,
-                    String componentId, IModel<SchemaTO> model) {
-
-                final SchemaTO schemaTO = model.getObject();
-
-                AjaxLink editLink = new AjaxLink("editLink") {
+                    AjaxLink editLink = new AjaxLink("editLink") {
 
                     @Override
                     public void onClick(AjaxRequestTarget target) {
 
                         editRoleSchemaWin.setPageCreator(new ModalWindow.PageCreator() {
 
-                            public Page createPage() {
-                                SchemaModalPage window = new SchemaModalPage(
-                                        Schema.this, editRoleSchemaWin, schemaTO,
-                                        false);
-                                window.setEntity(SchemaModalPage.Entity.ROLE);
-                                return window;
-                            }
+                        public Page createPage() {
+                            SchemaModalPage window = new SchemaModalPage(
+                                    Schema.this, editRoleSchemaWin, schemaTO, false);
+                            window.setEntity(SchemaModalPage.Entity.ROLE);
+                            return window;
+                        }
                         });
 
                         editRoleSchemaWin.show(target);
@@ -223,19 +223,22 @@ public class Schema extends BasePage {
                 EditLinkPanel panel = new EditLinkPanel(componentId, model);
                 panel.add(editLink);
 
+                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE, 
+                        allowedReadRoles);
+
                 cellItem.add(panel);
             }
         });
 
-        rolesColumns.add(new AbstractColumn<SchemaTO>(new Model<String>(getString(
-                "delete"))) {
+        rolesColumns.add(new AbstractColumn<SchemaTO>(new Model<String>
+                (getString("delete")))
+        {
+            public void populateItem(Item<ICellPopulator<SchemaTO>>
+                    cellItem, String componentId, IModel<SchemaTO> model)
+            {
+                    final SchemaTO schemaTO = model.getObject();
 
-            public void populateItem(Item<ICellPopulator<SchemaTO>> cellItem,
-                    String componentId, IModel<SchemaTO> model) {
-
-                final SchemaTO schemaTO = model.getObject();
-
-                AjaxLink deleteLink = new AjaxLink("deleteLink") {
+                     AjaxLink deleteLink = new AjaxLink("deleteLink"){
 
                     @Override
                     public void onClick(AjaxRequestTarget target) {
@@ -249,23 +252,23 @@ public class Schema extends BasePage {
 
                     @Override
                     protected IAjaxCallDecorator getAjaxCallDecorator() {
-                        return new AjaxPreprocessingCallDecorator(super.
-                                getAjaxCallDecorator()) {
-
+                        return new AjaxPreprocessingCallDecorator(super.getAjaxCallDecorator()) {
                             private static final long serialVersionUID = 1L;
 
                             @Override
-                            public CharSequence preDecorateScript(
-                                    CharSequence script) {
-                                return "if (confirm('" + getString(
-                                        "confirmDelete") + "'))"
-                                        + "{" + script + "}";
+                            public CharSequence preDecorateScript(CharSequence script) {
+                                return "if (confirm('"+getString("confirmDelete")+"'))"
+                                        +"{"+script+"}";
                             }
                         };
                     }
                 };
 
                 DeleteLinkPanel panel = new DeleteLinkPanel(componentId, model);
+
+                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
+                        allowedDeleteRoles);
+
                 panel.add(deleteLink);
 
                 cellItem.add(panel);
@@ -275,26 +278,25 @@ public class Schema extends BasePage {
 
         final AjaxFallbackDefaultDataTable tableRoles =
                 new AjaxFallbackDefaultDataTable("datatable", rolesColumns,
-                new SchemaProvider(SourceMappingType.RoleSchema), rolePageRows);
+                new SchemaProvider(SchemaType.RoleSchema), rolePageRows);
 
         Form rolesPaginatorForm = new Form("RolesPaginatorForm");
 
         final DropDownChoice rowsRoleChooser = new DropDownChoice("rowsChooser",
-                new PropertyModel(this, "rolePageRows"), utility.
-                paginatorRowsChooser());
+        new PropertyModel(this,"rolePageRows"),utility.paginatorRowsChooser());
 
-        rowsRoleChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+        rowsRoleChooser.add(new AjaxFormComponentUpdatingBehavior( "onchange" ){
+          protected void onUpdate( AjaxRequestTarget target )
+            {
+              utility.updatePaginatorRows(Constants
+                      .CONF_ROLE_SCHEMA_PAGINATOR_ROWS, rolePageRows);
 
-            protected void onUpdate(AjaxRequestTarget target) {
-                utility.updatePaginatorRows(
-                        Constants.CONF_ROLE_SCHEMA_PAGINATOR_ROWS,
-                        rolePageRows);
-
-                tableRoles.setRowsPerPage(rolePageRows);
-
-                target.addComponent(roleSchemasContainer);
+              tableRoles.setRowsPerPage(rolePageRows);
+              
+              target.addComponent(roleSchemasContainer);
             }
-        });
+
+          });
 
         rolesPaginatorForm.add(rowsRoleChooser);
         add(rolesPaginatorForm);
@@ -304,65 +306,58 @@ public class Schema extends BasePage {
         columnsRolesDer.add(new PropertyColumn(new Model(getString("name")),
                 "name", "name"));
 
-        columnsRolesDer.add(new PropertyColumn(
-                new Model(getString("expression")),
+        columnsRolesDer.add(new PropertyColumn(new Model(getString("expression")),
                 "expression", "expression"));
 
-        columnsRolesDer.add(new PropertyColumn(
-                new Model(getString("attributes")),
+        columnsRolesDer.add(new PropertyColumn(new Model(getString("attributes")),
                 "derivedAttributes", "derivedAttributes"));
 
         columnsRolesDer.add(new AbstractColumn<DerivedSchemaTO>(
                 new Model<String>(getString("edit"))) {
+            public void populateItem(Item<ICellPopulator<DerivedSchemaTO>>
+                    cellItem, String componentId, IModel<DerivedSchemaTO> model)
+            {
+                    final DerivedSchemaTO schemaTO = model.getObject();
 
-            public void populateItem(
-                    Item<ICellPopulator<DerivedSchemaTO>> cellItem,
-                    String componentId, IModel<DerivedSchemaTO> model) {
-
-                final DerivedSchemaTO schemaTO = model.getObject();
-
-                AjaxLink editLink = new AjaxLink("editLink") {
+                    AjaxLink editLink = new AjaxLink("editLink") {
 
                     @Override
                     public void onClick(AjaxRequestTarget target) {
 
-                        editRoleDerivedSchemaWin.setPageCreator(
-                                new ModalWindow.PageCreator() {
+                        editRoleDerivedSchemaWin.setPageCreator(new ModalWindow.PageCreator() {
 
-                                    public Page createPage() {
-                                        DerivedSchemaModalPage form =
-                                                new DerivedSchemaModalPage(
-                                                Schema.this,
-                                                editRoleDerivedSchemaWin,
-                                                schemaTO, false);
-                                        form.setEntity(
-                                                DerivedSchemaModalPage.Entity.ROLE);
-                                        return form;
-                                    }
-                                });
+                        public Page createPage() {
+                            DerivedSchemaModalPage form = new DerivedSchemaModalPage
+                                    (Schema.this, editRoleDerivedSchemaWin, schemaTO, false);
+                            form.setEntity(DerivedSchemaModalPage.Entity.ROLE);
+                            return form;
+                        }
+                        });
 
                         editRoleDerivedSchemaWin.show(target);
                     }
                 };
 
                 EditLinkPanel panel = new EditLinkPanel(componentId, model);
+
+                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
+                allowedReadRoles);
+
                 panel.add(editLink);
 
                 cellItem.add(panel);
             }
         });
 
-        columnsRolesDer.add(new AbstractColumn<DerivedSchemaTO>(
-                new Model<String>(getString(
-                "delete"))) {
+        columnsRolesDer.add(new AbstractColumn<DerivedSchemaTO>(new Model<String>
+                (getString("delete")))
+        {
+            public void populateItem(Item<ICellPopulator<DerivedSchemaTO>>
+                    cellItem, String componentId, IModel<DerivedSchemaTO> model)
+            {
+                    final DerivedSchemaTO schemaTO = model.getObject();
 
-            public void populateItem(
-                    Item<ICellPopulator<DerivedSchemaTO>> cellItem,
-                    String componentId, IModel<DerivedSchemaTO> model) {
-
-                final DerivedSchemaTO schemaTO = model.getObject();
-
-                AjaxLink deleteLink = new AjaxLink("deleteLink") {
+                     AjaxLink deleteLink = new AjaxLink("deleteLink"){
 
                     @Override
                     public void onClick(AjaxRequestTarget target) {
@@ -376,17 +371,13 @@ public class Schema extends BasePage {
 
                     @Override
                     protected IAjaxCallDecorator getAjaxCallDecorator() {
-                        return new AjaxPreprocessingCallDecorator(super.
-                                getAjaxCallDecorator()) {
-
+                        return new AjaxPreprocessingCallDecorator(super.getAjaxCallDecorator()) {
                             private static final long serialVersionUID = 1L;
 
                             @Override
-                            public CharSequence preDecorateScript(
-                                    CharSequence script) {
-                                return "if (confirm('" + getString(
-                                        "confirmDelete") + "'))"
-                                        + "{" + script + "}";
+                            public CharSequence preDecorateScript(CharSequence script) {
+                                return "if (confirm('"+getString("confirmDelete")+"'))"
+                                        +"{"+script+"}";
                             }
                         };
                     }
@@ -394,6 +385,10 @@ public class Schema extends BasePage {
 
 
                 DeleteLinkPanel panel = new DeleteLinkPanel(componentId, model);
+
+                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
+                allowedDeleteRoles);
+
                 panel.add(deleteLink);
 
                 cellItem.add(panel);
@@ -409,22 +404,20 @@ public class Schema extends BasePage {
         Form rolesDerPaginatorForm = new Form("RolesDerPaginatorForm");
 
         DropDownChoice rowsRolesDerChooser = new DropDownChoice("rowsChooser",
-                new PropertyModel(this, "roleDerPageRows"), utility.
-                paginatorRowsChooser());
+        new PropertyModel(this,"roleDerPageRows"),utility.paginatorRowsChooser());
 
-        rowsRolesDerChooser.add(
-                new AjaxFormComponentUpdatingBehavior("onchange") {
+        rowsRolesDerChooser.add(new AjaxFormComponentUpdatingBehavior( "onchange" ){
+          protected void onUpdate( AjaxRequestTarget target )
+            {
+              utility.updatePaginatorRows(Constants.
+                      CONF_ROLE_DER_SCHEMA_PAGINATOR_ROWS, rolePageRows);
 
-                    protected void onUpdate(AjaxRequestTarget target) {
-                        utility.updatePaginatorRows(
-                                Constants.CONF_ROLE_DER_SCHEMA_PAGINATOR_ROWS,
-                                rolePageRows);
+              tableRolesDer.setRowsPerPage(roleDerPageRows);
 
-                        tableRolesDer.setRowsPerPage(roleDerPageRows);
+              target.addComponent(roleDerivedSchemasContainer);
+            }
 
-                        target.addComponent(roleDerivedSchemasContainer);
-                    }
-                });
+          });
 
         rolesDerPaginatorForm.add(rowsRolesDerChooser);
         add(rolesDerPaginatorForm);
@@ -441,52 +434,54 @@ public class Schema extends BasePage {
                 "attributes", "attributes"));
 
         userColumns.add(new AbstractColumn<SchemaTO>(new Model<String>(
-                getString("edit"))) {
+                getString("edit")))
+        {
+            public void populateItem(Item<ICellPopulator<SchemaTO>>
+                    cellItem, String componentId, IModel<SchemaTO> model)
+            {
+                    final SchemaTO schemaTO = model.getObject();
 
-            public void populateItem(Item<ICellPopulator<SchemaTO>> cellItem,
-                    String componentId, IModel<SchemaTO> model) {
-
-                final SchemaTO schemaTO = model.getObject();
-
-                AjaxLink editLink = new AjaxLink("editLink") {
+                    AjaxLink editLink = new AjaxLink("editLink") {
 
                     @Override
                     public void onClick(AjaxRequestTarget target) {
 
-                        editUserSchemaWin.setPageCreator(
-                                new ModalWindow.PageCreator() {
+                        editUserSchemaWin.setPageCreator(new ModalWindow
+                                .PageCreator() {
 
-                                    public Page createPage() {
-                                        SchemaModalPage form =
-                                                new SchemaModalPage(
-                                                Schema.this, editUserSchemaWin,
-                                                schemaTO, false);
-                                        form.setEntity(
-                                                SchemaModalPage.Entity.USER);
-                                        return form;
-                                    }
-                                });
+                        public Page createPage() {
+                            SchemaModalPage form = new SchemaModalPage(
+                                    Schema.this, editUserSchemaWin, schemaTO,
+                                    false);
+                            form.setEntity(SchemaModalPage.Entity.USER);
+                            return form;
+                        }
+                        });
 
                         editUserSchemaWin.show(target);
                     }
                 };
 
                 EditLinkPanel panel = new EditLinkPanel(componentId, model);
+
+                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
+                allowedReadRoles);
+
                 panel.add(editLink);
 
                 cellItem.add(panel);
             }
         });
 
-        userColumns.add(new AbstractColumn<SchemaTO>(new Model<String>(
-                getString("delete"))) {
+        userColumns.add(new AbstractColumn<SchemaTO>(new Model<String>
+                (getString("delete")))
+        {
+            public void populateItem(Item<ICellPopulator<SchemaTO>>
+                    cellItem, String componentId, IModel<SchemaTO> model)
+            {
+                    final SchemaTO schemaTO = model.getObject();
 
-            public void populateItem(Item<ICellPopulator<SchemaTO>> cellItem,
-                    String componentId, IModel<SchemaTO> model) {
-
-                final SchemaTO schemaTO = model.getObject();
-
-                AjaxLink deleteLink = new AjaxLink("deleteLink") {
+                     AjaxLink deleteLink = new AjaxLink("deleteLink"){
 
                     @Override
                     public void onClick(AjaxRequestTarget target) {
@@ -500,17 +495,13 @@ public class Schema extends BasePage {
 
                     @Override
                     protected IAjaxCallDecorator getAjaxCallDecorator() {
-                        return new AjaxPreprocessingCallDecorator(super.
-                                getAjaxCallDecorator()) {
-
+                        return new AjaxPreprocessingCallDecorator(super.getAjaxCallDecorator()) {
                             private static final long serialVersionUID = 1L;
 
                             @Override
-                            public CharSequence preDecorateScript(
-                                    CharSequence script) {
-                                return "if (confirm('" + getString(
-                                        "confirmDelete") + "'))"
-                                        + "{" + script + "}";
+                            public CharSequence preDecorateScript(CharSequence script) {
+                                return "if (confirm('"+getString("confirmDelete")+"'))"
+                                        +"{"+script+"}";
                             }
                         };
                     }
@@ -518,6 +509,10 @@ public class Schema extends BasePage {
 
 
                 DeleteLinkPanel panel = new DeleteLinkPanel(componentId, model);
+
+                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
+                allowedDeleteRoles);
+
                 panel.add(deleteLink);
 
                 cellItem.add(panel);
@@ -527,29 +522,27 @@ public class Schema extends BasePage {
 
         final AjaxFallbackDefaultDataTable tableUsers =
                 new AjaxFallbackDefaultDataTable("datatable", userColumns,
-                new SchemaProvider(SourceMappingType.UserSchema),
-                userSchemaPageRows);
+                new SchemaProvider(SchemaType.UserSchema), userSchemaPageRows);
 
 
         Form usersPaginatorForm = new Form("UsersPaginatorForm");
 
-        final DropDownChoice usersRowsChooser = new DropDownChoice(
-                "rowsChooser",
-                new PropertyModel(this, "userSchemaPageRows"),
-                utility.paginatorRowsChooser());
+        final DropDownChoice usersRowsChooser = new DropDownChoice("rowsChooser",
+               new PropertyModel(this,"userSchemaPageRows"),
+               utility.paginatorRowsChooser());
 
         usersRowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+          protected void onUpdate( AjaxRequestTarget target )
+            {
+              utility.updatePaginatorRows(Constants.CONF_USER_SCHEMA_PAGINATOR_ROWS,
+                      userSchemaPageRows);
 
-            protected void onUpdate(AjaxRequestTarget target) {
-                utility.updatePaginatorRows(
-                        Constants.CONF_USER_SCHEMA_PAGINATOR_ROWS,
-                        userSchemaPageRows);
+              tableUsers.setRowsPerPage(userSchemaPageRows);
 
-                tableUsers.setRowsPerPage(userSchemaPageRows);
-
-                target.addComponent(userSchemaContainer);
+              target.addComponent(userSchemaContainer);
             }
-        });
+
+          });
 
         usersPaginatorForm.add(usersRowsChooser);
         add(usersPaginatorForm);
@@ -559,24 +552,20 @@ public class Schema extends BasePage {
         columnsUsersDer.add(new PropertyColumn(new Model(getString("name")),
                 "name", "name"));
 
-        columnsUsersDer.add(new PropertyColumn(
-                new Model(getString("expression")),
+        columnsUsersDer.add(new PropertyColumn(new Model(getString("expression")),
                 "expression", "expression"));
 
-        columnsUsersDer.add(new PropertyColumn(
-                new Model(getString("attributes")),
+        columnsUsersDer.add(new PropertyColumn(new Model(getString("attributes")),
                 "derivedAttributes", "derivedAttributes"));
 
         columnsUsersDer.add(new AbstractColumn<DerivedSchemaTO>(
                 new Model<String>(getString("edit"))) {
+            public void populateItem(Item<ICellPopulator<DerivedSchemaTO>>
+                    cellItem, String componentId, IModel<DerivedSchemaTO> model)
+            {
+                    final DerivedSchemaTO schemaTO = model.getObject();
 
-            public void populateItem(
-                    Item<ICellPopulator<DerivedSchemaTO>> cellItem,
-                    String componentId, IModel<DerivedSchemaTO> model) {
-
-                final DerivedSchemaTO schemaTO = model.getObject();
-
-                AjaxLink editLink = new AjaxLink("editLink") {
+                    AjaxLink editLink = new AjaxLink("editLink") {
 
                     @Override
                     public void onClick(AjaxRequestTarget target) {
@@ -584,39 +573,39 @@ public class Schema extends BasePage {
                         editUserDerivedSchemaWin.setPageCreator(
                                 new ModalWindow.PageCreator() {
 
-                                    public Page createPage() {
-                                        DerivedSchemaModalPage window =
-                                                new DerivedSchemaModalPage(
-                                                Schema.this,
-                                                editUserDerivedSchemaWin,
-                                                schemaTO, false);
-                                        window.setEntity(
-                                                DerivedSchemaModalPage.Entity.USER);
-                                        return window;
-                                    }
-                                });
+                        public Page createPage() {
+                            DerivedSchemaModalPage window = new DerivedSchemaModalPage
+                                    (Schema.this, editUserDerivedSchemaWin,
+                                    schemaTO, false);
+                            window.setEntity(DerivedSchemaModalPage.Entity.USER);
+                            return window;
+                        }
+                        });
 
                         editUserDerivedSchemaWin.show(target);
                     }
                 };
 
                 EditLinkPanel panel = new EditLinkPanel(componentId, model);
+
+                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
+                allowedReadRoles);
+
                 panel.add(editLink);
 
                 cellItem.add(panel);
             }
         });
 
-        columnsUsersDer.add(new AbstractColumn<DerivedSchemaTO>(
-                new Model<String>(getString("delete"))) {
+        columnsUsersDer.add(new AbstractColumn<DerivedSchemaTO>(new Model<String>
+                (getString("delete")))
+        {
+            public void populateItem(Item<ICellPopulator<DerivedSchemaTO>>
+                    cellItem, String componentId, IModel<DerivedSchemaTO> model)
+            {
+                    final DerivedSchemaTO schemaTO = model.getObject();
 
-            public void populateItem(
-                    Item<ICellPopulator<DerivedSchemaTO>> cellItem,
-                    String componentId, IModel<DerivedSchemaTO> model) {
-
-                final DerivedSchemaTO schemaTO = model.getObject();
-
-                AjaxLink deleteLink = new AjaxLink("deleteLink") {
+                     AjaxLink deleteLink = new AjaxLink("deleteLink"){
 
                     @Override
                     public void onClick(AjaxRequestTarget target) {
@@ -630,16 +619,13 @@ public class Schema extends BasePage {
 
                     @Override
                     protected IAjaxCallDecorator getAjaxCallDecorator() {
-                        return new AjaxPreprocessingCallDecorator(super.
-                                getAjaxCallDecorator()) {
-
+                        return new AjaxPreprocessingCallDecorator(super.getAjaxCallDecorator()) {
                             private static final long serialVersionUID = 1L;
 
                             @Override
                             public CharSequence preDecorateScript(CharSequence script) {
-                                return "if (confirm('" + getString(
-                                        "confirmDelete") + "'))"
-                                        + "{" + script + "}";
+                                return "if (confirm('"+getString("confirmDelete")+"'))"
+                                        +"{"+script+"}";
                             }
                         };
                     }
@@ -647,6 +633,10 @@ public class Schema extends BasePage {
 
 
                 DeleteLinkPanel panel = new DeleteLinkPanel(componentId, model);
+
+                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
+                allowedDeleteRoles);
+
                 panel.add(deleteLink);
 
                 cellItem.add(panel);
@@ -662,26 +652,26 @@ public class Schema extends BasePage {
 
         final DropDownChoice usersDerRowsChooser = new DropDownChoice(
                 "rowsChooser",
-                new PropertyModel(this, "userDerSchemaPageRows"),
+                new PropertyModel(this,"userDerSchemaPageRows"),
                 utility.paginatorRowsChooser());
 
         usersDerRowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+          protected void onUpdate( AjaxRequestTarget target )
+            {
+              utility.updatePaginatorRows(Constants.CONF_USER_DER_SCHEMA_PAGINATOR_ROWS,
+                      userDerSchemaPageRows);
 
-            protected void onUpdate(AjaxRequestTarget target) {
-                utility.updatePaginatorRows(
-                        Constants.CONF_USER_DER_SCHEMA_PAGINATOR_ROWS,
-                        userDerSchemaPageRows);
+              tableUsersDer.setRowsPerPage(userDerSchemaPageRows);
 
-                tableUsersDer.setRowsPerPage(userDerSchemaPageRows);
-
-                target.addComponent(userDerivedSchemaContainer);
+              target.addComponent(userDerivedSchemaContainer);
             }
-        });
+
+          });
 
         usersDerPaginatorForm.add(usersDerRowsChooser);
         add(usersDerPaginatorForm);
 
-        List<IColumn> membershipsColumns = new ArrayList<IColumn>();
+       List<IColumn> membershipsColumns = new ArrayList<IColumn>();
 
         membershipsColumns.add(new PropertyColumn(new Model(getString("name")),
                 "name", "name"));
@@ -689,30 +679,32 @@ public class Schema extends BasePage {
         membershipsColumns.add(new PropertyColumn(new Model(getString("type")),
                 "type", "type"));
 
-        membershipsColumns.add(new PropertyColumn(new Model(getString(
-                "attributes")),
+        membershipsColumns.add(new PropertyColumn(new Model(getString("attributes")),
                 "attributes", "attributes"));
 
         membershipsColumns.add(new AbstractColumn<SchemaTO>(new Model<String>(
-                getString("name"))) {
+                getString("name")))
+        {
+            public void populateItem(Item<ICellPopulator<SchemaTO>>
+                    cellItem, String componentId, IModel<SchemaTO> model)
+            {
+                    final SchemaTO schemaTO = model.getObject();
 
-            public void populateItem(Item<ICellPopulator<SchemaTO>> cellItem, String componentId, IModel<SchemaTO> model) {
-                final SchemaTO schemaTO = model.getObject();
-
-                AjaxLink editLink = new AjaxLink("editLink") {
+                    AjaxLink editLink = new AjaxLink("editLink") {
 
                     @Override
                     public void onClick(AjaxRequestTarget target) {
 
-                        editMembershipSchemaWin.setPageCreator(new ModalWindow.PageCreator() {
+                        editMembershipSchemaWin.setPageCreator(new ModalWindow
+                                .PageCreator() {
 
-                            public Page createPage() {
-                                SchemaModalPage form = new SchemaModalPage(
-                                        Schema.this, editMembershipSchemaWin,
-                                        schemaTO, false);
-                                form.setEntity(SchemaModalPage.Entity.MEMBERSHIP);
-                                return form;
-                            }
+                        public Page createPage() {
+                            SchemaModalPage form = new SchemaModalPage(
+                                    Schema.this, editMembershipSchemaWin,
+                                    schemaTO, false);
+                            form.setEntity(SchemaModalPage.Entity.MEMBERSHIP);
+                            return form;
+                        }
                         });
 
                         editMembershipSchemaWin.show(target);
@@ -720,19 +712,25 @@ public class Schema extends BasePage {
                 };
 
                 EditLinkPanel panel = new EditLinkPanel(componentId, model);
+
+                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
+                allowedReadRoles);
+
                 panel.add(editLink);
 
                 cellItem.add(panel);
             }
         });
 
-        membershipsColumns.add(new AbstractColumn<SchemaTO>(new Model<String>(getString(
-                "delete"))) {
+        membershipsColumns.add(new AbstractColumn<SchemaTO>(new Model<String>
+                (getString("delete")))
+        {
+            public void populateItem(Item<ICellPopulator<SchemaTO>>
+                    cellItem, String componentId, IModel<SchemaTO> model)
+            {
+                    final SchemaTO schemaTO = model.getObject();
 
-            public void populateItem(Item<ICellPopulator<SchemaTO>> cellItem, String componentId, IModel<SchemaTO> model) {
-                final SchemaTO schemaTO = model.getObject();
-
-                AjaxLink deleteLink = new AjaxLink("deleteLink") {
+                     AjaxLink deleteLink = new AjaxLink("deleteLink"){
 
                     @Override
                     public void onClick(AjaxRequestTarget target) {
@@ -746,22 +744,23 @@ public class Schema extends BasePage {
 
                     @Override
                     protected IAjaxCallDecorator getAjaxCallDecorator() {
-                        return new AjaxPreprocessingCallDecorator(super.
-                                getAjaxCallDecorator()) {
-
+                        return new AjaxPreprocessingCallDecorator(super.getAjaxCallDecorator()) {
                             private static final long serialVersionUID = 1L;
 
                             @Override
                             public CharSequence preDecorateScript(CharSequence script) {
-                                return "if (confirm('" + getString(
-                                        "confirmDelete") + "'))"
-                                        + "{" + script + "}";
+                                return "if (confirm('"+getString("confirmDelete")+"'))"
+                                        +"{"+script+"}";
                             }
                         };
                     }
                 };
 
                 DeleteLinkPanel panel = new DeleteLinkPanel(componentId, model);
+
+                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
+                allowedDeleteRoles);
+
                 panel.add(deleteLink);
 
                 cellItem.add(panel);
@@ -771,54 +770,52 @@ public class Schema extends BasePage {
 
         final AjaxFallbackDefaultDataTable tableMemberships =
                 new AjaxFallbackDefaultDataTable("datatable", membershipsColumns,
-                new SchemaProvider(SourceMappingType.MembershipSchema),
+                new SchemaProvider(SchemaType.MembershipSchema),
                 membershipPageRows);
 
-        Form membershipPaginatorForm = new Form("MembershipPaginatorForm");
+       Form membershipPaginatorForm = new Form("MembershipPaginatorForm");
 
         final DropDownChoice membershipRowsChooser = new DropDownChoice(
                 "rowsChooser",
-                new PropertyModel(this, "membershipPageRows"),
+                new PropertyModel(this,"membershipPageRows"),
                 utility.paginatorRowsChooser());
 
-        membershipRowsChooser.add(new AjaxFormComponentUpdatingBehavior(
-                "onchange") {
+        membershipRowsChooser.add(new AjaxFormComponentUpdatingBehavior
+                ("onchange") { protected void onUpdate
+                        ( AjaxRequestTarget target ) {
+              utility.updatePaginatorRows(
+                      Constants.CONF_MEMBERSHIP_SCHEMA_PAGINATOR_ROWS,
+                      membershipPageRows);
 
-            protected void onUpdate(AjaxRequestTarget target) {
-                utility.updatePaginatorRows(
-                        Constants.CONF_MEMBERSHIP_SCHEMA_PAGINATOR_ROWS,
-                        membershipPageRows);
+              tableMemberships.setRowsPerPage(membershipPageRows);
 
-                tableMemberships.setRowsPerPage(membershipPageRows);
-
-                target.addComponent(membershipSchemaContainer);
+              target.addComponent(membershipSchemaContainer);
             }
-        });
+
+          });
 
         membershipPaginatorForm.add(membershipRowsChooser);
         add(membershipPaginatorForm);
 
         List<IColumn> columnsMembershipsDer = new ArrayList<IColumn>();
 
-        columnsMembershipsDer.add(new PropertyColumn(
-                new Model(getString("name")),
+        columnsMembershipsDer.add(new PropertyColumn(new Model(getString("name")),
                 "name", "name"));
 
-        columnsMembershipsDer.add(new PropertyColumn(new Model(getString(
-                "expression")),
+        columnsMembershipsDer.add(new PropertyColumn(new Model(getString("expression")),
                 "expression", "expression"));
 
-        columnsMembershipsDer.add(new PropertyColumn(new Model(getString(
-                "attributes")),
+        columnsMembershipsDer.add(new PropertyColumn(new Model(getString("attributes")),
                 "derivedAttributes", "derivedAttributes"));
 
         columnsMembershipsDer.add(new AbstractColumn<DerivedSchemaTO>(
                 new Model<String>(getString("edit"))) {
+            public void populateItem(Item<ICellPopulator<DerivedSchemaTO>>
+                    cellItem, String componentId, IModel<DerivedSchemaTO> model)
+            {
+                    final DerivedSchemaTO schemaTO = model.getObject();
 
-            public void populateItem(Item<ICellPopulator<DerivedSchemaTO>> cellItem, String componentId, IModel<DerivedSchemaTO> model) {
-                final DerivedSchemaTO schemaTO = model.getObject();
-
-                AjaxLink editLink = new AjaxLink("editLink") {
+                    AjaxLink editLink = new AjaxLink("editLink") {
 
                     @Override
                     public void onClick(AjaxRequestTarget target) {
@@ -826,35 +823,38 @@ public class Schema extends BasePage {
                         editMembershipDerivedSchemaWin.setPageCreator(
                                 new ModalWindow.PageCreator() {
 
-                                    public Page createPage() {
-                                        DerivedSchemaModalPage window = new DerivedSchemaModalPage(
-                                                Schema.this,
-                                                editMembershipDerivedSchemaWin,
-                                                schemaTO, false);
-                                        window.setEntity(
-                                                DerivedSchemaModalPage.Entity.MEMBERSHIP);
-                                        return window;
-                                    }
-                                });
+                        public Page createPage() {
+                            DerivedSchemaModalPage window = new DerivedSchemaModalPage
+                                    (Schema.this, editMembershipDerivedSchemaWin, schemaTO, false);
+                            window.setEntity(DerivedSchemaModalPage.Entity.MEMBERSHIP);
+                            return window;
+                        }
+                        });
 
                         editMembershipDerivedSchemaWin.show(target);
                     }
                 };
 
                 EditLinkPanel panel = new EditLinkPanel(componentId, model);
+
+                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
+                allowedReadRoles);
+
                 panel.add(editLink);
 
                 cellItem.add(panel);
             }
         });
 
-        columnsMembershipsDer.add(new AbstractColumn<DerivedSchemaTO>(new Model<String>(getString(
-                "delete"))) {
+        columnsMembershipsDer.add(new AbstractColumn<DerivedSchemaTO>(new Model<String>
+                (getString("delete")))
+        {
+            public void populateItem(Item<ICellPopulator<DerivedSchemaTO>>
+                    cellItem, String componentId, IModel<DerivedSchemaTO> model)
+            {
+                    final DerivedSchemaTO schemaTO = model.getObject();
 
-            public void populateItem(Item<ICellPopulator<DerivedSchemaTO>> cellItem, String componentId, IModel<DerivedSchemaTO> model) {
-                final DerivedSchemaTO schemaTO = model.getObject();
-
-                AjaxLink deleteLink = new AjaxLink("deleteLink") {
+                     AjaxLink deleteLink = new AjaxLink("deleteLink"){
 
                     @Override
                     public void onClick(AjaxRequestTarget target) {
@@ -869,16 +869,13 @@ public class Schema extends BasePage {
 
                     @Override
                     protected IAjaxCallDecorator getAjaxCallDecorator() {
-                        return new AjaxPreprocessingCallDecorator(super.
-                                getAjaxCallDecorator()) {
-
+                        return new AjaxPreprocessingCallDecorator(super.getAjaxCallDecorator()) {
                             private static final long serialVersionUID = 1L;
 
                             @Override
                             public CharSequence preDecorateScript(CharSequence script) {
-                                return "if (confirm('" + getString(
-                                        "confirmDelete") + "'))"
-                                        + "{" + script + "}";
+                                return "if (confirm('"+getString("confirmDelete")+"'))"
+                                        +"{"+script+"}";
                             }
                         };
                     }
@@ -886,6 +883,10 @@ public class Schema extends BasePage {
 
 
                 DeleteLinkPanel panel = new DeleteLinkPanel(componentId, model);
+
+                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
+                allowedDeleteRoles);
+
                 panel.add(deleteLink);
 
                 cellItem.add(panel);
@@ -893,32 +894,30 @@ public class Schema extends BasePage {
         });
 
         final AjaxFallbackDefaultDataTable tableMembershipsDer =
-                new AjaxFallbackDefaultDataTable("datatable",
-                columnsMembershipsDer,
-                new DerivedSchemaProvider(
-                SchemaDerivedType.MembershipDerivedSchema),
+                new AjaxFallbackDefaultDataTable("datatable", columnsMembershipsDer,
+                new DerivedSchemaProvider(SchemaDerivedType.MembershipDerivedSchema),
                 membershipDerPageRows);
 
         Form membershipDerPaginatorForm = new Form("MembershipDerPaginatorForm");
 
         final DropDownChoice membershipDerRowsChooser = new DropDownChoice(
                 "rowsChooser",
-                new PropertyModel(this, "membershipDerPageRows"),
+                new PropertyModel(this,"membershipDerPageRows"),
                 utility.paginatorRowsChooser());
 
-        membershipDerRowsChooser.add(new AjaxFormComponentUpdatingBehavior(
-                "onchange") {
+        membershipDerRowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+          protected void onUpdate( AjaxRequestTarget target )
+            {
+              utility.updatePaginatorRows(
+                      Constants.CONF_MEMBERSHIP_DER_SCHEMA_PAGINATOR_ROWS,
+                      membershipDerPageRows);
 
-            protected void onUpdate(AjaxRequestTarget target) {
-                utility.updatePaginatorRows(
-                        Constants.CONF_MEMBERSHIP_DER_SCHEMA_PAGINATOR_ROWS,
-                        membershipDerPageRows);
+              tableMembershipsDer.setRowsPerPage(membershipDerPageRows);
 
-                tableMembershipsDer.setRowsPerPage(membershipDerPageRows);
-
-                target.addComponent(membershipDerivedSchemaContainer);
+              target.addComponent(membershipDerivedSchemaContainer);
             }
-        });
+
+          });
 
         membershipDerPaginatorForm.add(membershipDerRowsChooser);
         add(membershipDerPaginatorForm);
@@ -927,8 +926,7 @@ public class Schema extends BasePage {
         roleSchemasContainer.add(tableRoles);
         roleSchemasContainer.setOutputMarkupId(true);
 
-        roleDerivedSchemasContainer = new WebMarkupContainer(
-                "roleDerivedSchemasContainer");
+        roleDerivedSchemasContainer = new WebMarkupContainer("roleDerivedSchemasContainer");
         roleDerivedSchemasContainer.add(tableRolesDer);
         roleDerivedSchemasContainer.setOutputMarkupId(true);
 
@@ -936,21 +934,18 @@ public class Schema extends BasePage {
         userSchemaContainer.add(tableUsers);
         userSchemaContainer.setOutputMarkupId(true);
 
-        userDerivedSchemaContainer = new WebMarkupContainer(
-                "userDerivedSchemaContainer");
+        userDerivedSchemaContainer = new WebMarkupContainer("userDerivedSchemaContainer");
         userDerivedSchemaContainer.add(tableUsersDer);
         userDerivedSchemaContainer.setOutputMarkupId(true);
 
-        membershipSchemaContainer = new WebMarkupContainer(
-                "membershipSchemaContainer");
+        membershipSchemaContainer = new WebMarkupContainer("membershipSchemaContainer");
         membershipSchemaContainer.add(tableMemberships);
         membershipSchemaContainer.setOutputMarkupId(true);
 
-        membershipDerivedSchemaContainer = new WebMarkupContainer(
-                "membershipDerivedSchemaContainer");
+        membershipDerivedSchemaContainer = new WebMarkupContainer("membershipDerivedSchemaContainer");
         membershipDerivedSchemaContainer.add(tableMembershipsDer);
         membershipDerivedSchemaContainer.setOutputMarkupId(true);
-
+        
         add(roleSchemasContainer);
         add(roleDerivedSchemasContainer);
 
@@ -975,19 +970,19 @@ public class Schema extends BasePage {
         editUserDerivedSchemaWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         editUserDerivedSchemaWin.setPageMapName("modal-4");
         editUserDerivedSchemaWin.setCookieName("modal-4");
-
+        
         createRoleSchemaWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         createRoleSchemaWin.setPageMapName("modal-5");
         createRoleSchemaWin.setCookieName("modal-5");
-
+        
         editRoleSchemaWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         editRoleSchemaWin.setPageMapName("modal-6");
         editRoleSchemaWin.setCookieName("modal-6");
-
+        
         createRoleDerivedSchemaWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         createRoleDerivedSchemaWin.setPageMapName("modal-7");
         createRoleDerivedSchemaWin.setCookieName("modal-7");
-
+        
         editRoleDerivedSchemaWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         editRoleDerivedSchemaWin.setPageMapName("modal-8");
         editRoleDerivedSchemaWin.setCookieName("modal-8");
@@ -1000,43 +995,33 @@ public class Schema extends BasePage {
         createMembershipSchemaWin.setPageMapName("modal-10");
         createMembershipSchemaWin.setCookieName("modal-10");
 
-        createMembershipDerivedSchemaWin.setCssClassName(
-                ModalWindow.CSS_CLASS_GRAY);
+        createMembershipDerivedSchemaWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         createMembershipDerivedSchemaWin.setPageMapName("modal-11");
         createMembershipDerivedSchemaWin.setCookieName("modal-11");
 
-        editMembershipDerivedSchemaWin.setCssClassName(
-                ModalWindow.CSS_CLASS_GRAY);
+        editMembershipDerivedSchemaWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         editMembershipDerivedSchemaWin.setPageMapName("modal-12");
         editMembershipDerivedSchemaWin.setCookieName("modal-12");
 
         setWindowClosedCallback(createUserSchemaWin, userSchemaContainer);
         setWindowClosedCallback(editUserSchemaWin, userSchemaContainer);
 
-        setWindowClosedCallback(createUserDerivedSchemaWin,
-                userDerivedSchemaContainer);
-        setWindowClosedCallback(editUserDerivedSchemaWin,
-                userDerivedSchemaContainer);
+        setWindowClosedCallback(createUserDerivedSchemaWin, userDerivedSchemaContainer);
+        setWindowClosedCallback(editUserDerivedSchemaWin, userDerivedSchemaContainer);
 
         setWindowClosedCallback(createRoleSchemaWin, roleSchemasContainer);
         setWindowClosedCallback(editRoleSchemaWin, roleSchemasContainer);
 
-        setWindowClosedCallback(createRoleDerivedSchemaWin,
-                roleDerivedSchemasContainer);
-        setWindowClosedCallback(editRoleDerivedSchemaWin,
-                roleDerivedSchemasContainer);
+        setWindowClosedCallback(createRoleDerivedSchemaWin, roleDerivedSchemasContainer);
+        setWindowClosedCallback(editRoleDerivedSchemaWin, roleDerivedSchemasContainer);
 
-        setWindowClosedCallback(createMembershipSchemaWin,
-                membershipSchemaContainer);
-        setWindowClosedCallback(editMembershipSchemaWin,
-                membershipSchemaContainer);
+        setWindowClosedCallback(createMembershipSchemaWin, membershipSchemaContainer);
+        setWindowClosedCallback(editMembershipSchemaWin, membershipSchemaContainer);
 
-        setWindowClosedCallback(createMembershipDerivedSchemaWin,
-                membershipDerivedSchemaContainer);
-        setWindowClosedCallback(editMembershipDerivedSchemaWin,
-                membershipDerivedSchemaContainer);
+        setWindowClosedCallback(createMembershipDerivedSchemaWin, membershipDerivedSchemaContainer);
+        setWindowClosedCallback(editMembershipDerivedSchemaWin, membershipDerivedSchemaContainer);
 
-        add(new AjaxLink("createRoleSchemaWinLink") {
+        AjaxLink createRoleSchemaWinLink = new AjaxLink("createRoleSchemaWinLink") {
 
             @Override
             public void onClick(AjaxRequestTarget target) {
@@ -1045,8 +1030,7 @@ public class Schema extends BasePage {
 
                     public Page createPage() {
                         SchemaModalPage form = new SchemaModalPage(Schema.this,
-                                new ModalWindow("createRoleSchemaWin"), null,
-                                true);
+                                new ModalWindow("createRoleSchemaWin"), null, true);
                         form.setEntity(SchemaModalPage.Entity.ROLE);
                         return form;
                     }
@@ -1054,9 +1038,15 @@ public class Schema extends BasePage {
 
                 createRoleSchemaWin.show(target);
             }
-        });
+        };
 
-        add(new AjaxLink("createRoleDerivedSchemaWinLink") {
+        MetaDataRoleAuthorizationStrategy.authorize(createRoleSchemaWinLink, ENABLE,
+        allowedCreateRoles);
+        
+        add(createRoleSchemaWinLink);
+
+        
+       AjaxLink createRoleDerivedSchemaWinLink = new AjaxLink("createRoleDerivedSchemaWinLink") {
 
             @Override
             public void onClick(AjaxRequestTarget target) {
@@ -1064,10 +1054,8 @@ public class Schema extends BasePage {
                 createRoleDerivedSchemaWin.setPageCreator(new ModalWindow.PageCreator() {
 
                     public Page createPage() {
-                        DerivedSchemaModalPage form = new DerivedSchemaModalPage(
-                                Schema.this,
-                                new ModalWindow("createRoleDerivedSchemaWin"),
-                                null, true);
+                        DerivedSchemaModalPage form = new DerivedSchemaModalPage(Schema.this,
+                                new ModalWindow("createRoleDerivedSchemaWin"), null, true);
                         form.setEntity(DerivedSchemaModalPage.Entity.ROLE);
                         return form;
                     }
@@ -1075,9 +1063,14 @@ public class Schema extends BasePage {
 
                 createRoleDerivedSchemaWin.show(target);
             }
-        });
+        };
+        
+        MetaDataRoleAuthorizationStrategy.authorize(createRoleDerivedSchemaWinLink, ENABLE, 
+        allowedCreateRoles);
+        
+        add(createRoleDerivedSchemaWinLink);
 
-        add(new AjaxLink("createUserSchemaWinLink") {
+        AjaxLink createUserSchemaWinLink = new AjaxLink("createUserSchemaWinLink") {
 
             @Override
             public void onClick(AjaxRequestTarget target) {
@@ -1086,8 +1079,7 @@ public class Schema extends BasePage {
 
                     public Page createPage() {
                         SchemaModalPage form = new SchemaModalPage(Schema.this,
-                                new ModalWindow("createUserSchemaWin"), null,
-                                true);
+                                new ModalWindow("createUserSchemaWin"), null, true);
                         form.setEntity(SchemaModalPage.Entity.USER);
                         return form;
                     }
@@ -1095,31 +1087,41 @@ public class Schema extends BasePage {
 
                 createUserSchemaWin.show(target);
             }
-        });
+        };
+        
+        add(createUserSchemaWinLink);
 
-        add(new AjaxLink("createUserDerSchemaWinLink") {
+        MetaDataRoleAuthorizationStrategy.authorize(createUserSchemaWinLink, ENABLE,
+        allowedCreateRoles);
+
+        AjaxLink createUserDerSchemaWinLink = new AjaxLink("createUserDerSchemaWinLink") {
 
             @Override
             public void onClick(AjaxRequestTarget target) {
 
-                createUserDerivedSchemaWin.setPageCreator(new ModalWindow.PageCreator() {
+            createUserDerivedSchemaWin.setPageCreator(new ModalWindow.PageCreator() {
 
-                    public Page createPage() {
-                        DerivedSchemaModalPage form = new DerivedSchemaModalPage(
-                                Schema.this,
-                                new ModalWindow("createUserDerSchemaModalWin"),
-                                null, true);
-                        form.setEntity(DerivedSchemaModalPage.Entity.USER);
+            public Page createPage() {
+                DerivedSchemaModalPage form = new DerivedSchemaModalPage(Schema.this,
+                        new ModalWindow("createUserDerSchemaModalWin"), null, true);
+                form.setEntity(DerivedSchemaModalPage.Entity.USER);
 
-                        return form;
-                    }
-                });
-
-                createUserDerivedSchemaWin.show(target);
+                return form;
             }
-        });
+            });
 
-        add(new AjaxLink("createMembershipSchemaWinLink") {
+            createUserDerivedSchemaWin.show(target);
+            }
+        };
+        
+        MetaDataRoleAuthorizationStrategy.authorize(createUserDerSchemaWinLink, 
+                ENABLE, allowedCreateRoles);
+        
+        add(createUserDerSchemaWinLink);
+
+        
+        AjaxLink createMembershipSchemaWinLink = new AjaxLink(
+            "createMembershipSchemaWinLink") {
 
             @Override
             public void onClick(AjaxRequestTarget target) {
@@ -1128,8 +1130,7 @@ public class Schema extends BasePage {
 
                     public Page createPage() {
                         SchemaModalPage form = new SchemaModalPage(Schema.this,
-                                new ModalWindow("createMembershipSchemaModalWin"),
-                                null, true);
+                                new ModalWindow("createMembershipSchemaModalWin"), null, true);
                         form.setEntity(SchemaModalPage.Entity.MEMBERSHIP);
                         return form;
                     }
@@ -1137,31 +1138,39 @@ public class Schema extends BasePage {
 
                 createMembershipSchemaWin.show(target);
             }
-        });
+        };
 
-        add(new AjaxLink("createMembershipDerSchemaWinLink") {
+        MetaDataRoleAuthorizationStrategy.authorize(createMembershipSchemaWinLink,
+                ENABLE, allowedCreateRoles);
+
+        add(createMembershipSchemaWinLink);
+
+        AjaxLink createMembershipDerSchemaWinLink = new AjaxLink(
+                "createMembershipDerSchemaWinLink") {
 
             @Override
             public void onClick(AjaxRequestTarget target) {
 
-                createMembershipDerivedSchemaWin.setPageCreator(new ModalWindow.PageCreator() {
+            createMembershipDerivedSchemaWin.setPageCreator(new ModalWindow.PageCreator() {
 
-                    public Page createPage() {
-                        DerivedSchemaModalPage form = new DerivedSchemaModalPage(
-                                Schema.this,
-                                new ModalWindow(
-                                "createMembershipDerivedSchemaWin"),
-                                null, true);
-                        form.setEntity(DerivedSchemaModalPage.Entity.MEMBERSHIP);
+            public Page createPage() {
+                DerivedSchemaModalPage form = new DerivedSchemaModalPage(Schema.this,
+                        new ModalWindow("createMembershipDerivedSchemaWin"),
+                        null, true);
+                form.setEntity(DerivedSchemaModalPage.Entity.MEMBERSHIP);
 
-                        return form;
-                    }
-                });
-
-                createMembershipDerivedSchemaWin.show(target);
+                return form;
             }
-        });
+            });
 
+            createMembershipDerivedSchemaWin.show(target);
+            }
+        };
+
+        MetaDataRoleAuthorizationStrategy.authorize(createMembershipDerSchemaWinLink,
+                ENABLE, allowedCreateRoles);
+        
+        add(createMembershipDerSchemaWinLink);
     }
 
     /**
@@ -1173,17 +1182,16 @@ public class Schema extends BasePage {
             final WebMarkupContainer container) {
 
         window.setWindowClosedCallback(
-                new ModalWindow.WindowClosedCallback() {
-
-                    public void onClose(AjaxRequestTarget target) {
-                        target.addComponent(container);
-                        if (operationResult) {
-                            info(getString("operation_succeded"));
-                            target.addComponent(feedbackPanel);
-                            operationResult = false;
-                        }
+            new ModalWindow.WindowClosedCallback() {
+                public void onClose(AjaxRequestTarget target) {
+                    target.addComponent(container);
+                    if(operationResult){
+                        info(getString("operation_succeded"));  
+                        target.addComponent(feedbackPanel);
+                        operationResult = false;
                     }
-                });
+                }
+            });
     }
 
     public boolean isOperationResult() {
@@ -1199,14 +1207,14 @@ public class Schema extends BasePage {
         private SortableDataProviderComparator comparator =
                 new SortableDataProviderComparator();
 
-        private SourceMappingType schema;
+        private SchemaType schema;
 
-        public SchemaProvider(SourceMappingType schema) {
+        public SchemaProvider(SchemaType schema) {
 
             this.schema = schema;
 
             //Default sorting
-            setSort("name", true);
+            setSort("name",true);
         }
 
         @Override
@@ -1215,7 +1223,7 @@ public class Schema extends BasePage {
 
             Collections.sort(list, comparator);
 
-            return list.subList(first, first + count).iterator();
+            return list.subList(first, first+count).iterator();
         }
 
         @Override
@@ -1224,7 +1232,8 @@ public class Schema extends BasePage {
         }
 
         @Override
-        public IModel<SchemaTO> model(final SchemaTO user) {
+        public IModel<SchemaTO> model(final SchemaTO
+                user) {
             return new AbstractReadOnlyModel<SchemaTO>() {
 
                 @Override
@@ -1234,51 +1243,48 @@ public class Schema extends BasePage {
             };
         }
 
-        public List<SchemaTO> getAttributesSchemaListDB() {
+        public List<SchemaTO> getAttributesSchemaListDB(){
 
             List<SchemaTO> list = null;
 
-            if (schema == SourceMappingType.RoleSchema) {
+            if(schema == SchemaType.RoleSchema)
                 list = restClient.getAllRoleSchemas();
-            } else if (schema == SourceMappingType.UserSchema) {
+            else if (schema == SchemaType.UserSchema)
                 list = restClient.getAllUserSchemas();
-            } else if (schema == SourceMappingType.MembershipSchema) {
+            else if (schema == SchemaType.MembershipSchema)
                 list = restClient.getAllMemberhipSchemas();
-            }
 
             return list;
         }
 
         class SortableDataProviderComparator implements
                 Comparator<SchemaTO>, Serializable {
-
             public int compare(final SchemaTO o1,
                     final SchemaTO o2) {
-                PropertyModel<Comparable> model1 =
-                        new PropertyModel<Comparable>(o1,
-                        getSort().getProperty());
-                PropertyModel<Comparable> model2 =
-                        new PropertyModel<Comparable>(o2,
-                        getSort().getProperty());
+                    PropertyModel<Comparable> model1 =
+                            new PropertyModel<Comparable>(o1, getSort()
+                            .getProperty());
+                    PropertyModel<Comparable> model2 =
+                            new PropertyModel<Comparable>(o2, getSort()
+                            .getProperty());
 
-                int result = 1;
+                    int result = 1;
 
-                if (model1.getObject() == null && model2.getObject() == null) {
-                    result = 0;
-                } else if (model1.getObject() == null) {
-                    result = 1;
-                } else if (model2.getObject() == null) {
-                    result = -1;
-                } else {
-                    result = ((Comparable) model1.getObject()).compareTo(
-                            model2.getObject());
-                }
+                    if(model1.getObject() == null && model2.getObject() == null)
+                        result = 0;
+                    else if(model1.getObject() == null)
+                        result = 1;
+                    else if(model2.getObject() == null)
+                        result = -1;
+                    else
+                        result = ((Comparable)model1.getObject()).compareTo(
+                                model2.getObject());
 
-                result = getSort().isAscending() ? result : -result;
+                    result = getSort().isAscending() ? result : -result;
 
-                return result;
+                    return result;
             }
-        }
+	}
     }
 
     class DerivedSchemaProvider extends SortableDataProvider<DerivedSchemaTO> {
@@ -1293,7 +1299,7 @@ public class Schema extends BasePage {
             this.schema = schema;
 
             //Default sorting
-            setSort("name", true);
+            setSort("name",true);
         }
 
         @Override
@@ -1302,7 +1308,7 @@ public class Schema extends BasePage {
 
             Collections.sort(list, comparator);
 
-            return list.subList(first, first + count).iterator();
+            return list.subList(first, first+count).iterator();
         }
 
         @Override
@@ -1311,7 +1317,8 @@ public class Schema extends BasePage {
         }
 
         @Override
-        public IModel<DerivedSchemaTO> model(final DerivedSchemaTO schema) {
+        public IModel<DerivedSchemaTO> model(final DerivedSchemaTO
+                schema) {
             return new AbstractReadOnlyModel<DerivedSchemaTO>() {
 
                 @Override
@@ -1321,50 +1328,47 @@ public class Schema extends BasePage {
             };
         }
 
-        public List<DerivedSchemaTO> getAttributesSchemaListDB() {
+        public List<DerivedSchemaTO> getAttributesSchemaListDB(){
 
-            List<DerivedSchemaTO> list = null;
+        List<DerivedSchemaTO> list = null;
 
-            if (schema == SchemaDerivedType.RoleDerivedSchema) {
-                list = restClient.getAllRoleDerivedSchemas();
-            } else if (schema == SchemaDerivedType.UserDerivedSchema) {
-                list = restClient.getAllUserDerivedSchemas();
-            } else if (schema == SchemaDerivedType.MembershipDerivedSchema) {
-                list = restClient.getAllMembershipDerivedSchemas();
-            }
+        if(schema == SchemaDerivedType.RoleDerivedSchema)
+            list = restClient.getAllRoleDerivedSchemas();
+        else if (schema == SchemaDerivedType.UserDerivedSchema)
+            list = restClient.getAllUserDerivedSchemas();
+        else if (schema == SchemaDerivedType.MembershipDerivedSchema)
+            list = restClient.getAllMembershipDerivedSchemas();
 
-            return list;
+        return list;
         }
 
         class SortableDataProviderComparator implements
                 Comparator<DerivedSchemaTO>, Serializable {
-
             public int compare(final DerivedSchemaTO o1,
                     final DerivedSchemaTO o2) {
-                PropertyModel<Comparable> model1 =
-                        new PropertyModel<Comparable>(o1,
-                        getSort().getProperty());
-                PropertyModel<Comparable> model2 =
-                        new PropertyModel<Comparable>(o2,
-                        getSort().getProperty());
+                    PropertyModel<Comparable> model1 =
+                            new PropertyModel<Comparable>(o1, getSort()
+                            .getProperty());
+                    PropertyModel<Comparable> model2 =
+                            new PropertyModel<Comparable>(o2, getSort()
+                            .getProperty());
 
-                int result = 1;
+                    int result = 1;
 
-                if (model1.getObject() == null && model2.getObject() == null) {
-                    result = 0;
-                } else if (model1.getObject() == null) {
-                    result = 1;
-                } else if (model2.getObject() == null) {
-                    result = -1;
-                } else {
-                    result = ((Comparable) model1.getObject()).compareTo(
-                            model2.getObject());
-                }
+                    if(model1.getObject() == null && model2.getObject() == null)
+                        result = 0;
+                    else if(model1.getObject() == null)
+                        result = 1;
+                    else if(model2.getObject() == null)
+                        result = -1;
+                    else
+                        result = ((Comparable)model1.getObject()).compareTo(
+                                model2.getObject());
 
-                result = getSort().isAscending() ? result : -result;
+                    result = getSort().isAscending() ? result : -result;
 
-                return result;
+                    return result;
             }
-        }
+	}
     }
 }

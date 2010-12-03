@@ -76,4 +76,8 @@
     <bean id="utility" class="org.syncope.console.commons.Utility">
         <property name="configurationsRestClient" ref="configurationsRestClient"/>
     </bean>
+
+    <bean id="xmlRolesReader" class="org.syncope.console.commons.XMLRolesReader">
+         <constructor-arg value="authorizations.xml"/>
+    </bean>
 </beans>

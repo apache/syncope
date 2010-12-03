@@ -27,6 +27,7 @@ import org.apache.wicket.ajax.IAjaxCallDecorator;
 import org.apache.wicket.ajax.calldecorator.AjaxPreprocessingCallDecorator;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table
         .AjaxFallbackDefaultDataTable;
@@ -130,6 +131,12 @@ public class Resources extends BasePage {
                     EditLinkPanel panel = new EditLinkPanel(componentId, model);
                     panel.add(editLink);
 
+                    String allowedRoles = xmlRolesReader.getAllAllowedRoles(
+                        "Resources","read");
+                    
+                    MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
+                        allowedRoles);
+
                     cellItem.add(panel);
             }
         });
@@ -169,6 +176,12 @@ public class Resources extends BasePage {
                     DeleteLinkPanel panel = new DeleteLinkPanel(componentId,
                             model);
                     panel.add(deleteLink);
+
+                    String allowedRoles = xmlRolesReader.getAllAllowedRoles(
+                        "Resources","delete");
+
+                    MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
+                        allowedRoles);
 
                     cellItem.add(panel);
             }
@@ -233,7 +246,6 @@ public class Resources extends BasePage {
               table.setRowsPerPage(paginatorRows);
               
               target.addComponent(container);
-              target.addComponent(getPage().get("resourcesNavigator"));
             }
 
           });
