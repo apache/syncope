@@ -246,7 +246,7 @@ public class Resources extends BasePage {
               table.setRowsPerPage(paginatorRows);
               
               target.addComponent(container);
-              target.addComponent(getPage().get("resourcesNavigator"));
+              //target.addComponent(getPage().get("resourcesNavigator"));
             }
 
           });
