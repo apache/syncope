@@ -76,13 +76,13 @@ public class ResourceTest extends AbstractTest {
 
     @Test
     public final void getAccountId() {
-        assertEquals("username",
-                resourceDAO.getSchemaNameForAccountId("ws-target-resource-2"));
+        SchemaMapping mapping = resourceDAO.getMappingForAccountId(
+                "ws-target-resource-2");
+        assertEquals("username", mapping.getSourceAttrName());
     }
 
     @Test
-    public final void save()
-            throws ClassNotFoundException {
+    public final void save() {
         TargetResource resource = new TargetResource();
         resource.setName("ws-target-resource-basic-save");
 

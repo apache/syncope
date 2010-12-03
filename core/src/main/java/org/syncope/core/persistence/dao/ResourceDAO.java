@@ -36,7 +36,7 @@ public interface ResourceDAO extends DAO {
             SourceMappingType sourceMappingType,
             String resourceName);
 
-    String getSchemaNameForAccountId(String resourceName);
+    SchemaMapping getMappingForAccountId(String resourceName);
 
     void deleteMappings(String schemaName, SourceMappingType sourceMappingType);
 

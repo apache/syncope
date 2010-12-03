@@ -1,8 +1,8 @@
+<%@page isErrorPage="true" contentType="application/json" pageEncoding="UTF-8"%>
 <%@page import="org.hibernate.exception.ConstraintViolationException"%>
 <%@page import="javax.persistence.PersistenceException"%>
 <%@page import="org.springframework.dao.DataIntegrityViolationException"%>
 <%@page import="org.hibernate.exception.LockAcquisitionException"%>
-<%@page isErrorPage="true" contentType="application/json" pageEncoding="UTF-8"%>
 <%@page import="org.syncope.core.rest.data.InvalidSearchConditionException"%>
 <%@page import="org.syncope.core.persistence.dao.MissingConfKeyException"%>
 <%@page import="org.syncope.client.validation.SyncopeClientException"%>

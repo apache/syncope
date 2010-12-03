@@ -52,6 +52,7 @@ public class MAttr extends AbstractAttr {
     private MAttrUniqueValue uniqueValue;
 
     public MAttr() {
+        super();
         values = new ArrayList<MAttrValue>();
     }
 

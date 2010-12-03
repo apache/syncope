@@ -137,7 +137,7 @@ public abstract class AbstractAttributableDataBinder {
         return resource;
     }
 
-    private void fillAttribute(final List<String> values,
+    protected void fillAttribute(final List<String> values,
             final AttributableUtil attributableUtil,
             final AbstractSchema schema,
             final AbstractAttr attribute,

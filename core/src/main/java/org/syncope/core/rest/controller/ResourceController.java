@@ -59,9 +59,7 @@ public class ResourceController extends AbstractController {
             final @RequestBody ResourceTO resourceTO)
             throws SyncopeClientCompositeErrorException, NotFoundException {
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Creation request received");
-        }
+        LOG.debug("Resource creation: {}", resourceTO);
 
         SyncopeClientCompositeErrorException scce =
                 new SyncopeClientCompositeErrorException(
@@ -73,10 +71,7 @@ public class ResourceController extends AbstractController {
             throw new NotFoundException("Missing resource");
         }
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Verify that resource dosn't exist");
-        }
-
+        LOG.debug("Verify that resource doesn't exist yet");
         if (resourceDAO.find(resourceTO.getName()) != null) {
             SyncopeClientException ex = new SyncopeClientException(
                     SyncopeClientExceptionType.DuplicateUniqueValue);
@@ -118,9 +113,7 @@ public class ResourceController extends AbstractController {
             final @RequestBody ResourceTO resourceTO)
             throws SyncopeClientCompositeErrorException, NotFoundException {
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Update request received");
-        }
+        LOG.debug("Role update request: {}", resourceTO);
 
         TargetResource resource = null;
         if (resourceTO != null && resourceTO.getName() != null) {
@@ -265,9 +258,7 @@ public class ResourceController extends AbstractController {
             roleMappings.addAll(resourceMappings);
         }
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Mappings found: " + roleMappings);
-        }
+        LOG.debug("Mappings found: {} ", roleMappings);
 
         return roleMappings;
     }

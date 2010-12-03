@@ -52,6 +52,7 @@ public class RAttr extends AbstractAttr {
     private RAttrUniqueValue uniqueValue;
 
     public RAttr() {
+        super();
         values = new ArrayList<RAttrValue>();
     }
 

@@ -60,30 +60,35 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
         private Long workflowId;
 
-        public CheckInResult(final CheckinResultAction action,
-                final Long syncopeUserId,
-                final Long workflowId) {
-
-            this.action = action;
-            this.syncopeUserId = syncopeUserId;
-            this.workflowId = workflowId;
-        }
-
         public CheckinResultAction getAction() {
             return action;
+        }
+
+        public void setAction(CheckinResultAction action) {
+            this.action = action;
         }
 
         public Long getSyncopeUserId() {
             return syncopeUserId;
         }
 
+        public void setSyncopeUserId(Long syncopeUserId) {
+            this.syncopeUserId = syncopeUserId;
+        }
+
         public Long getWorkflowId() {
             return workflowId;
+        }
+
+        public void setWorkflowId(Long workflowId) {
+            this.workflowId = workflowId;
         }
     }
 
     public CheckInResult checkIn(final UserTO userTO) {
-        return new CheckInResult(CheckinResultAction.CREATE, null, null);
+        CheckInResult result = new CheckInResult();
+        result.setAction(CheckinResultAction.CREATE);
+        return result;
     }
 
     public SyncopeUser create(final UserTO userTO)

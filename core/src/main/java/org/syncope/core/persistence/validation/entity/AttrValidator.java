@@ -43,8 +43,7 @@ public class AttrValidator
                         && object.getUniqueValue() == null;
 
                 if (!object.getSchema().isMultivalue()) {
-                    isValid &= object.getValues().size() == 1
-                            && object.getUniqueValue() == null;
+                    isValid &= object.getValues().size() == 1;
                 }
             }
 

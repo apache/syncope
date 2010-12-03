@@ -80,14 +80,16 @@ public class ResourceDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    public String getSchemaNameForAccountId(final String resourceName) {
+    public SchemaMapping getMappingForAccountId(
+            final String resourceName) {
+
         Query query = entityManager.createQuery(
                 "SELECT m FROM SchemaMapping m "
                 + "WHERE m.resource.name=:resourceName "
                 + "AND m.accountid = 1");
         query.setParameter("resourceName", resourceName);
 
-        return ((SchemaMapping) query.getSingleResult()).getSourceAttrName();
+        return (SchemaMapping) query.getSingleResult();
     }
 
     @Override
