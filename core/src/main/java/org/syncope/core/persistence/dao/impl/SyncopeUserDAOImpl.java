@@ -21,6 +21,7 @@ import javax.persistence.Query;
 import javax.validation.ValidationException;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.criterion.Conjunction;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -377,53 +378,90 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
             final AbstractAttrValue attrValue) {
 
         Criterion result = null;
+        Conjunction conjunction;
         switch (type) {
             case EQ:
-                result = Restrictions.disjunction().
-                        add(Restrictions.eq("av.stringValue",
-                        attrValue.getStringValue())).
-                        add(Restrictions.eq("av.booleanValue",
-                        attrValue.getBooleanValue() == null
-                        ? null : attrValue.getBooleanAsInteger(
-                        attrValue.getBooleanValue()))).
-                        add(Restrictions.eq("av.longValue",
-                        attrValue.getLongValue())).
-                        add(Restrictions.eq("av.doubleValue",
-                        attrValue.getDoubleValue())).
-                        add(Restrictions.eq("av.dateValue",
-                        attrValue.getDateValue()));
+                conjunction = Restrictions.conjunction();
+
+                if (attrValue.getStringValue() != null) {
+                    conjunction.add(Restrictions.eq("av.stringValue",
+                            attrValue.getStringValue()));
+                }
+                if (attrValue.getBooleanValue() != null) {
+                    conjunction.add(Restrictions.eq("av.booleanValue",
+                            attrValue.getBooleanAsInteger(
+                            attrValue.getBooleanValue())));
+                }
+                if (attrValue.getLongValue() != null) {
+                    conjunction.add(Restrictions.eq("av.longValue",
+                            attrValue.getLongValue()));
+                }
+                if (attrValue.getDoubleValue() != null) {
+                    conjunction.add(Restrictions.eq("av.doubleValue",
+                            attrValue.getDoubleValue()));
+                }
+                if (attrValue.getDateValue() != null) {
+                    conjunction.add(Restrictions.eq("av.dateValue",
+                            attrValue.getDateValue()));
+                }
+
+                result = conjunction;
                 break;
 
             case GE:
-                result = Restrictions.disjunction().
-                        add(Restrictions.ge("av.stringValue",
-                        attrValue.getStringValue())).
-                        add(Restrictions.ge("av.booleanValue",
-                        attrValue.getBooleanValue() == null
-                        ? null : attrValue.getBooleanAsInteger(
-                        attrValue.getBooleanValue()))).
-                        add(Restrictions.ge("av.longValue",
-                        attrValue.getLongValue())).
-                        add(Restrictions.ge("av.doubleValue",
-                        attrValue.getDoubleValue())).
-                        add(Restrictions.ge("av.dateValue",
-                        attrValue.getDateValue()));
+                conjunction = Restrictions.conjunction();
+
+                if (attrValue.getStringValue() != null) {
+                    conjunction.add(Restrictions.ge("av.stringValue",
+                            attrValue.getStringValue()));
+                }
+                if (attrValue.getBooleanValue() != null) {
+                    conjunction.add(Restrictions.ge("av.booleanValue",
+                            attrValue.getBooleanAsInteger(
+                            attrValue.getBooleanValue())));
+                }
+                if (attrValue.getLongValue() != null) {
+                    conjunction.add(Restrictions.ge("av.longValue",
+                            attrValue.getLongValue()));
+                }
+                if (attrValue.getDoubleValue() != null) {
+                    conjunction.add(Restrictions.ge("av.doubleValue",
+                            attrValue.getDoubleValue()));
+                }
+                if (attrValue.getDateValue() != null) {
+                    conjunction.add(Restrictions.ge("av.dateValue",
+                            attrValue.getDateValue()));
+                }
+
+                result = conjunction;
                 break;
 
             case GT:
-                result = Restrictions.disjunction().
-                        add(Restrictions.gt("av.stringValue",
-                        attrValue.getStringValue())).
-                        add(Restrictions.gt("av.booleanValue",
-                        attrValue.getBooleanValue() == null
-                        ? null : attrValue.getBooleanAsInteger(
-                        attrValue.getBooleanValue()))).
-                        add(Restrictions.gt("av.longValue",
-                        attrValue.getLongValue())).
-                        add(Restrictions.gt("av.doubleValue",
-                        attrValue.getDoubleValue())).
-                        add(Restrictions.gt("av.dateValue",
-                        attrValue.getDateValue()));
+                conjunction = Restrictions.conjunction();
+
+                if (attrValue.getStringValue() != null) {
+                    conjunction.add(Restrictions.gt("av.stringValue",
+                            attrValue.getStringValue()));
+                }
+                if (attrValue.getBooleanValue() != null) {
+                    conjunction.add(Restrictions.gt("av.booleanValue",
+                            attrValue.getBooleanAsInteger(
+                            attrValue.getBooleanValue())));
+                }
+                if (attrValue.getLongValue() != null) {
+                    conjunction.add(Restrictions.gt("av.longValue",
+                            attrValue.getLongValue()));
+                }
+                if (attrValue.getDoubleValue() != null) {
+                    conjunction.add(Restrictions.gt("av.doubleValue",
+                            attrValue.getDoubleValue()));
+                }
+                if (attrValue.getDateValue() != null) {
+                    conjunction.add(Restrictions.gt("av.dateValue",
+                            attrValue.getDateValue()));
+                }
+
+                result = conjunction;
                 break;
 
             case ISNOTNULL:
@@ -436,35 +474,59 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
                 break;
 
             case LE:
-                result = Restrictions.disjunction().
-                        add(Restrictions.le("av.stringValue",
-                        attrValue.getStringValue())).
-                        add(Restrictions.le("av.booleanValue",
-                        attrValue.getBooleanValue() == null
-                        ? null : attrValue.getBooleanAsInteger(
-                        attrValue.getBooleanValue()))).
-                        add(Restrictions.le("av.longValue",
-                        attrValue.getLongValue())).
-                        add(Restrictions.le("av.doubleValue",
-                        attrValue.getDoubleValue())).
-                        add(Restrictions.le("av.dateValue",
-                        attrValue.getDateValue()));
+                conjunction = Restrictions.conjunction();
+
+                if (attrValue.getStringValue() != null) {
+                    conjunction.add(Restrictions.le("av.stringValue",
+                            attrValue.getStringValue()));
+                }
+                if (attrValue.getBooleanValue() != null) {
+                    conjunction.add(Restrictions.le("av.booleanValue",
+                            attrValue.getBooleanAsInteger(
+                            attrValue.getBooleanValue())));
+                }
+                if (attrValue.getLongValue() != null) {
+                    conjunction.add(Restrictions.le("av.longValue",
+                            attrValue.getLongValue()));
+                }
+                if (attrValue.getDoubleValue() != null) {
+                    conjunction.add(Restrictions.le("av.doubleValue",
+                            attrValue.getDoubleValue()));
+                }
+                if (attrValue.getDateValue() != null) {
+                    conjunction.add(Restrictions.le("av.dateValue",
+                            attrValue.getDateValue()));
+                }
+
+                result = conjunction;
                 break;
 
             case LT:
-                result = Restrictions.disjunction().
-                        add(Restrictions.lt("av.stringValue",
-                        attrValue.getStringValue())).
-                        add(Restrictions.lt("av.booleanValue",
-                        attrValue.getBooleanValue() == null
-                        ? null : attrValue.getBooleanAsInteger(
-                        attrValue.getBooleanValue()))).
-                        add(Restrictions.lt("av.longValue",
-                        attrValue.getLongValue())).
-                        add(Restrictions.lt("av.doubleValue",
-                        attrValue.getDoubleValue())).
-                        add(Restrictions.lt("av.dateValue",
-                        attrValue.getDateValue()));
+                conjunction = Restrictions.conjunction();
+
+                if (attrValue.getStringValue() != null) {
+                    conjunction.add(Restrictions.lt("av.stringValue",
+                            attrValue.getStringValue()));
+                }
+                if (attrValue.getBooleanValue() != null) {
+                    conjunction.add(Restrictions.lt("av.booleanValue",
+                            attrValue.getBooleanAsInteger(
+                            attrValue.getBooleanValue())));
+                }
+                if (attrValue.getLongValue() != null) {
+                    conjunction.add(Restrictions.lt("av.longValue",
+                            attrValue.getLongValue()));
+                }
+                if (attrValue.getDoubleValue() != null) {
+                    conjunction.add(Restrictions.lt("av.doubleValue",
+                            attrValue.getDoubleValue()));
+                }
+                if (attrValue.getDateValue() != null) {
+                    conjunction.add(Restrictions.lt("av.dateValue",
+                            attrValue.getDateValue()));
+                }
+
+                result = conjunction;
                 break;
 
             case LIKE:
@@ -475,6 +537,7 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
 
             default:
         }
+
         return result;
     }
 }

@@ -282,7 +282,7 @@ public class UserController extends AbstractController {
         LOG.debug("User search called with condition {}", searchCondition);
 
         if (!searchCondition.checkValidity()) {
-            LOG.error("Invalid search condition: " + searchCondition);
+            LOG.error("Invalid search condition: {}", searchCondition);
             throw new InvalidSearchConditionException();
         }
 
@@ -308,7 +308,7 @@ public class UserController extends AbstractController {
         LOG.debug("User search called with condition {}", searchCondition);
 
         if (!searchCondition.checkValidity()) {
-            LOG.error("Invalid search condition: " + searchCondition);
+            LOG.error("Invalid search condition: {}", searchCondition);
             throw new InvalidSearchConditionException();
         }
 
