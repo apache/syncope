@@ -277,17 +277,16 @@ public class UserController extends AbstractController {
     public List<UserTO> search(@RequestBody NodeCond searchCondition)
             throws InvalidSearchConditionException {
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("search called with condition " + searchCondition);
-        }
+        LOG.debug("search called with condition {}", searchCondition);
 
         if (!searchCondition.checkValidity()) {
-            LOG.error("Invalid search condition: " + searchCondition);
+            LOG.error("Invalid search condition: {}", searchCondition);
             throw new InvalidSearchConditionException();
         }
 
         List<SyncopeUser> matchingUsers =
                 syncopeUserDAO.search(searchCondition);
+        
         List<UserTO> result = new ArrayList<UserTO>(matchingUsers.size());
         for (SyncopeUser user : matchingUsers) {
             result.add(userDataBinder.getUserTO(user, userWorkflow));
@@ -305,12 +304,10 @@ public class UserController extends AbstractController {
             @PathVariable("size") final int size)
             throws InvalidSearchConditionException {
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("search called with condition " + searchCondition);
-        }
+        LOG.debug("search called with condition {}", searchCondition);
 
         if (!searchCondition.checkValidity()) {
-            LOG.error("Invalid search condition: " + searchCondition);
+            LOG.error("Invalid search condition: {}", searchCondition);
             throw new InvalidSearchConditionException();
         }
 
