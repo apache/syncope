@@ -212,13 +212,13 @@ public class ResourceModalPage extends SyncopeModalPage {
                     }
                 });
                 item.add(new UpdatingTextField("field",
-                        new PropertyModel(mappingTO, "field")).setRequired(true).
+                        new PropertyModel(mappingTO, "destAttrName")).setRequired(true).
                         setLabel(
                         new Model(getString("fieldName"))));
 
                 schemaAttributeChoice =
                         new UpdatingDropDownChoice("schemaAttributes",
-                        new PropertyModel(mappingTO, "schemaName"), null);
+                        new PropertyModel(mappingTO, "sourceAttrName"), null);
 
                 if (mappingTO.getSourceMappingType() == null) {
                     schemaAttributeChoice.setChoices(Collections.emptyList());

@@ -57,9 +57,9 @@
                     <thead>
                         <tr class="ui-widget-header">
                             <th><wicket:message key="delete"/></th>
-                            <th><wicket:message key="field"/></th>
                             <th><wicket:message key="sourceMappingTypes"/></th>
                             <th><wicket:message key="schemaAttributes"/></th>
+                            <th><wicket:message key="field"/></th>
                             <th><wicket:message key="mandatoryCondition"/></th>
                             <th><wicket:message key="accountId"/></th>
                             <th><wicket:message key="password"/></th>
@@ -78,9 +78,6 @@
                             <td align="center" valign="middle">
                                 <input type="checkbox" class="text ui-widget-content ui-corner-all"  wicket:id="toRemove"/>
                             </td>
-                            <td align="center" valign="middle">
-                                <input type="text" class="text ui-widget-content ui-corner-all"  wicket:id="field"/>
-                            </td>
                             <td>
                                 <select class="text ui-widget-content ui-corner-all" 
                                         style="width:100%" wicket:id="sourceMappingTypes"/>
@@ -89,7 +86,10 @@
                                 <select class="text ui-widget-content ui-corner-all"
                                         style="width:100%" wicket:id="schemaAttributes"/>
                             </td>
-                           <td align="center" valign="middle">
+                            <td align="center" valign="middle">
+                                <input type="text" class="text ui-widget-content ui-corner-all"  wicket:id="field"/>
+                            </td>
+                            <td align="center" valign="middle">
                                 <input type="text"
                                        class="text ui-widget-content ui-corner-all"
                                        wicket:id="mandatoryCondition"/>

@@ -34,24 +34,24 @@
 
         <script type="text/javascript" src="scripts/jquery-1.4.2.min.js"></script>
         <script type="text/javascript" src="scripts/jquery-ui-1.8.5.custom.min.js"></script>
-        <!--script type="text/javascript" src="scripts/jquery.ui.core.js"></script>
-        <script type="text/javascript" src="scripts/jquery.ui.widget.js"></script>
-        <script type="text/javascript" src="scripts/jquery.ui.mouse.js"></script>
-        <script type="text/javascript" src="scripts/jquery.ui.button.js"></script>
-        <script type="text/javascript" src="scripts/jquery.ui.draggable.js"></script>
-        <script type="text/javascript" src="scripts/jquery.ui.position.js"></script>
-        <script type="text/javascript" src="scripts/jquery.ui.resizable.js"></script>
-        <script type="text/javascript" src="scripts/jquery.ui.dialog.js"></script>
-        <script type="text/javascript" src="scripts/jquery.ui.tabs.js"></script-->
 
         <script type="text/javascript">
-            $(function() {
+            $(document).ready(function() {
                 $("#tabs").tabs();
+            });
+            
+            /** Add rollover effect to tables supporting Ajax events (live)*/
+            $('table.ui-widget.ui-widget-content.table-hover tbody tr')
+            .live('mouseover mouseout', function(event) {
+              if (event.type == 'mouseover') {
+                $(this).addClass('selectedRow');
+              } else if (event.type == 'mouseout') {
+                 $(this).removeClass('selectedRow');
+              }
             });
         </script>
 
         <style type="text/css">
-
             .feedbackPanelERROR {
                 color: black;
                 font-weight: bold;
@@ -72,11 +72,12 @@
                 padding-left: 24px;
             }
 
+            .selectedRow {
+                  background-color: #eef1f1; /* alternative: LemonChiffon */
+            }
         </style>
     </head>
     <body>
-
         <wicket:child />
-        
     </body>
 </html>

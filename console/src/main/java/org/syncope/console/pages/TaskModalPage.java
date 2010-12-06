@@ -323,7 +323,10 @@ public class TaskModalPage extends SyncopeModalPage {
     public void populateItem(Item<ICellPopulator<T>> item, String componentId,
             IModel<T> rowModel)
     {   IModel date = (IModel<Date>) createLabelModel(rowModel);
-        item.add(new Label(componentId,date.getObject().toString()));
+        if(date.getObject() != null)
+            item.add(new Label(componentId,date.getObject().toString()));
+        else
+            item.add(new Label(componentId,""));
     }
 
 }
