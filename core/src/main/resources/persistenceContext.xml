@@ -80,6 +80,8 @@
         </property>
         <property name="jpaPropertyMap">
             <map>
+                <entry key="hibernate.order_updates" value="true"/>
+
                 <!-- Second level cache -->
                 <entry key="hibernate.cache.use_second_level_cache" value="true"/>
                 <entry key="hibernate.cache.use_query_cache" value="true"/>
