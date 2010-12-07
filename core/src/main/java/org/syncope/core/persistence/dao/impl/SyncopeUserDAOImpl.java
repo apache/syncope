@@ -364,8 +364,53 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
                 break;
 
             case NOT_LEAF:
-                leafCond.setType(NodeCond.Type.LEAF);
-                criterion = Restrictions.not(getCriterion(schema, leafCond));
+                
+                final AttributeCond attributeCondition =
+                        leafCond.getAttributeCond();
+
+                if (attributeCondition != null) {
+                    if (schema == null) {
+                        LOG.warn("Ignoring invalid schema '"
+                                + leafCond.getAttributeCond().getSchema()
+                                + "'");
+                    } else {
+                        UAttrValue attributeValue = new UAttrValue();
+                        try {
+                            if (leafCond.getAttributeCond().getType()
+                                    == AttributeCond.Type.LIKE) {
+
+                                attributeValue.setStringValue(
+                                        leafCond.getAttributeCond().
+                                        getExpression());
+                            } else {
+                                attributeValue =
+                                        schema.getValidator().
+                                        getValue(
+                                        leafCond.getAttributeCond().
+                                        getExpression(),
+                                        attributeValue);
+                            }
+
+                            criterion = Restrictions.and(
+                                    Restrictions.eq("a.schema.name",
+                                    leafCond.getAttributeCond().getSchema()),
+                                    Restrictions.not(getCriterion(
+                                    leafCond.getAttributeCond().getType(),
+                                    attributeValue)));
+
+                            // if user doesn't have the attribute it won't be returned
+
+                        } catch (ValidationException e) {
+                            LOG.error("Could not validate expression '"
+                                    + leafCond.getAttributeCond().
+                                    getExpression() + "'", e);
+                        }
+                    }
+                } else {
+                    leafCond.setType(NodeCond.Type.LEAF);
+                    criterion = Restrictions.not(
+                            getCriterion(schema, leafCond));
+                }
                 break;
 
             default:
