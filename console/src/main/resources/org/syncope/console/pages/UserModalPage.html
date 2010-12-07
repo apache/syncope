@@ -42,7 +42,9 @@
 
 <wicket:extend>
     <div style="margin:10px" title="Create new User">
-    <p class="ui-widget ui-corner-all ui-widget-header"><wicket:message key="title"/></p>
+    <p class="ui-widget ui-corner-all ui-widget-header">
+        <wicket:message key="title"/>
+    </p>
 
     <form wicket:id="UserForm">
         <div wicket:id="feedback" style="color:red"/>
@@ -53,7 +55,7 @@
                 <li><a href="#tabs-4"><span><wicket:message key="tab4"/></span></a></li>
             </ul>
             <div id="tabs-1">
-                <table class="stripedTable" style="font-size:1.1em" wicket:id="container" width="100%">
+                <table class="stripedTable" style="font-size:1.1em;border:none" wicket:id="container" width="100%">
                     <tr wicket:id="userSchemas">
                         <td><span wicket:id="name"/></td>
                         <td>
