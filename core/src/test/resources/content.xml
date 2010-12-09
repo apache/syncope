@@ -107,6 +107,7 @@
     <UAttr id="500" owner_id="3" schema_name="surname"/>
     <UAttr id="550" owner_id="4" schema_name="loginDate"/>
     <UAttr id="560" owner_id="4" schema_name="cool"/>
+    <UAttr id="570" owner_id="4" schema_name="username"/>
 
     <RAttr id="600" owner_id="1" schema_name="icon"/>
     <RAttr id="700" owner_id="2" schema_name="icon"/>
@@ -117,7 +118,8 @@
     <MAttr id="1000" owner_id="4" schema_name="subscriptionDate"/>
 
     <UAttrUniqueValue id="10" attribute_id="100" schema_name="username" stringValue="chicchiricco"/>
-    <UAttrUniqueValue id="11"  attribute_id="300" schema_name="username" stringValue="fabio.martelli"/>
+    <UAttrUniqueValue id="11" attribute_id="300" schema_name="username" stringValue="fabio.martelli"/>
+    <UAttrUniqueValue id="12" attribute_id="570" schema_name="username" stringValue="john.doe"/>
 
     <UAttrValue attribute_id="200" id="20" dateValue="2009-05-26"/>
     <UAttrValue attribute_id="200" id="21" dateValue="2010-05-26 15:40:04"/>

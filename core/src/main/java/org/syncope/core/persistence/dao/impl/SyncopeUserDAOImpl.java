@@ -27,6 +27,7 @@ import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.syncope.client.search.AttributeCond;
+import org.syncope.client.search.MembershipCond;
 import org.syncope.client.search.NodeCond;
 import org.syncope.core.persistence.beans.AbstractAttrValue;
 import org.syncope.core.persistence.beans.membership.Membership;
@@ -282,138 +283,82 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
 
     private Criteria getCriteria(final NodeCond leafCond) {
         Session hibernateSess = (Session) entityManager.getDelegate();
-        Criteria baseCriteria = hibernateSess.createCriteria(SyncopeUser.class);
+        Criteria criteria = hibernateSess.createCriteria(SyncopeUser.class);
+        criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
 
         if (leafCond.getMembershipCond() != null) {
-            baseCriteria = baseCriteria.createAlias("memberships", "m").
+            criteria = criteria.createAlias("memberships", "m").
                     createAlias("m.syncopeRole", "r");
+
+            criteria.add(getCriterion(leafCond.getMembershipCond(),
+                    leafCond.getType()));
         }
+
         USchema schema = null;
         if (leafCond.getAttributeCond() != null) {
-            schema = schemaDAO.find(
-                    leafCond.getAttributeCond().getSchema(),
+            schema = schemaDAO.find(leafCond.getAttributeCond().getSchema(),
                     USchema.class);
             if (schema == null) {
                 LOG.warn("Ignoring invalid schema '{}'",
                         leafCond.getAttributeCond().getSchema());
             } else {
-                baseCriteria = baseCriteria.createAlias("attributes", "a");
+                criteria = criteria.createAlias("attributes", "a");
                 if (schema.isUniqueConstraint()) {
-                    baseCriteria =
-                            baseCriteria.createAlias("a.uniqueValue", "av");
+                    criteria = criteria.createAlias("a.uniqueValue", "av");
                 } else {
-                    baseCriteria =
-                            baseCriteria.createAlias("a.values", "av");
+                    criteria = criteria.createAlias("a.values", "av");
                 }
+
+                criteria.add(getCriterion(leafCond.getAttributeCond(),
+                        leafCond.getType(), schema));
             }
         }
 
-        baseCriteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
-
-        return baseCriteria.add(getCriterion(schema, leafCond));
+        return criteria;
     }
 
-    private Criterion getCriterion(final USchema schema,
-            final NodeCond leafCond) {
+    private Criterion getCriterion(final MembershipCond cond,
+            final NodeCond.Type nodeCondType) {
 
         Criterion criterion = null;
 
-        switch (leafCond.getType()) {
-            case LEAF:
-                if (leafCond.getMembershipCond() != null) {
-                    if (leafCond.getMembershipCond().getRoleId() != null) {
-                        criterion = Restrictions.eq("r.id",
-                                leafCond.getMembershipCond().getRoleId());
-                    }
-                    if (leafCond.getMembershipCond().getRoleName() != null) {
-                        criterion = Restrictions.eq("r.name",
-                                leafCond.getMembershipCond().getRoleName());
-                    }
-                }
-                if (leafCond.getAttributeCond() != null && schema != null) {
-                    UAttrValue attrValue = new UAttrValue();
-                    try {
-                        if (leafCond.getAttributeCond().getType()
-                                == AttributeCond.Type.LIKE) {
+        if (cond.getRoleId() != null) {
+            criterion = Restrictions.eq("r.id", cond.getRoleId());
+        }
+        if (cond.getRoleName() != null) {
+            criterion = Restrictions.eq("r.name", cond.getRoleName());
+        }
 
-                            attrValue.setStringValue(
-                                    leafCond.getAttributeCond().
-                                    getExpression());
-                        } else {
-                            attrValue =
-                                    schema.getValidator().
-                                    getValue(
-                                    leafCond.getAttributeCond().
-                                    getExpression(),
-                                    attrValue);
-                        }
+        if (nodeCondType == NodeCond.Type.NOT_LEAF) {
+            criterion = Restrictions.not(criterion);
+        }
 
-                        criterion = Restrictions.and(
-                                Restrictions.eq("a.schema.name",
-                                schema.getName()),
-                                getCriterion(
-                                leafCond.getAttributeCond().getType(),
-                                attrValue));
-                    } catch (ValidationException e) {
-                        LOG.error("Could not validate expression '"
-                                + leafCond.getAttributeCond().
-                                getExpression() + "'", e);
-                    }
-                }
+        return criterion;
+    }
 
-                break;
+    private Criterion getCriterion(final AttributeCond cond,
+            final NodeCond.Type nodeCondType, final USchema schema) {
 
-            case NOT_LEAF:
-                
-                final AttributeCond attributeCondition =
-                        leafCond.getAttributeCond();
+        Criterion criterion = null;
 
-                if (attributeCondition != null) {
-                    if (schema == null) {
-                        LOG.warn("Ignoring invalid schema '"
-                                + leafCond.getAttributeCond().getSchema()
-                                + "'");
-                    } else {
-                        UAttrValue attributeValue = new UAttrValue();
-                        try {
-                            if (leafCond.getAttributeCond().getType()
-                                    == AttributeCond.Type.LIKE) {
+        UAttrValue attrValue = new UAttrValue();
+        try {
+            if (cond.getType() == AttributeCond.Type.LIKE) {
+                attrValue.setStringValue(cond.getExpression());
+            } else {
+                attrValue = schema.getValidator().
+                        getValue(cond.getExpression(), attrValue);
+            }
 
-                                attributeValue.setStringValue(
-                                        leafCond.getAttributeCond().
-                                        getExpression());
-                            } else {
-                                attributeValue =
-                                        schema.getValidator().
-                                        getValue(
-                                        leafCond.getAttributeCond().
-                                        getExpression(),
-                                        attributeValue);
-                            }
-
-                            criterion = Restrictions.and(
-                                    Restrictions.eq("a.schema.name",
-                                    leafCond.getAttributeCond().getSchema()),
-                                    Restrictions.not(getCriterion(
-                                    leafCond.getAttributeCond().getType(),
-                                    attributeValue)));
-
-                            // if user doesn't have the attribute it won't be returned
-
-                        } catch (ValidationException e) {
-                            LOG.error("Could not validate expression '"
-                                    + leafCond.getAttributeCond().
-                                    getExpression() + "'", e);
-                        }
-                    }
-                } else {
-                    leafCond.setType(NodeCond.Type.LEAF);
-                    criterion = Restrictions.not(
-                            getCriterion(schema, leafCond));
-                }
-                break;
-
-            default:
+            criterion = Restrictions.and(
+                    Restrictions.eq("a.schema.name", schema.getName()),
+                    nodeCondType == NodeCond.Type.LEAF
+                    ? getCriterion(cond.getType(), attrValue)
+                    : Restrictions.not(
+                    getCriterion(cond.getType(), attrValue)));
+        } catch (ValidationException e) {
+            LOG.error("Could not validate expression '"
+                    + cond.getExpression() + "'", e);
         }
 
         return criterion;

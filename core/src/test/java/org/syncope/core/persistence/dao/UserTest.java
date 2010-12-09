@@ -2,9 +2,9 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,9 +14,11 @@
  */
 package org.syncope.core.persistence.dao;
 
+import java.util.HashSet;
 import static org.junit.Assert.*;
 
 import java.util.List;
+import java.util.Set;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +30,7 @@ import org.syncope.core.persistence.AbstractTest;
 import org.syncope.core.persistence.beans.user.UAttrValue;
 
 @Transactional
-public class SyncopeUserTest extends AbstractTest {
+public class UserTest extends AbstractTest {
 
     @Autowired
     private SyncopeUserDAO syncopeUserDAO;
@@ -141,9 +143,13 @@ public class SyncopeUserTest extends AbstractTest {
 
         final List<SyncopeUser> users = syncopeUserDAO.search(cond);
         assertNotNull(users);
-        assertEquals(1, users.size());
+        assertEquals(2, users.size());
 
-        assertEquals(Long.valueOf(1L), users.get(0).getId());
+        Set<Long> ids = new HashSet<Long>(2);
+        ids.add(users.get(0).getId());
+        ids.add(users.get(1).getId());
+        assertTrue(ids.contains(1L));
+        assertTrue(ids.contains(4L));
     }
 
     @Test

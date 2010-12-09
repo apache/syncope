@@ -46,7 +46,7 @@ public class AttributeTest extends AbstractTest {
     public final void findAll() {
         List<UAttr> list = attributeDAO.findAll(UAttr.class);
         assertEquals("did not get expected number of attributes ",
-                7, list.size());
+                8, list.size());
     }
 
     @Test
