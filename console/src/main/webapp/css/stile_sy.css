@@ -5,14 +5,10 @@
 body {
     margin: 0px;
     padding: 0px;
-}
-
-body {
     font-family: "Myriad Pro", Verdana, Tahoma, sans-serif;
     color: #333;
-    font-size: 62.5%
+    font-size: 62.5%;
 }
-
 
 /* id */
 #tabs {
@@ -237,6 +233,18 @@ div#users-contain table td, div#users-contain table th { border: 1px solid #eee;
 /* classi */
 #testa .schema {
     color: #99C;
+}
+
+#testa a img:hover {
+    opacity:0.5;
+    -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(opacity=50)";
+    filter:alpha(opacity=50)
+}
+
+#splash a img:hover {
+    opacity:0.5;
+    -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(opacity=50)";
+    filter:alpha(opacity=50)
 }
 
 #testa .users {

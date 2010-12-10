@@ -15,8 +15,8 @@
 package org.syncope.console.pages;
 
 import org.apache.wicket.PageParameters;
-import org.apache.wicket.authorization.strategies.role.annotations.AuthorizeAction;
-import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.authorization.strategies.role.metadata
+        .MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.console.SyncopeSession;
