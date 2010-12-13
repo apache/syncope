@@ -53,7 +53,16 @@
             <map>
                 <entry key="json" value="application/json;charset=UTF-8"/>
                 <entry key="xml" value="application/xml;charset=UTF-8"/>
+                <entry key="html" value="text/html;charset=UTF-8"/>
             </map>
+        </property>
+        <property name="viewResolvers">
+            <list>
+                <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+                    <property name="prefix" value="/"/>
+                    <property name="suffix" value=".jsp"/>
+                </bean>
+            </list>
         </property>
         <property name="defaultViews">
             <list>
@@ -66,7 +75,6 @@
                               p:autodetectAnnotations="false" p:encoding="UTF-8"/>
                     </constructor-arg>
                 </bean>
-
             </list>
         </property>
         <property name="defaultContentType" ref="jsonMediaType"/>
