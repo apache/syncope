@@ -144,7 +144,7 @@
                                             
     <UDerAttr id="1000" derivedSchema_name="cn" owner_id="3"/>
 
-    <ConnectorInstance id="100"
+    <ConnectorInstance id="100" displayName="ConnectorInstance100"
                        bundleName="org.syncope.identityconnectors.bundles.staticws"
                        connectorName="org.syncope.identityconnectors.bundles.staticwebservice.WebServiceConnector"
                        version="${project.version}"
@@ -157,7 +157,7 @@
     <ConnectorInstance_capabilities ConnectorInstance_id="100" element="ASYNC_DELETE"/>
     <ConnectorInstance_capabilities ConnectorInstance_id="100" element="RESOLVE"/>
 
-    <ConnectorInstance id="101"
+    <ConnectorInstance id="101" displayName="ConnectorInstance101"
                        bundleName="org.syncope.identityconnectors.bundles.staticws"
                        connectorName="org.syncope.identityconnectors.bundles.staticwebservice.WebServiceConnector"
                        version="${project.version}"
@@ -170,7 +170,7 @@
     <ConnectorInstance_capabilities ConnectorInstance_id="101" element="ASYNC_DELETE"/>
     <ConnectorInstance_capabilities ConnectorInstance_id="101" element="RESOLVE"/>
 
-    <ConnectorInstance id="102"
+    <ConnectorInstance id="102" displayName="ConnectorInstance102"
                        bundleName="org.syncope.identityconnectors.bundles.staticws"
                        connectorName="org.syncope.identityconnectors.bundles.staticwebservice.WebServiceConnector"
                        version="${project.version}"
@@ -183,7 +183,7 @@
     <ConnectorInstance_capabilities ConnectorInstance_id="102" element="ASYNC_DELETE"/>
     <ConnectorInstance_capabilities ConnectorInstance_id="102" element="RESOLVE"/>
 
-    <ConnectorInstance id="103"
+    <ConnectorInstance id="103" displayName="ConnectorInstance103"
                        bundleName="org.syncope.identityconnectors.bundles.staticws"
                        connectorName="org.syncope.identityconnectors.bundles.staticwebservice.WebServiceConnector"
                        version="${project.version}"

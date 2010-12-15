@@ -23,11 +23,17 @@ import org.syncope.types.ConnectorCapability;
 public class ConnectorInstanceTO extends AbstractBaseBean {
 
     private Long id;
+
     private String bundleName;
+
     private String version;
+
     private String connectorName;
+
     private Set<PropertyTO> configuration;
+
     private Set<ConnectorCapability> capabilities;
+
     private String displayName;
 
     public ConnectorInstanceTO() {
@@ -100,17 +106,17 @@ public class ConnectorInstanceTO extends AbstractBaseBean {
     }
 
     public void setCapabilities(Set<ConnectorCapability> capabilities) {
-        if (capabilities == null || capabilities.isEmpty()) {
-            this.capabilities.clear();
-        } else {
-            this.capabilities = capabilities;
+        this.capabilities.clear();
+        if (capabilities != null && !capabilities.isEmpty()) {
+            this.capabilities.addAll(capabilities);
         }
     }
 
-    public void setDisplayName(final String displayName) {
+    public String getDisplayName() {
+        return displayName;
     }
 
-    public String getDisplayName() {
-        return getId() + " | " + getConnectorName();
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
     }
 }

@@ -65,6 +65,8 @@ public class ConnectorInstanceTest extends AbstractTest {
         connectorInstance.setBundleName(
                 "org.syncope.core.persistence.test.util");
 
+        connectorInstance.setDisplayName("New");
+
         // set the connector configuration using PropertyTO
         Set<PropertyTO> conf = new HashSet<PropertyTO>();
 
@@ -101,6 +103,8 @@ public class ConnectorInstanceTest extends AbstractTest {
 
         assertEquals("save did not work for \"majorVersion\" attribute",
                 "1.0", connectorInstance.getVersion());
+
+        assertEquals("New", actual.getDisplayName());
 
         conf = connectorInstance.getConfiguration();
         assertFalse(conf.isEmpty());

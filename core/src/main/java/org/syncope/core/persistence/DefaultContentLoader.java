@@ -114,7 +114,7 @@ public class DefaultContentLoader implements ServletContextListener {
 
                 try {
                     statement = conn.createStatement();
-                    statement.executeQuery(indexes.get(idx).toString());
+                    statement.executeUpdate(indexes.get(idx).toString());
                     statement.close();
                 } catch (SQLException e) {
                     LOG.error("Could not create index ", e);

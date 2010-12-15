@@ -37,6 +37,7 @@ import org.syncope.types.ConnectorCapability;
 public class ConnectorInstanceTestITCase extends AbstractTest {
 
     protected static String bundles_version;
+
     protected static String bundles_directory;
 
     @Before
@@ -62,7 +63,7 @@ public class ConnectorInstanceTestITCase extends AbstractTest {
         ConnectorInstanceTO connectorTO = new ConnectorInstanceTO();
 
         restTemplate.postForObject(BASE_URL + "connector/create.json",
-                                   connectorTO, ConnectorInstanceTO.class);
+                connectorTO, ConnectorInstanceTO.class);
     }
 
     @Test
@@ -78,6 +79,8 @@ public class ConnectorInstanceTestITCase extends AbstractTest {
         // set bundle name
         connectorTO.setBundleName(
                 "org.syncope.identityconnectors.bundles.staticws");
+
+        connectorTO.setDisplayName("Display name");
 
         // set the connector configuration using PropertyTO
         Set<PropertyTO> conf = new HashSet<PropertyTO>();
@@ -111,6 +114,7 @@ public class ConnectorInstanceTestITCase extends AbstractTest {
         assertEquals(actual.getBundleName(), connectorTO.getBundleName());
         assertEquals(actual.getConnectorName(), connectorTO.getConnectorName());
         assertEquals(actual.getVersion(), connectorTO.getVersion());
+        assertEquals("Display name", actual.getDisplayName());
         assertEquals(connectorTO.getCapabilities(), actual.getCapabilities());
 
         Throwable t = null;

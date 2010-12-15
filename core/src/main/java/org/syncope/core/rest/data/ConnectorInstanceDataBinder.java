@@ -37,7 +37,7 @@ public class ConnectorInstanceDataBinder {
             ConnectorInstanceDataBinder.class);
 
     private static final String[] ignoreProperties = {
-        "id", "resources", "displayName"};
+        "id", "resources"};
 
     @Autowired
     private ConnectorInstanceDAO connectorInstanceDAO;

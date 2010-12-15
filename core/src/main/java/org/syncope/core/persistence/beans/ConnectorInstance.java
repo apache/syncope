@@ -82,6 +82,8 @@ public class ConnectorInstance extends AbstractBaseBean {
     @Column(nullable = false)
     private String xmlConfiguration;
 
+    private String displayName;
+
     /**
      * Provisioning target resources associated to the connector.
      * The connector can be considered the resource's type.
@@ -154,6 +156,14 @@ public class ConnectorInstance extends AbstractBaseBean {
 
     public Long getId() {
         return id;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
     }
 
     public List<TargetResource> getResources() {
