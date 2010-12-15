@@ -15,22 +15,18 @@
 package org.syncope.core.persistence.dao;
 
 import java.util.List;
-import org.syncope.core.persistence.beans.role.RAttr;
-import org.syncope.core.persistence.beans.role.RDerAttr;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.validation.entity.InvalidEntityException;
 
 public interface SyncopeRoleDAO extends DAO {
 
-    SyncopeRole find(String name, Long parent);
-
     SyncopeRole find(Long id);
 
+    List<SyncopeRole> find(String name);
+
+    SyncopeRole find(String name, Long parent);
+
     List<SyncopeRole> findChildren(Long roleId);
-
-    List<RAttr> findInheritedAttributes(SyncopeRole role);
-
-    List<RDerAttr> findInheritedDerivedAttributes(SyncopeRole role);
 
     List<SyncopeRole> findAll();
 

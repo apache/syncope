@@ -26,10 +26,7 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
-import javax.persistence.QueryHint;
 import javax.validation.Valid;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -38,36 +35,13 @@ import org.hibernate.validator.constraints.Range;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.validation.entity.TargetResourceCheck;
+import org.syncope.types.SourceMappingType;
 
 /**
  * A resource to which propagation occurs.
  */
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@NamedQueries({
-    @NamedQuery(name = "TargetResource.find",
-    query = "SELECT e FROM TargetResource e WHERE e.name = :name",
-    hints = {
-        @QueryHint(name = "org.hibernate.cacheable", value = "true")
-    }),
-    @NamedQuery(name = "TargetResource.getMappings",
-    query = "SELECT m FROM SchemaMapping m "
-    + "WHERE m.sourceAttrName=:sourceAttrName "
-    + "AND m.sourceMappingType=:sourceMappingType",
-    hints = {
-        @QueryHint(name = "org.hibernate.cacheable", value = "true"),
-        @QueryHint(name = "org.hibernate.cacheMode", value = "refresh")
-    }),
-    @NamedQuery(name = "TargetResource.getMappingsByTargetResource",
-    query = "SELECT m FROM SchemaMapping m "
-    + "WHERE m.sourceAttrName=:sourceAttrName "
-    + "AND m.sourceMappingType=:sourceMappingType "
-    + "AND m.resource.name=:resourceName",
-    hints = {
-        @QueryHint(name = "org.hibernate.cacheable", value = "true"),
-        @QueryHint(name = "org.hibernate.cacheMode", value = "refresh")
-    })
-})
 @TargetResourceCheck
 public class TargetResource extends AbstractBaseBean {
 
@@ -170,6 +144,21 @@ public class TargetResource extends AbstractBaseBean {
 
     public List<SchemaMapping> getMappings() {
         return mappings;
+    }
+
+    public List<SchemaMapping> getMappings(final String sourceAttrName,
+            final SourceMappingType sourceMappingType) {
+
+        List<SchemaMapping> result = new ArrayList<SchemaMapping>();
+        for (SchemaMapping mapping : mappings) {
+            if (mapping.getSourceAttrName().equals(sourceAttrName)
+                    && mapping.getSourceMappingType() == sourceMappingType) {
+
+                result.add(mapping);
+            }
+        }
+
+        return result;
     }
 
     public boolean removeMapping(SchemaMapping mapping) {

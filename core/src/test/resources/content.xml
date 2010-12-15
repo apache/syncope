@@ -57,7 +57,7 @@
     <SyncopeRole id="4" name="employee" parent_id="3" inheritAttributes="0" inheritDerivedAttributes="0"/>
     <SyncopeRole id="5" name="secretary" parent_id="4" inheritAttributes="0" inheritDerivedAttributes="0"/>
     <SyncopeRole id="6" name="director" parent_id="4" inheritAttributes="1" inheritDerivedAttributes="1"/>
-    <SyncopeRole id="7" name="managingDirector" parent_id="6" inheritAttributes="0" inheritDerivedAttributes="0"/>
+    <SyncopeRole id="7" name="managingDirector" parent_id="6" inheritAttributes="1" inheritDerivedAttributes="1"/>
     <SyncopeRole id="8" name="otherchild" parent_id="1" inheritAttributes="0" inheritDerivedAttributes="0"/>
 
     <Membership id="1" syncopeUser_id="1" syncopeRole_id="1"/>

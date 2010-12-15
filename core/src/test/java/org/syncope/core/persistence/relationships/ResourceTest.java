@@ -68,9 +68,16 @@ public class ResourceTest extends AbstractTest {
     @Test
     public final void issue42() {
         USchema userId = schemaDAO.find("userId", USchema.class);
-        int beforeUserIdMappings = resourceDAO.getMappings(
-                userId.getName(),
-                SourceMappingType.UserSchema).size();
+
+        Set<SchemaMapping> beforeUserIdMappings = new HashSet<SchemaMapping>();
+        for (SchemaMapping mapping : resourceDAO.findAllMappings()) {
+            if (mapping.getSourceAttrName().equals(userId.getName())
+                    && mapping.getSourceMappingType()
+                    == SourceMappingType.UserSchema) {
+
+                beforeUserIdMappings.add(mapping);
+            }
+        }
 
         SchemaMappingTO schemaMappingTO = new SchemaMappingTO();
         schemaMappingTO.setSourceAttrName("userId");
@@ -98,11 +105,19 @@ public class ResourceTest extends AbstractTest {
         assertEquals(resource, actual);
 
         userId = schemaDAO.find("userId", USchema.class);
-        int afterUserIdMappings = resourceDAO.getMappings(
-                userId.getName(),
-                SourceMappingType.UserSchema).size();
 
-        assertEquals(beforeUserIdMappings, afterUserIdMappings - 1);
+        Set<SchemaMapping> afterUserIdMappings = new HashSet<SchemaMapping>();
+        for (SchemaMapping mapping : resourceDAO.findAllMappings()) {
+            if (mapping.getSourceAttrName().equals(userId.getName())
+                    && mapping.getSourceMappingType()
+                    == SourceMappingType.UserSchema) {
+
+                afterUserIdMappings.add(mapping);
+            }
+        }
+
+        assertEquals(beforeUserIdMappings.size(),
+                afterUserIdMappings.size() - 1);
     }
 
     @Test

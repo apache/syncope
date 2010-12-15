@@ -207,13 +207,13 @@ public abstract class AbstractAttributableDataBinder {
     }
 
     private boolean evaluateMandatoryCondition(
-            final String resourceName,
+            final TargetResource resource,
             final List<? extends AbstractAttr> attributes,
-            final String schemaName,
+            final String sourceAttrName,
             final AttributableUtil attributableUtil) {
 
-        List<SchemaMapping> mappings = resourceDAO.getMappings(schemaName,
-                attributableUtil.sourceMappingType(), resourceName);
+        List<SchemaMapping> mappings = resource.getMappings(sourceAttrName,
+                attributableUtil.sourceMappingType());
 
         boolean result = false;
 
@@ -234,7 +234,7 @@ public abstract class AbstractAttributableDataBinder {
     private boolean evaluateMandatoryCondition(
             final Set<TargetResource> resources,
             final List<? extends AbstractAttr> attributes,
-            final String schemaName,
+            final String sourceAttrName,
             final AttributableUtil attributableUtil) {
 
         boolean result = false;
@@ -245,8 +245,8 @@ public abstract class AbstractAttributableDataBinder {
 
             resource = itor.next();
             if (resource.isForceMandatoryConstraint()) {
-                result |= evaluateMandatoryCondition(resource.getName(),
-                        attributes, schemaName, attributableUtil);
+                result |= evaluateMandatoryCondition(resource,
+                        attributes, sourceAttrName, attributableUtil);
             }
         }
 
@@ -333,11 +333,11 @@ public abstract class AbstractAttributableDataBinder {
                             attributableUtil.attributeClass());
                 }
 
-                for (SchemaMapping mapping : resourceDAO.getMappings(
-                        schema.getName(),
-                        attributableUtil.sourceMappingType())) {
-
-                    if (mapping.getResource() != null
+                for (SchemaMapping mapping : resourceDAO.findAllMappings()) {
+                    if (mapping.getSourceAttrName().equals(schema.getName())
+                            && mapping.getSourceMappingType()
+                            == attributableUtil.sourceMappingType()
+                            && mapping.getResource() != null
                             && resources.contains(mapping.getResource())) {
 
                         resourceOperations.add(ResourceOperationType.UPDATE,
@@ -366,11 +366,11 @@ public abstract class AbstractAttributableDataBinder {
                     attributableUtil.schemaClass());
 
             if (schema != null) {
-                for (SchemaMapping mapping : resourceDAO.getMappings(
-                        schema.getName(),
-                        attributableUtil.sourceMappingType())) {
-
-                    if (mapping.getResource() != null
+                for (SchemaMapping mapping : resourceDAO.findAllMappings()) {
+                    if (mapping.getSourceAttrName().equals(schema.getName())
+                            && mapping.getSourceMappingType()
+                            == attributableUtil.sourceMappingType()
+                            && mapping.getResource() != null
                             && resources.contains(mapping.getResource())) {
 
                         resourceOperations.add(ResourceOperationType.UPDATE,
@@ -637,7 +637,7 @@ public abstract class AbstractAttributableDataBinder {
         }
     }
 
-    protected void fillTO(
+    public void fillTO(
             AbstractAttributableTO abstractAttributableTO,
             Collection<? extends AbstractAttr> attributes,
             Collection<? extends AbstractDerAttr> derivedAttributes,

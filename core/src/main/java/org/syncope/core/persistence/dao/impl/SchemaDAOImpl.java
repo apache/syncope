@@ -49,8 +49,9 @@ public class SchemaDAOImpl extends AbstractDAOImpl
     public <T extends AbstractSchema> List<T> findAll(
             final Class<T> reference) {
 
-        Query query = entityManager.createNamedQuery(
-                reference.getSimpleName() + ".findAll");
+        Query query = entityManager.createQuery(
+                "SELECT e FROM " + reference.getSimpleName() + " e");
+        query.setHint("org.hibernate.cacheable", true);
 
         return query.getResultList();
     }

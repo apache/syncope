@@ -15,7 +15,6 @@
 package org.syncope.core.rest.data;
 
 import org.syncope.core.persistence.util.AttributableUtil;
-import java.util.Collections;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.syncope.client.mod.RoleMod;
@@ -130,19 +129,10 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
             roleTO.setParent(role.getParent().getId());
         }
 
-        fillTO(roleTO, role.getAttributes(),
-                role.getDerivedAttributes(), role.getTargetResources());
-
-        if (role.isInheritAttributes() || role.isInheritDerivedAttributes()) {
-            fillTO(roleTO,
-                    role.isInheritAttributes()
-                    ? syncopeRoleDAO.findInheritedAttributes(role)
-                    : Collections.EMPTY_SET,
-                    role.isInheritDerivedAttributes()
-                    ? syncopeRoleDAO.findInheritedDerivedAttributes(role)
-                    : Collections.EMPTY_SET,
-                    Collections.EMPTY_SET);
-        }
+        fillTO(roleTO,
+                role.findInheritedAttributes(),
+                role.findInheritedDerivedAttributes(),
+                role.getTargetResources());
 
         return roleTO;
     }

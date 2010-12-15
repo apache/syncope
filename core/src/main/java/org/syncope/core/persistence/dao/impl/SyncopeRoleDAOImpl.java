@@ -14,21 +14,43 @@
  */
 package org.syncope.core.persistence.dao.impl;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import org.springframework.stereotype.Repository;
 import org.syncope.core.persistence.beans.Entitlement;
 import org.syncope.core.persistence.beans.membership.Membership;
-import org.syncope.core.persistence.beans.role.RAttr;
-import org.syncope.core.persistence.beans.role.RDerAttr;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.dao.SyncopeRoleDAO;
 
 @Repository
 public class SyncopeRoleDAOImpl extends AbstractDAOImpl
         implements SyncopeRoleDAO {
+
+    @Override
+    public SyncopeRole find(final Long id) {
+        Query query = entityManager.createQuery(
+                "SELECT e FROM SyncopeRole e WHERE e.id = :id");
+        query.setHint("org.hibernate.cacheable", true);
+        query.setParameter("id", id);
+
+        try {
+            return (SyncopeRole) query.getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
+    @Override
+    public List<SyncopeRole> find(final String name) {
+        Query query = entityManager.createQuery(
+                "SELECT e FROM SyncopeRole e WHERE e.name = :name");
+        query.setHint("org.hibernate.cacheable", true);
+        query.setParameter("name", name);
+
+        return query.getResultList();
+    }
 
     @Override
     public SyncopeRole find(final String name, final Long parentId) {
@@ -50,11 +72,6 @@ public class SyncopeRoleDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    public SyncopeRole find(final Long id) {
-        return entityManager.find(SyncopeRole.class, id);
-    }
-
-    @Override
     public List<SyncopeRole> findChildren(final Long roleId) {
         Query query = entityManager.createQuery(
                 "SELECT r FROM SyncopeRole r WHERE "
@@ -73,70 +90,6 @@ public class SyncopeRoleDAOImpl extends AbstractDAOImpl
         }
 
         return ancestors;
-    }
-
-    @Override
-    public List<RAttr> findInheritedAttributes(final SyncopeRole role) {
-        if (role.getParent() == null) {
-            return Collections.EMPTY_LIST;
-        }
-
-        List<Long> ancestors = getAncestors(role.getParent(),
-                new ArrayList<Long>());
-        if (ancestors == null || ancestors.isEmpty()) {
-            return Collections.EMPTY_LIST;
-        }
-
-        StringBuilder queryExp = new StringBuilder();
-        queryExp.append("SELECT ra ").
-                append("FROM " + RAttr.class.getSimpleName() + " ra ").
-                append("WHERE ra.owner.id = ");
-        queryExp.append(ancestors.get(0));
-
-        if (ancestors.size() > 1) {
-            for (int i = 1; i < ancestors.size(); i++) {
-                queryExp.append("OR ra.owner.id = ");
-                queryExp.append(ancestors.get(i));
-                queryExp.append(" ");
-            }
-        }
-        queryExp.append("ORDER BY ra.owner.id ASC");
-
-        Query query = entityManager.createQuery(queryExp.toString());
-        return query.getResultList();
-    }
-
-    @Override
-    public List<RDerAttr> findInheritedDerivedAttributes(
-            final SyncopeRole role) {
-
-        if (role.getParent() == null) {
-            return Collections.EMPTY_LIST;
-        }
-
-        List<Long> ancestors = getAncestors(role.getParent(),
-                new ArrayList<Long>());
-        if (ancestors == null || ancestors.isEmpty()) {
-            return Collections.EMPTY_LIST;
-        }
-
-        StringBuilder queryExp = new StringBuilder();
-        queryExp.append("SELECT rda ").
-                append("FROM " + RDerAttr.class.getSimpleName() + " rda ").
-                append("WHERE rda.owner.id = ");
-        queryExp.append(ancestors.get(0));
-
-        if (ancestors.size() > 1) {
-            for (int i = 1; i < ancestors.size(); i++) {
-                queryExp.append("OR rda.owner.id = ");
-                queryExp.append(ancestors.get(i));
-                queryExp.append(" ");
-            }
-        }
-        queryExp.append("ORDER BY rda.owner.id ASC");
-
-        Query query = entityManager.createQuery(queryExp.toString());
-        return query.getResultList();
     }
 
     @Override

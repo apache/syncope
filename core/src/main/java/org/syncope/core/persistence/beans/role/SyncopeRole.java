@@ -31,6 +31,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.Valid;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.syncope.core.persistence.beans.AbstractAttributable;
 import org.syncope.core.persistence.beans.AbstractAttr;
 import org.syncope.core.persistence.beans.AbstractDerAttr;
@@ -45,6 +47,7 @@ import org.hibernate.validator.constraints.Range;
     "name",
     "parent_id"
 }))
+@Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 public class SyncopeRole extends AbstractAttributable {
 
     @Id
@@ -208,6 +211,15 @@ public class SyncopeRole extends AbstractAttributable {
         this.inheritAttributes = getBooleanAsInteger(inheritAttributes);
     }
 
+    public List<RAttr> findInheritedAttributes() {
+        List<RAttr> result = new ArrayList<RAttr>(attributes);
+        if (isInheritAttributes() && getParent() != null) {
+            result.addAll(getParent().findInheritedAttributes());
+        }
+
+        return result;
+    }
+
     public boolean isInheritDerivedAttributes() {
         return isBooleanAsInteger(inheritDerivedAttributes);
     }
@@ -216,5 +228,14 @@ public class SyncopeRole extends AbstractAttributable {
         this.inheritDerivedAttributes =
                 getBooleanAsInteger(inheritDerivedAttributes);
 
+    }
+
+    public List<RDerAttr> findInheritedDerivedAttributes() {
+        List<RDerAttr> result = new ArrayList<RDerAttr>(derivedAttributes);
+        if (isInheritDerivedAttributes() && getParent() != null) {
+            result.addAll(getParent().findInheritedDerivedAttributes());
+        }
+
+        return result;
     }
 }

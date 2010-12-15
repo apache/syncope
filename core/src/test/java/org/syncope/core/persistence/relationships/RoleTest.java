@@ -2,9 +2,9 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -36,14 +36,19 @@ public class RoleTest extends AbstractTest {
 
     @Autowired
     private SyncopeUserDAO syncopeUserDAO;
+
     @Autowired
     private SyncopeRoleDAO syncopeRoleDAO;
+
     @Autowired
     private SchemaDAO schemaDAO;
+
     @Autowired
     private AttributeDAO attributeDAO;
+
     @Autowired
     private AttributeValueDAO attributeValueDAO;
+
     @Autowired
     private EntitlementDAO entitlementDAO;
 
@@ -54,7 +59,7 @@ public class RoleTest extends AbstractTest {
         syncopeRoleDAO.flush();
 
         assertNull(syncopeRoleDAO.find(2L));
-        assertTrue(entitlementDAO.find("base").getRoles().size() == 1);
+        assertEquals(1, entitlementDAO.find("base").getRoles().size());
         assertTrue(syncopeUserDAO.find(2L).getRoles().size() == 1);
         assertNull(attributeDAO.find(700L, RAttr.class));
         assertNull(attributeValueDAO.find(41L, RAttrValue.class));
@@ -65,15 +70,13 @@ public class RoleTest extends AbstractTest {
     public final void inheritedAttributes() {
         SyncopeRole director = syncopeRoleDAO.find(7L);
 
-        assertEquals(2,
-                syncopeRoleDAO.findInheritedAttributes(director).size());
+        assertEquals(2, director.findInheritedAttributes().size());
     }
 
     @Test
     public final void inheritedDerivedAttributes() {
         SyncopeRole director = syncopeRoleDAO.find(7L);
 
-       assertEquals(1,
-                syncopeRoleDAO.findInheritedDerivedAttributes(director).size());
+        assertEquals(1, director.findInheritedDerivedAttributes().size());
     }
 }

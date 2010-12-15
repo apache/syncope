@@ -50,7 +50,9 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
 
     @Override
     public SyncopeUser find(final Long id) {
-        Query query = entityManager.createNamedQuery("SyncopeUser.find");
+        Query query = entityManager.createQuery(
+                "SELECT e FROM SyncopeUser e WHERE e.id = :id");
+        query.setHint("org.hibernate.cacheable", true);
         query.setParameter("id", id);
 
         try {
@@ -62,8 +64,9 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
 
     @Override
     public SyncopeUser findByWorkflowId(final Long workflowId) {
-        Query query = entityManager.createNamedQuery(
-                "SyncopeUser.findByWorkflowId");
+        Query query = entityManager.createQuery(
+                "SELECT e FROM SyncopeUser e WHERE e.workflowId = :workflowId");
+        query.setHint("org.hibernate.cacheable", true);
         query.setParameter("workflowId", workflowId);
 
         return (SyncopeUser) query.getSingleResult();

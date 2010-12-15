@@ -2,9 +2,9 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -61,30 +61,12 @@ public class DefaultContentLoader implements ServletContextListener {
                 WebApplicationContextUtils.getWebApplicationContext(
                 sce.getServletContext());
 
+        // 0. DB connection, to be used below
         DataSource dataSource =
                 (DataSource) springContext.getBean("localDataSource");
-        DefaultDataTypeFactory dbUnitDataTypeFactory =
-                (DefaultDataTypeFactory) springContext.getBean(
-                "dbUnitDataTypeFactory");
-
-        String dbSchema = null;
-        try {
-            InputStream dbPropsStream =
-                    sce.getServletContext().getResourceAsStream(
-                    "WEB-INF/classes/persistence.properties");
-            Properties dbProps = new Properties();
-            dbProps.load(dbPropsStream);
-            dbSchema = dbProps.getProperty("database.schema");
-        } catch (Throwable t) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Could not find persistence.properties", t);
-            } else {
-                LOG.error("Could not find persistence.properties");
-            }
-        }
-
         Connection conn = DataSourceUtils.getConnection(dataSource);
 
+        // 1. Check wether we are allowed to load default content into the DB
         Statement statement = null;
         ResultSet resultSet = null;
         boolean existingData = false;
@@ -109,9 +91,56 @@ public class DefaultContentLoader implements ServletContextListener {
                 resultSet.close();
                 statement.close();
             } catch (SQLException e) {
-                LOG.error("While closing SQL connection", e);
+                LOG.error("While closing SQL statement", e);
             }
         }
+
+        if (existingData) {
+            LOG.info("Data found in the database, leaving untouched");
+            return;
+        }
+
+        LOG.info("Empty database found, loading default content");
+
+        LOG.debug("Creating indexes");
+        try {
+            InputStream indexesStream = getClass().getResourceAsStream(
+                    "/indexes.xml");
+            Properties indexes = new Properties();
+            indexes.loadFromXML(indexesStream);
+
+            for (String idx : indexes.stringPropertyNames()) {
+                LOG.debug("Creating index {}", indexes.get(idx).toString());
+
+                try {
+                    statement = conn.createStatement();
+                    statement.executeQuery(indexes.get(idx).toString());
+                    statement.close();
+                } catch (SQLException e) {
+                    LOG.error("Could not create index ", e);
+                }
+            }
+
+            LOG.debug("Indexes created, go for default content");
+        } catch (Throwable t) {
+            LOG.error("While creating indexes", t);
+        }
+
+        String dbSchema = null;
+        try {
+            InputStream dbPropsStream = getClass().getResourceAsStream(
+                    "/persistence.properties");
+            Properties dbProps = new Properties();
+            dbProps.load(dbPropsStream);
+            dbSchema = dbProps.getProperty("database.schema");
+        } catch (Throwable t) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Could not find persistence.properties", t);
+            } else {
+                LOG.error("Could not find persistence.properties");
+            }
+        }
+
         try {
             IDatabaseConnection dbUnitConn = dbSchema == null
                     ? new DatabaseConnection(conn)
@@ -119,27 +148,30 @@ public class DefaultContentLoader implements ServletContextListener {
 
             DatabaseConfig config = dbUnitConn.getConfig();
             config.setProperty(DatabaseConfig.PROPERTY_DATATYPE_FACTORY,
-                    dbUnitDataTypeFactory);
+                    (DefaultDataTypeFactory) springContext.getBean(
+                    "dbUnitDataTypeFactory"));
             config.setProperty(
-                    DatabaseConfig.FEATURE_SKIP_ORACLE_RECYCLEBIN_TABLES, true);
+                    DatabaseConfig.FEATURE_SKIP_ORACLE_RECYCLEBIN_TABLES,
+                    true);
 
-            if (existingData) {
-                LOG.info("Data found in the database, leaving untouched");
-            } else {
-                LOG.info("Empty database found, loading default content");
+            FlatXmlDataSetBuilder dataSetBuilder = new FlatXmlDataSetBuilder();
+            dataSetBuilder.setColumnSensing(true);
+            IDataSet dataSet = dataSetBuilder.build(getClass().
+                    getResourceAsStream("/content.xml"));
 
-                FlatXmlDataSetBuilder dataSetBuilder =
-                        new FlatXmlDataSetBuilder();
-                dataSetBuilder.setColumnSensing(true);
-                IDataSet dataSet = dataSetBuilder.build(
-                        getClass().getResourceAsStream("/content.xml"));
+            DatabaseOperation.CLEAN_INSERT.execute(dbUnitConn, dataSet);
 
-                DatabaseOperation.CLEAN_INSERT.execute(dbUnitConn, dataSet);
-            }
+            LOG.debug("Default content successfully loaded");
         } catch (Throwable t) {
             LOG.error("While loading default content", t);
         } finally {
             DataSourceUtils.releaseConnection(conn, dataSource);
+        }
+
+        try {
+            conn.close();
+        } catch (SQLException e) {
+            LOG.error("While closing SQL connection", e);
         }
     }
 

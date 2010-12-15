@@ -28,10 +28,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Lob;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
-import javax.persistence.QueryHint;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.Valid;
@@ -47,18 +44,6 @@ import org.syncope.core.persistence.beans.role.SyncopeRole;
 
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@NamedQueries({
-    @NamedQuery(name = "SyncopeUser.find",
-    query = "SELECT e FROM SyncopeUser e WHERE e.id = :id",
-    hints = {
-        @QueryHint(name = "org.hibernate.cacheable", value = "true")
-    }),
-    @NamedQuery(name = "SyncopeUser.findByWorkflowId",
-    query = "SELECT e FROM SyncopeUser e WHERE e.workflowId = :workflowId",
-    hints = {
-        @QueryHint(name = "org.hibernate.cacheable", value = "true")
-    })
-})
 public class SyncopeUser extends AbstractAttributable {
 
     @Id

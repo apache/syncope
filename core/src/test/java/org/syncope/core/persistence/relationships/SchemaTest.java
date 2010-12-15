@@ -14,7 +14,8 @@
  */
 package org.syncope.core.persistence.relationships;
 
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
@@ -59,9 +60,15 @@ public class SchemaTest extends AbstractTest {
         assertNotNull(schema);
 
         // check for associated mappings
-        List<SchemaMapping> mappings = resourceDAO.getMappings(
-                schema.getName(),
-                SourceMappingType.UserSchema);
+        Set<SchemaMapping> mappings = new HashSet<SchemaMapping>();
+        for (SchemaMapping mapping : resourceDAO.findAllMappings()) {
+            if (mapping.getSourceAttrName().equals(schema.getName())
+                    && mapping.getSourceMappingType()
+                    == SourceMappingType.UserSchema) {
+
+                mappings.add(mapping);
+            }
+        }
         assertFalse(mappings.isEmpty());
 
         // delete user schema username
@@ -75,8 +82,15 @@ public class SchemaTest extends AbstractTest {
         assertNull(schema);
 
         // check for mappings deletion
-        mappings = resourceDAO.getMappings("username",
-                SourceMappingType.UserSchema);
+        mappings = new HashSet<SchemaMapping>();
+        for (SchemaMapping mapping : resourceDAO.findAllMappings()) {
+            if (mapping.getSourceAttrName().equals("username")
+                    && mapping.getSourceMappingType()
+                    == SourceMappingType.UserSchema) {
+
+                mappings.add(mapping);
+            }
+        }
         assertTrue(mappings.isEmpty());
 
         assertNull(attributeDAO.find(100L, UAttr.class));
@@ -94,10 +108,16 @@ public class SchemaTest extends AbstractTest {
         assertNotNull(schema);
 
         // check for associated mappings
-        List<SchemaMapping> mappings = resourceDAO.getMappings(
-                schema.getName(),
-                SourceMappingType.UserSchema);
-        assertNotNull(mappings);
+        Set<SchemaMapping> mappings = new HashSet<SchemaMapping>();
+        for (SchemaMapping mapping : resourceDAO.findAllMappings()) {
+            if (mapping.getSourceAttrName().equals(schema.getName())
+                    && mapping.getSourceMappingType()
+                    == SourceMappingType.UserSchema) {
+
+                mappings.add(mapping);
+            }
+        }
+        assertFalse(mappings.isEmpty());
 
         // delete user schema username
         schemaDAO.delete("surname", AttributableUtil.USER);

@@ -29,12 +29,7 @@ public interface ResourceDAO extends DAO {
     TargetResource save(TargetResource resource)
             throws InvalidEntityException;
 
-    List<SchemaMapping> getMappings(String schemaName,
-            SourceMappingType sourceMappingType);
-
-    List<SchemaMapping> getMappings(String schemaName,
-            SourceMappingType sourceMappingType,
-            String resourceName);
+    List<SchemaMapping> findAllMappings();
 
     SchemaMapping getMappingForAccountId(String resourceName);
 

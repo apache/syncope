@@ -17,6 +17,7 @@ package org.syncope.core.persistence.dao.impl;
 import java.util.List;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
+import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.SchemaMapping;
@@ -31,7 +32,10 @@ public class ResourceDAOImpl extends AbstractDAOImpl
 
     @Override
     public TargetResource find(final String name) {
-        Query query = entityManager.createNamedQuery("TargetResource.find");
+        Query query = entityManager.createQuery(
+                "SELECT e FROM TargetResource e WHERE e.name = :name");
+        query.setHint("org.hibernate.cacheable", true);
+
         query.setParameter("name", name);
 
         try {
@@ -54,27 +58,12 @@ public class ResourceDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    public List<SchemaMapping> getMappings(final String sourceAttrName,
-            final SourceMappingType sourceMappingType) {
-
-        Query query = entityManager.createNamedQuery(
-                "TargetResource.getMappings");
-        query.setParameter("sourceAttrName", sourceAttrName);
-        query.setParameter("sourceMappingType", sourceMappingType);
-
-        return query.getResultList();
-    }
-
-    @Override
-    public List<SchemaMapping> getMappings(final String sourceAttrName,
-            final SourceMappingType sourceMappingType,
-            final String resourceName) {
-
-        Query query = entityManager.createNamedQuery(
-                "TargetResource.getMappingsByTargetResource");
-        query.setParameter("sourceAttrName", sourceAttrName);
-        query.setParameter("sourceMappingType", sourceMappingType);
-        query.setParameter("resourceName", resourceName);
+    public List<SchemaMapping> findAllMappings() {
+        Query query = entityManager.createQuery(
+                "SELECT e FROM SchemaMapping e");
+        query.setHint("org.hibernate.cacheable", true);
+        query.setHint("org.hibernate.cacheRegion",
+                SchemaMapping.class.getName());
 
         return query.getResultList();
     }
@@ -98,6 +87,7 @@ public class ResourceDAOImpl extends AbstractDAOImpl
 
         if (sourceMappingType == SourceMappingType.SyncopeUserId
                 || sourceMappingType == SourceMappingType.Password) {
+
             return;
         }
 
@@ -110,6 +100,10 @@ public class ResourceDAOImpl extends AbstractDAOImpl
 
         int items = query.executeUpdate();
         LOG.debug("Removed {} schema mappings", items);
+
+        // Make empty SchemaMapping query cache
+        ((Session) entityManager.getDelegate()).getSessionFactory().
+                evictQueries(SchemaMapping.class.getName());
     }
 
     @Override
@@ -123,6 +117,10 @@ public class ResourceDAOImpl extends AbstractDAOImpl
         LOG.debug("Removed {} schema mappings", items);
 
         resource.getMappings().clear();
+
+        // Make empty SchemaMapping query cache
+        ((Session) entityManager.getDelegate()).getSessionFactory().
+                evictQueries(SchemaMapping.class.getName());
     }
 
     @Override
@@ -132,7 +130,7 @@ public class ResourceDAOImpl extends AbstractDAOImpl
             return;
         }
 
-        resource.getMappings().clear();
+        deleteAllMappings(resource);
 
         resource.getTasks().clear();
 

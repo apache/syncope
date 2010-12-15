@@ -81,17 +81,18 @@
         <property name="jpaPropertyMap">
             <map>
                 <entry key="hibernate.order_updates" value="true"/>
+                <entry key="hibernate.generate_statistics" value="true"/>
 
                 <!-- Second level cache -->
                 <entry key="hibernate.cache.use_second_level_cache" value="true"/>
                 <entry key="hibernate.cache.use_query_cache" value="true"/>
+                <entry key="hibernate.cache.use_minimal_puts" value="true"/>
                 <entry key="hibernate.cache.region.factory_class"
                        value="net.sf.ehcache.hibernate.EhCacheRegionFactory"/>
                 <entry key="net.sf.ehcache.configurationResourceName"
                        value="/ehcache.xml"/>
                 <entry key="hibernate.cache.region_prefix"
                        value="syncopecache"/>
-                <entry key="hibernate.generate_statistics" value="true"/>
             </map>
         </property>
     </bean>

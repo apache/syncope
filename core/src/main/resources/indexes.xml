@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+    <comment>Additional indexes</comment>
+    <entry key="index1">CREATE INDEX roleNameIndex ON SyncopeRole(name)</entry>
+</properties>
