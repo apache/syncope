@@ -414,7 +414,8 @@ public class UserController extends AbstractController {
         }
 
         // The user to be created
-        SyncopeUser user = userDataBinder.create(userTO);
+        SyncopeUser user = new SyncopeUser();
+        userDataBinder.create(user, userTO);
         user = syncopeUserDAO.save(user);
 
         // Now that user is created locally, let's propagate

@@ -39,6 +39,8 @@ import org.syncope.core.persistence.beans.membership.MAttr;
 import org.syncope.core.persistence.beans.membership.MDerAttr;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
+import org.syncope.core.persistence.beans.user.UAttr;
+import org.syncope.core.persistence.beans.user.UDerAttr;
 import org.syncope.core.persistence.propagation.ResourceOperations;
 import org.syncope.types.ResourceOperationType;
 import org.syncope.types.SyncopeClientExceptionType;
@@ -91,10 +93,43 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         return result;
     }
 
-    public SyncopeUser create(final UserTO userTO)
-            throws SyncopeClientCompositeErrorException, NotFoundException {
+    public void empty(final SyncopeUser user) {
+        Set<Long> ids = new HashSet<Long>();
+        for (AbstractAttr attribute : user.getAttributes()) {
+            ids.add(attribute.getId());
+        }
+        for (Long attrId : ids) {
+            attributeDAO.delete(attrId, UAttr.class);
+        }
+        user.getAttributes().clear();
 
-        SyncopeUser user = new SyncopeUser();
+        ids.clear();
+        for (AbstractDerAttr derivedAttribute : user.getDerivedAttributes()) {
+            ids.add(derivedAttribute.getId());
+        }
+        for (Long derAttrId : ids) {
+            derivedAttributeDAO.delete(derAttrId, UDerAttr.class);
+        }
+        user.getDerivedAttributes().clear();
+
+        ids.clear();
+        for (Membership membership : user.getMemberships()) {
+            ids.add(membership.getId());
+        }
+        for (Long membershipId : ids) {
+            membershipDAO.delete(membershipId);
+        }
+
+        for (TargetResource resource : user.getTargetResources()) {
+            resource.removeUser(user);
+        }
+        user.getTargetResources().clear();
+
+        user.setPassword(null);
+    }
+
+    public void create(final SyncopeUser user, final UserTO userTO)
+            throws SyncopeClientCompositeErrorException, NotFoundException {
 
         SyncopeClientCompositeErrorException scce =
                 new SyncopeClientCompositeErrorException(
@@ -148,8 +183,6 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
         // attributes, derived attributes and resources
         fill(user, userTO, AttributableUtil.USER, scce);
-
-        return user;
     }
 
     public ResourceOperations update(SyncopeUser user, UserMod userMod)
