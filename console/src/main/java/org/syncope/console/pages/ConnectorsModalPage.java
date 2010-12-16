@@ -56,6 +56,7 @@ import org.syncope.types.ConnectorCapability;
 public class ConnectorsModalPage extends SyncopeModalPage {
 
     public TextField connectorName;
+    public TextField displayName;
     public DropDownChoice bundle;
     public TextField version;
     public CheckBoxMultipleChoice capabilitiesPalette;
@@ -128,11 +129,14 @@ public class ConnectorsModalPage extends SyncopeModalPage {
         connectorName.setEnabled(false);
         connectorName.setOutputMarkupId(true);
 
+        displayName = new TextField("displayName");
+        displayName.setOutputMarkupId(true);
+
         version = new TextField("version");
         version.setEnabled(false);
         version.setOutputMarkupId(true);
 
-        ChoiceRenderer renderer = new ChoiceRenderer("displayName", "bundleName");
+        ChoiceRenderer renderer = new ChoiceRenderer("bundleName","bundleName");
         bundle = new DropDownChoice("bundle",bundles,renderer);
 
         bundle.setModel(new IModel() {
@@ -233,6 +237,7 @@ public class ConnectorsModalPage extends SyncopeModalPage {
         connectorForm.add(new FeedbackPanel("feedback").setOutputMarkupId(true));
 
         connectorForm.add(connectorName);
+        connectorForm.add(displayName);
         connectorForm.add(bundle);
         connectorForm.add(version);
 

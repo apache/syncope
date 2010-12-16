@@ -102,6 +102,9 @@ public class Connectors extends BasePage {
         columns.add(new PropertyColumn(new Model(getString("name")),
                 "connectorName", "connectorName"));
 
+        columns.add(new PropertyColumn(new Model(getString("displayName")),
+                "displayName", "displayName"));
+
         columns.add(new PropertyColumn(new Model(getString("version")),
                 "version", "version"));
 
