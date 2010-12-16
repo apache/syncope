@@ -131,6 +131,11 @@ public class ConnectorInstanceDataBinder {
                     connectorInstanceTO.getConfiguration());
         }
 
+        if (connectorInstanceTO.getDisplayName() != null) {
+            connectorInstance.setDisplayName(
+                    connectorInstanceTO.getDisplayName());
+        }
+
         connectorInstance.setCapabilities(
                 connectorInstanceTO.getCapabilities());
 
