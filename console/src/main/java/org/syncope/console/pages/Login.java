@@ -151,23 +151,23 @@ public class Login extends WebPage {
         roles.add("SCHEMA_DELETE");
         roles.add("SCHEMA_UPDATE");
 
-        roles.add("ROLES_CREATE");
-        roles.add("ROLES_LIST");
-        roles.add("ROLES_READ");
-        roles.add("ROLES_DELETE");
-        roles.add("ROLES_UPDATE");
+        roles.add("ROLE_CREATE");
+        roles.add("ROLE_LIST");
+        roles.add("ROLE_READ");
+        roles.add("ROLE_DELETE");
+        roles.add("ROLE_UPDATE");
 
-        roles.add("RESOURCES_CREATE");
-        roles.add("RESOURCES_LIST");
-        roles.add("RESOURCES_READ");
-        roles.add("RESOURCES_DELETE");
-        roles.add("RESOURCES_UPDATE");
+        roles.add("RESOURCE_CREATE");
+        roles.add("RESOURCE_LIST");
+        roles.add("RESOURCE_READ");
+        roles.add("RESOURCE_DELETE");
+        roles.add("RESOURCE_UPDATE");
 
-        roles.add("CONNECTORS_CREATE");
-        roles.add("CONNECTORS_LIST");
-        roles.add("CONNECTORS_READ");
-        roles.add("CONNECTORS_DELETE");
-        roles.add("CONNECTORS_UPDATE");
+        roles.add("CONNECTOR_CREATE");
+        roles.add("CONNECTOR_LIST");
+        roles.add("CONNECTOR_READ");
+        roles.add("CONNECTOR_DELETE");
+        roles.add("CONNECTOR_UPDATE");
 
         roles.add("REPORT_LIST");
 
@@ -177,12 +177,12 @@ public class Login extends WebPage {
         roles.add("CONFIGURATION_DELETE");
         roles.add("CONFIGURATION_UPDATE");
 
-        roles.add("TASKS_CREATE");
-        roles.add("TASKS_LIST");
-        roles.add("TASKS_READ");
-        roles.add("TASKS_DELETE");
-        roles.add("TASKS_UPDATE");
-        roles.add("TASKS_EXECUTE");
+        roles.add("TASK_CREATE");
+        roles.add("TASK_LIST");
+        roles.add("TASK_READ");
+        roles.add("TASK_DELETE");
+        roles.add("TASK_UPDATE");
+        roles.add("TASK_EXECUTE");
 
         return roles;
     }
@@ -202,15 +202,15 @@ public class Login extends WebPage {
 //        roles.add("SCHEMA_DELETE");
 //        roles.add("SCHEMA_UPDATE");
 
-         roles.add("CONNECTORS_LIST");
+         roles.add("CONNECTOR_LIST");
          roles.add("REPORT_LIST");
 
-//        roles.add("ROLES_CREATE");
-        roles.add("ROLES_LIST");
-        roles.add("ROLES_READ");
-//        roles.add("ROLES_DELETE");
-//        roles.add("ROLES_UPDATE");
-        roles.add("TASKS_LIST");
+//        roles.add("ROLE_CREATE");
+        roles.add("ROLE_LIST");
+        roles.add("ROLE_READ");
+//        roles.add("ROLE_DELETE");
+//        roles.add("ROLE_UPDATE");
+        roles.add("TASK_LIST");
 
         return roles;
     }

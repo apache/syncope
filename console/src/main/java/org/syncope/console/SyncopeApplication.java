@@ -75,17 +75,17 @@ public class SyncopeApplication extends AuthenticatedWebApplication
         MetaDataRoleAuthorizationStrategy.authorize(Schema.class,
                 "SCHEMA_LIST");
         MetaDataRoleAuthorizationStrategy.authorize(Roles.class,
-                "ROLES_LIST");
+                "ROLE_LIST");
         MetaDataRoleAuthorizationStrategy.authorize(Connectors.class,
-                "CONNECTORS_LIST");
+                "CONNECTOR_LIST");
         MetaDataRoleAuthorizationStrategy.authorize(Resources.class,
-                "RESOURCES_LIST");
+                "RESOURCE_LIST");
         MetaDataRoleAuthorizationStrategy.authorize(Users.class,
                 "USER_LIST");
         MetaDataRoleAuthorizationStrategy.authorize(Report.class,
                 "REPORT_LIST");
         MetaDataRoleAuthorizationStrategy.authorize(Tasks.class,
-                "TASKS_LIST");
+                "TASK_LIST");
         MetaDataRoleAuthorizationStrategy.authorize(Configuration.class,
                 "CONFIGURATION_LIST");
     }

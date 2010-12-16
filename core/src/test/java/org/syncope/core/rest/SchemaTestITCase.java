@@ -39,7 +39,6 @@ public class SchemaTestITCase extends AbstractTest {
                 + "schema/user/create", schemaTO, SchemaTO.class);
         assertEquals(schemaTO, newSchemaTO);
 
-
         newSchemaTO = restTemplate.postForObject(BASE_URL
                 + "schema/membership/create", schemaTO, SchemaTO.class);
         assertEquals(schemaTO, newSchemaTO);

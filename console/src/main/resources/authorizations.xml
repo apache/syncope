@@ -1,4 +1,17 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
 <!--
 action@id = list|create|read|update|delete
 
@@ -55,45 +68,45 @@ page@id= Schema|Users|Roles|Resources|Connectors|Report|Configuration|Task
 
     <page id="Roles">
         <action id="list">
-            <entitlement>ROLES_LIST</entitlement>
+            <entitlement>ROLE_LIST</entitlement>
         </action>
 
         <action id="create">
-            <entitlement>ROLES_CREATE</entitlement>
+            <entitlement>ROLE_CREATE</entitlement>
         </action>
 
         <action id="read">
-            <entitlement>ROLES_READ</entitlement>
+            <entitlement>ROLE_READ</entitlement>
         </action>
 
         <action id="update">
-            <entitlement>ROLES_UPDATE</entitlement>
+            <entitlement>ROLE_UPDATE</entitlement>
         </action>
 
         <action id="delete">
-            <entitlement>ROLES_DELETE</entitlement>
+            <entitlement>ROLE_DELETE</entitlement>
         </action>
     </page>
 
     <page id="Resources">
         <action id="list">
-            <entitlement>RESOURCES_LIST</entitlement>
+            <entitlement>RESOURCE_LIST</entitlement>
         </action>
 
         <action id="create">
-            <entitlement>RESOURCES_CREATE</entitlement>
+            <entitlement>RESOURCE_CREATE</entitlement>
         </action>
 
         <action id="read">
-            <entitlement>RESOURCES_READ</entitlement>
+            <entitlement>RESOURCE_READ</entitlement>
         </action>
 
         <action id="update">
-            <entitlement>RESOURCES_UPDATE</entitlement>
+            <entitlement>RESOURCE_UPDATE</entitlement>
         </action>
 
         <action id="delete">
-            <entitlement>RESOURCES_DELETE</entitlement>
+            <entitlement>RESOURCE_DELETE</entitlement>
         </action>
     </page>
 
@@ -105,23 +118,23 @@ page@id= Schema|Users|Roles|Resources|Connectors|Report|Configuration|Task
 
     <page id="Connectors">
        <action id="list">
-            <entitlement>CONNECTORS_LIST</entitlement>
+            <entitlement>CONNECTOR_LIST</entitlement>
         </action>
 
         <action id="create">
-            <entitlement>CONNECTORS_CREATE</entitlement>
+            <entitlement>CONNECTOR_CREATE</entitlement>
         </action>
 
         <action id="read">
-            <entitlement>CONNECTORS_READ</entitlement>
+            <entitlement>CONNECTOR_READ</entitlement>
         </action>
 
         <action id="update">
-            <entitlement>CONNECTORS_UPDATE</entitlement>
+            <entitlement>CONNECTOR_UPDATE</entitlement>
         </action>
 
         <action id="delete">
-            <entitlement>CONNECTORS_DELETE</entitlement>
+            <entitlement>CONNECTOR_DELETE</entitlement>
         </action>
     </page>
 
@@ -153,19 +166,19 @@ page@id= Schema|Users|Roles|Resources|Connectors|Report|Configuration|Task
 
     <page id="Tasks">
        <action id="list">
-            <entitlement>TASKS_LIST</entitlement>
+            <entitlement>TASK_LIST</entitlement>
         </action>
 
         <action id="execute">
-            <entitlement>TASKS_EXECUTE</entitlement>
+            <entitlement>TASK_EXECUTE</entitlement>
         </action>
 
         <action id="read">
-            <entitlement>TASKS_READ</entitlement>
+            <entitlement>TASK_READ</entitlement>
         </action>
 
         <action id="delete">
-            <entitlement>TASKS_DELETE</entitlement>
+            <entitlement>TASK_DELETE</entitlement>
         </action>
     </page>
 </auth>

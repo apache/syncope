@@ -166,13 +166,20 @@ public class SyncopeUser extends AbstractAttributable {
         if (password == null) {
             this.password = null;
         } else {
-            MessageDigest md = null;
             try {
-                md = MessageDigest.getInstance("MD5");
-                md.update(password.getBytes());
-                this.password = new String(md.digest());
+                MessageDigest algorithm = MessageDigest.getInstance("MD5");
+                algorithm.reset();
+                algorithm.update(password.getBytes());
+
+                byte messageDigest[] = algorithm.digest();
+                StringBuilder hexString = new StringBuilder();
+                for (int i = 0; i < messageDigest.length; i++) {
+                    hexString.append(
+                            Integer.toHexString(0xFF & messageDigest[i]));
+                }
+                this.password = hexString.toString();
             } catch (NoSuchAlgorithmException e) {
-                LOG.error("Could not find required digest ");
+                LOG.error("Could not find MD5 algorithm", e);
             }
         }
     }

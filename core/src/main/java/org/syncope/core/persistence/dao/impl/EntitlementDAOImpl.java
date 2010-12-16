@@ -16,6 +16,7 @@ package org.syncope.core.persistence.dao.impl;
 
 import java.util.List;
 import javax.persistence.Query;
+import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.syncope.core.persistence.beans.Entitlement;
@@ -39,6 +40,10 @@ public class EntitlementDAOImpl extends AbstractDAOImpl
     public List<Entitlement> findAll() {
         Query query = entityManager.createQuery(
                 "SELECT e FROM Entitlement e");
+        query.setHint("org.hibernate.cacheable", true);
+        query.setHint("org.hibernate.cacheRegion",
+                Entitlement.class.getName());
+
         return query.getResultList();
     }
 
@@ -60,5 +65,9 @@ public class EntitlementDAOImpl extends AbstractDAOImpl
         }
 
         entityManager.remove(entitlement);
+
+        // Make empty Entitlement query cache
+        ((Session) entityManager.getDelegate()).getSessionFactory().
+                evictQueries(Entitlement.class.getName());
     }
 }

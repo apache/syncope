@@ -25,6 +25,7 @@ import java.util.Set;
 import javassist.NotFoundException;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.syncope.client.to.ResourceTO;
@@ -53,6 +54,7 @@ public class ResourceController extends AbstractController {
     @Autowired
     private ResourceDataBinder binder;
 
+    @PreAuthorize("hasRole('RESOURCE_CREATE')")
     @RequestMapping(method = RequestMethod.POST,
     value = "/create")
     public ResourceTO create(final HttpServletResponse response,
@@ -107,6 +109,7 @@ public class ResourceController extends AbstractController {
         return binder.getResourceTO(resource);
     }
 
+    @PreAuthorize("hasRole('RESOURCE_UPDATE')")
     @RequestMapping(method = RequestMethod.POST,
     value = "/update")
     public ResourceTO update(final HttpServletResponse response,
@@ -155,6 +158,7 @@ public class ResourceController extends AbstractController {
         return binder.getResourceTO(resource);
     }
 
+    @PreAuthorize("hasRole('RESOURCE_DELETE')")
     @RequestMapping(method = RequestMethod.DELETE,
     value = "/delete/{resourceName}")
     public void delete(final HttpServletResponse response,
@@ -171,6 +175,7 @@ public class ResourceController extends AbstractController {
         resourceDAO.delete(resourceName);
     }
 
+    @PreAuthorize("hasRole('RESOURCE_READ')")
     @Transactional(readOnly = true)
     @RequestMapping(method = RequestMethod.GET,
     value = "/read/{resourceName}")
@@ -187,6 +192,7 @@ public class ResourceController extends AbstractController {
         return binder.getResourceTO(resource);
     }
 
+    @PreAuthorize("hasRole('RESOURCE_LIST')")
     @Transactional(readOnly = true)
     @RequestMapping(method = RequestMethod.GET,
     value = "/list")
@@ -202,6 +208,7 @@ public class ResourceController extends AbstractController {
         return binder.getResourceTOs(resources);
     }
 
+    @PreAuthorize("hasRole('RESOURCE_READ')")
     @RequestMapping(method = RequestMethod.GET,
     value = "/{roleName}/mappings")
     public List<SchemaMappingTO> getRoleResourcesMapping(
@@ -235,25 +242,17 @@ public class ResourceController extends AbstractController {
 
         Set<TargetResource> resources = role.getTargetResources();
 
-        List<SchemaMappingTO> resourceMappings = null;
+        List<SchemaMappingTO> resourceMappings;
         for (TargetResource resource : resources) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Ask for the mappings of '" + resource + "'");
-            }
+            LOG.debug("Ask for the mappings of {}", resource);
 
             List<SchemaMapping> schemaMappings = resource.getMappings();
-
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("The mappings of '" + resource + "' are '"
-                        + schemaMappings + "'");
-            }
+            LOG.debug("The mappings of {} are {}",
+                    resource, schemaMappings);
 
             resourceMappings = binder.getSchemaMappingTOs(schemaMappings);
-
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("The mappings TO of '" + resource + "' are '"
-                        + resourceMappings + "'");
-            }
+            LOG.debug("The mappings TO of {} are {}",
+                    resource, resourceMappings);
 
             roleMappings.addAll(resourceMappings);
         }

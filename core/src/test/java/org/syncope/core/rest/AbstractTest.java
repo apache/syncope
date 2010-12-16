@@ -14,16 +14,21 @@
  */
 package org.syncope.core.rest;
 
+import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.commons.httpclient.auth.AuthScope;
+import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.client.CommonsClientHttpRequestFactory;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.RestTemplate;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
+    "classpath:syncopeContext.xml",
     "classpath:persistenceContext.xml",
     "classpath:workflowContext.xml",
     "file:target/syncope/WEB-INF/syncope-core-rest-servlet.xml"
@@ -35,8 +40,17 @@ public abstract class AbstractTest {
      */
     protected static final Logger LOG = LoggerFactory.getLogger(
             AbstractTest.class);
+
     protected static final String BASE_URL =
             "http://localhost:9080/syncope/rest/";
+
     @Autowired
     protected RestTemplate restTemplate;
+
+    @Before
+    public void setupRestTemplate() {
+        ((CommonsClientHttpRequestFactory) restTemplate.getRequestFactory()).
+                getHttpClient().getState().setCredentials(AuthScope.ANY,
+                new UsernamePasswordCredentials("admin", "password"));
+    }
 }

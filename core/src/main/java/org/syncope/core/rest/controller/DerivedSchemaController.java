@@ -19,6 +19,7 @@ import java.util.List;
 import javassist.NotFoundException;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -36,10 +37,13 @@ public class DerivedSchemaController extends AbstractController {
 
     @Autowired
     private DerivedSchemaDAO derivedSchemaDAO;
+
     @Autowired
     private DerivedSchemaDataBinder derivedSchemaDataBinder;
 
-    @RequestMapping(method = RequestMethod.POST, value = "/{kind}/create")
+    @PreAuthorize("hasRole('SCHEMA_CREATE')")
+    @RequestMapping(method = RequestMethod.POST,
+    value = "/{kind}/create")
     public DerivedSchemaTO create(final HttpServletResponse response,
             @RequestBody final DerivedSchemaTO derivedSchemaTO,
             @PathVariable("kind") final String kind)
@@ -57,6 +61,7 @@ public class DerivedSchemaController extends AbstractController {
         return derivedSchemaDataBinder.getDerivedSchemaTO(derivedSchema);
     }
 
+    @PreAuthorize("hasRole('SCHEMA_DELETE')")
     @RequestMapping(method = RequestMethod.DELETE,
     value = "/{kind}/delete/{schema}")
     public void delete(HttpServletResponse response,
@@ -77,7 +82,9 @@ public class DerivedSchemaController extends AbstractController {
         }
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/{kind}/list")
+    @PreAuthorize("hasRole('SCHEMA_LIST')")
+    @RequestMapping(method = RequestMethod.GET,
+    value = "/{kind}/list")
     public List<DerivedSchemaTO> list(@PathVariable("kind") final String kind) {
         Class reference = getAttributableUtil(kind).derivedSchemaClass();
         List<AbstractDerSchema> derivedAttributeSchemas =
@@ -94,6 +101,7 @@ public class DerivedSchemaController extends AbstractController {
         return derivedSchemaTOs;
     }
 
+    @PreAuthorize("hasRole('SCHEMA_READ')")
     @RequestMapping(method = RequestMethod.GET,
     value = "/{kind}/read/{derivedSchema}")
     public DerivedSchemaTO read(@PathVariable("kind") final String kind,
@@ -112,7 +120,9 @@ public class DerivedSchemaController extends AbstractController {
         return derivedSchemaDataBinder.getDerivedSchemaTO(derivedSchema);
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "/{kind}/update")
+    @PreAuthorize("hasRole('SCHEMA_UPDATE')")
+    @RequestMapping(method = RequestMethod.POST,
+    value = "/{kind}/update")
     public DerivedSchemaTO update(
             @RequestBody final DerivedSchemaTO derivedSchemaTO,
             @PathVariable("kind") final String kind)

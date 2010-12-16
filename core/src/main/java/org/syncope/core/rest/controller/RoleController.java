@@ -20,6 +20,7 @@ import javassist.NotFoundException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,7 +31,6 @@ import org.syncope.client.to.RoleTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.dao.SyncopeRoleDAO;
-import org.syncope.core.persistence.propagation.ResourceOperations;
 import org.syncope.core.rest.data.RoleDataBinder;
 
 @Controller
@@ -43,6 +43,7 @@ public class RoleController extends AbstractController {
     @Autowired
     private RoleDataBinder roleDataBinder;
 
+    @PreAuthorize("hasRole('ROLE_CREATE')")
     @RequestMapping(method = RequestMethod.POST,
     value = "/create")
     public RoleTO create(HttpServletRequest request,
@@ -50,11 +51,9 @@ public class RoleController extends AbstractController {
             @RequestBody RoleTO roleTO)
             throws SyncopeClientCompositeErrorException {
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("create called with parameters " + roleTO);
-        }
+        LOG.debug("Role create called with parameters {}", roleTO);
 
-        SyncopeRole role = null;
+        SyncopeRole role;
         try {
             role = roleDataBinder.create(roleTO);
         } catch (SyncopeClientCompositeErrorException e) {
@@ -68,6 +67,7 @@ public class RoleController extends AbstractController {
         return roleDataBinder.getRoleTO(role);
     }
 
+    @PreAuthorize("hasRole('ROLE_DELETE')")
     @RequestMapping(method = RequestMethod.DELETE,
     value = "/delete/{roleId}")
     public void delete(HttpServletResponse response,
@@ -75,16 +75,16 @@ public class RoleController extends AbstractController {
             throws NotFoundException {
 
         SyncopeRole role = syncopeRoleDAO.find(roleId);
-
         if (role == null) {
             LOG.error("Could not find role '" + roleId + "'");
 
-            throw new NotFoundException(String.valueOf(roleId));
-        } else {
-            syncopeRoleDAO.delete(roleId);
+            throw new NotFoundException("Role " + String.valueOf(roleId));
         }
+
+        syncopeRoleDAO.delete(roleId);
     }
 
+    @PreAuthorize("hasRole('ROLE_LIST')")
     @RequestMapping(method = RequestMethod.GET,
     value = "/list")
     public List<RoleTO> list(HttpServletRequest request) {
@@ -97,6 +97,7 @@ public class RoleController extends AbstractController {
         return roleTOs;
     }
 
+    @PreAuthorize("hasRole('ROLE_READ')")
     @RequestMapping(method = RequestMethod.GET,
     value = "/parent/{roleId}")
     public RoleTO parent(HttpServletResponse response,
@@ -104,17 +105,17 @@ public class RoleController extends AbstractController {
             throws NotFoundException {
 
         SyncopeRole role = syncopeRoleDAO.find(roleId);
-
         if (role == null) {
             LOG.error("Could not find role '" + roleId + "'");
 
-            throw new NotFoundException(String.valueOf(roleId));
+            throw new NotFoundException("Role " + String.valueOf(roleId));
         }
 
         return role.getParent() == null ? null
                 : roleDataBinder.getRoleTO(role.getParent());
     }
 
+    @PreAuthorize("hasRole('ROLE_READ')")
     @RequestMapping(method = RequestMethod.GET,
     value = "/children/{roleId}")
     public List<RoleTO> children(HttpServletResponse response,
@@ -129,6 +130,7 @@ public class RoleController extends AbstractController {
         return roleTOs;
     }
 
+    @PreAuthorize("hasRole('ROLE_READ')")
     @RequestMapping(method = RequestMethod.GET,
     value = "/read/{roleId}")
     public RoleTO read(HttpServletResponse response,
@@ -136,7 +138,6 @@ public class RoleController extends AbstractController {
             throws NotFoundException {
 
         SyncopeRole role = syncopeRoleDAO.find(roleId);
-
         if (role == null) {
             LOG.error("Could not find role '" + roleId + "'");
 
@@ -146,25 +147,24 @@ public class RoleController extends AbstractController {
         return roleDataBinder.getRoleTO(role);
     }
 
+    @PreAuthorize("hasRole('ROLE_UPDATE')")
     @RequestMapping(method = RequestMethod.POST,
     value = "/update")
     public RoleTO update(HttpServletResponse response,
             @RequestBody RoleMod roleMod)
             throws NotFoundException {
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("update called with parameter " + roleMod);
-        }
+        LOG.debug("Role update called with parameter {}", roleMod);
 
         SyncopeRole role = syncopeRoleDAO.find(roleMod.getId());
         if (role == null) {
-            LOG.error("Could not find user '" + roleMod.getId() + "'");
+            LOG.error("Could not find role '" + roleMod.getId() + "'");
 
-            throw new NotFoundException(String.valueOf(roleMod.getId()));
+            throw new NotFoundException(
+                    "Role " + String.valueOf(roleMod.getId()));
         }
 
-        ResourceOperations resourceOperations =
-                roleDataBinder.update(role, roleMod);
+        roleDataBinder.update(role, roleMod);
         role = syncopeRoleDAO.save(role);
 
         return roleDataBinder.getRoleTO(role);

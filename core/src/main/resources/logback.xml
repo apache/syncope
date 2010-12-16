@@ -90,6 +90,11 @@
         <appender-ref ref="persistence"/>
     </logger>
 
+    <logger name="org.syncope.core.security" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="main"/>
+    </logger>
+
     <logger name="org.syncope.core.rest" additivity="false">
         <level value="INFO"/>
         <appender-ref ref="rest"/>
@@ -118,6 +123,11 @@
     <logger name="net.sf.ehcache.hibernate" additivity="false">
         <level value="INFO"/>
         <appender-ref ref="monitor"/>
+    </logger>
+
+    <logger name="net.sf.ehcache" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="main"/>
     </logger>
 
     <logger name="org.springframework" additivity="false">
@@ -151,6 +161,15 @@
     </logger>
 
     <logger name="org.dbunit" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="test"/>
+    </logger>
+
+    <logger name="org.apache.commons.httpclient" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="test"/>
+    </logger>
+    <logger name="httpclient" additivity="false">
         <level value="INFO"/>
         <appender-ref ref="test"/>
     </logger>

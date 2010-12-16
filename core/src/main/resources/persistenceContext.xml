@@ -39,15 +39,6 @@
     <bean id="contextApplicationContextProvider"
           class="org.syncope.core.persistence.util.ApplicationContextProvider"/>
 
-    <bean id="propertyConfigurer"
-          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-        <property name="locations">
-            <list>
-                <value>classpath:persistence.properties</value>
-            </list>
-        </property>
-    </bean>
-
     <bean id="dbUnitDataTypeFactory" class="${dbUnitDataTypeFactory}"/>
 
     <bean id="xStream" class="com.thoughtworks.xstream.XStream"/>

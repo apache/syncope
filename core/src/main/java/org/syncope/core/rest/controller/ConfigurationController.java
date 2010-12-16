@@ -2,9 +2,9 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,6 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.reflections.Reflections;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -42,18 +43,19 @@ public class ConfigurationController extends AbstractController {
 
     @Autowired
     private SyncopeConfDAO syncopeConfigurationDAO;
+
     @Autowired
     private ConfigurationDataBinder configurationDataBinder;
 
+    @PreAuthorize("hasRole('CONFIGURATION_CREATE')")
     @RequestMapping(method = RequestMethod.POST,
     value = "/create")
-    public ConfigurationTO create(HttpServletRequest request,
-            HttpServletResponse response,
-            @RequestBody ConfigurationTO configurationTO) {
+    public ConfigurationTO create(final HttpServletRequest request,
+            final HttpServletResponse response,
+            @RequestBody final ConfigurationTO configurationTO) {
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("create called with parameters " + configurationTO);
-        }
+        LOG.debug("Configuration create called with parameters {}",
+                configurationTO);
 
         SyncopeConf syncopeConfiguration =
                 configurationDataBinder.createSyncopeConfiguration(
@@ -67,17 +69,18 @@ public class ConfigurationController extends AbstractController {
         return configurationDataBinder.getConfigurationTO(syncopeConfiguration);
     }
 
+    @PreAuthorize("hasRole('CONFIGURATION_DELETE')")
     @RequestMapping(method = RequestMethod.DELETE,
     value = "/delete/{confKey}")
-    public void delete(HttpServletResponse response,
-            @PathVariable("confKey") String confKey)
+    public void delete(final HttpServletResponse response,
+            @PathVariable("confKey") final String confKey)
             throws MissingConfKeyException {
 
-        SyncopeConf syncopeConfiguration =
-                syncopeConfigurationDAO.find(confKey);
+        syncopeConfigurationDAO.find(confKey);
         syncopeConfigurationDAO.delete(confKey);
     }
 
+    @PreAuthorize("hasRole('CONFIGURATION_LIST')")
     @RequestMapping(method = RequestMethod.GET,
     value = "/list")
     public List<ConfigurationTO> list(HttpServletRequest request) {
@@ -94,13 +97,14 @@ public class ConfigurationController extends AbstractController {
         return configurationTOs;
     }
 
+    @PreAuthorize("hasRole('CONFIGURATION_READ')")
     @RequestMapping(method = RequestMethod.GET,
     value = "/read/{confKey}")
     public ConfigurationTO read(HttpServletResponse response,
             @PathVariable("confKey") String confKey)
             throws MissingConfKeyException {
 
-        ConfigurationTO result = null;
+        ConfigurationTO result;
         try {
             SyncopeConf syncopeConfiguration =
                     syncopeConfigurationDAO.find(confKey);
@@ -117,10 +121,11 @@ public class ConfigurationController extends AbstractController {
         return result;
     }
 
+    @PreAuthorize("hasRole('CONFIGURATION_UPDATE')")
     @RequestMapping(method = RequestMethod.POST,
     value = "/update")
-    public ConfigurationTO update(HttpServletResponse response,
-            @RequestBody ConfigurationTO configurationTO)
+    public ConfigurationTO update(final HttpServletResponse response,
+            @RequestBody final ConfigurationTO configurationTO)
             throws MissingConfKeyException {
 
         SyncopeConf syncopeConfiguration =
@@ -131,6 +136,7 @@ public class ConfigurationController extends AbstractController {
         return configurationDataBinder.getConfigurationTO(syncopeConfiguration);
     }
 
+    @PreAuthorize("hasRole('CONFIGURATION_LIST')")
     @RequestMapping(method = RequestMethod.GET,
     value = "/validators")
     public ModelAndView getValidators() {

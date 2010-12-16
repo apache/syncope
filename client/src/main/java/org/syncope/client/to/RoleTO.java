@@ -14,12 +14,24 @@
  */
 package org.syncope.client.to;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class RoleTO extends AbstractAttributableTO {
 
     private String name;
+
     private long parent;
+
     private boolean inheritAttributes;
+
     private boolean inheritDerivedAttributes;
+
+    private List<String> entitlements;
+
+    public RoleTO() {
+        entitlements = new ArrayList<String>();
+    }
 
     public String getName() {
         return name;
@@ -51,7 +63,26 @@ public class RoleTO extends AbstractAttributableTO {
 
     public void setInheritDerivedAttributes(
             final boolean inheritDerivedAttributes) {
-        
+
         this.inheritDerivedAttributes = inheritDerivedAttributes;
+    }
+
+    public boolean addEntitlement(String entitlement) {
+        return entitlements.add(entitlement);
+    }
+
+    public boolean removeEntitlement(String entitlement) {
+        return entitlements.remove(entitlement);
+    }
+
+    public List<String> getEntitlements() {
+        return entitlements;
+    }
+
+    public void setEntitlements(List<String> entitlements) {
+        this.entitlements.clear();
+        if (entitlements != null || !entitlements.isEmpty()) {
+            this.entitlements.addAll(entitlements);
+        }
     }
 }

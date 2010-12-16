@@ -69,4 +69,41 @@
                       mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
                       conversionPattern="yyyy-MM-dd'T'HH:mm:ss.SSSZ"/>
 
+                          <!-- Authentication and authorization -->
+    <Entitlement name="SCHEMA_LIST"/>
+    <Entitlement name="SCHEMA_CREATE"/>
+    <Entitlement name="SCHEMA_READ"/>
+    <Entitlement name="SCHEMA_UPDATE"/>
+    <Entitlement name="SCHEMA_DELETE"/>
+    <Entitlement name="USER_LIST"/>
+    <Entitlement name="USER_CREATE"/>
+    <Entitlement name="USER_READ"/>
+    <Entitlement name="USER_UPDATE"/>
+    <Entitlement name="USER_DELETE"/>
+    <Entitlement name="USER_VIEW"/>
+    <Entitlement name="ROLE_LIST"/>
+    <Entitlement name="ROLE_CREATE"/>
+    <Entitlement name="ROLE_READ"/>
+    <Entitlement name="ROLE_UPDATE"/>
+    <Entitlement name="ROLE_DELETE"/>
+    <Entitlement name="RESOURCE_LIST"/>
+    <Entitlement name="RESOURCE_CREATE"/>
+    <Entitlement name="RESOURCE_READ"/>
+    <Entitlement name="RESOURCE_UPDATE"/>
+    <Entitlement name="RESOURCE_DELETE"/>
+    <Entitlement name="REPORT_LIST"/>
+    <Entitlement name="CONNECTOR_LIST"/>
+    <Entitlement name="CONNECTOR_CREATE"/>
+    <Entitlement name="CONNECTOR_READ"/>
+    <Entitlement name="CONNECTOR_UPDATE"/>
+    <Entitlement name="CONNECTOR_DELETE"/>
+    <Entitlement name="CONFIGURATION_LIST"/>
+    <Entitlement name="CONFIGURATION_CREATE"/>
+    <Entitlement name="CONFIGURATION_READ"/>
+    <Entitlement name="CONFIGURATION_UPDATE"/>
+    <Entitlement name="CONFIGURATION_DELETE"/>
+    <Entitlement name="TASK_LIST"/>
+    <Entitlement name="TASK_EXECUTE"/>
+    <Entitlement name="TASK_READ"/>
+    <Entitlement name="TASK_DELETE"/>
 </dataset>

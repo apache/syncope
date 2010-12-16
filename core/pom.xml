@@ -86,6 +86,11 @@
         </dependency>
 
         <dependency>
+            <groupId>commons-httpclient</groupId>
+            <artifactId>commons-httpclient</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>opensymphony</groupId>
             <artifactId>osworkflow</artifactId>
         </dependency>
@@ -129,6 +134,14 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-tx</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-config</artifactId>
         </dependency>
 
         <dependency>
@@ -374,6 +387,7 @@
                             <classesDirectory>${project.build.directory}/test-classes</classesDirectory>
                             <includes>
                                 <include>**/persistence.properties</include>
+                                <include>**/security.properties</include>
                                 <include>**/ehcache.xml</include>
                                 <include>**/content.xml</include>
                             </includes>
@@ -399,6 +413,7 @@
                         <configuration>
                             <packagingExcludes>
                                 WEB-INF/classes/persistence.properties,
+                                WEB-INF/classes/security.properties,
                                 WEB-INF/classes/ehcache.xml,
                                 WEB-INF/classes/content.xml,
                                 WEB-INF/classes/beans.xml

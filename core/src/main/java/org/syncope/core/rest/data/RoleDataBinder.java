@@ -14,6 +14,7 @@
  */
 package org.syncope.core.rest.data;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.syncope.core.persistence.util.AttributableUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -21,12 +22,17 @@ import org.syncope.client.mod.RoleMod;
 import org.syncope.client.to.RoleTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
+import org.syncope.core.persistence.beans.Entitlement;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
+import org.syncope.core.persistence.dao.EntitlementDAO;
 import org.syncope.core.persistence.propagation.ResourceOperations;
 import org.syncope.types.SyncopeClientExceptionType;
 
 @Component
 public class RoleDataBinder extends AbstractAttributableDataBinder {
+
+    @Autowired
+    private EntitlementDAO entitlementDAO;
 
     public SyncopeRole create(final RoleTO roleTO)
             throws SyncopeClientCompositeErrorException {
@@ -75,6 +81,17 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
         // attributes, derived attributes and resources
         fill(role, roleTO, AttributableUtil.ROLE, scce);
 
+        // entitlements
+        Entitlement entitlement;
+        for (String entitlementName : roleTO.getEntitlements()) {
+            entitlement = entitlementDAO.find(entitlementName);
+            if (entitlement == null) {
+                LOG.warn("Ignoring invalid entitlement {}", entitlementName);
+            } else {
+                role.addEntitlement(entitlement);
+            }
+        }
+
         return role;
     }
 
@@ -115,6 +132,18 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
                     !role.isInheritDerivedAttributes());
         }
 
+        // entitlements
+        role.getEntitlements().clear();
+        Entitlement entitlement;
+        for (String entitlementName : roleMod.getEntitlements()) {
+            entitlement = entitlementDAO.find(entitlementName);
+            if (entitlement == null) {
+                LOG.warn("Ignoring invalid entitlement {}", entitlementName);
+            } else {
+                role.addEntitlement(entitlement);
+            }
+        }
+
         // attributes, derived attributes and resources
         return fill(role, roleMod, AttributableUtil.ROLE, scce);
     }
@@ -133,6 +162,10 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
                 role.findInheritedAttributes(),
                 role.findInheritedDerivedAttributes(),
                 role.getTargetResources());
+
+        for (Entitlement entitlement : role.getEntitlements()) {
+            roleTO.addEntitlement(entitlement.getName());
+        }
 
         return roleTO;
     }

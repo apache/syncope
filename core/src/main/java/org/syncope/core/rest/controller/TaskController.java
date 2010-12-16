@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javassist.NotFoundException;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.syncope.client.to.TaskExecutionTO;
 import org.syncope.client.to.TaskTO;
@@ -54,6 +55,7 @@ public class TaskController extends AbstractController {
     @Autowired
     private PropagationManager propagationManager;
 
+    @PreAuthorize("hasRole('TASK_LIST')")
     @RequestMapping(method = RequestMethod.GET,
     value = "/list")
     public List<TaskTO> list() {
@@ -66,6 +68,7 @@ public class TaskController extends AbstractController {
         return taskTOs;
     }
 
+    @PreAuthorize("hasRole('TASK_READ')")
     @RequestMapping(method = RequestMethod.GET,
     value = "/execution/list")
     public List<TaskExecutionTO> listExecutions() {
@@ -79,6 +82,7 @@ public class TaskController extends AbstractController {
         return executionTOs;
     }
 
+    @PreAuthorize("hasRole('TASK_READ')")
     @RequestMapping(method = RequestMethod.GET,
     value = "/read/{taskId}")
     public TaskTO read(@PathVariable("taskId") final Long taskId)
@@ -92,6 +96,7 @@ public class TaskController extends AbstractController {
         return taskDataBinder.getTaskTO(task);
     }
 
+    @PreAuthorize("hasRole('TASK_READ')")
     @RequestMapping(method = RequestMethod.GET,
     value = "/execution/read/{executionId}")
     public TaskExecutionTO readExecution(
@@ -106,6 +111,7 @@ public class TaskController extends AbstractController {
         return taskDataBinder.getTaskExecutionTO(execution);
     }
 
+    @PreAuthorize("hasRole('TASK_EXECUTE')")
     @RequestMapping(method = RequestMethod.GET,
     value = "/execute/{taskId}")
     public TaskExecutionTO execute(@PathVariable("taskId") final Long taskId)
@@ -136,6 +142,7 @@ public class TaskController extends AbstractController {
         return taskDataBinder.getTaskExecutionTO(execution);
     }
 
+    @PreAuthorize("hasRole('TASK_READ')")
     @RequestMapping(method = RequestMethod.GET,
     value = "/execution/report/{executionId}")
     public TaskExecutionTO report(
@@ -181,6 +188,7 @@ public class TaskController extends AbstractController {
         return taskDataBinder.getTaskExecutionTO(execution);
     }
 
+    @PreAuthorize("hasRole('TASK_DELETE')")
     @RequestMapping(method = RequestMethod.DELETE,
     value = "/delete/{taskId}")
     public void delete(@PathVariable("taskId") Long taskId)
@@ -212,6 +220,7 @@ public class TaskController extends AbstractController {
         taskDAO.delete(task);
     }
 
+    @PreAuthorize("hasRole('TASK_DELETE')")
     @RequestMapping(method = RequestMethod.DELETE,
     value = "/execution/delete/{executionId}")
     public void deleteExecution(@PathVariable("executionId") Long executionId)

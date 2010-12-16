@@ -2,9 +2,9 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,11 +14,22 @@
  */
 package org.syncope.client.mod;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class RoleMod extends AbstractAttributableMod {
 
     private String name;
+
     private boolean changeInheritAttributes;
+
     private boolean changeInheritDerivedAttributes;
+
+    private List<String> entitlements;
+
+    public RoleMod() {
+        entitlements = new ArrayList<String>();
+    }
 
     public boolean isChangeInheritAttributes() {
         return changeInheritAttributes;
@@ -44,5 +55,24 @@ public class RoleMod extends AbstractAttributableMod {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public boolean addEntitlement(String entitlement) {
+        return entitlements.add(entitlement);
+    }
+
+    public boolean removeEntitlement(String entitlement) {
+        return entitlements.remove(entitlement);
+    }
+
+    public List<String> getEntitlements() {
+        return entitlements;
+    }
+
+    public void setEntitlements(List<String> entitlements) {
+        this.entitlements.clear();
+        if (entitlements != null || !entitlements.isEmpty()) {
+            this.entitlements.addAll(entitlements);
+        }
     }
 }

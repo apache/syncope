@@ -43,6 +43,7 @@ import javax.servlet.http.HttpServletResponse;
 import jpasymphony.dao.JPAWorkflowEntryDAO;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.ModelAndView;
 import org.syncope.client.mod.UserMod;
@@ -139,6 +140,7 @@ public class UserController extends AbstractController {
         return syncopeUserDAO.save(user);
     }
 
+    @PreAuthorize("hasRole('USER_UPDATE')")
     @RequestMapping(method = RequestMethod.POST,
     value = "/action/{actionName}")
     public UserTO executeAction(HttpServletResponse response,
@@ -162,6 +164,7 @@ public class UserController extends AbstractController {
                 (Object) userTO.getToken())), userWorkflow);
     }
 
+    @PreAuthorize("hasRole('USER_UPDATE')")
     @RequestMapping(method = RequestMethod.GET,
     value = "/generateToken/{userId}")
     public UserTO generateToken(@PathVariable("userId") Long userId)
@@ -175,6 +178,7 @@ public class UserController extends AbstractController {
                 userWorkflow);
     }
 
+    @PreAuthorize("hasRole('USER_UPDATE')")
     @RequestMapping(method = RequestMethod.POST,
     value = "/verifyToken")
     public UserTO verifyToken(@RequestBody UserTO userTO)
@@ -187,6 +191,7 @@ public class UserController extends AbstractController {
                 userWorkflow);
     }
 
+    @PreAuthorize("hasRole('USER_READ')")
     @RequestMapping(method = RequestMethod.GET,
     value = "/verifyPassword/{userId}")
     @Transactional(readOnly = true)
@@ -206,6 +211,7 @@ public class UserController extends AbstractController {
                 user.getPassword().equals(passwordUser.getPassword()));
     }
 
+    @PreAuthorize("hasRole('USER_LIST')")
     @RequestMapping(method = RequestMethod.GET,
     value = "/list")
     @Transactional(readOnly = true)
@@ -219,6 +225,7 @@ public class UserController extends AbstractController {
         return userTOs;
     }
 
+    @PreAuthorize("hasRole('USER_LIST')")
     @RequestMapping(method = RequestMethod.GET,
     value = "/paginatedList/{page}/{size}")
     @Transactional(readOnly = true)
@@ -235,6 +242,7 @@ public class UserController extends AbstractController {
         return userTOs;
     }
 
+    @PreAuthorize("hasRole('USER_READ')")
     @RequestMapping(method = RequestMethod.GET,
     value = "/read/{userId}")
     @Transactional(readOnly = true)
@@ -249,6 +257,7 @@ public class UserController extends AbstractController {
         return userDataBinder.getUserTO(user, userWorkflow);
     }
 
+    @PreAuthorize("hasRole('USER_READ')")
     @RequestMapping(method = RequestMethod.GET,
     value = "/actions/{userId}")
     @Transactional(readOnly = true)
@@ -273,6 +282,7 @@ public class UserController extends AbstractController {
         return result;
     }
 
+    @PreAuthorize("hasRole('USER_READ')")
     @RequestMapping(method = RequestMethod.POST,
     value = "/search")
     @Transactional(readOnly = true)
@@ -296,6 +306,7 @@ public class UserController extends AbstractController {
         return result;
     }
 
+    @PreAuthorize("hasRole('USER_READ')")
     @RequestMapping(method = RequestMethod.POST,
     value = "/paginatedSearch/{page}/{size}")
     @Transactional(readOnly = true)
@@ -322,6 +333,7 @@ public class UserController extends AbstractController {
         return result;
     }
 
+    @PreAuthorize("hasRole('USER_READ')")
     @RequestMapping(method = RequestMethod.GET,
     value = "/status/{userId}")
     @Transactional(readOnly = true)
@@ -370,6 +382,7 @@ public class UserController extends AbstractController {
         return syncResourceNames;
     }
 
+    @PreAuthorize("hasRole('USER_CREATE')")
     @RequestMapping(method = RequestMethod.POST,
     value = "/create")
     public UserTO create(HttpServletResponse response,
@@ -458,6 +471,7 @@ public class UserController extends AbstractController {
         return savedTO;
     }
 
+    @PreAuthorize("hasRole('USER_UPDATE')")
     @RequestMapping(method = RequestMethod.POST,
     value = "/update")
     public UserTO update(@RequestBody UserMod userMod,
@@ -498,6 +512,7 @@ public class UserController extends AbstractController {
         return userDataBinder.getUserTO(user, userWorkflow);
     }
 
+    @PreAuthorize("hasRole('USER_DELETE')")
     @RequestMapping(method = RequestMethod.DELETE,
     value = "/delete/{userId}")
     public void delete(@PathVariable("userId") Long userId,

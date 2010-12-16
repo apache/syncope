@@ -24,7 +24,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.identityconnectors.common.Base64;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.annotation.ExpectedException;
@@ -600,8 +599,7 @@ public class UserTestITCase extends AbstractTest {
 
         SyncopeUser passwordTestUser = new SyncopeUser();
         passwordTestUser.setPassword("newPassword");
-        assertEquals(new String(Base64.encode(
-                passwordTestUser.getPassword().getBytes())),
+        assertEquals(passwordTestUser.getPassword(),
                 userTO.getPassword());
 
         assertEquals(1, userTO.getMemberships().size());

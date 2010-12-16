@@ -2,9 +2,9 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,6 +19,7 @@ import java.util.List;
 import javassist.NotFoundException;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -40,7 +41,9 @@ public class SchemaController extends AbstractController {
     @Autowired
     private SchemaDataBinder schemaDataBinder;
 
-    @RequestMapping(method = RequestMethod.POST, value = "/{kind}/create")
+    @PreAuthorize("hasRole('SCHEMA_CREATE')")
+    @RequestMapping(method = RequestMethod.POST,
+    value = "/{kind}/create")
     public SchemaTO create(final HttpServletResponse response,
             @RequestBody final SchemaTO schemaTO,
             @PathVariable("kind") final String kind)
@@ -56,6 +59,7 @@ public class SchemaController extends AbstractController {
         return schemaDataBinder.getSchemaTO(schema);
     }
 
+    @PreAuthorize("hasRole('SCHEMA_DELETE')")
     @RequestMapping(method = RequestMethod.DELETE,
     value = "/{kind}/delete/{schema}")
     public void delete(@PathVariable("kind") final String kind,
@@ -73,7 +77,9 @@ public class SchemaController extends AbstractController {
         }
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/{kind}/list")
+    @PreAuthorize("hasRole('SCHEMA_LIST')")
+    @RequestMapping(method = RequestMethod.GET,
+    value = "/{kind}/list")
     public List<SchemaTO> list(@PathVariable("kind") final String kind) {
         Class reference = getAttributableUtil(kind).schemaClass();
         List<AbstractSchema> schemas = schemaDAO.findAll(reference);
@@ -86,6 +92,7 @@ public class SchemaController extends AbstractController {
         return schemaTOs;
     }
 
+    @PreAuthorize("hasRole('SCHEMA_READ')")
     @RequestMapping(method = RequestMethod.GET,
     value = "/{kind}/read/{schema}")
     public SchemaTO read(@PathVariable("kind") final String kind,
@@ -102,7 +109,9 @@ public class SchemaController extends AbstractController {
         return schemaDataBinder.getSchemaTO(schema);
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "/{kind}/update")
+    @PreAuthorize("hasRole('SCHEMA_UPDATE')")
+    @RequestMapping(method = RequestMethod.POST,
+    value = "/{kind}/update")
     public SchemaTO update(@RequestBody final SchemaTO schemaTO,
             @PathVariable("kind") final String kind)
             throws SyncopeClientCompositeErrorException, NotFoundException {

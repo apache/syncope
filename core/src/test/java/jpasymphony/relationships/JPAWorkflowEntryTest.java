@@ -34,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
+    "classpath:syncopeContext.xml",
     "classpath:persistenceContext.xml",
     "classpath:workflowContext.xml"
 })

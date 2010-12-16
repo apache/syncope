@@ -14,10 +14,10 @@
  */
 package org.syncope.core.rest;
 
-import java.io.InputStream;
-import java.util.Arrays;
 import static org.junit.Assert.*;
 
+import java.io.InputStream;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
@@ -36,9 +36,9 @@ import org.syncope.types.ConnectorCapability;
 
 public class ConnectorInstanceTestITCase extends AbstractTest {
 
-    protected static String bundles_version;
+    private static String bundles_version;
 
-    protected static String bundles_directory;
+    private static String bundles_directory;
 
     @Before
     public void init() {
