@@ -201,11 +201,11 @@ public class UserTest extends AbstractTest {
 
         assertTrue(cond.checkValidity());
 
-        List<SyncopeUser> users = syncopeUserDAO.search(cond, 1, 2);
+        List<SyncopeUser> users = syncopeUserDAO.search(cond, 1, 2, null);
         assertNotNull(users);
         assertEquals(1, users.size());
 
-        users = syncopeUserDAO.search(cond, 2, 2);
+        users = syncopeUserDAO.search(cond, 2, 2, null);
         assertNotNull(users);
         assertTrue(users.isEmpty());
     }

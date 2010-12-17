@@ -21,6 +21,7 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.syncope.client.mod.UserMod;
 import org.syncope.client.to.ConfigurationTO;
 import org.syncope.client.search.NodeCond;
+import org.syncope.client.search.PaginatedResult;
 import org.syncope.client.to.UserTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.commons.Constants;
@@ -43,12 +44,16 @@ public class UsersRestClient {
         return users;
     }
 
-    public List<UserTO> getPaginatedUsersList(int page,int size) {
+    public List<UserTO> getPaginatedUsersList(int page, int size) {
         List<UserTO> users = null;
         try {
-            users = Arrays.asList(restClient.getRestTemplate().getForObject(
+            final PaginatedResult paginatedResult =
+                    restClient.getRestTemplate().getForObject(
                     restClient.getBaseURL() + "user/paginatedList/{page}/{size}",
-                    UserTO[].class,page,size));
+                    PaginatedResult.class, page, size);
+
+            users = paginatedResult.getRecords();
+
         } catch (SyncopeClientCompositeErrorException e) {
             e.printStackTrace();
         }
@@ -65,7 +70,7 @@ public class UsersRestClient {
 
         // Create user
         newUserTO = restClient.getRestTemplate().postForObject(
-            restClient.getBaseURL() + "user/create", userTO, UserTO.class);
+                restClient.getBaseURL() + "user/create", userTO, UserTO.class);
     }
 
     /**
@@ -74,11 +79,11 @@ public class UsersRestClient {
      * @return true is the opertion ends succesfully, false otherwise
      */
     public boolean updateUser(UserMod userModTO) throws
-            SyncopeClientCompositeErrorException{
+            SyncopeClientCompositeErrorException {
         UserTO newUserTO = null;
 
         newUserTO = restClient.getRestTemplate().postForObject(
-        restClient.getBaseURL() + "user/update", userModTO, UserTO.class);
+                restClient.getBaseURL() + "user/update", userModTO, UserTO.class);
 
         return userModTO.getId() == newUserTO.getId();
     }
@@ -86,7 +91,7 @@ public class UsersRestClient {
     public void deleteUser(String id) {
         try {
             restClient.getRestTemplate().delete(restClient.getBaseURL()
-            + "user/delete/{userId}", new Integer(id));
+                    + "user/delete/{userId}", new Integer(id));
         } catch (SyncopeClientCompositeErrorException e) {
             e.printStackTrace();
         }
@@ -129,8 +134,7 @@ public class UsersRestClient {
     public boolean updateConfigurationAttributes(
             ConfigurationTO configurationTO) {
 
-        ConfigurationTO newConfigurationTO =  restClient.getRestTemplate()
-                .postForObject(restClient.getBaseURL() + "configuration/update",
+        ConfigurationTO newConfigurationTO = restClient.getRestTemplate().postForObject(restClient.getBaseURL() + "configuration/update",
                 configurationTO, ConfigurationTO.class);
 
         return configurationTO.equals(newConfigurationTO);
@@ -162,13 +166,13 @@ public class UsersRestClient {
      * @param userTO
      * @return UserTOs
      */
-    public List<UserTO> searchUsers(NodeCond nodeSearchCondition) 
+    public List<UserTO> searchUsers(NodeCond nodeSearchCondition)
             throws HttpServerErrorException {
         List<UserTO> matchedUsers = null;
 
         matchedUsers = Arrays.asList(restClient.getRestTemplate().postForObject(
-                    restClient.getBaseURL() + "user/search",
-                    nodeSearchCondition, UserTO[].class));
+                restClient.getBaseURL() + "user/search",
+                nodeSearchCondition, UserTO[].class));
 
         return matchedUsers;
     }
@@ -179,13 +183,16 @@ public class UsersRestClient {
      * @return UserTOs
      */
     public List<UserTO> paginatedSearchUsers(NodeCond nodeSearchCondition,
-            int page,int size)
+            int page, int size)
             throws HttpServerErrorException {
         List<UserTO> matchedUsers = null;
 
-        matchedUsers = Arrays.asList(restClient.getRestTemplate().postForObject(
-                    restClient.getBaseURL() + "user/paginatedSearch/{page}/{size}",
-                    nodeSearchCondition, UserTO[].class,page,size));
+        final PaginatedResult paginatedResult =
+                restClient.getRestTemplate().postForObject(
+                restClient.getBaseURL() + "user/paginatedSearch/{page}/{size}",
+                nodeSearchCondition, PaginatedResult.class, page, size);
+
+        matchedUsers = paginatedResult.getRecords();
 
         return matchedUsers;
     }

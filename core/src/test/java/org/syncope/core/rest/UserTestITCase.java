@@ -35,6 +35,7 @@ import org.syncope.client.to.AttributeTO;
 import org.syncope.client.search.AttributeCond;
 import org.syncope.client.to.MembershipTO;
 import org.syncope.client.search.NodeCond;
+import org.syncope.client.search.PaginatedResult;
 import org.syncope.client.to.TaskTO;
 import org.syncope.client.to.UserTO;
 import org.syncope.client.to.WorkflowActionsTO;
@@ -393,10 +394,12 @@ public class UserTestITCase extends AbstractTest {
 
     @Test
     public final void paginatedList() {
-        List<UserTO> users = Arrays.asList(
-                restTemplate.getForObject(
+
+        PaginatedResult paginatedResult = restTemplate.getForObject(
                 BASE_URL + "user/paginatedList/{page}/{size}.json",
-                UserTO[].class, 1, 2));
+                PaginatedResult.class, 1, 2);
+
+        List<UserTO> users = paginatedResult.getRecords();
 
         assertNotNull(users);
         assertFalse(users.isEmpty());
@@ -406,19 +409,21 @@ public class UserTestITCase extends AbstractTest {
             assertNotNull(user);
         }
 
-        users = Arrays.asList(
-                restTemplate.getForObject(
+        paginatedResult = restTemplate.getForObject(
                 BASE_URL + "user/paginatedList/{page}/{size}.json",
-                UserTO[].class, 2, 2));
+                PaginatedResult.class, 2, 2);
+
+        users = paginatedResult.getRecords();
 
         assertNotNull(users);
         assertFalse(users.isEmpty());
         assertEquals(2, users.size());
 
-        users = Arrays.asList(
-                restTemplate.getForObject(
+        PaginatedResult result = restTemplate.getForObject(
                 BASE_URL + "user/paginatedList/{page}/{size}.json",
-                UserTO[].class, 100, 2));
+                PaginatedResult.class, 100, 2);
+
+        users = result.getRecords();
 
         assertNotNull(users);
         assertTrue(users.isEmpty());
@@ -522,11 +527,13 @@ public class UserTestITCase extends AbstractTest {
 
         assertTrue(searchCondition.checkValidity());
 
-        List<UserTO> matchedUsers = Arrays.asList(
-                restTemplate.postForObject(
+        PaginatedResult result = restTemplate.postForObject(
                 BASE_URL + "user/paginatedSearch/{page}/{size}",
-                searchCondition, UserTO[].class, 1, 2));
+                searchCondition, PaginatedResult.class, 1, 2);
+
+        List<UserTO> matchedUsers = result.getRecords();
         assertNotNull(matchedUsers);
+
         assertFalse(matchedUsers.isEmpty());
         for (UserTO user : matchedUsers) {
             assertNotNull(user);
@@ -537,10 +544,12 @@ public class UserTestITCase extends AbstractTest {
         isNullCond.setSchema("loginDate");
         searchCondition = NodeCond.getLeafCond(isNullCond);
 
-        matchedUsers = Arrays.asList(
-                restTemplate.postForObject(
+        PaginatedResult paginatedResult = restTemplate.postForObject(
                 BASE_URL + "user/paginatedSearch/{page}/{size}",
-                searchCondition, UserTO[].class, 1, 2));
+                searchCondition, PaginatedResult.class, 1, 2);
+
+        matchedUsers = paginatedResult.getRecords();
+
         assertNotNull(matchedUsers);
         assertFalse(matchedUsers.isEmpty());
         Set<Long> userIds = new HashSet<Long>(matchedUsers.size());
