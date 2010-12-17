@@ -42,6 +42,13 @@ public class UserTest extends AbstractTest {
     }
 
     @Test
+    public final void count() {
+        Long count = syncopeUserDAO.count();
+        assertNotNull(count);
+        assertEquals(4L, count.longValue());
+    }
+
+    @Test
     public final void findAllByPageAndSize() {
         // get first page
         List<SyncopeUser> list = syncopeUserDAO.findAll(1, 2);

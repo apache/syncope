@@ -29,6 +29,7 @@ import org.springframework.stereotype.Repository;
 import org.syncope.client.search.AttributeCond;
 import org.syncope.client.search.MembershipCond;
 import org.syncope.client.search.NodeCond;
+import org.syncope.client.search.PaginatedResult;
 import org.syncope.core.persistence.beans.AbstractAttrValue;
 import org.syncope.core.persistence.beans.membership.Membership;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
@@ -147,6 +148,15 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
     }
 
     @Override
+    public final Long count() {
+
+        final Query query = entityManager.createQuery(
+                "SELECT count(e.id) FROM SyncopeUser e");
+
+        return (Long) query.getSingleResult();
+    }
+
+    @Override
     public SyncopeUser save(final SyncopeUser syncopeUser) {
         return entityManager.merge(syncopeUser);
     }
@@ -177,12 +187,14 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
 
     @Override
     public List<SyncopeUser> search(final NodeCond searchCondition) {
-        return search(searchCondition, -1, -1);
+        return search(searchCondition, -1, -1, null);
     }
 
     @Override
     public List<SyncopeUser> search(final NodeCond searchCondition,
-            final int page, final int itemsPerPage) {
+            final int page,
+            final int itemsPerPage,
+            final PaginatedResult paginatedResult) {
 
         LOG.debug("Search condition:\n{}", searchCondition);
 
@@ -193,6 +205,11 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
             LOG.error("While searching users", t);
 
             result = Collections.EMPTY_LIST;
+        }
+
+        if (paginatedResult != null) {
+            paginatedResult.setTotalRecords(
+                    new Long((long) result.size()));
         }
 
         // TODO: temporary solution to the paginated search

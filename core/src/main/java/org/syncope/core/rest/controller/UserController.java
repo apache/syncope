@@ -48,6 +48,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.ModelAndView;
 import org.syncope.client.mod.UserMod;
 import org.syncope.client.search.NodeCond;
+import org.syncope.client.search.PaginatedResult;
 import org.syncope.client.to.UserTO;
 import org.syncope.client.to.WorkflowActionsTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
@@ -229,9 +230,16 @@ public class UserController extends AbstractController {
     @RequestMapping(method = RequestMethod.GET,
     value = "/paginatedList/{page}/{size}")
     @Transactional(readOnly = true)
-    public List<UserTO> paginatedList(
+    public PaginatedResult paginatedList(
             @PathVariable("page") final int page,
             @PathVariable("size") final int size) {
+
+        PaginatedResult paginatedResult = new PaginatedResult();
+        paginatedResult.setPageNumber(page);
+        paginatedResult.setPageSize(size);
+
+        Long totalUsers = syncopeUserDAO.count();
+        paginatedResult.setTotalRecords(totalUsers);
 
         List<SyncopeUser> users = syncopeUserDAO.findAll(page, size);
         List<UserTO> userTOs = new ArrayList<UserTO>(users.size());
@@ -239,7 +247,10 @@ public class UserController extends AbstractController {
             userTOs.add(userDataBinder.getUserTO(user, userWorkflow));
         }
 
-        return userTOs;
+        paginatedResult.setRecordsInPage(userTOs.size());
+        paginatedResult.setRecords(userTOs);
+
+        return paginatedResult;
     }
 
     @PreAuthorize("hasRole('USER_READ')")
@@ -310,7 +321,7 @@ public class UserController extends AbstractController {
     @RequestMapping(method = RequestMethod.POST,
     value = "/paginatedSearch/{page}/{size}")
     @Transactional(readOnly = true)
-    public List<UserTO> paginatedSearch(
+    public PaginatedResult paginatedSearch(
             @RequestBody final NodeCond searchCondition,
             @PathVariable("page") final int page,
             @PathVariable("size") final int size)
@@ -318,19 +329,27 @@ public class UserController extends AbstractController {
 
         LOG.debug("User search called with condition {}", searchCondition);
 
+        PaginatedResult paginatedResult = new PaginatedResult();
+        paginatedResult.setPageNumber(page);
+        paginatedResult.setPageSize(size);
+
         if (!searchCondition.checkValidity()) {
             LOG.error("Invalid search condition: {}", searchCondition);
             throw new InvalidSearchConditionException();
         }
 
-        List<SyncopeUser> matchingUsers =
-                syncopeUserDAO.search(searchCondition, page, size);
-        List<UserTO> result = new ArrayList<UserTO>(matchingUsers.size());
+        final List<SyncopeUser> matchingUsers = syncopeUserDAO.search(
+                searchCondition, page, size, paginatedResult);
+
+        final List<UserTO> result = new ArrayList<UserTO>(matchingUsers.size());
         for (SyncopeUser user : matchingUsers) {
             result.add(userDataBinder.getUserTO(user, userWorkflow));
         }
 
-        return result;
+        paginatedResult.setRecordsInPage(result.size());
+        paginatedResult.setRecords(result);
+
+        return paginatedResult;
     }
 
     @PreAuthorize("hasRole('USER_READ')")

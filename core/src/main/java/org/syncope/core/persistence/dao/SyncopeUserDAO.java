@@ -16,6 +16,7 @@ package org.syncope.core.persistence.dao;
 
 import java.util.List;
 import org.syncope.client.search.NodeCond;
+import org.syncope.client.search.PaginatedResult;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.beans.user.UAttrValue;
 import org.syncope.core.persistence.validation.entity.InvalidEntityException;
@@ -32,10 +33,12 @@ public interface SyncopeUserDAO extends DAO {
 
     List<SyncopeUser> findAll(int page, int itemsPerPage);
 
+    Long count();
+
     List<SyncopeUser> search(NodeCond searchCondition);
 
     List<SyncopeUser> search(NodeCond searchCondition,
-            int page, int itemsPerPage);
+            int page, int itemsPerPage, PaginatedResult paginatedResult);
 
     SyncopeUser save(SyncopeUser syncopeUser)
             throws InvalidEntityException;
