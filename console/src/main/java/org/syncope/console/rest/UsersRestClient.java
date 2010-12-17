@@ -1,11 +1,10 @@
 /*
- * 
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -37,7 +36,8 @@ public class UsersRestClient {
         List<UserTO> users = null;
         try {
             users = Arrays.asList(restClient.getRestTemplate().getForObject(
-                    restClient.getBaseURL() + "user/list.json", UserTO[].class));
+                    restClient.getBaseURL()
+                    + "user/list.json", UserTO[].class));
         } catch (SyncopeClientCompositeErrorException e) {
             e.printStackTrace();
         }
@@ -49,7 +49,8 @@ public class UsersRestClient {
         try {
             final PaginatedResult paginatedResult =
                     restClient.getRestTemplate().getForObject(
-                    restClient.getBaseURL() + "user/paginatedList/{page}/{size}",
+                    restClient.getBaseURL()
+                    + "user/paginatedList/{page}/{size}",
                     PaginatedResult.class, page, size);
 
             users = paginatedResult.getRecords();
@@ -70,7 +71,8 @@ public class UsersRestClient {
 
         // Create user
         newUserTO = restClient.getRestTemplate().postForObject(
-                restClient.getBaseURL() + "user/create", userTO, UserTO.class);
+                restClient.getBaseURL()
+                + "user/create", userTO, UserTO.class);
     }
 
     /**
@@ -78,12 +80,14 @@ public class UsersRestClient {
      * @param userTO
      * @return true is the opertion ends succesfully, false otherwise
      */
-    public boolean updateUser(UserMod userModTO) throws
+    public boolean updateUser(UserMod userModTO)
+            throws
             SyncopeClientCompositeErrorException {
         UserTO newUserTO = null;
 
         newUserTO = restClient.getRestTemplate().postForObject(
-                restClient.getBaseURL() + "user/update", userModTO, UserTO.class);
+                restClient.getBaseURL()
+                + "user/update", userModTO, UserTO.class);
 
         return userModTO.getId() == newUserTO.getId();
     }
@@ -134,7 +138,9 @@ public class UsersRestClient {
     public boolean updateConfigurationAttributes(
             ConfigurationTO configurationTO) {
 
-        ConfigurationTO newConfigurationTO = restClient.getRestTemplate().postForObject(restClient.getBaseURL() + "configuration/update",
+        ConfigurationTO newConfigurationTO = restClient.getRestTemplate().
+                postForObject(restClient.getBaseURL()
+                + "configuration/update",
                 configurationTO, ConfigurationTO.class);
 
         return configurationTO.equals(newConfigurationTO);
