@@ -17,12 +17,14 @@
 package org.syncope.console.pages;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import org.syncope.console.commons.Constants;
 import org.apache.wicket.Application;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.IAjaxCallDecorator;
@@ -309,13 +311,21 @@ public class TaskModalPage extends SyncopeModalPage {
   public class DatePropertyColumn<T> extends PropertyColumn<T>
 {
     private static final long serialVersionUID = 1L;
-    //private DateConverter converter;
+    private SimpleDateFormat formatter;
 
     public DatePropertyColumn(IModel<String> displayModel, String sortProperty,
             String propertyExpression, DateConverter converter)
     {
-        super(displayModel, sortProperty, propertyExpression);
-        //this.converter = converter;
+      super(displayModel, sortProperty, propertyExpression);
+
+      String language = "en";
+      if(getSession().getLocale() != null)
+            language = getSession().getLocale().getLanguage();
+
+      if("it".equals(language))
+          formatter= new SimpleDateFormat(Constants.ITALIAN_DATE_FORMAT);
+      else
+          formatter= new SimpleDateFormat(Constants.ENGLISH_DATE_FORMAT);
     }
 
     @SuppressWarnings("unchecked")
@@ -323,10 +333,15 @@ public class TaskModalPage extends SyncopeModalPage {
     public void populateItem(Item<ICellPopulator<T>> item, String componentId,
             IModel<T> rowModel)
     {   IModel date = (IModel<Date>) createLabelModel(rowModel);
-        if(date.getObject() != null)
-            item.add(new Label(componentId,date.getObject().toString()));
+
+        String convertedDate = "";
+
+        if(date.getObject() != null) {
+            convertedDate = formatter.format(date.getObject());
+            item.add(new Label(componentId,convertedDate));
+        }
         else
-            item.add(new Label(componentId,""));
+            item.add(new Label(componentId,convertedDate));
     }
 
 }

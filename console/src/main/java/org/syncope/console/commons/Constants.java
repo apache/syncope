@@ -55,6 +55,11 @@ public final class Constants {
     public static final String CONF_TASKS_PAGINATOR_ROWS =
             "tasks.paginator.rows";
 
+    /* DATE FORMATS FOR TASKS */
+    public static final String ITALIAN_DATE_FORMAT = "dd/MM/yyyy hh:mm:ss";
+
+    public static final String ENGLISH_DATE_FORMAT = "MM/dd/yyyy hh:mm:ss";
+
     private Constants() {
     }
 }
