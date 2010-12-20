@@ -79,7 +79,7 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
         passwordUser.setPassword(
                 authentication.getCredentials().toString());
         if (adminUser.equals(authentication.getPrincipal())) {
-            authenticated = adminMD5Password.equals(
+            authenticated = adminMD5Password.equalsIgnoreCase(
                     passwordUser.getPassword());
         } else {
             Long id;
@@ -96,7 +96,7 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
                         "Could not find any user with id " + id);
             }
 
-            authenticated = user.getPassword().equals(
+            authenticated = user.getPassword().equalsIgnoreCase(
                     passwordUser.getPassword());
         }
 

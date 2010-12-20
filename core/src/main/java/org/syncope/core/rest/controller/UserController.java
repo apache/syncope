@@ -208,8 +208,8 @@ public class UserController extends AbstractController {
         SyncopeUser passwordUser = new SyncopeUser();
         passwordUser.setPassword(password);
 
-        return new ModelAndView().addObject(
-                user.getPassword().equals(passwordUser.getPassword()));
+        return new ModelAndView().addObject(user.getPassword().
+                equalsIgnoreCase(passwordUser.getPassword()));
     }
 
     @PreAuthorize("hasRole('USER_LIST')")
