@@ -551,9 +551,9 @@ public class UserController extends AbstractController {
         // Propagate delete
         Set<String> syncResourceNames =
                 getSyncResourceNames(user, syncRoles, syncResources);
-        if (LOG.isDebugEnabled() && !syncResourceNames.isEmpty()) {
-            LOG.debug("About to propagate synchronously onto resources "
-                    + syncResourceNames);
+        if (!syncResourceNames.isEmpty()) {
+            LOG.debug("About to propagate synchronously onto resources {}",
+                    syncResourceNames);
         }
 
         propagationManager.delete(user, syncResourceNames);
