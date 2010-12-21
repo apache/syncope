@@ -14,9 +14,6 @@
  */
 package org.syncope.console.rest;
 
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
-import org.springframework.http.client.CommonsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -34,11 +31,6 @@ public class RestClient {
 
     public void setRestTemplate(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
-
-        // TODO: CABLATONE!!!
-        ((CommonsClientHttpRequestFactory) this.restTemplate.getRequestFactory()).
-                getHttpClient().getState().setCredentials(AuthScope.ANY,
-                new UsernamePasswordCredentials("admin", "password"));
     }
 
     public String getBaseURL() {

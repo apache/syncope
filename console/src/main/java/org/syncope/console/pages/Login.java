@@ -15,10 +15,11 @@
 package org.syncope.console.pages;
 
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.Session;
 import org.apache.wicket.markup.html.WebPage;
@@ -31,8 +32,12 @@ import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.springframework.http.client.CommonsClientHttpRequestFactory;
+import org.springframework.web.client.HttpClientErrorException;
 import org.syncope.console.SyncopeSession;
 import org.syncope.console.SyncopeUser;
+import org.syncope.console.rest.RestClient;
 
 /**
  * Syncope Login page.
@@ -44,6 +49,9 @@ public class Login extends WebPage {
     public TextField passwordField;
     public DropDownChoice<String> languageSelect;
     public InputStream inputStream;
+
+    @SpringBean(name = "restClient")
+    protected RestClient restClient;
 
     public Login(PageParameters parameters) {
         super(parameters);
@@ -67,15 +75,13 @@ public class Login extends WebPage {
 
             @Override
             public void onSubmit() {
-               SyncopeUser user = authenticate(usernameField
-                       .getRawInput(), passwordField.getRawInput());
+               SyncopeUser user = authenticate(usernameField.getRawInput(),
+                       passwordField.getRawInput());
 
                if(user != null) {
                 ((SyncopeSession)Session.get()).setUser(user);
                 setResponsePage(new WelcomePage(null));
                }
-               else
-                    error(getString("login-error"));
             }
         };
 
@@ -87,132 +93,79 @@ public class Login extends WebPage {
     }
 
     /**
-     *
+     * Authenticate the user.
      * @param username
      * @param password
-     * @return
+     * @return SyncopeUser object if the authorization succedes, null value
+     *  otherwise.
      */
     public SyncopeUser authenticate(String username, String password) {
 
         SyncopeUser user = null;
         String roles = "";
 
-        if ("admin".equals(username) && "password".equals(password)) {
+        //1.Set provided credentials to check
+        ((CommonsClientHttpRequestFactory) restClient.getRestTemplate()
+                .getRequestFactory()).getHttpClient().getState()
+                .setCredentials(AuthScope.ANY,
+                new UsernamePasswordCredentials(username, password));
 
+        //2.Search authorizations for user specified by credentials
+        List<String> auths;
 
-            List<String> rolesList = getAdminRoles();
+        try {
+        auths = Arrays.asList(
+                restClient.getRestTemplate().getForObject(
+                restClient.getBaseURL()+ "auth/entitlements.json",
+                String[].class));
+        }
+        catch(HttpClientErrorException e){
+            //Reset the credentials if exception occurs
+            ((CommonsClientHttpRequestFactory) restClient.getRestTemplate()
+                .getRequestFactory()).getHttpClient().getState()
+                .setCredentials(AuthScope.ANY,null);
+            getSession().error(e.getMessage());
+            return null;
+        }
 
-            for(int i = 0; i< rolesList.size(); i++) {
-                String role = rolesList.get(i);
+        if (auths != null && auths.size() > 0) {
+
+            for(int i = 0; i< auths.size(); i++) {
+                String role = auths.get(i);
                 roles +=role;
 
-                if(i != rolesList.size())
+                if(i != auths.size())
                     roles += ",";
             }
 
-            user = new SyncopeUser(username, roles);
+        user = new SyncopeUser(username, roles);
 
-            return user;
+        return user;
         }
-        else  if ("manager".equals(username) && "password".equals(password)) {
-
-            List<String> rolesList = getManagerRoles();
-
-            for (int i = 0; i < rolesList.size(); i++) {
-                String role = rolesList.get(i);
-                roles += role;
-
-                if (i != rolesList.size())
-                    roles += ",";
-
-            }
-
-            user = new SyncopeUser(username, roles);
-
-            return user;
+        else {
+           //Reset the credentials if no auth exist for the specified user
+            ((CommonsClientHttpRequestFactory) restClient.getRestTemplate()
+                .getRequestFactory()).getHttpClient().getState()
+                .setCredentials(AuthScope.ANY,null);
+           getSession().error(getString("login-error"));
+           return null;
         }
-        else
-            return null;
     }
 
-    public List<String> getAdminRoles() {
-        List<String> roles = new ArrayList<String>();
-
-        roles.add("USER_CREATE");
-        roles.add("USER_LIST");
-        roles.add("USER_READ");
-        roles.add("USER_DELETE");
-        roles.add("USER_UPDATE");
-        roles.add("USER_VIEW");
-
-        roles.add("SCHEMA_CREATE");
-        roles.add("SCHEMA_LIST");
-        roles.add("SCHEMA_READ");
-        roles.add("SCHEMA_DELETE");
-        roles.add("SCHEMA_UPDATE");
-
-        roles.add("ROLE_CREATE");
-        roles.add("ROLE_LIST");
-        roles.add("ROLE_READ");
-        roles.add("ROLE_DELETE");
-        roles.add("ROLE_UPDATE");
-
-        roles.add("RESOURCE_CREATE");
-        roles.add("RESOURCE_LIST");
-        roles.add("RESOURCE_READ");
-        roles.add("RESOURCE_DELETE");
-        roles.add("RESOURCE_UPDATE");
-
-        roles.add("CONNECTOR_CREATE");
-        roles.add("CONNECTOR_LIST");
-        roles.add("CONNECTOR_READ");
-        roles.add("CONNECTOR_DELETE");
-        roles.add("CONNECTOR_UPDATE");
-
-        roles.add("REPORT_LIST");
-
-        roles.add("CONFIGURATION_CREATE");
-        roles.add("CONFIGURATION_LIST");
-        roles.add("CONFIGURATION_READ");
-        roles.add("CONFIGURATION_DELETE");
-        roles.add("CONFIGURATION_UPDATE");
-
-        roles.add("TASK_CREATE");
-        roles.add("TASK_LIST");
-        roles.add("TASK_READ");
-        roles.add("TASK_DELETE");
-        roles.add("TASK_UPDATE");
-        roles.add("TASK_EXECUTE");
-
-        return roles;
+    /**
+     * Getter for restClient attribute.
+     * @return RestClient instance
+     */
+    public RestClient getRestClient() {
+        return restClient;
     }
 
-    public List<String> getManagerRoles() {
-        List<String> roles = new ArrayList<String>();
-
-        //roles.add("USER_CREATE");
-        roles.add("USER_LIST");
-        roles.add("USER_READ");
-        roles.add("USER_DELETE");
-//        roles.add("USER_UPDATE");
-
-//        roles.add("SCHEMA_CREATE");
-        roles.add("SCHEMA_LIST");
-//        roles.add("SCHEMA_READ");
-//        roles.add("SCHEMA_DELETE");
-//        roles.add("SCHEMA_UPDATE");
-
-         roles.add("CONNECTOR_LIST");
-         roles.add("REPORT_LIST");
-
-//        roles.add("ROLE_CREATE");
-        roles.add("ROLE_LIST");
-        roles.add("ROLE_READ");
-//        roles.add("ROLE_DELETE");
-//        roles.add("ROLE_UPDATE");
-        roles.add("TASK_LIST");
-
-        return roles;
+    /**
+     * Setter for restClient attribute.
+     * @param restClient instance
+     */
+    public void setRestClient(RestClient restClient) {
+        this.restClient = restClient;
     }
 
     /**
