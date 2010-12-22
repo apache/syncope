@@ -30,6 +30,14 @@
             padding: 0px;
             margin: 0px;
         }
+
+        #pageNavigator a:visited {
+            text-decoration: none;
+        }
+
+        #pageNavigator a:hover {
+            text-decoration: underline;
+        }
     </style>
 </wicket:head>
 <wicket:extend>
@@ -105,24 +113,46 @@
                 <h1><wicket:message key="users_title"/></h1>
 
                 <span wicket:id="usersTableContainer">
+                         <span id="pageNavigator" style="font-style:oblique">
+                                <span style="float:left">
+                                    <wicket:message key="showingFrom"/>
+                                        <span wicket:id="pageRecordFrom"/>
+                                    <wicket:message key="showingTo"/>
+                                        <span wicket:id="pageRecordTo"/>
+                                    <wicket:message key="showingOf"/>
+                                        <span wicket:id="totalRecords"/>
+                                </span>
+
+                                <span style="float:right">
+                                    <a wicket:id="firstPageLink">
+                                         &lt;&lt;
+                                    </a>
+
+                                    <a wicket:id="decrementLink">
+                                         &lt;
+                                    </a>
+
+                                    <span wicket:id="pageLinksView">
+                                        <a wicket:id="pageLink">
+                                            <span wicket:id="name"/>
+                                        </a>
+                                    </span>
+
+                                    <a wicket:id="incrementLink">
+                                         &gt;
+                                    </a>
+                                    <a wicket:id="lastPageLink">
+                                         &gt;&gt;
+                                    </a>
+                                </span>
+                            </span>
+
+                            <span>
+                                &nbsp;
+                            </span>
+                                    
                             <table id="users" class="ui-widget ui-widget-content table-hover">
                                 <thead>
-                                    <tr>
-                                        <td style="border-color:transparent">
-                                            <div style="font-style:oblique">
-                                                <wicket:message key="navigation"/>
-                                                <a wicket:id="decrementLink">
-                                                     &lt;
-                                                </a>
-
-                                                <span wicket:id="currentPageLabel"/>
-
-                                                <a wicket:id="incrementLink">
-                                                     &gt;
-                                                </a>
-                                            </div>
-                                        </td>
-                                    </tr>
                                     <tr class="ui-widget-header">
                                         <th><wicket:message key="id"/></th>
                                         <th><wicket:message key="status"/></th>
@@ -273,7 +303,7 @@
                                     <tr>
                                         <td style="border-color:transparent">
                                             <div style="font-style:oblique">
-                                                <wicket:message key="navigation"/>
+                                                <!--wicket:message key="navigation"/-->
                                                 <a wicket:id="decrementLink">
                                                      &lt;
                                                 </a>

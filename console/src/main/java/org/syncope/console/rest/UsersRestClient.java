@@ -44,7 +44,7 @@ public class UsersRestClient {
         return users;
     }
 
-    public List<UserTO> getPaginatedUsersList(int page, int size) {
+    /*public List<UserTO> getPaginatedUsersList(int page, int size) {
         List<UserTO> users = null;
         try {
             final PaginatedResult paginatedResult =
@@ -59,7 +59,7 @@ public class UsersRestClient {
             e.printStackTrace();
         }
         return users;
-    }
+    }*/
 
     /**
      * Create a new user and start off the workflow.
@@ -201,6 +201,29 @@ public class UsersRestClient {
         matchedUsers = paginatedResult.getRecords();
 
         return matchedUsers;
+    }
+
+    public PaginatedResult paginatedSearchUser(NodeCond nodeSearchCondition,
+            int page, int size)
+            throws HttpServerErrorException {
+
+        PaginatedResult paginatedResult =
+                restClient.getRestTemplate().postForObject(
+                restClient.getBaseURL() + "user/paginatedSearch/{page}/{size}",
+                nodeSearchCondition, PaginatedResult.class, page, size);
+
+        return paginatedResult;
+    }
+
+    public PaginatedResult getPaginatedUser(int page, int size)
+            throws HttpServerErrorException {
+
+        PaginatedResult paginatedResult =
+                restClient.getRestTemplate().getForObject(
+                restClient.getBaseURL() + "user/paginatedList/{page}/{size}",
+                PaginatedResult.class, page, size);
+
+        return paginatedResult;
     }
 
     public RestClient getRestClient() {

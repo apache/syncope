@@ -16,7 +16,6 @@ package org.syncope.console.pages;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -40,6 +39,7 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.list.PageableListView;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
+import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
@@ -49,6 +49,7 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.syncope.client.search.AttributeCond;
 import org.syncope.client.search.MembershipCond;
 import org.syncope.client.search.NodeCond;
+import org.syncope.client.search.PaginatedResult;
 import org.syncope.client.to.AttributeTO;
 import org.syncope.client.to.ConfigurationTO;
 import org.syncope.client.to.RoleTO;
@@ -114,17 +115,27 @@ public class Users extends BasePage {
     int currentViewPage = 1;
     int currentSearchPage = 1;
 
+    /** Ajax Links for paginator**/
     AjaxLink incrementUserViewLink;
+    AjaxLink firstPageLink;
     AjaxLink decrementUserViewLink;
-    Label currentPageUserViewLabel;
-
+    AjaxLink lastPageLink;
     AjaxLink incrementUserSearchLink;
     AjaxLink decrementUserSearchLink;
+    
+    /** Labels for paginator */
     Label currentPageUserSearchLabel;
+    Label pageRecordFrom;
+    Label pageRecordTo;
+    Label totalRecords;
 
     List<String> columnsList;
 
     NodeCond nodeCond;
+
+    PaginatedResult paginatedUsers;
+
+    ListView pageLinksView;
 
     public Users(PageParameters parameters) {
         super(parameters);
@@ -183,28 +194,70 @@ public class Users extends BasePage {
         paginatorSearchRows = utility.getPaginatorRowsToDisplay(Constants
                     .CONF_USERS_SEARCH_PAGINATOR_ROWS);
 
-        IModel usersModel = new LoadableDetachableModel() {
+        setupPaginatedUsers();
 
+        IModel usersModel = new LoadableDetachableModel() {
+        
             @Override
             protected Object load() {
+                paginatedUsers = usersRestClient
+                        .getPaginatedUser(currentViewPage, paginatorRows);
 
-                List<UserTO> list = usersRestClient.getPaginatedUsersList(
-                        currentViewPage, paginatorRows);
+                //Refresh links just after the selecting page click
+                if(incrementUserViewLink != null && decrementUserViewLink != null
+                        && firstPageLink != null && lastPageLink != null) {
+                    int totalPages =  (int) Math.ceil(
+                            paginatedUsers.getTotalRecords().doubleValue()/
+                        new Double(paginatedUsers.getPageSize()));
 
-                List<UserTO> nextList = usersRestClient.getPaginatedUsersList(
-                        currentViewPage + 1, paginatorRows);
+                    if (currentViewPage == totalPages) {
+                        incrementUserViewLink.setEnabled(false);
+                        lastPageLink.setEnabled(false);
+                    } else {
+                        incrementUserViewLink.setEnabled(true);
+                        lastPageLink.setEnabled(true);
+                    }
 
-                if(nextList.size() == 0)
-                    incrementUserViewLink.setVisible(false);
-                else
-                    incrementUserViewLink.setVisible(true);
+                    if (currentViewPage == 1) {
+                        decrementUserViewLink.setEnabled(false);
+                    } else 
+                        decrementUserViewLink.setEnabled(true);
 
-                if(currentViewPage <= 1)
-                    decrementUserViewLink.setVisible(false);
-                else
-                    decrementUserViewLink.setVisible(true);
+                    if (totalPages == 1 || currentViewPage == 1) {
+                        firstPageLink.setEnabled(false);
+                    } else
+                        firstPageLink.setEnabled(true);
+                }
 
-                return list;
+                if(pageRecordFrom != null && pageRecordTo != null
+                        && totalRecords != null) {
+
+                    //Records indexes for paginator's labels
+                    int firstPageRecord = 1;
+                    int lastPageRecord = paginatedUsers.getRecordsInPage();
+
+                    if (paginatedUsers.getPageNumber() > 1) {
+                        firstPageRecord = (paginatedUsers.getPageSize() *
+                                (paginatedUsers.getPageNumber() - 1)) + 1;
+
+                        lastPageRecord = (paginatedUsers.getPageSize() *
+                                (paginatedUsers.getPageNumber() - 1)) +
+                                paginatedUsers.getRecordsInPage();
+                    }
+
+                    pageRecordFrom.setDefaultModelObject(
+                            String.valueOf(firstPageRecord));
+
+                    pageRecordTo.setDefaultModelObject(
+                            String.valueOf(lastPageRecord));
+
+                    totalRecords.setDefaultModelObject(String.valueOf(
+                            paginatedUsers.getTotalRecords()));
+
+                }
+
+
+                return paginatedUsers.getRecords();
             }
         };
 
@@ -307,16 +360,53 @@ public class Users extends BasePage {
         usersTableContainer.add(usersView);
         usersTableContainer.setOutputMarkupId(true);
 
-        currentPageUserViewLabel = new Label("currentPageLabel",
-                new Model<String>(String.valueOf(currentViewPage)));
-
         incrementUserViewLink = new AjaxLink("incrementLink"){
 
             @Override
             public void onClick(AjaxRequestTarget target) {
                 currentViewPage++;
-                currentPageUserViewLabel.setDefaultModelObject(
-                        String.valueOf(currentViewPage));
+                
+                //Update pageLinks on paginator
+                List<Integer> pageIdList = getPaginatorIndexes();
+                pageLinksView.setList(pageIdList);
+                target.addChildren(pageLinksView, AjaxLink.class);
+
+                target.addComponent(usersTableContainer);
+            }
+        };
+
+        int totalPages =  (int) Math.ceil(paginatedUsers.getTotalRecords()
+                .doubleValue()/new Double(paginatedUsers.getPageSize()));
+
+        firstPageLink = new AjaxLink("firstPageLink"){
+
+            @Override
+            public void onClick(AjaxRequestTarget target) {
+                currentViewPage = 1;
+
+                //Update pageLinks on paginator
+                List<Integer> pageIdList = getPaginatorIndexes();
+                pageLinksView.setList(pageIdList);
+                target.addChildren(pageLinksView, AjaxLink.class);
+
+                target.addComponent(usersTableContainer);
+            }
+        };
+
+        lastPageLink = new AjaxLink("lastPageLink"){
+
+            @Override
+            public void onClick(AjaxRequestTarget target) {
+                int totalPages =  (int) Math.ceil(paginatedUsers
+                        .getTotalRecords().doubleValue()/ new Double(
+                        paginatedUsers.getPageSize()));
+                currentViewPage = totalPages;
+
+                //Update pageLinks on paginator
+                List<Integer> pageIdList = getPaginatorIndexes();
+                pageLinksView.setList(pageIdList);
+                target.addChildren(pageLinksView, AjaxLink.class);
+
                 target.addComponent(usersTableContainer);
             }
         };
@@ -326,17 +416,89 @@ public class Users extends BasePage {
             @Override
             public void onClick(AjaxRequestTarget target) {
                 currentViewPage--;
-                currentPageUserViewLabel.setDefaultModelObject(
-                        String.valueOf(currentViewPage));
+
+                //Update pageLinks on paginator
+                List<Integer> pageIdList = getPaginatorIndexes();
+                pageLinksView.setList(pageIdList);
+                target.addChildren(pageLinksView, AjaxLink.class);
+
                 target.addComponent(usersTableContainer);
             }
         };
 
+        if(currentViewPage == totalPages) {
+            incrementUserViewLink.setEnabled(false);
+            lastPageLink.setEnabled(false);
+        }
+
+        if(currentViewPage == 1)
+            decrementUserViewLink.setEnabled(false);
+
+        if(totalPages == 1 || currentViewPage == 1)
+            firstPageLink.setEnabled(false);
+        
         //Add to usersTableSearchContainer users' list navigation controls
         usersTableContainer.add(incrementUserViewLink);
-        usersTableContainer.add(currentPageUserViewLabel);
+        //usersTableContainer.add(currentPageUserViewLabel);
+        usersTableContainer.add(firstPageLink);
+        usersTableContainer.add(lastPageLink);
+
+        //Records indexes for paginator's labels
+        int firstPageRecord = 1;
+        int lastPageRecord = paginatedUsers.getRecordsInPage();
+
+        if(paginatedUsers.getPageNumber() > 1) {
+          firstPageRecord = (paginatedUsers.getPageSize() *
+                             (paginatedUsers.getPageNumber()-1) ) + 1;
+          
+          lastPageRecord = (paginatedUsers.getPageSize() *
+                             (paginatedUsers.getPageNumber()-1) ) +
+                             paginatedUsers.getRecordsInPage();
+        }
+
+        usersTableContainer.add(pageRecordFrom = new Label("pageRecordFrom",
+                new Model<String>(String.valueOf(firstPageRecord))));
+
+        usersTableContainer.add(pageRecordTo = new Label("pageRecordTo",
+                new Model<String>(String.valueOf(lastPageRecord))));
+
+        usersTableContainer.add(totalRecords = new Label("totalRecords",
+                new Model<String>(String.valueOf(paginatedUsers
+                .getTotalRecords()))));
+
         usersTableContainer.add(decrementUserViewLink);
 
+        //Build pages link for paginator
+        List<Integer> pageIdList = getPaginatorIndexes();
+
+        pageLinksView = new ListView("pageLinksView", pageIdList) {
+
+            @Override
+            protected void populateItem(ListItem item) {
+                final int pageId = (Integer) item.getDefaultModelObject();
+                
+                AjaxLink pageLink = new AjaxLink("pageLink"){
+
+                @Override
+                public void onClick(AjaxRequestTarget target) {
+                    currentViewPage = pageId;
+                    target.addComponent(usersTableContainer);
+                }
+            };
+
+            if(currentViewPage == pageId)
+                pageLink.setEnabled(false);
+            else
+                pageLink.setEnabled(true);
+            
+            pageLink.add(new Label("name",new Model<String>(
+                    String.valueOf(pageId))));
+            
+            item.add(pageLink);
+            }
+        };
+
+        usersTableContainer.add(pageLinksView);
         usersTableContainer.add(columnsView);
 
         add(usersTableContainer);
@@ -415,8 +577,9 @@ public class Users extends BasePage {
                       paginatorRows);
 
               usersView.setRowsPerPage(paginatorRows);
-
-              target.addComponent(usersTableContainer);
+              
+              //Reload page
+              setResponsePage(Users.class);
             }
           });
 
@@ -867,6 +1030,50 @@ public class Users extends BasePage {
         add(paginatorSearchForm);
     }
 
+    public PaginatedResult getPaginatedUsers(int page, int size) {
+
+         PaginatedResult paginatedResult =
+                 usersRestClient.getPaginatedUser(page, size);
+
+         return paginatedResult;
+    }
+
+    /**
+     * Refresh paginator after page link click.
+     */
+    public List<Integer> getPaginatorIndexes(){
+      int totalPages =  (int) Math.ceil(paginatedUsers.getTotalRecords()
+                .doubleValue()/new Double(paginatedUsers.getPageSize()));
+
+        //Build pages link for paginator
+        List<Integer> pageIdList = new ArrayList<Integer>();
+
+        int startIndex = 1;
+
+        if(totalPages > 10) {
+            if (currentViewPage < 10)
+                startIndex = 1;
+            else
+                startIndex = currentViewPage - 2;
+        }
+
+        int endIndex = totalPages;
+
+        if(totalPages > 10) {
+
+            if(startIndex +9 <= totalPages)
+                endIndex = startIndex +9;
+            else
+                endIndex = startIndex + (totalPages - startIndex);
+        }
+
+        for(int i = startIndex; i <= endIndex; i++ ) {
+            pageIdList.add(i);
+        }
+
+        return pageIdList;
+    }
+
      /**
      * Return the user's attributes columnsList to display, ordered
      * @param userTO instance
@@ -1077,6 +1284,14 @@ public class Users extends BasePage {
                 }
             }
         }
+    }
+
+    /**
+     *  Init users to display.
+     */
+    public void setupPaginatedUsers() {
+        paginatedUsers = usersRestClient
+                        .getPaginatedUser(currentViewPage, paginatorRows);
     }
 
     /**
