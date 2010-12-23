@@ -30,6 +30,7 @@ import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authorization.strategies.role.metadata
         .MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -97,6 +98,7 @@ public class Users extends BasePage {
     final int WIN_USER_WIDTH = 1133;
 
     WebMarkupContainer usersTableSearchContainer;
+    WebMarkupContainer searchResultsContainer;
     WebMarkupContainer usersTableContainer;
 
     /*
@@ -115,27 +117,37 @@ public class Users extends BasePage {
     int currentViewPage = 1;
     int currentSearchPage = 1;
 
-    /** Ajax Links for paginator**/
+    /** Ajax Links for User's view paginator**/
     AjaxLink incrementUserViewLink;
-    AjaxLink firstPageLink;
     AjaxLink decrementUserViewLink;
+    AjaxLink firstPageLink;
     AjaxLink lastPageLink;
-    AjaxLink incrementUserSearchLink;
-    AjaxLink decrementUserSearchLink;
     
-    /** Labels for paginator */
-    Label currentPageUserSearchLabel;
+    /** Labels for Users' view paginator*/
     Label pageRecordFrom;
     Label pageRecordTo;
     Label totalRecords;
+
+    /** Ajax Links for Users' search paginator */
+    AjaxLink incrementUserLinkSearch;
+    AjaxLink decrementUserLinkSearch;
+    AjaxLink firstPageLinkSearch;
+    AjaxLink lastPageLinkSearch;
+
+    /** Labels for Users' search paginator */
+    Label pageRecordFromSearch;
+    Label pageRecordToSearch;
+    Label totalRecordsSearch;
 
     List<String> columnsList;
 
     NodeCond nodeCond;
 
     PaginatedResult paginatedUsers;
+    PaginatedResult paginatedSearchUsers;
 
     ListView pageLinksView;
+    ListView pageLinksSearchView;
 
     public Users(PageParameters parameters) {
         super(parameters);
@@ -482,6 +494,12 @@ public class Users extends BasePage {
                 @Override
                 public void onClick(AjaxRequestTarget target) {
                     currentViewPage = pageId;
+
+                    //Update pageLinks on paginator
+                    List<Integer> pageIdList = getPaginatorSearchIndexes();
+                    pageLinksSearchView.setList(pageIdList);
+                    target.addChildren(pageLinksSearchView, AjaxLink.class);
+
                     target.addComponent(usersTableContainer);
                 }
             };
@@ -824,9 +842,6 @@ public class Users extends BasePage {
 
         form.add(usersTableSearchContainer);
 
-       currentPageUserSearchLabel = new Label("currentSearchPage",
-                new Model<String>(String.valueOf(currentSearchPage)));
-
         IModel resultsModel = new LoadableDetachableModel() {
 
             @Override
@@ -834,36 +849,77 @@ public class Users extends BasePage {
 
                 if(nodeCond != null) {
 
-                 searchMatchedUsers = usersRestClient.paginatedSearchUsers(
-                                 nodeCond, currentSearchPage, 
-                                 paginatorSearchRows);
+                 paginatedSearchUsers = usersRestClient.paginatedSearchUser(
+                         nodeCond, currentSearchPage, paginatorSearchRows);
 
-                List<UserTO> nextList = usersRestClient.paginatedSearchUsers(
-                                 nodeCond, currentSearchPage + 1, 
-                                 paginatorSearchRows);
+                //Refresh links just after the selecting page click
+                if(incrementUserLinkSearch != null && decrementUserLinkSearch != null
+                        && firstPageLinkSearch != null && lastPageLinkSearch != null) {
+                    int totalPages =  (int) Math.ceil(
+                            paginatedSearchUsers.getTotalRecords().doubleValue()/
+                        new Double(paginatedSearchUsers.getPageSize()));
 
-                if(nextList.size() == 0)
-                    incrementUserSearchLink.setVisible(false);
-                else
-                    incrementUserSearchLink.setVisible(true);
+                    if (currentSearchPage == totalPages) {
+                        incrementUserLinkSearch.setEnabled(false);
+                        lastPageLinkSearch.setEnabled(false);
+                    } else {
+                        incrementUserLinkSearch.setEnabled(true);
+                        lastPageLinkSearch.setEnabled(true);
+                    }
 
-                if(currentSearchPage <= 1)
-                    decrementUserSearchLink.setVisible(false);
-                else
-                    decrementUserSearchLink.setVisible(true);
+                    if( currentSearchPage > 1 ){
+                        decrementUserLinkSearch.setEnabled(true);
+                    } else
+                         decrementUserLinkSearch.setEnabled(false);
 
-                currentPageUserSearchLabel.setVisible(true);
+                    if (totalPages == 1 || currentSearchPage == 1) {
+                        firstPageLinkSearch.setEnabled(false);
+                    } else
+                        firstPageLinkSearch.setEnabled(true);
                 }
 
-                else {
+                if(pageRecordFromSearch != null && pageRecordToSearch != null
+                        && totalRecordsSearch != null) {
 
-                currentPageUserSearchLabel.setVisible(false);
-                incrementUserSearchLink.setVisible(false);
-                decrementUserSearchLink.setVisible(false);
-                
+                    //Records indexes for paginator's labels
+                    int firstPageRecord = 1;
+                    int lastPageRecord = paginatedSearchUsers.getRecordsInPage();
+
+                    if (paginatedSearchUsers.getPageNumber() > 1) {
+                        firstPageRecord = (paginatedSearchUsers.getPageSize() *
+                                (paginatedSearchUsers.getPageNumber() - 1)) + 1;
+
+                        lastPageRecord = (paginatedSearchUsers.getPageSize() *
+                                (paginatedSearchUsers.getPageNumber() - 1)) +
+                                paginatedSearchUsers.getRecordsInPage();
+                    }
+
+                    if(paginatedSearchUsers.getRecordsInPage() == 0) {
+                        lastPageRecord = 0;
+                        firstPageRecord = 0;
+
+                        firstPageLinkSearch.setEnabled(false);
+                        incrementUserLinkSearch.setEnabled(false);
+                        lastPageLinkSearch.setEnabled(false);
+                        incrementUserLinkSearch.setEnabled(false);
+                    }
+
+                    pageRecordFromSearch.setDefaultModelObject(
+                            String.valueOf(firstPageRecord));
+
+                    pageRecordToSearch.setDefaultModelObject(
+                            String.valueOf(lastPageRecord));
+
+                    totalRecordsSearch.setDefaultModelObject(String.valueOf(
+                            paginatedSearchUsers.getTotalRecords()));
+
+                    }
+                    return paginatedSearchUsers.getRecords();
                 }
+
+                 else
+                    return new ArrayList();
                 
-                return searchMatchedUsers;
             }
         };
 
@@ -925,46 +981,185 @@ public class Users extends BasePage {
             }
         };
 
-        final WebMarkupContainer searchResultsContainer =
+        searchResultsContainer =
                 new WebMarkupContainer("searchResultsContainer");
         searchResultsContainer.setOutputMarkupId(true);
         searchResultsContainer.add(resultsView);
 
-        incrementUserSearchLink = new AjaxLink("incrementLink"){
+        /** SEARCH PAGiNATOR START */
+
+         incrementUserLinkSearch = new AjaxLink("incrementLink"){
 
             @Override
             public void onClick(AjaxRequestTarget target) {
                 currentSearchPage++;
-                currentPageUserSearchLabel.setDefaultModelObject(
-                        String.valueOf(currentSearchPage));
+
+                //Update pageLinks on paginator
+                List<Integer> pageIdList = getPaginatorIndexes();
+                pageLinksSearchView.setList(pageIdList);
+                target.addChildren(pageLinksSearchView, AjaxLink.class);
+
                 target.addComponent(searchResultsContainer);
             }
         };
 
-       decrementUserSearchLink = new AjaxLink("decrementLink"){
+        //Check if it is not null
+        int totalSearchPages = 0;
+        if(paginatedSearchUsers != null)
+            totalSearchPages =  (int) Math.ceil(paginatedSearchUsers.getTotalRecords()
+                    .doubleValue()/new Double(paginatedSearchUsers.getPageSize()));
+
+        firstPageLinkSearch = new AjaxLink("firstPageLink"){
+
+            @Override
+            public void onClick(AjaxRequestTarget target) {
+                currentSearchPage = 1;
+
+                //Update pageLinks on paginator
+                List<Integer> pageIdList = getPaginatorSearchIndexes();
+                pageLinksSearchView.setList(pageIdList);
+                target.addChildren(pageLinksSearchView, AjaxLink.class);
+
+                target.addComponent(searchResultsContainer);
+            }
+        };
+
+        lastPageLinkSearch = new AjaxLink("lastPageLink"){
+
+            @Override
+            public void onClick(AjaxRequestTarget target) {
+                int totalPages =  (int) Math.ceil(paginatedSearchUsers
+                        .getTotalRecords().doubleValue()/ new Double(
+                        paginatedSearchUsers.getPageSize()));
+                currentSearchPage = totalPages;
+
+                //Update pageLinks on paginator
+                List<Integer> pageIdList = getPaginatorSearchIndexes();
+                pageLinksSearchView.setList(pageIdList);
+                target.addChildren(pageLinksSearchView, AjaxLink.class);
+
+                target.addComponent(searchResultsContainer);
+            }
+        };
+
+       decrementUserLinkSearch = new AjaxLink("decrementLink"){
 
             @Override
             public void onClick(AjaxRequestTarget target) {
                 currentSearchPage--;
-                currentPageUserSearchLabel.setDefaultModelObject(
-                        String.valueOf(currentSearchPage));
+
+                //Update pageLinks on paginator
+                List<Integer> pageIdList = getPaginatorSearchIndexes();
+                pageLinksSearchView.setList(pageIdList);
+                target.addChildren(pageLinksSearchView, AjaxLink.class);
+
                 target.addComponent(searchResultsContainer);
             }
         };
 
-        //Add to usersTableSearchContainer users'search list navigation controls
-        searchResultsContainer.add(incrementUserSearchLink);
-        searchResultsContainer.add(currentPageUserSearchLabel);
-        searchResultsContainer.add(decrementUserSearchLink);
+         if(currentSearchPage <= totalSearchPages) {
+            incrementUserLinkSearch.setEnabled(false);
+            lastPageLinkSearch.setEnabled(false);
+        }
 
-        //Display warning message if no serach matches have been found
-        final Label noResults = new Label("noResults",new Model<String>(""));
+        if(currentSearchPage <= 1)
+            decrementUserLinkSearch.setEnabled(false);
+
+        if(totalPages == 1 || currentSearchPage == 1)
+            firstPageLinkSearch.setEnabled(false);
+
+        if(currentSearchPage <= 1 && paginatedSearchUsers == null) {
+            incrementUserLinkSearch.setEnabled(false);
+            lastPageLinkSearch.setEnabled(false);
+            firstPageLinkSearch.setEnabled(false);
+            decrementUserLinkSearch.setEnabled(false);
+        }
+        else if (currentSearchPage > 1 && currentSearchPage <= totalPages)
+            decrementUserLinkSearch.setEnabled(true);
+
+        searchResultsContainer.add(incrementUserLinkSearch);
+        searchResultsContainer.add(firstPageLinkSearch);
+        searchResultsContainer.add(lastPageLinkSearch);
+
+        //Records indexes for paginator's labels
+        int firstPageRecordSearch = 1;
+        int lastPageRecordSearch = 1;
+
+        if(paginatedSearchUsers != null){
+        lastPageRecordSearch = paginatedSearchUsers.getRecordsInPage();
+
+        if(paginatedSearchUsers.getPageNumber() > 1) {
+          firstPageRecordSearch = (paginatedSearchUsers.getPageSize() *
+                             (paginatedSearchUsers.getPageNumber()-1) ) + 1;
+
+          lastPageRecordSearch = (paginatedSearchUsers.getPageSize() *
+                             (paginatedSearchUsers.getPageNumber()-1) ) +
+                             paginatedSearchUsers.getRecordsInPage();
+        }
+        }
+        else {
+         firstPageRecordSearch = 0;
+         lastPageRecordSearch = 0;
+        }
+
+        searchResultsContainer.add(pageRecordFromSearch = new Label("pageRecordFrom",
+                new Model<String>(String.valueOf(firstPageRecordSearch))));
+
+        searchResultsContainer.add(pageRecordToSearch = new Label("pageRecordTo",
+                new Model<String>(String.valueOf(lastPageRecordSearch))));
+
+        if(paginatedSearchUsers != null)
+            searchResultsContainer.add(totalRecordsSearch = new Label("totalRecords",
+                    new Model<String>(String.valueOf(paginatedSearchUsers
+                    .getTotalRecords()))));
+        else
+            searchResultsContainer.add(totalRecordsSearch = new Label("totalRecords",
+                    new Model<String>("0")));
+
+        searchResultsContainer.add(decrementUserLinkSearch);
+
+        //Build pages link for paginator
+        List<Integer> pageIdListSearch = getPaginatorSearchIndexes();
+
+        pageLinksSearchView = new ListView("pageLinksView", pageIdListSearch) {
+
+            @Override
+            protected void populateItem(ListItem item) {
+                final int pageId = (Integer) item.getDefaultModelObject();
+
+                AjaxLink pageLink = new AjaxLink("pageLink"){
+
+                @Override
+                public void onClick(AjaxRequestTarget target) {
+                    currentSearchPage = pageId;
+                    target.addComponent(searchResultsContainer);
+                }
+            };
+
+            if(currentSearchPage == pageId)
+                pageLink.setEnabled(false);
+            else
+                pageLink.setEnabled(true);
+
+            pageLink.add(new Label("name",new Model<String>(
+                    String.valueOf(pageId))));
+
+            item.add(pageLink);
+            }
+        };
+
+        searchResultsContainer.add(pageLinksSearchView);
+
+        /** SEARCH PAGiNATOR END */
+
+        //Display warning message if no search matches have been found
+        final Label noResults = new Label("noResults", new Model<String>(""));
         noResults.setOutputMarkupId(true);
         searchResultsContainer.add(noResults);
 
         setWindowClosedCallback(editUserWin, searchResultsContainer);
 
-        form.add(new AjaxButton("search", new Model(getString("search"))) {
+        form.add(new IndicatingAjaxButton("search", new Model(getString("search"))) {
 
             @Override
             protected void onSubmit(AjaxRequestTarget target, Form form) {
@@ -974,12 +1169,16 @@ public class Users extends BasePage {
                 if (nodeCond != null) {
 
                     try {
-                        
-                         searchMatchedUsers =  usersRestClient.paginatedSearchUsers(
-                                 nodeCond, currentViewPage = 1, paginatorSearchRows);
+                        paginatedSearchUsers = usersRestClient.paginatedSearchUser(
+                                 nodeCond, currentSearchPage = 1, paginatorSearchRows);
 
                         //Clean the feedback panel if the operation succedes
                         target.addComponent(form.get("feedback"));
+
+                        //Update pageLinks on paginator
+                        List<Integer> pageIdList = getPaginatorSearchIndexes();
+                        pageLinksSearchView.setList(pageIdList);
+                        target.addChildren(pageLinksSearchView, AjaxLink.class);
                     } catch (HttpServerErrorException e) {
                         e.printStackTrace();
                         error(e.getMessage());
@@ -989,7 +1188,7 @@ public class Users extends BasePage {
                     error(getString("search_error"));
                 }
 
-                if(searchMatchedUsers.isEmpty())
+                if(paginatedSearchUsers.getRecords().isEmpty())
                     noResults.setDefaultModel(new Model<String>(
                             getString("search_noResults")));
                 else
@@ -1016,12 +1215,21 @@ public class Users extends BasePage {
         rowsSearchChooser.add(new AjaxFormComponentUpdatingBehavior( "onchange" ){
           protected void onUpdate( AjaxRequestTarget target )
             {
-             utility.updatePaginatorRows(Constants.CONF_USERS_SEARCH_PAGINATOR_ROWS,
-                      paginatorSearchRows);
+                utility.updatePaginatorRows(Constants.CONF_USERS_SEARCH_PAGINATOR_ROWS,
+                        paginatorSearchRows);
 
-              resultsView.setRowsPerPage(paginatorSearchRows);
+                resultsView.setRowsPerPage(paginatorSearchRows);
 
-              target.addComponent(searchResultsContainer);
+                //Re-execute the query
+                paginatedSearchUsers = usersRestClient.paginatedSearchUser(
+                        nodeCond, currentSearchPage = 1, paginatorSearchRows);
+
+                //Update pageLinks on paginator
+                List<Integer> pageIdList = getPaginatorSearchIndexes();
+                pageLinksSearchView.setList(pageIdList);
+                target.addChildren(pageLinksSearchView, AjaxLink.class);
+
+                target.addComponent(searchResultsContainer);
             }
           });
 
@@ -1292,6 +1500,47 @@ public class Users extends BasePage {
     public void setupPaginatedUsers() {
         paginatedUsers = usersRestClient
                         .getPaginatedUser(currentViewPage, paginatorRows);
+    }
+
+    /**
+     * Refresh paginator search after page link click.
+     */
+    public List<Integer> getPaginatorSearchIndexes(){
+        int totalPages;
+
+        if(paginatedSearchUsers != null)
+         totalPages =  (int) Math.ceil(paginatedSearchUsers.getTotalRecords()
+                .doubleValue()/new Double(paginatedSearchUsers.getPageSize()));
+        else
+            totalPages =  0;
+
+        //Build pages link for paginator
+        List<Integer> pageIdList = new ArrayList<Integer>();
+
+        int startIndex = 1;
+
+        if(totalPages > 10) {
+            if (currentSearchPage < 10)
+                startIndex = 1;
+            else
+                startIndex = currentSearchPage - 2;
+        }
+
+        int endIndex = totalPages;
+
+        if(totalPages > 10) {
+
+            if(startIndex +9 <= totalPages)
+                endIndex = startIndex +9;
+            else
+                endIndex = startIndex + (totalPages - startIndex);
+        }
+
+        for(int i = startIndex; i <= endIndex; i++ ) {
+            pageIdList.add(i);
+        }
+
+        return pageIdList;
     }
 
     /**
