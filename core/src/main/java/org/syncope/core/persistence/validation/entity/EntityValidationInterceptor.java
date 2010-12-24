@@ -16,14 +16,13 @@ package org.syncope.core.persistence.validation.entity;
 
 import java.util.Set;
 import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
 import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -33,14 +32,14 @@ import org.springframework.stereotype.Component;
 @Aspect
 public class EntityValidationInterceptor {
 
-    private static final ValidatorFactory VALIDATOR_FACTORY =
-            Validation.buildDefaultValidatorFactory();
-
     /**
      * Logger.
      */
     private static final Logger LOG = LoggerFactory.getLogger(
             EntityValidationInterceptor.class);
+
+    @Autowired
+    private Validator validator;
 
     /**
      * Validate bean prior saving to DB.
@@ -52,8 +51,6 @@ public class EntityValidationInterceptor {
     @Around("execution(* org.syncope.core.persistence.dao..*.save(..))")
     public final Object save(final ProceedingJoinPoint pjp)
             throws Throwable {
-
-        Validator validator = VALIDATOR_FACTORY.getValidator();
 
         Set<ConstraintViolation<Object>> violations =
                 validator.validate(pjp.getArgs()[0]);

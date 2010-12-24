@@ -107,4 +107,7 @@
 
     <bean id="propagationManager"
           class="org.syncope.core.persistence.propagation.PropagationManager"/>
+
+    <bean id="validator"
+          class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean"/>
 </beans>

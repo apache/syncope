@@ -112,7 +112,7 @@
         <aspectj.version>1.6.9</aspectj.version>
 
         <hibernate.version>3.4.0.GA</hibernate.version>
-        <hibernate-validator.version>4.0.2.GA</hibernate-validator.version>
+        <hibernate-validator.version>4.1.0.Final</hibernate-validator.version>
         <ehcache.version>2.3.0</ehcache.version>
         <ehcache-jgroupsreplication.version>1.4</ehcache-jgroupsreplication.version>
 
