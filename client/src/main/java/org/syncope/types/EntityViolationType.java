@@ -19,8 +19,8 @@ public enum EntityViolationType {
     Standard(""),
     MultivalueAndUniqueConstraint(
     "org.syncope.core.validation.schema.multivalueAndUniqueConstraint"),
-    MoreThanOneAccountId(
-    "org.syncope.core.validation.targetresource.moreThanOneAccountId"),
+    InvalidAccountIdCount(
+    "org.syncope.core.validation.targetresource.invalidAccountIdCount"),
     MoreThanOneNonNull(
     "org.syncope.core.validation.attrvalue.moreThanOneNonNull"),
     InvalidSchema(

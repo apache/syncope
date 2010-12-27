@@ -47,7 +47,7 @@ public class TargetResourceValidator
             if (!isValid) {
                 context.disableDefaultConstraintViolation();
                 context.buildConstraintViolationWithTemplate(
-                        EntityViolationType.MoreThanOneAccountId.toString()).
+                        EntityViolationType.InvalidAccountIdCount.toString()).
                         addConstraintViolation();
             }
         }

@@ -112,9 +112,8 @@
         <aspectj.version>1.6.9</aspectj.version>
 
         <hibernate.version>3.4.0.GA</hibernate.version>
-        <hibernate-validator.version>4.1.0.Final</hibernate-validator.version>
+        <hibernate-validator.version>4.0.2.GA</hibernate-validator.version>
         <ehcache.version>2.3.0</ehcache.version>
-        <ehcache-jgroupsreplication.version>1.4</ehcache-jgroupsreplication.version>
 
         <wicket.version>1.4.14</wicket.version>
 
@@ -215,21 +214,6 @@
                 <groupId>net.sf.ehcache</groupId>
                 <artifactId>ehcache-core</artifactId>
                 <version>${ehcache.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>net.sf.ehcache</groupId>
-                <artifactId>ehcache-jgroupsreplication</artifactId>
-                <version>${ehcache-jgroupsreplication.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>jgroups</groupId>
-                        <artifactId>jgroups</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>net.sf.ehcache</groupId>
-                        <artifactId>ehcache</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
 
             <dependency>

@@ -35,9 +35,6 @@
 
     <aop:aspectj-autoproxy/>
     <bean class="org.syncope.core.monitor.CacheMonitor"/>
-    
-    <bean id="contextApplicationContextProvider"
-          class="org.syncope.core.persistence.util.ApplicationContextProvider"/>
 
     <bean id="dbUnitDataTypeFactory" class="${dbUnitDataTypeFactory}"/>
 

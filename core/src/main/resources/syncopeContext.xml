@@ -26,4 +26,6 @@
         </property>
     </bean>
 
+    <bean class="org.syncope.core.persistence.util.ApplicationContextProvider"/>
+
 </beans>
