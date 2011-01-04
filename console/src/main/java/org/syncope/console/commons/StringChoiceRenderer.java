@@ -12,18 +12,19 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.console.pages;
+package org.syncope.console.commons;
 
-import org.apache.wicket.markup.html.WebPage;
-import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.syncope.console.commons.XMLRolesReader;
+import org.apache.wicket.markup.html.form.IChoiceRenderer;
 
-/**
- * Syncope Modal Window.
- */
-public class SyncopeModalPage extends WebPage {
+public class StringChoiceRenderer implements IChoiceRenderer<String> {
 
-    @SpringBean(name = "xmlRolesReader")
-    protected XMLRolesReader xmlRolesReader;
+    @Override
+    public Object getDisplayValue(final String t) {
+        return t;
+    }
 
+    @Override
+    public String getIdValue(final String t, final int i) {
+        return t;
+    }
 }

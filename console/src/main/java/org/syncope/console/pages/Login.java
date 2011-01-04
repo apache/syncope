@@ -14,7 +14,6 @@
  */
 package org.syncope.console.pages;
 
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -44,14 +43,16 @@ import org.syncope.console.rest.RestClient;
  */
 public class Login extends WebPage {
 
-    public Form form;
-    public TextField usernameField;
-    public TextField passwordField;
-    public DropDownChoice<String> languageSelect;
-    public InputStream inputStream;
+    private Form form;
+
+    private TextField usernameField;
+
+    private TextField passwordField;
+
+    private DropDownChoice<String> languageSelect;
 
     @SpringBean(name = "restClient")
-    protected RestClient restClient;
+    private RestClient restClient;
 
     public Login(PageParameters parameters) {
         super(parameters);
@@ -65,9 +66,9 @@ public class Login extends WebPage {
         passwordField.setMarkupId("password");
         form.add(passwordField);
 
-        languageSelect = new LocaleDropDown("language",Arrays.asList
-                (new Locale[]{Locale.ENGLISH, Locale.ITALIAN}));
-        
+        languageSelect = new LocaleDropDown("language", Arrays.asList(
+                new Locale[]{Locale.ENGLISH, Locale.ITALIAN}));
+
         form.add(languageSelect);
 
         Button submitButton = new Button("submit", new Model(
@@ -75,19 +76,19 @@ public class Login extends WebPage {
 
             @Override
             public void onSubmit() {
-               SyncopeUser user = authenticate(usernameField.getRawInput(),
-                       passwordField.getRawInput());
+                SyncopeUser user = authenticate(usernameField.getRawInput(),
+                        passwordField.getRawInput());
 
-               if(user != null) {
-                ((SyncopeSession)Session.get()).setUser(user);
-                setResponsePage(new WelcomePage(null));
-               }
+                if (user != null) {
+                    ((SyncopeSession) Session.get()).setUser(user);
+                    setResponsePage(new WelcomePage(null));
+                }
             }
         };
 
         submitButton.setDefaultFormProcessing(false);
         form.add(submitButton);
-        
+
         add(form);
         add(new FeedbackPanel("feedback"));
     }
@@ -105,50 +106,49 @@ public class Login extends WebPage {
         String roles = "";
 
         //1.Set provided credentials to check
-        ((CommonsClientHttpRequestFactory) restClient.getRestTemplate()
-                .getRequestFactory()).getHttpClient().getState()
-                .setCredentials(AuthScope.ANY,
+        ((CommonsClientHttpRequestFactory) restClient.getRestTemplate().
+                getRequestFactory()).getHttpClient().getState().setCredentials(
+                AuthScope.ANY,
                 new UsernamePasswordCredentials(username, password));
 
         //2.Search authorizations for user specified by credentials
         List<String> auths;
 
         try {
-        auths = Arrays.asList(
-                restClient.getRestTemplate().getForObject(
-                restClient.getBaseURL()+ "auth/entitlements.json",
-                String[].class));
-        }
-        catch(HttpClientErrorException e){
+            auths = Arrays.asList(
+                    restClient.getRestTemplate().getForObject(
+                    restClient.getBaseURL() + "auth/entitlements.json",
+                    String[].class));
+        } catch (HttpClientErrorException e) {
             //Reset the credentials if exception occurs
-            ((CommonsClientHttpRequestFactory) restClient.getRestTemplate()
-                .getRequestFactory()).getHttpClient().getState()
-                .setCredentials(AuthScope.ANY,null);
+            ((CommonsClientHttpRequestFactory) restClient.getRestTemplate().
+                    getRequestFactory()).getHttpClient().getState().
+                    setCredentials(AuthScope.ANY, null);
             getSession().error(e.getMessage());
             return null;
         }
 
         if (auths != null && auths.size() > 0) {
 
-            for(int i = 0; i< auths.size(); i++) {
+            for (int i = 0; i < auths.size(); i++) {
                 String role = auths.get(i);
-                roles +=role;
+                roles += role;
 
-                if(i != auths.size())
+                if (i != auths.size()) {
                     roles += ",";
+                }
             }
 
-        user = new SyncopeUser(username, roles);
+            user = new SyncopeUser(username, roles);
 
-        return user;
-        }
-        else {
-           //Reset the credentials if no auth exist for the specified user
-            ((CommonsClientHttpRequestFactory) restClient.getRestTemplate()
-                .getRequestFactory()).getHttpClient().getState()
-                .setCredentials(AuthScope.ANY,null);
-           getSession().error(getString("login-error"));
-           return null;
+            return user;
+        } else {
+            //Reset the credentials if no auth exist for the specified user
+            ((CommonsClientHttpRequestFactory) restClient.getRestTemplate().
+                    getRequestFactory()).getHttpClient().getState().
+                    setCredentials(AuthScope.ANY, null);
+            getSession().error(getString("login-error"));
+            return null;
         }
     }
 
