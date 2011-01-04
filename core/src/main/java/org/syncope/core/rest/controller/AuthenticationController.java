@@ -14,17 +14,37 @@
  */
 package org.syncope.core.rest.controller;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.syncope.core.persistence.beans.Entitlement;
+import org.syncope.core.persistence.dao.EntitlementDAO;
 
 @Controller
 @RequestMapping("/auth")
 public class AuthenticationController extends AbstractController {
+
+    @Autowired
+    private EntitlementDAO entitlementDAO;
+
+    @RequestMapping(method = RequestMethod.GET,
+    value = "/allentitlements")
+    public List<String> listEntitlements() {
+        List<Entitlement> entitlements = entitlementDAO.findAll();
+        List<String> result = new ArrayList<String>(entitlements.size());
+        for (Entitlement entitlement : entitlements) {
+            result.add(entitlement.getName());
+        }
+
+        return result;
+    }
 
     @RequestMapping(method = RequestMethod.GET,
     value = "/entitlements")
