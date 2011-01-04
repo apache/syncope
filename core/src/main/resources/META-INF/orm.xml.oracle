@@ -31,6 +31,15 @@
         </attributes>
     </entity>
 
+    <entity class="org.syncope.core.persistence.beans.role.SyncopeRole">
+        <attributes>
+            <id name="id">
+                <generated-value generator="SEQ_SyncopeRole" strategy="TABLE"/>
+                <table-generator name="SEQ_SyncopeRole" pk-column-value="SEQ_SyncopeRole" initial-value="10"/>
+            </id>
+        </attributes>
+    </entity>
+    
     <entity class="org.syncope.core.persistence.beans.SchemaMapping">
         <attributes>
             <id name="id">
