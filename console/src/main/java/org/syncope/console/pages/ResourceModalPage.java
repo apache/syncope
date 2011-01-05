@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import org.apache.wicket.Application;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -51,9 +50,8 @@ import org.syncope.client.to.ConnectorInstanceTO;
 import org.syncope.client.to.ResourceTO;
 import org.syncope.client.to.SchemaMappingTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.syncope.console.SyncopeApplication;
-import org.syncope.console.rest.ConnectorsRestClient;
-import org.syncope.console.rest.ResourcesRestClient;
+import org.syncope.console.rest.ConnectorRestClient;
+import org.syncope.console.rest.ResourceRestClient;
 import org.syncope.console.rest.SchemaRestClient;
 import org.syncope.console.wicket.markup.html.form.UpdatingAutoCompleteTextField;
 import org.syncope.console.wicket.markup.html.form.UpdatingCheckBox;
@@ -66,19 +64,25 @@ import org.syncope.types.SourceMappingType;
  */
 public class ResourceModalPage extends SyncopeModalPage {
 
-    public TextField resourceName;
+    @SpringBean
+    private SchemaRestClient schemaRestClient;
 
-    public DropDownChoice connector;
+    @SpringBean
+    private ConnectorRestClient connectorRestClient;
 
-    public CheckBox forceMandatoryConstraint;
+    private TextField resourceName;
+
+    private DropDownChoice connector;
+
+    private CheckBox forceMandatoryConstraint;
 
     private ConnectorInstanceTO connectorTO = new ConnectorInstanceTO();
 
     private ResourceTO resource;
 
-    public AjaxButton submit;
+    private AjaxButton submit;
 
-    public AjaxButton addSchemaMappingBtn;
+    private AjaxButton addSchemaMappingBtn;
 
     private List<String> accountIdAttributesNames;
 
@@ -93,14 +97,12 @@ public class ResourceModalPage extends SyncopeModalPage {
     /** Custom validation's errors map*/
     private Map<String, String> errors = new HashMap<String, String>();
 
-    ListView mappingUserSchemaView;
+    private ListView mappingUserSchemaView;
 
-    @SpringBean(name = "resourcesRestClient")
-    ResourcesRestClient restClient;
+    @SpringBean
+    private ResourceRestClient restClient;
 
-    WebMarkupContainer mappingUserSchemaContainer;
-
-    SchemaRestClient schemaRestClient;
+    private WebMarkupContainer mappingUserSchemaContainer;
 
     /**
      *
@@ -113,9 +115,6 @@ public class ResourceModalPage extends SyncopeModalPage {
             final ResourceTO resourceTO, final boolean createFlag) {
 
         this.resource = resourceTO;
-
-        schemaRestClient = (SchemaRestClient) ((SyncopeApplication) Application.
-                get()).getApplicationContext().getBean("schemaRestClient");
 
         setupChoiceListsPopulators();
 
@@ -133,12 +132,6 @@ public class ResourceModalPage extends SyncopeModalPage {
 
             @Override
             protected Object load() {
-
-                ConnectorsRestClient connectorRestClient =
-                        (ConnectorsRestClient) ((SyncopeApplication) Application.
-                        get()).getApplicationContext().getBean(
-                        "connectorsRestClient");
-
                 return connectorRestClient.getAllConnectors();
             }
         };
@@ -212,7 +205,8 @@ public class ResourceModalPage extends SyncopeModalPage {
                     }
                 });
                 item.add(new UpdatingTextField("field",
-                        new PropertyModel(mappingTO, "destAttrName")).setRequired(true).
+                        new PropertyModel(mappingTO, "destAttrName")).
+                        setRequired(true).
                         setLabel(
                         new Model(getString("fieldName"))));
 
@@ -309,7 +303,8 @@ public class ResourceModalPage extends SyncopeModalPage {
 
         resourceForm.add(addSchemaMappingBtn);
 
-        submit = new IndicatingAjaxButton("submit", new Model(getString("submit"))) {
+        submit = new IndicatingAjaxButton("submit", new Model(
+                getString("submit"))) {
 
             @Override
             protected void onSubmit(AjaxRequestTarget target, Form form) {
@@ -355,15 +350,16 @@ public class ResourceModalPage extends SyncopeModalPage {
 
         String allowedRoles;
 
-        if(createFlag)
+        if (createFlag) {
             allowedRoles = xmlRolesReader.getAllAllowedRoles("Resources",
                     "create");
-        else
+        } else {
             allowedRoles = xmlRolesReader.getAllAllowedRoles("Resources",
                     "update");
+        }
 
         MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE,
-                        allowedRoles);
+                allowedRoles);
 
         resourceForm.add(submit);
 

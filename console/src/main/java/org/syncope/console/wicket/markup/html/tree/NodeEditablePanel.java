@@ -32,19 +32,21 @@ import org.syncope.console.commons.XMLRolesReader;
 import org.syncope.console.pages.BasePage;
 import org.syncope.console.pages.RoleModalPage;
 import org.syncope.console.pages.Roles;
-import org.syncope.console.rest.RolesRestClient;
+import org.syncope.console.rest.RoleRestClient;
 
 /**
  * Panel for a node element form.
  */
 public class NodeEditablePanel extends Panel {
-    @SpringBean(name = "rolesRestClient")
-    RolesRestClient restClient;
 
-    @SpringBean(name = "xmlRolesReader")
-    protected XMLRolesReader xmlRolesReader;
+    @SpringBean
+    private RoleRestClient restClient;
 
-    Fragment fragment;
+    @SpringBean
+    private XMLRolesReader xmlRolesReader;
+
+    private Fragment fragment;
+
     /**
      * Panel constructor.
      *
@@ -57,99 +59,105 @@ public class NodeEditablePanel extends Panel {
      * @param window
      *            Modal window to open
      */
-    public NodeEditablePanel(String id, final Long idRole,IModel inputModel,
-                               final ModalWindow window,final BasePage basePage) {
+    public NodeEditablePanel(String id, final Long idRole, IModel inputModel,
+            final ModalWindow window, final BasePage basePage) {
         super(id);
 
-        if (idRole == -1)
-            fragment = new Fragment("menuPanel", "frag2",this);
-        else {
-            fragment = new Fragment("menuPanel", "frag1",this);
+        if (idRole == -1) {
+            fragment = new Fragment("menuPanel", "frag2", this);
+        } else {
+            fragment = new Fragment("menuPanel", "frag1", this);
 
-        AjaxLink createRoleLink = new AjaxLink("createRoleLink") {
+            AjaxLink createRoleLink = new AjaxLink("createRoleLink") {
 
-            @Override
-            public void onClick(AjaxRequestTarget target) {
-                window.setPageCreator(new ModalWindow.PageCreator() {
+                @Override
+                public void onClick(AjaxRequestTarget target) {
+                    window.setPageCreator(new ModalWindow.PageCreator() {
 
-                    public Page createPage() {
-                        RoleTO roleTO = new RoleTO();
-                        roleTO.setParent(idRole);
-                        RoleModalPage form = new RoleModalPage
-                                (basePage,window, roleTO, true);
-                        return form;
-                    }
-                });
+                        public Page createPage() {
+                            RoleTO roleTO = new RoleTO();
+                            roleTO.setParent(idRole);
+                            RoleModalPage form = new RoleModalPage(basePage,
+                                    window, roleTO, true);
+                            return form;
+                        }
+                    });
 
-                window.show(target);
-            }
-        };
+                    window.show(target);
+                }
+            };
 
-        String allowedCreateRoles = xmlRolesReader.getAllAllowedRoles(
-                "Roles","create");
-        MetaDataRoleAuthorizationStrategy.authorize(createRoleLink, ENABLE,
-                allowedCreateRoles);
+            String allowedCreateRoles = xmlRolesReader.getAllAllowedRoles(
+                    "Roles", "create");
+            MetaDataRoleAuthorizationStrategy.authorize(createRoleLink, ENABLE,
+                    allowedCreateRoles);
 
-        fragment.add(createRoleLink);
+            fragment.add(createRoleLink);
 
-        AjaxLink updateRoleLink = new AjaxLink("updateRoleLink") {
+            AjaxLink updateRoleLink = new AjaxLink("updateRoleLink") {
 
-            @Override
-            public void onClick(AjaxRequestTarget target) {
-                window.setPageCreator(new ModalWindow.PageCreator() {
+                @Override
+                public void onClick(AjaxRequestTarget target) {
+                    window.setPageCreator(new ModalWindow.PageCreator() {
 
-                    public Page createPage() {
-                        RoleTO roleTO = restClient.readRole(idRole);
-                        RoleModalPage form =
-                                new RoleModalPage(basePage, window, roleTO, false);
-                        return form;
-                    }
-                });
+                        public Page createPage() {
+                            RoleTO roleTO = restClient.readRole(idRole);
+                            RoleModalPage form =
+                                    new RoleModalPage(basePage, window, roleTO,
+                                    false);
+                            return form;
+                        }
+                    });
 
-                window.show(target);
-            }
-        };
+                    window.show(target);
+                }
+            };
 
-        String allowedReadRoles = xmlRolesReader.getAllAllowedRoles(
-                "Roles","read");
-        MetaDataRoleAuthorizationStrategy.authorize(updateRoleLink, ENABLE,
-                allowedReadRoles);
-        
-        fragment.add(updateRoleLink);
+            String allowedReadRoles = xmlRolesReader.getAllAllowedRoles(
+                    "Roles", "read");
+            MetaDataRoleAuthorizationStrategy.authorize(updateRoleLink, ENABLE,
+                    allowedReadRoles);
 
-        AjaxLink dropRoleLink = new AjaxLink("dropRoleLink") {
+            fragment.add(updateRoleLink);
 
-            @Override
-            public void onClick(AjaxRequestTarget target) {
-                restClient.deleteRole(idRole);
+            AjaxLink dropRoleLink = new AjaxLink("dropRoleLink") {
 
-                getSession().info(getString("operation_succeded"));
+                @Override
+                public void onClick(AjaxRequestTarget target) {
+                    restClient.deleteRole(idRole);
 
-                setResponsePage(new Roles(null));
-            }
+                    getSession().info(getString("operation_succeded"));
 
-            @Override
-            protected IAjaxCallDecorator getAjaxCallDecorator() {
-                return new AjaxPreprocessingCallDecorator(super.getAjaxCallDecorator()) {
-                    private static final long serialVersionUID = 1L;
+                    setResponsePage(new Roles(null));
+                }
 
-                    @Override
-                    public CharSequence preDecorateScript(CharSequence script) {
-                        return "if (confirm('"+getString("confirmDelete")+"'))"
-                                +"{"+script+"}";
-                    }
-                };
-            }
-        };
+                @Override
+                protected IAjaxCallDecorator getAjaxCallDecorator() {
+                    return new AjaxPreprocessingCallDecorator(super.
+                            getAjaxCallDecorator()) {
 
-        String allowedDropRoles = xmlRolesReader.getAllAllowedRoles(
-                "Roles","delete");
-        MetaDataRoleAuthorizationStrategy.authorize(dropRoleLink, ENABLE,
-                allowedDropRoles);
+                        private static final long serialVersionUID = 1L;
 
-        fragment.add(dropRoleLink);
-    }
+                        @Override
+                        public CharSequence preDecorateScript(
+                                CharSequence script) {
 
-    add(fragment);
+                            return "if (confirm('"
+                                    + getString("confirmDelete") + "'))"
+                                    + "{" + script + "}";
+                        }
+                    };
+                }
+            };
+
+            String allowedDropRoles = xmlRolesReader.getAllAllowedRoles(
+                    "Roles", "delete");
+            MetaDataRoleAuthorizationStrategy.authorize(dropRoleLink, ENABLE,
+                    allowedDropRoles);
+
+            fragment.add(dropRoleLink);
+        }
+
+        add(fragment);
     }
 }

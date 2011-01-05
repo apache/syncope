@@ -16,6 +16,8 @@ package org.syncope.console.pages;
 
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.syncope.console.commons.XMLRolesReader;
 
 /**
@@ -23,7 +25,13 @@ import org.syncope.console.commons.XMLRolesReader;
  */
 public class SyncopeModalPage extends WebPage {
 
-    @SpringBean(name = "xmlRolesReader")
+    /**
+     * Logger.
+     */
+    protected static final Logger LOG = LoggerFactory.getLogger(
+            BasePage.class);
+
+    @SpringBean
     protected XMLRolesReader xmlRolesReader;
 
 }

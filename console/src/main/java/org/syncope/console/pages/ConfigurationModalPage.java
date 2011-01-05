@@ -29,7 +29,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.to.ConfigurationTO;
-import org.syncope.console.rest.ConfigurationsRestClient;
+import org.syncope.console.rest.ConfigurationRestClient;
 
 /**
  * Modal window with Connector form.
@@ -37,7 +37,7 @@ import org.syncope.console.rest.ConfigurationsRestClient;
 public class ConfigurationModalPage extends SyncopeModalPage {
 
     @SpringBean(name = "configurationsRestClient")
-    ConfigurationsRestClient configurationsRestClient;
+    ConfigurationRestClient configurationsRestClient;
     
     public TextField key;
     public TextField value;

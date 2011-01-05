@@ -26,9 +26,6 @@ import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.protocol.http.WebRequest;
 import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.syncope.console.pages.Configuration;
 import org.syncope.console.pages.Connectors;
 import org.syncope.console.pages.Login;
@@ -43,24 +40,14 @@ import org.syncope.console.pages.WelcomePage;
 /**
  * SyncopeApplication class.
  */
-public class SyncopeApplication extends AuthenticatedWebApplication
-        implements ApplicationContextAware {
-    SyncopeUser user = null;
+public class SyncopeApplication extends AuthenticatedWebApplication {
 
-    String file;
-    
-    private ApplicationContext applicationContext;
-
-    public SyncopeApplication()
-    {
-    }
+    private SyncopeUser user = null;
 
     @Override
-    protected void init()
-    {
-        file = getServletContext().getInitParameter("authenticationFile");
+    protected void init() {
         addComponentInstantiationListener(new SpringComponentInjector(this));
-        getResourceSettings().setThrowExceptionOnMissingResource( true );
+        getResourceSettings().setThrowExceptionOnMissingResource(true);
 
         getSecuritySettings().setAuthorizationStrategy(
                 new RoleAuthorizationStrategy(new SyncopeRolesAuthorizer()));
@@ -89,6 +76,7 @@ public class SyncopeApplication extends AuthenticatedWebApplication
         MetaDataRoleAuthorizationStrategy.authorize(Configuration.class,
                 "CONFIGURATION_LIST");
     }
+
     /**
      * Create a new custom SyncopeSession
      * @param request
@@ -96,15 +84,13 @@ public class SyncopeApplication extends AuthenticatedWebApplication
      * @return Session
      */
     @Override
-    public Session newSession( Request request, Response response )
-    {
-        SyncopeSession session = new SyncopeSession( request );
-        
-        if ( user != null )
-        {
-            session.setUser( user );
+    public Session newSession(Request request, Response response) {
+        SyncopeSession session = new SyncopeSession(request);
+
+        if (user != null) {
+            session.setUser(user);
         }
-        
+
         return session;
     }
 
@@ -112,25 +98,15 @@ public class SyncopeApplication extends AuthenticatedWebApplication
      * @see org.apache.wicket.Application#getHomePage()
      */
     @Override
-    public Class getHomePage()
-    {
-        return (((SyncopeSession)Session.get()).getUser() == null) ?
-            Login.class :  WelcomePage.class;
+    public Class getHomePage() {
+        return (((SyncopeSession) Session.get()).getUser() == null)
+                ? Login.class : WelcomePage.class;
     }
 
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext)
-            throws BeansException {
-          this.applicationContext = applicationContext;
-    }
-
-    public ApplicationContext getApplicationContext() {
-        return applicationContext;
-    }
-    
     @Override
     public final RequestCycle newRequestCycle(final Request request,
             final Response response) {
+
         return new SyncopeRequestCycle(this, (WebRequest) request,
                 (WebResponse) response);
     }

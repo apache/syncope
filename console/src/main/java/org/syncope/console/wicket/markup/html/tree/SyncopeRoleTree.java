@@ -24,16 +24,16 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeModel;
 import org.springframework.web.client.RestClientException;
 import org.syncope.client.to.RoleTO;
-import org.syncope.console.rest.RolesRestClient;
+import org.syncope.console.rest.RoleRestClient;
 
 /**
  *
  */
 public class SyncopeRoleTree {
     List<Long> parentsId;
-    RolesRestClient restClient;
+    RoleRestClient restClient;
 
-    public SyncopeRoleTree(RolesRestClient restClient) {
+    public SyncopeRoleTree(RoleRestClient restClient) {
         this.restClient = restClient;
     }
 

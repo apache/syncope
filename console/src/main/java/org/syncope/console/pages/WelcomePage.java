@@ -2,9 +2,9 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -29,20 +29,20 @@ import org.syncope.console.commons.XMLRolesReader;
  */
 public class WelcomePage extends WebPage {
 
-    @SpringBean(name = "xmlRolesReader")
-    protected XMLRolesReader xmlRolesReader;
+    @SpringBean
+    private XMLRolesReader xmlRolesReader;
 
-    public WelcomePage(PageParameters parameters) {
+    public WelcomePage(final PageParameters parameters) {
         super(parameters);
 
         BookmarkablePageLink schemaLink = new BookmarkablePageLink("schema",
                 Schema.class);
 
         String allowedSchemaRoles = xmlRolesReader.getAllAllowedRoles("Schema",
-                        "list");
+                "list");
 
         MetaDataRoleAuthorizationStrategy.authorize(schemaLink, ENABLE,
-                        allowedSchemaRoles);
+                allowedSchemaRoles);
 
         add(schemaLink);
 
@@ -50,21 +50,21 @@ public class WelcomePage extends WebPage {
                 Users.class);
 
         String allowedUsersRoles = xmlRolesReader.getAllAllowedRoles("Users",
-                        "list");
+                "list");
 
         MetaDataRoleAuthorizationStrategy.authorize(usersLink, ENABLE,
-                        allowedUsersRoles);
+                allowedUsersRoles);
 
         add(usersLink);
 
-        BookmarkablePageLink rolesLink= new BookmarkablePageLink("roles",
+        BookmarkablePageLink rolesLink = new BookmarkablePageLink("roles",
                 Roles.class);
 
         String allowedRoleRoles = xmlRolesReader.getAllAllowedRoles("Roles",
-                        "list");
+                "list");
 
         MetaDataRoleAuthorizationStrategy.authorize(rolesLink, ENABLE,
-                        allowedRoleRoles);
+                allowedRoleRoles);
 
         add(rolesLink);
 
@@ -72,10 +72,10 @@ public class WelcomePage extends WebPage {
                 "resources", Resources.class);
 
         String allowedResourcesRoles = xmlRolesReader.getAllAllowedRoles(
-                "Resources","list");
+                "Resources", "list");
 
         MetaDataRoleAuthorizationStrategy.authorize(resourcesLink, ENABLE,
-                        allowedResourcesRoles);
+                allowedResourcesRoles);
 
         add(resourcesLink);
 
@@ -83,10 +83,10 @@ public class WelcomePage extends WebPage {
                 new BookmarkablePageLink("connectors", Connectors.class);
 
         String allowedConnectorsRoles = xmlRolesReader.getAllAllowedRoles(
-                "Connectors","list");
+                "Connectors", "list");
 
         MetaDataRoleAuthorizationStrategy.authorize(connectorsLink, ENABLE,
-                        allowedConnectorsRoles);
+                allowedConnectorsRoles);
 
         add(connectorsLink);
 
@@ -94,10 +94,10 @@ public class WelcomePage extends WebPage {
                 "report", Report.class);
 
         String allowedReportRoles = xmlRolesReader.getAllAllowedRoles(
-                "Report","list");
+                "Report", "list");
 
         MetaDataRoleAuthorizationStrategy.authorize(reportLink, ENABLE,
-                        allowedReportRoles);
+                allowedReportRoles);
 
         add(reportLink);
 
@@ -105,10 +105,10 @@ public class WelcomePage extends WebPage {
                 "configuration", Configuration.class);
 
         String allowedConfigurationRoles = xmlRolesReader.getAllAllowedRoles(
-                "Configuration","list");
+                "Configuration", "list");
 
         MetaDataRoleAuthorizationStrategy.authorize(configurationLink, ENABLE,
-                        allowedConfigurationRoles);
+                allowedConfigurationRoles);
 
         add(configurationLink);
 
@@ -116,10 +116,10 @@ public class WelcomePage extends WebPage {
                 Tasks.class);
 
         String allowedTasksRoles = xmlRolesReader.getAllAllowedRoles(
-                "Tasks","list");
+                "Tasks", "list");
 
         MetaDataRoleAuthorizationStrategy.authorize(taskLink, ENABLE,
-                        allowedTasksRoles);
+                allowedTasksRoles);
 
         add(taskLink);
 
@@ -127,8 +127,7 @@ public class WelcomePage extends WebPage {
 
         SyncopeSession session = (SyncopeSession) getSession();
 
-        add(new Label("username",new Model<String>(session.getUser()
-                .getUsername())));
-
+        add(new Label("username", new Model<String>(session.getUser().
+                getUsername())));
     }
 }

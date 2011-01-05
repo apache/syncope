@@ -47,7 +47,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.to.ConnectorBundleTO;
 import org.syncope.client.to.ConnectorInstanceTO;
 import org.syncope.client.to.PropertyTO;
-import org.syncope.console.rest.ConnectorsRestClient;
+import org.syncope.console.rest.ConnectorRestClient;
 import org.syncope.types.ConnectorCapability;
 
 /**
@@ -55,25 +55,32 @@ import org.syncope.types.ConnectorCapability;
  */
 public class ConnectorsModalPage extends SyncopeModalPage {
 
-    public TextField connectorName;
-    public TextField displayName;
-    public DropDownChoice bundle;
-    public TextField version;
-    public CheckBoxMultipleChoice capabilitiesPalette;
+    private TextField connectorName;
 
-    List<ConnectorBundleTO> bundlesTOs;
-    ConnectorBundleTO selectedBundleTO = new ConnectorBundleTO();
-    List<PropertyTO> connectorProperties = new ArrayList<PropertyTO>();
+    private TextField displayName;
 
-    public AjaxButton submit;
+    private DropDownChoice bundle;
 
-    @SpringBean(name = "connectorsRestClient")
-    ConnectorsRestClient restClient;
-    
+    private TextField version;
+
+    private CheckBoxMultipleChoice capabilitiesPalette;
+
+    private List<ConnectorBundleTO> bundlesTOs;
+
+    private ConnectorBundleTO selectedBundleTO = new ConnectorBundleTO();
+
+    private List<PropertyTO> connectorProperties = new ArrayList<PropertyTO>();
+
+    private AjaxButton submit;
+
+    @SpringBean
+    private ConnectorRestClient restClient;
+
     //WebMarkupContainer container;
-    WebMarkupContainer propertiesContainer;
+    private WebMarkupContainer propertiesContainer;
 
-    List<ConnectorCapability> selections;
+    private List<ConnectorCapability> selections;
+
     /**
      *
      * @param basePage base
@@ -81,43 +88,46 @@ public class ConnectorsModalPage extends SyncopeModalPage {
      * @param connectorTO
      * @param create : set to true only if a CREATE operation is required
      */
-    public ConnectorsModalPage(final BasePage basePage, final ModalWindow window,
-            final ConnectorInstanceTO connectorTO, final boolean createFlag) {
+    public ConnectorsModalPage(final BasePage basePage,
+            final ModalWindow window,
+            final ConnectorInstanceTO connectorTO,
+            final boolean createFlag) {
 
         Form connectorForm = new Form("ConnectorForm");
-        
+
         connectorForm.setModel(new CompoundPropertyModel(connectorTO));
 
-        if(!createFlag)
+        if (!createFlag) {
             setupSelections(connectorTO);
+        }
 
-        IModel bundles =  new LoadableDetachableModel()
-        {
+        IModel bundles = new LoadableDetachableModel() {
+
             protected Object load() {
                 return restClient.getAllBundles();
             }
         };
 
-        IModel selectedBundleProperties =  new LoadableDetachableModel()
-        {
+        IModel selectedBundleProperties = new LoadableDetachableModel() {
+
             protected Object load() {
                 List<PropertyTO> list;
-                
-                if(createFlag) {
-                connectorTO.setConnectorName(selectedBundleTO.getConnectorName());
-                connectorTO.setVersion(selectedBundleTO.getVersion());
 
-                list = new ArrayList<PropertyTO>();
-                PropertyTO propertyTO;
+                if (createFlag) {
+                    connectorTO.setConnectorName(selectedBundleTO.
+                            getConnectorName());
+                    connectorTO.setVersion(selectedBundleTO.getVersion());
 
-                for(String key : selectedBundleTO.getProperties()) {
-                    propertyTO = new PropertyTO();
-                    propertyTO.setKey(key);
+                    list = new ArrayList<PropertyTO>();
+                    PropertyTO propertyTO;
 
-                    list.add(propertyTO);
-                }
-                }
-                else {
+                    for (String key : selectedBundleTO.getProperties()) {
+                        propertyTO = new PropertyTO();
+                        propertyTO.setKey(key);
+
+                        list.add(propertyTO);
+                    }
+                } else {
                     selectedBundleTO.setBundleName(connectorTO.getBundleName());
                     list = hashSetToList(connectorTO.getConfiguration());
                 }
@@ -136,27 +146,29 @@ public class ConnectorsModalPage extends SyncopeModalPage {
         version.setEnabled(false);
         version.setOutputMarkupId(true);
 
-        ChoiceRenderer renderer = new ChoiceRenderer("bundleName","bundleName");
-        bundle = new DropDownChoice("bundle",bundles,renderer);
+        ChoiceRenderer renderer =
+                new ChoiceRenderer("bundleName", "bundleName");
+        bundle = new DropDownChoice("bundle", bundles, renderer);
 
         bundle.setModel(new IModel() {
 
-                public Object getObject() {
-                    return selectedBundleTO;
-                }
+            public Object getObject() {
+                return selectedBundleTO;
+            }
 
-                public void setObject(Object object) {
-                    selectedBundleTO = (ConnectorBundleTO)object;
-                }
+            public void setObject(Object object) {
+                selectedBundleTO = (ConnectorBundleTO) object;
+            }
 
-                public void detach() {
-                }
-            });
+            public void detach() {
+            }
+        });
 
         bundle.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+
             protected void onUpdate(AjaxRequestTarget target) {
                 //reset all informations stored in connectorTO
-                
+
                 connectorTO.setConfiguration(new HashSet<PropertyTO>());
 
                 target.addComponent(propertiesContainer);
@@ -167,17 +179,19 @@ public class ConnectorsModalPage extends SyncopeModalPage {
         bundle.setRequired(true);
         bundle.setEnabled(createFlag);
 
-        ListView propertiesView = (new ListView("connectorProperties",selectedBundleProperties) {
+        ListView propertiesView = (new ListView("connectorProperties",
+                selectedBundleProperties) {
 
             PropertyTO propertyTO;
 
             @Override
             protected void populateItem(ListItem item) {
-                propertyTO = (PropertyTO)item.getDefaultModelObject();
+                propertyTO = (PropertyTO) item.getDefaultModelObject();
 
                 item.add(new Label("key", propertyTO.getKey()));
-                item.add(new TextField("value",new PropertyModel(propertyTO, "value")));
-                
+                item.add(new TextField("value", new PropertyModel(propertyTO,
+                        "value")));
+
                 connectorTO.getConfiguration().add(propertyTO);
             }
         });
@@ -188,31 +202,34 @@ public class ConnectorsModalPage extends SyncopeModalPage {
 
         connectorForm.add(propertiesContainer);
 
-        submit = new IndicatingAjaxButton("submit", new Model(getString("submit"))) {
+        submit = new IndicatingAjaxButton("submit", new Model(
+                getString("submit"))) {
 
             @Override
             protected void onSubmit(AjaxRequestTarget target, Form form) {
-                ConnectorInstanceTO connector = (ConnectorInstanceTO) form.getDefaultModelObject();
+                ConnectorInstanceTO connector = (ConnectorInstanceTO) form.
+                        getDefaultModelObject();
 
                 //Set the model object configuration's properties to connectorPropertiesMap reference
                 connector.setBundleName(bundle.getModelValue());
                 //Set the model object's capabilites to capabilitiesPalette's converted Set
-               connector.setCapabilities(getResourcesSet(selections));
+                connector.setCapabilities(getResourcesSet(selections));
 
                 try {
 
-                    if (createFlag) 
+                    if (createFlag) {
                         restClient.createConnector(connector);
-                     else
+                    } else {
                         restClient.updateConnector(connector);
+                    }
 
-                    Connectors callerPage = (Connectors)basePage;
+                    Connectors callerPage = (Connectors) basePage;
                     callerPage.setOperationResult(true);
 
                     window.close(target);
 
                 } catch (Exception e) {
-                     error(getString("error") + ":" + e.getMessage());
+                    error(getString("error") + ":" + e.getMessage());
                 }
             }
 
@@ -221,20 +238,22 @@ public class ConnectorsModalPage extends SyncopeModalPage {
                 target.addComponent(form.get("feedback"));
             }
         };
-    
+
         String allowedRoles;
 
-        if(createFlag)
+        if (createFlag) {
             allowedRoles = xmlRolesReader.getAllAllowedRoles("Connectors",
                     "create");
-        else
+        } else {
             allowedRoles = xmlRolesReader.getAllAllowedRoles("Connectors",
                     "update");
+        }
 
         MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE,
-                        allowedRoles);
+                allowedRoles);
 
-        connectorForm.add(new FeedbackPanel("feedback").setOutputMarkupId(true));
+        connectorForm.add(
+                new FeedbackPanel("feedback").setOutputMarkupId(true));
 
         connectorForm.add(connectorName);
         connectorForm.add(displayName);
@@ -250,7 +269,7 @@ public class ConnectorsModalPage extends SyncopeModalPage {
         };
 
         capabilitiesPalette = new CheckBoxMultipleChoice("capabilitiesPalette",
-                               new PropertyModel(this,"selections"), capabilities);
+                new PropertyModel(this, "selections"), capabilities);
         connectorForm.add(capabilitiesPalette);
 
         connectorForm.add(submit);
@@ -262,11 +281,12 @@ public class ConnectorsModalPage extends SyncopeModalPage {
      * Setup capabilities.
      * @return void
      */
-    public void setupSelections(ConnectorInstanceTO connectorTO){
+    public void setupSelections(ConnectorInstanceTO connectorTO) {
         selections = new ArrayList<ConnectorCapability>();
-        
-        for(ConnectorCapability capability : connectorTO.getCapabilities())
+
+        for (ConnectorCapability capability : connectorTO.getCapabilities()) {
             selections.add(capability);
+        }
 
     }
 
@@ -274,8 +294,11 @@ public class ConnectorsModalPage extends SyncopeModalPage {
      * Covert a capabilities List<ConnectorCapability> to Set<ConnectorCapability>.
      * @return Set<ConnectorCapability>
      */
-    public Set<ConnectorCapability> getResourcesSet(Collection<ConnectorCapability> capabilitiesList) {
-        Set<ConnectorCapability> capabilitiesSet = new HashSet<ConnectorCapability>();
+    public Set<ConnectorCapability> getResourcesSet(
+            Collection<ConnectorCapability> capabilitiesList) {
+
+        Set<ConnectorCapability> capabilitiesSet =
+                new HashSet<ConnectorCapability>();
 
         for (ConnectorCapability capability : capabilitiesList) {
             capabilitiesSet.add(capability);
@@ -289,12 +312,15 @@ public class ConnectorsModalPage extends SyncopeModalPage {
      * @param connectorTO
      * @return List<ConnectorCapability>
      */
-    public List<ConnectorCapability> getSelectedCapabilities(ConnectorInstanceTO connectorTO) {
+    public List<ConnectorCapability> getSelectedCapabilities(
+            ConnectorInstanceTO connectorTO) {
 
-        List<ConnectorCapability> capabilities = new ArrayList<ConnectorCapability>();
+        List<ConnectorCapability> capabilities =
+                new ArrayList<ConnectorCapability>();
 
-        for(ConnectorCapability capability : connectorTO.getCapabilities())
+        for (ConnectorCapability capability : connectorTO.getCapabilities()) {
             capabilities.add(capability);
+        }
 
         return capabilities;
     }
@@ -306,7 +332,8 @@ public class ConnectorsModalPage extends SyncopeModalPage {
      */
     public List<ConnectorCapability> getAvailableCapabilities() {
 
-        List<ConnectorCapability> capabilities = new ArrayList<ConnectorCapability>();
+        List<ConnectorCapability> capabilities =
+                new ArrayList<ConnectorCapability>();
 
         capabilities = Arrays.asList(ConnectorCapability.values());
 

@@ -14,40 +14,37 @@
  */
 package org.syncope.console;
 
+import java.io.Serializable;
 import org.apache.wicket.authorization.strategies.role.Roles;
 
 /**
  * SyncopeUser to store in SyncopeSession after the authentication.
  */
-public class SyncopeUser implements java.io.Serializable
-{
+public class SyncopeUser implements Serializable {
 
     private String username;
-    
+
     private final Roles roles;
 
     /**
-     * Create a new Syncope session user
+     * Create a new Syncope session user.
+     *
      * @param username
-     * @param roles a comma seperated list of roles 
+     * @param roles a comma seperated list of roles
      * (corresponding to Syncope's entitlements)
      */
-    public SyncopeUser(String username, String roles) {
-
-        if (username == null)
-        {
+    public SyncopeUser(final String username, final String roles) {
+        if (username == null) {
             throw new IllegalArgumentException("username must be not null");
         }
-        if (roles == null)
-        {
+        if (roles == null) {
             throw new IllegalArgumentException("roles must be not null");
         }
         this.username = username;
         this.roles = new Roles(roles);
     }
 
-    public String getUsername()
-    {
+    public String getUsername() {
         return username;
     }
 
@@ -58,19 +55,17 @@ public class SyncopeUser implements java.io.Serializable
      *            set of roles
      * @return whether this user has any of the given roles
      */
-    public boolean hasAnyRole(Roles roles)
-    {
+    public boolean hasAnyRole(final Roles roles) {
         return this.roles.hasAnyRole(roles);
     }
 
-   /**
+    /**
      * Whether this user has the given role.
      *
      * @param role
      * @return whether this user has the given role
      */
-    public boolean hasRole(String role)
-    {
+    public boolean hasRole(final String role) {
         return this.roles.hasRole(role);
     }
 

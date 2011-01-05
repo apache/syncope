@@ -22,17 +22,14 @@ import org.apache.wicket.extensions.markup.html.tree.table.ColumnLocation;
 import org.apache.wicket.extensions.markup.html.tree.table.IColumn;
 import org.apache.wicket.extensions.markup.html.tree.table.PropertyTreeColumn;
 import org.apache.wicket.extensions.markup.html.tree.table.TreeTable;
-import org.apache.wicket.extensions.markup.html.tree.table.ColumnLocation
-        .Alignment;
-import org.apache.wicket.extensions.markup.html.tree.table.ColumnLocation
-        .Unit;
+import org.apache.wicket.extensions.markup.html.tree.table.ColumnLocation.Alignment;
+import org.apache.wicket.extensions.markup.html.tree.table.ColumnLocation.Unit;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.tree.AbstractTree;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.springframework.web.client.RestClientException;
-import org.syncope.console.rest.RolesRestClient;
+import org.syncope.console.rest.RoleRestClient;
 import org.syncope.console.wicket.markup.html.tree.SyncopeRoleTree;
 
 /**
@@ -40,23 +37,26 @@ import org.syncope.console.wicket.markup.html.tree.SyncopeRoleTree;
  */
 public class Roles extends BasePage {
 
-    @SpringBean(name = "rolesRestClient")
-    RolesRestClient restClient;
+    @SpringBean
+    private RoleRestClient restClient;
 
     private TreeTable tree;
 
-    ModalWindow createRoleWin = null;
-    final int WIN_USER_HEIGHT = 680;
-    final int WIN_USER_WIDTH = 900;
+    private ModalWindow createRoleWin = null;
 
-    WebMarkupContainer container;
+    private static final int WIN_USER_HEIGHT = 680;
+
+    private static final int WIN_USER_WIDTH = 900;
+
+    private WebMarkupContainer container;
 
     /*
-     Response flag set by the Modal Window after the operation is completed
+    Response flag set by the Modal Window after the operation is completed
      */
-    boolean operationResult = false;
-    FeedbackPanel feedbackPanel;
-    
+    private boolean operationResult = false;
+
+    private FeedbackPanel feedbackPanel;
+
     public Roles(PageParameters parameters) {
         super(parameters);
 
@@ -71,15 +71,14 @@ public class Roles extends BasePage {
         container = new WebMarkupContainer("container");
 
         IColumn columns[] = new IColumn[]{
-        new PropertyTreeColumn(new ColumnLocation(Alignment.LEFT, 30,
+            new PropertyTreeColumn(new ColumnLocation(Alignment.LEFT, 30,
             Unit.EM), getString("column1"), "userObject.treeNode.displayName"),
             new PropertyEditableColumn(new ColumnLocation(Alignment.LEFT, 20,
-            Unit.EM), getString("column2"), "userObject.title",createRoleWin,
-            Roles.this),
-            };
+            Unit.EM), getString("column2"), "userObject.title", createRoleWin,
+            Roles.this),};
 
         feedbackPanel = new FeedbackPanel("feedback");
-        feedbackPanel.setOutputMarkupId( true );
+        feedbackPanel.setOutputMarkupId(true);
 
         add(feedbackPanel);
 
@@ -89,15 +88,15 @@ public class Roles extends BasePage {
         SyncopeRoleTree roleTree = new SyncopeRoleTree(restClient);
 
         tree = new TreeTable("treeTable", roleTree.createTreeModel(),
-                   columns);
-        
+                columns);
+
         form.add(tree);
         tree.getTreeState().expandAll();
         tree.updateTree();
 
         container.add(tree);
         container.setOutputMarkupId(true);
-        
+
         form.add(container);
 
         setWindowClosedCallback(createRoleWin, container);
@@ -116,10 +115,11 @@ public class Roles extends BasePage {
 
                     public void onClose(AjaxRequestTarget target) {
                         target.addComponent(container);
-                        
-                        if(operationResult)
+
+                        if (operationResult) {
                             getSession().info(getString("operation_succeded"));
-                    
+                        }
+
                         setResponsePage(new Roles(null));
                     }
                 });

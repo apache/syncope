@@ -29,8 +29,7 @@ import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table
-        .AjaxFallbackDefaultDataTable;
+import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
@@ -49,7 +48,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.to.ResourceTO;
 import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.Utility;
-import org.syncope.console.rest.ResourcesRestClient;
+import org.syncope.console.rest.ResourceRestClient;
 import org.syncope.console.wicket.markup.html.form.DeleteLinkPanel;
 import org.syncope.console.wicket.markup.html.form.EditLinkPanel;
 
@@ -58,26 +57,29 @@ import org.syncope.console.wicket.markup.html.form.EditLinkPanel;
  */
 public class Resources extends BasePage {
 
-    @SpringBean(name = "resourcesRestClient")
-    ResourcesRestClient restClient;
+    @SpringBean
+    private ResourceRestClient restClient;
 
-    @SpringBean(name = "utility")
-    Utility utility;
+    @SpringBean
+    private Utility utility;
 
-    final ModalWindow createResourceWin;
-    final ModalWindow editResourceWin;
+    private final ModalWindow createResourceWin;
 
-    final int WIN_INITIAL_HEIGHT = 515;
-    final int WIN_INITIAL_WIDTH = 775;
+    private final ModalWindow editResourceWin;
 
-    WebMarkupContainer container;
+    private static final int WIN_INITIAL_HEIGHT = 515;
+
+    private static final int WIN_INITIAL_WIDTH = 775;
+
+    private WebMarkupContainer container;
 
     /*
-     Response flag set by the Modal Window after the operation is completed:
-     TRUE if the operation succedes, FALSE otherwise
+    Response flag set by the Modal Window after the operation is completed:
+    TRUE if the operation succedes, FALSE otherwise
      */
-    boolean operationResult = false;
-    FeedbackPanel feedbackPanel;
+    private boolean operationResult = false;
+
+    private FeedbackPanel feedbackPanel;
 
     private int paginatorRows;
 
@@ -88,12 +90,12 @@ public class Resources extends BasePage {
         add(editResourceWin = new ModalWindow("editResourceWin"));
 
         feedbackPanel = new FeedbackPanel("feedback");
-        feedbackPanel.setOutputMarkupId( true );
+        feedbackPanel.setOutputMarkupId(true);
 
         add(feedbackPanel);
 
-        paginatorRows = utility.getPaginatorRowsToDisplay(Constants
-                    .CONF_RESOURCES_PAGINATOR_ROWS);
+        paginatorRows = utility.getPaginatorRowsToDisplay(
+                Constants.CONF_RESOURCES_PAGINATOR_ROWS);
 
         List<IColumn> columns = new ArrayList<IColumn>();
 
@@ -101,24 +103,21 @@ public class Resources extends BasePage {
                 "name", "name"));
 
         columns.add(new AbstractColumn<ResourceTO>(new Model<String>(
-                getString("edit")))
-        {
-            public void populateItem(Item<ICellPopulator<ResourceTO>>
-                    cellItem, String componentId, IModel<ResourceTO> model)
-            {
-                    final ResourceTO resourceTO = model.getObject();
+                getString("edit"))) {
 
-                    AjaxLink editLink = new AjaxLink("editLink") {
+            public void populateItem(Item<ICellPopulator<ResourceTO>> cellItem, String componentId, IModel<ResourceTO> model) {
+                final ResourceTO resourceTO = model.getObject();
+
+                AjaxLink editLink = new AjaxLink("editLink") {
 
                     @Override
                     public void onClick(AjaxRequestTarget target) {
 
-                        editResourceWin.setPageCreator(new ModalWindow
-                                .PageCreator() {
+                        editResourceWin.setPageCreator(new ModalWindow.PageCreator() {
 
                             public Page createPage() {
-                                ResourceModalPage form = new ResourceModalPage
-                                        (Resources.this, editResourceWin,
+                                ResourceModalPage form = new ResourceModalPage(
+                                        Resources.this, editResourceWin,
                                         resourceTO, false);
                                 return form;
                             }
@@ -126,29 +125,28 @@ public class Resources extends BasePage {
 
                         editResourceWin.show(target);
                     }
-                    };
+                };
 
-                    EditLinkPanel panel = new EditLinkPanel(componentId, model);
-                    panel.add(editLink);
+                EditLinkPanel panel = new EditLinkPanel(componentId, model);
+                panel.add(editLink);
 
-                    String allowedRoles = xmlRolesReader.getAllAllowedRoles(
-                        "Resources","read");
-                    
-                    MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
+                String allowedRoles = xmlRolesReader.getAllAllowedRoles(
+                        "Resources", "read");
+
+                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
                         allowedRoles);
 
-                    cellItem.add(panel);
+                cellItem.add(panel);
             }
         });
 
-        columns.add(new AbstractColumn<ResourceTO>(new Model<String>
-                (getString("delete"))) {
-            public void populateItem(Item<ICellPopulator<ResourceTO>>
-                    cellItem, String componentId, IModel<ResourceTO> model)
-            {
-                    final ResourceTO resourceTO = model.getObject();
+        columns.add(new AbstractColumn<ResourceTO>(new Model<String>(getString(
+                "delete"))) {
 
-                    AjaxLink deleteLink = new AjaxLink("deleteLink") {
+            public void populateItem(Item<ICellPopulator<ResourceTO>> cellItem, String componentId, IModel<ResourceTO> model) {
+                final ResourceTO resourceTO = model.getObject();
+
+                AjaxLink deleteLink = new AjaxLink("deleteLink") {
 
                     @Override
                     public void onClick(AjaxRequestTarget target) {
@@ -159,31 +157,34 @@ public class Resources extends BasePage {
 
                         target.addComponent(container);
                     }
-                    
+
                     @Override
                     protected IAjaxCallDecorator getAjaxCallDecorator() {
-                        return new AjaxPreprocessingCallDecorator(super.getAjaxCallDecorator()) {
+                        return new AjaxPreprocessingCallDecorator(super.
+                                getAjaxCallDecorator()) {
+
                             private static final long serialVersionUID = 1L;
 
                             @Override
                             public CharSequence preDecorateScript(CharSequence script) {
-                                return "if (confirm('"+getString("confirmDelete")+"'))"
-                                        +"{"+script+"}";
+                                return "if (confirm('" + getString(
+                                        "confirmDelete") + "'))"
+                                        + "{" + script + "}";
                             }
                         };
                     }
-                 };
-                    DeleteLinkPanel panel = new DeleteLinkPanel(componentId,
-                            model);
-                    panel.add(deleteLink);
+                };
+                DeleteLinkPanel panel = new DeleteLinkPanel(componentId,
+                        model);
+                panel.add(deleteLink);
 
-                    String allowedRoles = xmlRolesReader.getAllAllowedRoles(
-                        "Resources","delete");
+                String allowedRoles = xmlRolesReader.getAllAllowedRoles(
+                        "Resources", "delete");
 
-                    MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
+                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
                         allowedRoles);
 
-                    cellItem.add(panel);
+                cellItem.add(panel);
             }
         });
 
@@ -221,8 +222,8 @@ public class Resources extends BasePage {
                 createResourceWin.setPageCreator(new ModalWindow.PageCreator() {
 
                     public Page createPage() {
-                        ResourceModalPage windows = new ResourceModalPage
-                                (Resources.this, editResourceWin,
+                        ResourceModalPage windows = new ResourceModalPage(
+                                Resources.this, editResourceWin,
                                 new ResourceTO(), true);
                         return windows;
                     }
@@ -235,20 +236,21 @@ public class Resources extends BasePage {
         Form paginatorForm = new Form("PaginatorForm");
 
         final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser",
-        new PropertyModel(this,"paginatorRows"),utility.paginatorRowsChooser());
+                new PropertyModel(this, "paginatorRows"), utility.
+                paginatorRowsChooser());
 
-        rowsChooser.add(new AjaxFormComponentUpdatingBehavior( "onchange" ){
-          protected void onUpdate( AjaxRequestTarget target )
-            {
-              utility.updatePaginatorRows(Constants.CONF_RESOURCES_PAGINATOR_ROWS,
-                      paginatorRows);
+        rowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
-              table.setRowsPerPage(paginatorRows);
-              
-              target.addComponent(container);
+            protected void onUpdate(AjaxRequestTarget target) {
+                utility.updatePaginatorRows(
+                        Constants.CONF_RESOURCES_PAGINATOR_ROWS,
+                        paginatorRows);
+
+                table.setRowsPerPage(paginatorRows);
+
+                target.addComponent(container);
             }
-
-          });
+        });
 
         paginatorForm.add(rowsChooser);
         add(paginatorForm);
@@ -275,10 +277,10 @@ public class Resources extends BasePage {
 
                     public void onClose(AjaxRequestTarget target) {
                         target.addComponent(container);
-                        if(operationResult){
-                        info(getString("operation_succeded"));
-                        target.addComponent(feedbackPanel);
-                        operationResult = false;
+                        if (operationResult) {
+                            info(getString("operation_succeded"));
+                            target.addComponent(feedbackPanel);
+                            operationResult = false;
                         }
                     }
                 });
@@ -291,7 +293,7 @@ public class Resources extends BasePage {
 
         public ResourcesProvider() {
             //Default sorting
-            setSort("name",true);
+            setSort("name", true);
         }
 
         @Override
@@ -300,7 +302,7 @@ public class Resources extends BasePage {
 
             Collections.sort(list, comparator);
 
-            return list.subList(first, first+count).iterator();
+            return list.subList(first, first + count).iterator();
         }
 
         @Override
@@ -309,8 +311,7 @@ public class Resources extends BasePage {
         }
 
         @Override
-        public IModel<ResourceTO> model(final ResourceTO
-                resource) {
+        public IModel<ResourceTO> model(final ResourceTO resource) {
             return new AbstractReadOnlyModel<ResourceTO>() {
 
                 @Override
@@ -320,39 +321,41 @@ public class Resources extends BasePage {
             };
         }
 
-        public List<ResourceTO> getResourcesListDB(){
-        List<ResourceTO> list = restClient.getAllResources();
+        public List<ResourceTO> getResourcesListDB() {
+            List<ResourceTO> list = restClient.getAllResources();
 
-        return list;
+            return list;
         }
 
         class SortableDataProviderComparator implements
                 Comparator<ResourceTO>, Serializable {
+
             public int compare(final ResourceTO o1,
                     final ResourceTO o2) {
-                    PropertyModel<Comparable> model1 =
-                            new PropertyModel<Comparable>(o1, getSort()
-                            .getProperty());
-                    PropertyModel<Comparable> model2 =
-                            new PropertyModel<Comparable>(o2, getSort()
-                            .getProperty());
+                PropertyModel<Comparable> model1 =
+                        new PropertyModel<Comparable>(o1,
+                        getSort().getProperty());
+                PropertyModel<Comparable> model2 =
+                        new PropertyModel<Comparable>(o2,
+                        getSort().getProperty());
 
-                    int result = 1;
+                int result = 1;
 
-                    if(model1.getObject() == null && model2.getObject() == null)
-                        result = 0;
-                    else if(model1.getObject() == null)
-                        result = 1;
-                    else if(model2.getObject() == null)
-                        result = -1;
-                    else
-                        result = ((Comparable)model1.getObject()).compareTo(
-                                model2.getObject());
+                if (model1.getObject() == null && model2.getObject() == null) {
+                    result = 0;
+                } else if (model1.getObject() == null) {
+                    result = 1;
+                } else if (model2.getObject() == null) {
+                    result = -1;
+                } else {
+                    result = ((Comparable) model1.getObject()).compareTo(
+                            model2.getObject());
+                }
 
-                    result = getSort().isAscending() ? result : -result;
+                result = getSort().isAscending() ? result : -result;
 
-                    return result;
+                return result;
             }
-	}
+        }
     }
 }

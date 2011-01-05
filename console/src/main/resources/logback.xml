@@ -47,6 +47,25 @@
         <appender-ref ref="test"/>
     </logger>
 
+    <logger name="org.apache.wicket" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="main"/>
+    </logger>
+
+    <logger name="org.springframework" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="main"/>
+    </logger>
+
+    <logger name="org.apache.commons.httpclient" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="test"/>
+    </logger>
+    <logger name="httpclient" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="test"/>
+    </logger>
+    
     <root>
         <priority value="INFO"/>
         <appender-ref ref="main"/>

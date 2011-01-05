@@ -26,10 +26,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import org.apache.wicket.Application;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.IAjaxCallDecorator;
 import org.apache.wicket.ajax.calldecorator.AjaxPreprocessingCallDecorator;
@@ -51,20 +47,17 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-
 import org.syncope.client.mod.AttributeMod;
 import org.syncope.client.mod.RoleMod;
 import org.syncope.client.to.AttributeTO;
 import org.syncope.client.to.ResourceTO;
 import org.syncope.client.to.RoleTO;
 import org.syncope.client.to.SchemaTO;
-
-import org.syncope.console.SyncopeApplication;
 import org.syncope.console.commons.SchemaWrapper;
 import org.syncope.console.commons.StringChoiceRenderer;
-import org.syncope.console.rest.EntitlementsRestClient;
-import org.syncope.console.rest.ResourcesRestClient;
-import org.syncope.console.rest.RolesRestClient;
+import org.syncope.console.rest.EntitlementRestClient;
+import org.syncope.console.rest.ResourceRestClient;
+import org.syncope.console.rest.RoleRestClient;
 import org.syncope.console.rest.SchemaRestClient;
 import org.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
@@ -76,11 +69,17 @@ import org.syncope.types.SchemaType;
  */
 public class RoleModalPage extends SyncopeModalPage {
 
-    @SpringBean(name = "rolesRestClient")
-    private RolesRestClient roleRestClient;
+    @SpringBean
+    private RoleRestClient roleRestClient;
 
-    @SpringBean(name = "entitlementsRestClient")
-    private EntitlementsRestClient entitlementRestClient;
+    @SpringBean
+    private EntitlementRestClient entitlementRestClient;
+
+    @SpringBean
+    private ResourceRestClient resourceRestClient;
+
+    @SpringBean
+    private SchemaRestClient schemaRestClient;
 
     private AjaxButton submit;
 
@@ -177,11 +176,8 @@ public class RoleModalPage extends SyncopeModalPage {
                                         } else {
                                             date = null;
                                         }
-                                    } catch (ParseException ex) {
-                                        Logger.getLogger(
-                                                RoleModalPage.class.getName()).
-                                                log(
-                                                Level.SEVERE, null, ex);
+                                    } catch (ParseException e) {
+                                        LOG.error("While parsing a date", e);
                                     }
                                     return date;
                                 }
@@ -431,11 +427,7 @@ public class RoleModalPage extends SyncopeModalPage {
 
         List<ResourceTO> resources = new ArrayList<ResourceTO>();
 
-        ResourcesRestClient resourcesRestClient =
-                (ResourcesRestClient) ((SyncopeApplication) Application.get()).
-                getApplicationContext().getBean("resourcesRestClient");
-
-        List<ResourceTO> resourcesTos = resourcesRestClient.getAllResources();
+        List<ResourceTO> resourcesTos = resourceRestClient.getAllResources();
 
         for (ResourceTO resourceTO : resourcesTos) {
             resources.add(resourceTO);
@@ -447,10 +439,6 @@ public class RoleModalPage extends SyncopeModalPage {
     public void setupSchemaWrappers(boolean create, RoleTO roleTO) {
         schemaWrappers = new ArrayList<SchemaWrapper>();
         SchemaWrapper schemaWrapper;
-
-        SchemaRestClient schemaRestClient =
-                (SchemaRestClient) ((SyncopeApplication) Application.get()).
-                getApplicationContext().getBean("schemaRestClient");
 
         List<SchemaTO> schemas = schemaRestClient.getAllRoleSchemas();
 

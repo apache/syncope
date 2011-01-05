@@ -15,10 +15,12 @@
 package org.syncope.console.pages;
 
 import org.apache.wicket.PageParameters;
-import org.apache.wicket.authorization.strategies.role.metadata
-        .MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.syncope.console.SyncopeSession;
 import org.syncope.console.SyncopeUser;
 import org.syncope.console.commons.XMLRolesReader;
@@ -26,19 +28,26 @@ import org.syncope.console.commons.XMLRolesReader;
 /**
  * Syncope Wicket base-page.
  */
-public class BasePage extends CustomizableBasePage {
+public class BasePage extends WebPage {
 
-    private static final long serialVersionUID = 1L;
+    /**
+     * Logger.
+     */
+    protected static final Logger LOG = LoggerFactory.getLogger(
+            BasePage.class);
 
-    @SpringBean(name = "xmlRolesReader")
+    @SpringBean
     protected XMLRolesReader xmlRolesReader;
+
+    public BasePage() {
+    }
 
     /**
      * Constructor that is invoked when page is invoked without a
      * sessadd(new BookmarkablePageLink("roles", Roles.class));ion.
      *
      * @param PageParameters parameters
-     *            
+     *
      */
     public BasePage(final PageParameters parameters) {
         super(parameters);
@@ -47,43 +56,43 @@ public class BasePage extends CustomizableBasePage {
                 Schema.class);
 
         String allowedSchemaRoles = xmlRolesReader.getAllAllowedRoles("Schema",
-                        "list");
+                "list");
 
         MetaDataRoleAuthorizationStrategy.authorize(schemaLink, ENABLE,
-                        allowedSchemaRoles);
-        
+                allowedSchemaRoles);
+
         add(schemaLink);
 
         BookmarkablePageLink usersLink = new BookmarkablePageLink("users",
                 Users.class);
 
         String allowedUsersRoles = xmlRolesReader.getAllAllowedRoles("Users",
-                        "list");
+                "list");
 
         MetaDataRoleAuthorizationStrategy.authorize(usersLink, ENABLE,
-                        allowedUsersRoles);
+                allowedUsersRoles);
 
         add(usersLink);
 
-        BookmarkablePageLink rolesLink= new BookmarkablePageLink("roles",
+        BookmarkablePageLink rolesLink = new BookmarkablePageLink("roles",
                 Roles.class);
 
         String allowedRoleRoles = xmlRolesReader.getAllAllowedRoles("Roles",
-                        "list");
+                "list");
 
         MetaDataRoleAuthorizationStrategy.authorize(rolesLink, ENABLE,
-                        allowedRoleRoles);
-        
+                allowedRoleRoles);
+
         add(rolesLink);
 
         BookmarkablePageLink resourcesLink = new BookmarkablePageLink(
                 "resources", Resources.class);
 
         String allowedResourcesRoles = xmlRolesReader.getAllAllowedRoles(
-                "Resources","list");
+                "Resources", "list");
 
         MetaDataRoleAuthorizationStrategy.authorize(resourcesLink, ENABLE,
-                        allowedResourcesRoles);
+                allowedResourcesRoles);
 
         add(resourcesLink);
 
@@ -91,10 +100,10 @@ public class BasePage extends CustomizableBasePage {
                 new BookmarkablePageLink("connectors", Connectors.class);
 
         String allowedConnectorsRoles = xmlRolesReader.getAllAllowedRoles(
-                "Connectors","list");
+                "Connectors", "list");
 
         MetaDataRoleAuthorizationStrategy.authorize(connectorsLink, ENABLE,
-                        allowedConnectorsRoles);
+                allowedConnectorsRoles);
 
         add(connectorsLink);
 
@@ -102,10 +111,10 @@ public class BasePage extends CustomizableBasePage {
                 "report", Report.class);
 
         String allowedReportRoles = xmlRolesReader.getAllAllowedRoles(
-                "Report","list");
+                "Report", "list");
 
         MetaDataRoleAuthorizationStrategy.authorize(reportLink, ENABLE,
-                        allowedReportRoles);
+                allowedReportRoles);
 
         add(reportLink);
 
@@ -113,22 +122,22 @@ public class BasePage extends CustomizableBasePage {
                 "configuration", Configuration.class);
 
         String allowedConfigurationRoles = xmlRolesReader.getAllAllowedRoles(
-                "Configuration","list");
+                "Configuration", "list");
 
         MetaDataRoleAuthorizationStrategy.authorize(configurationLink, ENABLE,
-                        allowedConfigurationRoles);
+                allowedConfigurationRoles);
 
         add(configurationLink);
 
         BookmarkablePageLink taskLink = new BookmarkablePageLink("task",
                 Tasks.class);
-        
+
         String allowedTasksRoles = xmlRolesReader.getAllAllowedRoles(
-                "Tasks","list");
+                "Tasks", "list");
 
         MetaDataRoleAuthorizationStrategy.authorize(taskLink, ENABLE,
-                        allowedTasksRoles);   
-        
+                allowedTasksRoles);
+
         add(taskLink);
 
         add(new BookmarkablePageLink("logout", Logout.class));

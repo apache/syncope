@@ -115,7 +115,7 @@
         <hibernate-validator.version>4.0.2.GA</hibernate-validator.version>
         <ehcache.version>2.3.0</ehcache.version>
 
-        <wicket.version>1.4.14</wicket.version>
+        <wicket.version>1.4.15</wicket.version>
 
         <org.apache.cxf.version>2.2.9</org.apache.cxf.version>
 

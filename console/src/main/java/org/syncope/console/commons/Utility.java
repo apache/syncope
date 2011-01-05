@@ -2,9 +2,9 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -12,54 +12,51 @@
  *  limitations under the License.
  *  under the License.
  */
-
 package org.syncope.console.commons;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.syncope.client.to.ConfigurationTO;
-import org.syncope.console.rest.ConfigurationsRestClient;
+import org.syncope.console.rest.ConfigurationRestClient;
 
 /**
  * Class with utilities shared among classes.
  */
 public class Utility {
-    private ConfigurationsRestClient configurationsRestClient;
 
-    private ConfigurationTO configuration;
+    @Autowired
+    private ConfigurationRestClient confRestClient;
+
     /**
      * Get the rows number to display for single page, stored as configuration.
      * @param confProperty
      */
-    public int getPaginatorRowsToDisplay(
-            String confProperty){
-       //Set rows to display to default value
-       int rows = 5;
+    public int getPaginatorRowsToDisplay(final String confProperty) {
+        //Set rows to display to default value
+        int rows = 5;
 
-       configuration = configurationsRestClient.readConfiguration(
-                confProperty);
+        ConfigurationTO configuration =
+                confRestClient.readConfiguration(confProperty);
 
-       if (configuration == null || configuration.getConfValue() == null) {
+        if (configuration == null || configuration.getConfValue() == null) {
             configuration = new ConfigurationTO();
 
             configuration.setConfKey(confProperty);
             configuration.setConfValue("5");
 
-            configurationsRestClient.createConfiguration(configuration);
-
+            confRestClient.createConfiguration(configuration);
+        } else {
+            try {
+                rows = new Integer(configuration.getConfValue());
+            } catch (NumberFormatException ex) {
+                configuration.setConfValue("5");
+                confRestClient.updateConfiguration(configuration);
+                rows = 5;
+            }
         }
-       else {
-           try{
-           rows = new Integer(configuration.getConfValue());
-           }
-           catch(NumberFormatException ex) {
-               configuration.setConfValue("5");
-               configurationsRestClient.updateConfiguration(configuration);
-               rows = 5;
-           }
-       }
 
-       return rows;
+        return rows;
     }
 
     /**
@@ -67,13 +64,13 @@ public class Utility {
      * @return List<Integer>
      */
     public List<Integer> paginatorRowsChooser() {
-    List<Integer> list = new ArrayList<Integer>();
+        List<Integer> list = new ArrayList<Integer>();
 
         list.add(5);
         list.add(10);
         list.add(15);
-        
-    return list;
+
+        return list;
     }
 
     /**
@@ -81,22 +78,12 @@ public class Utility {
      * @param confKey
      * @param rows number to store
      */
-    public void updatePaginatorRows(String confKey,int rows) {
+    public void updatePaginatorRows(String confKey, int rows) {
         ConfigurationTO config = new ConfigurationTO();
 
         config.setConfKey(confKey);
         config.setConfValue(String.valueOf(rows));
-        
-        configurationsRestClient.updateConfiguration(config);
 
-    }
-
-    public ConfigurationsRestClient getConfigurationsRestClient() {
-        return configurationsRestClient;
-    }
-
-    public void setConfigurationsRestClient(ConfigurationsRestClient
-            configurationsRestClient) {
-        this.configurationsRestClient = configurationsRestClient;
+        confRestClient.updateConfiguration(config);
     }
 }

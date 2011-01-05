@@ -42,110 +42,109 @@
 
 <wicket:extend>
     <div style="margin:10px" title="Create new User">
-    <p class="ui-widget ui-corner-all ui-widget-header">
+        <p class="ui-widget ui-corner-all ui-widget-header">
         <wicket:message key="title"/>
-    </p>
+        </p>
 
-    <form wicket:id="UserForm">
-        <div wicket:id="feedback" style="color:red"/>
-        <div id="tabs">
-            <ul>
-                <li  class="tabs-selected"><a href="#tabs-1"><span><wicket:message key="tab1"/></span></a></li>
-                <li><a href="#tabs-3"><span><wicket:message key="tab3"/></span></a></li>
-                <li><a href="#tabs-4"><span><wicket:message key="tab4"/></span></a></li>
-            </ul>
-            <div id="tabs-1">
-                <table class="stripedTable" style="font-size:1.1em;border:none" wicket:id="container" width="100%">
-                    <tr wicket:id="userSchemas">
-                        <td><span wicket:id="name"/></td>
-                        <td>
-                            <span wicket:id="fields">
-                                <span wicket:id="panel">
-                                    [panel for dynamic input type markup]
+        <form wicket:id="UserForm">
+            <div wicket:id="feedback" style="color:red"/>
+            <div id="tabs">
+                <ul>
+                    <li  class="tabs-selected"><a href="#tabs-1"><span><wicket:message key="tab1"/></span></a></li>
+                    <li><a href="#tabs-3"><span><wicket:message key="tab3"/></span></a></li>
+                    <li><a href="#tabs-4"><span><wicket:message key="tab4"/></span></a></li>
+                </ul>
+                <div id="tabs-1">
+                    <table class="stripedTable" style="font-size:1.1em;border:none" wicket:id="container" width="100%">
+                        <tr wicket:id="userSchemas">
+                            <td><span wicket:id="name"/></td>
+                            <td>
+                                <span wicket:id="fields">
+                                    <span wicket:id="panel">
+                                        [panel for dynamic input type markup]
+                                    </span>
                                 </span>
-                            </span>
-                            <input type="button" wicket:id="add"/>
-                            <input type="button" wicket:id="drop"/>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <wicket:message key="password"/>
+                                <input type="button" wicket:id="add"/>
+                                <input type="button" wicket:id="drop"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                        <wicket:message key="password"/>
                         </td>
                         <td>
                             <input type="password" class="text ui-widget-content ui-corner-all" size="40px" style="margin-bottom:10px;padding:.4em;" wicket:id="password"/>
-                            <span>*
-                            </span>
+                            <span wicket:id="mandatory_pwd">*</span>
                         </td>
-                    </tr>
-                    <!-- each time this table is rendered, stripe rows' color -->
-                    <script type="text/javascript">
-                        $(function() {
-                            $('.stripedTable tr:even').addClass("alt");
-                        });
-                    </script>
-                </table>
-            </div>
+                        </tr>
+                        <!-- each time this table is rendered, stripe rows' color -->
+                        <script type="text/javascript">
+                            $(function() {
+                                $('.stripedTable tr:even').addClass("alt");
+                            });
+                        </script>
+                    </table>
+                </div>
 
-            <div id="tabs-3">
+                <div id="tabs-3">
 
-                <span wicket:id="resourcesPalette"/>
+                    <span wicket:id="resourcesPalette"/>
 
-            </div>
-            <div id="tabs-4">
-                <p class="ui-widget ui-corner-all ui-widget-header">
+                </div>
+                <div id="tabs-4">
+                    <p class="ui-widget ui-corner-all ui-widget-header">
                     <wicket:message key="membership_availability"/>
-                </p>
+                    </p>
 
-                <div wicket:id="treeTable"
-                     style="width: 100%;display:block;margin:auto;"
-                     class="role-tree"/>
-                
-                 <p class="ui-widget ui-corner-all ui-widget-header">
+                    <div wicket:id="treeTable"
+                         style="width: 100%;display:block;margin:auto;"
+                         class="role-tree"/>
+
+                    <p class="ui-widget ui-corner-all ui-widget-header">
                     <wicket:message key="membership_text"/>
-                </p>
-                
-                <table id="users" class="roleTable"
-                       style="font-size:1.1em" wicket:id="membershipsContainer"
-                        cellpadding="5px" cellspacing="2px">
-                   <thead>
-                        <tr class="ui-widget-header">
-                            <th><wicket:message key="id"/></th>
-                            <th><wicket:message key="name"/></th>
-                            <th><wicket:message key="edit"/></th>
-                            <th><wicket:message key="delete"/></th>
+                    </p>
+
+                    <table id="users" class="roleTable"
+                           style="font-size:1.1em" wicket:id="membershipsContainer"
+                           cellpadding="5px" cellspacing="2px">
+                        <thead>
+                            <tr class="ui-widget-header">
+                                <th><wicket:message key="id"/></th>
+                        <th><wicket:message key="name"/></th>
+                        <th><wicket:message key="edit"/></th>
+                        <th><wicket:message key="delete"/></th>
                         </tr>
-                    </thead>
-                    <tbody>
-                        <tr wicket:id="memberships">
-                            <td>
-                                <span wicket:id="roleId"/>
-                            </td>
-                            <td>
-                                <span wicket:id="roleName"/>
-                            </td>
-                             <td>
-                                <a href="#" wicket:id="editLink">
-                                    <wicket:message key="edit"/>
-                                </a>
-                            </td>
-                            <td>
-                                <a href="#" wicket:id="deleteLink">
-                                    <wicket:message key="delete"/>
-                                </a>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            <tr wicket:id="memberships">
+                                <td>
+                                    <span wicket:id="roleId"/>
+                                </td>
+                                <td>
+                                    <span wicket:id="roleName"/>
+                                </td>
+                                <td>
+                                    <a href="#" wicket:id="editLink">
+                                        <wicket:message key="edit"/>
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="#" wicket:id="deleteLink">
+                                        <wicket:message key="delete"/>
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        </div>
-        <div>
-            &nbsp;
-        </div>
-        <div style="bottom:0">
-            <input type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" wicket:id="submit"/>
-        </div>
-    </form>
-    <div wicket:id="membershipWin"/>
+            <div>
+                &nbsp;
+            </div>
+            <div style="bottom:0">
+                <input type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" wicket:id="submit"/>
+            </div>
+        </form>
+        <div wicket:id="membershipWin"/>
     </div>
 </wicket:extend>

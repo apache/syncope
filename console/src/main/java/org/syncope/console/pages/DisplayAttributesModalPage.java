@@ -35,7 +35,7 @@ import org.syncope.client.to.ConfigurationTO;
 
 import org.syncope.console.SyncopeApplication;
 import org.syncope.console.commons.Constants;
-import org.syncope.console.rest.ConfigurationsRestClient;
+import org.syncope.console.rest.ConfigurationRestClient;
 import org.syncope.console.rest.SchemaRestClient;
 
 /**
@@ -43,10 +43,16 @@ import org.syncope.console.rest.SchemaRestClient;
  */
 public class DisplayAttributesModalPage extends SyncopeModalPage {
 
-    @SpringBean(name = "configurationsRestClient")
-    private ConfigurationsRestClient restClient;
+    @SpringBean
+    private ConfigurationRestClient restClient;
+
+    @SpringBean
+    private SchemaRestClient schemaRestClient;
+
     private List<String> selections;
+
     private ConfigurationTO configuration;
+
     public AjaxButton submit;
 
     public DisplayAttributesModalPage(final BasePage basePage,
@@ -61,9 +67,6 @@ public class DisplayAttributesModalPage extends SyncopeModalPage {
             @Override
             protected Object load() {
                 SyncopeApplication app = (SyncopeApplication) Application.get();
-                SchemaRestClient schemaRestClient =
-                        (SchemaRestClient) app.getApplicationContext().
-                        getBean("schemaRestClient");
 
                 return schemaRestClient.getAllUserSchemasNames();
             }
@@ -80,9 +83,9 @@ public class DisplayAttributesModalPage extends SyncopeModalPage {
 
                 if (saveConfiguration()) {
 
-                Users callerPage = (Users)basePage;
-                callerPage.setOperationResult(true);
-                window.close(target);
+                    Users callerPage = (Users) basePage;
+                    callerPage.setOperationResult(true);
+                    window.close(target);
 
                 } else {
                     error(getString("generic_error"));

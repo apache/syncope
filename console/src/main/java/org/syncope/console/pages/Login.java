@@ -32,16 +32,30 @@ import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.client.CommonsClientHttpRequestFactory;
-import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
+import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.SyncopeSession;
 import org.syncope.console.SyncopeUser;
-import org.syncope.console.rest.RestClient;
 
 /**
  * Syncope Login page.
  */
 public class Login extends WebPage {
+
+    /**
+     * Logger.
+     */
+    private static final Logger LOG = LoggerFactory.getLogger(
+            Login.class);
+
+    @SpringBean
+    private RestTemplate restTemplate;
+
+    @SpringBean(name = "baseURL")
+    private String baseURL;
 
     private Form form;
 
@@ -51,11 +65,9 @@ public class Login extends WebPage {
 
     private DropDownChoice<String> languageSelect;
 
-    @SpringBean(name = "restClient")
-    private RestClient restClient;
-
-    public Login(PageParameters parameters) {
+    public Login(final PageParameters parameters) {
         super(parameters);
+
         form = new Form("login");
 
         usernameField = new TextField("username", new Model());
@@ -81,7 +93,7 @@ public class Login extends WebPage {
 
                 if (user != null) {
                     ((SyncopeSession) Session.get()).setUser(user);
-                    setResponsePage(new WelcomePage(null));
+                    setResponsePage(WelcomePage.class, parameters);
                 }
             }
         };
@@ -95,77 +107,50 @@ public class Login extends WebPage {
 
     /**
      * Authenticate the user.
-     * @param username
-     * @param password
-     * @return SyncopeUser object if the authorization succedes, null value
-     *  otherwise.
+     *
+     * @param username provided
+     * @param password provided
+     * @return SyncopeUser object if the authorization succedes, null otherwise.
      */
-    public SyncopeUser authenticate(String username, String password) {
+    public SyncopeUser authenticate(final String username,
+            final String password) {
 
         SyncopeUser user = null;
-        String roles = "";
 
         //1.Set provided credentials to check
-        ((CommonsClientHttpRequestFactory) restClient.getRestTemplate().
-                getRequestFactory()).getHttpClient().getState().setCredentials(
+        ((CommonsClientHttpRequestFactory) restTemplate.getRequestFactory()).
+                getHttpClient().getState().setCredentials(
                 AuthScope.ANY,
                 new UsernamePasswordCredentials(username, password));
 
         //2.Search authorizations for user specified by credentials
-        List<String> auths;
-
+        List<String> entitlements = null;
         try {
-            auths = Arrays.asList(
-                    restClient.getRestTemplate().getForObject(
-                    restClient.getBaseURL() + "auth/entitlements.json",
-                    String[].class));
-        } catch (HttpClientErrorException e) {
-            //Reset the credentials if exception occurs
-            ((CommonsClientHttpRequestFactory) restClient.getRestTemplate().
-                    getRequestFactory()).getHttpClient().getState().
-                    setCredentials(AuthScope.ANY, null);
+            entitlements = Arrays.asList(
+                    restTemplate.getForObject(
+                    baseURL + "auth/entitlements.json", String[].class));
+        } catch (SyncopeClientCompositeErrorException e) {
+            LOG.error("While fetching user's entitlements", e);
             getSession().error(e.getMessage());
-            return null;
         }
 
-        if (auths != null && auths.size() > 0) {
+        if (entitlements != null && entitlements.size() > 0) {
+            StringBuilder roles = new StringBuilder();
 
-            for (int i = 0; i < auths.size(); i++) {
-                String role = auths.get(i);
-                roles += role;
-
-                if (i != auths.size()) {
-                    roles += ",";
+            for (int i = 0; i < entitlements.size(); i++) {
+                roles.append(entitlements.get(i));
+                if (i != entitlements.size() - 1) {
+                    roles.append(",");
                 }
             }
 
-            user = new SyncopeUser(username, roles);
-
-            return user;
+            user = new SyncopeUser(username, roles.toString());
         } else {
-            //Reset the credentials if no auth exist for the specified user
-            ((CommonsClientHttpRequestFactory) restClient.getRestTemplate().
-                    getRequestFactory()).getHttpClient().getState().
-                    setCredentials(AuthScope.ANY, null);
+            LOG.error("No entitlements found found for " + username);
             getSession().error(getString("login-error"));
-            return null;
         }
-    }
 
-    /**
-     * Getter for restClient attribute.
-     * @return RestClient instance
-     */
-    public RestClient getRestClient() {
-        return restClient;
-    }
-
-    /**
-     * Setter for restClient attribute.
-     * @param restClient instance
-     */
-    public void setRestClient(RestClient restClient) {
-        this.restClient = restClient;
+        return user;
     }
 
     /**

@@ -2,9 +2,9 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,7 +16,7 @@ package org.syncope.console.rest;
 
 import java.util.Arrays;
 import java.util.List;
-import org.springframework.web.client.RestClientException;
+import org.springframework.stereotype.Component;
 import org.syncope.client.mod.RoleMod;
 import org.syncope.client.to.RoleTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
@@ -24,21 +24,25 @@ import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 /**
  * Console client for invoking Rest Role's services.
  */
-public class RolesRestClient {
-
-    RestClient restClient;
+@Component
+public class RoleRestClient extends AbstractBaseRestClient {
 
     /**
      * Get all Roles.
      * @return SchemaTOs
      */
     public List<RoleTO> getAllRoles()
-            throws SyncopeClientCompositeErrorException, RestClientException {
+            throws SyncopeClientCompositeErrorException {
+
         List<RoleTO> roles = null;
 
-        roles =  Arrays.asList(restClient.getRestTemplate().getForObject(
-                restClient.getBaseURL() + "role/list.json", RoleTO[].class));
-        
+        try {
+            roles = Arrays.asList(restTemplate.getForObject(
+                    baseURL + "role/list.json", RoleTO[].class));
+        } catch (SyncopeClientCompositeErrorException e) {
+            LOG.error("While listing all roles", e);
+        }
+
         return roles;
     }
 
@@ -47,13 +51,11 @@ public class RolesRestClient {
      * @param roleTO
      */
     public void createRole(RoleTO roleTO) {
-        RoleTO newRoleTO;
-        try{
-        newRoleTO = restClient.getRestTemplate().postForObject(
-                restClient.getBaseURL() + "role/create", roleTO, RoleTO.class);
-        }
-        catch (SyncopeClientCompositeErrorException e) {
-            e.printStackTrace();
+        try {
+            restTemplate.postForObject(
+                    baseURL + "role/create", roleTO, RoleTO.class);
+        } catch (SyncopeClientCompositeErrorException e) {
+            LOG.error("While creating a role", e);
         }
     }
 
@@ -66,12 +68,11 @@ public class RolesRestClient {
         RoleTO roleTO = null;
 
         try {
-        roleTO = restClient.getRestTemplate().getForObject
-                (restClient.getBaseURL() + "role/read/{roleId}.json",
-                 RoleTO.class, id);
-        }
-        catch (SyncopeClientCompositeErrorException e) {
-            e.printStackTrace();
+            roleTO = restTemplate.getForObject(
+                    baseURL + "role/read/{roleId}.json",
+                    RoleTO.class, id);
+        } catch (SyncopeClientCompositeErrorException e) {
+            LOG.error("While reading a role", e);
         }
         return roleTO;
     }
@@ -85,18 +86,17 @@ public class RolesRestClient {
         RoleTO newRoleTO = null;
 
         try {
-        newRoleTO = restClient.getRestTemplate().postForObject
-                (restClient.getBaseURL() + "role/update", roleMod,
-                RoleTO.class);
-        }
-        catch (SyncopeClientCompositeErrorException e) {
-            e.printStackTrace();
+            newRoleTO = restTemplate.postForObject(
+                    baseURL + "role/update", roleMod,
+                    RoleTO.class);
+        } catch (SyncopeClientCompositeErrorException e) {
+            LOG.error("While updating a role", e);
             return false;
         }
 
         return true;
     }
-    
+
     /**
      * Delete an already existent role by its name.
      * @param name (e.g.:surname)
@@ -104,20 +104,10 @@ public class RolesRestClient {
      */
     public void deleteRole(Long id) {
         try {
-        restClient.getRestTemplate().delete(restClient.getBaseURL() +
-                "role/delete/{roleId}.json",id);
+            restTemplate.delete(baseURL
+                    + "role/delete/{roleId}.json", id);
+        } catch (SyncopeClientCompositeErrorException e) {
+            LOG.error("While deleting a role", e);
         }
-        catch (SyncopeClientCompositeErrorException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    public RestClient getRestClient() {
-        return restClient;
-    }
-
-    public void setRestClient(RestClient restClient) {
-        this.restClient = restClient;
     }
 }

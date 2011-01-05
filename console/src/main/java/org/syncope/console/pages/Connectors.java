@@ -49,8 +49,8 @@ import org.syncope.client.to.ConnectorInstanceTO;
 import org.syncope.client.to.ResourceTO;
 import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.Utility;
-import org.syncope.console.rest.ConnectorsRestClient;
-import org.syncope.console.rest.ResourcesRestClient;
+import org.syncope.console.rest.ConnectorRestClient;
+import org.syncope.console.rest.ResourceRestClient;
 import org.syncope.console.wicket.markup.html.form.DeleteLinkPanel;
 import org.syncope.console.wicket.markup.html.form.EditLinkPanel;
 
@@ -59,27 +59,30 @@ import org.syncope.console.wicket.markup.html.form.EditLinkPanel;
  */
 public class Connectors extends BasePage {
 
-    @SpringBean(name = "connectorsRestClient")
-    ConnectorsRestClient restClient;
+    @SpringBean
+    private ConnectorRestClient restClient;
 
-    @SpringBean(name = "resourcesRestClient")
-    ResourcesRestClient resourcesRestClient;
+    @SpringBean
+    private ResourceRestClient resourceRestClient;
 
-    @SpringBean(name = "utility")
-    Utility utility;
+    @SpringBean
+    private Utility utility;
 
-    final ModalWindow createConnectorWin;
-    final ModalWindow editConnectorWin;
-    
-    WebMarkupContainer container;
+    private final ModalWindow createConnectorWin;
+
+    private final ModalWindow editConnectorWin;
+
+    private WebMarkupContainer container;
     /*
-     Response flag set by the Modal Window after the operation is completed
+    Response flag set by the Modal Window after the operation is completed
      */
-    boolean operationResult = false;
-    FeedbackPanel feedbackPanel;
+
+    private boolean operationResult = false;
+
+    private FeedbackPanel feedbackPanel;
 
     private int paginatorRows;
-    
+
     public Connectors(PageParameters parameters) {
         super(parameters);
 
@@ -87,12 +90,12 @@ public class Connectors extends BasePage {
         add(editConnectorWin = new ModalWindow("editConnectorWin"));
 
         feedbackPanel = new FeedbackPanel("feedback");
-        feedbackPanel.setOutputMarkupId( true );
+        feedbackPanel.setOutputMarkupId(true);
 
         add(feedbackPanel);
 
-        paginatorRows = utility.getPaginatorRowsToDisplay(Constants
-                    .CONF_CONNECTORS_PAGINATOR_ROWS);
+        paginatorRows = utility.getPaginatorRowsToDisplay(
+                Constants.CONF_CONNECTORS_PAGINATOR_ROWS);
 
         List<IColumn> columns = new ArrayList<IColumn>();
 
@@ -112,24 +115,20 @@ public class Connectors extends BasePage {
                 "bundleName", "bundleName"));
 
         columns.add(new AbstractColumn<ConnectorInstanceTO>(new Model<String>(
-                getString("edit")))
-        {
-            public void populateItem(Item<ICellPopulator<ConnectorInstanceTO>>
-                    cellItem, String componentId, IModel<ConnectorInstanceTO>
-                    model)
-            {
-                    final ConnectorInstanceTO connectorTO = model.getObject();
+                getString("edit"))) {
 
-                    AjaxLink editLink = new AjaxLink("editLink") {
+            public void populateItem(Item<ICellPopulator<ConnectorInstanceTO>> cellItem, String componentId, IModel<ConnectorInstanceTO> model) {
+                final ConnectorInstanceTO connectorTO = model.getObject();
+
+                AjaxLink editLink = new AjaxLink("editLink") {
 
                     @Override
                     public void onClick(AjaxRequestTarget target) {
 
-                        editConnectorWin.setPageCreator(new ModalWindow
-                                .PageCreator() {
+                        editConnectorWin.setPageCreator(new ModalWindow.PageCreator() {
 
                             public Page createPage() {
-                                ConnectorsModalPage form = 
+                                ConnectorsModalPage form =
                                         new ConnectorsModalPage(Connectors.this,
                                         editConnectorWin, connectorTO, false);
                                 return form;
@@ -144,7 +143,7 @@ public class Connectors extends BasePage {
                 panel.add(editLink);
 
                 String allowedRoles = xmlRolesReader.getAllAllowedRoles(
-                        "Connectors","read");
+                        "Connectors", "read");
                 MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
                         allowedRoles);
 
@@ -152,27 +151,23 @@ public class Connectors extends BasePage {
             }
         });
 
-        columns.add(new AbstractColumn<ConnectorInstanceTO>(new Model<String>
-                (getString("delete")))
-        {
-            public void populateItem(Item<ICellPopulator<ConnectorInstanceTO>>
-                    cellItem, String componentId, IModel<ConnectorInstanceTO>
-                    model)
-            {
-                    final ConnectorInstanceTO connectorTO = model.getObject();
+        columns.add(new AbstractColumn<ConnectorInstanceTO>(new Model<String>(getString(
+                "delete"))) {
 
-                    AjaxLink deleteLink = new AjaxLink("deleteLink") {
+            public void populateItem(Item<ICellPopulator<ConnectorInstanceTO>> cellItem, String componentId, IModel<ConnectorInstanceTO> model) {
+                final ConnectorInstanceTO connectorTO = model.getObject();
+
+                AjaxLink deleteLink = new AjaxLink("deleteLink") {
 
                     @Override
                     public void onClick(AjaxRequestTarget target) {
 
-                        if(!checkDeleteIsForbidden(connectorTO)){
-                        restClient.deleteConnector(connectorTO.getId());
-                        info(getString("operation_succeded"));
-                        }
-
-                        else
+                        if (!checkDeleteIsForbidden(connectorTO)) {
+                            restClient.deleteConnector(connectorTO.getId());
+                            info(getString("operation_succeded"));
+                        } else {
                             error(getString("delete_error"));
+                        }
 
                         target.addComponent(container);
                         target.addComponent(feedbackPanel);
@@ -181,23 +176,26 @@ public class Connectors extends BasePage {
 
                     @Override
                     protected IAjaxCallDecorator getAjaxCallDecorator() {
-                        return new AjaxPreprocessingCallDecorator(super.getAjaxCallDecorator()) {
+                        return new AjaxPreprocessingCallDecorator(super.
+                                getAjaxCallDecorator()) {
+
                             private static final long serialVersionUID = 1L;
 
                             @Override
                             public CharSequence preDecorateScript(CharSequence script) {
-                                return "if (confirm('"+getString("confirmDelete")+"'))"
-                                        +"{"+script+"}";
+                                return "if (confirm('" + getString(
+                                        "confirmDelete") + "'))"
+                                        + "{" + script + "}";
                             }
                         };
                     }
-                    };
+                };
 
                 DeleteLinkPanel panel = new DeleteLinkPanel(componentId, model);
                 panel.add(deleteLink);
 
                 String allowedRoles = xmlRolesReader.getAllAllowedRoles(
-                        "Connectors","delete");
+                        "Connectors", "delete");
                 MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
                         allowedRoles);
 
@@ -227,7 +225,7 @@ public class Connectors extends BasePage {
         editConnectorWin.setPageMapName("edit-conn-modal");
         editConnectorWin.setCookieName("edit-conn-modal");
 
-       AjaxLink createConnectorLink = new AjaxLink("createConnectorLink") {
+        AjaxLink createConnectorLink = new AjaxLink("createConnectorLink") {
 
             @Override
             public void onClick(AjaxRequestTarget target) {
@@ -247,29 +245,29 @@ public class Connectors extends BasePage {
         };
 
         String allowedRoles = xmlRolesReader.getAllAllowedRoles(
-                "Connectors","create");
+                "Connectors", "create");
         MetaDataRoleAuthorizationStrategy.authorize(createConnectorLink, ENABLE,
                 allowedRoles);
-        
+
         add(createConnectorLink);
 
         Form paginatorForm = new Form("PaginatorForm");
 
         final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser",
-        new PropertyModel(this,"paginatorRows"),utility.paginatorRowsChooser());
+                new PropertyModel(this, "paginatorRows"), utility.
+                paginatorRowsChooser());
 
-        rowsChooser.add(new AjaxFormComponentUpdatingBehavior( "onchange" ){
-          protected void onUpdate( AjaxRequestTarget target )
-            {
-              utility.updatePaginatorRows(
-                      Constants.CONF_CONNECTORS_PAGINATOR_ROWS, paginatorRows);
+        rowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
-              table.setRowsPerPage(paginatorRows);
+            protected void onUpdate(AjaxRequestTarget target) {
+                utility.updatePaginatorRows(
+                        Constants.CONF_CONNECTORS_PAGINATOR_ROWS, paginatorRows);
 
-              target.addComponent(container);
+                table.setRowsPerPage(paginatorRows);
+
+                target.addComponent(container);
             }
-
-          });
+        });
 
         paginatorForm.add(rowsChooser);
         add(paginatorForm);
@@ -280,14 +278,15 @@ public class Connectors extends BasePage {
      * @param ConnectorInstanceTO object to check
      * @return true if the action is forbidden, false otherwise
      */
-    public boolean checkDeleteIsForbidden(ConnectorInstanceTO connectorTO){
+    public boolean checkDeleteIsForbidden(ConnectorInstanceTO connectorTO) {
 
         boolean forbidden = false;
-        List<ResourceTO> resources = resourcesRestClient.getAllResources();
+        List<ResourceTO> resources = resourceRestClient.getAllResources();
 
-        for(ResourceTO resourceTO : resources) {
-            if(resourceTO.getConnectorId() == connectorTO.getId())
+        for (ResourceTO resourceTO : resources) {
+            if (resourceTO.getConnectorId() == connectorTO.getId()) {
                 forbidden = true;
+            }
         }
 
         return forbidden;
@@ -306,11 +305,11 @@ public class Connectors extends BasePage {
 
                     public void onClose(AjaxRequestTarget target) {
                         target.addComponent(container);
-                        if(operationResult){
-                        info(getString("operation_succeded"));
-                        target.addComponent(feedbackPanel);
-                        operationResult = false;
-                    }
+                        if (operationResult) {
+                            info(getString("operation_succeded"));
+                            target.addComponent(feedbackPanel);
+                            operationResult = false;
+                        }
                     }
                 });
     }
@@ -330,7 +329,7 @@ public class Connectors extends BasePage {
 
         public ConnectorsProvider() {
             //Default sorting
-            setSort("id",true);
+            setSort("id", true);
         }
 
         @Override
@@ -339,7 +338,7 @@ public class Connectors extends BasePage {
 
             Collections.sort(list, comparator);
 
-            return list.subList(first, first+count).iterator();
+            return list.subList(first, first + count).iterator();
         }
 
         @Override
@@ -348,8 +347,7 @@ public class Connectors extends BasePage {
         }
 
         @Override
-        public IModel<ConnectorInstanceTO> model(final ConnectorInstanceTO
-                connector) {
+        public IModel<ConnectorInstanceTO> model(final ConnectorInstanceTO connector) {
             return new AbstractReadOnlyModel<ConnectorInstanceTO>() {
 
                 @Override
@@ -359,39 +357,41 @@ public class Connectors extends BasePage {
             };
         }
 
-        public List<ConnectorInstanceTO> getConnectorsListDB(){
-        List<ConnectorInstanceTO> list = restClient.getAllConnectors();
+        public List<ConnectorInstanceTO> getConnectorsListDB() {
+            List<ConnectorInstanceTO> list = restClient.getAllConnectors();
 
-        return list;
+            return list;
         }
 
         class SortableDataProviderComparator implements
                 Comparator<ConnectorInstanceTO>, Serializable {
+
             public int compare(final ConnectorInstanceTO o1,
                     final ConnectorInstanceTO o2) {
-                    PropertyModel<Comparable> model1 =
-                            new PropertyModel<Comparable>(o1, getSort()
-                            .getProperty());
-                    PropertyModel<Comparable> model2 =
-                            new PropertyModel<Comparable>(o2, getSort()
-                            .getProperty());
+                PropertyModel<Comparable> model1 =
+                        new PropertyModel<Comparable>(o1,
+                        getSort().getProperty());
+                PropertyModel<Comparable> model2 =
+                        new PropertyModel<Comparable>(o2,
+                        getSort().getProperty());
 
-                    int result = 1;
+                int result = 1;
 
-                    if(model1.getObject() == null && model2.getObject() == null)
-                        result = 0;
-                    else if(model1.getObject() == null)
-                        result = 1;
-                    else if(model2.getObject() == null)
-                        result = -1;
-                    else
-                        result = ((Comparable)model1.getObject()).compareTo(
-                                model2.getObject());
+                if (model1.getObject() == null && model2.getObject() == null) {
+                    result = 0;
+                } else if (model1.getObject() == null) {
+                    result = 1;
+                } else if (model2.getObject() == null) {
+                    result = -1;
+                } else {
+                    result = ((Comparable) model1.getObject()).compareTo(
+                            model2.getObject());
+                }
 
-                    result = getSort().isAscending() ? result : -result;
+                result = getSort().isAscending() ? result : -result;
 
-                    return result;
+                return result;
             }
-	}
+        }
     }
 }

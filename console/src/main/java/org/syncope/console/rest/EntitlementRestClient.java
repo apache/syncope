@@ -16,14 +16,14 @@ package org.syncope.console.rest;
 
 import java.util.Arrays;
 import java.util.List;
+import org.springframework.stereotype.Component;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 
 /**
  * Console client for invoking Rest Resources services.
  */
-public class EntitlementsRestClient {
-
-    private RestClient restClient;
+@Component
+public class EntitlementRestClient extends AbstractBaseRestClient {
 
     /**
      * Get all Entitlements.
@@ -34,21 +34,13 @@ public class EntitlementsRestClient {
 
         try {
             entitlements = Arrays.asList(
-                    restClient.getRestTemplate().getForObject(
-                    restClient.getBaseURL() + "auth/allentitlements.json",
+                    restTemplate.getForObject(
+                    baseURL + "auth/allentitlements.json",
                     String[].class));
         } catch (SyncopeClientCompositeErrorException e) {
-            e.printStackTrace();
+            LOG.error("While reading all the entitlements", e);
         }
 
         return entitlements;
-    }
-
-    public RestClient getRestClient() {
-        return restClient;
-    }
-
-    public void setRestClient(RestClient restClient) {
-        this.restClient = restClient;
     }
 }

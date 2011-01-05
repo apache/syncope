@@ -2,9 +2,9 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,44 +17,44 @@ package org.syncope.console.rest;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.List;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpStatusCodeException;
-import org.springframework.web.client.RestClientException;
 import org.syncope.client.to.ConfigurationTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 
 /**
  * Console client for invoking Rest Connectors services.
  */
-public class ConfigurationsRestClient {
-
-    RestClient restClient;
+@Component
+public class ConfigurationRestClient extends AbstractBaseRestClient {
 
     /**
      * Get all stored configurations.
      * @return ConfigurationTOs
      */
-    public List<ConfigurationTO> getAllConfigurations() throws
-            RestClientException {
+    public List<ConfigurationTO> getAllConfigurations()
+            throws SyncopeClientCompositeErrorException {
+
         List<ConfigurationTO> configurations = null;
 
-        configurations = Arrays.asList(restClient.getRestTemplate()
-                .getForObject(restClient.getBaseURL() +
-                "configuration/list.json",ConfigurationTO[].class));
+        configurations = Arrays.asList(
+                restTemplate.getForObject(baseURL
+                + "configuration/list.json", ConfigurationTO[].class));
 
         return configurations;
     }
 
-   /**
+    /**
      * Load an existent configuration.
      * @return ConfigurationTO object if the configuration exists,
      * null otherwise
      */
-    public ConfigurationTO readConfiguration(String confKey) throws
-            SyncopeClientCompositeErrorException, RestClientException {
+    public ConfigurationTO readConfiguration(String confKey)
+            throws SyncopeClientCompositeErrorException {
 
-        ConfigurationTO configurationTO = restClient.getRestTemplate()
-                .getForObject(restClient.getBaseURL() +
-                "configuration/read/{confKey}.json", ConfigurationTO.class,
+        ConfigurationTO configurationTO =
+                restTemplate.getForObject(baseURL
+                + "configuration/read/{confKey}.json", ConfigurationTO.class,
                 confKey);
 
 
@@ -68,9 +68,9 @@ public class ConfigurationsRestClient {
      */
     public boolean createConfiguration(ConfigurationTO configurationTO) {
 
-        ConfigurationTO newConfigurationTO = restClient.getRestTemplate()
-                .postForObject(
-                restClient.getBaseURL() + "configuration/create",
+        ConfigurationTO newConfigurationTO =
+                restTemplate.postForObject(baseURL
+                + "configuration/create",
                 configurationTO, ConfigurationTO.class);
 
         return (configurationTO.equals(newConfigurationTO)) ? true : false;
@@ -83,9 +83,9 @@ public class ConfigurationsRestClient {
      */
     public boolean updateConfiguration(ConfigurationTO configurationTO) {
 
-        ConfigurationTO newConfigurationTO = restClient.getRestTemplate()
-                .postForObject(
-                restClient.getBaseURL() + "configuration/update",
+        ConfigurationTO newConfigurationTO =
+                restTemplate.postForObject(baseURL
+                + "configuration/update",
                 configurationTO, ConfigurationTO.class);
 
         return (configurationTO.equals(newConfigurationTO)) ? true : false;
@@ -95,27 +95,12 @@ public class ConfigurationsRestClient {
      * Deelete a configuration by confKey
      * @throws UnsupportedEncodingException
      */
-    public void deleteConfiguration(String confKey) throws
+    public void deleteConfiguration(String confKey)
+            throws
             UnsupportedEncodingException, HttpStatusCodeException {
 
-            restClient.getRestTemplate().delete( restClient.getBaseURL()
-                    + "configuration/delete/{confKey}.json",
-                    confKey);
-    }
-
-    /**
-     * Getter for restClient attribute.
-     * @return RestClient instance
-     */
-    public RestClient getRestClient() {
-        return restClient;
-    }
-
-    /**
-     * Setter for restClient attribute.
-     * @param restClient instance
-     */
-    public void setRestClient(RestClient restClient) {
-        this.restClient = restClient;
+        restTemplate.delete(baseURL
+                + "configuration/delete/{confKey}.json",
+                confKey);
     }
 }

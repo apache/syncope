@@ -21,8 +21,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -32,8 +30,7 @@ import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table
-        .AjaxFallbackDefaultDataTable;
+import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
@@ -53,68 +50,68 @@ import org.springframework.web.client.RestClientException;
 import org.syncope.client.to.ConfigurationTO;
 import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.Utility;
-import org.syncope.console.rest.ConfigurationsRestClient;
+import org.syncope.console.rest.ConfigurationRestClient;
 import org.syncope.console.wicket.markup.html.form.DeleteLinkPanel;
 import org.syncope.console.wicket.markup.html.form.EditLinkPanel;
 
 /**
  * Configurations WebPage.
  */
-public class Configuration extends BasePage{
+public class Configuration extends BasePage {
 
-    @SpringBean(name = "configurationsRestClient")
-    ConfigurationsRestClient restClient;
+    @SpringBean
+    private ConfigurationRestClient restClient;
 
-    @SpringBean(name = "utility")
-    Utility utility;
+    @SpringBean
+    private Utility utility;
 
-    final ModalWindow createConfigWin;
-    final ModalWindow editConfigWin;
+    private final ModalWindow createConfigWin;
 
-    final int WIN_USER_HEIGHT = 680;
-    final int WIN_USER_WIDTH = 1133;
+    private final ModalWindow editConfigWin;
 
-    WebMarkupContainer container;
+    private static final int WIN_USER_HEIGHT = 680;
+
+    private static final int WIN_USER_WIDTH = 1133;
+
+    private WebMarkupContainer container;
 
     /* 
-     Response flag set by the Modal Window after the operation
-     is completed  */
-    boolean operationResult = false;
+    Response flag set by the Modal Window after the operation
+    is completed  */
+    private boolean operationResult = false;
 
-    FeedbackPanel feedbackPanel;
+    private FeedbackPanel feedbackPanel;
 
     private int paginatorRows;
-    
+
     public Configuration(PageParameters parameters) {
         super(parameters);
 
         feedbackPanel = new FeedbackPanel("feedback");
-        feedbackPanel.setOutputMarkupId( true );
+        feedbackPanel.setOutputMarkupId(true);
 
         add(feedbackPanel);
 
         add(createConfigWin = new ModalWindow("createConfigurationWin"));
         add(editConfigWin = new ModalWindow("editConfigurationWin"));
 
-        paginatorRows = utility.getPaginatorRowsToDisplay(Constants
-                    .CONF_CONFIGURATION_PAGINATOR_ROWS);
+        paginatorRows = utility.getPaginatorRowsToDisplay(
+                Constants.CONF_CONFIGURATION_PAGINATOR_ROWS);
 
         List<IColumn> columns = new ArrayList<IColumn>();
 
         columns.add(new PropertyColumn(new Model(getString("key")),
                 "confKey", "confKey"));
 
-        columns.add(new PropertyColumn(new Model(getString("value")), 
+        columns.add(new PropertyColumn(new Model(getString("value")),
                 "confValue", "confValue"));
 
         columns.add(new AbstractColumn<ConfigurationTO>(new Model<String>(
-                getString("edit")))
-        {
-            public void populateItem(Item<ICellPopulator<ConfigurationTO>>
-                    cellItem, String componentId, IModel<ConfigurationTO> model)
-            {
-                    final ConfigurationTO configurationTO = model.getObject();
-                    AjaxLink editLink = new AjaxLink("editLink") {
+                getString("edit"))) {
+
+            public void populateItem(Item<ICellPopulator<ConfigurationTO>> cellItem, String componentId, IModel<ConfigurationTO> model) {
+                final ConfigurationTO configurationTO = model.getObject();
+                AjaxLink editLink = new AjaxLink("editLink") {
 
                     @Override
                     public void onClick(AjaxRequestTarget target) {
@@ -122,14 +119,15 @@ public class Configuration extends BasePage{
                         editConfigWin.setPageCreator(
                                 new ModalWindow.PageCreator() {
 
-                            public Page createPage() {
-                                ConfigurationModalPage window =
-                                        new ConfigurationModalPage
-                                        (Configuration.this, editConfigWin,
-                                        configurationTO, false);
-                                return window;
-                            }
-                        });
+                                    public Page createPage() {
+                                        ConfigurationModalPage window =
+                                                new ConfigurationModalPage(
+                                                Configuration.this,
+                                                editConfigWin,
+                                                configurationTO, false);
+                                        return window;
+                                    }
+                                });
 
                         editConfigWin.show(target);
                     }
@@ -139,7 +137,7 @@ public class Configuration extends BasePage{
                 panel.add(editLink);
 
                 String allowedRoles = xmlRolesReader.getAllAllowedRoles(
-                        "Configuration","read");
+                        "Configuration", "read");
 
                 MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
                         allowedRoles);
@@ -148,44 +146,44 @@ public class Configuration extends BasePage{
             }
         });
 
-        columns.add(new AbstractColumn<ConfigurationTO>(new Model<String>
-                (getString("delete")))
-        {
-            public void populateItem(Item<ICellPopulator<ConfigurationTO>> 
-                    cellItem, String componentId, IModel<ConfigurationTO> model)
-            {
-                    final ConfigurationTO configurationTO = model.getObject();
+        columns.add(new AbstractColumn<ConfigurationTO>(new Model<String>(getString(
+                "delete"))) {
 
-                    AjaxLink deleteLink = new AjaxLink("deleteLink") {
+            public void populateItem(Item<ICellPopulator<ConfigurationTO>> cellItem, String componentId, IModel<ConfigurationTO> model) {
+                final ConfigurationTO configurationTO = model.getObject();
+
+                AjaxLink deleteLink = new AjaxLink("deleteLink") {
 
                     @Override
                     public void onClick(AjaxRequestTarget target) {
 
                         try {
-                            restClient.deleteConfiguration(configurationTO
-                                    .getConfKey());
-                        } catch (UnsupportedEncodingException ex) {
-                            Logger.getLogger(Configuration.class.getName())
-                                    .log(Level.SEVERE, null, ex);
-                            error(ex.getMessage());
+                            restClient.deleteConfiguration(configurationTO.
+                                    getConfKey());
+                        } catch (UnsupportedEncodingException e) {
+                            LOG.error("While deleting a conf key", e);
+                            error(e.getMessage());
                             return;
                         }
 
                         info(getString("operation_succeded"));
                         target.addComponent(feedbackPanel);
-                        
+
                         target.addComponent(container);
                     }
 
                     @Override
                     protected IAjaxCallDecorator getAjaxCallDecorator() {
-                        return new AjaxPreprocessingCallDecorator(super.getAjaxCallDecorator()) {
+                        return new AjaxPreprocessingCallDecorator(super.
+                                getAjaxCallDecorator()) {
+
                             private static final long serialVersionUID = 1L;
 
                             @Override
                             public CharSequence preDecorateScript(CharSequence script) {
-                                return "if (confirm('"+getString("confirmDelete")+"'))"
-                                        +"{"+script+"}";
+                                return "if (confirm('" + getString(
+                                        "confirmDelete") + "'))"
+                                        + "{" + script + "}";
                             }
                         };
                     }
@@ -195,7 +193,7 @@ public class Configuration extends BasePage{
                 panel.add(deleteLink);
 
                 String allowedRoles = xmlRolesReader.getAllAllowedRoles(
-                        "Configuration","delete");
+                        "Configuration", "delete");
 
                 MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
                         allowedRoles);
@@ -251,7 +249,7 @@ public class Configuration extends BasePage{
         };
 
         String allowedRoles = xmlRolesReader.getAllAllowedRoles(
-                "Configuration","create");
+                "Configuration", "create");
         MetaDataRoleAuthorizationStrategy.authorize(createConfigurationLink,
                 ENABLE, allowedRoles);
 
@@ -260,20 +258,20 @@ public class Configuration extends BasePage{
         Form paginatorForm = new Form("PaginatorForm");
 
         final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser",
-        new PropertyModel(this,"paginatorRows"),utility.paginatorRowsChooser());
+                new PropertyModel(this, "paginatorRows"), utility.
+                paginatorRowsChooser());
 
-        rowsChooser.add(new AjaxFormComponentUpdatingBehavior( "onchange" ){
-          protected void onUpdate( AjaxRequestTarget target )
-            {
-              utility.updatePaginatorRows(
-                      Constants.CONF_CONFIGURATION_PAGINATOR_ROWS,
-                      paginatorRows);
-              table.setRowsPerPage(paginatorRows);
-              
-              target.addComponent(container);
+        rowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+
+            protected void onUpdate(AjaxRequestTarget target) {
+                utility.updatePaginatorRows(
+                        Constants.CONF_CONFIGURATION_PAGINATOR_ROWS,
+                        paginatorRows);
+                table.setRowsPerPage(paginatorRows);
+
+                target.addComponent(container);
             }
-
-          });
+        });
 
         paginatorForm.add(rowsChooser);
         add(paginatorForm);
@@ -281,7 +279,7 @@ public class Configuration extends BasePage{
         add(paginatorForm);
     }
 
-   /**
+    /**
      * Set a WindowClosedCallback for a ModalWindow instance.
      * @param window
      * @param container
@@ -294,11 +292,11 @@ public class Configuration extends BasePage{
 
                     public void onClose(AjaxRequestTarget target) {
                         target.addComponent(container);
-                        if(operationResult){
-                        info(getString("operation_succeded"));
-                        target.addComponent(feedbackPanel);
-                        operationResult = false;
-                    }
+                        if (operationResult) {
+                            info(getString("operation_succeded"));
+                            target.addComponent(feedbackPanel);
+                            operationResult = false;
+                        }
                     }
                 });
     }
@@ -318,7 +316,7 @@ public class Configuration extends BasePage{
 
         public ConfigurationsProvider() {
             //Default sorting
-            setSort("confKey",true);
+            setSort("confKey", true);
         }
 
         @Override
@@ -327,7 +325,7 @@ public class Configuration extends BasePage{
 
             Collections.sort(list, comparator);
 
-            return list.subList(first, first+count).iterator();
+            return list.subList(first, first + count).iterator();
         }
 
         @Override
@@ -336,8 +334,7 @@ public class Configuration extends BasePage{
         }
 
         @Override
-        public IModel<ConfigurationTO> model(final ConfigurationTO 
-                configuration) {
+        public IModel<ConfigurationTO> model(final ConfigurationTO configuration) {
             return new AbstractReadOnlyModel<ConfigurationTO>() {
 
                 @Override
@@ -347,45 +344,46 @@ public class Configuration extends BasePage{
             };
         }
 
-        public List<ConfigurationTO> getConfigurationsListDB(){
-        List<ConfigurationTO> list = null;
+        public List<ConfigurationTO> getConfigurationsListDB() {
+            List<ConfigurationTO> list = null;
 
             try {
                 list = restClient.getAllConfigurations();
-        }
-        catch(RestClientException rce) {
-            throw rce;
-        }
+            } catch (RestClientException rce) {
+                throw rce;
+            }
             return list;
         }
 
         class SortableDataProviderComparator implements
                 Comparator<ConfigurationTO>, Serializable {
+
             public int compare(final ConfigurationTO o1,
                     final ConfigurationTO o2) {
-                    PropertyModel<Comparable> model1 =
-                            new PropertyModel<Comparable>(o1, getSort()
-                            .getProperty());
-                    PropertyModel<Comparable> model2 =
-                            new PropertyModel<Comparable>(o2, getSort()
-                            .getProperty());
+                PropertyModel<Comparable> model1 =
+                        new PropertyModel<Comparable>(o1,
+                        getSort().getProperty());
+                PropertyModel<Comparable> model2 =
+                        new PropertyModel<Comparable>(o2,
+                        getSort().getProperty());
 
-                    int result = 1;
+                int result = 1;
 
-                    if(model1.getObject() == null && model2.getObject() == null)
-                        result = 0;
-                    else if(model1.getObject() == null)
-                        result = 1;
-                    else if(model2.getObject() == null)
-                        result = -1;
-                    else
-                        result = ((Comparable)model1.getObject()).compareTo(
-                                model2.getObject());
+                if (model1.getObject() == null && model2.getObject() == null) {
+                    result = 0;
+                } else if (model1.getObject() == null) {
+                    result = 1;
+                } else if (model2.getObject() == null) {
+                    result = -1;
+                } else {
+                    result = ((Comparable) model1.getObject()).compareTo(
+                            model2.getObject());
+                }
 
-                    result = getSort().isAscending() ? result : -result;
+                result = getSort().isAscending() ? result : -result;
 
-                    return result;
+                return result;
             }
-	}
+        }
     }
 }

@@ -29,8 +29,8 @@
     <packaging>war</packaging>
 
     <properties>
-        <logfile>/tmp/syncope-console.log</logfile>
-        <logfile.test>/tmp/syncope-console-test.log</logfile.test>
+        <logfile>/var/tmp/syncope-console.log</logfile>
+        <logfile.test>/var/tmp/syncope-console-test.log</logfile.test>
     </properties>
 
     <dependencies>
@@ -101,7 +101,6 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
         </dependency>
-        
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>

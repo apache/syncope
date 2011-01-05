@@ -15,7 +15,9 @@
        http://www.springframework.org/schema/tx
        http://www.springframework.org/schema/tx/spring-tx.xsd
        http://www.springframework.org/schema/aop
-              http://www.springframework.org/schema/aop/spring-aop-2.5.xsd">
+       http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <context:component-scan base-package="org.syncope.console.rest"/>
 
     <bean id="propertyConfigurer"
           class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
@@ -24,6 +26,14 @@
                 <value>/WEB-INF/classes/configuration.properties</value>
             </list>
         </property>
+    </bean>
+
+    <bean id="baseURL" class="java.lang.String">
+        <constructor-arg value="${baseURL}"/>
+    </bean>
+
+    <bean id="authorizations" class="java.lang.String">
+        <constructor-arg value="authorizations.xml"/>
     </bean>
 
     <bean id="syncopeApplication" class="org.syncope.console.SyncopeApplication"/>
@@ -61,48 +71,8 @@
         <aop:scoped-proxy/>
     </bean>
 
-    <bean id="restClient" class="org.syncope.console.rest.RestClient" scope="prototype">
-        <property name="restTemplate" ref="restTemplate"/>
-        <property name="baseURL" value="${baseURL}"/>
-    </bean>
+    <bean id="utility" class="org.syncope.console.commons.Utility"/>
 
-    <bean id="schemaRestClient" class="org.syncope.console.rest.SchemaRestClient">
-        <property name="restClient" ref="restClient"/>
-    </bean>
+    <bean id="xmlRolesReader" class="org.syncope.console.commons.XMLRolesReader"/>
 
-    <bean id="connectorsRestClient" class="org.syncope.console.rest.ConnectorsRestClient">
-        <property name="restClient" ref="restClient"/>
-    </bean>
-
-    <bean id="resourcesRestClient" class="org.syncope.console.rest.ResourcesRestClient">
-        <property name="restClient" ref="restClient"/>
-    </bean>
-
-    <bean id="usersRestClient" class="org.syncope.console.rest.UsersRestClient">
-        <property name="restClient" ref="restClient"/>
-    </bean>
-
-    <bean id="rolesRestClient" class="org.syncope.console.rest.RolesRestClient">
-        <property name="restClient" ref="restClient"/>
-    </bean>
-
-    <bean id="configurationsRestClient" class="org.syncope.console.rest.ConfigurationsRestClient">
-        <property name="restClient" ref="restClient"/>
-    </bean>
-
-    <bean id="tasksRestClient" class="org.syncope.console.rest.TasksRestClient">
-        <property name="restClient" ref="restClient"/>
-    </bean>
-
-    <bean id="entitlementsRestClient" class="org.syncope.console.rest.EntitlementsRestClient">
-        <property name="restClient" ref="restClient"/>
-    </bean>
-
-    <bean id="utility" class="org.syncope.console.commons.Utility">
-        <property name="configurationsRestClient" ref="configurationsRestClient"/>
-    </bean>
-
-    <bean id="xmlRolesReader" class="org.syncope.console.commons.XMLRolesReader">
-        <constructor-arg value="authorizations.xml"/>
-    </bean>
 </beans>

@@ -12,7 +12,6 @@
  *  limitations under the License.
  *  under the License.
  */
-
 package org.syncope.console.pages;
 
 import java.io.Serializable;
@@ -30,8 +29,7 @@ import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table
-        .AjaxFallbackDefaultDataTable;
+import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
@@ -53,7 +51,7 @@ import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.Utility;
 import org.syncope.console.commons.XMLRolesReader;
-import org.syncope.console.rest.TasksRestClient;
+import org.syncope.console.rest.TaskRestClient;
 import org.syncope.console.wicket.markup.html.form.DeleteLinkPanel;
 import org.syncope.console.wicket.markup.html.form.EditLinkPanel;
 import org.syncope.console.wicket.markup.html.form.LinkPanel;
@@ -63,30 +61,32 @@ import org.syncope.console.wicket.markup.html.form.LinkPanel;
  */
 public class Tasks extends BasePage {
 
-    @SpringBean(name = "tasksRestClient")
-    TasksRestClient restClient;
+    @SpringBean
+    private TaskRestClient restClient;
 
-    @SpringBean(name = "utility")
-    Utility utility;
+    @SpringBean
+    private Utility utility;
 
-    @SpringBean(name = "xmlRolesReader")
-    XMLRolesReader xmlRolesReader;
+    @SpringBean
+    private XMLRolesReader xmlRolesReader;
 
     private int paginatorRows;
 
-    WebMarkupContainer container;
+    private WebMarkupContainer container;
 
     /*
-     Response flag set by the Modal Window after the operation is completed:
-     TRUE if the operation succedes, FALSE otherwise
+    Response flag set by the Modal Window after the operation is completed:
+    TRUE if the operation succedes, FALSE otherwise
      */
-    boolean operationResult = false;
-    FeedbackPanel feedbackPanel;
+    private boolean operationResult = false;
 
-    ModalWindow window;
+    private FeedbackPanel feedbackPanel;
 
-    final int WIN_INITIAL_HEIGHT = 515;
-    final int WIN_INITIAL_WIDTH = 775;
+    private ModalWindow window;
+
+    private final int WIN_INITIAL_HEIGHT = 515;
+
+    private final int WIN_INITIAL_WIDTH = 775;
 
     public Tasks(PageParameters parameters) {
         super(parameters);
@@ -95,9 +95,9 @@ public class Tasks extends BasePage {
 
         add(new FeedbackPanel("feedback").setOutputMarkupId(true));
 
-        paginatorRows = utility.getPaginatorRowsToDisplay(Constants
-                    .CONF_TASKS_PAGINATOR_ROWS);
-        
+        paginatorRows = utility.getPaginatorRowsToDisplay(
+                Constants.CONF_TASKS_PAGINATOR_ROWS);
+
         List<IColumn> columns = new ArrayList<IColumn>();
 
         columns.add(new PropertyColumn(new Model(getString("id")),
@@ -106,24 +106,23 @@ public class Tasks extends BasePage {
         columns.add(new PropertyColumn(new Model(getString("accountId")),
                 "accountId", "accountId"));
 
-        columns.add(new AbstractColumn<TaskTO>(new Model<String>
-                (getString("open"))) {
-            public void populateItem(Item<ICellPopulator<TaskTO>>
-                    cellItem, String componentId, IModel<TaskTO> model)
-            {
-                    final TaskTO taskTO = model.getObject();
+        columns.add(new AbstractColumn<TaskTO>(new Model<String>(getString(
+                "open"))) {
 
-                    AjaxLink viewLink = new AjaxLink("editLink") {
+            public void populateItem(Item<ICellPopulator<TaskTO>> cellItem,
+                    String componentId, IModel<TaskTO> model) {
+                final TaskTO taskTO = model.getObject();
+
+                AjaxLink viewLink = new AjaxLink("editLink") {
 
                     @Override
                     public void onClick(AjaxRequestTarget target) {
 
-                         window.setPageCreator(new ModalWindow
-                                .PageCreator() {
+                        window.setPageCreator(new ModalWindow.PageCreator() {
 
                             public Page createPage() {
-                                TaskModalPage modalPage = new TaskModalPage
-                                        (Tasks.this, window, taskTO);
+                                TaskModalPage modalPage = new TaskModalPage(
+                                        Tasks.this, window, taskTO);
                                 return modalPage;
                             }
                         });
@@ -131,7 +130,7 @@ public class Tasks extends BasePage {
                         window.show(target);
 
                     }
-                 };
+                };
                 EditLinkPanel panel = new EditLinkPanel(componentId,
                         model);
                 panel.add(viewLink);
@@ -148,68 +147,66 @@ public class Tasks extends BasePage {
             }
         });
 
-        columns.add(new AbstractColumn<TaskTO>(new Model<String>
-                (getString("execute"))) {
-            public void populateItem(Item<ICellPopulator<TaskTO>>
-                    cellItem, String componentId, IModel<TaskTO> model)
-            {
-                    final TaskTO taskTO = model.getObject();
+        columns.add(new AbstractColumn<TaskTO>(new Model<String>(getString(
+                "execute"))) {
 
-                    AjaxLink executeLink = new AjaxLink("link") {
+            public void populateItem(Item<ICellPopulator<TaskTO>> cellItem,
+                    String componentId, IModel<TaskTO> model) {
+                final TaskTO taskTO = model.getObject();
+
+                AjaxLink executeLink = new AjaxLink("link") {
 
                     @Override
                     public void onClick(AjaxRequestTarget target) {
                         boolean res = false;
-                        
+
                         try {
                             res = restClient.startTaskExecution(taskTO.getId());
-                        }
-                        catch (SyncopeClientCompositeErrorException scce) {
+                        } catch (SyncopeClientCompositeErrorException scce) {
                             error(scce.getMessage());
                         }
 
-                        if(res)
+                        if (res) {
                             getSession().info(getString("operation_succeded"));
+                        }
 
                         target.addComponent(getPage().get("feedback"));
                         target.addComponent(container);
                     }
+                };
 
-                 };
+                executeLink.add(new Label("linkTitle", getString("execute")));
 
-                 executeLink.add(new Label("linkTitle",getString("execute")));
+                LinkPanel panel = new LinkPanel(componentId);
+                panel.add(executeLink);
 
-                 LinkPanel panel = new LinkPanel(componentId);
-                 panel.add(executeLink);
+                String allowedRoles = null;
 
-                 String allowedRoles = null;
+                allowedRoles = xmlRolesReader.getAllAllowedRoles("Tasks",
+                        "execute");
 
-                 allowedRoles = xmlRolesReader.getAllAllowedRoles("Tasks",
-                         "execute");
+                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
+                        allowedRoles);
 
-                 MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
-                 allowedRoles);
-
-                 cellItem.add(panel);
+                cellItem.add(panel);
             }
         });
 
-        columns.add(new AbstractColumn<TaskTO>(new Model<String>
-                (getString("delete"))) {
-            public void populateItem(Item<ICellPopulator<TaskTO>>
-                    cellItem, String componentId, IModel<TaskTO> model)
-            {
-                    final TaskTO taskTO = model.getObject();
+        columns.add(new AbstractColumn<TaskTO>(new Model<String>(getString(
+                "delete"))) {
 
-                    AjaxLink deleteLink = new AjaxLink("deleteLink") {
+            public void populateItem(Item<ICellPopulator<TaskTO>> cellItem,
+                    String componentId, IModel<TaskTO> model) {
+                final TaskTO taskTO = model.getObject();
+
+                AjaxLink deleteLink = new AjaxLink("deleteLink") {
 
                     @Override
                     public void onClick(AjaxRequestTarget target) {
 
                         try {
                             restClient.deleteTask(taskTO.getId());
-                        }
-                        catch (SyncopeClientCompositeErrorException scce) {
+                        } catch (SyncopeClientCompositeErrorException scce) {
                             error(scce.getMessage());
                         }
                         target.addComponent(container);
@@ -217,33 +214,35 @@ public class Tasks extends BasePage {
 
                     @Override
                     protected IAjaxCallDecorator getAjaxCallDecorator() {
-                        return new AjaxPreprocessingCallDecorator(super
-                                .getAjaxCallDecorator()) {
+                        return new AjaxPreprocessingCallDecorator(super.
+                                getAjaxCallDecorator()) {
+
                             private static final long serialVersionUID = 1L;
 
                             @Override
-                            public CharSequence preDecorateScript(CharSequence
-                                    script) {
-                                return "if (confirm('"+
-                                        getString("confirmDelete")+"'))"
-                                        +"{"+script+"}";
+                            public CharSequence preDecorateScript(
+                                    CharSequence script) {
+
+                                return "if (confirm('"
+                                        + getString("confirmDelete") + "'))"
+                                        + "{" + script + "}";
                             }
                         };
                     }
-                 };
+                };
                 DeleteLinkPanel panel = new DeleteLinkPanel(componentId,
                         model);
                 panel.add(deleteLink);
 
-                 String allowedRoles = null;
+                String allowedRoles = null;
 
-                 allowedRoles = xmlRolesReader.getAllAllowedRoles("Tasks",
-                         "delete");
+                allowedRoles = xmlRolesReader.getAllAllowedRoles("Tasks",
+                        "delete");
 
-                 MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
-                 allowedRoles);
+                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
+                        allowedRoles);
 
-                 cellItem.add(panel);
+                cellItem.add(panel);
             }
         });
 
@@ -263,10 +262,10 @@ public class Tasks extends BasePage {
 
                     public void onClose(AjaxRequestTarget target) {
                         target.addComponent(container);
-                        if(operationResult){
-                        info(getString("operation_succeded"));
-                        target.addComponent(feedbackPanel);
-                        operationResult = false;
+                        if (operationResult) {
+                            info(getString("operation_succeded"));
+                            target.addComponent(feedbackPanel);
+                            operationResult = false;
                         }
                     }
                 });
@@ -280,25 +279,24 @@ public class Tasks extends BasePage {
         Form paginatorForm = new Form("PaginatorForm");
 
         final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser",
-        new PropertyModel(this,"paginatorRows"),utility.paginatorRowsChooser());
+                new PropertyModel(this, "paginatorRows"), utility.
+                paginatorRowsChooser());
 
-        rowsChooser.add(new AjaxFormComponentUpdatingBehavior( "onchange" ){
-          protected void onUpdate( AjaxRequestTarget target )
-            {
-              utility.updatePaginatorRows(Constants.CONF_TASKS_PAGINATOR_ROWS,
-                      paginatorRows);
+        rowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
-              table.setRowsPerPage(paginatorRows);
+            protected void onUpdate(AjaxRequestTarget target) {
+                utility.updatePaginatorRows(Constants.CONF_TASKS_PAGINATOR_ROWS,
+                        paginatorRows);
 
-              target.addComponent(container);
+                table.setRowsPerPage(paginatorRows);
+
+                target.addComponent(container);
             }
-
-          });
+        });
 
         paginatorForm.add(rowsChooser);
         add(paginatorForm);
     }
-
 
     class TasksProvider extends SortableDataProvider<TaskTO> {
 
@@ -307,7 +305,7 @@ public class Tasks extends BasePage {
 
         public TasksProvider() {
             //Default sorting
-            setSort("id",true);
+            setSort("id", true);
         }
 
         @Override
@@ -316,7 +314,7 @@ public class Tasks extends BasePage {
 
             Collections.sort(list, comparator);
 
-            return list.subList(first, first+count).iterator();
+            return list.subList(first, first + count).iterator();
         }
 
         @Override
@@ -325,8 +323,7 @@ public class Tasks extends BasePage {
         }
 
         @Override
-        public IModel<TaskTO> model(final TaskTO
-                task) {
+        public IModel<TaskTO> model(final TaskTO task) {
             return new AbstractReadOnlyModel<TaskTO>() {
 
                 @Override
@@ -336,62 +333,64 @@ public class Tasks extends BasePage {
             };
         }
 
-        public List<TaskTO> getTasksListDB(){
-        List<TaskTO> list = restClient.getAllTasks();
+        public List<TaskTO> getTasksListDB() {
+            List<TaskTO> list = restClient.getAllTasks();
 
-        //Mock task for test purpose
+            //Mock task for test purpose
         /*if(list == null || list.size() == 0) {
-        list = new ArrayList<TaskTO>();
-        
-        TaskTO task1 = new TaskTO();
-        task1.setAccountId("luisAccount");
-        task1.setId(1L);
-        task1.setResource("testResource");
+            list = new ArrayList<TaskTO>();
 
-        List executions = new ArrayList<TaskExecutionTO>();
+            TaskTO task1 = new TaskTO();
+            task1.setAccountId("luisAccount");
+            task1.setId(1L);
+            task1.setResource("testResource");
 
-        TaskExecutionTO taskExecution = new TaskExecutionTO();
-        taskExecution.setStartDate(new Date());
-        taskExecution.setEndDate(new Date());
-        taskExecution.setMessage("Prova");
-        taskExecution.setStatus(TaskExecutionStatus.CREATED);
-        executions.add(taskExecution);
+            List executions = new ArrayList<TaskExecutionTO>();
 
-        task1.setExecutions(executions);
+            TaskExecutionTO taskExecution = new TaskExecutionTO();
+            taskExecution.setStartDate(new Date());
+            taskExecution.setEndDate(new Date());
+            taskExecution.setMessage("Prova");
+            taskExecution.setStatus(TaskExecutionStatus.CREATED);
+            executions.add(taskExecution);
 
-        list.add(task1);
-        }*/
+            task1.setExecutions(executions);
 
-        return list;
+            list.add(task1);
+            }*/
+
+            return list;
         }
 
         class SortableDataProviderComparator implements
                 Comparator<TaskTO>, Serializable {
+
             public int compare(final TaskTO o1,
                     final TaskTO o2) {
-                    PropertyModel<Comparable> model1 =
-                            new PropertyModel<Comparable>(o1, getSort()
-                            .getProperty());
-                    PropertyModel<Comparable> model2 =
-                            new PropertyModel<Comparable>(o2, getSort()
-                            .getProperty());
+                PropertyModel<Comparable> model1 =
+                        new PropertyModel<Comparable>(o1,
+                        getSort().getProperty());
+                PropertyModel<Comparable> model2 =
+                        new PropertyModel<Comparable>(o2,
+                        getSort().getProperty());
 
-                    int result = 1;
+                int result = 1;
 
-                    if(model1.getObject() == null && model2.getObject() == null)
-                        result = 0;
-                    else if(model1.getObject() == null)
-                        result = 1;
-                    else if(model2.getObject() == null)
-                        result = -1;
-                    else
-                        result = ((Comparable)model1.getObject()).compareTo(
-                                model2.getObject());
+                if (model1.getObject() == null && model2.getObject() == null) {
+                    result = 0;
+                } else if (model1.getObject() == null) {
+                    result = 1;
+                } else if (model2.getObject() == null) {
+                    result = -1;
+                } else {
+                    result = ((Comparable) model1.getObject()).compareTo(
+                            model2.getObject());
+                }
 
-                    result = getSort().isAscending() ? result : -result;
+                result = getSort().isAscending() ? result : -result;
 
-                    return result;
+                return result;
             }
-	}
+        }
     }
 }
