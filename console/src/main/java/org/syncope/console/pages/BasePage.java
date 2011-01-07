@@ -39,15 +39,11 @@ public class BasePage extends WebPage {
     @SpringBean
     protected XMLRolesReader xmlRolesReader;
 
-    public BasePage() {
-    }
-
     /**
      * Constructor that is invoked when page is invoked without a
      * sessadd(new BookmarkablePageLink("roles", Roles.class));ion.
      *
      * @param PageParameters parameters
-     *
      */
     public BasePage(final PageParameters parameters) {
         super(parameters);
