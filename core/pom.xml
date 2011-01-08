@@ -407,8 +407,7 @@
                                 WEB-INF/classes/persistence.properties,
                                 WEB-INF/classes/security.properties,
                                 WEB-INF/classes/ehcache.xml,
-                                WEB-INF/classes/content.xml,
-                                WEB-INF/classes/beans.xml
+                                WEB-INF/classes/content.xml
                             </packagingExcludes>
                         </configuration>
                     </execution>
