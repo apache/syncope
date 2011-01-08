@@ -149,27 +149,25 @@
             <!-- Integration test -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
+                <artifactId>maven-antrun-plugin</artifactId>
                 <inherited>true</inherited>
-                <configuration>
-                    <artifactItems>
-                        <artifactItem>
-                            <groupId>org.syncope</groupId>
-                            <artifactId>syncope-core</artifactId>
-                            <version>${project.version}</version>
-                            <type>war</type>
-                            <overWrite>false</overWrite>
-                            <outputDirectory>${project.build.directory}/syncope-core-test</outputDirectory>
-                            <excludes>**/persistence.properties,**/content.xml</excludes>
-                        </artifactItem>
-                    </artifactItems>
-                </configuration>
                 <executions>
                     <execution>
-                        <id>unpack</id>
+                        <id>explodeSyncopeWAR</id>
                         <phase>package</phase>
+                        <configuration>
+                            <tasks>
+                                <unzip src="${basedir}/../core/target/syncope.war"
+                                       dest="${project.build.directory}/syncope-core-test">
+                                    <patternset>
+                                        <exclude name="**/content.xml"/>
+                                        <exclude name="**/persistence.properties"/>
+                                    </patternset>
+                                </unzip>
+                            </tasks>
+                        </configuration>
                         <goals>
-                            <goal>unpack</goal>
+                            <goal>run</goal>
                         </goals>
                     </execution>
                 </executions>
