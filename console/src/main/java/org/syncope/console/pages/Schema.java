@@ -38,14 +38,12 @@ import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvid
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-
 import org.syncope.client.to.DerivedSchemaTO;
 import org.syncope.client.to.SchemaTO;
 import org.syncope.console.commons.Constants;
@@ -130,8 +128,6 @@ public class Schema extends BasePage {
      */
     private boolean operationResult = false;
 
-    private FeedbackPanel feedbackPanel;
-
     public Schema(PageParameters parameters) {
         super(parameters);
 
@@ -162,11 +158,6 @@ public class Schema extends BasePage {
                 "createMembershipDerSchemaWin"));
         add(editMembershipDerivedSchemaWin = new ModalWindow(
                 "editMembershipDerSchemaWin"));
-
-        feedbackPanel = new FeedbackPanel("feedback");
-        feedbackPanel.setOutputMarkupId(true);
-
-        add(feedbackPanel);
 
         rolePageRows = utility.getPaginatorRowsToDisplay(
                 Constants.CONF_ROLE_SCHEMA_PAGINATOR_ROWS);

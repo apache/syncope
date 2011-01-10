@@ -38,7 +38,6 @@ import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvid
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
@@ -73,13 +72,11 @@ public class Connectors extends BasePage {
     private final ModalWindow editConnectorWin;
 
     private WebMarkupContainer container;
-    /*
-    Response flag set by the Modal Window after the operation is completed
+
+    /**
+     * Response flag set by the Modal Window after the operation is completed.
      */
-
     private boolean operationResult = false;
-
-    private FeedbackPanel feedbackPanel;
 
     private int paginatorRows;
 
@@ -88,11 +85,6 @@ public class Connectors extends BasePage {
 
         add(createConnectorWin = new ModalWindow("createConnectorWin"));
         add(editConnectorWin = new ModalWindow("editConnectorWin"));
-
-        feedbackPanel = new FeedbackPanel("feedback");
-        feedbackPanel.setOutputMarkupId(true);
-
-        add(feedbackPanel);
 
         paginatorRows = utility.getPaginatorRowsToDisplay(
                 Constants.CONF_CONNECTORS_PAGINATOR_ROWS);
@@ -117,7 +109,10 @@ public class Connectors extends BasePage {
         columns.add(new AbstractColumn<ConnectorInstanceTO>(new Model<String>(
                 getString("edit"))) {
 
-            public void populateItem(Item<ICellPopulator<ConnectorInstanceTO>> cellItem, String componentId, IModel<ConnectorInstanceTO> model) {
+            public void populateItem(
+                    Item<ICellPopulator<ConnectorInstanceTO>> cellItem,
+                    String componentId, IModel<ConnectorInstanceTO> model) {
+
                 final ConnectorInstanceTO connectorTO = model.getObject();
 
                 AjaxLink editLink = new AjaxLink("editLink") {
@@ -125,15 +120,18 @@ public class Connectors extends BasePage {
                     @Override
                     public void onClick(AjaxRequestTarget target) {
 
-                        editConnectorWin.setPageCreator(new ModalWindow.PageCreator() {
+                        editConnectorWin.setPageCreator(
+                                new ModalWindow.PageCreator() {
 
-                            public Page createPage() {
-                                ConnectorsModalPage form =
-                                        new ConnectorsModalPage(Connectors.this,
-                                        editConnectorWin, connectorTO, false);
-                                return form;
-                            }
-                        });
+                                    public Page createPage() {
+                                        ConnectorsModalPage form =
+                                                new ConnectorsModalPage(
+                                                Connectors.this,
+                                                editConnectorWin, connectorTO,
+                                                false);
+                                        return form;
+                                    }
+                                });
 
                         editConnectorWin.show(target);
                     }
@@ -151,10 +149,13 @@ public class Connectors extends BasePage {
             }
         });
 
-        columns.add(new AbstractColumn<ConnectorInstanceTO>(new Model<String>(getString(
-                "delete"))) {
+        columns.add(new AbstractColumn<ConnectorInstanceTO>(
+                new Model<String>(getString("delete"))) {
 
-            public void populateItem(Item<ICellPopulator<ConnectorInstanceTO>> cellItem, String componentId, IModel<ConnectorInstanceTO> model) {
+            public void populateItem(
+                    Item<ICellPopulator<ConnectorInstanceTO>> cellItem,
+                    String componentId, IModel<ConnectorInstanceTO> model) {
+
                 final ConnectorInstanceTO connectorTO = model.getObject();
 
                 AjaxLink deleteLink = new AjaxLink("deleteLink") {
@@ -171,7 +172,6 @@ public class Connectors extends BasePage {
 
                         target.addComponent(container);
                         target.addComponent(feedbackPanel);
-
                     }
 
                     @Override
@@ -179,10 +179,10 @@ public class Connectors extends BasePage {
                         return new AjaxPreprocessingCallDecorator(super.
                                 getAjaxCallDecorator()) {
 
-                            private static final long serialVersionUID = 1L;
-
                             @Override
-                            public CharSequence preDecorateScript(CharSequence script) {
+                            public CharSequence preDecorateScript(
+                                    CharSequence script) {
+
                                 return "if (confirm('" + getString(
                                         "confirmDelete") + "'))"
                                         + "{" + script + "}";

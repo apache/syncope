@@ -37,7 +37,6 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
-import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
@@ -53,7 +52,7 @@ import org.syncope.types.ConnectorCapability;
 /**
  * Modal window with Connector form.
  */
-public class ConnectorsModalPage extends SyncopeModalPage {
+public class ConnectorsModalPage extends BaseModalPage {
 
     private TextField connectorName;
 
@@ -235,7 +234,7 @@ public class ConnectorsModalPage extends SyncopeModalPage {
 
             @Override
             protected void onError(AjaxRequestTarget target, Form form) {
-                target.addComponent(form.get("feedback"));
+                target.addComponent(feedbackPanel);
             }
         };
 
@@ -251,9 +250,6 @@ public class ConnectorsModalPage extends SyncopeModalPage {
 
         MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE,
                 allowedRoles);
-
-        connectorForm.add(
-                new FeedbackPanel("feedback").setOutputMarkupId(true));
 
         connectorForm.add(connectorName);
         connectorForm.add(displayName);

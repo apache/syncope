@@ -23,7 +23,6 @@ import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
-import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.to.DerivedSchemaTO;
@@ -32,18 +31,23 @@ import org.syncope.console.rest.SchemaRestClient;
 /**
  * Modal window with Schema form.
  */
-public class DerivedSchemaModalPage extends SyncopeModalPage
-{
-    public TextField name;
-    public TextField expression;
-    public AjaxButton submit;
+public class DerivedSchemaModalPage extends BaseModalPage {
 
-    public enum Entity {USER,ROLE,MEMBERSHIP};
+    public enum Entity {
 
-    public Entity entity;
+        USER, ROLE, MEMBERSHIP
 
-    @SpringBean(name = "schemaRestClient")
-    SchemaRestClient restClient;
+    };
+    private TextField name;
+
+    private TextField expression;
+
+    private AjaxButton submit;
+
+    private Entity entity;
+
+    @SpringBean
+    private SchemaRestClient restClient;
 
     /**
      *
@@ -52,17 +56,20 @@ public class DerivedSchemaModalPage extends SyncopeModalPage
      * @param schemaTO DerivedSchemaTO bean
      * @param createFlag true for CREATE, false for EDIT operation
      */
-    public DerivedSchemaModalPage(final BasePage basePage, final ModalWindow window, 
-            DerivedSchemaTO schema, final boolean createFlag)
-    {
-        if (schema == null)
+    public DerivedSchemaModalPage(final BasePage basePage,
+            final ModalWindow window,
+            DerivedSchemaTO schema,
+            final boolean createFlag) {
+
+        if (schema == null) {
             schema = new DerivedSchemaTO();
+        }
 
         Form schemaForm = new Form("SchemaForm");
 
         schemaForm.setModel(new CompoundPropertyModel(schema));
 
-        schemaForm.add(new FeedbackPanel("feedback").setOutputMarkupId(true));
+        schemaForm.add(feedbackPanel);
 
         name = new TextField("name");
         name.setRequired(true);
@@ -76,31 +83,35 @@ public class DerivedSchemaModalPage extends SyncopeModalPage
 
             @Override
             protected void onSubmit(AjaxRequestTarget target, Form form) {
-                if (getEntity() == Entity.USER){
-                   
-                    if (createFlag)
-                        restClient.createUserDerivedSchema((DerivedSchemaTO)form.getDefaultModelObject());
+                if (getEntity() == Entity.USER) {
 
-                    else
-                        restClient.updateUserDerivedSchema((DerivedSchemaTO)form.getDefaultModelObject());
+                    if (createFlag) {
+                        restClient.createUserDerivedSchema((DerivedSchemaTO) form.
+                                getDefaultModelObject());
+                    } else {
+                        restClient.updateUserDerivedSchema((DerivedSchemaTO) form.
+                                getDefaultModelObject());
+                    }
+                } else if (getEntity() == Entity.ROLE) {
+
+                    if (createFlag) {
+                        restClient.createRoleDerivedSchema((DerivedSchemaTO) form.
+                                getDefaultModelObject());
+                    } else {
+                        restClient.updateRoleDerivedSchema((DerivedSchemaTO) form.
+                                getDefaultModelObject());
+                    }
+                } else if (getEntity() == Entity.MEMBERSHIP) {
+
+                    if (createFlag) {
+                        restClient.createMembershipDerivedSchema((DerivedSchemaTO) form.
+                                getDefaultModelObject());
+                    } else {
+                        restClient.updateMembershipDerivedSchema((DerivedSchemaTO) form.
+                                getDefaultModelObject());
+                    }
                 }
-                else if (getEntity() == Entity.ROLE){
-
-                    if (createFlag)
-                        restClient.createRoleDerivedSchema((DerivedSchemaTO)form.getDefaultModelObject());
-
-                    else
-                        restClient.updateRoleDerivedSchema((DerivedSchemaTO)form.getDefaultModelObject());
-                }
-                else if (getEntity() == Entity.MEMBERSHIP){
-
-                    if (createFlag)
-                        restClient.createMembershipDerivedSchema((DerivedSchemaTO)form.getDefaultModelObject());
-
-                    else
-                        restClient.updateMembershipDerivedSchema((DerivedSchemaTO)form.getDefaultModelObject());
-                }
-                Schema callerPage = (Schema)basePage;
+                Schema callerPage = (Schema) basePage;
                 callerPage.setOperationResult(true);
 
                 window.close(target);
@@ -108,21 +119,22 @@ public class DerivedSchemaModalPage extends SyncopeModalPage
 
             @Override
             protected void onError(AjaxRequestTarget target, Form form) {
-                target.addComponent(form.get( "feedback" ));
+                target.addComponent(form.get("feedback"));
             }
         };
 
         String allowedRoles;
 
-        if(createFlag)
+        if (createFlag) {
             allowedRoles = xmlRolesReader.getAllAllowedRoles("Schema",
                     "create");
-        else
+        } else {
             allowedRoles = xmlRolesReader.getAllAllowedRoles("Schema",
                     "update");
+        }
 
         MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE,
-                        allowedRoles);
+                allowedRoles);
 
         schemaForm.add(name);
         schemaForm.add(expression);
@@ -130,7 +142,7 @@ public class DerivedSchemaModalPage extends SyncopeModalPage
         schemaForm.add(submit);
 
         add(schemaForm);
-        
+
     }
 
     public Entity getEntity() {
@@ -140,5 +152,4 @@ public class DerivedSchemaModalPage extends SyncopeModalPage
     public void setEntity(Entity entity) {
         this.entity = entity;
     }
-
 }

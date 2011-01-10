@@ -110,8 +110,6 @@ public class Users extends BasePage {
      */
     private boolean operationResult = false;
 
-    private FeedbackPanel feedbackPanel;
-
     private List<SearchConditionWrapper> searchConditionsList;
 
     private List<UserTO> searchMatchedUsers;
@@ -149,7 +147,9 @@ public class Users extends BasePage {
 
     private AjaxLink lastPageLinkSearch;
 
-    /** Labels for Users' search paginator */
+    /** 
+     * Labels for Users' search paginator
+     */
     private Label pageRecordFromSearch;
 
     private Label pageRecordToSearch;
@@ -179,17 +179,13 @@ public class Users extends BasePage {
         add(editUserWin = new ModalWindow("editUserWin"));
         add(changeAttribsViewWin = new ModalWindow("changeAttributesViewWin"));
 
-        feedbackPanel = new FeedbackPanel("feedback");
-        feedbackPanel.setOutputMarkupId(true);
-
-        add(feedbackPanel);
-
         //table's columnsList = attributes to view
         final IModel columns = new LoadableDetachableModel() {
 
             protected Object load() {
-                ConfigurationTO configuration = confRestClient.
-                        readConfiguration("users.attributes.view");
+                ConfigurationTO configuration =
+                        confRestClient.readConfiguration(
+                        "users.attributes.view");
                 columnsList = new ArrayList<String>();
 
                 if (configuration != null && configuration.getConfValue()
@@ -344,14 +340,17 @@ public class Users extends BasePage {
                         final UserTO userTO = (UserTO) item.
                                 getDefaultModelObject();
 
-                        editUserWin.setPageCreator(new ModalWindow.PageCreator() {
+                        editUserWin.setPageCreator(
+                                new ModalWindow.PageCreator() {
 
-                            public Page createPage() {
-                                UserModalPage window = new UserModalPage(
-                                        Users.this, editUserWin, userTO, false);
-                                return window;
-                            }
-                        });
+                                    public Page createPage() {
+                                        UserModalPage window =
+                                                new UserModalPage(
+                                                Users.this, editUserWin, userTO,
+                                                false);
+                                        return window;
+                                    }
+                                });
 
                         editUserWin.show(target);
                     }
@@ -381,7 +380,9 @@ public class Users extends BasePage {
                             private static final long serialVersionUID = 1L;
 
                             @Override
-                            public CharSequence preDecorateScript(CharSequence script) {
+                            public CharSequence preDecorateScript(
+                                    CharSequence script) {
+
                                 return "if (confirm('" + getString(
                                         "confirmDelete") + "'))"
                                         + "{" + script + "}";
@@ -703,7 +704,7 @@ public class Users extends BasePage {
 
         Form form = new Form("UserSearchForm");
 
-        form.add(new FeedbackPanel("feedback").setOutputMarkupId(true));
+        form.add(new FeedbackPanel("searchFeedback").setOutputMarkupId(true));
 
         usersTableSearchContainer = new WebMarkupContainer("container");
         usersTableSearchContainer.setOutputMarkupId(true);
@@ -1215,7 +1216,7 @@ public class Users extends BasePage {
                                 paginatorSearchRows);
 
                         //Clean the feedback panel if the operation succedes
-                        target.addComponent(form.get("feedback"));
+                        target.addComponent(form.get("searchFeedback"));
 
                         //Update pageLinks on paginator
                         List<Integer> pageIdList = getPaginatorSearchIndexes();
@@ -1242,7 +1243,7 @@ public class Users extends BasePage {
 
             @Override
             protected void onError(AjaxRequestTarget target, Form form) {
-                target.addComponent(form.get("feedback"));
+                target.addComponent(form.get("searchFeedback"));
             }
         });
 

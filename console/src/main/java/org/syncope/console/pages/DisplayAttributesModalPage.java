@@ -41,7 +41,7 @@ import org.syncope.console.rest.SchemaRestClient;
 /**
  * Modal window with Display attributes form.
  */
-public class DisplayAttributesModalPage extends SyncopeModalPage {
+public class DisplayAttributesModalPage extends BaseModalPage {
 
     @SpringBean
     private ConfigurationRestClient restClient;

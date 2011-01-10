@@ -41,7 +41,6 @@ import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
-import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.Model;
@@ -67,7 +66,7 @@ import org.syncope.types.SchemaType;
 /**
  * Modal window with Role form.
  */
-public class RoleModalPage extends SyncopeModalPage {
+public class RoleModalPage extends BaseModalPage {
 
     @SpringBean
     private RoleRestClient roleRestClient;
@@ -379,7 +378,7 @@ public class RoleModalPage extends SyncopeModalPage {
 
             @Override
             protected void onError(AjaxRequestTarget target, Form form) {
-                target.addComponent(form.get("feedback"));
+                target.addComponent(feedbackPanel);
             }
         };
 
@@ -395,8 +394,6 @@ public class RoleModalPage extends SyncopeModalPage {
                 submit, ENABLE, allowedRoles);
 
         form.add(submit);
-
-        form.add(new FeedbackPanel("feedback").setOutputMarkupId(true));
 
         add(form);
     }

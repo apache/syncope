@@ -29,7 +29,6 @@ import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.RadioChoice;
 import org.apache.wicket.markup.html.form.TextField;
-import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
@@ -38,32 +37,43 @@ import org.apache.wicket.util.string.Strings;
 import org.syncope.client.to.SchemaTO;
 import org.syncope.console.rest.SchemaRestClient;
 import org.syncope.types.SchemaType;
-
-import org.apache.wicket.authorization.strategies.role.metadata
-        .MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
+
 /**
  * Modal window with Schema form.
  */
-public class SchemaModalPage extends SyncopeModalPage
-{
-    public TextField name;
-    public TextField conversionPattern;
-    public DropDownChoice validatorClass;
-    public DropDownChoice type;
-    public DropDownChoice action;
-    public AutoCompleteTextField mandatoryCondition;
-    public RadioChoice virtual;
-    public RadioChoice multivalue;
-    public RadioChoice readonly;
-    public AjaxButton submit;
+public class SchemaModalPage extends BaseModalPage {
 
-    public enum Entity {USER,ROLE,MEMBERSHIP};
+    public enum Entity {
 
-    public Entity entity;
+        USER, ROLE, MEMBERSHIP
 
-    @SpringBean(name = "schemaRestClient")
-    SchemaRestClient restClient;
+    };
+    private TextField name;
+
+    private TextField conversionPattern;
+
+    private DropDownChoice validatorClass;
+
+    private DropDownChoice type;
+
+    private DropDownChoice action;
+
+    private AutoCompleteTextField mandatoryCondition;
+
+    private RadioChoice virtual;
+
+    private RadioChoice multivalue;
+
+    private RadioChoice readonly;
+
+    private AjaxButton submit;
+
+    private Entity entity;
+
+    @SpringBean
+    private SchemaRestClient restClient;
 
     /**
      *
@@ -73,11 +83,11 @@ public class SchemaModalPage extends SyncopeModalPage
      * @param create : set to true only if a CREATE operation is required
      */
     public SchemaModalPage(final BasePage basePage, final ModalWindow window,
-            SchemaTO schema, final boolean createFlag)
-    {
+            SchemaTO schema, final boolean createFlag) {
 
-        if (schema == null)
-            schema=new SchemaTO();
+        if (schema == null) {
+            schema = new SchemaTO();
+        }
 
         Form schemaForm = new Form("SchemaForm");
 
@@ -91,16 +101,15 @@ public class SchemaModalPage extends SyncopeModalPage
         conversionPattern = new TextField("conversionPattern");
 
         ArrayList<String> validatorsList = new ArrayList<String>();
-        validatorsList.add("org.syncope.core.persistence.validation" +
-                ".AlwaysTrueValidator");
-        validatorsList.add("org.syncope.core.persistence.validation" +
-                ".EmailAddressValidator");
+        validatorsList.add("org.syncope.core.persistence.validation"
+                + ".AlwaysTrueValidator");
+        validatorsList.add("org.syncope.core.persistence.validation"
+                + ".EmailAddressValidator");
 
         validatorClass = new DropDownChoice("validatorClass",
-                new PropertyModel(schema, "validatorClass")
-                ,validatorsList);
+                new PropertyModel(schema, "validatorClass"), validatorsList);
 
-        type = new DropDownChoice("type",Arrays.asList(SchemaType.values()));
+        type = new DropDownChoice("type", Arrays.asList(SchemaType.values()));
         type.setRequired(true);
 
         mandatoryCondition = new AutoCompleteTextField("mandatoryCondition") {
@@ -109,92 +118,93 @@ public class SchemaModalPage extends SyncopeModalPage
             protected Iterator getChoices(String input) {
                 List<String> choices = new ArrayList<String>();
 
-                if (Strings.isEmpty(input))
-                {
+                if (Strings.isEmpty(input)) {
                     choices = Collections.emptyList();
                     return choices.iterator();
                 }
 
-                if("true".startsWith(input.toLowerCase()))
+                if ("true".startsWith(input.toLowerCase())) {
                     choices.add("true");
-                else if ("false".startsWith(input.toLowerCase()))
-                       choices.add("false");
+                } else if ("false".startsWith(input.toLowerCase())) {
+                    choices.add("false");
+                }
 
 
                 return choices.iterator();
             }
         };
 
-        virtual = new RadioChoice("virtual",Arrays.asList(new Boolean[]{true,false}));
+        virtual = new RadioChoice("virtual", Arrays.asList(
+                new Boolean[]{true, false}));
 
-        multivalue = new RadioChoice("multivalue",Arrays.asList(new Boolean[]{true,false}));
+        multivalue = new RadioChoice("multivalue", Arrays.asList(
+                new Boolean[]{true, false}));
 
-        readonly = new RadioChoice("readonly",Arrays.asList(new Boolean[]{true,false}));
+        readonly = new RadioChoice("readonly", Arrays.asList(
+                new Boolean[]{true, false}));
 
-        submit = new IndicatingAjaxButton("submit", new Model(getString("submit"))) {
+        submit = new IndicatingAjaxButton("submit", new Model(
+                getString("submit"))) {
 
             @Override
             protected void onSubmit(AjaxRequestTarget target, Form form) {
 
-                if (getEntity() == Entity.USER)
-                {
+                if (getEntity() == Entity.USER) {
 
-                    if (createFlag)
-                        restClient.createUserSchema((SchemaTO)form.getDefaultModelObject());
+                    if (createFlag) {
+                        restClient.createUserSchema((SchemaTO) form.
+                                getDefaultModelObject());
+                    } else {
+                        restClient.updateUserSchema((SchemaTO) form.
+                                getDefaultModelObject());
+                    }
 
-                    else
-                        restClient.updateUserSchema((SchemaTO)form.getDefaultModelObject());
+                } else if (getEntity() == Entity.ROLE) {
+
+                    if (createFlag) {
+                        restClient.createRoleSchema((SchemaTO) form.
+                                getDefaultModelObject());
+                    } else {
+                        restClient.updateRoleSchema((SchemaTO) form.
+                                getDefaultModelObject());
+                    }
+
+                } else if (getEntity() == Entity.MEMBERSHIP) {
+
+                    if (createFlag) {
+                        restClient.createMemberhipSchema((SchemaTO) form.
+                                getDefaultModelObject());
+                    } else {
+                        restClient.updateMemberhipSchema((SchemaTO) form.
+                                getDefaultModelObject());
+                    }
 
                 }
-
-                else if (getEntity() == Entity.ROLE)
-                {
-
-                    if (createFlag)
-                        restClient.createRoleSchema((SchemaTO)form.getDefaultModelObject());
-
-                    else
-                        restClient.updateRoleSchema((SchemaTO)form.getDefaultModelObject());
-
-                }
-
-                else if (getEntity() == Entity.MEMBERSHIP)
-                {
-
-                    if (createFlag)
-                        restClient.createMemberhipSchema((SchemaTO)form.getDefaultModelObject());
-
-                    else
-                        restClient.updateMemberhipSchema((SchemaTO)form.getDefaultModelObject());
-
-                }
-                Schema callerPage = (Schema)basePage;
+                Schema callerPage = (Schema) basePage;
                 callerPage.setOperationResult(true);
-                
+
                 window.close(target);
             }
 
             @Override
             protected void onError(AjaxRequestTarget target, Form form) {
-                target.addComponent(form.get( "feedback" ));
+                target.addComponent(feedbackPanel);
             }
-            
         };
 
         String allowedRoles;
 
-        if(createFlag)
+        if (createFlag) {
             allowedRoles = xmlRolesReader.getAllAllowedRoles("Schema",
                     "create");
-        else
+        } else {
             allowedRoles = xmlRolesReader.getAllAllowedRoles("Schema",
                     "update");
+        }
 
         MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE,
-                        allowedRoles);
+                allowedRoles);
 
-        schemaForm.add(new FeedbackPanel("feedback").setOutputMarkupId( true ));
-        
         schemaForm.add(name);
         schemaForm.add(conversionPattern);
         schemaForm.add(validatorClass);
@@ -216,5 +226,4 @@ public class SchemaModalPage extends SyncopeModalPage
     public void setEntity(Entity entity) {
         this.entity = entity;
     }
-
 }

@@ -26,7 +26,6 @@ import org.apache.wicket.extensions.markup.html.tree.table.ColumnLocation.Alignm
 import org.apache.wicket.extensions.markup.html.tree.table.ColumnLocation.Unit;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.tree.AbstractTree;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.console.rest.RoleRestClient;
@@ -55,8 +54,6 @@ public class Roles extends BasePage {
      */
     private boolean operationResult = false;
 
-    private FeedbackPanel feedbackPanel;
-
     public Roles(PageParameters parameters) {
         super(parameters);
 
@@ -76,11 +73,6 @@ public class Roles extends BasePage {
             new PropertyEditableColumn(new ColumnLocation(Alignment.LEFT, 20,
             Unit.EM), getString("column2"), "userObject.title", createRoleWin,
             Roles.this),};
-
-        feedbackPanel = new FeedbackPanel("feedback");
-        feedbackPanel.setOutputMarkupId(true);
-
-        add(feedbackPanel);
 
         Form form = new Form("form");
         add(form);

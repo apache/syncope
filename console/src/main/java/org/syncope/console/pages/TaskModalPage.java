@@ -42,7 +42,6 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
-import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -60,7 +59,7 @@ import org.syncope.console.wicket.markup.html.form.LinkPanel;
 /**
  * Modal window with Task form (to stop and start execution).
  */
-public class TaskModalPage extends SyncopeModalPage {
+public class TaskModalPage extends BaseModalPage {
 
     private TextField id;
 
@@ -90,8 +89,6 @@ public class TaskModalPage extends SyncopeModalPage {
         add(dialogContent.setOutputMarkupId(true));
 
         final Form form = new Form("TaskForm");
-
-        form.add(new FeedbackPanel("feedback").setOutputMarkupId(true));
 
         form.setModel(new CompoundPropertyModel(taskTO));
 
@@ -183,7 +180,7 @@ public class TaskModalPage extends SyncopeModalPage {
                             info(getString("operation_succeded"));
                         }
 
-                        target.addComponent(form.get("feedback"));
+                        target.addComponent(feedbackPanel);
                         target.addComponent(container);
                     }
 

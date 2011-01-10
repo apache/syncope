@@ -15,12 +15,11 @@
 package org.syncope.console.pages;
 
 import org.apache.wicket.PageParameters;
-import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.syncope.console.SyncopeApplication;
 import org.syncope.console.SyncopeSession;
 import org.syncope.console.commons.XMLRolesReader;
 
@@ -35,99 +34,11 @@ public class WelcomePage extends WebPage {
     public WelcomePage(final PageParameters parameters) {
         super(parameters);
 
-        BookmarkablePageLink schemaLink = new BookmarkablePageLink("schema",
-                Schema.class);
+        ((SyncopeApplication) getApplication()).setupNavigationPane(
+                this, xmlRolesReader);
 
-        String allowedSchemaRoles = xmlRolesReader.getAllAllowedRoles("Schema",
-                "list");
-
-        MetaDataRoleAuthorizationStrategy.authorize(schemaLink, ENABLE,
-                allowedSchemaRoles);
-
-        add(schemaLink);
-
-        BookmarkablePageLink usersLink = new BookmarkablePageLink("users",
-                Users.class);
-
-        String allowedUsersRoles = xmlRolesReader.getAllAllowedRoles("Users",
-                "list");
-
-        MetaDataRoleAuthorizationStrategy.authorize(usersLink, ENABLE,
-                allowedUsersRoles);
-
-        add(usersLink);
-
-        BookmarkablePageLink rolesLink = new BookmarkablePageLink("roles",
-                Roles.class);
-
-        String allowedRoleRoles = xmlRolesReader.getAllAllowedRoles("Roles",
-                "list");
-
-        MetaDataRoleAuthorizationStrategy.authorize(rolesLink, ENABLE,
-                allowedRoleRoles);
-
-        add(rolesLink);
-
-        BookmarkablePageLink resourcesLink = new BookmarkablePageLink(
-                "resources", Resources.class);
-
-        String allowedResourcesRoles = xmlRolesReader.getAllAllowedRoles(
-                "Resources", "list");
-
-        MetaDataRoleAuthorizationStrategy.authorize(resourcesLink, ENABLE,
-                allowedResourcesRoles);
-
-        add(resourcesLink);
-
-        BookmarkablePageLink connectorsLink =
-                new BookmarkablePageLink("connectors", Connectors.class);
-
-        String allowedConnectorsRoles = xmlRolesReader.getAllAllowedRoles(
-                "Connectors", "list");
-
-        MetaDataRoleAuthorizationStrategy.authorize(connectorsLink, ENABLE,
-                allowedConnectorsRoles);
-
-        add(connectorsLink);
-
-        BookmarkablePageLink reportLink = new BookmarkablePageLink(
-                "report", Report.class);
-
-        String allowedReportRoles = xmlRolesReader.getAllAllowedRoles(
-                "Report", "list");
-
-        MetaDataRoleAuthorizationStrategy.authorize(reportLink, ENABLE,
-                allowedReportRoles);
-
-        add(reportLink);
-
-        BookmarkablePageLink configurationLink = new BookmarkablePageLink(
-                "configuration", Configuration.class);
-
-        String allowedConfigurationRoles = xmlRolesReader.getAllAllowedRoles(
-                "Configuration", "list");
-
-        MetaDataRoleAuthorizationStrategy.authorize(configurationLink, ENABLE,
-                allowedConfigurationRoles);
-
-        add(configurationLink);
-
-        BookmarkablePageLink taskLink = new BookmarkablePageLink("task",
-                Tasks.class);
-
-        String allowedTasksRoles = xmlRolesReader.getAllAllowedRoles(
-                "Tasks", "list");
-
-        MetaDataRoleAuthorizationStrategy.authorize(taskLink, ENABLE,
-                allowedTasksRoles);
-
-        add(taskLink);
-
-        add(new BookmarkablePageLink("logout", Logout.class));
-
-        SyncopeSession session = (SyncopeSession) getSession();
-
-        add(new Label("username", new Model<String>(session.getUser().
+        add(new Label("username",
+                new Model<String>(((SyncopeSession) getSession()).getUser().
                 getUsername())));
     }
 }

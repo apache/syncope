@@ -20,31 +20,27 @@ import org.apache.wicket.Session;
 import org.apache.wicket.authorization.strategies.role.IRoleCheckingStrategy;
 import org.apache.wicket.authorization.strategies.role.Roles;
 
-
 /**
- * The authorizer we need to provide to the authorization strategy implementation
+ * The authorizer we need to provide to the authorization strategy 
+ * implementation.
  * {@link org.apache.wicket.authorization.strategies.role.annotations
  *                                      .AnnotationsRoleAuthorizationStrategy}.
  */
-public class SyncopeRolesAuthorizer implements IRoleCheckingStrategy
-{
+public class SyncopeRolesAuthorizer implements IRoleCheckingStrategy {
 
     /**
      * Default Constructor.
      */
-    public SyncopeRolesAuthorizer()
-    {
+    public SyncopeRolesAuthorizer() {
     }
 
     /**
      * @see org.apache.wicket.authorization.strategies.role.
      *                              IRoleCheckingStrategy#hasAnyRole(Roles)
      */
-    public boolean hasAnyRole(Roles roles)
-    {
-        SyncopeSession authSession = (SyncopeSession)Session.get();
-        SyncopeUser user = authSession.getUser();
-        
+    public boolean hasAnyRole(final Roles roles) {
+        SyncopeUser user = ((SyncopeSession) Session.get()).getUser();
+
         return (user == null) ? false : user.hasAnyRole(roles);
     }
 }

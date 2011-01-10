@@ -20,68 +20,11 @@
     </style>
 </wicket:head>
 <wicket:extend>
-    <div id="testa">
-        <img src="img/logo.png" alt="syncope" title="syncope" id="logo" />
-        <ul>
-            <li><span>
-                    <a href=#" wicket:id="schema"><img src="img/menu/notsel/schema.png" alt="Schema" width="80" height="80" /><br />
-                        <wicket:message key="schema"/>
-                    </a>
-                </span>
-            </li>
-            <li><span>
-                    <a href=#" wicket:id="users"><img src="img/menu/notsel/users.png" alt="Users" width="80" height="80" /><br />
-                        <wicket:message key="users"/>
-                    </a></span>
-            </li>
-            <li>
-                <span>
-                    <a href=#" class="roles" wicket:id="roles"><img src="img/menu/roles.png" alt="Roles" width="80" height="80" /><br />
-                        <wicket:message key="roles"/>
-                    </a>
-                </span>
-            </li>
-            <li><span>
-                    <a href="#" wicket:id="resources"><img src="img/menu/notsel/resources.png" alt="Resources" width="80" height="80" /><br />
-                        <wicket:message key="resources"/>
-                    </a>
-                </span>
-            </li>
-            <li><span>
-                    <a href="#" wicket:id="connectors"><img src="img/menu/notsel/connectors.png" alt="Connectors" width="80" height="80" /><br />
-                        <wicket:message key="connectors"/>
-                    </a></span>
-            </li>
-            <li><span>
-                    <a href="#" wicket:id="report"><img src="img/menu/notsel/reports.png" alt="Report" width="80" height="80" /><br />
-                        <wicket:message key="report"/>
-                    </a></span>
-            </li>
-            <li><span>
-                    <a href="#" wicket:id="configuration"><img src="img/menu/notsel/configuration.png" alt="Configuration" width="80" height="80" /><br />
-                        <wicket:message key="configuration"/>
-                    </a></span>
-            </li>
-            <li><span>
-                    <a href="#" wicket:id="task"><img src="img/menu/notsel/task.png" alt="Task" width="80" height="80" /><br />
-                        <wicket:message key="task"/>
-                    </a>
-                </span>
-            </li>
-            <li style="float:right">
-                <a href="#" wicket:id="logout"><img src="img/menu/notsel/logout.png" alt="Roles" width="80" height="80" /><br />
-                    <wicket:message key="logout"/>
-                </a>
-            </li>
-        </ul>
-    </div>
 
-        <div wicket:id="feedback"/>
-
-        <form wicket:id="form">
-            <span wicket:id="container">
-                <div class="role-tree" wicket:id="treeTable"/>
-            </span>
-        </form>
-        <div wicket:id="createRoleWin">[Show modal window for creating role]</div>
+    <form wicket:id="form">
+        <span wicket:id="container">
+            <div class="role-tree" wicket:id="treeTable"/>
+        </span>
+    </form>
+    <div wicket:id="createRoleWin">[Show modal window for creating role]</div>
 </wicket:extend>

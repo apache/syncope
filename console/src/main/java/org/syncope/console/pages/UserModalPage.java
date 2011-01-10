@@ -49,7 +49,6 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.PasswordTextField;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
-import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.html.tree.BaseTree;
 import org.apache.wicket.markup.html.tree.LinkTree;
@@ -86,7 +85,7 @@ import org.syncope.types.SchemaType;
 /**
  * Modal window with User form.
  */
-public class UserModalPage extends SyncopeModalPage {
+public class UserModalPage extends BaseModalPage {
 
     /**
      * Logger.
@@ -403,7 +402,7 @@ public class UserModalPage extends SyncopeModalPage {
 
             @Override
             protected void onError(AjaxRequestTarget target, Form form) {
-                target.addComponent(form.get("feedback"));
+                target.addComponent(feedbackPanel);
             }
         };
 
@@ -419,8 +418,6 @@ public class UserModalPage extends SyncopeModalPage {
                 submit, RENDER, allowedRoles);
 
         userForm.add(submit);
-
-        userForm.add(new FeedbackPanel("feedback").setOutputMarkupId(true));
 
 //Roles Tab
         SyncopeRoleTree roleTree = new SyncopeRoleTree(roleRestClient);

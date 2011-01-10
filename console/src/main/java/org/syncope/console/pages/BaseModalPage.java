@@ -15,6 +15,7 @@
 package org.syncope.console.pages;
 
 import org.apache.wicket.markup.html.WebPage;
+import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +24,7 @@ import org.syncope.console.commons.XMLRolesReader;
 /**
  * Syncope Modal Window.
  */
-public class SyncopeModalPage extends WebPage {
+public class BaseModalPage extends WebPage {
 
     /**
      * Logger.
@@ -34,4 +35,11 @@ public class SyncopeModalPage extends WebPage {
     @SpringBean
     protected XMLRolesReader xmlRolesReader;
 
+    protected FeedbackPanel feedbackPanel;
+
+    public BaseModalPage() {
+        feedbackPanel = new FeedbackPanel("feedback");
+        feedbackPanel.setOutputMarkupId(true);
+        add(feedbackPanel);
+    }
 }

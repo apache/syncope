@@ -14,12 +14,12 @@
 -->
 <wicket:head>
     <style type="text/css">
-    /* WICKET DATATABLE HEADERS */
-    .headers {
-       border: 1px solid #aaaaaa;
-       background: #cccccc url(css/images/ui-bg_highlight-soft_75_cccccc_1x100.png)
-           50% 50% repeat-x;
-    }
+        /* WICKET DATATABLE HEADERS */
+        .headers {
+            border: 1px solid #aaaaaa;
+            background: #cccccc url(css/images/ui-bg_highlight-soft_75_cccccc_1x100.png)
+                50% 50% repeat-x;
+        }
     </style>
     <script type="text/javascript">
         jQuery(function() {
@@ -35,7 +35,6 @@
     <div id="dialog-form" title="Task Modal window">
         <p class="ui-widget ui-corner-all ui-widget-header"><wicket:message key="title"/></p>
         <form wicket:id="TaskForm">
-            <div wicket:id="feedback" style="color:red;padding:5px"/>
             <div id="users-contain" class="ui-widget">
                 <fieldset style="font-size: 12px">
                     <label for="id"><wicket:message key="id"/></label>
@@ -50,15 +49,15 @@
                     <span wicket:id="container">
                         <label for="executions"><wicket:message key="taskExecutions"/></label>
                         <table id="executions" class="ui-widget ui-widget-content"
-                           wicket:id="executionsTable"/>
+                               wicket:id="executionsTable"/>
                     </span>
                 </fieldset>
             </div>
         </form>
     </div>
     <div id="dialog" title="Task Execution - Message">&nbsp;
-            <span wicket:id="dialogContent">
-                [Task execution's message to show]
-            </span>
+        <span wicket:id="dialogContent">
+            [Task execution's message to show]
+        </span>
     </div>
 </wicket:extend>

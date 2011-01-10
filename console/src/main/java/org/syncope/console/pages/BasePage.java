@@ -14,13 +14,16 @@
  */
 package org.syncope.console.pages;
 
+import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
-import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.behavior.AbstractBehavior;
+import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.WebPage;
-import org.apache.wicket.markup.html.link.BookmarkablePageLink;
+import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.syncope.console.SyncopeApplication;
 import org.syncope.console.SyncopeSession;
 import org.syncope.console.SyncopeUser;
 import org.syncope.console.commons.XMLRolesReader;
@@ -39,6 +42,12 @@ public class BasePage extends WebPage {
     @SpringBean
     protected XMLRolesReader xmlRolesReader;
 
+    protected FeedbackPanel feedbackPanel;
+
+    public BasePage() {
+        pageSetup();
+    }
+
     /**
      * Constructor that is invoked when page is invoked without a
      * sessadd(new BookmarkablePageLink("roles", Roles.class));ion.
@@ -48,95 +57,29 @@ public class BasePage extends WebPage {
     public BasePage(final PageParameters parameters) {
         super(parameters);
 
-        BookmarkablePageLink schemaLink = new BookmarkablePageLink("schema",
-                Schema.class);
+        pageSetup();
+    }
 
-        String allowedSchemaRoles = xmlRolesReader.getAllAllowedRoles("Schema",
-                "list");
+    private void pageSetup() {
+        ((SyncopeApplication) getApplication()).setupNavigationPane(
+                this, xmlRolesReader);
 
-        MetaDataRoleAuthorizationStrategy.authorize(schemaLink, ENABLE,
-                allowedSchemaRoles);
+        feedbackPanel = new FeedbackPanel("feedback");
+        feedbackPanel.setOutputMarkupId(true);
+        add(feedbackPanel);
 
-        add(schemaLink);
+        final String kind = getClass().getSimpleName().toLowerCase();
+        Component kindIcon = get(kind);
+        kindIcon.add(new AbstractBehavior() {
 
-        BookmarkablePageLink usersLink = new BookmarkablePageLink("users",
-                Users.class);
+            @Override
+            public void onComponentTag(final Component component,
+                    final ComponentTag tag) {
 
-        String allowedUsersRoles = xmlRolesReader.getAllAllowedRoles("Users",
-                "list");
-
-        MetaDataRoleAuthorizationStrategy.authorize(usersLink, ENABLE,
-                allowedUsersRoles);
-
-        add(usersLink);
-
-        BookmarkablePageLink rolesLink = new BookmarkablePageLink("roles",
-                Roles.class);
-
-        String allowedRoleRoles = xmlRolesReader.getAllAllowedRoles("Roles",
-                "list");
-
-        MetaDataRoleAuthorizationStrategy.authorize(rolesLink, ENABLE,
-                allowedRoleRoles);
-
-        add(rolesLink);
-
-        BookmarkablePageLink resourcesLink = new BookmarkablePageLink(
-                "resources", Resources.class);
-
-        String allowedResourcesRoles = xmlRolesReader.getAllAllowedRoles(
-                "Resources", "list");
-
-        MetaDataRoleAuthorizationStrategy.authorize(resourcesLink, ENABLE,
-                allowedResourcesRoles);
-
-        add(resourcesLink);
-
-        BookmarkablePageLink connectorsLink =
-                new BookmarkablePageLink("connectors", Connectors.class);
-
-        String allowedConnectorsRoles = xmlRolesReader.getAllAllowedRoles(
-                "Connectors", "list");
-
-        MetaDataRoleAuthorizationStrategy.authorize(connectorsLink, ENABLE,
-                allowedConnectorsRoles);
-
-        add(connectorsLink);
-
-        BookmarkablePageLink reportLink = new BookmarkablePageLink(
-                "report", Report.class);
-
-        String allowedReportRoles = xmlRolesReader.getAllAllowedRoles(
-                "Report", "list");
-
-        MetaDataRoleAuthorizationStrategy.authorize(reportLink, ENABLE,
-                allowedReportRoles);
-
-        add(reportLink);
-
-        BookmarkablePageLink configurationLink = new BookmarkablePageLink(
-                "configuration", Configuration.class);
-
-        String allowedConfigurationRoles = xmlRolesReader.getAllAllowedRoles(
-                "Configuration", "list");
-
-        MetaDataRoleAuthorizationStrategy.authorize(configurationLink, ENABLE,
-                allowedConfigurationRoles);
-
-        add(configurationLink);
-
-        BookmarkablePageLink taskLink = new BookmarkablePageLink("task",
-                Tasks.class);
-
-        String allowedTasksRoles = xmlRolesReader.getAllAllowedRoles(
-                "Tasks", "list");
-
-        MetaDataRoleAuthorizationStrategy.authorize(taskLink, ENABLE,
-                allowedTasksRoles);
-
-        add(taskLink);
-
-        add(new BookmarkablePageLink("logout", Logout.class));
+                tag.put("class", kind);
+            }
+        });
+        add(kindIcon);
     }
 
     /**

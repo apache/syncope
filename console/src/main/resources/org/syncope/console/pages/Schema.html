@@ -13,71 +13,6 @@
  under the License.
 -->
 <wicket:extend>
-    <div id="testa">
-        <img src="img/logo.png" alt="syncope" title="syncope" id="logo" />
-        <ul>
-            <li>
-                <span>
-                    <a href=#" class="schema" wicket:id="schema"><img src="img/menu/schema.png" alt="Schema" width="80" height="80" /><br />
-                        <wicket:message key="schema"/>
-                    </a>
-                </span>
-            </li>
-            <li>
-                <span>
-                    <a href=#" wicket:id="users"><img src="img/menu/notsel/users.png" alt="Users" width="80" height="80" /><br />
-                        <wicket:message key="users"/>
-                    </a>
-                </span>
-            </li>
-            <li>
-                <span>
-                    <a href=#" wicket:id="roles"><img src="img/menu/notsel/roles.png" alt="Roles" width="80" height="80" /><br />
-                        <wicket:message key="roles"/>
-                    </a>
-                </span>
-            </li>
-            <li>
-                <span>
-                <a href="#" wicket:id="resources"><img src="img/menu/notsel/resources.png" alt="Resources" width="80" height="80" /><br />
-                    <wicket:message key="resources"/>
-                </a>
-                </span>
-            </li>
-            <li>
-                <span>
-                <a href="#" wicket:id="connectors"><img src="img/menu/notsel/connectors.png" alt="Connectors" width="80" height="80" /><br />
-                    <wicket:message key="connectors"/>
-                </a>
-                </span>
-            </li>
-            <li><span>
-                <a href="#" wicket:id="report"><img src="img/menu/notsel/reports.png" alt="Report" width="80" height="80" /><br />
-                    <wicket:message key="report"/>
-                </a>
-                </span>
-            </li>
-            <li><span>
-                <a href="#" wicket:id="configuration"><img src="img/menu/notsel/configuration.png" alt="Configuration" width="80" height="80" /><br />
-                    <wicket:message key="configuration"/>
-                </a>
-                </span>
-            </li>
-            <li><span>
-                    <a href="#" wicket:id="task"><img src="img/menu/notsel/task.png" alt="Task" width="80" height="80" /><br />
-                        <wicket:message key="task"/>
-                    </a>
-                </span>
-            </li>
-            <li style="float:right">
-                <a href="#" wicket:id="logout"><img src="img/menu/notsel/logout.png" alt="Roles" width="80" height="80" /><br />
-                    <wicket:message key="logout"/>
-                </a>
-            </li>
-        </ul>
-    </div>
-
-    <div wicket:id="feedback"/>
 
     <div id="tabs">
         <ul>
@@ -88,69 +23,10 @@
             <li><a href="#tabs-5"><span><wicket:message key="tab5"/></span></a></li>
             <li><a href="#tabs-6"><span><wicket:message key="tab6"/></span></a></li>
         </ul>
-        
+
         <div id="tabs-1">
 
             <div id="users-contain" class="ui-widget">
-
-                <h1><wicket:message key="title"/></h1>
-
-               <span wicket:id="roleSchemasContainer">
-                    <table class="ui-widget ui-widget-content table-hover"
-                           wicket:id="datatable"/>
-                </span>
-
-                <span style="float:right">
-                    <form wicket:id="RolesPaginatorForm" style="display:inline">
-                        <label><wicket:message key="displayRows"/></label>
-                        <select class="text ui-widget-content ui-corner-all"
-                                wicket:id="rowsChooser"/>
-                    </form>
-                </span>
-            </div>
-
-            <div wicket:id="createRoleSchemaWin">[Show modal window for creating schema]</div>
-            <div wicket:id="editRoleSchemaWin">[Show modal window for editing schema]</div>
-
-            <a wicket:id="createRoleSchemaWinLink"
-               class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
-                <wicket:message key="create_attribute"/>
-            </a>
-        </div>
-        <div id="tabs-2">
-
-            <div id="users-contain" class="ui-widget">
-
-                <h1><wicket:message key="title"/></h1>
-
-                <span wicket:id="roleDerivedSchemasContainer">
-                    <table class="ui-widget ui-widget-content table-hover"
-                           wicket:id="datatable"/>
-                </span>
-
-                <span style="float:right">
-                    <form wicket:id="RolesDerPaginatorForm" style="display:inline">
-                        <label><wicket:message key="displayRows"/></label>
-                        <select class="text ui-widget-content ui-corner-all"
-                                wicket:id="rowsChooser"/>
-                    </form>
-                </span>
-            </div>
-
-            <div wicket:id="createRoleDerivedSchemaWin">[Show modal window for creating schema]</div>
-            <div wicket:id="editRoleDerivedSchemaWin">[Show modal window for editing schema]</div>
-
-            <a wicket:id="createRoleDerivedSchemaWinLink"
-               class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
-                <wicket:message key="create_attribute"/>
-            </a>
-
-        </div>
-        <div id="tabs-3">
-
-            <div id="users-contain" class="ui-widget">
-                <h1><wicket:message key="title"/></h1>
-
                 <span wicket:id="userSchemaContainer">
                     <table class="ui-widget ui-widget-content table-hover"
                            wicket:id="datatable"/>
@@ -174,11 +50,8 @@
             </a>
 
         </div>
-        <div id="tabs-4">
+        <div id="tabs-2">
             <div id="users-contain" class="ui-widget">
-
-                <h1><wicket:message key="title"/></h1>
-
                 <span wicket:id="userDerivedSchemaContainer">
                     <table class="ui-widget ui-widget-content table-hover"
                            wicket:id="datatable"/>
@@ -199,11 +72,59 @@
                 <wicket:message key="create_attribute"/>
             </a>
         </div>
+        <div id="tabs-3">
+
+            <div id="users-contain" class="ui-widget">
+                <span wicket:id="roleSchemasContainer">
+                    <table class="ui-widget ui-widget-content table-hover"
+                           wicket:id="datatable"/>
+                </span>
+
+                <span style="float:right">
+                    <form wicket:id="RolesPaginatorForm" style="display:inline">
+                        <label><wicket:message key="displayRows"/></label>
+                        <select class="text ui-widget-content ui-corner-all"
+                                wicket:id="rowsChooser"/>
+                    </form>
+                </span>
+            </div>
+
+            <div wicket:id="createRoleSchemaWin">[Show modal window for creating schema]</div>
+            <div wicket:id="editRoleSchemaWin">[Show modal window for editing schema]</div>
+
+            <a wicket:id="createRoleSchemaWinLink"
+               class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+                <wicket:message key="create_attribute"/>
+            </a>
+        </div>
+        <div id="tabs-4">
+
+            <div id="users-contain" class="ui-widget">
+                <span wicket:id="roleDerivedSchemasContainer">
+                    <table class="ui-widget ui-widget-content table-hover"
+                           wicket:id="datatable"/>
+                </span>
+
+                <span style="float:right">
+                    <form wicket:id="RolesDerPaginatorForm" style="display:inline">
+                        <label><wicket:message key="displayRows"/></label>
+                        <select class="text ui-widget-content ui-corner-all"
+                                wicket:id="rowsChooser"/>
+                    </form>
+                </span>
+            </div>
+
+            <div wicket:id="createRoleDerivedSchemaWin">[Show modal window for creating schema]</div>
+            <div wicket:id="editRoleDerivedSchemaWin">[Show modal window for editing schema]</div>
+
+            <a wicket:id="createRoleDerivedSchemaWinLink"
+               class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+                <wicket:message key="create_attribute"/>
+            </a>
+
+        </div>
         <div id="tabs-5">
             <div id="users-contain" class="ui-widget">
-
-                <h1><wicket:message key="title"/></h1>
-                
                 <span wicket:id="membershipSchemaContainer">
                     <table class="ui-widget ui-widget-content table-hover"
                            wicket:id="datatable"/>
@@ -228,9 +149,6 @@
         </div>
         <div id="tabs-6">
             <div id="users-contain" class="ui-widget">
-
-                <h1><wicket:message key="title"/></h1>
-
                 <span wicket:id="membershipDerivedSchemaContainer">
                     <table class="ui-widget ui-widget-content table-hover"
                            wicket:id="datatable"/>

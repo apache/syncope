@@ -23,12 +23,15 @@ import org.apache.wicket.authentication.AuthenticatedWebSession;
 import org.apache.wicket.authorization.strategies.role.RoleAuthorizationStrategy;
 import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.markup.html.WebPage;
+import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.protocol.http.WebRequest;
 import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
+import org.syncope.console.commons.XMLRolesReader;
 import org.syncope.console.pages.Configuration;
 import org.syncope.console.pages.Connectors;
 import org.syncope.console.pages.Login;
+import org.syncope.console.pages.Logout;
 import org.syncope.console.pages.Report;
 import org.syncope.console.pages.Resources;
 import org.syncope.console.pages.Roles;
@@ -52,13 +55,7 @@ public class SyncopeApplication extends AuthenticatedWebApplication {
         getSecuritySettings().setAuthorizationStrategy(
                 new RoleAuthorizationStrategy(new SyncopeRolesAuthorizer()));
 
-//        getApplicationSettings().setPageExpiredErrorPage(PageExpiredErrorPage
-//                .class);
-
-        setupAuthorizations();
-    }
-
-    public void setupAuthorizations() {
+        // setup authorizations
         MetaDataRoleAuthorizationStrategy.authorize(Schema.class,
                 "SCHEMA_LIST");
         MetaDataRoleAuthorizationStrategy.authorize(Roles.class,
@@ -77,6 +74,76 @@ public class SyncopeApplication extends AuthenticatedWebApplication {
                 "CONFIGURATION_LIST");
     }
 
+    public void setupNavigationPane(final WebPage page,
+            final XMLRolesReader xmlRolesReader) {
+
+        BookmarkablePageLink schemaLink =
+                new BookmarkablePageLink("schema", Schema.class);
+        String allowedSchemaRoles =
+                xmlRolesReader.getAllAllowedRoles("Schema", "list");
+        MetaDataRoleAuthorizationStrategy.authorize(
+                schemaLink, WebPage.ENABLE, allowedSchemaRoles);
+        page.add(schemaLink);
+
+        BookmarkablePageLink usersLink =
+                new BookmarkablePageLink("users", Users.class);
+        String allowedUsersRoles =
+                xmlRolesReader.getAllAllowedRoles("Users", "list");
+        MetaDataRoleAuthorizationStrategy.authorize(
+                usersLink, WebPage.ENABLE, allowedUsersRoles);
+        page.add(usersLink);
+
+        BookmarkablePageLink rolesLink =
+                new BookmarkablePageLink("roles", Roles.class);
+        String allowedRoleRoles =
+                xmlRolesReader.getAllAllowedRoles("Roles", "list");
+        MetaDataRoleAuthorizationStrategy.authorize(
+                rolesLink, WebPage.ENABLE, allowedRoleRoles);
+        page.add(rolesLink);
+
+        BookmarkablePageLink resourcesLink =
+                new BookmarkablePageLink("resources", Resources.class);
+        String allowedResourcesRoles =
+                xmlRolesReader.getAllAllowedRoles("Resources", "list");
+        MetaDataRoleAuthorizationStrategy.authorize(
+                resourcesLink, WebPage.ENABLE, allowedResourcesRoles);
+        page.add(resourcesLink);
+
+        BookmarkablePageLink connectorsLink =
+                new BookmarkablePageLink("connectors", Connectors.class);
+        String allowedConnectorsRoles =
+                xmlRolesReader.getAllAllowedRoles("Connectors", "list");
+        MetaDataRoleAuthorizationStrategy.authorize(
+                connectorsLink, WebPage.ENABLE, allowedConnectorsRoles);
+        page.add(connectorsLink);
+
+        BookmarkablePageLink reportLink =
+                new BookmarkablePageLink("report", Report.class);
+        String allowedReportRoles =
+                xmlRolesReader.getAllAllowedRoles("Report", "list");
+        MetaDataRoleAuthorizationStrategy.authorize(
+                reportLink, WebPage.ENABLE, allowedReportRoles);
+        page.add(reportLink);
+
+        BookmarkablePageLink configurationLink =
+                new BookmarkablePageLink("configuration", Configuration.class);
+        String allowedConfigurationRoles =
+                xmlRolesReader.getAllAllowedRoles("Configuration", "list");
+        MetaDataRoleAuthorizationStrategy.authorize(
+                configurationLink, WebPage.ENABLE, allowedConfigurationRoles);
+        page.add(configurationLink);
+
+        BookmarkablePageLink taskLink =
+                new BookmarkablePageLink("tasks", Tasks.class);
+        String allowedTasksRoles =
+                xmlRolesReader.getAllAllowedRoles("Tasks", "list");
+        MetaDataRoleAuthorizationStrategy.authorize(
+                taskLink, WebPage.ENABLE, allowedTasksRoles);
+        page.add(taskLink);
+
+        page.add(new BookmarkablePageLink("logout", Logout.class));
+    }
+
     /**
      * Create a new custom SyncopeSession
      * @param request
@@ -84,7 +151,7 @@ public class SyncopeApplication extends AuthenticatedWebApplication {
      * @return Session
      */
     @Override
-    public Session newSession(Request request, Response response) {
+    public Session newSession(final Request request, final Response response) {
         SyncopeSession session = new SyncopeSession(request);
 
         if (user != null) {

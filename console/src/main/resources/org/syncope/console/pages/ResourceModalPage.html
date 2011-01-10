@@ -14,35 +14,34 @@
 -->
 <wicket:head>
     <style type="text/css">
-    /* Style for autocomplete field */
-    div.wicket-aa {
-        font-family: "Lucida Grande","Lucida Sans Unicode",Tahoma,Verdana;
-        font-size: 12px;
-        background-color: white;
-        border-width: 1px;
-        border-color: #cccccc;
-        border-style: solid;
-        padding: 2px;
-        margin: 1px 0 0 0;
-        text-align:left;
-    }
-    div.wicket-aa ul {
-        list-style:none;
-        padding: 2px;
-        margin:0;
-    }
-    div.wicket-aa ul li.selected {
-        background-color: #FFFF00;
-        padding: 2px;
-        margin:0;
-    }
+        /* Style for autocomplete field */
+        div.wicket-aa {
+            font-family: "Lucida Grande","Lucida Sans Unicode",Tahoma,Verdana;
+            font-size: 12px;
+            background-color: white;
+            border-width: 1px;
+            border-color: #cccccc;
+            border-style: solid;
+            padding: 2px;
+            margin: 1px 0 0 0;
+            text-align:left;
+        }
+        div.wicket-aa ul {
+            list-style:none;
+            padding: 2px;
+            margin:0;
+        }
+        div.wicket-aa ul li.selected {
+            background-color: #FFFF00;
+            padding: 2px;
+            margin:0;
+        }
     </style>
 </wicket:head>
 <wicket:extend>
     <div id="dialog-form" title="Create new Resource-Mappings">
         <p class="ui-widget ui-corner-all ui-widget-header"><wicket:message key="title"/></p>
         <form wicket:id="ResourceForm">
-            <div wicket:id="feedback" style="color:red;padding:5px"/>
             <fieldset>
                 <label for="name"><wicket:message key="name"/></label>
                 <input type="text" id="name" class="text ui-widget-content ui-corner-all" wicket:id="name" />
@@ -57,13 +56,13 @@
                     <thead>
                         <tr class="ui-widget-header">
                             <th><wicket:message key="delete"/></th>
-                            <th><wicket:message key="sourceMappingTypes"/></th>
-                            <th><wicket:message key="schemaAttributes"/></th>
-                            <th><wicket:message key="field"/></th>
-                            <th><wicket:message key="mandatoryCondition"/></th>
-                            <th><wicket:message key="accountId"/></th>
-                            <th><wicket:message key="password"/></th>
-                        </tr>
+                    <th><wicket:message key="sourceMappingTypes"/></th>
+                    <th><wicket:message key="schemaAttributes"/></th>
+                    <th><wicket:message key="field"/></th>
+                    <th><wicket:message key="mandatoryCondition"/></th>
+                    <th><wicket:message key="accountId"/></th>
+                    <th><wicket:message key="password"/></th>
+                    </tr>
                     </thead>
                     <tfoot>
                         <tr>
@@ -116,7 +115,7 @@
                 <div>
                     &nbsp;
                 </div>
-                 
+
                 <div style="bottom:0">
                     <input type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" wicket:id="submit"/>
                 </div>

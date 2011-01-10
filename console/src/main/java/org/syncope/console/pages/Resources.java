@@ -38,7 +38,6 @@ import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvid
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
@@ -79,8 +78,6 @@ public class Resources extends BasePage {
      */
     private boolean operationResult = false;
 
-    private FeedbackPanel feedbackPanel;
-
     private int paginatorRows;
 
     public Resources(PageParameters parameters) {
@@ -88,9 +85,6 @@ public class Resources extends BasePage {
 
         add(createResourceWin = new ModalWindow("createResourceWin"));
         add(editResourceWin = new ModalWindow("editResourceWin"));
-
-        feedbackPanel = new FeedbackPanel("feedback");
-        feedbackPanel.setOutputMarkupId(true);
 
         add(feedbackPanel);
 

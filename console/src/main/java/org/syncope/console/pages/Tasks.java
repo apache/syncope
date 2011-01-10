@@ -39,7 +39,6 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
@@ -50,7 +49,6 @@ import org.syncope.client.to.TaskTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.Utility;
-import org.syncope.console.commons.XMLRolesReader;
 import org.syncope.console.rest.TaskRestClient;
 import org.syncope.console.wicket.markup.html.form.DeleteLinkPanel;
 import org.syncope.console.wicket.markup.html.form.EditLinkPanel;
@@ -67,9 +65,6 @@ public class Tasks extends BasePage {
     @SpringBean
     private Utility utility;
 
-    @SpringBean
-    private XMLRolesReader xmlRolesReader;
-
     private int paginatorRows;
 
     private WebMarkupContainer container;
@@ -79,8 +74,6 @@ public class Tasks extends BasePage {
     TRUE if the operation succedes, FALSE otherwise
      */
     private boolean operationResult = false;
-
-    private FeedbackPanel feedbackPanel;
 
     private ModalWindow window;
 
@@ -92,8 +85,6 @@ public class Tasks extends BasePage {
         super(parameters);
 
         add(window = new ModalWindow("taskWin"));
-
-        add(new FeedbackPanel("feedback").setOutputMarkupId(true));
 
         paginatorRows = utility.getPaginatorRowsToDisplay(
                 Constants.CONF_TASKS_PAGINATOR_ROWS);
