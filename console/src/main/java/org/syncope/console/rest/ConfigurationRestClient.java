@@ -82,12 +82,15 @@ public class ConfigurationRestClient extends AbstractBaseRestClient {
      * @return true if the operation ends succesfully, false otherwise
      */
     public boolean updateConfiguration(ConfigurationTO configurationTO) {
+    ConfigurationTO newConfigurationTO = null;
 
-        ConfigurationTO newConfigurationTO =
-                restTemplate.postForObject(baseURL
-                + "configuration/update",
-                configurationTO, ConfigurationTO.class);
-
+        try {
+        newConfigurationTO = restTemplate.postForObject(baseURL+ 
+                "configuration/update", configurationTO, ConfigurationTO.class);
+        } catch(SyncopeClientCompositeErrorException e) {
+            LOG.error("While updating a configuration", e);
+            return false;
+        }
         return (configurationTO.equals(newConfigurationTO)) ? true : false;
     }
 

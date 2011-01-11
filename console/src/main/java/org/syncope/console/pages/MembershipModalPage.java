@@ -241,7 +241,7 @@ public class MembershipModalPage extends BaseModalPage {
 
             @Override
             protected void onError(AjaxRequestTarget target, Form form) {
-                target.addComponent(form.get("feedback"));
+                target.addComponent(feedbackPanel);
             }
         };
 
@@ -263,7 +263,6 @@ public class MembershipModalPage extends BaseModalPage {
         container.add(userAttributesView);
         container.setOutputMarkupId(true);
 
-        form.add(feedbackPanel);
         form.add(container);
 
         add(form);

@@ -566,9 +566,6 @@ public class Users extends BasePage {
         changeAttribsViewWin.setPageMapName("change-attribs-modal");
         changeAttribsViewWin.setCookieName("change-attribs-modal");
 
-        setWindowClosedCallback(createUserWin, usersTableSearchContainer);
-        setWindowClosedCallback(editUserWin, usersTableSearchContainer);
-
         changeAttribsViewWin.setWindowClosedCallback(
                 new ModalWindow.WindowClosedCallback() {
 
@@ -708,6 +705,9 @@ public class Users extends BasePage {
 
         usersTableSearchContainer = new WebMarkupContainer("container");
         usersTableSearchContainer.setOutputMarkupId(true);
+
+        setWindowClosedCallback(createUserWin, usersTableContainer);
+        setWindowClosedCallback(editUserWin, usersTableSearchContainer);
 
         ListView searchView = new ListView("searchView", searchConditionsList) {
 

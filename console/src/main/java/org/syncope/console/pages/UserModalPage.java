@@ -386,11 +386,12 @@ public class UserModalPage extends BaseModalPage {
                                 error(getString("error_updating"));
                             }
 
-                            Users callerPage = (Users) basePage;
-                            callerPage.setOperationResult(true);
                         }
 
                     }
+
+                    Users callerPage = (Users) basePage;
+                    callerPage.setOperationResult(true);
 
                     window.close(target);
 

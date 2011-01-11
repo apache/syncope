@@ -360,6 +360,7 @@ public class RoleModalPage extends BaseModalPage {
                         setupRoleMod(roleTO);
                         //Update role just if it is changed
                         if (roleMod != null) {
+                            LOG.debug("Rolemod is {}", roleMod);
                             res = roleRestClient.updateRole(roleMod);
                             if (!res) {
                                 error(getString("error"));
@@ -519,21 +520,28 @@ public class RoleModalPage extends BaseModalPage {
         oldRole.setAttributes(attributes);
 
         oldRole.setResources(roleTO.getResources());
+
+        List<String> entList = new ArrayList<String>();
+
+        for(String entitlement : roleTO.getEntitlements())
+            entList.add(entitlement);
+
+        oldRole.setEntitlements(entList);
     }
 
     public void setupRoleMod(final RoleTO roleTO) {
-//1.Check if the role's name has been changed
+        //1.Check if the role's name has been changed
         if (!oldRole.getName().equals(roleTO.getName())) {
             roleMod = new RoleMod();
             roleMod.setName(roleTO.getName());
         }
 
-//2.Search and update role's attributes
+        //2.Search and update role's attributes
         for (AttributeTO attributeTO : roleTO.getAttributes()) {
             searchAndUpdateAttribute(attributeTO);
         }
 
-//3.Search and update role's resources
+        //3.Search and update role's resources
         for (String resource : roleTO.getResources()) {
             searchAndAddResource(resource);
         }
@@ -542,9 +550,23 @@ public class RoleModalPage extends BaseModalPage {
             searchAndDropResource(resource, roleTO);
         }
 
+        //4.Check if entitlements' list has been changed
+        if(!oldRole.getEntitlements().equals(roleTO.getEntitlements()))
+           roleMod.setEntitlements(roleTO.getEntitlements());
+
         if (roleMod != null) {
             roleMod.setId(oldRole.getId());
-            roleMod.setEntitlements(roleTO.getEntitlements());
+
+            if(!oldRole.getEntitlements().equals(roleTO.getEntitlements())){
+
+               LOG.debug("OLD ROLE ENT LIST: {}", oldRole.getEntitlements());
+
+               LOG.debug("ROLE ENT LIST: {}", roleTO.getEntitlements());
+
+               roleMod.setEntitlements(roleTO.getEntitlements());
+            }
+            else
+                roleMod.setEntitlements(oldRole.getEntitlements());
         }
     }
 

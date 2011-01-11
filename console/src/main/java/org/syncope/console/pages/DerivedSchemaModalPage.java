@@ -69,8 +69,6 @@ public class DerivedSchemaModalPage extends BaseModalPage {
 
         schemaForm.setModel(new CompoundPropertyModel(schema));
 
-        schemaForm.add(feedbackPanel);
-
         name = new TextField("name");
         name.setRequired(true);
 
@@ -119,7 +117,7 @@ public class DerivedSchemaModalPage extends BaseModalPage {
 
             @Override
             protected void onError(AjaxRequestTarget target, Form form) {
-                target.addComponent(form.get("feedback"));
+                target.addComponent(feedbackPanel);
             }
         };
 

@@ -119,9 +119,8 @@ select[disabled] {
 
 /* FEEDBACK PANEL'S INFO STYLE */
 .feedbackPanel {
-    /*padding-left:8px;
-    padding-right:8px;
-    padding-top:8px;*/
+    padding-left:20pt;
+    margin-right:20pt;
 }
 
 .feedbackPanelINFO {
@@ -136,9 +135,9 @@ select[disabled] {
     padding: 5px;
 }
 
-/*.feedbackPanelERROR {
-    color: black;
-    font-weight: bold;
+.feedbackPanelERROR {
+    color: red;
+    /*font-weight: bold;
     margin: 0px;
     list-style-type: none;
     background:url("images/ui-bg_highlight-soft_75_cccccc_1x100_red.png") repeat-x scroll 50% 50% #CCCCCC;
@@ -146,9 +145,10 @@ select[disabled] {
     -webkit-border-radius: 3px;
     border: 1px solid gray;
     border-radius: 3px;
-    padding: 5px;
+    padding: 5px;*/
 }
 
+/*
 .feedbackPanelERROR span {
     background: url("images/warning.png") no-repeat left;
     border:0 none;
