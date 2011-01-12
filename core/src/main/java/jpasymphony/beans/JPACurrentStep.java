@@ -15,8 +15,6 @@
 package jpasymphony.beans;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
@@ -25,7 +23,6 @@ import javax.persistence.Table;
 public class JPACurrentStep extends AbstractJPAStep {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
     @Override

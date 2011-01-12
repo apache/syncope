@@ -200,4 +200,38 @@
             </id>
         </attributes>
     </entity>
+
+    <entity class="jpasymphony.beans.JPACurrentStep">
+        <attributes>
+            <id name="id">
+                <generated-value generator="SEQ_JPACurrentStep" strategy="TABLE"/>
+                <table-generator name="SEQ_JPACurrentStep" pk-column-value="SEQ_JPACurrentStep" initial-value="10"/>
+            </id>
+        </attributes>
+    </entity>
+    <entity class="jpasymphony.beans.JPAHistoryStep">
+        <attributes>
+            <id name="id">
+                <generated-value generator="SEQ_JPAHistoryStep" strategy="TABLE"/>
+                <table-generator name="SEQ_JPAHistoryStep" pk-column-value="SEQ_JPAHistoryStep" initial-value="10"/>
+            </id>
+        </attributes>
+    </entity>
+    <entity class="jpasymphony.beans.JPAPropertySetItem">
+        <attributes>
+            <id name="id">
+                <generated-value generator="SEQ_JPAPropertySetItem" strategy="TABLE"/>
+                <table-generator name="SEQ_JPAPropertySetItem" pk-column-value="SEQ_JPAPropertySetItem" initial-value="10"/>
+            </id>
+        </attributes>
+    </entity>
+    <entity class="jpasymphony.beans.JPAWorkflowEntry">
+        <attributes>
+            <id name="id">
+                <generated-value generator="SEQ_JPAWorkflowEntry" strategy="TABLE"/>
+                <table-generator name="SEQ_JPAWorkflowEntry" pk-column-value="SEQ_JPAWorkflowEntry" initial-value="10"/>
+            </id>
+        </attributes>
+    </entity>
+
 </entity-mappings>
