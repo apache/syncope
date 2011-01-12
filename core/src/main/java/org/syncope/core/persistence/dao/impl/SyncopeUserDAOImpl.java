@@ -14,6 +14,7 @@
  */
 package org.syncope.core.persistence.dao.impl;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import javax.persistence.NoResultException;
@@ -33,6 +34,7 @@ import org.syncope.client.search.PaginatedResult;
 import org.syncope.core.persistence.beans.AbstractAttrValue;
 import org.syncope.core.persistence.beans.membership.Membership;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
+import org.syncope.core.persistence.beans.user.UAttrUniqueValue;
 import org.syncope.core.persistence.beans.user.UAttrValue;
 import org.syncope.core.persistence.beans.user.USchema;
 import org.syncope.core.persistence.dao.SchemaDAO;
@@ -74,17 +76,15 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    public List<SyncopeUser> findByAttributeValue(
-            final UAttrValue attrValue) {
+    public List<SyncopeUser> findByAttrValue(final UAttrValue attrValue) {
 
-        StringBuilder queryHead1 = new StringBuilder("SELECT u").append(
-                " FROM SyncopeUser u, UAttr ua, UAttrValue e");
-        StringBuilder queryHead2 = new StringBuilder(" SELECT u").append(
-                " FROM SyncopeUser u, UAttr ua, UAttrUniqueValue e");
+        StringBuilder queryHead1 = new StringBuilder(
+                "SELECT e FROM " + UAttrValue.class.getName() + " e");
+        StringBuilder queryHead2 = new StringBuilder(
+                "SELECT e FROM " + UAttrUniqueValue.class.getName() + " e");
 
         StringBuilder whereCondition = new StringBuilder().append(
-                " WHERE e.attribute = ua AND ua.owner = u").
-                append(" AND ((e.stringValue IS NOT NULL").
+                " WHERE (e.stringValue IS NOT NULL").
                 append(" AND e.stringValue = :stringValue)").
                 append(" OR (e.booleanValue IS NOT NULL").
                 append(" AND e.booleanValue = :booleanValue)").
@@ -93,8 +93,7 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
                 append(" OR (e.longValue IS NOT NULL").
                 append(" AND e.longValue = :longValue)").
                 append(" OR (e.doubleValue IS NOT NULL").
-                append(" AND e.doubleValue = :doubleValue))").
-                append(" ORDER BY u.id");
+                append(" AND e.doubleValue = :doubleValue)");
 
         Query query = entityManager.createQuery(
                 queryHead1.append(whereCondition).toString());
@@ -107,7 +106,7 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
         query.setParameter("longValue", attrValue.getLongValue());
         query.setParameter("doubleValue", attrValue.getDoubleValue());
 
-        List<SyncopeUser> result1 = query.getResultList();
+        List<UAttrValue> result1 = query.getResultList();
 
         query = entityManager.createQuery(
                 queryHead2.append(whereCondition).toString());
@@ -120,10 +119,56 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
         query.setParameter("longValue", attrValue.getLongValue());
         query.setParameter("doubleValue", attrValue.getDoubleValue());
 
-        List<SyncopeUser> result2 = query.getResultList();
-        result2.addAll(result1);
+        List<UAttrUniqueValue> result2 = query.getResultList();
 
-        return result2;
+        List<SyncopeUser> result = new ArrayList<SyncopeUser>();
+        for (UAttrValue value : (List<UAttrValue>) result1) {
+
+            result.add((SyncopeUser) value.getAttribute().getOwner());
+        }
+        for (UAttrUniqueValue value : (List<UAttrUniqueValue>) result2) {
+
+            result.add((SyncopeUser) value.getAttribute().getOwner());
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<SyncopeUser> findByAttrUniqueValue(
+            final UAttrValue attrUniqueValue) {
+
+        Query query = entityManager.createQuery(
+                "SELECT e FROM " + UAttrUniqueValue.class.getSimpleName() + " e"
+                + " WHERE (e.stringValue IS NOT NULL"
+                + " AND e.stringValue = :stringValue)"
+                + " OR (e.booleanValue IS NOT NULL"
+                + " AND e.booleanValue = :booleanValue)"
+                + " OR (e.dateValue IS NOT NULL"
+                + " AND e.dateValue = :dateValue)"
+                + " OR (e.longValue IS NOT NULL"
+                + " AND e.longValue = :longValue)"
+                + " OR (e.doubleValue IS NOT NULL"
+                + " AND e.doubleValue = :doubleValue)");
+
+        query.setParameter("stringValue", attrUniqueValue.getStringValue());
+        query.setParameter("booleanValue",
+                attrUniqueValue.getBooleanValue() == null
+                ? null
+                : attrUniqueValue.getBooleanAsInteger(attrUniqueValue.
+                getBooleanValue()));
+        query.setParameter("dateValue", attrUniqueValue.getDateValue());
+        query.setParameter("longValue", attrUniqueValue.getLongValue());
+        query.setParameter("doubleValue", attrUniqueValue.getDoubleValue());
+
+        List<SyncopeUser> result = new ArrayList<SyncopeUser>();
+        for (UAttrUniqueValue value :
+                (List<UAttrUniqueValue>) query.getResultList()) {
+
+            result.add((SyncopeUser) value.getAttribute().getOwner());
+        }
+
+        return result;
     }
 
     @Override

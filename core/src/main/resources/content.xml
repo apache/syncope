@@ -19,6 +19,7 @@
     starting value for SyncopeUser.id is 1000 -->
     <hibernate_sequences sequence_name="SEQ_SyncopeUser" sequence_next_hi_value="10"/>
     <hibernate_sequences sequence_name="SEQ_SyncopeRole" sequence_next_hi_value="10"/>
+    <hibernate_sequences sequence_name="SEQ_Membership" sequence_next_hi_value="10"/>
     <hibernate_sequences sequence_name="SEQ_SchemaMapping" sequence_next_hi_value="10"/>
     <hibernate_sequences sequence_name="SEQ_ConnectorInstance" sequence_next_hi_value="10"/>
     <hibernate_sequences sequence_name="SEQ_UAttr" sequence_next_hi_value="1000"/>

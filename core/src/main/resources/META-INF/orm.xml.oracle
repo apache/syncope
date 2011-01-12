@@ -39,7 +39,16 @@
             </id>
         </attributes>
     </entity>
-    
+
+    <entity class="org.syncope.core.persistence.beans.membership.Membership">
+        <attributes>
+            <id name="id">
+                <generated-value generator="SEQ_Membership" strategy="TABLE"/>
+                <table-generator name="SEQ_Membership" pk-column-value="SEQ_Membership" initial-value="10"/>
+            </id>
+        </attributes>
+    </entity>
+
     <entity class="org.syncope.core.persistence.beans.SchemaMapping">
         <attributes>
             <id name="id">

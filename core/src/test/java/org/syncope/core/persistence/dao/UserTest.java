@@ -72,7 +72,7 @@ public class UserTest extends AbstractTest {
         final UAttrValue usernameValue = new UAttrValue();
         usernameValue.setStringValue("chicchiricco");
 
-        final List<SyncopeUser> list = syncopeUserDAO.findByAttributeValue(
+        final List<SyncopeUser> list = syncopeUserDAO.findByAttrValue(
                 usernameValue);
         assertEquals("did not get expected number of users ", 1, list.size());
     }
@@ -82,7 +82,7 @@ public class UserTest extends AbstractTest {
         final UAttrValue coolValue = new UAttrValue();
         coolValue.setBooleanValue(true);
 
-        final List<SyncopeUser> list = syncopeUserDAO.findByAttributeValue(
+        final List<SyncopeUser> list = syncopeUserDAO.findByAttrValue(
                 coolValue);
         assertEquals("did not get expected number of users ", 1, list.size());
     }
