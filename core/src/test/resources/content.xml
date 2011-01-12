@@ -31,7 +31,7 @@
     <hibernate_sequences sequence_name="SEQ_JPACurrentStep" sequence_next_hi_value="10"/>
     <hibernate_sequences sequence_name="SEQ_JPAHistoryStep" sequence_next_hi_value="10"/>
     <hibernate_sequences sequence_name="SEQ_JPAPropertySetItem" sequence_next_hi_value="10"/>
-    <hibernate_sequences sequence_name="SEQ_JPAWorkflowItem" sequence_next_hi_value="10"/>
+    <hibernate_sequences sequence_name="SEQ_JPAWorkflowEntry" sequence_next_hi_value="10"/>
     
     <SyncopeConf confKey="token.length" confValue="256"/>
     <SyncopeConf confKey="token.expireTime" confValue="60"/>
