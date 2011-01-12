@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Set;
 import javassist.NotFoundException;
 import javax.persistence.EntityNotFoundException;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.syncope.client.mod.MembershipMod;
@@ -83,6 +85,12 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
         public void setWorkflowId(Long workflowId) {
             this.workflowId = workflowId;
+        }
+
+        @Override
+        public String toString() {
+            return ReflectionToStringBuilder.toString(this,
+                    ToStringStyle.MULTI_LINE_STYLE);
         }
     }
 
