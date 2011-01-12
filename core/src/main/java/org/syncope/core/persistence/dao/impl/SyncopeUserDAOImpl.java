@@ -76,7 +76,8 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    public List<SyncopeUser> findByAttrValue(final UAttrValue attrValue) {
+    public List<SyncopeUser> findByAttrValue(final String schemaName,
+            final UAttrValue attrValue) {
 
         StringBuilder queryHead1 = new StringBuilder(
                 "SELECT e FROM " + UAttrValue.class.getName() + " e");
@@ -84,7 +85,8 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
                 "SELECT e FROM " + UAttrUniqueValue.class.getName() + " e");
 
         StringBuilder whereCondition = new StringBuilder().append(
-                " WHERE (e.stringValue IS NOT NULL").
+                " WHERE e.attribute.schema.name = :schemaName ").
+                append(" AND (e.stringValue IS NOT NULL").
                 append(" AND e.stringValue = :stringValue)").
                 append(" OR (e.booleanValue IS NOT NULL").
                 append(" AND e.booleanValue = :booleanValue)").
@@ -98,6 +100,7 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
         Query query = entityManager.createQuery(
                 queryHead1.append(whereCondition).toString());
 
+        query.setParameter("schemaName", schemaName);
         query.setParameter("stringValue", attrValue.getStringValue());
         query.setParameter("booleanValue", attrValue.getBooleanValue() == null
                 ? null
@@ -111,6 +114,7 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
         query = entityManager.createQuery(
                 queryHead2.append(whereCondition).toString());
 
+        query.setParameter("schemaName", schemaName);
         query.setParameter("stringValue", attrValue.getStringValue());
         query.setParameter("booleanValue", attrValue.getBooleanValue() == null
                 ? null
@@ -135,12 +139,13 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    public List<SyncopeUser> findByAttrUniqueValue(
+    public SyncopeUser findByAttrUniqueValue(final String schemaName,
             final UAttrValue attrUniqueValue) {
 
         Query query = entityManager.createQuery(
                 "SELECT e FROM " + UAttrUniqueValue.class.getSimpleName() + " e"
-                + " WHERE (e.stringValue IS NOT NULL"
+                + " WHERE e.attribute.schema.name = :schemaName "
+                + " AND (e.stringValue IS NOT NULL"
                 + " AND e.stringValue = :stringValue)"
                 + " OR (e.booleanValue IS NOT NULL"
                 + " AND e.booleanValue = :booleanValue)"
@@ -151,6 +156,7 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
                 + " OR (e.doubleValue IS NOT NULL"
                 + " AND e.doubleValue = :doubleValue)");
 
+        query.setParameter("schemaName", schemaName);
         query.setParameter("stringValue", attrUniqueValue.getStringValue());
         query.setParameter("booleanValue",
                 attrUniqueValue.getBooleanValue() == null
@@ -161,14 +167,16 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
         query.setParameter("longValue", attrUniqueValue.getLongValue());
         query.setParameter("doubleValue", attrUniqueValue.getDoubleValue());
 
-        List<SyncopeUser> result = new ArrayList<SyncopeUser>();
-        for (UAttrUniqueValue value :
-                (List<UAttrUniqueValue>) query.getResultList()) {
-
-            result.add((SyncopeUser) value.getAttribute().getOwner());
+        UAttrUniqueValue result = null;
+        try {
+            result = (UAttrUniqueValue) query.getSingleResult();
+        } catch (Exception e) {
+            LOG.debug("While finding by attribute unique value: " + schemaName
+                    + " {}", attrUniqueValue, e);
         }
 
-        return result;
+        return result == null
+                ? null : (SyncopeUser) result.getAttribute().getOwner();
     }
 
     @Override
