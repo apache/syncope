@@ -35,8 +35,6 @@ import org.syncope.core.persistence.beans.AbstractAttributable;
 import org.syncope.core.persistence.beans.AbstractAttr;
 import org.syncope.core.persistence.beans.AbstractDerAttr;
 import org.syncope.core.persistence.beans.Entitlement;
-import org.syncope.core.persistence.beans.membership.Membership;
-import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.hibernate.validator.constraints.Range;
 
 @Entity
@@ -55,10 +53,6 @@ public class SyncopeRole extends AbstractAttributable {
 
     @ManyToOne(optional = true)
     private SyncopeRole parent;
-
-    @OneToMany(cascade = CascadeType.MERGE, mappedBy = "syncopeRole")
-    @Valid
-    private List<Membership> memberships;
 
     @ManyToMany(fetch = FetchType.LAZY)
     private Set<Entitlement> entitlements;
@@ -82,7 +76,6 @@ public class SyncopeRole extends AbstractAttributable {
     public SyncopeRole() {
         super();
 
-        memberships = new ArrayList<Membership>();
         entitlements = new HashSet<Entitlement>();
         attributes = new ArrayList<RAttr>();
         derivedAttributes = new ArrayList<RDerAttr>();
@@ -125,32 +118,6 @@ public class SyncopeRole extends AbstractAttributable {
 
     public void setEntitlements(Set<Entitlement> entitlements) {
         this.entitlements = entitlements;
-    }
-
-    public boolean addMembership(Membership membership) {
-        return memberships.add(membership);
-    }
-
-    public boolean removeMembership(Membership membership) {
-        return memberships.remove(membership);
-    }
-
-    public List<Membership> getMemberships() {
-        return memberships;
-    }
-
-    public void setMemberships(List<Membership> memberships) {
-        this.memberships = memberships;
-    }
-
-    public Set<SyncopeUser> getUsers() {
-        Set<SyncopeUser> result = new HashSet<SyncopeUser>();
-
-        for (Membership membership : memberships) {
-            result.add(membership.getSyncopeUser());
-        }
-
-        return result;
     }
 
     @Override

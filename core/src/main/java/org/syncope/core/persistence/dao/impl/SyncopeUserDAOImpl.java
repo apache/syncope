@@ -232,7 +232,6 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
         for (Membership membership : user.getMemberships()) {
             membership.setSyncopeUser(null);
 
-            membership.getSyncopeRole().removeMembership(membership);
             syncopeRoleDAO.save(membership.getSyncopeRole());
             membership.setSyncopeRole(null);
 

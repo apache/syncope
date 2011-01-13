@@ -99,6 +99,16 @@ public class SyncopeRoleDAOImpl extends AbstractDAOImpl
     }
 
     @Override
+    public List<Membership> getMemberships(final SyncopeRole role) {
+        Query query = entityManager.createQuery(
+                "SELECT e FROM " + Membership.class.getSimpleName() + " e"
+                + " WHERE e.syncopeRole=:role");
+        query.setParameter("role", role);
+
+        return query.getResultList();
+    }
+
+    @Override
     public SyncopeRole save(final SyncopeRole syncopeRole) {
         return entityManager.merge(syncopeRole);
     }
@@ -119,14 +129,13 @@ public class SyncopeRoleDAOImpl extends AbstractDAOImpl
             delete(child.getId());
         }
 
-        for (Membership membership : role.getMemberships()) {
+        for (Membership membership : getMemberships(role)) {
             membership.setSyncopeRole(null);
             membership.getSyncopeUser().removeMembership(membership);
-            membership.setSyncopeRole(null);
+            membership.setSyncopeUser(null);
 
             entityManager.remove(membership);
         }
-        role.setMemberships(Collections.EMPTY_LIST);
 
         for (Entitlement entitlement : role.getEntitlements()) {
             entitlement.removeRole(role);

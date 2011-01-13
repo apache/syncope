@@ -14,6 +14,7 @@
  */
 package org.syncope.core.persistence.relationships;
 
+import java.util.List;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
@@ -28,6 +29,7 @@ import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.SyncopeRoleDAO;
 import org.syncope.core.persistence.dao.SyncopeUserDAO;
 import org.syncope.core.persistence.AbstractTest;
+import org.syncope.core.persistence.beans.membership.Membership;
 
 @Transactional
 public class UserTest extends AbstractTest {
@@ -57,6 +59,9 @@ public class UserTest extends AbstractTest {
         assertNull(attributeDAO.find(550L, UAttr.class));
         assertNull(attributeValueDAO.find(22L, UAttrValue.class));
         assertNotNull(schemaDAO.find("loginDate", USchema.class));
-        assertTrue(syncopeRoleDAO.find(7L).getUsers().isEmpty());
+
+        List<Membership> memberships =
+                syncopeRoleDAO.getMemberships(syncopeRoleDAO.find(7L));
+        assertTrue(memberships.isEmpty());
     }
 }
