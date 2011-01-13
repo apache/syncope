@@ -61,7 +61,6 @@ public class AttributeDAOImpl extends AbstractDAOImpl
         if (attribute.getOwner() != null) {
             attribute.getOwner().removeAttribute(attribute);
         }
-        attribute.getSchema().removeAttribute(attribute);
 
         entityManager.remove(attribute);
     }

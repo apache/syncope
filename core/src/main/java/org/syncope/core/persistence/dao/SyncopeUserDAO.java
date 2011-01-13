@@ -47,4 +47,6 @@ public interface SyncopeUserDAO extends DAO {
             throws InvalidEntityException;
 
     void delete(Long id);
+
+    void delete(SyncopeUser user);
 }

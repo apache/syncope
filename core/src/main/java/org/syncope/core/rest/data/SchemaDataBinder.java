@@ -31,6 +31,8 @@ import org.syncope.core.persistence.beans.AbstractAttrValue;
 import org.syncope.core.persistence.beans.AbstractDerSchema;
 import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.dao.DerivedSchemaDAO;
+import org.syncope.core.persistence.dao.SchemaDAO;
+import org.syncope.core.persistence.util.AttributableUtil;
 import org.syncope.types.SyncopeClientExceptionType;
 
 @Component
@@ -44,6 +46,9 @@ public class SchemaDataBinder {
 
     private static final String[] ignoreSchemaProperties = {
         "derivedSchemas", "attributes"};
+
+    @Autowired
+    private SchemaDAO schemaDAO;
 
     @Autowired
     private DerivedSchemaDAO derivedSchemaDAO;
@@ -116,20 +121,21 @@ public class SchemaDataBinder {
     public <T extends AbstractDerSchema> AbstractSchema update(
             final SchemaTO schemaTO,
             AbstractSchema schema,
-            final Class<T> derivedReference)
+            final AttributableUtil attributableUtil)
             throws SyncopeClientCompositeErrorException {
 
         SyncopeClientCompositeErrorException scce =
                 new SyncopeClientCompositeErrorException(
                 HttpStatus.BAD_REQUEST);
 
-        schema = populate(schema, schemaTO, derivedReference, scce);
+        schema = populate(schema, schemaTO,
+                attributableUtil.derivedSchemaClass(), scce);
 
         boolean validationExceptionFound = false;
         AbstractAttr attribute;
         AbstractAttrValue attributeValue;
-        for (Iterator<? extends AbstractAttr> aItor =
-                schema.getAttributes().iterator();
+        for (Iterator<? extends AbstractAttr> aItor = schemaDAO.getAttributes(
+                schema, attributableUtil.attributeClass()).iterator();
                 aItor.hasNext() && !validationExceptionFound;) {
 
             attribute = aItor.next();
@@ -160,14 +166,17 @@ public class SchemaDataBinder {
         return schema;
     }
 
-    public <T extends AbstractSchema> SchemaTO getSchemaTO(T schema) {
+    public <T extends AbstractSchema> SchemaTO getSchemaTO(T schema,
+            final AttributableUtil attributableUtil) {
+
         SchemaTO schemaTO = new SchemaTO();
         BeanUtils.copyProperties(schema, schemaTO, ignoreSchemaProperties);
 
         for (AbstractDerSchema derivedSchema : schema.getDerivedSchemas()) {
             schemaTO.addDerivedSchema(derivedSchema.getName());
         }
-        schemaTO.setAttributes(schema.getAttributes().size());
+        schemaTO.setAttributes(schemaDAO.getAttributes(
+                schema, attributableUtil.attributeClass()).size());
 
         return schemaTO;
     }

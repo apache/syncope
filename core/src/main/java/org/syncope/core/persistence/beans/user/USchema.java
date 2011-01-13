@@ -18,10 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.syncope.core.persistence.beans.AbstractAttr;
 import org.syncope.core.persistence.beans.AbstractDerSchema;
 import org.syncope.core.persistence.beans.AbstractSchema;
 
@@ -29,35 +27,11 @@ import org.syncope.core.persistence.beans.AbstractSchema;
 @Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 public class USchema extends AbstractSchema {
 
-    @OneToMany(mappedBy = "schema")
-    private List<UAttr> attributes;
-
     @ManyToMany(mappedBy = "schemas")
     private List<UDerSchema> derivedSchemas;
 
     public USchema() {
-        attributes = new ArrayList<UAttr>();
         derivedSchemas = new ArrayList<UDerSchema>();
-    }
-
-    @Override
-    public <T extends AbstractAttr> boolean addAttribute(T attribute) {
-        return attributes.add((UAttr) attribute);
-    }
-
-    @Override
-    public <T extends AbstractAttr> boolean removeAttribute(T attribute) {
-        return attributes.remove((UAttr) attribute);
-    }
-
-    @Override
-    public List<? extends AbstractAttr> getAttributes() {
-        return attributes;
-    }
-
-    @Override
-    public void setAttributes(List<? extends AbstractAttr> attributes) {
-        this.attributes = (List<UAttr>) attributes;
     }
 
     @Override

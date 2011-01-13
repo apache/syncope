@@ -221,6 +221,11 @@ public class SyncopeUserDAOImpl extends AbstractDAOImpl
             return;
         }
 
+        delete(user);
+    }
+
+    @Override
+    public void delete(final SyncopeUser user) {
         // Not calling membershipDAO.delete() here because it would try
         // to save this user as well, thus going into
         // ConcurrentModificationException

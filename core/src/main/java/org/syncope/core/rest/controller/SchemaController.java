@@ -30,6 +30,7 @@ import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.core.rest.data.SchemaDataBinder;
 import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.dao.SchemaDAO;
+import org.syncope.core.persistence.util.AttributableUtil;
 
 @Controller
 @RequestMapping("/schema")
@@ -56,7 +57,7 @@ public class SchemaController extends AbstractController {
         schema = schemaDAO.save(schema);
 
         response.setStatus(HttpServletResponse.SC_CREATED);
-        return schemaDataBinder.getSchemaTO(schema);
+        return schemaDataBinder.getSchemaTO(schema, getAttributableUtil(kind));
     }
 
     @PreAuthorize("hasRole('SCHEMA_DELETE')")
@@ -81,12 +82,14 @@ public class SchemaController extends AbstractController {
     @RequestMapping(method = RequestMethod.GET,
     value = "/{kind}/list")
     public List<SchemaTO> list(@PathVariable("kind") final String kind) {
-        Class reference = getAttributableUtil(kind).schemaClass();
-        List<AbstractSchema> schemas = schemaDAO.findAll(reference);
+        AttributableUtil attributableUtil = getAttributableUtil(kind);
+        List<AbstractSchema> schemas = schemaDAO.findAll(
+                attributableUtil.schemaClass());
 
         List<SchemaTO> schemaTOs = new ArrayList<SchemaTO>(schemas.size());
         for (AbstractSchema schema : schemas) {
-            schemaTOs.add(schemaDataBinder.getSchemaTO(schema));
+            schemaTOs.add(schemaDataBinder.getSchemaTO(
+                    schema, attributableUtil));
         }
 
         return schemaTOs;
@@ -99,14 +102,15 @@ public class SchemaController extends AbstractController {
             @PathVariable("schema") final String schemaName)
             throws NotFoundException {
 
-        Class reference = getAttributableUtil(kind).schemaClass();
-        AbstractSchema schema = schemaDAO.find(schemaName, reference);
+        AttributableUtil attributableUtil = getAttributableUtil(kind);
+        AbstractSchema schema = schemaDAO.find(schemaName,
+                attributableUtil.schemaClass());
         if (schema == null) {
             LOG.error("Could not find schema '" + schemaName + "'");
             throw new NotFoundException("Schema '" + schemaName + "'");
         }
 
-        return schemaDataBinder.getSchemaTO(schema);
+        return schemaDataBinder.getSchemaTO(schema, attributableUtil);
     }
 
     @PreAuthorize("hasRole('SCHEMA_UPDATE')")
@@ -116,17 +120,17 @@ public class SchemaController extends AbstractController {
             @PathVariable("kind") final String kind)
             throws SyncopeClientCompositeErrorException, NotFoundException {
 
-        Class reference = getAttributableUtil(kind).schemaClass();
-        AbstractSchema schema = schemaDAO.find(schemaTO.getName(), reference);
+        AttributableUtil attributableUtil = getAttributableUtil(kind);
+        AbstractSchema schema = schemaDAO.find(schemaTO.getName(),
+                attributableUtil.schemaClass());
         if (schema == null) {
             LOG.error("Could not find schema '" + schemaTO.getName() + "'");
             throw new NotFoundException("Schema '" + schemaTO.getName() + "'");
         }
 
-        schema = schemaDataBinder.update(schemaTO,
-                schema, getAttributableUtil(kind).derivedSchemaClass());
+        schema = schemaDataBinder.update(schemaTO, schema, attributableUtil);
         schema = schemaDAO.save(schema);
 
-        return schemaDataBinder.getSchemaTO(schema);
+        return schemaDataBinder.getSchemaTO(schema, attributableUtil);
     }
 }

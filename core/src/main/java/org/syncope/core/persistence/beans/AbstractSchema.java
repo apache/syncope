@@ -245,17 +245,6 @@ public abstract class AbstractSchema extends AbstractBaseBean {
         return result;
     }
 
-    public abstract <T extends AbstractAttr> boolean addAttribute(
-            T attribute);
-
-    public abstract <T extends AbstractAttr> boolean removeAttribute(
-            T attribute);
-
-    public abstract List<? extends AbstractAttr> getAttributes();
-
-    public abstract void setAttributes(
-            List<? extends AbstractAttr> attributes);
-
     public abstract <T extends AbstractDerSchema> boolean addDerivedSchema(
             T derivedSchema);
 

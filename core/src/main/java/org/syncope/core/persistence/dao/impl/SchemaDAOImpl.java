@@ -57,6 +57,18 @@ public class SchemaDAOImpl extends AbstractDAOImpl
     }
 
     @Override
+    public <T extends AbstractAttr> List<T> getAttributes(
+            AbstractSchema schema, Class<T> reference) {
+
+        Query query = entityManager.createQuery(
+                "SELECT e FROM " + reference.getSimpleName() + " e"
+                + " WHERE e.schema=:schema");
+        query.setParameter("schema", schema);
+
+        return query.getResultList();
+    }
+
+    @Override
     public <T extends AbstractSchema> T save(final T schema) {
         return entityManager.merge(schema);
     }
@@ -75,15 +87,15 @@ public class SchemaDAOImpl extends AbstractDAOImpl
         }
         schema.getDerivedSchemas().clear();
 
-        Set<Long> attributeIds =
-                new HashSet<Long>(schema.getAttributes().size());
-        Class attributeClass = null;
-        for (AbstractAttr attribute : schema.getAttributes()) {
+        List<? extends AbstractAttr> attributes = getAttributes(schema,
+                attributableUtil.attributeClass());
+
+        Set<Long> attributeIds = new HashSet<Long>(attributes.size());
+        for (AbstractAttr attribute : attributes) {
             attributeIds.add(attribute.getId());
-            attributeClass = attribute.getClass();
         }
         for (Long attributeId : attributeIds) {
-            attributeDAO.delete(attributeId, attributeClass);
+            attributeDAO.delete(attributeId, attributableUtil.attributeClass());
         }
 
         resourceDAO.deleteMappings(name, attributableUtil.sourceMappingType());
