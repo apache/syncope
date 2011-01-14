@@ -86,7 +86,7 @@ public class TaskTestITCase extends AbstractTest {
 
         // To be sure that the execution above has time to start
         try {
-            Thread.sleep(5000);
+            Thread.sleep(10000);
         } catch (InterruptedException e) {
         }
 

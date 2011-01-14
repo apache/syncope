@@ -31,9 +31,8 @@
     <properties>
         <hsqldb.version>2.0.0</hsqldb.version>
 
-        <jetty.port>8888</jetty.port>
-
         <cargo.servlet.port>9080</cargo.servlet.port>
+        <cargo.run.dir>${project.build.directory}/syncope-core-test</cargo.run.dir>
         <cargo.log>/var/tmp/syncope-core-cargo.log</cargo.log>
         <cargo.output>/var/tmp/syncope-core-cargo-output.log</cargo.output>
 
@@ -365,57 +364,27 @@
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
+                <artifactId>maven-antrun-plugin</artifactId>
                 <inherited>true</inherited>
                 <executions>
                     <execution>
-                        <id>integration-test-resources</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
+                        <id>explodeSyncopeWAR</id>
+                        <phase>package</phase>
                         <configuration>
-                            <finalName>integration-test</finalName>
-                            <classesDirectory>${project.build.directory}/test-classes</classesDirectory>
-                            <includes>
-                                <include>**/persistence.properties</include>
-                                <include>**/security.properties</include>
-                                <include>**/ehcache.xml</include>
-                                <include>**/content.xml</include>
-                            </includes>
+                            <tasks>
+                                <unzip src="${project.build.directory}/${project.build.finalName}.war"
+                                       dest="${cargo.run.dir}">
+                                    <patternset>
+                                        <exclude name="**/content.xml"/>
+                                        <exclude name="**/ehcache.xml"/>
+                                        <exclude name="**/persistence.properties"/>
+                                        <exclude name="**/security.properties"/>
+                                    </patternset>
+                                </unzip>
+                            </tasks>
                         </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <inherited>true</inherited>
-                <configuration>
-                    <attachClasses>true</attachClasses>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>integration-test-war</id>
-                        <phase>pre-integration-test</phase>
                         <goals>
-                            <goal>war</goal>
-                        </goals>
-                        <configuration>
-                            <packagingExcludes>
-                                WEB-INF/classes/persistence.properties,
-                                WEB-INF/classes/security.properties,
-                                WEB-INF/classes/ehcache.xml,
-                                WEB-INF/classes/content.xml
-                            </packagingExcludes>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>repackage-war</id>
-                        <phase>post-integration-test</phase>
-                        <goals>
-                            <goal>war</goal>
+                            <goal>run</goal>
                         </goals>
                     </execution>
                 </executions>
@@ -470,7 +439,7 @@
                                 <location>${settings.localRepository}/org/hsqldb/hsqldb/${hsqldb.version}/hsqldb-${hsqldb.version}.jar</location>
                             </dependency>
                             <dependency>
-                                <location>${project.build.directory}/integration-test.jar</location>
+                                <location>${project.build.directory}/test-classes/</location>
                             </dependency>
                         </dependencies>
                     </container>
@@ -483,7 +452,16 @@
                         </properties>
                         <deployables>
                             <deployable>
-                                <location>${project.build.directory}/${project.build.finalName}.war</location>
+                                <location>${cargo.run.dir}</location>
+                                <properties>
+                                    <context>syncope</context>
+                                </properties>
+                            </deployable>
+                            <deployable>
+                                <location>${basedir}/../identityconnectors/bundles/staticws/ws-target-resource/target/ws-target-resource-${project.version}.war</location>
+                                <properties>
+                                    <context>wstarget</context>
+                                </properties>
                             </deployable>
                         </deployables>
                     </configuration>
@@ -498,49 +476,6 @@
                     </execution>
                     <execution>
                         <id>stop-container</id>
-                        <phase>post-integration-test</phase>
-                        <goals>
-                            <goal>stop</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.mortbay.jetty</groupId>
-                <artifactId>maven-jetty-plugin</artifactId>
-                <inherited>true</inherited>
-                <configuration>
-                    <stopKey>foo</stopKey>
-                    <stopPort>9999</stopPort>
-                    <webApp>${basedir}/../identityconnectors/bundles/staticws/ws-target-resource/target/ws-target-resource-${project.version}.war</webApp>
-                    <contextPath>wstarget</contextPath>
-                    <connectors>
-                        <connector implementation="org.mortbay.jetty.nio.SelectChannelConnector">
-                            <port>${jetty.port}</port>
-                        </connector>
-                    </connectors>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>start-jetty</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>run-war</goal>
-                        </goals>
-                        <configuration>
-                            <scanIntervalSeconds>0</scanIntervalSeconds>
-                            <daemon>true</daemon>
-                            <systemProperties>
-                                <systemProperty>
-                                    <name>logback.configurationFile</name>
-                                    <value>file:${project.build.directory}/test-classes/logback-jetty.xml</value>
-                                </systemProperty>
-                            </systemProperties>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>stop-jetty</id>
                         <phase>post-integration-test</phase>
                         <goals>
                             <goal>stop</goal>
