@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
-import org.syncope.core.persistence.dao.SyncopeUserDAO;
+import org.syncope.core.persistence.dao.UserDAO;
 import org.syncope.core.persistence.propagation.PropagationException;
 import org.syncope.core.rest.data.UserDataBinder;
 import java.util.ArrayList;
@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javassist.NotFoundException;
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import jpasymphony.dao.JPAWorkflowEntryDAO;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -55,6 +56,7 @@ import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
 import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
+import org.syncope.core.persistence.dao.UserSearchDAO;
 import org.syncope.core.persistence.propagation.PropagationManager;
 import org.syncope.core.persistence.propagation.ResourceOperations;
 import org.syncope.core.rest.data.InvalidSearchConditionException;
@@ -66,8 +68,19 @@ import org.syncope.types.SyncopeClientExceptionType;
 @RequestMapping("/user")
 public class UserController extends AbstractController {
 
+    public enum SearchMode {
+
+        CRITERIA, NATIVE
+
+    }
     @Autowired
-    private SyncopeUserDAO syncopeUserDAO;
+    private UserDAO userDAO;
+
+    @Resource(name = "userSearchDAOCriteriaImpl")
+    private UserSearchDAO userSearchCriteriaDAO;
+
+    @Resource(name = "userSearchDAONativeImpl")
+    private UserSearchDAO userSearchNativeDAO;
 
     @Autowired
     private JPAWorkflowEntryDAO workflowEntryDAO;
@@ -80,6 +93,42 @@ public class UserController extends AbstractController {
 
     @Autowired
     private PropagationManager propagationManager;
+
+    protected static SearchMode searchMode;
+
+    public static SearchMode getSearchMode() {
+        return searchMode;
+    }
+
+    public static void setSearchMode(String searchMode) {
+        try {
+            UserController.searchMode = SearchMode.valueOf(searchMode);
+        } catch (IllegalArgumentException e) {
+            LOG.error("Invalid search mode specified: " + searchMode
+                    + ", reverting to CRITERIA");
+
+            UserController.searchMode = SearchMode.CRITERIA;
+        }
+    }
+
+    private UserSearchDAO getSelectedUserSearchDAO() {
+        UserSearchDAO result;
+
+        switch (getSearchMode()) {
+            case CRITERIA:
+                result = userSearchCriteriaDAO;
+                break;
+
+            case NATIVE:
+                result = userSearchNativeDAO;
+                break;
+
+            default:
+                result = userSearchCriteriaDAO;
+        }
+
+        return result;
+    }
 
     public Integer findWorkflowAction(final Long workflowId,
             final String actionName) {
@@ -114,7 +163,7 @@ public class UserController extends AbstractController {
             final Map<String, Object> moreInputs)
             throws WorkflowException, NotFoundException {
 
-        SyncopeUser user = syncopeUserDAO.find(userId);
+        SyncopeUser user = userDAO.find(userId);
         if (user == null) {
             throw new NotFoundException("User " + userId);
         }
@@ -138,7 +187,7 @@ public class UserController extends AbstractController {
             throw new WorkflowException(e);
         }
 
-        return syncopeUserDAO.save(user);
+        return userDAO.save(user);
     }
 
     @PreAuthorize("hasRole('USER_UPDATE')")
@@ -200,7 +249,7 @@ public class UserController extends AbstractController {
             @RequestParam("password") final String password)
             throws NotFoundException {
 
-        SyncopeUser user = syncopeUserDAO.find(userId);
+        SyncopeUser user = userDAO.find(userId);
         if (user == null) {
             throw new NotFoundException("User " + userId);
         }
@@ -217,7 +266,7 @@ public class UserController extends AbstractController {
     value = "/list")
     @Transactional(readOnly = true)
     public List<UserTO> list() {
-        List<SyncopeUser> users = syncopeUserDAO.findAll();
+        List<SyncopeUser> users = userDAO.findAll();
         List<UserTO> userTOs = new ArrayList<UserTO>(users.size());
         for (SyncopeUser user : users) {
             userTOs.add(userDataBinder.getUserTO(user, userWorkflow));
@@ -238,10 +287,10 @@ public class UserController extends AbstractController {
         paginatedResult.setPageNumber(page);
         paginatedResult.setPageSize(size);
 
-        Long totalUsers = syncopeUserDAO.count();
+        Long totalUsers = userDAO.count();
         paginatedResult.setTotalRecords(totalUsers);
 
-        List<SyncopeUser> users = syncopeUserDAO.findAll(page, size);
+        List<SyncopeUser> users = userDAO.findAll(page, size);
         List<UserTO> userTOs = new ArrayList<UserTO>(users.size());
         for (SyncopeUser user : users) {
             userTOs.add(userDataBinder.getUserTO(user, userWorkflow));
@@ -260,7 +309,7 @@ public class UserController extends AbstractController {
     public UserTO read(@PathVariable("userId") Long userId)
             throws NotFoundException {
 
-        SyncopeUser user = syncopeUserDAO.find(userId);
+        SyncopeUser user = userDAO.find(userId);
         if (user == null) {
             throw new NotFoundException("User " + userId);
         }
@@ -275,7 +324,7 @@ public class UserController extends AbstractController {
     public WorkflowActionsTO getActions(@PathVariable("userId") Long userId)
             throws NotFoundException {
 
-        SyncopeUser user = syncopeUserDAO.find(userId);
+        SyncopeUser user = userDAO.find(userId);
         if (user == null) {
             throw new NotFoundException("User " + userId);
         }
@@ -308,7 +357,7 @@ public class UserController extends AbstractController {
         }
 
         List<SyncopeUser> matchingUsers =
-                syncopeUserDAO.search(searchCondition);
+                getSelectedUserSearchDAO().search(searchCondition);
         List<UserTO> result = new ArrayList<UserTO>(matchingUsers.size());
         for (SyncopeUser user : matchingUsers) {
             result.add(userDataBinder.getUserTO(user, userWorkflow));
@@ -338,8 +387,8 @@ public class UserController extends AbstractController {
             throw new InvalidSearchConditionException();
         }
 
-        final List<SyncopeUser> matchingUsers = syncopeUserDAO.search(
-                searchCondition, page, size, paginatedResult);
+        final List<SyncopeUser> matchingUsers = getSelectedUserSearchDAO().
+                search(searchCondition, page, size, paginatedResult);
 
         final List<UserTO> result = new ArrayList<UserTO>(matchingUsers.size());
         for (SyncopeUser user : matchingUsers) {
@@ -359,7 +408,7 @@ public class UserController extends AbstractController {
     public ModelAndView getStatus(@PathVariable("userId") Long userId)
             throws NotFoundException {
 
-        SyncopeUser user = syncopeUserDAO.find(userId);
+        SyncopeUser user = userDAO.find(userId);
         if (user == null) {
             throw new NotFoundException("User " + userId);
         }
@@ -448,7 +497,7 @@ public class UserController extends AbstractController {
         // The user to be created
         SyncopeUser user = new SyncopeUser();
         userDataBinder.create(user, userTO);
-        user = syncopeUserDAO.save(user);
+        user = userDAO.save(user);
 
         // Now that user is created locally, let's propagate
         Set<String> syncResourceNames =
@@ -481,7 +530,7 @@ public class UserController extends AbstractController {
             LOG.debug("Action {} on user {} run successfully", wfAction, user);
         }
 
-        user = syncopeUserDAO.save(user);
+        user = userDAO.save(user);
 
         final UserTO savedTO = userDataBinder.getUserTO(user, userWorkflow);
         LOG.debug("About to return create user\n{}", savedTO);
@@ -502,7 +551,7 @@ public class UserController extends AbstractController {
 
         LOG.debug("update called with parameter {}", userMod);
 
-        SyncopeUser user = syncopeUserDAO.find(userMod.getId());
+        SyncopeUser user = userDAO.find(userMod.getId());
         if (user == null) {
             throw new NotFoundException("User " + userMod.getId());
         }
@@ -515,7 +564,7 @@ public class UserController extends AbstractController {
         // Update user with provided userMod
         ResourceOperations resourceOperations =
                 userDataBinder.update(user, userMod);
-        user = syncopeUserDAO.save(user);
+        user = userDAO.save(user);
 
         // Now that user is update locally, let's propagate
         Set<String> syncResourceNames =
@@ -541,7 +590,7 @@ public class UserController extends AbstractController {
             required = false) Set<String> syncResources)
             throws NotFoundException, WorkflowException, PropagationException {
 
-        SyncopeUser user = syncopeUserDAO.find(userId);
+        SyncopeUser user = userDAO.find(userId);
         if (user == null) {
             throw new NotFoundException("User " + userId);
         }
@@ -562,6 +611,6 @@ public class UserController extends AbstractController {
         if (user.getWorkflowId() != null) {
             workflowEntryDAO.delete(user.getWorkflowId());
         }
-        syncopeUserDAO.delete(userId);
+        userDAO.delete(userId);
     }
 }

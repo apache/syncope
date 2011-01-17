@@ -24,7 +24,7 @@ import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.MembershipDAO;
 import org.syncope.core.persistence.AbstractTest;
-import org.syncope.core.persistence.dao.SyncopeRoleDAO;
+import org.syncope.core.persistence.dao.RoleDAO;
 
 @Transactional
 public class MembershipTest extends AbstractTest {
@@ -33,7 +33,7 @@ public class MembershipTest extends AbstractTest {
     private MembershipDAO membershipDAO;
 
     @Autowired
-    private SyncopeRoleDAO syncopeRoleDAO;
+    private RoleDAO syncopeRoleDAO;
 
     @Test
     public final void delete() {

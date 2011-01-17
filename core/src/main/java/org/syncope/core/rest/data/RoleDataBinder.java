@@ -58,7 +58,7 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
             role.setName(roleTO.getName());
         }
         Long parentRoleId = null;
-        SyncopeRole parentRole = syncopeRoleDAO.find(roleTO.getParent());
+        SyncopeRole parentRole = roleDAO.find(roleTO.getParent());
         if (parentRole == null) {
             LOG.error("Could not find role with id " + roleTO.getParent());
 
@@ -69,7 +69,7 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
             parentRoleId = role.getParent().getId();
         }
 
-        SyncopeRole otherRole = syncopeRoleDAO.find(
+        SyncopeRole otherRole = roleDAO.find(
                 roleTO.getName(), parentRoleId);
         if (otherRole != null) {
             LOG.error("Another role exists with the same name "
@@ -106,7 +106,7 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
         SyncopeClientException invalidRoles = new SyncopeClientException(
                 SyncopeClientExceptionType.InvalidRoles);
         if (roleMod.getName() != null) {
-            SyncopeRole otherRole = syncopeRoleDAO.find(
+            SyncopeRole otherRole = roleDAO.find(
                     roleMod.getName(), role.getParent().getId());
 
             if (otherRole != null) {

@@ -23,15 +23,14 @@ import org.springframework.stereotype.Repository;
 import org.syncope.core.persistence.beans.AbstractDerAttr;
 import org.syncope.core.persistence.beans.AbstractDerSchema;
 import org.syncope.core.persistence.beans.AbstractSchema;
-import org.syncope.core.persistence.dao.DerivedAttributeDAO;
-import org.syncope.core.persistence.dao.DerivedSchemaDAO;
+import org.syncope.core.persistence.dao.DerAttrDAO;
+import org.syncope.core.persistence.dao.DerSchemaDAO;
 
 @Repository
-public class DerivedSchemaDAOImpl extends AbstractDAOImpl
-        implements DerivedSchemaDAO {
+public class DerSchemaDAOImpl extends AbstractDAOImpl implements DerSchemaDAO {
 
     @Autowired
-    private DerivedAttributeDAO derivedAttributeDAO;
+    private DerAttrDAO derivedAttributeDAO;
 
     @Override
     public <T extends AbstractDerSchema> T find(final String name,

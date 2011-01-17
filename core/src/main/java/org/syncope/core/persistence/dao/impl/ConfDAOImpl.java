@@ -19,11 +19,10 @@ import javax.persistence.Query;
 import org.springframework.stereotype.Repository;
 import org.syncope.core.persistence.beans.SyncopeConf;
 import org.syncope.core.persistence.dao.MissingConfKeyException;
-import org.syncope.core.persistence.dao.SyncopeConfDAO;
+import org.syncope.core.persistence.dao.ConfDAO;
 
 @Repository
-public class SyncopeConfDAOImpl extends AbstractDAOImpl
-        implements SyncopeConfDAO {
+public class ConfDAOImpl extends AbstractDAOImpl implements ConfDAO {
 
     @Override
     public SyncopeConf find(final String name)

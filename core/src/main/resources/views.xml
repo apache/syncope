@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+    <comment>Views</comment>
+    <entry key="user_search_attr">
+CREATE MATERIALIZED VIEW user_search_attr
+PARALLEL
+BUILD IMMEDIATE
+REFRESH FORCE
+AS
+
+SELECT ua.owner_id AS owner_id,
+ua.schema_name AS schema_name,
+uav.booleanvalue AS booleanvalue,
+uav.datevalue AS datevalue,
+uav.doublevalue AS doublevalue,
+uav.longvalue AS longvalue,
+uav.stringvalue AS stringvalue
+FROM uattruniquevalue uav, uattr ua
+WHERE uav.attribute_id = ua.id
+
+UNION
+
+SELECT ua.owner_id AS owner_id,
+ua.schema_name AS schema_name,
+uav.booleanvalue AS booleanvalue,
+uav.datevalue AS datevalue,
+uav.doublevalue AS doublevalue,
+uav.longvalue AS longvalue,
+uav.stringvalue AS stringvalue
+FROM uattrvalue uav, uattr ua
+WHERE uav.attribute_id = ua.id
+
+UNION
+
+SELECT u.id AS owner_id, uschema.name AS schema_name,
+NULL AS booleanvalue,
+NULL AS datevalue,
+NULL AS doublevalue,
+NULL AS longvalue,
+NULL AS stringvalue
+FROM syncopeuser u CROSS JOIN uschema
+LEFT OUTER JOIN uattr ua ON (uschema.name = ua.schema_name AND ua.owner_id = u.id)
+WHERE ua.id IS NULL
+    </entry>
+    <entry key="user_search_membership">
+CREATE MATERIALIZED VIEW user_search_membership
+PARALLEL
+BUILD IMMEDIATE
+REFRESH FORCE
+AS
+
+SELECT m.syncopeuser_id AS user_id, r.id AS role_id, r.name AS role_name
+FROM membership m, syncoperole r
+WHERE m.syncoperole_id = r.id
+    </entry>
+</properties>

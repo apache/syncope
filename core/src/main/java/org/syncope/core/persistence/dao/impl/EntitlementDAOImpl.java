@@ -22,14 +22,14 @@ import org.springframework.stereotype.Repository;
 import org.syncope.core.persistence.beans.Entitlement;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.dao.EntitlementDAO;
-import org.syncope.core.persistence.dao.SyncopeRoleDAO;
+import org.syncope.core.persistence.dao.RoleDAO;
 
 @Repository
 public class EntitlementDAOImpl extends AbstractDAOImpl
         implements EntitlementDAO {
 
     @Autowired
-    private SyncopeRoleDAO syncopeRoleDAO;
+    private RoleDAO syncopeRoleDAO;
 
     @Override
     public Entitlement find(String name) {

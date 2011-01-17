@@ -23,7 +23,7 @@ import org.springframework.stereotype.Repository;
 import org.syncope.core.persistence.beans.AbstractAttr;
 import org.syncope.core.persistence.beans.AbstractDerSchema;
 import org.syncope.core.persistence.beans.AbstractSchema;
-import org.syncope.core.persistence.dao.AttributeDAO;
+import org.syncope.core.persistence.dao.AttrDAO;
 import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.util.AttributableUtil;
@@ -33,7 +33,7 @@ public class SchemaDAOImpl extends AbstractDAOImpl
         implements SchemaDAO {
 
     @Autowired
-    private AttributeDAO attributeDAO;
+    private AttrDAO attributeDAO;
 
     @Autowired
     private ResourceDAO resourceDAO;

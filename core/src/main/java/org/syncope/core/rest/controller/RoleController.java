@@ -29,7 +29,7 @@ import org.syncope.client.mod.RoleMod;
 import org.syncope.client.to.RoleTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
-import org.syncope.core.persistence.dao.SyncopeRoleDAO;
+import org.syncope.core.persistence.dao.RoleDAO;
 import org.syncope.core.rest.data.RoleDataBinder;
 
 @Controller
@@ -37,7 +37,7 @@ import org.syncope.core.rest.data.RoleDataBinder;
 public class RoleController extends AbstractController {
 
     @Autowired
-    private SyncopeRoleDAO syncopeRoleDAO;
+    private RoleDAO syncopeRoleDAO;
 
     @Autowired
     private RoleDataBinder roleDataBinder;

@@ -22,11 +22,10 @@ import org.springframework.stereotype.Repository;
 import org.syncope.core.persistence.beans.Entitlement;
 import org.syncope.core.persistence.beans.membership.Membership;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
-import org.syncope.core.persistence.dao.SyncopeRoleDAO;
+import org.syncope.core.persistence.dao.RoleDAO;
 
 @Repository
-public class SyncopeRoleDAOImpl extends AbstractDAOImpl
-        implements SyncopeRoleDAO {
+public class RoleDAOImpl extends AbstractDAOImpl implements RoleDAO {
 
     @Override
     public SyncopeRole find(final Long id) {

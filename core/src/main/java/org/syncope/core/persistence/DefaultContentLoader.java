@@ -36,6 +36,7 @@ import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.syncope.core.persistence.beans.SyncopeConf;
+import org.syncope.core.rest.controller.UserController;
 
 /**
  * Load default content in the database.
@@ -102,6 +103,31 @@ public class DefaultContentLoader implements ServletContextListener {
 
         LOG.info("Empty database found, loading default content");
 
+        LOG.debug("Creating views");
+        try {
+            InputStream viewsStream = getClass().getResourceAsStream(
+                    "/views.xml");
+            Properties views = new Properties();
+            views.loadFromXML(viewsStream);
+
+            for (String idx : views.stringPropertyNames()) {
+                LOG.debug("Creating view {}", views.get(idx).toString());
+
+                try {
+                    statement = conn.createStatement();
+                    statement.executeUpdate(views.get(idx).toString().
+                            replaceAll("\\n", " "));
+                    statement.close();
+                } catch (SQLException e) {
+                    LOG.error("Could not create view ", e);
+                }
+            }
+
+            LOG.debug("Views created, go for indexes");
+        } catch (Throwable t) {
+            LOG.error("While creating views", t);
+        }
+
         LOG.debug("Creating indexes");
         try {
             InputStream indexesStream = getClass().getResourceAsStream(
@@ -127,12 +153,14 @@ public class DefaultContentLoader implements ServletContextListener {
         }
 
         String dbSchema = null;
+        String searchMode = null;
         try {
             InputStream dbPropsStream = getClass().getResourceAsStream(
                     "/persistence.properties");
             Properties dbProps = new Properties();
             dbProps.load(dbPropsStream);
             dbSchema = dbProps.getProperty("database.schema");
+            searchMode = dbProps.getProperty("search.mode");
         } catch (Throwable t) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Could not find persistence.properties", t);
@@ -140,6 +168,10 @@ public class DefaultContentLoader implements ServletContextListener {
                 LOG.error("Could not find persistence.properties");
             }
         }
+
+        LOG.debug("Setting sarch mode to " + searchMode);
+        UserController.setSearchMode(searchMode);
+        LOG.debug("Search mode set to {}", UserController.getSearchMode());
 
         try {
             IDatabaseConnection dbUnitConn = dbSchema == null

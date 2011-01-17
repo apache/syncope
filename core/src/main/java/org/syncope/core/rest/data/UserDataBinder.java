@@ -161,7 +161,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         // memberships
         SyncopeRole role;
         for (MembershipTO membershipTO : userTO.getMemberships()) {
-            role = syncopeRoleDAO.find(membershipTO.getRoleId());
+            role = roleDAO.find(membershipTO.getRoleId());
 
             if (role == null) {
                 if (LOG.isDebugEnabled()) {
@@ -295,7 +295,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
                         + membershipMod.getRole() + ")");
             }
 
-            role = syncopeRoleDAO.find(membershipMod.getRole());
+            role = roleDAO.find(membershipMod.getRole());
             if (role == null) {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Ignoring invalid role "

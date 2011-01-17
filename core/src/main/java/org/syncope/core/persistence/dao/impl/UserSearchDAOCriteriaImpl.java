@@ -14,10 +14,8 @@
  */
 package org.syncope.core.persistence.dao.impl;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.validation.ValidationException;
 import org.hibernate.Criteria;
@@ -30,256 +28,22 @@ import org.springframework.stereotype.Repository;
 import org.syncope.client.search.AttributeCond;
 import org.syncope.client.search.MembershipCond;
 import org.syncope.client.search.NodeCond;
-import org.syncope.client.search.PaginatedResult;
 import org.syncope.core.persistence.beans.AbstractAttrValue;
-import org.syncope.core.persistence.beans.membership.Membership;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
-import org.syncope.core.persistence.beans.user.UAttrUniqueValue;
 import org.syncope.core.persistence.beans.user.UAttrValue;
 import org.syncope.core.persistence.beans.user.USchema;
 import org.syncope.core.persistence.dao.SchemaDAO;
-import org.syncope.core.persistence.dao.SyncopeRoleDAO;
-import org.syncope.core.persistence.dao.SyncopeUserDAO;
+import org.syncope.core.persistence.dao.UserSearchDAO;
 
 @Repository
-public class SyncopeUserDAOImpl extends AbstractDAOImpl
-        implements SyncopeUserDAO {
+public class UserSearchDAOCriteriaImpl extends AbstractUserSearchDAOImpl
+        implements UserSearchDAO {
 
     @Autowired
     private SchemaDAO schemaDAO;
 
-    @Autowired
-    private SyncopeRoleDAO syncopeRoleDAO;
-
     @Override
-    public SyncopeUser find(final Long id) {
-        Query query = entityManager.createQuery(
-                "SELECT e FROM SyncopeUser e WHERE e.id = :id");
-        query.setHint("org.hibernate.cacheable", true);
-        query.setParameter("id", id);
-
-        try {
-            return (SyncopeUser) query.getSingleResult();
-        } catch (NoResultException e) {
-            return null;
-        }
-    }
-
-    @Override
-    public SyncopeUser findByWorkflowId(final Long workflowId) {
-        Query query = entityManager.createQuery(
-                "SELECT e FROM SyncopeUser e WHERE e.workflowId = :workflowId");
-        query.setHint("org.hibernate.cacheable", true);
-        query.setParameter("workflowId", workflowId);
-
-        return (SyncopeUser) query.getSingleResult();
-    }
-
-    @Override
-    public List<SyncopeUser> findByAttrValue(final String schemaName,
-            final UAttrValue attrValue) {
-
-        StringBuilder queryHead1 = new StringBuilder(
-                "SELECT e FROM " + UAttrValue.class.getName() + " e");
-        StringBuilder queryHead2 = new StringBuilder(
-                "SELECT e FROM " + UAttrUniqueValue.class.getName() + " e");
-
-        StringBuilder whereCondition = new StringBuilder().append(
-                " WHERE e.attribute.schema.name = :schemaName ").
-                append(" AND (e.stringValue IS NOT NULL").
-                append(" AND e.stringValue = :stringValue)").
-                append(" OR (e.booleanValue IS NOT NULL").
-                append(" AND e.booleanValue = :booleanValue)").
-                append(" OR (e.dateValue IS NOT NULL").
-                append(" AND e.dateValue = :dateValue)").
-                append(" OR (e.longValue IS NOT NULL").
-                append(" AND e.longValue = :longValue)").
-                append(" OR (e.doubleValue IS NOT NULL").
-                append(" AND e.doubleValue = :doubleValue)");
-
-        Query query = entityManager.createQuery(
-                queryHead1.append(whereCondition).toString());
-
-        query.setParameter("schemaName", schemaName);
-        query.setParameter("stringValue", attrValue.getStringValue());
-        query.setParameter("booleanValue", attrValue.getBooleanValue() == null
-                ? null
-                : attrValue.getBooleanAsInteger(attrValue.getBooleanValue()));
-        query.setParameter("dateValue", attrValue.getDateValue());
-        query.setParameter("longValue", attrValue.getLongValue());
-        query.setParameter("doubleValue", attrValue.getDoubleValue());
-
-        List<UAttrValue> result1 = query.getResultList();
-
-        query = entityManager.createQuery(
-                queryHead2.append(whereCondition).toString());
-
-        query.setParameter("schemaName", schemaName);
-        query.setParameter("stringValue", attrValue.getStringValue());
-        query.setParameter("booleanValue", attrValue.getBooleanValue() == null
-                ? null
-                : attrValue.getBooleanAsInteger(attrValue.getBooleanValue()));
-        query.setParameter("dateValue", attrValue.getDateValue());
-        query.setParameter("longValue", attrValue.getLongValue());
-        query.setParameter("doubleValue", attrValue.getDoubleValue());
-
-        List<UAttrUniqueValue> result2 = query.getResultList();
-
-        List<SyncopeUser> result = new ArrayList<SyncopeUser>();
-        for (UAttrValue value : (List<UAttrValue>) result1) {
-
-            result.add((SyncopeUser) value.getAttribute().getOwner());
-        }
-        for (UAttrUniqueValue value : (List<UAttrUniqueValue>) result2) {
-
-            result.add((SyncopeUser) value.getAttribute().getOwner());
-        }
-
-        return result;
-    }
-
-    @Override
-    public SyncopeUser findByAttrUniqueValue(final String schemaName,
-            final UAttrValue attrUniqueValue) {
-
-        Query query = entityManager.createQuery(
-                "SELECT e FROM " + UAttrUniqueValue.class.getSimpleName() + " e"
-                + " WHERE e.attribute.schema.name = :schemaName "
-                + " AND (e.stringValue IS NOT NULL"
-                + " AND e.stringValue = :stringValue)"
-                + " OR (e.booleanValue IS NOT NULL"
-                + " AND e.booleanValue = :booleanValue)"
-                + " OR (e.dateValue IS NOT NULL"
-                + " AND e.dateValue = :dateValue)"
-                + " OR (e.longValue IS NOT NULL"
-                + " AND e.longValue = :longValue)"
-                + " OR (e.doubleValue IS NOT NULL"
-                + " AND e.doubleValue = :doubleValue)");
-
-        query.setParameter("schemaName", schemaName);
-        query.setParameter("stringValue", attrUniqueValue.getStringValue());
-        query.setParameter("booleanValue",
-                attrUniqueValue.getBooleanValue() == null
-                ? null
-                : attrUniqueValue.getBooleanAsInteger(attrUniqueValue.
-                getBooleanValue()));
-        query.setParameter("dateValue", attrUniqueValue.getDateValue());
-        query.setParameter("longValue", attrUniqueValue.getLongValue());
-        query.setParameter("doubleValue", attrUniqueValue.getDoubleValue());
-
-        UAttrUniqueValue result = null;
-        try {
-            result = (UAttrUniqueValue) query.getSingleResult();
-        } catch (Exception e) {
-            LOG.debug("While finding by attribute unique value: " + schemaName
-                    + " {}", attrUniqueValue, e);
-        }
-
-        return result == null
-                ? null : (SyncopeUser) result.getAttribute().getOwner();
-    }
-
-    @Override
-    public final List<SyncopeUser> findAll() {
-        return findAll(-1, -1);
-    }
-
-    @Override
-    public final List<SyncopeUser> findAll(
-            final int page, final int itemsPerPage) {
-
-        final Query query = entityManager.createQuery(
-                "SELECT e FROM SyncopeUser e ORDER BY e.id");
-
-        query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
-
-        if (itemsPerPage > 0) {
-            query.setMaxResults(itemsPerPage);
-        }
-
-        return query.getResultList();
-    }
-
-    @Override
-    public final Long count() {
-
-        final Query query = entityManager.createQuery(
-                "SELECT count(e.id) FROM SyncopeUser e");
-
-        return (Long) query.getSingleResult();
-    }
-
-    @Override
-    public SyncopeUser save(final SyncopeUser syncopeUser) {
-        return entityManager.merge(syncopeUser);
-    }
-
-    @Override
-    public void delete(final Long id) {
-        SyncopeUser user = find(id);
-        if (user == null) {
-            return;
-        }
-
-        delete(user);
-    }
-
-    @Override
-    public void delete(final SyncopeUser user) {
-        // Not calling membershipDAO.delete() here because it would try
-        // to save this user as well, thus going into
-        // ConcurrentModificationException
-        for (Membership membership : user.getMemberships()) {
-            membership.setSyncopeUser(null);
-
-            syncopeRoleDAO.save(membership.getSyncopeRole());
-            membership.setSyncopeRole(null);
-
-            entityManager.remove(membership);
-        }
-        user.getMemberships().clear();
-
-        entityManager.remove(user);
-    }
-
-    @Override
-    public List<SyncopeUser> search(final NodeCond searchCondition) {
-        return search(searchCondition, -1, -1, null);
-    }
-
-    @Override
-    public List<SyncopeUser> search(final NodeCond searchCondition,
-            final int page,
-            final int itemsPerPage,
-            final PaginatedResult paginatedResult) {
-
-        LOG.debug("Search condition:\n{}", searchCondition);
-
-        List<SyncopeUser> result;
-        try {
-            result = doSearch(searchCondition);
-        } catch (Throwable t) {
-            LOG.error("While searching users", t);
-
-            result = Collections.EMPTY_LIST;
-        }
-
-        if (paginatedResult != null) {
-            paginatedResult.setTotalRecords(
-                    new Long((long) result.size()));
-        }
-
-        // TODO: temporary solution to the paginated search
-        int from = itemsPerPage * (page <= 0 ? 0 : page - 1);
-
-        int to = itemsPerPage <= 0 || from + itemsPerPage > result.size()
-                ? result.size() : from + itemsPerPage;
-
-        return from > to ? Collections.EMPTY_LIST : result.subList(from, to);
-    }
-
-    private List<SyncopeUser> doSearch(
-            final NodeCond nodeCond) {
+    protected List<SyncopeUser> doSearch(final NodeCond nodeCond) {
         List<SyncopeUser> result;
         List<SyncopeUser> rightResult;
 

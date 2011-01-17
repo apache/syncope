@@ -24,7 +24,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
-import org.syncope.core.persistence.dao.SyncopeUserDAO;
+import org.syncope.core.persistence.dao.UserDAO;
 
 @Configurable
 public class SyncopeAuthenticationProvider implements AuthenticationProvider {
@@ -36,9 +36,9 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
             SyncopeAuthenticationProvider.class);
 
     @Autowired
-    private SyncopeUserDAO syncopeUserDAO;
+    private UserDAO userDAO;
 
-    private SyncopeUserDetailsService syncopeUserDetailsService;
+    private SyncopeUserDetailsService userDetailsService;
 
     private String adminUser;
 
@@ -61,13 +61,13 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
     }
 
     public SyncopeUserDetailsService getSyncopeUserDetailsService() {
-        return syncopeUserDetailsService;
+        return userDetailsService;
     }
 
     public void setSyncopeUserDetailsService(
             SyncopeUserDetailsService syncopeUserDetailsService) {
 
-        this.syncopeUserDetailsService = syncopeUserDetailsService;
+        this.userDetailsService = syncopeUserDetailsService;
     }
 
     @Override
@@ -90,7 +90,7 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
                         "Invalid user id: " + authentication.getName(), e);
             }
 
-            SyncopeUser user = syncopeUserDAO.find(id);
+            SyncopeUser user = userDAO.find(id);
             if (user == null) {
                 throw new UsernameNotFoundException(
                         "Could not find any user with id " + id);
@@ -106,7 +106,7 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
                     new UsernamePasswordAuthenticationToken(
                     authentication.getPrincipal(),
                     null,
-                    syncopeUserDetailsService.loadUserByUsername(
+                    userDetailsService.loadUserByUsername(
                     authentication.getPrincipal().toString()).getAuthorities());
             token.setDetails(authentication.getDetails());
 

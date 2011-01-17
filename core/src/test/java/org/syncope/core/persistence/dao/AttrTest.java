@@ -31,37 +31,37 @@ import org.syncope.core.persistence.util.AttributableUtil;
 import org.syncope.types.EntityViolationType;
 
 @Transactional
-public class AttributeTest extends AbstractTest {
+public class AttrTest extends AbstractTest {
 
     @Autowired
-    private SyncopeUserDAO syncopeUserDAO;
+    private UserDAO userDAO;
 
     @Autowired
-    private AttributeDAO attributeDAO;
+    private AttrDAO attrDAO;
 
     @Autowired
     private SchemaDAO userSchemaDAO;
 
     @Test
     public final void findAll() {
-        List<UAttr> list = attributeDAO.findAll(UAttr.class);
+        List<UAttr> list = attrDAO.findAll(UAttr.class);
         assertEquals("did not get expected number of attributes ",
                 8, list.size());
     }
 
     @Test
     public final void findById() {
-        UAttr attribute = attributeDAO.find(100L, UAttr.class);
+        UAttr attribute = attrDAO.find(100L, UAttr.class);
         assertNotNull("did not find expected attribute schema",
                 attribute);
-        attribute = attributeDAO.find(200L, UAttr.class);
+        attribute = attrDAO.find(200L, UAttr.class);
         assertNotNull("did not find expected attribute schema",
                 attribute);
     }
 
     @Test
     public final void read() {
-        UAttr attribute = attributeDAO.find(100L, UAttr.class);
+        UAttr attribute = attrDAO.find(100L, UAttr.class);
         assertNotNull(attribute);
 
         assertTrue(attribute.getValues().isEmpty());
@@ -72,7 +72,7 @@ public class AttributeTest extends AbstractTest {
     public final void save()
             throws ClassNotFoundException {
 
-        SyncopeUser user = syncopeUserDAO.find(1L);
+        SyncopeUser user = userDAO.find(1L);
 
         USchema emailSchema = userSchemaDAO.find("email", USchema.class);
         assertNotNull(emailSchema);
@@ -100,13 +100,13 @@ public class AttributeTest extends AbstractTest {
 
         InvalidEntityException iee = null;
         try {
-            attribute = attributeDAO.save(attribute);
+            attribute = attrDAO.save(attribute);
         } catch (InvalidEntityException e) {
             iee = e;
         }
         assertNull(iee);
 
-        UAttr actual = attributeDAO.find(attribute.getId(),
+        UAttr actual = attrDAO.find(attribute.getId(),
                 UAttr.class);
         assertNotNull("expected save to work", actual);
         assertEquals(attribute, actual);
@@ -134,7 +134,7 @@ public class AttributeTest extends AbstractTest {
 
         InvalidEntityException iee = null;
         try {
-            attribute = attributeDAO.save(attribute);
+            attribute = attrDAO.save(attribute);
         } catch (InvalidEntityException e) {
             iee = e;
         }
@@ -147,10 +147,10 @@ public class AttributeTest extends AbstractTest {
 
     @Test
     public final void delete() {
-        UAttr attribute = attributeDAO.find(200L, UAttr.class);
+        UAttr attribute = attrDAO.find(200L, UAttr.class);
         String attrSchemaName = attribute.getSchema().getName();
 
-        attributeDAO.delete(attribute.getId(), UAttr.class);
+        attrDAO.delete(attribute.getId(), UAttr.class);
 
         USchema schema = userSchemaDAO.find(attrSchemaName, USchema.class);
         assertNotNull("user attribute schema deleted when deleting values",

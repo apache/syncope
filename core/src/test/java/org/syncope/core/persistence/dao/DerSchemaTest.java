@@ -2,9 +2,9 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,30 +22,28 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.user.UDerSchema;
 import org.syncope.core.persistence.beans.user.USchema;
-import org.syncope.core.persistence.dao.SchemaDAO;
-import org.syncope.core.persistence.dao.DerivedSchemaDAO;
 import org.syncope.core.persistence.AbstractTest;
 
 @Transactional
-public class DerivedSchemaTest extends AbstractTest {
+public class DerSchemaTest extends AbstractTest {
 
     @Autowired
-    private DerivedSchemaDAO derivedSchemaDAO;
+    private DerSchemaDAO derSchemaDAO;
+
     @Autowired
     private SchemaDAO schemaDAO;
 
     @Test
     public final void findAll() {
         List<UDerSchema> list =
-                derivedSchemaDAO.findAll(UDerSchema.class);
-        assertEquals("did not get expected number of derived attribute schemas ",
-                1, list.size());
+                derSchemaDAO.findAll(UDerSchema.class);
+        assertEquals(1, list.size());
     }
 
     @Test
     public final void findByName() {
         UDerSchema attributeSchema =
-                derivedSchemaDAO.find("cn", UDerSchema.class);
+                derSchemaDAO.find("cn", UDerSchema.class);
         assertNotNull("did not find expected derived attribute schema",
                 attributeSchema);
     }
@@ -61,10 +59,10 @@ public class DerivedSchemaTest extends AbstractTest {
         derivedAttributeSchema.addSchema(
                 schemaDAO.find("surname", USchema.class));
 
-        derivedSchemaDAO.save(derivedAttributeSchema);
+        derSchemaDAO.save(derivedAttributeSchema);
 
         UDerSchema actual =
-                derivedSchemaDAO.find("cn2", UDerSchema.class);
+                derSchemaDAO.find("cn2", UDerSchema.class);
         assertNotNull("expected save to work", actual);
         assertEquals(derivedAttributeSchema, actual);
     }
@@ -72,13 +70,13 @@ public class DerivedSchemaTest extends AbstractTest {
     @Test
     public final void delete() {
         UDerSchema attributeSchema =
-                derivedSchemaDAO.find("cn", UDerSchema.class);
+                derSchemaDAO.find("cn", UDerSchema.class);
 
-        derivedSchemaDAO.delete(attributeSchema.getName(),
+        derSchemaDAO.delete(attributeSchema.getName(),
                 UDerSchema.class);
 
         UDerSchema actual =
-                derivedSchemaDAO.find("cn", UDerSchema.class);
+                derSchemaDAO.find("cn", UDerSchema.class);
         assertNull("delete did not work", actual);
     }
 }

@@ -28,13 +28,13 @@ import org.syncope.core.persistence.beans.Entitlement;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.EntitlementDAO;
-import org.syncope.core.persistence.dao.SyncopeUserDAO;
+import org.syncope.core.persistence.dao.UserDAO;
 
 @Configurable
 public class SyncopeUserDetailsService implements UserDetailsService {
 
     @Autowired
-    private SyncopeUserDAO syncopeUserDAO;
+    private UserDAO userDAO;
 
     @Autowired
     private EntitlementDAO entitlementDAO;
@@ -70,7 +70,7 @@ public class SyncopeUserDetailsService implements UserDetailsService {
                         "Invalid user id: " + username, e);
             }
 
-            SyncopeUser user = syncopeUserDAO.find(id);
+            SyncopeUser user = userDAO.find(id);
             if (user == null) {
                 throw new UsernameNotFoundException(
                         "Could not find any user with id " + id);

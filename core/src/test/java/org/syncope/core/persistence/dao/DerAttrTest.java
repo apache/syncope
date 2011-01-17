@@ -2,9 +2,9 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,24 +24,23 @@ import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.beans.user.UAttrValue;
 import org.syncope.core.persistence.beans.user.UDerAttr;
 import org.syncope.core.persistence.beans.user.UDerSchema;
-import org.syncope.core.persistence.dao.SyncopeUserDAO;
-import org.syncope.core.persistence.dao.DerivedAttributeDAO;
-import org.syncope.core.persistence.dao.DerivedSchemaDAO;
 import org.syncope.core.persistence.AbstractTest;
 
 @Transactional
-public class DerivedAttributeTest extends AbstractTest {
+public class DerAttrTest extends AbstractTest {
 
     @Autowired
-    private DerivedAttributeDAO derivedAttributeDAO;
+    private DerAttrDAO derAttrDAO;
+
     @Autowired
-    private SyncopeUserDAO syncopeUserDAO;
+    private UserDAO userDAO;
+
     @Autowired
-    private DerivedSchemaDAO derivedSchemaDAO;
+    private DerSchemaDAO derSchemaDAO;
 
     @Test
     public final void findAll() {
-        List<UDerAttr> list = derivedAttributeDAO.findAll(
+        List<UDerAttr> list = derAttrDAO.findAll(
                 UDerAttr.class);
         assertEquals("did not get expected number of derived attributes ",
                 1, list.size());
@@ -49,28 +48,29 @@ public class DerivedAttributeTest extends AbstractTest {
 
     @Test
     public final void findById() {
-        UDerAttr attribute = derivedAttributeDAO.find(1000L,
+        UDerAttr attribute = derAttrDAO.find(1000L,
                 UDerAttr.class);
         assertNotNull("did not find expected attribute schema",
                 attribute);
     }
 
     @Test
-    public final void save() throws ClassNotFoundException {
+    public final void save()
+            throws ClassNotFoundException {
         UDerSchema cnSchema =
-                derivedSchemaDAO.find("cn", UDerSchema.class);
+                derSchemaDAO.find("cn", UDerSchema.class);
         assertNotNull(cnSchema);
 
-        SyncopeUser owner = syncopeUserDAO.find(3L);
+        SyncopeUser owner = userDAO.find(3L);
         assertNotNull("did not get expected user", owner);
 
         UDerAttr derivedAttribute = new UDerAttr();
         derivedAttribute.setOwner(owner);
         derivedAttribute.setDerivedSchema(cnSchema);
 
-        derivedAttribute = derivedAttributeDAO.save(derivedAttribute);
+        derivedAttribute = derAttrDAO.save(derivedAttribute);
 
-        UDerAttr actual = derivedAttributeDAO.find(
+        UDerAttr actual = derAttrDAO.find(
                 derivedAttribute.getId(), UDerAttr.class);
         assertNotNull("expected save to work", actual);
         assertEquals(derivedAttribute, actual);
@@ -81,7 +81,7 @@ public class DerivedAttributeTest extends AbstractTest {
         UAttrValue surnameAttribute =
                 (UAttrValue) owner.getAttribute(
                 "surname").getValues().iterator().next();
-        
+
         assertEquals(surnameAttribute.getValue() + ", "
                 + firstnameAttribute.getValue(),
                 derivedAttribute.getValue(owner.getAttributes()));
@@ -89,20 +89,20 @@ public class DerivedAttributeTest extends AbstractTest {
 
     @Test
     public final void delete() {
-        UDerAttr attribute = derivedAttributeDAO.find(1000L,
+        UDerAttr attribute = derAttrDAO.find(1000L,
                 UDerAttr.class);
         String attributeSchemaName =
                 attribute.getDerivedSchema().getName();
 
-        derivedAttributeDAO.delete(attribute.getId(),
+        derAttrDAO.delete(attribute.getId(),
                 UDerAttr.class);
 
-        UDerAttr actual = derivedAttributeDAO.find(1000L,
+        UDerAttr actual = derAttrDAO.find(1000L,
                 UDerAttr.class);
         assertNull("delete did not work", actual);
 
         UDerSchema attributeSchema =
-                derivedSchemaDAO.find(attributeSchemaName,
+                derSchemaDAO.find(attributeSchemaName,
                 UDerSchema.class);
         assertNotNull("user derived attribute schema deleted "
                 + "when deleting values",

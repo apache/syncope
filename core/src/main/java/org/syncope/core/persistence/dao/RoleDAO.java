@@ -15,19 +15,26 @@
 package org.syncope.core.persistence.dao;
 
 import java.util.List;
-import org.syncope.core.persistence.beans.AbstractAttrValue;
+import org.syncope.core.persistence.beans.membership.Membership;
+import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.validation.entity.InvalidEntityException;
 
-public interface AttributeValueDAO extends DAO {
+public interface RoleDAO extends DAO {
 
-    <T extends AbstractAttrValue> T find(Long id, Class<T> reference);
+    SyncopeRole find(Long id);
 
-    <T extends AbstractAttrValue> List<T> findAll(Class<T> reference);
+    List<SyncopeRole> find(String name);
 
-    <T extends AbstractAttrValue> T save(T attributeValue)
+    SyncopeRole find(String name, Long parent);
+
+    List<SyncopeRole> findChildren(Long roleId);
+
+    List<SyncopeRole> findAll();
+
+    List<Membership> getMemberships(SyncopeRole role);
+
+    SyncopeRole save(SyncopeRole syncopeRole)
             throws InvalidEntityException;
 
-    <T extends AbstractAttrValue> void delete(Long id, Class<T> reference);
-
-    <T extends AbstractAttrValue> void delete(T attributeValue);
+    void delete(Long id);
 }

@@ -23,11 +23,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.user.UAttr;
 import org.syncope.core.persistence.beans.user.UAttrValue;
 import org.syncope.core.persistence.beans.user.USchema;
-import org.syncope.core.persistence.dao.AttributeDAO;
-import org.syncope.core.persistence.dao.AttributeValueDAO;
+import org.syncope.core.persistence.dao.AttrDAO;
+import org.syncope.core.persistence.dao.AttValueDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
-import org.syncope.core.persistence.dao.SyncopeRoleDAO;
-import org.syncope.core.persistence.dao.SyncopeUserDAO;
+import org.syncope.core.persistence.dao.RoleDAO;
+import org.syncope.core.persistence.dao.UserDAO;
 import org.syncope.core.persistence.AbstractTest;
 import org.syncope.core.persistence.beans.membership.Membership;
 
@@ -35,33 +35,33 @@ import org.syncope.core.persistence.beans.membership.Membership;
 public class UserTest extends AbstractTest {
 
     @Autowired
-    private SyncopeUserDAO syncopeUserDAO;
+    private UserDAO userDAO;
 
     @Autowired
-    private SyncopeRoleDAO syncopeRoleDAO;
+    private RoleDAO roleDAO;
 
     @Autowired
     private SchemaDAO schemaDAO;
 
     @Autowired
-    private AttributeDAO attributeDAO;
+    private AttrDAO attrDAO;
 
     @Autowired
-    private AttributeValueDAO attributeValueDAO;
+    private AttValueDAO attrValueDAO;
 
     @Test
     public final void test() {
-        syncopeUserDAO.delete(4L);
+        userDAO.delete(4L);
 
-        syncopeUserDAO.flush();
+        userDAO.flush();
 
-        assertNull(syncopeUserDAO.find(4L));
-        assertNull(attributeDAO.find(550L, UAttr.class));
-        assertNull(attributeValueDAO.find(22L, UAttrValue.class));
+        assertNull(userDAO.find(4L));
+        assertNull(attrDAO.find(550L, UAttr.class));
+        assertNull(attrValueDAO.find(22L, UAttrValue.class));
         assertNotNull(schemaDAO.find("loginDate", USchema.class));
 
         List<Membership> memberships =
-                syncopeRoleDAO.getMemberships(syncopeRoleDAO.find(7L));
+                roleDAO.getMemberships(roleDAO.find(7L));
         assertTrue(memberships.isEmpty());
     }
 }

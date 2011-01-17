@@ -14,14 +14,14 @@
  */
 package org.syncope.core.persistence.relationships;
 
+import static org.junit.Assert.*;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import static org.junit.Assert.*;
 import org.junit.Test;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.client.to.ResourceTO;
@@ -34,7 +34,7 @@ import org.syncope.core.persistence.beans.user.USchema;
 import org.syncope.core.persistence.dao.ConnectorInstanceDAO;
 import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
-import org.syncope.core.persistence.dao.SyncopeUserDAO;
+import org.syncope.core.persistence.dao.UserDAO;
 import org.syncope.core.rest.data.ResourceDataBinder;
 import org.syncope.core.persistence.AbstractTest;
 import org.syncope.core.persistence.beans.Task;
@@ -54,7 +54,7 @@ public class ResourceTest extends AbstractTest {
     private ConnectorInstanceDAO connectorInstanceDAO;
 
     @Autowired
-    private SyncopeUserDAO syncopeUserDAO;
+    private UserDAO userDAO;
 
     @Autowired
     private TaskDAO taskDAO;
@@ -160,7 +160,7 @@ public class ResourceTest extends AbstractTest {
         resource.addMapping(accountId);
 
         // specify an user schema
-        SyncopeUser user = syncopeUserDAO.find(1L);
+        SyncopeUser user = userDAO.find(1L);
 
         assertNotNull("user not found", user);
 
@@ -247,7 +247,7 @@ public class ResourceTest extends AbstractTest {
         SyncopeUser actualUser;
         Collection<TargetResource> resources;
         for (Long id : userIds) {
-            actualUser = syncopeUserDAO.find(id);
+            actualUser = userDAO.find(id);
             assertNotNull(actualUser);
             resources = actualUser.getTargetResources();
             for (TargetResource res : resources) {

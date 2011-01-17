@@ -25,11 +25,11 @@ import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.beans.user.UAttr;
 import org.syncope.core.persistence.beans.user.UDerSchema;
 import org.syncope.core.persistence.beans.user.USchema;
-import org.syncope.core.persistence.dao.AttributeDAO;
-import org.syncope.core.persistence.dao.DerivedSchemaDAO;
+import org.syncope.core.persistence.dao.AttrDAO;
+import org.syncope.core.persistence.dao.DerSchemaDAO;
 import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
-import org.syncope.core.persistence.dao.SyncopeUserDAO;
+import org.syncope.core.persistence.dao.UserDAO;
 import org.syncope.core.persistence.AbstractTest;
 import org.syncope.core.persistence.util.AttributableUtil;
 import org.syncope.types.SourceMappingType;
@@ -38,16 +38,16 @@ import org.syncope.types.SourceMappingType;
 public class SchemaTest extends AbstractTest {
 
     @Autowired
-    private SyncopeUserDAO syncopeUserDAO;
+    private UserDAO userDAO;
 
     @Autowired
     private SchemaDAO schemaDAO;
 
     @Autowired
-    private DerivedSchemaDAO derivedSchemaDAO;
+    private DerSchemaDAO derSchemaDAO;
 
     @Autowired
-    private AttributeDAO attributeDAO;
+    private AttrDAO attrDAO;
 
     @Autowired
     private ResourceDAO resourceDAO;
@@ -93,10 +93,10 @@ public class SchemaTest extends AbstractTest {
         }
         assertTrue(mappings.isEmpty());
 
-        assertNull(attributeDAO.find(100L, UAttr.class));
-        assertNull(attributeDAO.find(300L, UAttr.class));
-        assertNull(syncopeUserDAO.find(1L).getAttribute("username"));
-        assertNull(syncopeUserDAO.find(3L).getAttribute("username"));
+        assertNull(attrDAO.find(100L, UAttr.class));
+        assertNull(attrDAO.find(300L, UAttr.class));
+        assertNull(userDAO.find(1L).getAttribute("username"));
+        assertNull(userDAO.find(3L).getAttribute("username"));
     }
 
     @Test
@@ -131,7 +131,7 @@ public class SchemaTest extends AbstractTest {
 
         assertNull(schemaDAO.find("surname", USchema.class));
 
-        assertEquals(1, derivedSchemaDAO.find("cn",
+        assertEquals(1, derSchemaDAO.find("cn",
                 UDerSchema.class).getSchemas().size());
     }
 }

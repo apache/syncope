@@ -2,9 +2,9 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,9 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.membership.Membership;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
-import org.syncope.core.persistence.dao.MembershipDAO;
-import org.syncope.core.persistence.dao.SyncopeRoleDAO;
-import org.syncope.core.persistence.dao.SyncopeUserDAO;
 import org.syncope.core.persistence.AbstractTest;
 
 @Transactional
@@ -33,10 +30,12 @@ public class MembershipTest extends AbstractTest {
 
     @Autowired
     private MembershipDAO membershipDAO;
+
     @Autowired
-    private SyncopeUserDAO syncopeUserDAO;
+    private UserDAO userDAO;
+
     @Autowired
-    private SyncopeRoleDAO syncopeRoleDAO;
+    private RoleDAO roleDAO;
 
     @Test
     public final void findAll() {
@@ -52,8 +51,8 @@ public class MembershipTest extends AbstractTest {
 
     @Test
     public final void save() {
-        SyncopeUser user = syncopeUserDAO.find(4L);
-        SyncopeRole role = syncopeRoleDAO.find(1L);
+        SyncopeUser user = userDAO.find(4L);
+        SyncopeRole role = roleDAO.find(1L);
 
         Membership membership = new Membership();
         membership.setSyncopeUser(user);

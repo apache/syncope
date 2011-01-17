@@ -21,17 +21,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.user.UAttr;
 import org.syncope.core.persistence.beans.user.UAttrValue;
-import org.syncope.core.persistence.dao.AttributeDAO;
-import org.syncope.core.persistence.dao.AttributeValueDAO;
+import org.syncope.core.persistence.dao.AttrDAO;
+import org.syncope.core.persistence.dao.AttValueDAO;
 import org.syncope.core.persistence.AbstractTest;
 
 @Transactional
-public class AttributeTest extends AbstractTest {
+public class AttrTest extends AbstractTest {
 
     @Autowired
-    private AttributeDAO attributeDAO;
+    private AttrDAO attributeDAO;
     @Autowired
-    private AttributeValueDAO attributeValueDAO;
+    private AttValueDAO attributeValueDAO;
 
     @Test
     public final void deleteAttribute() {

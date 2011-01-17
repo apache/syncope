@@ -19,6 +19,7 @@ import static org.junit.Assert.*;
 
 import java.util.List;
 import java.util.Set;
+import javax.annotation.Resource;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,17 +34,23 @@ import org.syncope.core.persistence.beans.user.UAttrValue;
 public class UserTest extends AbstractTest {
 
     @Autowired
-    private SyncopeUserDAO syncopeUserDAO;
+    private UserDAO userDAO;
+
+    @Resource(name = "userSearchDAOCriteriaImpl")
+    private UserSearchDAO userSearchCriteriaDAO;
+
+    @Resource(name = "userSearchDAONativeImpl")
+    private UserSearchDAO userSearchNativeDAO;
 
     @Test
     public final void findAll() {
-        List<SyncopeUser> list = syncopeUserDAO.findAll();
+        List<SyncopeUser> list = userDAO.findAll();
         assertEquals("did not get expected number of users ", 4, list.size());
     }
 
     @Test
     public final void count() {
-        Long count = syncopeUserDAO.count();
+        Long count = userDAO.count();
         assertNotNull(count);
         assertEquals(4L, count.longValue());
     }
@@ -51,19 +58,19 @@ public class UserTest extends AbstractTest {
     @Test
     public final void findAllByPageAndSize() {
         // get first page
-        List<SyncopeUser> list = syncopeUserDAO.findAll(1, 2);
+        List<SyncopeUser> list = userDAO.findAll(1, 2);
         assertEquals("did not get expected number of users ", 2, list.size());
 
         // get second page
-        list = syncopeUserDAO.findAll(2, 2);
+        list = userDAO.findAll(2, 2);
         assertEquals("did not get expected number of users ", 2, list.size());
 
         // get second page with uncomplete set
-        list = syncopeUserDAO.findAll(2, 3);
+        list = userDAO.findAll(2, 3);
         assertEquals("did not get expected number of users ", 1, list.size());
 
         // get unexistent page
-        list = syncopeUserDAO.findAll(3, 2);
+        list = userDAO.findAll(3, 2);
         assertEquals("did not get expected number of users ", 0, list.size());
     }
 
@@ -72,7 +79,7 @@ public class UserTest extends AbstractTest {
         final UAttrValue usernameValue = new UAttrValue();
         usernameValue.setStringValue("chicchiricco");
 
-        final List<SyncopeUser> list = syncopeUserDAO.findByAttrValue(
+        final List<SyncopeUser> list = userDAO.findByAttrValue(
                 "username", usernameValue);
         assertEquals("did not get expected number of users ", 1, list.size());
     }
@@ -82,18 +89,18 @@ public class UserTest extends AbstractTest {
         final UAttrValue coolValue = new UAttrValue();
         coolValue.setBooleanValue(true);
 
-        final List<SyncopeUser> list = syncopeUserDAO.findByAttrValue(
+        final List<SyncopeUser> list = userDAO.findByAttrValue(
                 "cool", coolValue);
         assertEquals("did not get expected number of users ", 1, list.size());
     }
 
     @Test
     public final void findById() {
-        SyncopeUser user = syncopeUserDAO.find(1L);
+        SyncopeUser user = userDAO.find(1L);
         assertNotNull("did not find expected user", user);
-        user = syncopeUserDAO.find(3L);
+        user = userDAO.find(3L);
         assertNotNull("did not find expected user", user);
-        user = syncopeUserDAO.find(5L);
+        user = userDAO.find(5L);
         assertNull("found user but did not expect it", user);
     }
 
@@ -102,9 +109,9 @@ public class UserTest extends AbstractTest {
         SyncopeUser user = new SyncopeUser();
         user.setPassword("password");
 
-        user = syncopeUserDAO.save(user);
+        user = userDAO.save(user);
 
-        SyncopeUser actual = syncopeUserDAO.find(user.getId());
+        SyncopeUser actual = userDAO.find(user.getId());
         assertNotNull("expected save to work", actual);
     }
 
@@ -133,7 +140,7 @@ public class UserTest extends AbstractTest {
 
         assertTrue(cond.checkValidity());
 
-        List<SyncopeUser> users = syncopeUserDAO.search(cond);
+        List<SyncopeUser> users = userSearchCriteriaDAO.search(cond);
         assertNotNull(users);
         assertEquals(1, users.size());
     }
@@ -148,7 +155,7 @@ public class UserTest extends AbstractTest {
         final NodeCond cond = NodeCond.getNotLeafCond(usernameLeafCond);
         assertTrue(cond.checkValidity());
 
-        final List<SyncopeUser> users = syncopeUserDAO.search(cond);
+        final List<SyncopeUser> users = userSearchCriteriaDAO.search(cond);
         assertNotNull(users);
         assertEquals(2, users.size());
 
@@ -169,7 +176,7 @@ public class UserTest extends AbstractTest {
         final NodeCond cond = NodeCond.getLeafCond(coolLeafCond);
         assertTrue(cond.checkValidity());
 
-        final List<SyncopeUser> users = syncopeUserDAO.search(cond);
+        final List<SyncopeUser> users = userSearchCriteriaDAO.search(cond);
         assertNotNull(users);
         assertEquals(1, users.size());
 
@@ -201,28 +208,29 @@ public class UserTest extends AbstractTest {
 
         assertTrue(cond.checkValidity());
 
-        List<SyncopeUser> users = syncopeUserDAO.search(cond, 1, 2, null);
+        List<SyncopeUser> users =
+                userSearchCriteriaDAO.search(cond, 1, 2, null);
         assertNotNull(users);
         assertEquals(1, users.size());
 
-        users = syncopeUserDAO.search(cond, 2, 2, null);
+        users = userSearchCriteriaDAO.search(cond, 2, 2, null);
         assertNotNull(users);
         assertTrue(users.isEmpty());
     }
 
     @Test
     public final void delete() {
-        SyncopeUser user = syncopeUserDAO.find(3L);
+        SyncopeUser user = userDAO.find(3L);
 
-        syncopeUserDAO.delete(user.getId());
+        userDAO.delete(user.getId());
 
-        SyncopeUser actual = syncopeUserDAO.find(3L);
+        SyncopeUser actual = userDAO.find(3L);
         assertNull("delete did not work", actual);
     }
 
     @Test
     public final void getRoleResources() {
-        SyncopeUser user = syncopeUserDAO.find(1L);
+        SyncopeUser user = userDAO.find(1L);
         assertFalse(user.getInheritedTargetResources().isEmpty());
     }
 }

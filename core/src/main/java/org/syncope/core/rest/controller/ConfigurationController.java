@@ -33,7 +33,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.syncope.client.to.ConfigurationTO;
 import org.syncope.core.persistence.beans.SyncopeConf;
 import org.syncope.core.persistence.dao.MissingConfKeyException;
-import org.syncope.core.persistence.dao.SyncopeConfDAO;
+import org.syncope.core.persistence.dao.ConfDAO;
 import org.syncope.core.persistence.validation.attrvalue.Validator;
 import org.syncope.core.rest.data.ConfigurationDataBinder;
 
@@ -42,7 +42,7 @@ import org.syncope.core.rest.data.ConfigurationDataBinder;
 public class ConfigurationController extends AbstractController {
 
     @Autowired
-    private SyncopeConfDAO syncopeConfigurationDAO;
+    private ConfDAO syncopeConfigurationDAO;
 
     @Autowired
     private ConfigurationDataBinder configurationDataBinder;

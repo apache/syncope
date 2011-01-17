@@ -14,20 +14,20 @@
  */
 package org.syncope.core.persistence.dao;
 
-import org.syncope.core.persistence.validation.entity.InvalidEntityException;
 import java.util.List;
-import org.syncope.core.persistence.beans.AbstractAttr;
+import org.syncope.core.persistence.beans.AbstractAttrValue;
+import org.syncope.core.persistence.validation.entity.InvalidEntityException;
 
-public interface AttributeDAO extends DAO {
+public interface AttValueDAO extends DAO {
 
-    <T extends AbstractAttr> T find(Long id, Class<T> reference);
+    <T extends AbstractAttrValue> T find(Long id, Class<T> reference);
 
-    <T extends AbstractAttr> List<T> findAll(Class<T> reference);
+    <T extends AbstractAttrValue> List<T> findAll(Class<T> reference);
 
-    <T extends AbstractAttr> T save(T attribute)
+    <T extends AbstractAttrValue> T save(T attributeValue)
             throws InvalidEntityException;
 
-    <T extends AbstractAttr> void delete(Long id, Class<T> reference);
+    <T extends AbstractAttrValue> void delete(Long id, Class<T> reference);
 
-    <T extends AbstractAttr> void delete(T attribute);
+    <T extends AbstractAttrValue> void delete(T attributeValue);
 }

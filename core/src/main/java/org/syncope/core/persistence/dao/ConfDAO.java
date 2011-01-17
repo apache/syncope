@@ -18,7 +18,7 @@ import java.util.List;
 import org.syncope.core.persistence.beans.SyncopeConf;
 import org.syncope.core.persistence.validation.entity.InvalidEntityException;
 
-public interface SyncopeConfDAO extends DAO {
+public interface ConfDAO extends DAO {
 
     SyncopeConf find(String name)
             throws MissingConfKeyException;

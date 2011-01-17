@@ -27,7 +27,7 @@ import org.syncope.core.persistence.AbstractTest;
 public class RoleTest extends AbstractTest {
 
     @Autowired
-    private SyncopeRoleDAO syncopeRoleDAO;
+    private RoleDAO syncopeRoleDAO;
 
     @Test
     public final void findAll() {

@@ -23,18 +23,18 @@ import org.syncope.core.persistence.beans.membership.Membership;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.MembershipDAO;
-import org.syncope.core.persistence.dao.SyncopeRoleDAO;
-import org.syncope.core.persistence.dao.SyncopeUserDAO;
+import org.syncope.core.persistence.dao.RoleDAO;
+import org.syncope.core.persistence.dao.UserDAO;
 
 @Repository
 public class MembershipDAOImpl extends AbstractDAOImpl
         implements MembershipDAO {
 
     @Autowired
-    private SyncopeUserDAO syncopeUserDAO;
+    private UserDAO userDAO;
 
     @Autowired
-    private SyncopeRoleDAO syncopeRoleDAO;
+    private RoleDAO roleDAO;
 
     @Override
     public Membership find(final Long id) {
@@ -81,10 +81,10 @@ public class MembershipDAOImpl extends AbstractDAOImpl
         }
 
         membership.getSyncopeUser().removeMembership(membership);
-        syncopeUserDAO.save(membership.getSyncopeUser());
+        userDAO.save(membership.getSyncopeUser());
         membership.setSyncopeUser(null);
 
-        syncopeRoleDAO.save(membership.getSyncopeRole());
+        roleDAO.save(membership.getSyncopeRole());
         membership.setSyncopeRole(null);
 
         entityManager.remove(membership);

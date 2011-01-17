@@ -73,7 +73,7 @@
                                 dataSource);
 
                         DatabaseMetaData dbm = conn.getMetaData();
-                        String[] types = {"TABLE"};
+                        String[] types = {"TABLE", "VIEW"};
                         ResultSet rs = dbm.getTables(null, null, "%", types);
             %>
             <div style="width:300px;float:left;">

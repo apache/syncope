@@ -17,22 +17,22 @@ package org.syncope.core.persistence.dao.impl;
 import java.util.List;
 import javax.persistence.Query;
 import org.springframework.stereotype.Repository;
-import org.syncope.core.persistence.beans.AbstractDerAttr;
-import org.syncope.core.persistence.dao.DerivedAttributeDAO;
+import org.syncope.core.persistence.beans.AbstractAttrValue;
+import org.syncope.core.persistence.dao.AttValueDAO;
 
 @Repository
-public class DerivedAttributeDAOImpl extends AbstractDAOImpl
-        implements DerivedAttributeDAO {
+public class AttrValueDAOImpl extends AbstractDAOImpl
+        implements AttValueDAO {
 
     @Override
-    public <T extends AbstractDerAttr> T find(
+    public <T extends AbstractAttrValue> T find(
             final Long id, final Class<T> reference) {
 
         return entityManager.find(reference, id);
     }
 
     @Override
-    public <T extends AbstractDerAttr> List<T> findAll(
+    public <T extends AbstractAttrValue> List<T> findAll(
             final Class<T> reference) {
 
         Query query = entityManager.createQuery(
@@ -41,35 +41,30 @@ public class DerivedAttributeDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    public <T extends AbstractDerAttr> T save(
-            final T derivedAttribute) {
-
-        return entityManager.merge(derivedAttribute);
+    public <T extends AbstractAttrValue> T save(final T attributeValue) {
+        return entityManager.merge(attributeValue);
     }
 
     @Override
-    public <T extends AbstractDerAttr> void delete(
-            final Long id, final Class<T> reference) {
+    public <T extends AbstractAttrValue> void delete(final Long id,
+            final Class<T> reference) {
 
-        T derivedAttribute = find(id, reference);
-        if (derivedAttribute == null) {
+        T attributeValue = find(id, reference);
+        if (attributeValue == null) {
             return;
         }
 
-        delete(derivedAttribute);
+        delete(attributeValue);
     }
 
     @Override
-    public <T extends AbstractDerAttr> void delete(
-            final T derivedAttribute) {
+    public <T extends AbstractAttrValue> void delete(
+            final T attributeValue) {
 
-        if (derivedAttribute.getOwner() != null) {
-            derivedAttribute.getOwner().removeDerivedAttribute(
-                    derivedAttribute);
+        if (attributeValue.getAttribute() != null) {
+            attributeValue.getAttribute().removeValue(attributeValue);
         }
-        derivedAttribute.getDerivedSchema().removeDerivedAttribute(
-                derivedAttribute);
 
-        entityManager.remove(derivedAttribute);
+        entityManager.remove(attributeValue);
     }
 }

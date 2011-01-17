@@ -25,16 +25,15 @@ import org.apache.commons.mail.Email;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.HtmlEmail;
 import org.syncope.core.persistence.dao.MissingConfKeyException;
-import org.syncope.core.persistence.dao.SyncopeConfDAO;
+import org.syncope.core.persistence.dao.ConfDAO;
 
 public class BaseSendEmail extends OSWorkflowComponent
         implements FunctionProvider {
 
-    protected SyncopeConfDAO syncopeConfigurationDAO;
+    protected ConfDAO syncopeConfigurationDAO;
 
     public BaseSendEmail() {
-        syncopeConfigurationDAO =
-                (SyncopeConfDAO) context.getBean("syncopeConfDAOImpl");
+        syncopeConfigurationDAO = (ConfDAO) context.getBean("confDAOImpl");
     }
 
     protected String getEmailBody(String urlPrefix, String template,

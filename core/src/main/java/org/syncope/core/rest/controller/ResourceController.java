@@ -36,7 +36,7 @@ import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.dao.ResourceDAO;
-import org.syncope.core.persistence.dao.SyncopeRoleDAO;
+import org.syncope.core.persistence.dao.RoleDAO;
 import org.syncope.core.persistence.validation.entity.InvalidEntityException;
 import org.syncope.core.rest.data.ResourceDataBinder;
 import org.syncope.types.SyncopeClientExceptionType;
@@ -49,7 +49,7 @@ public class ResourceController extends AbstractController {
     private ResourceDAO resourceDAO;
 
     @Autowired
-    private SyncopeRoleDAO syncopeRoleDAO;
+    private RoleDAO syncopeRoleDAO;
 
     @Autowired
     private ResourceDataBinder binder;

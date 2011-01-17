@@ -21,7 +21,7 @@ import java.util.Map;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.MissingConfKeyException;
-import org.syncope.core.persistence.dao.SyncopeConfDAO;
+import org.syncope.core.persistence.dao.ConfDAO;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
@@ -31,13 +31,12 @@ import org.identityconnectors.common.Base64;
 public class GenerateToken extends OSWorkflowComponent
         implements FunctionProvider {
 
-    private SyncopeConfDAO syncopeConfigurationDAO;
+    private ConfDAO confDAO;
 
     public GenerateToken() {
         super();
 
-        syncopeConfigurationDAO =
-                (SyncopeConfDAO) context.getBean("syncopeConfDAOImpl");
+        confDAO = (ConfDAO) context.getBean("confDAOImpl");
     }
 
     @Override
@@ -45,7 +44,7 @@ public class GenerateToken extends OSWorkflowComponent
     public void execute(Map transientVars, Map args, PropertySet ps)
             throws WorkflowException {
 
-        SyncopeUser syncopeUser = (SyncopeUser) transientVars.get(
+        SyncopeUser user = (SyncopeUser) transientVars.get(
                 Constants.SYNCOPE_USER);
 
         final String token = (String) transientVars.get(
@@ -54,16 +53,16 @@ public class GenerateToken extends OSWorkflowComponent
         LOG.debug("Received token {}", token);
 
         try {
-            syncopeUser.generateToken(
-                    Integer.parseInt(syncopeConfigurationDAO.find(
+            user.generateToken(
+                    Integer.parseInt(confDAO.find(
                     "token.length").getConfValue()),
-                    Integer.parseInt(syncopeConfigurationDAO.find(
+                    Integer.parseInt(confDAO.find(
                     "token.expireTime").getConfValue()), token);
         } catch (MissingConfKeyException e) {
             throw new WorkflowException(e);
         }
 
-        transientVars.put(Constants.SYNCOPE_USER, syncopeUser);
+        transientVars.put(Constants.SYNCOPE_USER, user);
     }
 
     public final String encrypt(final String toBeCrypted) {
@@ -73,7 +72,7 @@ public class GenerateToken extends OSWorkflowComponent
         try {
 
             final DESKeySpec keySpec =
-                    new DESKeySpec(syncopeConfigurationDAO.find(
+                    new DESKeySpec(confDAO.find(
                     "token.encryption.key").getConfValue().getBytes("UTF8"));
 
             final SecretKeyFactory keyFactory =
@@ -109,7 +108,7 @@ public class GenerateToken extends OSWorkflowComponent
         try {
 
             final DESKeySpec keySpec =
-                    new DESKeySpec(syncopeConfigurationDAO.find(
+                    new DESKeySpec(confDAO.find(
                     "token.encryption.key").getConfValue().getBytes("UTF8"));
 
             final SecretKeyFactory keyFactory =

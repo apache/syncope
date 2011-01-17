@@ -12,21 +12,20 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.persistence.dao;
+package org.syncope.core.persistence.dao.impl;
 
 import java.util.List;
-import org.syncope.core.persistence.beans.AbstractDerSchema;
-import org.syncope.core.persistence.validation.entity.InvalidEntityException;
+import org.springframework.stereotype.Repository;
+import org.syncope.client.search.NodeCond;
+import org.syncope.core.persistence.beans.user.SyncopeUser;
+import org.syncope.core.persistence.dao.UserSearchDAO;
 
-public interface DerivedSchemaDAO extends DAO {
+@Repository
+public class UserSearchDAONativeImpl extends AbstractUserSearchDAOImpl
+        implements UserSearchDAO {
 
-    <T extends AbstractDerSchema> T find(String name, Class<T> reference);
-
-    <T extends AbstractDerSchema> List<T> findAll(Class<T> reference);
-
-    <T extends AbstractDerSchema> T save(T derivedSchema)
-            throws InvalidEntityException;
-
-    <T extends AbstractDerSchema> void delete(
-            String name, Class<T> reference);
+    @Override
+    protected List<SyncopeUser> doSearch(final NodeCond nodeCond) {
+        return null;
+    }
 }

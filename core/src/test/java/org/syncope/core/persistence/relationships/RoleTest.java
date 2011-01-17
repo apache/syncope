@@ -23,59 +23,59 @@ import org.syncope.core.persistence.beans.role.RAttr;
 import org.syncope.core.persistence.beans.role.RAttrValue;
 import org.syncope.core.persistence.beans.role.RSchema;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
-import org.syncope.core.persistence.dao.AttributeDAO;
-import org.syncope.core.persistence.dao.AttributeValueDAO;
+import org.syncope.core.persistence.dao.AttrDAO;
+import org.syncope.core.persistence.dao.AttValueDAO;
 import org.syncope.core.persistence.dao.EntitlementDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
-import org.syncope.core.persistence.dao.SyncopeRoleDAO;
-import org.syncope.core.persistence.dao.SyncopeUserDAO;
+import org.syncope.core.persistence.dao.RoleDAO;
+import org.syncope.core.persistence.dao.UserDAO;
 import org.syncope.core.persistence.AbstractTest;
 
 @Transactional
 public class RoleTest extends AbstractTest {
 
     @Autowired
-    private SyncopeUserDAO syncopeUserDAO;
+    private UserDAO userDAO;
 
     @Autowired
-    private SyncopeRoleDAO syncopeRoleDAO;
+    private RoleDAO roleDAO;
 
     @Autowired
     private SchemaDAO schemaDAO;
 
     @Autowired
-    private AttributeDAO attributeDAO;
+    private AttrDAO attrDAO;
 
     @Autowired
-    private AttributeValueDAO attributeValueDAO;
+    private AttValueDAO attrValueDAO;
 
     @Autowired
     private EntitlementDAO entitlementDAO;
 
     @Test
     public final void delete() {
-        syncopeRoleDAO.delete(2L);
+        roleDAO.delete(2L);
 
-        syncopeRoleDAO.flush();
+        roleDAO.flush();
 
-        assertNull(syncopeRoleDAO.find(2L));
+        assertNull(roleDAO.find(2L));
         assertEquals(1, entitlementDAO.find("base").getRoles().size());
-        assertTrue(syncopeUserDAO.find(2L).getRoles().size() == 1);
-        assertNull(attributeDAO.find(700L, RAttr.class));
-        assertNull(attributeValueDAO.find(41L, RAttrValue.class));
+        assertTrue(userDAO.find(2L).getRoles().size() == 1);
+        assertNull(attrDAO.find(700L, RAttr.class));
+        assertNull(attrValueDAO.find(41L, RAttrValue.class));
         assertNotNull(schemaDAO.find("icon", RSchema.class));
     }
 
     @Test
     public final void inheritedAttributes() {
-        SyncopeRole director = syncopeRoleDAO.find(7L);
+        SyncopeRole director = roleDAO.find(7L);
 
         assertEquals(2, director.findInheritedAttributes().size());
     }
 
     @Test
     public final void inheritedDerivedAttributes() {
-        SyncopeRole director = syncopeRoleDAO.find(7L);
+        SyncopeRole director = roleDAO.find(7L);
 
         assertEquals(1, director.findInheritedDerivedAttributes().size());
     }

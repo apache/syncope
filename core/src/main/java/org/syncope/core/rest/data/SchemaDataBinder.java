@@ -30,7 +30,7 @@ import org.syncope.core.persistence.beans.AbstractAttr;
 import org.syncope.core.persistence.beans.AbstractAttrValue;
 import org.syncope.core.persistence.beans.AbstractDerSchema;
 import org.syncope.core.persistence.beans.AbstractSchema;
-import org.syncope.core.persistence.dao.DerivedSchemaDAO;
+import org.syncope.core.persistence.dao.DerSchemaDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.util.AttributableUtil;
 import org.syncope.types.SyncopeClientExceptionType;
@@ -51,7 +51,7 @@ public class SchemaDataBinder {
     private SchemaDAO schemaDAO;
 
     @Autowired
-    private DerivedSchemaDAO derivedSchemaDAO;
+    private DerSchemaDAO derivedSchemaDAO;
 
     @Autowired
     private JexlEngine jexlEngine;

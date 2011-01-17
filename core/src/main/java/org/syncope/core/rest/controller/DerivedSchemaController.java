@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.syncope.client.to.DerivedSchemaTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.core.persistence.beans.AbstractDerSchema;
-import org.syncope.core.persistence.dao.DerivedSchemaDAO;
+import org.syncope.core.persistence.dao.DerSchemaDAO;
 import org.syncope.core.rest.data.DerivedSchemaDataBinder;
 
 @Controller
@@ -36,7 +36,7 @@ import org.syncope.core.rest.data.DerivedSchemaDataBinder;
 public class DerivedSchemaController extends AbstractController {
 
     @Autowired
-    private DerivedSchemaDAO derivedSchemaDAO;
+    private DerSchemaDAO derivedSchemaDAO;
 
     @Autowired
     private DerivedSchemaDataBinder derivedSchemaDataBinder;

@@ -46,15 +46,15 @@ import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
-import org.syncope.core.persistence.dao.AttributeDAO;
-import org.syncope.core.persistence.dao.AttributeValueDAO;
-import org.syncope.core.persistence.dao.DerivedAttributeDAO;
-import org.syncope.core.persistence.dao.DerivedSchemaDAO;
+import org.syncope.core.persistence.dao.AttrDAO;
+import org.syncope.core.persistence.dao.AttValueDAO;
+import org.syncope.core.persistence.dao.DerAttrDAO;
+import org.syncope.core.persistence.dao.DerSchemaDAO;
 import org.syncope.core.persistence.dao.MembershipDAO;
 import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
-import org.syncope.core.persistence.dao.SyncopeRoleDAO;
-import org.syncope.core.persistence.dao.SyncopeUserDAO;
+import org.syncope.core.persistence.dao.RoleDAO;
+import org.syncope.core.persistence.dao.UserDAO;
 import org.syncope.core.persistence.propagation.ResourceOperations;
 import org.syncope.types.ResourceOperationType;
 import org.syncope.types.SyncopeClientExceptionType;
@@ -68,25 +68,25 @@ public abstract class AbstractAttributableDataBinder {
             AbstractAttributableDataBinder.class);
 
     @Autowired
-    protected SyncopeRoleDAO syncopeRoleDAO;
+    protected RoleDAO roleDAO;
 
     @Autowired
     protected SchemaDAO schemaDAO;
 
     @Autowired
-    protected DerivedSchemaDAO derivedSchemaDAO;
+    protected DerSchemaDAO derivedSchemaDAO;
 
     @Autowired
-    protected AttributeDAO attributeDAO;
+    protected AttrDAO attributeDAO;
 
     @Autowired
-    protected DerivedAttributeDAO derivedAttributeDAO;
+    protected DerAttrDAO derivedAttributeDAO;
 
     @Autowired
-    protected AttributeValueDAO attributeValueDAO;
+    protected AttValueDAO attributeValueDAO;
 
     @Autowired
-    protected SyncopeUserDAO syncopeUserDAO;
+    protected UserDAO userDAO;
 
     @Autowired
     protected ResourceDAO resourceDAO;

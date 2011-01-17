@@ -2,9 +2,9 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,39 +22,43 @@ import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.user.UDerAttr;
 import org.syncope.core.persistence.beans.user.UDerSchema;
 import org.syncope.core.persistence.beans.user.USchema;
-import org.syncope.core.persistence.dao.AttributeDAO;
-import org.syncope.core.persistence.dao.DerivedAttributeDAO;
-import org.syncope.core.persistence.dao.DerivedSchemaDAO;
+import org.syncope.core.persistence.dao.AttrDAO;
+import org.syncope.core.persistence.dao.DerAttrDAO;
+import org.syncope.core.persistence.dao.DerSchemaDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
-import org.syncope.core.persistence.dao.SyncopeUserDAO;
+import org.syncope.core.persistence.dao.UserDAO;
 import org.syncope.core.persistence.AbstractTest;
 
 @Transactional
-public class DerivedSchemaTest extends AbstractTest {
+public class DerSchemaTest extends AbstractTest {
 
     @Autowired
-    private SyncopeUserDAO syncopeUserDAO;
+    private UserDAO userDAO;
+
     @Autowired
     private SchemaDAO schemaDAO;
+
     @Autowired
-    private DerivedSchemaDAO derivedSchemaDAO;
+    private DerSchemaDAO derSchemaDAO;
+
     @Autowired
-    private AttributeDAO attributeDAO;
+    private AttrDAO attrDAO;
+
     @Autowired
-    DerivedAttributeDAO derivedAttributeDAO;
+    private DerAttrDAO derAttrDAO;
 
     @Test
     public final void test() {
-        derivedSchemaDAO.delete("cn", UDerSchema.class);
+        derSchemaDAO.delete("cn", UDerSchema.class);
 
-        derivedSchemaDAO.flush();
+        derSchemaDAO.flush();
 
-        assertNull(derivedSchemaDAO.find("cn", UDerSchema.class));
-        assertNull(derivedAttributeDAO.find(1000L, UDerAttr.class));
+        assertNull(derSchemaDAO.find("cn", UDerSchema.class));
+        assertNull(derAttrDAO.find(1000L, UDerAttr.class));
         assertTrue(schemaDAO.find("surname",
                 USchema.class).getDerivedSchemas().isEmpty());
         assertTrue(schemaDAO.find("firstname",
                 USchema.class).getDerivedSchemas().isEmpty());
-        assertNull(syncopeUserDAO.find(3L).getDerivedAttribute("cn"));
+        assertNull(userDAO.find(3L).getDerivedAttribute("cn"));
     }
 }
