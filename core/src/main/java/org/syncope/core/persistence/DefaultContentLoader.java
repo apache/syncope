@@ -67,7 +67,29 @@ public class DefaultContentLoader implements ServletContextListener {
                 (DataSource) springContext.getBean("localDataSource");
         Connection conn = DataSourceUtils.getConnection(dataSource);
 
-        // 1. Check wether we are allowed to load default content into the DB
+        // 1. read persistence.properties and set search mode
+        String dbSchema = null;
+        String searchMode = null;
+        try {
+            InputStream dbPropsStream = getClass().getResourceAsStream(
+                    "/persistence.properties");
+            Properties dbProps = new Properties();
+            dbProps.load(dbPropsStream);
+            dbSchema = dbProps.getProperty("database.schema");
+            searchMode = dbProps.getProperty("search.mode");
+        } catch (Throwable t) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Could not find persistence.properties", t);
+            } else {
+                LOG.error("Could not find persistence.properties");
+            }
+        }
+
+        LOG.debug("Setting search mode to " + searchMode);
+        UserController.setSearchMode(searchMode);
+        LOG.debug("Search mode set to {}", UserController.getSearchMode());
+
+        // 2. Check wether we are allowed to load default content into the DB
         Statement statement = null;
         ResultSet resultSet = null;
         boolean existingData = false;
@@ -103,6 +125,7 @@ public class DefaultContentLoader implements ServletContextListener {
 
         LOG.info("Empty database found, loading default content");
 
+        // 3. Create views
         LOG.debug("Creating views");
         try {
             InputStream viewsStream = getClass().getResourceAsStream(
@@ -128,6 +151,7 @@ public class DefaultContentLoader implements ServletContextListener {
             LOG.error("While creating views", t);
         }
 
+        // 4. Create indexes
         LOG.debug("Creating indexes");
         try {
             InputStream indexesStream = getClass().getResourceAsStream(
@@ -152,27 +176,7 @@ public class DefaultContentLoader implements ServletContextListener {
             LOG.error("While creating indexes", t);
         }
 
-        String dbSchema = null;
-        String searchMode = null;
-        try {
-            InputStream dbPropsStream = getClass().getResourceAsStream(
-                    "/persistence.properties");
-            Properties dbProps = new Properties();
-            dbProps.load(dbPropsStream);
-            dbSchema = dbProps.getProperty("database.schema");
-            searchMode = dbProps.getProperty("search.mode");
-        } catch (Throwable t) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Could not find persistence.properties", t);
-            } else {
-                LOG.error("Could not find persistence.properties");
-            }
-        }
-
-        LOG.debug("Setting sarch mode to " + searchMode);
-        UserController.setSearchMode(searchMode);
-        LOG.debug("Search mode set to {}", UserController.getSearchMode());
-
+        // 5. Load default content
         try {
             IDatabaseConnection dbUnitConn = dbSchema == null
                     ? new DatabaseConnection(conn)
