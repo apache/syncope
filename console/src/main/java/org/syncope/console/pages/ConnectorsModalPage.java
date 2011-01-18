@@ -189,7 +189,8 @@ public class ConnectorsModalPage extends BaseModalPage {
 
                 item.add(new Label("key", propertyTO.getKey()));
                 item.add(new TextField("value", new PropertyModel(propertyTO,
-                        "value")));
+                        "value")).setLabel(new Model<String>(propertyTO
+                        .getKey())).setRequired(true));
 
                 connectorTO.getConfiguration().add(propertyTO);
             }
