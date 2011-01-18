@@ -24,7 +24,7 @@ import org.syncope.core.persistence.beans.user.UAttr;
 import org.syncope.core.persistence.beans.user.UAttrValue;
 import org.syncope.core.persistence.beans.user.USchema;
 import org.syncope.core.persistence.dao.AttrDAO;
-import org.syncope.core.persistence.dao.AttValueDAO;
+import org.syncope.core.persistence.dao.AttrValueDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.RoleDAO;
 import org.syncope.core.persistence.dao.UserDAO;
@@ -47,7 +47,7 @@ public class UserTest extends AbstractTest {
     private AttrDAO attrDAO;
 
     @Autowired
-    private AttValueDAO attrValueDAO;
+    private AttrValueDAO attrValueDAO;
 
     @Test
     public final void test() {

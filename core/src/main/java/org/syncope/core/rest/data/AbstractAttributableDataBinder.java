@@ -47,7 +47,7 @@ import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.AttrDAO;
-import org.syncope.core.persistence.dao.AttValueDAO;
+import org.syncope.core.persistence.dao.AttrValueDAO;
 import org.syncope.core.persistence.dao.DerAttrDAO;
 import org.syncope.core.persistence.dao.DerSchemaDAO;
 import org.syncope.core.persistence.dao.MembershipDAO;
@@ -83,7 +83,7 @@ public abstract class AbstractAttributableDataBinder {
     protected DerAttrDAO derivedAttributeDAO;
 
     @Autowired
-    protected AttValueDAO attributeValueDAO;
+    protected AttrValueDAO attributeValueDAO;
 
     @Autowired
     protected UserDAO userDAO;

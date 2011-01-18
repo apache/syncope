@@ -18,11 +18,11 @@ import java.util.List;
 import javax.persistence.Query;
 import org.springframework.stereotype.Repository;
 import org.syncope.core.persistence.beans.AbstractAttrValue;
-import org.syncope.core.persistence.dao.AttValueDAO;
+import org.syncope.core.persistence.dao.AttrValueDAO;
 
 @Repository
 public class AttrValueDAOImpl extends AbstractDAOImpl
-        implements AttValueDAO {
+        implements AttrValueDAO {
 
     @Override
     public <T extends AbstractAttrValue> T find(

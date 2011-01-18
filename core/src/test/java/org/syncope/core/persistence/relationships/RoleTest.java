@@ -24,7 +24,7 @@ import org.syncope.core.persistence.beans.role.RAttrValue;
 import org.syncope.core.persistence.beans.role.RSchema;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.dao.AttrDAO;
-import org.syncope.core.persistence.dao.AttValueDAO;
+import org.syncope.core.persistence.dao.AttrValueDAO;
 import org.syncope.core.persistence.dao.EntitlementDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.RoleDAO;
@@ -47,7 +47,7 @@ public class RoleTest extends AbstractTest {
     private AttrDAO attrDAO;
 
     @Autowired
-    private AttValueDAO attrValueDAO;
+    private AttrValueDAO attrValueDAO;
 
     @Autowired
     private EntitlementDAO entitlementDAO;

@@ -22,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.user.UAttr;
 import org.syncope.core.persistence.beans.user.UAttrValue;
 import org.syncope.core.persistence.dao.AttrDAO;
-import org.syncope.core.persistence.dao.AttValueDAO;
+import org.syncope.core.persistence.dao.AttrValueDAO;
 import org.syncope.core.persistence.AbstractTest;
 
 @Transactional
@@ -31,7 +31,7 @@ public class AttrTest extends AbstractTest {
     @Autowired
     private AttrDAO attributeDAO;
     @Autowired
-    private AttValueDAO attributeValueDAO;
+    private AttrValueDAO attributeValueDAO;
 
     @Test
     public final void deleteAttribute() {

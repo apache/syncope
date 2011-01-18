@@ -18,7 +18,7 @@ import java.util.List;
 import org.syncope.core.persistence.beans.AbstractAttrValue;
 import org.syncope.core.persistence.validation.entity.InvalidEntityException;
 
-public interface AttValueDAO extends DAO {
+public interface AttrValueDAO extends DAO {
 
     <T extends AbstractAttrValue> T find(Long id, Class<T> reference);
 
