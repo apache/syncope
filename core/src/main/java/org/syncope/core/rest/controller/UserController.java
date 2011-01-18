@@ -102,10 +102,11 @@ public class UserController extends AbstractController {
 
     public static void setSearchMode(String searchMode) {
         try {
-            UserController.searchMode = SearchMode.valueOf(searchMode);
+            UserController.searchMode = SearchMode.valueOf(
+                    searchMode.toUpperCase());
         } catch (IllegalArgumentException e) {
-            LOG.error("Invalid search mode specified: " + searchMode
-                    + ", reverting to CRITERIA");
+            LOG.error("Invalid search mode specified: '" + searchMode
+                    + "', reverting to CRITERIA");
 
             UserController.searchMode = SearchMode.CRITERIA;
         }
