@@ -14,18 +14,12 @@
  */
 package org.syncope.core.persistence.dao;
 
-import java.util.HashSet;
 import static org.junit.Assert.*;
 
 import java.util.List;
-import java.util.Set;
-import javax.annotation.Resource;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.syncope.client.search.AttributeCond;
-import org.syncope.client.search.MembershipCond;
-import org.syncope.client.search.NodeCond;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.AbstractTest;
 import org.syncope.core.persistence.beans.user.UAttrValue;
@@ -36,12 +30,6 @@ public class UserTest extends AbstractTest {
     @Autowired
     private UserDAO userDAO;
 
-    @Resource(name = "userSearchDAOCriteriaImpl")
-    private UserSearchDAO userSearchCriteriaDAO;
-
-    @Resource(name = "userSearchDAONativeImpl")
-    private UserSearchDAO userSearchNativeDAO;
-
     @Test
     public final void findAll() {
         List<SyncopeUser> list = userDAO.findAll();
@@ -50,9 +38,9 @@ public class UserTest extends AbstractTest {
 
     @Test
     public final void count() {
-        Long count = userDAO.count();
+        Integer count = userDAO.count();
         assertNotNull(count);
-        assertEquals(4L, count.longValue());
+        assertEquals(4, count.intValue());
     }
 
     @Test
@@ -113,109 +101,6 @@ public class UserTest extends AbstractTest {
 
         SyncopeUser actual = userDAO.find(user.getId());
         assertNotNull("expected save to work", actual);
-    }
-
-    @Test
-    public final void searchWithLikeCondition() {
-        AttributeCond usernameLeafCond =
-                new AttributeCond(AttributeCond.Type.LIKE);
-        usernameLeafCond.setSchema("username");
-        usernameLeafCond.setExpression("%o%");
-
-        MembershipCond membershipCond = new MembershipCond();
-        membershipCond.setRoleId(1L);
-
-        AttributeCond loginDateCond = new AttributeCond(AttributeCond.Type.EQ);
-        loginDateCond.setSchema("loginDate");
-        loginDateCond.setExpression("2009-05-26");
-
-        NodeCond subCond = NodeCond.getAndCond(
-                NodeCond.getLeafCond(usernameLeafCond),
-                NodeCond.getLeafCond(membershipCond));
-
-        assertTrue(subCond.checkValidity());
-
-        NodeCond cond = NodeCond.getAndCond(subCond,
-                NodeCond.getLeafCond(loginDateCond));
-
-        assertTrue(cond.checkValidity());
-
-        List<SyncopeUser> users = userSearchCriteriaDAO.search(cond);
-        assertNotNull(users);
-        assertEquals(1, users.size());
-    }
-
-    @Test
-    public final void searchWithNotCondition() {
-        final AttributeCond usernameLeafCond =
-                new AttributeCond(AttributeCond.Type.EQ);
-        usernameLeafCond.setSchema("username");
-        usernameLeafCond.setExpression("fabio.martelli");
-
-        final NodeCond cond = NodeCond.getNotLeafCond(usernameLeafCond);
-        assertTrue(cond.checkValidity());
-
-        final List<SyncopeUser> users = userSearchCriteriaDAO.search(cond);
-        assertNotNull(users);
-        assertEquals(2, users.size());
-
-        Set<Long> ids = new HashSet<Long>(2);
-        ids.add(users.get(0).getId());
-        ids.add(users.get(1).getId());
-        assertTrue(ids.contains(1L));
-        assertTrue(ids.contains(4L));
-    }
-
-    @Test
-    public final void searchByBoolean() {
-        final AttributeCond coolLeafCond =
-                new AttributeCond(AttributeCond.Type.EQ);
-        coolLeafCond.setSchema("cool");
-        coolLeafCond.setExpression("true");
-
-        final NodeCond cond = NodeCond.getLeafCond(coolLeafCond);
-        assertTrue(cond.checkValidity());
-
-        final List<SyncopeUser> users = userSearchCriteriaDAO.search(cond);
-        assertNotNull(users);
-        assertEquals(1, users.size());
-
-        assertEquals(Long.valueOf(4L), users.get(0).getId());
-    }
-
-    @Test
-    public final void searchByPageAndSize() {
-        AttributeCond usernameLeafCond =
-                new AttributeCond(AttributeCond.Type.LIKE);
-        usernameLeafCond.setSchema("username");
-        usernameLeafCond.setExpression("%o%");
-
-        MembershipCond membershipCond = new MembershipCond();
-        membershipCond.setRoleId(1L);
-
-        AttributeCond loginDateCond = new AttributeCond(AttributeCond.Type.EQ);
-        loginDateCond.setSchema("loginDate");
-        loginDateCond.setExpression("2009-05-26");
-
-        NodeCond subCond = NodeCond.getAndCond(
-                NodeCond.getLeafCond(usernameLeafCond),
-                NodeCond.getLeafCond(membershipCond));
-
-        assertTrue(subCond.checkValidity());
-
-        NodeCond cond = NodeCond.getAndCond(subCond,
-                NodeCond.getLeafCond(loginDateCond));
-
-        assertTrue(cond.checkValidity());
-
-        List<SyncopeUser> users =
-                userSearchCriteriaDAO.search(cond, 1, 2, null);
-        assertNotNull(users);
-        assertEquals(1, users.size());
-
-        users = userSearchCriteriaDAO.search(cond, 2, 2, null);
-        assertNotNull(users);
-        assertTrue(users.isEmpty());
     }
 
     @Test

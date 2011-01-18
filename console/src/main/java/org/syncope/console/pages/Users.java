@@ -234,7 +234,7 @@ public class Users extends BasePage {
                 if (incrementUserViewLink != null && decrementUserViewLink != null
                         && firstPageLink != null && lastPageLink != null) {
                     int totalPages = (int) Math.ceil(
-                            paginatedUsers.getTotalRecords().doubleValue()
+                            paginatedUsers.getTotalRecords()
                             / new Double(paginatedUsers.getPageSize()));
 
                     if (currentViewPage == totalPages) {
@@ -411,8 +411,8 @@ public class Users extends BasePage {
             }
         };
 
-        int totalPages = (int) Math.ceil(paginatedUsers.getTotalRecords().
-                doubleValue() / new Double(paginatedUsers.getPageSize()));
+        int totalPages = (int) Math.ceil(paginatedUsers.getTotalRecords()
+                / new Double(paginatedUsers.getPageSize()));
 
         firstPageLink = new AjaxLink("firstPageLink") {
 
@@ -433,9 +433,9 @@ public class Users extends BasePage {
 
             @Override
             public void onClick(AjaxRequestTarget target) {
-                int totalPages = (int) Math.ceil(paginatedUsers.getTotalRecords().
-                        doubleValue() / new Double(
-                        paginatedUsers.getPageSize()));
+                int totalPages = (int) Math.ceil(
+                        paginatedUsers.getTotalRecords()
+                        / new Double(paginatedUsers.getPageSize()));
                 currentViewPage = totalPages;
 
                 //Update pageLinks on paginator
@@ -885,12 +885,15 @@ public class Users extends BasePage {
                             nodeCond, currentSearchPage, paginatorSearchRows);
 
                     //Refresh links just after the selecting page click
-                    if (incrementUserLinkSearch != null && decrementUserLinkSearch != null
-                            && firstPageLinkSearch != null && lastPageLinkSearch != null) {
+                    if (incrementUserLinkSearch != null
+                            && decrementUserLinkSearch != null
+                            && firstPageLinkSearch != null
+                            && lastPageLinkSearch != null) {
+
                         int totalPages = (int) Math.ceil(
-                                paginatedSearchUsers.getTotalRecords().
-                                doubleValue()
-                                / new Double(paginatedSearchUsers.getPageSize()));
+                                paginatedSearchUsers.getTotalRecords()
+                                / new Double(
+                                paginatedSearchUsers.getPageSize()));
 
                         if (currentSearchPage == totalPages) {
                             incrementUserLinkSearch.setEnabled(false);
@@ -1040,7 +1043,7 @@ public class Users extends BasePage {
         int totalSearchPages = 0;
         if (paginatedSearchUsers != null) {
             totalSearchPages = (int) Math.ceil(paginatedSearchUsers.
-                    getTotalRecords().doubleValue() / new Double(paginatedSearchUsers.
+                    getTotalRecords() / new Double(paginatedSearchUsers.
                     getPageSize()));
         }
 
@@ -1064,7 +1067,7 @@ public class Users extends BasePage {
             @Override
             public void onClick(AjaxRequestTarget target) {
                 int totalPages = (int) Math.ceil(paginatedSearchUsers.
-                        getTotalRecords().doubleValue() / new Double(
+                        getTotalRecords() / new Double(
                         paginatedSearchUsers.getPageSize()));
                 currentSearchPage = totalPages;
 
@@ -1297,8 +1300,8 @@ public class Users extends BasePage {
      * Refresh paginator after page link click.
      */
     public List<Integer> getPaginatorIndexes() {
-        int totalPages = (int) Math.ceil(paginatedUsers.getTotalRecords().
-                doubleValue() / new Double(paginatedUsers.getPageSize()));
+        int totalPages = (int) Math.ceil(paginatedUsers.getTotalRecords()
+                / new Double(paginatedUsers.getPageSize()));
 
         //Build pages link for paginator
         List<Integer> pageIdList = new ArrayList<Integer>();
@@ -1559,9 +1562,8 @@ public class Users extends BasePage {
         int totalPages;
 
         if (paginatedSearchUsers != null) {
-            totalPages = (int) Math.ceil(paginatedSearchUsers.getTotalRecords().
-                    doubleValue() / new Double(
-                    paginatedSearchUsers.getPageSize()));
+            totalPages = (int) Math.ceil(paginatedSearchUsers.getTotalRecords()
+                    / new Double(paginatedSearchUsers.getPageSize()));
         } else {
             totalPages = 0;
         }

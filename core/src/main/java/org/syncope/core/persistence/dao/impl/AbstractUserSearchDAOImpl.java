@@ -16,13 +16,11 @@ package org.syncope.core.persistence.dao.impl;
 
 import java.util.Collections;
 import java.util.List;
-import org.springframework.stereotype.Repository;
 import org.syncope.client.search.NodeCond;
 import org.syncope.client.search.PaginatedResult;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.UserSearchDAO;
 
-@Repository
 public abstract class AbstractUserSearchDAOImpl extends AbstractDAOImpl
         implements UserSearchDAO {
 
@@ -37,29 +35,29 @@ public abstract class AbstractUserSearchDAOImpl extends AbstractDAOImpl
             final int itemsPerPage,
             final PaginatedResult paginatedResult) {
 
-        LOG.debug("Search condition:\n{}", searchCondition);
-
         List<SyncopeUser> result;
+
+        LOG.debug("Search condition:\n{}", searchCondition);
+        if (!searchCondition.checkValidity()) {
+            LOG.error("Invalid search condition:\n{}", searchCondition);
+
+            result = Collections.EMPTY_LIST;
+        }
+
         try {
-            result = doSearch(searchCondition);
+            result = doSearch(searchCondition,
+                    page, itemsPerPage, paginatedResult);
         } catch (Throwable t) {
             LOG.error("While searching users", t);
 
             result = Collections.EMPTY_LIST;
         }
 
-        if (paginatedResult != null) {
-            paginatedResult.setTotalRecords(new Long((long) result.size()));
-        }
-
-        // TODO: temporary solution to the paginated search
-        int from = itemsPerPage * (page <= 0 ? 0 : page - 1);
-
-        int to = itemsPerPage <= 0 || from + itemsPerPage > result.size()
-                ? result.size() : from + itemsPerPage;
-
-        return from > to ? Collections.EMPTY_LIST : result.subList(from, to);
+        return result;
     }
 
-    protected abstract List<SyncopeUser> doSearch(final NodeCond nodeCond);
+    protected abstract List<SyncopeUser> doSearch(final NodeCond nodeCond,
+            final int page,
+            final int itemsPerPage,
+            final PaginatedResult paginatedResult);
 }

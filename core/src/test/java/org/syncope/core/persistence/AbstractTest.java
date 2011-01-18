@@ -67,9 +67,7 @@ public abstract class AbstractTest {
             final String tableName)
             throws SQLException {
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Table: " + tableName);
-        }
+        LOG.debug("Table: " + tableName);
 
         Statement stmt = null;
         ResultSet rs = null;
@@ -86,9 +84,7 @@ public abstract class AbstractTest {
                             append(" ");
                 }
 
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug(row.toString());
-                }
+                LOG.debug(row.toString());
 
                 row.delete(0, row.length());
             }
@@ -103,6 +99,7 @@ public abstract class AbstractTest {
     @Before
     public void setUpTestDataWithinTransaction()
             throws Exception {
+
         Connection conn = DataSourceUtils.getConnection(dataSource);
         IDatabaseConnection dbUnitConn = new DatabaseConnection(conn);
 
@@ -126,7 +123,7 @@ public abstract class AbstractTest {
             conn = DataSourceUtils.getConnection(dataSource);
 
             DatabaseMetaData dbm = conn.getMetaData();
-            String[] types = {"TABLE"};
+            String[] types = {"TABLE", "VIEW"};
             ResultSet rs = dbm.getTables(null, null, "%", types);
             while (rs.next()) {
                 logTableContent(conn, rs.getString("TABLE_NAME"));
@@ -145,8 +142,7 @@ public abstract class AbstractTest {
         Properties props = new java.util.Properties();
         try {
             InputStream propStream =
-                    getClass().getResourceAsStream(
-                    "/bundles.properties");
+                    getClass().getResourceAsStream("/bundles.properties");
             props.load(propStream);
             bundlesVersion = props.getProperty("bundles.version");
             bundlesDirectory = props.getProperty("bundles.directory");

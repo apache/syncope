@@ -16,10 +16,13 @@
 <properties>
     <comment>Views</comment>
     <entry key="user_search_attr">
-CREATE VIEW user_search_attr
+CREATE MATERIALIZED VIEW user_search_attr
+PARALLEL
+BUILD IMMEDIATE
+REFRESH FORCE
 AS
 
-SELECT ua.owner_id AS owner_id,
+SELECT ua.owner_id AS user_id,
 ua.schema_name AS schema_name,
 uav.booleanvalue AS booleanvalue,
 uav.datevalue AS datevalue,
@@ -29,9 +32,9 @@ uav.stringvalue AS stringvalue
 FROM uattruniquevalue uav, uattr ua
 WHERE uav.attribute_id = ua.id
 
-UNION
+UNION ALL
 
-SELECT ua.owner_id AS owner_id,
+SELECT ua.owner_id AS user_id,
 ua.schema_name AS schema_name,
 uav.booleanvalue AS booleanvalue,
 uav.datevalue AS datevalue,
@@ -41,9 +44,10 @@ uav.stringvalue AS stringvalue
 FROM uattrvalue uav, uattr ua
 WHERE uav.attribute_id = ua.id
 
-UNION
+UNION ALL
 
-SELECT u.id AS owner_id, uschema.name AS schema_name,
+SELECT u.id AS user_id,
+uschema.name AS schema_name,
 NULL AS booleanvalue,
 NULL AS datevalue,
 NULL AS doublevalue,
@@ -54,7 +58,10 @@ LEFT OUTER JOIN uattr ua ON (uschema.name = ua.schema_name AND ua.owner_id = u.i
 WHERE ua.id IS NULL
     </entry>
     <entry key="user_search_membership">
-CREATE VIEW user_search_membership
+CREATE MATERIALIZED VIEW user_search_membership
+PARALLEL
+BUILD IMMEDIATE
+REFRESH FORCE
 AS
 
 SELECT m.syncopeuser_id AS user_id, r.id AS role_id, r.name AS role_name

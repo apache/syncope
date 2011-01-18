@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.List;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
+import javax.persistence.TemporalType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.syncope.core.persistence.beans.AbstractAttrValue;
@@ -98,7 +99,8 @@ public class UserDAOImpl extends AbstractDAOImpl
                 attrValue.getBooleanValue() == null
                 ? null
                 : attrValue.getBooleanAsInteger(attrValue.getBooleanValue()));
-        query.setParameter("dateValue", attrValue.getDateValue());
+        query.setParameter("dateValue", attrValue.getDateValue(),
+                TemporalType.TIMESTAMP);
         query.setParameter("longValue", attrValue.getLongValue());
         query.setParameter("doubleValue", attrValue.getDoubleValue());
 
@@ -157,12 +159,11 @@ public class UserDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    public final Long count() {
-
+    public final Integer count() {
         final Query query = entityManager.createQuery(
                 "SELECT count(e.id) FROM SyncopeUser e");
 
-        return (Long) query.getSingleResult();
+        return ((Long) query.getSingleResult()).intValue();
     }
 
     @Override

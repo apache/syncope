@@ -28,6 +28,7 @@ import org.springframework.stereotype.Repository;
 import org.syncope.client.search.AttributeCond;
 import org.syncope.client.search.MembershipCond;
 import org.syncope.client.search.NodeCond;
+import org.syncope.client.search.PaginatedResult;
 import org.syncope.core.persistence.beans.AbstractAttrValue;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.beans.user.UAttrValue;
@@ -43,7 +44,27 @@ public class UserSearchDAOCriteriaImpl extends AbstractUserSearchDAOImpl
     private SchemaDAO schemaDAO;
 
     @Override
-    protected List<SyncopeUser> doSearch(final NodeCond nodeCond) {
+    protected List<SyncopeUser> doSearch(final NodeCond nodeCond,
+            final int page,
+            final int itemsPerPage,
+            final PaginatedResult paginatedResult) {
+
+        List<SyncopeUser> result = doSearch(nodeCond);
+
+        if (paginatedResult != null) {
+            paginatedResult.setTotalRecords(result.size());
+        }
+
+        // TODO: temporary solution to the paginated search
+        int from = itemsPerPage * (page <= 0 ? 0 : page - 1);
+
+        int to = itemsPerPage <= 0 || from + itemsPerPage > result.size()
+                ? result.size() : from + itemsPerPage;
+
+        return from > to ? Collections.EMPTY_LIST : result.subList(from, to);
+    }
+
+    private List<SyncopeUser> doSearch(final NodeCond nodeCond) {
         List<SyncopeUser> result;
         List<SyncopeUser> rightResult;
 

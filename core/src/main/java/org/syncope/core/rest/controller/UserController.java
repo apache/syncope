@@ -287,8 +287,7 @@ public class UserController extends AbstractController {
         paginatedResult.setPageNumber(page);
         paginatedResult.setPageSize(size);
 
-        Long totalUsers = userDAO.count();
-        paginatedResult.setTotalRecords(totalUsers);
+        paginatedResult.setTotalRecords(userDAO.count());
 
         List<SyncopeUser> users = userDAO.findAll(page, size);
         List<UserTO> userTOs = new ArrayList<UserTO>(users.size());

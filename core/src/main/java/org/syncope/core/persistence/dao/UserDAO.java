@@ -34,7 +34,7 @@ public interface UserDAO extends DAO {
 
     List<SyncopeUser> findAll(int page, int itemsPerPage);
 
-    Long count();
+    Integer count();
 
     SyncopeUser save(SyncopeUser user)
             throws InvalidEntityException;
