@@ -58,7 +58,7 @@ public class SchemaDAOImpl extends AbstractDAOImpl
 
     @Override
     public <T extends AbstractAttr> List<T> getAttributes(
-            AbstractSchema schema, Class<T> reference) {
+            final AbstractSchema schema, final Class<T> reference) {
 
         Query query = entityManager.createQuery(
                 "SELECT e FROM " + reference.getSimpleName() + " e"

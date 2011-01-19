@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.role.RSchema;
 import org.syncope.core.persistence.beans.user.USchema;
 import org.syncope.core.persistence.AbstractTest;
+import org.syncope.core.persistence.beans.role.RAttr;
 import org.syncope.core.persistence.util.AttributableUtil;
 import org.syncope.core.persistence.validation.entity.InvalidEntityException;
 import org.syncope.types.SchemaType;
@@ -49,6 +50,20 @@ public class SchemaTest extends AbstractTest {
                 schemaDAO.find("username", USchema.class);
         assertNotNull("did not find expected attribute schema",
                 attributeSchema);
+    }
+
+    @Test
+    public final void getAttributes() {
+        List<RSchema> schemas = schemaDAO.findAll(RSchema.class);
+        assertNotNull(schemas);
+        assertFalse(schemas.isEmpty());
+
+        List<RAttr> attrs;
+        for (RSchema schema : schemas) {
+            attrs = schemaDAO.getAttributes(schema, RAttr.class);
+            assertNotNull(attrs);
+            assertFalse(attrs.isEmpty());
+        }
     }
 
     @Test
