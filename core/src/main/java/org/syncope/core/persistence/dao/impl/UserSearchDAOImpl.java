@@ -174,11 +174,9 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
 
             LOG.debug("Native count query\n{}\nwith parameters\n{}",
                     queryString.toString(), parameters);
-            LOG.info("XXXXXXX Native count query\n{}\nwith parameters\n{}",
-                    queryString.toString(), parameters);
 
             paginatedResult.setTotalRecords(
-                    ((Integer) countQuery.getSingleResult()));
+                    ((Number) countQuery.getSingleResult()).intValue());
 
             LOG.debug("Native count query result: {}",
                     paginatedResult.getTotalRecords());
