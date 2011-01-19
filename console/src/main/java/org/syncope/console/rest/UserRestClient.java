@@ -184,7 +184,8 @@ public class UserRestClient extends AbstractBaseRestClient {
 
     public PaginatedResult paginatedSearchUser(NodeCond nodeSearchCondition,
             int page, int size)
-            throws HttpServerErrorException {
+            throws HttpServerErrorException,
+            SyncopeClientCompositeErrorException {
 
         PaginatedResult paginatedResult =
                 restTemplate.postForObject(

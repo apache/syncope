@@ -53,6 +53,7 @@ import org.syncope.client.to.AttributeTO;
 import org.syncope.client.to.ConfigurationTO;
 import org.syncope.client.to.RoleTO;
 import org.syncope.client.to.UserTO;
+import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.SearchConditionWrapper;
 import org.syncope.console.commons.SearchConditionWrapper.OperationType;
@@ -955,7 +956,13 @@ public class Users extends BasePage {
                     }
                     return paginatedSearchUsers.getRecords();
                 } else {
-                    return new ArrayList();
+
+                    if(paginatedSearchUsers != null &&
+                            paginatedSearchUsers.getRecords() != null)
+                        return paginatedSearchUsers.getRecords();
+                    else
+                        return new ArrayList();
+                    
                 }
 
             }
@@ -1218,6 +1225,10 @@ public class Users extends BasePage {
                                 nodeCond, currentSearchPage = 1,
                                 paginatorSearchRows);
 
+                        /*reset nodeCond in order to avoid a new REST connection
+                        due to Ajax's request*/
+                        nodeCond = null;
+
                         //Clean the feedback panel if the operation succedes
                         target.addComponent(form.get("searchFeedback"));
 
@@ -1226,6 +1237,10 @@ public class Users extends BasePage {
                         pageLinksSearchView.setList(pageIdList);
                         target.addChildren(pageLinksSearchView, AjaxLink.class);
                     } catch (HttpServerErrorException e) {
+                        LOG.error("While searching users", e);
+                        error(e.getMessage());
+                        return;
+                    } catch (SyncopeClientCompositeErrorException e) {
                         LOG.error("While searching users", e);
                         error(e.getMessage());
                         return;
