@@ -42,7 +42,7 @@ import org.syncope.core.persistence.dao.UserSearchDAO;
 import org.syncope.types.SchemaType;
 
 @Repository
-public class UserSearchDAONativeImpl extends AbstractUserSearchDAOImpl
+public class UserSearchDAOImpl extends AbstractDAOImpl
         implements UserSearchDAO {
 
     static final private String EMPTY_ATTR_QUERY =
@@ -56,10 +56,42 @@ public class UserSearchDAONativeImpl extends AbstractUserSearchDAOImpl
 
     private final Random random;
 
-    public UserSearchDAONativeImpl() {
+    public UserSearchDAOImpl() {
         super();
 
         random = new Random(Calendar.getInstance().getTimeInMillis());
+    }
+
+    @Override
+    public List<SyncopeUser> search(final NodeCond searchCondition) {
+        return search(searchCondition, -1, -1, null);
+    }
+
+    @Override
+    public List<SyncopeUser> search(final NodeCond searchCondition,
+            final int page,
+            final int itemsPerPage,
+            final PaginatedResult paginatedResult) {
+
+        List<SyncopeUser> result;
+
+        LOG.debug("Search condition:\n{}", searchCondition);
+        if (!searchCondition.checkValidity()) {
+            LOG.error("Invalid search condition:\n{}", searchCondition);
+
+            result = Collections.EMPTY_LIST;
+        }
+
+        try {
+            result = doSearch(searchCondition,
+                    page, itemsPerPage, paginatedResult);
+        } catch (Throwable t) {
+            LOG.error("While searching users", t);
+
+            result = Collections.EMPTY_LIST;
+        }
+
+        return result;
     }
 
     private Integer setParameter(final Random random,
@@ -91,8 +123,7 @@ public class UserSearchDAONativeImpl extends AbstractUserSearchDAOImpl
         }
     }
 
-    @Override
-    protected List<SyncopeUser> doSearch(final NodeCond nodeCond,
+    private List<SyncopeUser> doSearch(final NodeCond nodeCond,
             final int page,
             final int itemsPerPage,
             final PaginatedResult paginatedResult) {
@@ -113,7 +144,7 @@ public class UserSearchDAONativeImpl extends AbstractUserSearchDAOImpl
         fillWithParameters(query, parameters);
 
         LOG.debug("Native query\n{}\nwith parameters\n{}",
-                query, parameters);
+                queryString.toString(), parameters);
 
         // Avoiding duplicates (set)
         Set<Number> userIds = new HashSet<Number>();
@@ -134,7 +165,7 @@ public class UserSearchDAONativeImpl extends AbstractUserSearchDAOImpl
         }
 
         if (paginatedResult != null) {
-            queryString.insert(0, "SELECT COUNT(user_id) WHERE user_id IN (");
+            queryString.insert(0, "SELECT COUNT(user_id) FROM (");
             queryString.append(")");
 
             Query countQuery =
@@ -142,10 +173,12 @@ public class UserSearchDAONativeImpl extends AbstractUserSearchDAOImpl
             fillWithParameters(countQuery, parameters);
 
             LOG.debug("Native count query\n{}\nwith parameters\n{}",
-                    countQuery, parameters);
+                    queryString.toString(), parameters);
+            LOG.info("XXXXXXX Native count query\n{}\nwith parameters\n{}",
+                    queryString.toString(), parameters);
 
             paginatedResult.setTotalRecords(
-                    ((Long) countQuery.getSingleResult()).intValue());
+                    ((Integer) countQuery.getSingleResult()));
 
             LOG.debug("Native count query result: {}",
                     paginatedResult.getTotalRecords());
@@ -176,19 +209,23 @@ public class UserSearchDAONativeImpl extends AbstractUserSearchDAOImpl
                 break;
 
             case AND:
-                query.append(getQuery(nodeCond.getLeftNodeCond(),
+                query.append("(").
+                        append(getQuery(nodeCond.getLeftNodeCond(),
                         parameters)).
                         append(" INTERSECT ").
                         append(getQuery(nodeCond.getRightNodeCond(),
-                        parameters));
+                        parameters).
+                        append(")"));
                 break;
 
             case OR:
-                query.append(getQuery(nodeCond.getLeftNodeCond(),
+                query.append("(").
+                        append(getQuery(nodeCond.getLeftNodeCond(),
                         parameters)).
                         append(" UNION ").
                         append(getQuery(nodeCond.getRightNodeCond(),
-                        parameters));
+                        parameters).
+                        append(")"));
                 break;
 
             default:
@@ -270,7 +307,10 @@ public class UserSearchDAONativeImpl extends AbstractUserSearchDAOImpl
 
         UAttrValue attrValue = new UAttrValue();
         try {
-            if (cond.getType() != AttributeCond.Type.LIKE) {
+            if (cond.getType() != AttributeCond.Type.LIKE
+                    && cond.getType() != AttributeCond.Type.ISNULL
+                    && cond.getType() != AttributeCond.Type.ISNOTNULL) {
+
                 attrValue = schema.getValidator().
                         getValue(cond.getExpression(), attrValue);
             }

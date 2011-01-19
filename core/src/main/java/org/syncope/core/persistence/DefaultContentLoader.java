@@ -36,7 +36,6 @@ import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.syncope.core.persistence.beans.SyncopeConf;
-import org.syncope.core.rest.controller.UserController;
 
 /**
  * Load default content in the database.
@@ -67,16 +66,14 @@ public class DefaultContentLoader implements ServletContextListener {
                 (DataSource) springContext.getBean("localDataSource");
         Connection conn = DataSourceUtils.getConnection(dataSource);
 
-        // 1. read persistence.properties and set search mode
+        // 1. read persistence.properties
         String dbSchema = null;
-        String searchMode = null;
         try {
             InputStream dbPropsStream = getClass().getResourceAsStream(
                     "/persistence.properties");
             Properties dbProps = new Properties();
             dbProps.load(dbPropsStream);
             dbSchema = dbProps.getProperty("database.schema");
-            searchMode = dbProps.getProperty("search.mode");
         } catch (Throwable t) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Could not find persistence.properties", t);
@@ -84,10 +81,6 @@ public class DefaultContentLoader implements ServletContextListener {
                 LOG.error("Could not find persistence.properties");
             }
         }
-
-        LOG.debug("Setting search mode to " + searchMode);
-        UserController.setSearchMode(searchMode);
-        LOG.debug("Search mode set to {}", UserController.getSearchMode());
 
         // 2. Check wether we are allowed to load default content into the DB
         Statement statement = null;

@@ -39,7 +39,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javassist.NotFoundException;
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import jpasymphony.dao.JPAWorkflowEntryDAO;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -76,11 +75,8 @@ public class UserController extends AbstractController {
     @Autowired
     private UserDAO userDAO;
 
-    @Resource(name = "userSearchDAOCriteriaImpl")
-    private UserSearchDAO userSearchCriteriaDAO;
-
-    @Resource(name = "userSearchDAONativeImpl")
-    private UserSearchDAO userSearchNativeDAO;
+    @Autowired
+    private UserSearchDAO userSearchDAO;
 
     @Autowired
     private JPAWorkflowEntryDAO workflowEntryDAO;
@@ -93,43 +89,6 @@ public class UserController extends AbstractController {
 
     @Autowired
     private PropagationManager propagationManager;
-
-    protected static SearchMode searchMode;
-
-    public static SearchMode getSearchMode() {
-        return searchMode;
-    }
-
-    public static void setSearchMode(String searchMode) {
-        try {
-            UserController.searchMode = SearchMode.valueOf(
-                    searchMode.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            LOG.error("Invalid search mode specified: '" + searchMode
-                    + "', reverting to CRITERIA");
-
-            UserController.searchMode = SearchMode.CRITERIA;
-        }
-    }
-
-    private UserSearchDAO getSelectedUserSearchDAO() {
-        UserSearchDAO result;
-
-        switch (getSearchMode()) {
-            case CRITERIA:
-                result = userSearchCriteriaDAO;
-                break;
-
-            case NATIVE:
-                result = userSearchNativeDAO;
-                break;
-
-            default:
-                result = userSearchCriteriaDAO;
-        }
-
-        return result;
-    }
 
     public Integer findWorkflowAction(final Long workflowId,
             final String actionName) {
@@ -356,8 +315,7 @@ public class UserController extends AbstractController {
             throw new InvalidSearchConditionException();
         }
 
-        List<SyncopeUser> matchingUsers =
-                getSelectedUserSearchDAO().search(searchCondition);
+        List<SyncopeUser> matchingUsers = userSearchDAO.search(searchCondition);
         List<UserTO> result = new ArrayList<UserTO>(matchingUsers.size());
         for (SyncopeUser user : matchingUsers) {
             result.add(userDataBinder.getUserTO(user, userWorkflow));
@@ -387,8 +345,8 @@ public class UserController extends AbstractController {
             throw new InvalidSearchConditionException();
         }
 
-        final List<SyncopeUser> matchingUsers = getSelectedUserSearchDAO().
-                search(searchCondition, page, size, paginatedResult);
+        final List<SyncopeUser> matchingUsers = userSearchDAO.search(
+                searchCondition, page, size, paginatedResult);
 
         final List<UserTO> result = new ArrayList<UserTO>(matchingUsers.size());
         for (SyncopeUser user : matchingUsers) {

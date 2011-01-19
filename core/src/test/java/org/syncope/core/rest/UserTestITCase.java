@@ -494,8 +494,7 @@ public class UserTestITCase extends AbstractTest {
         searchCondition = NodeCond.getLeafCond(isNullCond);
 
         matchedUsers = Arrays.asList(
-                restTemplate.postForObject(
-                BASE_URL + "user/search",
+                restTemplate.postForObject(BASE_URL + "user/search",
                 searchCondition, UserTO[].class));
         assertNotNull(matchedUsers);
         assertFalse(matchedUsers.isEmpty());

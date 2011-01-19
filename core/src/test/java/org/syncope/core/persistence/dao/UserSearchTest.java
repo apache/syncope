@@ -25,7 +25,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
-import javax.annotation.Resource;
 import org.dbunit.database.DatabaseConfig;
 import org.dbunit.database.DatabaseConnection;
 import org.dbunit.database.IDatabaseConnection;
@@ -62,11 +61,8 @@ public class UserSearchTest {
     private static final Logger LOG = LoggerFactory.getLogger(
             UserSearchTest.class);
 
-    @Resource(name = "userSearchDAOCriteriaImpl")
-    private UserSearchDAO userSearchCriteriaDAO;
-
-    @Resource(name = "userSearchDAONativeImpl")
-    private UserSearchDAO userSearchNativeDAO;
+    @Autowired
+    private UserSearchDAO searchDAO;
 
     @Autowired
     private DataSource dataSource;
@@ -133,11 +129,6 @@ public class UserSearchTest {
 
     @Test
     public final void searchWithLikeCondition() {
-        searchWithLikeCondition(userSearchCriteriaDAO);
-        searchWithLikeCondition(userSearchNativeDAO);
-    }
-
-    private void searchWithLikeCondition(UserSearchDAO searchDAO) {
         AttributeCond usernameLeafCond =
                 new AttributeCond(AttributeCond.Type.LIKE);
         usernameLeafCond.setSchema("username");
@@ -168,11 +159,6 @@ public class UserSearchTest {
 
     @Test
     public final void searchWithNotCondition() {
-        searchWithNotCondition(userSearchCriteriaDAO);
-        searchWithNotCondition(userSearchNativeDAO);
-    }
-
-    private void searchWithNotCondition(UserSearchDAO searchDAO) {
         final AttributeCond usernameLeafCond =
                 new AttributeCond(AttributeCond.Type.EQ);
         usernameLeafCond.setSchema("username");
@@ -194,11 +180,6 @@ public class UserSearchTest {
 
     @Test
     public final void searchByBoolean() {
-        searchByBoolean(userSearchCriteriaDAO);
-        searchByBoolean(userSearchNativeDAO);
-    }
-
-    private void searchByBoolean(UserSearchDAO searchDAO) {
         final AttributeCond coolLeafCond =
                 new AttributeCond(AttributeCond.Type.EQ);
         coolLeafCond.setSchema("cool");
@@ -216,11 +197,6 @@ public class UserSearchTest {
 
     @Test
     public final void searchByPageAndSize() {
-        searchByPageAndSize(userSearchCriteriaDAO);
-        searchByPageAndSize(userSearchNativeDAO);
-    }
-
-    private void searchByPageAndSize(UserSearchDAO searchDAO) {
         AttributeCond usernameLeafCond =
                 new AttributeCond(AttributeCond.Type.LIKE);
         usernameLeafCond.setSchema("username");
@@ -255,11 +231,6 @@ public class UserSearchTest {
 
     @Test
     public final void searchByMembership() {
-        searchByMembership(userSearchCriteriaDAO);
-        searchByMembership(userSearchNativeDAO);
-    }
-
-    private void searchByMembership(UserSearchDAO searchDAO) {
         MembershipCond membershipCond = new MembershipCond();
         membershipCond.setRoleId(1L);
 
@@ -278,11 +249,6 @@ public class UserSearchTest {
 
     @Test
     public void searchByIsNull() {
-        searchByIsNull(userSearchCriteriaDAO);
-        searchByIsNull(userSearchNativeDAO);
-    }
-
-    private void searchByIsNull(UserSearchDAO searchDAO) {
         AttributeCond coolLeafCond =
                 new AttributeCond(AttributeCond.Type.ISNULL);
         coolLeafCond.setSchema("cool");

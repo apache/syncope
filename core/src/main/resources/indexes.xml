@@ -16,16 +16,6 @@
 <properties>
     <comment>Additional indexes (in respect to JPA's)</comment>
 
-    <entry key="v_schema_nameIndex">CREATE INDEX v_schema_nameIndex ON user_search_attr(schema_name)</entry>
-    <entry key="v_booleanvalueIndex">CREATE INDEX v_booleanvalueIndex ON user_search_attr(v_booleanvalue)</entry>
-    <entry key="v_datevalueIndex">CREATE INDEX v_datevalueIndex ON user_search_attr(v_datevalue)</entry>
-    <entry key="v_doublevalueIndex">CREATE INDEX v_doublevalueIndex ON user_search_attr(v_doublevalue)</entry>
-    <entry key="v_longvalueIndex">CREATE INDEX v_longvalueIndex ON user_search_attr(v_longvalue)</entry>
-    <entry key="v_stringvalueIndex">CREATE INDEX v_stringvalueIndex ON user_search_attr(v_stringvalue)</entry>
-
-    <entry key="v_role_idIndex">CREATE INDEX v_role_idIndex ON user_search_membership(role_id)</entry>
-    <entry key="v_role_nameIndex">CREATE INDEX v_role_nameIndex ON user_search_membership(role_name)</entry>
-
     <entry key="roleNameIndex">CREATE INDEX roleNameIndex ON SyncopeRole(name)</entry>
     <entry key="UAttrUniqueValueSchemaIndex">CREATE INDEX UAttrUniqueValueSchemaIndex ON UAttrUniqueValue(schema_name)</entry>
     <entry key="MAttrUniqueValueSchemaIndex">CREATE INDEX MAttrUniqueValueSchemaIndex ON MAttrUniqueValue(schema_name)</entry>
