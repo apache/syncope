@@ -19,7 +19,7 @@
     <parent>
         <groupId>org.syncope</groupId>
         <artifactId>syncope</artifactId>
-        <version>0.3-SNAPSHOT</version>
+        <version>0.3</version>
     </parent>
 
     <name>Syncope core</name>
@@ -381,13 +381,12 @@
                         <phase>package</phase>
                         <configuration>
                             <tasks>
-                                <unzip src="${project.build.directory}/${project.build.finalName}.war"
-                                       dest="${cargo.run.dir}">
+                                <unzip src="${project.build.directory}/${project.build.finalName}.war" dest="${cargo.run.dir}">
                                     <patternset>
-                                        <exclude name="**/content.xml"/>
-                                        <exclude name="**/ehcache.xml"/>
-                                        <exclude name="**/persistence.properties"/>
-                                        <exclude name="**/security.properties"/>
+                                        <exclude name="**/content.xml" />
+                                        <exclude name="**/ehcache.xml" />
+                                        <exclude name="**/persistence.properties" />
+                                        <exclude name="**/security.properties" />
                                     </patternset>
                                 </unzip>
                             </tasks>

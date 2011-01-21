@@ -19,7 +19,7 @@
     <parent>
         <groupId>org.syncope</groupId>
         <artifactId>syncope</artifactId>
-        <version>0.3-SNAPSHOT</version>
+        <version>0.3</version>
     </parent>
 
     <name>Syncope console</name>
@@ -157,11 +157,10 @@
                         <phase>package</phase>
                         <configuration>
                             <tasks>
-                                <unzip src="${basedir}/../core/target/syncope.war"
-                                       dest="${project.build.directory}/syncope-core-test">
+                                <unzip src="${basedir}/../core/target/syncope.war" dest="${project.build.directory}/syncope-core-test">
                                     <patternset>
-                                        <exclude name="**/content.xml"/>
-                                        <exclude name="**/persistence.properties"/>
+                                        <exclude name="**/content.xml" />
+                                        <exclude name="**/persistence.properties" />
                                     </patternset>
                                 </unzip>
                             </tasks>
