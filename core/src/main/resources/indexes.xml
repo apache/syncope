@@ -23,7 +23,21 @@
     <entry key="ConnectorInstance_capabilities_ConnectorInstance_idIndex">CREATE INDEX ConnectorInstance_capabilIndex ON ConnectorInstance_capabilities(ConnectorInstance_id)</entry>
     <entry key="MAttr_schema_nameIndex">CREATE INDEX MAttr_schema_nameIndex ON MAttr(schema_name)</entry>
     <entry key="MAttr_owner_idIndex">CREATE INDEX MAttr_owner_idIndex ON MAttr(owner_id)</entry>
-    <entry key="MAttrValue_attribute_idIndex">CREATE INDEX MAttrValue_attribute_idInIndex ON MAttrValue(attribute_id)</entry>
+
+    <entry key="MAttrValue_attribute_idIndex">CREATE INDEX MAttrValue_attribute_idIndex ON MAttrValue(attribute_id)</entry>
+    <entry key="MAttrValue_stringvalueIndex">CREATE INDEX MAttrValue_stringvalueIndex ON MAttrValue(stringvalue)</entry>
+    <entry key="MAttrValue_datevalueIndex">CREATE INDEX MAttrValue_datevalueIndex ON MAttrValue(datevalue)</entry>
+    <entry key="MAttrValue_longvalueIndex">CREATE INDEX MAttrValue_longvalueIndex ON MAttrValue(longvalue)</entry>
+    <entry key="MAttrValue_doublevalueIndex">CREATE INDEX MAttrValue_doublevalueIndex ON MAttrValue(doublevalue)</entry>
+    <entry key="MAttrValue_booleanvalueIndex">CREATE INDEX MAttrValue_booleanvalueIndex ON MAttrValue(booleanvalue)</entry>
+
+    <entry key="MAttrUValue_attribute_idIndex">CREATE INDEX MAttrUValue_attribute_idIndex ON MAttrUniqueValue(attribute_id)</entry>
+    <entry key="MAttrUValue_stringvalueIndex">CREATE INDEX MAttrUValue_stringvalueIndex ON MAttrUniqueValue(stringvalue)</entry>
+    <entry key="MAttrUValue_datevalueIndex">CREATE INDEX MAttrUValue_datevalueIndex ON MAttrUniqueValue(datevalue)</entry>
+    <entry key="MAttrUValue_longvalueIndex">CREATE INDEX MAttrUValue_longvalueIndex ON MAttrUniqueValue(longvalue)</entry>
+    <entry key="MAttrUValue_doublevalueIndex">CREATE INDEX MAttrUValue_doublevalueIndex ON MAttrUniqueValue(doublevalue)</entry>
+    <entry key="MAttrUValue_booleanvalueIndex">CREATE INDEX MAttrUValue_booleanvalueIndex ON MAttrUniqueValue(booleanvalue)</entry>
+
     <entry key="MDerAttr_derivedSchema_nameIndex">CREATE INDEX MDerAttr_derivedSchema_naIndex ON MDerAttr(derivedSchema_name)</entry>
     <entry key="MDerAttr_owner_idIndex">CREATE INDEX MDerAttr_owner_idIndex ON MDerAttr(owner_id)</entry>
     <entry key="MSchemaDerivation_schemas_nameIndex">CREATE INDEX MSchemaDerivation_schemasIndex ON MSchemaDerivation(schemas_name)</entry>
@@ -34,7 +48,21 @@
     <entry key="Membership_TargetResource_targetResources_nameIndex">CREATE INDEX Membership_TargetResourc2Index ON Membership_TargetResource(targetResources_name)</entry>
     <entry key="RAttr_schema_nameIndex">CREATE INDEX RAttr_schema_nameIndex ON RAttr(schema_name)</entry>
     <entry key="RAttr_owner_idIndex">CREATE INDEX RAttr_owner_idIndex ON RAttr(owner_id)</entry>
-    <entry key="RAttrValue_attribute_idIndex">CREATE INDEX RAttrValue_attribute_idInIndex ON RAttrValue(attribute_id)</entry>
+
+    <entry key="RAttrValue_attribute_idIndex">CREATE INDEX RAttrValue_attribute_idIndex ON RAttrValue(attribute_id)</entry>
+    <entry key="RAttrValue_stringvalueIndex">CREATE INDEX RAttrValue_stringvalueIndex ON RAttrValue(stringvalue)</entry>
+    <entry key="RAttrValue_datevalueIndex">CREATE INDEX RAttrValue_datevalueIndex ON RAttrValue(datevalue)</entry>
+    <entry key="RAttrValue_longvalueIndex">CREATE INDEX RAttrValue_longvalueIndex ON RAttrValue(longvalue)</entry>
+    <entry key="RAttrValue_doublevalueIndex">CREATE INDEX RAttrValue_doublevalueIndex ON RAttrValue(doublevalue)</entry>
+    <entry key="RAttrValue_booleanvalueIndex">CREATE INDEX RAttrValue_booleanvalueIndex ON RAttrValue(booleanvalue)</entry>
+
+    <entry key="RAttrUValue_attribute_idIndex">CREATE INDEX RAttrUValue_attribute_idIndex ON RAttrUniqueValue(attribute_id)</entry>
+    <entry key="RAttrUValue_stringvalueIndex">CREATE INDEX RAttrUValue_stringvalueIndex ON RAttrUniqueValue(stringvalue)</entry>
+    <entry key="RAttrUValue_datevalueIndex">CREATE INDEX RAttrUValue_datevalueIndex ON RAttrUniqueValue(datevalue)</entry>
+    <entry key="RAttrUValue_longvalueIndex">CREATE INDEX RAttrUValue_longvalueIndex ON RAttrUniqueValue(longvalue)</entry>
+    <entry key="RAttrUValue_doublevalueIndex">CREATE INDEX RAttrUValue_doublevalueIndex ON RAttrUniqueValue(doublevalue)</entry>
+    <entry key="RAttrUValue_booleanvalueIndex">CREATE INDEX RAttrUValue_booleanvalueIndex ON RAttrUniqueValue(booleanvalue)</entry>
+
     <entry key="RDerAttr_derivedSchema_nameIndex">CREATE INDEX RDerAttr_derivedSchema_naIndex ON RDerAttr(derivedSchema_name)</entry>
     <entry key="RDerAttr_owner_idIndex">CREATE INDEX RDerAttr_owner_idIndex ON RDerAttr(owner_id)</entry>
     <entry key="RSchemaDerivation_schemas_nameIndex">CREATE INDEX RSchemaDerivation_schemasIndex ON RSchemaDerivation(schemas_name)</entry>
@@ -52,7 +80,21 @@
     <entry key="TaskExecution_task_idIndex">CREATE INDEX TaskExecution_task_idIndeIndex ON TaskExecution(task_id)</entry>
     <entry key="UAttr_schema_nameIndex">CREATE INDEX UAttr_schema_nameIndex ON UAttr(schema_name)</entry>
     <entry key="UAttr_owner_idIndex">CREATE INDEX UAttr_owner_idIndex ON UAttr(owner_id)</entry>
-    <entry key="UAttrValue_attribute_idIndex">CREATE INDEX UAttrValue_attribute_idInIndex ON UAttrValue(attribute_id)</entry>
+
+    <entry key="UAttrValue_attribute_idIndex">CREATE INDEX UAttrValue_attribute_idIndex ON UAttrValue(attribute_id)</entry>
+    <entry key="UAttrValue_stringvalueIndex">CREATE INDEX UAttrValue_stringvalueIndex ON UAttrValue(stringvalue)</entry>
+    <entry key="UAttrValue_datevalueIndex">CREATE INDEX UAttrValue_datevalueIndex ON UAttrValue(datevalue)</entry>
+    <entry key="UAttrValue_longvalueIndex">CREATE INDEX UAttrValue_longvalueIndex ON UAttrValue(longvalue)</entry>
+    <entry key="UAttrValue_doublevalueIndex">CREATE INDEX UAttrValue_doublevalueIndex ON UAttrValue(doublevalue)</entry>
+    <entry key="UAttrValue_booleanvalueIndex">CREATE INDEX UAttrValue_booleanvalueIndex ON UAttrValue(booleanvalue)</entry>
+
+    <entry key="UAttrUValue_attribute_idIndex">CREATE INDEX UAttrUValue_attribute_idIndex ON UAttrUniqueValue(attribute_id)</entry>
+    <entry key="UAttrUValue_stringvalueIndex">CREATE INDEX UAttrUValue_stringvalueIndex ON UAttrUniqueValue(stringvalue)</entry>
+    <entry key="UAttrUValue_datevalueIndex">CREATE INDEX UAttrUValue_datevalueIndex ON UAttrUniqueValue(datevalue)</entry>
+    <entry key="UAttrUValue_longvalueIndex">CREATE INDEX UAttrUValue_longvalueIndex ON UAttrUniqueValue(longvalue)</entry>
+    <entry key="UAttrUValue_doublevalueIndex">CREATE INDEX UAttrUValue_doublevalueIndex ON UAttrUniqueValue(doublevalue)</entry>
+    <entry key="UAttrUValue_booleanvalueIndex">CREATE INDEX UAttrUValue_booleanvaluIndex ON UAttrUniqueValue(booleanvalue)</entry>
+    
     <entry key="UDerAttr_derivedSchema_nameIndex">CREATE INDEX UDerAttr_derivedSchema_naIndex ON UDerAttr(derivedSchema_name)</entry>
     <entry key="UDerAttr_owner_idIndex">CREATE INDEX UDerAttr_owner_idIndex ON UDerAttr(owner_id)</entry>
     <entry key="USchemaDerivation_schemas_nameIndex">CREATE INDEX USchemaDerivation_schemasIndex ON USchemaDerivation(schemas_name)</entry>
