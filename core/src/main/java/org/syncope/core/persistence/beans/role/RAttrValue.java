@@ -19,6 +19,7 @@ import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.ManyToOne;
+import javax.validation.constraints.NotNull;
 import org.syncope.core.persistence.beans.AbstractAttr;
 import org.syncope.core.persistence.beans.AbstractAttrValue;
 
@@ -29,7 +30,8 @@ public class RAttrValue extends AbstractAttrValue {
     @Id
     private Long id;
 
-    @ManyToOne(optional = false)
+    @ManyToOne
+    @NotNull
     private RAttr attribute;
 
     @Override

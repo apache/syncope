@@ -16,11 +16,19 @@ package org.syncope.core.persistence.validation.entity;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.syncope.core.persistence.beans.AbstractAttr;
 import org.syncope.types.EntityViolationType;
 
 public class AttrValidator
         implements ConstraintValidator<AttrCheck, AbstractAttr> {
+
+    /**
+     * Logger.
+     */
+    private static final Logger LOG = LoggerFactory.getLogger(
+            AttrValidator.class);
 
     @Override
     public void initialize(final AttrCheck constraintAnnotation) {
@@ -48,6 +56,10 @@ public class AttrValidator
             }
 
             if (!isValid) {
+                LOG.error("Invalid values for attribute: "
+                        + "schema=" + object.getSchema().getName() + ", "
+                        + "values={}", object.getValuesAsStrings());
+
                 context.disableDefaultConstraintViolation();
                 context.buildConstraintViolationWithTemplate(
                         EntityViolationType.InvalidValueList.toString()).

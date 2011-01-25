@@ -48,6 +48,9 @@ public abstract class AbstractAttr extends AbstractBaseBean {
             setUniqueValue(attrValue);
         } else {
             if (!getSchema().isMultivalue()) {
+                for (AbstractAttrValue v : getValues()) {
+                    v.setAttribute(null);
+                }
                 getValues().clear();
             }
             addValue(attrValue);
@@ -79,9 +82,6 @@ public abstract class AbstractAttr extends AbstractBaseBean {
             result = new ArrayList<String>(getValues().size());
             for (AbstractAttrValue attributeValue : getValues()) {
                 result.add(attributeValue.getValueAsString());
-            }
-            if (getUniqueValue() != null) {
-                result.add(getUniqueValue().getValueAsString());
             }
         }
 

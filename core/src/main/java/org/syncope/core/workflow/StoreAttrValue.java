@@ -14,24 +14,27 @@
  */
 package org.syncope.core.workflow;
 
+import com.opensymphony.module.propertyset.PropertySet;
 import com.opensymphony.workflow.FunctionProvider;
 import com.opensymphony.workflow.WorkflowException;
+import java.util.Date;
 import java.util.Map;
-import org.syncope.core.persistence.beans.AbstractAttributable;
 import org.syncope.core.persistence.beans.AbstractAttr;
+import org.syncope.core.persistence.beans.AbstractAttributable;
 import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.beans.membership.Membership;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.util.AttributableUtil;
+import org.syncope.types.SchemaType;
 
-abstract class AbstractStoreAttributeValue extends OSWorkflowComponent
+public class StoreAttrValue extends OSWorkflowComponent
         implements FunctionProvider {
 
-    protected AttributableUtil attributableUtil;
+    private AttributableUtil attributableUtil;
 
-    protected AbstractAttr getAttribute(Map transientVars, Map args)
+    private AbstractAttr getAttribute(Map transientVars, Map args)
             throws WorkflowException {
 
         String schemaName = (String) args.get("schema");
@@ -50,17 +53,17 @@ abstract class AbstractStoreAttributeValue extends OSWorkflowComponent
             attributable = (SyncopeUser) transientVars.get(
                     Constants.SYNCOPE_USER);
         } else if (Constants.SYNCOPE_ROLE.equals(kind)) {
-            attributableUtil = AttributableUtil.ROLE;
-            attributable = (SyncopeRole) transientVars.get(
-                    Constants.SYNCOPE_ROLE);
-        } else if (Constants.MEMBERSHIP.equals(kind)) {
-            attributableUtil = AttributableUtil.MEMBERSHIP;
-            attributable = (Membership) transientVars.get(
-                    Constants.MEMBERSHIP);
-        } else {
-            throw new WorkflowException(
-                    "Invalid attributable specified: " + kind);
-        }
+                attributableUtil = AttributableUtil.ROLE;
+                attributable = (SyncopeRole) transientVars.get(
+                        Constants.SYNCOPE_ROLE);
+            } else if (Constants.MEMBERSHIP.equals(kind)) {
+                    attributableUtil = AttributableUtil.MEMBERSHIP;
+                    attributable = (Membership) transientVars.get(
+                            Constants.MEMBERSHIP);
+                } else {
+                    throw new WorkflowException(
+                            "Invalid attributable specified: " + kind);
+                }
         if (attributable == null) {
             throw new WorkflowException("Could not find instance "
                     + attributableUtil);
@@ -82,5 +85,21 @@ abstract class AbstractStoreAttributeValue extends OSWorkflowComponent
         }
 
         return attribute;
+    }
+
+    public void execute(Map transientVars, Map args, PropertySet ps)
+            throws WorkflowException {
+
+        AbstractAttr attribute = getAttribute(transientVars, args);
+
+        String val = (String) transientVars.get(args.get("schema"));
+
+        if (val != null && !val.isEmpty()) {
+            attribute.addValue(val, attributableUtil);
+        } else if (attribute.getSchema().getType() == SchemaType.Date) {
+                attribute.addValue(
+                        attribute.getSchema().getFormatter().format(
+                        new Date()), attributableUtil);
+            }
     }
 }
