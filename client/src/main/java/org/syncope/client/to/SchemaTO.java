@@ -26,7 +26,7 @@ public class SchemaTO extends AbstractBaseBean {
     private boolean virtual;
     private String mandatoryCondition;
     private boolean multivalue;
-    private boolean uniquevalue;
+    private boolean uniqueConstraint;
     private boolean readonly;
     private String conversionPattern;
     private String validatorClass;
@@ -70,12 +70,12 @@ public class SchemaTO extends AbstractBaseBean {
         this.multivalue = multivalue;
     }
 
-    public boolean isUniquevalue() {
-        return uniquevalue;
+    public boolean isUniqueConstraint() {
+        return uniqueConstraint;
     }
 
-    public void setUniquevalue(boolean uniquevalue) {
-        this.uniquevalue = uniquevalue;
+    public void setUniqueConstraint(boolean uniqueConstraint) {
+        this.uniqueConstraint = uniqueConstraint;
     }
 
     public boolean isReadonly() {
