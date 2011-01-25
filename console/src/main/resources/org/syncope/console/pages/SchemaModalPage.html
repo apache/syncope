@@ -37,21 +37,32 @@
             <fieldset>
                 <label for="name"><wicket:message key="name"/></label>
                 <input type="text" id="name" class="text ui-widget-content ui-corner-all" wicket:id="name" />
+
                 <label for="conversionPattern"><wicket:message key="conversionPattern"/></label>
                 <input type="text" id="conversionPattern" class="text ui-widget-content ui-corner-all" wicket:id="conversionPattern" />
+
                 <label for="validatorClass"><wicket:message key="validatorClass"/></label>
                 <select id="validatorClass" class="text ui-widget-content ui-corner-all" wicket:id="validatorClass"/>
+
                 <label for="type"><wicket:message key="type"/></label>
                 <select id="type"  class="text ui-widget-content ui-corner-all" wicket:id="type"/>
+
                 <label for="mandatoryCondition"><wicket:message key="mandatoryCondition"/></label>
                 <input type="text" class="text ui-widget-content ui-corner-all"
                        id="mandatoryCondition" wicket:id="mandatoryCondition"/>
+
                 <label for="virtual"><wicket:message key="virtual"/></label>
-                <span id="virtual" wicket:id="virtual" class="radio"/>
+                <input type="checkbox" id="virtual" wicket:id="virtual" class="checkbox"/>
+
                 <label for="multivalue"><wicket:message key="multivalue"/></label>
-                <span id="multivalue" wicket:id="multivalue" class="radio"/>
+                <input type="checkbox" id="multivalue" wicket:id="multivalue" class="checkbox"/>
+
                 <label for="readonly"><wicket:message key="readonly"/></label>
-                <span id="readonly" wicket:id="readonly" class="radio"/>
+                <input type="checkbox" id="readonly" wicket:id="readonly" class="checkbox"/>
+
+                <label for="uniqueConstraint"><wicket:message key="uniqueConstraint"/></label>
+                <input type="checkbox" id="uniqueConstraint" wicket:id="uniqueConstraint" class="checkbox"/>
+
                 <input type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" wicket:id="submit"/>
             </fieldset>
         </form>

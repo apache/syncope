@@ -27,7 +27,6 @@ import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteTe
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.form.RadioChoice;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.Model;
@@ -39,6 +38,7 @@ import org.syncope.console.rest.SchemaRestClient;
 import org.syncope.types.SchemaType;
 import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
+import org.apache.wicket.markup.html.form.CheckBox;
 
 /**
  * Modal window with Schema form.
@@ -62,11 +62,13 @@ public class SchemaModalPage extends BaseModalPage {
 
     private AutoCompleteTextField mandatoryCondition;
 
-    private RadioChoice virtual;
+    private CheckBox virtual;
 
-    private RadioChoice multivalue;
+    private CheckBox multivalue;
 
-    private RadioChoice readonly;
+    private CheckBox readonly;
+
+    private CheckBox uniqueConstraint;
 
     private AjaxButton submit;
 
@@ -134,14 +136,13 @@ public class SchemaModalPage extends BaseModalPage {
             }
         };
 
-        virtual = new RadioChoice("virtual", Arrays.asList(
-                new Boolean[]{true, false}));
+        virtual = new CheckBox("virtual");
 
-        multivalue = new RadioChoice("multivalue", Arrays.asList(
-                new Boolean[]{true, false}));
+        multivalue = new CheckBox("multivalue");
 
-        readonly = new RadioChoice("readonly", Arrays.asList(
-                new Boolean[]{true, false}));
+        readonly = new CheckBox("readonly");
+
+        uniqueConstraint = new CheckBox("uniqueConstraint");
 
         submit = new IndicatingAjaxButton("submit", new Model(
                 getString("submit"))) {
@@ -149,34 +150,35 @@ public class SchemaModalPage extends BaseModalPage {
             @Override
             protected void onSubmit(AjaxRequestTarget target, Form form) {
 
+                SchemaTO schemaTO = (SchemaTO) form.getDefaultModelObject();
+
+                if (schemaTO.isMultivalue() && schemaTO.isUniqueConstraint()) {
+                    error(getString("multivalueAndUniqueConstr.validation"));
+                    return;
+                }
+
                 if (getEntity() == Entity.USER) {
 
                     if (createFlag) {
-                        restClient.createUserSchema((SchemaTO) form.
-                                getDefaultModelObject());
+                        restClient.createUserSchema(schemaTO);
                     } else {
-                        restClient.updateUserSchema((SchemaTO) form.
-                                getDefaultModelObject());
+                        restClient.updateUserSchema(schemaTO);
                     }
 
                 } else if (getEntity() == Entity.ROLE) {
 
                     if (createFlag) {
-                        restClient.createRoleSchema((SchemaTO) form.
-                                getDefaultModelObject());
+                        restClient.createRoleSchema(schemaTO);
                     } else {
-                        restClient.updateRoleSchema((SchemaTO) form.
-                                getDefaultModelObject());
+                        restClient.updateRoleSchema(schemaTO);
                     }
 
                 } else if (getEntity() == Entity.MEMBERSHIP) {
 
                     if (createFlag) {
-                        restClient.createMemberhipSchema((SchemaTO) form.
-                                getDefaultModelObject());
+                        restClient.createMemberhipSchema(schemaTO);
                     } else {
-                        restClient.updateMemberhipSchema((SchemaTO) form.
-                                getDefaultModelObject());
+                        restClient.updateMemberhipSchema(schemaTO);
                     }
 
                 }
@@ -213,6 +215,7 @@ public class SchemaModalPage extends BaseModalPage {
         schemaForm.add(virtual);
         schemaForm.add(multivalue);
         schemaForm.add(readonly);
+        schemaForm.add(uniqueConstraint);
 
         schemaForm.add(submit);
 
