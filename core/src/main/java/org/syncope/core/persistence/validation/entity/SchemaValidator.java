@@ -19,7 +19,7 @@ import javax.validation.ConstraintValidatorContext;
 import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.types.EntityViolationType;
 
-public class SchemaValidator
+public class SchemaValidator extends AbstractValidator
         implements ConstraintValidator<SchemaCheck, AbstractSchema> {
 
     @Override
@@ -39,10 +39,15 @@ public class SchemaValidator
                     ? !object.isUniqueConstraint() : true;
 
             if (!isValid) {
+                LOG.error(object + " cannot be multivalue and have "
+                        + "unique constraint at the same time");
+
                 context.disableDefaultConstraintViolation();
                 context.buildConstraintViolationWithTemplate(
                         EntityViolationType.MultivalueAndUniqueConstraint.
-                        toString()).addConstraintViolation();
+                        toString()).
+                        addNode(object.toString()).
+                        addConstraintViolation();
             }
         }
 

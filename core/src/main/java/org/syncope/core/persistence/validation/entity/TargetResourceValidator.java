@@ -20,7 +20,7 @@ import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.types.EntityViolationType;
 
-public class TargetResourceValidator
+public class TargetResourceValidator extends AbstractValidator
         implements ConstraintValidator<TargetResourceCheck, TargetResource> {
 
     @Override
@@ -45,9 +45,13 @@ public class TargetResourceValidator
             isValid = accountIds == 1;
 
             if (!isValid) {
+                LOG.error("Mappings for " + object
+                        + " have 0 or >1 account ids");
+
                 context.disableDefaultConstraintViolation();
                 context.buildConstraintViolationWithTemplate(
                         EntityViolationType.InvalidAccountIdCount.toString()).
+                        addNode(object + ".accountIds.size==" + accountIds).
                         addConstraintViolation();
             }
         }
