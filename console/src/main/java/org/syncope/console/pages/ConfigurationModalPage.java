@@ -63,6 +63,8 @@ public class ConfigurationModalPage extends BaseModalPage {
         form.add(key = new TextField("key", new PropertyModel(configurationTO,
                 "confKey")));
 
+        key.setEnabled(createFlag);
+
         key.setRequired(true);
 
         form.add(value = new TextField("value", new PropertyModel(

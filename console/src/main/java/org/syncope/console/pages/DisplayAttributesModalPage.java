@@ -22,6 +22,7 @@ import java.util.StringTokenizer;
 import org.apache.wicket.Application;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.CheckBoxMultipleChoice;
 import org.apache.wicket.markup.html.form.Form;
@@ -75,7 +76,7 @@ public class DisplayAttributesModalPage extends BaseModalPage {
         userAttributesForm.add(new CheckBoxMultipleChoice("usersSchemasList",
                 new PropertyModel(this, "selections"), attributes));
 
-        submit = new AjaxButton("submit", new Model(getString("submit"))) {
+        submit = new IndicatingAjaxButton("submit", new Model(getString("submit"))) {
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target,

@@ -21,7 +21,9 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.IAjaxCallDecorator;
 import org.apache.wicket.ajax.calldecorator.AjaxPreprocessingCallDecorator;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.authorization.strategies.role.metadata
+                                            .MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -68,7 +70,7 @@ public class NodeEditablePanel extends Panel {
         } else {
             fragment = new Fragment("menuPanel", "frag1", this);
 
-            AjaxLink createRoleLink = new AjaxLink("createRoleLink") {
+            AjaxLink createRoleLink = new IndicatingAjaxLink("createRoleLink") {
 
                 @Override
                 public void onClick(AjaxRequestTarget target) {
@@ -94,7 +96,7 @@ public class NodeEditablePanel extends Panel {
 
             fragment.add(createRoleLink);
 
-            AjaxLink updateRoleLink = new AjaxLink("updateRoleLink") {
+            AjaxLink updateRoleLink = new IndicatingAjaxLink("updateRoleLink") {
 
                 @Override
                 public void onClick(AjaxRequestTarget target) {
@@ -120,7 +122,7 @@ public class NodeEditablePanel extends Panel {
 
             fragment.add(updateRoleLink);
 
-            AjaxLink dropRoleLink = new AjaxLink("dropRoleLink") {
+            AjaxLink dropRoleLink = new IndicatingAjaxLink("dropRoleLink") {
 
                 @Override
                 public void onClick(AjaxRequestTarget target) {

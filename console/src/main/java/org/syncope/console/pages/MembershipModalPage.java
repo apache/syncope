@@ -26,6 +26,7 @@ import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -175,7 +176,7 @@ public class MembershipModalPage extends BaseModalPage {
                     }
                 });
 
-                AjaxButton addButton = new AjaxButton("add",
+                AjaxButton addButton = new IndicatingAjaxButton("add",
                         new Model(getString("add"))) {
 
                     @Override

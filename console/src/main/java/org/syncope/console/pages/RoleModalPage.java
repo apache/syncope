@@ -215,7 +215,7 @@ public class RoleModalPage extends BaseModalPage {
                     }
                 });
 
-                AjaxButton addButton = new AjaxButton("add",
+                AjaxButton addButton = new IndicatingAjaxButton("add",
                         new Model(getString("add"))) {
 
                     @Override

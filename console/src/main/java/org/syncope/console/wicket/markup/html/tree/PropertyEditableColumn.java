@@ -38,7 +38,8 @@ BasePage callerPage;
      * @param propertyExpression
      */
     public PropertyEditableColumn(ColumnLocation location, String header,
-                                  String propertyExpression,ModalWindow window,BasePage callerPage)
+                                  String propertyExpression,ModalWindow window,
+                                  BasePage callerPage)
     {
         super(location, header, propertyExpression);
         this.callerPage = callerPage;

@@ -30,6 +30,7 @@ import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -333,7 +334,7 @@ public class Users extends BasePage {
                     }
                 });
 
-                AjaxLink editLink = new AjaxLink("editLink",
+                AjaxLink editLink = new IndicatingAjaxLink("editLink",
                         new Model(getString("edit"))) {
 
                     @Override
@@ -359,7 +360,7 @@ public class Users extends BasePage {
 
                 item.add(editLink);
 
-                item.add(new AjaxLink("deleteLink", new Model(
+                item.add(new IndicatingAjaxLink("deleteLink", new Model(
                         getString("delete"))) {
 
                     @Override
@@ -582,7 +583,7 @@ public class Users extends BasePage {
                     }
                 });
 
-        AjaxLink createUserLink = new AjaxLink("createUserLink") {
+        AjaxLink createUserLink = new IndicatingAjaxLink("createUserLink") {
 
             @Override
             public void onClick(AjaxRequestTarget target) {
@@ -631,7 +632,7 @@ public class Users extends BasePage {
         paginatorForm.add(rowsChooser);
         add(paginatorForm);
 
-        AjaxLink changeAttributesViewLink = new AjaxLink(
+        AjaxLink changeAttributesViewLink = new IndicatingAjaxLink(
                 "changeAttributesViewLink") {
 
             @Override
@@ -817,7 +818,7 @@ public class Users extends BasePage {
 
                 item.add(filterTypeChooser);
 
-                AjaxButton dropButton = new AjaxButton("dropButton",
+                AjaxButton dropButton = new IndicatingAjaxButton("dropButton",
                         new Model(getString("dropButton"))) {
 
                     @Override
@@ -841,8 +842,8 @@ public class Users extends BasePage {
 
         usersTableSearchContainer.add(searchView);
 
-        AjaxButton addAndButton = new AjaxButton("addAndButton", new Model(
-                getString("addAndButton"))) {
+        AjaxButton addAndButton = new IndicatingAjaxButton("addAndButton",
+                new Model(getString("addAndButton"))) {
 
             @Override
             protected void onSubmit(AjaxRequestTarget target, Form form) {
@@ -857,8 +858,8 @@ public class Users extends BasePage {
         addAndButton.setDefaultFormProcessing(false);
         usersTableSearchContainer.add(addAndButton);
 
-        AjaxButton addOrButton = new AjaxButton("addOrButton", new Model(
-                getString("addOrButton"))) {
+        AjaxButton addOrButton = new IndicatingAjaxButton("addOrButton",
+                new Model(getString("addOrButton"))) {
 
             @Override
             protected void onSubmit(AjaxRequestTarget target, Form form) {
@@ -987,7 +988,7 @@ public class Users extends BasePage {
                     item.add(new Label("token", getString("tokenNotValued")));
                 }
 
-                AjaxButton editButton = new AjaxButton("editLink",
+                AjaxButton editButton = new IndicatingAjaxButton("editLink",
                         new Model(getString("edit"))) {
 
                     @Override
@@ -1008,7 +1009,7 @@ public class Users extends BasePage {
 
                 item.add(editButton);
 
-                item.add(new AjaxLink("deleteLink", new Model(
+                item.add(new IndicatingAjaxLink("deleteLink", new Model(
                         getString("delete"))) {
 
                     @Override

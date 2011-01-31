@@ -29,6 +29,7 @@ import org.apache.wicket.ajax.calldecorator.AjaxPreprocessingCallDecorator;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
@@ -103,7 +104,7 @@ public class Configuration extends BasePage {
 
             public void populateItem(Item<ICellPopulator<ConfigurationTO>> cellItem, String componentId, IModel<ConfigurationTO> model) {
                 final ConfigurationTO configurationTO = model.getObject();
-                AjaxLink editLink = new AjaxLink("editLink") {
+                AjaxLink editLink = new IndicatingAjaxLink("editLink") {
 
                     @Override
                     public void onClick(AjaxRequestTarget target) {

@@ -49,7 +49,7 @@ public class SyncopeApplication extends AuthenticatedWebApplication {
 
     @Override
     protected void init() {
-        addComponentInstantiationListener(new SpringComponentInjector(this));
+        addComponentInstantiationListener(getSpringInjector());
         getResourceSettings().setThrowExceptionOnMissingResource(true);
 
         getSecuritySettings().setAuthorizationStrategy(
@@ -186,5 +186,10 @@ public class SyncopeApplication extends AuthenticatedWebApplication {
     @Override
     protected Class<? extends WebPage> getSignInPageClass() {
         return Login.class;
+    }
+
+    protected SpringComponentInjector getSpringInjector(){
+
+        return new SpringComponentInjector(this);
     }
 }

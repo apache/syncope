@@ -38,6 +38,7 @@ import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.behavior.AbstractBehavior;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.markup.html.form.palette.Palette;
 import org.apache.wicket.markup.ComponentTag;
@@ -267,7 +268,7 @@ public class UserModalPage extends BaseModalPage {
                     }
                 });
 
-                AjaxButton addButton = new AjaxButton("add",
+                AjaxButton addButton = new IndicatingAjaxButton("add",
                         new Model(getString("add"))) {
 
                     @Override
@@ -279,7 +280,7 @@ public class UserModalPage extends BaseModalPage {
                     }
                 };
 
-                AjaxButton dropButton = new AjaxButton("drop",
+                AjaxButton dropButton = new IndicatingAjaxButton("drop",
                         new Model(getString("drop"))) {
 
                     @Override
@@ -488,7 +489,7 @@ public class UserModalPage extends BaseModalPage {
                         new Model((String) rolesMap.get(
                         membershipTO.getRoleId()))));
 
-                AjaxLink editLink = new AjaxLink("editLink") {
+                AjaxLink editLink = new IndicatingAjaxLink("editLink") {
 
                     @Override
                     public void onClick(AjaxRequestTarget target) {
@@ -512,7 +513,7 @@ public class UserModalPage extends BaseModalPage {
                 };
                 item.add(editLink);
 
-                AjaxLink deleteLink = new AjaxLink("deleteLink") {
+                AjaxLink deleteLink = new IndicatingAjaxLink("deleteLink") {
 
                     @Override
                     public void onClick(AjaxRequestTarget target) {

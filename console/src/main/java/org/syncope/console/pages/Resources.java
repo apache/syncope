@@ -27,9 +27,12 @@ import org.apache.wicket.ajax.IAjaxCallDecorator;
 import org.apache.wicket.ajax.calldecorator.AjaxPreprocessingCallDecorator;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.authorization.strategies.role.metadata
+                                            .MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
+import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table
+                                            .AjaxFallbackDefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
@@ -99,10 +102,11 @@ public class Resources extends BasePage {
         columns.add(new AbstractColumn<ResourceTO>(new Model<String>(
                 getString("edit"))) {
 
-            public void populateItem(Item<ICellPopulator<ResourceTO>> cellItem, String componentId, IModel<ResourceTO> model) {
+            public void populateItem(Item<ICellPopulator<ResourceTO>> cellItem,
+                    String componentId, IModel<ResourceTO> model) {
                 final ResourceTO resourceTO = model.getObject();
 
-                AjaxLink editLink = new AjaxLink("editLink") {
+                AjaxLink editLink = new IndicatingAjaxLink("editLink") {
 
                     @Override
                     public void onClick(AjaxRequestTarget target) {
@@ -137,10 +141,11 @@ public class Resources extends BasePage {
         columns.add(new AbstractColumn<ResourceTO>(new Model<String>(getString(
                 "delete"))) {
 
-            public void populateItem(Item<ICellPopulator<ResourceTO>> cellItem, String componentId, IModel<ResourceTO> model) {
+            public void populateItem(Item<ICellPopulator<ResourceTO>> cellItem,
+                    String componentId, IModel<ResourceTO> model) {
                 final ResourceTO resourceTO = model.getObject();
 
-                AjaxLink deleteLink = new AjaxLink("deleteLink") {
+                AjaxLink deleteLink = new IndicatingAjaxLink("deleteLink") {
 
                     @Override
                     public void onClick(AjaxRequestTarget target) {
@@ -208,7 +213,7 @@ public class Resources extends BasePage {
         editResourceWin.setPageMapName("edit-res-modal");
         editResourceWin.setCookieName("edit-res-modal");
 
-        add(new AjaxLink("createResourceLink") {
+        add(new IndicatingAjaxLink("createResourceLink") {
 
             @Override
             public void onClick(AjaxRequestTarget target) {

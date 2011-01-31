@@ -28,6 +28,7 @@ import org.apache.wicket.ajax.calldecorator.AjaxPreprocessingCallDecorator;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
@@ -115,7 +116,7 @@ public class Connectors extends BasePage {
 
                 final ConnectorInstanceTO connectorTO = model.getObject();
 
-                AjaxLink editLink = new AjaxLink("editLink") {
+                AjaxLink editLink = new IndicatingAjaxLink("editLink") {
 
                     @Override
                     public void onClick(AjaxRequestTarget target) {
@@ -158,7 +159,7 @@ public class Connectors extends BasePage {
 
                 final ConnectorInstanceTO connectorTO = model.getObject();
 
-                AjaxLink deleteLink = new AjaxLink("deleteLink") {
+                AjaxLink deleteLink = new IndicatingAjaxLink("deleteLink") {
 
                     @Override
                     public void onClick(AjaxRequestTarget target) {
@@ -225,7 +226,8 @@ public class Connectors extends BasePage {
         editConnectorWin.setPageMapName("edit-conn-modal");
         editConnectorWin.setCookieName("edit-conn-modal");
 
-        AjaxLink createConnectorLink = new AjaxLink("createConnectorLink") {
+        AjaxLink createConnectorLink = new 
+                                    IndicatingAjaxLink("createConnectorLink") {
 
             @Override
             public void onClick(AjaxRequestTarget target) {

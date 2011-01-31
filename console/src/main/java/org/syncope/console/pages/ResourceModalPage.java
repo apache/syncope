@@ -27,7 +27,8 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
-import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.authorization.strategies.role.metadata
+                                            .MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -288,7 +289,7 @@ public class ResourceModalPage extends BaseModalPage {
 
         resourceForm.add(mappingUserSchemaContainer);
 
-        addSchemaMappingBtn = new AjaxButton("addUserSchemaMappingBtn",
+        addSchemaMappingBtn = new IndicatingAjaxButton("addUserSchemaMappingBtn",
                 new Model(getString("add"))) {
 
             @Override

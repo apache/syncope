@@ -28,6 +28,7 @@ import org.apache.wicket.ajax.calldecorator.AjaxPreprocessingCallDecorator;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
@@ -206,7 +207,7 @@ public class Schema extends BasePage {
 
                 final SchemaTO schemaTO = model.getObject();
 
-                AjaxLink editLink = new AjaxLink("editLink") {
+                AjaxLink editLink = new IndicatingAjaxLink("editLink") {
 
                     @Override
                     public void onClick(AjaxRequestTarget target) {
@@ -247,7 +248,7 @@ public class Schema extends BasePage {
 
                 final SchemaTO schemaTO = model.getObject();
 
-                AjaxLink deleteLink = new AjaxLink("deleteLink") {
+                AjaxLink deleteLink = new IndicatingAjaxLink("deleteLink") {
 
                     @Override
                     public void onClick(AjaxRequestTarget target) {
@@ -338,7 +339,7 @@ public class Schema extends BasePage {
 
                 final DerivedSchemaTO schemaTO = model.getObject();
 
-                AjaxLink editLink = new AjaxLink("editLink") {
+                AjaxLink editLink = new IndicatingAjaxLink("editLink") {
 
                     @Override
                     public void onClick(AjaxRequestTarget target) {
@@ -382,7 +383,7 @@ public class Schema extends BasePage {
 
                 final DerivedSchemaTO schemaTO = model.getObject();
 
-                AjaxLink deleteLink = new AjaxLink("deleteLink") {
+                AjaxLink deleteLink = new IndicatingAjaxLink("deleteLink") {
 
                     @Override
                     public void onClick(AjaxRequestTarget target) {
@@ -473,7 +474,7 @@ public class Schema extends BasePage {
 
                 final SchemaTO schemaTO = model.getObject();
 
-                AjaxLink editLink = new AjaxLink("editLink") {
+                AjaxLink editLink = new IndicatingAjaxLink("editLink") {
 
                     @Override
                     public void onClick(AjaxRequestTarget target) {
@@ -516,7 +517,7 @@ public class Schema extends BasePage {
 
                 final SchemaTO schemaTO = model.getObject();
 
-                AjaxLink deleteLink = new AjaxLink("deleteLink") {
+                AjaxLink deleteLink = new IndicatingAjaxLink("deleteLink") {
 
                     @Override
                     public void onClick(AjaxRequestTarget target) {
@@ -564,6 +565,7 @@ public class Schema extends BasePage {
                 new AjaxFallbackDefaultDataTable("datatable", userColumns,
                 new SchemaProvider(SchemaType.UserSchema), userSchemaPageRows);
 
+        tableUsers.setMarkupId("tableUsers");
 
         Form usersPaginatorForm = new Form("UsersPaginatorForm");
 
@@ -609,7 +611,7 @@ public class Schema extends BasePage {
 
                 final DerivedSchemaTO schemaTO = model.getObject();
 
-                AjaxLink editLink = new AjaxLink("editLink") {
+                AjaxLink editLink = new IndicatingAjaxLink("editLink") {
 
                     @Override
                     public void onClick(AjaxRequestTarget target) {
@@ -653,7 +655,7 @@ public class Schema extends BasePage {
 
                 final DerivedSchemaTO schemaTO = model.getObject();
 
-                AjaxLink deleteLink = new AjaxLink("deleteLink") {
+                AjaxLink deleteLink = new IndicatingAjaxLink("deleteLink") {
 
                     @Override
                     public void onClick(AjaxRequestTarget target) {
@@ -746,7 +748,7 @@ public class Schema extends BasePage {
 
                 final SchemaTO schemaTO = model.getObject();
 
-                AjaxLink editLink = new AjaxLink("editLink") {
+                AjaxLink editLink = new IndicatingAjaxLink("editLink") {
 
                     @Override
                     public void onClick(AjaxRequestTarget target) {
@@ -790,7 +792,7 @@ public class Schema extends BasePage {
 
                 final SchemaTO schemaTO = model.getObject();
 
-                AjaxLink deleteLink = new AjaxLink("deleteLink") {
+                AjaxLink deleteLink = new IndicatingAjaxLink("deleteLink") {
 
                     @Override
                     public void onClick(AjaxRequestTarget target) {
@@ -885,7 +887,7 @@ public class Schema extends BasePage {
 
                 final DerivedSchemaTO schemaTO = model.getObject();
 
-                AjaxLink editLink = new AjaxLink("editLink") {
+                AjaxLink editLink = new IndicatingAjaxLink("editLink") {
 
                     @Override
                     public void onClick(AjaxRequestTarget target) {
@@ -929,7 +931,7 @@ public class Schema extends BasePage {
 
                 final DerivedSchemaTO schemaTO = model.getObject();
 
-                AjaxLink deleteLink = new AjaxLink("deleteLink") {
+                AjaxLink deleteLink = new IndicatingAjaxLink("deleteLink") {
 
                     @Override
                     public void onClick(AjaxRequestTarget target) {
@@ -1043,10 +1045,12 @@ public class Schema extends BasePage {
         createUserSchemaWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         createUserSchemaWin.setPageMapName("modal-1");
         createUserSchemaWin.setCookieName("modal-1");
+        createUserSchemaWin.setMarkupId("createUserSchemaWin");
 
         editUserSchemaWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         editUserSchemaWin.setPageMapName("modal-2");
         editUserSchemaWin.setCookieName("modal-2");
+        editUserSchemaWin.setMarkupId("editUserSchemaWin");
 
         createUserDerivedSchemaWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         createUserDerivedSchemaWin.setPageMapName("modal-3");
@@ -1116,7 +1120,7 @@ public class Schema extends BasePage {
         setWindowClosedCallback(editMembershipDerivedSchemaWin,
                 membershipDerivedSchemaContainer);
 
-        AjaxLink createRoleSchemaWinLink = new AjaxLink(
+        AjaxLink createRoleSchemaWinLink = new IndicatingAjaxLink(
                 "createRoleSchemaWinLink") {
 
             @Override
@@ -1147,7 +1151,7 @@ public class Schema extends BasePage {
         add(createRoleSchemaWinLink);
 
 
-        AjaxLink createRoleDerivedSchemaWinLink = new AjaxLink(
+        AjaxLink createRoleDerivedSchemaWinLink = new IndicatingAjaxLink(
                 "createRoleDerivedSchemaWinLink") {
 
             @Override
@@ -1179,7 +1183,7 @@ public class Schema extends BasePage {
 
         add(createRoleDerivedSchemaWinLink);
 
-        AjaxLink createUserSchemaWinLink = new AjaxLink(
+        AjaxLink createUserSchemaWinLink = new IndicatingAjaxLink(
                 "createUserSchemaWinLink") {
 
             @Override
@@ -1209,7 +1213,7 @@ public class Schema extends BasePage {
                 ENABLE,
                 allowedCreateRoles);
 
-        AjaxLink createUserDerSchemaWinLink = new AjaxLink(
+        AjaxLink createUserDerSchemaWinLink = new IndicatingAjaxLink(
                 "createUserDerSchemaWinLink") {
 
             @Override
@@ -1242,7 +1246,7 @@ public class Schema extends BasePage {
         add(createUserDerSchemaWinLink);
 
 
-        AjaxLink createMembershipSchemaWinLink = new AjaxLink(
+        AjaxLink createMembershipSchemaWinLink = new IndicatingAjaxLink(
                 "createMembershipSchemaWinLink") {
 
             @Override
@@ -1273,7 +1277,7 @@ public class Schema extends BasePage {
 
         add(createMembershipSchemaWinLink);
 
-        AjaxLink createMembershipDerSchemaWinLink = new AjaxLink(
+        AjaxLink createMembershipDerSchemaWinLink = new IndicatingAjaxLink(
                 "createMembershipDerSchemaWinLink") {
 
             @Override
