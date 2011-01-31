@@ -107,6 +107,9 @@ public class ResourceDataBinder {
         resource.setForceMandatoryConstraint(
                 resourceTO.isForceMandatoryConstraint());
 
+        resource.setOptionalPropagationMode(
+                resourceTO.getOptionalPropagationMode());
+
         resource.setMappings(
                 getSchemaMappings(resource, resourceTO.getMappings()));
 
@@ -150,6 +153,9 @@ public class ResourceDataBinder {
 
         resourceTO.setForceMandatoryConstraint(
                 resource.isForceMandatoryConstraint());
+
+        resourceTO.setOptionalPropagationMode(
+                resource.getOptionalPropagationMode());
 
         return resourceTO;
     }
@@ -277,9 +283,7 @@ public class ResourceDataBinder {
 
         schemaMappingTO.setId(schemaMapping.getId());
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Obtained TO " + schemaMappingTO);
-        }
+        LOG.debug("Obtained SchemaMappingTO {}", schemaMappingTO);
 
         return schemaMappingTO;
     }

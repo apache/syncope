@@ -295,10 +295,10 @@ public abstract class AbstractAttributableDataBinder {
     }
 
     protected ResourceOperations fill(
-            AbstractAttributable attributable,
-            AbstractAttributableMod attributableMod,
-            AttributableUtil attributableUtil,
-            SyncopeClientCompositeErrorException compositeErrorException)
+            final AbstractAttributable attributable,
+            final AbstractAttributableMod attributableMod,
+            final AttributableUtil attributableUtil,
+            final SyncopeClientCompositeErrorException compositeErrorException)
             throws SyncopeClientCompositeErrorException {
 
         Set<TargetResource> resources = new HashSet<TargetResource>();
@@ -476,6 +476,7 @@ public abstract class AbstractAttributableDataBinder {
                 for (SchemaMapping mapping : derivedSchema.getMappings()) {
                     if (mapping.getResource() != null
                             && resources.contains(mapping.getResource())) {
+
                         resourceOperations.add(ResourceOperationType.UPDATE,
                                 mapping.getResource());
                     }
@@ -654,7 +655,6 @@ public abstract class AbstractAttributableDataBinder {
         }
 
         for (AbstractDerAttr derivedAttribute : derivedAttributes) {
-
             attributeTO = new AttributeTO();
             attributeTO.setSchema(
                     derivedAttribute.getDerivedSchema().getName());

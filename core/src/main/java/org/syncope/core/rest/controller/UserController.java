@@ -14,11 +14,8 @@
  */
 package org.syncope.core.rest.controller;
 
-import com.opensymphony.workflow.InvalidActionException;
 import com.opensymphony.workflow.Workflow;
 import com.opensymphony.workflow.WorkflowException;
-import com.opensymphony.workflow.loader.ActionDescriptor;
-import com.opensymphony.workflow.loader.WorkflowDescriptor;
 import com.opensymphony.workflow.spi.Step;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -39,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javassist.NotFoundException;
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import jpasymphony.dao.JPAWorkflowEntryDAO;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -61,17 +59,13 @@ import org.syncope.core.persistence.propagation.ResourceOperations;
 import org.syncope.core.rest.data.InvalidSearchConditionException;
 import org.syncope.core.rest.data.UserDataBinder.CheckInResult;
 import org.syncope.core.workflow.Constants;
+import org.syncope.core.workflow.WFUtils;
 import org.syncope.types.SyncopeClientExceptionType;
 
 @Controller
 @RequestMapping("/user")
 public class UserController extends AbstractController {
 
-    public enum SearchMode {
-
-        CRITERIA, NATIVE
-
-    }
     @Autowired
     private UserDAO userDAO;
 
@@ -84,83 +78,45 @@ public class UserController extends AbstractController {
     @Autowired
     private UserDataBinder userDataBinder;
 
-    @Autowired
-    private Workflow userWorkflow;
+    @Resource(name = "userWorkflow")
+    private Workflow workflow;
 
     @Autowired
     private PropagationManager propagationManager;
 
-    public Integer findWorkflowAction(final Long workflowId,
-            final String actionName) {
-
-        WorkflowDescriptor workflowDescriptor =
-                userWorkflow.getWorkflowDescriptor(Constants.USER_WORKFLOW);
-
-        int[] actions = userWorkflow.getAvailableActions(workflowId, null);
-
-        Integer actionId = null;
-        for (int i = 0; i < actions.length && actionId == null; i++) {
-            if (actionName.equals(
-                    workflowDescriptor.getAction(actions[i]).getName())) {
-
-                actionId = actions[i];
-            }
-        }
-
-        Map<Integer, ActionDescriptor> commonActions =
-                workflowDescriptor.getCommonActions();
-        for (Integer actionNumber : commonActions.keySet()) {
-            if (actionName.equals(commonActions.get(actionNumber).getName())) {
-                actionId = actionNumber;
-            }
-        }
-
-        return actionId;
-    }
-
-    public SyncopeUser doExecuteAction(final String actionName,
-            final Long userId,
-            final Map<String, Object> moreInputs)
-            throws WorkflowException, NotFoundException {
+    private SyncopeUser getUserFromId(final Long userId)
+            throws NotFoundException {
 
         SyncopeUser user = userDAO.find(userId);
         if (user == null) {
             throw new NotFoundException("User " + userId);
         }
 
+        return user;
+    }
+
+    private UserTO executeAction(UserTO userTO, String actionName,
+            Map<String, Object> moreInputs)
+            throws WorkflowException, NotFoundException {
+
+        SyncopeUser user = getUserFromId(userTO.getId());
+
         Map<String, Object> inputs = new HashMap<String, Object>();
         if (moreInputs != null && !moreInputs.isEmpty()) {
             inputs.putAll(moreInputs);
         }
+
         inputs.put(Constants.SYNCOPE_USER, user);
 
-        Integer actionId = findWorkflowAction(user.getWorkflowId(),
-                actionName);
-        if (actionId == null) {
-            throw new NotFoundException("Workflow action '" + actionName + "'");
-        }
+        WFUtils.doExecuteAction(workflow,
+                Constants.USER_WORKFLOW,
+                actionName,
+                user.getWorkflowId(),
+                inputs);
 
-        try {
-            userWorkflow.doAction(user.getWorkflowId(),
-                    actionId, inputs);
-        } catch (InvalidActionException e) {
-            throw new WorkflowException(e);
-        }
+        user = userDAO.save(user);
 
-        return userDAO.save(user);
-    }
-
-    @PreAuthorize("hasRole('USER_UPDATE')")
-    @RequestMapping(method = RequestMethod.POST,
-    value = "/action/{actionName}")
-    public UserTO executeAction(HttpServletResponse response,
-            @RequestBody UserTO userTO,
-            @PathVariable(value = "actionName") String actionName)
-            throws WorkflowException, NotFoundException {
-
-        return userDataBinder.getUserTO(
-                doExecuteAction(actionName, userTO.getId(), null),
-                userWorkflow);
+        return userDataBinder.getUserTO(user, workflow);
     }
 
     @RequestMapping(method = RequestMethod.POST,
@@ -168,10 +124,9 @@ public class UserController extends AbstractController {
     public UserTO activate(@RequestBody UserTO userTO)
             throws WorkflowException, NotFoundException {
 
-        return userDataBinder.getUserTO(
-                doExecuteAction(Constants.ACTION_ACTIVATE, userTO.getId(),
-                Collections.singletonMap(Constants.TOKEN,
-                (Object) userTO.getToken())), userWorkflow);
+        return executeAction(userTO, Constants.ACTION_ACTIVATE,
+                Collections.singletonMap(
+                Constants.TOKEN, (Object) userTO.getToken()));
     }
 
     @PreAuthorize("hasRole('USER_UPDATE')")
@@ -182,10 +137,8 @@ public class UserController extends AbstractController {
 
         UserTO userTO = new UserTO();
         userTO.setId(userId);
-        return userDataBinder.getUserTO(
-                doExecuteAction(Constants.ACTION_GENERATE_TOKEN,
-                userTO.getId(), null),
-                userWorkflow);
+
+        return executeAction(userTO, Constants.ACTION_GENERATE_TOKEN, null);
     }
 
     @PreAuthorize("hasRole('USER_UPDATE')")
@@ -194,11 +147,9 @@ public class UserController extends AbstractController {
     public UserTO verifyToken(@RequestBody UserTO userTO)
             throws WorkflowException, NotFoundException {
 
-        return userDataBinder.getUserTO(
-                doExecuteAction(Constants.ACTION_VERIFY_TOKEN, userTO.getId(),
-                Collections.singletonMap(Constants.TOKEN,
-                (Object) userTO.getToken())),
-                userWorkflow);
+        return executeAction(userTO, Constants.ACTION_VERIFY_TOKEN,
+                Collections.singletonMap(
+                Constants.TOKEN, (Object) userTO.getToken()));
     }
 
     @PreAuthorize("hasRole('USER_READ')")
@@ -229,7 +180,7 @@ public class UserController extends AbstractController {
         List<SyncopeUser> users = userDAO.findAll();
         List<UserTO> userTOs = new ArrayList<UserTO>(users.size());
         for (SyncopeUser user : users) {
-            userTOs.add(userDataBinder.getUserTO(user, userWorkflow));
+            userTOs.add(userDataBinder.getUserTO(user, workflow));
         }
 
         return userTOs;
@@ -252,7 +203,7 @@ public class UserController extends AbstractController {
         List<SyncopeUser> users = userDAO.findAll(page, size);
         List<UserTO> userTOs = new ArrayList<UserTO>(users.size());
         for (SyncopeUser user : users) {
-            userTOs.add(userDataBinder.getUserTO(user, userWorkflow));
+            userTOs.add(userDataBinder.getUserTO(user, workflow));
         }
 
         paginatedResult.setRecordsInPage(userTOs.size());
@@ -273,7 +224,7 @@ public class UserController extends AbstractController {
             throw new NotFoundException("User " + userId);
         }
 
-        return userDataBinder.getUserTO(user, userWorkflow);
+        return userDataBinder.getUserTO(user, workflow);
     }
 
     @PreAuthorize("hasRole('USER_READ')")
@@ -290,11 +241,11 @@ public class UserController extends AbstractController {
 
         WorkflowActionsTO result = new WorkflowActionsTO();
 
-        int[] availableActions = userWorkflow.getAvailableActions(
+        int[] availableActions = workflow.getAvailableActions(
                 user.getWorkflowId(), Collections.EMPTY_MAP);
         for (int i = 0; i < availableActions.length; i++) {
             result.addAction(
-                    userWorkflow.getWorkflowDescriptor(Constants.USER_WORKFLOW).
+                    workflow.getWorkflowDescriptor(Constants.USER_WORKFLOW).
                     getAction(availableActions[i]).getName());
         }
 
@@ -318,7 +269,7 @@ public class UserController extends AbstractController {
         List<SyncopeUser> matchingUsers = userSearchDAO.search(searchCondition);
         List<UserTO> result = new ArrayList<UserTO>(matchingUsers.size());
         for (SyncopeUser user : matchingUsers) {
-            result.add(userDataBinder.getUserTO(user, userWorkflow));
+            result.add(userDataBinder.getUserTO(user, workflow));
         }
 
         return result;
@@ -350,7 +301,7 @@ public class UserController extends AbstractController {
 
         final List<UserTO> result = new ArrayList<UserTO>(matchingUsers.size());
         for (SyncopeUser user : matchingUsers) {
-            result.add(userDataBinder.getUserTO(user, userWorkflow));
+            result.add(userDataBinder.getUserTO(user, workflow));
         }
 
         paginatedResult.setRecordsInPage(result.size());
@@ -371,7 +322,7 @@ public class UserController extends AbstractController {
             throw new NotFoundException("User " + userId);
         }
 
-        List<Step> currentSteps = userWorkflow.getCurrentSteps(
+        List<Step> currentSteps = workflow.getCurrentSteps(
                 user.getWorkflowId());
 
         ModelAndView mav = new ModelAndView();
@@ -382,30 +333,32 @@ public class UserController extends AbstractController {
         return mav;
     }
 
-    private Set<String> getSyncResourceNames(SyncopeUser user,
-            Set<Long> syncRoles, Set<String> syncResources) {
+    private Set<String> getMandatoryResourceNames(SyncopeUser user,
+            Set<Long> mandatoryRoles, Set<String> mandatoryResources) {
 
-        if ((syncRoles == null || syncRoles.isEmpty()
-                && (syncResources == null || syncResources.isEmpty()))) {
-            return Collections.EMPTY_SET;
+        if (mandatoryRoles == null) {
+            mandatoryRoles = Collections.EMPTY_SET;
+        }
+        if (mandatoryResources == null) {
+            mandatoryResources = Collections.EMPTY_SET;
         }
 
-        Set<String> syncResourceNames = new HashSet<String>();
+        Set<String> mandatoryResourceNames = new HashSet<String>();
 
         for (TargetResource resource : user.getTargetResources()) {
-            if (syncResources.contains(resource.getName())) {
-                syncResourceNames.add(resource.getName());
+            if (mandatoryResources.contains(resource.getName())) {
+                mandatoryResourceNames.add(resource.getName());
             }
         }
         for (SyncopeRole role : user.getRoles()) {
-            if (syncRoles.contains(role.getId())) {
+            if (mandatoryRoles.contains(role.getId())) {
                 for (TargetResource resource : role.getTargetResources()) {
-                    syncResourceNames.add(resource.getName());
+                    mandatoryResourceNames.add(resource.getName());
                 }
             }
         }
 
-        return syncResourceNames;
+        return mandatoryResourceNames;
     }
 
     @PreAuthorize("hasRole('USER_CREATE')")
@@ -413,16 +366,16 @@ public class UserController extends AbstractController {
     value = "/create")
     public UserTO create(HttpServletResponse response,
             @RequestBody UserTO userTO,
-            @RequestParam(value = "syncRoles",
-            required = false) Set<Long> syncRoles,
-            @RequestParam(value = "syncResources",
-            required = false) Set<String> syncResources)
+            @RequestParam(value = "mandatoryRoles",
+            required = false) Set<Long> mandatoryRoles,
+            @RequestParam(value = "mandatoryResources",
+            required = false) Set<String> mandatoryResources)
             throws SyncopeClientCompositeErrorException,
             DataIntegrityViolationException, WorkflowException,
             PropagationException, NotFoundException {
 
         LOG.debug("User create called with parameters {}\n{}\n{}",
-                new Object[]{userTO, syncRoles, syncResources});
+                new Object[]{userTO, mandatoryRoles, mandatoryResources});
 
         CheckInResult checkInResult = userDataBinder.checkIn(userTO);
         LOG.debug("Check-in result: {}", checkInResult);
@@ -433,7 +386,7 @@ public class UserController extends AbstractController {
 
             case OVERWRITE:
                 delete(checkInResult.getSyncopeUserId(),
-                        syncRoles, syncResources);
+                        mandatoryRoles, mandatoryResources);
                 break;
 
             case REJECT:
@@ -458,39 +411,39 @@ public class UserController extends AbstractController {
         user = userDAO.save(user);
 
         // Now that user is created locally, let's propagate
-        Set<String> syncResourceNames =
-                getSyncResourceNames(user, syncRoles, syncResources);
+        Set<String> mandatoryResourceNames = getMandatoryResourceNames(user,
+                mandatoryRoles, mandatoryResources);
 
-        if (!syncResourceNames.isEmpty()) {
-            LOG.debug("About to propagate synchronously onto resources {}",
-                    syncResourceNames);
+        if (!mandatoryResourceNames.isEmpty()) {
+            LOG.debug("About to propagate mandatory onto resources {}",
+                    mandatoryResourceNames);
         }
 
         propagationManager.create(
-                user, userTO.getPassword(), syncResourceNames);
+                user, userTO.getPassword(), mandatoryResourceNames);
 
         // User is created locally and propagated, let's advance on the workflow
         final Long workflowId =
-                userWorkflow.initialize(Constants.USER_WORKFLOW, 0, null);
+                workflow.initialize(Constants.USER_WORKFLOW, 0, null);
         user.setWorkflowId(workflowId);
 
         Map<String, Object> inputs = new HashMap<String, Object>();
         inputs.put(Constants.SYNCOPE_USER, user);
         inputs.put(Constants.USER_TO, userTO);
 
-        int[] wfActions = userWorkflow.getAvailableActions(workflowId, null);
+        int[] wfActions = workflow.getAvailableActions(workflowId, null);
         LOG.debug("Available workflow actions for user {}: {}",
                 user, wfActions);
 
         for (int wfAction : wfActions) {
             LOG.debug("About to execute action {} on user {}", wfAction, user);
-            userWorkflow.doAction(workflowId, wfAction, inputs);
+            workflow.doAction(workflowId, wfAction, inputs);
             LOG.debug("Action {} on user {} run successfully", wfAction, user);
         }
 
         user = userDAO.save(user);
 
-        final UserTO savedTO = userDataBinder.getUserTO(user, userWorkflow);
+        final UserTO savedTO = userDataBinder.getUserTO(user, workflow);
         LOG.debug("About to return create user\n{}", savedTO);
 
         response.setStatus(HttpServletResponse.SC_CREATED);
@@ -501,13 +454,14 @@ public class UserController extends AbstractController {
     @RequestMapping(method = RequestMethod.POST,
     value = "/update")
     public UserTO update(@RequestBody UserMod userMod,
-            @RequestParam(value = "syncRoles",
-            required = false) Set<Long> syncRoles,
-            @RequestParam(value = "syncResources",
-            required = false) Set<String> syncResources)
+            @RequestParam(value = "mandatoryRoles",
+            required = false) Set<Long> mandatoryRoles,
+            @RequestParam(value = "mandatoryResources",
+            required = false) Set<String> mandatoryResources)
             throws NotFoundException, PropagationException, WorkflowException {
 
-        LOG.debug("update called with parameter {}", userMod);
+        LOG.debug("User update called with parameters {}\n{}\n{}",
+                new Object[]{userMod, mandatoryRoles, mandatoryResources});
 
         SyncopeUser user = userDAO.find(userMod.getId());
         if (user == null) {
@@ -515,9 +469,15 @@ public class UserController extends AbstractController {
         }
 
         // First of all, let's check if update is allowed
-        user = doExecuteAction(Constants.ACTION_UPDATE,
-                userMod.getId(), Collections.singletonMap(Constants.USER_MOD,
-                (Object) userMod));
+        Map<String, Object> inputs = new HashMap<String, Object>();
+        inputs.put(Constants.SYNCOPE_USER, user);
+        inputs.put(Constants.USER_MOD, userMod);
+
+        WFUtils.doExecuteAction(workflow,
+                Constants.USER_WORKFLOW,
+                Constants.ACTION_UPDATE,
+                user.getWorkflowId(),
+                inputs);
 
         // Update user with provided userMod
         ResourceOperations resourceOperations =
@@ -525,45 +485,47 @@ public class UserController extends AbstractController {
         user = userDAO.save(user);
 
         // Now that user is update locally, let's propagate
-        Set<String> syncResourceNames =
-                getSyncResourceNames(user, syncRoles, syncResources);
-        if (!syncResourceNames.isEmpty()) {
-            LOG.debug("About to propagate synchronously onto resources {}",
-                    syncResourceNames);
+        Set<String> mandatoryResourceNames = getMandatoryResourceNames(user,
+                mandatoryRoles, mandatoryResources);
+        if (!mandatoryResourceNames.isEmpty()) {
+            LOG.debug("About to propagate mandatory onto resources {}",
+                    mandatoryResourceNames);
         }
 
         propagationManager.update(user, userMod.getPassword(),
-                resourceOperations, syncResourceNames);
+                resourceOperations, mandatoryResourceNames);
 
-        return userDataBinder.getUserTO(user, userWorkflow);
+        return userDataBinder.getUserTO(user, workflow);
     }
 
     @PreAuthorize("hasRole('USER_DELETE')")
     @RequestMapping(method = RequestMethod.DELETE,
     value = "/delete/{userId}")
     public void delete(@PathVariable("userId") Long userId,
-            @RequestParam(value = "syncRoles",
-            required = false) Set<Long> syncRoles,
-            @RequestParam(value = "syncResources",
-            required = false) Set<String> syncResources)
+            @RequestParam(value = "mandatoryRoles",
+            required = false) Set<Long> mandatoryRoles,
+            @RequestParam(value = "mandatoryResources",
+            required = false) Set<String> mandatoryResources)
             throws NotFoundException, WorkflowException, PropagationException {
 
-        SyncopeUser user = userDAO.find(userId);
-        if (user == null) {
-            throw new NotFoundException("User " + userId);
-        }
+        SyncopeUser user = getUserFromId(userId);
 
-        doExecuteAction(Constants.ACTION_DELETE, userId, null);
+        WFUtils.doExecuteAction(workflow,
+                Constants.USER_WORKFLOW,
+                Constants.ACTION_DELETE,
+                user.getWorkflowId(),
+                Collections.singletonMap(Constants.SYNCOPE_USER,
+                (Object) user));
 
         // Propagate delete
-        Set<String> syncResourceNames =
-                getSyncResourceNames(user, syncRoles, syncResources);
-        if (!syncResourceNames.isEmpty()) {
-            LOG.debug("About to propagate synchronously onto resources {}",
-                    syncResourceNames);
+        Set<String> mandatoryResourceNames = getMandatoryResourceNames(user,
+                mandatoryRoles, mandatoryResources);
+        if (!mandatoryResourceNames.isEmpty()) {
+            LOG.debug("About to propagate mandatory onto resources {}",
+                    mandatoryResourceNames);
         }
 
-        propagationManager.delete(user, syncResourceNames);
+        propagationManager.delete(user, mandatoryResourceNames);
 
         // Now that delete has been propagated, let's remove everything
         if (user.getWorkflowId() != null) {

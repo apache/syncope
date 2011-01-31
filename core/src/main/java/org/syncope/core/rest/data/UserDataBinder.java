@@ -336,7 +336,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
             if (currentSteps != null && !currentSteps.isEmpty()) {
                 userTO.setStatus(currentSteps.iterator().next().getStatus());
             } else {
-                LOG.error("Could not find status information for " + user);
+                LOG.error("Could not find status information for {}", user);
             }
         } catch (EntityNotFoundException e) {
             LOG.error("Could not find workflow entry with id "

@@ -64,4 +64,17 @@
         </property>
     </bean>
 
+    <bean id="taskExecutionWorkflow"
+          class="com.opensymphony.workflow.basic.BasicWorkflow">
+        <constructor-arg>
+            <value>taskExecutionWorkflow</value>
+        </constructor-arg>
+        <property name="configuration">
+            <ref local="osworkflowConfiguration"/>
+        </property>
+        <property name="resolver">
+            <ref local="workflowTypeResolver"/>
+        </property>
+    </bean>
+
 </beans>

@@ -57,13 +57,13 @@
                     <thead>
                         <tr class="ui-widget-header">
                             <th><wicket:message key="delete"/></th>
-                            <th><wicket:message key="sourceMappingTypes"/></th>
-                            <th><wicket:message key="schemaAttributes"/></th>
-                            <th><wicket:message key="field"/></th>
-                            <th><wicket:message key="mandatoryCondition"/></th>
-                            <th><wicket:message key="accountId"/></th>
-                            <th><wicket:message key="password"/></th>
-                        </tr>
+                    <th><wicket:message key="sourceMappingTypes"/></th>
+                    <th><wicket:message key="schemaAttributes"/></th>
+                    <th><wicket:message key="field"/></th>
+                    <th><wicket:message key="mandatoryCondition"/></th>
+                    <th><wicket:message key="accountId"/></th>
+                    <th><wicket:message key="password"/></th>
+                    </tr>
                     </thead>
                     <tfoot>
                         <tr>
@@ -112,6 +112,9 @@
 
                 <label for="mandatoryConstraint"><wicket:message key="forceMandatoryConstraint"/></label>
                 <input type="checkbox" class="checkbox"  wicket:id="forceMandatoryConstraint"/>
+
+                <label for="optionalPropagationMode"><wicket:message key="optionalPropagationMode"/></label>
+                <select id="optionalPropagationMode" class="text ui-widget-content ui-corner-all" wicket:id="optionalPropagationMode"/>
 
                 <div>
                     &nbsp;

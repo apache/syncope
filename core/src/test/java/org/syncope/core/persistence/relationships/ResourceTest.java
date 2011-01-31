@@ -39,6 +39,7 @@ import org.syncope.core.rest.data.ResourceDataBinder;
 import org.syncope.core.persistence.AbstractTest;
 import org.syncope.core.persistence.beans.Task;
 import org.syncope.core.persistence.dao.TaskDAO;
+import org.syncope.types.PropagationMode;
 import org.syncope.types.SourceMappingType;
 
 @Transactional
@@ -95,6 +96,7 @@ public class ResourceTest extends AbstractTest {
         resourceTO.setName("resource-issue42");
         resourceTO.setConnectorId(100L);
         resourceTO.setMappings(schemaMappingTOs);
+        resourceTO.setOptionalPropagationMode(PropagationMode.SYNC);
         resourceTO.setForceMandatoryConstraint(true);
 
         TargetResource resource = resourceDataBinder.getResource(resourceTO);

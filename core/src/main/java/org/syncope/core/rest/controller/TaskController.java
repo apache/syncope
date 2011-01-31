@@ -14,6 +14,8 @@
  */
 package org.syncope.core.rest.controller;
 
+import com.opensymphony.workflow.Workflow;
+import com.opensymphony.workflow.WorkflowException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,6 +24,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import java.util.ArrayList;
 import java.util.List;
 import javassist.NotFoundException;
+import javax.annotation.Resource;
+import jpasymphony.dao.JPAWorkflowEntryDAO;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -35,6 +39,8 @@ import org.syncope.core.persistence.dao.TaskDAO;
 import org.syncope.core.persistence.dao.TaskExecutionDAO;
 import org.syncope.core.persistence.propagation.PropagationManager;
 import org.syncope.core.rest.data.TaskDataBinder;
+import org.syncope.core.workflow.Constants;
+import org.syncope.core.workflow.WFUtils;
 import org.syncope.types.PropagationMode;
 import org.syncope.types.SyncopeClientExceptionType;
 import org.syncope.types.TaskExecutionStatus;
@@ -55,6 +61,12 @@ public class TaskController extends AbstractController {
     @Autowired
     private PropagationManager propagationManager;
 
+    @Resource(name = "taskExecutionWorkflow")
+    private Workflow workflow;
+
+    @Autowired
+    private JPAWorkflowEntryDAO workflowEntryDAO;
+
     @PreAuthorize("hasRole('TASK_LIST')")
     @RequestMapping(method = RequestMethod.GET,
     value = "/list")
@@ -62,7 +74,7 @@ public class TaskController extends AbstractController {
         List<Task> tasks = taskDAO.findAll();
         List<TaskTO> taskTOs = new ArrayList<TaskTO>(tasks.size());
         for (Task task : tasks) {
-            taskTOs.add(taskDataBinder.getTaskTO(task));
+            taskTOs.add(taskDataBinder.getTaskTO(workflow, task));
         }
 
         return taskTOs;
@@ -76,7 +88,8 @@ public class TaskController extends AbstractController {
         List<TaskExecutionTO> executionTOs =
                 new ArrayList<TaskExecutionTO>(executions.size());
         for (TaskExecution execution : executions) {
-            executionTOs.add(taskDataBinder.getTaskExecutionTO(execution));
+            executionTOs.add(
+                    taskDataBinder.getTaskExecutionTO(workflow, execution));
         }
 
         return executionTOs;
@@ -93,7 +106,7 @@ public class TaskController extends AbstractController {
             throw new NotFoundException("Task " + taskId);
         }
 
-        return taskDataBinder.getTaskTO(task);
+        return taskDataBinder.getTaskTO(workflow, task);
     }
 
     @PreAuthorize("hasRole('TASK_READ')")
@@ -108,7 +121,7 @@ public class TaskController extends AbstractController {
             throw new NotFoundException("Task execution " + executionId);
         }
 
-        return taskDataBinder.getTaskExecutionTO(execution);
+        return taskDataBinder.getTaskExecutionTO(workflow, execution);
     }
 
     @PreAuthorize("hasRole('TASK_EXECUTE')")
@@ -124,22 +137,25 @@ public class TaskController extends AbstractController {
 
         TaskExecution execution = new TaskExecution();
         execution.setTask(task);
-        task.addExecution(execution);
+
+        try {
+            Long workflowId = workflow.initialize(
+                    Constants.TASKEXECUTION_WORKFLOW, 0, null);
+            execution.setWorkflowId(workflowId);
+        } catch (WorkflowException e) {
+            LOG.error("While initializing workflow for {}",
+                    execution, e);
+        }
+
         execution = taskExecutionDAO.save(execution);
 
         LOG.debug("Execution started for {}", task);
 
-        if (PropagationMode.SYNC
-                == execution.getTask().getPropagationMode()) {
-
-            propagationManager.syncPropagate(execution);
-        } else {
-            propagationManager.asyncPropagate(execution);
-        }
+        propagationManager.propagate(execution);
 
         LOG.debug("Execution finished for {}, {}", task, execution);
 
-        return taskDataBinder.getTaskExecutionTO(execution);
+        return taskDataBinder.getTaskExecutionTO(workflow, execution);
     }
 
     @PreAuthorize("hasRole('TASK_READ')")
@@ -149,7 +165,8 @@ public class TaskController extends AbstractController {
             @PathVariable("executionId") final Long executionId,
             @RequestParam("executionStatus") final TaskExecutionStatus status,
             @RequestParam("message") final String message)
-            throws NotFoundException, SyncopeClientCompositeErrorException {
+            throws NotFoundException, SyncopeClientCompositeErrorException,
+            WorkflowException {
 
         TaskExecution execution = taskExecutionDAO.find(executionId);
         if (execution == null) {
@@ -159,20 +176,27 @@ public class TaskController extends AbstractController {
         SyncopeClientException invalidReportException =
                 new SyncopeClientException(
                 SyncopeClientExceptionType.InvalidTaskExecutionReport);
+
         if (execution.getTask().getPropagationMode() != PropagationMode.ASYNC) {
             invalidReportException.addElement("Propagation mode: "
-                    + execution.getTask().getPropagationMode().toString());
+                    + execution.getTask().getPropagationMode());
         }
-        if (execution.getStatus() != TaskExecutionStatus.SUBMITTED) {
-            invalidReportException.addElement("Current execution status: "
-                    + execution.getStatus().toString());
-        }
-        if (status != TaskExecutionStatus.SUCCESS
-                && status != TaskExecutionStatus.FAILURE) {
 
-            invalidReportException.addElement("Execution status to be set: "
-                    + status.toString());
+        switch (status) {
+            case SUCCESS:
+            case FAILURE:
+                break;
+
+            case CREATED:
+            case SUBMITTED:
+            case UNSUBMITTED:
+                invalidReportException.addElement(
+                        "Execution status to be set: " + status);
+                break;
+
+            default:
         }
+
         if (!invalidReportException.getElements().isEmpty()) {
             SyncopeClientCompositeErrorException scce =
                     new SyncopeClientCompositeErrorException(
@@ -181,11 +205,19 @@ public class TaskController extends AbstractController {
             throw scce;
         }
 
-        execution.setStatus(status);
+        final String wfAction = status == TaskExecutionStatus.SUCCESS
+                ? Constants.ACTION_OK : Constants.ACTION_KO;
+
+        WFUtils.doExecuteAction(workflow,
+                Constants.TASKEXECUTION_WORKFLOW,
+                wfAction,
+                execution.getWorkflowId(),
+                null);
+
         execution.setMessage(message);
         execution = taskExecutionDAO.save(execution);
 
-        return taskDataBinder.getTaskExecutionTO(execution);
+        return taskDataBinder.getTaskExecutionTO(workflow, execution);
     }
 
     @PreAuthorize("hasRole('TASK_DELETE')")
@@ -203,8 +235,11 @@ public class TaskController extends AbstractController {
                 new SyncopeClientException(
                 SyncopeClientExceptionType.IncompleteTaskExecution);
 
+        int[] wfActions;
         for (TaskExecution execution : task.getExecutions()) {
-            if (execution.getStatus() == TaskExecutionStatus.SUBMITTED) {
+            wfActions = workflow.getAvailableActions(
+                    execution.getWorkflowId(), null);
+            if (wfActions != null && wfActions.length > 0) {
                 incompleteTaskExecution.addElement(
                         execution.getId().toString());
             }
@@ -231,7 +266,9 @@ public class TaskController extends AbstractController {
             throw new NotFoundException("Task execution " + executionId);
         }
 
-        if (execution.getStatus() == TaskExecutionStatus.SUBMITTED) {
+        int[] wfActions = workflow.getAvailableActions(
+                execution.getWorkflowId(), null);
+        if (wfActions != null && wfActions.length > 0) {
             SyncopeClientException incompleteTaskExecution =
                     new SyncopeClientException(
                     SyncopeClientExceptionType.IncompleteTaskExecution);
@@ -243,6 +280,10 @@ public class TaskController extends AbstractController {
                     HttpStatus.BAD_REQUEST);
             scce.addException(incompleteTaskExecution);
             throw scce;
+        }
+
+        if (execution.getWorkflowId() != null) {
+            workflowEntryDAO.delete(execution.getWorkflowId());
         }
 
         taskExecutionDAO.delete(execution);

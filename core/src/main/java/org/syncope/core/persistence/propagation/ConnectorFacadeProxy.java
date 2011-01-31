@@ -176,20 +176,6 @@ public class ConnectorFacadeProxy {
     }
 
     public Uid resolveUsername(
-            final ObjectClass objectClass,
-            final String username,
-            final OperationOptions options) {
-
-        Uid result = null;
-
-        if (capabitilies.contains(ConnectorCapability.RESOLVE)) {
-            result = connector.resolveUsername(objectClass, username, options);
-        }
-
-        return result;
-    }
-
-    public Uid resolveUsernameForUpdate(
             final PropagationMode propagationMode,
             final ResourceOperationType operationType,
             final ObjectClass objectClass,

@@ -31,7 +31,7 @@
                 </action>
             </actions>
         </step>
-        <step name="activatable" id="2">
+        <step name="doubleOptIn" id="2">
             <actions>
                 <action name="activate" id="2001">
                     <results>

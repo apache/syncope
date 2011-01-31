@@ -14,6 +14,8 @@
  */
 package org.syncope.core.persistence.propagation;
 
+import com.opensymphony.workflow.Workflow;
+import com.opensymphony.workflow.WorkflowException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Collections;
@@ -22,6 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.Resource;
 import org.identityconnectors.framework.common.FrameworkUtil;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
@@ -32,7 +35,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.syncope.core.persistence.ConnectorInstanceLoader;
 import org.syncope.core.persistence.beans.AbstractAttrValue;
 import org.syncope.core.persistence.beans.AbstractSchema;
@@ -50,7 +52,9 @@ import org.syncope.core.persistence.beans.user.UAttrValue;
 import org.syncope.core.persistence.beans.user.USchema;
 import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.TaskDAO;
-import org.syncope.core.rest.data.TaskDataBinder;
+import org.syncope.core.persistence.dao.TaskExecutionDAO;
+import org.syncope.core.workflow.Constants;
+import org.syncope.core.workflow.WFUtils;
 import org.syncope.types.PropagationMode;
 import org.syncope.types.ResourceOperationType;
 import org.syncope.types.SourceMappingType;
@@ -60,13 +64,12 @@ import org.syncope.types.TaskExecutionStatus;
 /**
  * Manage the data propagation to target resources.
  */
-@Component
 public class PropagationManager {
 
     /**
      * Logger.
      */
-    private static final Logger LOG =
+    protected static final Logger LOG =
             LoggerFactory.getLogger(PropagationManager.class);
 
     /**
@@ -81,15 +84,24 @@ public class PropagationManager {
     @Autowired
     private TaskDAO taskDAO;
 
+    /**
+     * Task execution DAO.
+     */
     @Autowired
-    private TaskDataBinder taskDataBinder;
+    private TaskExecutionDAO taskExecutionDAO;
+
+    /**
+     * Task execution workflow.
+     */
+    @Resource(name = "taskExecutionWorkflow")
+    private Workflow workflow;
 
     /**
      * Create the user on every associated resource.
      * Exceptions will be ignored.
      * @param user to be created.
      * @param password to be set.
-     * @throws PropagationException
+     * @throws PropagationException when anything goes wrong.
      */
     public void create(final SyncopeUser user, final String password)
             throws PropagationException {
@@ -99,22 +111,23 @@ public class PropagationManager {
 
     /**
      * Create the user on every associated resource.
-     * It is possible to ask for a synchronous provisioning for some resources
+     * It is possible to ask for a mandatory provisioning for some resources
      * specifying a set of resource names.
      * Exceptions won't be ignored and the process will be stopped if the
-     * creation fails onto a synchronous resource.
+     * creation fails onto a mandatory resource.
+     *
      * @param user to be created.
      * @param password to be set.
-     * @param syncResourceNames to ask for a synchronous or
-     * asynchronous provisioning.
+     * @param mandatoryResourceNames to ask for mandatory or optional
+     * provisioning.
      * @throws PropagationException
      */
     public void create(final SyncopeUser user,
-            final String password, Set<String> syncResourceNames)
+            final String password, Set<String> mandatoryResourceNames)
             throws PropagationException {
 
-        if (syncResourceNames == null) {
-            syncResourceNames = Collections.EMPTY_SET;
+        if (mandatoryResourceNames == null) {
+            mandatoryResourceNames = Collections.EMPTY_SET;
         }
 
         Set<TargetResource> resources = new HashSet<TargetResource>();
@@ -128,39 +141,51 @@ public class PropagationManager {
         ResourceOperations resourceOperations = new ResourceOperations();
         resourceOperations.set(ResourceOperationType.CREATE, resources);
 
-        provision(user, password, resourceOperations, syncResourceNames);
+        provision(user, password, resourceOperations, mandatoryResourceNames);
     }
 
     /**
      * Performs update on each resource associated to the user.
-     * It is possible to ask for a synchronous provisioning for some resources
+     * It is possible to ask for a mandatory provisioning for some resources
      * specifying a set of resource names.
-     * Exceptions won't be ignored and the process will be stoppend if the
-     * provisioning fails onto a synchronous resource.
+     * Exceptions won't be ignored and the process will be stopped if the
+     * creation fails onto a mandatory resource.
+     *
      * @param user to be updated.
      * @param password to be updated.
      * @param affectedResources resources affected by this update
-     * @param syncResourceNames to ask for a synchronous or asynchronous update.
-     * @throws PropagationException
+     * @param mandatoryResourceNames to ask for mandatory or optional update.
+     * @throws PropagationException if anything goes wrong
      */
     public void update(final SyncopeUser user,
             final String password,
             final ResourceOperations resourceOperations,
-            Set<String> syncResourceNames)
+            Set<String> mandatoryResourceNames)
             throws PropagationException {
 
-        if (syncResourceNames == null) {
-            syncResourceNames = Collections.EMPTY_SET;
+        if (mandatoryResourceNames == null) {
+            mandatoryResourceNames = Collections.EMPTY_SET;
         }
 
-        provision(user, password, resourceOperations, syncResourceNames);
+        provision(user, password, resourceOperations, mandatoryResourceNames);
     }
 
-    public void delete(SyncopeUser user, Set<String> syncResourceNames)
+    /**
+     * Perform delete on each resource associated to the user.
+     * It is possible to ask for a mandatory provisioning for some resources
+     * specifying a set of resource names.
+     * Exceptions won't be ignored and the process will be stopped if the
+     * creation fails onto a mandatory resource.
+     *
+     * @param user to be deleted
+     * @param mandatoryResourceNames to ask for mandatory or optyional delete
+     * @throws PropagationException if anything goes wrong
+     */
+    public void delete(SyncopeUser user, Set<String> mandatoryResourceNames)
             throws PropagationException {
 
-        if (syncResourceNames == null) {
-            syncResourceNames = Collections.EMPTY_SET;
+        if (mandatoryResourceNames == null) {
+            mandatoryResourceNames = Collections.EMPTY_SET;
         }
 
         Set<TargetResource> resources = new HashSet<TargetResource>();
@@ -174,13 +199,13 @@ public class PropagationManager {
         ResourceOperations resourceOperations = new ResourceOperations();
         resourceOperations.set(ResourceOperationType.DELETE, resources);
 
-        provision(user, null, resourceOperations, syncResourceNames);
+        provision(user, null, resourceOperations, mandatoryResourceNames);
     }
 
     /**
      * Implementation of the provisioning feature.
      * @param user
-     * @param syncResourceNames
+     * @param mandatoryResourceNames
      * @param merge
      * @throws PropagationException
      */
@@ -188,7 +213,7 @@ public class PropagationManager {
             final SyncopeUser user,
             final String password,
             final ResourceOperations resourceOperations,
-            final Set<String> syncResourceNames)
+            final Set<String> mandatoryResourceNames)
             throws PropagationException {
 
         LOG.debug("Provisioning with user {}:\n{}", user, resourceOperations);
@@ -199,6 +224,7 @@ public class PropagationManager {
 
         Task task;
         TaskExecution execution;
+        Long workflowId;
         for (ResourceOperationType type : ResourceOperationType.values()) {
             for (TargetResource resource : resourceOperations.get(type)) {
                 Map<String, Set<Attribute>> preparedAttributes =
@@ -210,8 +236,9 @@ public class PropagationManager {
                 task.setResource(resource);
                 task.setResourceOperationType(type);
                 task.setPropagationMode(
-                        syncResourceNames.contains(resource.getName())
-                        ? PropagationMode.SYNC : PropagationMode.ASYNC);
+                        mandatoryResourceNames.contains(resource.getName())
+                        ? PropagationMode.SYNC
+                        : resource.getOptionalPropagationMode());
                 task.setAccountId(accountId);
                 task.setOldAccountId(resourceOperations.getOldAccountId());
                 task.setAttributes(
@@ -224,24 +251,23 @@ public class PropagationManager {
                 execution = new TaskExecution();
                 execution.setTask(task);
 
-                if (PropagationMode.SYNC.equals(task.getPropagationMode())) {
-                    syncPropagate(execution);
-
-                    // read execution after saving
-                    execution =
-                            task.getExecutions() != null
-                            && !task.getExecutions().isEmpty()
-                            ? task.getExecutions().iterator().next() : null;
-
-                } else {
-                    asyncPropagate(execution);
+                try {
+                    workflowId = workflow.initialize(
+                            Constants.TASKEXECUTION_WORKFLOW, 0, null);
+                    execution.setWorkflowId(workflowId);
+                } catch (WorkflowException e) {
+                    LOG.error("While initializing workflow for {}",
+                            execution, e);
                 }
+
+                propagate(execution);
 
                 LOG.debug("Execution finished for {}", task);
 
-                if (execution != null
-                        && syncResourceNames.contains(resource.getName())
-                        && execution.getStatus()
+                // Propagation is interrupted as soon as the result of the
+                // communication with a mandatory resource is in error
+                if (mandatoryResourceNames.contains(resource.getName())
+                        && WFUtils.getTaskExecutionStatus(workflow, execution)
                         != TaskExecutionStatus.SUCCESS) {
 
                     throw new PropagationException(resource.getName(),
@@ -435,7 +461,6 @@ public class PropagationManager {
 
     public void propagate(final TaskExecution execution) {
         final Date startDate = new Date();
-        TaskExecutionStatus taskExecutionStatus = null;
         String taskExecutionMessage = null;
 
         final Task task = execution.getTask();
@@ -465,7 +490,7 @@ public class PropagationManager {
                 case UPDATE:
                     Uid userUid = null;
                     try {
-                        userUid = connector.resolveUsernameForUpdate(
+                        userUid = connector.resolveUsername(
                                 task.getPropagationMode(),
                                 task.getResourceOperationType(),
                                 ObjectClass.ACCOUNT,
@@ -509,15 +534,17 @@ public class PropagationManager {
                 default:
             }
 
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Succesfully propagated to resource "
-                        + task.getResource().getName());
-            }
+            WFUtils.doExecuteAction(workflow,
+                    Constants.TASKEXECUTION_WORKFLOW,
+                    Constants.ACTION_OK,
+                    execution.getWorkflowId(),
+                    task.getPropagationMode() == PropagationMode.SYNC
+                    ? Collections.singletonMap(
+                    PropagationMode.SYNC.toString(), null)
+                    : null);
 
-            taskExecutionStatus = task.getPropagationMode()
-                    == PropagationMode.SYNC
-                    ? TaskExecutionStatus.SUCCESS
-                    : TaskExecutionStatus.SUBMITTED;
+            LOG.debug("Successfully propagated to resource {}",
+                    task.getResource());
         } catch (Throwable t) {
             LOG.error("Exception during provision on resource "
                     + task.getResource().getName(), t);
@@ -526,10 +553,18 @@ public class PropagationManager {
             t.printStackTrace(new PrintWriter(execeptionWriter));
             taskExecutionMessage = execeptionWriter.toString();
 
-            taskExecutionStatus = task.getPropagationMode()
-                    == PropagationMode.SYNC
-                    ? TaskExecutionStatus.FAILURE
-                    : TaskExecutionStatus.UNSUBMITTED;
+            try {
+                WFUtils.doExecuteAction(workflow,
+                        Constants.TASKEXECUTION_WORKFLOW,
+                        Constants.ACTION_KO,
+                        execution.getWorkflowId(),
+                        task.getPropagationMode() == PropagationMode.SYNC
+                        ? Collections.singletonMap(
+                        PropagationMode.SYNC.toString(), null)
+                        : null);
+            } catch (Throwable wft) {
+                LOG.error("While executing KO action on {}", execution, wft);
+            }
 
             triedPropagationRequests.add(
                     task.getResourceOperationType().toString().toLowerCase());
@@ -539,30 +574,12 @@ public class PropagationManager {
             if (!triedPropagationRequests.isEmpty()) {
                 execution.setStartDate(startDate);
                 execution.setMessage(taskExecutionMessage);
-                execution.setStatus(taskExecutionStatus);
                 execution.setEndDate(new Date());
 
-                taskDataBinder.storeTaskExecution(execution);
+                taskExecutionDAO.save(execution);
 
                 LOG.debug("Execution finished: {}", execution);
             }
         }
-    }
-
-    public void syncPropagate(final TaskExecution execution) {
-        LOG.debug("Synchronous execution {}", execution);
-        propagate(execution);
-    }
-
-    //@Async
-    public void asyncPropagate(final TaskExecution execution) {
-        LOG.debug("Asynchronous execution {}", execution);
-        new Thread() {
-
-            @Override
-            public void run() {
-                propagate(execution);
-            }
-        }.start();
     }
 }

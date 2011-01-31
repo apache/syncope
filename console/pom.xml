@@ -261,7 +261,7 @@
                 <artifactId>cargo-maven2-plugin</artifactId>
                 <inherited>true</inherited>
                 <configuration>
-                    <wait>false</wait>
+                    <!--<wait>false</wait>-->
                     <container>
                         <containerId>tomcat6x</containerId>
                         <zipUrlInstaller>

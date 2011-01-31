@@ -17,6 +17,7 @@ package org.syncope.client.to;
 import java.util.ArrayList;
 import java.util.List;
 import org.syncope.client.AbstractBaseBean;
+import org.syncope.types.PropagationMode;
 
 public class ResourceTO extends AbstractBaseBean {
 
@@ -24,14 +25,22 @@ public class ResourceTO extends AbstractBaseBean {
      * The resource identifier is the name.
      */
     private String name;
+
     /**
      * The resource type is identified by the associated connector.
      */
     private Long connectorId;
+
     /**
      * Attribute mappings.
      */
     private List<SchemaMappingTO> mappings;
+
+    /**
+     * Propagation mode to be used when not mandatory in propagation.
+     */
+    private PropagationMode optionalPropagationMode;
+
     /**
      * Force mandatory constraint.
      */
@@ -39,6 +48,7 @@ public class ResourceTO extends AbstractBaseBean {
 
     public ResourceTO() {
         mappings = new ArrayList<SchemaMappingTO>();
+        optionalPropagationMode = PropagationMode.ASYNC;
     }
 
     public boolean isForceMandatoryConstraint() {
@@ -79,5 +89,15 @@ public class ResourceTO extends AbstractBaseBean {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public PropagationMode getOptionalPropagationMode() {
+        return optionalPropagationMode;
+    }
+
+    public void setOptionalPropagationMode(
+            PropagationMode optionalPropagationMode) {
+
+        this.optionalPropagationMode = optionalPropagationMode;
     }
 }

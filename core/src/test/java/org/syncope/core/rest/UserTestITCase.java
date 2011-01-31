@@ -135,7 +135,7 @@ public class UserTestITCase extends AbstractTest {
         userTO.addResource("ws-target-resource-nopropagation");
 
         restTemplate.postForObject(BASE_URL + "user/create"
-                + "?syncResources=ws-target-resource-nopropagation",
+                + "?mandatoryResources=ws-target-resource-nopropagation",
                 userTO, UserTO.class);
 
         // get the new task list
@@ -223,7 +223,7 @@ public class UserTestITCase extends AbstractTest {
 
         // 1. create user
         UserTO newUserTO = restTemplate.postForObject(
-                BASE_URL + "user/create?syncRoles=8",
+                BASE_URL + "user/create?mandatoryRoles=8",
                 userTO, UserTO.class);
 
         assertNotNull(newUserTO);
@@ -320,7 +320,7 @@ public class UserTestITCase extends AbstractTest {
         try {
             // 1. create user without type (mandatory by UserSchema)
             restTemplate.postForObject(
-                    BASE_URL + "user/create?syncRoles=8",
+                    BASE_URL + "user/create?mandatoryRoles=8",
                     userTO, UserTO.class);
         } catch (SyncopeClientCompositeErrorException e) {
             ex = e;
@@ -346,7 +346,7 @@ public class UserTestITCase extends AbstractTest {
         ex = null;
         try {
             restTemplate.postForObject(
-                    BASE_URL + "user/create?syncRoles=8",
+                    BASE_URL + "user/create?mandatoryRoles=8",
                     userTO, UserTO.class);
         } catch (SyncopeClientCompositeErrorException e) {
             ex = e;
@@ -613,7 +613,7 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(1, userTO.getMemberships().size());
         assertEquals(1, userTO.getMemberships().iterator().next().
                 getAttributes().size());
-        assertEquals(1, userTO.getDerivedAttributes().size());
+        assertFalse(userTO.getDerivedAttributes().isEmpty());
         boolean attributeFound = false;
         for (AttributeTO attributeTO : userTO.getAttributes()) {
             if ("userId".equals(attributeTO.getSchema())) {

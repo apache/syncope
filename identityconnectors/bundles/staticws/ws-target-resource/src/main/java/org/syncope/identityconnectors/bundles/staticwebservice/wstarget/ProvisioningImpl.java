@@ -307,6 +307,7 @@ public class ProvisioningImpl implements Provisioning {
         schemaNames.add("__PASSWORD__");
 
         Connection conn = null;
+        String query = null;
         try {
             conn = connect();
             Statement statement = conn.createStatement();
@@ -357,19 +358,16 @@ public class ProvisioningImpl implements Provisioning {
                 }
             }
 
-            String query =
-                    "INSERT INTO user (" + keys.toString() + ")"
+            query = "INSERT INTO user (" + keys.toString() + ")"
                     + "VALUES (" + values.toString() + ");";
 
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Execute query: " + query);
-            }
+            LOG.debug("Execute query: {}", query);
 
             statement.executeUpdate(query);
 
             return accountid;
-        } catch (SQLException ex) {
-            LOG.error("Creation failed", ex);
+        } catch (SQLException e) {
+            LOG.error("Creation failed:\n" + query, e);
             throw new ProvisioningException("Create operation failed");
         } finally {
 

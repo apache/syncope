@@ -27,8 +27,7 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
-import org.apache.wicket.authorization.strategies.role.metadata
-                                            .MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -57,6 +56,7 @@ import org.syncope.console.wicket.markup.html.form.UpdatingAutoCompleteTextField
 import org.syncope.console.wicket.markup.html.form.UpdatingCheckBox;
 import org.syncope.console.wicket.markup.html.form.UpdatingDropDownChoice;
 import org.syncope.console.wicket.markup.html.form.UpdatingTextField;
+import org.syncope.types.PropagationMode;
 import org.syncope.types.SourceMappingType;
 
 /**
@@ -75,6 +75,8 @@ public class ResourceModalPage extends BaseModalPage {
     private DropDownChoice connector;
 
     private CheckBox forceMandatoryConstraint;
+
+    private DropDownChoice<PropagationMode> optionalPropagationMode;
 
     private ConnectorInstanceTO connectorTO = new ConnectorInstanceTO();
 
@@ -156,6 +158,29 @@ public class ResourceModalPage extends BaseModalPage {
         forceMandatoryConstraint = new CheckBox("forceMandatoryConstraint");
         forceMandatoryConstraint.setOutputMarkupId(true);
         resourceForm.add(forceMandatoryConstraint);
+
+        optionalPropagationMode =
+                new DropDownChoice<PropagationMode>("optionalPropagationMode");
+        optionalPropagationMode.setModel(new IModel<PropagationMode>() {
+
+            @Override
+            public PropagationMode getObject() {
+                return resourceTO.getOptionalPropagationMode();
+            }
+
+            @Override
+            public void setObject(final PropagationMode object) {
+                resourceTO.setOptionalPropagationMode(object);
+            }
+
+            @Override
+            public void detach() {
+            }
+        });
+        optionalPropagationMode.setChoices(
+                Arrays.asList(PropagationMode.values()));
+        optionalPropagationMode.setOutputMarkupId(true);
+        resourceForm.add(optionalPropagationMode);
 
         ChoiceRenderer renderer = new ChoiceRenderer("displayName", "id");
         connector = new DropDownChoice("connectors", new Model(connectorTO),
@@ -325,6 +350,7 @@ public class ResourceModalPage extends BaseModalPage {
                 }
 
                 try {
+                    LOG.info("XXXXXXXX " + resourceTO);
 
                     if (createFlag) {
                         restClient.createResource(resourceTO);

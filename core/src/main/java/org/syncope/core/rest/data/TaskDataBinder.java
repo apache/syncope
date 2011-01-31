@@ -14,15 +14,15 @@
  */
 package org.syncope.core.rest.data;
 
+import com.opensymphony.workflow.Workflow;
+import javax.annotation.Resource;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import org.syncope.client.to.TaskExecutionTO;
 import org.syncope.client.to.TaskTO;
 import org.syncope.core.persistence.beans.Task;
 import org.syncope.core.persistence.beans.TaskExecution;
-import org.syncope.core.persistence.dao.TaskExecutionDAO;
+import org.syncope.core.workflow.WFUtils;
 
 @Component
 public class TaskDataBinder {
@@ -33,31 +33,28 @@ public class TaskDataBinder {
     private static final String[] IGNORE_TASK_EXECUTION_PROPERTIES = {
         "task"};
 
-    @Autowired
-    private TaskExecutionDAO taskExecutionDAO;
+    @Resource(name = "taskExecutionWorkflow")
+    private Workflow workflow;
 
-    @Transactional(rollbackFor = {
-        Throwable.class
-    })
-    public TaskExecution storeTaskExecution(final TaskExecution execution) {
-        return taskExecutionDAO.save(execution);
-    }
+    public TaskExecutionTO getTaskExecutionTO(final Workflow workflow,
+            final TaskExecution execution) {
 
-    public TaskExecutionTO getTaskExecutionTO(final TaskExecution execution) {
         TaskExecutionTO executionTO = new TaskExecutionTO();
         BeanUtils.copyProperties(execution, executionTO,
                 IGNORE_TASK_EXECUTION_PROPERTIES);
+        executionTO.setStatus(
+                WFUtils.getTaskExecutionStatus(workflow, execution));
         executionTO.setTask(execution.getTask().getId());
 
         return executionTO;
     }
 
-    public TaskTO getTaskTO(final Task task) {
+    public TaskTO getTaskTO(final Workflow workflow, final Task task) {
         TaskTO taskTO = new TaskTO();
         BeanUtils.copyProperties(task, taskTO, IGNORE_TASK_PROPERTIES);
 
         for (TaskExecution execution : task.getExecutions()) {
-            taskTO.addExecution(getTaskExecutionTO(execution));
+            taskTO.addExecution(getTaskExecutionTO(workflow, execution));
         }
 
         taskTO.setResource(task.getResource().getName());

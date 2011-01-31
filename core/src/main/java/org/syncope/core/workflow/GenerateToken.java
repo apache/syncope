@@ -22,27 +22,16 @@ import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.MissingConfKeyException;
 import org.syncope.core.persistence.dao.ConfDAO;
-import javax.crypto.Cipher;
-import javax.crypto.SecretKey;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.DESKeySpec;
-import org.identityconnectors.common.Base64;
 
 public class GenerateToken extends OSWorkflowComponent
         implements FunctionProvider {
-
-    private ConfDAO confDAO;
-
-    public GenerateToken() {
-        super();
-
-        confDAO = (ConfDAO) context.getBean("confDAOImpl");
-    }
 
     @Override
     @Transactional
     public void execute(Map transientVars, Map args, PropertySet ps)
             throws WorkflowException {
+
+        final ConfDAO confDAO = (ConfDAO) context.getBean("confDAOImpl");
 
         SyncopeUser user = (SyncopeUser) transientVars.get(
                 Constants.SYNCOPE_USER);
@@ -63,79 +52,5 @@ public class GenerateToken extends OSWorkflowComponent
         }
 
         transientVars.put(Constants.SYNCOPE_USER, user);
-    }
-
-    public final String encrypt(final String toBeCrypted) {
-
-        String res = null;
-
-        try {
-
-            final DESKeySpec keySpec =
-                    new DESKeySpec(confDAO.find(
-                    "token.encryption.key").getConfValue().getBytes("UTF8"));
-
-            final SecretKeyFactory keyFactory =
-                    SecretKeyFactory.getInstance("DES");
-
-            final SecretKey key = keyFactory.generateSecret(keySpec);
-
-            final byte[] cleartext = toBeCrypted.getBytes("UTF8");
-
-            final Cipher cipher = Cipher.getInstance("DES");
-
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("To Be Encrypted: " + toBeCrypted);
-            }
-
-            cipher.init(Cipher.ENCRYPT_MODE, key);
-            res = Base64.encode(cipher.doFinal(cleartext));
-
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Encrypted: " + res);
-            }
-
-        } catch (Exception e) {
-            LOG.error("Encrypt operation failed", e);
-        }
-
-        return res;
-    }
-
-    public final String decrypt(final String toBeDecrypted) {
-        String res = null;
-
-        try {
-
-            final DESKeySpec keySpec =
-                    new DESKeySpec(confDAO.find(
-                    "token.encryption.key").getConfValue().getBytes("UTF8"));
-
-            final SecretKeyFactory keyFactory =
-                    SecretKeyFactory.getInstance("DES");
-
-            final SecretKey key = keyFactory.generateSecret(keySpec);
-
-            final byte[] encrypedPwdBytes =
-                    Base64.decode(toBeDecrypted);
-
-            final Cipher cipher = Cipher.getInstance("DES");
-
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("To Be Dencrypted: " + toBeDecrypted);
-            }
-
-            cipher.init(Cipher.DECRYPT_MODE, key);
-            res = new String(cipher.doFinal(encrypedPwdBytes));
-
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Dencrypted: " + res);
-            }
-
-        } catch (Exception e) {
-            LOG.error("Decrypt operation failed", e);
-        }
-
-        return res;
     }
 }

@@ -16,9 +16,8 @@ package org.syncope.core.persistence.beans;
 
 import java.util.Date;
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -27,7 +26,6 @@ import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import org.syncope.types.TaskExecutionStatus;
 
 /**
  * An execution (with result) of a Task.
@@ -55,11 +53,8 @@ public class TaskExecution extends AbstractBaseBean {
     @Temporal(TemporalType.TIMESTAMP)
     private Date endDate;
 
-    /**
-     * Did this execution completed with success?
-     */
-    @Enumerated(EnumType.STRING)
-    private TaskExecutionStatus status;
+    @Column(nullable = true)
+    private Long workflowId;
 
     /**
      * Any information to be accompained to this execution's result.
@@ -79,8 +74,6 @@ public class TaskExecution extends AbstractBaseBean {
      */
     public TaskExecution() {
         super();
-
-        status = TaskExecutionStatus.CREATED;
     }
 
     public Long getId() {
@@ -111,12 +104,12 @@ public class TaskExecution extends AbstractBaseBean {
         this.startDate = startDate;
     }
 
-    public TaskExecutionStatus getStatus() {
-        return status;
+    public Long getWorkflowId() {
+        return workflowId;
     }
 
-    public void setStatus(TaskExecutionStatus status) {
-        this.status = status;
+    public void setWorkflowId(Long workflowId) {
+        this.workflowId = workflowId;
     }
 
     public Task getTask() {
@@ -133,7 +126,7 @@ public class TaskExecution extends AbstractBaseBean {
                 + "id=" + id + ", "
                 + "startDate=" + startDate + ", "
                 + "endDate=" + endDate + ", "
-                + "status=" + status + ", "
+                + "workflowId=" + workflowId + ", "
                 + "task=" + task + ", "
                 + "message=" + message + '}';
     }

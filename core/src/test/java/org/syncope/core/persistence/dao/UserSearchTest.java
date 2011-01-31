@@ -50,7 +50,8 @@ import org.syncope.core.persistence.beans.user.SyncopeUser;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
     "classpath:syncopeContext.xml",
-    "classpath:persistenceContext.xml"
+    "classpath:persistenceContext.xml",
+    "classpath:workflowContext.xml"
 })
 @Transactional
 public class UserSearchTest {

@@ -82,13 +82,7 @@ public class TaskTestITCase extends AbstractTest {
         TaskExecutionTO execution = restTemplate.getForObject(
                 BASE_URL + "task/execute/{taskId}",
                 TaskExecutionTO.class, 1);
-        assertEquals(TaskExecutionStatus.CREATED, execution.getStatus());
-
-        // To be sure that the execution above has time to start
-        try {
-            Thread.sleep(10000);
-        } catch (InterruptedException e) {
-        }
+        assertEquals(TaskExecutionStatus.SUBMITTED, execution.getStatus());
 
         Exception exception = null;
         try {

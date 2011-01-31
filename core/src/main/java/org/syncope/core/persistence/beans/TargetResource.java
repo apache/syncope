@@ -22,6 +22,8 @@ import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
@@ -35,6 +37,7 @@ import org.hibernate.validator.constraints.Range;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.validation.entity.TargetResourceCheck;
+import org.syncope.types.PropagationMode;
 import org.syncope.types.SourceMappingType;
 
 /**
@@ -85,6 +88,10 @@ public class TargetResource extends AbstractBaseBean {
     @Valid
     private List<SchemaMapping> mappings;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private PropagationMode optionalPropagationMode;
+
     /**
      * Tasks associated to this resource.
      */
@@ -103,6 +110,7 @@ public class TargetResource extends AbstractBaseBean {
         users = new HashSet<SyncopeUser>();
         roles = new HashSet<SyncopeRole>();
         mappings = new ArrayList<SchemaMapping>();
+        optionalPropagationMode = PropagationMode.ASYNC;
         tasks = new ArrayList<Task>();
     }
 
@@ -121,6 +129,16 @@ public class TargetResource extends AbstractBaseBean {
 
     public void setConnector(ConnectorInstance connector) {
         this.connector = connector;
+    }
+
+    public PropagationMode getOptionalPropagationMode() {
+        return optionalPropagationMode;
+    }
+
+    public void setOptionalPropagationMode(
+            PropagationMode optionalPropagationMode) {
+
+        this.optionalPropagationMode = optionalPropagationMode;
     }
 
     public List<Task> getTasks() {
