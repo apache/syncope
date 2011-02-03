@@ -175,7 +175,6 @@ public class JPAWorkflowStore implements WorkflowStore {
 
         currentStep.setActionId(actionId);
         currentStep.setFinishDate(finishDate);
-        currentStep.setStatus(status);
         currentStep.setCaller(caller);
 
         workflowEntryDAO.save(currentStep.getWorkflowEntry());

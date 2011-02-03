@@ -33,14 +33,14 @@ public interface Provisioning {
      * @return true if the resource support authentication.
      */
     @WebMethod(operationName = "isAuthenticationSupported")
-    public Boolean isAuthenticationSupported();
+    Boolean isAuthenticationSupported();
 
     /**
      * Checks if synchronization is supported.
      * @return true if the resource support synchronization.
      */
     @WebMethod(operationName = "isSyncSupported")
-    public Boolean isSyncSupported();
+    Boolean isSyncSupported();
 
     /**
      * Verify user creentials
@@ -52,7 +52,7 @@ public interface Provisioning {
      * ProvisioningException in case of authentication failed.
      */
     @WebMethod(operationName = "authenticate")
-    public String authenticate(
+    String authenticate(
             @WebParam(name = "username") final String username,
             @WebParam(name = "password") final String password)
             throws ProvisioningException;
@@ -62,14 +62,14 @@ public interface Provisioning {
      * @return the string "OK" in case of availability of the resource.
      */
     @WebMethod(operationName = "checkAlive")
-    public String checkAlive();
+    String checkAlive();
 
     /**
      * Returns the schema.
      * @return a set of attributes.
      */
     @WebMethod(operationName = "schema")
-    public List<WSAttribute> schema();
+    List<WSAttribute> schema();
 
     /**
      * Creates user account.
@@ -78,8 +78,7 @@ public interface Provisioning {
      * @throws ProvisioningException in case of failure.
      */
     @WebMethod(operationName = "create")
-    public String create(
-            @WebParam(name = "data") final List<WSAttributeValue> data)
+    String create(@WebParam(name = "data") final List<WSAttributeValue> data)
             throws ProvisioningException;
 
     /**
@@ -90,7 +89,7 @@ public interface Provisioning {
      * @throws ProvisioningException in case of failure
      */
     @WebMethod(operationName = "update")
-    public String update(
+    String update(
             @WebParam(name = "accountid") final String accountid,
             @WebParam(name = "data") final List<WSAttributeValue> data)
             throws ProvisioningException;
@@ -102,7 +101,7 @@ public interface Provisioning {
      * @throws ProvisioningException in case of failure.
      */
     @WebMethod(operationName = "delete")
-    public String delete(@WebParam(name = "accountid") final String accountid)
+    String delete(@WebParam(name = "accountid") final String accountid)
             throws ProvisioningException;
 
     /**
@@ -111,16 +110,16 @@ public interface Provisioning {
      * @return a set of user accounts.
      */
     @WebMethod(operationName = "query")
-    public List<WSUser> query(@WebParam(name = "query") final Operand query);
+    List<WSUser> query(@WebParam(name = "query") final Operand query);
 
     /**
      * Returns accountid related to the specified username.
      * @param username.
-     * @return accountid.
-     * @throws ProvisioningException in case of failure or username not found.
+     * @return accountid or null if username not found
+     * @throws ProvisioningException in case of failure.
      */
     @WebMethod(operationName = "resolve")
-    public String resolve(@WebParam(name = "username") final String username)
+    String resolve(@WebParam(name = "username") final String username)
             throws ProvisioningException;
 
     /**
@@ -129,7 +128,7 @@ public interface Provisioning {
      * @throws ProvisioningException in case of failure.
      */
     @WebMethod(operationName = "getLatestChangeNumber")
-    public int getLatestChangeNumber()
+    int getLatestChangeNumber()
             throws ProvisioningException;
 
     /**
@@ -138,6 +137,6 @@ public interface Provisioning {
      * @throws ProvisioningException in case of failure
      */
     @WebMethod(operationName = "sync")
-    public List<WSChange> sync()
+    List<WSChange> sync()
             throws ProvisioningException;
 }

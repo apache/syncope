@@ -25,7 +25,7 @@
     <groupId>org.syncope.identityconnectors.bundles.staticws</groupId>
     <artifactId>staticwebservice</artifactId>
 
-    <name>identityconnectors: bundles: static web service: connector</name>
+    <name>identityconnectors: bundles: static WS: connector</name>
     <url>http://maven.apache.org</url>
 
     <packaging>jar</packaging>

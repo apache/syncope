@@ -11,7 +11,7 @@ import java.util.Set;
 import org.identityconnectors.common.security.GuardedByteArray;
 import org.identityconnectors.framework.common.objects.filter.FilterTranslator;
 import org.identityconnectors.common.security.GuardedString;
-import org.identityconnectors.framework.common.exceptions.InvalidCredentialException;
+import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.AttributeInfo;
@@ -107,15 +107,12 @@ public class WebServiceConnector implements
 
     /**
      * Callback method to receive the {@link Configuration}.
-     * 
+     * @param cfg connector configuration
      * @see Connector#init
      */
     @Override
-    public void init(Configuration cfg) {
-
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Connector initialization");
-        }
+    public void init(final Configuration cfg) {
+        LOG.debug("Connector initialization");
 
         this.config = (WebServiceConfiguration) cfg;
         this.connection = new WebServiceConnection(this.config);
@@ -128,10 +125,7 @@ public class WebServiceConnector implements
      */
     @Override
     public void dispose() {
-
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Dispose connector resources");
-        }
+        LOG.debug("Dispose connector resources");
 
         config = null;
 
@@ -149,10 +143,7 @@ public class WebServiceConnector implements
      */
     @Override
     public void checkAlive() {
-
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Connection test");
-        }
+        LOG.debug("Connection test");
 
         connection.test();
     }
@@ -167,9 +158,7 @@ public class WebServiceConnector implements
             final GuardedString password,
             final OperationOptions options) {
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("User uthentication");
-        }
+        LOG.debug("User uthentication");
 
         // check objectclass
         if (objectClass == null || (!objectClass.equals(ObjectClass.ACCOUNT))) {
@@ -187,22 +176,14 @@ public class WebServiceConnector implements
             throw new IllegalStateException("Web Service client not found");
         }
 
-        String accountid = null;
-
         try {
-
-            accountid =
-                    provisioning.authenticate(username, password.toString());
-
+            return new Uid(
+                    provisioning.authenticate(username, password.toString()));
         } catch (ProvisioningException e) {
-            if (LOG.isErrorEnabled()) {
-                LOG.error("Authentication failed", e);
-            }
-
-            throw new InvalidCredentialException("Authentication failed");
+            throw new ConnectorException("Authentication failed", e);
+        } catch (Throwable t) {
+            throw new ConnectorException("Communication exception", t);
         }
-
-        return new Uid(accountid);
     }
 
     /**
@@ -214,9 +195,7 @@ public class WebServiceConnector implements
             final Set<Attribute> attrs,
             final OperationOptions options) {
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Account creation");
-        }
+        LOG.debug("Account creation");
 
         // check objectclass
         if (objClass == null || (!objClass.equals(ObjectClass.ACCOUNT))) {
@@ -239,11 +218,8 @@ public class WebServiceConnector implements
         if (name == null) {
             throw new IllegalArgumentException("No name specified");
         }
-        final String accountName = name.getNameValue();
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Account to be created: " + accountName);
-        }
+        LOG.debug("Account to be created: " + name.getNameValue());
 
         // to be user in order to pass information to the web service
         final List<WSAttributeValue> attributes =
@@ -292,25 +268,20 @@ public class WebServiceConnector implements
             }
         }
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug(
-                    "\nUser " + accountName
-                    + "\n\tattributes: " + attributes.size());
-        }
+        LOG.debug("\nUser " + name.getNameValue()
+                + "\n\tattributes: " + attributes.size());
 
         try {
-
             // user creation
             provisioning.create(attributes);
-
         } catch (ProvisioningException e) {
-            if (LOG.isErrorEnabled()) {
-                LOG.error("Creation failed", e);
-            }
+            throw new ConnectorException("Creation failed", e);
+        } catch (Throwable t) {
+            throw new ConnectorException("Communication exception", t);
         }
 
         // return Uid
-        return new Uid(accountName);
+        return new Uid(name.getNameValue());
     }
 
     /**
@@ -322,16 +293,12 @@ public class WebServiceConnector implements
             final Uid uid,
             final OperationOptions options) {
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Account deletion");
-        }
+        LOG.debug("Account deletion");
 
         // check objectclass
         if (objClass == null || (!objClass.equals(ObjectClass.ACCOUNT))) {
             throw new IllegalArgumentException("Invalid objectclass");
         }
-
-        final String accountName = uid.getUidValue();
 
         // get web service client
         Provisioning provisioning = connection.getProvisioning();
@@ -340,11 +307,11 @@ public class WebServiceConnector implements
         }
 
         try {
-            provisioning.delete(accountName);
+            provisioning.delete(uid.getUidValue());
         } catch (ProvisioningException e) {
-            if (LOG.isErrorEnabled()) {
-                LOG.error("Deletion failed", e);
-            }
+            throw new ConnectorException("Deletion failed", e);
+        } catch (Throwable t) {
+            throw new ConnectorException("Communication exception", t);
         }
     }
 
@@ -353,10 +320,7 @@ public class WebServiceConnector implements
      */
     @Override
     public Schema schema() {
-
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Schema retrieving");
-        }
+        LOG.debug("Schema retrieving");
 
         Provisioning provisioning = connection.getProvisioning();
 
@@ -379,8 +343,8 @@ public class WebServiceConnector implements
             wsAttributes.put(getAttributeName(attribute), attribute);
 
             if (LOG.isDebugEnabled()) {
-                LOG.debug(
-                        "\nAttribute: " + "\n\tName: " + attribute.getName()
+                LOG.debug("\nAttribute: "
+                        + "\n\tName: " + attribute.getName()
                         + "\n\tType: " + attribute.getType()
                         + "\n\tIsKey: " + attribute.isKey()
                         + "\n\tIsPassword: " + attribute.isPassword()
@@ -388,16 +352,11 @@ public class WebServiceConnector implements
             }
 
             try {
-
                 attributes.add(buildAttribute(attribute));
-
             } catch (IllegalArgumentException ila) {
 
-                if (LOG.isErrorEnabled()) {
-                    LOG.error("Invalid attribute " + attribute.getName(), ila);
-                }
+                LOG.error("Invalid attribute " + attribute.getName(), ila);
             }
-
         }
 
         final SchemaBuilder schemaBld = new SchemaBuilder(getClass());
@@ -420,20 +379,14 @@ public class WebServiceConnector implements
          * acquire the implemented interfaces by the connector class.
          */
         if (!provisioning.isAuthenticationSupported()) {
-
-            if (LOG.isDebugEnabled()) {
-                LOG.info("Authentication is not supported.");
-            }
+            LOG.debug("Authentication is not supported.");
 
             schemaBld.removeSupportedObjectClass(
                     AuthenticateOp.class, objectclassInfo);
         }
 
         if (!provisioning.isSyncSupported()) {
-
-            if (LOG.isDebugEnabled()) {
-                LOG.info("Synchronization is not supported.");
-            }
+            LOG.debug("Synchronization is not supported.");
 
             schemaBld.removeSupportedObjectClass(
                     SyncOp.class, objectclassInfo);
@@ -448,15 +401,14 @@ public class WebServiceConnector implements
      */
     @Override
     public FilterTranslator<Operand> createFilterTranslator(
-            ObjectClass oclass,
-            OperationOptions options) {
+            final ObjectClass oclass,
+            final OperationOptions options) {
 
         if (oclass == null || (!oclass.equals(ObjectClass.ACCOUNT))) {
             throw new IllegalArgumentException("Invalid objectclass");
         }
 
         return new WebServiceFilterTranslator();
-
     }
 
     /**
@@ -464,14 +416,12 @@ public class WebServiceConnector implements
      */
     @Override
     public void executeQuery(
-            ObjectClass objClass,
-            Operand query,
-            ResultsHandler handler,
-            OperationOptions options) {
+            final ObjectClass objClass,
+            final Operand query,
+            final ResultsHandler handler,
+            final OperationOptions options) {
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Execute query");
-        }
+        LOG.debug("Execute query: " + query);
 
         // check objectclass
         if (objClass == null || (!objClass.equals(ObjectClass.ACCOUNT))) {
@@ -490,33 +440,23 @@ public class WebServiceConnector implements
         }
 
         try {
-
             List<WSUser> resultSet = provisioning.query(query);
-
             if (resultSet == null) {
                 return;
             }
 
-            Iterator i = resultSet.iterator();
-
-            WSUser user = null;
+            WSUser user;
             boolean handle = true;
+            for (Iterator<WSUser> i = resultSet.iterator();
+                    i.hasNext() && handle;) {
 
-            while (i.hasNext() && handle) {
-                user = (WSUser) i.next();
-
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Found user: " + user.getAccountid());
-                }
+                user = i.next();
+                LOG.debug("Found user: " + user.getAccountid());
 
                 handle = handler.handle(
                         buildConnectorObject(user.getAttributes()).build());
-
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Handle:" + handle);
-                }
+                LOG.debug("Handle:" + handle);
             }
-
         } catch (Exception e) {
             throw new IllegalArgumentException(e);
         }
@@ -534,10 +474,11 @@ public class WebServiceConnector implements
      * {@inheritDoc}
      */
     @Override
-    public Uid update(ObjectClass objclass,
-            Uid uid,
-            Set<Attribute> replaceAttributes,
-            OperationOptions options) {
+    public Uid update(final ObjectClass objclass,
+            final Uid uid,
+            final Set<Attribute> replaceAttributes,
+            final OperationOptions options) {
+
         // check objectclass
         if (objclass == null || (!objclass.equals(ObjectClass.ACCOUNT))) {
             throw new IllegalArgumentException("Invalid objectclass");
@@ -583,8 +524,7 @@ public class WebServiceConnector implements
             }
 
             if (LOG.isDebugEnabled()) {
-                LOG.debug(
-                        "\nAttribute: "
+                LOG.debug("\nAttribute: "
                         + "\n\tName: " + wsAttribute.getName()
                         + "\n\tIsKey: " + wsAttribute.isKey()
                         + "\n\tIsPassword: " + wsAttribute.isPassword());
@@ -609,14 +549,12 @@ public class WebServiceConnector implements
         Uid uuid = null;
 
         try {
-
             // user creation
             uuid = new Uid(provisioning.update(uid.getUidValue(), attributes));
-
         } catch (ProvisioningException e) {
-            if (LOG.isErrorEnabled()) {
-                LOG.error("Creation failed", e);
-            }
+            throw new ConnectorException("Update failed", e);
+        } catch (Throwable t) {
+            throw new ConnectorException("Communication exception", t);
         }
 
         return uuid;
@@ -627,9 +565,9 @@ public class WebServiceConnector implements
      */
     @Override
     public void sync(
-            ObjectClass objClass,
-            SyncToken token,
-            SyncResultsHandler handler,
+            final ObjectClass objClass,
+            final SyncToken token,
+            final SyncResultsHandler handler,
             final OperationOptions options) {
 
         // check objectclass
@@ -649,25 +587,19 @@ public class WebServiceConnector implements
         }
 
         try {
-
             List<WSChange> changes = provisioning.sync();
 
             SyncDeltaBuilder sdb = null;
 
-            Iterator i = changes.iterator();
             boolean handle = true;
+            for (Iterator<WSChange> i = changes.iterator();
+                    i.hasNext() && handle;) {
 
-            while (i.hasNext() && handle) {
-
-                sdb = buildSyncDelta((WSChange) i.next());
+                sdb = buildSyncDelta(i.next());
                 handle = handler.handle(sdb.build());
-
             }
-
         } catch (ProvisioningException e) {
-            if (LOG.isErrorEnabled()) {
-                LOG.error("Synchronization failed");
-            }
+            LOG.error("Synchronization failed");
 
             throw new IllegalStateException(e);
         }
@@ -677,7 +609,7 @@ public class WebServiceConnector implements
      * {@inheritDoc}
      */
     @Override
-    public SyncToken getLatestSyncToken(ObjectClass objectClass) {
+    public SyncToken getLatestSyncToken(final ObjectClass objectClass) {
 
         // check objectclass
         if (objectClass == null || (!objectClass.equals(ObjectClass.ACCOUNT))) {
@@ -693,21 +625,19 @@ public class WebServiceConnector implements
         SyncToken token = null;
 
         try {
-
             token = new SyncToken(provisioning.getLatestChangeNumber());
-
         } catch (ProvisioningException e) {
-            if (LOG.isErrorEnabled()) {
-                LOG.error("Resolve username failed", e);
-            }
+            throw new ConnectorException("getLatestSyncToken failed", e);
+        } catch (Throwable t) {
+            throw new ConnectorException("Communication exception", t);
         }
 
         return token;
     }
 
     @Override
-    public Uid resolveUsername(ObjectClass objectClass, String username,
-            OperationOptions options) {
+    public Uid resolveUsername(final ObjectClass objectClass,
+            final String username, final OperationOptions options) {
 
         // check objectclass
         if (objectClass == null || (!objectClass.equals(ObjectClass.ACCOUNT))) {
@@ -725,18 +655,19 @@ public class WebServiceConnector implements
             throw new IllegalStateException("Web Service client not found");
         }
 
-        Uid uuid = null;
+        String uid = null;
         try {
-            String uid = provisioning.resolve(username);
-            uuid = new Uid(uid);
+            uid = provisioning.resolve(username);
         } catch (ProvisioningException e) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Resolve username failed", e);
-            }
-        } catch (IllegalArgumentException e) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Unexpected exception while resolving username", e);
-            }
+            throw new ConnectorException("Resolve failed", e);
+        } catch (Throwable t) {
+            throw new ConnectorException("Communication exception", t);
+        }
+
+        Uid uuid = null;
+        if (uid != null) {
+            LOG.debug("Not able to resolve '" + username + "'");
+            uuid = new Uid(uid);
         }
 
         return uuid;
@@ -746,7 +677,6 @@ public class WebServiceConnector implements
         final AttributeInfoBuilder builder = new AttributeInfoBuilder();
 
         try {
-
             if (attribute.isPassword()) {
                 return OperationalAttributeInfos.PASSWORD;
             }
@@ -766,27 +696,19 @@ public class WebServiceConnector implements
             builder.setRequired(attribute.isNullable());
 
             return builder.build();
-
         } catch (ClassNotFoundException e) {
-
-            if (LOG.isErrorEnabled()) {
-                LOG.error("Invalid data type", e);
-            }
+            LOG.error("Invalid data type", e);
 
             throw new IllegalArgumentException(e);
-
         } catch (Throwable t) {
-
-            if (LOG.isErrorEnabled()) {
-                LOG.error("Unexpected exception", t);
-            }
+            LOG.error("Unexpected exception", t);
 
             throw new IllegalArgumentException(t);
         }
     }
 
     private ConnectorObjectBuilder buildConnectorObject(
-            Set<WSAttributeValue> attributes) {
+            final Set<WSAttributeValue> attributes) {
 
         ConnectorObjectBuilder bld = new ConnectorObjectBuilder();
 
@@ -828,7 +750,7 @@ public class WebServiceConnector implements
         return bld;
     }
 
-    private String getAttributeName(WSAttribute attribute) {
+    private String getAttributeName(final WSAttribute attribute) {
         String attributeName = null;
 
         if (attribute.isKey()) {
@@ -846,7 +768,7 @@ public class WebServiceConnector implements
         return attributeName;
     }
 
-    private SyncDeltaBuilder buildSyncDelta(WSChange change) {
+    private SyncDeltaBuilder buildSyncDelta(final WSChange change) {
         SyncDeltaBuilder bld = new SyncDeltaBuilder();
 
         ConnectorObject object =

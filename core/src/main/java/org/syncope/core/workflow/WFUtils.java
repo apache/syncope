@@ -18,7 +18,6 @@ import com.opensymphony.workflow.InvalidActionException;
 import com.opensymphony.workflow.Workflow;
 import com.opensymphony.workflow.WorkflowException;
 import com.opensymphony.workflow.loader.ActionDescriptor;
-import com.opensymphony.workflow.loader.StepDescriptor;
 import com.opensymphony.workflow.loader.WorkflowDescriptor;
 import com.opensymphony.workflow.spi.Step;
 import java.util.HashMap;
@@ -105,18 +104,26 @@ public class WFUtils {
         TaskExecutionStatus result;
 
         try {
-            List<Step> currentSteps =
+            List<Step> steps =
                     workflow.getCurrentSteps(execution.getWorkflowId());
-            if (currentSteps != null && !currentSteps.isEmpty()) {
+            if (steps != null && !steps.isEmpty()) {
                 result = TaskExecutionStatus.valueOf(
-                        currentSteps.iterator().next().getStatus());
+                        steps.iterator().next().getStatus());
             } else {
-                int wfState = workflow.getEntryState(execution.getWorkflowId());
-                WorkflowDescriptor wfDesc = workflow.getWorkflowDescriptor(
-                        Constants.TASKEXECUTION_WORKFLOW);
-                StepDescriptor stepDesc = wfDesc.getStep(wfState);
+                steps = workflow.getHistorySteps(execution.getWorkflowId());
+                Step newestStep = steps.get(0);
+                if (steps.size() > 1) {
+                    for (int i = 1; i < steps.size(); i++) {
+                        if (newestStep.getFinishDate().getTime()
+                                < steps.get(i).getFinishDate().getTime()) {
 
-                result = TaskExecutionStatus.valueOf(stepDesc.getName());
+                            newestStep = steps.get(i);
+                        }
+                    }
+                }
+
+                result = TaskExecutionStatus.valueOf(
+                        newestStep.getStatus());
             }
         } catch (Throwable t) {
             LOG.error("While getting status of {}", execution, t);

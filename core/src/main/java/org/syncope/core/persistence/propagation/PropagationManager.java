@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.Resource;
 import org.identityconnectors.framework.common.FrameworkUtil;
+import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.Name;
@@ -549,9 +550,14 @@ public class PropagationManager {
             LOG.error("Exception during provision on resource "
                     + task.getResource().getName(), t);
 
-            StringWriter execeptionWriter = new StringWriter();
-            t.printStackTrace(new PrintWriter(execeptionWriter));
-            taskExecutionMessage = execeptionWriter.toString();
+            if (t instanceof ConnectorException && t.getCause() != null) {
+                taskExecutionMessage = t.getCause().getMessage();
+            } else {
+                StringWriter exceptionWriter = new StringWriter();
+                exceptionWriter.write(t.getMessage() + "\n\n");
+                t.printStackTrace(new PrintWriter(exceptionWriter));
+                taskExecutionMessage = exceptionWriter.toString();
+            }
 
             try {
                 WFUtils.doExecuteAction(workflow,

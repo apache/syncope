@@ -167,9 +167,6 @@ public class ConnectorFacadeProxy {
             }
 
             result = connector.create(oclass, attrs, options);
-            if (result == null) {
-                throw new IllegalStateException("Error creating user");
-            }
         }
 
         return result;
@@ -238,9 +235,6 @@ public class ConnectorFacadeProxy {
 
             result = connector.update(
                     objclass, uid, replaceAttributes, options);
-            if (result == null) {
-                throw new IllegalStateException("Error updating user");
-            }
         }
 
         return result;

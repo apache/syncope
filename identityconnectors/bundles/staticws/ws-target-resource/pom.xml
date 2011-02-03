@@ -25,7 +25,7 @@
     <groupId>org.syncope.identityconnectors.bundles.staticws</groupId>
     <artifactId>ws-target-resource</artifactId>
 
-    <name>identityconnectors: bundles: static web service: ws provisioning sample</name>
+    <name>identityconnectors: bundles: static WS: sample impl</name>
     <url>http://maven.apache.org</url>
 
     <packaging>war</packaging>

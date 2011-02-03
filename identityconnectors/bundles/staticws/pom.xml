@@ -25,7 +25,7 @@
     <groupId>org.syncope.identityconnectors.bundles.staticws</groupId>
     <artifactId>staticws</artifactId>
 
-    <name>IdentityConnectors: bundles: static web service</name>
+    <name>IdentityConnectors: bundles: static WS</name>
     <description>bundles</description>
 
     <packaging>pom</packaging>

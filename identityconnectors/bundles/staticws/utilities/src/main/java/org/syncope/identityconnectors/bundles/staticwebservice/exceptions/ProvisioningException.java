@@ -14,22 +14,38 @@
  */
 package org.syncope.identityconnectors.bundles.staticwebservice.exceptions;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import javax.xml.ws.WebFault;
 
 @WebFault(name = "ProvisioningException")
 public class ProvisioningException extends Exception {
 
-    /**
-     * Creates a new instance of <code>ProvisioningException</code> without detail message.
-     */
-    public ProvisioningException() {
-    }
+    private String wrappedCause;
 
-    /**
-     * Constructs an instance of <code>ProvisioningException</code> with the specified detail message.
-     * @param msg the detail message.
-     */
     public ProvisioningException(String msg) {
         super(msg);
+    }
+
+    public ProvisioningException(final String msg, final Throwable cause) {
+        super(msg, cause);
+
+        StringWriter exceptionWriter = new StringWriter();
+        exceptionWriter.write(cause.getMessage() + "\n\n");
+        cause.printStackTrace(new PrintWriter(exceptionWriter));
+        wrappedCause = exceptionWriter.toString();
+    }
+
+    @Override
+    public String getMessage() {
+        return wrappedCause != null ? wrappedCause : super.getMessage();
+    }
+
+    public String getWrappedCause() {
+        return wrappedCause;
+    }
+
+    public void setWrappedCause(String wrappedCause) {
+        this.wrappedCause = wrappedCause;
     }
 }
