@@ -101,7 +101,7 @@ public class WFUtils {
             final Workflow workflow,
             final TaskExecution execution) {
 
-        TaskExecutionStatus result;
+        TaskExecutionStatus result = TaskExecutionStatus.FAILURE;
 
         try {
             List<Step> steps =
@@ -109,26 +109,9 @@ public class WFUtils {
             if (steps != null && !steps.isEmpty()) {
                 result = TaskExecutionStatus.valueOf(
                         steps.iterator().next().getStatus());
-            } else {
-                steps = workflow.getHistorySteps(execution.getWorkflowId());
-                Step newestStep = steps.get(0);
-                if (steps.size() > 1) {
-                    for (int i = 1; i < steps.size(); i++) {
-                        if (newestStep.getFinishDate().getTime()
-                                < steps.get(i).getFinishDate().getTime()) {
-
-                            newestStep = steps.get(i);
-                        }
-                    }
-                }
-
-                result = TaskExecutionStatus.valueOf(
-                        newestStep.getStatus());
             }
         } catch (Throwable t) {
             LOG.error("While getting status of {}", execution, t);
-
-            result = TaskExecutionStatus.FAILURE;
         }
 
         return result;

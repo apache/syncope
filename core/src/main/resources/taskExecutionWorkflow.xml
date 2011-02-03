@@ -21,6 +21,13 @@
             </results>
         </action>
     </initial-actions>
+    <common-actions>
+        <action name="useless" id="100">
+            <results>
+                <unconditional-result old-status="n/a" status="CREATED" step="1"/>
+            </results>
+        </action>
+    </common-actions>
     <steps>
         <step name="CREATED" id="1">
             <actions>
@@ -66,11 +73,23 @@
             </actions>
         </step>
 
-        <step name="UNSUBMITTED" id="3"/>
+        <step name="UNSUBMITTED" id="3">
+            <actions>
+                <common-action id="100"/>
+            </actions>
+        </step>
 
-        <step name="SUCCESS" id="4"/>
+        <step name="SUCCESS" id="4">
+            <actions>
+                <common-action id="100"/>
+            </actions>
+        </step>
 
-        <step name="FAILURE" id="5"/>
+        <step name="FAILURE" id="5">
+            <actions>
+                <common-action id="100"/>
+            </actions>
+        </step>
 
     </steps>
 

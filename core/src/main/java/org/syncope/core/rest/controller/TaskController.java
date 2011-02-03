@@ -239,7 +239,7 @@ public class TaskController extends AbstractController {
         for (TaskExecution execution : task.getExecutions()) {
             wfActions = workflow.getAvailableActions(
                     execution.getWorkflowId(), null);
-            if (wfActions != null && wfActions.length > 0) {
+            if (wfActions != null && wfActions.length > 1) {
                 incompleteTaskExecution.addElement(
                         execution.getId().toString());
             }
@@ -250,6 +250,12 @@ public class TaskController extends AbstractController {
                     HttpStatus.BAD_REQUEST);
             scce.addException(incompleteTaskExecution);
             throw scce;
+        }
+
+        for (TaskExecution execution : task.getExecutions()) {
+            if (execution.getWorkflowId() != null) {
+                workflowEntryDAO.delete(execution.getWorkflowId());
+            }
         }
 
         taskDAO.delete(task);
@@ -268,7 +274,7 @@ public class TaskController extends AbstractController {
 
         int[] wfActions = workflow.getAvailableActions(
                 execution.getWorkflowId(), null);
-        if (wfActions != null && wfActions.length > 0) {
+        if (wfActions != null && wfActions.length > 1) {
             SyncopeClientException incompleteTaskExecution =
                     new SyncopeClientException(
                     SyncopeClientExceptionType.IncompleteTaskExecution);
