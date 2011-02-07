@@ -1,0 +1,9 @@
+<html>
+<body>
+<h3>Hi ${firstname} ${surname}, welcome to Syncope!</h3>
+
+<div>
+   Your email address is <a href="mailto:${email}">${email}</a>.
+</div>
+</body>
+</html>

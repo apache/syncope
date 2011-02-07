@@ -31,7 +31,7 @@ import org.springframework.web.client.RestTemplate;
     "classpath:syncopeContext.xml",
     "classpath:persistenceContext.xml",
     "classpath:workflowContext.xml",
-    "file:target/syncope/WEB-INF/syncope-core-rest-servlet.xml"
+    "classpath:restContext.xml"
 })
 public abstract class AbstractTest {
 
