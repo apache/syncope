@@ -20,12 +20,30 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.velocity.app.VelocityEngine;
+import org.apache.velocity.exception.VelocityException;
 import org.springframework.ui.velocity.VelocityEngineUtils;
 import org.syncope.core.persistence.beans.AbstractAttr;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.MissingConfKeyException;
 
+/**
+ * Send e-mail from workflow using Velocity as template mechanism.
+ */
 public class SendVelocityEmail extends AbstractSendEmail {
+
+    private static final String KIND = "kind";
+
+    private String getConfValue(final String key) {
+        String result;
+        try {
+            result = confDAO.find(key).getConfValue();
+        } catch (MissingConfKeyException e) {
+            LOG.error("While getting conf '" + key + "'", e);
+            result = "";
+        }
+
+        return result;
+    }
 
     @Override
     public void execute(final Map transientVars, final Map args,
@@ -49,29 +67,52 @@ public class SendVelocityEmail extends AbstractSendEmail {
                     ? values.iterator().next() : values));
         }
 
-        String htmlBody =
-                VelocityEngineUtils.mergeTemplateIntoString(velocityEngine,
-                "mailTemplates/optin.html.vm",
-                model);
-        String textBody =
-                VelocityEngineUtils.mergeTemplateIntoString(velocityEngine,
-                "mailTemplates/optin.html.vm",
-                model);
+        final String smtpHost = getConfValue("smtp.host");
+        final String from = getConfValue(args.get(KIND)
+                + ".email.from");
+        final String subject = getConfValue(args.get(KIND)
+                + ".email.subject");
+        final String to = user.getAttribute("email") != null
+                ? user.getAttribute("email").getValuesAsStrings().
+                iterator().next() : null;
 
-        String smtpHost;
+        String htmlBody;
+        String txtBody;
         try {
-            smtpHost = confDAO.find("smtp.host").getConfValue();
-        } catch (MissingConfKeyException e) {
-            LOG.error("While getting SMTP host", e);
-            smtpHost = "";
+            htmlBody =
+                    VelocityEngineUtils.mergeTemplateIntoString(velocityEngine,
+                    "mailTemplates/" + args.get(KIND) + ".html.vm",
+                    model);
+            txtBody =
+                    VelocityEngineUtils.mergeTemplateIntoString(velocityEngine,
+                    "mailTemplates/" + args.get(KIND) + ".txt.vm",
+                    model);
+        } catch (VelocityException e) {
+            LOG.error("Could not get mail body", e);
+
+            htmlBody = "";
+            txtBody = "";
         }
 
-        super.sendMail(smtpHost,
-                user.getAttribute("email").getValuesAsStrings().
-                iterator().next(),
-                "syncope@googlecode.com",
-                "Welcome to Syncope",
-                textBody,
-                htmlBody);
+        if (smtpHost.isEmpty() || from.isEmpty() || subject.isEmpty()
+                || to == null || to.isEmpty()
+                || htmlBody.isEmpty() || txtBody.isEmpty()) {
+
+            LOG.error("Could not fetch all required information for "
+                    + "sending the email:\n"
+                    + smtpHost + "\n"
+                    + to + "\n"
+                    + from + "\n"
+                    + subject + "\n"
+                    + htmlBody + "\n"
+                    + txtBody + "\n");
+        } else {
+            super.sendMail(smtpHost,
+                    to,
+                    from,
+                    subject,
+                    txtBody,
+                    htmlBody);
+        }
     }
 }

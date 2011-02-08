@@ -30,6 +30,7 @@
                             <post-functions>
                                 <function type="class">
                                     <arg name="class.name">org.syncope.core.workflow.SendVelocityEmail</arg>
+                                    <arg name="kind">optin</arg>
                                 </function>
                             </post-functions>
                         </unconditional-result>
