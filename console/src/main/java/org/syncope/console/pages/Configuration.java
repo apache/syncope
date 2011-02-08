@@ -17,6 +17,7 @@ package org.syncope.console.pages;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -38,8 +39,11 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.list.ListItem;
+import org.apache.wicket.markup.html.list.PropertyListView;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
@@ -48,6 +52,7 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.springframework.web.client.RestClientException;
 import org.syncope.client.to.ConfigurationTO;
+import org.syncope.client.to.LoggerTO;
 import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.Utility;
 import org.syncope.console.rest.ConfigurationRestClient;
@@ -73,16 +78,17 @@ public class Configuration extends BasePage {
 
     private static final int WIN_USER_WIDTH = 1133;
 
-    private WebMarkupContainer container;
+    private WebMarkupContainer confContainer;
 
-    /* 
-    Response flag set by the Modal Window after the operation
-    is completed  */
+    /**
+     * Response flag set by the Modal Window after the operation
+     * is completed.
+     */
     private boolean operationResult = false;
 
     private int paginatorRows;
 
-    public Configuration(PageParameters parameters) {
+    public Configuration(final PageParameters parameters) {
         super(parameters);
 
         add(createConfigWin = new ModalWindow("createConfigurationWin"));
@@ -91,18 +97,21 @@ public class Configuration extends BasePage {
         paginatorRows = utility.getPaginatorRowsToDisplay(
                 Constants.CONF_CONFIGURATION_PAGINATOR_ROWS);
 
-        List<IColumn> columns = new ArrayList<IColumn>();
+        List<IColumn> confColumns = new ArrayList<IColumn>();
 
-        columns.add(new PropertyColumn(new Model(getString("key")),
+        confColumns.add(new PropertyColumn(new Model(getString("key")),
                 "confKey", "confKey"));
 
-        columns.add(new PropertyColumn(new Model(getString("value")),
+        confColumns.add(new PropertyColumn(new Model(getString("value")),
                 "confValue", "confValue"));
 
-        columns.add(new AbstractColumn<ConfigurationTO>(new Model<String>(
+        confColumns.add(new AbstractColumn<ConfigurationTO>(new Model<String>(
                 getString("edit"))) {
 
-            public void populateItem(Item<ICellPopulator<ConfigurationTO>> cellItem, String componentId, IModel<ConfigurationTO> model) {
+            public void populateItem(
+                    Item<ICellPopulator<ConfigurationTO>> cellItem,
+                    String componentId, IModel<ConfigurationTO> model) {
+
                 final ConfigurationTO configurationTO = model.getObject();
                 AjaxLink editLink = new IndicatingAjaxLink("editLink") {
 
@@ -139,10 +148,13 @@ public class Configuration extends BasePage {
             }
         });
 
-        columns.add(new AbstractColumn<ConfigurationTO>(new Model<String>(getString(
-                "delete"))) {
+        confColumns.add(new AbstractColumn<ConfigurationTO>(
+                new Model<String>(getString("delete"))) {
 
-            public void populateItem(Item<ICellPopulator<ConfigurationTO>> cellItem, String componentId, IModel<ConfigurationTO> model) {
+            public void populateItem(
+                    Item<ICellPopulator<ConfigurationTO>> cellItem,
+                    String componentId, IModel<ConfigurationTO> model) {
+
                 final ConfigurationTO configurationTO = model.getObject();
 
                 AjaxLink deleteLink = new AjaxLink("deleteLink") {
@@ -162,7 +174,7 @@ public class Configuration extends BasePage {
                         info(getString("operation_succeded"));
                         target.addComponent(feedbackPanel);
 
-                        target.addComponent(container);
+                        target.addComponent(confContainer);
                     }
 
                     @Override
@@ -173,7 +185,9 @@ public class Configuration extends BasePage {
                             private static final long serialVersionUID = 1L;
 
                             @Override
-                            public CharSequence preDecorateScript(CharSequence script) {
+                            public CharSequence preDecorateScript(
+                                    CharSequence script) {
+
                                 return "if (confirm('" + getString(
                                         "confirmDelete") + "'))"
                                         + "{" + script + "}";
@@ -196,15 +210,15 @@ public class Configuration extends BasePage {
         });
 
 
-        final AjaxFallbackDefaultDataTable table =
-                new AjaxFallbackDefaultDataTable("datatable", columns,
-                new ConfigurationsProvider(), paginatorRows);
+        final AjaxFallbackDefaultDataTable confTable =
+                new AjaxFallbackDefaultDataTable("syncopeconf", confColumns,
+                new SyncopeConfProvider(), paginatorRows);
 
-        container = new WebMarkupContainer("container");
-        container.add(table);
-        container.setOutputMarkupId(true);
+        confContainer = new WebMarkupContainer("confContainer");
+        confContainer.add(confTable);
+        confContainer.setOutputMarkupId(true);
 
-        add(container);
+        add(confContainer);
 
         createConfigWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         createConfigWin.setInitialHeight(WIN_USER_HEIGHT);
@@ -218,8 +232,8 @@ public class Configuration extends BasePage {
         editConfigWin.setPageMapName("edit-configuration-modal");
         editConfigWin.setCookieName("edit-configuration-modal");
 
-        setWindowClosedCallback(createConfigWin, container);
-        setWindowClosedCallback(editConfigWin, container);
+        setWindowClosedCallback(createConfigWin, confContainer);
+        setWindowClosedCallback(editConfigWin, confContainer);
 
         AjaxLink createConfigurationLink = new AjaxLink(
                 "createConfigurationLink") {
@@ -260,9 +274,9 @@ public class Configuration extends BasePage {
                 utility.updatePaginatorRows(
                         Constants.CONF_CONFIGURATION_PAGINATOR_ROWS,
                         paginatorRows);
-                table.setRowsPerPage(paginatorRows);
+                confTable.setRowsPerPage(paginatorRows);
 
-                target.addComponent(container);
+                target.addComponent(confContainer);
             }
         });
 
@@ -270,6 +284,55 @@ public class Configuration extends BasePage {
         add(paginatorForm);
 
         add(paginatorForm);
+
+        // Logger stuff
+        add(new PropertyListView<LoggerTO>(
+                "logger", restClient.getAllLoggers()) {
+
+            @Override
+            protected void populateItem(final ListItem<LoggerTO> item) {
+                item.add(new Label("name"));
+
+                DropDownChoice<LoggerLevel> level =
+                        new DropDownChoice<LoggerLevel>("level");
+                level.setModel(new IModel<LoggerLevel>() {
+
+                    @Override
+                    public LoggerLevel getObject() {
+                        return LoggerLevel.valueOf(
+                                item.getModelObject().getLevel());
+                    }
+
+                    @Override
+                    public void setObject(final LoggerLevel object) {
+                        item.getModelObject().setLevel(object.toString());
+                    }
+
+                    @Override
+                    public void detach() {
+                    }
+                });
+                level.setChoices(Arrays.asList(LoggerLevel.values()));
+                level.setOutputMarkupId(true);
+                level.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+
+                    @Override
+                    protected void onUpdate(final AjaxRequestTarget target) {
+                        if (restClient.setLoggerLevel(
+                                item.getModelObject().getName(),
+                                item.getModelObject().getLevel())) {
+
+                            info(getString("operation_succeded"));
+                        } else {
+                            info(getString("operation_error"));
+
+                        }
+                        target.addComponent(feedbackPanel);
+                    }
+                });
+                item.add(level);
+            }
+        });
     }
 
     /**
@@ -302,19 +365,19 @@ public class Configuration extends BasePage {
         this.operationResult = operationResult;
     }
 
-    class ConfigurationsProvider extends SortableDataProvider<ConfigurationTO> {
+    class SyncopeConfProvider extends SortableDataProvider<ConfigurationTO> {
 
         private SortableDataProviderComparator comparator =
                 new SortableDataProviderComparator();
 
-        public ConfigurationsProvider() {
+        public SyncopeConfProvider() {
             //Default sorting
             setSort("confKey", true);
         }
 
         @Override
         public Iterator<ConfigurationTO> iterator(int first, int count) {
-            List<ConfigurationTO> list = getConfigurationsListDB();
+            List<ConfigurationTO> list = getAllConfigurations();
 
             Collections.sort(list, comparator);
 
@@ -323,11 +386,13 @@ public class Configuration extends BasePage {
 
         @Override
         public int size() {
-            return getConfigurationsListDB().size();
+            return getAllConfigurations().size();
         }
 
         @Override
-        public IModel<ConfigurationTO> model(final ConfigurationTO configuration) {
+        public IModel<ConfigurationTO> model(
+                final ConfigurationTO configuration) {
+
             return new AbstractReadOnlyModel<ConfigurationTO>() {
 
                 @Override
@@ -337,7 +402,7 @@ public class Configuration extends BasePage {
             };
         }
 
-        public List<ConfigurationTO> getConfigurationsListDB() {
+        private List<ConfigurationTO> getAllConfigurations() {
             List<ConfigurationTO> list = null;
 
             try {
@@ -378,5 +443,11 @@ public class Configuration extends BasePage {
                 return result;
             }
         }
+    }
+
+    enum LoggerLevel {
+
+        OFF, ERROR, WARN, INFO, DEBUG, TRACE, ALL
+
     }
 }

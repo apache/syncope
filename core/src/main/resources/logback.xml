@@ -12,7 +12,8 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<configuration scan="true">
+<configuration>
+
     <appender name="main" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${logfile}</file>
         <append>true</append>

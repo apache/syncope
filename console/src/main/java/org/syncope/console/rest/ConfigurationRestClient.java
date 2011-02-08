@@ -20,6 +20,7 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.syncope.client.to.ConfigurationTO;
+import org.syncope.client.to.LoggerTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 
 /**
@@ -82,12 +83,13 @@ public class ConfigurationRestClient extends AbstractBaseRestClient {
      * @return true if the operation ends succesfully, false otherwise
      */
     public boolean updateConfiguration(ConfigurationTO configurationTO) {
-    ConfigurationTO newConfigurationTO = null;
+        ConfigurationTO newConfigurationTO = null;
 
         try {
-        newConfigurationTO = restTemplate.postForObject(baseURL+ 
-                "configuration/update", configurationTO, ConfigurationTO.class);
-        } catch(SyncopeClientCompositeErrorException e) {
+            newConfigurationTO = restTemplate.postForObject(baseURL
+                    + "configuration/update", configurationTO,
+                    ConfigurationTO.class);
+        } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While updating a configuration", e);
             return false;
         }
@@ -105,5 +107,34 @@ public class ConfigurationRestClient extends AbstractBaseRestClient {
         restTemplate.delete(baseURL
                 + "configuration/delete/{confKey}.json",
                 confKey);
+    }
+
+    /**
+     * Get all loggers.
+     * @return LoggerTOs
+     */
+    public List<LoggerTO> getAllLoggers()
+            throws SyncopeClientCompositeErrorException {
+
+        List<LoggerTO> loggers = Arrays.asList(
+                restTemplate.getForObject(
+                baseURL + "log/controller/list", LoggerTO[].class));
+
+        return loggers;
+    }
+
+    public boolean setLoggerLevel(final String name, final String level) {
+        boolean result;
+        try {
+            restTemplate.postForObject(
+                    baseURL + "log/controller/{name}/{level}",
+                    null, LoggerTO.class, name, level);
+            result = true;
+        } catch (SyncopeClientCompositeErrorException e) {
+            LOG.error("While setting a logger's level", e);
+            result = false;
+        }
+
+        return result;
     }
 }
