@@ -14,6 +14,9 @@
  */
 package org.syncope.console.pages;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.LoggerContext;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -50,6 +53,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.client.RestClientException;
 import org.syncope.client.to.ConfigurationTO;
 import org.syncope.client.to.LoggerTO;
@@ -286,53 +290,29 @@ public class Configuration extends BasePage {
         add(paginatorForm);
 
         // Logger stuff
-        add(new PropertyListView<LoggerTO>(
-                "logger", restClient.getAllLoggers()) {
+        PropertyListView coreLoggerList =
+                new LoggerPropertyList(null,
+                "corelogger",
+                restClient.getLoggers());
+        WebMarkupContainer coreLoggerContainer =
+                new WebMarkupContainer("coreLoggerContainer");
+        coreLoggerContainer.add(coreLoggerList);
+        coreLoggerContainer.setOutputMarkupId(true);
+        add(coreLoggerContainer);
 
-            @Override
-            protected void populateItem(final ListItem<LoggerTO> item) {
-                item.add(new Label("name"));
 
-                DropDownChoice<LoggerLevel> level =
-                        new DropDownChoice<LoggerLevel>("level");
-                level.setModel(new IModel<LoggerLevel>() {
-
-                    @Override
-                    public LoggerLevel getObject() {
-                        return LoggerLevel.valueOf(
-                                item.getModelObject().getLevel());
-                    }
-
-                    @Override
-                    public void setObject(final LoggerLevel object) {
-                        item.getModelObject().setLevel(object.toString());
-                    }
-
-                    @Override
-                    public void detach() {
-                    }
-                });
-                level.setChoices(Arrays.asList(LoggerLevel.values()));
-                level.setOutputMarkupId(true);
-                level.add(new AjaxFormComponentUpdatingBehavior("onchange") {
-
-                    @Override
-                    protected void onUpdate(final AjaxRequestTarget target) {
-                        if (restClient.setLoggerLevel(
-                                item.getModelObject().getName(),
-                                item.getModelObject().getLevel())) {
-
-                            info(getString("operation_succeded"));
-                        } else {
-                            info(getString("operation_error"));
-
-                        }
-                        target.addComponent(feedbackPanel);
-                    }
-                });
-                item.add(level);
-            }
-        });
+        ConsoleLoggerController consoleLoggerController =
+                new ConsoleLoggerController();
+        PropertyListView consoleLoggerList =
+                new LoggerPropertyList(
+                consoleLoggerController,
+                "consolelogger",
+                consoleLoggerController.getLoggers());
+        WebMarkupContainer consoleLoggerContainer =
+                new WebMarkupContainer("consoleLoggerContainer");
+        consoleLoggerContainer.add(consoleLoggerList);
+        consoleLoggerContainer.setOutputMarkupId(true);
+        add(consoleLoggerContainer);
     }
 
     /**
@@ -365,7 +345,8 @@ public class Configuration extends BasePage {
         this.operationResult = operationResult;
     }
 
-    class SyncopeConfProvider extends SortableDataProvider<ConfigurationTO> {
+    private class SyncopeConfProvider
+            extends SortableDataProvider<ConfigurationTO> {
 
         private SortableDataProviderComparator comparator =
                 new SortableDataProviderComparator();
@@ -413,7 +394,7 @@ public class Configuration extends BasePage {
             return list;
         }
 
-        class SortableDataProviderComparator implements
+        private class SortableDataProviderComparator implements
                 Comparator<ConfigurationTO>, Serializable {
 
             public int compare(final ConfigurationTO o1,
@@ -449,5 +430,107 @@ public class Configuration extends BasePage {
 
         OFF, ERROR, WARN, INFO, DEBUG, TRACE, ALL
 
+    }
+
+    private class LoggerPropertyList extends PropertyListView<LoggerTO> {
+
+        private final ConsoleLoggerController consoleLoggerController;
+
+        public LoggerPropertyList(
+                final ConsoleLoggerController consoleLoggerController,
+                final String id,
+                final List<? extends LoggerTO> list) {
+
+            super(id, list);
+            this.consoleLoggerController = consoleLoggerController;
+        }
+
+        @Override
+        protected void populateItem(final ListItem<LoggerTO> item) {
+            item.add(new Label("name"));
+
+            DropDownChoice<LoggerLevel> level =
+                    new DropDownChoice<LoggerLevel>("level");
+            level.setModel(new IModel<LoggerLevel>() {
+
+                @Override
+                public LoggerLevel getObject() {
+                    return LoggerLevel.valueOf(
+                            item.getModelObject().getLevel());
+                }
+
+                @Override
+                public void setObject(final LoggerLevel object) {
+                    item.getModelObject().setLevel(object.toString());
+                }
+
+                @Override
+                public void detach() {
+                }
+            });
+            level.setChoices(Arrays.asList(LoggerLevel.values()));
+            level.setOutputMarkupId(true);
+            level.add(new AjaxFormComponentUpdatingBehavior(
+                    "onchange") {
+
+                @Override
+                protected void onUpdate(final AjaxRequestTarget target) {
+                    boolean result = getId().equals("corelogger")
+                            ? restClient.setLoggerLevel(
+                            item.getModelObject().getName(),
+                            item.getModelObject().getLevel())
+                            : consoleLoggerController.setLoggerLevel(
+                            item.getModelObject().getName(),
+                            item.getModelObject().getLevel());
+
+                    if (result) {
+                        info(getString("operation_succeded"));
+                    } else {
+                        info(getString("operation_error"));
+
+                    }
+
+                    target.addComponent(feedbackPanel);
+                }
+            });
+
+
+
+            item.add(level);
+        }
+    }
+
+    private class ConsoleLoggerController implements Serializable {
+
+        public List<LoggerTO> getLoggers() {
+            LoggerContext lc =
+                    (LoggerContext) LoggerFactory.getILoggerFactory();
+            List<LoggerTO> result =
+                    new ArrayList<LoggerTO>(lc.getLoggerList().size());
+            LoggerTO loggerTO;
+            for (Logger logger : lc.getLoggerList()) {
+                if (logger.getLevel() != null) {
+                    loggerTO = new LoggerTO();
+                    loggerTO.setName(logger.getName());
+                    loggerTO.setLevel(logger.getLevel().toString());
+                    result.add(loggerTO);
+                }
+            }
+
+            return result;
+        }
+
+        public boolean setLoggerLevel(final String name,
+                final String level) {
+
+            LoggerContext lc =
+                    (LoggerContext) LoggerFactory.getILoggerFactory();
+            Logger logger = lc.getLogger(name);
+            if (logger != null) {
+                logger.setLevel(Level.valueOf(level));
+            }
+
+            return logger != null;
+        }
     }
 }

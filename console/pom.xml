@@ -31,8 +31,6 @@
     <properties>
         <hsqldb.version>2.0.0</hsqldb.version>
 
-        <jetty.port>8080</jetty.port>
-
         <logfile>/var/tmp/syncope-console.log</logfile>
         <logfile.test>/var/tmp/syncope-console-test.log</logfile.test>
 
@@ -220,48 +218,11 @@
                 </executions>
             </plugin>
 
-
-            <plugin>
-                <groupId>org.mortbay.jetty</groupId>
-                <artifactId>maven-jetty-plugin</artifactId>
-                <inherited>true</inherited>
-                <configuration>
-                    <stopKey>foo</stopKey>
-                    <stopPort>9999</stopPort>
-                    <connectors>
-                        <connector implementation="org.mortbay.jetty.nio.SelectChannelConnector">
-                            <port>${jetty.port}</port>
-                        </connector>
-                    </connectors>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>start-jetty</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>run-war</goal>
-                        </goals>
-                        <configuration>
-                            <scanIntervalSeconds>0</scanIntervalSeconds>
-                            <daemon>true</daemon>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>stop-jetty</id>
-                        <phase>post-integration-test</phase>
-                        <goals>
-                            <goal>stop</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
             <plugin>
                 <groupId>org.codehaus.cargo</groupId>
                 <artifactId>cargo-maven2-plugin</artifactId>
                 <inherited>true</inherited>
                 <configuration>
-                    <wait>false</wait>
                     <container>
                         <containerId>tomcat6x</containerId>
                         <zipUrlInstaller>
@@ -296,6 +257,12 @@
                                     <context>syncope</context>
                                 </properties>
                             </deployable>
+                            <deployable>
+                                <location>${project.build.directory}/${project.build.finalName}.war</location>
+                                <properties>
+                                    <context>syncope-console</context>
+                                </properties>
+                            </deployable>
                         </deployables>
                     </configuration>
                 </configuration>
@@ -306,6 +273,9 @@
                         <goals>
                             <goal>start</goal>
                         </goals>
+                        <configuration>
+                            <wait>false</wait>
+                        </configuration>
                     </execution>
                     <execution>
                         <id>stop-container</id>

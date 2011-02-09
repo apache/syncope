@@ -113,7 +113,7 @@ public class ConfigurationRestClient extends AbstractBaseRestClient {
      * Get all loggers.
      * @return LoggerTOs
      */
-    public List<LoggerTO> getAllLoggers()
+    public List<LoggerTO> getLoggers()
             throws SyncopeClientCompositeErrorException {
 
         List<LoggerTO> loggers = Arrays.asList(

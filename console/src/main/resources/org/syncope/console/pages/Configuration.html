@@ -20,6 +20,7 @@
                 <a href="#tabs-1"><span><wicket:message key="tab1"/></span></a>
             </li>
             <li><a href="#tabs-2"><span><wicket:message key="tab2"/></span></a></li>
+            <li><a href="#tabs-3"><span><wicket:message key="tab3"/></span></a></li>
         </ul>
         <div id="tabs-1">
 
@@ -46,20 +47,46 @@
             </a>
         </div>
         <div id="tabs-2">
-            <table>
-                <thead>
-                    <tr>
-                        <th><wicket:message key="logger"/></th>
+
+            <div id="users-contain" class="ui-widget" style="width:inherit">
+                <span wicket:id="coreLoggerContainer">
+                    <table class="ui-widget ui-widget-content table-hover">
+                        <thead class="ui-widget-header">
+                            <tr class="heaaders">
+                                <th><wicket:message key="logger"/></th>
                         <th><wicket:message key="level"/></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr wicket:id="logger">
-                        <td><span wicket:id="name"/></td>
-                        <td><select wicket:id="level"/></td>
-                    </tr>
-                </tbody>
-            </table>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            <tr wicket:id="corelogger">
+                                <td><span wicket:id="name"/></td>
+                                <td><select wicket:id="level"/></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </span>
+            </div>
+        </div>
+        <div id="tabs-3">
+
+            <div id="users-contain" class="ui-widget" style="width:inherit">
+                <span wicket:id="consoleLoggerContainer">
+                    <table class="ui-widget ui-widget-content table-hover">
+                        <thead class="ui-widget-header">
+                            <tr class="heaaders">
+                                <th><wicket:message key="logger"/></th>
+                        <th><wicket:message key="level"/></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            <tr wicket:id="consolelogger">
+                                <td><span wicket:id="name"/></td>
+                                <td><select wicket:id="level"/></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </span>
+            </div>
         </div>
     </div>
 </wicket:extend>
