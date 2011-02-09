@@ -16,50 +16,43 @@ package org.syncope.console;
 
 import org.apache.wicket.Request;
 import org.apache.wicket.Session;
-import org.apache.wicket.authentication.AuthenticatedWebSession;
 import org.apache.wicket.authorization.strategies.role.Roles;
+import org.apache.wicket.protocol.http.WebSession;
 
 /**
  * Custom Syncope Session class.
  */
-public class SyncopeSession extends AuthenticatedWebSession {
+public class SyncopeSession extends WebSession {
 
-    private SyncopeUser user;
+    private String username;
+
+    private Roles roles = new Roles();
 
     public static SyncopeSession get() {
         return (SyncopeSession) Session.get();
     }
 
-    public SyncopeSession(Request request) {
+    public SyncopeSession(final Request request) {
         super(request);
-
-        setLocale(request.getLocale());
     }
 
-    public synchronized SyncopeUser getUser() {
-        return user;
+    public String getUsername() {
+        return username;
     }
 
-    public synchronized boolean isAuthenticated() {
-        return (user != null);
+    public void setUsername(String username) {
+        this.username = username;
     }
 
-    public synchronized void setUser(SyncopeUser user) {
-        this.user = user;
-        dirty();
+    public void setEntitlements(final String[] entitlements) {
+        roles = new Roles(entitlements);
     }
 
-    /*
-     * Requested by AuthenticatedWebSession, but actually
-     * not used (replaced in Login page).
-     */
-    @Override
-    public boolean authenticate(final String username, final String password) {
-        return ((SyncopeSession) Session.get()).getUser() != null;
+    public boolean isAuthenticated() {
+        return !roles.isEmpty();
     }
 
-    @Override
-    public Roles getRoles() {
-        return getUser().getRoles();
+    public boolean hasAnyRole(final Roles roles) {
+        return this.roles.hasAnyRole(roles);
     }
 }

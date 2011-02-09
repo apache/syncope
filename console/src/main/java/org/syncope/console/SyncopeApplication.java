@@ -14,16 +14,21 @@
  */
 package org.syncope.console;
 
+import org.apache.wicket.Component;
+import org.apache.wicket.Page;
 import org.apache.wicket.Request;
 import org.apache.wicket.RequestCycle;
 import org.apache.wicket.Response;
+import org.apache.wicket.RestartResponseAtInterceptPageException;
 import org.apache.wicket.Session;
-import org.apache.wicket.authentication.AuthenticatedWebApplication;
-import org.apache.wicket.authentication.AuthenticatedWebSession;
+import org.apache.wicket.authorization.IUnauthorizedComponentInstantiationListener;
+import org.apache.wicket.authorization.strategies.role.IRoleCheckingStrategy;
 import org.apache.wicket.authorization.strategies.role.RoleAuthorizationStrategy;
 import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
+import org.apache.wicket.protocol.http.PageExpiredException;
+import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.protocol.http.WebRequest;
 import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
@@ -43,17 +48,19 @@ import org.syncope.console.pages.WelcomePage;
 /**
  * SyncopeApplication class.
  */
-public class SyncopeApplication extends AuthenticatedWebApplication {
-
-    private SyncopeUser user = null;
+public class SyncopeApplication extends WebApplication
+        implements IUnauthorizedComponentInstantiationListener,
+        IRoleCheckingStrategy {
 
     @Override
     protected void init() {
-        addComponentInstantiationListener(getSpringInjector());
+        addComponentInstantiationListener(new SpringComponentInjector(this));
         getResourceSettings().setThrowExceptionOnMissingResource(true);
 
-        getSecuritySettings().setAuthorizationStrategy(
-                new RoleAuthorizationStrategy(new SyncopeRolesAuthorizer()));
+        getSecuritySettings().
+                setAuthorizationStrategy(new RoleAuthorizationStrategy(this));
+        getSecuritySettings().
+                setUnauthorizedComponentInstantiationListener(this);
 
         // setup authorizations
         MetaDataRoleAuthorizationStrategy.authorize(Schema.class,
@@ -144,30 +151,16 @@ public class SyncopeApplication extends AuthenticatedWebApplication {
         page.add(new BookmarkablePageLink("logout", Logout.class));
     }
 
-    /**
-     * Create a new custom SyncopeSession
-     * @param request
-     * @param response
-     * @return Session
-     */
     @Override
     public Session newSession(final Request request, final Response response) {
-        SyncopeSession session = new SyncopeSession(request);
-
-        if (user != null) {
-            session.setUser(user);
-        }
-
-        return session;
+        return new SyncopeSession(request);
     }
 
-    /**
-     * @see org.apache.wicket.Application#getHomePage()
-     */
     @Override
     public Class getHomePage() {
-        return (((SyncopeSession) Session.get()).getUser() == null)
-                ? Login.class : WelcomePage.class;
+        return SyncopeSession.get().isAuthenticated()
+                ? WelcomePage.class
+                : Login.class;
     }
 
     @Override
@@ -179,17 +172,20 @@ public class SyncopeApplication extends AuthenticatedWebApplication {
     }
 
     @Override
-    protected Class<? extends AuthenticatedWebSession> getWebSessionClass() {
-        return SyncopeSession.class;
+    public void onUnauthorizedInstantiation(final Component component) {
+        SyncopeSession.get().invalidate();
+
+        if (component instanceof Page) {
+            throw new PageExpiredException(component.toString());
+        }
+
+        throw new RestartResponseAtInterceptPageException(Login.class);
     }
 
     @Override
-    protected Class<? extends WebPage> getSignInPageClass() {
-        return Login.class;
-    }
+    public boolean hasAnyRole(
+            org.apache.wicket.authorization.strategies.role.Roles roles) {
 
-    protected SpringComponentInjector getSpringInjector(){
-
-        return new SpringComponentInjector(this);
+        return SyncopeSession.get().hasAnyRole(roles);
     }
 }

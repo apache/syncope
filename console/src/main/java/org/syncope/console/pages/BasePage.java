@@ -24,8 +24,6 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.syncope.console.SyncopeApplication;
-import org.syncope.console.SyncopeSession;
-import org.syncope.console.SyncopeUser;
 import org.syncope.console.commons.XMLRolesReader;
 
 /**
@@ -70,30 +68,17 @@ public class BasePage extends WebPage {
 
         final String kind = getClass().getSimpleName().toLowerCase();
         Component kindIcon = get(kind);
-        kindIcon.add(new AbstractBehavior() {
+        if (kindIcon != null) {
+            kindIcon.add(new AbstractBehavior() {
 
-            @Override
-            public void onComponentTag(final Component component,
-                    final ComponentTag tag) {
+                @Override
+                public void onComponentTag(final Component component,
+                        final ComponentTag tag) {
 
-                tag.put("class", kind);
-            }
-        });
-        add(kindIcon);
-    }
-
-    /**
-     * @return the current SyncopeSession
-     */
-    public SyncopeSession getSyncopeSession() {
-        return (SyncopeSession) getSession();
-    }
-
-    /**
-     * @return the current SyncopeUser logged-in from the session
-     */
-    public SyncopeUser getSyncopeUser() {
-        return (SyncopeUser) getSyncopeSession().getUser();
-
+                    tag.put("class", kind);
+                }
+            });
+            add(kindIcon);
+        }
     }
 }

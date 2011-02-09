@@ -20,7 +20,6 @@ import java.util.Locale;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.wicket.PageParameters;
-import org.apache.wicket.Session;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
@@ -38,7 +37,6 @@ import org.springframework.http.client.CommonsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.SyncopeSession;
-import org.syncope.console.SyncopeUser;
 
 /**
  * Syncope Login page.
@@ -63,7 +61,7 @@ public class Login extends WebPage {
 
     private TextField passwordField;
 
-    private DropDownChoice<String> languageSelect;
+    private DropDownChoice<Locale> languageSelect;
 
     public Login(final PageParameters parameters) {
         super(parameters);
@@ -88,11 +86,20 @@ public class Login extends WebPage {
 
             @Override
             public void onSubmit() {
-                SyncopeUser user = authenticate(usernameField.getRawInput(),
+                String[] entitlements = authenticate(
+                        usernameField.getRawInput(),
                         passwordField.getRawInput());
 
-                if (user != null) {
-                    ((SyncopeSession) Session.get()).setUser(user);
+                if (entitlements == null || entitlements.length == 0) {
+                    LOG.error("No entitlements found for "
+                            + usernameField.getRawInput());
+                    getSession().error(getString("login-error"));
+                } else {
+                    SyncopeSession.get().setUsername(
+                            usernameField.getRawInput());
+                    SyncopeSession.get().setEntitlements(
+                            entitlements);
+
                     setResponsePage(WelcomePage.class, parameters);
                 }
             }
@@ -105,18 +112,7 @@ public class Login extends WebPage {
         add(new FeedbackPanel("feedback"));
     }
 
-    /**
-     * Authenticate the user.
-     *
-     * @param username provided
-     * @param password provided
-     * @return SyncopeUser object if the authorization succedes, null otherwise.
-     */
-    public SyncopeUser authenticate(final String username,
-            final String password) {
-
-        SyncopeUser user = null;
-
+    public String[] authenticate(final String username, final String password) {
         //1.Set provided credentials to check
         ((CommonsClientHttpRequestFactory) restTemplate.getRequestFactory()).
                 getHttpClient().getState().setCredentials(
@@ -124,61 +120,47 @@ public class Login extends WebPage {
                 new UsernamePasswordCredentials(username, password));
 
         //2.Search authorizations for user specified by credentials
-        List<String> entitlements = null;
+        String[] entitlements = null;
         try {
-            entitlements = Arrays.asList(
-                    restTemplate.getForObject(
-                    baseURL + "auth/entitlements.json", String[].class));
+            entitlements = restTemplate.getForObject(
+                    baseURL + "auth/entitlements.json", String[].class);
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While fetching user's entitlements", e);
             getSession().error(e.getMessage());
         }
 
-        if (entitlements != null && entitlements.size() > 0) {
-            StringBuilder roles = new StringBuilder();
-
-            for (int i = 0; i < entitlements.size(); i++) {
-                roles.append(entitlements.get(i));
-                if (i != entitlements.size() - 1) {
-                    roles.append(",");
-                }
-            }
-
-            user = new SyncopeUser(username, roles.toString());
-        } else {
-            LOG.error("No entitlements found found for " + username);
-            getSession().error(getString("login-error"));
-        }
-
-        return user;
+        return entitlements;
     }
 
     /**
      * Inner class which implements (custom) Locale DropDownChoice component.
      */
-    public class LocaleDropDown extends DropDownChoice {
+    public class LocaleDropDown extends DropDownChoice<Locale> {
 
-        private class LocaleRenderer extends ChoiceRenderer {
+        private class LocaleRenderer extends ChoiceRenderer<Locale> {
 
             @Override
-            public String getDisplayValue(Object locale) {
-                return ((Locale) locale).getDisplayName(getLocale());
+            public String getDisplayValue(final Locale locale) {
+                return locale.getDisplayName(getLocale());
             }
         }
 
-        public LocaleDropDown(String id, List<Locale> supportedLocales) {
+        public LocaleDropDown(final String id,
+                final List<Locale> supportedLocales) {
+
             super(id, supportedLocales);
+
             setChoiceRenderer(new LocaleRenderer());
-            setModel(new IModel() {
+            setModel(new IModel<Locale>() {
 
                 @Override
-                public Object getObject() {
+                public Locale getObject() {
                     return getSession().getLocale();
                 }
 
                 @Override
-                public void setObject(Object object) {
-                    getSession().setLocale((Locale) object);
+                public void setObject(Locale object) {
+                    getSession().setLocale(object);
                 }
 
                 @Override

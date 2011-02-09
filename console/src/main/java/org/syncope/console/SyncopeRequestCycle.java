@@ -25,8 +25,6 @@ import org.apache.wicket.protocol.http.PageExpiredException;
 import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.protocol.http.WebRequest;
 import org.apache.wicket.protocol.http.WebRequestCycle;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.web.client.RestClientException;
 import org.syncope.console.pages.ErrorPage;
 
@@ -34,12 +32,6 @@ import org.syncope.console.pages.ErrorPage;
  * SyncopeRequestCycle.
  */
 public class SyncopeRequestCycle extends WebRequestCycle {
-
-    /**
-     * Logger.
-     */
-    private static final Logger LOG = LoggerFactory.getLogger(
-            SyncopeRequestCycle.class);
 
     /**
      * SyncopeRequestCycle constructor.
@@ -57,8 +49,6 @@ public class SyncopeRequestCycle extends WebRequestCycle {
     @Override
     public final Page onRuntimeException(final Page cause,
             final RuntimeException e) {
-
-        LOG.error("An exception was thrown", e);
 
         if (e instanceof UnauthorizedInstantiationException) {
             return new AccessDeniedPage();

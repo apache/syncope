@@ -15,24 +15,19 @@
 package org.syncope.console.pages;
 
 import org.apache.wicket.PageParameters;
+import org.syncope.console.SyncopeSession;
 
 /**
  * Syncope Logout.
  */
-public class Logout extends BasePage
-{
+public class Logout extends BasePage {
 
-    public Logout( PageParameters parameters )
-    {
-        super( parameters );
+    public Logout(PageParameters parameters) {
+        super(parameters);
 
-        getSyncopeSession().setUser(null);
-        
-        getSyncopeSession().invalidate();
+        SyncopeSession.get().invalidate();
         getRequestCycle().setRedirect(true);
 
         setResponsePage(getApplication().getHomePage());
-        
     }
-
 }
