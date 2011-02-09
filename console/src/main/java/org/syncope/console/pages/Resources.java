@@ -27,12 +27,10 @@ import org.apache.wicket.ajax.IAjaxCallDecorator;
 import org.apache.wicket.ajax.calldecorator.AjaxPreprocessingCallDecorator;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.authorization.strategies.role.metadata
-                                            .MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table
-                                            .AjaxFallbackDefaultDataTable;
+import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
@@ -48,6 +46,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.to.ResourceTO;
+import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.Utility;
 import org.syncope.console.rest.ResourceRestClient;
@@ -148,12 +147,19 @@ public class Resources extends BasePage {
                 AjaxLink deleteLink = new IndicatingAjaxLink("deleteLink") {
 
                     @Override
-                    public void onClick(AjaxRequestTarget target) {
-                        restClient.deleteResource(resourceTO.getName());
+                    public void onClick(final AjaxRequestTarget target) {
+                        try {
+                            restClient.deleteResource(resourceTO.getName());
 
-                        info(getString("operation_succeded"));
+                            info(getString("operation_succeded"));
+                        } catch (SyncopeClientCompositeErrorException e) {
+                            info(getString("operation_error"));
+
+                            LOG.error("While deleting resource "
+                                    + resourceTO.getName());
+                        }
+
                         target.addComponent(feedbackPanel);
-
                         target.addComponent(container);
                     }
 
@@ -165,7 +171,9 @@ public class Resources extends BasePage {
                             private static final long serialVersionUID = 1L;
 
                             @Override
-                            public CharSequence preDecorateScript(CharSequence script) {
+                            public CharSequence preDecorateScript(
+                                    CharSequence script) {
+
                                 return "if (confirm('" + getString(
                                         "confirmDelete") + "'))"
                                         + "{" + script + "}";

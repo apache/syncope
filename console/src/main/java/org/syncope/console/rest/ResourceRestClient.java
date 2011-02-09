@@ -48,13 +48,9 @@ public class ResourceRestClient extends AbstractBaseRestClient {
      * Create new resource.
      * @param resourceTO
      */
-    public void createResource(ResourceTO resourceTO) {
-        try {
-            restTemplate.postForObject(baseURL
-                    + "resource/create", resourceTO, ResourceTO.class);
-        } catch (SyncopeClientCompositeErrorException e) {
-            LOG.error("While creating a resource", e);
-        }
+    public void createResource(final ResourceTO resourceTO) {
+        restTemplate.postForObject(baseURL
+                + "resource/create", resourceTO, ResourceTO.class);
     }
 
     /**
@@ -62,7 +58,7 @@ public class ResourceRestClient extends AbstractBaseRestClient {
      * @param name (e.g.:surname)
      * @return ResourceTO
      */
-    public ResourceTO readResource(String name) {
+    public ResourceTO readResource(final String name) {
         ResourceTO resourceTO = null;
 
         try {
@@ -79,29 +75,18 @@ public class ResourceRestClient extends AbstractBaseRestClient {
      * Update an already existent resource.
      * @param schemaTO updated
      */
-    public void updateResource(ResourceTO resourceTO) {
-        ResourceTO newResourceTO;
-
-        try {
-            newResourceTO = restTemplate.postForObject(
-                    baseURL + "resource/update.json", resourceTO,
-                    ResourceTO.class);
-        } catch (SyncopeClientCompositeErrorException e) {
-            LOG.error("While updating a resource", e);
-        }
-
+    public void updateResource(final ResourceTO resourceTO) {
+        restTemplate.postForObject(
+                baseURL + "resource/update.json", resourceTO,
+                ResourceTO.class);
     }
 
     /**
      * Delete an already existent resource by its name.
      * @param name
      */
-    public void deleteResource(String name) {
-        try {
-            restTemplate.delete(baseURL
-                    + "resource/delete/{resourceName}.json", name);
-        } catch (SyncopeClientCompositeErrorException e) {
-            LOG.error("While deleting a resource", e);
-        }
+    public void deleteResource(final String name) {
+        restTemplate.delete(baseURL
+                + "resource/delete/{resourceName}.json", name);
     }
 }

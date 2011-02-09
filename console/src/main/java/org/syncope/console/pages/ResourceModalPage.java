@@ -332,7 +332,8 @@ public class ResourceModalPage extends BaseModalPage {
                 getString("submit"))) {
 
             @Override
-            protected void onSubmit(AjaxRequestTarget target, Form form) {
+            protected void onSubmit(final AjaxRequestTarget target,
+                    final Form form) {
 
                 ResourceTO resourceTO =
                         (ResourceTO) form.getDefaultModelObject();
@@ -349,27 +350,30 @@ public class ResourceModalPage extends BaseModalPage {
                     return;
                 }
 
+                Resources callerPage = (Resources) basePage;
                 try {
-                    LOG.info("XXXXXXXX " + resourceTO);
-
                     if (createFlag) {
                         restClient.createResource(resourceTO);
                     } else {
                         restClient.updateResource(resourceTO);
                     }
 
-                    Resources callerPage = (Resources) basePage;
                     callerPage.setOperationResult(true);
 
                     window.close(target);
-
                 } catch (SyncopeClientCompositeErrorException e) {
                     error(getString("error") + ":" + e.getMessage());
+                    callerPage.setOperationResult(false);
+
+                    LOG.error("While creating or updating resource "
+                            + resourceTO);
                 }
             }
 
             @Override
-            protected void onError(AjaxRequestTarget target, Form form) {
+            protected void onError(final AjaxRequestTarget target,
+                    final Form form) {
+
                 target.addComponent(feedbackPanel);
             }
         };
