@@ -37,7 +37,7 @@ public class WelcomePage extends WebPage {
         ((SyncopeApplication) getApplication()).setupNavigationPane(
                 this, xmlRolesReader);
 
-        add(new Label("username", new Model<String>(
-                ((SyncopeSession) getSession()).getUsername())));
+        add(new Label("userId", new Model<String>(
+                ((SyncopeSession) getSession()).getUserId())));
     }
 }

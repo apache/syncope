@@ -57,7 +57,7 @@ public class Login extends WebPage {
 
     private Form form;
 
-    private TextField usernameField;
+    private TextField userIdField;
 
     private TextField passwordField;
 
@@ -68,9 +68,9 @@ public class Login extends WebPage {
 
         form = new Form("login");
 
-        usernameField = new TextField("username", new Model());
-        usernameField.setMarkupId("username");
-        form.add(usernameField);
+        userIdField = new TextField("userId", new Model());
+        userIdField.setMarkupId("userId");
+        form.add(userIdField);
 
         passwordField = new PasswordTextField("password", new Model());
         passwordField.setMarkupId("password");
@@ -87,16 +87,16 @@ public class Login extends WebPage {
             @Override
             public void onSubmit() {
                 String[] entitlements = authenticate(
-                        usernameField.getRawInput(),
+                        userIdField.getRawInput(),
                         passwordField.getRawInput());
 
                 if (entitlements == null || entitlements.length == 0) {
                     LOG.error("No entitlements found for "
-                            + usernameField.getRawInput());
+                            + userIdField.getRawInput());
                     getSession().error(getString("login-error"));
                 } else {
-                    SyncopeSession.get().setUsername(
-                            usernameField.getRawInput());
+                    SyncopeSession.get().setUserId(
+                            userIdField.getRawInput());
                     SyncopeSession.get().setEntitlements(
                             entitlements);
 
@@ -112,12 +112,12 @@ public class Login extends WebPage {
         add(new FeedbackPanel("feedback"));
     }
 
-    public String[] authenticate(final String username, final String password) {
+    public String[] authenticate(final String userId, final String password) {
         //1.Set provided credentials to check
         ((CommonsClientHttpRequestFactory) restTemplate.getRequestFactory()).
                 getHttpClient().getState().setCredentials(
                 AuthScope.ANY,
-                new UsernamePasswordCredentials(username, password));
+                new UsernamePasswordCredentials(userId, password));
 
         //2.Search authorizations for user specified by credentials
         String[] entitlements = null;

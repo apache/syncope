@@ -24,7 +24,7 @@ import org.apache.wicket.protocol.http.WebSession;
  */
 public class SyncopeSession extends WebSession {
 
-    private String username;
+    private String userId;
 
     private Roles roles = new Roles();
 
@@ -36,12 +36,12 @@ public class SyncopeSession extends WebSession {
         super(request);
     }
 
-    public String getUsername() {
-        return username;
+    public String getUserId() {
+        return userId;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setUserId(final String userId) {
+        this.userId = userId;
     }
 
     public void setEntitlements(final String[] entitlements) {
