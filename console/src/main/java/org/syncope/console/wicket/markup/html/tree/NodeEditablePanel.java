@@ -1,6 +1,4 @@
 /*
- *  Copyright 2010 sara.
- *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
@@ -21,15 +19,17 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.IAjaxCallDecorator;
 import org.apache.wicket.ajax.calldecorator.AjaxPreprocessingCallDecorator;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.authorization.strategies.role.metadata
-                                            .MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.syncope.client.to.RoleTO;
+import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.commons.XMLRolesReader;
 import org.syncope.console.pages.BasePage;
 import org.syncope.console.pages.RoleModalPage;
@@ -41,6 +41,12 @@ import org.syncope.console.rest.RoleRestClient;
  */
 public class NodeEditablePanel extends Panel {
 
+    /**
+     * Logger.
+     */
+    private static final Logger LOG = LoggerFactory.getLogger(
+            NodeEditablePanel.class);
+
     @SpringBean
     private RoleRestClient restClient;
 
@@ -49,20 +55,9 @@ public class NodeEditablePanel extends Panel {
 
     private Fragment fragment;
 
-    /**
-     * Panel constructor.
-     *
-     * @param id
-     *            Markup id
-     * @param parentId
-     *            Role id
-     * @param inputModel
-     *            Model of the text field
-     * @param window
-     *            Modal window to open
-     */
     public NodeEditablePanel(String id, final Long idRole, IModel inputModel,
             final ModalWindow window, final BasePage basePage) {
+
         super(id);
 
         if (idRole == -1) {
@@ -73,9 +68,10 @@ public class NodeEditablePanel extends Panel {
             AjaxLink createRoleLink = new IndicatingAjaxLink("createRoleLink") {
 
                 @Override
-                public void onClick(AjaxRequestTarget target) {
+                public void onClick(final AjaxRequestTarget target) {
                     window.setPageCreator(new ModalWindow.PageCreator() {
 
+                        @Override
                         public Page createPage() {
                             RoleTO roleTO = new RoleTO();
                             roleTO.setParent(idRole);
@@ -126,9 +122,13 @@ public class NodeEditablePanel extends Panel {
 
                 @Override
                 public void onClick(AjaxRequestTarget target) {
-                    restClient.deleteRole(idRole);
-
-                    getSession().info(getString("operation_succeded"));
+                    try {
+                        restClient.deleteRole(idRole);
+                        getSession().info(getString("operation_succeded"));
+                    } catch (SyncopeClientCompositeErrorException e) {
+                        LOG.error("While deleting role " + idRole, e);
+                        getSession().error(getString("operation_error"));
+                    }
 
                     setResponsePage(new Roles(null));
                 }
@@ -137,8 +137,6 @@ public class NodeEditablePanel extends Panel {
                 protected IAjaxCallDecorator getAjaxCallDecorator() {
                     return new AjaxPreprocessingCallDecorator(super.
                             getAjaxCallDecorator()) {
-
-                        private static final long serialVersionUID = 1L;
 
                         @Override
                         public CharSequence preDecorateScript(

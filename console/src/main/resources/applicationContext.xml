@@ -75,4 +75,6 @@
 
     <bean id="xmlRolesReader" class="org.syncope.console.commons.XMLRolesReader"/>
 
+    <bean id="roleTreeBuilder" class="org.syncope.console.commons.RoleTreeBuilder"/>
+
 </beans>

@@ -24,10 +24,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.wicket.Component;
@@ -71,6 +70,7 @@ import org.syncope.client.to.RoleTO;
 import org.syncope.client.to.SchemaTO;
 import org.syncope.client.to.UserTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.syncope.console.commons.RoleTreeBuilder;
 import org.syncope.console.commons.SchemaWrapper;
 import org.syncope.console.rest.ResourceRestClient;
 import org.syncope.console.rest.RoleRestClient;
@@ -79,8 +79,6 @@ import org.syncope.console.rest.UserRestClient;
 import org.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.syncope.console.wicket.markup.html.form.DateFieldPanel;
-import org.syncope.console.wicket.markup.html.tree.SyncopeRoleTree;
-import org.syncope.console.wicket.markup.html.tree.TreeModelBean;
 import org.syncope.types.SchemaType;
 
 /**
@@ -106,6 +104,9 @@ public class UserModalPage extends BaseModalPage {
     @SpringBean
     private SchemaRestClient schemaRestClient;
 
+    @SpringBean
+    private RoleTreeBuilder roleTreeBuilder;
+
     private WebMarkupContainer container;
 
     private WebMarkupContainer membershipsContainer;
@@ -122,8 +123,6 @@ public class UserModalPage extends BaseModalPage {
 
     private UserMod userMod;
 
-    private Map rolesMap;
-
     /**
      *
      * @param basePage base
@@ -137,8 +136,6 @@ public class UserModalPage extends BaseModalPage {
         if (!createFlag) {
             cloneOldUserTO(userTO);
         }
-
-        setupRolesMap();
 
         createUserWin = new ModalWindow("membershipWin");
         createUserWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
@@ -421,51 +418,37 @@ public class UserModalPage extends BaseModalPage {
 
         userForm.add(submit);
 
-//Roles Tab
-        SyncopeRoleTree roleTree = new SyncopeRoleTree(roleRestClient);
-
-        BaseTree tree;
-
-        tree = new LinkTree("treeTable", roleTree.createTreeModel()) {
+        // Roles Tab
+        final List<RoleTO> roles = roleRestClient.getAllRoles();
+        BaseTree tree = new LinkTree("treeTable",
+                roleTreeBuilder.build(roles)) {
 
             @Override
-            protected IModel<Object> getNodeTextModel(IModel<Object> model) {
-                return new PropertyModel(model,
-                        "userObject.treeNode.displayName");
+            protected IModel getNodeTextModel(final IModel model) {
+                return new PropertyModel(model, "userObject.displayName");
             }
 
             @Override
             protected void onNodeLinkClicked(final Object node,
                     final BaseTree tree, final AjaxRequestTarget target) {
 
-                DefaultMutableTreeNode syncopeTreeNode =
-                        (DefaultMutableTreeNode) node;
-                final TreeModelBean treeModel = (TreeModelBean) syncopeTreeNode.
+                final RoleTO roleTO = (RoleTO) ((DefaultMutableTreeNode) node).
                         getUserObject();
 
-                if (treeModel.getTreeNode() != null) {
+                createUserWin.setPageCreator(new ModalWindow.PageCreator() {
 
-                    createUserWin.setPageCreator(new ModalWindow.PageCreator() {
+                    private MembershipTO membershipTO;
 
-                        private MembershipTO membershipTO;
+                    @Override
+                    public Page createPage() {
+                        membershipTO = new MembershipTO();
+                        membershipTO.setRoleId(roleTO.getId());
 
-                        @Override
-                        public Page createPage() {
-
-                            membershipTO = new MembershipTO();
-                            membershipTO.setRoleId(
-                                    treeModel.getTreeNode().getId());
-                            String title = treeModel.getTreeNode().getName();
-
-                            MembershipModalPage form =
-                                    new MembershipModalPage(getPage(),
-                                    createUserWin, membershipTO, true);
-
-                            return form;
-                        }
-                    });
-                    createUserWin.show(target);
-                }
+                        return new MembershipModalPage(getPage(),
+                                createUserWin, membershipTO, true);
+                    }
+                });
+                createUserWin.show(target);
             }
         };
 
@@ -482,12 +465,10 @@ public class UserModalPage extends BaseModalPage {
                 final MembershipTO membershipTO =
                         (MembershipTO) item.getDefaultModelObject();
 
-                item.add(
-                        new Label("roleId", new Model(
+                item.add(new Label("roleId", new Model(
                         membershipTO.getRoleId())));
-                item.add(new Label("roleName",
-                        new Model((String) rolesMap.get(
-                        membershipTO.getRoleId()))));
+                item.add(new Label("roleName", new Model(
+                        getRoleName(membershipTO.getRoleId(), roles))));
 
                 AjaxLink editLink = new IndicatingAjaxLink("editLink") {
 
@@ -537,12 +518,23 @@ public class UserModalPage extends BaseModalPage {
         add(userForm);
     }
 
-    /**
-     * Originals : user's resources
-     * @param userTO
-     * @return
-     */
-    public List<ResourceTO> getSelectedResources(UserTO userTO) {
+    private String getRoleName(long roleId, List<RoleTO> roles) {
+        boolean found = false;
+        RoleTO roleTO;
+        String result = null;
+        for (Iterator<RoleTO> itor = roles.iterator();
+                itor.hasNext() && !found;) {
+
+            roleTO = itor.next();
+            if (roleTO.getId() == roleId) {
+                result = roleTO.getName();
+            }
+        }
+
+        return result;
+    }
+
+    private List<ResourceTO> getSelectedResources(final UserTO userTO) {
         List<ResourceTO> resources = new ArrayList<ResourceTO>();
         ResourceTO clusterableResourceTO;
 
@@ -554,13 +546,7 @@ public class UserModalPage extends BaseModalPage {
         return resources;
     }
 
-    /**
-     * Destinations : available resources
-     * @param userTO
-     * @return
-     */
-    public List<ResourceTO> getAvailableResources(UserTO userTO) {
-
+    private List<ResourceTO> getAvailableResources(final UserTO userTO) {
         List<ResourceTO> resources = new ArrayList<ResourceTO>();
 
         List<ResourceTO> resourcesTos = resourceRestClient.getAllResources();
@@ -574,10 +560,9 @@ public class UserModalPage extends BaseModalPage {
 
     /**
      * Create a copy of old userTO object.
-     * @param userTO
+     * @param userTO the original TO
      */
-    public void cloneOldUserTO(UserTO userTO) {
-
+    private void cloneOldUserTO(final UserTO userTO) {
         oldUser = new UserTO();
 
         oldUser.setId(userTO.getId());
@@ -611,44 +596,19 @@ public class UserModalPage extends BaseModalPage {
         }
     }
 
-    /**
-     * Populate a roles hashmap of type (roleId,roleName)
-     */
-    public void setupRolesMap() {
-
-        rolesMap = new HashMap();
-
-        List<RoleTO> roleTOs = roleRestClient.getAllRoles();
-
-        for (RoleTO roleTO : roleTOs) {
-            rolesMap.put(roleTO.getId(), roleTO.getName());
-        }
-    }
-
-    /**
-     * Set a WindowClosedCallback for a ModalWindow instance.
-     * @param window
-     * @param container
-     */
-    public void setWindowClosedCallback(ModalWindow window,
+    private void setWindowClosedCallback(final ModalWindow window,
             final WebMarkupContainer container) {
 
         window.setWindowClosedCallback(
                 new ModalWindow.WindowClosedCallback() {
 
-                    public void onClose(AjaxRequestTarget target) {
+                    public void onClose(final AjaxRequestTarget target) {
                         target.addComponent(container);
                     }
                 });
     }
 
-    /**
-     * Initialize the SchemaWrapper collection
-     * @param create
-     * @param userTO
-     */
-    public void setupSchemaWrappers(boolean create, UserTO userTO) {
-
+    private void setupSchemaWrappers(boolean create, final UserTO userTO) {
         schemaWrappers = new ArrayList<SchemaWrapper>();
         SchemaWrapper schemaWrapper;
 
@@ -683,13 +643,7 @@ public class UserModalPage extends BaseModalPage {
         }
     }
 
-    /**
-     * Initialize the membershipTOs
-     * @param creation flag: true if a new User is being created, false otherwise
-     * @param userTO object
-     */
-    public void setupMemberships(boolean create, UserTO userTO) {
-
+    private void setupMemberships(final boolean create, final UserTO userTO) {
         membershipTOs = new ArrayList<MembershipTO>();
 
         if (!create) {
@@ -701,19 +655,12 @@ public class UserModalPage extends BaseModalPage {
         }
     }
 
-    /**
-     * Initialize the user's attributes
-     * @param creation flag: true if a new User is being created, false otherwise
-     * @param userTO object
-     */
-    public List<AttributeTO> getUserAttributesList() {
-
+    private List<AttributeTO> getUserAttributesList() {
         List<AttributeTO> attributes = new ArrayList<AttributeTO>();
 
         AttributeTO attribute;
 
         for (SchemaWrapper schemaWrapper : schemaWrappers) {
-
             attribute = new AttributeTO();
             attribute.setSchema(schemaWrapper.getSchemaTO().getName());
             attribute.setValues(new ArrayList<String>());
@@ -733,8 +680,7 @@ public class UserModalPage extends BaseModalPage {
      * Convert a memberships ArrayList in a memberships HashSet list.
      * @return Set<MembershipTO> selected for a new user.
      */
-    public List<MembershipTO> getMembershipsSet() {
-
+    private List<MembershipTO> getMembershipsSet() {
         List<MembershipTO> memberships = new ArrayList<MembershipTO>();
 
         for (MembershipTO membership : membershipTOs) {
@@ -748,7 +694,7 @@ public class UserModalPage extends BaseModalPage {
      * Covert a resources List<String> to Set<String>.
      * @return Set<String>
      */
-    public Set<String> getResourcesSet(Collection<ResourceTO> resourcesList) {
+    private Set<String> getResourcesSet(Collection<ResourceTO> resourcesList) {
         Set<String> resourcesSet = new HashSet<String>();
 
         for (ResourceTO resourceTO : resourcesList) {
@@ -762,17 +708,15 @@ public class UserModalPage extends BaseModalPage {
         return membershipTOs;
     }
 
-    public void setMembershipTOs(List<MembershipTO> membershipTOs) {
+    private void setMembershipTOs(List<MembershipTO> membershipTOs) {
         this.membershipTOs = membershipTOs;
     }
 
     /**
      * Updates the modified user object.
-     * @param updated userTO
-     * @return
+     * @param userTO
      */
-    public void setupUserMod(UserTO userTO) {
-
+    private void setupUserMod(final UserTO userTO) {
         //1.Check if the password has been changed and update it
         if (!oldUser.getPassword().equals(userTO.getPassword())) {
             userMod = new UserMod();
@@ -808,7 +752,7 @@ public class UserModalPage extends BaseModalPage {
         }
     }
 
-    public void searchAndUpdateAttribute(AttributeTO attributeTO) {
+    private void searchAndUpdateAttribute(AttributeTO attributeTO) {
         boolean found = false;
         boolean changed = false;
 
@@ -863,13 +807,13 @@ public class UserModalPage extends BaseModalPage {
     /**
      * Search for a resource and add that one to the UserMod object if
      * it doesn't exist.
-     * @param resource, new resource added
+     * @param resource new resource added
      */
-    public void searchAndAddResource(String resource) {
+    private void searchAndAddResource(final String resource) {
         boolean found = false;
 
-        /* Check if the current resource was existent before the update and in this
-        case just ignore it */
+        /* Check if the current resource was existent before the update
+        and in this        case just ignore it */
         for (String oldResource : oldUser.getResources()) {
             if (resource.equals(oldResource)) {
                 found = true;
@@ -891,7 +835,7 @@ public class UserModalPage extends BaseModalPage {
      * @param resource
      * @param userTO
      */
-    public void searchAndDropResource(String resource, UserTO userTO) {
+    private void searchAndDropResource(String resource, UserTO userTO) {
         boolean found = false;
 
         /*Check if the current resource was existent before the update and in this
@@ -914,7 +858,7 @@ public class UserModalPage extends BaseModalPage {
      * Update the Membership.
      * @param new membershipTO
      */
-    public void searchAndUpdateMembership(MembershipTO newMembership) {
+    private void searchAndUpdateMembership(MembershipTO newMembership) {
         boolean found = false;
         boolean attrFound = false;
 
@@ -994,8 +938,9 @@ public class UserModalPage extends BaseModalPage {
      * @param membershipTO
      * @param userTO
      */
-    public void searchAndDropMembership(MembershipTO oldMembership,
-            UserTO userTO) {
+    private void searchAndDropMembership(final MembershipTO oldMembership,
+            final UserTO userTO) {
+
         boolean found = false;
 
         /*Check if the current resource was existent before the update and

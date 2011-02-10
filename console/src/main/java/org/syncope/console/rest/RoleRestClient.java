@@ -51,12 +51,8 @@ public class RoleRestClient extends AbstractBaseRestClient {
      * @param roleTO
      */
     public void createRole(RoleTO roleTO) {
-        try {
-            restTemplate.postForObject(
-                    baseURL + "role/create", roleTO, RoleTO.class);
-        } catch (SyncopeClientCompositeErrorException e) {
-            LOG.error("While creating a role", e);
-        }
+        restTemplate.postForObject(
+                baseURL + "role/create", roleTO, RoleTO.class);
     }
 
     /**
@@ -82,19 +78,10 @@ public class RoleRestClient extends AbstractBaseRestClient {
      * @param roleTO updated
      * @return true is the opertion ends succesfully, false otherwise
      */
-    public boolean updateRole(RoleMod roleMod) {
-        RoleTO newRoleTO = null;
-
-        try {
-            newRoleTO = restTemplate.postForObject(
-                    baseURL + "role/update", roleMod,
-                    RoleTO.class);
-        } catch (SyncopeClientCompositeErrorException e) {
-            LOG.error("While updating a role", e);
-            return false;
-        }
-
-        return true;
+    public void updateRole(RoleMod roleMod) {
+        restTemplate.postForObject(
+                baseURL + "role/update", roleMod,
+                RoleTO.class);
     }
 
     /**
@@ -103,11 +90,7 @@ public class RoleRestClient extends AbstractBaseRestClient {
      * @return schemaTO
      */
     public void deleteRole(Long id) {
-        try {
-            restTemplate.delete(baseURL
-                    + "role/delete/{roleId}.json", id);
-        } catch (SyncopeClientCompositeErrorException e) {
-            LOG.error("While deleting a role", e);
-        }
+        restTemplate.delete(baseURL
+                + "role/delete/{roleId}.json", id);
     }
 }

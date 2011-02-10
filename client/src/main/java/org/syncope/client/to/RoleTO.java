@@ -16,8 +16,12 @@ package org.syncope.client.to;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
+@JsonIgnoreProperties({"displayName", "empty"})
 public class RoleTO extends AbstractAttributableTO {
+
+    static private final String EMPTY = "";
 
     private String name;
 
@@ -84,5 +88,13 @@ public class RoleTO extends AbstractAttributableTO {
         if (entitlements != null || !entitlements.isEmpty()) {
             this.entitlements.addAll(entitlements);
         }
+    }
+
+    public String getDisplayName() {
+        return getId() + " " + getName();
+    }
+
+    public String getEmpty() {
+        return EMPTY;
     }
 }

@@ -1,10 +1,10 @@
-/* 
+/*
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -31,24 +31,14 @@ import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.validation.IValidationError;
 import org.apache.wicket.validation.ValidationError;
 import org.apache.wicket.datetime.markup.html.form.DateTextField;
-//import org.apache.wicket.extensions.markup.html.form.DateTextField;
-/**
- * DateFieldPanel
- */
+
 public class DateFieldPanel extends Panel {
-    /**
-     *
-     * @param id wicket id
-     * @param name component name
-     * @param model model object
-     * @param datePattern schema attribute date pattern defined for it
-     * @param required TRUE if it is required, FALSE otherwise
-     * @param readonly TRUE if it can't be valued, FALSE otherwise
-     * @param form form where it will be included
-     */
-    public DateFieldPanel(String id, String name ,final IModel<Date> model,
-            final String datePattern, boolean required,boolean readonly,
-            Form form) {
+
+    public DateFieldPanel(final String id, final String name,
+            final IModel<Date> model, final String datePattern,
+            final boolean required, final boolean readonly,
+            final Form form) {
+
         super(id, model);
 
         if (required) {
@@ -59,42 +49,43 @@ public class DateFieldPanel extends Panel {
 
         Fragment datePanel = null;
 
-        if(!datePattern.contains("H")) {
-            datePanel = new Fragment("datePanel","dateField",this);
+        if (!datePattern.contains("H")) {
+            datePanel = new Fragment("datePanel", "dateField", this);
 
-           DateTextField field = DateTextField.forDatePattern("field", model,
-                   datePattern);
+            DateTextField field = DateTextField.forDatePattern("field", model,
+                    datePattern);
 
             field.add(getDatePicker());
 
             field.setEnabled(!readonly);
             field.setLabel(new Model(name));
 
-            field.add( new AjaxFormComponentUpdatingBehavior( "onblur" ) {
-            protected void onUpdate( AjaxRequestTarget target ) {
-            }
-            } );
+            field.add(new AjaxFormComponentUpdatingBehavior("onblur") {
+
+                protected void onUpdate(AjaxRequestTarget target) {
+                }
+            });
 
             datePanel.add(field);
-        }
-
-        else {
-            datePanel = new Fragment("datePanel","dateTimeField",this);
+        } else {
+            datePanel = new Fragment("datePanel", "dateTimeField", this);
 
             DateTimeField field = new DateTimeField("field", model);
 
             field.setEnabled(!readonly);
             field.setLabel(new Model(name));
 
-            field.add( new AjaxFormComponentUpdatingBehavior( "onblur" ) {
-            protected void onUpdate( AjaxRequestTarget target )  {
-            }
-            } );
+            field.add(new AjaxFormComponentUpdatingBehavior("onblur") {
+
+                protected void onUpdate(AjaxRequestTarget target) {
+                }
+            });
 
             datePanel.add(field);
 
-            if(required)
+            if (required) {
                 form.add(new DateTimeFormValidator(field));
+            }
         }
 
         add(datePanel);
@@ -103,9 +94,8 @@ public class DateFieldPanel extends Panel {
     /**
      * Setup a DatePicker component.
      */
-    public DatePicker getDatePicker(){
-
-        DatePicker picker = new DatePicker(){
+    public DatePicker getDatePicker() {
+        final DatePicker picker = new DatePicker() {
 
             @Override
             protected boolean enableMonthYearSelection() {
@@ -123,17 +113,19 @@ public class DateFieldPanel extends Panel {
      * components that are in it.
      */
     public class DateTimeFormValidator extends AbstractFormValidator {
+
         private FormComponent[] dateTimeComponents;
 
         public DateTimeFormValidator(DateTimeField dateTimeComponent) {
-            if(dateTimeComponent == null)
+            if (dateTimeComponent == null) {
                 throw new IllegalArgumentException(
-					"argument dateTimeComponent cannot " +
-                                        "be null");
+                        "argument dateTimeComponent cannot "
+                        + "be null");
+            }
 
-            dateTimeComponents = new FormComponent[] {dateTimeComponent};
+            dateTimeComponents = new FormComponent[]{dateTimeComponent};
         }
-        
+
         @Override
         public FormComponent[] getDependentFormComponents() {
             return dateTimeComponents;

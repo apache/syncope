@@ -28,8 +28,7 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.tree.AbstractTree;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.syncope.console.rest.RoleRestClient;
-import org.syncope.console.wicket.markup.html.tree.SyncopeRoleTree;
+import org.syncope.console.commons.RoleTreeBuilder;
 
 /**
  * Roles WebPage.
@@ -37,7 +36,7 @@ import org.syncope.console.wicket.markup.html.tree.SyncopeRoleTree;
 public class Roles extends BasePage {
 
     @SpringBean
-    private RoleRestClient restClient;
+    private RoleTreeBuilder roleTreeBuilder;
 
     private TreeTable tree;
 
@@ -49,12 +48,12 @@ public class Roles extends BasePage {
 
     private WebMarkupContainer container;
 
-    /*
-    Response flag set by the Modal Window after the operation is completed
+    /**
+     * Response flag set by the Modal Window after the operation is completed.
      */
     private boolean operationResult = false;
 
-    public Roles(PageParameters parameters) {
+    public Roles(final PageParameters parameters) {
         super(parameters);
 
         add(createRoleWin = new ModalWindow("createRoleWin"));
@@ -67,20 +66,22 @@ public class Roles extends BasePage {
 
         container = new WebMarkupContainer("container");
 
-        IColumn columns[] = new IColumn[]{
-            new PropertyTreeColumn(new ColumnLocation(Alignment.LEFT, 30,
-            Unit.EM), getString("column1"), "userObject.treeNode.displayName"),
-            new PropertyEditableColumn(new ColumnLocation(Alignment.LEFT, 20,
-            Unit.EM), getString("column2"), "userObject.title", createRoleWin,
-            Roles.this),};
+        IColumn[] columns = new IColumn[]{
+            new PropertyTreeColumn(
+            new ColumnLocation(Alignment.LEFT, 30, Unit.EM),
+            getString("column1"),
+            "userObject.displayName"),
+            new PropertyEditableColumn(
+            new ColumnLocation(Alignment.LEFT, 20, Unit.EM),
+            getString("column2"),
+            "userObject.empty",
+            createRoleWin,
+            Roles.this)};
 
         Form form = new Form("form");
         add(form);
 
-        SyncopeRoleTree roleTree = new SyncopeRoleTree(restClient);
-
-        tree = new TreeTable("treeTable", roleTree.createTreeModel(),
-                columns);
+        tree = new TreeTable("treeTable", roleTreeBuilder.build(), columns);
 
         form.add(tree);
         tree.getTreeState().expandAll();
@@ -91,21 +92,11 @@ public class Roles extends BasePage {
 
         form.add(container);
 
-        setWindowClosedCallback(createRoleWin, container);
-    }
-
-    /**
-     * Set a WindowClosedCallback for a ModalWindow instance.
-     * @param window
-     * @param container
-     */
-    public void setWindowClosedCallback(ModalWindow window,
-            final WebMarkupContainer container) {
-
-        window.setWindowClosedCallback(
+        createRoleWin.setWindowClosedCallback(
                 new ModalWindow.WindowClosedCallback() {
 
-                    public void onClose(AjaxRequestTarget target) {
+                    @Override
+                    public void onClose(final AjaxRequestTarget target) {
                         target.addComponent(container);
 
                         if (operationResult) {
@@ -117,9 +108,6 @@ public class Roles extends BasePage {
                 });
     }
 
-    /**
-     * @see BaseTreePage#getTree()
-     */
     protected AbstractTree getTree() {
         return tree;
     }
