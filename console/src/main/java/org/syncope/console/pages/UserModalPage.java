@@ -32,6 +32,8 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.IAjaxCallDecorator;
+import org.apache.wicket.ajax.calldecorator.AjaxPreprocessingCallDecorator;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -58,8 +60,6 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.syncope.client.mod.AttributeMod;
 import org.syncope.client.mod.MembershipMod;
 import org.syncope.client.mod.UserMod;
@@ -85,12 +85,6 @@ import org.syncope.types.SchemaType;
  * Modal window with User form.
  */
 public class UserModalPage extends BaseModalPage {
-
-    /**
-     * Logger.
-     */
-    private static final Logger LOG = LoggerFactory.getLogger(
-            UserModalPage.class);
 
     @SpringBean
     private UserRestClient userRestClient;
@@ -123,13 +117,6 @@ public class UserModalPage extends BaseModalPage {
 
     private UserMod userMod;
 
-    /**
-     *
-     * @param basePage base
-     * @param modalWindow modal window
-     * @param connectorTO
-     * @param create : set to true only if a CREATE operation is required
-     */
     public UserModalPage(final BasePage basePage, final ModalWindow window,
             final UserTO userTO, final boolean createFlag) {
 
@@ -142,6 +129,8 @@ public class UserModalPage extends BaseModalPage {
         createUserWin.setPageMapName("create-membership-modal");
         createUserWin.setCookieName("create-membership-modal");
         add(createUserWin);
+
+        add(new Label("id", String.valueOf(userTO.getId())));
 
         final Form userForm = new Form("UserForm");
 
@@ -502,6 +491,22 @@ public class UserModalPage extends BaseModalPage {
                         membershipTOs.remove(componentId);
 
                         target.addComponent(membershipsContainer);
+                    }
+
+                    @Override
+                    protected IAjaxCallDecorator getAjaxCallDecorator() {
+                        return new AjaxPreprocessingCallDecorator(super.
+                                getAjaxCallDecorator()) {
+
+                            @Override
+                            public CharSequence preDecorateScript(
+                                    CharSequence script) {
+
+                                return "if (confirm('"
+                                        + getString("confirmDelete") + "'))"
+                                        + "{" + script + "}";
+                            }
+                        };
                     }
                 };
                 item.add(deleteLink);

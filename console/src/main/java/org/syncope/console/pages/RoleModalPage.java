@@ -109,6 +109,8 @@ public class RoleModalPage extends BaseModalPage {
 
         final Form form = new Form("RoleForm");
 
+        add(new Label("displayName", roleTO.getDisplayName()));
+
         form.setModel(new CompoundPropertyModel(roleTO));
 
         setupSchemaWrappers(createFlag, roleTO);
@@ -246,8 +248,6 @@ public class RoleModalPage extends BaseModalPage {
                     protected IAjaxCallDecorator getAjaxCallDecorator() {
                         return new AjaxPreprocessingCallDecorator(super.
                                 getAjaxCallDecorator()) {
-
-                            private static final long serialVersionUID = 1L;
 
                             @Override
                             public CharSequence preDecorateScript(

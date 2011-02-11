@@ -31,7 +31,7 @@
     </style>
 </wicket:head>
 <wicket:extend>
-    <div id="dialog-form" title="Create new Schema">
+    <div id="dialog-form">
         <p class="ui-widget ui-corner-all ui-widget-header"><wicket:message key="title"/></p>
         <form wicket:id="SchemaForm">
             <fieldset>
@@ -51,17 +51,17 @@
                 <input type="text" class="text ui-widget-content ui-corner-all"
                        id="mandatoryCondition" wicket:id="mandatoryCondition"/>
 
-                <label for="virtual"><wicket:message key="virtual"/></label>
-                <input type="checkbox" id="virtual" wicket:id="virtual" class="checkbox"/>
+                <label for="virtual" class="onerowlabel"><wicket:message key="virtual"/></label>
+                <input type="checkbox" id="virtual" wicket:id="virtual" class="onerowcheckbox"/>
 
-                <label for="multivalue"><wicket:message key="multivalue"/></label>
-                <input type="checkbox" id="multivalue" wicket:id="multivalue" class="checkbox"/>
+                <label for="multivalue" class="onerowlabel"><wicket:message key="multivalue"/></label>
+                <input type="checkbox" id="multivalue" wicket:id="multivalue" class="onerowcheckbox"/>
 
-                <label for="readonly"><wicket:message key="readonly"/></label>
-                <input type="checkbox" id="readonly" wicket:id="readonly" class="checkbox"/>
+                <label for="readonly" class="onerowlabel"><wicket:message key="readonly"/></label>
+                <input type="checkbox" id="readonly" wicket:id="readonly" class="onerowcheckbox"/>
 
-                <label for="uniqueConstraint"><wicket:message key="uniqueConstraint"/></label>
-                <input type="checkbox" id="uniqueConstraint" wicket:id="uniqueConstraint" class="checkbox"/>
+                <label for="uniqueConstraint" class="onerowlabel"><wicket:message key="uniqueConstraint"/></label>
+                <input type="checkbox" id="uniqueConstraint" wicket:id="uniqueConstraint" class="onerowcheckbox"/>
 
                 <input type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" wicket:id="submit"/>
             </fieldset>

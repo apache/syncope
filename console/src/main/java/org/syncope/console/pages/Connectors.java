@@ -59,6 +59,10 @@ import org.syncope.console.wicket.markup.html.form.EditLinkPanel;
  */
 public class Connectors extends BasePage {
 
+    private static final int WIN_HEIGHT = 400;
+
+    private static final int WIN_WIDTH = 400;
+
     @SpringBean
     private ConnectorRestClient restClient;
 
@@ -125,8 +129,8 @@ public class Connectors extends BasePage {
                                 new ModalWindow.PageCreator() {
 
                                     public Page createPage() {
-                                        ConnectorsModalPage form =
-                                                new ConnectorsModalPage(
+                                        ConnectorModalPage form =
+                                                new ConnectorModalPage(
                                                 Connectors.this,
                                                 editConnectorWin, connectorTO,
                                                 false);
@@ -219,15 +223,19 @@ public class Connectors extends BasePage {
         setWindowClosedCallback(editConnectorWin, container);
 
         createConnectorWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+        createConnectorWin.setInitialHeight(WIN_HEIGHT);
+        createConnectorWin.setInitialWidth(WIN_WIDTH);
         createConnectorWin.setPageMapName("create-conn-modal");
         createConnectorWin.setCookieName("create-conn-modal");
 
         editConnectorWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+        editConnectorWin.setInitialHeight(WIN_HEIGHT);
+        editConnectorWin.setInitialWidth(WIN_WIDTH);
         editConnectorWin.setPageMapName("edit-conn-modal");
         editConnectorWin.setCookieName("edit-conn-modal");
 
-        AjaxLink createConnectorLink = new 
-                                    IndicatingAjaxLink("createConnectorLink") {
+        AjaxLink createConnectorLink = new IndicatingAjaxLink(
+                "createConnectorLink") {
 
             @Override
             public void onClick(AjaxRequestTarget target) {
@@ -235,7 +243,7 @@ public class Connectors extends BasePage {
                 createConnectorWin.setPageCreator(new ModalWindow.PageCreator() {
 
                     public Page createPage() {
-                        ConnectorsModalPage form = new ConnectorsModalPage(
+                        ConnectorModalPage form = new ConnectorModalPage(
                                 Connectors.this, editConnectorWin,
                                 new ConnectorInstanceTO(), true);
                         return form;

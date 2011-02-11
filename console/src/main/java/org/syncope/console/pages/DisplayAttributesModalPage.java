@@ -19,7 +19,6 @@ package org.syncope.console.pages;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
-import org.apache.wicket.Application;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
@@ -34,7 +33,6 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.to.ConfigurationTO;
 
-import org.syncope.console.SyncopeApplication;
 import org.syncope.console.commons.Constants;
 import org.syncope.console.rest.ConfigurationRestClient;
 import org.syncope.console.rest.SchemaRestClient;
@@ -59,6 +57,8 @@ public class DisplayAttributesModalPage extends BaseModalPage {
     public DisplayAttributesModalPage(final BasePage basePage,
             final ModalWindow window, final boolean createFlag) {
 
+        super();
+
         Form userAttributesForm = new Form("UserAttributesForm");
         userAttributesForm.setModel(new CompoundPropertyModel(this));
         setupSelections();
@@ -67,8 +67,6 @@ public class DisplayAttributesModalPage extends BaseModalPage {
 
             @Override
             protected Object load() {
-                SyncopeApplication app = (SyncopeApplication) Application.get();
-
                 return schemaRestClient.getAllUserSchemasNames();
             }
         };
@@ -76,18 +74,17 @@ public class DisplayAttributesModalPage extends BaseModalPage {
         userAttributesForm.add(new CheckBoxMultipleChoice("usersSchemasList",
                 new PropertyModel(this, "selections"), attributes));
 
-        submit = new IndicatingAjaxButton("submit", new Model(getString("submit"))) {
+        submit = new IndicatingAjaxButton("submit", new Model(
+                getString("submit"))) {
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target,
                     final Form form) {
 
                 if (saveConfiguration()) {
-
                     Users callerPage = (Users) basePage;
                     callerPage.setOperationResult(true);
                     window.close(target);
-
                 } else {
                     error(getString("generic_error"));
                 }

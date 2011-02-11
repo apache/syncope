@@ -78,9 +78,9 @@ public class Configuration extends BasePage {
 
     private final ModalWindow editConfigWin;
 
-    private static final int WIN_USER_HEIGHT = 680;
+    private static final int WIN_HEIGHT = 300;
 
-    private static final int WIN_USER_WIDTH = 1133;
+    private static final int WIN_WIDTH = 400;
 
     private WebMarkupContainer confContainer;
 
@@ -186,8 +186,6 @@ public class Configuration extends BasePage {
                         return new AjaxPreprocessingCallDecorator(super.
                                 getAjaxCallDecorator()) {
 
-                            private static final long serialVersionUID = 1L;
-
                             @Override
                             public CharSequence preDecorateScript(
                                     CharSequence script) {
@@ -225,14 +223,14 @@ public class Configuration extends BasePage {
         add(confContainer);
 
         createConfigWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
-        createConfigWin.setInitialHeight(WIN_USER_HEIGHT);
-        createConfigWin.setInitialWidth(WIN_USER_WIDTH);
+        createConfigWin.setInitialHeight(WIN_HEIGHT);
+        createConfigWin.setInitialWidth(WIN_WIDTH);
         createConfigWin.setPageMapName("create-configuration-modal");
         createConfigWin.setCookieName("create-configuration-modal");
 
         editConfigWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
-        editConfigWin.setInitialHeight(WIN_USER_HEIGHT);
-        editConfigWin.setInitialWidth(WIN_USER_HEIGHT);
+        editConfigWin.setInitialHeight(WIN_HEIGHT);
+        editConfigWin.setInitialWidth(WIN_HEIGHT);
         editConfigWin.setPageMapName("edit-configuration-modal");
         editConfigWin.setCookieName("edit-configuration-modal");
 

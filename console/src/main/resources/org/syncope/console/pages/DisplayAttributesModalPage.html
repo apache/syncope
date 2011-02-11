@@ -13,18 +13,15 @@
  under the License.
 -->
 <wicket:extend>
-    <div id="dialog-form" title="Create new Resource-Mappings">
-        <p class="ui-widget ui-corner-all ui-widget-header">
+    <form wicket:id="UserAttributesForm">
+        <div id="attributes-view">
+            <p class="ui-widget ui-corner-all ui-widget-header">
             <wicket:message key="title"/>
-        </p>
-        <form wicket:id="UserAttributesForm">
+            </p>
 
-                <span wicket:id="usersSchemasList" />
-                 
-                <div style="bottom:0">
-                    <input type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" wicket:id="submit"/>
-                </div>
+            <span wicket:id="usersSchemasList"/>
 
-        </form>
-    </div>
+        </div>
+        <input type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" wicket:id="submit"/>
+    </form>
 </wicket:extend>

@@ -32,11 +32,11 @@
     </script>
 </wicket:head>
 <wicket:extend>
-    <div id="dialog-form" title="Task Modal window">
+    <div id="dialog-form">
         <p class="ui-widget ui-corner-all ui-widget-header"><wicket:message key="title"/></p>
         <form wicket:id="TaskForm">
             <div id="users-contain" class="ui-widget">
-                <fieldset style="font-size: 12px">
+                <fieldset>
                     <label for="id"><wicket:message key="id"/></label>
                     <input type="text" id="id" class="text ui-widget-content ui-corner-all" wicket:id="id" />
 
@@ -55,7 +55,7 @@
             </div>
         </form>
     </div>
-    <div id="dialog" title="Task Execution - Message">&nbsp;
+    <div id="dialog">&nbsp;
         <span wicket:id="dialogContent">
             [Task execution's message to show]
         </span>

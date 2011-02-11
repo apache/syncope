@@ -64,11 +64,11 @@ public class Utility {
      * @return List<Integer>
      */
     public List<Integer> paginatorRowsChooser() {
-        List<Integer> list = new ArrayList<Integer>();
+        final List<Integer> list = new ArrayList<Integer>();
 
-        list.add(5);
         list.add(10);
-        list.add(15);
+        list.add(30);
+        list.add(50);
 
         return list;
     }

@@ -190,8 +190,6 @@ public class TaskModalPage extends BaseModalPage {
                         return new AjaxPreprocessingCallDecorator(super.
                                 getAjaxCallDecorator()) {
 
-                            private static final long serialVersionUID = 1L;
-
                             @Override
                             public CharSequence preDecorateScript(
                                     CharSequence script) {
@@ -311,8 +309,6 @@ public class TaskModalPage extends BaseModalPage {
      * Format column's value as date string.
      */
     public class DatePropertyColumn<T> extends PropertyColumn<T> {
-
-        private static final long serialVersionUID = 1L;
 
         private SimpleDateFormat formatter;
 

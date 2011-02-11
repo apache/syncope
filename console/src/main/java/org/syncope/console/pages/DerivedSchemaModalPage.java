@@ -24,6 +24,7 @@ import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.CompoundPropertyModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.to.DerivedSchemaTO;
 import org.syncope.console.rest.SchemaRestClient;
@@ -49,13 +50,6 @@ public class DerivedSchemaModalPage extends BaseModalPage {
     @SpringBean
     private SchemaRestClient restClient;
 
-    /**
-     *
-     * @param basePage BasePage
-     * @param modalWindow ModalWindow instance
-     * @param schemaTO DerivedSchemaTO bean
-     * @param createFlag true for CREATE, false for EDIT operation
-     */
     public DerivedSchemaModalPage(final BasePage basePage,
             final ModalWindow window,
             DerivedSchemaTO schema,
@@ -77,46 +71,48 @@ public class DerivedSchemaModalPage extends BaseModalPage {
 
         name.setEnabled(createFlag);
 
-        submit = new IndicatingAjaxButton("submit") {
+        submit = new IndicatingAjaxButton("submit", new Model(
+                getString("submit"))) {
 
             @Override
             protected void onSubmit(AjaxRequestTarget target, Form form) {
                 if (getEntity() == Entity.USER) {
 
                     if (createFlag) {
-                        restClient.createUserDerivedSchema((DerivedSchemaTO) form.
-                                getDefaultModelObject());
+                        restClient.createUserDerivedSchema(
+                                (DerivedSchemaTO) form.getDefaultModelObject());
                     } else {
-                        restClient.updateUserDerivedSchema((DerivedSchemaTO) form.
-                                getDefaultModelObject());
+                        restClient.updateUserDerivedSchema(
+                                (DerivedSchemaTO) form.getDefaultModelObject());
                     }
                 } else if (getEntity() == Entity.ROLE) {
 
                     if (createFlag) {
-                        restClient.createRoleDerivedSchema((DerivedSchemaTO) form.
-                                getDefaultModelObject());
+                        restClient.createRoleDerivedSchema(
+                                (DerivedSchemaTO) form.getDefaultModelObject());
                     } else {
-                        restClient.updateRoleDerivedSchema((DerivedSchemaTO) form.
-                                getDefaultModelObject());
+                        restClient.updateRoleDerivedSchema(
+                                (DerivedSchemaTO) form.getDefaultModelObject());
                     }
                 } else if (getEntity() == Entity.MEMBERSHIP) {
 
                     if (createFlag) {
-                        restClient.createMembershipDerivedSchema((DerivedSchemaTO) form.
-                                getDefaultModelObject());
+                        restClient.createMembershipDerivedSchema(
+                                (DerivedSchemaTO) form.getDefaultModelObject());
                     } else {
-                        restClient.updateMembershipDerivedSchema((DerivedSchemaTO) form.
-                                getDefaultModelObject());
+                        restClient.updateMembershipDerivedSchema(
+                                (DerivedSchemaTO) form.getDefaultModelObject());
                     }
                 }
-                Schema callerPage = (Schema) basePage;
-                callerPage.setOperationResult(true);
+                ((Schema) basePage).setOperationResult(true);
 
                 window.close(target);
             }
 
             @Override
-            protected void onError(AjaxRequestTarget target, Form form) {
+            protected void onError(final AjaxRequestTarget target,
+                    final Form form) {
+
                 target.addComponent(feedbackPanel);
             }
         };
@@ -140,7 +136,6 @@ public class DerivedSchemaModalPage extends BaseModalPage {
         schemaForm.add(submit);
 
         add(schemaForm);
-
     }
 
     public Entity getEntity() {

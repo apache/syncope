@@ -52,7 +52,7 @@ import org.syncope.types.ConnectorCapability;
 /**
  * Modal window with Connector form.
  */
-public class ConnectorsModalPage extends BaseModalPage {
+public class ConnectorModalPage extends BaseModalPage {
 
     private TextField connectorName;
 
@@ -80,14 +80,7 @@ public class ConnectorsModalPage extends BaseModalPage {
 
     private List<ConnectorCapability> selections;
 
-    /**
-     *
-     * @param basePage base
-     * @param modalWindow modal window
-     * @param connectorTO
-     * @param create : set to true only if a CREATE operation is required
-     */
-    public ConnectorsModalPage(final BasePage basePage,
+    public ConnectorModalPage(final BasePage basePage,
             final ModalWindow window,
             final ConnectorInstanceTO connectorTO,
             final boolean createFlag) {
@@ -188,9 +181,10 @@ public class ConnectorsModalPage extends BaseModalPage {
                 propertyTO = (PropertyTO) item.getDefaultModelObject();
 
                 item.add(new Label("key", propertyTO.getKey()));
-                item.add(new TextField("value", new PropertyModel(propertyTO,
-                        "value")).setLabel(new Model<String>(propertyTO
-                        .getKey())).setRequired(true));
+                item.add(
+                        new TextField("value", new PropertyModel(propertyTO,
+                        "value")).setLabel(
+                        new Model<String>(propertyTO.getKey())).setRequired(true));
 
                 connectorTO.getConfiguration().add(propertyTO);
             }

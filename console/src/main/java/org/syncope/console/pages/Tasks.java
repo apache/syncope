@@ -60,6 +60,10 @@ import org.syncope.console.wicket.markup.html.form.LinkPanel;
  */
 public class Tasks extends BasePage {
 
+    private static final int WIN_HEIGHT = 500;
+
+    private static final int WIN_WIDTH = 500;
+
     @SpringBean
     private TaskRestClient restClient;
 
@@ -70,19 +74,15 @@ public class Tasks extends BasePage {
 
     private WebMarkupContainer container;
 
-    /*
-    Response flag set by the Modal Window after the operation is completed:
-    TRUE if the operation succedes, FALSE otherwise
+    /**
+     * Response flag set by the Modal Window after the operation is completed:
+     * TRUE if the operation succedes, FALSE otherwise
      */
     private boolean operationResult = false;
 
     private ModalWindow window;
 
-    private final int WIN_INITIAL_HEIGHT = 515;
-
-    private final int WIN_INITIAL_WIDTH = 775;
-
-    public Tasks(PageParameters parameters) {
+    public Tasks(final PageParameters parameters) {
         super(parameters);
 
         add(window = new ModalWindow("taskWin"));
@@ -209,8 +209,6 @@ public class Tasks extends BasePage {
                         return new AjaxPreprocessingCallDecorator(super.
                                 getAjaxCallDecorator()) {
 
-                            private static final long serialVersionUID = 1L;
-
                             @Override
                             public CharSequence preDecorateScript(
                                     CharSequence script) {
@@ -263,8 +261,8 @@ public class Tasks extends BasePage {
                 });
 
         window.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
-        window.setInitialHeight(WIN_INITIAL_HEIGHT);
-        window.setInitialWidth(WIN_INITIAL_WIDTH);
+        window.setInitialHeight(WIN_HEIGHT);
+        window.setInitialWidth(WIN_WIDTH);
         window.setPageMapName("view-task-win");
         window.setCookieName("view-task-win");
 

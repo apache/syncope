@@ -1,7 +1,7 @@
 body {
     margin: 0px;
     padding: 0px;
-    font-family: "Myriad Pro", Verdana, Tahoma, sans-serif;
+    font-family: Verdana, Tahoma, sans-serif;
     color: #333;
     font-size: 62.5%;
 }
@@ -20,7 +20,8 @@ body {
 #splash {
     background: url(../img/sf_testa.png) top repeat-x #B9CFB3;
     width: 400px;
-    margin: auto;
+    margin-left: auto;
+    margin-right: auto;
     margin-top: 100px;
     border: 1px solid #463;
 }
@@ -159,7 +160,6 @@ select[disabled] {
 .feedbackPanelINFO span {
     background: url("../img/ok.png") no-repeat left;
     border:0 none;
-    font-size:12px;
     padding-left: 20px;
 }
 
@@ -213,10 +213,9 @@ select[disabled] {
 }
 
 /* MODAL-FORM */
-div#dialog-form { font-size: 12px; margin: 10px; }
 div#dialog-form label, div#dialog-form input { display:block; }
 div#dialog-form span.radio label, div#dialog-form span.radio input { margin-top: 4px; margin-bottom: 12px; display:inline; }
-div#dialog-form span.checkbox label, div#dialog-form span.checkbox input { margin-top: 4px; margin-bottom: 12px; display:inline; }
+/*div#dialog-form span.checkbox label, div#dialog-form span.checkbox input { margin-top: 4px; margin-bottom: 12px; display:inline; }*/
 div#dialog-form input.text { margin-bottom:12px; width: 95%; padding: .4em; }
 div#dialog-form select.text { margin-bottom:12px; width: auto; padding: .4em; }
 div#dialog-form fieldset { padding:0; border:0; margin-top:25px; }
@@ -269,4 +268,28 @@ div#users-contain table td, div#users-contain table th { border: 1px solid #eee;
 
 #navigationPane .configuration {
     color: #CCC;
+}
+
+.onerowlabel {
+    float: left;
+}
+
+.onerowcheckbox {
+    margin-left: 10em;
+}
+
+div#attributes-view label {
+    display: block;
+    clear: none;
+    width: 300px;
+    margin-left: 20px;
+}
+
+div#attributes-view input {
+    display: block;
+    float: left;
+    clear: left;
+    height: 12px;
+    padding: 0;
+    margin: 0;
 }

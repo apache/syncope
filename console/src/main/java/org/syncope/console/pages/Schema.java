@@ -70,6 +70,10 @@ public class Schema extends BasePage {
         MembershipDerivedSchema
 
     };
+    private static final int WIN_WIDTH = 400;
+
+    private static final int WIN_HEIGHT = 200;
+
     @SpringBean
     private SchemaRestClient restClient;
 
@@ -265,8 +269,6 @@ public class Schema extends BasePage {
                         return new AjaxPreprocessingCallDecorator(super.
                                 getAjaxCallDecorator()) {
 
-                            private static final long serialVersionUID = 1L;
-
                             @Override
                             public CharSequence preDecorateScript(
                                     CharSequence script) {
@@ -400,8 +402,6 @@ public class Schema extends BasePage {
                         return new AjaxPreprocessingCallDecorator(super.
                                 getAjaxCallDecorator()) {
 
-                            private static final long serialVersionUID = 1L;
-
                             @Override
                             public CharSequence preDecorateScript(
                                     CharSequence script) {
@@ -533,8 +533,6 @@ public class Schema extends BasePage {
                     protected IAjaxCallDecorator getAjaxCallDecorator() {
                         return new AjaxPreprocessingCallDecorator(super.
                                 getAjaxCallDecorator()) {
-
-                            private static final long serialVersionUID = 1L;
 
                             @Override
                             public CharSequence preDecorateScript(
@@ -672,8 +670,6 @@ public class Schema extends BasePage {
                         return new AjaxPreprocessingCallDecorator(super.
                                 getAjaxCallDecorator()) {
 
-                            private static final long serialVersionUID = 1L;
-
                             @Override
                             public CharSequence preDecorateScript(
                                     CharSequence script) {
@@ -808,8 +804,6 @@ public class Schema extends BasePage {
                     protected IAjaxCallDecorator getAjaxCallDecorator() {
                         return new AjaxPreprocessingCallDecorator(super.
                                 getAjaxCallDecorator()) {
-
-                            private static final long serialVersionUID = 1L;
 
                             @Override
                             public CharSequence preDecorateScript(
@@ -949,8 +943,6 @@ public class Schema extends BasePage {
                         return new AjaxPreprocessingCallDecorator(super.
                                 getAjaxCallDecorator()) {
 
-                            private static final long serialVersionUID = 1L;
-
                             @Override
                             public CharSequence preDecorateScript(
                                     CharSequence script) {
@@ -1043,54 +1035,72 @@ public class Schema extends BasePage {
         add(membershipDerivedSchemaContainer);
 
         createUserSchemaWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+        createUserSchemaWin.setInitialWidth(WIN_WIDTH);
         createUserSchemaWin.setPageMapName("modal-1");
         createUserSchemaWin.setCookieName("modal-1");
         createUserSchemaWin.setMarkupId("createUserSchemaWin");
 
         editUserSchemaWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+        editUserSchemaWin.setInitialWidth(WIN_WIDTH);
         editUserSchemaWin.setPageMapName("modal-2");
         editUserSchemaWin.setCookieName("modal-2");
         editUserSchemaWin.setMarkupId("editUserSchemaWin");
 
         createUserDerivedSchemaWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+        createUserDerivedSchemaWin.setInitialWidth(WIN_WIDTH);
+        createUserDerivedSchemaWin.setInitialHeight(WIN_HEIGHT);
         createUserDerivedSchemaWin.setPageMapName("modal-3");
         createUserDerivedSchemaWin.setCookieName("modal-3");
 
         editUserDerivedSchemaWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+        editUserDerivedSchemaWin.setInitialWidth(WIN_WIDTH);
+        editUserDerivedSchemaWin.setInitialHeight(WIN_HEIGHT);
         editUserDerivedSchemaWin.setPageMapName("modal-4");
         editUserDerivedSchemaWin.setCookieName("modal-4");
 
         createRoleSchemaWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+        createRoleSchemaWin.setInitialWidth(WIN_WIDTH);
         createRoleSchemaWin.setPageMapName("modal-5");
         createRoleSchemaWin.setCookieName("modal-5");
 
         editRoleSchemaWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+        editRoleSchemaWin.setInitialWidth(WIN_WIDTH);
         editRoleSchemaWin.setPageMapName("modal-6");
         editRoleSchemaWin.setCookieName("modal-6");
 
         createRoleDerivedSchemaWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+        createRoleDerivedSchemaWin.setInitialWidth(WIN_WIDTH);
+        createRoleDerivedSchemaWin.setInitialHeight(WIN_HEIGHT);
         createRoleDerivedSchemaWin.setPageMapName("modal-7");
         createRoleDerivedSchemaWin.setCookieName("modal-7");
 
         editRoleDerivedSchemaWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+        editRoleDerivedSchemaWin.setInitialWidth(WIN_WIDTH);
+        editRoleDerivedSchemaWin.setInitialHeight(WIN_HEIGHT);
         editRoleDerivedSchemaWin.setPageMapName("modal-8");
         editRoleDerivedSchemaWin.setCookieName("modal-8");
 
         createMembershipSchemaWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+        createMembershipSchemaWin.setInitialWidth(WIN_WIDTH);
         createMembershipSchemaWin.setPageMapName("modal-9");
         createMembershipSchemaWin.setCookieName("modal-9");
 
-        createMembershipSchemaWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
-        createMembershipSchemaWin.setPageMapName("modal-10");
-        createMembershipSchemaWin.setCookieName("modal-10");
+        editMembershipSchemaWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+        editMembershipSchemaWin.setInitialWidth(WIN_WIDTH);
+        editMembershipSchemaWin.setPageMapName("modal-10");
+        editMembershipSchemaWin.setCookieName("modal-10");
 
         createMembershipDerivedSchemaWin.setCssClassName(
                 ModalWindow.CSS_CLASS_GRAY);
+        createMembershipDerivedSchemaWin.setInitialWidth(WIN_WIDTH);
+        createMembershipDerivedSchemaWin.setInitialHeight(WIN_HEIGHT);
         createMembershipDerivedSchemaWin.setPageMapName("modal-11");
         createMembershipDerivedSchemaWin.setCookieName("modal-11");
 
         editMembershipDerivedSchemaWin.setCssClassName(
                 ModalWindow.CSS_CLASS_GRAY);
+        editMembershipDerivedSchemaWin.setInitialWidth(WIN_WIDTH);
+        editMembershipDerivedSchemaWin.setInitialHeight(WIN_HEIGHT);
         editMembershipDerivedSchemaWin.setPageMapName("modal-12");
         editMembershipDerivedSchemaWin.setCookieName("modal-12");
 

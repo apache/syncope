@@ -77,13 +77,6 @@ public class SchemaModalPage extends BaseModalPage {
     @SpringBean
     private SchemaRestClient restClient;
 
-    /**
-     *
-     * @param basePage base
-     * @param modalWindow modal window
-     * @param schemaTO
-     * @param create : set to true only if a CREATE operation is required
-     */
     public SchemaModalPage(final BasePage basePage, final ModalWindow window,
             SchemaTO schema, final boolean createFlag) {
 

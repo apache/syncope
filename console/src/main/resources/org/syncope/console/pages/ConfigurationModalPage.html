@@ -14,30 +14,20 @@
 -->
 <wicket:extend>
     <form wicket:id="ConfigurationForm">
-        <div id="tabs">
-            <ul>
-                <li class="tabs-selected">
-                    <a href="#tabs-1"><span><wicket:message key="tab1"/></span></a>
-                </li>
-            </ul>
-            <div id="tabs-1">
-                <div id="dialog-form" title="Create new configuration">
-                    <p class="ui-widget ui-corner-all ui-widget-header">
-                    <wicket:message key="title"/>
-                    </p>
-                    <fieldset>
+        <div id="dialog-form">
+            <p class="ui-widget ui-corner-all ui-widget-header">
+            <wicket:message key="title"/>
+            </p>
+            <fieldset>
 
-                        <label for="key"><wicket:message key="key"/></label>
-                        <input type="text" id="key" class="text ui-widget-content ui-corner-all" wicket:id="key" />
+                <label for="key"><wicket:message key="key"/></label>
+                <input type="text" id="key" class="text ui-widget-content ui-corner-all" wicket:id="key" />
 
-                        <label for="value"><wicket:message key="value"/></label>
-                        <input type="text" id="value" class="text ui-widget-content ui-corner-all" wicket:id="value" />
+                <label for="value"><wicket:message key="value"/></label>
+                <input type="text" id="value" class="text ui-widget-content ui-corner-all" wicket:id="value" />
 
-                    </fieldset>
-                </div>
-                <input type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" wicket:id="submit"/>
-            </div>
+            </fieldset>
         </div>
-
+        <input type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" wicket:id="submit"/>
     </form>
 </wicket:extend>

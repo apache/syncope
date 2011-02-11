@@ -93,9 +93,9 @@ public class Users extends BasePage {
 
     private final ModalWindow changeAttribsViewWin;
 
-    private final static int WIN_ATTRIBUTES_HEIGHT = 515;
+    private final static int WIN_ATTRIBUTES_HEIGHT = 500;
 
-    private final static int WIN_ATTRIBUTES_WIDTH = 775;
+    private final static int WIN_ATTRIBUTES_WIDTH = 600;
 
     private final static int WIN_USER_HEIGHT = 680;
 
@@ -378,8 +378,6 @@ public class Users extends BasePage {
                     protected IAjaxCallDecorator getAjaxCallDecorator() {
                         return new AjaxPreprocessingCallDecorator(super.
                                 getAjaxCallDecorator()) {
-
-                            private static final long serialVersionUID = 1L;
 
                             @Override
                             public CharSequence preDecorateScript(

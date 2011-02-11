@@ -68,9 +68,9 @@ public class Resources extends BasePage {
 
     private final ModalWindow editResourceWin;
 
-    private static final int WIN_INITIAL_HEIGHT = 515;
+    private static final int WIN_HEIGHT = 500;
 
-    private static final int WIN_INITIAL_WIDTH = 775;
+    private static final int WIN_WIDTH = 775;
 
     private WebMarkupContainer container;
 
@@ -168,8 +168,6 @@ public class Resources extends BasePage {
                         return new AjaxPreprocessingCallDecorator(super.
                                 getAjaxCallDecorator()) {
 
-                            private static final long serialVersionUID = 1L;
-
                             @Override
                             public CharSequence preDecorateScript(
                                     CharSequence script) {
@@ -210,14 +208,14 @@ public class Resources extends BasePage {
         setWindowClosedCallback(editResourceWin, container);
 
         createResourceWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
-        createResourceWin.setInitialHeight(WIN_INITIAL_HEIGHT);
-        createResourceWin.setInitialWidth(WIN_INITIAL_WIDTH);
+        createResourceWin.setInitialHeight(WIN_HEIGHT);
+        createResourceWin.setInitialWidth(WIN_WIDTH);
         createResourceWin.setPageMapName("create-res-modal");
         createResourceWin.setCookieName("create-res-modal");
 
         editResourceWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
-        editResourceWin.setInitialHeight(WIN_INITIAL_HEIGHT);
-        editResourceWin.setInitialWidth(WIN_INITIAL_WIDTH);
+        editResourceWin.setInitialHeight(WIN_HEIGHT);
+        editResourceWin.setInitialWidth(WIN_WIDTH);
         editResourceWin.setPageMapName("edit-res-modal");
         editResourceWin.setCookieName("edit-res-modal");
 

@@ -24,9 +24,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.IAjaxCallDecorator;
+import org.apache.wicket.ajax.calldecorator.AjaxPreprocessingCallDecorator;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
-import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
 import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
@@ -52,6 +53,7 @@ import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.rest.ConnectorRestClient;
 import org.syncope.console.rest.ResourceRestClient;
 import org.syncope.console.rest.SchemaRestClient;
+import org.syncope.console.wicket.markup.html.form.AjaxDecoratedCheckbox;
 import org.syncope.console.wicket.markup.html.form.UpdatingAutoCompleteTextField;
 import org.syncope.console.wicket.markup.html.form.UpdatingCheckBox;
 import org.syncope.console.wicket.markup.html.form.UpdatingDropDownChoice;
@@ -217,23 +219,40 @@ public class ResourceModalPage extends BaseModalPage {
             UpdatingDropDownChoice schemaAttributeChoice = null;
 
             @Override
-            protected void populateItem(ListItem item) {
+            protected void populateItem(final ListItem item) {
                 mappingTO = (SchemaMappingTO) item.getDefaultModelObject();
 
-                item.add(new AjaxCheckBox("toRemove", new Model(new Boolean(""))) {
+                item.add(new AjaxDecoratedCheckbox("toRemove",
+                        new Model(new Boolean(""))) {
 
                     @Override
-                    protected void onUpdate(AjaxRequestTarget target) {
+                    protected void onUpdate(final AjaxRequestTarget target) {
                         int id = new Integer(getParent().getId());
                         resourceTO.getMappings().remove(id);
                         target.addComponent(mappingUserSchemaContainer);
+                    }
+
+                    @Override
+                    protected IAjaxCallDecorator getAjaxCallDecorator() {
+                        return new AjaxPreprocessingCallDecorator(super.
+                                getAjaxCallDecorator()) {
+
+                            @Override
+                            public CharSequence preDecorateScript(
+                                    final CharSequence script) {
+
+                                return "if (confirm('"
+                                        + getString("confirmDelete") + "'))"
+                                        + "{" + script + "} "
+                                        + "else {this.checked = false;}";
+                            }
+                        };
                     }
                 });
                 item.add(new UpdatingTextField("field",
                         new PropertyModel(mappingTO, "destAttrName")).
                         setRequired(true).
-                        setLabel(
-                        new Model(getString("fieldName"))));
+                        setLabel(new Model(getString("fieldName"))));
 
                 schemaAttributeChoice =
                         new UpdatingDropDownChoice("schemaAttributes",
@@ -314,8 +333,8 @@ public class ResourceModalPage extends BaseModalPage {
 
         resourceForm.add(mappingUserSchemaContainer);
 
-        addSchemaMappingBtn = new IndicatingAjaxButton("addUserSchemaMappingBtn",
-                new Model(getString("add"))) {
+        addSchemaMappingBtn = new IndicatingAjaxButton(
+                "addUserSchemaMappingBtn", new Model(getString("add"))) {
 
             @Override
             protected void onSubmit(AjaxRequestTarget target, Form form) {

@@ -42,9 +42,9 @@ public class Roles extends BasePage {
 
     private ModalWindow createRoleWin = null;
 
-    private static final int WIN_USER_HEIGHT = 680;
+    private static final int WIN_HEIGHT = 450;
 
-    private static final int WIN_USER_WIDTH = 900;
+    private static final int WIN_WIDTH = 600;
 
     private WebMarkupContainer container;
 
@@ -59,8 +59,8 @@ public class Roles extends BasePage {
         add(createRoleWin = new ModalWindow("createRoleWin"));
 
         createRoleWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
-        createRoleWin.setInitialHeight(WIN_USER_HEIGHT);
-        createRoleWin.setInitialWidth(WIN_USER_WIDTH);
+        createRoleWin.setInitialHeight(WIN_HEIGHT);
+        createRoleWin.setInitialWidth(WIN_WIDTH);
         createRoleWin.setPageMapName("create-role-modal");
         createRoleWin.setCookieName("create-role-modal");
 
