@@ -99,7 +99,7 @@ public class Tasks extends BasePage {
                 "accountId", "accountId"));
 
         columns.add(new AbstractColumn<TaskTO>(new Model<String>(getString(
-                "open"))) {
+                "detail"))) {
 
             @Override
             public void populateItem(
@@ -130,9 +130,7 @@ public class Tasks extends BasePage {
                         model);
                 panel.add(viewLink);
 
-                String allowedRoles = null;
-
-                allowedRoles = xmlRolesReader.getAllAllowedRoles("Tasks",
+                String allowedRoles = xmlRolesReader.getAllAllowedRoles("Tasks",
                         "read");
 
                 MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
@@ -178,9 +176,7 @@ public class Tasks extends BasePage {
                 LinkPanel panel = new LinkPanel(componentId);
                 panel.add(executeLink);
 
-                String allowedRoles = null;
-
-                allowedRoles = xmlRolesReader.getAllAllowedRoles("Tasks",
+                String allowedRoles = xmlRolesReader.getAllAllowedRoles("Tasks",
                         "execute");
 
                 MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
@@ -233,9 +229,7 @@ public class Tasks extends BasePage {
                         model);
                 panel.add(deleteLink);
 
-                String allowedRoles = null;
-
-                allowedRoles = xmlRolesReader.getAllAllowedRoles("Tasks",
+                String allowedRoles = xmlRolesReader.getAllAllowedRoles("Tasks",
                         "delete");
 
                 MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
