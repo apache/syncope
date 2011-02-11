@@ -16,6 +16,7 @@ package org.syncope.console.pages;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
+import org.apache.wicket.ajax.IAjaxIndicatorAware;
 import org.apache.wicket.behavior.AbstractBehavior;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.WebPage;
@@ -29,7 +30,7 @@ import org.syncope.console.commons.XMLRolesReader;
 /**
  * Syncope Wicket base-page.
  */
-public class BasePage extends WebPage {
+public class BasePage extends WebPage implements IAjaxIndicatorAware {
 
     /**
      * Logger.
@@ -43,6 +44,8 @@ public class BasePage extends WebPage {
     protected FeedbackPanel feedbackPanel;
 
     public BasePage() {
+        super();
+
         pageSetup();
     }
 
@@ -67,7 +70,7 @@ public class BasePage extends WebPage {
         add(feedbackPanel);
 
         final String kind = getClass().getSimpleName().toLowerCase();
-        Component kindIcon = get(kind);
+        final Component kindIcon = get(kind);
         if (kindIcon != null) {
             kindIcon.add(new AbstractBehavior() {
 
@@ -80,5 +83,10 @@ public class BasePage extends WebPage {
             });
             add(kindIcon);
         }
+    }
+
+    @Override
+    public String getAjaxIndicatorMarkupId() {
+        return "veil";
     }
 }

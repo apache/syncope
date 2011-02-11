@@ -101,26 +101,29 @@ public class Tasks extends BasePage {
         columns.add(new AbstractColumn<TaskTO>(new Model<String>(getString(
                 "open"))) {
 
-            public void populateItem(Item<ICellPopulator<TaskTO>> cellItem,
-                    String componentId, IModel<TaskTO> model) {
+            @Override
+            public void populateItem(
+                    final Item<ICellPopulator<TaskTO>> cellItem,
+                    final String componentId,
+                    final IModel<TaskTO> model) {
+
                 final TaskTO taskTO = model.getObject();
 
                 AjaxLink viewLink = new IndicatingAjaxLink("editLink") {
 
                     @Override
-                    public void onClick(AjaxRequestTarget target) {
+                    public void onClick(final AjaxRequestTarget target) {
 
                         window.setPageCreator(new ModalWindow.PageCreator() {
 
+                            @Override
                             public Page createPage() {
-                                TaskModalPage modalPage = new TaskModalPage(
+                                return new TaskModalPage(
                                         Tasks.this, window, taskTO);
-                                return modalPage;
                             }
                         });
 
                         window.show(target);
-
                     }
                 };
                 EditLinkPanel panel = new EditLinkPanel(componentId,
@@ -142,14 +145,17 @@ public class Tasks extends BasePage {
         columns.add(new AbstractColumn<TaskTO>(new Model<String>(getString(
                 "execute"))) {
 
-            public void populateItem(Item<ICellPopulator<TaskTO>> cellItem,
-                    String componentId, IModel<TaskTO> model) {
+            public void populateItem(
+                    final Item<ICellPopulator<TaskTO>> cellItem,
+                    final String componentId,
+                    final IModel<TaskTO> model) {
+
                 final TaskTO taskTO = model.getObject();
 
                 AjaxLink executeLink = new IndicatingAjaxLink("link") {
 
                     @Override
-                    public void onClick(AjaxRequestTarget target) {
+                    public void onClick(final AjaxRequestTarget target) {
                         boolean res = false;
 
                         try {
@@ -187,8 +193,11 @@ public class Tasks extends BasePage {
         columns.add(new AbstractColumn<TaskTO>(new Model<String>(getString(
                 "delete"))) {
 
-            public void populateItem(Item<ICellPopulator<TaskTO>> cellItem,
-                    String componentId, IModel<TaskTO> model) {
+            public void populateItem(
+                    final Item<ICellPopulator<TaskTO>> cellItem,
+                    final String componentId,
+                    final IModel<TaskTO> model) {
+
                 final TaskTO taskTO = model.getObject();
 
                 AjaxLink deleteLink = new IndicatingAjaxLink("deleteLink") {
@@ -211,7 +220,7 @@ public class Tasks extends BasePage {
 
                             @Override
                             public CharSequence preDecorateScript(
-                                    CharSequence script) {
+                                    final CharSequence script) {
 
                                 return "if (confirm('"
                                         + getString("confirmDelete") + "'))"
@@ -250,7 +259,8 @@ public class Tasks extends BasePage {
         window.setWindowClosedCallback(
                 new ModalWindow.WindowClosedCallback() {
 
-                    public void onClose(AjaxRequestTarget target) {
+                    @Override
+                    public void onClose(final AjaxRequestTarget target) {
                         target.addComponent(container);
                         if (operationResult) {
                             info(getString("operation_succeded"));
@@ -274,7 +284,8 @@ public class Tasks extends BasePage {
 
         rowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
-            protected void onUpdate(AjaxRequestTarget target) {
+            @Override
+            protected void onUpdate(final AjaxRequestTarget target) {
                 utility.updatePaginatorRows(Constants.CONF_TASKS_PAGINATOR_ROWS,
                         paginatorRows);
 
@@ -294,6 +305,7 @@ public class Tasks extends BasePage {
                 new SortableDataProviderComparator();
 
         public TasksProvider() {
+            super();
             //Default sorting
             setSort("id", true);
         }
@@ -324,32 +336,7 @@ public class Tasks extends BasePage {
         }
 
         public List<TaskTO> getTasksListDB() {
-            List<TaskTO> list = restClient.getAllTasks();
-
-            //Mock task for test purpose
-        /*if(list == null || list.size() == 0) {
-            list = new ArrayList<TaskTO>();
-
-            TaskTO task1 = new TaskTO();
-            task1.setAccountId("luisAccount");
-            task1.setId(1L);
-            task1.setResource("testResource");
-
-            List executions = new ArrayList<TaskExecutionTO>();
-
-            TaskExecutionTO taskExecution = new TaskExecutionTO();
-            taskExecution.setStartDate(new Date());
-            taskExecution.setEndDate(new Date());
-            taskExecution.setMessage("Prova");
-            taskExecution.setStatus(TaskExecutionStatus.CREATED);
-            executions.add(taskExecution);
-
-            task1.setExecutions(executions);
-
-            list.add(task1);
-            }*/
-
-            return list;
+            return restClient.getAllTasks();
         }
 
         class SortableDataProviderComparator implements

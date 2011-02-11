@@ -114,13 +114,15 @@ public class Connectors extends BasePage {
         columns.add(new AbstractColumn<ConnectorInstanceTO>(new Model<String>(
                 getString("edit"))) {
 
+            @Override
             public void populateItem(
-                    Item<ICellPopulator<ConnectorInstanceTO>> cellItem,
-                    String componentId, IModel<ConnectorInstanceTO> model) {
+                    final Item<ICellPopulator<ConnectorInstanceTO>> cellItem,
+                    final String componentId,
+                    final IModel<ConnectorInstanceTO> model) {
 
                 final ConnectorInstanceTO connectorTO = model.getObject();
 
-                AjaxLink editLink = new IndicatingAjaxLink("editLink") {
+                final AjaxLink editLink = new IndicatingAjaxLink("editLink") {
 
                     @Override
                     public void onClick(AjaxRequestTarget target) {
@@ -128,13 +130,12 @@ public class Connectors extends BasePage {
                         editConnectorWin.setPageCreator(
                                 new ModalWindow.PageCreator() {
 
+                                    @Override
                                     public Page createPage() {
-                                        ConnectorModalPage form =
-                                                new ConnectorModalPage(
+                                        return new ConnectorModalPage(
                                                 Connectors.this,
                                                 editConnectorWin, connectorTO,
                                                 false);
-                                        return form;
                                     }
                                 });
 
