@@ -15,11 +15,21 @@
     <packaging>war</packaging>
 
     <properties>
-        <hsqldb.version>1.8.0.10</hsqldb.version>
+        <hsqldb.version>2.0.0</hsqldb.version>
 
-        <cargo.servlet.port>8080</cargo.servlet.port>
-        <cargo.log>/tmp/syncope-core-cargo.log</cargo.log>
-        <cargo.output>/tmp/syncope-core-cargo-output.log</cargo.output>
+        <cargo.servlet.port>9080</cargo.servlet.port>
+        <cargo.run.dir>${project.build.directory}/syncope-core-test</cargo.run.dir>
+        <cargo.log>/var/tmp/syncope-core-cargo.log</cargo.log>
+        <cargo.output>/var/tmp/syncope-core-cargo-output.log</cargo.output>
+
+        <logfile>/var/tmp/syncope-core.log</logfile>
+        <logfile.persistence>/var/tmp/syncope-core-persistence.log</logfile.persistence>
+        <logfile.rest>/var/tmp/syncope-core-rest.log</logfile.rest>
+        <logfile.identityconnectors>/var/tmp/syncope-core-identityconnectors.log</logfile.identityconnectors>
+        <logfile.test>/var/tmp/syncope-core-test.log</logfile.test>
+        <logfile.monitor>/var/tmp/syncope-core-monitor.log</logfile.monitor>
+
+        <bundles.directory>/var/tmp/bundles</bundles.directory>
     </properties>
 
     <dependencies>
@@ -70,6 +80,30 @@
         </dependency>
 
         <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-config</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-httpclient</groupId>
+            <artifactId>commons-httpclient</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjrt</artifactId>
+        </dependency>
+
+        <!-- TEST -->
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
@@ -85,13 +119,58 @@
             <version>${hsqldb.version}</version>
             <scope>test</scope>
         </dependency>
-        
+        <dependency>
+            <groupId>org.syncope.identityconnectors.bundles.staticws</groupId>
+            <artifactId>ws-target-resource</artifactId>
+            <version>${syncope.version}</version>
+            <type>war</type>
+            <scope>test</scope>
+        </dependency>
+        <!-- /TEST -->
+
     </dependencies>
 
     <build>
-        <finalName>syncope</finalName>
+        <finalName>${parent.artifactId}-${parent.version}</finalName>
 
         <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>hibernate3-maven-plugin</artifactId>
+                <inherited>true</inherited>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.hsqldb</groupId>
+                        <artifactId>hsqldb</artifactId>
+                        <version>${hsqldb.version}</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <components>
+                        <component>
+                            <name>hbm2ddl</name>
+                            <implementation>jpaconfiguration</implementation>
+                        </component>
+                    </components>
+                    <componentProperties>
+                        <jdk5>true</jdk5>
+                        <propertyfile>${project.build.directory}/test-classes/persistence.properties</propertyfile>
+                        <skip>${maven.test.skip}</skip>
+                        <format>true</format>
+                        <persistenceunit>syncopePersistenceUnit</persistenceunit>
+                    </componentProperties>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>test-compile</phase>
+                        <goals>
+                            <goal>hbm2ddl</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Integration tests -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
@@ -112,52 +191,53 @@
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
+                <artifactId>maven-antrun-plugin</artifactId>
                 <inherited>true</inherited>
                 <executions>
                     <execution>
-                        <id>integration-test-resources</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
+                        <id>explodeSyncopeWAR</id>
+                        <phase>package</phase>
                         <configuration>
-                            <finalName>integration-test</finalName>
-                            <classesDirectory>${project.build.directory}/test-classes</classesDirectory>
-                            <includes>
-                                <include>**/db.properties</include>
-                                <include>**/content.xml</include>
-                            </includes>
+                            <tasks>
+                                <unzip src="${project.build.directory}/${project.build.finalName}.war"
+                                       dest="${cargo.run.dir}">
+                                    <patternset>
+                                        <exclude name="**/content.xml"/>
+                                        <exclude name="**/ehcache.xml"/>
+                                        <exclude name="**/persistence.properties"/>
+                                        <exclude name="**/security.properties"/>
+                                    </patternset>
+                                </unzip>
+                            </tasks>
                         </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
+                <artifactId>maven-dependency-plugin</artifactId>
                 <inherited>true</inherited>
-                <configuration>
-                    <attachClasses>true</attachClasses>
-                </configuration>
                 <executions>
                     <execution>
-                        <id>integration-test-war</id>
+                        <id>set-bundles</id>
                         <phase>pre-integration-test</phase>
                         <goals>
-                            <goal>war</goal>
+                            <goal>copy</goal>
                         </goals>
                         <configuration>
-                            <packagingExcludes>WEB-INF/classes/org/syncope/core/persistence/db.properties,
-                                WEB-INF/classes/org/syncope/core/persistence/content.xml</packagingExcludes>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.syncope.identityconnectors.bundles.staticws</groupId>
+                                    <artifactId>staticwebservice</artifactId>
+                                    <version>${syncope.version}</version>
+                                    <outputDirectory>${bundles.directory}</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
                         </configuration>
-                    </execution>
-                    <execution>
-                        <id>repackage-war</id>
-                        <phase>post-integration-test</phase>
-                        <goals>
-                            <goal>war</goal>
-                        </goals>
                     </execution>
                 </executions>
             </plugin>
@@ -167,12 +247,11 @@
                 <artifactId>cargo-maven2-plugin</artifactId>
                 <inherited>true</inherited>
                 <configuration>
-                    <wait>false</wait>
                     <container>
                         <containerId>tomcat6x</containerId>
                         <zipUrlInstaller>
                             <url>http://www.apache.org/dist/tomcat/tomcat-6/v6.0.29/bin/apache-tomcat-6.0.29.zip</url>
-                            <installDir>${java.io.tmpdir}/tomcat</installDir>
+                            <installDir>${java.io.tmpdir}/tomcat6x</installDir>
                         </zipUrlInstaller>
                         <log>${cargo.log}</log>
                         <output>${cargo.output}</output>
@@ -181,7 +260,7 @@
                                 <location>${settings.localRepository}/org/hsqldb/hsqldb/${hsqldb.version}/hsqldb-${hsqldb.version}.jar</location>
                             </dependency>
                             <dependency>
-                                <location>${project.build.directory}/integration-test.jar</location>
+                                <location>${project.build.directory}/test-classes/</location>
                             </dependency>
                         </dependencies>
                     </container>
@@ -190,21 +269,22 @@
                         <home>target/tomcat6x</home>
                         <properties>
                             <cargo.servlet.port>${cargo.servlet.port}</cargo.servlet.port>
+<!--                            <cargo.jvmargs>-Xdebug -Xrunjdwp:transport=dt_socket,address=9009,server=y,suspend=n</cargo.jvmargs>-->
                         </properties>
                         <deployables>
                             <deployable>
-                                <location>${project.build.directory}/${project.build.finalName}.war</location>
+                                <location>${cargo.run.dir}</location>
+                                <properties>
+                                    <context>syncope</context>
+                                </properties>
                             </deployable>
                             <deployable>
-                                <groupId>org.syncope.identityconnectors.bundles.staticws</groupId>
-                                <artifactId>ws-target-resource</artifactId>
-                                <type>war</type>
+                                <location>${settings.localRepository}/org/syncope/identityconnectors/bundles/staticws/ws-target-resource/${syncope.version}/ws-target-resource-${syncope.version}.war</location>
                                 <properties>
                                     <context>wstarget</context>
                                 </properties>
                             </deployable>
                         </deployables>
-
                     </configuration>
                 </configuration>
                 <executions>
@@ -214,6 +294,9 @@
                         <goals>
                             <goal>start</goal>
                         </goals>
+                        <configuration>
+                            <wait>false</wait>
+                        </configuration>
                     </execution>
                     <execution>
                         <id>stop-container</id>
@@ -224,6 +307,7 @@
                     </execution>
                 </executions>
             </plugin>
+
         </plugins>
 
         <resources>
