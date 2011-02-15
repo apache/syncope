@@ -64,12 +64,8 @@ public class RoleTreeBuilder {
     }
 
     public TreeModel build(final List<RoleTO> roles) {
-        RoleTO fakerootTO = new RoleTO();
-        fakerootTO.setId(0);
-        fakerootTO.setName("");
-        fakerootTO.setParent(-1);
         DefaultMutableTreeNode fakeroot =
-                new DefaultMutableTreeNode(fakerootTO);
+                new DefaultMutableTreeNode(new FakerootTO());
 
         populateSubtree(fakeroot, roles);
 
@@ -88,6 +84,22 @@ public class RoleTreeBuilder {
             }
 
             return 1;
+        }
+    }
+
+    private static class FakerootTO extends RoleTO {
+
+        public FakerootTO() {
+            super();
+
+            setId(0);
+            setName("");
+            setParent(-1);
+        }
+
+        @Override
+        public String getDisplayName() {
+            return "";
         }
     }
 }

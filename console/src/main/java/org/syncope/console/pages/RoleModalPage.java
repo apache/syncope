@@ -109,7 +109,8 @@ public class RoleModalPage extends BaseModalPage {
 
         final Form form = new Form("RoleForm");
 
-        add(new Label("displayName", roleTO.getDisplayName()));
+        add(new Label("displayName",
+                roleTO.getId() != 0 ? roleTO.getDisplayName() : ""));
 
         form.setModel(new CompoundPropertyModel(roleTO));
 
@@ -487,10 +488,10 @@ public class RoleModalPage extends BaseModalPage {
         oldRole = new RoleTO();
 
         oldRole.setId(roleTO.getId());
-        oldRole.setName(new String(roleTO.getName()));
-        oldRole.setParent(new Long(roleTO.getParent()));
+        oldRole.setName(roleTO.getName());
+        oldRole.setParent(roleTO.getParent());
 
-        List<AttributeTO> attributes = new ArrayList<AttributeTO>();
+        final List<AttributeTO> attributes = new ArrayList<AttributeTO>();
 
         AttributeTO attributeTO;
         List<String> values;

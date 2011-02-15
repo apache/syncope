@@ -58,15 +58,17 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
             role.setName(roleTO.getName());
         }
         Long parentRoleId = null;
-        SyncopeRole parentRole = roleDAO.find(roleTO.getParent());
-        if (parentRole == null) {
-            LOG.error("Could not find role with id " + roleTO.getParent());
+        if (roleTO.getParent() != 0) {
+            SyncopeRole parentRole = roleDAO.find(roleTO.getParent());
+            if (parentRole == null) {
+                LOG.error("Could not find role with id " + roleTO.getParent());
 
-            invalidRoles.addElement(String.valueOf(roleTO.getParent()));
-            scce.addException(invalidRoles);
-        } else {
-            role.setParent(parentRole);
-            parentRoleId = role.getParent().getId();
+                invalidRoles.addElement(String.valueOf(roleTO.getParent()));
+                scce.addException(invalidRoles);
+            } else {
+                role.setParent(parentRole);
+                parentRoleId = role.getParent().getId();
+            }
         }
 
         SyncopeRole otherRole = roleDAO.find(

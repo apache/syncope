@@ -37,7 +37,7 @@ import org.syncope.core.rest.data.RoleDataBinder;
 public class RoleController extends AbstractController {
 
     @Autowired
-    private RoleDAO syncopeRoleDAO;
+    private RoleDAO roleDAO;
 
     @Autowired
     private RoleDataBinder roleDataBinder;
@@ -59,7 +59,7 @@ public class RoleController extends AbstractController {
 
             throw e;
         }
-        role = syncopeRoleDAO.save(role);
+        role = roleDAO.save(role);
 
         response.setStatus(HttpServletResponse.SC_CREATED);
         return roleDataBinder.getRoleTO(role);
@@ -71,21 +71,21 @@ public class RoleController extends AbstractController {
     public void delete(@PathVariable("roleId") Long roleId)
             throws NotFoundException {
 
-        SyncopeRole role = syncopeRoleDAO.find(roleId);
+        SyncopeRole role = roleDAO.find(roleId);
         if (role == null) {
             LOG.error("Could not find role '" + roleId + "'");
 
             throw new NotFoundException("Role " + String.valueOf(roleId));
         }
 
-        syncopeRoleDAO.delete(roleId);
+        roleDAO.delete(roleId);
     }
 
     @PreAuthorize("hasRole('ROLE_LIST')")
     @RequestMapping(method = RequestMethod.GET,
     value = "/list")
     public List<RoleTO> list() {
-        List<SyncopeRole> roles = syncopeRoleDAO.findAll();
+        List<SyncopeRole> roles = roleDAO.findAll();
         List<RoleTO> roleTOs = new ArrayList<RoleTO>(roles.size());
         for (SyncopeRole role : roles) {
             roleTOs.add(roleDataBinder.getRoleTO(role));
@@ -100,7 +100,7 @@ public class RoleController extends AbstractController {
     public RoleTO parent(@PathVariable("roleId") Long roleId)
             throws NotFoundException {
 
-        SyncopeRole role = syncopeRoleDAO.find(roleId);
+        SyncopeRole role = roleDAO.find(roleId);
         if (role == null) {
             LOG.error("Could not find role '" + roleId + "'");
 
@@ -116,7 +116,7 @@ public class RoleController extends AbstractController {
     value = "/children/{roleId}")
     public List<RoleTO> children(@PathVariable("roleId") Long roleId) {
 
-        List<SyncopeRole> roles = syncopeRoleDAO.findChildren(roleId);
+        List<SyncopeRole> roles = roleDAO.findChildren(roleId);
         List<RoleTO> roleTOs = new ArrayList<RoleTO>(roles.size());
         for (SyncopeRole role : roles) {
             roleTOs.add(roleDataBinder.getRoleTO(role));
@@ -131,7 +131,7 @@ public class RoleController extends AbstractController {
     public RoleTO read(@PathVariable("roleId") Long roleId)
             throws NotFoundException {
 
-        SyncopeRole role = syncopeRoleDAO.find(roleId);
+        SyncopeRole role = roleDAO.find(roleId);
         if (role == null) {
             LOG.error("Could not find role '" + roleId + "'");
 
@@ -149,7 +149,7 @@ public class RoleController extends AbstractController {
 
         LOG.debug("Role update called with parameter {}", roleMod);
 
-        SyncopeRole role = syncopeRoleDAO.find(roleMod.getId());
+        SyncopeRole role = roleDAO.find(roleMod.getId());
         if (role == null) {
             LOG.error("Could not find role '" + roleMod.getId() + "'");
 
@@ -158,7 +158,7 @@ public class RoleController extends AbstractController {
         }
 
         roleDataBinder.update(role, roleMod);
-        role = syncopeRoleDAO.save(role);
+        role = roleDAO.save(role);
 
         return roleDataBinder.getRoleTO(role);
     }

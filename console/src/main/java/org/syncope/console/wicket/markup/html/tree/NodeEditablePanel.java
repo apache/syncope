@@ -60,38 +60,37 @@ public class NodeEditablePanel extends Panel {
 
         super(id);
 
-        if (idRole == -1) {
-            fragment = new Fragment("menuPanel", "frag2", this);
-        } else {
-            fragment = new Fragment("menuPanel", "frag1", this);
+        fragment = new Fragment("menuPanel",
+                idRole == 0 ? "fakerootFrag" : "roleFrag", this);
 
-            AjaxLink createRoleLink = new IndicatingAjaxLink("createRoleLink") {
+        AjaxLink createRoleLink = new IndicatingAjaxLink("createRoleLink") {
 
-                @Override
-                public void onClick(final AjaxRequestTarget target) {
-                    window.setPageCreator(new ModalWindow.PageCreator() {
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+                window.setPageCreator(new ModalWindow.PageCreator() {
 
-                        @Override
-                        public Page createPage() {
-                            RoleTO roleTO = new RoleTO();
-                            roleTO.setParent(idRole);
-                            RoleModalPage form = new RoleModalPage(basePage,
-                                    window, roleTO, true);
-                            return form;
-                        }
-                    });
+                    @Override
+                    public Page createPage() {
+                        RoleTO roleTO = new RoleTO();
+                        roleTO.setParent(idRole);
+                        RoleModalPage form = new RoleModalPage(basePage,
+                                window, roleTO, true);
+                        return form;
+                    }
+                });
 
-                    window.show(target);
-                }
-            };
+                window.show(target);
+            }
+        };
 
-            String allowedCreateRoles = xmlRolesReader.getAllAllowedRoles(
-                    "Roles", "create");
-            MetaDataRoleAuthorizationStrategy.authorize(createRoleLink, ENABLE,
-                    allowedCreateRoles);
+        String allowedCreateRoles = xmlRolesReader.getAllAllowedRoles(
+                "Roles", "create");
+        MetaDataRoleAuthorizationStrategy.authorize(createRoleLink, ENABLE,
+                allowedCreateRoles);
 
-            fragment.add(createRoleLink);
+        fragment.add(createRoleLink);
 
+        if (idRole != 0) {
             AjaxLink updateRoleLink = new IndicatingAjaxLink("updateRoleLink") {
 
                 @Override
