@@ -44,7 +44,7 @@ public class SchemaDataBinder {
     private static final Logger LOG = LoggerFactory.getLogger(
             SchemaDataBinder.class);
 
-    private static final String[] ignoreSchemaProperties = {
+    private static final String[] IGNORE_SCHEMA_PROPERTIES = {
         "derivedSchemas", "attributes"};
 
     @Autowired
@@ -91,7 +91,7 @@ public class SchemaDataBinder {
             throw scce;
         }
 
-        BeanUtils.copyProperties(schemaTO, schema, ignoreSchemaProperties);
+        BeanUtils.copyProperties(schemaTO, schema, IGNORE_SCHEMA_PROPERTIES);
 
         AbstractDerSchema abstractDerivedSchema;
         for (String derivedSchema : schemaTO.getDerivedSchemas()) {
@@ -170,13 +170,13 @@ public class SchemaDataBinder {
             final AttributableUtil attributableUtil) {
 
         SchemaTO schemaTO = new SchemaTO();
-        BeanUtils.copyProperties(schema, schemaTO, ignoreSchemaProperties);
+        BeanUtils.copyProperties(schema, schemaTO, IGNORE_SCHEMA_PROPERTIES);
 
         for (AbstractDerSchema derivedSchema : schema.getDerivedSchemas()) {
             schemaTO.addDerivedSchema(derivedSchema.getName());
         }
-        schemaTO.setAttributes(schemaDAO.getAttributes(
-                schema, attributableUtil.attributeClass()).size());
+        schemaTO.setAttributes(schemaDAO.getAttributeCount(
+                schema, attributableUtil.attributeClass()).intValue());
 
         return schemaTO;
     }

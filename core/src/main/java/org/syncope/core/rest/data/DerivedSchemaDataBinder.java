@@ -127,7 +127,6 @@ public class DerivedSchemaDataBinder {
                 ignoreDerivedSchemaProperties);
 
         for (AbstractSchema schema : derivedSchema.getSchemas()) {
-
             derivedSchemaTO.addSchema(schema.getName());
         }
         derivedSchemaTO.setDerivedAttributes(

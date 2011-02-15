@@ -22,15 +22,25 @@ import org.syncope.types.SchemaType;
 public class SchemaTO extends AbstractBaseBean {
 
     private String name;
+
     private SchemaType type;
+
     private boolean virtual;
+
     private String mandatoryCondition;
+
     private boolean multivalue;
+
     private boolean uniqueConstraint;
+
     private boolean readonly;
+
     private String conversionPattern;
+
     private String validatorClass;
+
     private Set<String> derivedSchemas;
+
     private int attributes;
 
     public SchemaTO() {

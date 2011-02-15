@@ -60,13 +60,16 @@ public class Schema extends BasePage {
 
     private enum SchemaType {
 
-        RoleSchema, UserSchema, MembershipSchema
+        RoleSchema,
+        UserSchema,
+        MembershipSchema
 
     };
 
     private enum SchemaDerivedType {
 
-        RoleDerivedSchema, UserDerivedSchema,
+        RoleDerivedSchema,
+        UserDerivedSchema,
         MembershipDerivedSchema
 
     };

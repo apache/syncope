@@ -135,12 +135,12 @@ public class PreferenceManager {
         Cookie prefCookie = request.getCookie(Constants.PREFS_COOKIE_NAME);
         if (prefCookie == null) {
             prefCookie = new Cookie(Constants.PREFS_COOKIE_NAME, "");
-            prefCookie.setMaxAge(ONE_YEAR_TIME);
         }
 
         Map<String, String> prefs;
         try {
-            prefs = getPrefs(prefCookie.getValue());
+            prefs = getPrefs(new String(Base64.decodeBase64(
+                    prefCookie.getValue().getBytes())));
         } catch (IOException e) {
             LOG.error("Could not get preferences from "
                     + prefCookie.getValue(), e);
@@ -156,6 +156,7 @@ public class PreferenceManager {
             LOG.error("Could not set preferences from " + prefs);
         }
 
+        prefCookie.setMaxAge(ONE_YEAR_TIME);
         response.addCookie(prefCookie);
     }
 
