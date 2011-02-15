@@ -17,14 +17,11 @@ package org.syncope.console.rest;
 import java.util.Arrays;
 import java.util.List;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpServerErrorException;
 import org.syncope.client.mod.UserMod;
-import org.syncope.client.to.ConfigurationTO;
 import org.syncope.client.search.NodeCond;
 import org.syncope.client.search.PaginatedResult;
 import org.syncope.client.to.UserTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.syncope.console.commons.Constants;
 
 /**
  * Console client for invoking rest users services.
@@ -95,71 +92,16 @@ public class UserRestClient extends AbstractBaseRestClient {
     }
 
     /**
-     * Create a new configuration.
-     * @param configurationTO
-     * @return true if the operation ends succesfully, false otherwise
-     */
-    public boolean createConfigurationAttributes(
-            ConfigurationTO configurationTO) {
-
-        ConfigurationTO newConfigurationTO =
-                restTemplate.postForObject(
-                baseURL + "configuration/create",
-                configurationTO, ConfigurationTO.class);
-
-        return configurationTO.equals(newConfigurationTO);
-    }
-
-    /**
-     * Update an existent configuration.
-     * @param configurationTO
-     * @return true if the operation ends succesfully, false otherwise
-     */
-    public boolean updateConfigurationAttributes(
-            ConfigurationTO configurationTO) {
-
-        ConfigurationTO newConfigurationTO = restTemplate.postForObject(
-                baseURL + "configuration/update",
-                configurationTO, ConfigurationTO.class);
-
-        return configurationTO.equals(newConfigurationTO);
-    }
-
-    /**
-     * Load an existent configuration.
-     * @return ConfigurationTO object if the configuration exists,
-     * null otherwise
-     */
-    public ConfigurationTO readConfigurationDisplayAttributes() {
-
-        ConfigurationTO configurationTO;
-        try {
-            configurationTO = restTemplate.getForObject(
-                    baseURL + "configuration/read/{confKey}",
-                    ConfigurationTO.class,
-                    Constants.PREF_USERS_ATTRIBUTES_VIEW);
-        } catch (SyncopeClientCompositeErrorException e) {
-            LOG.error("While reading a conf key", e);
-            return null;
-        }
-
-        return configurationTO;
-    }
-
-    /**
      * Search an user by its schema values.
      * @param userTO
      * @return UserTOs
      */
     public List<UserTO> searchUsers(NodeCond nodeSearchCondition)
-            throws HttpServerErrorException {
-        List<UserTO> matchedUsers = null;
+            throws SyncopeClientCompositeErrorException {
 
-        matchedUsers = Arrays.asList(restTemplate.postForObject(
+        return Arrays.asList(restTemplate.postForObject(
                 baseURL + "user/search",
                 nodeSearchCondition, UserTO[].class));
-
-        return matchedUsers;
     }
 
     /**
@@ -169,40 +111,30 @@ public class UserRestClient extends AbstractBaseRestClient {
      */
     public List<UserTO> paginatedSearchUsers(NodeCond nodeSearchCondition,
             int page, int size)
-            throws HttpServerErrorException {
-        List<UserTO> matchedUsers = null;
+            throws SyncopeClientCompositeErrorException {
 
         final PaginatedResult paginatedResult =
                 restTemplate.postForObject(
                 baseURL + "user/paginatedSearch/{page}/{size}",
                 nodeSearchCondition, PaginatedResult.class, page, size);
 
-        matchedUsers = paginatedResult.getRecords();
-
-        return matchedUsers;
+        return paginatedResult.getRecords();
     }
 
     public PaginatedResult paginatedSearchUser(NodeCond nodeSearchCondition,
             int page, int size)
-            throws HttpServerErrorException,
-            SyncopeClientCompositeErrorException {
+            throws SyncopeClientCompositeErrorException {
 
-        PaginatedResult paginatedResult =
-                restTemplate.postForObject(
+        return restTemplate.postForObject(
                 baseURL + "user/paginatedSearch/{page}/{size}",
                 nodeSearchCondition, PaginatedResult.class, page, size);
-
-        return paginatedResult;
     }
 
     public PaginatedResult getPaginatedUser(int page, int size)
-            throws HttpServerErrorException {
+            throws SyncopeClientCompositeErrorException {
 
-        PaginatedResult paginatedResult =
-                restTemplate.getForObject(
+        return restTemplate.getForObject(
                 baseURL + "user/paginatedList/{page}/{size}",
                 PaginatedResult.class, page, size);
-
-        return paginatedResult;
     }
 }
