@@ -71,7 +71,7 @@
         <aop:scoped-proxy/>
     </bean>
 
-    <bean id="utility" class="org.syncope.console.commons.Utility"/>
+    <bean id="preferenceManager" class="org.syncope.console.commons.PreferenceManager"/>
 
     <bean id="xmlRolesReader" class="org.syncope.console.commons.XMLRolesReader"/>
 

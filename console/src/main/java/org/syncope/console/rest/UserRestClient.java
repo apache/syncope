@@ -137,7 +137,7 @@ public class UserRestClient extends AbstractBaseRestClient {
             configurationTO = restTemplate.getForObject(
                     baseURL + "configuration/read/{confKey}",
                     ConfigurationTO.class,
-                    Constants.CONF_USERS_ATTRIBUTES_VIEW);
+                    Constants.PREF_USERS_ATTRIBUTES_VIEW);
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While reading a conf key", e);
             return null;

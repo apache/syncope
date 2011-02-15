@@ -16,9 +16,7 @@
  */
 package org.syncope.console.pages;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.StringTokenizer;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
@@ -32,9 +30,8 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.to.ConfigurationTO;
-
 import org.syncope.console.commons.Constants;
-import org.syncope.console.rest.ConfigurationRestClient;
+import org.syncope.console.commons.PreferenceManager;
 import org.syncope.console.rest.SchemaRestClient;
 
 /**
@@ -43,7 +40,7 @@ import org.syncope.console.rest.SchemaRestClient;
 public class DisplayAttributesModalPage extends BaseModalPage {
 
     @SpringBean
-    private ConfigurationRestClient restClient;
+    private PreferenceManager prefMan;
 
     @SpringBean
     private SchemaRestClient schemaRestClient;
@@ -61,7 +58,8 @@ public class DisplayAttributesModalPage extends BaseModalPage {
 
         Form userAttributesForm = new Form("UserAttributesForm");
         userAttributesForm.setModel(new CompoundPropertyModel(this));
-        setupSelections();
+        selections = prefMan.getList(getWebRequestCycle().getWebRequest(),
+                Constants.PREF_USERS_ATTRIBUTES_VIEW);
 
         final IModel attributes = new LoadableDetachableModel() {
 
@@ -81,59 +79,16 @@ public class DisplayAttributesModalPage extends BaseModalPage {
             protected void onSubmit(final AjaxRequestTarget target,
                     final Form form) {
 
-                if (saveConfiguration()) {
-                    Users callerPage = (Users) basePage;
-                    callerPage.setOperationResult(true);
-                    window.close(target);
-                } else {
-                    error(getString("generic_error"));
-                }
+                prefMan.setList(getWebRequest(),
+                        getWebRequestCycle().getWebResponse(),
+                        Constants.PREF_USERS_ATTRIBUTES_VIEW,
+                        selections);
 
+                ((Users) basePage).setOperationResult(true);
+                window.close(target);
             }
         };
         userAttributesForm.add(submit);
         add(userAttributesForm);
-    }
-
-    /**
-     * Setup user selections.
-     * @return selections' names.
-     */
-    public final void setupSelections() {
-        selections = new ArrayList<String>();
-
-        configuration = restClient.readConfiguration(
-                Constants.CONF_USERS_ATTRIBUTES_VIEW);
-
-        if (configuration != null && configuration.getConfValue() != null) {
-            String conf = configuration.getConfValue();
-            StringTokenizer st = new StringTokenizer(conf, ";");
-
-            while (st.hasMoreTokens()) {
-                this.selections.add(st.nextToken());
-            }
-        }
-    }
-
-    /**
-     * Store the selected selections into db.
-     */
-    public boolean saveConfiguration() {
-        boolean create = (configuration == null
-                || configuration.getConfValue() == null) ? true : false;
-
-        configuration = new ConfigurationTO();
-
-        StringBuilder value = new StringBuilder();
-        for (String name : selections) {
-            value.append(name).append(';');
-        }
-
-        configuration.setConfKey(Constants.CONF_USERS_ATTRIBUTES_VIEW);
-        configuration.setConfValue(value.toString());
-
-        return create
-                ? restClient.createConfiguration(configuration)
-                : restClient.updateConfiguration(configuration);
     }
 }

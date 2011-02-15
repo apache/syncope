@@ -48,7 +48,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.to.DerivedSchemaTO;
 import org.syncope.client.to.SchemaTO;
 import org.syncope.console.commons.Constants;
-import org.syncope.console.commons.Utility;
+import org.syncope.console.commons.PreferenceManager;
 import org.syncope.console.rest.SchemaRestClient;
 import org.syncope.console.wicket.markup.html.form.DeleteLinkPanel;
 import org.syncope.console.wicket.markup.html.form.EditLinkPanel;
@@ -78,7 +78,7 @@ public class Schema extends BasePage {
     private SchemaRestClient restClient;
 
     @SpringBean
-    private Utility utility;
+    private PreferenceManager prefMan;
 
     private final ModalWindow createUserSchemaWin;
 
@@ -164,23 +164,29 @@ public class Schema extends BasePage {
         add(editMembershipDerivedSchemaWin = new ModalWindow(
                 "editMembershipDerSchemaWin"));
 
-        rolePageRows = utility.getPaginatorRowsToDisplay(
-                Constants.CONF_ROLE_SCHEMA_PAGINATOR_ROWS);
+        rolePageRows = prefMan.getPaginatorRows(
+                getWebRequestCycle().getWebRequest(),
+                Constants.PREF_ROLE_SCHEMA_PAGINATOR_ROWS);
 
-        roleDerPageRows = utility.getPaginatorRowsToDisplay(
-                Constants.CONF_ROLE_DER_SCHEMA_PAGINATOR_ROWS);
+        roleDerPageRows = prefMan.getPaginatorRows(
+                getWebRequestCycle().getWebRequest(),
+                Constants.PREF_ROLE_DER_SCHEMA_PAGINATOR_ROWS);
 
-        userSchemaPageRows = utility.getPaginatorRowsToDisplay(
-                Constants.CONF_USER_SCHEMA_PAGINATOR_ROWS);
+        userSchemaPageRows = prefMan.getPaginatorRows(
+                getWebRequestCycle().getWebRequest(),
+                Constants.PREF_USER_SCHEMA_PAGINATOR_ROWS);
 
-        userDerSchemaPageRows = utility.getPaginatorRowsToDisplay(
-                Constants.CONF_USER_DER_SCHEMA_PAGINATOR_ROWS);
+        userDerSchemaPageRows = prefMan.getPaginatorRows(
+                getWebRequestCycle().getWebRequest(),
+                Constants.PREF_USER_DER_SCHEMA_PAGINATOR_ROWS);
 
-        membershipPageRows = utility.getPaginatorRowsToDisplay(
-                Constants.CONF_MEMBERSHIP_SCHEMA_PAGINATOR_ROWS);
+        membershipPageRows = prefMan.getPaginatorRows(
+                getWebRequestCycle().getWebRequest(),
+                Constants.PREF_MEMBERSHIP_SCHEMA_PAGINATOR_ROWS);
 
-        membershipDerPageRows = utility.getPaginatorRowsToDisplay(
-                Constants.CONF_MEMBERSHIP_DER_SCHEMA_PAGINATOR_ROWS);
+        membershipDerPageRows = prefMan.getPaginatorRows(
+                getWebRequestCycle().getWebRequest(),
+                Constants.PREF_MEMBERSHIP_DER_SCHEMA_PAGINATOR_ROWS);
 
         final String allowedCreateRoles = xmlRolesReader.getAllAllowedRoles(
                 "Schema", "create");
@@ -300,16 +306,17 @@ public class Schema extends BasePage {
         Form rolesPaginatorForm = new Form("RolesPaginatorForm");
 
         final DropDownChoice rowsRoleChooser = new DropDownChoice("rowsChooser",
-                new PropertyModel(this, "rolePageRows"), utility.
-                paginatorRowsChooser());
+                new PropertyModel(this, "rolePageRows"),
+                prefMan.getPaginatorChoices());
 
         rowsRoleChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
-            protected void onUpdate(AjaxRequestTarget target) {
-                utility.updatePaginatorRows(
-                        Constants.CONF_ROLE_SCHEMA_PAGINATOR_ROWS,
-                        rolePageRows);
-
+            @Override
+            protected void onUpdate(final AjaxRequestTarget target) {
+                prefMan.set(getWebRequestCycle().getWebRequest(),
+                        getWebRequestCycle().getWebResponse(),
+                        Constants.PREF_ROLE_SCHEMA_PAGINATOR_ROWS,
+                        String.valueOf(rolePageRows));
                 tableRoles.setRowsPerPage(rolePageRows);
 
                 target.addComponent(roleSchemasContainer);
@@ -434,17 +441,18 @@ public class Schema extends BasePage {
         Form rolesDerPaginatorForm = new Form("RolesDerPaginatorForm");
 
         DropDownChoice rowsRolesDerChooser = new DropDownChoice("rowsChooser",
-                new PropertyModel(this, "roleDerPageRows"), utility.
-                paginatorRowsChooser());
+                new PropertyModel(this, "roleDerPageRows"),
+                prefMan.getPaginatorChoices());
 
         rowsRolesDerChooser.add(
                 new AjaxFormComponentUpdatingBehavior("onchange") {
 
-                    protected void onUpdate(AjaxRequestTarget target) {
-                        utility.updatePaginatorRows(
-                                Constants.CONF_ROLE_DER_SCHEMA_PAGINATOR_ROWS,
-                                rolePageRows);
-
+                    @Override
+                    protected void onUpdate(final AjaxRequestTarget target) {
+                        prefMan.set(getWebRequestCycle().getWebRequest(),
+                                getWebRequestCycle().getWebResponse(),
+                                Constants.PREF_ROLE_DER_SCHEMA_PAGINATOR_ROWS,
+                                String.valueOf(roleDerPageRows));
                         tableRolesDer.setRowsPerPage(roleDerPageRows);
 
                         target.addComponent(roleDerivedSchemasContainer);
@@ -569,15 +577,16 @@ public class Schema extends BasePage {
 
         final DropDownChoice usersRowsChooser = new DropDownChoice(
                 "rowsChooser", new PropertyModel(this, "userSchemaPageRows"),
-                utility.paginatorRowsChooser());
+                prefMan.getPaginatorChoices());
 
         usersRowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
-            protected void onUpdate(AjaxRequestTarget target) {
-                utility.updatePaginatorRows(
-                        Constants.CONF_USER_SCHEMA_PAGINATOR_ROWS,
-                        userSchemaPageRows);
-
+            @Override
+            protected void onUpdate(final AjaxRequestTarget target) {
+                prefMan.set(getWebRequestCycle().getWebRequest(),
+                        getWebRequestCycle().getWebResponse(),
+                        Constants.PREF_USER_SCHEMA_PAGINATOR_ROWS,
+                        String.valueOf(userSchemaPageRows));
                 tableUsers.setRowsPerPage(userSchemaPageRows);
 
                 target.addComponent(userSchemaContainer);
@@ -704,16 +713,17 @@ public class Schema extends BasePage {
         final DropDownChoice usersDerRowsChooser = new DropDownChoice(
                 "rowsChooser",
                 new PropertyModel(this, "userDerSchemaPageRows"),
-                utility.paginatorRowsChooser());
+                prefMan.getPaginatorChoices());
 
         usersDerRowsChooser.add(
                 new AjaxFormComponentUpdatingBehavior("onchange") {
 
+                    @Override
                     protected void onUpdate(AjaxRequestTarget target) {
-                        utility.updatePaginatorRows(
-                                Constants.CONF_USER_DER_SCHEMA_PAGINATOR_ROWS,
-                                userDerSchemaPageRows);
-
+                        prefMan.set(getWebRequestCycle().getWebRequest(),
+                                getWebRequestCycle().getWebResponse(),
+                                Constants.PREF_USER_DER_SCHEMA_PAGINATOR_ROWS,
+                                String.valueOf(userDerSchemaPageRows));
                         tableUsersDer.setRowsPerPage(userDerSchemaPageRows);
 
                         target.addComponent(userDerivedSchemaContainer);
@@ -839,16 +849,17 @@ public class Schema extends BasePage {
         final DropDownChoice membershipRowsChooser = new DropDownChoice(
                 "rowsChooser",
                 new PropertyModel(this, "membershipPageRows"),
-                utility.paginatorRowsChooser());
+                prefMan.getPaginatorChoices());
 
         membershipRowsChooser.add(new AjaxFormComponentUpdatingBehavior(
                 "onchange") {
 
-            protected void onUpdate(AjaxRequestTarget target) {
-                utility.updatePaginatorRows(
-                        Constants.CONF_MEMBERSHIP_SCHEMA_PAGINATOR_ROWS,
-                        membershipPageRows);
-
+            @Override
+            protected void onUpdate(final AjaxRequestTarget target) {
+                prefMan.set(getWebRequestCycle().getWebRequest(),
+                        getWebRequestCycle().getWebResponse(),
+                        Constants.PREF_MEMBERSHIP_SCHEMA_PAGINATOR_ROWS,
+                        String.valueOf(membershipPageRows));
                 tableMemberships.setRowsPerPage(membershipPageRows);
 
                 target.addComponent(membershipSchemaContainer);
@@ -978,15 +989,17 @@ public class Schema extends BasePage {
         final DropDownChoice membershipDerRowsChooser = new DropDownChoice(
                 "rowsChooser",
                 new PropertyModel(this, "membershipDerPageRows"),
-                utility.paginatorRowsChooser());
+                prefMan.getPaginatorChoices());
 
         membershipDerRowsChooser.add(new AjaxFormComponentUpdatingBehavior(
                 "onchange") {
 
-            protected void onUpdate(AjaxRequestTarget target) {
-                utility.updatePaginatorRows(
-                        Constants.CONF_MEMBERSHIP_DER_SCHEMA_PAGINATOR_ROWS,
-                        membershipDerPageRows);
+            @Override
+            protected void onUpdate(final AjaxRequestTarget target) {
+                prefMan.set(getWebRequestCycle().getWebRequest(),
+                        getWebRequestCycle().getWebResponse(),
+                        Constants.PREF_MEMBERSHIP_DER_SCHEMA_PAGINATOR_ROWS,
+                        String.valueOf(membershipDerPageRows));
 
                 tableMembershipsDer.setRowsPerPage(membershipDerPageRows);
 

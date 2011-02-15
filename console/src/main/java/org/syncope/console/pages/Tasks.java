@@ -49,7 +49,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.to.TaskTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.commons.Constants;
-import org.syncope.console.commons.Utility;
+import org.syncope.console.commons.PreferenceManager;
 import org.syncope.console.rest.TaskRestClient;
 import org.syncope.console.wicket.markup.html.form.DeleteLinkPanel;
 import org.syncope.console.wicket.markup.html.form.EditLinkPanel;
@@ -68,7 +68,7 @@ public class Tasks extends BasePage {
     private TaskRestClient restClient;
 
     @SpringBean
-    private Utility utility;
+    private PreferenceManager prefMan;
 
     private int paginatorRows;
 
@@ -87,8 +87,9 @@ public class Tasks extends BasePage {
 
         add(window = new ModalWindow("taskWin"));
 
-        paginatorRows = utility.getPaginatorRowsToDisplay(
-                Constants.CONF_TASKS_PAGINATOR_ROWS);
+        paginatorRows = prefMan.getPaginatorRows(
+                getWebRequestCycle().getWebRequest(),
+                Constants.PREF_TASKS_PAGINATOR_ROWS);
 
         List<IColumn> columns = new ArrayList<IColumn>();
 
@@ -273,15 +274,17 @@ public class Tasks extends BasePage {
         Form paginatorForm = new Form("PaginatorForm");
 
         final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser",
-                new PropertyModel(this, "paginatorRows"), utility.
-                paginatorRowsChooser());
+                new PropertyModel(this, "paginatorRows"),
+                prefMan.getPaginatorChoices());
 
         rowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                utility.updatePaginatorRows(Constants.CONF_TASKS_PAGINATOR_ROWS,
-                        paginatorRows);
+                prefMan.set(getWebRequestCycle().getWebRequest(),
+                        getWebRequestCycle().getWebResponse(),
+                        Constants.PREF_TASKS_PAGINATOR_ROWS,
+                        String.valueOf(paginatorRows));
 
                 table.setRowsPerPage(paginatorRows);
 

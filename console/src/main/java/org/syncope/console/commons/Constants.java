@@ -16,43 +16,45 @@ package org.syncope.console.commons;
 
 public final class Constants {
 
-    public static final String CONF_USERS_ATTRIBUTES_VIEW =
+    public static final String PREF_USERS_ATTRIBUTES_VIEW =
             "users.attributes.view";
 
-    public static final String CONF_USER_SCHEMA_PAGINATOR_ROWS =
+    public static final String PREFS_COOKIE_NAME = "syncopeConsolePrefs";
+
+    public static final String PREF_USER_SCHEMA_PAGINATOR_ROWS =
             "user.schema.paginator.rows";
 
-    public static final String CONF_USER_DER_SCHEMA_PAGINATOR_ROWS =
+    public static final String PREF_USER_DER_SCHEMA_PAGINATOR_ROWS =
             "user.derived.schema.paginator.rows";
 
-    public static final String CONF_ROLE_SCHEMA_PAGINATOR_ROWS =
+    public static final String PREF_ROLE_SCHEMA_PAGINATOR_ROWS =
             "role.schema.paginator.rows";
 
-    public static final String CONF_ROLE_DER_SCHEMA_PAGINATOR_ROWS =
+    public static final String PREF_ROLE_DER_SCHEMA_PAGINATOR_ROWS =
             "role.derived.schema.paginator.rows";
 
-    public static final String CONF_MEMBERSHIP_SCHEMA_PAGINATOR_ROWS =
+    public static final String PREF_MEMBERSHIP_SCHEMA_PAGINATOR_ROWS =
             "membership.schema.paginator.rows";
 
-    public static final String CONF_MEMBERSHIP_DER_SCHEMA_PAGINATOR_ROWS =
+    public static final String PREF_MEMBERSHIP_DER_SCHEMA_PAGINATOR_ROWS =
             "membership.derived.aschema.paginator.rows";
 
-    public static final String CONF_USERS_PAGINATOR_ROWS =
+    public static final String PREF_USERS_PAGINATOR_ROWS =
             "users.paginator.rows";
 
-    public static final String CONF_USERS_SEARCH_PAGINATOR_ROWS =
+    public static final String PREF_USERS_SEARCH_PAGINATOR_ROWS =
             "users.paginator.search.rows";
 
-    public static final String CONF_RESOURCES_PAGINATOR_ROWS =
+    public static final String PREF_RESOURCES_PAGINATOR_ROWS =
             "resources.paginator.rows";
 
-    public static final String CONF_CONNECTORS_PAGINATOR_ROWS =
+    public static final String PREF_CONNECTORS_PAGINATOR_ROWS =
             "connectors.paginator.rows";
 
-    public static final String CONF_CONFIGURATION_PAGINATOR_ROWS =
+    public static final String PREF_CONFIGURATION_PAGINATOR_ROWS =
             "configuration.paginator.rows";
 
-    public static final String CONF_TASKS_PAGINATOR_ROWS =
+    public static final String PREF_TASKS_PAGINATOR_ROWS =
             "tasks.paginator.rows";
 
     /* DATE FORMATS FOR TASKS */

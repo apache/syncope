@@ -48,7 +48,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.to.ResourceTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.commons.Constants;
-import org.syncope.console.commons.Utility;
+import org.syncope.console.commons.PreferenceManager;
 import org.syncope.console.rest.ResourceRestClient;
 import org.syncope.console.wicket.markup.html.form.DeleteLinkPanel;
 import org.syncope.console.wicket.markup.html.form.EditLinkPanel;
@@ -62,7 +62,7 @@ public class Resources extends BasePage {
     private ResourceRestClient restClient;
 
     @SpringBean
-    private Utility utility;
+    private PreferenceManager prefMan;
 
     private final ModalWindow createResourceWin;
 
@@ -90,8 +90,9 @@ public class Resources extends BasePage {
 
         add(feedbackPanel);
 
-        paginatorRows = utility.getPaginatorRowsToDisplay(
-                Constants.CONF_RESOURCES_PAGINATOR_ROWS);
+        paginatorRows = prefMan.getPaginatorRows(
+                getWebRequestCycle().getWebRequest(),
+                Constants.PREF_RESOURCES_PAGINATOR_ROWS);
 
         List<IColumn> columns = new ArrayList<IColumn>();
 
@@ -226,6 +227,7 @@ public class Resources extends BasePage {
 
                 createResourceWin.setPageCreator(new ModalWindow.PageCreator() {
 
+                    @Override
                     public Page createPage() {
                         ResourceModalPage windows = new ResourceModalPage(
                                 Resources.this, editResourceWin,
@@ -241,16 +243,17 @@ public class Resources extends BasePage {
         Form paginatorForm = new Form("PaginatorForm");
 
         final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser",
-                new PropertyModel(this, "paginatorRows"), utility.
-                paginatorRowsChooser());
+                new PropertyModel(this, "paginatorRows"),
+                prefMan.getPaginatorChoices());
 
         rowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
-            protected void onUpdate(AjaxRequestTarget target) {
-                utility.updatePaginatorRows(
-                        Constants.CONF_RESOURCES_PAGINATOR_ROWS,
-                        paginatorRows);
-
+            @Override
+            protected void onUpdate(final AjaxRequestTarget target) {
+                prefMan.set(getWebRequestCycle().getWebRequest(),
+                        getWebRequestCycle().getWebResponse(),
+                        Constants.PREF_RESOURCES_PAGINATOR_ROWS,
+                        String.valueOf(paginatorRows));
                 table.setRowsPerPage(paginatorRows);
 
                 target.addComponent(container);

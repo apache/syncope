@@ -48,7 +48,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.to.ConnectorInstanceTO;
 import org.syncope.client.to.ResourceTO;
 import org.syncope.console.commons.Constants;
-import org.syncope.console.commons.Utility;
+import org.syncope.console.commons.PreferenceManager;
 import org.syncope.console.rest.ConnectorRestClient;
 import org.syncope.console.rest.ResourceRestClient;
 import org.syncope.console.wicket.markup.html.form.DeleteLinkPanel;
@@ -70,7 +70,7 @@ public class Connectors extends BasePage {
     private ResourceRestClient resourceRestClient;
 
     @SpringBean
-    private Utility utility;
+    private PreferenceManager prefMan;
 
     private final ModalWindow createConnectorWin;
 
@@ -91,8 +91,9 @@ public class Connectors extends BasePage {
         add(createConnectorWin = new ModalWindow("createConnectorWin"));
         add(editConnectorWin = new ModalWindow("editConnectorWin"));
 
-        paginatorRows = utility.getPaginatorRowsToDisplay(
-                Constants.CONF_CONNECTORS_PAGINATOR_ROWS);
+        paginatorRows = prefMan.getPaginatorRows(
+                getWebRequestCycle().getWebRequest(),
+                Constants.PREF_CONNECTORS_PAGINATOR_ROWS);
 
         List<IColumn> columns = new ArrayList<IColumn>();
 
@@ -265,15 +266,16 @@ public class Connectors extends BasePage {
         Form paginatorForm = new Form("PaginatorForm");
 
         final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser",
-                new PropertyModel(this, "paginatorRows"), utility.
-                paginatorRowsChooser());
+                new PropertyModel(this, "paginatorRows"),
+                prefMan.getPaginatorChoices());
 
         rowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
             protected void onUpdate(AjaxRequestTarget target) {
-                utility.updatePaginatorRows(
-                        Constants.CONF_CONNECTORS_PAGINATOR_ROWS, paginatorRows);
-
+                prefMan.set(getWebRequestCycle().getWebRequest(),
+                        getWebRequestCycle().getWebResponse(),
+                        Constants.PREF_CONNECTORS_PAGINATOR_ROWS,
+                        String.valueOf(paginatorRows));
                 table.setRowsPerPage(paginatorRows);
 
                 target.addComponent(container);

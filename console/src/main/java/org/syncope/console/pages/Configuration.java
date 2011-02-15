@@ -58,7 +58,7 @@ import org.springframework.web.client.RestClientException;
 import org.syncope.client.to.ConfigurationTO;
 import org.syncope.client.to.LoggerTO;
 import org.syncope.console.commons.Constants;
-import org.syncope.console.commons.Utility;
+import org.syncope.console.commons.PreferenceManager;
 import org.syncope.console.rest.ConfigurationRestClient;
 import org.syncope.console.wicket.markup.html.form.DeleteLinkPanel;
 import org.syncope.console.wicket.markup.html.form.EditLinkPanel;
@@ -72,7 +72,7 @@ public class Configuration extends BasePage {
     private ConfigurationRestClient restClient;
 
     @SpringBean
-    private Utility utility;
+    private PreferenceManager prefMan;
 
     private final ModalWindow createConfigWin;
 
@@ -98,8 +98,9 @@ public class Configuration extends BasePage {
         add(createConfigWin = new ModalWindow("createConfigurationWin"));
         add(editConfigWin = new ModalWindow("editConfigurationWin"));
 
-        paginatorRows = utility.getPaginatorRowsToDisplay(
-                Constants.CONF_CONFIGURATION_PAGINATOR_ROWS);
+        paginatorRows = prefMan.getPaginatorRows(
+                getWebRequestCycle().getWebRequest(),
+                Constants.PREF_CONFIGURATION_PAGINATOR_ROWS);
 
         List<IColumn> confColumns = new ArrayList<IColumn>();
 
@@ -112,9 +113,11 @@ public class Configuration extends BasePage {
         confColumns.add(new AbstractColumn<ConfigurationTO>(new Model<String>(
                 getString("edit"))) {
 
+            @Override
             public void populateItem(
-                    Item<ICellPopulator<ConfigurationTO>> cellItem,
-                    String componentId, IModel<ConfigurationTO> model) {
+                    final Item<ICellPopulator<ConfigurationTO>> cellItem,
+                    final String componentId,
+                    final IModel<ConfigurationTO> model) {
 
                 final ConfigurationTO configurationTO = model.getObject();
                 AjaxLink editLink = new IndicatingAjaxLink("editLink") {
@@ -245,6 +248,7 @@ public class Configuration extends BasePage {
 
                 createConfigWin.setPageCreator(new ModalWindow.PageCreator() {
 
+                    @Override
                     public Page createPage() {
                         ConfigurationModalPage window =
                                 new ConfigurationModalPage(Configuration.this,
@@ -267,15 +271,17 @@ public class Configuration extends BasePage {
         Form paginatorForm = new Form("PaginatorForm");
 
         final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser",
-                new PropertyModel(this, "paginatorRows"), utility.
-                paginatorRowsChooser());
+                new PropertyModel(this, "paginatorRows"),
+                prefMan.getPaginatorChoices());
 
         rowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
-            protected void onUpdate(AjaxRequestTarget target) {
-                utility.updatePaginatorRows(
-                        Constants.CONF_CONFIGURATION_PAGINATOR_ROWS,
-                        paginatorRows);
+            @Override
+            protected void onUpdate(final AjaxRequestTarget target) {
+                prefMan.set(getWebRequestCycle().getWebRequest(),
+                        getWebRequestCycle().getWebResponse(),
+                        Constants.PREF_CONFIGURATION_PAGINATOR_ROWS,
+                        String.valueOf(paginatorRows));
                 confTable.setRowsPerPage(paginatorRows);
 
                 target.addComponent(confContainer);

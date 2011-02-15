@@ -40,7 +40,6 @@
     <SyncopeConf confKey="optin.email.from" confValue="syncope@googlecode.com"/>
     <SyncopeConf confKey="optin.email.subject" confValue="Welcome to Syncope!"/>
     <SyncopeConf confKey="identityconnectors.bundle.directory" confValue="${bundles.directory}"/>
-    <SyncopeConf confKey="users.attributes.view" confValue="userId;"/>
 
     <USchema name="surname" type="String" virtual="0"
                 mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>

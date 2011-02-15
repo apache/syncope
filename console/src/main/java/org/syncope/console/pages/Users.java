@@ -14,12 +14,11 @@
  */
 package org.syncope.console.pages;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.StringTokenizer;
+import org.apache.commons.httpclient.NameValuePair;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -51,16 +50,14 @@ import org.syncope.client.search.MembershipCond;
 import org.syncope.client.search.NodeCond;
 import org.syncope.client.search.PaginatedResult;
 import org.syncope.client.to.AttributeTO;
-import org.syncope.client.to.ConfigurationTO;
 import org.syncope.client.to.RoleTO;
 import org.syncope.client.to.UserTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.commons.Constants;
+import org.syncope.console.commons.PreferenceManager;
 import org.syncope.console.commons.SearchConditionWrapper;
 import org.syncope.console.commons.SearchConditionWrapper.OperationType;
-import org.syncope.console.commons.Utility;
 import org.syncope.console.rest.SchemaRestClient;
-import org.syncope.console.rest.ConfigurationRestClient;
 import org.syncope.console.rest.RoleRestClient;
 import org.syncope.console.rest.UserRestClient;
 import org.syncope.console.wicket.markup.html.form.UpdatingCheckBox;
@@ -82,10 +79,7 @@ public class Users extends BasePage {
     private RoleRestClient roleRestClient;
 
     @SpringBean
-    private ConfigurationRestClient confRestClient;
-
-    @SpringBean
-    private Utility utility;
+    private PreferenceManager prefMan;
 
     private final ModalWindow createUserWin;
 
@@ -158,7 +152,7 @@ public class Users extends BasePage {
 
     private Label totalRecordsSearch;
 
-    private List<String> columnsList;
+    private List<String> columnList;
 
     private NodeCond nodeCond;
 
@@ -184,24 +178,14 @@ public class Users extends BasePage {
         //table's columnsList = attributes to view
         final IModel columns = new LoadableDetachableModel() {
 
+            @Override
             protected Object load() {
-                ConfigurationTO configuration =
-                        confRestClient.readConfiguration(
-                        "users.attributes.view");
-                columnsList = new ArrayList<String>();
+                columnList = prefMan.getList(
+                        getWebRequestCycle().getWebRequest(),
+                        Constants.PREF_USERS_ATTRIBUTES_VIEW);
 
-                if (configuration != null && configuration.getConfValue()
-                        != null) {
-                    String conf = configuration.getConfValue();
-                    StringTokenizer st = new StringTokenizer(conf, ";");
-
-                    while (st.hasMoreTokens()) {
-                        columnsList.add(st.nextToken());
-                    }
-                }
-
-                Collections.sort(columnsList);
-                return columnsList;
+                Collections.sort(columnList);
+                return columnList;
             }
         };
 
@@ -216,12 +200,13 @@ public class Users extends BasePage {
             }
         };
 
+        paginatorRows = prefMan.getPaginatorRows(
+                getWebRequestCycle().getWebRequest(),
+                Constants.PREF_USERS_PAGINATOR_ROWS);
 
-        paginatorRows = utility.getPaginatorRowsToDisplay(
-                Constants.CONF_USERS_PAGINATOR_ROWS);
-
-        paginatorSearchRows = utility.getPaginatorRowsToDisplay(
-                Constants.CONF_USERS_SEARCH_PAGINATOR_ROWS);
+        paginatorSearchRows = prefMan.getPaginatorRows(
+                getWebRequestCycle().getWebRequest(),
+                Constants.PREF_USERS_SEARCH_PAGINATOR_ROWS);
 
         setupPaginatedUsers();
 
@@ -318,19 +303,15 @@ public class Users extends BasePage {
 
                     @Override
                     protected void populateItem(ListItem item) {
-                        AttributeWrapper attribute =
-                                (AttributeWrapper) item.getDefaultModelObject();
+                        NameValuePair attribute =
+                                (NameValuePair) item.getDefaultModelObject();
 
-                        for (String name : columnsList) {
-
-                            if (name.equalsIgnoreCase(attribute.getKey())) {
-                                item.add(new Label("name", attribute.getValue()));
-                            } else if (!name.equalsIgnoreCase(attribute.
-                                    getKey())) {
+                        for (String name : columnList) {
+                            if (name.equalsIgnoreCase(attribute.getName())) {
+                                item.add(new Label("name",
+                                        attribute.getValue()));
                             }
-
                         }
-
                     }
                 });
 
@@ -569,6 +550,7 @@ public class Users extends BasePage {
         changeAttribsViewWin.setWindowClosedCallback(
                 new ModalWindow.WindowClosedCallback() {
 
+                    @Override
                     public void onClose(AjaxRequestTarget target) {
 
                         if (operationResult) {
@@ -611,14 +593,17 @@ public class Users extends BasePage {
         Form paginatorForm = new Form("PaginatorForm");
 
         final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser",
-                new PropertyModel(this, "paginatorRows"), utility.
-                paginatorRowsChooser());
+                new PropertyModel(this, "paginatorRows"),
+                prefMan.getPaginatorChoices());
 
         rowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
-            protected void onUpdate(AjaxRequestTarget target) {
-                utility.updatePaginatorRows(Constants.CONF_USERS_PAGINATOR_ROWS,
-                        paginatorRows);
+            @Override
+            protected void onUpdate(final AjaxRequestTarget target) {
+                prefMan.set(getWebRequestCycle().getWebRequest(),
+                        getWebRequestCycle().getWebResponse(),
+                        Constants.PREF_USERS_PAGINATOR_ROWS,
+                        String.valueOf(paginatorRows));
 
                 usersView.setRowsPerPage(paginatorRows);
 
@@ -956,12 +941,13 @@ public class Users extends BasePage {
                     return paginatedSearchUsers.getRecords();
                 } else {
 
-                    if(paginatedSearchUsers != null &&
-                            paginatedSearchUsers.getRecords() != null)
+                    if (paginatedSearchUsers != null
+                            && paginatedSearchUsers.getRecords() != null) {
                         return paginatedSearchUsers.getRecords();
-                    else
+                    } else {
                         return new ArrayList();
-                    
+                    }
+
                 }
 
             }
@@ -1272,30 +1258,34 @@ public class Users extends BasePage {
 
         final DropDownChoice rowsSearchChooser = new DropDownChoice(
                 "rowsSearchChooser",
-                new PropertyModel(this, "paginatorSearchRows"), utility.
-                paginatorRowsChooser());
+                new PropertyModel(this, "paginatorSearchRows"),
+                prefMan.getPaginatorChoices());
 
-        rowsSearchChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+        rowsSearchChooser.add(
+                new AjaxFormComponentUpdatingBehavior("onchange") {
 
-            protected void onUpdate(AjaxRequestTarget target) {
-                utility.updatePaginatorRows(
-                        Constants.CONF_USERS_SEARCH_PAGINATOR_ROWS,
-                        paginatorSearchRows);
+                    @Override
+                    protected void onUpdate(final AjaxRequestTarget target) {
+                        prefMan.set(getWebRequestCycle().getWebRequest(),
+                                getWebRequestCycle().getWebResponse(),
+                                Constants.PREF_USERS_SEARCH_PAGINATOR_ROWS,
+                                String.valueOf(paginatorSearchRows));
+                        resultsView.setRowsPerPage(paginatorSearchRows);
 
-                resultsView.setRowsPerPage(paginatorSearchRows);
+                        //Re-execute the query
+                        paginatedSearchUsers = userRestClient.
+                                paginatedSearchUser(
+                                nodeCond, currentSearchPage = 1,
+                                paginatorSearchRows);
 
-                //Re-execute the query
-                paginatedSearchUsers = userRestClient.paginatedSearchUser(
-                        nodeCond, currentSearchPage = 1, paginatorSearchRows);
+                        //Update pageLinks on paginator
+                        List<Integer> pageIdList = getPaginatorSearchIndexes();
+                        pageLinksSearchView.setList(pageIdList);
+                        target.addChildren(pageLinksSearchView, AjaxLink.class);
 
-                //Update pageLinks on paginator
-                List<Integer> pageIdList = getPaginatorSearchIndexes();
-                pageLinksSearchView.setList(pageIdList);
-                target.addChildren(pageLinksSearchView, AjaxLink.class);
-
-                target.addComponent(searchResultsContainer);
-            }
-        });
+                        target.addComponent(searchResultsContainer);
+                    }
+                });
 
         paginatorSearchForm.add(rowsSearchChooser);
 
@@ -1353,55 +1343,41 @@ public class Users extends BasePage {
      * @param userTO instance
      * @return attributes columnsList to view depending the selection
      */
-    public List<AttributeWrapper> attributesToDisplay(UserTO user) {
-        List<AttributeTO> attributes = user.getAttributes();
-        List<AttributeWrapper> attributesList = new ArrayList<AttributeWrapper>();
+    public List<NameValuePair> attributesToDisplay(final UserTO user) {
+        List<NameValuePair> attrList = new ArrayList<NameValuePair>();
 
-        ConfigurationTO configuration =
-                confRestClient.readConfiguration(
-                "users.attributes.view");
-        columnsList = new ArrayList<String>();
+        columnList = prefMan.getList(getWebRequestCycle().getWebRequest(),
+                Constants.PREF_USERS_ATTRIBUTES_VIEW);
+        Collections.sort(columnList);
 
-        if (configuration != null && configuration.getConfValue() != null
-                && !configuration.getConfValue().equals("")) {
-            String conf = configuration.getConfValue();
-            StringTokenizer st = new StringTokenizer(conf, ";");
-
-            while (st.hasMoreTokens()) {
-                columnsList.add(st.nextToken());
-            }
-        }
-
-        Collections.sort(columnsList);
-
-        AttributeWrapper attributeWrapper = null;
+        NameValuePair attributeWrapper = null;
 
         boolean found = false;
-        for (String name : columnsList) {
-            for (AttributeTO attribute : attributes) {
+        for (String name : columnList) {
+            for (AttributeTO attribute : user.getAttributes()) {
                 if (name.equals(attribute.getSchema()) && !found) {
-                    attributeWrapper = new AttributeWrapper();
-                    attributeWrapper.setKey(attribute.getSchema());
+                    attributeWrapper = new NameValuePair();
+                    attributeWrapper.setName(attribute.getSchema());
                     for (String value : attribute.getValues()) {
                         attributeWrapper.setValue(value);
                         found = true;
                     }
-                    attributesList.add(attributeWrapper);
+                    attrList.add(attributeWrapper);
                 }
             }
             //case the attribute's value is blank
             if (!found) {
-                attributeWrapper = new AttributeWrapper();
-                attributeWrapper.setKey(name);
+                attributeWrapper = new NameValuePair();
+                attributeWrapper.setName(name);
                 attributeWrapper.setValue("");
 
-                attributesList.add(attributeWrapper);
+                attrList.add(attributeWrapper);
             } else {
                 found = false;
             }
         }
 
-        return attributesList;
+        return attrList;
     }
 
     /**
@@ -1611,31 +1587,5 @@ public class Users extends BasePage {
         }
 
         return pageIdList;
-    }
-
-    /**
-     * Wrapper class for displaying attribute
-     */
-    public class AttributeWrapper implements Serializable {
-
-        private String key;
-
-        private String value;
-
-        public String getKey() {
-            return key;
-        }
-
-        public void setKey(String key) {
-            this.key = key;
-        }
-
-        public String getValue() {
-            return value;
-        }
-
-        public void setValue(String value) {
-            this.value = value;
-        }
     }
 }
