@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Set;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
@@ -49,6 +50,7 @@ public class SyncopeRole extends AbstractAttributable {
     @Id
     private Long id;
 
+    @Column(nullable = false)
     private String name;
 
     @ManyToOne(optional = true)
