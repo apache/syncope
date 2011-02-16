@@ -16,7 +16,9 @@ package org.syncope.console.wicket.markup.html.form;
 
 import java.util.List;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
+import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -35,7 +37,7 @@ public class AjaxDropDownChoicePanel extends Panel {
             add(new Label("required", ""));
         }
 
-        add(new UpdatingDropDownChoice("dropDownChoiceField", model, choices,
+        add(new DropDownChoice("dropDownChoiceField", model, choices,
                 renderer).setRequired(required).setLabel(new Model(name)));
     }
 
@@ -51,7 +53,7 @@ public class AjaxDropDownChoicePanel extends Panel {
             add(new Label("required", ""));
         }
 
-        add(new UpdatingTextField("dropDownChoiceField", model).setRequired(
+        add(new TextField("dropDownChoiceField", model).setRequired(
                 required).setLabel(new Model(name)).setEnabled(!readonly));
     }
 }

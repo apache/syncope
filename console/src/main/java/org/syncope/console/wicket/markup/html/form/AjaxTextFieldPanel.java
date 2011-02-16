@@ -15,6 +15,7 @@
 package org.syncope.console.wicket.markup.html.form;
 
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -32,7 +33,7 @@ public class AjaxTextFieldPanel extends Panel {
             add(new Label("required", ""));
         }
 
-        add(new UpdatingTextField("textField", model).setRequired(required).
+        add(new TextField("textField", model).setRequired(required).
                 setLabel(new Model(name)));
     }
 
@@ -48,7 +49,7 @@ public class AjaxTextFieldPanel extends Panel {
             add(new Label("required", ""));
         }
 
-        add(new UpdatingTextField("textField", model).setRequired(required).
+        add(new TextField("textField", model).setRequired(required).
                 setLabel(new Model(name)).setEnabled(!readonly));
     }
 }

@@ -30,6 +30,7 @@ import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
+import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteTextField;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.CheckBox;
@@ -54,10 +55,6 @@ import org.syncope.console.rest.ConnectorRestClient;
 import org.syncope.console.rest.ResourceRestClient;
 import org.syncope.console.rest.SchemaRestClient;
 import org.syncope.console.wicket.markup.html.form.AjaxDecoratedCheckbox;
-import org.syncope.console.wicket.markup.html.form.UpdatingAutoCompleteTextField;
-import org.syncope.console.wicket.markup.html.form.UpdatingCheckBox;
-import org.syncope.console.wicket.markup.html.form.UpdatingDropDownChoice;
-import org.syncope.console.wicket.markup.html.form.UpdatingTextField;
 import org.syncope.types.PropagationMode;
 import org.syncope.types.SourceMappingType;
 
@@ -216,7 +213,7 @@ public class ResourceModalPage extends BaseModalPage {
 
             SchemaMappingTO mappingTO = null;
 
-            UpdatingDropDownChoice schemaAttributeChoice = null;
+            DropDownChoice schemaAttributeChoice = null;
 
             @Override
             protected void populateItem(final ListItem item) {
@@ -249,14 +246,15 @@ public class ResourceModalPage extends BaseModalPage {
                         };
                     }
                 });
-                item.add(new UpdatingTextField("field",
+                item.add(new TextField("field",
                         new PropertyModel(mappingTO, "destAttrName")).
                         setRequired(true).
                         setLabel(new Model(getString("fieldName"))));
 
                 schemaAttributeChoice =
-                        new UpdatingDropDownChoice("schemaAttributes",
-                        new PropertyModel(mappingTO, "sourceAttrName"), null);
+                        new DropDownChoice("schemaAttributes",
+                        new PropertyModel(mappingTO, "sourceAttrName"),
+                        (IModel) null);
 
                 if (mappingTO.getSourceMappingType() == null) {
                     schemaAttributeChoice.setChoices(Collections.emptyList());
@@ -297,7 +295,7 @@ public class ResourceModalPage extends BaseModalPage {
                         true).
                         setOutputMarkupId(true));
 
-                item.add(new UpdatingAutoCompleteTextField("mandatoryCondition",
+                item.add(new AutoCompleteTextField("mandatoryCondition",
                         new PropertyModel(mappingTO, "mandatoryCondition")) {
 
                     @Override
@@ -319,9 +317,9 @@ public class ResourceModalPage extends BaseModalPage {
                         return choices.iterator();
                     }
                 });
-                item.add(new UpdatingCheckBox("accountId",
+                item.add(new CheckBox("accountId",
                         new PropertyModel(mappingTO, "accountid")));
-                item.add(new UpdatingCheckBox("password",
+                item.add(new CheckBox("password",
                         new PropertyModel(mappingTO, "password")));
             }
         };

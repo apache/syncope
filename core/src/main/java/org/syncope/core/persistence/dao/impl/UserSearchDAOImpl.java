@@ -134,7 +134,7 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
         StringBuilder queryString = getQuery(nodeCond, parameters);
 
         Query query = entityManager.createNativeQuery(queryString.toString());
-        // @page starts from 1, while setFirtResult() starts from 0
+        // page starts from 1, while setFirtResult() starts from 0
         if (page >= 1) {
             query.setFirstResult(page - 1);
         }
@@ -367,12 +367,18 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
                 break;
 
             case LIKE:
-                query.append("' AND ").append(getFieldName(schema.getType()));
-                if (not) {
-                    query.append(" NOT ");
+                if (schema.getType() == SchemaType.String) {
+                    query.append("' AND ").
+                            append(getFieldName(schema.getType()));
+                    if (not) {
+                        query.append(" NOT ");
+                    }
+                    query.append(" LIKE '").append(cond.getExpression()).
+                            append("'");
+                } else {
+                    query.append("' AND 1=1");
+                    LOG.error("LIKE is only compatible with string schemas");
                 }
-                query.append(" LIKE '").append(cond.getExpression()).
-                        append("'");
                 break;
 
             case EQ:

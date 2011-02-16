@@ -33,8 +33,10 @@ import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.list.PageableListView;
@@ -44,7 +46,6 @@ import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.springframework.web.client.HttpServerErrorException;
 import org.syncope.client.search.AttributeCond;
 import org.syncope.client.search.MembershipCond;
 import org.syncope.client.search.NodeCond;
@@ -56,13 +57,11 @@ import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.PreferenceManager;
 import org.syncope.console.commons.SearchConditionWrapper;
+import org.syncope.console.commons.SearchConditionWrapper.FilterType;
 import org.syncope.console.commons.SearchConditionWrapper.OperationType;
 import org.syncope.console.rest.SchemaRestClient;
 import org.syncope.console.rest.RoleRestClient;
 import org.syncope.console.rest.UserRestClient;
-import org.syncope.console.wicket.markup.html.form.UpdatingCheckBox;
-import org.syncope.console.wicket.markup.html.form.UpdatingDropDownChoice;
-import org.syncope.console.wicket.markup.html.form.UpdatingTextField;
 
 /**
  * Users WebPage.
@@ -107,8 +106,6 @@ public class Users extends BasePage {
     private boolean operationResult = false;
 
     private List<SearchConditionWrapper> searchConditionsList;
-
-    private List<UserTO> searchMatchedUsers;
 
     private int paginatorRows;
 
@@ -169,8 +166,6 @@ public class Users extends BasePage {
 
         setupSearchConditionsList();
 
-        searchMatchedUsers = new ArrayList<UserTO>();
-
         add(createUserWin = new ModalWindow("createUserWin"));
         add(editUserWin = new ModalWindow("editUserWin"));
         add(changeAttribsViewWin = new ModalWindow("changeAttributesViewWin"));
@@ -208,7 +203,8 @@ public class Users extends BasePage {
                 getWebRequestCycle().getWebRequest(),
                 Constants.PREF_USERS_SEARCH_PAGINATOR_ROWS);
 
-        setupPaginatedUsers();
+        paginatedUsers = userRestClient.getPaginatedUser(
+                currentViewPage, paginatorRows);
 
         IModel usersModel = new LoadableDetachableModel() {
 
@@ -218,8 +214,10 @@ public class Users extends BasePage {
                         currentViewPage, paginatorRows);
 
                 //Refresh links just after the selecting page click
-                if (incrementUserViewLink != null && decrementUserViewLink != null
+                if (incrementUserViewLink != null
+                        && decrementUserViewLink != null
                         && firstPageLink != null && lastPageLink != null) {
+
                     int totalPages = (int) Math.ceil(
                             paginatedUsers.getTotalRecords()
                             / new Double(paginatedUsers.getPageSize()));
@@ -279,32 +277,32 @@ public class Users extends BasePage {
 
         usersTableContainer = new WebMarkupContainer("usersTableContainer");
 
-        final PageableListView usersView = new PageableListView("results",
-                usersModel, paginatorRows) {
+        final PageableListView usersView = new PageableListView<UserTO>(
+                "results", usersModel, paginatorRows) {
 
             @Override
-            protected void populateItem(final ListItem item) {
+            protected void populateItem(final ListItem<UserTO> item) {
 
-                final UserTO userTO = (UserTO) item.getModelObject();
+                final UserTO userTO = item.getModelObject();
 
                 item.add(new Label("id", String.valueOf(userTO.getId())));
 
-                item.add(new Label("status", String.valueOf(
-                        userTO.getStatus())));
+                item.add(new Label("status", userTO.getStatus()));
 
-                if (userTO.getToken() != null && !userTO.getToken().equals("")) {
+                if (userTO.getToken() != null && !userTO.getToken().isEmpty()) {
                     item.add(new Label("token", getString("tokenValued")));
                 } else {
                     item.add(new Label("token", getString("tokenNotValued")));
                 }
 
-                item.add(new ListView("selectedAttributes", attributesToDisplay(
-                        userTO)) {
+                item.add(new ListView<NameValuePair>("selectedAttributes",
+                        attributesToDisplay(userTO)) {
 
                     @Override
-                    protected void populateItem(ListItem item) {
-                        NameValuePair attribute =
-                                (NameValuePair) item.getDefaultModelObject();
+                    protected void populateItem(
+                            final ListItem<NameValuePair> item) {
+
+                        NameValuePair attribute = item.getModelObject();
 
                         for (String name : columnList) {
                             if (name.equalsIgnoreCase(attribute.getName())) {
@@ -319,9 +317,8 @@ public class Users extends BasePage {
                         new Model(getString("edit"))) {
 
                     @Override
-                    public void onClick(AjaxRequestTarget target) {
-                        final UserTO userTO = (UserTO) item.
-                                getDefaultModelObject();
+                    public void onClick(final AjaxRequestTarget target) {
+                        final UserTO userTO = item.getModelObject();
 
                         editUserWin.setPageCreator(
                                 new ModalWindow.PageCreator() {
@@ -345,7 +342,7 @@ public class Users extends BasePage {
                         getString("delete"))) {
 
                     @Override
-                    public void onClick(AjaxRequestTarget target) {
+                    public void onClick(final AjaxRequestTarget target) {
                         userRestClient.deleteUser(
                                 String.valueOf(userTO.getId()));
 
@@ -380,7 +377,7 @@ public class Users extends BasePage {
         incrementUserViewLink = new AjaxLink("incrementLink") {
 
             @Override
-            public void onClick(AjaxRequestTarget target) {
+            public void onClick(final AjaxRequestTarget target) {
                 currentViewPage++;
 
                 //Update pageLinks on paginator
@@ -398,7 +395,7 @@ public class Users extends BasePage {
         firstPageLink = new AjaxLink("firstPageLink") {
 
             @Override
-            public void onClick(AjaxRequestTarget target) {
+            public void onClick(final AjaxRequestTarget target) {
                 currentViewPage = 1;
 
                 //Update pageLinks on paginator
@@ -413,7 +410,7 @@ public class Users extends BasePage {
         lastPageLink = new AjaxLink("lastPageLink") {
 
             @Override
-            public void onClick(AjaxRequestTarget target) {
+            public void onClick(final AjaxRequestTarget target) {
                 int totalPages = (int) Math.ceil(
                         paginatedUsers.getTotalRecords()
                         / new Double(paginatedUsers.getPageSize()));
@@ -431,7 +428,7 @@ public class Users extends BasePage {
         decrementUserViewLink = new AjaxLink("decrementLink") {
 
             @Override
-            public void onClick(AjaxRequestTarget target) {
+            public void onClick(final AjaxRequestTarget target) {
                 currentViewPage--;
 
                 //Update pageLinks on paginator
@@ -499,7 +496,7 @@ public class Users extends BasePage {
                 AjaxLink pageLink = new AjaxLink("pageLink") {
 
                     @Override
-                    public void onClick(AjaxRequestTarget target) {
+                    public void onClick(final AjaxRequestTarget target) {
                         currentViewPage = pageId;
 
                         //Update pageLinks on paginator
@@ -511,12 +508,7 @@ public class Users extends BasePage {
                     }
                 };
 
-                if (currentViewPage == pageId) {
-                    pageLink.setEnabled(false);
-                } else {
-                    pageLink.setEnabled(true);
-                }
-
+                pageLink.setEnabled(currentViewPage == pageId);
                 pageLink.add(new Label("name", new Model<String>(
                         String.valueOf(pageId))));
 
@@ -648,8 +640,9 @@ public class Users extends BasePage {
         add(changeAttributesViewLink);
 
         //TAB 2 - Search section start
-        final IModel userAttributes = new LoadableDetachableModel() {
+        final IModel schemaNames = new LoadableDetachableModel() {
 
+            @Override
             protected Object load() {
                 return schemaRestClient.getAllUserSchemasNames();
             }
@@ -657,6 +650,7 @@ public class Users extends BasePage {
 
         final IModel roleNames = new LoadableDetachableModel() {
 
+            @Override
             protected Object load() {
                 List<RoleTO> roleTOs = roleRestClient.getAllRoles();
 
@@ -672,6 +666,7 @@ public class Users extends BasePage {
 
         final IModel attributeTypes = new LoadableDetachableModel() {
 
+            @Override
             protected Object load() {
                 return Arrays.asList(AttributeCond.Type.values());
             }
@@ -679,8 +674,10 @@ public class Users extends BasePage {
 
         final IModel filterTypes = new LoadableDetachableModel() {
 
+            @Override
             protected Object load() {
-                return Arrays.asList(SearchConditionWrapper.FilterType.values());
+                return Arrays.asList(
+                        SearchConditionWrapper.FilterType.values());
             }
         };
 
@@ -708,20 +705,21 @@ public class Users extends BasePage {
                             getOperationType().toString()));
                 }
 
-                item.add(new UpdatingCheckBox("notOperator",
+                item.add(new CheckBox("notOperator",
                         new PropertyModel(searchCondition,
                         "notOperator")));
 
-                final UpdatingDropDownChoice filterNameChooser =
-                        new UpdatingDropDownChoice("filterName",
+                final DropDownChoice filterNameChooser =
+                        new DropDownChoice("filterName",
                         new PropertyModel(searchCondition, "filterName"),
-                        null);
+                        (IModel) null);
+                filterNameChooser.setOutputMarkupId(true);
 
                 if (searchCondition.getFilterType() == null) {
                     filterNameChooser.setChoices(Collections.emptyList());
                 } else if (searchCondition.getFilterType()
                         == SearchConditionWrapper.FilterType.ATTRIBUTE) {
-                    filterNameChooser.setChoices(userAttributes);
+                    filterNameChooser.setChoices(schemaNames);
                 } else {
                     filterNameChooser.setChoices(roleNames);
                 }
@@ -730,13 +728,13 @@ public class Users extends BasePage {
 
                 item.add(filterNameChooser);
 
-                final UpdatingDropDownChoice type = new UpdatingDropDownChoice(
+                final DropDownChoice type = new DropDownChoice(
                         "type", new PropertyModel(searchCondition, "type"),
                         attributeTypes);
 
                 item.add(type);
 
-                final UpdatingTextField filterValue = new UpdatingTextField(
+                final TextField filterValue = new TextField(
                         "filterValue", new PropertyModel(searchCondition,
                         "filterValue"));
 
@@ -750,48 +748,41 @@ public class Users extends BasePage {
                     type.setModelObject(null);
 
                     filterValue.setEnabled(false);
-                    //filterValue.setRequired(false);
                     filterValue.setModelObject("");
-
                 } else {
-
                     if (!type.isEnabled()) {
                         type.setEnabled(true);
                         type.setRequired(true);
                     }
-
                     if (!filterValue.isEnabled()) {
                         filterValue.setEnabled(true);
                     }
-
                 }
 
-                UpdatingDropDownChoice filterTypeChooser =
-                        new UpdatingDropDownChoice("filterType",
+                DropDownChoice filterTypeChooser =
+                        new DropDownChoice("filterType",
                         new PropertyModel(searchCondition, "filterType"),
                         filterTypes);
+                filterTypeChooser.setOutputMarkupId(true);
 
                 filterTypeChooser.add(new AjaxFormComponentUpdatingBehavior(
                         "onchange") {
 
-                    protected void onUpdate(AjaxRequestTarget target) {
-                        filterNameChooser.setChoices(new LoadableDetachableModel() {
+                    @Override
+                    protected void onUpdate(final AjaxRequestTarget target) {
+                        filterNameChooser.setChoices(
+                                new LoadableDetachableModel() {
 
-                            @Override
-                            protected Object load() {
-                                SearchConditionWrapper.FilterType schemaType =
-                                        searchCondition.getFilterType();
+                                    @Override
+                                    protected Object load() {
+                                        FilterType schemaType =
+                                                searchCondition.getFilterType();
 
-                                if (schemaType == SearchConditionWrapper.FilterType.ATTRIBUTE) {
-
-                                    return userAttributes;
-                                } else {
-
-                                    return roleNames;
-                                }
-
-                            }
-                        });
+                                        return schemaType
+                                                == FilterType.ATTRIBUTE
+                                                ? schemaNames : roleNames;
+                                    }
+                                });
                         target.addComponent(filterNameChooser);
                         target.addComponent(usersTableSearchContainer);
                     }
@@ -901,7 +892,8 @@ public class Users extends BasePage {
                         }
                     }
 
-                    if (pageRecordFromSearch != null && pageRecordToSearch != null
+                    if (pageRecordFromSearch != null
+                            && pageRecordToSearch != null
                             && totalRecordsSearch != null) {
 
                         //Records indexes for paginator's labels
@@ -910,11 +902,14 @@ public class Users extends BasePage {
                                 getRecordsInPage();
 
                         if (paginatedSearchUsers.getPageNumber() > 1) {
-                            firstPageRecord = (paginatedSearchUsers.getPageSize()
-                                    * (paginatedSearchUsers.getPageNumber() - 1)) + 1;
+                            firstPageRecord = 1
+                                    + (paginatedSearchUsers.getPageSize()
+                                    * (paginatedSearchUsers.getPageNumber()
+                                    - 1));
 
                             lastPageRecord = (paginatedSearchUsers.getPageSize()
-                                    * (paginatedSearchUsers.getPageNumber() - 1))
+                                    * (paginatedSearchUsers.getPageNumber()
+                                    - 1))
                                     + paginatedSearchUsers.getRecordsInPage();
                         }
 
@@ -940,33 +935,26 @@ public class Users extends BasePage {
                     }
                     return paginatedSearchUsers.getRecords();
                 } else {
-
-                    if (paginatedSearchUsers != null
-                            && paginatedSearchUsers.getRecords() != null) {
-                        return paginatedSearchUsers.getRecords();
-                    } else {
-                        return new ArrayList();
-                    }
-
+                    return paginatedSearchUsers != null
+                            && paginatedSearchUsers.getRecords() != null
+                            ? paginatedSearchUsers.getRecords()
+                            : Collections.emptyList();
                 }
-
             }
         };
 
-        final PageableListView resultsView = new PageableListView("results",
-                resultsModel, paginatorSearchRows) {
+        final PageableListView resultsView = new PageableListView<UserTO>(
+                "results", resultsModel, paginatorSearchRows) {
 
             @Override
-            protected void populateItem(final ListItem item) {
-
-                final UserTO userTO = (UserTO) item.getModelObject();
+            protected void populateItem(final ListItem<UserTO> item) {
+                final UserTO userTO = item.getModelObject();
 
                 item.add(new Label("id", String.valueOf(userTO.getId())));
 
-                item.add(new Label("status", String.valueOf(
-                        userTO.getStatus())));
+                item.add(new Label("status", userTO.getStatus()));
 
-                if (userTO.getToken() != null && !userTO.getToken().equals("")) {
+                if (userTO.getToken() != null && !userTO.getToken().isEmpty()) {
                     item.add(new Label("token", getString("tokenValued")));
                 } else {
                     item.add(new Label("token", getString("tokenNotValued")));
@@ -976,16 +964,19 @@ public class Users extends BasePage {
                         new Model(getString("edit"))) {
 
                     @Override
-                    protected void onSubmit(AjaxRequestTarget target, Form form) {
+                    protected void onSubmit(final AjaxRequestTarget target,
+                            final Form form) {
 
-                        editUserWin.setPageCreator(new ModalWindow.PageCreator() {
+                        editUserWin.setPageCreator(
+                                new ModalWindow.PageCreator() {
 
-                            public Page createPage() {
-                                UserModalPage window = new UserModalPage(
-                                        Users.this, editUserWin, userTO, false);
-                                return window;
-                            }
-                        });
+                                    @Override
+                                    public Page createPage() {
+                                        return new UserModalPage(
+                                                Users.this, editUserWin, userTO,
+                                                false);
+                                    }
+                                });
 
                         editUserWin.show(target);
                     }
@@ -997,7 +988,7 @@ public class Users extends BasePage {
                         getString("delete"))) {
 
                     @Override
-                    public void onClick(AjaxRequestTarget target) {
+                    public void onClick(final AjaxRequestTarget target) {
                         userRestClient.deleteUser(
                                 String.valueOf(userTO.getId()));
 
@@ -1137,7 +1128,8 @@ public class Users extends BasePage {
                 "pageRecordFrom",
                 new Model<String>(String.valueOf(firstPageRecordSearch))));
 
-        searchResultsContainer.add(pageRecordToSearch = new Label("pageRecordTo",
+        searchResultsContainer.add(pageRecordToSearch = new Label(
+                "pageRecordTo",
                 new Model<String>(String.valueOf(lastPageRecordSearch))));
 
         if (paginatedSearchUsers != null) {
@@ -1159,13 +1151,13 @@ public class Users extends BasePage {
         pageLinksSearchView = new ListView("pageLinksView", pageIdListSearch) {
 
             @Override
-            protected void populateItem(ListItem item) {
+            protected void populateItem(final ListItem item) {
                 final int pageId = (Integer) item.getDefaultModelObject();
 
                 AjaxLink pageLink = new AjaxLink("pageLink") {
 
                     @Override
-                    public void onClick(AjaxRequestTarget target) {
+                    public void onClick(final AjaxRequestTarget target) {
                         currentSearchPage = pageId;
                         target.addComponent(searchResultsContainer);
                     }
@@ -1198,12 +1190,11 @@ public class Users extends BasePage {
                 getString("search"))) {
 
             @Override
-            protected void onSubmit(AjaxRequestTarget target, Form form) {
+            protected void onSubmit(final AjaxRequestTarget target,
+                    final Form form) {
 
                 nodeCond = buildSearchExpression(searchConditionsList);
-
                 if (nodeCond != null) {
-
                     try {
                         paginatedSearchUsers = userRestClient.
                                 paginatedSearchUser(
@@ -1221,10 +1212,6 @@ public class Users extends BasePage {
                         List<Integer> pageIdList = getPaginatorSearchIndexes();
                         pageLinksSearchView.setList(pageIdList);
                         target.addChildren(pageLinksSearchView, AjaxLink.class);
-                    } catch (HttpServerErrorException e) {
-                        LOG.error("While searching users", e);
-                        error(e.getMessage());
-                        return;
                     } catch (SyncopeClientCompositeErrorException e) {
                         LOG.error("While searching users", e);
                         error(e.getMessage());
@@ -1245,7 +1232,9 @@ public class Users extends BasePage {
             }
 
             @Override
-            protected void onError(AjaxRequestTarget target, Form form) {
+            protected void onError(final AjaxRequestTarget target,
+                    final Form form) {
+
                 target.addComponent(form.get("searchFeedback"));
             }
         });
@@ -1339,8 +1328,8 @@ public class Users extends BasePage {
     }
 
     /**
-     * Return the user's attributes columnsList to display, ordered
-     * @param userTO instance
+     * Return the user's attributes columnsList to display, ordered.
+     * @param user instance
      * @return attributes columnsList to view depending the selection
      */
     public List<NameValuePair> attributesToDisplay(final UserTO user) {
@@ -1385,7 +1374,7 @@ public class Users extends BasePage {
      * @param window
      * @param usersTableSearchContainer
      */
-    public void setWindowClosedCallback(final ModalWindow window,
+    public final void setWindowClosedCallback(final ModalWindow window,
             final WebMarkupContainer container) {
 
         window.setWindowClosedCallback(
@@ -1393,14 +1382,11 @@ public class Users extends BasePage {
 
                     public void onClose(AjaxRequestTarget target) {
                         target.addComponent(container);
+                        target.addComponent(feedbackPanel);
 
                         if (operationResult) {
                             info(getString("operation_succeded"));
-                            target.addComponent(feedbackPanel);
                             operationResult = false;
-                        } //When the window is closed without calling backend
-                        else {
-                            target.addComponent(feedbackPanel);
                         }
                     }
                 });
@@ -1427,33 +1413,27 @@ public class Users extends BasePage {
      * @return NodeCond
      */
     public NodeCond buildSearchExpression(
-            List<SearchConditionWrapper> conditions) {
-
-        AttributeCond attributeCond = null;
-        MembershipCond membershipCond = null;
-
-        List<SearchConditionWrapper> subList = null;
+            final List<SearchConditionWrapper> conditions) {
 
         SearchConditionWrapper searchConditionWrapper = conditions.iterator().
                 next();
 
+        AttributeCond attributeCond = null;
+        MembershipCond membershipCond = null;
         if (searchConditionWrapper.getFilterType()
                 == SearchConditionWrapper.FilterType.ATTRIBUTE) {
 
             attributeCond = new AttributeCond();
             attributeCond.setSchema(searchConditionWrapper.getFilterName());
             attributeCond.setType(searchConditionWrapper.getType());
-            attributeCond.setExpression(searchConditionWrapper.getFilterValue());
-
+            attributeCond.setExpression(
+                    searchConditionWrapper.getFilterValue());
         } else {
-
             membershipCond = new MembershipCond();
             membershipCond.setRoleName(searchConditionWrapper.getFilterName());
-
         }
 
         if (conditions.size() == 1) {
-
             if (searchConditionWrapper.getFilterType()
                     == SearchConditionWrapper.FilterType.ATTRIBUTE) {
                 if (searchConditionWrapper.isNotOperator()) {
@@ -1468,10 +1448,9 @@ public class Users extends BasePage {
                     return NodeCond.getLeafCond(membershipCond);
                 }
             }
-
         } else {
-
-            subList = conditions.subList(1, conditions.size());
+            List<SearchConditionWrapper> subList =
+                    conditions.subList(1, conditions.size());
 
             searchConditionWrapper = subList.iterator().next();
 
@@ -1484,65 +1463,48 @@ public class Users extends BasePage {
                     if (attributeCond != null) {
                         return NodeCond.getAndCond(
                                 NodeCond.getLeafCond(attributeCond),
-                                buildSearchExpression(
-                                new ArrayList<SearchConditionWrapper>(subList)));
+                                buildSearchExpression(subList));
                     } else {
                         return NodeCond.getAndCond(
                                 NodeCond.getLeafCond(membershipCond),
-                                buildSearchExpression(
-                                new ArrayList<SearchConditionWrapper>(subList)));
+                                buildSearchExpression(subList));
                     }
                 } else {
                     if (attributeCond != null) {
                         return NodeCond.getAndCond(
                                 NodeCond.getLeafCond(attributeCond),
-                                buildSearchExpression(
-                                new ArrayList<SearchConditionWrapper>(subList)));
+                                buildSearchExpression(subList));
                     } else {
                         return NodeCond.getAndCond(
                                 NodeCond.getLeafCond(membershipCond),
-                                buildSearchExpression(
-                                new ArrayList<SearchConditionWrapper>(subList)));
+                                buildSearchExpression(subList));
                     }
                 }
-
             } else {
                 if (searchConditionWrapper.getFilterType()
                         == SearchConditionWrapper.FilterType.ATTRIBUTE) {
                     if (attributeCond != null) {
                         return NodeCond.getOrCond(
                                 NodeCond.getLeafCond(attributeCond),
-                                buildSearchExpression(
-                                new ArrayList<SearchConditionWrapper>(subList)));
+                                buildSearchExpression(subList));
                     } else {
                         return NodeCond.getOrCond(
                                 NodeCond.getLeafCond(membershipCond),
-                                buildSearchExpression(
-                                new ArrayList<SearchConditionWrapper>(subList)));
+                                buildSearchExpression(subList));
                     }
                 } else {
                     if (attributeCond != null) {
                         return NodeCond.getOrCond(
                                 NodeCond.getLeafCond(attributeCond),
-                                buildSearchExpression(
-                                new ArrayList<SearchConditionWrapper>(subList)));
+                                buildSearchExpression(subList));
                     } else {
                         return NodeCond.getOrCond(
                                 NodeCond.getLeafCond(membershipCond),
-                                buildSearchExpression(
-                                new ArrayList<SearchConditionWrapper>(subList)));
+                                buildSearchExpression(subList));
                     }
                 }
             }
         }
-    }
-
-    /**
-     *  Init users to display.
-     */
-    public void setupPaginatedUsers() {
-        paginatedUsers = userRestClient.getPaginatedUser(currentViewPage,
-                paginatorRows);
     }
 
     /**
@@ -1574,7 +1536,6 @@ public class Users extends BasePage {
         int endIndex = totalPages;
 
         if (totalPages > 10) {
-
             if (startIndex + 9 <= totalPages) {
                 endIndex = startIndex + 9;
             } else {

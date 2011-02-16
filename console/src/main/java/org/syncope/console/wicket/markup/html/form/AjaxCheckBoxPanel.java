@@ -14,6 +14,7 @@
  */
 package org.syncope.console.wicket.markup.html.form;
 
+import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -21,11 +22,11 @@ import org.apache.wicket.model.Model;
 public class AjaxCheckBoxPanel extends Panel {
 
     public AjaxCheckBoxPanel(final String id, final String name,
-            final IModel<Boolean> model, boolean required) {
+            final IModel<Boolean> model, final boolean required) {
 
         super(id, model);
 
-        add(new UpdatingCheckBox("checkboxField", model).setLabel(
+        add(new CheckBox("checkboxField", model).setLabel(
                 new Model(name)));
     }
 
@@ -35,7 +36,7 @@ public class AjaxCheckBoxPanel extends Panel {
 
         super(id, model);
 
-        add(new UpdatingCheckBox("checkboxField", model).setLabel(
+        add(new CheckBox("checkboxField", model).setLabel(
                 new Model(name)).setEnabled(!readonly));
     }
 }
