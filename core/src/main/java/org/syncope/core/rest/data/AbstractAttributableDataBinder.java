@@ -346,7 +346,8 @@ public abstract class AbstractAttributableDataBinder {
                         if (mapping.isAccountid() && attribute != null
                                 && !attribute.getValuesAsStrings().isEmpty()) {
 
-                            resourceOperations.setOldAccountId(
+                            resourceOperations.addOldAccountId(
+                                    mapping.getResource().getName(),
                                     attribute.getValuesAsStrings().
                                     iterator().next());
                         }

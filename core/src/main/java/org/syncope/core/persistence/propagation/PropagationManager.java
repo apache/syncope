@@ -241,7 +241,8 @@ public class PropagationManager {
                         ? PropagationMode.SYNC
                         : resource.getOptionalPropagationMode());
                 task.setAccountId(accountId);
-                task.setOldAccountId(resourceOperations.getOldAccountId());
+                task.setOldAccountId(
+                        resourceOperations.getOldAccountId(resource.getName()));
                 task.setAttributes(
                         preparedAttributes.values().iterator().next());
 
@@ -305,11 +306,10 @@ public class PropagationManager {
     private Map<String, Set<Attribute>> prepareAttributes(SyncopeUser user,
             String password, TargetResource resource) {
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Preparing resource attributes for " + user
-                    + " on resource " + resource
-                    + " with attributes: " + user.getAttributes());
-        }
+        LOG.debug("Preparing resource attributes for {}"
+                + " on resource {}"
+                + " with attributes {}",
+                new Object[]{user, resource, user.getAttributes()});
 
         // set of user attributes
         Set<Attribute> attributes = new HashSet<Attribute>();
@@ -353,14 +353,14 @@ public class PropagationManager {
                                 : attr.getValues())
                                 : Collections.EMPTY_LIST;
 
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug("Retrieved attribute " + attr
-                                    + "\n* SourceAttrName "
-                                    + mapping.getSourceAttrName()
-                                    + "\n* SourceMappingType "
-                                    + mapping.getSourceMappingType()
-                                    + "\n* Attribute values " + values);
-                        }
+                        LOG.debug("Retrieved attribute {}"
+                                + "\n* SourceAttrName {}"
+                                + "\n* SourceMappingType {}"
+                                + "\n* Attribute values {}",
+                                new Object[]{attr,
+                                    mapping.getSourceAttrName(),
+                                    mapping.getSourceMappingType(),
+                                    values});
                         break;
 
                     case SyncopeUserId:

@@ -2,9 +2,9 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,7 +15,9 @@
 package org.syncope.core.persistence.propagation;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.types.ResourceOperationType;
@@ -23,14 +25,22 @@ import org.syncope.types.ResourceOperationType;
 public class ResourceOperations {
 
     private Set<TargetResource> toBeCreated;
+
     private Set<TargetResource> toBeUpdated;
+
     private Set<TargetResource> toBeDeleted;
-    private String oldAccountId;
+
+    /**
+     * Mapping target resource names to old account ids (when applicable).
+     */
+    private Map<String, String> oldAccountIds;
 
     public ResourceOperations() {
         toBeCreated = new HashSet<TargetResource>();
         toBeUpdated = new HashSet<TargetResource>();
         toBeDeleted = new HashSet<TargetResource>();
+
+        oldAccountIds = new HashMap<String, String>();
     }
 
     /**
@@ -181,12 +191,16 @@ public class ResourceOperations {
                 && toBeUpdated.isEmpty();
     }
 
-    public String getOldAccountId() {
-        return oldAccountId;
+    public String getOldAccountId(final String resourceName) {
+        return oldAccountIds.get(resourceName);
     }
 
-    public void setOldAccountId(final String oldAccountId) {
-        this.oldAccountId = oldAccountId;
+    public void addOldAccountId(final String resourceName,
+            final String oldAccountId) {
+
+        if (resourceName != null && oldAccountId != null) {
+            oldAccountIds.put(resourceName, oldAccountId);
+        }
     }
 
     @Override
@@ -194,6 +208,6 @@ public class ResourceOperations {
         return "To be Created: " + toBeCreated + ";\n"
                 + "To be Updated: " + toBeUpdated + ";\n"
                 + "To be Deleted: " + toBeDeleted + ";\n"
-                + "Old account Id: " + oldAccountId;
+                + "Old account Ids: " + oldAccountIds;
     }
 }

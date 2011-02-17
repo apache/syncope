@@ -147,31 +147,6 @@ public class ConnectorFacadeProxy {
         this.capabitilies = connectorInstance.getCapabilities();
     }
 
-    public Uid create(
-            final PropagationMode propagationMode,
-            final ObjectClass oclass,
-            final Set<Attribute> attrs,
-            final OperationOptions options,
-            final Set<String> triedPropagationRequests) {
-
-        Uid result = null;
-
-        if (propagationMode == PropagationMode.SYNC
-                ? capabitilies.contains(
-                ConnectorCapability.SYNC_CREATE)
-                : capabitilies.contains(
-                ConnectorCapability.ASYNC_CREATE)) {
-
-            if (triedPropagationRequests != null) {
-                triedPropagationRequests.add("create");
-            }
-
-            result = connector.create(oclass, attrs, options);
-        }
-
-        return result;
-    }
-
     public Uid resolveUsername(
             final PropagationMode propagationMode,
             final ResourceOperationType operationType,
@@ -214,6 +189,29 @@ public class ConnectorFacadeProxy {
         return result;
     }
 
+    public Uid create(
+            final PropagationMode propagationMode,
+            final ObjectClass oclass,
+            final Set<Attribute> attrs,
+            final OperationOptions options,
+            final Set<String> triedPropagationRequests) {
+
+        Uid result = null;
+
+        if (propagationMode == PropagationMode.SYNC
+                ? capabitilies.contains(
+                ConnectorCapability.SYNC_CREATE)
+                : capabitilies.contains(
+                ConnectorCapability.ASYNC_CREATE)) {
+
+            triedPropagationRequests.add("create");
+
+            result = connector.create(oclass, attrs, options);
+        }
+
+        return result;
+    }
+
     public Uid update(final PropagationMode propagationMode,
             final ObjectClass objclass,
             final Uid uid,
@@ -229,9 +227,7 @@ public class ConnectorFacadeProxy {
                 : capabitilies.contains(
                 ConnectorCapability.ASYNC_UPDATE)) {
 
-            if (triedPropagationRequests != null) {
-                triedPropagationRequests.add("update");
-            }
+            triedPropagationRequests.add("update");
 
             result = connector.update(
                     objclass, uid, replaceAttributes, options);
@@ -252,9 +248,7 @@ public class ConnectorFacadeProxy {
                 : capabitilies.contains(
                 ConnectorCapability.ASYNC_DELETE)) {
 
-            if (triedPropagationRequests != null) {
-                triedPropagationRequests.add("delete");
-            }
+            triedPropagationRequests.add("delete");
 
             connector.delete(objClass, uid, options);
         }
