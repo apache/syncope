@@ -29,9 +29,6 @@ public interface SchemaDAO extends DAO {
     <T extends AbstractAttr> List<T> getAttributes(
             AbstractSchema schema, Class<T> reference);
 
-    <T extends AbstractAttr> Number getAttributeCount(
-            AbstractSchema schema, Class<T> reference);
-
     <T extends AbstractSchema> T save(T schema)
             throws InvalidEntityException;
 

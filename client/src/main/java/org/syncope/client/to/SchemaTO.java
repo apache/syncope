@@ -41,8 +41,6 @@ public class SchemaTO extends AbstractBaseBean {
 
     private Set<String> derivedSchemas;
 
-    private int attributes;
-
     public SchemaTO() {
         mandatoryCondition = "false";
         derivedSchemas = new HashSet<String>();
@@ -134,13 +132,5 @@ public class SchemaTO extends AbstractBaseBean {
 
     public void setDerivedSchemas(Set<String> derivedSchemas) {
         this.derivedSchemas = derivedSchemas;
-    }
-
-    public int getAttributes() {
-        return attributes;
-    }
-
-    public void setAttributes(int attributes) {
-        this.attributes = attributes;
     }
 }

@@ -208,26 +208,25 @@ public class Schema extends BasePage {
         rolesColumns.add(new PropertyColumn(new Model(getString("type")),
                 "type", "type"));
 
-        rolesColumns.add(new PropertyColumn(new Model(getString("attributes")),
-                "attributes", "attributes"));
-
         rolesColumns.add(new AbstractColumn<SchemaTO>(new Model<String>(
                 getString("name"))) {
 
+            @Override
             public void populateItem(
-                    Item<ICellPopulator<SchemaTO>> cellItem,
-                    String componentId, IModel<SchemaTO> model) {
+                    final Item<ICellPopulator<SchemaTO>> cellItem,
+                    final String componentId,
+                    final IModel<SchemaTO> model) {
 
                 final SchemaTO schemaTO = model.getObject();
 
                 AjaxLink editLink = new IndicatingAjaxLink("editLink") {
 
                     @Override
-                    public void onClick(AjaxRequestTarget target) {
-
+                    public void onClick(final AjaxRequestTarget target) {
                         editRoleSchemaWin.setPageCreator(
                                 new ModalWindow.PageCreator() {
 
+                                    @Override
                                     public Page createPage() {
                                         SchemaModalPage window =
                                                 new SchemaModalPage(
@@ -256,15 +255,18 @@ public class Schema extends BasePage {
         rolesColumns.add(new AbstractColumn<SchemaTO>(
                 new Model<String>(getString("delete"))) {
 
-            public void populateItem(Item<ICellPopulator<SchemaTO>> cellItem,
-                    String componentId, IModel<SchemaTO> model) {
+            @Override
+            public void populateItem(
+                    final Item<ICellPopulator<SchemaTO>> cellItem,
+                    final String componentId,
+                    final IModel<SchemaTO> model) {
 
                 final SchemaTO schemaTO = model.getObject();
 
                 AjaxLink deleteLink = new IndicatingAjaxLink("deleteLink") {
 
                     @Override
-                    public void onClick(AjaxRequestTarget target) {
+                    public void onClick(final AjaxRequestTarget target) {
                         restClient.deleteRoleSchema(schemaTO.getName());
 
                         info(getString("operation_succeded"));
@@ -280,7 +282,7 @@ public class Schema extends BasePage {
 
                             @Override
                             public CharSequence preDecorateScript(
-                                    CharSequence script) {
+                                    final CharSequence script) {
 
                                 return "if (confirm('" + getString(
                                         "confirmDelete") + "'))"
@@ -337,10 +339,6 @@ public class Schema extends BasePage {
         columnsRolesDer.add(new PropertyColumn(
                 new Model(getString("expression")),
                 "expression", "expression"));
-
-        columnsRolesDer.add(new PropertyColumn(
-                new Model(getString("attributes")),
-                "derivedAttributes", "derivedAttributes"));
 
         columnsRolesDer.add(new AbstractColumn<DerivedSchemaTO>(
                 new Model<String>(getString("edit"))) {
@@ -472,9 +470,6 @@ public class Schema extends BasePage {
 
         userColumns.add(new PropertyColumn(new Model(getString("type")),
                 "type", "type"));
-
-        userColumns.add(new PropertyColumn(new Model(getString("attributes")),
-                "attributes", "attributes"));
 
         userColumns.add(new AbstractColumn<SchemaTO>(new Model<String>(
                 getString("edit"))) {
@@ -608,10 +603,6 @@ public class Schema extends BasePage {
                 new Model(getString("expression")),
                 "expression", "expression"));
 
-        columnsUsersDer.add(new PropertyColumn(
-                new Model(getString("attributes")),
-                "derivedAttributes", "derivedAttributes"));
-
         columnsUsersDer.add(new AbstractColumn<DerivedSchemaTO>(
                 new Model<String>(getString("edit"))) {
 
@@ -743,10 +734,6 @@ public class Schema extends BasePage {
 
         membershipsColumns.add(new PropertyColumn(new Model(getString("type")),
                 "type", "type"));
-
-        membershipsColumns.add(new PropertyColumn(new Model(getString(
-                "attributes")),
-                "attributes", "attributes"));
 
         membershipsColumns.add(new AbstractColumn<SchemaTO>(new Model<String>(
                 getString("name"))) {
@@ -881,10 +868,6 @@ public class Schema extends BasePage {
         columnsMembershipsDer.add(new PropertyColumn(new Model(getString(
                 "expression")),
                 "expression", "expression"));
-
-        columnsMembershipsDer.add(new PropertyColumn(new Model(getString(
-                "attributes")),
-                "derivedAttributes", "derivedAttributes"));
 
         columnsMembershipsDer.add(new AbstractColumn<DerivedSchemaTO>(
                 new Model<String>(getString("edit"))) {

@@ -69,18 +69,6 @@ public class SchemaDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    public <T extends AbstractAttr> Number getAttributeCount(
-            final AbstractSchema schema, final Class<T> reference) {
-
-        Query query = entityManager.createQuery(
-                "SELECT COUNT(e) FROM " + reference.getSimpleName() + " e"
-                + " WHERE e.schema=:schema");
-        query.setParameter("schema", schema);
-
-        return (Number) query.getSingleResult();
-    }
-
-    @Override
     public <T extends AbstractSchema> T save(final T schema) {
         return entityManager.merge(schema);
     }

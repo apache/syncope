@@ -175,8 +175,6 @@ public class SchemaDataBinder {
         for (AbstractDerSchema derivedSchema : schema.getDerivedSchemas()) {
             schemaTO.addDerivedSchema(derivedSchema.getName());
         }
-        schemaTO.setAttributes(schemaDAO.getAttributeCount(
-                schema, attributableUtil.attributeClass()).intValue());
 
         return schemaTO;
     }
