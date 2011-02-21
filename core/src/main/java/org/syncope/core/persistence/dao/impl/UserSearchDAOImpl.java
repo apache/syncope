@@ -133,10 +133,10 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
         StringBuilder queryString = getQuery(nodeCond, parameters);
 
         Query query = entityManager.createNativeQuery(queryString.toString());
+
         // page starts from 1, while setFirtResult() starts from 0
-        if (page >= 1) {
-            query.setFirstResult(page - 1);
-        }
+        query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
+
         if (itemsPerPage >= 0) {
             query.setMaxResults(itemsPerPage);
         }
@@ -248,9 +248,9 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
             paramKey = setParameter(random, parameters, cond.getRoleId());
             query.append("role_id=:param").append(paramKey);
         } else if (cond.getRoleName() != null) {
-            paramKey = setParameter(random, parameters, cond.getRoleName());
-            query.append("role_name=:param").append(paramKey);
-        }
+                paramKey = setParameter(random, parameters, cond.getRoleName());
+                query.append("role_name=:param").append(paramKey);
+            }
 
         if (not) {
             query.append(")");
