@@ -124,8 +124,7 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
     }
 
     private List<SyncopeUser> doSearch(final NodeCond nodeCond,
-            final int page,
-            final int itemsPerPage,
+            final int page, final int itemsPerPage,
             final PaginatedResult paginatedResult) {
 
         Map<Integer, Object> parameters = Collections.synchronizedMap(
@@ -166,7 +165,7 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
 
         if (paginatedResult != null) {
             queryString.insert(0, "SELECT COUNT(user_id) FROM (");
-            queryString.append(")");
+            queryString.append(") count_user_id");
 
             Query countQuery =
                     entityManager.createNativeQuery(queryString.toString());
@@ -233,8 +232,7 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
     }
 
     private String getQuery(final MembershipCond cond,
-            final boolean not,
-            final Map<Integer, Object> parameters) {
+            final boolean not, final Map<Integer, Object> parameters) {
 
         StringBuilder query = new StringBuilder(
                 "SELECT DISTINCT user_id FROM user_search_membership WHERE ");
@@ -294,8 +292,7 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
     }
 
     private String getQuery(final AttributeCond cond,
-            final boolean not,
-            final Map<Integer, Object> parameters) {
+            final boolean not, final Map<Integer, Object> parameters) {
 
         USchema schema = schemaDAO.find(cond.getSchema(), USchema.class);
         if (schema == null) {

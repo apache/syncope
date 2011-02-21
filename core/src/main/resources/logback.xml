@@ -165,6 +165,14 @@
         <level value="INFO"/>
         <appender-ref ref="persistence"/>
     </logger>
+    <logger name="org.hibernate.SQL" additivity="false">
+        <level value="OFF"/>
+        <appender-ref ref="persistence"/>
+    </logger>
+    <logger name="org.hibernate.type" additivity="false">
+        <level value="OFF"/>
+        <appender-ref ref="persistence"/>
+    </logger>
 
     <logger name="org.dbunit" additivity="false">
         <level value="INFO"/>
