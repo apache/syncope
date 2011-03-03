@@ -105,9 +105,16 @@ public class RoleController extends AbstractController {
 
         List<SyncopeRole> roles = roleDAO.findAll();
         List<RoleTO> roleTOs = new ArrayList<RoleTO>();
+        RoleTO roleTO;
         for (SyncopeRole role : roles) {
             if (allowedRoleIds.contains(role.getId())) {
-                roleTOs.add(roleDataBinder.getRoleTO(role));
+                roleTO = roleDataBinder.getRoleTO(role);
+                if (roleTO.getParent() != 0
+                        && !allowedRoleIds.contains(roleTO.getParent())) {
+
+                    roleTO.setParent(0);
+                }
+                roleTOs.add(roleTO);
             }
         }
 
