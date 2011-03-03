@@ -39,7 +39,7 @@
     <SyncopeConf confKey="smtp.host" confValue="smtp.ngi.it"/>
     <SyncopeConf confKey="optin.email.from" confValue="syncope@googlecode.com"/>
     <SyncopeConf confKey="optin.email.subject" confValue="Welcome to Syncope!"/>
-    <SyncopeConf confKey="identityconnectors.bundle.directory" confValue="/var/tmp/bundles"/>
+    <SyncopeConf confKey="identityconnectors.bundle.directory" confValue="${bundles.directory}"/>
                           
     <SyncopeUser id="1" workflowId="0" password="5f4dcc3b5aa765d61d8327deb882cf99"/>
     <SyncopeUser id="2" workflowId="0" password="5f4dcc3b5aa765d61d8327deb882cf99"/>
