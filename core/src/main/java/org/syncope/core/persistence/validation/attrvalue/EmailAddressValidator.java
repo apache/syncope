@@ -25,17 +25,16 @@ public class EmailAddressValidator extends AbstractValidator {
             "^[\\w\\-]([\\.\\w])+[\\w]+@([\\w\\-]+\\.)+[A-Z]{2,4}$",
             Pattern.CASE_INSENSITIVE);
 
-    public EmailAddressValidator(AbstractSchema schema) {
+    public EmailAddressValidator(final AbstractSchema schema) {
         super(schema);
     }
 
     @Override
-    protected void doValidate(AbstractAttrValue attributeValue)
+    protected void doValidate(final AbstractAttrValue attributeValue)
             throws InvalidAttrValueException {
 
-        CharSequence emailAddress = attributeValue.getValue();
-        Matcher matcher = EMAIL_PATTERN.matcher(emailAddress);
-
+        Matcher matcher = EMAIL_PATTERN.matcher(
+                (CharSequence) attributeValue.getValue());
         if (!matcher.matches()) {
             throw new InvalidAttrValueException(attributeValue);
         }

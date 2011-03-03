@@ -19,7 +19,7 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 import org.syncope.client.mod.UserMod;
 import org.syncope.client.search.NodeCond;
-import org.syncope.client.search.PaginatedResult;
+import org.syncope.client.search.PaginatedUserContainer;
 import org.syncope.client.to.UserTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 
@@ -43,11 +43,11 @@ public class UserRestClient extends AbstractBaseRestClient {
     /**
      * Create a new user and start off the workflow.
      * @param userTO instance
+     * @throws SyncopeClientCompositeErrorException
      */
-    public void createUser(UserTO userTO)
+    public void createUser(final UserTO userTO)
             throws SyncopeClientCompositeErrorException {
 
-        // Create user
         restTemplate.postForObject(baseURL
                 + "user/create", userTO, UserTO.class);
     }
@@ -57,16 +57,11 @@ public class UserRestClient extends AbstractBaseRestClient {
      * @param userTO
      * @return true is the opertion ends succesfully, false otherwise
      */
-    public boolean updateUser(UserMod userModTO)
+    public void updateUser(UserMod userModTO)
             throws SyncopeClientCompositeErrorException {
 
-        UserTO newUserTO = null;
-
-        newUserTO = restTemplate.postForObject(
-                baseURL
-                + "user/update", userModTO, UserTO.class);
-
-        return userModTO.getId() == newUserTO.getId();
+        restTemplate.postForObject(baseURL + "user/update",
+                userModTO, UserTO.class);
     }
 
     public void deleteUser(String id) {
@@ -109,32 +104,32 @@ public class UserRestClient extends AbstractBaseRestClient {
      * @param userTO
      * @return UserTOs
      */
-    public List<UserTO> paginatedSearchUsers(NodeCond nodeSearchCondition,
+    public List<UserTO> paginatedSearchUsers(NodeCond nodeSearchCond,
             int page, int size)
             throws SyncopeClientCompositeErrorException {
 
-        final PaginatedResult paginatedResult =
+        final PaginatedUserContainer paginatedResult =
                 restTemplate.postForObject(
                 baseURL + "user/paginatedSearch/{page}/{size}",
-                nodeSearchCondition, PaginatedResult.class, page, size);
+                nodeSearchCond, PaginatedUserContainer.class, page, size);
 
         return paginatedResult.getRecords();
     }
 
-    public PaginatedResult paginatedSearchUser(NodeCond nodeSearchCondition,
+    public PaginatedUserContainer paginatedSearchUser(NodeCond nodeSearchCond,
             int page, int size)
             throws SyncopeClientCompositeErrorException {
 
         return restTemplate.postForObject(
                 baseURL + "user/paginatedSearch/{page}/{size}",
-                nodeSearchCondition, PaginatedResult.class, page, size);
+                nodeSearchCond, PaginatedUserContainer.class, page, size);
     }
 
-    public PaginatedResult getPaginatedUser(int page, int size)
+    public PaginatedUserContainer getPaginatedUser(int page, int size)
             throws SyncopeClientCompositeErrorException {
 
         return restTemplate.getForObject(
                 baseURL + "user/paginatedList/{page}/{size}",
-                PaginatedResult.class, page, size);
+                PaginatedUserContainer.class, page, size);
     }
 }

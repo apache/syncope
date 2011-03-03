@@ -15,7 +15,7 @@
  */
 package org.syncope.core.rest.controller;
 
-import org.syncope.core.persistence.util.AttributableUtil;
+import org.syncope.core.util.AttributableUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.TypeMismatchException;

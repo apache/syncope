@@ -32,7 +32,7 @@ import org.springframework.stereotype.Repository;
 import org.syncope.client.search.AttributeCond;
 import org.syncope.client.search.MembershipCond;
 import org.syncope.client.search.NodeCond;
-import org.syncope.client.search.PaginatedResult;
+import org.syncope.client.search.PaginatedUserContainer;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.beans.user.UAttrValue;
 import org.syncope.core.persistence.beans.user.USchema;
@@ -63,15 +63,18 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    public List<SyncopeUser> search(final NodeCond searchCondition) {
-        return search(searchCondition, -1, -1, null);
+    public List<SyncopeUser> search(final Set<Long> adminRoles,
+            final NodeCond searchCondition) {
+
+        return search(adminRoles, searchCondition, -1, -1, null);
     }
 
     @Override
-    public List<SyncopeUser> search(final NodeCond searchCondition,
+    public List<SyncopeUser> search(final Set<Long> adminRoles,
+            final NodeCond searchCondition,
             final int page,
             final int itemsPerPage,
-            final PaginatedResult paginatedResult) {
+            final PaginatedUserContainer paginatedResult) {
 
         List<SyncopeUser> result;
 
@@ -83,7 +86,7 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
         }
 
         try {
-            result = doSearch(searchCondition,
+            result = doSearch(adminRoles, searchCondition,
                     page, itemsPerPage, paginatedResult);
         } catch (Throwable t) {
             LOG.error("While searching users", t);
@@ -123,15 +126,81 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
         }
     }
 
-    private List<SyncopeUser> doSearch(final NodeCond nodeCond,
+    private void addAdminRolesFilter(final Set<Long> adminRoles,
+            final StringBuilder queryString) {
+
+        final StringBuilder adminRolesFilter = new StringBuilder();
+
+        adminRolesFilter.append("SELECT syncopeUser_id FROM Membership M1 ").
+                append("WHERE syncopeRole_id IN (");
+        adminRolesFilter.append("SELECT syncopeRole_id FROM Membership M2 ").
+                append("WHERE M2.syncopeUser_id=M1.syncopeUser_id ").
+                append("AND syncopeRole_id NOT IN (");
+
+        adminRolesFilter.append("SELECT id AS syncopeRole_id FROM SyncopeRole");
+        boolean firstRole = true;
+        for (Long adminRoleId : adminRoles) {
+            if (firstRole) {
+                adminRolesFilter.append(" WHERE");
+                firstRole = false;
+            } else {
+                adminRolesFilter.append(" OR");
+            }
+
+            adminRolesFilter.append(" id=").append(adminRoleId);
+        }
+
+        adminRolesFilter.append(")))");
+
+        queryString.insert(0, "SELECT user_id FROM (");
+        queryString.append(") WHERE user_id NOT IN (");
+        queryString.append(adminRolesFilter);
+    }
+
+    private List<SyncopeUser> doSearch(final Set<Long> adminRoles,
+            final NodeCond nodeCond,
             final int page, final int itemsPerPage,
-            final PaginatedResult paginatedResult) {
+            final PaginatedUserContainer paginatedResult) {
 
         Map<Integer, Object> parameters = Collections.synchronizedMap(
                 new HashMap<Integer, Object>());
 
+        // 1. get the query string from the search condition
         StringBuilder queryString = getQuery(nodeCond, parameters);
 
+        // 2. take into account administrative roles
+        final StringBuilder adminRolesFilter = new StringBuilder();
+        if (adminRoles == null || adminRoles.isEmpty()) {
+            adminRolesFilter.append("SELECT syncopeUser_id AS user_id ").
+                    append("FROM Membership");
+        } else {
+            adminRolesFilter.append("SELECT syncopeUser_id AS user_id ").
+                    append("FROM Membership M1 ").
+                    append("WHERE syncopeRole_id IN (");
+            adminRolesFilter.append("SELECT syncopeRole_id FROM Membership M2 ").
+                    append("WHERE M2.syncopeUser_id=M1.syncopeUser_id ").
+                    append("AND syncopeRole_id NOT IN (");
+            adminRolesFilter.append(
+                    "SELECT id AS syncopeRole_id FROM SyncopeRole");
+            boolean firstRole = true;
+            for (Long adminRoleId : adminRoles) {
+                if (firstRole) {
+                    adminRolesFilter.append(" WHERE");
+                    firstRole = false;
+                } else {
+                    adminRolesFilter.append(" OR");
+                }
+
+                adminRolesFilter.append(" id=").append(adminRoleId);
+            }
+            adminRolesFilter.append("))");
+        }
+
+        queryString.insert(0, "SELECT user_id FROM (");
+        queryString.append(") WHERE user_id NOT IN (");
+        queryString.append(adminRolesFilter).append(")");
+
+        // 3. prepare the search query
         Query query = entityManager.createNativeQuery(queryString.toString());
 
         // page starts from 1, while setFirtResult() starts from 0
@@ -140,12 +209,14 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
         if (itemsPerPage >= 0) {
             query.setMaxResults(itemsPerPage);
         }
+
+        // 4. populate the search query with parameter values
         fillWithParameters(query, parameters);
 
         LOG.debug("Native query\n{}\nwith parameters\n{}",
                 queryString.toString(), parameters);
 
-        // Avoiding duplicates (set)
+        // 5. Prepare the result (avoiding duplicates - set)
         Set<Number> userIds = new HashSet<Number>();
         userIds.addAll(query.getResultList());
 
@@ -163,6 +234,7 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
             }
         }
 
+        // 6. (if it's the case, paginate)
         if (paginatedResult != null) {
             queryString.insert(0, "SELECT COUNT(user_id) FROM (");
             queryString.append(") count_user_id");
@@ -248,9 +320,9 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
             paramKey = setParameter(random, parameters, cond.getRoleId());
             query.append("role_id=:param").append(paramKey);
         } else if (cond.getRoleName() != null) {
-                paramKey = setParameter(random, parameters, cond.getRoleName());
-                query.append("role_name=:param").append(paramKey);
-            }
+            paramKey = setParameter(random, parameters, cond.getRoleName());
+            query.append("role_name=:param").append(paramKey);
+        }
 
         if (not) {
             query.append(")");

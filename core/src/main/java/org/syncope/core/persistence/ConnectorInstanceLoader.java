@@ -35,7 +35,7 @@ import org.syncope.core.persistence.dao.ConnectorInstanceDAO;
 import org.syncope.core.persistence.dao.MissingConfKeyException;
 import org.syncope.core.persistence.dao.ConfDAO;
 import org.syncope.core.persistence.propagation.ConnectorFacadeProxy;
-import org.syncope.core.persistence.util.ApplicationContextManager;
+import org.syncope.core.util.ApplicationContextManager;
 
 /**
  * Load identity connector instances on application startup.

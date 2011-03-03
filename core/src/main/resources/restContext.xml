@@ -25,7 +25,11 @@
        http://www.springframework.org/schema/oxm/spring-oxm.xsd">
 
     <context:component-scan base-package="org.syncope.core.rest.controller"/>
-    
+
+    <bean id="adminUser" class="java.lang.String">
+        <constructor-arg value="${adminUser}"/>
+    </bean>
+
     <bean id="jacksonObjectMapper" class="org.syncope.core.rest.jackson.UnwrappedObjectMapper"/>
     
     <bean id="mappingJacksonHttpMessageConverter"

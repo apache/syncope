@@ -15,7 +15,7 @@
 package org.syncope.core.rest.data;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.syncope.core.persistence.util.AttributableUtil;
+import org.syncope.core.util.AttributableUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.syncope.client.mod.RoleMod;

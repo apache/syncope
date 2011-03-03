@@ -27,7 +27,7 @@ import org.apache.commons.jexl2.JexlEngine;
 import org.apache.commons.jexl2.JexlException;
 import org.apache.commons.jexl2.MapContext;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.syncope.core.persistence.util.ApplicationContextManager;
+import org.syncope.core.util.ApplicationContextManager;
 
 /**
  * @see http://commons.apache.org/jexl/reference/index.html

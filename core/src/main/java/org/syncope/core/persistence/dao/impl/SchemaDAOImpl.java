@@ -26,7 +26,7 @@ import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.dao.AttrDAO;
 import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
-import org.syncope.core.persistence.util.AttributableUtil;
+import org.syncope.core.util.AttributableUtil;
 
 @Repository
 public class SchemaDAOImpl extends AbstractDAOImpl

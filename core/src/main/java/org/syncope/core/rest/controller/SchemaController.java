@@ -30,7 +30,7 @@ import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.core.rest.data.SchemaDataBinder;
 import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.dao.SchemaDAO;
-import org.syncope.core.persistence.util.AttributableUtil;
+import org.syncope.core.util.AttributableUtil;
 
 @Controller
 @RequestMapping("/schema")

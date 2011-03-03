@@ -15,7 +15,9 @@
 package org.syncope.core.persistence.dao;
 
 import java.util.List;
+import javassist.NotFoundException;
 import org.syncope.core.persistence.beans.Entitlement;
+import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.validation.entity.InvalidEntityException;
 
 public interface EntitlementDAO extends DAO {
@@ -27,5 +29,9 @@ public interface EntitlementDAO extends DAO {
     Entitlement save(Entitlement entitlement)
             throws InvalidEntityException;
 
+    Entitlement save(SyncopeRole role);
+
     void delete(String name);
+
+    void delete(Entitlement entitlement);
 }

@@ -35,7 +35,7 @@ import org.syncope.client.to.AttributeTO;
 import org.syncope.client.search.AttributeCond;
 import org.syncope.client.to.MembershipTO;
 import org.syncope.client.search.NodeCond;
-import org.syncope.client.search.PaginatedResult;
+import org.syncope.client.search.PaginatedUserContainer;
 import org.syncope.client.to.TaskTO;
 import org.syncope.client.to.UserTO;
 import org.syncope.client.to.WorkflowActionsTO;
@@ -395,9 +395,9 @@ public class UserTestITCase extends AbstractTest {
     @Test
     public final void paginatedList() {
 
-        PaginatedResult paginatedResult = restTemplate.getForObject(
+        PaginatedUserContainer paginatedResult = restTemplate.getForObject(
                 BASE_URL + "user/paginatedList/{page}/{size}.json",
-                PaginatedResult.class, 1, 2);
+                PaginatedUserContainer.class, 1, 2);
 
         List<UserTO> users = paginatedResult.getRecords();
 
@@ -411,7 +411,7 @@ public class UserTestITCase extends AbstractTest {
 
         paginatedResult = restTemplate.getForObject(
                 BASE_URL + "user/paginatedList/{page}/{size}.json",
-                PaginatedResult.class, 2, 2);
+                PaginatedUserContainer.class, 2, 2);
 
         users = paginatedResult.getRecords();
 
@@ -419,9 +419,9 @@ public class UserTestITCase extends AbstractTest {
         assertFalse(users.isEmpty());
         assertEquals(2, users.size());
 
-        PaginatedResult result = restTemplate.getForObject(
+        PaginatedUserContainer result = restTemplate.getForObject(
                 BASE_URL + "user/paginatedList/{page}/{size}.json",
-                PaginatedResult.class, 100, 2);
+                PaginatedUserContainer.class, 100, 2);
 
         users = result.getRecords();
 
@@ -526,9 +526,9 @@ public class UserTestITCase extends AbstractTest {
 
         assertTrue(searchCondition.checkValidity());
 
-        PaginatedResult result = restTemplate.postForObject(
+        PaginatedUserContainer result = restTemplate.postForObject(
                 BASE_URL + "user/paginatedSearch/{page}/{size}",
-                searchCondition, PaginatedResult.class, 1, 2);
+                searchCondition, PaginatedUserContainer.class, 1, 2);
 
         List<UserTO> matchedUsers = result.getRecords();
         assertNotNull(matchedUsers);
@@ -543,9 +543,9 @@ public class UserTestITCase extends AbstractTest {
         isNullCond.setSchema("loginDate");
         searchCondition = NodeCond.getLeafCond(isNullCond);
 
-        PaginatedResult paginatedResult = restTemplate.postForObject(
+        PaginatedUserContainer paginatedResult = restTemplate.postForObject(
                 BASE_URL + "user/paginatedSearch/{page}/{size}",
-                searchCondition, PaginatedResult.class, 1, 2);
+                searchCondition, PaginatedUserContainer.class, 1, 2);
 
         matchedUsers = paginatedResult.getRecords();
 

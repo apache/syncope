@@ -12,7 +12,21 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.rest.data;
+package org.syncope.core.util;
 
-public class InvalidSearchConditionException extends Exception {
+import org.springframework.context.ConfigurableApplicationContext;
+
+public class ApplicationContextManager {
+
+    private static ConfigurableApplicationContext ctx;
+
+    public static void setApplicationContext(
+            final ConfigurableApplicationContext applicationContext) {
+
+        ctx = applicationContext;
+    }
+
+    public static ConfigurableApplicationContext getApplicationContext() {
+        return ctx;
+    }
 }

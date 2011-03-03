@@ -1,9 +1,10 @@
-<%@page isErrorPage="true" contentType="application/json" pageEncoding="UTF-8"%>
+<%@page isErrorPage="true" session="false" contentType="application/json" pageEncoding="UTF-8"%>
 <%@page import="org.hibernate.exception.ConstraintViolationException"%>
 <%@page import="javax.persistence.PersistenceException"%>
 <%@page import="org.springframework.dao.DataIntegrityViolationException"%>
 <%@page import="org.hibernate.exception.LockAcquisitionException"%>
-<%@page import="org.syncope.core.rest.data.InvalidSearchConditionException"%>
+<%@page import="org.syncope.core.rest.controller.InvalidSearchConditionException"%>
+<%@page import="org.syncope.core.rest.controller.UnauthorizedRoleException"%>
 <%@page import="org.syncope.core.persistence.dao.MissingConfKeyException"%>
 <%@page import="org.syncope.client.validation.SyncopeClientException"%>
 <%@page import="org.syncope.client.validation.SyncopeClientCompositeErrorException"%>
@@ -88,6 +89,18 @@
                         getHeaderValue());
 
                 statusCode = HttpServletResponse.SC_BAD_REQUEST;
+            } else if (ex instanceof UnauthorizedRoleException) {
+                response.setHeader(
+                        SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
+                        SyncopeClientExceptionType.UnauthorizedRole.
+                        getHeaderValue());
+                for (Long roleId : ((UnauthorizedRoleException) ex).getRoleIds()) {
+                    response.setHeader(
+                            SyncopeClientExceptionType.UnauthorizedRole.
+                            getElementHeaderName(), roleId.toString());
+                }
+
+                statusCode = HttpServletResponse.SC_UNAUTHORIZED;
             } else if (ex.getCause() instanceof LockAcquisitionException) {
                 response.setHeader(
                         SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,

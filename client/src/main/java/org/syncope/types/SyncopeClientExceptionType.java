@@ -19,6 +19,12 @@ public enum SyncopeClientExceptionType {
     Deadlock(
     "Syncope.Deadlock",
     ""),
+    DuplicateUniqueValue(
+    "Syncope.DuplicateUniqueValue",
+    "Syncope.DuplicateUniqueValue.name"),
+    GenericPersistence(
+    "Syncope.GenericPersistence",
+    "Syncope.GenericPersistence.cause"),
     InvalidPassword(
     "Syncope.InvalidPassword",
     "Syncope.InvalidPassword.reason"),
@@ -37,12 +43,6 @@ public enum SyncopeClientExceptionType {
     InvalidTaskExecutionReport(
     "Syncope.InvalidTaskExecutionReport",
     "Syncope.InvalidTaskExecutionReport.element"),
-    DuplicateUniqueValue(
-    "Syncope.DuplicateUniqueValue",
-    "Syncope.DuplicateUniqueValue.name"),
-    GenericPersistence(
-    "Syncope.GenericPersistence",
-    "Syncope.GenericPersistence.cause"),
     InvalidSchemaMapping(
     "Syncope.InvalidSchemaMapping",
     ""),
@@ -64,6 +64,9 @@ public enum SyncopeClientExceptionType {
     RequiredValuesMissing(
     "Syncope.RequiredValuesMissing",
     "Syncope.RequiredValuesMissing.attributeName"),
+    UnauthorizedRole(
+    "Syncope.UnauthorizedRole",
+    "Syncope.UnauthorizedRole.id"),
     Unknown(
     "Syncope.Unknown",
     ""),

@@ -28,6 +28,7 @@ import org.syncope.core.persistence.beans.Entitlement;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.EntitlementDAO;
+import org.syncope.core.persistence.dao.RoleDAO;
 import org.syncope.core.persistence.dao.UserDAO;
 
 @Configurable
@@ -35,6 +36,9 @@ public class SyncopeUserDetailsService implements UserDetailsService {
 
     @Autowired
     private UserDAO userDAO;
+
+    @Autowired
+    private RoleDAO roleDAO;
 
     @Autowired
     private EntitlementDAO entitlementDAO;
@@ -53,7 +57,6 @@ public class SyncopeUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(final String username)
             throws UsernameNotFoundException, DataAccessException {
 
-        User result;
         Set<GrantedAuthorityImpl> authorities =
                 new HashSet<GrantedAuthorityImpl>();
         if (adminUser.equals(username)) {
@@ -76,7 +79,17 @@ public class SyncopeUserDetailsService implements UserDetailsService {
                         "Could not find any user with id " + id);
             }
 
-            for (SyncopeRole role : user.getRoles()) {
+            // Give entitlements based on roles owned by user,
+            // considering role inheritance as well
+            Set<SyncopeRole> roles = user.getRoles();
+            Set<Long> roleIds = new HashSet<Long>(roles.size());
+            for (SyncopeRole role : roles) {
+                roleIds.add(role.getId());
+            }
+            for (Long roleId : roleIds) {
+                roles.addAll(roleDAO.findChildren(roleId));
+            }
+            for (SyncopeRole role : roles) {
                 for (Entitlement entitlement : role.getEntitlements()) {
                     authorities.add(new GrantedAuthorityImpl(
                             entitlement.getName()));

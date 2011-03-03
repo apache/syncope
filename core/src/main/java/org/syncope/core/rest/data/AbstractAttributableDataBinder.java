@@ -14,7 +14,7 @@
  */
 package org.syncope.core.rest.data;
 
-import org.syncope.core.persistence.util.AttributableUtil;
+import org.syncope.core.util.AttributableUtil;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;

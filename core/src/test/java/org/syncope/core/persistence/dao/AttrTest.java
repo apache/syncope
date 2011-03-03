@@ -27,7 +27,7 @@ import org.syncope.core.persistence.beans.user.USchema;
 import org.syncope.core.persistence.AbstractTest;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.beans.user.UAttrUniqueValue;
-import org.syncope.core.persistence.util.AttributableUtil;
+import org.syncope.core.util.AttributableUtil;
 import org.syncope.types.EntityViolationType;
 
 @Transactional

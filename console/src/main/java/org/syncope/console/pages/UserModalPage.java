@@ -352,9 +352,6 @@ public class UserModalPage extends BaseModalPage {
             @Override
             protected void onSubmit(AjaxRequestTarget target, Form form) {
                 UserTO userTO = (UserTO) form.getDefaultModelObject();
-
-                boolean res = false;
-
                 try {
                     userTO.setResources(getResourcesSet(resourcesPalette.
                             getModelCollection()));
@@ -368,20 +365,12 @@ public class UserModalPage extends BaseModalPage {
 
                         //Update user just if it is changed
                         if (userMod != null) {
-                            res = userRestClient.updateUser(userMod);
-                            if (!res) {
-                                error(getString("error_updating"));
-                            }
-
+                            userRestClient.updateUser(userMod);
                         }
-
                     }
 
-                    Users callerPage = (Users) basePage;
-                    callerPage.setOperationResult(true);
-
+                    ((Users) basePage).setOperationResult(true);
                     window.close(target);
-
                 } catch (SyncopeClientCompositeErrorException e) {
                     LOG.error("While creating or updating user", e);
                     error(getString("error") + ":" + e.getMessage());

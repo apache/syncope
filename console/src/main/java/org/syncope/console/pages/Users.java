@@ -49,7 +49,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.search.AttributeCond;
 import org.syncope.client.search.MembershipCond;
 import org.syncope.client.search.NodeCond;
-import org.syncope.client.search.PaginatedResult;
+import org.syncope.client.search.PaginatedUserContainer;
 import org.syncope.client.to.AttributeTO;
 import org.syncope.client.to.RoleTO;
 import org.syncope.client.to.UserTO;
@@ -153,11 +153,11 @@ public class Users extends BasePage {
 
     private NodeCond nodeCond;
 
-    private PaginatedResult paginatedUsers;
+    private PaginatedUserContainer paginatedUsers;
 
     private Boolean firstLoad = Boolean.TRUE;
 
-    private PaginatedResult paginatedSearchUsers;
+    private PaginatedUserContainer paginatedSearchUsers;
 
     private ListView navigation;
 
@@ -1269,9 +1269,9 @@ public class Users extends BasePage {
         add(paginatorSearchForm);
     }
 
-    public PaginatedResult getPaginatedUsers(int page, int size) {
+    public PaginatedUserContainer getPaginatedUsers(int page, int size) {
 
-        PaginatedResult paginatedResult =
+        PaginatedUserContainer paginatedResult =
                 userRestClient.getPaginatedUser(page, size);
 
         return paginatedResult;

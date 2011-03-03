@@ -17,12 +17,14 @@ package org.syncope.core.persistence.dao;
 import static org.junit.Assert.*;
 
 import java.util.List;
+import java.util.Set;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.AbstractTest;
 import org.syncope.core.persistence.beans.user.UAttrValue;
+import org.syncope.core.util.EntitlementUtil;
 
 @Transactional
 public class UserTest extends AbstractTest {
@@ -30,35 +32,43 @@ public class UserTest extends AbstractTest {
     @Autowired
     private UserDAO userDAO;
 
+    @Autowired
+    private EntitlementDAO entitlementDAO;
+
     @Test
     public final void findAll() {
-        List<SyncopeUser> list = userDAO.findAll();
+        List<SyncopeUser> list = userDAO.findAll(
+                EntitlementUtil.getRoleIds(entitlementDAO.findAll()));
         assertEquals("did not get expected number of users ", 4, list.size());
     }
 
     @Test
     public final void count() {
-        Integer count = userDAO.count();
+        Integer count = userDAO.count(
+                EntitlementUtil.getRoleIds(entitlementDAO.findAll()));
         assertNotNull(count);
         assertEquals(4, count.intValue());
     }
 
     @Test
     public final void findAllByPageAndSize() {
+        Set<Long> allRoleIds =
+                EntitlementUtil.getRoleIds(entitlementDAO.findAll());
+
         // get first page
-        List<SyncopeUser> list = userDAO.findAll(1, 2);
+        List<SyncopeUser> list = userDAO.findAll(allRoleIds, 1, 2);
         assertEquals("did not get expected number of users ", 2, list.size());
 
         // get second page
-        list = userDAO.findAll(2, 2);
+        list = userDAO.findAll(allRoleIds, 2, 2);
         assertEquals("did not get expected number of users ", 2, list.size());
 
         // get second page with uncomplete set
-        list = userDAO.findAll(2, 3);
+        list = userDAO.findAll(allRoleIds, 2, 3);
         assertEquals("did not get expected number of users ", 1, list.size());
 
         // get unexistent page
-        list = userDAO.findAll(3, 2);
+        list = userDAO.findAll(allRoleIds, 3, 2);
         assertEquals("did not get expected number of users ", 0, list.size());
     }
 

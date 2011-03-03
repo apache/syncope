@@ -36,7 +36,7 @@ import javax.persistence.OneToMany;
 import org.hibernate.annotations.Cascade;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.syncope.core.persistence.util.ApplicationContextManager;
+import org.syncope.core.util.ApplicationContextManager;
 import org.syncope.types.PropagationMode;
 import org.syncope.types.ResourceOperationType;
 

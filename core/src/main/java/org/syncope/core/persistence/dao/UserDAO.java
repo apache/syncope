@@ -15,6 +15,7 @@
 package org.syncope.core.persistence.dao;
 
 import java.util.List;
+import java.util.Set;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.beans.user.UAttrValue;
 import org.syncope.core.persistence.validation.entity.InvalidEntityException;
@@ -30,11 +31,11 @@ public interface UserDAO extends DAO {
     SyncopeUser findByAttrUniqueValue(String schemaName,
             UAttrValue attrUniqueValue);
 
-    List<SyncopeUser> findAll();
+    List<SyncopeUser> findAll(Set<Long> adminRoles);
 
-    List<SyncopeUser> findAll(int page, int itemsPerPage);
+    List<SyncopeUser> findAll(Set<Long> adminRoles, int page, int itemsPerPage);
 
-    Integer count();
+    Integer count(Set<Long> adminRoles);
 
     SyncopeUser save(SyncopeUser user)
             throws InvalidEntityException;

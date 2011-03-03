@@ -18,13 +18,13 @@ import org.apache.wicket.Page;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.Response;
 import org.apache.wicket.authorization.UnauthorizedInstantiationException;
-import org.apache.wicket.markup.html.pages.AccessDeniedPage;
 import org.apache.wicket.markup.html.pages.ExceptionErrorPage;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.protocol.http.PageExpiredException;
 import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.protocol.http.WebRequest;
 import org.apache.wicket.protocol.http.WebRequestCycle;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.syncope.console.pages.ErrorPage;
 
@@ -50,41 +50,43 @@ public class SyncopeRequestCycle extends WebRequestCycle {
     public final Page onRuntimeException(final Page cause,
             final RuntimeException e) {
 
+        Page errorPage;
+        PageParameters errorParameters = new PageParameters();
+        errorParameters.add("errorTitle",
+                new StringResourceModel("alert", null).getString());
+
         if (e instanceof UnauthorizedInstantiationException) {
-            return new AccessDeniedPage();
-        }
+            errorParameters.add("errorMessage", new StringResourceModel(
+                    "unauthorizedInstantiationException", null).getString());
 
-        if (e instanceof PageExpiredException
+            errorPage = new ErrorPage(errorParameters);
+        } else if (e instanceof HttpClientErrorException) {
+            errorParameters.add("errorMessage",
+                    new StringResourceModel("httpClientException", null).
+                    getString());
+
+            errorPage = new ErrorPage(errorParameters);
+        } else if (e instanceof PageExpiredException
                 || !((SyncopeSession) getSession()).isAuthenticated()) {
-
-            PageParameters errorParameters = new PageParameters();
-
-            errorParameters.add("errorTitle",
-                    new StringResourceModel("alert", null).getString());
 
             errorParameters.add("errorMessage",
                     new StringResourceModel("pageExpiredException", null).
                     getString());
 
-            return new ErrorPage(errorParameters);
-        }
-
-        if (e.getCause() != null && e.getCause().getCause() != null
+            errorPage = new ErrorPage(errorParameters);
+        } else if (e.getCause() != null && e.getCause().getCause() != null
                 && e.getCause().getCause() instanceof RestClientException) {
-
-            PageParameters errorParameters = new PageParameters();
-
-            errorParameters.add("errorTitle",
-                    new StringResourceModel("alert", null).getString());
 
             errorParameters.add("errorMessage",
                     new StringResourceModel("restClientException", null).
                     getString());
 
-            return new ErrorPage(errorParameters);
+            errorPage = new ErrorPage(errorParameters);
+        } else {
+            // redirect to default Wicket error page
+            errorPage = new ExceptionErrorPage(e, cause);
         }
 
-        //Redirect to default Wicket error page
-        return new ExceptionErrorPage(e, cause);
+        return errorPage;
     }
 }

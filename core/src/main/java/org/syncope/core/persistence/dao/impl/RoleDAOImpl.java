@@ -18,14 +18,20 @@ import java.util.Collections;
 import java.util.List;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.syncope.core.persistence.beans.Entitlement;
 import org.syncope.core.persistence.beans.membership.Membership;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
+import org.syncope.core.persistence.dao.EntitlementDAO;
 import org.syncope.core.persistence.dao.RoleDAO;
+import org.syncope.core.util.EntitlementUtil;
 
 @Repository
 public class RoleDAOImpl extends AbstractDAOImpl implements RoleDAO {
+
+    @Autowired
+    private EntitlementDAO entitlementDAO;
 
     @Override
     public SyncopeRole find(final Long id) {
@@ -108,8 +114,11 @@ public class RoleDAOImpl extends AbstractDAOImpl implements RoleDAO {
     }
 
     @Override
-    public SyncopeRole save(final SyncopeRole syncopeRole) {
-        return entityManager.merge(syncopeRole);
+    public SyncopeRole save(final SyncopeRole role) {
+        final SyncopeRole savedRole = entityManager.merge(role);
+        entitlementDAO.save(savedRole);
+
+        return savedRole;
     }
 
     @Override
@@ -143,5 +152,7 @@ public class RoleDAOImpl extends AbstractDAOImpl implements RoleDAO {
 
         role.setParent(null);
         entityManager.remove(role);
+
+        entitlementDAO.delete(EntitlementUtil.getEntitlementName(id));
     }
 }

@@ -15,17 +15,15 @@
 package org.syncope.core.rest.controller;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.syncope.core.persistence.beans.Entitlement;
 import org.syncope.core.persistence.dao.EntitlementDAO;
+import org.syncope.core.util.EntitlementUtil;
 
 @Controller
 @RequestMapping("/auth")
@@ -49,16 +47,6 @@ public class AuthenticationController extends AbstractController {
     @RequestMapping(method = RequestMethod.GET,
     value = "/entitlements")
     public Set<String> getEntitlements() {
-        Set<String> result = new HashSet<String>(
-                SecurityContextHolder.getContext().
-                getAuthentication().getAuthorities().size());
-        for (GrantedAuthority authority :
-                SecurityContextHolder.getContext().
-                getAuthentication().getAuthorities()) {
-
-            result.add(authority.getAuthority());
-        }
-
-        return result;
+        return EntitlementUtil.getOwnedEntitlementNames();
     }
 }

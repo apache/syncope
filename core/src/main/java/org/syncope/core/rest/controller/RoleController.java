@@ -16,6 +16,7 @@ package org.syncope.core.rest.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import javassist.NotFoundException;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,7 @@ import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.dao.RoleDAO;
 import org.syncope.core.rest.data.RoleDataBinder;
+import org.syncope.core.util.EntitlementUtil;
 
 @Controller
 @RequestMapping("/role")
@@ -45,11 +47,20 @@ public class RoleController extends AbstractController {
     @PreAuthorize("hasRole('ROLE_CREATE')")
     @RequestMapping(method = RequestMethod.POST,
     value = "/create")
-    public RoleTO create(HttpServletResponse response,
-            @RequestBody RoleTO roleTO)
-            throws SyncopeClientCompositeErrorException {
+    public RoleTO create(final HttpServletResponse response,
+            final @RequestBody RoleTO roleTO)
+            throws SyncopeClientCompositeErrorException,
+            UnauthorizedRoleException {
 
         LOG.debug("Role create called with parameters {}", roleTO);
+
+        Set<Long> allowedRoleIds = EntitlementUtil.getRoleIds(
+                EntitlementUtil.getOwnedEntitlementNames());
+        if (roleTO.getParent() != 0
+                && !allowedRoleIds.contains(roleTO.getParent())) {
+
+            throw new UnauthorizedRoleException(roleTO.getParent());
+        }
 
         SyncopeRole role;
         try {
@@ -69,13 +80,17 @@ public class RoleController extends AbstractController {
     @RequestMapping(method = RequestMethod.DELETE,
     value = "/delete/{roleId}")
     public void delete(@PathVariable("roleId") Long roleId)
-            throws NotFoundException {
+            throws NotFoundException, UnauthorizedRoleException {
 
         SyncopeRole role = roleDAO.find(roleId);
         if (role == null) {
-            LOG.error("Could not find role '" + roleId + "'");
-
             throw new NotFoundException("Role " + String.valueOf(roleId));
+        }
+
+        Set<Long> allowedRoleIds = EntitlementUtil.getRoleIds(
+                EntitlementUtil.getOwnedEntitlementNames());
+        if (!allowedRoleIds.contains(role.getId())) {
+            throw new UnauthorizedRoleException(role.getId());
         }
 
         roleDAO.delete(roleId);
@@ -85,10 +100,15 @@ public class RoleController extends AbstractController {
     @RequestMapping(method = RequestMethod.GET,
     value = "/list")
     public List<RoleTO> list() {
+        Set<Long> allowedRoleIds = EntitlementUtil.getRoleIds(
+                EntitlementUtil.getOwnedEntitlementNames());
+
         List<SyncopeRole> roles = roleDAO.findAll();
-        List<RoleTO> roleTOs = new ArrayList<RoleTO>(roles.size());
+        List<RoleTO> roleTOs = new ArrayList<RoleTO>();
         for (SyncopeRole role : roles) {
-            roleTOs.add(roleDataBinder.getRoleTO(role));
+            if (allowedRoleIds.contains(role.getId())) {
+                roleTOs.add(roleDataBinder.getRoleTO(role));
+            }
         }
 
         return roleTOs;
@@ -98,13 +118,19 @@ public class RoleController extends AbstractController {
     @RequestMapping(method = RequestMethod.GET,
     value = "/parent/{roleId}")
     public RoleTO parent(@PathVariable("roleId") Long roleId)
-            throws NotFoundException {
+            throws NotFoundException, UnauthorizedRoleException {
 
         SyncopeRole role = roleDAO.find(roleId);
         if (role == null) {
-            LOG.error("Could not find role '" + roleId + "'");
-
             throw new NotFoundException("Role " + String.valueOf(roleId));
+        }
+
+        Set<Long> allowedRoleIds = EntitlementUtil.getRoleIds(
+                EntitlementUtil.getOwnedEntitlementNames());
+        if (role.getParent() != null
+                && !allowedRoleIds.contains(role.getParent().getId())) {
+
+            throw new UnauthorizedRoleException(role.getParent().getId());
         }
 
         return role.getParent() == null ? null
@@ -115,11 +141,15 @@ public class RoleController extends AbstractController {
     @RequestMapping(method = RequestMethod.GET,
     value = "/children/{roleId}")
     public List<RoleTO> children(@PathVariable("roleId") Long roleId) {
+        Set<Long> allowedRoleIds = EntitlementUtil.getRoleIds(
+                EntitlementUtil.getOwnedEntitlementNames());
 
         List<SyncopeRole> roles = roleDAO.findChildren(roleId);
         List<RoleTO> roleTOs = new ArrayList<RoleTO>(roles.size());
         for (SyncopeRole role : roles) {
-            roleTOs.add(roleDataBinder.getRoleTO(role));
+            if (allowedRoleIds.contains(role.getId())) {
+                roleTOs.add(roleDataBinder.getRoleTO(role));
+            }
         }
 
         return roleTOs;
@@ -129,13 +159,18 @@ public class RoleController extends AbstractController {
     @RequestMapping(method = RequestMethod.GET,
     value = "/read/{roleId}")
     public RoleTO read(@PathVariable("roleId") Long roleId)
-            throws NotFoundException {
+            throws NotFoundException, UnauthorizedRoleException {
 
         SyncopeRole role = roleDAO.find(roleId);
         if (role == null) {
-            LOG.error("Could not find role '" + roleId + "'");
-
             throw new NotFoundException(String.valueOf(roleId));
+        }
+
+        Set<Long> allowedRoleIds = EntitlementUtil.getRoleIds(
+                EntitlementUtil.getOwnedEntitlementNames());
+        if (!allowedRoleIds.contains(role.getId())) {
+
+            throw new UnauthorizedRoleException(role.getId());
         }
 
         return roleDataBinder.getRoleTO(role);
@@ -145,16 +180,20 @@ public class RoleController extends AbstractController {
     @RequestMapping(method = RequestMethod.POST,
     value = "/update")
     public RoleTO update(@RequestBody RoleMod roleMod)
-            throws NotFoundException {
+            throws NotFoundException, UnauthorizedRoleException {
 
         LOG.debug("Role update called with parameter {}", roleMod);
 
         SyncopeRole role = roleDAO.find(roleMod.getId());
         if (role == null) {
-            LOG.error("Could not find role '" + roleMod.getId() + "'");
-
             throw new NotFoundException(
                     "Role " + String.valueOf(roleMod.getId()));
+        }
+
+        Set<Long> allowedRoleIds = EntitlementUtil.getRoleIds(
+                EntitlementUtil.getOwnedEntitlementNames());
+        if (!allowedRoleIds.contains(role.getId())) {
+            throw new UnauthorizedRoleException(role.getId());
         }
 
         roleDataBinder.update(role, roleMod);

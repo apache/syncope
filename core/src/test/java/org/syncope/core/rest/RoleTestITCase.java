@@ -41,7 +41,7 @@ public class RoleTestITCase extends AbstractTest {
         newRoleTO.addAttribute(attributeTO);
 
         restTemplate.postForObject(BASE_URL + "role/create",
-                                   newRoleTO, RoleTO.class);
+                newRoleTO, RoleTO.class);
     }
 
     @Test
@@ -55,7 +55,7 @@ public class RoleTestITCase extends AbstractTest {
         icon.addValue("anIcon");
 
         RoleTO newRoleTO = restTemplate.postForObject(BASE_URL + "role/create",
-                                                      roleTO, RoleTO.class);
+                roleTO, RoleTO.class);
 
         roleTO.setId(newRoleTO.getId());
         assertEquals(roleTO, newRoleTO);
@@ -69,10 +69,10 @@ public class RoleTestITCase extends AbstractTest {
             assertEquals(e.getStatusCode(), HttpStatus.NOT_FOUND);
         }
 
-        restTemplate.delete(BASE_URL + "role/delete/{roleId}", 7);
+        restTemplate.delete(BASE_URL + "role/delete/{roleId}", 5);
         try {
             restTemplate.getForObject(BASE_URL + "role/read/{roleId}.json",
-                                      RoleTO.class, 2);
+                    RoleTO.class, 2);
         } catch (HttpStatusCodeException e) {
             assertEquals(e.getStatusCode(), HttpStatus.NOT_FOUND);
         }
@@ -121,7 +121,7 @@ public class RoleTestITCase extends AbstractTest {
         roleTO.addAttribute(icon);
 
         roleTO = restTemplate.postForObject(BASE_URL + "role/create",
-                                            roleTO, RoleTO.class);
+                roleTO, RoleTO.class);
 
         assertEquals(1, roleTO.getAttributes().size());
 
@@ -135,7 +135,7 @@ public class RoleTestITCase extends AbstractTest {
         roleMod.addAttributeToBeUpdated(attributeMod);
 
         roleTO = restTemplate.postForObject(BASE_URL + "role/update",
-                                            roleMod, RoleTO.class);
+                roleMod, RoleTO.class);
 
         assertEquals("finalRole", roleTO.getName());
         assertEquals(2, roleTO.getAttributes().size());

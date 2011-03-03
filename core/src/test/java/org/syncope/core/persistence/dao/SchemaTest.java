@@ -25,7 +25,7 @@ import org.syncope.core.persistence.beans.role.RSchema;
 import org.syncope.core.persistence.beans.user.USchema;
 import org.syncope.core.persistence.AbstractTest;
 import org.syncope.core.persistence.beans.role.RAttr;
-import org.syncope.core.persistence.util.AttributableUtil;
+import org.syncope.core.util.AttributableUtil;
 import org.syncope.core.persistence.validation.entity.InvalidEntityException;
 import org.syncope.types.SchemaType;
 

@@ -14,9 +14,11 @@
  */
 package org.syncope.core.persistence.dao.impl;
 
+import java.lang.Long;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TemporalType;
@@ -45,7 +47,8 @@ public class UserDAOImpl extends AbstractDAOImpl
     @Override
     public SyncopeUser find(final Long id) {
         Query query = entityManager.createQuery(
-                "SELECT e FROM SyncopeUser e WHERE e.id = :id");
+                "SELECT e FROM " + SyncopeUser.class.getSimpleName() + " e "
+                + "WHERE e.id = :id");
         query.setHint("org.hibernate.cacheable", true);
         query.setParameter("id", id);
 
@@ -59,7 +62,8 @@ public class UserDAOImpl extends AbstractDAOImpl
     @Override
     public SyncopeUser findByWorkflowId(final Long workflowId) {
         Query query = entityManager.createQuery(
-                "SELECT e FROM SyncopeUser e WHERE e.workflowId = :workflowId");
+                "SELECT e FROM " + SyncopeUser.class.getSimpleName() + " e "
+                + "WHERE e.workflowId = :workflowId");
         query.setHint("org.hibernate.cacheable", true);
         query.setParameter("workflowId", workflowId);
 
@@ -137,17 +141,50 @@ public class UserDAOImpl extends AbstractDAOImpl
         return result.isEmpty() ? null : result.iterator().next();
     }
 
-    @Override
-    public final List<SyncopeUser> findAll() {
-        return findAll(-1, -1);
+    private StringBuilder getFindAllQuery(final Set<Long> adminRoles) {
+        final StringBuilder queryString = new StringBuilder(
+                "SELECT id FROM SyncopeUser WHERE id NOT IN (");
+
+        if (adminRoles == null || adminRoles.isEmpty()) {
+            queryString.append("SELECT syncopeUser_id AS id FROM Membership");
+        } else {
+            queryString.append("SELECT syncopeUser_id FROM Membership M1 ").
+                    append("WHERE syncopeRole_id IN (");
+            queryString.append("SELECT syncopeRole_id FROM Membership M2 ").
+                    append("WHERE M2.syncopeUser_id=M1.syncopeUser_id ").
+                    append("AND syncopeRole_id NOT IN (");
+
+            queryString.append("SELECT id AS syncopeRole_id FROM SyncopeRole");
+            boolean firstRole = true;
+            for (Long adminRoleId : adminRoles) {
+                if (firstRole) {
+                    queryString.append(" WHERE");
+                    firstRole = false;
+                } else {
+                    queryString.append(" OR");
+                }
+
+                queryString.append(" id=").append(adminRoleId);
+            }
+
+            queryString.append("))");
+        }
+        queryString.append(")");
+
+        return queryString;
     }
 
     @Override
-    public final List<SyncopeUser> findAll(
+    public final List<SyncopeUser> findAll(final Set<Long> adminRoles) {
+        return findAll(adminRoles, -1, -1);
+    }
+
+    @Override
+    public final List<SyncopeUser> findAll(final Set<Long> adminRoles,
             final int page, final int itemsPerPage) {
 
-        final Query query = entityManager.createQuery(
-                "SELECT e FROM SyncopeUser e ORDER BY e.id");
+        final Query query = entityManager.createNativeQuery(
+                getFindAllQuery(adminRoles).toString());
 
         query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
 
@@ -155,15 +192,36 @@ public class UserDAOImpl extends AbstractDAOImpl
             query.setMaxResults(itemsPerPage);
         }
 
-        return query.getResultList();
+        List<Number> userIds = new ArrayList<Number>();
+        userIds.addAll(query.getResultList());
+
+        List<SyncopeUser> result =
+                new ArrayList<SyncopeUser>(userIds.size());
+
+        SyncopeUser user;
+        for (Number userId : userIds) {
+            user = find(userId.longValue());
+            if (user == null) {
+                LOG.error("Could not find user with id {}, "
+                        + "even though returned by the native query", userId);
+            } else {
+                result.add(user);
+            }
+        }
+
+        return result;
     }
 
     @Override
-    public final Integer count() {
-        final Query query = entityManager.createQuery(
-                "SELECT count(e.id) FROM SyncopeUser e");
+    public final Integer count(final Set<Long> adminRoles) {
+        StringBuilder queryString = getFindAllQuery(adminRoles);
+        queryString.insert(0, "SELECT COUNT(id) FROM (");
+        queryString.append(") count_user_id");
 
-        return ((Long) query.getSingleResult()).intValue();
+        Query countQuery =
+                entityManager.createNativeQuery(queryString.toString());
+
+        return ((Number) countQuery.getSingleResult()).intValue();
     }
 
     @Override

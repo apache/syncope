@@ -21,7 +21,7 @@ import javax.persistence.MappedSuperclass;
 import org.syncope.core.persistence.validation.attrvalue.ParseException;
 import org.syncope.core.persistence.validation.attrvalue.InvalidAttrValueException;
 import org.syncope.core.persistence.validation.entity.AttrCheck;
-import org.syncope.core.persistence.util.AttributableUtil;
+import org.syncope.core.util.AttributableUtil;
 
 @MappedSuperclass
 @AttrCheck

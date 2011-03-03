@@ -114,7 +114,7 @@
 
         <hibernate.version>3.4.0.GA</hibernate.version>
         <hibernate-validator.version>4.0.2.GA</hibernate-validator.version>
-        <ehcache.version>2.3.0</ehcache.version>
+        <ehcache.version>2.3.2</ehcache.version>
 
         <wicket.version>1.4.15</wicket.version>
 

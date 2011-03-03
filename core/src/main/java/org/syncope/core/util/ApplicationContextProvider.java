@@ -12,21 +12,19 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.persistence.util;
+package org.syncope.core.util;
 
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
 
-public class ApplicationContextManager {
+public class ApplicationContextProvider implements ApplicationContextAware {
 
-    private static ConfigurableApplicationContext ctx;
-
-    public static void setApplicationContext(
-            final ConfigurableApplicationContext applicationContext) {
-
-        ctx = applicationContext;
-    }
-
-    public static ConfigurableApplicationContext getApplicationContext() {
-        return ctx;
+    @Override
+    public void setApplicationContext(ApplicationContext ctx) throws BeansException {
+        // Wiring the ApplicationContext into a static method
+        ApplicationContextManager.setApplicationContext(
+                (ConfigurableApplicationContext) ctx);
     }
 }

@@ -46,6 +46,7 @@ import org.syncope.client.search.AttributeCond;
 import org.syncope.client.search.MembershipCond;
 import org.syncope.client.search.NodeCond;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
+import org.syncope.core.util.EntitlementUtil;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
@@ -64,6 +65,9 @@ public class UserSearchTest {
 
     @Autowired
     private UserSearchDAO searchDAO;
+
+    @Autowired
+    private EntitlementDAO entitlementDAO;
 
     @Autowired
     private DataSource dataSource;
@@ -153,7 +157,8 @@ public class UserSearchTest {
 
         assertTrue(cond.checkValidity());
 
-        List<SyncopeUser> users = searchDAO.search(cond);
+        List<SyncopeUser> users = searchDAO.search(
+                EntitlementUtil.getRoleIds(entitlementDAO.findAll()), cond);
         assertNotNull(users);
         assertEquals(1, users.size());
     }
@@ -168,7 +173,8 @@ public class UserSearchTest {
         final NodeCond cond = NodeCond.getNotLeafCond(usernameLeafCond);
         assertTrue(cond.checkValidity());
 
-        final List<SyncopeUser> users = searchDAO.search(cond);
+        final List<SyncopeUser> users = searchDAO.search(
+                EntitlementUtil.getRoleIds(entitlementDAO.findAll()), cond);
         assertNotNull(users);
         assertEquals(2, users.size());
 
@@ -189,7 +195,8 @@ public class UserSearchTest {
         final NodeCond cond = NodeCond.getLeafCond(coolLeafCond);
         assertTrue(cond.checkValidity());
 
-        final List<SyncopeUser> users = searchDAO.search(cond);
+        final List<SyncopeUser> users = searchDAO.search(
+                EntitlementUtil.getRoleIds(entitlementDAO.findAll()), cond);
         assertNotNull(users);
         assertEquals(1, users.size());
 
@@ -221,11 +228,15 @@ public class UserSearchTest {
 
         assertTrue(cond.checkValidity());
 
-        List<SyncopeUser> users = searchDAO.search(cond, 1, 2, null);
+        List<SyncopeUser> users = searchDAO.search(
+                EntitlementUtil.getRoleIds(entitlementDAO.findAll()),
+                cond, 1, 2, null);
         assertNotNull(users);
         assertEquals(1, users.size());
 
-        users = searchDAO.search(cond, 2, 2, null);
+        users = searchDAO.search(
+                EntitlementUtil.getRoleIds(entitlementDAO.findAll()),
+                cond, 2, 2, null);
         assertNotNull(users);
         assertTrue(users.isEmpty());
     }
@@ -236,14 +247,18 @@ public class UserSearchTest {
         membershipCond.setRoleId(1L);
 
         List<SyncopeUser> users =
-                searchDAO.search(NodeCond.getLeafCond(membershipCond));
+                searchDAO.search(
+                EntitlementUtil.getRoleIds(entitlementDAO.findAll()),
+                NodeCond.getLeafCond(membershipCond));
         assertNotNull(users);
         assertEquals(2, users.size());
 
         membershipCond = new MembershipCond();
         membershipCond.setRoleId(5L);
 
-        users = searchDAO.search(NodeCond.getNotLeafCond(membershipCond));
+        users = searchDAO.search(
+                EntitlementUtil.getRoleIds(entitlementDAO.findAll()),
+                NodeCond.getNotLeafCond(membershipCond));
         assertNotNull(users);
         assertEquals(3, users.size());
     }
@@ -255,7 +270,9 @@ public class UserSearchTest {
         coolLeafCond.setSchema("cool");
 
         List<SyncopeUser> users =
-                searchDAO.search(NodeCond.getLeafCond(coolLeafCond));
+                searchDAO.search(
+                EntitlementUtil.getRoleIds(entitlementDAO.findAll()),
+                NodeCond.getLeafCond(coolLeafCond));
         assertNotNull(users);
         assertEquals(3, users.size());
 
@@ -264,7 +281,9 @@ public class UserSearchTest {
         coolLeafCond.setSchema("cool");
 
         users =
-                searchDAO.search(NodeCond.getLeafCond(coolLeafCond));
+                searchDAO.search(
+                EntitlementUtil.getRoleIds(entitlementDAO.findAll()),
+                NodeCond.getLeafCond(coolLeafCond));
         assertNotNull(users);
         assertEquals(1, users.size());
     }

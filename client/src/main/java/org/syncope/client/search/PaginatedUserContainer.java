@@ -18,7 +18,7 @@ import java.util.List;
 import org.syncope.client.AbstractBaseBean;
 import org.syncope.client.to.UserTO;
 
-public class PaginatedResult extends AbstractBaseBean {
+public class PaginatedUserContainer extends AbstractBaseBean {
 
     private List<UserTO> records;
 

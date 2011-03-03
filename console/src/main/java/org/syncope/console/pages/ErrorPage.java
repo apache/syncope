@@ -24,12 +24,12 @@ import org.apache.wicket.model.Model;
  */
 public class ErrorPage extends BasePage {
 
-    public ErrorPage(PageParameters parameters) {
+    public ErrorPage(final PageParameters parameters) {
         super(parameters);
-        
-        add(new Label("errorTitle",new Model<String>(
+
+        add(new Label("errorTitle", new Model<String>(
                 parameters.getString("errorTitle"))));
-        add(new Label("errorMessage",new Model<String>(
+        add(new Label("errorMessage", new Model<String>(
                 parameters.getString("errorMessage"))));
 
         add(new BookmarkablePageLink("home", getApplication().getHomePage()));

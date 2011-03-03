@@ -22,7 +22,9 @@
 
     <security:global-method-security pre-post-annotations="enabled"/>
 
-    <security:http>
+    <bean id="securityContextRepository" class='org.syncope.core.security.NullSecurityContextRepository'/>
+
+    <security:http security-context-repository-ref="securityContextRepository">
         <security:http-basic/>
         <security:intercept-url pattern="/**"/>
     </security:http>

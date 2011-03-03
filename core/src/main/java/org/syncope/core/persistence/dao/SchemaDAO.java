@@ -18,7 +18,7 @@ import java.util.List;
 import org.syncope.core.persistence.beans.AbstractAttr;
 import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.validation.entity.InvalidEntityException;
-import org.syncope.core.persistence.util.AttributableUtil;
+import org.syncope.core.util.AttributableUtil;
 
 public interface SchemaDAO extends DAO {
 

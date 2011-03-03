@@ -46,7 +46,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.ModelAndView;
 import org.syncope.client.mod.UserMod;
 import org.syncope.client.search.NodeCond;
-import org.syncope.client.search.PaginatedResult;
+import org.syncope.client.search.PaginatedUserContainer;
 import org.syncope.client.to.UserTO;
 import org.syncope.client.to.WorkflowActionsTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
@@ -56,8 +56,8 @@ import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.dao.UserSearchDAO;
 import org.syncope.core.persistence.propagation.PropagationManager;
 import org.syncope.core.persistence.propagation.ResourceOperations;
-import org.syncope.core.rest.data.InvalidSearchConditionException;
 import org.syncope.core.rest.data.UserDataBinder.CheckInResult;
+import org.syncope.core.util.EntitlementUtil;
 import org.syncope.core.workflow.Constants;
 import org.syncope.core.workflow.WFUtils;
 import org.syncope.types.SyncopeClientExceptionType;
@@ -85,11 +85,23 @@ public class UserController extends AbstractController {
     private PropagationManager propagationManager;
 
     private SyncopeUser getUserFromId(final Long userId)
-            throws NotFoundException {
+            throws NotFoundException, UnauthorizedRoleException {
 
         SyncopeUser user = userDAO.find(userId);
         if (user == null) {
             throw new NotFoundException("User " + userId);
+        }
+
+        Set<Long> adminRoleIds = EntitlementUtil.getRoleIds(
+                EntitlementUtil.getOwnedEntitlementNames());
+        Set<Long> notAdminRoleIds = new HashSet<Long>();
+        for (SyncopeRole role : user.getRoles()) {
+            if (!adminRoleIds.contains(role.getId())) {
+                notAdminRoleIds.add(role.getId());
+            }
+        }
+        if (!notAdminRoleIds.isEmpty()) {
+            throw new UnauthorizedRoleException(notAdminRoleIds);
         }
 
         return user;
@@ -97,7 +109,8 @@ public class UserController extends AbstractController {
 
     private UserTO executeAction(UserTO userTO, String actionName,
             Map<String, Object> moreInputs)
-            throws WorkflowException, NotFoundException {
+            throws WorkflowException, NotFoundException,
+            UnauthorizedRoleException {
 
         SyncopeUser user = getUserFromId(userTO.getId());
 
@@ -119,10 +132,12 @@ public class UserController extends AbstractController {
         return userDataBinder.getUserTO(user, workflow);
     }
 
+    @PreAuthorize("hasRole('USER_UPDATE')")
     @RequestMapping(method = RequestMethod.POST,
     value = "/activate")
     public UserTO activate(@RequestBody UserTO userTO)
-            throws WorkflowException, NotFoundException {
+            throws WorkflowException, NotFoundException,
+            UnauthorizedRoleException {
 
         return executeAction(userTO, Constants.ACTION_ACTIVATE,
                 Collections.singletonMap(
@@ -133,7 +148,8 @@ public class UserController extends AbstractController {
     @RequestMapping(method = RequestMethod.GET,
     value = "/generateToken/{userId}")
     public UserTO generateToken(@PathVariable("userId") Long userId)
-            throws WorkflowException, NotFoundException {
+            throws WorkflowException, NotFoundException,
+            UnauthorizedRoleException {
 
         UserTO userTO = new UserTO();
         userTO.setId(userId);
@@ -145,7 +161,8 @@ public class UserController extends AbstractController {
     @RequestMapping(method = RequestMethod.POST,
     value = "/verifyToken")
     public UserTO verifyToken(@RequestBody UserTO userTO)
-            throws WorkflowException, NotFoundException {
+            throws WorkflowException, NotFoundException,
+            UnauthorizedRoleException {
 
         return executeAction(userTO, Constants.ACTION_VERIFY_TOKEN,
                 Collections.singletonMap(
@@ -158,12 +175,9 @@ public class UserController extends AbstractController {
     @Transactional(readOnly = true)
     public ModelAndView verifyPassword(@PathVariable("userId") Long userId,
             @RequestParam("password") final String password)
-            throws NotFoundException {
+            throws NotFoundException, UnauthorizedRoleException {
 
-        SyncopeUser user = userDAO.find(userId);
-        if (user == null) {
-            throw new NotFoundException("User " + userId);
-        }
+        SyncopeUser user = getUserFromId(userId);
 
         SyncopeUser passwordUser = new SyncopeUser();
         passwordUser.setPassword(password);
@@ -177,7 +191,8 @@ public class UserController extends AbstractController {
     value = "/list")
     @Transactional(readOnly = true)
     public List<UserTO> list() {
-        List<SyncopeUser> users = userDAO.findAll();
+        List<SyncopeUser> users = userDAO.findAll(EntitlementUtil.getRoleIds(
+                EntitlementUtil.getOwnedEntitlementNames()));
         List<UserTO> userTOs = new ArrayList<UserTO>(users.size());
         for (SyncopeUser user : users) {
             userTOs.add(userDataBinder.getUserTO(user, workflow));
@@ -190,17 +205,20 @@ public class UserController extends AbstractController {
     @RequestMapping(method = RequestMethod.GET,
     value = "/paginatedList/{page}/{size}")
     @Transactional(readOnly = true)
-    public PaginatedResult paginatedList(
+    public PaginatedUserContainer paginatedList(
             @PathVariable("page") final int page,
             @PathVariable("size") final int size) {
 
-        PaginatedResult paginatedResult = new PaginatedResult();
+        Set<Long> adminRoleIds = EntitlementUtil.getRoleIds(
+                EntitlementUtil.getOwnedEntitlementNames());
+
+        PaginatedUserContainer paginatedResult = new PaginatedUserContainer();
         paginatedResult.setPageNumber(page);
         paginatedResult.setPageSize(size);
 
-        paginatedResult.setTotalRecords(userDAO.count());
+        paginatedResult.setTotalRecords(userDAO.count(adminRoleIds));
 
-        List<SyncopeUser> users = userDAO.findAll(page, size);
+        List<SyncopeUser> users = userDAO.findAll(adminRoleIds, page, size);
         List<UserTO> userTOs = new ArrayList<UserTO>(users.size());
         for (SyncopeUser user : users) {
             userTOs.add(userDataBinder.getUserTO(user, workflow));
@@ -217,12 +235,9 @@ public class UserController extends AbstractController {
     value = "/read/{userId}")
     @Transactional(readOnly = true)
     public UserTO read(@PathVariable("userId") Long userId)
-            throws NotFoundException {
+            throws NotFoundException, UnauthorizedRoleException {
 
-        SyncopeUser user = userDAO.find(userId);
-        if (user == null) {
-            throw new NotFoundException("User " + userId);
-        }
+        SyncopeUser user = getUserFromId(userId);
 
         return userDataBinder.getUserTO(user, workflow);
     }
@@ -232,12 +247,9 @@ public class UserController extends AbstractController {
     value = "/actions/{userId}")
     @Transactional(readOnly = true)
     public WorkflowActionsTO getActions(@PathVariable("userId") Long userId)
-            throws NotFoundException {
+            throws NotFoundException, UnauthorizedRoleException {
 
-        SyncopeUser user = userDAO.find(userId);
-        if (user == null) {
-            throw new NotFoundException("User " + userId);
-        }
+        SyncopeUser user = getUserFromId(userId);
 
         WorkflowActionsTO result = new WorkflowActionsTO();
 
@@ -266,7 +278,9 @@ public class UserController extends AbstractController {
             throw new InvalidSearchConditionException();
         }
 
-        List<SyncopeUser> matchingUsers = userSearchDAO.search(searchCondition);
+        List<SyncopeUser> matchingUsers = userSearchDAO.search(
+                EntitlementUtil.getRoleIds(EntitlementUtil.
+                getOwnedEntitlementNames()), searchCondition);
         List<UserTO> result = new ArrayList<UserTO>(matchingUsers.size());
         for (SyncopeUser user : matchingUsers) {
             result.add(userDataBinder.getUserTO(user, workflow));
@@ -279,7 +293,7 @@ public class UserController extends AbstractController {
     @RequestMapping(method = RequestMethod.POST,
     value = "/paginatedSearch/{page}/{size}")
     @Transactional(readOnly = true)
-    public PaginatedResult paginatedSearch(
+    public PaginatedUserContainer paginatedSearch(
             @RequestBody final NodeCond searchCondition,
             @PathVariable("page") final int page,
             @PathVariable("size") final int size)
@@ -287,7 +301,7 @@ public class UserController extends AbstractController {
 
         LOG.debug("User search called with condition {}", searchCondition);
 
-        PaginatedResult paginatedResult = new PaginatedResult();
+        PaginatedUserContainer paginatedResult = new PaginatedUserContainer();
         paginatedResult.setPageNumber(page);
         paginatedResult.setPageSize(size);
 
@@ -297,6 +311,8 @@ public class UserController extends AbstractController {
         }
 
         final List<SyncopeUser> matchingUsers = userSearchDAO.search(
+                EntitlementUtil.getRoleIds(
+                EntitlementUtil.getOwnedEntitlementNames()),
                 searchCondition, page, size, paginatedResult);
 
         final List<UserTO> result = new ArrayList<UserTO>(matchingUsers.size());
@@ -315,12 +331,9 @@ public class UserController extends AbstractController {
     value = "/status/{userId}")
     @Transactional(readOnly = true)
     public ModelAndView getStatus(@PathVariable("userId") Long userId)
-            throws NotFoundException {
+            throws NotFoundException, UnauthorizedRoleException {
 
-        SyncopeUser user = userDAO.find(userId);
-        if (user == null) {
-            throw new NotFoundException("User " + userId);
-        }
+        SyncopeUser user = getUserFromId(userId);
 
         List<Step> currentSteps = workflow.getCurrentSteps(
                 user.getWorkflowId());
@@ -372,7 +385,7 @@ public class UserController extends AbstractController {
             required = false) Set<String> mandatoryResources)
             throws SyncopeClientCompositeErrorException,
             DataIntegrityViolationException, WorkflowException,
-            PropagationException, NotFoundException {
+            PropagationException, NotFoundException, UnauthorizedRoleException {
 
         LOG.debug("User create called with parameters {}\n{}\n{}",
                 new Object[]{userTO, mandatoryRoles, mandatoryResources});
@@ -408,6 +421,22 @@ public class UserController extends AbstractController {
         // The user to be created
         SyncopeUser user = new SyncopeUser();
         userDataBinder.create(user, userTO);
+
+        // Check if roles requested for this user are allowed to be
+        // administrated by the caller
+        Set<Long> adminRoleIds = EntitlementUtil.getRoleIds(
+                EntitlementUtil.getOwnedEntitlementNames());
+        Set<Long> notAdminRoleIds = new HashSet<Long>();
+        for (SyncopeRole role : user.getRoles()) {
+            if (!adminRoleIds.contains(role.getId())) {
+                notAdminRoleIds.add(role.getId());
+            }
+        }
+        if (!notAdminRoleIds.isEmpty()) {
+            throw new UnauthorizedRoleException(notAdminRoleIds);
+        }
+
+        // Create the user
         user = userDAO.save(user);
 
         // Now that user is created locally, let's propagate
@@ -458,15 +487,13 @@ public class UserController extends AbstractController {
             required = false) Set<Long> mandatoryRoles,
             @RequestParam(value = "mandatoryResources",
             required = false) Set<String> mandatoryResources)
-            throws NotFoundException, PropagationException, WorkflowException {
+            throws NotFoundException, PropagationException, WorkflowException,
+            UnauthorizedRoleException {
 
         LOG.debug("User update called with parameters {}\n{}\n{}",
                 new Object[]{userMod, mandatoryRoles, mandatoryResources});
 
-        SyncopeUser user = userDAO.find(userMod.getId());
-        if (user == null) {
-            throw new NotFoundException("User " + userMod.getId());
-        }
+        SyncopeUser user = getUserFromId(userMod.getId());
 
         // First of all, let's check if update is allowed
         Map<String, Object> inputs = new HashMap<String, Object>();
@@ -506,7 +533,8 @@ public class UserController extends AbstractController {
             required = false) Set<Long> mandatoryRoles,
             @RequestParam(value = "mandatoryResources",
             required = false) Set<String> mandatoryResources)
-            throws NotFoundException, WorkflowException, PropagationException {
+            throws NotFoundException, WorkflowException, PropagationException,
+            UnauthorizedRoleException {
 
         SyncopeUser user = getUserFromId(userId);
 
