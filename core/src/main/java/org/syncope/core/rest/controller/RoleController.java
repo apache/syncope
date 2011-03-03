@@ -169,7 +169,6 @@ public class RoleController extends AbstractController {
         Set<Long> allowedRoleIds = EntitlementUtil.getRoleIds(
                 EntitlementUtil.getOwnedEntitlementNames());
         if (!allowedRoleIds.contains(role.getId())) {
-
             throw new UnauthorizedRoleException(role.getId());
         }
 
