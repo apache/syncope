@@ -196,8 +196,8 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
             adminRolesFilter.append("))");
         }
 
-        queryString.insert(0, "SELECT user_id FROM (");
-        queryString.append(") WHERE user_id NOT IN (");
+        queryString.insert(0, "SELECT u.user_id FROM (");
+        queryString.append(") u WHERE user_id NOT IN (");
         queryString.append(adminRolesFilter).append(")");
 
         // 3. prepare the search query
