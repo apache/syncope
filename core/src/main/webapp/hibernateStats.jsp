@@ -75,8 +75,12 @@
                         hqlQueryText,
                         hqlQueryText,
                         Collections.EMPTY_MAP, factory);
-                newQueryTranslator.compile(Collections.EMPTY_MAP, false);
-                return newQueryTranslator.getSQLString();
+                try {
+                    newQueryTranslator.compile(Collections.EMPTY_MAP, false);
+                    return newQueryTranslator.getSQLString();
+                } catch (Throwable t) {
+                    return hqlQueryText;
+                }
             }
 
             return null;
