@@ -24,6 +24,10 @@ public interface TaskDAO extends DAO {
 
     List<Task> findAll();
 
+    List<Task> findAll(int page, int itemsPerPage);
+
+    Integer count();
+
     Task save(Task task)
             throws InvalidEntityException;
 

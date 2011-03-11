@@ -31,11 +31,11 @@ import org.springframework.web.client.HttpStatusCodeException;
 import org.syncope.client.mod.AttributeMod;
 import org.syncope.client.mod.MembershipMod;
 import org.syncope.client.mod.UserMod;
+import org.syncope.client.to.PaginatedUserContainer;
 import org.syncope.client.to.AttributeTO;
 import org.syncope.client.search.AttributeCond;
 import org.syncope.client.to.MembershipTO;
 import org.syncope.client.search.NodeCond;
-import org.syncope.client.search.PaginatedUserContainer;
 import org.syncope.client.to.TaskTO;
 import org.syncope.client.to.UserTO;
 import org.syncope.client.to.WorkflowActionsTO;
@@ -381,6 +381,14 @@ public class UserTestITCase extends AbstractTest {
     }
 
     @Test
+    public final void count() {
+        Integer count = restTemplate.getForObject(
+                BASE_URL + "user/count.json", Integer.class);
+        assertNotNull(count);
+        assertTrue(count > 0);
+    }
+
+    @Test
     public final void list() {
         List<UserTO> users = Arrays.asList(
                 restTemplate.getForObject(
@@ -394,9 +402,8 @@ public class UserTestITCase extends AbstractTest {
 
     @Test
     public final void paginatedList() {
-
         PaginatedUserContainer paginatedResult = restTemplate.getForObject(
-                BASE_URL + "user/paginatedList/{page}/{size}.json",
+                BASE_URL + "user/list/{page}/{size}.json",
                 PaginatedUserContainer.class, 1, 2);
 
         List<UserTO> users = paginatedResult.getRecords();
@@ -410,7 +417,7 @@ public class UserTestITCase extends AbstractTest {
         }
 
         paginatedResult = restTemplate.getForObject(
-                BASE_URL + "user/paginatedList/{page}/{size}.json",
+                BASE_URL + "user/list/{page}/{size}.json",
                 PaginatedUserContainer.class, 2, 2);
 
         users = paginatedResult.getRecords();
@@ -420,7 +427,7 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(2, users.size());
 
         PaginatedUserContainer result = restTemplate.getForObject(
-                BASE_URL + "user/paginatedList/{page}/{size}.json",
+                BASE_URL + "user/list/{page}/{size}.json",
                 PaginatedUserContainer.class, 100, 2);
 
         users = result.getRecords();
@@ -527,7 +534,7 @@ public class UserTestITCase extends AbstractTest {
         assertTrue(searchCondition.checkValidity());
 
         PaginatedUserContainer result = restTemplate.postForObject(
-                BASE_URL + "user/paginatedSearch/{page}/{size}",
+                BASE_URL + "user/search/{page}/{size}",
                 searchCondition, PaginatedUserContainer.class, 1, 2);
 
         List<UserTO> matchedUsers = result.getRecords();
@@ -544,7 +551,7 @@ public class UserTestITCase extends AbstractTest {
         searchCondition = NodeCond.getLeafCond(isNullCond);
 
         PaginatedUserContainer paginatedResult = restTemplate.postForObject(
-                BASE_URL + "user/paginatedSearch/{page}/{size}",
+                BASE_URL + "user/search/{page}/{size}",
                 searchCondition, PaginatedUserContainer.class, 1, 2);
 
         matchedUsers = paginatedResult.getRecords();

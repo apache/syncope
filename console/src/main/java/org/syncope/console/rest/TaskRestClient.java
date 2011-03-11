@@ -2,9 +2,9 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,7 +20,6 @@ import org.springframework.stereotype.Component;
 import org.syncope.client.to.TaskExecutionTO;
 import org.syncope.client.to.TaskTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.syncope.types.TaskExecutionStatus;
 
 /**
  * Console client for invoking Rest Tasks services.
@@ -28,27 +27,29 @@ import org.syncope.types.TaskExecutionStatus;
 @Component
 public class TaskRestClient extends AbstractBaseRestClient {
 
-    /**
-     * Get all stored tasks.
-     * @return list of TaskTO objects
-     */
-    public List<TaskTO> getAllTasks() {
-
-        List<TaskTO> tasks = Arrays.asList(
-                restTemplate.getForObject(
-                baseURL + "task/list.json",
-                TaskTO[].class));
-
-        return tasks;
-
+    public Integer count() {
+        return restTemplate.getForObject(baseURL + "task/count.json",
+                Integer.class);
     }
 
     /**
-     * Load an existent task.
+     * Get all stored tasks.
+     * @param first index to start from
+     * @param count maximum number to fetch
+     * @return list of TaskTO objects
+     */
+    public List<TaskTO> list(final int first, final int count) {
+        return Arrays.asList(restTemplate.getForObject(
+                baseURL + "task/list/{page}/{size}.json",
+                TaskTO[].class, first, count));
+    }
+
+    /**
+     * Load an existing task.
+     * @param taskId task to read
      * @return TaskTO object if the configuration exists, null otherwise
      */
-    public TaskTO readTask(String taskId) {
-
+    public TaskTO readTask(final String taskId) {
         TaskTO taskTO = null;
         try {
             taskTO = restTemplate.getForObject(
@@ -66,61 +67,37 @@ public class TaskRestClient extends AbstractBaseRestClient {
      * @return list of all executions
      */
     public List<TaskExecutionTO> listExecutions() {
-        List<TaskExecutionTO> executions = Arrays.asList(
+        return Arrays.asList(
                 restTemplate.getForObject(
                 baseURL + "task/execution/list",
                 TaskExecutionTO[].class));
-
-        return executions;
     }
 
     /**
      * Delete specified task.
-     * @param task to delete id
+     * @param taskId task to delete
      */
-    public void deleteTask(Long taskId) {
-
-        try {
-            restTemplate.delete(
-                    baseURL + "task/delete/{taskId}", taskId);
-        } catch (SyncopeClientCompositeErrorException e) {
-            LOG.error("While deleting a task", e);
-        }
+    public void deleteTask(final Long taskId) {
+        restTemplate.delete(
+                baseURL + "task/delete/{taskId}", taskId);
     }
 
     /**
      * Start execution for the specified TaskTO.
-     * @param taskTO's id
-     * @return boolean: TRUE the operation is executed succesfully,
-     *                  FALSE otherwise
+     * @param taskId task id
      */
-    public boolean startTaskExecution(Long taskId) {
-        boolean result = false;
-        try {
-            TaskExecutionTO execution = restTemplate.getForObject(
-                    baseURL + "task/execute/{taskId}",
-                    TaskExecutionTO.class, taskId);
-            result = (execution.getStatus() == TaskExecutionStatus.SUBMITTED);
-        } catch (SyncopeClientCompositeErrorException e) {
-            LOG.error("While starting a task", e);
-        }
-
-        return result;
+    public void startTaskExecution(final Long taskId) {
+        restTemplate.getForObject(
+                baseURL + "task/execute/{taskId}",
+                TaskExecutionTO.class, taskId);
     }
 
     /**
      * Delete specified task's execution.
-     * @param task to delete id
+     * @param taskExecId task execution id
      */
-    public boolean deleteTaskExecution(Long execId) {
-
-        try {
-            restTemplate.delete(baseURL
-                    + "task/execution/delete/{execId}", execId);
-        } catch (SyncopeClientCompositeErrorException e) {
-            LOG.error("While deletring a task execution", e);
-        }
-
-        return true;
+    public void deleteTaskExecution(final Long taskExecId) {
+        restTemplate.delete(baseURL
+                + "task/execution/delete/{execId}", taskExecId);
     }
 }

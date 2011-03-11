@@ -41,7 +41,7 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.repeater.Item;
-import org.apache.wicket.model.AbstractReadOnlyModel;
+import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
@@ -60,9 +60,9 @@ import org.syncope.console.wicket.markup.html.form.LinkPanel;
  */
 public class Tasks extends BasePage {
 
-    private static final int WIN_HEIGHT = 500;
+    private static final int WIN_HEIGHT = 400;
 
-    private static final int WIN_WIDTH = 500;
+    private static final int WIN_WIDTH = 600;
 
     @SpringBean
     private TaskRestClient restClient;
@@ -91,13 +91,24 @@ public class Tasks extends BasePage {
                 getWebRequestCycle().getWebRequest(),
                 Constants.PREF_TASKS_PAGINATOR_ROWS);
 
-        List<IColumn> columns = new ArrayList<IColumn>();
+        List<IColumn<TaskTO>> columns = new ArrayList<IColumn<TaskTO>>();
 
-        columns.add(new PropertyColumn(new Model(getString("id")),
-                "id", "id"));
+        columns.add(new PropertyColumn(
+                new Model(getString("id")), "id", "id"));
 
-        columns.add(new PropertyColumn(new Model(getString("accountId")),
-                "accountId", "accountId"));
+        columns.add(new PropertyColumn(
+                new Model(getString("resource")), "resource", "resource"));
+
+        columns.add(new PropertyColumn(
+                new Model(getString("accountId")), "accountId", "accountId"));
+
+        columns.add(new PropertyColumn(
+                new Model(getString("propagationMode")),
+                "propagationMode", "propagationMode"));
+
+        columns.add(new PropertyColumn(
+                new Model(getString("resourceOperationType")),
+                "resourceOperationType", "resourceOperationType"));
 
         columns.add(new AbstractColumn<TaskTO>(new Model<String>(getString(
                 "detail"))) {
@@ -155,16 +166,11 @@ public class Tasks extends BasePage {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
-                        boolean res = false;
-
                         try {
-                            res = restClient.startTaskExecution(taskTO.getId());
+                            restClient.startTaskExecution(taskTO.getId());
+                            getSession().info(getString("operation_succeded"));
                         } catch (SyncopeClientCompositeErrorException scce) {
                             error(scce.getMessage());
-                        }
-
-                        if (res) {
-                            getSession().info(getString("operation_succeded"));
                         }
 
                         target.addComponent(getPage().get("feedback"));
@@ -190,6 +196,7 @@ public class Tasks extends BasePage {
         columns.add(new AbstractColumn<TaskTO>(new Model<String>(getString(
                 "delete"))) {
 
+            @Override
             public void populateItem(
                     final Item<ICellPopulator<TaskTO>> cellItem,
                     final String componentId,
@@ -241,8 +248,8 @@ public class Tasks extends BasePage {
         });
 
 
-        final AjaxFallbackDefaultDataTable table =
-                new AjaxFallbackDefaultDataTable("datatable", columns,
+        final AjaxFallbackDefaultDataTable<TaskTO> table =
+                new AjaxFallbackDefaultDataTable<TaskTO>("datatable", columns,
                 new TasksProvider(), paginatorRows);
 
         container = new WebMarkupContainer("container");
@@ -296,7 +303,7 @@ public class Tasks extends BasePage {
         add(paginatorForm);
     }
 
-    class TasksProvider extends SortableDataProvider<TaskTO> {
+    private class TasksProvider extends SortableDataProvider<TaskTO> {
 
         private SortableDataProviderComparator comparator =
                 new SortableDataProviderComparator();
@@ -309,38 +316,26 @@ public class Tasks extends BasePage {
 
         @Override
         public Iterator<TaskTO> iterator(int first, int count) {
-            List<TaskTO> list = getTasksListDB();
-
-            Collections.sort(list, comparator);
-
-            return list.subList(first, first + count).iterator();
+            List<TaskTO> tasks = restClient.list(first, count);
+            Collections.sort(tasks, comparator);
+            return tasks.iterator();
         }
 
         @Override
         public int size() {
-            return getTasksListDB().size();
+            return restClient.count();
         }
 
         @Override
-        public IModel<TaskTO> model(final TaskTO task) {
-            return new AbstractReadOnlyModel<TaskTO>() {
-
-                @Override
-                public TaskTO getObject() {
-                    return task;
-                }
-            };
-        }
-
-        public List<TaskTO> getTasksListDB() {
-            return restClient.getAllTasks();
+        public IModel<TaskTO> model(final TaskTO object) {
+            return new CompoundPropertyModel<TaskTO>(object);
         }
 
         class SortableDataProviderComparator implements
                 Comparator<TaskTO>, Serializable {
 
-            public int compare(final TaskTO o1,
-                    final TaskTO o2) {
+            @Override
+            public int compare(final TaskTO o1, final TaskTO o2) {
                 PropertyModel<Comparable> model1 =
                         new PropertyModel<Comparable>(o1,
                         getSort().getProperty());

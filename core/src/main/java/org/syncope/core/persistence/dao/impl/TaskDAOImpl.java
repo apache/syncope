@@ -31,8 +31,28 @@ public class TaskDAOImpl extends AbstractDAOImpl
 
     @Override
     public List<Task> findAll() {
-        Query query = entityManager.createQuery("SELECT e FROM Task e");
+        return findAll(-1, -1);
+    }
+
+    @Override
+    public List<Task> findAll(final int page, final int itemsPerPage) {
+        final Query query = entityManager.createQuery("SELECT e FROM Task e");
+
+        query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
+
+        if (itemsPerPage > 0) {
+            query.setMaxResults(itemsPerPage);
+        }
+
         return query.getResultList();
+    }
+
+    @Override
+    public final Integer count() {
+        Query countQuery =
+                entityManager.createNativeQuery("SELECT COUNT(id) FROM Task");
+
+        return ((Number) countQuery.getSingleResult()).intValue();
     }
 
     @Override

@@ -29,6 +29,7 @@ import jpasymphony.dao.JPAWorkflowEntryDAO;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
 import org.syncope.client.to.TaskExecutionTO;
 import org.syncope.client.to.TaskTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
@@ -69,9 +70,32 @@ public class TaskController extends AbstractController {
 
     @PreAuthorize("hasRole('TASK_LIST')")
     @RequestMapping(method = RequestMethod.GET,
+    value = "/count")
+    public ModelAndView count() {
+        return new ModelAndView().addObject(taskDAO.count());
+    }
+
+    @PreAuthorize("hasRole('TASK_LIST')")
+    @RequestMapping(method = RequestMethod.GET,
     value = "/list")
     public List<TaskTO> list() {
         List<Task> tasks = taskDAO.findAll();
+        List<TaskTO> taskTOs = new ArrayList<TaskTO>(tasks.size());
+        for (Task task : tasks) {
+            taskTOs.add(taskDataBinder.getTaskTO(workflow, task));
+        }
+
+        return taskTOs;
+    }
+
+    @PreAuthorize("hasRole('TASK_LIST')")
+    @RequestMapping(method = RequestMethod.GET,
+    value = "/list/{page}/{size}")
+    public List<TaskTO> list(
+            @PathVariable("page") final int page,
+            @PathVariable("size") final int size) {
+
+        List<Task> tasks = taskDAO.findAll(page, size);
         List<TaskTO> taskTOs = new ArrayList<TaskTO>(tasks.size());
         for (Task task : tasks) {
             taskTOs.add(taskDataBinder.getTaskTO(workflow, task));

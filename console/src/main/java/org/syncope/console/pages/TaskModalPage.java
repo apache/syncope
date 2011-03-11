@@ -166,19 +166,13 @@ public class TaskModalPage extends BaseModalPage {
                 AjaxLink deleteLink = new IndicatingAjaxLink("deleteLink") {
 
                     @Override
-                    public void onClick(AjaxRequestTarget target) {
-
-                        boolean res = false;
-
+                    public void onClick(final AjaxRequestTarget target) {
                         try {
-                            res = taskRestClient.deleteTaskExecution(
+                            taskRestClient.deleteTaskExecution(
                                     taskExecutionTO.getId());
+                            info(getString("operation_succeded"));
                         } catch (SyncopeClientCompositeErrorException scce) {
                             error(scce.getMessage());
-                        }
-
-                        if (res) {
-                            info(getString("operation_succeded"));
                         }
 
                         target.addComponent(feedbackPanel);

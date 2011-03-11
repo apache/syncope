@@ -15,7 +15,6 @@
 package org.syncope.core.rest.data;
 
 import com.opensymphony.workflow.Workflow;
-import javax.annotation.Resource;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
 import org.syncope.client.to.TaskExecutionTO;
@@ -32,9 +31,6 @@ public class TaskDataBinder {
 
     private static final String[] IGNORE_TASK_EXECUTION_PROPERTIES = {
         "task"};
-
-    @Resource(name = "taskExecutionWorkflow")
-    private Workflow workflow;
 
     public TaskExecutionTO getTaskExecutionTO(final Workflow workflow,
             final TaskExecution execution) {

@@ -41,7 +41,7 @@ public class TaskTest extends AbstractTest {
     @Test
     public final void findAll() {
         List<Task> list = taskDAO.findAll();
-        assertEquals(1, list.size());
+        assertEquals(3, list.size());
     }
 
     @Test

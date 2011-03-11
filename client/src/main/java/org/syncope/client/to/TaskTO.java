@@ -23,12 +23,19 @@ import org.syncope.types.ResourceOperationType;
 public class TaskTO extends AbstractBaseBean {
 
     private long id;
+
     private PropagationMode propagationMode;
+
     private ResourceOperationType resourceOperationType;
+
     private String accountId;
+
     private String oldAccountId;
+
     private String xmlAttributes;
+
     private String resource;
+
     private List<TaskExecutionTO> executions;
 
     public TaskTO() {

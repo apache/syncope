@@ -30,6 +30,14 @@ import org.syncope.types.TaskExecutionStatus;
 public class TaskTestITCase extends AbstractTest {
 
     @Test
+    public final void count() {
+        Integer count = restTemplate.getForObject(
+                BASE_URL + "task/count.json", Integer.class);
+        assertNotNull(count);
+        assertTrue(count > 0);
+    }
+
+    @Test
     public final void list() {
         List<TaskTO> tasks = Arrays.asList(
                 restTemplate.getForObject(
@@ -39,6 +47,40 @@ public class TaskTestITCase extends AbstractTest {
         for (TaskTO task : tasks) {
             assertNotNull(task);
         }
+    }
+
+    @Test
+    public final void paginatedList() {
+        List<TaskTO> tasks = Arrays.asList(restTemplate.getForObject(
+                BASE_URL + "task/list/{page}/{size}.json",
+                TaskTO[].class, 1, 2));
+
+        assertNotNull(tasks);
+        assertFalse(tasks.isEmpty());
+        assertEquals(2, tasks.size());
+
+        for (TaskTO task : tasks) {
+            assertNotNull(task);
+        }
+
+        tasks = Arrays.asList(restTemplate.getForObject(
+                BASE_URL + "task/list/{page}/{size}.json",
+                TaskTO[].class, 2, 2));
+
+        assertNotNull(tasks);
+        assertFalse(tasks.isEmpty());
+        assertEquals(2, tasks.size());
+
+        for (TaskTO task : tasks) {
+            assertNotNull(task);
+        }
+
+        tasks = Arrays.asList(restTemplate.getForObject(
+                BASE_URL + "task/list/{page}/{size}.json",
+                TaskTO[].class, 100, 2));
+
+        assertNotNull(tasks);
+        assertTrue(tasks.isEmpty());
     }
 
     @Test

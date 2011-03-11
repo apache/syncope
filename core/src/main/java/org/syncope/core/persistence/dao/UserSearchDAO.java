@@ -16,8 +16,8 @@ package org.syncope.core.persistence.dao;
 
 import java.util.List;
 import java.util.Set;
+import org.syncope.client.to.PaginatedUserContainer;
 import org.syncope.client.search.NodeCond;
-import org.syncope.client.search.PaginatedUserContainer;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 
 public interface UserSearchDAO extends DAO {
@@ -37,6 +37,8 @@ public interface UserSearchDAO extends DAO {
      * @param paginatedResult result to be sent to the REST caller
      * @return the list of users matchin the given search condition
      */
-    List<SyncopeUser> search(Set<Long> adminRoles, NodeCond searchCondition,
-            int page, int itemsPerPage, PaginatedUserContainer paginatedResult);
+    List<SyncopeUser> search(Set<Long> adminRoles,
+            NodeCond searchCondition,
+            int page, int itemsPerPage,
+            PaginatedUserContainer paginatedResult);
 }

@@ -46,7 +46,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.ModelAndView;
 import org.syncope.client.mod.UserMod;
 import org.syncope.client.search.NodeCond;
-import org.syncope.client.search.PaginatedUserContainer;
+import org.syncope.client.to.PaginatedUserContainer;
 import org.syncope.client.to.UserTO;
 import org.syncope.client.to.WorkflowActionsTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
@@ -186,6 +186,16 @@ public class UserController extends AbstractController {
                 equalsIgnoreCase(passwordUser.getPassword()));
     }
 
+    @PreAuthorize("hasRole('TASK_LIST')")
+    @RequestMapping(method = RequestMethod.GET,
+    value = "/count")
+    public ModelAndView count() {
+        Set<Long> adminRoleIds = EntitlementUtil.getRoleIds(
+                EntitlementUtil.getOwnedEntitlementNames());
+
+        return new ModelAndView().addObject(userDAO.count(adminRoleIds));
+    }
+
     @PreAuthorize("hasRole('USER_LIST')")
     @RequestMapping(method = RequestMethod.GET,
     value = "/list")
@@ -203,9 +213,9 @@ public class UserController extends AbstractController {
 
     @PreAuthorize("hasRole('USER_LIST')")
     @RequestMapping(method = RequestMethod.GET,
-    value = "/paginatedList/{page}/{size}")
+    value = "/list/{page}/{size}")
     @Transactional(readOnly = true)
-    public PaginatedUserContainer paginatedList(
+    public PaginatedUserContainer list(
             @PathVariable("page") final int page,
             @PathVariable("size") final int size) {
 
@@ -291,9 +301,9 @@ public class UserController extends AbstractController {
 
     @PreAuthorize("hasRole('USER_READ')")
     @RequestMapping(method = RequestMethod.POST,
-    value = "/paginatedSearch/{page}/{size}")
+    value = "/search/{page}/{size}")
     @Transactional(readOnly = true)
-    public PaginatedUserContainer paginatedSearch(
+    public PaginatedUserContainer search(
             @RequestBody final NodeCond searchCondition,
             @PathVariable("page") final int page,
             @PathVariable("size") final int size)
@@ -301,14 +311,14 @@ public class UserController extends AbstractController {
 
         LOG.debug("User search called with condition {}", searchCondition);
 
-        PaginatedUserContainer paginatedResult = new PaginatedUserContainer();
-        paginatedResult.setPageNumber(page);
-        paginatedResult.setPageSize(size);
-
         if (!searchCondition.checkValidity()) {
             LOG.error("Invalid search condition: {}", searchCondition);
             throw new InvalidSearchConditionException();
         }
+
+        PaginatedUserContainer paginatedResult = new PaginatedUserContainer();
+        paginatedResult.setPageNumber(page);
+        paginatedResult.setPageSize(size);
 
         final List<SyncopeUser> matchingUsers = userSearchDAO.search(
                 EntitlementUtil.getRoleIds(

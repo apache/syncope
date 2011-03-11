@@ -12,15 +12,12 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.client.search;
+package org.syncope.client.to;
 
 import java.util.List;
-import org.syncope.client.AbstractBaseBean;
 import org.syncope.client.to.UserTO;
 
-public class PaginatedUserContainer extends AbstractBaseBean {
-
-    private List<UserTO> records;
+public class PaginatedUserContainer {
 
     private int totalRecords;
 
@@ -29,6 +26,8 @@ public class PaginatedUserContainer extends AbstractBaseBean {
     private int pageNumber;
 
     private int pageSize;
+
+    private List<UserTO> records;
 
     public int getPageNumber() {
         return pageNumber;
@@ -46,14 +45,6 @@ public class PaginatedUserContainer extends AbstractBaseBean {
         this.pageSize = pageSize;
     }
 
-    public List<UserTO> getRecords() {
-        return records;
-    }
-
-    public void setRecords(List<UserTO> records) {
-        this.records = records;
-    }
-
     public int getRecordsInPage() {
         return recordsInPage;
     }
@@ -68,5 +59,13 @@ public class PaginatedUserContainer extends AbstractBaseBean {
 
     public void setTotalRecords(int totalRecords) {
         this.totalRecords = totalRecords;
+    }
+
+    public List<UserTO> getRecords() {
+        return records;
+    }
+
+    public void setRecords(final List<UserTO> records) {
+        this.records = records;
     }
 }

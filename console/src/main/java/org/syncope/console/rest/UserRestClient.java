@@ -19,7 +19,7 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 import org.syncope.client.mod.UserMod;
 import org.syncope.client.search.NodeCond;
-import org.syncope.client.search.PaginatedUserContainer;
+import org.syncope.client.to.PaginatedUserContainer;
 import org.syncope.client.to.UserTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 
@@ -99,29 +99,12 @@ public class UserRestClient extends AbstractBaseRestClient {
                 nodeSearchCondition, UserTO[].class));
     }
 
-    /**
-     * Search an user by its schema values.
-     * @param userTO
-     * @return UserTOs
-     */
-    public List<UserTO> paginatedSearchUsers(NodeCond nodeSearchCond,
-            int page, int size)
-            throws SyncopeClientCompositeErrorException {
-
-        final PaginatedUserContainer paginatedResult =
-                restTemplate.postForObject(
-                baseURL + "user/paginatedSearch/{page}/{size}",
-                nodeSearchCond, PaginatedUserContainer.class, page, size);
-
-        return paginatedResult.getRecords();
-    }
-
     public PaginatedUserContainer paginatedSearchUser(NodeCond nodeSearchCond,
             int page, int size)
             throws SyncopeClientCompositeErrorException {
 
         return restTemplate.postForObject(
-                baseURL + "user/paginatedSearch/{page}/{size}",
+                baseURL + "user/search/{page}/{size}",
                 nodeSearchCond, PaginatedUserContainer.class, page, size);
     }
 
@@ -129,7 +112,7 @@ public class UserRestClient extends AbstractBaseRestClient {
             throws SyncopeClientCompositeErrorException {
 
         return restTemplate.getForObject(
-                baseURL + "user/paginatedList/{page}/{size}",
+                baseURL + "user/list/{page}/{size}",
                 PaginatedUserContainer.class, page, size);
     }
 }

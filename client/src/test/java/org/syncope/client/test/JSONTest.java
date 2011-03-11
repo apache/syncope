@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Test;
@@ -27,11 +28,15 @@ import org.syncope.client.search.AttributeCond;
 import org.syncope.client.search.MembershipCond;
 import org.syncope.client.search.NodeCond;
 import org.syncope.client.to.SchemaTO;
+import org.syncope.client.to.UserTO;
+import org.syncope.client.to.PaginatedUserContainer;
 
 public class JSONTest {
 
     @Test
-    public void testSearchCondition() throws IOException {
+    public void testSearchCondition()
+            throws IOException {
+
         final AttributeCond usernameCond =
                 new AttributeCond(AttributeCond.Type.LIKE);
         usernameCond.setSchema("username");
@@ -56,7 +61,9 @@ public class JSONTest {
     }
 
     @Test
-    public void testLists() throws IOException {
+    public void testLists()
+            throws IOException {
+
         List<SchemaTO> schemas = new ArrayList<SchemaTO>();
         SchemaTO schemaTO = new SchemaTO();
         schemaTO.setName("name1");
@@ -74,6 +81,36 @@ public class JSONTest {
                 mapper.readValue(writer.toString(), SchemaTO[].class));
         for (SchemaTO unserializedSchema : unserializedSchemas) {
             assertNotNull(unserializedSchema);
+        }
+    }
+
+    @Test
+    public void testPaginatedUserContainer()
+            throws IOException {
+
+        PaginatedUserContainer puc = new PaginatedUserContainer();
+        puc.setPageNumber(11);
+        puc.setPageSize(12);
+        puc.setRecordsInPage(13);
+        puc.setTotalRecords(14);
+        UserTO userTO = new UserTO();
+        userTO.setId(15);
+        puc.setRecords(Collections.singletonList(userTO));
+
+        ObjectMapper mapper = new ObjectMapper();
+
+        StringWriter writer = new StringWriter();
+        mapper.writeValue(writer, puc);
+
+        PaginatedUserContainer unserialized = mapper.readValue(
+                writer.toString(), PaginatedUserContainer.class);
+        assertNotNull(unserialized);
+        assertNotNull(unserialized.getRecords());
+        assertEquals(1, unserialized.getRecords().size());
+        assertNotNull(unserialized.getRecords().iterator().next());
+
+        for (UserTO user : unserialized.getRecords()) {
+            assertNotNull(user);
         }
     }
 }
