@@ -246,12 +246,14 @@ public class PropagationManager {
                 task.setAttributes(
                         preparedAttributes.values().iterator().next());
 
-                LOG.debug("Execution started for {}", task);
-
-                task = taskDAO.save(task);
-
                 execution = new TaskExecution();
                 execution.setTask(task);
+
+                task.addExecution(execution);
+                task = taskDAO.save(task);
+
+                // Re-read execution to get the unique id
+                execution = task.getExecutions().iterator().next();
 
                 try {
                     workflowId = workflow.initialize(
@@ -261,6 +263,8 @@ public class PropagationManager {
                     LOG.error("While initializing workflow for {}",
                             execution, e);
                 }
+
+                LOG.debug("Execution started for {}", task);
 
                 propagate(execution);
 
@@ -585,6 +589,10 @@ public class PropagationManager {
                 taskExecutionDAO.save(execution);
 
                 LOG.debug("Execution finished: {}", execution);
+            } else {
+                taskExecutionDAO.delete(execution);
+
+                LOG.debug("Execution removed: {}", execution);
             }
         }
     }
