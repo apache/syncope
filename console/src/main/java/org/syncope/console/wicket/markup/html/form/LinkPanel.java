@@ -16,6 +16,10 @@ package org.syncope.console.wicket.markup.html.form;
 
 import org.apache.wicket.markup.html.panel.Panel;
 
+/**
+ * This empty class must exist because there not seems to be altrernative to
+ * provide specialized HTML for links.
+ */
 public class LinkPanel extends Panel {
 
     public LinkPanel(final String id) {

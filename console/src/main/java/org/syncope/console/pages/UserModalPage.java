@@ -32,8 +32,6 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.IAjaxCallDecorator;
-import org.apache.wicket.ajax.calldecorator.AjaxPreprocessingCallDecorator;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -76,6 +74,7 @@ import org.syncope.console.rest.ResourceRestClient;
 import org.syncope.console.rest.RoleRestClient;
 import org.syncope.console.rest.SchemaRestClient;
 import org.syncope.console.rest.UserRestClient;
+import org.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
 import org.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.syncope.console.wicket.markup.html.form.DateFieldPanel;
@@ -117,7 +116,7 @@ public class UserModalPage extends BaseModalPage {
 
     private UserMod userMod;
 
-    public UserModalPage(final BasePage basePage, final ModalWindow window,
+    public UserModalPage(final Users basePage, final ModalWindow window,
             final UserTO userTO, final boolean createFlag) {
 
         if (!createFlag) {
@@ -350,7 +349,9 @@ public class UserModalPage extends BaseModalPage {
                 getString("submit"))) {
 
             @Override
-            protected void onSubmit(AjaxRequestTarget target, Form form) {
+            protected void onSubmit(final AjaxRequestTarget target,
+                    final Form form) {
+
                 UserTO userTO = (UserTO) form.getDefaultModelObject();
                 try {
                     userTO.setResources(getResourcesSet(resourcesPalette.
@@ -359,17 +360,17 @@ public class UserModalPage extends BaseModalPage {
                     userTO.setMemberships(getMembershipsSet());
 
                     if (createFlag) {
-                        userRestClient.createUser(userTO);
+                        userRestClient.create(userTO);
                     } else {
                         setupUserMod(userTO);
 
                         //Update user just if it is changed
                         if (userMod != null) {
-                            userRestClient.updateUser(userMod);
+                            userRestClient.update(userMod);
                         }
                     }
 
-                    ((Users) basePage).setOperationResult(true);
+                    basePage.setModalResult(true);
                     window.close(target);
                 } catch (SyncopeClientCompositeErrorException e) {
                     LOG.error("While creating or updating user", e);
@@ -472,30 +473,15 @@ public class UserModalPage extends BaseModalPage {
                 };
                 item.add(editLink);
 
-                AjaxLink deleteLink = new IndicatingAjaxLink("deleteLink") {
+                AjaxLink deleteLink = new IndicatingDeleteOnConfirmAjaxLink(
+                        "deleteLink") {
 
                     @Override
-                    public void onClick(AjaxRequestTarget target) {
+                    public void onClick(final AjaxRequestTarget target) {
                         int componentId = new Integer(getParent().getId());
                         membershipTOs.remove(componentId);
 
                         target.addComponent(membershipsContainer);
-                    }
-
-                    @Override
-                    protected IAjaxCallDecorator getAjaxCallDecorator() {
-                        return new AjaxPreprocessingCallDecorator(super.
-                                getAjaxCallDecorator()) {
-
-                            @Override
-                            public CharSequence preDecorateScript(
-                                    CharSequence script) {
-
-                                return "if (confirm('"
-                                        + getString("confirmDelete") + "'))"
-                                        + "{" + script + "}";
-                            }
-                        };
                     }
                 };
                 item.add(deleteLink);
@@ -832,8 +818,8 @@ public class UserModalPage extends BaseModalPage {
     private void searchAndDropResource(String resource, UserTO userTO) {
         boolean found = false;
 
-        /*Check if the current resource was existent before the update and in this
-        case just ignore it */
+        /*Check if the current resource was existing before the update
+        and in this case just ignore it */
         for (String newResource : userTO.getResources()) {
             if (resource.equals(newResource)) {
                 found = true;
@@ -866,7 +852,8 @@ public class UserModalPage extends BaseModalPage {
             if (newMembership.getRoleId() == oldMembership.getRoleId()) {
 
                 for (AttributeTO newAttribute : newMembership.getAttributes()) {
-                    for (AttributeTO oldAttribute : oldMembership.getAttributes()) {
+                    for (AttributeTO oldAttribute :
+                            oldMembership.getAttributes()) {
 
                         if (oldAttribute.getSchema().equals(newAttribute.
                                 getSchema())) {
@@ -878,7 +865,6 @@ public class UserModalPage extends BaseModalPage {
                                     getValues());
 
                             membershipMod.addAttributeToBeUpdated(attributeMod);
-                            //membershipMod.addAttributeToBeRemoved(oldAttribute.getSchema());
                             attrFound = true;
                             break;
                         }

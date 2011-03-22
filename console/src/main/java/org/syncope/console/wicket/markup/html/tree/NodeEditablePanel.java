@@ -16,8 +16,6 @@ package org.syncope.console.wicket.markup.html.tree;
 
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.IAjaxCallDecorator;
-import org.apache.wicket.ajax.calldecorator.AjaxPreprocessingCallDecorator;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
@@ -35,6 +33,7 @@ import org.syncope.console.pages.BasePage;
 import org.syncope.console.pages.RoleModalPage;
 import org.syncope.console.pages.Roles;
 import org.syncope.console.rest.RoleRestClient;
+import org.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
 
 /**
  * Panel for a node element form.
@@ -117,10 +116,11 @@ public class NodeEditablePanel extends Panel {
 
             fragment.add(updateRoleLink);
 
-            AjaxLink dropRoleLink = new IndicatingAjaxLink("dropRoleLink") {
+            AjaxLink dropRoleLink = new IndicatingDeleteOnConfirmAjaxLink(
+                    "dropRoleLink") {
 
                 @Override
-                public void onClick(AjaxRequestTarget target) {
+                public void onClick(final AjaxRequestTarget target) {
                     try {
                         restClient.deleteRole(idRole);
                         getSession().info(getString("operation_succeded"));
@@ -130,22 +130,6 @@ public class NodeEditablePanel extends Panel {
                     }
 
                     setResponsePage(new Roles(null));
-                }
-
-                @Override
-                protected IAjaxCallDecorator getAjaxCallDecorator() {
-                    return new AjaxPreprocessingCallDecorator(super.
-                            getAjaxCallDecorator()) {
-
-                        @Override
-                        public CharSequence preDecorateScript(
-                                CharSequence script) {
-
-                            return "if (confirm('"
-                                    + getString("confirmDelete") + "'))"
-                                    + "{" + script + "}";
-                        }
-                    };
                 }
             };
 

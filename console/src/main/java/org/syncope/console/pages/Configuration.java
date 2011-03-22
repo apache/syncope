@@ -22,14 +22,11 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.IAjaxCallDecorator;
-import org.apache.wicket.ajax.calldecorator.AjaxPreprocessingCallDecorator;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -59,7 +56,9 @@ import org.syncope.client.to.ConfigurationTO;
 import org.syncope.client.to.LoggerTO;
 import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.PreferenceManager;
+import org.syncope.console.commons.SortableDataProviderComparator;
 import org.syncope.console.rest.ConfigurationRestClient;
+import org.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
 import org.syncope.console.wicket.markup.html.form.DeleteLinkPanel;
 import org.syncope.console.wicket.markup.html.form.EditLinkPanel;
 
@@ -145,11 +144,9 @@ public class Configuration extends BasePage {
                 EditLinkPanel panel = new EditLinkPanel(componentId, model);
                 panel.add(editLink);
 
-                String allowedRoles = xmlRolesReader.getAllAllowedRoles(
-                        "Configuration", "read");
-
                 MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
-                        allowedRoles);
+                        xmlRolesReader.getAllAllowedRoles(
+                        "Configuration", "read"));
 
                 cellItem.add(panel);
             }
@@ -158,17 +155,18 @@ public class Configuration extends BasePage {
         confColumns.add(new AbstractColumn<ConfigurationTO>(
                 new Model<String>(getString("delete"))) {
 
+            @Override
             public void populateItem(
-                    Item<ICellPopulator<ConfigurationTO>> cellItem,
-                    String componentId, IModel<ConfigurationTO> model) {
+                    final Item<ICellPopulator<ConfigurationTO>> cellItem,
+                    final String componentId, IModel<ConfigurationTO> model) {
 
                 final ConfigurationTO configurationTO = model.getObject();
 
-                AjaxLink deleteLink = new AjaxLink("deleteLink") {
+                AjaxLink deleteLink = new IndicatingDeleteOnConfirmAjaxLink(
+                        "deleteLink") {
 
                     @Override
-                    public void onClick(AjaxRequestTarget target) {
-
+                    public void onClick(final AjaxRequestTarget target) {
                         try {
                             restClient.deleteConfiguration(configurationTO.
                                     getConfKey());
@@ -183,32 +181,14 @@ public class Configuration extends BasePage {
 
                         target.addComponent(confContainer);
                     }
-
-                    @Override
-                    protected IAjaxCallDecorator getAjaxCallDecorator() {
-                        return new AjaxPreprocessingCallDecorator(super.
-                                getAjaxCallDecorator()) {
-
-                            @Override
-                            public CharSequence preDecorateScript(
-                                    CharSequence script) {
-
-                                return "if (confirm('" + getString(
-                                        "confirmDelete") + "'))"
-                                        + "{" + script + "}";
-                            }
-                        };
-                    }
                 };
 
                 DeleteLinkPanel panel = new DeleteLinkPanel(componentId, model);
                 panel.add(deleteLink);
 
-                String allowedRoles = xmlRolesReader.getAllAllowedRoles(
-                        "Configuration", "delete");
-
                 MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
-                        allowedRoles);
+                        xmlRolesReader.getAllAllowedRoles(
+                        "Configuration", "delete"));
 
                 cellItem.add(panel);
             }
@@ -352,12 +332,13 @@ public class Configuration extends BasePage {
     private class SyncopeConfProvider
             extends SortableDataProvider<ConfigurationTO> {
 
-        private SortableDataProviderComparator comparator =
-                new SortableDataProviderComparator();
+        private SortableDataProviderComparator<ConfigurationTO> comparator;
 
         public SyncopeConfProvider() {
             //Default sorting
             setSort("confKey", true);
+            comparator = new SortableDataProviderComparator<ConfigurationTO>(
+                    getSort());
         }
 
         @Override
@@ -396,37 +377,6 @@ public class Configuration extends BasePage {
                 throw rce;
             }
             return list;
-        }
-
-        private class SortableDataProviderComparator implements
-                Comparator<ConfigurationTO>, Serializable {
-
-            public int compare(final ConfigurationTO o1,
-                    final ConfigurationTO o2) {
-                PropertyModel<Comparable> model1 =
-                        new PropertyModel<Comparable>(o1,
-                        getSort().getProperty());
-                PropertyModel<Comparable> model2 =
-                        new PropertyModel<Comparable>(o2,
-                        getSort().getProperty());
-
-                int result = 1;
-
-                if (model1.getObject() == null && model2.getObject() == null) {
-                    result = 0;
-                } else if (model1.getObject() == null) {
-                    result = 1;
-                } else if (model2.getObject() == null) {
-                    result = -1;
-                } else {
-                    result = ((Comparable) model1.getObject()).compareTo(
-                            model2.getObject());
-                }
-
-                result = getSort().isAscending() ? result : -result;
-
-                return result;
-            }
         }
     }
 

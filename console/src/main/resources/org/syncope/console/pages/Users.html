@@ -22,21 +22,13 @@
             color: red;
             border:0 none !important;
             list-style-type: disc;
-            padding: 0px;
-            margin: 0px;
+            padding: 5px;
+            margin: 5px;
         }
 
         .feedbackPanelERROR span {
             padding: 0px;
             margin: 0px;
-        }
-
-        #pageNavigator a:visited {
-            text-decoration: none;
-        }
-
-        #pageNavigator a:hover {
-            text-decoration: underline;
         }
     </style>
 </wicket:head>
@@ -44,103 +36,28 @@
 
     <div id="tabs">
         <ul>
-            <li  class="tabs-selected"><a href="#tabs-1"><span><wicket:message key="tab1"/></span></a></li>
-            <li><a href="#tabs-2"><span><wicket:message key="tab2"/></span></a></li>
+            <li class="tabs-selected">
+                <a href="#tabs-1">
+                    <span><wicket:message key="tab1"/>
+                    </span>
+                </a>
+            </li>
+            <li>
+                <a href="#tabs-2">
+                    <span><wicket:message key="tab2"/>
+                    </span>
+                </a>
+            </li>
         </ul>
         <div id="tabs-1">
-
             <div id="users-contain" class="ui-widget" style="width:auto">
-                <span wicket:id="usersTableContainer">
-                    <span id="pageNavigator" style="font-style:oblique">
-                        <span style="float:left">
-                            <wicket:message key="showingFrom"/>
-                            <span wicket:id="pageRecordFrom"/>
-                            <wicket:message key="showingTo"/>
-                            <span wicket:id="pageRecordTo"/>
-                            <wicket:message key="showingOf"/>
-                            <span wicket:id="totalRecords"/>
-                        </span>
-
-                        <span style="float:right">
-                            <a wicket:id="firstPageLink" style="text-decoration:none">
-                                <span style="text-decoration:underline">&lt;&lt;</span>
-                            </a>
-                            <a wicket:id="decrementLink" style="text-decoration:none">
-                                <span style="text-decoration:underline">&lt;</span>
-                            </a>
-
-                            <span wicket:id="navigation">
-                                <a wicket:id="pageLink" style="text-decoration:none">
-                                    <span style="text-decoration:underline"
-                                          wicket:id="pageNumber"/>
-                                </a>
-                            </span>
-
-                            <a wicket:id="incrementLink" style="text-decoration:none">
-                                <span style="text-decoration:underline">&gt;</span>
-                            </a>
-                            <a wicket:id="lastPageLink" style="text-decoration:none">
-                                <span style="text-decoration:underline">&gt;&gt;</span>
-                            </a>
-                        </span>
-                    </span>
-
-                    <span>
-                        &nbsp;
-                    </span>
-
-                    <table id="users" class="ui-widget ui-widget-content table-hover">
-                        <thead>
-                            <tr class="ui-widget-header">
-                                <th><wicket:message key="id"/></th>
-                        <th><wicket:message key="status"/></th>
-                        <th><wicket:message key="token"/></th>
-                        <th wicket:id="usersSchema">
-                            <span wicket:id="attribute"/>
-                        </th>
-                        <th><wicket:message key="edit"/></th>
-                        <th><wicket:message key="delete"/></th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                            <tr wicket:id="results">
-                                <td>
-                                    <span wicket:id="id">
-                                        [id]
-                                    </span>
-                                </td>
-                                <td>
-                                    <span wicket:id="status">
-                                        [status]
-                                    </span>
-                                </td>
-                                <td>
-                                    <span wicket:id="token">
-                                        [token]
-                                    </span>
-                                </td>
-                                <td wicket:id="selectedAttributes">
-                                    <span wicket:id="name">
-                                        [selected attribute]
-                                    </span>
-                                </td>
-                                <td>
-                                    <a href="#" wicket:id="editLink">
-                                        <wicket:message key="edit"/>
-                                    </a>
-                                </td>
-                                <td>
-                                    <a href="#" wicket:id="deleteLink">
-                                        <wicket:message key="delete"/>
-                                    </a>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <span wicket:id="listContainer">
+                    <table class="ui-widget ui-widget-content table-hover"
+                           wicket:id="listTable"/>
                 </span>
 
                 <span style="float:right">
-                    <form wicket:id="PaginatorForm" style="display:inline">
+                    <form wicket:id="paginator" style="display:inline">
                         <label><wicket:message key="displayRows"/></label>
                         <select class="text ui-widget-content ui-corner-all"
                                 wicket:id="rowsChooser"/>
@@ -148,24 +65,23 @@
                 </span>
             </div>
 
-            <div wicket:id="createUserWin">[Show modal window for creating user]</div>
-            <div wicket:id="editUserWin">[Show modal window for editing user]</div>
-            <div wicket:id="changeAttributesViewWin">[Show modal window for editing user]</div>
+            <div wicket:id="editModalWin">
+            </div>
+            <div wicket:id="displayAttrsModalWin">
+            </div>
 
             <a class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
-               wicket:id="createUserLink">
+               wicket:id="createLink">
                 <wicket:message key="create_user"/>
             </a>
-
             <a class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
-               wicket:id="changeAttributesViewLink">
+               wicket:id="displayAttrsLink">
                 <wicket:message key="change_attributes"/>
             </a>
-
         </div>
 
         <div id="tabs-2">
-            <form wicket:id="UserSearchForm">
+            <form wicket:id="searchForm">
                 <div wicket:id="searchFeedback"/>
                 <div id="searchBox">
                     <h1><wicket:message key="search_title"/></h1>
@@ -181,7 +97,7 @@
                         <th></th>
                         </tr>
                         </thead>
-                        <tbody wicket:id="container">
+                        <tbody wicket:id="searchFormContainer">
                             <tr wicket:id="searchView">
                                 <td>
                                     <b><span wicket:id="operationType"/></b>
@@ -226,105 +142,25 @@
 
                 <input type="button" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
                        wicket:id="search"/>
-
-
-                <!-- SEARCH RESULTS -->
-                <div class="ui-widget" id="users-contain">
-                    <p>
-                        &nbsp;
-                    </p>
-                    <img src="img/search.png" alt="search"/>
-                    <h1 style="display:inline"><wicket:message key="search_results_title"/></h1>
-                    <div> &nbsp;</div>
-                    <span wicket:id="searchResultsContainer">
-                        <div id="pageNavigator" style="font-style:oblique">
-                            <span style="float:left">
-                                <wicket:message key="showingFrom"/>
-                                <span wicket:id="pageRecordFrom"/>
-                                <wicket:message key="showingTo"/>
-                                <span wicket:id="pageRecordTo"/>
-                                <wicket:message key="showingOf"/>
-                                <span wicket:id="totalRecords"/>
-                            </span>
-
-                            <span style="float:right">
-                                <a wicket:id="firstPageLink" style="text-decoration:none">
-                                    <span style="text-decoration:underline">&lt;&lt;</span>
-                                </a>
-                                <a wicket:id="decrementLink" style="text-decoration:none">
-                                    <span style="text-decoration:underline">&lt;</span>
-                                </a>
-
-                                <span wicket:id="navigation">
-                                    <a wicket:id="pageLink" style="text-decoration:none">
-                                        <span style="text-decoration:underline"
-                                              wicket:id="pageNumber"/>
-                                    </a>
-                                </span>
-
-                                <a wicket:id="incrementLink" style="text-decoration:none">
-                                    <span style="text-decoration:underline">&gt;</span>
-                                </a>
-                                <a wicket:id="lastPageLink" style="text-decoration:none">
-                                    <span style="text-decoration:underline">&gt;&gt;</span>
-                                </a>
-                            </span>
-                        </div>
-
-                        <div> &nbsp;</div>
-
-                        <table id="search-users" class="ui-widget ui-widget-content table-hover">
-                            <thead>
-                                <tr class="ui-widget-header">
-                                    <th><wicket:message key="id"/></th>
-                            <th><wicket:message key="status"/></th>
-                            <th><wicket:message key="token"/></th>
-                            <th><wicket:message key="edit"/></th>
-                            <th><wicket:message key="delete"/></th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                                <tr wicket:id="results">
-                                    <td>
-                                        <span wicket:id="id">[id]</span>
-                                    </td>
-                                    <td>
-                                        <span wicket:id="status">[status]</span>
-                                    </td>
-                                    <td>
-                                        <span wicket:id="token">[token]</span>
-                                    </td>
-                                    <td>
-                                        <a href="#" wicket:id="editLink">
-                                            <wicket:message key="edit"/>
-                                        </a>
-                                    </td>
-                                    <td>
-                                        <a href="#" wicket:id="deleteLink">
-                                            <wicket:message key="delete"/>
-                                        </a>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <span>
-                            <b>
-                                <span wicket:id="noResults"/>
-                            </b>
-                        </span>
-                    </span>
-                    <div>
-                        &nbsp;
-                    </div>
-                </div>
             </form>
-            <span >
-                <form wicket:id="PaginatorSearchForm" style="display:inline">
-                    <label><wicket:message key="displayRows"/></label>
-                    <select class="text ui-widget-content ui-corner-all"
-                            wicket:id="rowsSearchChooser"/>
-                </form>
-            </span>
+
+            <div id="users-contain" class="ui-widget" style="width:auto">
+                <img src="img/search.png" alt="search"/>
+                <h1 style="display:inline"><wicket:message key="search_results_title"/></h1>
+                <span wicket:id="searchResultContainer">
+                    <table class="ui-widget ui-widget-content table-hover"
+                           wicket:id="searchResultTable"/>
+                </span>
+
+                <span style="float:right">
+                    <form wicket:id="searchPaginator" style="display:inline">
+                        <label><wicket:message key="displayRows"/></label>
+                        <select class="text ui-widget-content ui-corner-all"
+                                wicket:id="searchRowsChooser"/>
+                    </form>
+                </span>
+            </div>
         </div>
     </div>
+
 </wicket:extend>

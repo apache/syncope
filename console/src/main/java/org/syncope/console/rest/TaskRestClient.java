@@ -34,14 +34,14 @@ public class TaskRestClient extends AbstractBaseRestClient {
 
     /**
      * Get all stored tasks.
-     * @param first index to start from
-     * @param count maximum number to fetch
+     * @param page pagination element to fetch
+     * @param size maximum number to fetch
      * @return list of TaskTO objects
      */
-    public List<TaskTO> list(final int first, final int count) {
+    public List<TaskTO> list(final int page, final int size) {
         return Arrays.asList(restTemplate.getForObject(
                 baseURL + "task/list/{page}/{size}.json",
-                TaskTO[].class, first, count));
+                TaskTO[].class, page, size));
     }
 
     /**
@@ -49,7 +49,7 @@ public class TaskRestClient extends AbstractBaseRestClient {
      * @param taskId task to read
      * @return TaskTO object if the configuration exists, null otherwise
      */
-    public TaskTO readTask(final String taskId) {
+    public TaskTO read(final String taskId) {
         TaskTO taskTO = null;
         try {
             taskTO = restTemplate.getForObject(
@@ -77,7 +77,7 @@ public class TaskRestClient extends AbstractBaseRestClient {
      * Delete specified task.
      * @param taskId task to delete
      */
-    public void deleteTask(final Long taskId) {
+    public void delete(final Long taskId) {
         restTemplate.delete(
                 baseURL + "task/delete/{taskId}", taskId);
     }
@@ -86,7 +86,7 @@ public class TaskRestClient extends AbstractBaseRestClient {
      * Start execution for the specified TaskTO.
      * @param taskId task id
      */
-    public void startTaskExecution(final Long taskId) {
+    public void startExecution(final Long taskId) {
         restTemplate.getForObject(
                 baseURL + "task/execute/{taskId}",
                 TaskExecutionTO.class, taskId);
@@ -96,7 +96,7 @@ public class TaskRestClient extends AbstractBaseRestClient {
      * Delete specified task's execution.
      * @param taskExecId task execution id
      */
-    public void deleteTaskExecution(final Long taskExecId) {
+    public void deleteExecution(final Long taskExecId) {
         restTemplate.delete(baseURL
                 + "task/execution/delete/{execId}", taskExecId);
     }

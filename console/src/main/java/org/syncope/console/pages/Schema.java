@@ -14,17 +14,13 @@
  */
 package org.syncope.console.pages;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.IAjaxCallDecorator;
-import org.apache.wicket.ajax.calldecorator.AjaxPreprocessingCallDecorator;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -49,7 +45,9 @@ import org.syncope.client.to.DerivedSchemaTO;
 import org.syncope.client.to.SchemaTO;
 import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.PreferenceManager;
+import org.syncope.console.commons.SortableDataProviderComparator;
 import org.syncope.console.rest.SchemaRestClient;
+import org.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
 import org.syncope.console.wicket.markup.html.form.DeleteLinkPanel;
 import org.syncope.console.wicket.markup.html.form.EditLinkPanel;
 
@@ -263,7 +261,8 @@ public class Schema extends BasePage {
 
                 final SchemaTO schemaTO = model.getObject();
 
-                AjaxLink deleteLink = new IndicatingAjaxLink("deleteLink") {
+                AjaxLink deleteLink = new IndicatingDeleteOnConfirmAjaxLink(
+                        "deleteLink") {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -273,22 +272,6 @@ public class Schema extends BasePage {
                         target.addComponent(feedbackPanel);
 
                         target.addComponent(roleSchemasContainer);
-                    }
-
-                    @Override
-                    protected IAjaxCallDecorator getAjaxCallDecorator() {
-                        return new AjaxPreprocessingCallDecorator(super.
-                                getAjaxCallDecorator()) {
-
-                            @Override
-                            public CharSequence preDecorateScript(
-                                    final CharSequence script) {
-
-                                return "if (confirm('" + getString(
-                                        "confirmDelete") + "'))"
-                                        + "{" + script + "}";
-                            }
-                        };
                     }
                 };
 
@@ -393,32 +376,17 @@ public class Schema extends BasePage {
 
                 final DerivedSchemaTO schemaTO = model.getObject();
 
-                AjaxLink deleteLink = new IndicatingAjaxLink("deleteLink") {
+                AjaxLink deleteLink = new IndicatingDeleteOnConfirmAjaxLink(
+                        "deleteLink") {
 
                     @Override
-                    public void onClick(AjaxRequestTarget target) {
+                    public void onClick(final AjaxRequestTarget target) {
                         restClient.deleteRoleDerivedSchema(schemaTO.getName());
 
                         info(getString("operation_succeded"));
                         target.addComponent(feedbackPanel);
 
                         target.addComponent(roleDerivedSchemasContainer);
-                    }
-
-                    @Override
-                    protected IAjaxCallDecorator getAjaxCallDecorator() {
-                        return new AjaxPreprocessingCallDecorator(super.
-                                getAjaxCallDecorator()) {
-
-                            @Override
-                            public CharSequence preDecorateScript(
-                                    CharSequence script) {
-
-                                return "if (confirm('" + getString(
-                                        "confirmDelete") + "'))"
-                                        + "{" + script + "}";
-                            }
-                        };
                     }
                 };
 
@@ -517,38 +485,25 @@ public class Schema extends BasePage {
         userColumns.add(new AbstractColumn<SchemaTO>(new Model<String>(getString(
                 "delete"))) {
 
+            @Override
             public void populateItem(
-                    Item<ICellPopulator<SchemaTO>> cellItem,
-                    String componentId, IModel<SchemaTO> model) {
+                    final Item<ICellPopulator<SchemaTO>> cellItem,
+                    final String componentId,
+                    final IModel<SchemaTO> model) {
 
                 final SchemaTO schemaTO = model.getObject();
 
-                AjaxLink deleteLink = new IndicatingAjaxLink("deleteLink") {
+                AjaxLink deleteLink = new IndicatingDeleteOnConfirmAjaxLink(
+                        "deleteLink") {
 
                     @Override
-                    public void onClick(AjaxRequestTarget target) {
+                    public void onClick(final AjaxRequestTarget target) {
                         restClient.deleteUserSchema(schemaTO.getName());
 
                         info(getString("operation_succeded"));
                         target.addComponent(feedbackPanel);
 
                         target.addComponent(userSchemaContainer);
-                    }
-
-                    @Override
-                    protected IAjaxCallDecorator getAjaxCallDecorator() {
-                        return new AjaxPreprocessingCallDecorator(super.
-                                getAjaxCallDecorator()) {
-
-                            @Override
-                            public CharSequence preDecorateScript(
-                                    CharSequence script) {
-
-                                return "if (confirm('" + getString(
-                                        "confirmDelete") + "'))"
-                                        + "{" + script + "}";
-                            }
-                        };
                     }
                 };
 
@@ -650,16 +605,19 @@ public class Schema extends BasePage {
         columnsUsersDer.add(new AbstractColumn<DerivedSchemaTO>(
                 new Model<String>(getString("delete"))) {
 
+            @Override
             public void populateItem(
-                    Item<ICellPopulator<DerivedSchemaTO>> cellItem,
-                    String componentId, IModel<DerivedSchemaTO> model) {
+                    final Item<ICellPopulator<DerivedSchemaTO>> cellItem,
+                    final String componentId,
+                    final IModel<DerivedSchemaTO> model) {
 
                 final DerivedSchemaTO schemaTO = model.getObject();
 
-                AjaxLink deleteLink = new IndicatingAjaxLink("deleteLink") {
+                AjaxLink deleteLink = new IndicatingDeleteOnConfirmAjaxLink(
+                        "deleteLink") {
 
                     @Override
-                    public void onClick(AjaxRequestTarget target) {
+                    public void onClick(final AjaxRequestTarget target) {
                         restClient.deleteUserDerivedSchema(schemaTO.getName());
 
                         info(getString("operation_succeded"));
@@ -667,24 +625,7 @@ public class Schema extends BasePage {
 
                         target.addComponent(userDerivedSchemaContainer);
                     }
-
-                    @Override
-                    protected IAjaxCallDecorator getAjaxCallDecorator() {
-                        return new AjaxPreprocessingCallDecorator(super.
-                                getAjaxCallDecorator()) {
-
-                            @Override
-                            public CharSequence preDecorateScript(
-                                    CharSequence script) {
-
-                                return "if (confirm('" + getString(
-                                        "confirmDelete") + "'))"
-                                        + "{" + script + "}";
-                            }
-                        };
-                    }
                 };
-
 
                 DeleteLinkPanel panel = new DeleteLinkPanel(componentId, model);
 
@@ -782,37 +723,25 @@ public class Schema extends BasePage {
         membershipsColumns.add(new AbstractColumn<SchemaTO>(
                 new Model<String>(getString("delete"))) {
 
+            @Override
             public void populateItem(
-                    Item<ICellPopulator<SchemaTO>> cellItem,
-                    String componentId, IModel<SchemaTO> model) {
+                    final Item<ICellPopulator<SchemaTO>> cellItem,
+                    final String componentId,
+                    final IModel<SchemaTO> model) {
 
                 final SchemaTO schemaTO = model.getObject();
 
-                AjaxLink deleteLink = new IndicatingAjaxLink("deleteLink") {
+                AjaxLink deleteLink = new IndicatingDeleteOnConfirmAjaxLink(
+                        "deleteLink") {
 
                     @Override
-                    public void onClick(AjaxRequestTarget target) {
+                    public void onClick(final AjaxRequestTarget target) {
                         restClient.deleteMemberhipSchema(schemaTO.getName());
 
                         info(getString("operation_succeded"));
                         target.addComponent(feedbackPanel);
 
                         target.addComponent(membershipSchemaContainer);
-                    }
-
-                    @Override
-                    protected IAjaxCallDecorator getAjaxCallDecorator() {
-                        return new AjaxPreprocessingCallDecorator(super.
-                                getAjaxCallDecorator()) {
-
-                            @Override
-                            public CharSequence preDecorateScript(
-                                    CharSequence script) {
-                                return "if (confirm('" + getString(
-                                        "confirmDelete") + "'))"
-                                        + "{" + script + "}";
-                            }
-                        };
                     }
                 };
 
@@ -916,16 +845,19 @@ public class Schema extends BasePage {
         columnsMembershipsDer.add(new AbstractColumn<DerivedSchemaTO>(
                 new Model<String>(getString("delete"))) {
 
+            @Override
             public void populateItem(
-                    Item<ICellPopulator<DerivedSchemaTO>> cellItem,
-                    String componentId, IModel<DerivedSchemaTO> model) {
+                    final Item<ICellPopulator<DerivedSchemaTO>> cellItem,
+                    final String componentId,
+                    final IModel<DerivedSchemaTO> model) {
 
                 final DerivedSchemaTO schemaTO = model.getObject();
 
-                AjaxLink deleteLink = new IndicatingAjaxLink("deleteLink") {
+                AjaxLink deleteLink = new IndicatingDeleteOnConfirmAjaxLink(
+                        "deleteLink") {
 
                     @Override
-                    public void onClick(AjaxRequestTarget target) {
+                    public void onClick(final AjaxRequestTarget target) {
                         restClient.deleteMembershipDerivedSchema(
                                 schemaTO.getName());
 
@@ -934,23 +866,7 @@ public class Schema extends BasePage {
 
                         target.addComponent(membershipDerivedSchemaContainer);
                     }
-
-                    @Override
-                    protected IAjaxCallDecorator getAjaxCallDecorator() {
-                        return new AjaxPreprocessingCallDecorator(super.
-                                getAjaxCallDecorator()) {
-
-                            @Override
-                            public CharSequence preDecorateScript(
-                                    CharSequence script) {
-                                return "if (confirm('" + getString(
-                                        "confirmDelete") + "'))"
-                                        + "{" + script + "}";
-                            }
-                        };
-                    }
                 };
-
 
                 DeleteLinkPanel panel = new DeleteLinkPanel(componentId, model);
 
@@ -1352,17 +1268,17 @@ public class Schema extends BasePage {
 
     class SchemaProvider extends SortableDataProvider<SchemaTO> {
 
-        private SortableDataProviderComparator comparator =
-                new SortableDataProviderComparator();
+        private SortableDataProviderComparator<SchemaTO> comparator;
 
         private SchemaType schema;
 
-        public SchemaProvider(SchemaType schema) {
-
+        public SchemaProvider(final SchemaType schema) {
             this.schema = schema;
 
             //Default sorting
             setSort("name", true);
+            comparator = new SortableDataProviderComparator<SchemaTO>(
+                    getSort());
         }
 
         @Override
@@ -1404,52 +1320,21 @@ public class Schema extends BasePage {
 
             return list;
         }
-
-        class SortableDataProviderComparator implements
-                Comparator<SchemaTO>, Serializable {
-
-            public int compare(final SchemaTO o1,
-                    final SchemaTO o2) {
-                PropertyModel<Comparable> model1 =
-                        new PropertyModel<Comparable>(o1,
-                        getSort().getProperty());
-                PropertyModel<Comparable> model2 =
-                        new PropertyModel<Comparable>(o2,
-                        getSort().getProperty());
-
-                int result = 1;
-
-                if (model1.getObject() == null && model2.getObject() == null) {
-                    result = 0;
-                } else if (model1.getObject() == null) {
-                    result = 1;
-                } else if (model2.getObject() == null) {
-                    result = -1;
-                } else {
-                    result = ((Comparable) model1.getObject()).compareTo(
-                            model2.getObject());
-                }
-
-                result = getSort().isAscending() ? result : -result;
-
-                return result;
-            }
-        }
     }
 
     class DerivedSchemaProvider extends SortableDataProvider<DerivedSchemaTO> {
 
-        private SortableDataProviderComparator comparator =
-                new SortableDataProviderComparator();
+        private SortableDataProviderComparator<DerivedSchemaTO> comparator;
 
         private SchemaDerivedType schema;
 
-        public DerivedSchemaProvider(SchemaDerivedType schema) {
-
+        public DerivedSchemaProvider(final SchemaDerivedType schema) {
             this.schema = schema;
 
             //Default sorting
             setSort("name", true);
+            comparator = new SortableDataProviderComparator<DerivedSchemaTO>(
+                    getSort());
         }
 
         @Override
@@ -1490,37 +1375,6 @@ public class Schema extends BasePage {
             }
 
             return list;
-        }
-
-        class SortableDataProviderComparator implements
-                Comparator<DerivedSchemaTO>, Serializable {
-
-            public int compare(final DerivedSchemaTO o1,
-                    final DerivedSchemaTO o2) {
-                PropertyModel<Comparable> model1 =
-                        new PropertyModel<Comparable>(o1,
-                        getSort().getProperty());
-                PropertyModel<Comparable> model2 =
-                        new PropertyModel<Comparable>(o2,
-                        getSort().getProperty());
-
-                int result = 1;
-
-                if (model1.getObject() == null && model2.getObject() == null) {
-                    result = 0;
-                } else if (model1.getObject() == null) {
-                    result = 1;
-                } else if (model2.getObject() == null) {
-                    result = -1;
-                } else {
-                    result = ((Comparable) model1.getObject()).compareTo(
-                            model2.getObject());
-                }
-
-                result = getSort().isAscending() ? result : -result;
-
-                return result;
-            }
         }
     }
 }

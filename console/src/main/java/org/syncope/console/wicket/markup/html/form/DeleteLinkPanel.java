@@ -17,6 +17,10 @@ package org.syncope.console.wicket.markup.html.form;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 
+/**
+ * This empty class must exist because there not seems to be altrernative to
+ * provide specialized HTML for delete links.
+ */
 public class DeleteLinkPanel extends Panel {
 
     public DeleteLinkPanel(final String componentId, final IModel<?> model) {

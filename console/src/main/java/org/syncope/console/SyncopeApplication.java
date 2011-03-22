@@ -62,6 +62,8 @@ public class SyncopeApplication extends WebApplication
         getSecuritySettings().
                 setUnauthorizedComponentInstantiationListener(this);
 
+        getMarkupSettings().setStripWicketTags(true);
+
         // setup authorizations
         MetaDataRoleAuthorizationStrategy.authorize(Schema.class,
                 "SCHEMA_LIST");

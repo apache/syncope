@@ -230,13 +230,13 @@ public class UserSearchTest {
 
         List<SyncopeUser> users = searchDAO.search(
                 EntitlementUtil.getRoleIds(entitlementDAO.findAll()),
-                cond, 1, 2, null);
+                cond, 1, 2);
         assertNotNull(users);
         assertEquals(1, users.size());
 
         users = searchDAO.search(
                 EntitlementUtil.getRoleIds(entitlementDAO.findAll()),
-                cond, 2, 2, null);
+                cond, 2, 2);
         assertNotNull(users);
         assertTrue(users.isEmpty());
     }

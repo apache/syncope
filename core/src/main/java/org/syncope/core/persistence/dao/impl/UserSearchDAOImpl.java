@@ -32,7 +32,6 @@ import org.springframework.stereotype.Repository;
 import org.syncope.client.search.AttributeCond;
 import org.syncope.client.search.MembershipCond;
 import org.syncope.client.search.NodeCond;
-import org.syncope.client.to.PaginatedUserContainer;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.beans.user.UAttrValue;
 import org.syncope.core.persistence.beans.user.USchema;
@@ -62,19 +61,82 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
         random = new Random(Calendar.getInstance().getTimeInMillis());
     }
 
+    private String getAdminRolesFilter(final Set<Long> adminRoles) {
+        final StringBuilder adminRolesFilter = new StringBuilder();
+        if (adminRoles == null || adminRoles.isEmpty()) {
+            adminRolesFilter.append("SELECT syncopeUser_id AS user_id ").
+                    append("FROM Membership");
+        } else {
+            adminRolesFilter.append("SELECT syncopeUser_id AS user_id ").
+                    append("FROM Membership M1 ").
+                    append("WHERE syncopeRole_id IN (");
+            adminRolesFilter.append("SELECT syncopeRole_id ").
+                    append("FROM Membership M2 ").
+                    append("WHERE M2.syncopeUser_id=M1.syncopeUser_id ").
+                    append("AND syncopeRole_id NOT IN (");
+            adminRolesFilter.append(
+                    "SELECT id AS syncopeRole_id FROM SyncopeRole");
+            boolean firstRole = true;
+            for (Long adminRoleId : adminRoles) {
+                if (firstRole) {
+                    adminRolesFilter.append(" WHERE");
+                    firstRole = false;
+                } else {
+                    adminRolesFilter.append(" OR");
+                }
+
+                adminRolesFilter.append(" id=").append(adminRoleId);
+            }
+            adminRolesFilter.append("))");
+        }
+
+        return adminRolesFilter.toString();
+    }
+
+    @Override
+    public Integer count(final Set<Long> adminRoles,
+            final NodeCond searchCondition) {
+
+        Map<Integer, Object> parameters = Collections.synchronizedMap(
+                new HashMap<Integer, Object>());
+
+        // 1. get the query string from the search condition
+        StringBuilder queryString = getQuery(searchCondition, parameters);
+
+        // 2. take into account administrative roles
+        queryString.insert(0, "SELECT u.user_id FROM (");
+        queryString.append(") u WHERE user_id NOT IN (");
+        queryString.append(getAdminRolesFilter(adminRoles)).append(")");
+
+        // 3. prepare the COUNT query
+        queryString.insert(0, "SELECT COUNT(user_id) FROM (");
+        queryString.append(") count_user_id");
+
+        Query countQuery =
+                entityManager.createNativeQuery(queryString.toString());
+        fillWithParameters(countQuery, parameters);
+
+        LOG.debug("Native count query\n{}\nwith parameters\n{}",
+                queryString.toString(), parameters);
+
+        Integer result = ((Number) countQuery.getSingleResult()).intValue();
+        LOG.debug("Native count query result: {}", result);
+
+        return result;
+    }
+
     @Override
     public List<SyncopeUser> search(final Set<Long> adminRoles,
             final NodeCond searchCondition) {
 
-        return search(adminRoles, searchCondition, -1, -1, null);
+        return search(adminRoles, searchCondition, -1, -1);
     }
 
     @Override
     public List<SyncopeUser> search(final Set<Long> adminRoles,
             final NodeCond searchCondition,
             final int page,
-            final int itemsPerPage,
-            final PaginatedUserContainer paginatedResult) {
+            final int itemsPerPage) {
 
         List<SyncopeUser> result;
 
@@ -86,8 +148,7 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
         }
 
         try {
-            result = doSearch(adminRoles, searchCondition,
-                    page, itemsPerPage, paginatedResult);
+            result = doSearch(adminRoles, searchCondition, page, itemsPerPage);
         } catch (Throwable t) {
             LOG.error("While searching users", t);
 
@@ -126,41 +187,9 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
         }
     }
 
-    private void addAdminRolesFilter(final Set<Long> adminRoles,
-            final StringBuilder queryString) {
-
-        final StringBuilder adminRolesFilter = new StringBuilder();
-
-        adminRolesFilter.append("SELECT syncopeUser_id FROM Membership M1 ").
-                append("WHERE syncopeRole_id IN (");
-        adminRolesFilter.append("SELECT syncopeRole_id FROM Membership M2 ").
-                append("WHERE M2.syncopeUser_id=M1.syncopeUser_id ").
-                append("AND syncopeRole_id NOT IN (");
-
-        adminRolesFilter.append("SELECT id AS syncopeRole_id FROM SyncopeRole");
-        boolean firstRole = true;
-        for (Long adminRoleId : adminRoles) {
-            if (firstRole) {
-                adminRolesFilter.append(" WHERE");
-                firstRole = false;
-            } else {
-                adminRolesFilter.append(" OR");
-            }
-
-            adminRolesFilter.append(" id=").append(adminRoleId);
-        }
-
-        adminRolesFilter.append(")))");
-
-        queryString.insert(0, "SELECT user_id FROM (");
-        queryString.append(") WHERE user_id NOT IN (");
-        queryString.append(adminRolesFilter);
-    }
-
     private List<SyncopeUser> doSearch(final Set<Long> adminRoles,
             final NodeCond nodeCond,
-            final int page, final int itemsPerPage,
-            final PaginatedUserContainer paginatedResult) {
+            final int page, final int itemsPerPage) {
 
         Map<Integer, Object> parameters = Collections.synchronizedMap(
                 new HashMap<Integer, Object>());
@@ -169,36 +198,9 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
         StringBuilder queryString = getQuery(nodeCond, parameters);
 
         // 2. take into account administrative roles
-        final StringBuilder adminRolesFilter = new StringBuilder();
-        if (adminRoles == null || adminRoles.isEmpty()) {
-            adminRolesFilter.append("SELECT syncopeUser_id AS user_id ").
-                    append("FROM Membership");
-        } else {
-            adminRolesFilter.append("SELECT syncopeUser_id AS user_id ").
-                    append("FROM Membership M1 ").
-                    append("WHERE syncopeRole_id IN (");
-            adminRolesFilter.append("SELECT syncopeRole_id FROM Membership M2 ").
-                    append("WHERE M2.syncopeUser_id=M1.syncopeUser_id ").
-                    append("AND syncopeRole_id NOT IN (");
-            adminRolesFilter.append(
-                    "SELECT id AS syncopeRole_id FROM SyncopeRole");
-            boolean firstRole = true;
-            for (Long adminRoleId : adminRoles) {
-                if (firstRole) {
-                    adminRolesFilter.append(" WHERE");
-                    firstRole = false;
-                } else {
-                    adminRolesFilter.append(" OR");
-                }
-
-                adminRolesFilter.append(" id=").append(adminRoleId);
-            }
-            adminRolesFilter.append("))");
-        }
-
         queryString.insert(0, "SELECT u.user_id FROM (");
         queryString.append(") u WHERE user_id NOT IN (");
-        queryString.append(adminRolesFilter).append(")");
+        queryString.append(getAdminRolesFilter(adminRoles)).append(")");
 
         // 3. prepare the search query
         Query query = entityManager.createNativeQuery(queryString.toString());
@@ -232,25 +234,6 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
             } else {
                 result.add(user);
             }
-        }
-
-        // 6. (if it's the case, paginate)
-        if (paginatedResult != null) {
-            queryString.insert(0, "SELECT COUNT(user_id) FROM (");
-            queryString.append(") count_user_id");
-
-            Query countQuery =
-                    entityManager.createNativeQuery(queryString.toString());
-            fillWithParameters(countQuery, parameters);
-
-            LOG.debug("Native count query\n{}\nwith parameters\n{}",
-                    queryString.toString(), parameters);
-
-            paginatedResult.setTotalRecords(
-                    ((Number) countQuery.getSingleResult()).intValue());
-
-            LOG.debug("Native count query result: {}",
-                    paginatedResult.getTotalRecords());
         }
 
         return result;

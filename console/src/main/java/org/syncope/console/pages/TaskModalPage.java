@@ -16,18 +16,14 @@
  */
 package org.syncope.console.pages;
 
-import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import org.syncope.console.commons.Constants;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.IAjaxCallDecorator;
-import org.apache.wicket.ajax.calldecorator.AjaxPreprocessingCallDecorator;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.datetime.DateConverter;
@@ -48,12 +44,13 @@ import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.to.TaskExecutionTO;
 import org.syncope.client.to.TaskTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.syncope.console.commons.SortableDataProviderComparator;
 import org.syncope.console.rest.TaskRestClient;
+import org.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
 import org.syncope.console.wicket.markup.html.form.DeleteLinkPanel;
 import org.syncope.console.wicket.markup.html.form.LinkPanel;
 
@@ -123,19 +120,18 @@ public class TaskModalPage extends BaseModalPage {
         columns.add(new AbstractColumn<TaskExecutionTO>(
                 new Model<String>(getString("message"))) {
 
+            @Override
             public void populateItem(
-                    Item<ICellPopulator<TaskExecutionTO>> cellItem,
-                    String componentId, IModel<TaskExecutionTO> model) {
-
-                final TaskExecutionTO taskExecutionTO = model.getObject();
+                    final Item<ICellPopulator<TaskExecutionTO>> cellItem,
+                    final String componentId,
+                    final IModel<TaskExecutionTO> model) {
 
                 AjaxLink messageLink = new IndicatingAjaxLink("link") {
 
                     @Override
-                    public void onClick(AjaxRequestTarget target) {
-
+                    public void onClick(final AjaxRequestTarget target) {
                         dialogContent.setDefaultModelObject(
-                                taskExecutionTO.getMessage());
+                                model.getObject().getMessage());
 
                         target.addComponent(dialogContent);
 
@@ -157,18 +153,21 @@ public class TaskModalPage extends BaseModalPage {
         columns.add(new AbstractColumn<TaskExecutionTO>(
                 new Model<String>(getString("delete"))) {
 
+            @Override
             public void populateItem(
-                    Item<ICellPopulator<TaskExecutionTO>> cellItem,
-                    String componentId, IModel<TaskExecutionTO> model) {
+                    final Item<ICellPopulator<TaskExecutionTO>> cellItem,
+                    final String componentId,
+                    final IModel<TaskExecutionTO> model) {
 
                 final TaskExecutionTO taskExecutionTO = model.getObject();
 
-                AjaxLink deleteLink = new IndicatingAjaxLink("deleteLink") {
+                AjaxLink deleteLink = new IndicatingDeleteOnConfirmAjaxLink(
+                        "deleteLink") {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
                         try {
-                            taskRestClient.deleteTaskExecution(
+                            taskRestClient.deleteExecution(
                                     taskExecutionTO.getId());
                             info(getString("operation_succeded"));
                         } catch (SyncopeClientCompositeErrorException scce) {
@@ -178,33 +177,13 @@ public class TaskModalPage extends BaseModalPage {
                         target.addComponent(feedbackPanel);
                         target.addComponent(container);
                     }
-
-                    @Override
-                    protected IAjaxCallDecorator getAjaxCallDecorator() {
-                        return new AjaxPreprocessingCallDecorator(super.
-                                getAjaxCallDecorator()) {
-
-                            @Override
-                            public CharSequence preDecorateScript(
-                                    CharSequence script) {
-                                return "if (confirm('"
-                                        + getString("confirmDelete") + "'))"
-                                        + "{" + script + "}";
-                            }
-                        };
-                    }
                 };
-                DeleteLinkPanel panel = new DeleteLinkPanel(componentId,
-                        model);
+
+                DeleteLinkPanel panel = new DeleteLinkPanel(componentId, model);
                 panel.add(deleteLink);
 
-                String allowedRoles = null;
-
-                allowedRoles = xmlRolesReader.getAllAllowedRoles("Tasks",
-                        "delete");
-
                 MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
-                        allowedRoles);
+                        xmlRolesReader.getAllAllowedRoles("Tasks", "delete"));
 
                 cellItem.add(panel);
             }
@@ -225,8 +204,7 @@ public class TaskModalPage extends BaseModalPage {
 
     class TaskExecutionsProvider extends SortableDataProvider<TaskExecutionTO> {
 
-        private SortableDataProviderComparator comparator =
-                new SortableDataProviderComparator();
+        private SortableDataProviderComparator<TaskExecutionTO> comparator;
 
         private TaskTO taskTO;
 
@@ -234,6 +212,9 @@ public class TaskModalPage extends BaseModalPage {
             //Default sorting
             this.taskTO = taskTO;
             setSort("startDate", true);
+            comparator =
+                    new SortableDataProviderComparator<TaskExecutionTO>(
+                    getSort());
         }
 
         @Override
@@ -265,37 +246,6 @@ public class TaskModalPage extends BaseModalPage {
 
         public List<TaskExecutionTO> getTasksListDB() {
             return taskTO.getExecutions();
-        }
-
-        class SortableDataProviderComparator implements
-                Comparator<TaskExecutionTO>, Serializable {
-
-            public int compare(final TaskExecutionTO o1,
-                    final TaskExecutionTO o2) {
-                PropertyModel<Comparable> model1 =
-                        new PropertyModel<Comparable>(o1,
-                        getSort().getProperty());
-                PropertyModel<Comparable> model2 =
-                        new PropertyModel<Comparable>(o2,
-                        getSort().getProperty());
-
-                int result = 1;
-
-                if (model1.getObject() == null && model2.getObject() == null) {
-                    result = 0;
-                } else if (model1.getObject() == null) {
-                    result = 1;
-                } else if (model2.getObject() == null) {
-                    result = -1;
-                } else {
-                    result = ((Comparable) model1.getObject()).compareTo(
-                            model2.getObject());
-                }
-
-                result = getSort().isAscending() ? result : -result;
-
-                return result;
-            }
         }
     }
 

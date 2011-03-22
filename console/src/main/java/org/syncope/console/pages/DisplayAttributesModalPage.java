@@ -29,7 +29,6 @@ import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.syncope.client.to.ConfigurationTO;
 import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.PreferenceManager;
 import org.syncope.console.rest.SchemaRestClient;
@@ -47,12 +46,10 @@ public class DisplayAttributesModalPage extends BaseModalPage {
 
     private List<String> selections;
 
-    private ConfigurationTO configuration;
-
     public AjaxButton submit;
 
-    public DisplayAttributesModalPage(final BasePage basePage,
-            final ModalWindow window, final boolean createFlag) {
+    public DisplayAttributesModalPage(final Users basePage,
+            final ModalWindow window) {
 
         super();
 
@@ -84,7 +81,7 @@ public class DisplayAttributesModalPage extends BaseModalPage {
                         Constants.PREF_USERS_ATTRIBUTES_VIEW,
                         selections);
 
-                ((Users) basePage).setOperationResult(true);
+                basePage.setModalResult(true);
                 window.close(target);
             }
         };

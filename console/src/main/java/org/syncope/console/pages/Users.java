@@ -17,13 +17,11 @@ package org.syncope.console.pages;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
-import org.apache.commons.httpclient.NameValuePair;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.IAjaxCallDecorator;
-import org.apache.wicket.ajax.calldecorator.AjaxPreprocessingCallDecorator;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -31,6 +29,12 @@ import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuth
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
+import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
+import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.CheckBox;
@@ -39,8 +43,10 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
-import org.apache.wicket.markup.html.list.PageableListView;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
+import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.markup.repeater.Item;
+import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
@@ -49,8 +55,6 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.search.AttributeCond;
 import org.syncope.client.search.MembershipCond;
 import org.syncope.client.search.NodeCond;
-import org.syncope.client.to.PaginatedUserContainer;
-import org.syncope.client.to.AttributeTO;
 import org.syncope.client.to.RoleTO;
 import org.syncope.client.to.UserTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
@@ -59,14 +63,23 @@ import org.syncope.console.commons.PreferenceManager;
 import org.syncope.console.commons.SearchConditionWrapper;
 import org.syncope.console.commons.SearchConditionWrapper.FilterType;
 import org.syncope.console.commons.SearchConditionWrapper.OperationType;
-import org.syncope.console.rest.SchemaRestClient;
+import org.syncope.console.commons.SortableDataProviderComparator;
 import org.syncope.console.rest.RoleRestClient;
+import org.syncope.console.rest.SchemaRestClient;
 import org.syncope.console.rest.UserRestClient;
+import org.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
+import org.syncope.console.wicket.markup.html.form.DeleteLinkPanel;
+import org.syncope.console.wicket.markup.html.form.EditLinkPanel;
 
-/**
- * Users WebPage.
- */
 public class Users extends BasePage {
+
+    private final static int EDIT_MODAL_WIN_HEIGHT = 680;
+
+    private final static int EDIT_MODAL_WIN_WIDTH = 1133;
+
+    private final static int DISPLAYATTRS_MODAL_WIN_HEIGHT = 500;
+
+    private final static int DISPLAYATTRS_MODAL_WIN_WIDTH = 600;
 
     @SpringBean
     private UserRestClient userRestClient;
@@ -80,518 +93,238 @@ public class Users extends BasePage {
     @SpringBean
     private PreferenceManager prefMan;
 
-    private final ModalWindow createUserWin;
+    final private ModalWindow editModalWin;
 
-    private final ModalWindow editUserWin;
+    final private ModalWindow displayAttrsModalWin;
 
-    private final ModalWindow changeAttribsViewWin;
+    final private int paginatorRows = prefMan.getPaginatorRows(
+            getWebRequestCycle().getWebRequest(),
+            Constants.PREF_USERS_PAGINATOR_ROWS);
 
-    private final static int WIN_ATTRIBUTES_HEIGHT = 500;
+    final private int searchPaginatorRows = prefMan.getPaginatorRows(
+            getWebRequestCycle().getWebRequest(),
+            Constants.PREF_USERS_SEARCH_PAGINATOR_ROWS);
 
-    private final static int WIN_ATTRIBUTES_WIDTH = 600;
+    private boolean modalResult = false;
 
-    private final static int WIN_USER_HEIGHT = 680;
+    final private IModel<List<String>> schemaNames =
+            new LoadableDetachableModel<List<String>>() {
 
-    private final static int WIN_USER_WIDTH = 1133;
+                @Override
+                protected List<String> load() {
+                    return schemaRestClient.getAllUserSchemasNames();
+                }
+            };
 
-    private WebMarkupContainer usersTableSearchContainer;
+    final private IModel<List<String>> roleNames =
+            new LoadableDetachableModel<List<String>>() {
 
-    private WebMarkupContainer searchResultsContainer;
+                @Override
+                protected List<String> load() {
+                    List<RoleTO> roleTOs = roleRestClient.getAllRoles();
 
-    private WebMarkupContainer usersTableContainer;
+                    List<String> result = new ArrayList<String>(
+                            roleTOs.size());
+                    for (RoleTO role : roleTOs) {
+                        result.add(role.getDisplayName());
+                    }
 
-    /*
-    Response flag set by the Modal Window after the operation is completed
-     */
-    private boolean operationResult = false;
+                    return result;
+                }
+            };
 
-    private List<SearchConditionWrapper> searchConditionsList;
+    final private IModel<List<AttributeCond.Type>> attributeTypes =
+            new LoadableDetachableModel<List<AttributeCond.Type>>() {
 
-    private int paginatorRows;
+                @Override
+                protected List<AttributeCond.Type> load() {
+                    return Arrays.asList(AttributeCond.Type.values());
+                }
+            };
 
-    private int paginatorSearchRows;
+    final private IModel<List<FilterType>> filterTypes =
+            new LoadableDetachableModel<List<FilterType>>() {
 
-    private int currentViewPage = 1;
+                @Override
+                protected List<FilterType> load() {
+                    return Arrays.asList(FilterType.values());
+                }
+            };
 
-    private int currentSearchPage = 1;
+    private NodeCond searchCond;
 
-    /** Ajax Links for User's view paginator**/
-    private AjaxLink incrementUserViewLink;
-
-    private AjaxLink decrementUserViewLink;
-
-    private AjaxLink firstPageLink;
-
-    private AjaxLink lastPageLink;
-
-    /** Labels for Users' view paginator*/
-    private Label pageRecordFrom;
-
-    private Label pageRecordTo;
-
-    private Label totalRecords;
-
-    /** Ajax Links for Users' search paginator */
-    private AjaxLink incrementUserLinkSearch;
-
-    private AjaxLink decrementUserLinkSearch;
-
-    private AjaxLink firstPageLinkSearch;
-
-    private AjaxLink lastPageLinkSearch;
-
-    /** 
-     * Labels for Users' search paginator
-     */
-    private Label pageRecordFromSearch;
-
-    private Label pageRecordToSearch;
-
-    private Label totalRecordsSearch;
-
-    private List<String> columnList;
-
-    private NodeCond nodeCond;
-
-    private PaginatedUserContainer paginatedUsers;
-
-    private Boolean firstLoad = Boolean.TRUE;
-
-    private PaginatedUserContainer paginatedSearchUsers;
-
-    private ListView navigation;
-
-    private ListView pageLinksSearchView;
-
-    public Users(PageParameters parameters) {
+    public Users(final PageParameters parameters) {
         super(parameters);
 
-        setupSearchConditionsList();
+        // Modal window for editing user attributes
+        editModalWin = new ModalWindow("editModalWin");
+        editModalWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+        editModalWin.setInitialHeight(EDIT_MODAL_WIN_HEIGHT);
+        editModalWin.setInitialWidth(EDIT_MODAL_WIN_WIDTH);
+        editModalWin.setPageMapName("user-edit-modal");
+        editModalWin.setCookieName("user-edit-modal");
+        add(editModalWin);
 
-        add(createUserWin = new ModalWindow("createUserWin"));
-        add(editUserWin = new ModalWindow("editUserWin"));
-        add(changeAttribsViewWin = new ModalWindow("changeAttributesViewWin"));
+        // Modal window for choosing which attributes to display in tables
+        displayAttrsModalWin = new ModalWindow("displayAttrsModalWin");
+        displayAttrsModalWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+        displayAttrsModalWin.setInitialHeight(DISPLAYATTRS_MODAL_WIN_HEIGHT);
+        displayAttrsModalWin.setInitialWidth(DISPLAYATTRS_MODAL_WIN_WIDTH);
+        displayAttrsModalWin.setPageMapName("user-displayAttrs-modal");
+        displayAttrsModalWin.setCookieName("user-displayAttrs-modal");
+        add(displayAttrsModalWin);
 
-        //table's columnsList = attributes to view
-        final IModel columns = new LoadableDetachableModel() {
+        // Container for user list
+        final WebMarkupContainer listContainer =
+                new WebMarkupContainer("listContainer");
+        listContainer.setOutputMarkupId(true);
+        setWindowClosedCallback(editModalWin, listContainer);
+        setWindowClosedCallback(displayAttrsModalWin, listContainer);
+        add(listContainer);
 
-            @Override
-            protected Object load() {
-                columnList = prefMan.getList(
-                        getWebRequestCycle().getWebRequest(),
-                        Constants.PREF_USERS_ATTRIBUTES_VIEW);
+        // Container for user search result
+        final WebMarkupContainer searchResultContainer =
+                new WebMarkupContainer("searchResultContainer");
+        searchResultContainer.setOutputMarkupId(true);
+        setWindowClosedCallback(editModalWin, searchResultContainer);
+        add(searchResultContainer);
 
-                Collections.sort(columnList);
-                return columnList;
-            }
-        };
+        // columns to be displayed in tables
+        List<IColumn<UserTO>> columns = new ArrayList<IColumn<UserTO>>();
+        columns.add(new PropertyColumn(
+                new Model(getString("id")), "id", "id"));
+        columns.add(new PropertyColumn(
+                new Model(getString("status")), "status", "status"));
+        columns.add(new TokenColumn(new Model(getString("token")), "token"));
+        for (String schemaName : prefMan.getList(getWebRequestCycle().
+                getWebRequest(), Constants.PREF_USERS_ATTRIBUTES_VIEW)) {
 
-        ListView columnsView = new ListView("usersSchema", columns) {
-
-            @Override
-            protected void populateItem(final ListItem item) {
-                final String name =
-                        (String) item.getDefaultModelObject();
-
-                item.add(new Label("attribute", name));
-            }
-        };
-
-        paginatorRows = prefMan.getPaginatorRows(
-                getWebRequestCycle().getWebRequest(),
-                Constants.PREF_USERS_PAGINATOR_ROWS);
-
-        paginatorSearchRows = prefMan.getPaginatorRows(
-                getWebRequestCycle().getWebRequest(),
-                Constants.PREF_USERS_SEARCH_PAGINATOR_ROWS);
-
-        LOG.debug("Users list first load with page '{}'", currentViewPage);
-
-        paginatedUsers = userRestClient.getPaginatedUser(
-                currentViewPage, paginatorRows);
-
-        IModel usersModel = new LoadableDetachableModel() {
-
-            @Override
-            protected Object load() {
-
-                if (!firstLoad) {
-                    LOG.debug("Users list load with page '{}'",
-                            currentViewPage);
-
-                    paginatedUsers = userRestClient.getPaginatedUser(
-                            currentViewPage, paginatorRows);
-                } else {
-                    firstLoad = Boolean.FALSE;
-                }
-
-                //Refresh links just after the selecting page click
-                if (incrementUserViewLink != null
-                        && decrementUserViewLink != null
-                        && firstPageLink != null && lastPageLink != null) {
-
-                    int totalPages = (int) Math.ceil(
-                            paginatedUsers.getTotalRecords()
-                            / new Double(paginatedUsers.getPageSize()));
-
-                    if (currentViewPage == totalPages) {
-                        incrementUserViewLink.setEnabled(false);
-                        lastPageLink.setEnabled(false);
-                    } else {
-                        incrementUserViewLink.setEnabled(true);
-                        lastPageLink.setEnabled(true);
-                    }
-
-                    if (currentViewPage == 1) {
-                        decrementUserViewLink.setEnabled(false);
-                        firstPageLink.setEnabled(false);
-                    } else {
-                        decrementUserViewLink.setEnabled(true);
-                        firstPageLink.setEnabled(true);
-                    }
-                }
-
-                if (pageRecordFrom != null && pageRecordTo != null
-                        && totalRecords != null) {
-
-                    //Records indexes for paginator's labels
-                    int firstPageRecord = 1;
-                    int lastPageRecord = paginatedUsers.getRecordsInPage();
-
-                    if (paginatedUsers.getPageNumber() > 1) {
-                        firstPageRecord = (paginatedUsers.getPageSize()
-                                * (paginatedUsers.getPageNumber() - 1)) + 1;
-
-                        lastPageRecord = (paginatedUsers.getPageSize()
-                                * (paginatedUsers.getPageNumber() - 1))
-                                + paginatedUsers.getRecordsInPage();
-                    }
-
-                    pageRecordFrom.setDefaultModelObject(
-                            String.valueOf(firstPageRecord));
-
-                    pageRecordTo.setDefaultModelObject(
-                            String.valueOf(lastPageRecord));
-
-                    totalRecords.setDefaultModelObject(String.valueOf(
-                            paginatedUsers.getTotalRecords()));
-
-                }
-
-
-                return paginatedUsers.getRecords();
-            }
-        };
-
-        usersTableContainer = new WebMarkupContainer("usersTableContainer");
-
-        final PageableListView usersView = new PageableListView<UserTO>(
-                "results", usersModel, paginatorRows) {
+            columns.add(new UserAttrColumn(
+                    new Model<String>(schemaName), schemaName));
+        }
+        columns.add(new AbstractColumn<UserTO>(new Model<String>(getString(
+                "edit"))) {
 
             @Override
-            protected void populateItem(final ListItem<UserTO> item) {
+            public void populateItem(
+                    final Item<ICellPopulator<UserTO>> cellItem,
+                    final String componentId,
+                    final IModel<UserTO> model) {
 
-                final UserTO userTO = item.getModelObject();
+                Panel panel = new EditLinkPanel(componentId, model);
+                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
+                        xmlRolesReader.getAllAllowedRoles("Users", "read"));
 
-                item.add(new Label("id", String.valueOf(userTO.getId())));
-
-                item.add(new Label("status", userTO.getStatus()));
-
-                if (userTO.getToken() != null && !userTO.getToken().isEmpty()) {
-                    item.add(new Label("token", getString("tokenValued")));
-                } else {
-                    item.add(new Label("token", getString("tokenNotValued")));
-                }
-
-                item.add(new ListView<NameValuePair>("selectedAttributes",
-                        attributesToDisplay(userTO)) {
-
-                    @Override
-                    protected void populateItem(
-                            final ListItem<NameValuePair> item) {
-
-                        NameValuePair attribute = item.getModelObject();
-
-                        for (String name : columnList) {
-                            if (name.equalsIgnoreCase(attribute.getName())) {
-                                item.add(new Label("name",
-                                        attribute.getValue()));
-                            }
-                        }
-                    }
-                });
-
-                AjaxLink editLink = new IndicatingAjaxLink("editLink",
-                        new Model(getString("edit"))) {
+                panel.add(new IndicatingAjaxLink("editLink") {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
-                        final UserTO userTO = item.getModelObject();
-
-                        editUserWin.setPageCreator(
+                        editModalWin.setPageCreator(
                                 new ModalWindow.PageCreator() {
 
+                                    @Override
                                     public Page createPage() {
-                                        UserModalPage window =
-                                                new UserModalPage(
-                                                Users.this, editUserWin,
-                                                userTO,
-                                                false);
-                                        return window;
+                                        return new UserModalPage(Users.this,
+                                                editModalWin,
+                                                model.getObject(), false);
                                     }
                                 });
 
-                        editUserWin.show(target);
+                        editModalWin.show(target);
                     }
-                };
+                });
+                cellItem.add(panel);
+            }
+        });
+        columns.add(new AbstractColumn<UserTO>(new Model<String>(getString(
+                "delete"))) {
 
-                item.add(editLink);
+            @Override
+            public void populateItem(
+                    final Item<ICellPopulator<UserTO>> cellItem,
+                    final String componentId,
+                    final IModel<UserTO> model) {
 
-                item.add(new IndicatingAjaxLink("deleteLink", new Model(
-                        getString("delete"))) {
+                Panel panel = new DeleteLinkPanel(componentId, model);
+                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
+                        xmlRolesReader.getAllAllowedRoles("Users", "delete"));
+
+                panel.add(new IndicatingDeleteOnConfirmAjaxLink("deleteLink") {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
-                        userRestClient.deleteUser(
-                                String.valueOf(userTO.getId()));
-
-                        info(getString("operation_succeded"));
+                        try {
+                            userRestClient.delete(model.getObject().getId());
+                            info(getString("operation_succeded"));
+                        } catch (SyncopeClientCompositeErrorException scce) {
+                            error(scce.getMessage());
+                        }
                         target.addComponent(feedbackPanel);
-
-                        target.addComponent(usersTableSearchContainer);
+                        target.addComponent(listContainer);
+                        target.addComponent(searchResultContainer);
                     }
+                });
+                cellItem.add(panel);
+            }
+        });
+
+        final AjaxFallbackDefaultDataTable<UserTO> listTable =
+                new AjaxFallbackDefaultDataTable<UserTO>("listTable",
+                columns, new UserDataProvider(), paginatorRows);
+        listContainer.add(listTable);
+
+        // create new user
+        AjaxLink createLink = new IndicatingAjaxLink("createLink") {
+
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+
+                editModalWin.setPageCreator(new ModalWindow.PageCreator() {
 
                     @Override
-                    protected IAjaxCallDecorator getAjaxCallDecorator() {
-                        return new AjaxPreprocessingCallDecorator(super.getAjaxCallDecorator()) {
+                    public Page createPage() {
+                        return new UserModalPage(Users.this, editModalWin,
+                                new UserTO(), true);
+                    }
+                });
+
+                editModalWin.show(target);
+            }
+        };
+        MetaDataRoleAuthorizationStrategy.authorize(createLink, ENABLE,
+                xmlRolesReader.getAllAllowedRoles("Users", "create"));
+        add(createLink);
+
+        // select attributes to be displayed
+        AjaxLink displayAttrsLink = new IndicatingAjaxLink("displayAttrsLink") {
+
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+
+                displayAttrsModalWin.setPageCreator(
+                        new ModalWindow.PageCreator() {
 
                             @Override
-                            public CharSequence preDecorateScript(
-                                    CharSequence script) {
-
-                                return "if (confirm('" + getString(
-                                        "confirmDelete") + "'))"
-                                        + "{" + script + "}";
+                            public Page createPage() {
+                                return new DisplayAttributesModalPage(
+                                        Users.this, displayAttrsModalWin);
                             }
-                        };
-                    }
-                });
+                        });
+
+                displayAttrsModalWin.show(target);
             }
         };
+        MetaDataRoleAuthorizationStrategy.authorize(displayAttrsLink, ENABLE,
+                xmlRolesReader.getAllAllowedRoles("Users", "changeView"));
+        add(displayAttrsLink);
 
-        usersTableContainer.add(usersView);
-        usersTableContainer.setOutputMarkupId(true);
-
-        incrementUserViewLink = new AjaxLink("incrementLink") {
-
-            @Override
-            public void onClick(final AjaxRequestTarget target) {
-                currentViewPage++;
-
-                //Update pageLinks on paginator
-                List<Integer> pageIdList = getPaginatorIndexes();
-                navigation.setList(pageIdList);
-                target.addChildren(navigation, AjaxLink.class);
-
-                target.addComponent(usersTableContainer);
-            }
-        };
-
-        int totalPages = (int) Math.ceil(paginatedUsers.getTotalRecords()
-                / new Double(paginatedUsers.getPageSize()));
-
-        firstPageLink = new AjaxLink("firstPageLink") {
-
-            @Override
-            public void onClick(final AjaxRequestTarget target) {
-                currentViewPage = 1;
-
-                //Update pageLinks on paginator
-                List<Integer> pageIdList = getPaginatorIndexes();
-                navigation.setList(pageIdList);
-                target.addChildren(navigation, AjaxLink.class);
-
-                target.addComponent(usersTableContainer);
-            }
-        };
-
-        lastPageLink = new AjaxLink("lastPageLink") {
-
-            @Override
-            public void onClick(final AjaxRequestTarget target) {
-                int totalPages = (int) Math.ceil(
-                        paginatedUsers.getTotalRecords()
-                        / new Double(paginatedUsers.getPageSize()));
-                currentViewPage = totalPages;
-
-                //Update pageLinks on paginator
-                List<Integer> pageIdList = getPaginatorIndexes();
-                navigation.setList(pageIdList);
-                target.addChildren(navigation, AjaxLink.class);
-
-                target.addComponent(usersTableContainer);
-            }
-        };
-
-        decrementUserViewLink = new AjaxLink("decrementLink") {
-
-            @Override
-            public void onClick(final AjaxRequestTarget target) {
-                currentViewPage--;
-
-                //Update pageLinks on paginator
-                List<Integer> pageIdList = getPaginatorIndexes();
-                navigation.setList(pageIdList);
-                target.addChildren(navigation, AjaxLink.class);
-
-                target.addComponent(usersTableContainer);
-            }
-        };
-
-        if (currentViewPage >= totalPages) {
-            incrementUserViewLink.setEnabled(false);
-            lastPageLink.setEnabled(false);
-        }
-
-        if (currentViewPage <= 1) {
-            decrementUserViewLink.setEnabled(false);
-            firstPageLink.setEnabled(false);
-        }
-
-        //Add to usersTableSearchContainer users' list navigation controls
-        usersTableContainer.add(incrementUserViewLink);
-        usersTableContainer.add(firstPageLink);
-        usersTableContainer.add(lastPageLink);
-
-        //Records indexes for paginator's labels
-        int firstPageRecord = 1;
-        int lastPageRecord = paginatedUsers.getRecordsInPage();
-
-        if (paginatedUsers.getPageNumber() > 1) {
-            firstPageRecord = (paginatedUsers.getPageSize()
-                    * (paginatedUsers.getPageNumber() - 1)) + 1;
-
-            lastPageRecord = (paginatedUsers.getPageSize()
-                    * (paginatedUsers.getPageNumber() - 1))
-                    + paginatedUsers.getRecordsInPage();
-        }
-
-        usersTableContainer.add(pageRecordFrom = new Label("pageRecordFrom",
-                new Model<String>(String.valueOf(firstPageRecord))));
-
-        usersTableContainer.add(pageRecordTo = new Label("pageRecordTo",
-                new Model<String>(String.valueOf(lastPageRecord))));
-
-        usersTableContainer.add(totalRecords = new Label("totalRecords",
-                new Model<String>(String.valueOf(
-                paginatedUsers.getTotalRecords()))));
-
-        usersTableContainer.add(decrementUserViewLink);
-
-        //Build pages link for paginator
-        List<Integer> pageIdList = getPaginatorIndexes();
-
-        navigation = new ListView("navigation", pageIdList) {
-
-            @Override
-            protected void populateItem(ListItem item) {
-                final int pageId = (Integer) item.getDefaultModelObject();
-
-                AjaxLink pageLink = new AjaxLink("pageLink") {
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target) {
-                        currentViewPage = pageId;
-
-                        //Update pageLinks on paginator
-                        List<Integer> pageIdList = getPaginatorSearchIndexes();
-                        pageLinksSearchView.setList(pageIdList);
-                        target.addChildren(pageLinksSearchView, AjaxLink.class);
-
-                        target.addComponent(usersTableContainer);
-                    }
-                };
-
-                pageLink.setEnabled(currentViewPage != pageId);
-                pageLink.add(new Label("pageNumber", new Model<String>(
-                        String.valueOf(pageId))));
-
-                item.add(pageLink);
-            }
-        };
-
-        usersTableContainer.add(navigation);
-        usersTableContainer.add(columnsView);
-
-        add(usersTableContainer);
-
-        createUserWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
-        createUserWin.setInitialHeight(WIN_USER_HEIGHT);
-        createUserWin.setInitialWidth(WIN_USER_WIDTH);
-        createUserWin.setPageMapName("create-user-modal");
-        createUserWin.setCookieName("create-user-modal");
-
-        editUserWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
-        editUserWin.setInitialHeight(WIN_USER_HEIGHT);
-        editUserWin.setInitialWidth(WIN_USER_HEIGHT);
-        editUserWin.setPageMapName("edit-user-modal");
-        editUserWin.setCookieName("edit-user-modal");
-
-        changeAttribsViewWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
-        changeAttribsViewWin.setInitialHeight(WIN_ATTRIBUTES_HEIGHT);
-        changeAttribsViewWin.setInitialWidth(WIN_ATTRIBUTES_WIDTH);
-        changeAttribsViewWin.setPageMapName("change-attribs-modal");
-        changeAttribsViewWin.setCookieName("change-attribs-modal");
-
-        changeAttribsViewWin.setWindowClosedCallback(
-                new ModalWindow.WindowClosedCallback() {
-
-                    @Override
-                    public void onClose(AjaxRequestTarget target) {
-
-                        if (operationResult) {
-                            getSession().info(getString("operation_succeded"));
-                            setResponsePage(Users.class);
-                        } //When the window is closed without calling backend
-                        else {
-                            target.addComponent(feedbackPanel);
-                        }
-                    }
-                });
-
-        AjaxLink createUserLink = new IndicatingAjaxLink("createUserLink") {
-
-            @Override
-            public void onClick(AjaxRequestTarget target) {
-
-                createUserWin.setPageCreator(new ModalWindow.PageCreator() {
-
-                    public Page createPage() {
-                        UserModalPage window = new UserModalPage(Users.this,
-                                createUserWin, new UserTO(), true);
-                        return window;
-                    }
-                });
-
-                createUserWin.show(target);
-            }
-        };
-
-        String allowedRoles = null;
-
-        allowedRoles = xmlRolesReader.getAllAllowedRoles("Users", "create");
-
-        MetaDataRoleAuthorizationStrategy.authorize(createUserLink, ENABLE,
-                allowedRoles);
-
-        add(createUserLink);
-
-        Form paginatorForm = new Form("PaginatorForm");
-
-        final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser",
+        // rows-per-page management
+        Form paginatorForm = new Form("paginator");
+        add(paginatorForm);
+        final DropDownChoice<Integer> rowsChooser =
+                new DropDownChoice<Integer>("rowsChooser",
                 new PropertyModel(this, "paginatorRows"),
                 prefMan.getPaginatorChoices());
-
         rowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
             @Override
@@ -601,627 +334,89 @@ public class Users extends BasePage {
                         Constants.PREF_USERS_PAGINATOR_ROWS,
                         String.valueOf(paginatorRows));
 
-                usersView.setRowsPerPage(paginatorRows);
+                listTable.setRowsPerPage(paginatorRows);
 
-                //Reload page
-                setResponsePage(Users.class);
+                target.addComponent(listContainer);
             }
         });
-
         paginatorForm.add(rowsChooser);
-        add(paginatorForm);
 
-        AjaxLink changeAttributesViewLink = new IndicatingAjaxLink(
-                "changeAttributesViewLink") {
+        // search form
+        Form searchForm = new Form("searchForm");
+        add(searchForm);
 
-            @Override
-            public void onClick(AjaxRequestTarget target) {
+        searchForm.add(new FeedbackPanel("searchFeedback").setOutputMarkupId(
+                true));
 
-                changeAttribsViewWin.setPageCreator(
-                        new ModalWindow.PageCreator() {
+        final WebMarkupContainer searchFormContainer =
+                new WebMarkupContainer("searchFormContainer");
+        searchFormContainer.setOutputMarkupId(true);
+        setWindowClosedCallback(editModalWin, searchFormContainer);
+        searchForm.add(searchFormContainer);
 
-                            public Page createPage() {
-                                DisplayAttributesModalPage window =
-                                        new DisplayAttributesModalPage(
-                                        Users.this,
-                                        changeAttribsViewWin, true);
-                                return window;
-                            }
-                        });
+        final List<SearchConditionWrapper> searchConditionList =
+                new ArrayList<SearchConditionWrapper>();
+        searchConditionList.add(new SearchConditionWrapper());
 
-                changeAttribsViewWin.show(target);
-            }
-        };
-
-        String allowedViewRoles = null;
-
-        allowedViewRoles = xmlRolesReader.getAllAllowedRoles("Users",
-                "changeView");
-
-        MetaDataRoleAuthorizationStrategy.authorize(changeAttributesViewLink,
-                RENDER, allowedViewRoles);
-
-        add(changeAttributesViewLink);
-
-        //TAB 2 - Search section start
-        final IModel schemaNames = new LoadableDetachableModel() {
-
-            @Override
-            protected Object load() {
-                return schemaRestClient.getAllUserSchemasNames();
-            }
-        };
-
-        final IModel roleNames = new LoadableDetachableModel() {
-
-            @Override
-            protected Object load() {
-                List<RoleTO> roleTOs = roleRestClient.getAllRoles();
-
-                List<String> roleNames = new ArrayList<String>();
-
-                for (RoleTO role : roleTOs) {
-                    roleNames.add(role.getName());
-                }
-
-                return roleNames;
-            }
-        };
-
-        final IModel attributeTypes = new LoadableDetachableModel() {
-
-            @Override
-            protected Object load() {
-                return Arrays.asList(AttributeCond.Type.values());
-            }
-        };
-
-        final IModel filterTypes = new LoadableDetachableModel() {
-
-            @Override
-            protected Object load() {
-                return Arrays.asList(
-                        SearchConditionWrapper.FilterType.values());
-            }
-        };
-
-        Form form = new Form("UserSearchForm");
-
-        form.add(new FeedbackPanel("searchFeedback").setOutputMarkupId(true));
-
-        usersTableSearchContainer = new WebMarkupContainer("container");
-        usersTableSearchContainer.setOutputMarkupId(true);
-
-        setWindowClosedCallback(createUserWin, usersTableContainer);
-        setWindowClosedCallback(editUserWin, usersTableSearchContainer);
-
-        ListView searchView = new ListView("searchView", searchConditionsList) {
-
-            @Override
-            protected void populateItem(final ListItem item) {
-                final SearchConditionWrapper searchCondition =
-                        (SearchConditionWrapper) item.getDefaultModelObject();
-
-                if (item.getIndex() == 0) {
-                    item.add(new Label("operationType", ""));
-                } else {
-                    item.add(new Label("operationType", searchCondition.getOperationType().toString()));
-                }
-
-                item.add(new CheckBox("notOperator",
-                        new PropertyModel(searchCondition,
-                        "notOperator")));
-
-                final DropDownChoice filterNameChooser =
-                        new DropDownChoice("filterName",
-                        new PropertyModel(searchCondition, "filterName"),
-                        (IModel) null);
-                filterNameChooser.setOutputMarkupId(true);
-
-                if (searchCondition.getFilterType() == null) {
-                    filterNameChooser.setChoices(Collections.emptyList());
-                } else if (searchCondition.getFilterType()
-                            == SearchConditionWrapper.FilterType.ATTRIBUTE) {
-                        filterNameChooser.setChoices(schemaNames);
-                    } else {
-                        filterNameChooser.setChoices(roleNames);
-                    }
-
-                filterNameChooser.setRequired(true);
-
-                item.add(filterNameChooser);
-
-                final DropDownChoice type = new DropDownChoice(
-                        "type", new PropertyModel(searchCondition, "type"),
-                        attributeTypes);
-
-                item.add(type);
-
-                final TextField filterValue = new TextField(
-                        "filterValue", new PropertyModel(searchCondition,
-                        "filterValue"));
-
-                item.add(filterValue);
-
-                if (searchCondition.getFilterType()
-                        == SearchConditionWrapper.FilterType.MEMBERSHIP) {
-
-                    type.setEnabled(false);
-                    type.setRequired(false);
-                    type.setModelObject(null);
-
-                    filterValue.setEnabled(false);
-                    filterValue.setModelObject("");
-                } else {
-                    if (!type.isEnabled()) {
-                        type.setEnabled(true);
-                        type.setRequired(true);
-                    }
-                    if (!filterValue.isEnabled()) {
-                        filterValue.setEnabled(true);
-                    }
-                }
-
-                DropDownChoice filterTypeChooser =
-                        new DropDownChoice("filterType",
-                        new PropertyModel(searchCondition, "filterType"),
-                        filterTypes);
-                filterTypeChooser.setOutputMarkupId(true);
-
-                filterTypeChooser.add(new AjaxFormComponentUpdatingBehavior(
-                        "onchange") {
-
-                    @Override
-                    protected void onUpdate(final AjaxRequestTarget target) {
-                        filterNameChooser.setChoices(
-                                new LoadableDetachableModel() {
-
-                                    @Override
-                                    protected Object load() {
-                                        FilterType schemaType =
-                                                searchCondition.getFilterType();
-
-                                        return schemaType
-                                                == FilterType.ATTRIBUTE
-                                                ? schemaNames : roleNames;
-                                    }
-                                });
-                        target.addComponent(filterNameChooser);
-                        target.addComponent(usersTableSearchContainer);
-                    }
-                });
-
-                filterTypeChooser.setRequired(true);
-
-                item.add(filterTypeChooser);
-
-                AjaxButton dropButton = new IndicatingAjaxButton("dropButton",
-                        new Model(getString("dropButton"))) {
-
-                    @Override
-                    protected void onSubmit(AjaxRequestTarget target,
-                            Form form) {
-                        final int parentId = new Integer(getParent().getId());
-                        searchConditionsList.remove(parentId);
-                        target.addComponent(usersTableSearchContainer);
-                    }
-                };
-
-                dropButton.setDefaultFormProcessing(false);
-
-                if (item.getIndex() == 0) {
-                    dropButton.setVisible(false);
-                }
-
-                item.add(dropButton);
-            }
-        };
-
-        usersTableSearchContainer.add(searchView);
+        searchFormContainer.add(new SearchView("searchView",
+                searchConditionList, searchFormContainer));
 
         AjaxButton addAndButton = new IndicatingAjaxButton("addAndButton",
                 new Model(getString("addAndButton"))) {
 
             @Override
-            protected void onSubmit(AjaxRequestTarget target, Form form) {
+            protected void onSubmit(final AjaxRequestTarget target,
+                    final Form form) {
+
                 SearchConditionWrapper conditionWrapper =
                         new SearchConditionWrapper();
                 conditionWrapper.setOperationType(OperationType.AND);
-                searchConditionsList.add(conditionWrapper);
-                target.addComponent(usersTableSearchContainer);
+                searchConditionList.add(conditionWrapper);
+                target.addComponent(searchFormContainer);
             }
         };
-
         addAndButton.setDefaultFormProcessing(false);
-        usersTableSearchContainer.add(addAndButton);
+        searchFormContainer.add(addAndButton);
 
         AjaxButton addOrButton = new IndicatingAjaxButton("addOrButton",
                 new Model(getString("addOrButton"))) {
 
             @Override
-            protected void onSubmit(AjaxRequestTarget target, Form form) {
+            protected void onSubmit(final AjaxRequestTarget target,
+                    final Form form) {
+
                 SearchConditionWrapper conditionWrapper =
                         new SearchConditionWrapper();
                 conditionWrapper.setOperationType(OperationType.OR);
-                searchConditionsList.add(conditionWrapper);
-                target.addComponent(usersTableSearchContainer);
+                searchConditionList.add(conditionWrapper);
+                target.addComponent(searchFormContainer);
             }
         };
-
         addOrButton.setDefaultFormProcessing(false);
-        usersTableSearchContainer.add(addOrButton);
-
-        form.add(usersTableSearchContainer);
-
-        searchResultsContainer =
-                new WebMarkupContainer("searchResultsContainer");
-
-        //Display warning message if no search matches have been found
-        final Label noResults = new Label("noResults", new Model<String>(""));
-        noResults.setOutputMarkupId(true);
-        searchResultsContainer.add(noResults);
-
-        IModel resultsModel = new LoadableDetachableModel() {
-
-            @Override
-            protected Object load() {
-
-                LOG.debug("Search with page '{}' and condition {}",
-                        currentSearchPage, nodeCond);
-
-                if (nodeCond != null) {
-
-                    paginatedSearchUsers = userRestClient.paginatedSearchUser(
-                            nodeCond, currentSearchPage, paginatorSearchRows);
-
-                    //Update pageLinks on paginator
-                    List<Integer> pageIdList = getPaginatorSearchIndexes();
-                    pageLinksSearchView.setList(pageIdList);
-
-                    //Refresh links just after the selecting page click
-                    if (incrementUserLinkSearch != null
-                            && decrementUserLinkSearch != null
-                            && firstPageLinkSearch != null
-                            && lastPageLinkSearch != null) {
-
-                        int totalPages = (int) Math.ceil(
-                                paginatedSearchUsers.getTotalRecords()
-                                / new Double(
-                                paginatedSearchUsers.getPageSize()));
-
-                        if (currentSearchPage >= totalPages) {
-                            incrementUserLinkSearch.setEnabled(false);
-                            lastPageLinkSearch.setEnabled(false);
-                        } else {
-                            incrementUserLinkSearch.setEnabled(true);
-                            lastPageLinkSearch.setEnabled(true);
-                        }
-
-                        if (currentSearchPage <= 1) {
-                            decrementUserLinkSearch.setEnabled(false);
-                            firstPageLinkSearch.setEnabled(false);
-                        } else {
-                            decrementUserLinkSearch.setEnabled(true);
-                            firstPageLinkSearch.setEnabled(true);
-                        }
-
-                        if (paginatedSearchUsers.getRecords().isEmpty()) {
-                            noResults.setDefaultModel(new Model<String>(
-                                    getString("search_noResults")));
-                        } else {
-                            noResults.setDefaultModel(new Model<String>(""));
-                        }
-                    }
-
-                    if (pageRecordFromSearch != null
-                            && pageRecordToSearch != null
-                            && totalRecordsSearch != null) {
-
-                        //Records indexes for paginator's labels
-                        int firstPageRecord = 1;
-                        int lastPageRecord = paginatedSearchUsers.getRecordsInPage();
-
-                        if (paginatedSearchUsers.getPageNumber() > 1) {
-                            firstPageRecord = 1
-                                    + (paginatedSearchUsers.getPageSize()
-                                    * (paginatedSearchUsers.getPageNumber()
-                                    - 1));
-
-                            lastPageRecord = (paginatedSearchUsers.getPageSize()
-                                    * (paginatedSearchUsers.getPageNumber()
-                                    - 1))
-                                    + paginatedSearchUsers.getRecordsInPage();
-                        }
-
-                        if (paginatedSearchUsers.getRecordsInPage() == 0) {
-                            lastPageRecord = 0;
-                            firstPageRecord = 0;
-
-                            firstPageLinkSearch.setEnabled(false);
-                            incrementUserLinkSearch.setEnabled(false);
-                            lastPageLinkSearch.setEnabled(false);
-                            incrementUserLinkSearch.setEnabled(false);
-                        }
-
-                        pageRecordFromSearch.setDefaultModelObject(
-                                String.valueOf(firstPageRecord));
-
-                        pageRecordToSearch.setDefaultModelObject(
-                                String.valueOf(lastPageRecord));
-
-                        totalRecordsSearch.setDefaultModelObject(String.valueOf(
-                                paginatedSearchUsers.getTotalRecords()));
-
-                    }
-                    return paginatedSearchUsers.getRecords();
-                } else {
-                    return paginatedSearchUsers != null
-                            && paginatedSearchUsers.getRecords() != null
-                            ? paginatedSearchUsers.getRecords()
-                            : Collections.emptyList();
-                }
-            }
-        };
-
-        final PageableListView resultsView = new PageableListView<UserTO>(
-                "results", resultsModel, paginatorSearchRows) {
-
-            @Override
-            protected void populateItem(final ListItem<UserTO> item) {
-                final UserTO userTO = item.getModelObject();
-
-                item.add(new Label("id", String.valueOf(userTO.getId())));
-
-                item.add(new Label("status", userTO.getStatus()));
-
-                if (userTO.getToken() != null && !userTO.getToken().isEmpty()) {
-                    item.add(new Label("token", getString("tokenValued")));
-                } else {
-                    item.add(new Label("token", getString("tokenNotValued")));
-                }
-
-                AjaxButton editButton = new IndicatingAjaxButton("editLink",
-                        new Model(getString("edit"))) {
-
-                    @Override
-                    protected void onSubmit(final AjaxRequestTarget target,
-                            final Form form) {
-
-                        editUserWin.setPageCreator(
-                                new ModalWindow.PageCreator() {
-
-                                    @Override
-                                    public Page createPage() {
-                                        return new UserModalPage(
-                                                Users.this,
-                                                editUserWin,
-                                                userTO,
-                                                false);
-                                    }
-                                });
-
-                        editUserWin.show(target);
-                    }
-                };
-
-                item.add(editButton);
-
-                item.add(new IndicatingAjaxLink("deleteLink", new Model(
-                        getString("delete"))) {
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target) {
-                        userRestClient.deleteUser(
-                                String.valueOf(userTO.getId()));
-
-                        info(getString("operation_succeded"));
-                        target.addComponent(feedbackPanel);
-
-                        target.addComponent(usersTableContainer);
-                    }
-                });
-            }
-        };
-
-        searchResultsContainer.setOutputMarkupId(true);
-        searchResultsContainer.add(resultsView);
-
-        /** SEARCH PAGiNATOR START */
-        incrementUserLinkSearch = new AjaxLink("incrementLink") {
-
-            @Override
-            public void onClick(AjaxRequestTarget target) {
-                currentSearchPage++;
-
-                //Update pageLinks on paginator
-                List<Integer> pageIdList = getPaginatorIndexes();
-                pageLinksSearchView.setList(pageIdList);
-                target.addChildren(pageLinksSearchView, AjaxLink.class);
-
-                target.addComponent(searchResultsContainer);
-            }
-        };
-
-        //Check if it is not null
-        int totalSearchPages = 0;
-        if (paginatedSearchUsers != null) {
-            totalSearchPages = (int) Math.ceil(
-                    paginatedSearchUsers.getTotalRecords()
-                    / new Double(paginatedSearchUsers.getPageSize()));
-        }
-
-        firstPageLinkSearch = new AjaxLink("firstPageLink") {
-
-            @Override
-            public void onClick(AjaxRequestTarget target) {
-                currentSearchPage = 1;
-
-                //Update pageLinks on paginator
-                List<Integer> pageIdList = getPaginatorSearchIndexes();
-                pageLinksSearchView.setList(pageIdList);
-                target.addChildren(pageLinksSearchView, AjaxLink.class);
-
-                target.addComponent(searchResultsContainer);
-            }
-        };
-
-        lastPageLinkSearch = new AjaxLink("lastPageLink") {
-
-            @Override
-            public void onClick(AjaxRequestTarget target) {
-                int totalPages = (int) Math.ceil(paginatedSearchUsers.getTotalRecords() / new Double(
-                        paginatedSearchUsers.getPageSize()));
-                currentSearchPage = totalPages;
-
-                //Update pageLinks on paginator
-                List<Integer> pageIdList = getPaginatorSearchIndexes();
-                pageLinksSearchView.setList(pageIdList);
-                target.addChildren(pageLinksSearchView, AjaxLink.class);
-
-                target.addComponent(searchResultsContainer);
-            }
-        };
-
-        decrementUserLinkSearch = new AjaxLink("decrementLink") {
-
-            @Override
-            public void onClick(AjaxRequestTarget target) {
-                currentSearchPage--;
-
-                //Update pageLinks on paginator
-                List<Integer> pageIdList = getPaginatorSearchIndexes();
-                pageLinksSearchView.setList(pageIdList);
-                target.addChildren(pageLinksSearchView, AjaxLink.class);
-
-                target.addComponent(searchResultsContainer);
-            }
-        };
-
-        if (currentSearchPage >= totalSearchPages) {
-            incrementUserLinkSearch.setEnabled(false);
-            lastPageLinkSearch.setEnabled(false);
-        } else {
-            incrementUserLinkSearch.setEnabled(true);
-            lastPageLinkSearch.setEnabled(true);
-        }
-
-        if (currentSearchPage <= 1) {
-            decrementUserLinkSearch.setEnabled(false);
-            firstPageLinkSearch.setEnabled(false);
-        } else {
-            decrementUserLinkSearch.setEnabled(true);
-            firstPageLinkSearch.setEnabled(true);
-        }
-
-        if (paginatedSearchUsers == null) {
-            incrementUserLinkSearch.setEnabled(false);
-            lastPageLinkSearch.setEnabled(false);
-            firstPageLinkSearch.setEnabled(false);
-            decrementUserLinkSearch.setEnabled(false);
-        }
-
-        searchResultsContainer.add(incrementUserLinkSearch);
-        searchResultsContainer.add(firstPageLinkSearch);
-        searchResultsContainer.add(lastPageLinkSearch);
-
-        //Records indexes for paginator's labels
-        int firstPageRecordSearch = 1;
-        int lastPageRecordSearch = 1;
-
-        if (paginatedSearchUsers != null) {
-            lastPageRecordSearch = paginatedSearchUsers.getRecordsInPage();
-
-            if (paginatedSearchUsers.getPageNumber() > 1) {
-                firstPageRecordSearch = (paginatedSearchUsers.getPageSize()
-                        * (paginatedSearchUsers.getPageNumber() - 1)) + 1;
-
-                lastPageRecordSearch = (paginatedSearchUsers.getPageSize()
-                        * (paginatedSearchUsers.getPageNumber() - 1))
-                        + paginatedSearchUsers.getRecordsInPage();
-            }
-        } else {
-            firstPageRecordSearch = 0;
-            lastPageRecordSearch = 0;
-        }
-
-        searchResultsContainer.add(pageRecordFromSearch = new Label(
-                "pageRecordFrom",
-                new Model<String>(String.valueOf(firstPageRecordSearch))));
-
-        searchResultsContainer.add(pageRecordToSearch = new Label(
-                "pageRecordTo",
-                new Model<String>(String.valueOf(lastPageRecordSearch))));
-
-        if (paginatedSearchUsers != null) {
-            searchResultsContainer.add(totalRecordsSearch = new Label(
-                    "totalRecords",
-                    new Model<String>(String.valueOf(paginatedSearchUsers.getTotalRecords()))));
-        } else {
-            searchResultsContainer.add(totalRecordsSearch = new Label(
-                    "totalRecords",
-                    new Model<String>("0")));
-        }
-
-        searchResultsContainer.add(decrementUserLinkSearch);
-
-        //Build pages link for paginator
-        List<Integer> pageIdListSearch = getPaginatorSearchIndexes();
-
-        pageLinksSearchView = new ListView("navigation", pageIdListSearch) {
-
-            @Override
-            protected void populateItem(final ListItem item) {
-                final int pageId = (Integer) item.getDefaultModelObject();
-
-                AjaxLink pageLink = new AjaxLink("pageLink") {
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target) {
-                        currentSearchPage = pageId;
-                        nodeCond = buildSearchExpression(searchConditionsList);
-
-                        LOG.debug("Node condition " + nodeCond);
-
-                        if (nodeCond == null || !nodeCond.checkValidity()) {
-                            error(getString("search_error"));
-                            return;
-                        }
-
-                        target.addComponent(searchResultsContainer);
-                    }
-                };
-
-                pageLink.setEnabled(currentSearchPage != pageId);
-
-                pageLink.add(new Label("pageNumber", new Model<String>(
-                        String.valueOf(pageId))));
-
-                item.add(pageLink);
-            }
-        };
-
-        searchResultsContainer.add(pageLinksSearchView);
-
-        /** SEARCH PAGiNATOR END */
-        setWindowClosedCallback(editUserWin, searchResultsContainer);
-
-        form.add(new IndicatingAjaxButton("search", new Model(
+        searchFormContainer.add(addOrButton);
+
+        // search result
+        final AjaxFallbackDefaultDataTable<UserTO> searchResultTable =
+                new AjaxFallbackDefaultDataTable<UserTO>("searchResultTable",
+                columns, new UserSearchDataProvider(), searchPaginatorRows);
+        searchResultTable.setOutputMarkupId(true);
+        searchResultContainer.add(searchResultTable);
+        searchForm.add(new IndicatingAjaxButton("search", new Model(
                 getString("search"))) {
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target,
-                    final Form form) {
+                    final Form<?> form) {
 
-                nodeCond = buildSearchExpression(searchConditionsList);
+                searchCond = buildSearchCond(searchConditionList);
+                LOG.debug("Node condition " + searchCond);
 
-                LOG.debug("Node condition " + nodeCond);
-
-                if (nodeCond == null || !nodeCond.checkValidity()) {
+                if (searchCond == null || !searchCond.checkValidity()) {
                     error(getString("search_error"));
                     return;
                 }
 
-                target.addComponent(searchResultsContainer);
+                target.addComponent(searchResultTable);
             }
 
             @Override
@@ -1232,185 +427,63 @@ public class Users extends BasePage {
             }
         });
 
-        add(form);
-
-        form.add(searchResultsContainer);
-
-        Form paginatorSearchForm = new Form("PaginatorSearchForm");
-
-        final DropDownChoice rowsSearchChooser = new DropDownChoice(
-                "rowsSearchChooser",
-                new PropertyModel(this, "paginatorSearchRows"),
+        // search rows-per-page management
+        Form searchPaginatorForm = new Form("searchPaginator");
+        add(searchPaginatorForm);
+        final DropDownChoice<Integer> searchRowsChooser =
+                new DropDownChoice<Integer>("searchRowsChooser",
+                new PropertyModel(this, "searchPaginatorRows"),
                 prefMan.getPaginatorChoices());
-
-        rowsSearchChooser.add(
+        searchRowsChooser.add(
                 new AjaxFormComponentUpdatingBehavior("onchange") {
 
                     @Override
                     protected void onUpdate(final AjaxRequestTarget target) {
-
                         prefMan.set(getWebRequestCycle().getWebRequest(),
                                 getWebRequestCycle().getWebResponse(),
                                 Constants.PREF_USERS_SEARCH_PAGINATOR_ROWS,
-                                String.valueOf(paginatorSearchRows));
+                                String.valueOf(searchPaginatorRows));
 
-                        resultsView.setRowsPerPage(paginatorSearchRows);
+                        searchResultTable.setRowsPerPage(searchPaginatorRows);
 
-                        nodeCond = buildSearchExpression(searchConditionsList);
-
-                        if (nodeCond != null && nodeCond.checkValidity()) {
-                            target.addComponent(searchResultsContainer);
-                        }
+                        target.addComponent(searchResultContainer);
                     }
                 });
-
-        paginatorSearchForm.add(rowsSearchChooser);
-
-        add(paginatorSearchForm);
+        searchPaginatorForm.add(searchRowsChooser);
     }
 
-    public PaginatedUserContainer getPaginatedUsers(int page, int size) {
-
-        PaginatedUserContainer paginatedResult =
-                userRestClient.getPaginatedUser(page, size);
-
-        return paginatedResult;
-    }
-
-    /**
-     * Refresh paginator after page link click.
-     */
-    public List<Integer> getPaginatorIndexes() {
-        int totalPages = (int) Math.ceil(paginatedUsers.getTotalRecords()
-                / new Double(paginatedUsers.getPageSize()));
-
-        //Build pages link for paginator
-        List<Integer> pageIdList = new ArrayList<Integer>();
-
-        int startIndex = 1;
-
-        if (totalPages > 10) {
-            if (currentViewPage < 10) {
-                startIndex = 1;
-            } else {
-                startIndex = currentViewPage - 2;
-            }
-        }
-
-        int endIndex = totalPages;
-
-        if (totalPages > 10) {
-
-            if (startIndex + 9 <= totalPages) {
-                endIndex = startIndex + 9;
-            } else {
-                endIndex = startIndex + (totalPages - startIndex);
-            }
-        }
-
-        for (int i = startIndex; i <= endIndex; i++) {
-            pageIdList.add(i);
-        }
-
-        return pageIdList;
-    }
-
-    /**
-     * Return the user's attributes columnsList to display, ordered.
-     * @param user instance
-     * @return attributes columnsList to view depending the selection
-     */
-    public List<NameValuePair> attributesToDisplay(final UserTO user) {
-        List<NameValuePair> attrList = new ArrayList<NameValuePair>();
-
-        columnList = prefMan.getList(getWebRequestCycle().getWebRequest(),
-                Constants.PREF_USERS_ATTRIBUTES_VIEW);
-        Collections.sort(columnList);
-
-        NameValuePair attributeWrapper = null;
-
-        boolean found = false;
-        for (String name : columnList) {
-            for (AttributeTO attribute : user.getAttributes()) {
-                if (name.equals(attribute.getSchema()) && !found) {
-                    attributeWrapper = new NameValuePair();
-                    attributeWrapper.setName(attribute.getSchema());
-                    for (String value : attribute.getValues()) {
-                        attributeWrapper.setValue(value);
-                        found = true;
-                    }
-                    attrList.add(attributeWrapper);
-                }
-            }
-            //case the attribute's value is blank
-            if (!found) {
-                attributeWrapper = new NameValuePair();
-                attributeWrapper.setName(name);
-                attributeWrapper.setValue("");
-
-                attrList.add(attributeWrapper);
-            } else {
-                found = false;
-            }
-        }
-
-        return attrList;
-    }
-
-    /**
-     * Set a WindowClosedCallback for a ModalWindow instance.
-     * @param window
-     * @param usersTableSearchContainer
-     */
-    public final void setWindowClosedCallback(final ModalWindow window,
+    private void setWindowClosedCallback(final ModalWindow window,
             final WebMarkupContainer container) {
 
         window.setWindowClosedCallback(
                 new ModalWindow.WindowClosedCallback() {
 
-                    public void onClose(AjaxRequestTarget target) {
+                    @Override
+                    public void onClose(final AjaxRequestTarget target) {
                         target.addComponent(container);
                         target.addComponent(feedbackPanel);
 
-                        if (operationResult) {
+                        if (modalResult) {
                             info(getString("operation_succeded"));
-                            operationResult = false;
+                            modalResult = false;
                         }
                     }
                 });
     }
 
-    public boolean isOperationResult() {
-        return operationResult;
+    public void setModalResult(final boolean modalResult) {
+        this.modalResult = modalResult;
     }
 
-    public void setOperationResult(boolean operationResult) {
-        this.operationResult = operationResult;
-    }
-
-    /**
-     * Init search conditions list.
-     */
-    private void setupSearchConditionsList() {
-        searchConditionsList = new ArrayList<SearchConditionWrapper>();
-        searchConditionsList.add(new SearchConditionWrapper());
-    }
-
-    /**
-     * Build recursively search users expression from searchConditionsList.
-     * @return NodeCond
-     */
-    public NodeCond buildSearchExpression(
+    private NodeCond buildSearchCond(
             final List<SearchConditionWrapper> conditions) {
 
-        SearchConditionWrapper searchConditionWrapper = conditions.iterator().
-                next();
+        SearchConditionWrapper searchConditionWrapper =
+                conditions.iterator().next();
 
         AttributeCond attributeCond = null;
         MembershipCond membershipCond = null;
-        if (searchConditionWrapper.getFilterType()
-                == SearchConditionWrapper.FilterType.ATTRIBUTE) {
-
+        if (searchConditionWrapper.getFilterType() == FilterType.ATTRIBUTE) {
             attributeCond = new AttributeCond();
             attributeCond.setSchema(searchConditionWrapper.getFilterName());
             attributeCond.setType(searchConditionWrapper.getType());
@@ -1451,21 +524,21 @@ public class Users extends BasePage {
                     if (attributeCond != null) {
                         return NodeCond.getAndCond(
                                 NodeCond.getLeafCond(attributeCond),
-                                buildSearchExpression(subList));
+                                buildSearchCond(subList));
                     } else {
                         return NodeCond.getAndCond(
                                 NodeCond.getLeafCond(membershipCond),
-                                buildSearchExpression(subList));
+                                buildSearchCond(subList));
                     }
                 } else {
                     if (attributeCond != null) {
                         return NodeCond.getAndCond(
                                 NodeCond.getLeafCond(attributeCond),
-                                buildSearchExpression(subList));
+                                buildSearchCond(subList));
                     } else {
                         return NodeCond.getAndCond(
                                 NodeCond.getLeafCond(membershipCond),
-                                buildSearchExpression(subList));
+                                buildSearchCond(subList));
                     }
                 }
             } else {
@@ -1474,67 +547,284 @@ public class Users extends BasePage {
                     if (attributeCond != null) {
                         return NodeCond.getOrCond(
                                 NodeCond.getLeafCond(attributeCond),
-                                buildSearchExpression(subList));
+                                buildSearchCond(subList));
                     } else {
                         return NodeCond.getOrCond(
                                 NodeCond.getLeafCond(membershipCond),
-                                buildSearchExpression(subList));
+                                buildSearchCond(subList));
                     }
                 } else {
                     if (attributeCond != null) {
                         return NodeCond.getOrCond(
                                 NodeCond.getLeafCond(attributeCond),
-                                buildSearchExpression(subList));
+                                buildSearchCond(subList));
                     } else {
                         return NodeCond.getOrCond(
                                 NodeCond.getLeafCond(membershipCond),
-                                buildSearchExpression(subList));
+                                buildSearchCond(subList));
                     }
                 }
             }
         }
     }
 
-    /**
-     * Refresh paginator search after page link click.
-     */
-    public List<Integer> getPaginatorSearchIndexes() {
-        int totalPages;
+    private class UserDataProvider extends SortableDataProvider<UserTO> {
 
-        if (paginatedSearchUsers != null) {
-            totalPages = (int) Math.ceil(paginatedSearchUsers.getTotalRecords()
-                    / new Double(paginatedSearchUsers.getPageSize()));
-        } else {
-            totalPages = 0;
+        private SortableDataProviderComparator<UserTO> comparator;
+
+        public UserDataProvider() {
+            super();
+            //Default sorting
+            setSort("id", true);
+            comparator = new SortableDataProviderComparator<UserTO>(getSort());
         }
 
-        //Build pages link for paginator
-        List<Integer> pageIdList = new ArrayList<Integer>();
+        @Override
+        public Iterator<UserTO> iterator(final int first, final int count) {
+            List<UserTO> users = userRestClient.list(
+                    (first / paginatorRows) + 1, count);
+            Collections.sort(users, comparator);
+            return users.iterator();
+        }
 
-        int startIndex = 1;
+        @Override
+        public int size() {
+            return userRestClient.count();
+        }
 
-        if (totalPages > 10) {
-            if (currentSearchPage < 10) {
-                startIndex = 1;
+        @Override
+        public IModel<UserTO> model(final UserTO object) {
+            return new CompoundPropertyModel<UserTO>(object);
+        }
+    }
+
+    private class UserSearchDataProvider extends SortableDataProvider<UserTO> {
+
+        private SortableDataProviderComparator<UserTO> comparator;
+
+        public UserSearchDataProvider() {
+            super();
+            //Default sorting
+            setSort("id", true);
+            comparator = new SortableDataProviderComparator<UserTO>(getSort());
+        }
+
+        @Override
+        public Iterator<UserTO> iterator(final int first, final int count) {
+            List<UserTO> users;
+            if (searchCond == null) {
+                users = Collections.EMPTY_LIST;
             } else {
-                startIndex = currentSearchPage - 2;
+                users = userRestClient.search(searchCond,
+                        (first / paginatorRows) + 1, count);
+                Collections.sort(users, comparator);
+            }
+
+            return users.iterator();
+        }
+
+        @Override
+        public int size() {
+            return searchCond == null
+                    ? 0 : userRestClient.searchCount(searchCond);
+        }
+
+        @Override
+        public IModel<UserTO> model(final UserTO object) {
+            return new CompoundPropertyModel<UserTO>(object);
+        }
+    }
+
+    private class TokenColumn extends AbstractColumn<UserTO> {
+
+        public TokenColumn(final IModel<String> displayModel,
+                final String sortProperty) {
+
+            super(displayModel, sortProperty);
+        }
+
+        @Override
+        public void populateItem(final Item<ICellPopulator<UserTO>> cellItem,
+                final String componentId,
+                final IModel<UserTO> rowModel) {
+
+            if (rowModel.getObject().getToken() != null
+                    && !rowModel.getObject().getToken().isEmpty()) {
+                cellItem.add(
+                        new Label(componentId, getString("tokenValued")));
+            } else {
+                cellItem.add(
+                        new Label(componentId, getString("tokenNotValued")));
             }
         }
+    }
 
-        int endIndex = totalPages;
+    private static class UserAttrColumn extends AbstractColumn<UserTO> {
 
-        if (totalPages > 10) {
-            if (startIndex + 9 <= totalPages) {
-                endIndex = startIndex + 9;
+        private final String schemaName;
+
+        public UserAttrColumn(final IModel<String> displayModel,
+                final String schemaName) {
+
+            super(displayModel);
+            this.schemaName = schemaName;
+        }
+
+        @Override
+        public void populateItem(
+                final Item<ICellPopulator<UserTO>> cellItem,
+                final String componentId,
+                final IModel<UserTO> rowModel) {
+
+            Label label;
+
+            List<String> values =
+                    rowModel.getObject().getAttributeMap().get(schemaName);
+            if (values == null || values.isEmpty()) {
+                label = new Label(componentId, "");
             } else {
-                endIndex = startIndex + (totalPages - startIndex);
+                if (values.size() == 1) {
+                    label = new Label(componentId, values.iterator().next());
+                } else {
+                    label = new Label(componentId, values.toString());
+                }
             }
+
+            cellItem.add(label);
+        }
+    }
+
+    private class SearchView extends ListView<SearchConditionWrapper> {
+
+        final private WebMarkupContainer searchFormContainer;
+
+        public SearchView(final String id,
+                final List<? extends SearchConditionWrapper> list,
+                final WebMarkupContainer searchFormContainer) {
+
+            super(id, list);
+            this.searchFormContainer = searchFormContainer;
         }
 
-        for (int i = startIndex; i <= endIndex; i++) {
-            pageIdList.add(i);
-        }
+        @Override
+        protected void populateItem(
+                final ListItem<SearchConditionWrapper> item) {
 
-        return pageIdList;
+            final SearchConditionWrapper searchCondition =
+                    item.getModelObject();
+
+            if (item.getIndex() == 0) {
+                item.add(new Label("operationType", ""));
+            } else {
+                item.add(new Label("operationType",
+                        searchCondition.getOperationType().
+                        toString()));
+            }
+
+            item.add(new CheckBox("notOperator",
+                    new PropertyModel(searchCondition,
+                    "notOperator")));
+
+            final DropDownChoice<String> filterNameChooser =
+                    new DropDownChoice<String>("filterName",
+                    new PropertyModel<String>(
+                    searchCondition, "filterName"), (IModel) null);
+            filterNameChooser.setOutputMarkupId(true);
+
+            if (searchCondition.getFilterType() == null) {
+                filterNameChooser.setChoices(
+                        Collections.EMPTY_LIST);
+            } else if (searchCondition.getFilterType()
+                    == FilterType.ATTRIBUTE) {
+
+                filterNameChooser.setChoices(schemaNames);
+            } else {
+                filterNameChooser.setChoices(roleNames);
+            }
+
+            filterNameChooser.setRequired(true);
+
+            item.add(filterNameChooser);
+
+            final DropDownChoice<AttributeCond.Type> type =
+                    new DropDownChoice<AttributeCond.Type>(
+                    "type", new PropertyModel<AttributeCond.Type>(
+                    searchCondition, "type"),
+                    attributeTypes);
+            item.add(type);
+
+            final TextField<String> filterValue =
+                    new TextField<String>("filterValue",
+                    new PropertyModel<String>(searchCondition,
+                    "filterValue"));
+            item.add(filterValue);
+
+            if (searchCondition.getFilterType()
+                    == FilterType.MEMBERSHIP) {
+
+                type.setEnabled(false);
+                type.setRequired(false);
+                type.setModelObject(null);
+
+                filterValue.setEnabled(false);
+                filterValue.setModelObject("");
+            } else {
+                if (!type.isEnabled()) {
+                    type.setEnabled(true);
+                    type.setRequired(true);
+                }
+                if (!filterValue.isEnabled()) {
+                    filterValue.setEnabled(true);
+                }
+            }
+
+            DropDownChoice<FilterType> filterTypeChooser =
+                    new DropDownChoice<FilterType>("filterType",
+                    new PropertyModel<FilterType>(searchCondition,
+                    "filterType"), filterTypes);
+            filterTypeChooser.setOutputMarkupId(true);
+
+            filterTypeChooser.add(
+                    new AjaxFormComponentUpdatingBehavior(
+                    "onchange") {
+
+                        @Override
+                        protected void onUpdate(
+                                final AjaxRequestTarget target) {
+
+                            filterNameChooser.setChoices(searchCondition.
+                                    getFilterType() == FilterType.ATTRIBUTE
+                                    ? schemaNames : roleNames);
+                            target.addComponent(filterNameChooser);
+                            target.addComponent(searchFormContainer);
+                        }
+                    });
+
+            filterTypeChooser.setRequired(true);
+
+            item.add(filterTypeChooser);
+
+            AjaxButton dropButton = new IndicatingAjaxButton(
+                    "dropButton", new Model(getString("dropButton"))) {
+
+                @Override
+                protected void onSubmit(
+                        final AjaxRequestTarget target,
+                        final Form form) {
+
+                    getList().remove(
+                            Integer.valueOf(getParent().getId()).intValue());
+                    target.addComponent(searchFormContainer);
+                }
+            };
+
+            dropButton.setDefaultFormProcessing(false);
+
+            if (item.getIndex() == 0) {
+                dropButton.setVisible(false);
+            }
+
+            item.add(dropButton);
+        }
     }
 }

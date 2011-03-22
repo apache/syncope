@@ -16,11 +16,12 @@ package org.syncope.core.persistence.dao;
 
 import java.util.List;
 import java.util.Set;
-import org.syncope.client.to.PaginatedUserContainer;
 import org.syncope.client.search.NodeCond;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 
 public interface UserSearchDAO extends DAO {
+
+    Integer count(Set<Long> adminRoles, NodeCond searchCondition);
 
     /**
      * @param adminRoles the set of admin roles owned by the caller
@@ -34,11 +35,8 @@ public interface UserSearchDAO extends DAO {
      * @param searchCondition the search condition
      * @param page position of the first result, start from 1
      * @param itemsPerPage number of results per page
-     * @param paginatedResult result to be sent to the REST caller
      * @return the list of users matchin the given search condition
      */
     List<SyncopeUser> search(Set<Long> adminRoles,
-            NodeCond searchCondition,
-            int page, int itemsPerPage,
-            PaginatedUserContainer paginatedResult);
+            NodeCond searchCondition, int page, int itemsPerPage);
 }

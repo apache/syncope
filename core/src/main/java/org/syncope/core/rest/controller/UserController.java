@@ -46,7 +46,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.ModelAndView;
 import org.syncope.client.mod.UserMod;
 import org.syncope.client.search.NodeCond;
-import org.syncope.client.to.PaginatedUserContainer;
 import org.syncope.client.to.UserTO;
 import org.syncope.client.to.WorkflowActionsTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
@@ -196,6 +195,25 @@ public class UserController extends AbstractController {
         return new ModelAndView().addObject(userDAO.count(adminRoleIds));
     }
 
+    @PreAuthorize("hasRole('USER_READ')")
+    @RequestMapping(method = RequestMethod.POST,
+    value = "/search/count")
+    @Transactional(readOnly = true)
+    public ModelAndView searchCount(@RequestBody NodeCond searchCondition)
+            throws InvalidSearchConditionException {
+
+        if (!searchCondition.checkValidity()) {
+            LOG.error("Invalid search condition: {}", searchCondition);
+            throw new InvalidSearchConditionException();
+        }
+
+        Set<Long> adminRoleIds = EntitlementUtil.getRoleIds(
+                EntitlementUtil.getOwnedEntitlementNames());
+
+        return new ModelAndView().addObject(
+                userSearchDAO.count(adminRoleIds, searchCondition));
+    }
+
     @PreAuthorize("hasRole('USER_LIST')")
     @RequestMapping(method = RequestMethod.GET,
     value = "/list")
@@ -215,18 +233,12 @@ public class UserController extends AbstractController {
     @RequestMapping(method = RequestMethod.GET,
     value = "/list/{page}/{size}")
     @Transactional(readOnly = true)
-    public PaginatedUserContainer list(
+    public List<UserTO> list(
             @PathVariable("page") final int page,
             @PathVariable("size") final int size) {
 
         Set<Long> adminRoleIds = EntitlementUtil.getRoleIds(
                 EntitlementUtil.getOwnedEntitlementNames());
-
-        PaginatedUserContainer paginatedResult = new PaginatedUserContainer();
-        paginatedResult.setPageNumber(page);
-        paginatedResult.setPageSize(size);
-
-        paginatedResult.setTotalRecords(userDAO.count(adminRoleIds));
 
         List<SyncopeUser> users = userDAO.findAll(adminRoleIds, page, size);
         List<UserTO> userTOs = new ArrayList<UserTO>(users.size());
@@ -234,10 +246,7 @@ public class UserController extends AbstractController {
             userTOs.add(userDataBinder.getUserTO(user, workflow));
         }
 
-        paginatedResult.setRecordsInPage(userTOs.size());
-        paginatedResult.setRecords(userTOs);
-
-        return paginatedResult;
+        return userTOs;
     }
 
     @PreAuthorize("hasRole('USER_READ')")
@@ -303,7 +312,7 @@ public class UserController extends AbstractController {
     @RequestMapping(method = RequestMethod.POST,
     value = "/search/{page}/{size}")
     @Transactional(readOnly = true)
-    public PaginatedUserContainer search(
+    public List<UserTO> search(
             @RequestBody final NodeCond searchCondition,
             @PathVariable("page") final int page,
             @PathVariable("size") final int size)
@@ -316,24 +325,17 @@ public class UserController extends AbstractController {
             throw new InvalidSearchConditionException();
         }
 
-        PaginatedUserContainer paginatedResult = new PaginatedUserContainer();
-        paginatedResult.setPageNumber(page);
-        paginatedResult.setPageSize(size);
-
         final List<SyncopeUser> matchingUsers = userSearchDAO.search(
                 EntitlementUtil.getRoleIds(
                 EntitlementUtil.getOwnedEntitlementNames()),
-                searchCondition, page, size, paginatedResult);
+                searchCondition, page, size);
 
         final List<UserTO> result = new ArrayList<UserTO>(matchingUsers.size());
         for (SyncopeUser user : matchingUsers) {
             result.add(userDataBinder.getUserTO(user, workflow));
         }
 
-        paginatedResult.setRecordsInPage(result.size());
-        paginatedResult.setRecords(result);
-
-        return paginatedResult;
+        return result;
     }
 
     @PreAuthorize("hasRole('USER_READ')")

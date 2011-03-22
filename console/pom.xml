@@ -35,8 +35,8 @@
         <logfile.test>/var/tmp/syncope-console-test.log</logfile.test>
 
         <cargo.servlet.port>9080</cargo.servlet.port>
-        <cargo.log>/var/tmp/syncope-core-cargo.log</cargo.log>
-        <cargo.output>/var/tmp/syncope-core-cargo-output.log</cargo.output>
+        <cargo.log>/var/tmp/syncope-console-cargo.log</cargo.log>
+        <cargo.output>/var/tmp/syncope-console-cargo-output.log</cargo.output>
 
         <bundles.directory>/var/tmp/bundles</bundles.directory>
     </properties>
@@ -156,6 +156,7 @@
                                 <unzip src="${basedir}/../core/target/syncope.war" dest="${project.build.directory}/syncope-core-test">
                                     <patternset>
                                         <exclude name="**/content.xml" />
+                                        <exclude name="**/ehcache.xml" />
                                         <exclude name="**/persistence.properties" />
                                     </patternset>
                                 </unzip>

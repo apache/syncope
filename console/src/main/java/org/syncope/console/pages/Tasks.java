@@ -14,17 +14,13 @@
  */
 package org.syncope.console.pages;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.IAjaxCallDecorator;
-import org.apache.wicket.ajax.calldecorator.AjaxPreprocessingCallDecorator;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -50,7 +46,9 @@ import org.syncope.client.to.TaskTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.PreferenceManager;
+import org.syncope.console.commons.SortableDataProviderComparator;
 import org.syncope.console.rest.TaskRestClient;
+import org.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
 import org.syncope.console.wicket.markup.html.form.DeleteLinkPanel;
 import org.syncope.console.wicket.markup.html.form.EditLinkPanel;
 import org.syncope.console.wicket.markup.html.form.LinkPanel;
@@ -138,15 +136,14 @@ public class Tasks extends BasePage {
                         window.show(target);
                     }
                 };
+
                 EditLinkPanel panel = new EditLinkPanel(componentId,
                         model);
                 panel.add(viewLink);
 
-                String allowedRoles = xmlRolesReader.getAllAllowedRoles("Tasks",
-                        "read");
-
                 MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
-                        allowedRoles);
+                        xmlRolesReader.getAllAllowedRoles("Tasks",
+                        "read"));
 
                 cellItem.add(panel);
             }
@@ -155,6 +152,7 @@ public class Tasks extends BasePage {
         columns.add(new AbstractColumn<TaskTO>(new Model<String>(getString(
                 "execute"))) {
 
+            @Override
             public void populateItem(
                     final Item<ICellPopulator<TaskTO>> cellItem,
                     final String componentId,
@@ -167,7 +165,7 @@ public class Tasks extends BasePage {
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
                         try {
-                            restClient.startTaskExecution(taskTO.getId());
+                            restClient.startExecution(taskTO.getId());
                             getSession().info(getString("operation_succeded"));
                         } catch (SyncopeClientCompositeErrorException scce) {
                             error(scce.getMessage());
@@ -183,11 +181,8 @@ public class Tasks extends BasePage {
                 LinkPanel panel = new LinkPanel(componentId);
                 panel.add(executeLink);
 
-                String allowedRoles = xmlRolesReader.getAllAllowedRoles("Tasks",
-                        "execute");
-
                 MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
-                        allowedRoles);
+                        xmlRolesReader.getAllAllowedRoles("Tasks", "execute"));
 
                 cellItem.add(panel);
             }
@@ -204,37 +199,23 @@ public class Tasks extends BasePage {
 
                 final TaskTO taskTO = model.getObject();
 
-                AjaxLink deleteLink = new IndicatingAjaxLink("deleteLink") {
+                AjaxLink deleteLink = new IndicatingDeleteOnConfirmAjaxLink(
+                        "deleteLink") {
 
                     @Override
-                    public void onClick(AjaxRequestTarget target) {
-
+                    public void onClick(final AjaxRequestTarget target) {
                         try {
-                            restClient.deleteTask(taskTO.getId());
+                            restClient.delete(taskTO.getId());
+                            info(getString("operation_succeded"));
                         } catch (SyncopeClientCompositeErrorException scce) {
                             error(scce.getMessage());
                         }
                         target.addComponent(container);
-                    }
-
-                    @Override
-                    protected IAjaxCallDecorator getAjaxCallDecorator() {
-                        return new AjaxPreprocessingCallDecorator(super.
-                                getAjaxCallDecorator()) {
-
-                            @Override
-                            public CharSequence preDecorateScript(
-                                    final CharSequence script) {
-
-                                return "if (confirm('"
-                                        + getString("confirmDelete") + "'))"
-                                        + "{" + script + "}";
-                            }
-                        };
+                        target.addComponent(feedbackPanel);
                     }
                 };
-                DeleteLinkPanel panel = new DeleteLinkPanel(componentId,
-                        model);
+
+                DeleteLinkPanel panel = new DeleteLinkPanel(componentId, model);
                 panel.add(deleteLink);
 
                 String allowedRoles = xmlRolesReader.getAllAllowedRoles("Tasks",
@@ -305,18 +286,19 @@ public class Tasks extends BasePage {
 
     private class TasksProvider extends SortableDataProvider<TaskTO> {
 
-        private SortableDataProviderComparator comparator =
-                new SortableDataProviderComparator();
+        private SortableDataProviderComparator<TaskTO> comparator;
 
         public TasksProvider() {
             super();
             //Default sorting
             setSort("id", true);
+            comparator = new SortableDataProviderComparator<TaskTO>(getSort());
         }
 
         @Override
         public Iterator<TaskTO> iterator(int first, int count) {
-            List<TaskTO> tasks = restClient.list(first, count);
+            List<TaskTO> tasks = restClient.list(
+                    (first / paginatorRows) + 1, count);
             Collections.sort(tasks, comparator);
             return tasks.iterator();
         }
@@ -329,37 +311,6 @@ public class Tasks extends BasePage {
         @Override
         public IModel<TaskTO> model(final TaskTO object) {
             return new CompoundPropertyModel<TaskTO>(object);
-        }
-
-        class SortableDataProviderComparator implements
-                Comparator<TaskTO>, Serializable {
-
-            @Override
-            public int compare(final TaskTO o1, final TaskTO o2) {
-                PropertyModel<Comparable> model1 =
-                        new PropertyModel<Comparable>(o1,
-                        getSort().getProperty());
-                PropertyModel<Comparable> model2 =
-                        new PropertyModel<Comparable>(o2,
-                        getSort().getProperty());
-
-                int result = 1;
-
-                if (model1.getObject() == null && model2.getObject() == null) {
-                    result = 0;
-                } else if (model1.getObject() == null) {
-                    result = 1;
-                } else if (model2.getObject() == null) {
-                    result = -1;
-                } else {
-                    result = ((Comparable) model1.getObject()).compareTo(
-                            model2.getObject());
-                }
-
-                result = getSort().isAscending() ? result : -result;
-
-                return result;
-            }
         }
     }
 }

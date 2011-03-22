@@ -14,17 +14,13 @@
  */
 package org.syncope.console.pages;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.IAjaxCallDecorator;
-import org.apache.wicket.ajax.calldecorator.AjaxPreprocessingCallDecorator;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -49,8 +45,10 @@ import org.syncope.client.to.ConnectorInstanceTO;
 import org.syncope.client.to.ResourceTO;
 import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.PreferenceManager;
+import org.syncope.console.commons.SortableDataProviderComparator;
 import org.syncope.console.rest.ConnectorRestClient;
 import org.syncope.console.rest.ResourceRestClient;
+import org.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
 import org.syncope.console.wicket.markup.html.form.DeleteLinkPanel;
 import org.syncope.console.wicket.markup.html.form.EditLinkPanel;
 
@@ -126,7 +124,7 @@ public class Connectors extends BasePage {
                 final AjaxLink editLink = new IndicatingAjaxLink("editLink") {
 
                     @Override
-                    public void onClick(AjaxRequestTarget target) {
+                    public void onClick(final AjaxRequestTarget target) {
 
                         editConnectorWin.setPageCreator(
                                 new ModalWindow.PageCreator() {
@@ -147,10 +145,9 @@ public class Connectors extends BasePage {
                 EditLinkPanel panel = new EditLinkPanel(componentId, model);
                 panel.add(editLink);
 
-                String allowedRoles = xmlRolesReader.getAllAllowedRoles(
-                        "Connectors", "read");
                 MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
-                        allowedRoles);
+                        xmlRolesReader.getAllAllowedRoles(
+                        "Connectors", "read"));
 
                 cellItem.add(panel);
             }
@@ -159,16 +156,19 @@ public class Connectors extends BasePage {
         columns.add(new AbstractColumn<ConnectorInstanceTO>(
                 new Model<String>(getString("delete"))) {
 
+            @Override
             public void populateItem(
-                    Item<ICellPopulator<ConnectorInstanceTO>> cellItem,
-                    String componentId, IModel<ConnectorInstanceTO> model) {
+                    final Item<ICellPopulator<ConnectorInstanceTO>> cellItem,
+                    final String componentId,
+                    final IModel<ConnectorInstanceTO> model) {
 
                 final ConnectorInstanceTO connectorTO = model.getObject();
 
-                AjaxLink deleteLink = new IndicatingAjaxLink("deleteLink") {
+                AjaxLink deleteLink = new IndicatingDeleteOnConfirmAjaxLink(
+                        "deleteLink") {
 
                     @Override
-                    public void onClick(AjaxRequestTarget target) {
+                    public void onClick(final AjaxRequestTarget target) {
 
                         if (!checkDeleteIsForbidden(connectorTO)) {
                             restClient.deleteConnector(connectorTO.getId());
@@ -180,31 +180,14 @@ public class Connectors extends BasePage {
                         target.addComponent(container);
                         target.addComponent(feedbackPanel);
                     }
-
-                    @Override
-                    protected IAjaxCallDecorator getAjaxCallDecorator() {
-                        return new AjaxPreprocessingCallDecorator(super.
-                                getAjaxCallDecorator()) {
-
-                            @Override
-                            public CharSequence preDecorateScript(
-                                    CharSequence script) {
-
-                                return "if (confirm('" + getString(
-                                        "confirmDelete") + "'))"
-                                        + "{" + script + "}";
-                            }
-                        };
-                    }
                 };
 
                 DeleteLinkPanel panel = new DeleteLinkPanel(componentId, model);
                 panel.add(deleteLink);
 
-                String allowedRoles = xmlRolesReader.getAllAllowedRoles(
-                        "Connectors", "delete");
                 MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
-                        allowedRoles);
+                        xmlRolesReader.getAllAllowedRoles(
+                        "Connectors", "delete"));
 
                 cellItem.add(panel);
             }
@@ -337,12 +320,14 @@ public class Connectors extends BasePage {
 
     class ConnectorsProvider extends SortableDataProvider<ConnectorInstanceTO> {
 
-        private SortableDataProviderComparator comparator =
-                new SortableDataProviderComparator();
+        private SortableDataProviderComparator<ConnectorInstanceTO> comparator;
 
         public ConnectorsProvider() {
             //Default sorting
             setSort("id", true);
+            comparator =
+                    new SortableDataProviderComparator<ConnectorInstanceTO>(
+                    getSort());
         }
 
         @Override
@@ -360,7 +345,9 @@ public class Connectors extends BasePage {
         }
 
         @Override
-        public IModel<ConnectorInstanceTO> model(final ConnectorInstanceTO connector) {
+        public IModel<ConnectorInstanceTO> model(
+                final ConnectorInstanceTO connector) {
+
             return new AbstractReadOnlyModel<ConnectorInstanceTO>() {
 
                 @Override
@@ -371,40 +358,7 @@ public class Connectors extends BasePage {
         }
 
         public List<ConnectorInstanceTO> getConnectorsListDB() {
-            List<ConnectorInstanceTO> list = restClient.getAllConnectors();
-
-            return list;
-        }
-
-        class SortableDataProviderComparator implements
-                Comparator<ConnectorInstanceTO>, Serializable {
-
-            public int compare(final ConnectorInstanceTO o1,
-                    final ConnectorInstanceTO o2) {
-                PropertyModel<Comparable> model1 =
-                        new PropertyModel<Comparable>(o1,
-                        getSort().getProperty());
-                PropertyModel<Comparable> model2 =
-                        new PropertyModel<Comparable>(o2,
-                        getSort().getProperty());
-
-                int result = 1;
-
-                if (model1.getObject() == null && model2.getObject() == null) {
-                    result = 0;
-                } else if (model1.getObject() == null) {
-                    result = 1;
-                } else if (model2.getObject() == null) {
-                    result = -1;
-                } else {
-                    result = ((Comparable) model1.getObject()).compareTo(
-                            model2.getObject());
-                }
-
-                result = getSort().isAscending() ? result : -result;
-
-                return result;
-            }
+            return restClient.getAllConnectors();
         }
     }
 }

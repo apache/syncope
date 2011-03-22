@@ -26,8 +26,11 @@ import org.syncope.client.AbstractBaseBean;
 public abstract class AbstractAttributableTO extends AbstractBaseBean {
 
     private long id;
+
     private List<AttributeTO> attributes;
+
     private List<AttributeTO> derivedAttributes;
+
     private Set<String> resources;
 
     protected AbstractAttributableTO() {
