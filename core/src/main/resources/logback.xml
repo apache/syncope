@@ -130,6 +130,11 @@
         <level value="INFO"/>
         <appender-ref ref="main"/>
     </logger>
+    
+    <logger name="org.hibernate.hql.ast" additivity="false">
+        <level value="ERROR"/>
+        <appender-ref ref="monitor"/>
+    </logger>
 
     <logger name="org.springframework" additivity="false">
         <level value="INFO"/>

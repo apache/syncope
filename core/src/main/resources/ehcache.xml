@@ -15,8 +15,6 @@
 <ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="http://ehcache.org/ehcache.xsd">
 
-    <diskStore path="java.io.tmpdir/syncope-cache"/>
-
     <cacheManagerPeerProviderFactory
       class="net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory"
       properties="peerDiscovery=automatic, multicastGroupAddress=230.0.0.1,
@@ -26,20 +24,27 @@
       class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"/>
 
     <defaultCache
-      maxElementsInMemory="1000"
+      maxElementsInMemory="10000"
       eternal="false"
-      timeToIdleSeconds="1000"
-      timeToLiveSeconds="1000"
-      overflowToDisk="false">
+      timeToIdleSeconds="600"
+      timeToLiveSeconds="1200"
+      overflowToDisk="false"
+      diskSpoolBufferSizeMB="0"
+      maxElementsOnDisk="0"
+      diskPersistent="false"
+      diskExpiryThreadIntervalSeconds="0"
+      memoryStoreEvictionPolicy="LRU">
+
         <cacheEventListenerFactory
           class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
-          properties="replicateAsynchronously=false,
-          replicatePuts=true,
-          replicatePutsViaCopy=true,
+          properties="replicateAsynchronously=true,
+	  asynchronousReplicationIntervalMillis=1000,
+          replicatePuts=false,
+          replicatePutsViaCopy=false,
           replicateUpdates=true,
-          replicateUpdatesViaCopy=true,
-          replicateRemovals=true"
+          replicateUpdatesViaCopy=false"
           propertySeparator="," />
+
     </defaultCache>
 
 </ehcache>
