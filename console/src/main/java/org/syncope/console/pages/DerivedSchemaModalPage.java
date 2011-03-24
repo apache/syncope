@@ -50,7 +50,7 @@ public class DerivedSchemaModalPage extends BaseModalPage {
     @SpringBean
     private SchemaRestClient restClient;
 
-    public DerivedSchemaModalPage(final BasePage basePage,
+    public DerivedSchemaModalPage(final Schema basePage,
             final ModalWindow window,
             DerivedSchemaTO schema,
             final boolean createFlag) {
@@ -86,7 +86,6 @@ public class DerivedSchemaModalPage extends BaseModalPage {
                                 (DerivedSchemaTO) form.getDefaultModelObject());
                     }
                 } else if (getEntity() == Entity.ROLE) {
-
                     if (createFlag) {
                         restClient.createRoleDerivedSchema(
                                 (DerivedSchemaTO) form.getDefaultModelObject());
@@ -95,7 +94,6 @@ public class DerivedSchemaModalPage extends BaseModalPage {
                                 (DerivedSchemaTO) form.getDefaultModelObject());
                     }
                 } else if (getEntity() == Entity.MEMBERSHIP) {
-
                     if (createFlag) {
                         restClient.createMembershipDerivedSchema(
                                 (DerivedSchemaTO) form.getDefaultModelObject());
@@ -104,7 +102,7 @@ public class DerivedSchemaModalPage extends BaseModalPage {
                                 (DerivedSchemaTO) form.getDefaultModelObject());
                     }
                 }
-                ((Schema) basePage).setOperationResult(true);
+                basePage.setOperationResult(true);
 
                 window.close(target);
             }

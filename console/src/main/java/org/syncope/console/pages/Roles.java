@@ -103,7 +103,7 @@ public class Roles extends BasePage {
                             getSession().info(getString("operation_succeded"));
                         }
 
-                        setResponsePage(new Roles(null));
+                        setResponsePage(Roles.class);
                     }
                 });
     }

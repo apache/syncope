@@ -18,20 +18,17 @@ package org.syncope.console.pages;
 
 import java.util.List;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.CheckBoxMultipleChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.PreferenceManager;
-import org.syncope.console.rest.SchemaRestClient;
 
 /**
  * Modal window with Display attributes form.
@@ -41,36 +38,23 @@ public class DisplayAttributesModalPage extends BaseModalPage {
     @SpringBean
     private PreferenceManager prefMan;
 
-    @SpringBean
-    private SchemaRestClient schemaRestClient;
-
-    private List<String> selections;
-
-    public AjaxButton submit;
+    private final List<String> selectedSchemas;
 
     public DisplayAttributesModalPage(final Users basePage,
+            final IModel<List<String>> schemaNames,
             final ModalWindow window) {
 
         super();
 
         Form userAttributesForm = new Form("UserAttributesForm");
         userAttributesForm.setModel(new CompoundPropertyModel(this));
-        selections = prefMan.getList(getWebRequestCycle().getWebRequest(),
+        selectedSchemas = prefMan.getList(getWebRequestCycle().getWebRequest(),
                 Constants.PREF_USERS_ATTRIBUTES_VIEW);
 
-        final IModel attributes = new LoadableDetachableModel() {
-
-            @Override
-            protected Object load() {
-                return schemaRestClient.getAllUserSchemasNames();
-            }
-        };
-
-        userAttributesForm.add(new CheckBoxMultipleChoice("usersSchemasList",
-                new PropertyModel(this, "selections"), attributes));
-
-        submit = new IndicatingAjaxButton("submit", new Model(
-                getString("submit"))) {
+        userAttributesForm.add(new CheckBoxMultipleChoice("schemaNames",
+                new PropertyModel(this, "selectedSchemas"), schemaNames));
+        IndicatingAjaxButton submit = new IndicatingAjaxButton("submit",
+                new Model(getString("submit"))) {
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target,
@@ -78,9 +62,7 @@ public class DisplayAttributesModalPage extends BaseModalPage {
 
                 prefMan.setList(getWebRequest(),
                         getWebRequestCycle().getWebResponse(),
-                        Constants.PREF_USERS_ATTRIBUTES_VIEW,
-                        selections);
-
+                        Constants.PREF_USERS_ATTRIBUTES_VIEW, selectedSchemas);
                 basePage.setModalResult(true);
                 window.close(target);
             }

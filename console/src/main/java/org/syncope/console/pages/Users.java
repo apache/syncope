@@ -35,6 +35,8 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColu
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
+import org.apache.wicket.feedback.FeedbackMessage;
+import org.apache.wicket.feedback.IFeedbackMessageFilter;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.CheckBox;
@@ -242,7 +244,8 @@ public class Users extends BasePage {
                             @Override
                             public Page createPage() {
                                 return new DisplayAttributesModalPage(
-                                        Users.this, displayAttrsModalWin);
+                                        Users.this, schemaNames,
+                                        displayAttrsModalWin);
                             }
                         });
 
@@ -277,11 +280,31 @@ public class Users extends BasePage {
         paginatorForm.add(rowsChooser);
 
         // search form
-        Form searchForm = new Form("searchForm");
+        final Form searchForm = new Form("searchForm");
         add(searchForm);
 
-        searchForm.add(new FeedbackPanel("searchFeedback").setOutputMarkupId(
-                true));
+        FeedbackPanel searchFeedback = new FeedbackPanel("searchFeedback",
+                new IFeedbackMessageFilter() {
+
+                    @Override
+                    public boolean accept(final FeedbackMessage message) {
+                        boolean result;
+
+                        // messages reported on the session have a null reporter
+                        if (message.getReporter() != null) {
+                            // only accept messages coming from the children
+                            // of the form
+                            result = searchForm.contains(message.getReporter(),
+                                    true);
+                        } else {
+                            result = false;
+                        }
+
+                        return result;
+                    }
+                });
+        searchFeedback.setOutputMarkupId(true);
+        searchForm.add(searchFeedback);
 
         final WebMarkupContainer searchFormContainer =
                 new WebMarkupContainer("searchFormContainer");
@@ -353,6 +376,13 @@ public class Users extends BasePage {
                         if (modalResult) {
                             info(getString("operation_succeded"));
 
+                            getPage().getPageParameters().put(
+                                    searchResultTable.getId()
+                                    + Constants.PAGEPARAM_CURRENT_PAGE,
+                                    searchResultTable.getCurrentPage());
+                            setResponsePage(Users.class,
+                                    getPage().getPageParameters());
+
                             target.addComponent(feedbackPanel);
 
                             modalResult = false;
@@ -415,12 +445,11 @@ public class Users extends BasePage {
                         if (modalResult) {
                             getSession().info(getString("operation_succeded"));
 
-                            PageParameters params =
-                                    getPage().getPageParameters();
-                            params.put(table.getId()
+                            getPage().getPageParameters().put(table.getId()
                                     + Constants.PAGEPARAM_CURRENT_PAGE,
                                     table.getCurrentPage());
-                            setResponsePage(Users.class, params);
+                            setResponsePage(Users.class,
+                                    getPage().getPageParameters());
 
                             target.addComponent(feedbackPanel);
 
