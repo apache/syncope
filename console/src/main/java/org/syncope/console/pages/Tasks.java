@@ -292,7 +292,7 @@ public class Tasks extends BasePage {
             super();
             //Default sorting
             setSort("id", true);
-            comparator = new SortableDataProviderComparator<TaskTO>(getSort());
+            comparator = new SortableDataProviderComparator<TaskTO>(this);
         }
 
         @Override

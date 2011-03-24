@@ -21,8 +21,6 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 @JsonIgnoreProperties({"displayName", "empty"})
 public class RoleTO extends AbstractAttributableTO {
 
-    static private final String EMPTY = "";
-
     private String name;
 
     private long parent;
@@ -95,6 +93,20 @@ public class RoleTO extends AbstractAttributableTO {
     }
 
     public String getEmpty() {
-        return EMPTY;
+        return "";
+    }
+
+    public static long fromDisplayName(final String displayName) {
+        long result = 0;
+        if (displayName != null && !displayName.isEmpty()
+                && displayName.indexOf(' ') != -1) {
+
+            try {
+                result = Long.valueOf(displayName.split(" ")[0]);
+            } catch (NumberFormatException e) {
+            }
+        }
+
+        return result;
     }
 }

@@ -327,7 +327,7 @@ public class Connectors extends BasePage {
             setSort("id", true);
             comparator =
                     new SortableDataProviderComparator<ConnectorInstanceTO>(
-                    getSort());
+                    this);
         }
 
         @Override

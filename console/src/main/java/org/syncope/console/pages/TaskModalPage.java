@@ -213,13 +213,14 @@ public class TaskModalPage extends BaseModalPage {
             this.taskTO = taskTO;
             setSort("startDate", true);
             comparator =
-                    new SortableDataProviderComparator<TaskExecutionTO>(
-                    getSort());
+                    new SortableDataProviderComparator<TaskExecutionTO>(this);
         }
 
         @Override
-        public Iterator<TaskExecutionTO> iterator(int first, int count) {
-            List<TaskExecutionTO> list = getTasksListDB();
+        public Iterator<TaskExecutionTO> iterator(final int first,
+                final int count) {
+
+            List<TaskExecutionTO> list = getTaskDB();
 
             Collections.sort(list, comparator);
 
@@ -228,7 +229,7 @@ public class TaskModalPage extends BaseModalPage {
 
         @Override
         public int size() {
-            return getTasksListDB().size();
+            return getTaskDB().size();
         }
 
         @Override
@@ -244,7 +245,7 @@ public class TaskModalPage extends BaseModalPage {
             };
         }
 
-        public List<TaskExecutionTO> getTasksListDB() {
+        public List<TaskExecutionTO> getTaskDB() {
             return taskTO.getExecutions();
         }
     }

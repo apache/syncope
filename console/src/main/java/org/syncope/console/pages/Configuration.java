@@ -337,8 +337,8 @@ public class Configuration extends BasePage {
         public SyncopeConfProvider() {
             //Default sorting
             setSort("confKey", true);
-            comparator = new SortableDataProviderComparator<ConfigurationTO>(
-                    getSort());
+            comparator =
+                    new SortableDataProviderComparator<ConfigurationTO>(this);
         }
 
         @Override

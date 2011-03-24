@@ -68,6 +68,7 @@ import org.syncope.client.to.RoleTO;
 import org.syncope.client.to.SchemaTO;
 import org.syncope.client.to.UserTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.RoleTreeBuilder;
 import org.syncope.console.commons.SchemaWrapper;
 import org.syncope.console.rest.ResourceRestClient;
@@ -110,7 +111,7 @@ public class UserModalPage extends BaseModalPage {
 
     private List<MembershipTO> membershipTOs;
 
-    private final ModalWindow createUserWin;
+    private final ModalWindow membershipWin;
 
     private UserTO oldUser;
 
@@ -119,15 +120,17 @@ public class UserModalPage extends BaseModalPage {
     public UserModalPage(final Users basePage, final ModalWindow window,
             final UserTO userTO, final boolean createFlag) {
 
+        super();
+
         if (!createFlag) {
             cloneOldUserTO(userTO);
         }
 
-        createUserWin = new ModalWindow("membershipWin");
-        createUserWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
-        createUserWin.setPageMapName("create-membership-modal");
-        createUserWin.setCookieName("create-membership-modal");
-        add(createUserWin);
+        membershipWin = new ModalWindow("membershipWin");
+        membershipWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+        membershipWin.setPageMapName("create-membership-modal");
+        membershipWin.setCookieName("create-membership-modal");
+        add(membershipWin);
 
         add(new Label("id", String.valueOf(userTO.getId())));
 
@@ -371,6 +374,8 @@ public class UserModalPage extends BaseModalPage {
                     }
 
                     basePage.setModalResult(true);
+                    basePage.getPageParameters().put(
+                            Constants.PAGEPARAM_CREATE, createFlag);
                     window.close(target);
                 } catch (SyncopeClientCompositeErrorException e) {
                     LOG.error("While creating or updating user", e);
@@ -414,7 +419,7 @@ public class UserModalPage extends BaseModalPage {
                 final RoleTO roleTO = (RoleTO) ((DefaultMutableTreeNode) node).
                         getUserObject();
 
-                createUserWin.setPageCreator(new ModalWindow.PageCreator() {
+                membershipWin.setPageCreator(new ModalWindow.PageCreator() {
 
                     private MembershipTO membershipTO;
 
@@ -424,10 +429,10 @@ public class UserModalPage extends BaseModalPage {
                         membershipTO.setRoleId(roleTO.getId());
 
                         return new MembershipModalPage(getPage(),
-                                createUserWin, membershipTO, true);
+                                membershipWin, membershipTO, true);
                     }
                 });
-                createUserWin.show(target);
+                membershipWin.show(target);
             }
         };
 
@@ -453,14 +458,14 @@ public class UserModalPage extends BaseModalPage {
 
                     @Override
                     public void onClick(AjaxRequestTarget target) {
-                        createUserWin.setPageCreator(
+                        membershipWin.setPageCreator(
                                 new ModalWindow.PageCreator() {
 
+                                    @Override
                                     public Page createPage() {
-
                                         MembershipModalPage window =
                                                 new MembershipModalPage(
-                                                getPage(), createUserWin,
+                                                getPage(), membershipWin,
                                                 membershipTO,
                                                 false);
 
@@ -468,7 +473,7 @@ public class UserModalPage extends BaseModalPage {
 
                                     }
                                 });
-                        createUserWin.show(target);
+                        membershipWin.show(target);
                     }
                 };
                 item.add(editLink);
@@ -492,7 +497,7 @@ public class UserModalPage extends BaseModalPage {
         membershipsContainer.add(membershipsView);
         membershipsContainer.setOutputMarkupId(true);
 
-        setWindowClosedCallback(createUserWin, membershipsContainer);
+        setWindowClosedCallback(membershipWin, membershipsContainer);
 
         userForm.add(membershipsContainer);
         add(userForm);
@@ -582,6 +587,7 @@ public class UserModalPage extends BaseModalPage {
         window.setWindowClosedCallback(
                 new ModalWindow.WindowClosedCallback() {
 
+                    @Override
                     public void onClose(final AjaxRequestTarget target) {
                         target.addComponent(container);
                     }
@@ -686,10 +692,6 @@ public class UserModalPage extends BaseModalPage {
 
     public List<MembershipTO> getMembershipTOs() {
         return membershipTOs;
-    }
-
-    private void setMembershipTOs(List<MembershipTO> membershipTOs) {
-        this.membershipTOs = membershipTOs;
     }
 
     /**

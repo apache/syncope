@@ -16,26 +16,26 @@ package org.syncope.console.commons;
 
 import java.io.Serializable;
 import java.util.Comparator;
-import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
+import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 
 public class SortableDataProviderComparator<T> implements
         Comparator<T>, Serializable {
 
-    private final SortParam sortParam;
+    protected final SortableDataProvider<T> provider;
 
-    public SortableDataProviderComparator(SortParam sortParam) {
-        this.sortParam = sortParam;
+    public SortableDataProviderComparator(
+            final SortableDataProvider<T> provider) {
+
+        this.provider = provider;
     }
 
-    @Override
-    public int compare(final T o1, final T o2) {
-        PropertyModel<Comparable> model1 =
-                new PropertyModel<Comparable>(o1, sortParam.getProperty());
-        PropertyModel<Comparable> model2 =
-                new PropertyModel<Comparable>(o2, sortParam.getProperty());
+    protected int compare(final IModel<Comparable> model1,
+            IModel<Comparable> model2) {
 
         int result;
+
         if (model1.getObject() == null && model2.getObject() == null) {
             result = 0;
         } else if (model1.getObject() == null) {
@@ -43,10 +43,21 @@ public class SortableDataProviderComparator<T> implements
         } else if (model2.getObject() == null) {
             result = -1;
         } else {
-            result = ((Comparable) model1.getObject()).compareTo(
-                    model2.getObject());
+            result = model1.getObject().compareTo(model2.getObject());
         }
 
-        return sortParam.isAscending() ? result : -result;
+        result = provider.getSort().isAscending() ? result : -result;
+
+        return result;
+    }
+
+    @Override
+    public int compare(final T o1, final T o2) {
+        IModel<Comparable> model1 = new PropertyModel<Comparable>(
+                o1, provider.getSort().getProperty());
+        IModel<Comparable> model2 = new PropertyModel<Comparable>(
+                o2, provider.getSort().getProperty());
+
+        return compare(model1, model2);
     }
 }

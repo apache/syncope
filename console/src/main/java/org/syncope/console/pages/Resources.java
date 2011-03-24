@@ -281,8 +281,8 @@ public class Resources extends BasePage {
         public ResourcesProvider() {
             //Default sorting
             setSort("name", true);
-            comparator = new SortableDataProviderComparator<ResourceTO>(
-                    getSort());
+            comparator =
+                    new SortableDataProviderComparator<ResourceTO>(this);
         }
 
         @Override

@@ -63,7 +63,7 @@ import org.syncope.console.commons.PreferenceManager;
 import org.syncope.console.commons.SearchConditionWrapper;
 import org.syncope.console.commons.SearchConditionWrapper.FilterType;
 import org.syncope.console.commons.SearchConditionWrapper.OperationType;
-import org.syncope.console.commons.SortableDataProviderComparator;
+import org.syncope.console.commons.SortableUserProviderComparator;
 import org.syncope.console.rest.RoleRestClient;
 import org.syncope.console.rest.SchemaRestClient;
 import org.syncope.console.rest.UserRestClient;
@@ -75,7 +75,7 @@ public class Users extends BasePage {
 
     private final static int EDIT_MODAL_WIN_HEIGHT = 680;
 
-    private final static int EDIT_MODAL_WIN_WIDTH = 1133;
+    private final static int EDIT_MODAL_WIN_WIDTH = 800;
 
     private final static int DISPLAYATTRS_MODAL_WIN_HEIGHT = 500;
 
@@ -92,10 +92,6 @@ public class Users extends BasePage {
 
     @SpringBean
     private PreferenceManager prefMan;
-
-    final private ModalWindow editModalWin;
-
-    final private ModalWindow displayAttrsModalWin;
 
     final private int paginatorRows = prefMan.getPaginatorRows(
             getWebRequestCycle().getWebRequest(),
@@ -151,13 +147,16 @@ public class Users extends BasePage {
                 }
             };
 
-    private NodeCond searchCond;
+    final private WebMarkupContainer listContainer;
+
+    final private WebMarkupContainer searchResultContainer;
 
     public Users(final PageParameters parameters) {
         super(parameters);
 
         // Modal window for editing user attributes
-        editModalWin = new ModalWindow("editModalWin");
+        final ModalWindow editModalWin =
+                new ModalWindow("editModalWin");
         editModalWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         editModalWin.setInitialHeight(EDIT_MODAL_WIN_HEIGHT);
         editModalWin.setInitialWidth(EDIT_MODAL_WIN_WIDTH);
@@ -166,7 +165,8 @@ public class Users extends BasePage {
         add(editModalWin);
 
         // Modal window for choosing which attributes to display in tables
-        displayAttrsModalWin = new ModalWindow("displayAttrsModalWin");
+        final ModalWindow displayAttrsModalWin =
+                new ModalWindow("displayAttrsModalWin");
         displayAttrsModalWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         displayAttrsModalWin.setInitialHeight(DISPLAYATTRS_MODAL_WIN_HEIGHT);
         displayAttrsModalWin.setInitialWidth(DISPLAYATTRS_MODAL_WIN_WIDTH);
@@ -174,22 +174,263 @@ public class Users extends BasePage {
         displayAttrsModalWin.setCookieName("user-displayAttrs-modal");
         add(displayAttrsModalWin);
 
+        // Modal window for editing user attributes (in search tab)
+        final ModalWindow searchEditModalWin =
+                new ModalWindow("searchEditModalWin");
+        searchEditModalWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+        searchEditModalWin.setInitialHeight(EDIT_MODAL_WIN_HEIGHT);
+        searchEditModalWin.setInitialWidth(EDIT_MODAL_WIN_WIDTH);
+        searchEditModalWin.setPageMapName("user-search-edit-modal");
+        searchEditModalWin.setCookieName("user-search-edit-modal");
+        add(searchEditModalWin);
+
         // Container for user list
-        final WebMarkupContainer listContainer =
-                new WebMarkupContainer("listContainer");
+        listContainer = new WebMarkupContainer("listContainer");
         listContainer.setOutputMarkupId(true);
-        setWindowClosedCallback(editModalWin, listContainer);
-        setWindowClosedCallback(displayAttrsModalWin, listContainer);
         add(listContainer);
 
         // Container for user search result
-        final WebMarkupContainer searchResultContainer =
-                new WebMarkupContainer("searchResultContainer");
+        searchResultContainer = new WebMarkupContainer("searchResultContainer");
         searchResultContainer.setOutputMarkupId(true);
-        setWindowClosedCallback(editModalWin, searchResultContainer);
         add(searchResultContainer);
 
-        // columns to be displayed in tables
+        final AjaxFallbackDefaultDataTable<UserTO> listTable =
+                new AjaxFallbackDefaultDataTable<UserTO>("listTable",
+                getColumns(editModalWin), new UserDataProvider(),
+                paginatorRows);
+        if (parameters.getAsBoolean(Constants.PAGEPARAM_CREATE, false)) {
+            listTable.setCurrentPage(listTable.getPageCount() - 1);
+            parameters.remove(Constants.PAGEPARAM_CREATE);
+        } else {
+            listTable.setCurrentPage(parameters.getAsInteger(
+                    listTable.getId() + Constants.PAGEPARAM_CURRENT_PAGE, 0));
+        }
+        listContainer.add(listTable);
+        setWindowClosedReloadCallback(editModalWin, listTable);
+        setWindowClosedReloadCallback(displayAttrsModalWin, listTable);
+
+        // create new user
+        AjaxLink createLink = new IndicatingAjaxLink("createLink") {
+
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+                editModalWin.setPageCreator(new ModalWindow.PageCreator() {
+
+                    @Override
+                    public Page createPage() {
+                        return new UserModalPage(Users.this, editModalWin,
+                                new UserTO(), true);
+                    }
+                });
+
+                editModalWin.show(target);
+            }
+        };
+        MetaDataRoleAuthorizationStrategy.authorize(createLink, ENABLE,
+                xmlRolesReader.getAllAllowedRoles("Users", "create"));
+        add(createLink);
+
+        // select attributes to be displayed
+        AjaxLink displayAttrsLink = new IndicatingAjaxLink("displayAttrsLink") {
+
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+
+                displayAttrsModalWin.setPageCreator(
+                        new ModalWindow.PageCreator() {
+
+                            @Override
+                            public Page createPage() {
+                                return new DisplayAttributesModalPage(
+                                        Users.this, displayAttrsModalWin);
+                            }
+                        });
+
+                displayAttrsModalWin.show(target);
+            }
+        };
+        MetaDataRoleAuthorizationStrategy.authorize(displayAttrsLink, ENABLE,
+                xmlRolesReader.getAllAllowedRoles("Users", "changeView"));
+        add(displayAttrsLink);
+
+        // rows-per-page management
+        Form paginatorForm = new Form("paginator");
+        add(paginatorForm);
+        final DropDownChoice<Integer> rowsChooser =
+                new DropDownChoice<Integer>("rowsChooser",
+                new PropertyModel(this, "paginatorRows"),
+                prefMan.getPaginatorChoices());
+        rowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+
+            @Override
+            protected void onUpdate(final AjaxRequestTarget target) {
+                prefMan.set(getWebRequestCycle().getWebRequest(),
+                        getWebRequestCycle().getWebResponse(),
+                        Constants.PREF_USERS_PAGINATOR_ROWS,
+                        String.valueOf(paginatorRows));
+
+                listTable.setRowsPerPage(paginatorRows);
+
+                target.addComponent(listContainer);
+            }
+        });
+        paginatorForm.add(rowsChooser);
+
+        // search form
+        Form searchForm = new Form("searchForm");
+        add(searchForm);
+
+        searchForm.add(new FeedbackPanel("searchFeedback").setOutputMarkupId(
+                true));
+
+        final WebMarkupContainer searchFormContainer =
+                new WebMarkupContainer("searchFormContainer");
+        searchFormContainer.setOutputMarkupId(true);
+        searchForm.add(searchFormContainer);
+
+        final List<SearchConditionWrapper> searchConditionList =
+                new ArrayList<SearchConditionWrapper>();
+        searchConditionList.add(new SearchConditionWrapper());
+
+        searchFormContainer.add(new SearchView("searchView",
+                searchConditionList, searchFormContainer));
+
+        AjaxButton addAndButton = new IndicatingAjaxButton("addAndButton",
+                new Model(getString("addAndButton"))) {
+
+            @Override
+            protected void onSubmit(final AjaxRequestTarget target,
+                    final Form form) {
+
+                SearchConditionWrapper conditionWrapper =
+                        new SearchConditionWrapper();
+                conditionWrapper.setOperationType(OperationType.AND);
+                searchConditionList.add(conditionWrapper);
+                target.addComponent(searchFormContainer);
+            }
+        };
+        addAndButton.setDefaultFormProcessing(false);
+        searchFormContainer.add(addAndButton);
+
+        AjaxButton addOrButton = new IndicatingAjaxButton("addOrButton",
+                new Model(getString("addOrButton"))) {
+
+            @Override
+            protected void onSubmit(final AjaxRequestTarget target,
+                    final Form form) {
+
+                SearchConditionWrapper conditionWrapper =
+                        new SearchConditionWrapper();
+                conditionWrapper.setOperationType(OperationType.OR);
+                searchConditionList.add(conditionWrapper);
+                target.addComponent(searchFormContainer);
+            }
+        };
+        addOrButton.setDefaultFormProcessing(false);
+        searchFormContainer.add(addOrButton);
+
+        // search result
+        final UserSearchDataProvider searchDataProvider =
+                new UserSearchDataProvider();
+        final AjaxFallbackDefaultDataTable<UserTO> searchResultTable =
+                new AjaxFallbackDefaultDataTable<UserTO>("searchResultTable",
+                getColumns(searchEditModalWin), searchDataProvider,
+                searchPaginatorRows);
+        searchResultTable.setOutputMarkupId(true);
+        searchResultTable.setCurrentPage(parameters.getAsInteger(
+                searchResultTable.getId()
+                + Constants.PAGEPARAM_CURRENT_PAGE, 0));
+        searchResultContainer.add(searchResultTable);
+
+        searchEditModalWin.setWindowClosedCallback(
+                new ModalWindow.WindowClosedCallback() {
+
+                    @Override
+                    public void onClose(final AjaxRequestTarget target) {
+                        doSearch(target, searchConditionList,
+                                searchDataProvider, searchResultTable);
+
+                        if (modalResult) {
+                            info(getString("operation_succeded"));
+
+                            target.addComponent(feedbackPanel);
+
+                            modalResult = false;
+                        }
+                    }
+                });
+
+        searchForm.add(new IndicatingAjaxButton("search", new Model(
+                getString("search"))) {
+
+            @Override
+            protected void onSubmit(final AjaxRequestTarget target,
+                    final Form<?> form) {
+
+                doSearch(target, searchConditionList, searchDataProvider,
+                        searchResultTable);
+            }
+
+            @Override
+            protected void onError(final AjaxRequestTarget target,
+                    final Form form) {
+
+                target.addComponent(form.get("searchFeedback"));
+            }
+        });
+
+        // search rows-per-page management
+        Form searchPaginatorForm = new Form("searchPaginator");
+        add(searchPaginatorForm);
+        final DropDownChoice<Integer> searchRowsChooser =
+                new DropDownChoice<Integer>("searchRowsChooser",
+                new PropertyModel(this, "searchPaginatorRows"),
+                prefMan.getPaginatorChoices());
+        searchRowsChooser.add(
+                new AjaxFormComponentUpdatingBehavior("onchange") {
+
+                    @Override
+                    protected void onUpdate(final AjaxRequestTarget target) {
+                        prefMan.set(getWebRequestCycle().getWebRequest(),
+                                getWebRequestCycle().getWebResponse(),
+                                Constants.PREF_USERS_SEARCH_PAGINATOR_ROWS,
+                                String.valueOf(searchPaginatorRows));
+
+                        searchResultTable.setRowsPerPage(searchPaginatorRows);
+
+                        target.addComponent(searchResultContainer);
+                    }
+                });
+        searchPaginatorForm.add(searchRowsChooser);
+    }
+
+    private void setWindowClosedReloadCallback(final ModalWindow window,
+            final AjaxFallbackDefaultDataTable<UserTO> table) {
+
+        window.setWindowClosedCallback(
+                new ModalWindow.WindowClosedCallback() {
+
+                    @Override
+                    public void onClose(final AjaxRequestTarget target) {
+                        if (modalResult) {
+                            getSession().info(getString("operation_succeded"));
+
+                            PageParameters params =
+                                    getPage().getPageParameters();
+                            params.put(table.getId()
+                                    + Constants.PAGEPARAM_CURRENT_PAGE,
+                                    table.getCurrentPage());
+                            setResponsePage(Users.class, params);
+
+                            target.addComponent(feedbackPanel);
+
+                            modalResult = false;
+                        }
+                    }
+                });
+    }
+
+    protected List<IColumn<UserTO>> getColumns(final ModalWindow editModalWin) {
         List<IColumn<UserTO>> columns = new ArrayList<IColumn<UserTO>>();
         columns.add(new PropertyColumn(
                 new Model(getString("id")), "id", "id"));
@@ -268,207 +509,24 @@ public class Users extends BasePage {
             }
         });
 
-        final AjaxFallbackDefaultDataTable<UserTO> listTable =
-                new AjaxFallbackDefaultDataTable<UserTO>("listTable",
-                columns, new UserDataProvider(), paginatorRows);
-        listContainer.add(listTable);
-
-        // create new user
-        AjaxLink createLink = new IndicatingAjaxLink("createLink") {
-
-            @Override
-            public void onClick(final AjaxRequestTarget target) {
-
-                editModalWin.setPageCreator(new ModalWindow.PageCreator() {
-
-                    @Override
-                    public Page createPage() {
-                        return new UserModalPage(Users.this, editModalWin,
-                                new UserTO(), true);
-                    }
-                });
-
-                editModalWin.show(target);
-            }
-        };
-        MetaDataRoleAuthorizationStrategy.authorize(createLink, ENABLE,
-                xmlRolesReader.getAllAllowedRoles("Users", "create"));
-        add(createLink);
-
-        // select attributes to be displayed
-        AjaxLink displayAttrsLink = new IndicatingAjaxLink("displayAttrsLink") {
-
-            @Override
-            public void onClick(final AjaxRequestTarget target) {
-
-                displayAttrsModalWin.setPageCreator(
-                        new ModalWindow.PageCreator() {
-
-                            @Override
-                            public Page createPage() {
-                                return new DisplayAttributesModalPage(
-                                        Users.this, displayAttrsModalWin);
-                            }
-                        });
-
-                displayAttrsModalWin.show(target);
-            }
-        };
-        MetaDataRoleAuthorizationStrategy.authorize(displayAttrsLink, ENABLE,
-                xmlRolesReader.getAllAllowedRoles("Users", "changeView"));
-        add(displayAttrsLink);
-
-        // rows-per-page management
-        Form paginatorForm = new Form("paginator");
-        add(paginatorForm);
-        final DropDownChoice<Integer> rowsChooser =
-                new DropDownChoice<Integer>("rowsChooser",
-                new PropertyModel(this, "paginatorRows"),
-                prefMan.getPaginatorChoices());
-        rowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
-
-            @Override
-            protected void onUpdate(final AjaxRequestTarget target) {
-                prefMan.set(getWebRequestCycle().getWebRequest(),
-                        getWebRequestCycle().getWebResponse(),
-                        Constants.PREF_USERS_PAGINATOR_ROWS,
-                        String.valueOf(paginatorRows));
-
-                listTable.setRowsPerPage(paginatorRows);
-
-                target.addComponent(listContainer);
-            }
-        });
-        paginatorForm.add(rowsChooser);
-
-        // search form
-        Form searchForm = new Form("searchForm");
-        add(searchForm);
-
-        searchForm.add(new FeedbackPanel("searchFeedback").setOutputMarkupId(
-                true));
-
-        final WebMarkupContainer searchFormContainer =
-                new WebMarkupContainer("searchFormContainer");
-        searchFormContainer.setOutputMarkupId(true);
-        setWindowClosedCallback(editModalWin, searchFormContainer);
-        searchForm.add(searchFormContainer);
-
-        final List<SearchConditionWrapper> searchConditionList =
-                new ArrayList<SearchConditionWrapper>();
-        searchConditionList.add(new SearchConditionWrapper());
-
-        searchFormContainer.add(new SearchView("searchView",
-                searchConditionList, searchFormContainer));
-
-        AjaxButton addAndButton = new IndicatingAjaxButton("addAndButton",
-                new Model(getString("addAndButton"))) {
-
-            @Override
-            protected void onSubmit(final AjaxRequestTarget target,
-                    final Form form) {
-
-                SearchConditionWrapper conditionWrapper =
-                        new SearchConditionWrapper();
-                conditionWrapper.setOperationType(OperationType.AND);
-                searchConditionList.add(conditionWrapper);
-                target.addComponent(searchFormContainer);
-            }
-        };
-        addAndButton.setDefaultFormProcessing(false);
-        searchFormContainer.add(addAndButton);
-
-        AjaxButton addOrButton = new IndicatingAjaxButton("addOrButton",
-                new Model(getString("addOrButton"))) {
-
-            @Override
-            protected void onSubmit(final AjaxRequestTarget target,
-                    final Form form) {
-
-                SearchConditionWrapper conditionWrapper =
-                        new SearchConditionWrapper();
-                conditionWrapper.setOperationType(OperationType.OR);
-                searchConditionList.add(conditionWrapper);
-                target.addComponent(searchFormContainer);
-            }
-        };
-        addOrButton.setDefaultFormProcessing(false);
-        searchFormContainer.add(addOrButton);
-
-        // search result
-        final AjaxFallbackDefaultDataTable<UserTO> searchResultTable =
-                new AjaxFallbackDefaultDataTable<UserTO>("searchResultTable",
-                columns, new UserSearchDataProvider(), searchPaginatorRows);
-        searchResultTable.setOutputMarkupId(true);
-        searchResultContainer.add(searchResultTable);
-        searchForm.add(new IndicatingAjaxButton("search", new Model(
-                getString("search"))) {
-
-            @Override
-            protected void onSubmit(final AjaxRequestTarget target,
-                    final Form<?> form) {
-
-                searchCond = buildSearchCond(searchConditionList);
-                LOG.debug("Node condition " + searchCond);
-
-                if (searchCond == null || !searchCond.checkValidity()) {
-                    error(getString("search_error"));
-                    return;
-                }
-
-                target.addComponent(searchResultTable);
-            }
-
-            @Override
-            protected void onError(final AjaxRequestTarget target,
-                    final Form form) {
-
-                target.addComponent(form.get("searchFeedback"));
-            }
-        });
-
-        // search rows-per-page management
-        Form searchPaginatorForm = new Form("searchPaginator");
-        add(searchPaginatorForm);
-        final DropDownChoice<Integer> searchRowsChooser =
-                new DropDownChoice<Integer>("searchRowsChooser",
-                new PropertyModel(this, "searchPaginatorRows"),
-                prefMan.getPaginatorChoices());
-        searchRowsChooser.add(
-                new AjaxFormComponentUpdatingBehavior("onchange") {
-
-                    @Override
-                    protected void onUpdate(final AjaxRequestTarget target) {
-                        prefMan.set(getWebRequestCycle().getWebRequest(),
-                                getWebRequestCycle().getWebResponse(),
-                                Constants.PREF_USERS_SEARCH_PAGINATOR_ROWS,
-                                String.valueOf(searchPaginatorRows));
-
-                        searchResultTable.setRowsPerPage(searchPaginatorRows);
-
-                        target.addComponent(searchResultContainer);
-                    }
-                });
-        searchPaginatorForm.add(searchRowsChooser);
+        return columns;
     }
 
-    private void setWindowClosedCallback(final ModalWindow window,
-            final WebMarkupContainer container) {
+    private void doSearch(final AjaxRequestTarget target,
+            final List<SearchConditionWrapper> searchConditionList,
+            final UserSearchDataProvider searchDataProvider,
+            final AjaxFallbackDefaultDataTable<UserTO> searchResultTable) {
 
-        window.setWindowClosedCallback(
-                new ModalWindow.WindowClosedCallback() {
+        NodeCond searchCond = buildSearchCond(searchConditionList);
+        LOG.debug("Node condition " + searchCond);
 
-                    @Override
-                    public void onClose(final AjaxRequestTarget target) {
-                        target.addComponent(container);
-                        target.addComponent(feedbackPanel);
+        if (searchCond == null || !searchCond.checkValidity()) {
+            error(getString("search_error"));
+            return;
+        }
+        searchDataProvider.setSearchCond(searchCond);
 
-                        if (modalResult) {
-                            info(getString("operation_succeded"));
-                            modalResult = false;
-                        }
-                    }
-                });
+        target.addComponent(searchResultTable);
     }
 
     public void setModalResult(final boolean modalResult) {
@@ -491,7 +549,8 @@ public class Users extends BasePage {
                     searchConditionWrapper.getFilterValue());
         } else {
             membershipCond = new MembershipCond();
-            membershipCond.setRoleName(searchConditionWrapper.getFilterName());
+            membershipCond.setRoleId(RoleTO.fromDisplayName(
+                    searchConditionWrapper.getFilterName()));
         }
 
         if (conditions.size() == 1) {
@@ -570,19 +629,19 @@ public class Users extends BasePage {
 
     private class UserDataProvider extends SortableDataProvider<UserTO> {
 
-        private SortableDataProviderComparator<UserTO> comparator;
+        private SortableUserProviderComparator comparator;
 
         public UserDataProvider() {
             super();
             //Default sorting
             setSort("id", true);
-            comparator = new SortableDataProviderComparator<UserTO>(getSort());
+            comparator = new SortableUserProviderComparator(this);
         }
 
         @Override
         public Iterator<UserTO> iterator(final int first, final int count) {
             List<UserTO> users = userRestClient.list(
-                    (first / paginatorRows) + 1, count);
+                    (first / paginatorRows) + 1, paginatorRows);
             Collections.sort(users, comparator);
             return users.iterator();
         }
@@ -600,13 +659,19 @@ public class Users extends BasePage {
 
     private class UserSearchDataProvider extends SortableDataProvider<UserTO> {
 
-        private SortableDataProviderComparator<UserTO> comparator;
+        private SortableUserProviderComparator comparator;
+
+        private NodeCond searchCond = null;
 
         public UserSearchDataProvider() {
             super();
             //Default sorting
             setSort("id", true);
-            comparator = new SortableDataProviderComparator<UserTO>(getSort());
+            comparator = new SortableUserProviderComparator(this);
+        }
+
+        public void setSearchCond(NodeCond searchCond) {
+            this.searchCond = searchCond;
         }
 
         @Override
@@ -616,7 +681,7 @@ public class Users extends BasePage {
                 users = Collections.EMPTY_LIST;
             } else {
                 users = userRestClient.search(searchCond,
-                        (first / paginatorRows) + 1, count);
+                        (first / searchPaginatorRows) + 1, searchPaginatorRows);
                 Collections.sort(users, comparator);
             }
 
@@ -666,7 +731,7 @@ public class Users extends BasePage {
         public UserAttrColumn(final IModel<String> displayModel,
                 final String schemaName) {
 
-            super(displayModel);
+            super(displayModel, schemaName);
             this.schemaName = schemaName;
         }
 
