@@ -15,6 +15,7 @@
 package org.syncope.console.wicket.markup.html.form;
 
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.IModel;
 
 /**
  * This empty class must exist because there not seems to be altrernative to
@@ -24,5 +25,9 @@ public class LinkPanel extends Panel {
 
     public LinkPanel(final String id) {
         super(id);
+    }
+
+    public LinkPanel(final String id, final IModel<?> model) {
+        super(id, model);
     }
 }
