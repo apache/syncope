@@ -19,7 +19,7 @@
     <parent>
         <groupId>org.syncope</groupId>
         <artifactId>syncope</artifactId>
-        <version>0.4</version>
+        <version>0.4.1-SNAPSHOT</version>
     </parent>
 
     <name>Syncope console</name>
