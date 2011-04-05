@@ -83,12 +83,12 @@ public class EncryptionUtil {
 
             final Cipher cipher = Cipher.getInstance("DES");
 
-            LOG.debug("To Be Dencrypted: {}", toBeDecrypted);
+            LOG.debug("To Be Decrypted: {}", toBeDecrypted);
 
             cipher.init(Cipher.DECRYPT_MODE, key);
             result = new String(cipher.doFinal(encrypedPwdBytes));
 
-            LOG.debug("Dencrypted: {}", result);
+            LOG.debug("Decrypted: {}", result);
         } catch (Exception e) {
             LOG.error("Decrypt operation failed", e);
         }
