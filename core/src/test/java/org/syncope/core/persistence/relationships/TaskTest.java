@@ -15,24 +15,66 @@
 package org.syncope.core.persistence.relationships;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
+import org.identityconnectors.framework.common.objects.Attribute;
+import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.AbstractTest;
+import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.Task;
 import org.syncope.core.persistence.beans.TaskExecution;
+import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.dao.TaskDAO;
 import org.syncope.core.persistence.dao.TaskExecutionDAO;
+import org.syncope.types.PropagationMode;
+import org.syncope.types.ResourceOperationType;
 
 @Transactional
 public class TaskTest extends AbstractTest {
 
     @Autowired
     private TaskDAO taskDAO;
+
     @Autowired
     private TaskExecutionDAO taskExecutionDAO;
+
+    @Autowired
+    private ResourceDAO resourceDAO;
+
+    @Test
+    public final void save() {
+        TargetResource resource = resourceDAO.find("ws-target-resource-1");
+        assertNotNull(resource);
+
+        Task task = new Task();
+        task.setResource(resource);
+        task.setPropagationMode(PropagationMode.ASYNC);
+        task.setResourceOperationType(ResourceOperationType.CREATE);
+        task.setAccountId("one@two.com");
+
+        Set<Attribute> attributes = new HashSet<Attribute>();
+        attributes.add(AttributeBuilder.build("testAttribute", "testValue1",
+                "testValue2"));
+        attributes.add(
+                AttributeBuilder.buildPassword("password".toCharArray()));
+        task.setAttributes(attributes);
+
+        task = taskDAO.save(task);
+        assertNotNull(task);
+
+        Task actual = taskDAO.find(task.getId());
+        assertEquals(task, actual);
+
+        taskDAO.flush();
+
+        resource = resourceDAO.find("ws-target-resource-1");
+        assertTrue(resource.getTasks().contains(task));
+    }
 
     @Test
     public final void addTaskExecution() {

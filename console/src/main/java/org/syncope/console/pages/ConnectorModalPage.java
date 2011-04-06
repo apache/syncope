@@ -18,10 +18,9 @@ package org.syncope.console.pages;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -37,16 +36,20 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.syncope.client.to.ConnectorBundleTO;
-import org.syncope.client.to.ConnectorInstanceTO;
-import org.syncope.client.to.PropertyTO;
+import org.syncope.client.to.ConnBundleTO;
+import org.syncope.client.to.ConnInstanceTO;
+import org.syncope.types.ConnConfProperty;
 import org.syncope.console.rest.ConnectorRestClient;
+import org.syncope.console.wicket.markup.html.form.AjaxPasswordFieldPanel;
+import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.syncope.types.ConnConfPropSchema;
 import org.syncope.types.ConnectorCapability;
 
 /**
@@ -54,78 +57,78 @@ import org.syncope.types.ConnectorCapability;
  */
 public class ConnectorModalPage extends BaseModalPage {
 
+    @SpringBean
+    private ConnectorRestClient restClient;
+
     private TextField connectorName;
 
     private TextField displayName;
 
-    private DropDownChoice bundle;
+    private DropDownChoice<ConnBundleTO> bundle;
 
     private TextField version;
 
     private CheckBoxMultipleChoice capabilitiesPalette;
 
-    private List<ConnectorBundleTO> bundlesTOs;
-
-    private ConnectorBundleTO selectedBundleTO = new ConnectorBundleTO();
-
-    private List<PropertyTO> connectorProperties = new ArrayList<PropertyTO>();
+    private ConnBundleTO selectedBundleTO = new ConnBundleTO();
 
     private AjaxButton submit;
 
-    @SpringBean
-    private ConnectorRestClient restClient;
-
-    //WebMarkupContainer container;
     private WebMarkupContainer propertiesContainer;
 
-    private List<ConnectorCapability> selections;
+    private List<ConnectorCapability> selectedCapabilities;
 
-    public ConnectorModalPage(final BasePage basePage,
+    public ConnectorModalPage(final Connectors basePage,
             final ModalWindow window,
-            final ConnectorInstanceTO connectorTO,
+            final ConnInstanceTO connectorTO,
             final boolean createFlag) {
 
-        Form connectorForm = new Form("ConnectorForm");
+        final IModel<List<ConnBundleTO>> bundles =
+                new LoadableDetachableModel<List<ConnBundleTO>>() {
 
-        connectorForm.setModel(new CompoundPropertyModel(connectorTO));
-
-        if (!createFlag) {
-            setupSelections(connectorTO);
-        }
-
-        IModel bundles = new LoadableDetachableModel() {
-
-            protected Object load() {
-                return restClient.getAllBundles();
-            }
-        };
-
-        IModel selectedBundleProperties = new LoadableDetachableModel() {
-
-            protected Object load() {
-                List<PropertyTO> list;
-
-                if (createFlag) {
-                    connectorTO.setConnectorName(selectedBundleTO.
-                            getConnectorName());
-                    connectorTO.setVersion(selectedBundleTO.getVersion());
-
-                    list = new ArrayList<PropertyTO>();
-                    PropertyTO propertyTO;
-
-                    for (String key : selectedBundleTO.getProperties()) {
-                        propertyTO = new PropertyTO();
-                        propertyTO.setKey(key);
-
-                        list.add(propertyTO);
+                    @Override
+                    protected List<ConnBundleTO> load() {
+                        return restClient.getAllBundles();
                     }
-                } else {
-                    selectedBundleTO.setBundleName(connectorTO.getBundleName());
-                    list = hashSetToList(connectorTO.getConfiguration());
-                }
-                return list;
-            }
-        };
+                };
+
+        selectedCapabilities = new ArrayList(createFlag
+                ? EnumSet.noneOf(ConnectorCapability.class)
+                : connectorTO.getCapabilities());
+
+        IModel<List<ConnConfProperty>> selectedBundleProperties =
+                new LoadableDetachableModel<List<ConnConfProperty>>() {
+
+                    @Override
+                    protected List<ConnConfProperty> load() {
+                        List<ConnConfProperty> result;
+
+                        if (createFlag) {
+                            connectorTO.setConnectorName(
+                                    selectedBundleTO.getConnectorName());
+                            connectorTO.setVersion(
+                                    selectedBundleTO.getVersion());
+
+                            result = new ArrayList<ConnConfProperty>();
+                            ConnConfProperty propertyTO;
+
+                            for (ConnConfPropSchema key :
+                                    selectedBundleTO.getProperties()) {
+
+                                propertyTO = new ConnConfProperty();
+                                propertyTO.setSchema(key);
+
+                                result.add(propertyTO);
+                            }
+                        } else {
+                            selectedBundleTO.setBundleName(
+                                    connectorTO.getBundleName());
+                            result = new ArrayList(
+                                    connectorTO.getConfiguration());
+                        }
+                        return result;
+                    }
+                };
 
         connectorName = new TextField("connectorName");
         connectorName.setEnabled(false);
@@ -138,30 +141,31 @@ public class ConnectorModalPage extends BaseModalPage {
         version.setEnabled(false);
         version.setOutputMarkupId(true);
 
-        ChoiceRenderer renderer =
-                new ChoiceRenderer("bundleName", "bundleName");
-        bundle = new DropDownChoice("bundle", bundles, renderer);
+        bundle = new DropDownChoice<ConnBundleTO>("bundle", bundles,
+                new ChoiceRenderer<ConnBundleTO>("bundleName", "bundleName"));
+        bundle.setModel(new IModel<ConnBundleTO>() {
 
-        bundle.setModel(new IModel() {
-
-            public Object getObject() {
+            @Override
+            public ConnBundleTO getObject() {
                 return selectedBundleTO;
             }
 
-            public void setObject(Object object) {
-                selectedBundleTO = (ConnectorBundleTO) object;
+            @Override
+            public void setObject(final ConnBundleTO object) {
+                selectedBundleTO = object;
             }
 
+            @Override
             public void detach() {
             }
         });
 
         bundle.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
-            protected void onUpdate(AjaxRequestTarget target) {
+            @Override
+            protected void onUpdate(final AjaxRequestTarget target) {
                 //reset all informations stored in connectorTO
-
-                connectorTO.setConfiguration(new HashSet<PropertyTO>());
+                connectorTO.setConfiguration(new HashSet<ConnConfProperty>());
 
                 target.addComponent(propertiesContainer);
                 target.addComponent(connectorName);
@@ -171,77 +175,90 @@ public class ConnectorModalPage extends BaseModalPage {
         bundle.setRequired(true);
         bundle.setEnabled(createFlag);
 
-        ListView propertiesView = (new ListView("connectorProperties",
-                selectedBundleProperties) {
-
-            PropertyTO propertyTO;
+        ListView<ConnConfProperty> propView = new ListView<ConnConfProperty>(
+                "connectorProperties", selectedBundleProperties) {
 
             @Override
-            protected void populateItem(ListItem item) {
-                propertyTO = (PropertyTO) item.getDefaultModelObject();
+            protected void populateItem(final ListItem<ConnConfProperty> item) {
+                ConnConfProperty property = item.getModelObject();
 
-                item.add(new Label("key", propertyTO.getKey()));
-                item.add(
-                        new TextField("value", new PropertyModel(propertyTO,
-                        "value")).setLabel(
-                        new Model<String>(propertyTO.getKey())).setRequired(true));
+                item.add(new Label("connPropAttrSchema",
+                        property.getSchema().getName()));
 
-                connectorTO.getConfiguration().add(propertyTO);
+                Panel connPropAttrValue;
+                if (property.getSchema().getType().
+                        endsWith("GuardedString")
+                        || property.getSchema().getType().
+                        endsWith("GuardedByteArray")) {
+
+                    connPropAttrValue = new AjaxPasswordFieldPanel(
+                            "connPropAttrValue", property.getSchema().getName(),
+                            new PropertyModel<String>(property, "value"),
+                            property.getSchema().isRequired());
+                } else {
+                    connPropAttrValue = new AjaxTextFieldPanel(
+                            "connPropAttrValue", property.getSchema().getName(),
+                            new PropertyModel<String>(property, "value"),
+                            property.getSchema().isRequired());
+                }
+                item.add(connPropAttrValue);
+
+                connectorTO.getConfiguration().add(property);
             }
-        });
+        };
 
         propertiesContainer = new WebMarkupContainer("propertiesContainer");
         propertiesContainer.setOutputMarkupId(true);
-        propertiesContainer.add(propertiesView);
+        propertiesContainer.add(propView);
 
+        Form connectorForm = new Form("ConnectorForm");
+        connectorForm.setModel(new CompoundPropertyModel(connectorTO));
         connectorForm.add(propertiesContainer);
 
         submit = new IndicatingAjaxButton("submit", new Model(
                 getString("submit"))) {
 
             @Override
-            protected void onSubmit(AjaxRequestTarget target, Form form) {
-                ConnectorInstanceTO connector = (ConnectorInstanceTO) form.
+            protected void onSubmit(final AjaxRequestTarget target,
+                    final Form form) {
+
+                ConnInstanceTO connector = (ConnInstanceTO) form.
                         getDefaultModelObject();
 
-                //Set the model object configuration's properties to connectorPropertiesMap reference
+                // Set the model object configuration's properties to
+                // connectorPropertiesMap reference
                 connector.setBundleName(bundle.getModelValue());
-                //Set the model object's capabilites to capabilitiesPalette's converted Set
-                connector.setCapabilities(getResourcesSet(selections));
+                // Set the model object's capabilites to
+                // capabilitiesPalette's converted Set
+                connector.setCapabilities(
+                        new HashSet<ConnectorCapability>(selectedCapabilities));
 
                 try {
-
                     if (createFlag) {
                         restClient.createConnector(connector);
                     } else {
                         restClient.updateConnector(connector);
                     }
 
-                    Connectors callerPage = (Connectors) basePage;
-                    callerPage.setOperationResult(true);
+                    basePage.setOperationResult(true);
 
                     window.close(target);
-
                 } catch (Exception e) {
                     error(getString("error") + ":" + e.getMessage());
                 }
             }
 
             @Override
-            protected void onError(AjaxRequestTarget target, Form form) {
+            protected void onError(final AjaxRequestTarget target,
+                    final Form form) {
+
                 target.addComponent(feedbackPanel);
             }
         };
 
-        String allowedRoles;
-
-        if (createFlag) {
-            allowedRoles = xmlRolesReader.getAllAllowedRoles("Connectors",
-                    "create");
-        } else {
-            allowedRoles = xmlRolesReader.getAllAllowedRoles("Connectors",
-                    "update");
-        }
+        String allowedRoles = createFlag
+                ? xmlRolesReader.getAllAllowedRoles("Connectors", "create")
+                : xmlRolesReader.getAllAllowedRoles("Connectors", "update");
 
         MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE,
                 allowedRoles);
@@ -251,99 +268,21 @@ public class ConnectorModalPage extends BaseModalPage {
         connectorForm.add(bundle);
         connectorForm.add(version);
 
-        final IModel capabilities = new LoadableDetachableModel() {
+        final IModel<List<ConnectorCapability>> capabilities =
+                new LoadableDetachableModel<List<ConnectorCapability>>() {
 
-            @Override
-            protected Object load() {
-                return Arrays.asList(ConnectorCapability.values());
-            }
-        };
+                    @Override
+                    protected List<ConnectorCapability> load() {
+                        return Arrays.asList(ConnectorCapability.values());
+                    }
+                };
 
         capabilitiesPalette = new CheckBoxMultipleChoice("capabilitiesPalette",
-                new PropertyModel(this, "selections"), capabilities);
+                new PropertyModel(this, "selectedCapabilities"), capabilities);
         connectorForm.add(capabilitiesPalette);
 
         connectorForm.add(submit);
 
         add(connectorForm);
-    }
-
-    /**
-     * Setup capabilities.
-     * @return void
-     */
-    public void setupSelections(ConnectorInstanceTO connectorTO) {
-        selections = new ArrayList<ConnectorCapability>();
-
-        for (ConnectorCapability capability : connectorTO.getCapabilities()) {
-            selections.add(capability);
-        }
-
-    }
-
-    /**
-     * Covert a capabilities List<ConnectorCapability> to Set<ConnectorCapability>.
-     * @return Set<ConnectorCapability>
-     */
-    public Set<ConnectorCapability> getResourcesSet(
-            Collection<ConnectorCapability> capabilitiesList) {
-
-        Set<ConnectorCapability> capabilitiesSet =
-                new HashSet<ConnectorCapability>();
-
-        for (ConnectorCapability capability : capabilitiesList) {
-            capabilitiesSet.add(capability);
-        }
-
-        return capabilitiesSet;
-    }
-
-    /**
-     * Originals : connector's  capabilities
-     * @param connectorTO
-     * @return List<ConnectorCapability>
-     */
-    public List<ConnectorCapability> getSelectedCapabilities(
-            ConnectorInstanceTO connectorTO) {
-
-        List<ConnectorCapability> capabilities =
-                new ArrayList<ConnectorCapability>();
-
-        for (ConnectorCapability capability : connectorTO.getCapabilities()) {
-            capabilities.add(capability);
-        }
-
-        return capabilities;
-    }
-
-    /**
-     * Destinations : available capabilities
-     * @param connectorTO
-     * @return List<ConnectorCapability>
-     */
-    public List<ConnectorCapability> getAvailableCapabilities() {
-
-        List<ConnectorCapability> capabilities =
-                new ArrayList<ConnectorCapability>();
-
-        capabilities = Arrays.asList(ConnectorCapability.values());
-
-        return capabilities;
-    }
-
-    /**
-     * Convert an HashSet<PropertyTO> object to a corresponding List<PropertyTO>
-     * object.
-     * @param hashset
-     * @return
-     */
-    public List<PropertyTO> hashSetToList(Set<PropertyTO> set) {
-        List<PropertyTO> list = new ArrayList<PropertyTO>();
-
-        for (PropertyTO propertyTO : set) {
-            list.add(propertyTO);
-        }
-
-        return list;
     }
 }

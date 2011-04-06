@@ -35,11 +35,11 @@ import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.OneToMany;
 import org.hibernate.annotations.CollectionOfElements;
-import org.syncope.client.to.PropertyTO;
+import org.syncope.types.ConnConfProperty;
 import org.syncope.types.ConnectorCapability;
 
 @Entity
-public class ConnectorInstance extends AbstractBaseBean {
+public class ConnInstance extends AbstractBaseBean {
 
     @Id
     private Long id;
@@ -92,7 +92,7 @@ public class ConnectorInstance extends AbstractBaseBean {
     mappedBy = "connector")
     private List<TargetResource> resources;
 
-    public ConnectorInstance() {
+    public ConnInstance() {
         capabilities = EnumSet.noneOf(ConnectorCapability.class);
     }
 
@@ -120,8 +120,8 @@ public class ConnectorInstance extends AbstractBaseBean {
         this.connectorName = connectorName;
     }
 
-    public Set<PropertyTO> getConfiguration() {
-        Set<PropertyTO> result = Collections.EMPTY_SET;
+    public Set<ConnConfProperty> getConfiguration() {
+        Set<ConnConfProperty> result = Collections.EMPTY_SET;
 
         try {
             ByteArrayInputStream tokenContentIS = new ByteArrayInputStream(
@@ -131,7 +131,7 @@ public class ConnectorInstance extends AbstractBaseBean {
             Object object = decoder.readObject();
             decoder.close();
 
-            result = (Set<PropertyTO>) object;
+            result = (Set<ConnConfProperty>) object;
         } catch (Throwable t) {
             LOG.error("During connector properties deserialization", t);
         }
@@ -139,7 +139,7 @@ public class ConnectorInstance extends AbstractBaseBean {
         return result;
     }
 
-    public void setConfiguration(Set<PropertyTO> configuration) {
+    public void setConfiguration(final Set<ConnConfProperty> configuration) {
         try {
             ByteArrayOutputStream tokenContentOS = new ByteArrayOutputStream();
             XMLEncoder encoder = new XMLEncoder(tokenContentOS);

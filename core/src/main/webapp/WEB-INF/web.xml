@@ -32,7 +32,7 @@
         <listener-class>org.syncope.core.persistence.DefaultContentLoader</listener-class>
     </listener>
     <listener>
-        <listener-class>org.syncope.core.persistence.ConnectorInstanceLoader</listener-class>
+        <listener-class>org.syncope.core.persistence.ConnInstanceLoader</listener-class>
     </listener>
 
     <servlet>

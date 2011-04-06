@@ -21,7 +21,7 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.syncope.core.persistence.beans.ConnectorInstance;
+import org.syncope.core.persistence.beans.ConnInstance;
 import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.AbstractTest;
@@ -41,7 +41,7 @@ public class ResourceTest extends AbstractTest {
 
         assertNotNull("findById did not work", resource);
 
-        ConnectorInstance connector = resource.getConnector();
+        ConnInstance connector = resource.getConnector();
 
         assertNotNull("connector not found", connector);
 

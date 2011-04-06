@@ -26,12 +26,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.client.to.ResourceTO;
 import org.syncope.client.to.SchemaMappingTO;
-import org.syncope.core.persistence.beans.ConnectorInstance;
+import org.syncope.core.persistence.beans.ConnInstance;
 import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.beans.user.USchema;
-import org.syncope.core.persistence.dao.ConnectorInstanceDAO;
+import org.syncope.core.persistence.dao.ConnInstanceDAO;
 import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.UserDAO;
@@ -52,7 +52,7 @@ public class ResourceTest extends AbstractTest {
     private SchemaDAO schemaDAO;
 
     @Autowired
-    private ConnectorInstanceDAO connectorInstanceDAO;
+    private ConnInstanceDAO connectorInstanceDAO;
 
     @Autowired
     private UserDAO userDAO;
@@ -129,7 +129,7 @@ public class ResourceTest extends AbstractTest {
         resource.setName("ws-target-resource-save");
 
         // specify the connector
-        ConnectorInstance connector = connectorInstanceDAO.find(100L);
+        ConnInstance connector = connectorInstanceDAO.find(100L);
 
         assertNotNull("connector not found", connector);
 
@@ -212,7 +212,7 @@ public class ResourceTest extends AbstractTest {
         // -------------------------------------
         // Get originally associated connector
         // -------------------------------------
-        ConnectorInstance connector = resource.getConnector();
+        ConnInstance connector = resource.getConnector();
 
         assertNotNull(connector);
 
@@ -258,7 +258,7 @@ public class ResourceTest extends AbstractTest {
         }
 
         // resource must be not referenced any more from the connector
-        ConnectorInstance actualConnector =
+        ConnInstance actualConnector =
                 connectorInstanceDAO.find(connectorId);
         assertNotNull(actualConnector);
         resources = actualConnector.getResources();

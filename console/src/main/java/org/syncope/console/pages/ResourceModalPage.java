@@ -47,7 +47,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.string.Strings;
-import org.syncope.client.to.ConnectorInstanceTO;
+import org.syncope.client.to.ConnInstanceTO;
 import org.syncope.client.to.ResourceTO;
 import org.syncope.client.to.SchemaMappingTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
@@ -77,7 +77,7 @@ public class ResourceModalPage extends BaseModalPage {
 
     private DropDownChoice<PropagationMode> optionalPropagationMode;
 
-    private ConnectorInstanceTO connectorTO = new ConnectorInstanceTO();
+    private ConnInstanceTO connectorTO = new ConnInstanceTO();
 
     private ResourceTO resource;
 
@@ -194,7 +194,7 @@ public class ResourceModalPage extends BaseModalPage {
 
             @Override
             public void setObject(Object object) {
-                ConnectorInstanceTO connector = (ConnectorInstanceTO) object;
+                ConnInstanceTO connector = (ConnInstanceTO) object;
                 resourceTO.setConnectorId(connector.getId());
             }
 

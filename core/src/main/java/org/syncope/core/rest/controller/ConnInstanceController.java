@@ -30,40 +30,41 @@ import org.identityconnectors.framework.api.ConnectorKey;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.servlet.ModelAndView;
-import org.syncope.client.to.ConnectorBundleTO;
-import org.syncope.client.to.ConnectorInstanceTO;
+import org.syncope.client.to.ConnBundleTO;
+import org.syncope.client.to.ConnInstanceTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.syncope.core.persistence.ConnectorInstanceLoader;
-import org.syncope.core.persistence.beans.ConnectorInstance;
-import org.syncope.core.persistence.dao.ConnectorInstanceDAO;
+import org.syncope.core.persistence.ConnInstanceLoader;
+import org.syncope.core.persistence.beans.ConnInstance;
+import org.syncope.core.persistence.dao.ConnInstanceDAO;
 import org.syncope.core.persistence.dao.MissingConfKeyException;
 import org.syncope.core.persistence.propagation.ConnectorFacadeProxy;
-import org.syncope.core.rest.data.ConnectorInstanceDataBinder;
+import org.syncope.core.rest.data.ConnInstanceDataBinder;
+import org.syncope.types.ConnConfPropSchema;
 
 @Controller
 @RequestMapping("/connector")
-public class ConnectorInstanceController extends AbstractController {
+public class ConnInstanceController extends AbstractController {
 
     @Autowired
-    private ConnectorInstanceDAO connectorInstanceDAO;
+    private ConnInstanceDAO connInstanceDAO;
 
     @Autowired
-    private ConnectorInstanceDataBinder binder;
+    private ConnInstanceDataBinder binder;
 
     @PreAuthorize("hasRole('CONNECTOR_CREATE')")
     @RequestMapping(method = RequestMethod.POST,
     value = "/create")
-    public ConnectorInstanceTO create(final HttpServletResponse response,
-            @RequestBody final ConnectorInstanceTO connectorTO)
+    public ConnInstanceTO create(final HttpServletResponse response,
+            @RequestBody final ConnInstanceTO connectorTO)
             throws SyncopeClientCompositeErrorException, NotFoundException,
             MissingConfKeyException {
 
-        LOG.debug("ConnectorInstance create called with configuration {}",
+        LOG.debug("ConnInstance create called with configuration {}",
                 connectorTO);
 
-        ConnectorInstance connectorInstance = null;
+        ConnInstance connInstance = null;
         try {
-            connectorInstance = binder.getConnectorInstance(connectorTO);
+            connInstance = binder.getConnInstance(connectorTO);
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("Could not create for " + connectorTO, e);
 
@@ -72,25 +73,25 @@ public class ConnectorInstanceController extends AbstractController {
 
         // Everything went out fine, we can flush to the database
         // and register the new connector instance for later usage
-        connectorInstance = connectorInstanceDAO.save(connectorInstance);
+        connInstance = connInstanceDAO.save(connInstance);
 
         response.setStatus(HttpServletResponse.SC_CREATED);
-        return binder.getConnectorInstanceTO(connectorInstance);
+        return binder.getConnInstanceTO(connInstance);
     }
 
     @PreAuthorize("hasRole('CONNECTOR_UPDATE')")
     @RequestMapping(method = RequestMethod.POST,
     value = "/update")
-    public ConnectorInstanceTO update(
-            @RequestBody final ConnectorInstanceTO connectorTO)
+    public ConnInstanceTO update(
+            @RequestBody final ConnInstanceTO connectorTO)
             throws SyncopeClientCompositeErrorException, NotFoundException,
             MissingConfKeyException {
 
         LOG.debug("Connector update called with configuration {}", connectorTO);
 
-        ConnectorInstance connectorInstance;
+        ConnInstance connInstance;
         try {
-            connectorInstance = binder.updateConnectorInstance(
+            connInstance = binder.updateConnInstance(
                     connectorTO.getId(), connectorTO);
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("Could not create for " + connectorTO, e);
@@ -100,9 +101,9 @@ public class ConnectorInstanceController extends AbstractController {
 
         // Everything went out fine, we can flush to the database
         // and register the new connector instance for later usage
-        connectorInstance = connectorInstanceDAO.save(connectorInstance);
+        connInstance = connInstanceDAO.save(connInstance);
 
-        return binder.getConnectorInstanceTO(connectorInstance);
+        return binder.getConnInstanceTO(connInstance);
     }
 
     @PreAuthorize("hasRole('CONNECTOR_DELETE')")
@@ -111,51 +112,48 @@ public class ConnectorInstanceController extends AbstractController {
     public void delete(@PathVariable("connectorId") Long connectorId)
             throws NotFoundException {
 
-        ConnectorInstance connectorInstance =
-                connectorInstanceDAO.find(connectorId);
+        ConnInstance connInstance = connInstanceDAO.find(connectorId);
 
-        if (connectorInstance == null) {
+        if (connInstance == null) {
             LOG.error("Could not find connector '" + connectorId + "'");
 
             throw new NotFoundException(String.valueOf(connectorId));
         }
 
-        connectorInstanceDAO.delete(connectorId);
+        connInstanceDAO.delete(connectorId);
     }
 
     @PreAuthorize("hasRole('CONNECTOR_LIST')")
     @RequestMapping(method = RequestMethod.GET,
     value = "/list")
-    public List<ConnectorInstanceTO> list() {
-        List<ConnectorInstance> connectorInstances =
-                connectorInstanceDAO.findAll();
+    public List<ConnInstanceTO> list() {
+        List<ConnInstance> connInstances = connInstanceDAO.findAll();
 
-        List<ConnectorInstanceTO> connectorInstanceTOs =
-                new ArrayList<ConnectorInstanceTO>();
-        for (ConnectorInstance connector : connectorInstances) {
-            connectorInstanceTOs.add(binder.getConnectorInstanceTO(connector));
+        List<ConnInstanceTO> connInstanceTOs =
+                new ArrayList<ConnInstanceTO>();
+        for (ConnInstance connector : connInstances) {
+            connInstanceTOs.add(binder.getConnInstanceTO(connector));
         }
 
-        return connectorInstanceTOs;
+        return connInstanceTOs;
     }
 
     @PreAuthorize("hasRole('CONNECTOR_READ')")
     @RequestMapping(method = RequestMethod.GET,
     value = "/read/{connectorId}")
-    public ConnectorInstanceTO read(
+    public ConnInstanceTO read(
             @PathVariable("connectorId") Long connectorId)
             throws NotFoundException {
 
-        ConnectorInstance connectorInstance =
-                connectorInstanceDAO.find(connectorId);
+        ConnInstance connInstance = connInstanceDAO.find(connectorId);
 
-        if (connectorInstance == null) {
+        if (connInstance == null) {
             LOG.error("Could not find connector '" + connectorId + "'");
 
             throw new NotFoundException(String.valueOf(connectorId));
         }
 
-        return binder.getConnectorInstanceTO(connectorInstance);
+        return binder.getConnInstanceTO(connInstance);
     }
 
     @PreAuthorize("hasRole('CONNECTOR_READ')")
@@ -163,7 +161,7 @@ public class ConnectorInstanceController extends AbstractController {
     value = "/check/{connectorId}")
     public ModelAndView check(@PathVariable("connectorId") String connectorId) {
         ConnectorFacadeProxy connector =
-                ConnectorInstanceLoader.getConnector(connectorId);
+                ConnInstanceLoader.getConnector(connectorId);
 
         ModelAndView mav = new ModelAndView();
 
@@ -184,16 +182,16 @@ public class ConnectorInstanceController extends AbstractController {
 
     @PreAuthorize("hasRole('CONNECTOR_READ')")
     @RequestMapping(method = RequestMethod.GET,
-    value = "/getBundles")
-    public List<ConnectorBundleTO> getBundles()
+    value = "/bundle/list")
+    public List<ConnBundleTO> getBundles()
             throws NotFoundException, MissingConfKeyException {
 
         ConnectorInfoManager manager =
-                ConnectorInstanceLoader.getConnectorManager();
+                ConnInstanceLoader.getConnectorManager();
 
         List<ConnectorInfo> bundles = manager.getConnectorInfos();
 
-        if (bundles != null) {
+        if (LOG.isDebugEnabled() && bundles != null) {
             LOG.debug("#Bundles: {}", bundles.size());
 
             for (ConnectorInfo bundle : bundles) {
@@ -201,14 +199,13 @@ public class ConnectorInstanceController extends AbstractController {
             }
         }
 
-        ConnectorBundleTO connectorBundleTO;
+        ConnBundleTO connectorBundleTO;
         ConnectorKey key;
         ConfigurationProperties properties;
 
-        List<ConnectorBundleTO> connectorBundleTOs =
-                new ArrayList<ConnectorBundleTO>();
+        List<ConnBundleTO> connectorBundleTOs = new ArrayList<ConnBundleTO>();
         for (ConnectorInfo bundle : bundles) {
-            connectorBundleTO = new ConnectorBundleTO();
+            connectorBundleTO = new ConnBundleTO();
             connectorBundleTO.setDisplayName(bundle.getConnectorDisplayName());
 
             key = bundle.getConnectorKey();
@@ -228,7 +225,17 @@ public class ConnectorInstanceController extends AbstractController {
             properties = bundle.createDefaultAPIConfiguration().
                     getConfigurationProperties();
 
-            connectorBundleTO.setProperties(properties.getPropertyNames());
+            ConnConfPropSchema connConfPropSchema;
+            for (String propName : properties.getPropertyNames()) {
+                connConfPropSchema = new ConnConfPropSchema();
+                connConfPropSchema.setName(propName);
+                connConfPropSchema.setRequired(
+                        properties.getProperty(propName).isRequired());
+                connConfPropSchema.setType(
+                        properties.getProperty(propName).getType().getName());
+
+                connectorBundleTO.addProperty(connConfPropSchema);
+            }
 
             LOG.debug("Bundle properties: {}",
                     connectorBundleTO.getProperties());

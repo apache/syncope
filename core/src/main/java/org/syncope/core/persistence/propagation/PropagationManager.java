@@ -36,10 +36,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.syncope.core.persistence.ConnectorInstanceLoader;
+import org.syncope.core.persistence.ConnInstanceLoader;
 import org.syncope.core.persistence.beans.AbstractAttrValue;
 import org.syncope.core.persistence.beans.AbstractSchema;
-import org.syncope.core.persistence.beans.ConnectorInstance;
+import org.syncope.core.persistence.beans.ConnInstance;
 import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.beans.Task;
@@ -474,11 +474,11 @@ public class PropagationManager {
         final Set<String> triedPropagationRequests = new HashSet<String>();
 
         try {
-            ConnectorInstance connectorInstance =
+            ConnInstance connectorInstance =
                     task.getResource().getConnector();
 
             ConnectorFacadeProxy connector =
-                    ConnectorInstanceLoader.getConnector(
+                    ConnInstanceLoader.getConnector(
                     connectorInstance.getId().toString());
 
             if (connector == null) {

@@ -14,36 +14,28 @@
  */
 package org.syncope.core.rest.data;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import org.syncope.client.to.ConnectorInstanceTO;
+import org.syncope.client.to.ConnInstanceTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
-import org.syncope.core.persistence.beans.ConnectorInstance;
-import org.syncope.core.persistence.dao.ConnectorInstanceDAO;
+import org.syncope.core.persistence.beans.ConnInstance;
+import org.syncope.core.persistence.dao.ConnInstanceDAO;
 import org.syncope.types.SyncopeClientExceptionType;
 
 @Component
-public class ConnectorInstanceDataBinder {
-
-    /**
-     * Logger.
-     */
-    private static final Logger LOG = LoggerFactory.getLogger(
-            ConnectorInstanceDataBinder.class);
+public class ConnInstanceDataBinder {
 
     private static final String[] ignoreProperties = {
         "id", "resources"};
 
     @Autowired
-    private ConnectorInstanceDAO connectorInstanceDAO;
+    private ConnInstanceDAO connectorInstanceDAO;
 
-    public ConnectorInstance getConnectorInstance(
-            ConnectorInstanceTO connectorInstanceTO)
+    public ConnInstance getConnInstance(
+            final ConnInstanceTO connectorInstanceTO)
             throws SyncopeClientCompositeErrorException {
 
         SyncopeClientCompositeErrorException compositeErrorException =
@@ -71,7 +63,7 @@ public class ConnectorInstanceDataBinder {
             requiredValuesMissing.addElement("configuration");
         }
 
-        ConnectorInstance connectorInstance = new ConnectorInstance();
+        ConnInstance connectorInstance = new ConnInstance();
 
         BeanUtils.copyProperties(
                 connectorInstanceTO, connectorInstance, ignoreProperties);
@@ -90,9 +82,9 @@ public class ConnectorInstanceDataBinder {
         return connectorInstance;
     }
 
-    public ConnectorInstance updateConnectorInstance(
+    public ConnInstance updateConnInstance(
             Long connectorInstanceId,
-            ConnectorInstanceTO connectorInstanceTO)
+            ConnInstanceTO connectorInstanceTO)
             throws SyncopeClientCompositeErrorException {
 
         SyncopeClientCompositeErrorException compositeErrorException =
@@ -107,7 +99,7 @@ public class ConnectorInstanceDataBinder {
             requiredValuesMissing.addElement("connector id");
         }
 
-        ConnectorInstance connectorInstance =
+        ConnInstance connectorInstance =
                 connectorInstanceDAO.find(connectorInstanceId);
 
         if (connectorInstanceTO.getBundleName() != null) {
@@ -152,11 +144,11 @@ public class ConnectorInstanceDataBinder {
         return connectorInstance;
     }
 
-    public ConnectorInstanceTO getConnectorInstanceTO(
-            ConnectorInstance connectorInstance) {
+    public ConnInstanceTO getConnInstanceTO(
+            ConnInstance connectorInstance) {
 
-        ConnectorInstanceTO connectorInstanceTO =
-                new ConnectorInstanceTO();
+        ConnInstanceTO connectorInstanceTO =
+                new ConnInstanceTO();
 
         BeanUtils.copyProperties(
                 connectorInstance, connectorInstanceTO, ignoreProperties);

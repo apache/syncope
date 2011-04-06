@@ -58,11 +58,11 @@
         </attributes>
     </entity>
 
-    <entity class="org.syncope.core.persistence.beans.ConnectorInstance">
+    <entity class="org.syncope.core.persistence.beans.ConnInstance">
         <attributes>
             <id name="id">
-                <generated-value generator="SEQ_ConnectorInstance" strategy="TABLE"/>
-                <table-generator name="SEQ_ConnectorInstance" pk-column-value="SEQ_ConnectorInstance" initial-value="1000"/>
+                <generated-value generator="SEQ_ConnInstance" strategy="TABLE"/>
+                <table-generator name="SEQ_ConnInstance" pk-column-value="SEQ_ConnInstance" initial-value="1000"/>
             </id>
         </attributes>
     </entity>
@@ -197,6 +197,23 @@
         <attributes>
             <id name="id">
                 <generated-value generator="SEQ_MAttrValue" strategy="TABLE"/>
+            </id>
+        </attributes>
+    </entity>
+
+    <entity class="org.syncope.core.persistence.beans.Task">
+        <attributes>
+            <id name="id">
+                <generated-value generator="SEQ_Task" strategy="TABLE"/>
+                <table-generator name="SEQ_Task" pk-column-value="SEQ_Task" initial-value="10"/>
+            </id>
+        </attributes>
+    </entity>
+    <entity class="org.syncope.core.persistence.beans.TaskExecution">
+        <attributes>
+            <id name="id">
+                <generated-value generator="SEQ_TaskExecution" strategy="TABLE"/>
+                <table-generator name="SEQ_TaskExecution" pk-column-value="SEQ_TaskExecution" initial-value="10"/>
             </id>
         </attributes>
     </entity>

@@ -91,7 +91,7 @@ public class WebServiceConfiguration extends AbstractConfiguration {
             new URL(endpoint);
         } catch (MalformedURLException ex) {
             throw new IllegalArgumentException(
-                    "ExampleProperty cannot be null or empty.");
+                    "The specified endpoint is not a valid URL.");
         }
     }
 }

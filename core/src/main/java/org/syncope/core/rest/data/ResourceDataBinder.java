@@ -29,10 +29,10 @@ import org.syncope.client.to.ResourceTO;
 import org.syncope.client.to.SchemaMappingTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
-import org.syncope.core.persistence.beans.ConnectorInstance;
+import org.syncope.core.persistence.beans.ConnInstance;
 import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.SchemaMapping;
-import org.syncope.core.persistence.dao.ConnectorInstanceDAO;
+import org.syncope.core.persistence.dao.ConnInstanceDAO;
 import org.syncope.types.SyncopeClientExceptionType;
 
 @Component
@@ -48,7 +48,7 @@ public class ResourceDataBinder {
         "id", "resource"};
 
     @Autowired
-    private ConnectorInstanceDAO connectorInstanceDAO;
+    private ConnInstanceDAO connectorInstanceDAO;
 
     @Autowired
     private JexlEngine jexlEngine;
@@ -79,7 +79,7 @@ public class ResourceDataBinder {
             requiredValuesMissing.addElement("name");
         }
 
-        ConnectorInstance connector = null;
+        ConnInstance connector = null;
 
         if (resourceTO.getConnectorId() != null) {
             connector = connectorInstanceDAO.find(resourceTO.getConnectorId());
@@ -143,7 +143,7 @@ public class ResourceDataBinder {
         resourceTO.setName(resource.getName());
 
         // set the connector instance
-        ConnectorInstance connector = resource.getConnector();
+        ConnInstance connector = resource.getConnector();
 
         resourceTO.setConnectorId(
                 connector != null ? connector.getId() : null);

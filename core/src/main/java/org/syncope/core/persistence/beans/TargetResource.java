@@ -66,7 +66,7 @@ public class TargetResource extends AbstractBaseBean {
      * The resource type is identified by the associated connector.
      */
     @ManyToOne(fetch = FetchType.EAGER)
-    private ConnectorInstance connector;
+    private ConnInstance connector;
 
     /**
      * Users associated to this resource.
@@ -123,11 +123,11 @@ public class TargetResource extends AbstractBaseBean {
                 getBooleanAsInteger(forceMandatoryConstraint);
     }
 
-    public ConnectorInstance getConnector() {
+    public ConnInstance getConnector() {
         return connector;
     }
 
-    public void setConnector(ConnectorInstance connector) {
+    public void setConnector(ConnInstance connector) {
         this.connector = connector;
     }
 

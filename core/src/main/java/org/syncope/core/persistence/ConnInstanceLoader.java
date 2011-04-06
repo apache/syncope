@@ -29,9 +29,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.syncope.core.persistence.beans.ConnectorInstance;
+import org.syncope.core.persistence.beans.ConnInstance;
 import org.syncope.core.persistence.beans.SyncopeConf;
-import org.syncope.core.persistence.dao.ConnectorInstanceDAO;
+import org.syncope.core.persistence.dao.ConnInstanceDAO;
 import org.syncope.core.persistence.dao.MissingConfKeyException;
 import org.syncope.core.persistence.dao.ConfDAO;
 import org.syncope.core.persistence.propagation.ConnectorFacadeProxy;
@@ -40,13 +40,13 @@ import org.syncope.core.util.ApplicationContextManager;
 /**
  * Load identity connector instances on application startup.
  */
-public class ConnectorInstanceLoader implements ServletContextListener {
+public class ConnInstanceLoader implements ServletContextListener {
 
     /**
      * Logger.
      */
     private static final Logger LOG = LoggerFactory.getLogger(
-            ConnectorInstanceLoader.class);
+            ConnInstanceLoader.class);
 
     public static ConnectorInfoManager getConnectorManager()
             throws NotFoundException {
@@ -115,7 +115,7 @@ public class ConnectorInstanceLoader implements ServletContextListener {
         return (ConnectorFacadeProxy) getBeanFactory().getBean(id);
     }
 
-    public static void registerConnector(final ConnectorInstance instance)
+    public static void registerConnector(final ConnInstance instance)
             throws NotFoundException {
 
         if (getBeanFactory().containsSingleton(instance.getId().toString())) {
@@ -140,12 +140,11 @@ public class ConnectorInstanceLoader implements ServletContextListener {
         ConfigurableApplicationContext context =
                 ApplicationContextManager.getApplicationContext();
 
-        ConnectorInstanceDAO connectorInstanceDAO =
-                (ConnectorInstanceDAO) context.getBean(
-                "connectorInstanceDAOImpl");
+        ConnInstanceDAO connectorInstanceDAO =
+                (ConnInstanceDAO) context.getBean("connInstanceDAOImpl");
 
-        List<ConnectorInstance> instances = connectorInstanceDAO.findAll();
-        for (ConnectorInstance instance : instances) {
+        List<ConnInstance> instances = connectorInstanceDAO.findAll();
+        for (ConnInstance instance : instances) {
             try {
                 LOG.error("register connector {}", instance);
                 registerConnector(instance);

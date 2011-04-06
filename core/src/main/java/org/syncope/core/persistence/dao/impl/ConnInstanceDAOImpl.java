@@ -18,31 +18,30 @@ import java.util.List;
 import javassist.NotFoundException;
 import javax.persistence.Query;
 import org.springframework.stereotype.Repository;
-import org.syncope.core.persistence.ConnectorInstanceLoader;
-import org.syncope.core.persistence.beans.ConnectorInstance;
-import org.syncope.core.persistence.dao.ConnectorInstanceDAO;
+import org.syncope.core.persistence.ConnInstanceLoader;
+import org.syncope.core.persistence.beans.ConnInstance;
+import org.syncope.core.persistence.dao.ConnInstanceDAO;
 
 @Repository
-public class ConnectorInstanceDAOImpl extends AbstractDAOImpl
-        implements ConnectorInstanceDAO {
+public class ConnInstanceDAOImpl extends AbstractDAOImpl
+        implements ConnInstanceDAO {
 
     @Override
-    public ConnectorInstance find(final Long id) {
-        return entityManager.find(ConnectorInstance.class, id);
+    public ConnInstance find(final Long id) {
+        return entityManager.find(ConnInstance.class, id);
     }
 
     @Override
-    public List<ConnectorInstance> findAll() {
-        Query query = entityManager.createQuery(
-                "SELECT e FROM ConnectorInstance e");
+    public List<ConnInstance> findAll() {
+        Query query = entityManager.createQuery("SELECT e FROM ConnInstance e");
         return query.getResultList();
     }
 
     @Override
-    public ConnectorInstance save(final ConnectorInstance connector) {
-        ConnectorInstance actual = entityManager.merge(connector);
+    public ConnInstance save(final ConnInstance connector) {
+        ConnInstance actual = entityManager.merge(connector);
         try {
-            ConnectorInstanceLoader.registerConnector(actual);
+            ConnInstanceLoader.registerConnector(actual);
         } catch (NotFoundException e) {
             LOG.error("While registering the connector for instance "
                     + actual, e);
@@ -55,6 +54,6 @@ public class ConnectorInstanceDAOImpl extends AbstractDAOImpl
     public void delete(final Long id) {
         entityManager.remove(find(id));
 
-        ConnectorInstanceLoader.removeConnector(id.toString());
+        ConnInstanceLoader.removeConnector(id.toString());
     }
 }

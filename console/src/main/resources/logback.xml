@@ -37,6 +37,11 @@
         </encoder>
     </appender>
 
+    <logger name="org.syncope.client" additivity="false">
+        <level value="OFF"/>
+        <appender-ref ref="main"/>
+    </logger>
+
     <logger name="org.syncope.console" additivity="false">
         <level value="INFO"/>
         <appender-ref ref="main"/>

@@ -35,6 +35,7 @@ public class TaskTest extends AbstractTest {
 
     @Autowired
     private TaskDAO taskDAO;
+
     @Autowired
     private ResourceDAO resourceDAO;
 
@@ -67,9 +68,6 @@ public class TaskTest extends AbstractTest {
 
         Task actual = taskDAO.find(task.getId());
         assertEquals(task, actual);
-
-        resource = resourceDAO.find("ws-target-resource-1");
-        assertTrue(resource.getTasks().contains(task));
     }
 
     @Test

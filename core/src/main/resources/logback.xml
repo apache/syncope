@@ -86,6 +86,11 @@
         </encoder>
     </appender>
 
+    <logger name="org.syncope.client" additivity="false">
+        <level value="OFF"/>
+        <appender-ref ref="main"/>
+    </logger>
+
     <logger name="org.syncope.core.persistence" additivity="false">
         <level value="INFO"/>
         <appender-ref ref="persistence"/>
