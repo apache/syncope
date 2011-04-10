@@ -14,6 +14,8 @@
  */
 package org.syncope.core.persistence.propagation;
 
+import java.io.File;
+import java.net.URI;
 import java.util.Set;
 import javassist.NotFoundException;
 import org.identityconnectors.common.security.GuardedByteArray;
@@ -140,17 +142,48 @@ public class ConnectorFacadeProxy {
                                 property.getValue().toCharArray());
                     } else if (GuardedByteArray.class.equals(
                             propertySchemaClass)) {
+
                         propertyValue = new GuardedByteArray(
                                 property.getValue().getBytes());
+                    } else if (Character.class.equals(propertySchemaClass)
+                            || char.class.equals(propertySchemaClass)) {
+
+                        propertyValue = property.getValue().toCharArray()[0];
+                    } else if (Integer.class.equals(propertySchemaClass)
+                            || int.class.equals(propertySchemaClass)) {
+
+                        propertyValue = Integer.valueOf(property.getValue());
+                    } else if (Long.class.equals(propertySchemaClass)
+                            || long.class.equals(propertySchemaClass)) {
+
+                        propertyValue = Long.valueOf(property.getValue());
+                    } else if (Float.class.equals(propertySchemaClass)
+                            || float.class.equals(propertySchemaClass)) {
+
+                        propertyValue = Float.valueOf(property.getValue());
+                    } else if (Double.class.equals(propertySchemaClass)
+                            || double.class.equals(propertySchemaClass)) {
+
+                        propertyValue = Double.valueOf(property.getValue());
+                    } else if (Boolean.class.equals(propertySchemaClass)
+                            || boolean.class.equals(propertySchemaClass)) {
+
+                        propertyValue = Boolean.valueOf(property.getValue());
+                    } else if (URI.class.equals(propertySchemaClass)) {
+                        propertyValue = URI.create(property.getValue());
+                    } else if (File.class.equals(propertySchemaClass)) {
+                        propertyValue = new File(property.getValue());
+                    } else if (String[].class.equals(propertySchemaClass)) {
+                        propertyValue = property.getValue().split(" ");
                     } else {
                         propertyValue = property.getValue();
                     }
 
                     properties.setPropertyValue(
                             property.getSchema().getName(), propertyValue);
-                } catch (ClassNotFoundException e) {
-                    LOG.error("Invalid configType specified for "
-                            + property.getSchema(), e);
+                } catch (Throwable t) {
+                    LOG.error("Invalid ConnConfProperty specified: {}",
+                            property, t);
                 }
             }
         }
