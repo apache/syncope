@@ -88,6 +88,12 @@ public class TargetResource extends AbstractBaseBean {
     @Valid
     private List<SchemaMapping> mappings;
 
+    /**
+     * A JEXL expression for determining how to link user account id in
+     * Syncope DB to user account id in target resource's DB.
+     */
+    private String accountLink;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private PropagationMode optionalPropagationMode;
@@ -192,6 +198,14 @@ public class TargetResource extends AbstractBaseBean {
         if (mappings != null) {
             this.mappings.addAll(mappings);
         }
+    }
+
+    public String getAccountLink() {
+        return accountLink;
+    }
+
+    public void setAccountLink(String accountLink) {
+        this.accountLink = accountLink;
     }
 
     public String getName() {

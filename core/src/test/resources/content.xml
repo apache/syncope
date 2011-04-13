@@ -136,9 +136,6 @@
 
     <UDerSchema name="cn" expression="surname + ', ' + firstname"/>
     
-    <USchemaDerivation derivedSchemas_name="cn" schemas_name="surname"/>
-    <USchemaDerivation derivedSchemas_name="cn" schemas_name="firstname"/>
-                                            
     <UDerAttr id="1000" derivedSchema_name="cn" owner_id="3"/>
 
     <ConnInstance id="100" displayName="ConnInstance100"
@@ -292,9 +289,6 @@
                  xmlAttributes="%3Cset%3E%0A++%3Corg.identityconnectors.framework.common.objects.Name%3E%0A++++%3Cname%3E__NAME__%3C%2Fname%3E%0A++++%3Cvalue+class%3D%22java.util.Collections%24UnmodifiableRandomAccessList%22+resolves-to%3D%22java.util.Collections%24UnmodifiableList%22%3E%0A++++++%3Cc+class%3D%22list%22%3E%0A++++++++%3Cstring%3EuserId%3C%2Fstring%3E%0A++++++%3C%2Fc%3E%0A++++++%3Clist+reference%3D%22..%2Fc%22%2F%3E%0A++++%3C%2Fvalue%3E%0A++%3C%2Forg.identityconnectors.framework.common.objects.Name%3E%0A++%3Corg.identityconnectors.framework.common.objects.Attribute%3E%0A++++%3Cname%3E__PASSWORD__%3C%2Fname%3E%0A++++%3Cvalue+class%3D%22java.util.Collections%24UnmodifiableRandomAccessList%22+resolves-to%3D%22java.util.Collections%24UnmodifiableList%22%3E%0A++++++%3Cc+class%3D%22list%22%3E%0A++++++++%3Corg.identityconnectors.common.security.GuardedString%3E%0A++++++++++%3C__readOnly%3Efalse%3C%2F__readOnly%3E%0A++++++++++%3C__disposed%3Efalse%3C%2F__disposed%3E%0A++++++++++%3C__encryptedBytes%3EQTOgwEhIHqtAI%2FYlgDhYc37esEF8VLDMU2IY1ciltrg%3D%3C%2F__encryptedBytes%3E%0A++++++++++%3C__base64SHA1Hash%3EW5%2FrwtdCnI8gAnIUhKcahMEnMMc%3D%3C%2F__base64SHA1Hash%3E%0A++++++++%3C%2Forg.identityconnectors.common.security.GuardedString%3E%0A++++++%3C%2Fc%3E%0A++++++%3Clist+reference%3D%22..%2Fc%22%2F%3E%0A++++%3C%2Fvalue%3E%0A++%3C%2Forg.identityconnectors.framework.common.objects.Attribute%3E%0A++%3Corg.identityconnectors.framework.common.objects.Attribute%3E%0A++++%3Cname%3Etype%3C%2Fname%3E%0A++++%3Cvalue+class%3D%22java.util.Collections%24UnmodifiableRandomAccessList%22+resolves-to%3D%22java.util.Collections%24UnmodifiableList%22%3E%0A++++++%3Cc+class%3D%22list%22%3E%0A++++++++%3Cstring%3Etype%3C%2Fstring%3E%0A++++++%3C%2Fc%3E%0A++++++%3Clist+reference%3D%22..%2Fc%22%2F%3E%0A++++%3C%2Fvalue%3E%0A++%3C%2Forg.identityconnectors.framework.common.objects.Attribute%3E%0A%3C%2Fset%3E"/>
 
     <RDerSchema name="displayProperty" expression="icon + ': ' + show"/>
-
-    <RSchemaDerivation derivedSchemas_name="displayProperty" schemas_name="icon" />
-    <RSchemaDerivation derivedSchemas_name="displayProperty" schemas_name="show" />
 
     <RDerAttr id="1001" derivedSchema_name="displayProperty" owner_id="1"/>
     <RDerAttr id="1002" derivedSchema_name="displayProperty" owner_id="4"/>

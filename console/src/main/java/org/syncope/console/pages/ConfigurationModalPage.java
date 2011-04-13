@@ -27,7 +27,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.syncope.client.to.ConfigurationTO;
+import org.syncope.client.to.KeyValueTO;
 import org.syncope.console.rest.ConfigurationRestClient;
 
 /**
@@ -54,7 +54,7 @@ public class ConfigurationModalPage extends BaseModalPage {
      */
     public ConfigurationModalPage(final BasePage basePage,
             final ModalWindow window,
-            final ConfigurationTO configurationTO,
+            final KeyValueTO configurationTO,
             final boolean createFlag) {
 
         Form form = new Form("ConfigurationForm", new CompoundPropertyModel(

@@ -16,50 +16,21 @@ package org.syncope.core.persistence.beans.role;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import javax.persistence.Entity;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import org.syncope.core.persistence.beans.AbstractDerAttr;
 import org.syncope.core.persistence.beans.AbstractDerSchema;
-import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.beans.SchemaMapping;
 
 @Entity
 public class RDerSchema extends AbstractDerSchema {
 
-    @ManyToMany
-    @JoinTable(name = "RSchemaDerivation")
-    private Set<RSchema> schemas;
     @OneToMany(mappedBy = "derivedSchema")
     private List<RDerAttr> derivedAttributes;
 
     public RDerSchema() {
-        schemas = new HashSet<RSchema>();
         derivedAttributes = new ArrayList<RDerAttr>();
-    }
-
-    @Override
-    public <T extends AbstractSchema> boolean addSchema(T schema) {
-        return schemas.add((RSchema) schema);
-    }
-
-    @Override
-    public <T extends AbstractSchema> boolean removeSchema(T schema) {
-        return schemas.remove((RSchema) schema);
-    }
-
-    @Override
-    public Set<RSchema> getSchemas() {
-        return schemas;
-    }
-
-    @Override
-    public void setSchemas(Set<? extends AbstractSchema> schemas) {
-        this.schemas = (Set<RSchema>) schemas;
     }
 
     @Override

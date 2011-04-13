@@ -14,8 +14,6 @@
  */
 package org.syncope.client.to;
 
-import java.util.HashSet;
-import java.util.Set;
 import org.syncope.client.AbstractBaseBean;
 import org.syncope.types.SchemaType;
 
@@ -39,11 +37,8 @@ public class SchemaTO extends AbstractBaseBean {
 
     private String validatorClass;
 
-    private Set<String> derivedSchemas;
-
     public SchemaTO() {
         mandatoryCondition = "false";
-        derivedSchemas = new HashSet<String>();
     }
 
     public String getConversionPattern() {
@@ -116,21 +111,5 @@ public class SchemaTO extends AbstractBaseBean {
 
     public void setValidatorClass(String validatorClass) {
         this.validatorClass = validatorClass;
-    }
-
-    public boolean addDerivedSchema(String derivedSchema) {
-        return derivedSchemas.add(derivedSchema);
-    }
-
-    public boolean removeDerivedSchema(String derivedSchema) {
-        return derivedSchemas.remove(derivedSchema);
-    }
-
-    public Set<String> getDerivedSchemas() {
-        return derivedSchemas;
-    }
-
-    public void setDerivedSchemas(Set<String> derivedSchemas) {
-        this.derivedSchemas = derivedSchemas;
     }
 }

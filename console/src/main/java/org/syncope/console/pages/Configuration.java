@@ -52,7 +52,7 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.client.RestClientException;
-import org.syncope.client.to.ConfigurationTO;
+import org.syncope.client.to.KeyValueTO;
 import org.syncope.client.to.LoggerTO;
 import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.PreferenceManager;
@@ -109,16 +109,16 @@ public class Configuration extends BasePage {
         confColumns.add(new PropertyColumn(new Model(getString("value")),
                 "confValue", "confValue"));
 
-        confColumns.add(new AbstractColumn<ConfigurationTO>(new Model<String>(
+        confColumns.add(new AbstractColumn<KeyValueTO>(new Model<String>(
                 getString("edit"))) {
 
             @Override
             public void populateItem(
-                    final Item<ICellPopulator<ConfigurationTO>> cellItem,
+                    final Item<ICellPopulator<KeyValueTO>> cellItem,
                     final String componentId,
-                    final IModel<ConfigurationTO> model) {
+                    final IModel<KeyValueTO> model) {
 
-                final ConfigurationTO configurationTO = model.getObject();
+                final KeyValueTO configurationTO = model.getObject();
                 AjaxLink editLink = new IndicatingAjaxLink("editLink") {
 
                     @Override
@@ -152,15 +152,15 @@ public class Configuration extends BasePage {
             }
         });
 
-        confColumns.add(new AbstractColumn<ConfigurationTO>(
+        confColumns.add(new AbstractColumn<KeyValueTO>(
                 new Model<String>(getString("delete"))) {
 
             @Override
             public void populateItem(
-                    final Item<ICellPopulator<ConfigurationTO>> cellItem,
-                    final String componentId, IModel<ConfigurationTO> model) {
+                    final Item<ICellPopulator<KeyValueTO>> cellItem,
+                    final String componentId, IModel<KeyValueTO> model) {
 
-                final ConfigurationTO configurationTO = model.getObject();
+                final KeyValueTO configurationTO = model.getObject();
 
                 AjaxLink deleteLink = new IndicatingDeleteOnConfirmAjaxLink(
                         "deleteLink") {
@@ -169,7 +169,7 @@ public class Configuration extends BasePage {
                     public void onClick(final AjaxRequestTarget target) {
                         try {
                             restClient.deleteConfiguration(configurationTO.
-                                    getConfKey());
+                                    getKey());
                         } catch (UnsupportedEncodingException e) {
                             LOG.error("While deleting a conf key", e);
                             error(e.getMessage());
@@ -232,7 +232,7 @@ public class Configuration extends BasePage {
                     public Page createPage() {
                         ConfigurationModalPage window =
                                 new ConfigurationModalPage(Configuration.this,
-                                createConfigWin, new ConfigurationTO(), true);
+                                createConfigWin, new KeyValueTO(), true);
                         return window;
                     }
                 });
@@ -330,20 +330,20 @@ public class Configuration extends BasePage {
     }
 
     private class SyncopeConfProvider
-            extends SortableDataProvider<ConfigurationTO> {
+            extends SortableDataProvider<KeyValueTO> {
 
-        private SortableDataProviderComparator<ConfigurationTO> comparator;
+        private SortableDataProviderComparator<KeyValueTO> comparator;
 
         public SyncopeConfProvider() {
             //Default sorting
             setSort("confKey", true);
             comparator =
-                    new SortableDataProviderComparator<ConfigurationTO>(this);
+                    new SortableDataProviderComparator<KeyValueTO>(this);
         }
 
         @Override
-        public Iterator<ConfigurationTO> iterator(int first, int count) {
-            List<ConfigurationTO> list = getAllConfigurations();
+        public Iterator<KeyValueTO> iterator(int first, int count) {
+            List<KeyValueTO> list = getAllConfigurations();
 
             Collections.sort(list, comparator);
 
@@ -356,20 +356,20 @@ public class Configuration extends BasePage {
         }
 
         @Override
-        public IModel<ConfigurationTO> model(
-                final ConfigurationTO configuration) {
+        public IModel<KeyValueTO> model(
+                final KeyValueTO configuration) {
 
-            return new AbstractReadOnlyModel<ConfigurationTO>() {
+            return new AbstractReadOnlyModel<KeyValueTO>() {
 
                 @Override
-                public ConfigurationTO getObject() {
+                public KeyValueTO getObject() {
                     return configuration;
                 }
             };
         }
 
-        private List<ConfigurationTO> getAllConfigurations() {
-            List<ConfigurationTO> list = null;
+        private List<KeyValueTO> getAllConfigurations() {
+            List<KeyValueTO> list = null;
 
             try {
                 list = restClient.getAllConfigurations();

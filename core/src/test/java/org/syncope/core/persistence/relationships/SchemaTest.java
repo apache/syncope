@@ -23,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.beans.user.UAttr;
-import org.syncope.core.persistence.beans.user.UDerSchema;
 import org.syncope.core.persistence.beans.user.USchema;
 import org.syncope.core.persistence.dao.AttrDAO;
 import org.syncope.core.persistence.dao.DerSchemaDAO;
@@ -130,8 +129,5 @@ public class SchemaTest extends AbstractTest {
         assertNull(schema);
 
         assertNull(schemaDAO.find("surname", USchema.class));
-
-        assertEquals(1, derSchemaDAO.find("cn",
-                UDerSchema.class).getSchemas().size());
     }
 }

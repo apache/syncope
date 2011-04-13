@@ -20,7 +20,6 @@ import java.lang.reflect.Constructor;
 import java.text.DecimalFormat;
 import java.text.Format;
 import java.text.SimpleDateFormat;
-import java.util.List;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Enumerated;
@@ -244,15 +243,4 @@ public abstract class AbstractSchema extends AbstractBaseBean {
 
         return result;
     }
-
-    public abstract <T extends AbstractDerSchema> boolean addDerivedSchema(
-            T derivedSchema);
-
-    public abstract <T extends AbstractDerSchema> boolean removeDerivedSchema(
-            T derivedSchema);
-
-    public abstract List<? extends AbstractDerSchema> getDerivedSchemas();
-
-    public abstract void setDerivedSchemas(
-            List<? extends AbstractDerSchema> derivedSchemas);
 }

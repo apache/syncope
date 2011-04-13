@@ -54,6 +54,7 @@ import org.syncope.core.persistence.beans.user.USchema;
 import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.TaskDAO;
 import org.syncope.core.persistence.dao.TaskExecutionDAO;
+import org.syncope.core.util.JexlUtil;
 import org.syncope.core.workflow.Constants;
 import org.syncope.core.workflow.WFUtils;
 import org.syncope.types.PropagationMode;
@@ -96,6 +97,12 @@ public class PropagationManager {
      */
     @Resource(name = "taskExecutionWorkflow")
     private Workflow workflow;
+
+    /**
+     * JEXL engine for evaluating connector's account link.
+     */
+    @Autowired
+    private JexlUtil jexlUtil;
 
     /**
      * Create the user on every associated resource.
@@ -432,7 +439,6 @@ public class PropagationManager {
 
                 if (mapping.isAccountid()) {
                     accountId = objValues.iterator().next().toString();
-                    attributes.add(new Name(accountId));
                 }
 
                 if (mapping.isPassword()) {
@@ -459,6 +465,14 @@ public class PropagationManager {
                 LOG.debug("Attribute '{}' processing failed",
                         mapping.getSourceAttrName(), t);
             }
+        }
+
+        if (accountId != null) {
+            String evaluatedAccountLink = jexlUtil.evaluateWithAttributes(
+                    resource.getAccountLink(), user.getAttributes());
+
+            attributes.add(new Name(evaluatedAccountLink.isEmpty()
+                    ? accountId : evaluatedAccountLink));
         }
 
         return Collections.singletonMap(accountId, attributes);

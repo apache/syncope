@@ -28,8 +28,6 @@
     <entry key="MAttrValue_booleanvalueIndex">CREATE INDEX MAttrValue_booleanvalueIndex ON MAttrValue(booleanvalue)</entry>
     <entry key="MDerAttr_derivedSchema_nameIndex">CREATE INDEX MDerAttr_derivedSchema_naIndex ON MDerAttr(derivedSchema_name)</entry>
     <entry key="MDerAttr_owner_idIndex">CREATE INDEX MDerAttr_owner_idIndex ON MDerAttr(owner_id)</entry>
-    <entry key="MSchemaDerivation_schemas_nameIndex">CREATE INDEX MSchemaDerivation_schemasIndex ON MSchemaDerivation(schemas_name)</entry>
-    <entry key="MSchemaDerivation_derivedSchemas_nameIndex">CREATE INDEX MSchemaDerivation_derivedIndex ON MSchemaDerivation(derivedSchemas_name)</entry>
     <entry key="Membership_syncopeUser_idIndex">CREATE INDEX Membership_syncopeUser_idIndex ON Membership(syncopeUser_id)</entry>
     <entry key="Membership_syncopeRole_idIndex">CREATE INDEX Membership_syncopeRole_idIndex ON Membership(syncopeRole_id)</entry>
     <entry key="Membership_TargetResource_Membership_idIndex">CREATE INDEX Membership_TargetResourc1Index ON Membership_TargetResource(Membership_id)</entry>
@@ -44,8 +42,6 @@
     <entry key="RAttrValue_booleanvalueIndex">CREATE INDEX RAttrValue_booleanvalueIndex ON RAttrValue(booleanvalue)</entry>
     <entry key="RDerAttr_derivedSchema_nameIndex">CREATE INDEX RDerAttr_derivedSchema_naIndex ON RDerAttr(derivedSchema_name)</entry>
     <entry key="RDerAttr_owner_idIndex">CREATE INDEX RDerAttr_owner_idIndex ON RDerAttr(owner_id)</entry>
-    <entry key="RSchemaDerivation_schemas_nameIndex">CREATE INDEX RSchemaDerivation_schemasIndex ON RSchemaDerivation(schemas_name)</entry>
-    <entry key="RSchemaDerivation_derivedSchemas_nameIndex">CREATE INDEX RSchemaDerivation_derivedIndex ON RSchemaDerivation(derivedSchemas_name)</entry>
     <entry key="SchemaMapping_resource_nameIndex">CREATE INDEX SchemaMapping_resource_naIndex ON SchemaMapping(resource_name)</entry>
     <entry key="SyncopeRole_parent_idIndex">CREATE INDEX SyncopeRole_parent_idIndeIndex ON SyncopeRole(parent_id)</entry>
     <entry key="SyncopeRole_Entitlement_entitlements_nameIndex">CREATE INDEX SyncopeRole_Entitlement_eIndex ON SyncopeRole_Entitlement(entitlements_name)</entry>
@@ -67,8 +63,6 @@
     <entry key="UAttrValue_booleanvalueIndex">CREATE INDEX UAttrValue_booleanvalueIndex ON UAttrValue(booleanvalue)</entry>
     <entry key="UDerAttr_derivedSchema_nameIndex">CREATE INDEX UDerAttr_derivedSchema_naIndex ON UDerAttr(derivedSchema_name)</entry>
     <entry key="UDerAttr_owner_idIndex">CREATE INDEX UDerAttr_owner_idIndex ON UDerAttr(owner_id)</entry>
-    <entry key="USchemaDerivation_schemas_nameIndex">CREATE INDEX USchemaDerivation_schemasIndex ON USchemaDerivation(schemas_name)</entry>
-    <entry key="USchemaDerivation_derivedSchemas_nameIndex">CREATE INDEX USchemaDerivation_derivedIndex ON USchemaDerivation(derivedSchemas_name)</entry>
     <entry key="os_currentstep_workflowEntry_idIndex">CREATE INDEX os_currentstep_workflowEnIndex ON os_currentstep(workflowEntry_id)</entry>
     <entry key="os_historystep_workflowEntry_idIndex">CREATE INDEX os_historystep_workflowEnIndex ON os_historystep(workflowEntry_id)</entry>
 </properties>

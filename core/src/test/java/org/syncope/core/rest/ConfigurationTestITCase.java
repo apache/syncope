@@ -22,19 +22,19 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpStatusCodeException;
-import org.syncope.client.to.ConfigurationTO;
+import org.syncope.client.to.KeyValueTO;
 
 public class ConfigurationTestITCase extends AbstractTest {
 
     @Test
     public void create() {
-        ConfigurationTO configurationTO = new ConfigurationTO();
-        configurationTO.setConfKey("testKey");
-        configurationTO.setConfValue("testValue");
+        KeyValueTO configurationTO = new KeyValueTO();
+        configurationTO.setKey("testKey");
+        configurationTO.setValue("testValue");
 
-        ConfigurationTO newConfigurationTO = restTemplate.postForObject(
+        KeyValueTO newConfigurationTO = restTemplate.postForObject(
                 BASE_URL + "configuration/create",
-                configurationTO, ConfigurationTO.class);
+                configurationTO, KeyValueTO.class);
         assertEquals(configurationTO, newConfigurationTO);
     }
 
@@ -47,9 +47,9 @@ public class ConfigurationTestITCase extends AbstractTest {
             assertEquals(e.getStatusCode(), HttpStatus.NOT_FOUND);
         }
 
-        ConfigurationTO tokenLengthTO = restTemplate.getForObject(
+        KeyValueTO tokenLengthTO = restTemplate.getForObject(
                 BASE_URL + "configuration/read/{confKey}.json",
-                ConfigurationTO.class,
+                KeyValueTO.class,
                 "token.length");
 
         restTemplate.delete(BASE_URL + "configuration/delete/{confKey}.json",
@@ -57,48 +57,48 @@ public class ConfigurationTestITCase extends AbstractTest {
         try {
             restTemplate.getForObject(
                     BASE_URL + "configuration/read/{confKey}.json",
-                    ConfigurationTO.class,
+                    KeyValueTO.class,
                     "token.length");
         } catch (HttpStatusCodeException e) {
             assertEquals(e.getStatusCode(), HttpStatus.NOT_FOUND);
         }
 
-        ConfigurationTO newConfigurationTO = restTemplate.postForObject(
+        KeyValueTO newConfigurationTO = restTemplate.postForObject(
                 BASE_URL + "configuration/create",
-                tokenLengthTO, ConfigurationTO.class);
+                tokenLengthTO, KeyValueTO.class);
         assertEquals(tokenLengthTO, newConfigurationTO);
     }
 
     @Test
     public void list() {
-        List<ConfigurationTO> configurations = Arrays.asList(
+        List<KeyValueTO> configurations = Arrays.asList(
                 restTemplate.getForObject(
                 BASE_URL + "configuration/list.json",
-                ConfigurationTO[].class));
+                KeyValueTO[].class));
         assertNotNull(configurations);
-        for (ConfigurationTO configuration : configurations) {
+        for (KeyValueTO configuration : configurations) {
             assertNotNull(configuration);
         }
     }
 
     @Test
     public void read() {
-        ConfigurationTO configurationTO = restTemplate.getForObject(BASE_URL
+        KeyValueTO configurationTO = restTemplate.getForObject(BASE_URL
                 + "configuration/read/{confKey}.json",
-                ConfigurationTO.class, "token.expireTime");
+                KeyValueTO.class, "token.expireTime");
 
         assertNotNull(configurationTO);
     }
 
     @Test
     public void update() {
-        ConfigurationTO configurationTO = new ConfigurationTO();
-        configurationTO.setConfKey("token.expireTime");
-        configurationTO.setConfValue("61");
+        KeyValueTO configurationTO = new KeyValueTO();
+        configurationTO.setKey("token.expireTime");
+        configurationTO.setValue("61");
 
-        ConfigurationTO newConfigurationTO = restTemplate.postForObject(
+        KeyValueTO newConfigurationTO = restTemplate.postForObject(
                 BASE_URL + "configuration/update",
-                configurationTO, ConfigurationTO.class);
+                configurationTO, KeyValueTO.class);
 
         assertEquals(configurationTO, newConfigurationTO);
     }

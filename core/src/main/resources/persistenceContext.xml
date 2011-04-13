@@ -101,6 +101,7 @@
         <property name="lenient" value="true"/>
         <property name="silent" value="false"/>
     </bean>
+    <bean id="jexlUtil" class="org.syncope.core.util.JexlUtil"/>
 
     <bean id="propagationManager"
           class="org.syncope.core.persistence.propagation.PropagationManager"/>

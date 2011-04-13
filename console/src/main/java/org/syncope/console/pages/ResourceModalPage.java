@@ -151,8 +151,11 @@ public class ResourceModalPage extends BaseModalPage {
         resourceName.setEnabled(createFlag);
         resourceName.setRequired(true);
         resourceName.setOutputMarkupId(true);
-
         resourceForm.add(resourceName);
+
+        TextField accountLink = new TextField("accountLink");
+        accountLink.setOutputMarkupId(true);
+        resourceForm.add(accountLink);
 
         forceMandatoryConstraint = new CheckBox("forceMandatoryConstraint");
         forceMandatoryConstraint.setOutputMarkupId(true);

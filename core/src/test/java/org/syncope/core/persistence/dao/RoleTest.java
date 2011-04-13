@@ -27,25 +27,39 @@ import org.syncope.core.persistence.AbstractTest;
 public class RoleTest extends AbstractTest {
 
     @Autowired
-    private RoleDAO syncopeRoleDAO;
+    private RoleDAO roleDAO;
 
     @Test
     public final void findAll() {
-        List<SyncopeRole> list = syncopeRoleDAO.findAll();
+        List<SyncopeRole> list = roleDAO.findAll();
         assertEquals("did not get expected number of roles ", 8, list.size());
     }
 
     @Test
     public final void findChildren() {
-        assertEquals(2, syncopeRoleDAO.findChildren(4L).size());
+        assertEquals(2, roleDAO.findChildren(4L).size());
     }
 
     @Test
     public final void find() {
-        SyncopeRole role = syncopeRoleDAO.find("root", null);
+        SyncopeRole role = roleDAO.find("root", null);
         assertNotNull("did not find expected role", role);
-        role = syncopeRoleDAO.find(null, null);
+        role = roleDAO.find(null, null);
         assertNull("found role but did not expect it", role);
+    }
+
+    @Test
+    public final void inheritedAttributes() {
+        SyncopeRole director = roleDAO.find(7L);
+
+        assertEquals(2, director.findInheritedAttributes().size());
+    }
+
+    @Test
+    public final void inheritedDerivedAttributes() {
+        SyncopeRole director = roleDAO.find(7L);
+
+        assertEquals(1, director.findInheritedDerivedAttributes().size());
     }
 
     @Test
@@ -53,24 +67,24 @@ public class RoleTest extends AbstractTest {
         SyncopeRole role = new SyncopeRole();
         role.setName("secondChild");
 
-        SyncopeRole rootRole = syncopeRoleDAO.find("root", null);
+        SyncopeRole rootRole = roleDAO.find("root", null);
         role.setParent(rootRole);
 
-        role = syncopeRoleDAO.save(role);
+        role = roleDAO.save(role);
 
-        SyncopeRole actual = syncopeRoleDAO.find(role.getId());
+        SyncopeRole actual = roleDAO.find(role.getId());
         assertNotNull("expected save to work", actual);
     }
 
     @Test
     public final void delete() {
-        SyncopeRole role = syncopeRoleDAO.find(4L);
-        syncopeRoleDAO.delete(role.getId());
+        SyncopeRole role = roleDAO.find(4L);
+        roleDAO.delete(role.getId());
 
-        SyncopeRole actual = syncopeRoleDAO.find(4L);
+        SyncopeRole actual = roleDAO.find(4L);
         assertNull("delete did not work", actual);
 
-        SyncopeRole children = syncopeRoleDAO.find(7L);
+        SyncopeRole children = roleDAO.find(7L);
         assertNull("delete of successors did not work", children);
 
     }

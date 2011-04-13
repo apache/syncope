@@ -17,8 +17,6 @@ package org.syncope.core.rest.data;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import org.apache.commons.jexl2.JexlEngine;
-import org.apache.commons.jexl2.JexlException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -33,6 +31,7 @@ import org.syncope.core.persistence.beans.ConnInstance;
 import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.dao.ConnInstanceDAO;
+import org.syncope.core.util.JexlUtil;
 import org.syncope.types.SyncopeClientExceptionType;
 
 @Component
@@ -51,7 +50,7 @@ public class ResourceDataBinder {
     private ConnInstanceDAO connectorInstanceDAO;
 
     @Autowired
-    private JexlEngine jexlEngine;
+    private JexlUtil jexlUtil;
 
     public TargetResource getResource(ResourceTO resourceTO)
             throws SyncopeClientCompositeErrorException {
@@ -113,6 +112,8 @@ public class ResourceDataBinder {
         resource.setMappings(
                 getSchemaMappings(resource, resourceTO.getMappings()));
 
+        resource.setAccountLink(resourceTO.getAccountLink());
+
         return resource;
     }
 
@@ -150,6 +151,8 @@ public class ResourceDataBinder {
 
         // set the mappings
         resourceTO.setMappings(getSchemaMappingTOs(resource.getMappings()));
+
+        resourceTO.setAccountLink(resource.getAccountLink());
 
         resourceTO.setForceMandatoryConstraint(
                 resource.isForceMandatoryConstraint());
@@ -219,12 +222,7 @@ public class ResourceDataBinder {
             compositeErrorException.addException(requiredValuesMissing);
         }
 
-        try {
-            jexlEngine.createExpression(mappingTO.getMandatoryCondition());
-        } catch (JexlException e) {
-            LOG.error("Invalid mandatory condition: "
-                    + mappingTO.getMandatoryCondition(), e);
-
+        if (!jexlUtil.isExpressionValid(mappingTO.getMandatoryCondition())) {
             SyncopeClientException invalidMandatoryCondition =
                     new SyncopeClientException(
                     SyncopeClientExceptionType.InvalidValues);

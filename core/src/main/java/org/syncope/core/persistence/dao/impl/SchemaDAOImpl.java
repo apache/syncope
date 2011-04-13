@@ -21,7 +21,6 @@ import javax.persistence.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.syncope.core.persistence.beans.AbstractAttr;
-import org.syncope.core.persistence.beans.AbstractDerSchema;
 import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.dao.AttrDAO;
 import org.syncope.core.persistence.dao.ResourceDAO;
@@ -81,11 +80,6 @@ public class SchemaDAOImpl extends AbstractDAOImpl
         if (schema == null) {
             return;
         }
-
-        for (AbstractDerSchema derivedSchema : schema.getDerivedSchemas()) {
-            derivedSchema.removeSchema(schema);
-        }
-        schema.getDerivedSchemas().clear();
 
         List<? extends AbstractAttr> attributes = getAttributes(schema,
                 attributableUtil.attributeClass());

@@ -22,11 +22,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import javax.validation.ValidationException;
-import org.apache.commons.jexl2.Expression;
-import org.apache.commons.jexl2.JexlContext;
-import org.apache.commons.jexl2.JexlEngine;
-import org.apache.commons.jexl2.JexlException;
-import org.apache.commons.jexl2.MapContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,6 +51,7 @@ import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.RoleDAO;
 import org.syncope.core.persistence.dao.UserDAO;
 import org.syncope.core.persistence.propagation.ResourceOperations;
+import org.syncope.core.util.JexlUtil;
 import org.syncope.types.ResourceOperationType;
 import org.syncope.types.SyncopeClientExceptionType;
 
@@ -95,7 +91,7 @@ public abstract class AbstractAttributableDataBinder {
     protected MembershipDAO membershipDAO;
 
     @Autowired
-    private JexlEngine jexlEngine;
+    private JexlUtil jexlUtil;
 
     private <T extends AbstractSchema> T getSchema(
             final String schemaName, final Class<T> reference) {
@@ -171,39 +167,11 @@ public abstract class AbstractAttributableDataBinder {
 
     private boolean evaluateMandatoryCondition(
             final String mandatoryCondition,
-            final List<? extends AbstractAttr> attributes,
-            final AttributableUtil attributableUtil) {
+            final List<? extends AbstractAttr> attributes) {
 
-        JexlContext jexlContext = new MapContext();
-
-        List<AbstractSchema> allSchemas =
-                schemaDAO.findAll(attributableUtil.schemaClass());
-        for (AbstractAttr attribute : attributes) {
-            jexlContext.set(attribute.getSchema().getName(),
-                    attribute.getValuesAsStrings().isEmpty()
-                    ? null
-                    : (attribute.getSchema().isMultivalue()
-                    ? attribute.getValuesAsStrings()
-                    : attribute.getValuesAsStrings().iterator().next()));
-
-            allSchemas.remove(attribute.getSchema());
-        }
-        for (AbstractSchema schema : allSchemas) {
-            jexlContext.set(schema.getName(), null);
-        }
-
-        boolean result = false;
-
-        try {
-            Expression jexlExpression = jexlEngine.createExpression(
-                    mandatoryCondition);
-            result = Boolean.parseBoolean(
-                    jexlExpression.evaluate(jexlContext).toString());
-        } catch (JexlException e) {
-            LOG.error("Invalid jexl expression: " + mandatoryCondition, e);
-        }
-
-        return result;
+        return Boolean.parseBoolean(
+                jexlUtil.evaluateWithAttributes(
+                mandatoryCondition, attributes));
     }
 
     private boolean evaluateMandatoryCondition(
@@ -224,8 +192,7 @@ public abstract class AbstractAttributableDataBinder {
             mapping = itor.next();
             result |= evaluateMandatoryCondition(
                     mapping.getMandatoryCondition(),
-                    attributes,
-                    attributableUtil);
+                    attributes);
         }
 
         return result;
@@ -277,8 +244,7 @@ public abstract class AbstractAttributableDataBinder {
                     && !schema.isReadonly()
                     && (evaluateMandatoryCondition(
                     schema.getMandatoryCondition(),
-                    attributable.getAttributes(),
-                    attributableUtil)
+                    attributable.getAttributes())
                     || evaluateMandatoryCondition(resources,
                     attributable.getAttributes(),
                     schema.getName(),

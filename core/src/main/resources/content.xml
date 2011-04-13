@@ -53,11 +53,6 @@
                
     <UDerSchema name="username" expression="firstname + '.' + surname"/>
 
-    <USchemaDerivation derivedSchemas_name="username"
-                          schemas_name="firstname"/>
-    <USchemaDerivation derivedSchemas_name="username"
-                          schemas_name="surname"/>
-
     <SyncopeRole id="0" name="/" inheritAttributes="0" inheritDerivedAttributes="0"/>
 
     <MSchema name="subscriptionDate" type="Date" virtual="0"

@@ -160,7 +160,7 @@ public class SyncopeUser extends AbstractAttributable {
 
     /**
      * TODO: password policies.
-     * @param password
+     * @param password the password to be set
      */
     public void setPassword(final String password) {
         if (password == null) {
@@ -171,7 +171,7 @@ public class SyncopeUser extends AbstractAttributable {
                 algorithm.reset();
                 algorithm.update(password.getBytes());
 
-                byte messageDigest[] = algorithm.digest();
+                byte[] messageDigest = algorithm.digest();
                 StringBuilder hexString = new StringBuilder();
                 for (int i = 0; i < messageDigest.length; i++) {
                     hexString.append(

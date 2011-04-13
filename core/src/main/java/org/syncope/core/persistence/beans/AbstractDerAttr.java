@@ -2,9 +2,9 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,23 +15,14 @@
 package org.syncope.core.persistence.beans;
 
 import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
-import org.apache.commons.jexl2.Expression;
-import org.apache.commons.jexl2.JexlContext;
-import org.apache.commons.jexl2.JexlEngine;
-import org.apache.commons.jexl2.JexlException;
-import org.apache.commons.jexl2.MapContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.syncope.core.util.ApplicationContextManager;
+import org.syncope.core.util.JexlUtil;
 
-/**
- * @see http://commons.apache.org/jexl/reference/index.html
- */
 @MappedSuperclass
 public abstract class AbstractDerAttr extends AbstractBaseBean {
 
@@ -52,44 +43,12 @@ public abstract class AbstractDerAttr extends AbstractBaseBean {
     public String getValue(
             final Collection<? extends AbstractAttr> attributes) {
 
-        JexlContext jexlContext = new MapContext();
-
-        List<? extends AbstractAttrValue> attributeValues = null;
-        String expressionValue = null;
-        AbstractAttr attribute = null;
-        AbstractAttrValue attributeValue = null;
-        for (Iterator<? extends AbstractAttr> itor =
-                attributes.iterator(); itor.hasNext();) {
-
-            attribute = itor.next();
-            attributeValues = attribute.getValues();
-            if (attributeValues.isEmpty()
-                    || !getDerivedSchema().getSchemas().contains(
-                    attribute.getSchema())) {
-
-                expressionValue = "";
-            } else {
-                attributeValue = attributeValues.iterator().next();
-                expressionValue = attributeValue.getValueAsString();
-            }
-
-            jexlContext.set(attribute.getSchema().getName(), expressionValue);
-        }
-
         ConfigurableApplicationContext context =
                 ApplicationContextManager.getApplicationContext();
-        JexlEngine jexlEngine = (JexlEngine) context.getBean("jexlEngine");
-        String result = null;
-        try {
-            Expression jexlExpression = jexlEngine.createExpression(
-                    getDerivedSchema().getExpression());
-            result = jexlExpression.evaluate(jexlContext).toString();
-        } catch (JexlException e) {
-            LOG.error("Invalid jexl expression: "
-                    + getDerivedSchema().getExpression(), e);
-        }
+        JexlUtil jexlUtil = (JexlUtil) context.getBean("jexlUtil");
 
-        return result;
+        return jexlUtil.evaluateWithAttributes(
+                getDerivedSchema().getExpression(), attributes);
     }
 
     public abstract <T extends AbstractAttributable> T getOwner();

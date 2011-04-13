@@ -21,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.user.UDerAttr;
 import org.syncope.core.persistence.beans.user.UDerSchema;
-import org.syncope.core.persistence.beans.user.USchema;
 import org.syncope.core.persistence.dao.AttrDAO;
 import org.syncope.core.persistence.dao.DerAttrDAO;
 import org.syncope.core.persistence.dao.DerSchemaDAO;
@@ -55,10 +54,6 @@ public class DerSchemaTest extends AbstractTest {
 
         assertNull(derSchemaDAO.find("cn", UDerSchema.class));
         assertNull(derAttrDAO.find(1000L, UDerAttr.class));
-        assertTrue(schemaDAO.find("surname",
-                USchema.class).getDerivedSchemas().isEmpty());
-        assertTrue(schemaDAO.find("firstname",
-                USchema.class).getDerivedSchemas().isEmpty());
         assertNull(userDAO.find(3L).getDerivedAttribute("cn"));
     }
 }

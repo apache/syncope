@@ -22,7 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.syncope.core.persistence.beans.AbstractDerAttr;
 import org.syncope.core.persistence.beans.AbstractDerSchema;
-import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.dao.DerAttrDAO;
 import org.syncope.core.persistence.dao.DerSchemaDAO;
 
@@ -61,11 +60,6 @@ public class DerSchemaDAOImpl extends AbstractDAOImpl implements DerSchemaDAO {
         if (derivedSchema == null) {
             return;
         }
-
-        for (AbstractSchema schema : derivedSchema.getSchemas()) {
-            schema.removeDerivedSchema(derivedSchema);
-        }
-        derivedSchema.getSchemas().clear();
 
         Set<Long> derivedAttributeIds =
                 new HashSet<Long>(derivedSchema.getDerivedAttributes().size());

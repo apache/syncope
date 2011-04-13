@@ -16,50 +16,21 @@ package org.syncope.core.persistence.beans.membership;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import javax.persistence.Entity;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import org.syncope.core.persistence.beans.AbstractDerAttr;
 import org.syncope.core.persistence.beans.AbstractDerSchema;
-import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.beans.SchemaMapping;
 
 @Entity
 public class MDerSchema extends AbstractDerSchema {
 
-    @ManyToMany
-    @JoinTable(name = "MSchemaDerivation")
-    private Set<MSchema> schemas;
     @OneToMany(mappedBy = "derivedSchema")
     private List<MDerAttr> derivedAttributes;
 
     public MDerSchema() {
-        schemas = new HashSet<MSchema>();
         derivedAttributes = new ArrayList<MDerAttr>();
-    }
-
-    @Override
-    public <T extends AbstractSchema> boolean addSchema(T schema) {
-        return schemas.add((MSchema) schema);
-    }
-
-    @Override
-    public <T extends AbstractSchema> boolean removeSchema(T schema) {
-        return schemas.remove((MSchema) schema);
-    }
-
-    @Override
-    public Set<MSchema> getSchemas() {
-        return schemas;
-    }
-
-    @Override
-    public void setSchemas(Set<? extends AbstractSchema> schemas) {
-        this.schemas = (Set<MSchema>) schemas;
     }
 
     @Override

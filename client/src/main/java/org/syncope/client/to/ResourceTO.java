@@ -36,6 +36,8 @@ public class ResourceTO extends AbstractBaseBean {
      */
     private List<SchemaMappingTO> mappings;
 
+    private String accountLink;
+
     /**
      * Propagation mode to be used when not mandatory in propagation.
      */
@@ -81,6 +83,14 @@ public class ResourceTO extends AbstractBaseBean {
 
     public void setMappings(List<SchemaMappingTO> mappings) {
         this.mappings = mappings;
+    }
+
+    public String getAccountLink() {
+        return accountLink;
+    }
+
+    public void setAccountLink(String accountLink) {
+        this.accountLink = accountLink;
     }
 
     public String getName() {
