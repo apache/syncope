@@ -36,7 +36,7 @@ public class SendVelocityEmail extends AbstractSendEmail {
     private String getConfValue(final String key) {
         String result;
         try {
-            result = confDAO.find(key).getConfValue();
+            result = confDAO.find(key).getValue();
         } catch (MissingConfKeyException e) {
             LOG.error("While getting conf '" + key + "'", e);
             result = "";

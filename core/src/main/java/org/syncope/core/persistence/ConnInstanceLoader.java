@@ -66,11 +66,11 @@ public class ConnInstanceLoader implements ServletContextListener {
         }
 
         // 2. Find bundles inside that directory
-        File bundleDirectory = new File(connectorBundleDir.getConfValue());
+        File bundleDirectory = new File(connectorBundleDir.getValue());
         String[] bundleFiles = bundleDirectory.list();
         if (bundleFiles == null) {
             throw new NotFoundException("Bundles from dir "
-                    + connectorBundleDir.getConfValue());
+                    + connectorBundleDir.getValue());
         }
 
         List<URL> bundleFileURLs = new ArrayList<URL>();
@@ -87,7 +87,7 @@ public class ConnInstanceLoader implements ServletContextListener {
         }
         if (bundleFileURLs.isEmpty()) {
             throw new NotFoundException("Bundles from dir "
-                    + connectorBundleDir.getConfValue());
+                    + connectorBundleDir.getValue());
         }
         LOG.debug("Bundle file URLs: {}", bundleFileURLs);
 

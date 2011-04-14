@@ -44,9 +44,10 @@ public class GenerateToken extends OSWorkflowComponent
         try {
             user.generateToken(
                     Integer.parseInt(confDAO.find(
-                    "token.length").getConfValue()),
+                    "token.length").getValue()),
                     Integer.parseInt(confDAO.find(
-                    "token.expireTime").getConfValue()), token);
+                    "token.expireTime").getValue()),
+                    token);
         } catch (MissingConfKeyException e) {
             throw new WorkflowException(e);
         }

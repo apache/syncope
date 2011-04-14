@@ -22,83 +22,84 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpStatusCodeException;
-import org.syncope.client.to.KeyValueTO;
+import org.syncope.client.to.ConfigurationTO;
 
 public class ConfigurationTestITCase extends AbstractTest {
 
     @Test
     public void create() {
-        KeyValueTO configurationTO = new KeyValueTO();
+        ConfigurationTO configurationTO = new ConfigurationTO();
         configurationTO.setKey("testKey");
         configurationTO.setValue("testValue");
 
-        KeyValueTO newConfigurationTO = restTemplate.postForObject(
+        ConfigurationTO newConfigurationTO = restTemplate.postForObject(
                 BASE_URL + "configuration/create",
-                configurationTO, KeyValueTO.class);
+                configurationTO, ConfigurationTO.class);
         assertEquals(configurationTO, newConfigurationTO);
     }
 
     @Test
-    public void delete() throws UnsupportedEncodingException {
+    public void delete()
+            throws UnsupportedEncodingException {
         try {
-            restTemplate.delete(BASE_URL + "configuration/delete/{confKey}.json",
+            restTemplate.delete(BASE_URL + "configuration/delete/{key}.json",
                     "nonExistent");
         } catch (HttpStatusCodeException e) {
             assertEquals(e.getStatusCode(), HttpStatus.NOT_FOUND);
         }
 
-        KeyValueTO tokenLengthTO = restTemplate.getForObject(
-                BASE_URL + "configuration/read/{confKey}.json",
-                KeyValueTO.class,
+        ConfigurationTO tokenLengthTO = restTemplate.getForObject(
+                BASE_URL + "configuration/read/{key}.json",
+                ConfigurationTO.class,
                 "token.length");
 
-        restTemplate.delete(BASE_URL + "configuration/delete/{confKey}.json",
+        restTemplate.delete(BASE_URL + "configuration/delete/{key}.json",
                 "token.length");
         try {
             restTemplate.getForObject(
-                    BASE_URL + "configuration/read/{confKey}.json",
-                    KeyValueTO.class,
+                    BASE_URL + "configuration/read/{key}.json",
+                    ConfigurationTO.class,
                     "token.length");
         } catch (HttpStatusCodeException e) {
             assertEquals(e.getStatusCode(), HttpStatus.NOT_FOUND);
         }
 
-        KeyValueTO newConfigurationTO = restTemplate.postForObject(
+        ConfigurationTO newConfigurationTO = restTemplate.postForObject(
                 BASE_URL + "configuration/create",
-                tokenLengthTO, KeyValueTO.class);
+                tokenLengthTO, ConfigurationTO.class);
         assertEquals(tokenLengthTO, newConfigurationTO);
     }
 
     @Test
     public void list() {
-        List<KeyValueTO> configurations = Arrays.asList(
+        List<ConfigurationTO> configurations = Arrays.asList(
                 restTemplate.getForObject(
                 BASE_URL + "configuration/list.json",
-                KeyValueTO[].class));
+                ConfigurationTO[].class));
         assertNotNull(configurations);
-        for (KeyValueTO configuration : configurations) {
+        for (ConfigurationTO configuration : configurations) {
             assertNotNull(configuration);
         }
     }
 
     @Test
     public void read() {
-        KeyValueTO configurationTO = restTemplate.getForObject(BASE_URL
-                + "configuration/read/{confKey}.json",
-                KeyValueTO.class, "token.expireTime");
+        ConfigurationTO configurationTO = restTemplate.getForObject(BASE_URL
+                + "configuration/read/{key}.json",
+                ConfigurationTO.class, "token.expireTime");
 
         assertNotNull(configurationTO);
     }
 
     @Test
     public void update() {
-        KeyValueTO configurationTO = new KeyValueTO();
+        ConfigurationTO configurationTO = new ConfigurationTO();
         configurationTO.setKey("token.expireTime");
         configurationTO.setValue("61");
 
-        KeyValueTO newConfigurationTO = restTemplate.postForObject(
+        ConfigurationTO newConfigurationTO = restTemplate.postForObject(
                 BASE_URL + "configuration/update",
-                configurationTO, KeyValueTO.class);
+                configurationTO, ConfigurationTO.class);
 
         assertEquals(configurationTO, newConfigurationTO);
     }

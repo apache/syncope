@@ -19,7 +19,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpStatusCodeException;
-import org.syncope.client.to.KeyValueTO;
+import org.syncope.client.to.ConfigurationTO;
 import org.syncope.client.to.LoggerTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 
@@ -33,14 +33,14 @@ public class ConfigurationRestClient extends AbstractBaseRestClient {
      * Get all stored configurations.
      * @return ConfigurationTOs
      */
-    public List<KeyValueTO> getAllConfigurations()
+    public List<ConfigurationTO> getAllConfigurations()
             throws SyncopeClientCompositeErrorException {
 
-        List<KeyValueTO> configurations = null;
+        List<ConfigurationTO> configurations = null;
 
         configurations = Arrays.asList(
                 restTemplate.getForObject(baseURL
-                + "configuration/list.json", KeyValueTO[].class));
+                + "configuration/list.json", ConfigurationTO[].class));
 
         return configurations;
     }
@@ -50,13 +50,13 @@ public class ConfigurationRestClient extends AbstractBaseRestClient {
      * @return ConfigurationTO object if the configuration exists,
      * null otherwise
      */
-    public KeyValueTO readConfiguration(String confKey)
+    public ConfigurationTO readConfiguration(String key)
             throws SyncopeClientCompositeErrorException {
 
-        KeyValueTO configurationTO =
+        ConfigurationTO configurationTO =
                 restTemplate.getForObject(baseURL
-                + "configuration/read/{confKey}.json", KeyValueTO.class,
-                confKey);
+                + "configuration/read/{key}.json", ConfigurationTO.class,
+                key);
 
 
         return configurationTO;
@@ -67,12 +67,12 @@ public class ConfigurationRestClient extends AbstractBaseRestClient {
      * @param configurationTO
      * @return true if the operation ends succesfully, false otherwise
      */
-    public boolean createConfiguration(KeyValueTO configurationTO) {
+    public boolean createConfiguration(ConfigurationTO configurationTO) {
 
-        KeyValueTO newConfigurationTO =
+        ConfigurationTO newConfigurationTO =
                 restTemplate.postForObject(baseURL
                 + "configuration/create",
-                configurationTO, KeyValueTO.class);
+                configurationTO, ConfigurationTO.class);
 
         return (configurationTO.equals(newConfigurationTO)) ? true : false;
     }
@@ -82,13 +82,13 @@ public class ConfigurationRestClient extends AbstractBaseRestClient {
      * @param configurationTO
      * @return true if the operation ends succesfully, false otherwise
      */
-    public boolean updateConfiguration(KeyValueTO configurationTO) {
-        KeyValueTO newConfigurationTO = null;
+    public boolean updateConfiguration(ConfigurationTO configurationTO) {
+        ConfigurationTO newConfigurationTO = null;
 
         try {
             newConfigurationTO = restTemplate.postForObject(baseURL
                     + "configuration/update", configurationTO,
-                    KeyValueTO.class);
+                    ConfigurationTO.class);
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While updating a configuration", e);
             return false;
@@ -97,16 +97,16 @@ public class ConfigurationRestClient extends AbstractBaseRestClient {
     }
 
     /**
-     * Deelete a configuration by confKey
+     * Deelete a configuration by key
      * @throws UnsupportedEncodingException
      */
-    public void deleteConfiguration(String confKey)
+    public void deleteConfiguration(String key)
             throws
             UnsupportedEncodingException, HttpStatusCodeException {
 
         restTemplate.delete(baseURL
-                + "configuration/delete/{confKey}.json",
-                confKey);
+                + "configuration/delete/{key}.json",
+                key);
     }
 
     /**

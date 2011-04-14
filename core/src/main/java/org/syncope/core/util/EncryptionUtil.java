@@ -41,7 +41,7 @@ public class EncryptionUtil {
         try {
             final DESKeySpec keySpec =
                     new DESKeySpec(confDAO.find(
-                    "token.encryption.key").getConfValue().getBytes("UTF8"));
+                    "token.encryption.key").getValue().getBytes("UTF8"));
 
             final SecretKeyFactory keyFactory =
                     SecretKeyFactory.getInstance("DES");
@@ -71,7 +71,7 @@ public class EncryptionUtil {
         try {
             final DESKeySpec keySpec =
                     new DESKeySpec(confDAO.find(
-                    "token.encryption.key").getConfValue().getBytes("UTF8"));
+                    "token.encryption.key").getValue().getBytes("UTF8"));
 
             final SecretKeyFactory keyFactory =
                     SecretKeyFactory.getInstance("DES");
