@@ -14,8 +14,9 @@
  */
 package org.syncope.core.persistence.beans.user;
 
+import static javax.persistence.EnumType.STRING;
+
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -23,15 +24,19 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.Valid;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.RandomStringUtils;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -41,10 +46,24 @@ import org.syncope.core.persistence.beans.AbstractDerAttr;
 import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.membership.Membership;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
+import org.syncope.types.CipherAlgorithm;
 
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 public class SyncopeUser extends AbstractAttributable {
+
+    private static SecretKeySpec keySpec;
+
+    static {
+        try {
+
+            keySpec = new SecretKeySpec(
+                    "1abcdefghilmnopqrstuvz2!".getBytes("UTF8"), "AES");
+
+        } catch (Exception e) {
+            LOG.error("Error during key specification", e);
+        }
+    }
 
     @Id
     private Long id;
@@ -71,6 +90,10 @@ public class SyncopeUser extends AbstractAttributable {
 
     @Temporal(TemporalType.TIMESTAMP)
     private Date tokenExpireTime;
+
+    @Column(nullable = true)
+    @Enumerated(STRING)
+    CipherAlgorithm cipherAlgorithm;
 
     public SyncopeUser() {
         memberships = new ArrayList<Membership>();
@@ -162,25 +185,49 @@ public class SyncopeUser extends AbstractAttributable {
      * TODO: password policies.
      * @param password the password to be set
      */
-    public void setPassword(final String password) {
-        if (password == null) {
-            this.password = null;
-        } else {
-            try {
-                MessageDigest algorithm = MessageDigest.getInstance("MD5");
+    public void setPassword(
+            final String password, final CipherAlgorithm cipherAlgoritm) {
+
+        try {
+            if (cipherAlgoritm == null
+                    || cipherAlgoritm == CipherAlgorithm.AES) {
+
+                final byte[] cleartext = password.getBytes("UTF8");
+
+                final Cipher cipher = Cipher.getInstance(
+                        CipherAlgorithm.AES.getAlgorithm());
+
+                cipher.init(Cipher.ENCRYPT_MODE, keySpec);
+
+                byte[] encoded = cipher.doFinal(cleartext);
+
+                this.password = new String(
+                        Base64.encodeBase64(encoded));
+
+            } else {
+
+                MessageDigest algorithm = MessageDigest.getInstance(
+                        cipherAlgoritm.getAlgorithm());
+
                 algorithm.reset();
                 algorithm.update(password.getBytes());
 
-                byte[] messageDigest = algorithm.digest();
+                byte messageDigest[] = algorithm.digest();
+
                 StringBuilder hexString = new StringBuilder();
                 for (int i = 0; i < messageDigest.length; i++) {
                     hexString.append(
                             Integer.toHexString(0xFF & messageDigest[i]));
                 }
+
                 this.password = hexString.toString();
-            } catch (NoSuchAlgorithmException e) {
-                LOG.error("Could not find MD5 algorithm", e);
             }
+
+            this.cipherAlgorithm = cipherAlgoritm;
+
+        } catch (Throwable t) {
+            LOG.error("Could not encode password", t);
+            this.password = null;
         }
     }
 
@@ -273,5 +320,13 @@ public class SyncopeUser extends AbstractAttributable {
     public boolean checkToken(final String token) {
         return this.token != null && this.token.equals(token)
                 && tokenExpireTime.after(new Date());
+    }
+
+    public CipherAlgorithm getCipherAlgoritm() {
+        return cipherAlgorithm;
+    }
+
+    public void setCipherAlgoritm(CipherAlgorithm cipherAlgoritm) {
+        this.cipherAlgorithm = cipherAlgoritm;
     }
 }

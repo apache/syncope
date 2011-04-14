@@ -43,6 +43,7 @@ import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.beans.user.UAttr;
 import org.syncope.core.persistence.beans.user.UDerAttr;
 import org.syncope.core.persistence.propagation.ResourceOperations;
+import org.syncope.types.CipherAlgorithm;
 import org.syncope.types.ResourceOperationType;
 import org.syncope.types.SyncopeClientExceptionType;
 
@@ -52,7 +53,6 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
     public enum CheckinResultAction {
 
         CREATE, OVERWRITE, REJECT
-
     }
 
     public class CheckInResult {
@@ -132,7 +132,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         }
         user.getTargetResources().clear();
 
-        user.setPassword(null);
+        user.setPassword(null, getCipherAlgoritm());
     }
 
     public void create(final SyncopeUser user, final UserTO userTO)
@@ -151,7 +151,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
             invalidPassword.addElement("Null password");
         } else {
-            user.setPassword(userTO.getPassword());
+            user.setPassword(userTO.getPassword(), getCipherAlgoritm());
         }
 
         if (!invalidPassword.getElements().isEmpty()) {
@@ -201,7 +201,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
         // password
         if (userMod.getPassword() != null) {
-            user.setPassword(userMod.getPassword());
+            user.setPassword(userMod.getPassword(), getCipherAlgoritm());
         }
 
         // attributes, derived attributes and resources
@@ -362,5 +362,19 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         }
 
         return userTO;
+    }
+
+    private CipherAlgorithm getCipherAlgoritm() {
+        CipherAlgorithm cipherAlgoritm;
+
+        try {
+            cipherAlgoritm = CipherAlgorithm.valueOf(
+                    confDAO.find("password.cipher.algorithm").getValue());
+        } catch (Exception e) {
+            LOG.error("Cipher algorithm nof found. Let's use AES", e);
+            cipherAlgoritm = CipherAlgorithm.AES;
+        }
+
+        return cipherAlgoritm;
     }
 }

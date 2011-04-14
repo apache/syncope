@@ -43,6 +43,7 @@ import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.AttrDAO;
 import org.syncope.core.persistence.dao.AttrValueDAO;
+import org.syncope.core.persistence.dao.ConfDAO;
 import org.syncope.core.persistence.dao.DerAttrDAO;
 import org.syncope.core.persistence.dao.DerSchemaDAO;
 import org.syncope.core.persistence.dao.MembershipDAO;
@@ -62,6 +63,9 @@ public abstract class AbstractAttributableDataBinder {
      */
     protected static final Logger LOG = LoggerFactory.getLogger(
             AbstractAttributableDataBinder.class);
+
+    @Autowired
+    protected ConfDAO confDAO;
 
     @Autowired
     protected RoleDAO roleDAO;

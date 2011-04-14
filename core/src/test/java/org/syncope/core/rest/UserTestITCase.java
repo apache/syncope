@@ -42,6 +42,7 @@ import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.workflow.Constants;
+import org.syncope.types.CipherAlgorithm;
 import org.syncope.types.SyncopeClientExceptionType;
 
 public class UserTestITCase extends AbstractTest {
@@ -614,7 +615,7 @@ public class UserTestITCase extends AbstractTest {
                 userMod, UserTO.class);
 
         SyncopeUser passwordTestUser = new SyncopeUser();
-        passwordTestUser.setPassword("newPassword");
+        passwordTestUser.setPassword("newPassword", CipherAlgorithm.MD5);
         assertEquals(passwordTestUser.getPassword(),
                 userTO.getPassword());
 

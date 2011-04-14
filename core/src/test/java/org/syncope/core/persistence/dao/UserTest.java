@@ -25,6 +25,7 @@ import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.AbstractTest;
 import org.syncope.core.persistence.beans.user.UAttrValue;
 import org.syncope.core.util.EntitlementUtil;
+import org.syncope.types.CipherAlgorithm;
 
 @Transactional
 public class UserTest extends AbstractTest {
@@ -105,7 +106,7 @@ public class UserTest extends AbstractTest {
     @Test
     public final void save() {
         SyncopeUser user = new SyncopeUser();
-        user.setPassword("password");
+        user.setPassword("password", CipherAlgorithm.SHA256);
 
         user = userDAO.save(user);
 

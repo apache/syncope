@@ -42,6 +42,7 @@
     <SyncopeConf key="optin.email.from" value="syncope@googlecode.com"/>
     <SyncopeConf key="optin.email.subject" value="Welcome to Syncope!"/>
     <SyncopeConf key="identityconnectors.bundle.directory" value="${bundles.directory}"/>
+    <SyncopeConf key="password.cipher.algorithm" value="MD5"/>
 
     <USchema name="surname" type="String" virtual="0"
                 mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
