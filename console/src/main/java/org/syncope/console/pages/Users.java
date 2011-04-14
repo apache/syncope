@@ -110,7 +110,7 @@ public class Users extends BasePage {
 
                 @Override
                 protected List<String> load() {
-                    return schemaRestClient.getAllUserSchemasNames();
+                    return schemaRestClient.getAllUSchemaNames();
                 }
             };
 

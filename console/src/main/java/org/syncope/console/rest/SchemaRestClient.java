@@ -52,7 +52,7 @@ public class SchemaRestClient extends AbstractBaseRestClient {
      * Get all user's schemas names.
      * @return String list of schemas' names.
      */
-    public List<String> getAllUserSchemasNames() {
+    public List<String> getAllUSchemaNames() {
 
         List<SchemaTO> userSchemas = null;
         List<String> schemasNames = new ArrayList<String>();
@@ -252,7 +252,7 @@ public class SchemaRestClient extends AbstractBaseRestClient {
      * Get all role's schemas names.
      * @return String list of role schemas' names
      */
-    public List<String> getAllRoleSchemasNames() {
+    public List<String> getAllRSchemaNames() {
 
         List<SchemaTO> roleSchemas = null;
         List<String> roleSchemasNames = new ArrayList<String>();
@@ -275,7 +275,7 @@ public class SchemaRestClient extends AbstractBaseRestClient {
      * Get all role's schemas names.
      * @return String list of role schemas' names
      */
-    public List<String> getAllMembershipSchemasNames() {
+    public List<String> getAllMSchemaNames() {
 
         List<SchemaTO> membershipSchemas = null;
         List<String> membershipSchemasNames = new ArrayList<String>();

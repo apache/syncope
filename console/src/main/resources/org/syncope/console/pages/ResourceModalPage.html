@@ -73,21 +73,21 @@
                             </td>
                         </tr>
                     </tfoot>
-                    <tbody wicket:id="mappingUserSchemaContainer">
-                        <tr wicket:id="mappingsUserSchema">
+                    <tbody wicket:id="mappingContainer">
+                        <tr wicket:id="mappings">
                             <td align="center" valign="middle">
                                 <input type="checkbox" class="text ui-widget-content ui-corner-all"  wicket:id="toRemove"/>
                             </td>
                             <td>
-                                <select class="text ui-widget-content ui-corner-all" 
+                                <select class="text ui-widget-content ui-corner-all"
                                         style="width:100%" wicket:id="sourceMappingTypes"/>
                             </td>
                             <td>
                                 <select class="text ui-widget-content ui-corner-all"
-                                        style="width:100%" wicket:id="schemaAttributes"/>
+                                        style="width:100%" wicket:id="sourceAttrNames"/>
                             </td>
                             <td align="center" valign="middle">
-                                <input type="text" class="text ui-widget-content ui-corner-all"  wicket:id="field"/>
+                                <input type="text" class="text ui-widget-content ui-corner-all"  wicket:id="destAttrName"/>
                             </td>
                             <td align="center" valign="middle">
                                 <input type="text"
@@ -95,12 +95,10 @@
                                        wicket:id="mandatoryCondition"/>
                             </td>
                             <td align="center" valign="middle">
-                                <input type="checkbox"
-                                       class="checkbox" wicket:id="accountId"/>
+                                <input type="checkbox" class="checkbox" wicket:id="accountId"/>
                             </td>
                             <td align="center" valign="middle">
-                                <input type="checkbox"
-                                       class="checkbox" wicket:id="password"/>
+                                <input type="checkbox" class="checkbox" wicket:id="password"/>
                             </td>
                         </tr>
                     </tbody>
