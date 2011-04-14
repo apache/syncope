@@ -18,7 +18,7 @@
 
     <groupId>org.syncope</groupId>
     <artifactId>syncope-archetype</artifactId>
-    <version>0.5.1</version>
+    <version>0.5.2-SNAPSHOT</version>
     <packaging>maven-archetype</packaging>
 
     <name>syncope-archetype</name>
@@ -44,9 +44,9 @@
     </licenses>
 
     <scm>
-        <connection>scm:svn:http://syncope.googlecode.com/svn/tags/syncope-archetype-0.5.1</connection>
-        <developerConnection>scm:svn:https://syncope.googlecode.com/svn/tags/syncope-archetype-0.5.1</developerConnection>
-        <url>http://syncope.googlecode.com/svn/tags/syncope-archetype-0.5.1</url>
+        <connection>scm:svn:http://syncope.googlecode.com/svn/trunk/archetype</connection>
+        <developerConnection>scm:svn:https://syncope.googlecode.com/svn/trunk/archetype</developerConnection>
+        <url>http://syncope.googlecode.com/svn/trunk/archetype</url>
     </scm>
     
     <build>
