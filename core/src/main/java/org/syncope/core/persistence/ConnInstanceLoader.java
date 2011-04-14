@@ -18,10 +18,12 @@ import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import javassist.NotFoundException;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import org.identityconnectors.common.IOUtil;
+import org.identityconnectors.common.l10n.CurrentLocale;
 import org.identityconnectors.framework.api.ConnectorInfoManager;
 import org.identityconnectors.framework.api.ConnectorInfoManagerFactory;
 import org.slf4j.Logger;
@@ -142,6 +144,10 @@ public class ConnInstanceLoader implements ServletContextListener {
 
         ConnInstanceDAO connectorInstanceDAO =
                 (ConnInstanceDAO) context.getBean("connInstanceDAOImpl");
+
+        // This is needed to avoid encoding problems when sending error
+        // messages via REST
+        CurrentLocale.set(Locale.ENGLISH);
 
         List<ConnInstance> instances = connectorInstanceDAO.findAll();
         for (ConnInstance instance : instances) {

@@ -347,9 +347,9 @@ public class ResourceModalPage extends BaseModalPage {
                 } else {
                     try {
                         if (createFlag) {
-                            restClient.createResource(resourceTO);
+                            restClient.create(resourceTO);
                         } else {
-                            restClient.updateResource(resourceTO);
+                            restClient.update(resourceTO);
                         }
 
                         basePage.setOperationResult(true);

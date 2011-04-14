@@ -171,7 +171,7 @@ public class Connectors extends BasePage {
                     public void onClick(final AjaxRequestTarget target) {
 
                         if (!checkDeleteIsForbidden(connectorTO)) {
-                            restClient.deleteConnector(connectorTO.getId());
+                            restClient.delete(connectorTO.getId());
                             info(getString("operation_succeded"));
                         } else {
                             error(getString("delete_error"));

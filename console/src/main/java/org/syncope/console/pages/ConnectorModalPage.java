@@ -45,6 +45,7 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.to.ConnBundleTO;
 import org.syncope.client.to.ConnInstanceTO;
+import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.types.ConnConfProperty;
 import org.syncope.console.rest.ConnectorRestClient;
 import org.syncope.console.wicket.markup.html.form.AjaxPasswordFieldPanel;
@@ -60,19 +61,9 @@ public class ConnectorModalPage extends BaseModalPage {
     @SpringBean
     private ConnectorRestClient restClient;
 
-    private TextField connectorName;
-
-    private TextField displayName;
-
-    private DropDownChoice<ConnBundleTO> bundle;
-
-    private TextField version;
-
     private CheckBoxMultipleChoice capabilitiesPalette;
 
     private ConnBundleTO selectedBundleTO = new ConnBundleTO();
-
-    private AjaxButton submit;
 
     private WebMarkupContainer propertiesContainer;
 
@@ -130,18 +121,20 @@ public class ConnectorModalPage extends BaseModalPage {
                     }
                 };
 
-        connectorName = new TextField("connectorName");
+        final TextField connectorName = new TextField("connectorName");
         connectorName.setEnabled(false);
         connectorName.setOutputMarkupId(true);
 
-        displayName = new TextField("displayName");
+        TextField displayName = new TextField("displayName");
         displayName.setOutputMarkupId(true);
+        displayName.setRequired(true);
 
-        version = new TextField("version");
+        final TextField version = new TextField("version");
         version.setEnabled(false);
         version.setOutputMarkupId(true);
 
-        bundle = new DropDownChoice<ConnBundleTO>("bundle", bundles,
+        final DropDownChoice<ConnBundleTO> bundle =
+                new DropDownChoice<ConnBundleTO>("bundle", bundles,
                 new ChoiceRenderer<ConnBundleTO>("bundleName", "bundleName"));
         bundle.setModel(new IModel<ConnBundleTO>() {
 
@@ -159,7 +152,6 @@ public class ConnectorModalPage extends BaseModalPage {
             public void detach() {
             }
         });
-
         bundle.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
             @Override
@@ -215,7 +207,7 @@ public class ConnectorModalPage extends BaseModalPage {
         connectorForm.setModel(new CompoundPropertyModel(connectorTO));
         connectorForm.add(propertiesContainer);
 
-        submit = new IndicatingAjaxButton("submit", new Model(
+        AjaxButton submit = new IndicatingAjaxButton("submit", new Model(
                 getString("submit"))) {
 
             @Override
@@ -235,16 +227,19 @@ public class ConnectorModalPage extends BaseModalPage {
 
                 try {
                     if (createFlag) {
-                        restClient.createConnector(connector);
+                        restClient.create(connector);
                     } else {
-                        restClient.updateConnector(connector);
+                        restClient.update(connector);
                     }
 
                     basePage.setOperationResult(true);
-
                     window.close(target);
-                } catch (Exception e) {
+                } catch (SyncopeClientCompositeErrorException e) {
                     error(getString("error") + ":" + e.getMessage());
+                    basePage.setOperationResult(false);
+
+                    LOG.error("While creating or updating connector "
+                            + connector);
                 }
             }
 

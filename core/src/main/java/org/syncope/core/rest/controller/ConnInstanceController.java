@@ -27,12 +27,14 @@ import org.identityconnectors.framework.api.ConfigurationProperties;
 import org.identityconnectors.framework.api.ConnectorInfo;
 import org.identityconnectors.framework.api.ConnectorInfoManager;
 import org.identityconnectors.framework.api.ConnectorKey;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.servlet.ModelAndView;
 import org.syncope.client.to.ConnBundleTO;
 import org.syncope.client.to.ConnInstanceTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.syncope.client.validation.SyncopeClientException;
 import org.syncope.core.persistence.ConnInstanceLoader;
 import org.syncope.core.persistence.beans.ConnInstance;
 import org.syncope.core.persistence.dao.ConnInstanceDAO;
@@ -40,6 +42,7 @@ import org.syncope.core.persistence.dao.MissingConfKeyException;
 import org.syncope.core.persistence.propagation.ConnectorFacadeProxy;
 import org.syncope.core.rest.data.ConnInstanceDataBinder;
 import org.syncope.types.ConnConfPropSchema;
+import org.syncope.types.SyncopeClientExceptionType;
 
 @Controller
 @RequestMapping("/connector")
@@ -56,24 +59,28 @@ public class ConnInstanceController extends AbstractController {
     value = "/create")
     public ConnInstanceTO create(final HttpServletResponse response,
             @RequestBody final ConnInstanceTO connectorTO)
-            throws SyncopeClientCompositeErrorException, NotFoundException,
-            MissingConfKeyException {
+            throws SyncopeClientCompositeErrorException, NotFoundException {
 
         LOG.debug("ConnInstance create called with configuration {}",
                 connectorTO);
 
-        ConnInstance connInstance = null;
+        ConnInstance connInstance = binder.getConnInstance(connectorTO);
+
         try {
-            connInstance = binder.getConnInstance(connectorTO);
-        } catch (SyncopeClientCompositeErrorException e) {
-            LOG.error("Could not create for " + connectorTO, e);
+            connInstance = connInstanceDAO.save(connInstance);
+        } catch (Throwable t) {
+            SyncopeClientCompositeErrorException scce =
+                    new SyncopeClientCompositeErrorException(
+                    HttpStatus.BAD_REQUEST);
 
-            throw e;
+            SyncopeClientException invalidConnInstance =
+                    new SyncopeClientException(
+                    SyncopeClientExceptionType.InvalidConnInstance);
+            invalidConnInstance.addElement(t.getMessage());
+
+            scce.addException(invalidConnInstance);
+            throw scce;
         }
-
-        // Everything went out fine, we can flush to the database
-        // and register the new connector instance for later usage
-        connInstance = connInstanceDAO.save(connInstance);
 
         response.setStatus(HttpServletResponse.SC_CREATED);
         return binder.getConnInstanceTO(connInstance);
@@ -84,24 +91,28 @@ public class ConnInstanceController extends AbstractController {
     value = "/update")
     public ConnInstanceTO update(
             @RequestBody final ConnInstanceTO connectorTO)
-            throws SyncopeClientCompositeErrorException, NotFoundException,
-            MissingConfKeyException {
+            throws SyncopeClientCompositeErrorException, NotFoundException {
 
         LOG.debug("Connector update called with configuration {}", connectorTO);
 
-        ConnInstance connInstance;
+        ConnInstance connInstance = binder.updateConnInstance(
+                connectorTO.getId(), connectorTO);
+
         try {
-            connInstance = binder.updateConnInstance(
-                    connectorTO.getId(), connectorTO);
-        } catch (SyncopeClientCompositeErrorException e) {
-            LOG.error("Could not create for " + connectorTO, e);
+            connInstance = connInstanceDAO.save(connInstance);
+        } catch (RuntimeException e) {
+            SyncopeClientCompositeErrorException scce =
+                    new SyncopeClientCompositeErrorException(
+                    HttpStatus.BAD_REQUEST);
 
-            throw e;
+            SyncopeClientException invalidConnInstance =
+                    new SyncopeClientException(
+                    SyncopeClientExceptionType.InvalidConnInstance);
+            invalidConnInstance.addElement(e.getMessage());
+
+            scce.addException(invalidConnInstance);
+            throw scce;
         }
-
-        // Everything went out fine, we can flush to the database
-        // and register the new connector instance for later usage
-        connInstance = connInstanceDAO.save(connInstance);
 
         return binder.getConnInstanceTO(connInstance);
     }
@@ -204,43 +215,47 @@ public class ConnInstanceController extends AbstractController {
         ConfigurationProperties properties;
 
         List<ConnBundleTO> connectorBundleTOs = new ArrayList<ConnBundleTO>();
-        for (ConnectorInfo bundle : bundles) {
-            connectorBundleTO = new ConnBundleTO();
-            connectorBundleTO.setDisplayName(bundle.getConnectorDisplayName());
+        if (bundles != null) {
+            for (ConnectorInfo bundle : bundles) {
+                connectorBundleTO = new ConnBundleTO();
+                connectorBundleTO.setDisplayName(
+                        bundle.getConnectorDisplayName());
 
-            key = bundle.getConnectorKey();
+                key = bundle.getConnectorKey();
 
-            LOG.debug("\nBundle name: {}"
-                    + "\nBundle version: {}"
-                    + "\nBundle class: {}",
-                    new Object[]{
-                        key.getBundleName(),
-                        key.getBundleVersion(),
-                        key.getConnectorName()});
+                LOG.debug("\nBundle name: {}"
+                        + "\nBundle version: {}"
+                        + "\nBundle class: {}",
+                        new Object[]{
+                            key.getBundleName(),
+                            key.getBundleVersion(),
+                            key.getConnectorName()});
 
-            connectorBundleTO.setBundleName(key.getBundleName());
-            connectorBundleTO.setConnectorName(key.getConnectorName());
-            connectorBundleTO.setVersion(key.getBundleVersion());
+                connectorBundleTO.setBundleName(key.getBundleName());
+                connectorBundleTO.setConnectorName(key.getConnectorName());
+                connectorBundleTO.setVersion(key.getBundleVersion());
 
-            properties = bundle.createDefaultAPIConfiguration().
-                    getConfigurationProperties();
+                properties = bundle.createDefaultAPIConfiguration().
+                        getConfigurationProperties();
 
-            ConnConfPropSchema connConfPropSchema;
-            for (String propName : properties.getPropertyNames()) {
-                connConfPropSchema = new ConnConfPropSchema();
-                connConfPropSchema.setName(propName);
-                connConfPropSchema.setRequired(
-                        properties.getProperty(propName).isRequired());
-                connConfPropSchema.setType(
-                        properties.getProperty(propName).getType().getName());
+                ConnConfPropSchema connConfPropSchema;
+                for (String propName : properties.getPropertyNames()) {
+                    connConfPropSchema = new ConnConfPropSchema();
+                    connConfPropSchema.setName(propName);
+                    connConfPropSchema.setRequired(
+                            properties.getProperty(propName).isRequired());
+                    connConfPropSchema.setType(
+                            properties.getProperty(propName).
+                            getType().getName());
 
-                connectorBundleTO.addProperty(connConfPropSchema);
+                    connectorBundleTO.addProperty(connConfPropSchema);
+                }
+
+                LOG.debug("Bundle properties: {}",
+                        connectorBundleTO.getProperties());
+
+                connectorBundleTOs.add(connectorBundleTO);
             }
-
-            LOG.debug("Bundle properties: {}",
-                    connectorBundleTO.getProperties());
-
-            connectorBundleTOs.add(connectorBundleTO);
         }
 
         return connectorBundleTOs;

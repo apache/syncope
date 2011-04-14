@@ -40,11 +40,12 @@
     <SyncopeConf key="optin.email.from" value="syncope@googlecode.com"/>
     <SyncopeConf key="optin.email.subject" value="Welcome to Syncope!"/>
     <SyncopeConf key="identityconnectors.bundle.directory" value="${bundles.directory}"/>
+    <SyncopeConf key="password.cipher.algorithm" value="MD5"/>
                           
-    <SyncopeUser id="1" workflowId="0" password="5f4dcc3b5aa765d61d8327deb882cf99"/>
-    <SyncopeUser id="2" workflowId="0" password="5f4dcc3b5aa765d61d8327deb882cf99"/>
-    <SyncopeUser id="3" workflowId="0" password="5f4dcc3b5aa765d61d8327deb882cf99"/>
-    <SyncopeUser id="4" workflowId="0" password="5f4dcc3b5aa765d61d8327deb882cf99"/>
+    <SyncopeUser id="1" workflowId="0" password="5f4dcc3b5aa765d61d8327deb882cf99" cipherAlgorithm="MD5"/>
+    <SyncopeUser id="2" workflowId="0" password="5f4dcc3b5aa765d61d8327deb882cf99" cipherAlgorithm="MD5"/>
+    <SyncopeUser id="3" workflowId="0" password="5f4dcc3b5aa765d61d8327deb882cf99" cipherAlgorithm="MD5"/>
+    <SyncopeUser id="4" workflowId="0" password="5f4dcc3b5aa765d61d8327deb882cf99" cipherAlgorithm="MD5"/>
 
     <SyncopeRole id="1" name="root" inheritAttributes="0" inheritDerivedAttributes="0"/>
     <SyncopeRole id="2" name="child" parent_id="1" inheritAttributes="0" inheritDerivedAttributes="0"/>

@@ -48,7 +48,7 @@ public class ResourceRestClient extends AbstractBaseRestClient {
      * Create new resource.
      * @param resourceTO
      */
-    public void createResource(final ResourceTO resourceTO) {
+    public void create(final ResourceTO resourceTO) {
         restTemplate.postForObject(baseURL
                 + "resource/create", resourceTO, ResourceTO.class);
     }
@@ -58,7 +58,7 @@ public class ResourceRestClient extends AbstractBaseRestClient {
      * @param name (e.g.:surname)
      * @return ResourceTO
      */
-    public ResourceTO readResource(final String name) {
+    public ResourceTO read(final String name) {
         ResourceTO resourceTO = null;
 
         try {
@@ -75,7 +75,7 @@ public class ResourceRestClient extends AbstractBaseRestClient {
      * Update an already existent resource.
      * @param schemaTO updated
      */
-    public void updateResource(final ResourceTO resourceTO) {
+    public void update(final ResourceTO resourceTO) {
         restTemplate.postForObject(
                 baseURL + "resource/update.json", resourceTO,
                 ResourceTO.class);
@@ -85,7 +85,7 @@ public class ResourceRestClient extends AbstractBaseRestClient {
      * Delete an already existent resource by its name.
      * @param name
      */
-    public void deleteResource(final String name) {
+    public void delete(final String name) {
         restTemplate.delete(baseURL
                 + "resource/delete/{resourceName}.json", name);
     }

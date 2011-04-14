@@ -32,29 +32,19 @@ public class ConnectorRestClient extends AbstractBaseRestClient {
      * @return ConnectorInstanceTOs
      */
     public List<ConnInstanceTO> getAllConnectors() {
-        List<ConnInstanceTO> connectors = null;
-
-        connectors = Arrays.asList(restTemplate.getForObject(
+        return Arrays.asList(restTemplate.getForObject(
                 baseURL + "connector/list.json",
                 ConnInstanceTO[].class));
-
-        return connectors;
     }
 
     /**
      * Create new connector.
      * @param schemaTO
      */
-    public void createConnector(ConnInstanceTO connectorTO) {
-        ConnInstanceTO actual = null;
-
-        try {
-            actual = restTemplate.postForObject(baseURL
-                    + "connector/create.json", connectorTO,
-                    ConnInstanceTO.class);
-        } catch (SyncopeClientCompositeErrorException e) {
-            LOG.error("While creating a connector", e);
-        }
+    public void create(ConnInstanceTO connectorTO) {
+        restTemplate.postForObject(baseURL
+                + "connector/create.json", connectorTO,
+                ConnInstanceTO.class);
     }
 
     /**
@@ -62,7 +52,7 @@ public class ConnectorRestClient extends AbstractBaseRestClient {
      * @param name (e.g.:surname)
      * @return schemaTO
      */
-    public ConnInstanceTO readConnector(String name) {
+    public ConnInstanceTO read(String name) {
         ConnInstanceTO schema = null;
 
         try {
@@ -80,15 +70,11 @@ public class ConnectorRestClient extends AbstractBaseRestClient {
      * Update an already existent connector.
      * @param schemaTO updated
      */
-    public void updateConnector(ConnInstanceTO connectorTO) {
-        try {
-            restTemplate.postForObject(
-                    baseURL + "connector/update.json",
-                    connectorTO,
-                    ConnInstanceTO.class);
-        } catch (SyncopeClientCompositeErrorException e) {
-            LOG.error("While updating a connector", e);
-        }
+    public void update(ConnInstanceTO connectorTO) {
+        restTemplate.postForObject(
+                baseURL + "connector/update.json",
+                connectorTO,
+                ConnInstanceTO.class);
     }
 
     /**
@@ -96,7 +82,7 @@ public class ConnectorRestClient extends AbstractBaseRestClient {
      * @param name (e.g.:surname)
      * @return schemaTO
      */
-    public void deleteConnector(Long id) {
+    public void delete(Long id) {
         try {
             restTemplate.delete(baseURL
                     + "connector/delete/{connectorId}.json", id.toString());

@@ -190,21 +190,14 @@ public class ConnectorFacadeProxy {
 
         // Use the ConnectorFacadeFactory's newInstance() method to get
         // a new connector.
-        ConnectorFacade connector =
-                ConnectorFacadeFactory.getInstance().newInstance(apiConfig);
-
+        connector = ConnectorFacadeFactory.getInstance().newInstance(apiConfig);
         if (connector == null) {
             throw new NotFoundException("Connector");
         }
 
         // Make sure we have set up the Configuration properly
-        try {
-            connector.validate();
-        } catch (RuntimeException e) {
-            LOG.error("Connector configuration not valid: " + apiConfig, e);
-        }
+        connector.validate();
 
-        this.connector = connector;
         this.capabitilies = connInstance.getCapabilities();
     }
 

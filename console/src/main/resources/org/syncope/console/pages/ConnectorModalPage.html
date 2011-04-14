@@ -34,11 +34,14 @@
             <table class="stripedTable" style="font-size:1.1em;border:none" width="100%">
                 <tr>
                     <td><wicket:message key="displayName"/></td>
-                <td><input type="text" id="displayName" class="text ui-widget-content ui-corner-all" wicket:id="displayName" /></td>
+                <td>
+                    <input type="text" id="displayName" class="text ui-widget-content ui-corner-all" wicket:id="displayName" />
+                    <span>*</span>
+                </td>
                 </tr>
                 <tr>
                     <td><wicket:message key="bundleName"/></td>
-                    <td><select id="bundle" class="text ui-widget-content ui-corner-all" wicket:id="bundle" /></td>
+                <td><select id="bundle" class="text ui-widget-content ui-corner-all" wicket:id="bundle" /></td>
                 </tr>
                 <tr>
                     <td><wicket:message key="name"/></td>
