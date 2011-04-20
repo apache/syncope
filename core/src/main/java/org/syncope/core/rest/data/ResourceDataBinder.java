@@ -32,6 +32,7 @@ import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.dao.ConnInstanceDAO;
 import org.syncope.core.util.JexlUtil;
+import org.syncope.types.SourceMappingType;
 import org.syncope.types.SyncopeClientExceptionType;
 
 @Component
@@ -62,10 +63,6 @@ public class ResourceDataBinder {
             ResourceTO resourceTO)
             throws SyncopeClientCompositeErrorException {
 
-        SyncopeClientCompositeErrorException compositeErrorException =
-                new SyncopeClientCompositeErrorException(
-                HttpStatus.BAD_REQUEST);
-
         SyncopeClientException requiredValuesMissing =
                 new SyncopeClientException(
                 SyncopeClientExceptionType.RequiredValuesMissing);
@@ -91,11 +88,11 @@ public class ResourceDataBinder {
         // Throw composite exception if there is at least one element set
         // in the composing exceptions
         if (!requiredValuesMissing.getElements().isEmpty()) {
-            compositeErrorException.addException(requiredValuesMissing);
-        }
-
-        if (compositeErrorException.hasExceptions()) {
-            throw compositeErrorException;
+            SyncopeClientCompositeErrorException scce =
+                    new SyncopeClientCompositeErrorException(
+                    HttpStatus.BAD_REQUEST);
+            scce.addException(requiredValuesMissing);
+            throw scce;
         }
 
         resource.setName(resourceTO.getName());
@@ -164,8 +161,7 @@ public class ResourceDataBinder {
     }
 
     private List<SchemaMapping> getSchemaMappings(
-            TargetResource resource,
-            List<SchemaMappingTO> mappings) {
+            TargetResource resource, List<SchemaMappingTO> mappings) {
 
         if (mappings == null) {
             return null;
@@ -179,8 +175,7 @@ public class ResourceDataBinder {
         return schemaMappings;
     }
 
-    private SchemaMapping getSchemaMapping(
-            TargetResource resource,
+    private SchemaMapping getSchemaMapping(TargetResource resource,
             SchemaMappingTO mappingTO)
             throws SyncopeClientCompositeErrorException {
 
@@ -199,7 +194,20 @@ public class ResourceDataBinder {
         }
 
         if (mappingTO.getSourceAttrName() == null) {
-            requiredValuesMissing.addElement("sourceAttrName");
+            switch (mappingTO.getSourceMappingType()) {
+                case SyncopeUserId:
+                    mappingTO.setSourceAttrName(
+                            SourceMappingType.SyncopeUserId.toString());
+                    break;
+
+                case Password:
+                    mappingTO.setSourceAttrName(
+                            SourceMappingType.Password.toString());
+                    break;
+
+                default:
+                    requiredValuesMissing.addElement("sourceAttrName");
+            }
         }
         if (mappingTO.getDestAttrName() == null) {
             requiredValuesMissing.addElement("destAttrName");
