@@ -16,6 +16,7 @@
 
     <properties>
         <hsqldb.version>2.0.0</hsqldb.version>
+        <connid.soap.version>1.0-SNAPSHOT</connid.soap.version>
 
         <logfile>/var/tmp/syncope-console.log</logfile>
         <logfile.test>/var/tmp/syncope-console-test.log</logfile.test>
@@ -136,10 +137,10 @@
                         <configuration>
                             <artifactItems>
                                 <artifactItem>
-                                    <groupId>org.syncope.identityconnectors.bundles.staticws</groupId>
-                                    <artifactId>staticwebservice</artifactId>
-                                    <version>${syncope.version}</version>
-                                    <outputDirectory>${bundles.directory}</outputDirectory>
+                                    <groupId>org.connid.bundles.soap</groupId>
+                                    <artifactId>org.connid.bundles.soap</artifactId>
+                                    <version>${connid.soap.version}</version>
+                                    <outputDirectory>${bundles.directory}</outputDirectory>                                
                                 </artifactItem>
                             </artifactItems>
                         </configuration>
