@@ -16,6 +16,7 @@
 
     <properties>
         <hsqldb.version>2.0.0</hsqldb.version>
+        <connid.soap.version>1.0-SNAPSHOT</connid.soap.version>
 
         <cargo.servlet.port>9080</cargo.servlet.port>
         <cargo.run.dir>${project.build.directory}/syncope-core-test</cargo.run.dir>
@@ -25,7 +26,7 @@
         <logfile>/var/tmp/syncope-core.log</logfile>
         <logfile.persistence>/var/tmp/syncope-core-persistence.log</logfile.persistence>
         <logfile.rest>/var/tmp/syncope-core-rest.log</logfile.rest>
-        <logfile.identityconnectors>/var/tmp/syncope-core-identityconnectors.log</logfile.identityconnectors>
+        <logfile.connid>/var/tmp/syncope-core-connid.log</logfile.connid>
         <logfile.test>/var/tmp/syncope-core-test.log</logfile.test>
         <logfile.monitor>/var/tmp/syncope-core-monitor.log</logfile.monitor>
 
@@ -120,10 +121,10 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.syncope.identityconnectors.bundles.staticws</groupId>
-            <artifactId>ws-target-resource</artifactId>
-            <version>${syncope.version}</version>
+            <groupId>org.connid.bundles.soap</groupId>
+            <artifactId>wssample</artifactId>
             <type>war</type>
+            <version>${connid.soap.version}</version>
             <scope>test</scope>
         </dependency>
         <!-- /TEST -->
@@ -231,10 +232,10 @@
                         <configuration>
                             <artifactItems>
                                 <artifactItem>
-                                    <groupId>org.syncope.identityconnectors.bundles.staticws</groupId>
-                                    <artifactId>staticwebservice</artifactId>
-                                    <version>${syncope.version}</version>
-                                    <outputDirectory>${bundles.directory}</outputDirectory>
+                                    <groupId>org.connid.bundles.soap</groupId>
+                                    <artifactId>org.connid.bundles.soap</artifactId>
+                                    <version>${connid.soap.version}</version>
+                                    <outputDirectory>${bundles.directory}</outputDirectory>                                
                                 </artifactItem>
                             </artifactItems>
                         </configuration>
@@ -279,9 +280,9 @@
                                 </properties>
                             </deployable>
                             <deployable>
-                                <location>${settings.localRepository}/org/syncope/identityconnectors/bundles/staticws/ws-target-resource/${syncope.version}/ws-target-resource-${syncope.version}.war</location>
+                                <location>${settings.localRepository}/org/connid/bundles/soap/wssample/${connid.soap.version}/wssample-${connid.soap.version}.war</location>
                                 <properties>
-                                    <context>wstarget</context>
+                                    <context>wssample</context>
                                 </properties>
                             </deployable>
                         </deployables>
