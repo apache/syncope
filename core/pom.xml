@@ -30,6 +30,7 @@
 
     <properties>
         <hsqldb.version>2.0.0</hsqldb.version>
+        <connid.soap.version>1.0-SNAPSHOT</connid.soap.version>
 
         <cargo.servlet.port>9080</cargo.servlet.port>
         <cargo.run.dir>${project.build.directory}/syncope-core-test</cargo.run.dir>
@@ -39,7 +40,7 @@
         <logfile>/var/tmp/syncope-core.log</logfile>
         <logfile.persistence>/var/tmp/syncope-core-persistence.log</logfile.persistence>
         <logfile.rest>/var/tmp/syncope-core-rest.log</logfile.rest>
-        <logfile.identityconnectors>/var/tmp/syncope-core-identityconnectors.log</logfile.identityconnectors>
+        <logfile.connid>/var/tmp/syncope-core-connid.log</logfile.connid>
         <logfile.test>/var/tmp/syncope-core-test.log</logfile.test>
         <logfile.monitor>/var/tmp/syncope-core-monitor.log</logfile.monitor>
 
@@ -221,18 +222,14 @@
             <artifactId>jcl-over-slf4j</artifactId>
         </dependency>
 
-        <!-- IdentityConnectors -->
         <dependency>
-            <groupId>org.syncope.identityconnectors</groupId>
+            <groupId>org.connid</groupId>
             <artifactId>framework</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.syncope.identityconnectors</groupId>
+            <groupId>org.connid</groupId>
             <artifactId>framework-internal</artifactId>
-            <version>${project.version}</version>
         </dependency>
-        <!-- /IdentityConnectors -->
 
         <dependency>
             <groupId>org.apache.cxf</groupId>
@@ -245,9 +242,8 @@
 
         <!-- TEST -->
         <dependency>
-            <groupId>org.syncope.identityconnectors.bundles.staticws</groupId>
-            <artifactId>staticwebservice</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.connid.bundles.soap</groupId>
+            <artifactId>org.connid.bundles.soap</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -268,9 +264,14 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.syncope.identityconnectors</groupId>
+            <groupId>org.connid</groupId>
             <artifactId>test-common</artifactId>
-            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.connid.bundles.soap</groupId>
+            <artifactId>wssample</artifactId>
+            <type>war</type>
             <scope>test</scope>
         </dependency>
         <!-- /TEST -->
@@ -413,29 +414,24 @@
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
+                <artifactId>maven-dependency-plugin</artifactId>
                 <inherited>true</inherited>
                 <executions>
                     <execution>
                         <id>set-bundles</id>
                         <phase>pre-integration-test</phase>
                         <goals>
-                            <goal>copy-resources</goal>
+                            <goal>copy</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${bundles.directory}</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>${basedir}/../identityconnectors/bundles/staticws/staticwebservice/target</directory>
-                                    <includes>
-                                        <include>*.jar</include>
-                                    </includes>
-                                    <excludes>
-                                        <exclude>*-javadoc.jar</exclude>
-                                        <exclude>*-sources.jar</exclude>
-                                    </excludes>
-                                </resource>
-                            </resources>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.connid.bundles.soap</groupId>
+                                    <artifactId>org.connid.bundles.soap</artifactId>
+                                    <version>${connid.soap.version}</version>
+                                    <outputDirectory>${bundles.directory}</outputDirectory>                                
+                                </artifactItem>
+                            </artifactItems>
                         </configuration>
                     </execution>
                 </executions>
@@ -478,9 +474,9 @@
                                 </properties>
                             </deployable>
                             <deployable>
-                                <location>${basedir}/../identityconnectors/bundles/staticws/ws-target-resource/target/ws-target-resource-${project.version}.war</location>
+                                <location>${settings.localRepository}/org/connid/bundles/soap/wssample/${connid.soap.version}/wssample-${connid.soap.version}.war</location>
                                 <properties>
-                                    <context>wstarget</context>
+                                    <context>wssample</context>
                                 </properties>
                             </deployable>
                         </deployables>

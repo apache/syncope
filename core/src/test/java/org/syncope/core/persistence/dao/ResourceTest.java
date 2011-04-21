@@ -14,10 +14,10 @@
  */
 package org.syncope.core.persistence.dao;
 
+import static org.junit.Assert.*;
 import java.util.ArrayList;
 import java.util.List;
-import static org.junit.Assert.*;
-
+import org.connid.bundles.soap.WebServiceConnector;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,7 +25,6 @@ import org.syncope.core.persistence.beans.ConnInstance;
 import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.AbstractTest;
-import org.syncope.identityconnectors.bundles.staticwebservice.WebServiceConnector;
 import org.syncope.types.SourceMappingType;
 
 @Transactional
@@ -49,12 +48,11 @@ public class ResourceTest extends AbstractTest {
                 WebServiceConnector.class.getName(),
                 connector.getConnectorName());
 
-        assertEquals("invalid bundle name",
-                "org.syncope.identityconnectors.bundles.staticws",
+        assertEquals("invalid bundle name", "org.connid.bundles.soap",
                 connector.getBundleName());
 
         assertEquals("invalid bundle version",
-                bundlesVersion, connector.getVersion());
+                connidSoapVersion, connector.getVersion());
 
         List<SchemaMapping> mappings = resource.getMappings();
 
