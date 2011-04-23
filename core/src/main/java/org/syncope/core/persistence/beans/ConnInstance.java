@@ -89,7 +89,7 @@ public class ConnInstance extends AbstractBaseBean {
      * The connector can be considered the resource's type.
      */
     @OneToMany(cascade = {CascadeType.REFRESH, CascadeType.MERGE},
-    mappedBy = "connector")
+               mappedBy = "connector")
     private List<TargetResource> resources;
 
     public ConnInstance() {
@@ -148,7 +148,7 @@ public class ConnInstance extends AbstractBaseBean {
             encoder.close();
 
             xmlConfiguration = URLEncoder.encode(tokenContentOS.toString(),
-                    "UTF-8");
+                                                 "UTF-8");
         } catch (Throwable t) {
             LOG.error("During connector properties serialization", t);
         }

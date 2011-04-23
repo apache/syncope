@@ -50,8 +50,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
             props.load(propStream);
             connidSoapVersion = props.getProperty("connid.soap.version");
             bundlesDirectory = props.getProperty("bundles.directory");
-        }
-        catch (Throwable t) {
+        } catch (Throwable t) {
             LOG.error("Could not load bundles.properties", t);
         }
         assertNotNull(connidSoapVersion);
@@ -135,8 +134,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
             actual = restTemplate.postForObject(
                     BASE_URL + "connector/update.json",
                     connectorTO, ConnInstanceTO.class);
-        }
-        catch (HttpStatusCodeException e) {
+        } catch (HttpStatusCodeException e) {
             LOG.error("update failed", e);
             t = e;
         }
@@ -150,8 +148,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
             restTemplate.delete(
                     BASE_URL + "connector/delete/{connectorId}.json",
                     actual.getId().toString());
-        }
-        catch (HttpStatusCodeException e) {
+        } catch (HttpStatusCodeException e) {
             LOG.error("delete failed", e);
             t = e;
         }
@@ -164,8 +161,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
                     BASE_URL + "connector/read/{connectorId}",
                     ConnInstanceTO.class,
                     actual.getId().toString());
-        }
-        catch (HttpStatusCodeException e) {
+        } catch (HttpStatusCodeException e) {
             assertEquals(e.getStatusCode(), HttpStatus.NOT_FOUND);
         }
     }
@@ -234,8 +230,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         try {
             restTemplate.delete(
                     BASE_URL + "connector/delete/{connectorId}.json", "0");
-        }
-        catch (HttpStatusCodeException e) {
+        } catch (HttpStatusCodeException e) {
             assertEquals(e.getStatusCode(), HttpStatus.NOT_FOUND);
         }
     }

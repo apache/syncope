@@ -39,14 +39,14 @@ public class ConnInstanceTest extends AbstractTest {
         assertNotNull("findById did not work", connectorInstance);
 
         assertEquals("invalid connector name",
-                WebServiceConnector.class.getName(),
-                connectorInstance.getConnectorName());
+                     WebServiceConnector.class.getName(),
+                     connectorInstance.getConnectorName());
 
         assertEquals("invalid bundle name", "org.connid.bundles.soap",
-                connectorInstance.getBundleName());
+                     connectorInstance.getBundleName());
 
         assertEquals("invalid bundle version",
-                connidSoapVersion, connectorInstance.getVersion());
+                     connidSoapVersion, connectorInstance.getVersion());
     }
 
     @Test
@@ -102,15 +102,15 @@ public class ConnInstanceTest extends AbstractTest {
         assertTrue("save did not work", actual.getId() > 100L);
 
         assertEquals("save did not work for \"name\" attribute",
-                "WebService",
-                actual.getConnectorName());
+                     "WebService",
+                     actual.getConnectorName());
 
         assertEquals("save did not work for \"bundle name\" attribute",
-                "org.syncope.core.persistence.test.util",
-                actual.getBundleName());
+                     "org.syncope.core.persistence.test.util",
+                     actual.getBundleName());
 
         assertEquals("save did not work for \"majorVersion\" attribute",
-                "1.0", connectorInstance.getVersion());
+                     "1.0", connectorInstance.getVersion());
 
         assertEquals("New", actual.getDisplayName());
 
