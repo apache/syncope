@@ -31,6 +31,7 @@
     <properties>
         <hsqldb.version>2.0.0</hsqldb.version>
         <connid.soap.version>1.0-SNAPSHOT</connid.soap.version>
+        <tomcat.version>6.0.32</tomcat.version>
 
         <logfile>/var/tmp/syncope-console.log</logfile>
         <logfile.test>/var/tmp/syncope-console-test.log</logfile.test>
@@ -44,6 +45,18 @@
 
     <dependencies>
 
+        <dependency>
+            <groupId>org.syncope</groupId>
+            <artifactId>syncope-client</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.syncope</groupId>
+            <artifactId>syncope-core</artifactId>
+            <version>${project.version}</version>
+            <type>war</type>
+        </dependency>
+        
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
@@ -70,17 +83,14 @@
             <groupId>org.apache.wicket</groupId>
             <artifactId>wicket</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.apache.wicket</groupId>
             <artifactId>wicket-extensions</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.apache.wicket</groupId>
             <artifactId>wicket-datetime</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.apache.wicket</groupId>
             <artifactId>wicket-spring</artifactId>
@@ -92,18 +102,11 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
         <dependency>
             <groupId>org.apache.wicket</groupId>
             <artifactId>wicket-auth-roles</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>org.syncope</groupId>
-            <artifactId>syncope-client</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
+        
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
@@ -130,7 +133,7 @@
     </dependencies>
 
     <build>
-        <finalName>${artifactId}</finalName>
+        <finalName>${project.artifactId}</finalName>
 
         <plugins>
 
@@ -153,15 +156,30 @@
                         <id>explodeSyncopeWAR</id>
                         <phase>package</phase>
                         <configuration>
-                            <tasks>
-                                <unzip src="${basedir}/../core/target/syncope.war" dest="${project.build.directory}/syncope-core-test">
+                            <target>
+                                <unzip src="${settings.localRepository}/org/syncope/syncope-core/${project.version}/syncope-core-${project.version}.war" dest="${project.build.directory}/syncope-core-test">
                                     <patternset>
                                         <exclude name="**/content.xml" />
                                         <exclude name="**/ehcache.xml" />
                                         <exclude name="**/persistence.properties" />
                                     </patternset>
                                 </unzip>
-                            </tasks>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>setupTomcat</id>
+                        <phase>package</phase>
+                        <configuration>
+                            <target>
+                                <get src="http://www.apache.org/dist/tomcat/tomcat-6/v${tomcat.version}/bin/apache-tomcat-${tomcat.version}.zip" 
+                                     dest="${java.io.tmpdir}" skipexisting="true"/>
+                                <unzip src="${java.io.tmpdir}/apache-tomcat-${tomcat.version}.zip" 
+                                       dest="${java.io.tmpdir}" overwrite="false"/>
+                            </target>
                         </configuration>
                         <goals>
                             <goal>run</goal>
@@ -220,10 +238,7 @@
                 <configuration>
                     <container>
                         <containerId>tomcat6x</containerId>
-                        <zipUrlInstaller>
-                            <url>http://www.apache.org/dist/tomcat/tomcat-6/v6.0.32/bin/apache-tomcat-6.0.32.zip</url>
-                            <installDir>${java.io.tmpdir}/tomcat6x</installDir>
-                        </zipUrlInstaller>
+                        <home>${java.io.tmpdir}/apache-tomcat-${tomcat.version}</home>
                         <log>${cargo.log}</log>
                         <output>${cargo.output}</output>
                         <dependencies>
@@ -234,7 +249,6 @@
                     </container>
                     <configuration>
                         <type>standalone</type>
-                        <home>target/tomcat6x</home>
                         <configfiles>
                             <configfile>
                                 <file>${project.build.directory}/test-classes/catalina.properties</file>

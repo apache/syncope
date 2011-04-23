@@ -31,6 +31,7 @@
     <properties>
         <hsqldb.version>2.0.0</hsqldb.version>
         <connid.soap.version>1.0-SNAPSHOT</connid.soap.version>
+        <tomcat.version>6.0.32</tomcat.version>
 
         <cargo.servlet.port>9080</cargo.servlet.port>
         <cargo.run.dir>${project.build.directory}/syncope-core-test</cargo.run.dir>
@@ -394,7 +395,7 @@
                         <id>explodeSyncopeWAR</id>
                         <phase>package</phase>
                         <configuration>
-                            <tasks>
+                            <target>
                                 <unzip src="${project.build.directory}/${project.build.finalName}.war" dest="${cargo.run.dir}">
                                     <patternset>
                                         <exclude name="**/content.xml" />
@@ -403,7 +404,22 @@
                                         <exclude name="**/security.properties" />
                                     </patternset>
                                 </unzip>
-                            </tasks>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>setupTomcat</id>
+                        <phase>package</phase>
+                        <configuration>
+                            <target>
+                                <get src="http://www.apache.org/dist/tomcat/tomcat-6/v${tomcat.version}/bin/apache-tomcat-${tomcat.version}.zip" 
+                                     dest="${java.io.tmpdir}" skipexisting="true"/>
+                                <unzip src="${java.io.tmpdir}/apache-tomcat-${tomcat.version}.zip" 
+                                       dest="${java.io.tmpdir}" overwrite="false"/>
+                            </target>
                         </configuration>
                         <goals>
                             <goal>run</goal>
@@ -444,10 +460,7 @@
                 <configuration>
                     <container>
                         <containerId>tomcat6x</containerId>
-                        <zipUrlInstaller>
-                            <url>http://www.apache.org/dist/tomcat/tomcat-6/v6.0.32/bin/apache-tomcat-6.0.32.zip</url>
-                            <installDir>${java.io.tmpdir}/tomcat6x</installDir>
-                        </zipUrlInstaller>
+                        <home>${java.io.tmpdir}/apache-tomcat-${tomcat.version}</home>
                         <log>${cargo.log}</log>
                         <output>${cargo.output}</output>
                         <dependencies>
@@ -461,7 +474,6 @@
                     </container>
                     <configuration>
                         <type>standalone</type>
-                        <home>target/tomcat6x</home>
                         <properties>
                             <cargo.servlet.port>${cargo.servlet.port}</cargo.servlet.port>
                             <!--<cargo.jvmargs>-Xdebug -Xrunjdwp:transport=dt_socket,address=9009,server=y,suspend=n</cargo.jvmargs>-->
