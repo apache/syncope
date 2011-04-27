@@ -14,6 +14,9 @@
 -->
 <wicket:head>
     <style type="text/css">
+        #tabs-2 table{
+            font-size: 1.1em;
+        }
         #tabs-3 table{
             font-size: 1.1em;
         }
@@ -32,6 +35,7 @@
             <div id="tabs">
                 <ul>
                     <li><a href="#tabs-1"><span><wicket:message key="tab1"/></span></a></li>
+                    <li><a href="#tabs-2"><span><wicket:message key="tab2"/></span></a></li>
                     <li><a href="#tabs-3"><span><wicket:message key="tab3"/></span></a></li>
                     <li><a href="#tabs-4"><span><wicket:message key="tab4"/></span></a></li>
                 </ul>
@@ -65,6 +69,49 @@
                         </script>
                     </table>
                 </div>
+
+                <div id="tabs-2">
+                    <table id="derivedAttributes"
+                           class="ui-widget ui-widget-content ui-corner-all"
+                           style="font-size: 1em;margin-top:2px;"
+                           width="100%" cellpadding="2px" cellspacing="1px">
+                        <thead>
+                            <tr class="ui-widget-header">
+                                <th><wicket:message key="derivedAttributeToBeRemoved"/></th>
+                        <th><wicket:message key="derivedAttributeName"/></th>
+                        <th><wicket:message key="derivedAttributeValue"/></th>
+                        </tr>
+                        </thead>
+
+                        <tfoot>
+                            <tr>
+                                <td>
+                                    <input type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+                                           wicket:id="addDerivedAttributeBtn" />
+                                </td>
+                            </tr>
+                        </tfoot>
+
+                        <tbody wicket:id="derivedAttributesContainer">
+                            <tr wicket:id="derivedAttributes">
+                                <td align="center" valign="middle">
+                                    <input type="checkbox" class="text ui-widget-content ui-corner-all"  wicket:id="toRemove"/>
+                                </td>
+
+                                <td>
+                                    <select class="text ui-widget-content ui-corner-all"
+                                            style="width:100%" wicket:id="schema"/>
+                                </td>
+
+                                <td align="center" valign="middle">
+                                    <input type="text" class="text ui-widget-content ui-corner-all"  wicket:id="derivedAttributeValue"/>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                </div>
+
                 <div id="tabs-3">
                     <span wicket:id="resourcesPalette"/>
                 </div>

@@ -70,9 +70,15 @@ public class ResourceModalPage extends BaseModalPage {
 
     private List<String> uSchemaAttrNames;
 
+    private List<String> uDerSchemaAttrNames;
+
     private List<String> rSchemaAttrNames;
 
+    private List<String> rDerSchemaAttrNames;
+
     private List<String> mSchemaAttrNames;
+
+    private List<String> mDerSchemaAttrNames;
 
     private WebMarkupContainer mappingContainer;
 
@@ -81,9 +87,20 @@ public class ResourceModalPage extends BaseModalPage {
 
         super();
 
-        uSchemaAttrNames = schemaRestClient.getAllUSchemaNames();
-        rSchemaAttrNames = schemaRestClient.getAllRSchemaNames();
-        mSchemaAttrNames = schemaRestClient.getAllMSchemaNames();
+        uSchemaAttrNames =
+                schemaRestClient.getSchemaNames("user");
+        uDerSchemaAttrNames =
+                schemaRestClient.getDerivedSchemaNames("user");
+
+        rSchemaAttrNames =
+                schemaRestClient.getSchemaNames("role");
+        rDerSchemaAttrNames =
+                schemaRestClient.getDerivedSchemaNames("role");
+
+        mSchemaAttrNames =
+                schemaRestClient.getSchemaNames("membership");
+        mDerSchemaAttrNames =
+                schemaRestClient.getDerivedSchemaNames("membership");
 
         final IModel<List<ConnInstanceTO>> connectors =
                 new LoadableDetachableModel<List<ConnInstanceTO>>() {
@@ -212,8 +229,7 @@ public class ResourceModalPage extends BaseModalPage {
 
                     @Override
                     protected IAjaxCallDecorator getAjaxCallDecorator() {
-                        return new AjaxPreprocessingCallDecorator(super.
-                                getAjaxCallDecorator()) {
+                        return new AjaxPreprocessingCallDecorator(super.getAjaxCallDecorator()) {
 
                             @Override
                             public CharSequence preDecorateScript(
@@ -232,7 +248,9 @@ public class ResourceModalPage extends BaseModalPage {
                         new DropDownChoice<String>(
                         "sourceAttrNames", new PropertyModel<String>(
                         mappingTO, "sourceAttrName"), (IModel) null);
+
                 schemaAttrChoice.setOutputMarkupId(true);
+
                 if (mappingTO.getSourceMappingType() == null) {
                     schemaAttrChoice.setChoices(Collections.EMPTY_LIST);
                 } else {
@@ -241,12 +259,24 @@ public class ResourceModalPage extends BaseModalPage {
                             schemaAttrChoice.setChoices(uSchemaAttrNames);
                             break;
 
+                        case UserDerivedSchema:
+                            schemaAttrChoice.setChoices(uDerSchemaAttrNames);
+                            break;
+
                         case RoleSchema:
                             schemaAttrChoice.setChoices(rSchemaAttrNames);
                             break;
 
+                        case RoleDerivedSchema:
+                            schemaAttrChoice.setChoices(rDerSchemaAttrNames);
+                            break;
+
                         case MembershipSchema:
                             schemaAttrChoice.setChoices(mSchemaAttrNames);
+                            break;
+
+                        case MembershipDerivedSchema:
+                            schemaAttrChoice.setChoices(mDerSchemaAttrNames);
                             break;
 
                         case SyncopeUserId:
@@ -278,8 +308,7 @@ public class ResourceModalPage extends BaseModalPage {
                         setOutputMarkupId(true));
 
                 item.add(new TextField("destAttrName",
-                        new PropertyModel(mappingTO, "destAttrName")).
-                        setRequired(true).
+                        new PropertyModel(mappingTO, "destAttrName")).setRequired(true).
                         setLabel(new Model(getString("fieldName"))).
                         setOutputMarkupId(true));
 
@@ -409,12 +438,24 @@ public class ResourceModalPage extends BaseModalPage {
                                             result = uSchemaAttrNames;
                                             break;
 
+                                        case UserDerivedSchema:
+                                            result = uDerSchemaAttrNames;
+                                            break;
+
                                         case RoleSchema:
                                             result = rSchemaAttrNames;
                                             break;
 
+                                        case RoleDerivedSchema:
+                                            result = rDerSchemaAttrNames;
+                                            break;
+
                                         case MembershipSchema:
                                             result = mSchemaAttrNames;
+                                            break;
+
+                                        case MembershipDerivedSchema:
+                                            result = mDerSchemaAttrNames;
                                             break;
 
                                         case SyncopeUserId:

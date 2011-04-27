@@ -38,6 +38,8 @@ import org.syncope.core.persistence.dao.UserDAO;
 import org.syncope.core.rest.data.ResourceDataBinder;
 import org.syncope.core.persistence.AbstractTest;
 import org.syncope.core.persistence.beans.Task;
+import org.syncope.core.persistence.beans.user.UDerSchema;
+import org.syncope.core.persistence.dao.DerSchemaDAO;
 import org.syncope.core.persistence.dao.TaskDAO;
 import org.syncope.types.PropagationMode;
 import org.syncope.types.SourceMappingType;
@@ -50,6 +52,9 @@ public class ResourceTest extends AbstractTest {
 
     @Autowired
     private SchemaDAO schemaDAO;
+
+    @Autowired
+    private DerSchemaDAO derSchemaDAO;
 
     @Autowired
     private ConnInstanceDAO connectorInstanceDAO;
@@ -161,6 +166,22 @@ public class ResourceTest extends AbstractTest {
 
         resource.addMapping(accountId);
 
+        // search for the derived attribute schema
+        UDerSchema derivedSchema =
+                derSchemaDAO.find("cn", UDerSchema.class);
+
+        assertNotNull(derivedSchema);
+
+        // map a derived attribute
+        SchemaMapping derived = new SchemaMapping();
+        derived.setResource(resource);
+        derived.setAccountid(false);
+        derived.setDestAttrName("fullname");
+        derived.setSourceAttrName(derivedSchema.getName());
+        derived.setSourceMappingType(SourceMappingType.UserSchema);
+
+        resource.addMapping(derived);
+
         // specify an user schema
         SyncopeUser user = userDAO.find(1L);
 
@@ -200,7 +221,7 @@ public class ResourceTest extends AbstractTest {
         List<SchemaMapping> schemaMappings = resource.getMappings();
 
         assertNotNull(schemaMappings);
-        assertEquals(4, schemaMappings.size());
+        assertEquals(5, schemaMappings.size());
     }
 
     @Test

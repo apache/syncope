@@ -61,6 +61,24 @@ public enum AttributableUtil {
         return result;
     }
 
+    public SourceMappingType derivedSourceMappingType() {
+        SourceMappingType result = null;
+
+        switch (this) {
+            case USER:
+                result = SourceMappingType.UserDerivedSchema;
+                break;
+            case ROLE:
+                result = SourceMappingType.RoleDerivedSchema;
+                break;
+            case MEMBERSHIP:
+                result = SourceMappingType.MembershipDerivedSchema;
+                break;
+        }
+
+        return result;
+    }
+
     public <T extends AbstractSchema> Class<T> schemaClass() {
         Class result = null;
 

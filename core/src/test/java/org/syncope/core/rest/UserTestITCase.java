@@ -87,6 +87,11 @@ public class UserTestITCase extends AbstractTest {
         loginDateTO.addValue(sdf.format(new Date()));
         userTO.addAttribute(loginDateTO);
 
+        // add a derived attribute
+        AttributeTO cnTO = new AttributeTO();
+        cnTO.setSchema("cn");
+        userTO.addDerivedAttribute(cnTO);
+
         return userTO;
     }
 
@@ -586,7 +591,7 @@ public class UserTestITCase extends AbstractTest {
         userTO = restTemplate.postForObject(BASE_URL + "user/activate",
                 userTO, UserTO.class);
 
-        assertTrue(userTO.getDerivedAttributes().isEmpty());
+        assertFalse(userTO.getDerivedAttributes().isEmpty());
         assertEquals(1, userTO.getMemberships().size());
 
         AttributeMod attributeMod = new AttributeMod();

@@ -69,6 +69,13 @@ public class ResourceTestITCase extends AbstractTest {
         schemaMappingTO.setAccountid(true);
         resourceTO.addMapping(schemaMappingTO);
 
+        schemaMappingTO = new SchemaMappingTO();
+        schemaMappingTO.setDestAttrName("fullname");
+        schemaMappingTO.setSourceAttrName("cn");
+        schemaMappingTO.setSourceMappingType(SourceMappingType.UserSchema);
+        schemaMappingTO.setAccountid(false);
+        resourceTO.addMapping(schemaMappingTO);
+
         ResourceTO actual = restTemplate.postForObject(
                 BASE_URL + "resource/create.json",
                 resourceTO, ResourceTO.class);

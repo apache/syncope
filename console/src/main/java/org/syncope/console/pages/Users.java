@@ -83,6 +83,8 @@ public class Users extends BasePage {
 
     private final static int DISPLAYATTRS_MODAL_WIN_WIDTH = 600;
 
+    private final static String DERIVED_ATTRIBUTE_PREFIX = "[D] ";
+
     @SpringBean
     private UserRestClient userRestClient;
 
@@ -110,7 +112,33 @@ public class Users extends BasePage {
 
                 @Override
                 protected List<String> load() {
-                    return schemaRestClient.getAllUSchemaNames();
+                    return schemaRestClient.getSchemaNames("user");
+                }
+            };
+
+    final private IModel<List<String>> choosableSchemaNames =
+            new LoadableDetachableModel<List<String>>() {
+
+                @Override
+                protected List<String> load() {
+
+                    List<String> schemas =
+                            schemaRestClient.getSchemaNames("user");
+
+                    if (schemas == null) {
+                        schemas = new ArrayList<String>();
+                    }
+
+                    List<String> derivedSchemas =
+                            schemaRestClient.getDerivedSchemaNames("user");
+
+                    if (derivedSchemas != null) {
+                        for (String schema : derivedSchemas) {
+                            schemas.add(DERIVED_ATTRIBUTE_PREFIX + schema);
+                        }
+                    }
+
+                    return schemas;
                 }
             };
 
@@ -220,8 +248,8 @@ public class Users extends BasePage {
 
                     @Override
                     public Page createPage() {
-                        return new UserModalPage(Users.this, editModalWin,
-                                new UserTO(), true);
+                        return new UserModalPage(
+                                Users.this, editModalWin, new UserTO(), true);
                     }
                 });
 
@@ -244,7 +272,8 @@ public class Users extends BasePage {
                             @Override
                             public Page createPage() {
                                 return new DisplayAttributesModalPage(
-                                        Users.this, schemaNames,
+                                        Users.this,
+                                        choosableSchemaNames,
                                         displayAttrsModalWin);
                             }
                         });
@@ -466,12 +495,14 @@ public class Users extends BasePage {
         columns.add(new PropertyColumn(
                 new Model(getString("status")), "status", "status"));
         columns.add(new TokenColumn(new Model(getString("token")), "token"));
+        
         for (String schemaName : prefMan.getList(getWebRequestCycle().
                 getWebRequest(), Constants.PREF_USERS_ATTRIBUTES_VIEW)) {
 
             columns.add(new UserAttrColumn(
                     new Model<String>(schemaName), schemaName));
         }
+
         columns.add(new AbstractColumn<UserTO>(new Model<String>(getString(
                 "edit"))) {
 
@@ -494,8 +525,8 @@ public class Users extends BasePage {
 
                                     @Override
                                     public Page createPage() {
-                                        return new UserModalPage(Users.this,
-                                                editModalWin,
+                                        return new UserModalPage(
+                                                Users.this, editModalWin,
                                                 model.getObject(), false);
                                     }
                                 });
@@ -760,7 +791,12 @@ public class Users extends BasePage {
         public UserAttrColumn(final IModel<String> displayModel,
                 final String schemaName) {
 
-            super(displayModel, schemaName);
+            super(displayModel,
+                    schemaName.startsWith(DERIVED_ATTRIBUTE_PREFIX)
+                    ? schemaName.substring(
+                    DERIVED_ATTRIBUTE_PREFIX.length(), schemaName.length())
+                    : schemaName);
+
             this.schemaName = schemaName;
         }
 
@@ -773,7 +809,12 @@ public class Users extends BasePage {
             Label label;
 
             List<String> values =
-                    rowModel.getObject().getAttributeMap().get(schemaName);
+                    schemaName.startsWith(DERIVED_ATTRIBUTE_PREFIX)
+                    ? rowModel.getObject().getDerivedAttributeMap().get(
+                    schemaName.substring(
+                    DERIVED_ATTRIBUTE_PREFIX.length(), schemaName.length()))
+                    : rowModel.getObject().getAttributeMap().get(schemaName);
+
             if (values == null || values.isEmpty()) {
                 label = new Label(componentId, "");
             } else {
@@ -886,8 +927,7 @@ public class Users extends BasePage {
                         protected void onUpdate(
                                 final AjaxRequestTarget target) {
 
-                            filterNameChooser.setChoices(searchCondition.
-                                    getFilterType() == FilterType.ATTRIBUTE
+                            filterNameChooser.setChoices(searchCondition.getFilterType() == FilterType.ATTRIBUTE
                                     ? schemaNames : roleNames);
                             target.addComponent(filterNameChooser);
                             target.addComponent(searchFormContainer);

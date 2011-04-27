@@ -24,18 +24,25 @@ import java.util.Date;
 import java.util.List;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.IAjaxCallDecorator;
+import org.apache.wicket.ajax.calldecorator.AjaxPreprocessingCallDecorator;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.to.AttributeTO;
 import org.syncope.client.to.MembershipTO;
@@ -43,6 +50,7 @@ import org.syncope.client.to.SchemaTO;
 import org.syncope.console.commons.SchemaWrapper;
 import org.syncope.console.rest.SchemaRestClient;
 import org.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
+import org.syncope.console.wicket.markup.html.form.AjaxDecoratedCheckbox;
 import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.syncope.console.wicket.markup.html.form.DateFieldPanel;
 import org.syncope.types.SchemaType;
@@ -70,13 +78,21 @@ public class MembershipModalPage extends BaseModalPage {
 
         setupSchemaWrappers(createFlag, membershipTO);
 
+        final IModel<List<String>> derivedSchemaNames =
+                new LoadableDetachableModel<List<String>>() {
+
+                    @Override
+                    protected List<String> load() {
+                        return schemaRestClient.getDerivedSchemaNames("membership");
+                    }
+                };
+
         final ListView userAttributesView = new ListView("membershipSchemas",
                 schemaWrappers) {
 
             @Override
             protected void populateItem(ListItem item) {
-                final SchemaWrapper schemaWrapper = (SchemaWrapper) item.
-                        getDefaultModelObject();
+                final SchemaWrapper schemaWrapper = (SchemaWrapper) item.getDefaultModelObject();
 
                 final SchemaTO schemaTO = schemaWrapper.getSchemaTO();
 
@@ -113,8 +129,7 @@ public class MembershipModalPage extends BaseModalPage {
                                 }
                             }, required);
                         } else if (schemaTO.getType() == SchemaType.Boolean) {
-                            panel = new AjaxCheckBoxPanel("panel", schemaTO.
-                                    getName(), new Model() {
+                            panel = new AjaxCheckBoxPanel("panel", schemaTO.getName(), new Model() {
 
                                 @Override
                                 public Serializable getObject() {
@@ -136,12 +151,10 @@ public class MembershipModalPage extends BaseModalPage {
                                 @Override
                                 public Serializable getObject() {
                                     DateFormat formatter =
-                                            new SimpleDateFormat(schemaTO.
-                                            getConversionPattern());
+                                            new SimpleDateFormat(schemaTO.getConversionPattern());
                                     Date date = new Date();
                                     try {
-                                        String dateValue = (String) item.
-                                                getModelObject();
+                                        String dateValue = (String) item.getModelObject();
                                         formatter = new SimpleDateFormat(
                                                 schemaTO.getConversionPattern());
 
@@ -225,17 +238,19 @@ public class MembershipModalPage extends BaseModalPage {
             @Override
             protected void onSubmit(AjaxRequestTarget target, Form form) {
 
-                MembershipTO membershipTO = (MembershipTO) form.
-                        getDefaultModelObject();
+                MembershipTO membershipTO =
+                        (MembershipTO) form.getDefaultModelObject();
+
                 membershipTO.setAttributes(getMembershipAttributes());
 
-                UserModalPage userModalPage = (UserModalPage) basePage;
-
                 if (createFlag) {
-                    userModalPage.getMembershipTOs().add(membershipTO);
+                    ((UserModalPage) basePage).getMembershipTOs().add(
+                            membershipTO);
                 } else {
-                    userModalPage.getMembershipTOs().remove(membershipTO);
-                    userModalPage.getMembershipTOs().add(membershipTO);
+                    ((UserModalPage) basePage).getMembershipTOs().remove(
+                            membershipTO);
+                    ((UserModalPage) basePage).getMembershipTOs().add(
+                            membershipTO);
                 }
                 window.close(target);
             }
@@ -266,6 +281,97 @@ public class MembershipModalPage extends BaseModalPage {
 
         form.add(container);
 
+        //--------------------------------
+        // Derived attributes container
+        //--------------------------------
+        final WebMarkupContainer derivedAttributesContainer =
+                new WebMarkupContainer("derivedAttributesContainer");
+        derivedAttributesContainer.setOutputMarkupId(true);
+        form.add(derivedAttributesContainer);
+
+        AjaxButton addDerivedAttributeBtn = new IndicatingAjaxButton(
+                "addDerivedAttributeBtn",
+                new Model(getString("addDerivedAttributeBtn"))) {
+
+            @Override
+            protected void onSubmit(final AjaxRequestTarget target,
+                    final Form form) {
+
+                membershipTO.getDerivedAttributes().add(new AttributeTO());
+                target.addComponent(derivedAttributesContainer);
+            }
+        };
+        addDerivedAttributeBtn.setDefaultFormProcessing(false);
+        form.add(addDerivedAttributeBtn);
+
+        ListView<AttributeTO> derivedAttributes = new ListView<AttributeTO>(
+                "derivedAttributes", membershipTO.getDerivedAttributes()) {
+
+            @Override
+            protected void populateItem(final ListItem<AttributeTO> item) {
+                final AttributeTO derivedAttributeTO = item.getModelObject();
+
+                item.add(new AjaxDecoratedCheckbox("toRemove",
+                        new Model(Boolean.FALSE)) {
+
+                    @Override
+                    protected void onUpdate(final AjaxRequestTarget target) {
+                        membershipTO.getDerivedAttributes().remove(
+                                derivedAttributeTO);
+                        item.getParent().removeAll();
+                        target.addComponent(derivedAttributesContainer);
+                    }
+
+                    @Override
+                    protected IAjaxCallDecorator getAjaxCallDecorator() {
+                        return new AjaxPreprocessingCallDecorator(
+                                super.getAjaxCallDecorator()) {
+
+                            @Override
+                            public CharSequence preDecorateScript(
+                                    final CharSequence script) {
+
+                                return "if (confirm('"
+                                        + getString("confirmDelete") + "'))"
+                                        + "{" + script + "} "
+                                        + "else {this.checked = false;}";
+                            }
+                        };
+                    }
+                });
+
+                final DropDownChoice<String> derivedSchemaChoice =
+                        new DropDownChoice<String>(
+                        "schema",
+                        new PropertyModel<String>(derivedAttributeTO, "schema"),
+                        derivedSchemaNames);
+
+                derivedSchemaChoice.setOutputMarkupId(true);
+
+                if (derivedAttributeTO.getSchema() != null) {
+                    item.add(derivedSchemaChoice.setEnabled(Boolean.FALSE));
+                } else {
+                    item.add(derivedSchemaChoice.setRequired(true));
+                }
+
+                final List<String> values = derivedAttributeTO.getValues();
+
+                if (values == null || values.isEmpty()) {
+                    item.add(new TextField(
+                            "derivedAttributeValue",
+                            new Model(null)).setVisible(Boolean.FALSE));
+                } else {
+                    item.add(new TextField(
+                            "derivedAttributeValue",
+                            new Model(values.get(0))).setEnabled(
+                            Boolean.FALSE));
+                }
+            }
+        };
+        derivedAttributes.setReuseItems(true);
+        derivedAttributesContainer.add(derivedAttributes);
+        //--------------------------------
+
         add(form);
     }
 
@@ -295,7 +401,7 @@ public class MembershipModalPage extends BaseModalPage {
         schemaWrappers = new ArrayList<SchemaWrapper>();
         SchemaWrapper schemaWrapper;
 
-        List<SchemaTO> schemas = schemaRestClient.getAllMemberhipSchemas();
+        List<SchemaTO> schemas = schemaRestClient.getSchemas("membership");
 
         boolean found = false;
 

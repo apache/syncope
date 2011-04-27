@@ -322,6 +322,7 @@ public class StaticWSTestITCase {
 
         attrs.add(AttributeBuilder.build("name", "John"));
         attrs.add(AttributeBuilder.build("surname", "Doe"));
+        attrs.add(AttributeBuilder.build("fullname", "John Doe"));
         attrs.add(AttributeBuilder.build("type", "person"));
         attrs.add(AttributeBuilder.build("birthdate", "12/03/1990"));
 

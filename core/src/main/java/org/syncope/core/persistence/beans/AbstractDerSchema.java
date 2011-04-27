@@ -51,12 +51,4 @@ public abstract class AbstractDerSchema extends AbstractBaseBean {
     public abstract List<? extends AbstractDerAttr> getDerivedAttributes();
 
     public abstract <T extends AbstractDerAttr> void setDerivedAttributes(List<T> derivedAttributes);
-
-    public abstract boolean addMapping(SchemaMapping mapping);
-
-    public abstract boolean removeMapping(SchemaMapping mapping);
-
-    public abstract List<SchemaMapping> getMappings();
-
-    public abstract void setMappings(List<SchemaMapping> mappings);
 }

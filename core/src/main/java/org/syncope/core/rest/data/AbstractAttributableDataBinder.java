@@ -414,22 +414,40 @@ public abstract class AbstractAttributableDataBinder {
 
             derivedSchema = getDerivedSchema(derivedAttributeToBeRemoved,
                     attributableUtil.derivedSchemaClass());
+
             if (derivedSchema != null) {
-                for (SchemaMapping mapping : derivedSchema.getMappings()) {
-                    if (mapping.getResource() != null
-                            && resources.contains(mapping.getResource())) {
-                        resourceOperations.add(ResourceOperationType.UPDATE,
-                                mapping.getResource());
-                    }
-                }
 
                 derivedAttribute = attributable.getDerivedAttribute(
                         derivedSchema.getName());
+
                 if (derivedAttribute == null) {
                     LOG.debug("No derived attribute found for schema {}",
                             derivedSchema.getName());
                 } else {
                     derivedAttributeDAO.delete(derivedAttribute);
+                }
+
+                for (SchemaMapping mapping : resourceDAO.findAllMappings()) {
+                    if (mapping.getSourceAttrName().equals(
+                            derivedSchema.getName())
+                            && mapping.getSourceMappingType()
+                            == attributableUtil.derivedSourceMappingType()
+                            && mapping.getResource() != null
+                            && resources.contains(mapping.getResource())) {
+
+                        resourceOperations.add(ResourceOperationType.UPDATE,
+                                mapping.getResource());
+
+                        if (mapping.isAccountid() && derivedAttribute != null
+                                && !derivedAttribute.getValue(
+                                attributable.getAttributes()).isEmpty()) {
+
+                            resourceOperations.addOldAccountId(
+                                    mapping.getResource().getName(),
+                                    derivedAttribute.getValue(
+                                    attributable.getAttributes()));
+                        }
+                    }
                 }
             }
         }
@@ -443,9 +461,14 @@ public abstract class AbstractAttributableDataBinder {
 
             derivedSchema = getDerivedSchema(derivedAttributeToBeAdded,
                     attributableUtil.derivedSchemaClass());
+
             if (derivedSchema != null) {
-                for (SchemaMapping mapping : derivedSchema.getMappings()) {
-                    if (mapping.getResource() != null
+                for (SchemaMapping mapping : resourceDAO.findAllMappings()) {
+                    if (mapping.getSourceAttrName().equals(
+                            derivedSchema.getName())
+                            && mapping.getSourceMappingType()
+                            == attributableUtil.derivedSourceMappingType()
+                            && mapping.getResource() != null
                             && resources.contains(mapping.getResource())) {
 
                         resourceOperations.add(ResourceOperationType.UPDATE,

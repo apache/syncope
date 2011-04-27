@@ -17,9 +17,11 @@ package org.syncope.types;
 public enum SourceMappingType {
 
     UserSchema,
+    UserDerivedSchema,
     RoleSchema,
+    RoleDerivedSchema,
     MembershipSchema,
+    MembershipDerivedSchema,
     SyncopeUserId,
     Password;
-
 }

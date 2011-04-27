@@ -24,12 +24,17 @@ import org.syncope.core.persistence.beans.AbstractDerAttr;
 import org.syncope.core.persistence.beans.AbstractDerSchema;
 import org.syncope.core.persistence.dao.DerAttrDAO;
 import org.syncope.core.persistence.dao.DerSchemaDAO;
+import org.syncope.core.persistence.dao.ResourceDAO;
+import org.syncope.core.util.AttributableUtil;
 
 @Repository
 public class DerSchemaDAOImpl extends AbstractDAOImpl implements DerSchemaDAO {
 
     @Autowired
     private DerAttrDAO derivedAttributeDAO;
+
+    @Autowired
+    private ResourceDAO resourceDAO;
 
     @Override
     public <T extends AbstractDerSchema> T find(final String name,
@@ -53,26 +58,34 @@ public class DerSchemaDAOImpl extends AbstractDAOImpl implements DerSchemaDAO {
     }
 
     @Override
-    public <T extends AbstractDerSchema> void delete(final String name,
-            final Class<T> reference) {
+    public void delete(final String name,
+            final AttributableUtil attributableUtil) {
 
-        T derivedSchema = find(name, reference);
+        final AbstractDerSchema derivedSchema =
+                find(name, attributableUtil.derivedSchemaClass());
+
         if (derivedSchema == null) {
             return;
         }
 
-        Set<Long> derivedAttributeIds =
+        final Set<Long> derivedAttributeIds =
                 new HashSet<Long>(derivedSchema.getDerivedAttributes().size());
+
         Class attributeClass = null;
+
         for (AbstractDerAttr attribute :
                 derivedSchema.getDerivedAttributes()) {
 
             derivedAttributeIds.add(attribute.getId());
             attributeClass = attribute.getClass();
         }
+
         for (Long derivedAttributeId : derivedAttributeIds) {
             derivedAttributeDAO.delete(derivedAttributeId, attributeClass);
         }
+
+        resourceDAO.deleteMappings(
+                name, attributableUtil.derivedSourceMappingType());
 
         entityManager.remove(derivedSchema);
     }
