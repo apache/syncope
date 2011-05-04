@@ -31,6 +31,7 @@
     <properties>
         <hsqldb.version>2.0.0</hsqldb.version>
         <connid.soap.version>1.0-SNAPSHOT</connid.soap.version>
+        <connid.db.table.version>1.1-SNAPSHOT</connid.db.table.version>
         <tomcat.version>6.0.32</tomcat.version>
 
         <cargo.servlet.port>9080</cargo.servlet.port>
@@ -232,19 +233,33 @@
             <artifactId>framework-internal</artifactId>
         </dependency>
 
+            <!-- CXF: needed by soap connector -->
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-frontend-jaxws</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-transports-http</artifactId>
+            <scope>runtime</scope>
         </dependency>
 
         <!-- TEST -->
         <dependency>
             <groupId>org.connid.bundles.soap</groupId>
             <artifactId>org.connid.bundles.soap</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.connid.bundles.soap</groupId>
+            <artifactId>wssample</artifactId>
+            <type>war</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.connid.bundles.db</groupId>
+            <artifactId>org.connid.bundles.db.table</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -262,17 +277,6 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.connid</groupId>
-            <artifactId>test-common</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.connid.bundles.soap</groupId>
-            <artifactId>wssample</artifactId>
-            <type>war</type>
             <scope>test</scope>
         </dependency>
         <!-- /TEST -->
@@ -447,9 +451,66 @@
                                     <version>${connid.soap.version}</version>
                                     <outputDirectory>${bundles.directory}</outputDirectory>                                
                                 </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.connid.bundles.db</groupId>
+                                    <artifactId>org.connid.bundles.db.table</artifactId>
+                                    <version>${connid.db.table.version}</version>
+                                    <outputDirectory>${bundles.directory}</outputDirectory>                                
+                                </artifactItem>
                             </artifactItems>
                         </configuration>
                     </execution>
+                </executions>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.onebusaway.plugins</groupId>
+                <artifactId>maven-hsqldb-plugin</artifactId>
+                <inherited>true</inherited>
+                <configuration>
+                    <dbName>testdb</dbName>
+                    <mode>server</mode>
+                    <isTransient>true</isTransient>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>startTestDb</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>run</goal>    
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>sql-maven-plugin</artifactId>
+                <inherited>true</inherited>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.hsqldb</groupId>
+                        <artifactId>hsqldb</artifactId>
+                        <version>${hsqldb.version}</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <driver>org.hsqldb.jdbcDriver</driver>
+                    <url>jdbc:hsqldb:hsql://localhost:9001/testdb</url>
+                    <username>sa</username>
+                    <password></password>
+                    <srcFiles>
+                        <srcFile>${project.build.directory}/test-classes/testdb.sql</srcFile>
+                    </srcFiles>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>pre-integration-test</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>execute</goal>    
+                        </goals>
+                    </execution>    
                 </executions>
             </plugin>
 

@@ -74,6 +74,7 @@
         
         <connid.version>1.3-SNAPSHOT</connid.version>
         <connid.soap.version>1.0-SNAPSHOT</connid.soap.version>
+        <connid.db.table.version>1.1-SNAPSHOT</connid.db.table.version>
 
         <commons-jexl.version>2.0.1</commons-jexl.version>
         <commons-lang.version>2.6</commons-lang.version>
@@ -98,7 +99,7 @@
         <hibernate-validator.version>4.0.2.GA</hibernate-validator.version>
         <ehcache.version>2.3.2</ehcache.version>
 
-        <wicket.version>1.4.16</wicket.version>
+        <wicket.version>1.4.17</wicket.version>
 
         <org.apache.cxf.version>2.4.0</org.apache.cxf.version>
 
@@ -284,16 +285,18 @@
             </dependency>
             <!-- /Spring -->
 
-            <!-- CXF -->
+            <!-- CXF: needed by soap connector -->
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-frontend-jaxws</artifactId>
                 <version>${org.apache.cxf.version}</version>
+                <scope>runtime</scope>
             </dependency>
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-transports-http</artifactId>
                 <version>${org.apache.cxf.version}</version>
+                <scope>runtime</scope>
             </dependency>
             <!-- /CXF -->
 
@@ -403,12 +406,6 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>org.connid</groupId>
-                <artifactId>test-common</artifactId>
-                <version>${connid.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-test</artifactId>
                 <version>${org.springframework.version}</version>
@@ -425,6 +422,12 @@
                 <artifactId>wssample</artifactId>
                 <version>${connid.soap.version}</version>
                 <type>war</type>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.connid.bundles.db</groupId>
+                <artifactId>org.connid.bundles.db.table</artifactId>
+                <version>${connid.db.table.version}</version>
                 <scope>test</scope>
             </dependency>
             <!-- /TEST -->
@@ -521,6 +524,16 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-war-plugin</artifactId>
                     <version>2.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>sql-maven-plugin</artifactId>
+                    <version>1.4</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.onebusaway.plugins</groupId>
+                    <artifactId>maven-hsqldb-plugin</artifactId>
+                    <version>1.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
