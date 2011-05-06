@@ -32,7 +32,6 @@
         <hsqldb.version>2.0.0</hsqldb.version>
         <connid.soap.version>1.0-SNAPSHOT</connid.soap.version>
         <connid.db.table.version>1.1-SNAPSHOT</connid.db.table.version>
-        <tomcat.version>6.0.32</tomcat.version>
 
         <logfile>/var/tmp/syncope-console.log</logfile>
         <logfile.test>/var/tmp/syncope-console-test.log</logfile.test>
@@ -141,6 +140,7 @@
                 </configuration>
             </plugin>
             
+            <!-- For cargo:run
             <plugin>
                 <groupId>org.onebusaway.plugins</groupId>
                 <artifactId>maven-hsqldb-plugin</artifactId>
@@ -183,7 +183,7 @@
                 </configuration>
                 <executions>
                     <execution>
-                        <id>populateTestDb</id>
+                        <id>loadTestDb</id>
                         <phase>package</phase>
                         <goals>
                             <goal>execute</goal>    
@@ -192,7 +192,6 @@
                 </executions>
             </plugin>
 
-            <!-- For cargo:run -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
@@ -221,9 +220,9 @@
                         <phase>package</phase>
                         <configuration>
                             <target>
-                                <get src="http://www.apache.org/dist/tomcat/tomcat-6/v${tomcat.version}/bin/apache-tomcat-${tomcat.version}.zip" 
+                                <get src="http://www.apache.org/dist/tomcat/tomcat-7/v7.0.12/bin/apache-tomcat-7.0.12.zip" 
                                      dest="${java.io.tmpdir}" skipexisting="true"/>
-                                <unzip src="${java.io.tmpdir}/apache-tomcat-${tomcat.version}.zip" 
+                                <unzip src="${java.io.tmpdir}/apache-tomcat-7.0.12.zip" 
                                        dest="${java.io.tmpdir}" overwrite="false"/>
                             </target>
                         </configuration>
@@ -270,9 +269,10 @@
                 <artifactId>cargo-maven2-plugin</artifactId>
                 <inherited>true</inherited>
                 <configuration>
+                    <wait>true</wait>
                     <container>
-                        <containerId>tomcat6x</containerId>
-                        <home>${java.io.tmpdir}/apache-tomcat-${tomcat.version}</home>
+                        <containerId>tomcat7x</containerId>
+                        <home>${java.io.tmpdir}/apache-tomcat-7.0.12</home>
                         <log>${cargo.log}</log>
                         <output>${cargo.output}</output>
                         <dependencies>
@@ -291,7 +291,6 @@
                         </configfiles>
                         <properties>
                             <cargo.servlet.port>${cargo.servlet.port}</cargo.servlet.port>
-<!--                            <cargo.jvmargs>-Xdebug -Xrunjdwp:transport=dt_socket,address=9009,server=y,suspend=n</cargo.jvmargs>-->
                         </properties>
                         <deployables>
                             <deployable>
@@ -316,6 +315,7 @@
                     </configuration>
                 </configuration>
             </plugin>
+            -->
 
         </plugins>
             
@@ -329,6 +329,10 @@
         <testResources>
             <testResource>
                 <directory>src/test/resources</directory>
+                <filtering>true</filtering>
+            </testResource>
+            <testResource>
+                <directory>../core/src/test/resources</directory>
                 <filtering>true</filtering>
             </testResource>
         </testResources>

@@ -175,6 +175,10 @@
         <level value="INFO"/>
         <appender-ref ref="persistence"/>
     </logger>
+    <logger name="org.hibernate.stat" additivity="false">
+        <level value="OFF"/>
+        <appender-ref ref="persistence"/>
+    </logger>
     <logger name="org.hibernate.SQL" additivity="false">
         <level value="OFF"/>
         <appender-ref ref="persistence"/>
@@ -199,7 +203,7 @@
     </logger>
 
     <root>
-        <priority value="INFO"/>
+        <level value="INFO"/>
         <appender-ref ref="main"/>
     </root>
 </configuration>

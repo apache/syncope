@@ -32,7 +32,6 @@
         <hsqldb.version>2.0.0</hsqldb.version>
         <connid.soap.version>1.0-SNAPSHOT</connid.soap.version>
         <connid.db.table.version>1.1-SNAPSHOT</connid.db.table.version>
-        <tomcat.version>6.0.32</tomcat.version>
 
         <cargo.servlet.port>9080</cargo.servlet.port>
         <cargo.run.dir>${project.build.directory}/syncope-core-test</cargo.run.dir>
@@ -336,41 +335,6 @@
                 </executions>
             </plugin>
 
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>hibernate3-maven-plugin</artifactId>
-                <inherited>true</inherited>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.hsqldb</groupId>
-                        <artifactId>hsqldb</artifactId>
-                        <version>${hsqldb.version}</version>
-                    </dependency>
-                </dependencies>
-                <configuration>
-                    <components>
-                        <component>
-                            <name>hbm2ddl</name>
-                            <implementation>jpaconfiguration</implementation>
-                        </component>
-                    </components>
-                    <componentProperties>
-                        <jdk5>true</jdk5>
-                        <propertyfile>${project.build.directory}/test-classes/persistence.properties</propertyfile>
-                        <skip>${maven.test.skip}</skip>
-                        <format>true</format>
-                    </componentProperties>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>test-compile</phase>
-                        <goals>
-                            <goal>hbm2ddl</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
             <!-- Integration test -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -419,9 +383,9 @@
                         <phase>package</phase>
                         <configuration>
                             <target>
-                                <get src="http://www.apache.org/dist/tomcat/tomcat-6/v${tomcat.version}/bin/apache-tomcat-${tomcat.version}.zip" 
+                                <get src="http://www.apache.org/dist/tomcat/tomcat-7/v7.0.12/bin/apache-tomcat-7.0.12.zip" 
                                      dest="${java.io.tmpdir}" skipexisting="true"/>
-                                <unzip src="${java.io.tmpdir}/apache-tomcat-${tomcat.version}.zip" 
+                                <unzip src="${java.io.tmpdir}/apache-tomcat-7.0.12.zip" 
                                        dest="${java.io.tmpdir}" overwrite="false"/>
                             </target>
                         </configuration>
@@ -496,7 +460,7 @@
                 </dependencies>
                 <configuration>
                     <driver>org.hsqldb.jdbcDriver</driver>
-                    <url>jdbc:hsqldb:hsql://localhost:9001/testdb</url>
+                    <url>jdbc:hsqldb:hsql://localhost:9001/testdb;shutdown=true</url>
                     <username>sa</username>
                     <password></password>
                     <srcFiles>
@@ -505,12 +469,12 @@
                 </configuration>
                 <executions>
                     <execution>
-                        <id>pre-integration-test</id>
+                        <id>loadTestDb</id>
                         <phase>pre-integration-test</phase>
                         <goals>
                             <goal>execute</goal>    
                         </goals>
-                    </execution>    
+                    </execution>
                 </executions>
             </plugin>
 
@@ -519,9 +483,10 @@
                 <artifactId>cargo-maven2-plugin</artifactId>
                 <inherited>true</inherited>
                 <configuration>
+                    <wait>true</wait>
                     <container>
-                        <containerId>tomcat6x</containerId>
-                        <home>${java.io.tmpdir}/apache-tomcat-${tomcat.version}</home>
+                        <containerId>tomcat7x</containerId>
+                        <home>${java.io.tmpdir}/apache-tomcat-7.0.12</home>
                         <log>${cargo.log}</log>
                         <output>${cargo.output}</output>
                         <dependencies>
@@ -574,6 +539,21 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.2</version>
+                <configuration>
+                    <executable>java</executable>
+                    <arguments>
+                        <argument>-classpath</argument>
+                        <classpath/>
+                        <argument>org.syncope.core.persistence.util.SchemaExporter</argument>
+                        <argument>HSQL</argument>
+                    </arguments>
+                </configuration>
             </plugin>
 
         </plugins>

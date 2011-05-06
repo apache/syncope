@@ -19,9 +19,10 @@ import javax.persistence.Basic;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.hibernate.validator.constraints.Range;
 import org.syncope.core.persistence.validation.entity.AttrValueCheck;
 
 @MappedSuperclass
@@ -34,7 +35,8 @@ public abstract class AbstractAttrValue extends AbstractBaseBean {
     private Date dateValue;
 
     @Basic
-    @Range(min = 0, max = 1)
+    @Min(0)
+    @Max(1)
     private Integer booleanValue;
 
     private Long longValue;

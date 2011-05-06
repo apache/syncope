@@ -19,6 +19,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.persistence.Basic;
+import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -30,13 +31,12 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.Valid;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import org.syncope.core.persistence.beans.AbstractAttributable;
 import org.syncope.core.persistence.beans.AbstractAttr;
 import org.syncope.core.persistence.beans.AbstractDerAttr;
 import org.syncope.core.persistence.beans.Entitlement;
-import org.hibernate.validator.constraints.Range;
 
 @Entity
 @Table(uniqueConstraints =
@@ -44,7 +44,7 @@ import org.hibernate.validator.constraints.Range;
     "name",
     "parent_id"
 }))
-@Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Cacheable
 public class SyncopeRole extends AbstractAttributable {
 
     @Id
@@ -68,11 +68,13 @@ public class SyncopeRole extends AbstractAttributable {
     private List<RDerAttr> derivedAttributes;
 
     @Basic
-    @Range(min = 0, max = 1)
+    @Min(0)
+    @Max(1)
     private Integer inheritAttributes;
 
     @Basic
-    @Range(min = 0, max = 1)
+    @Min(0)
+    @Max(1)
     private Integer inheritDerivedAttributes;
 
     public SyncopeRole() {

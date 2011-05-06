@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -34,7 +35,6 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.OneToMany;
-import org.hibernate.annotations.CollectionOfElements;
 import org.syncope.types.ConnConfProperty;
 import org.syncope.types.ConnectorCapability;
 
@@ -69,7 +69,7 @@ public class ConnInstance extends AbstractBaseBean {
     /**
      * The set of capabilities supported by this connector instance.
      */
-    @CollectionOfElements(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
     private Set<ConnectorCapability> capabilities;
 
@@ -89,7 +89,7 @@ public class ConnInstance extends AbstractBaseBean {
      * The connector can be considered the resource's type.
      */
     @OneToMany(cascade = {CascadeType.REFRESH, CascadeType.MERGE},
-               mappedBy = "connector")
+    mappedBy = "connector")
     private List<TargetResource> resources;
 
     public ConnInstance() {
@@ -148,7 +148,7 @@ public class ConnInstance extends AbstractBaseBean {
             encoder.close();
 
             xmlConfiguration = URLEncoder.encode(tokenContentOS.toString(),
-                                                 "UTF-8");
+                    "UTF-8");
         } catch (Throwable t) {
             LOG.error("During connector properties serialization", t);
         }

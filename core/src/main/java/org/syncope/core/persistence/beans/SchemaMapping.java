@@ -17,18 +17,18 @@ package org.syncope.core.persistence.beans;
 import static javax.persistence.EnumType.STRING;
 
 import javax.persistence.Basic;
+import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.validator.constraints.Range;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import org.syncope.types.SourceMappingType;
 
 @Entity
-@Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Cacheable
 public class SchemaMapping extends AbstractBaseBean {
 
     @Id
@@ -58,7 +58,8 @@ public class SchemaMapping extends AbstractBaseBean {
      */
     @Column(nullable = false)
     @Basic
-    @Range(min = 0, max = 1)
+    @Min(0)
+    @Max(1)
     private Integer accountid;
 
     /**
@@ -66,7 +67,8 @@ public class SchemaMapping extends AbstractBaseBean {
      */
     @Column(nullable = false)
     @Basic
-    @Range(min = 0, max = 1)
+    @Min(0)
+    @Max(1)
     private Integer password;
 
     /**

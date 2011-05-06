@@ -36,15 +36,15 @@ import java.util.Map;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceContextType;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import jpasymphony.beans.AbstractJPAStep;
 import jpasymphony.beans.JPACurrentStep;
 import jpasymphony.beans.JPAHistoryStep;
 import jpasymphony.beans.JPAWorkflowEntry;
 import jpasymphony.dao.JPAWorkflowEntryDAO;
-import org.hibernate.Criteria;
-import org.hibernate.Session;
-import org.hibernate.criterion.Criterion;
-import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -225,29 +225,33 @@ public class JPAWorkflowStore implements WorkflowStore {
 
         Class entityClass = getQueryClass(query.getExpression(), null);
 
-        Criterion expr;
-        if (query.getExpression().isNested()) {
-            expr = buildNested((NestedExpression) query.getExpression());
-        } else {
-            expr = queryComparison((FieldExpression) query.getExpression());
-        }
+        CriteriaQuery criteria =
+                entityManager.getCriteriaBuilder().createQuery(
+                getQueryClass(query.getExpression(), null));
+        Root from = criteria.from(entityClass);
 
-        Session hibernateSess = (Session) entityManager.getDelegate();
-        Criteria criteria = hibernateSess.createCriteria(entityClass);
-        criteria.add(expr);
+        Predicate expr = query.getExpression().isNested()
+                ? buildNested((NestedExpression) query.getExpression(), from)
+                : queryComp((FieldExpression) query.getExpression(), from);
+
+        criteria.where(expr);
+
+        TypedQuery criteriaQuery = entityManager.createQuery(criteria);
 
         List<Long> results = new ArrayList<Long>();
         Object next;
         Long item;
-        for (Iterator iter = criteria.list().iterator(); iter.hasNext();) {
+        for (Iterator iter = criteriaQuery.getResultList().iterator();
+                iter.hasNext();) {
+
             next = iter.next();
 
             if (next instanceof AbstractJPAStep) {
                 AbstractJPAStep step = (AbstractJPAStep) next;
-                item = new Long(step.getEntryId());
+                item = Long.valueOf(step.getEntryId());
             } else {
                 WorkflowEntry entry = (WorkflowEntry) next;
-                item = new Long(entry.getId());
+                item = Long.valueOf(entry.getId());
             }
 
             results.add(item);
@@ -309,23 +313,25 @@ public class JPAWorkflowStore implements WorkflowStore {
         return (Class) classesCache.iterator().next();
     }
 
-    private Criterion buildNested(NestedExpression nestedExpression) {
-        Criterion full = null;
+    private Predicate buildNested(NestedExpression nestedExpression,
+            Root from) {
+
+        Predicate full = null;
 
         for (int i = 0; i < nestedExpression.getExpressionCount(); i++) {
-            Criterion expr;
+            Predicate expr;
             Expression expression = nestedExpression.getExpression(i);
 
             if (expression.isNested()) {
                 expr = buildNested((NestedExpression) nestedExpression.
-                        getExpression(i));
+                        getExpression(i), from);
             } else {
                 FieldExpression sub = (FieldExpression) nestedExpression.
                         getExpression(i);
-                expr = queryComparison(sub);
+                expr = queryComp(sub, from);
 
                 if (sub.isNegate()) {
-                    expr = Restrictions.not(expr);
+                    expr = entityManager.getCriteriaBuilder().not(expr);
                 }
             }
 
@@ -334,11 +340,13 @@ public class JPAWorkflowStore implements WorkflowStore {
             } else {
                 switch (nestedExpression.getExpressionOperator()) {
                     case NestedExpression.AND:
-                        full = Restrictions.and(full, expr);
+                        full = entityManager.getCriteriaBuilder().
+                                and(full, expr);
                         break;
 
                     case NestedExpression.OR:
-                        full = Restrictions.or(full, expr);
+                        full = entityManager.getCriteriaBuilder().
+                                or(full, expr);
                         break;
 
                     default:
@@ -349,30 +357,28 @@ public class JPAWorkflowStore implements WorkflowStore {
         return full;
     }
 
-    private Criterion queryComparison(FieldExpression expression) {
-        int operator = expression.getOperator();
-
-        switch (operator) {
+    private Predicate queryComp(FieldExpression expression, Root from) {
+        switch (expression.getOperator()) {
+            default:
             case FieldExpression.EQUALS:
-                return Restrictions.eq(getFieldName(expression.getField()),
+                return entityManager.getCriteriaBuilder().equal(
+                        from.get(getFieldName(expression.getField())),
                         expression.getValue());
 
             case FieldExpression.NOT_EQUALS:
-                return Restrictions.not(
-                        Restrictions.like(getFieldName(expression.getField()),
-                        expression.getValue()));
+                return entityManager.getCriteriaBuilder().notEqual(
+                        from.get(getFieldName(expression.getField())),
+                        expression.getValue());
 
             case FieldExpression.GT:
-                return Restrictions.gt(getFieldName(expression.getField()),
-                        expression.getValue());
+                return entityManager.getCriteriaBuilder().gt(
+                        from.get(getFieldName(expression.getField())),
+                        (Number) (expression.getValue()));
 
             case FieldExpression.LT:
-                return Restrictions.lt(getFieldName(expression.getField()),
-                        expression.getValue());
-
-            default:
-                return Restrictions.eq(getFieldName(expression.getField()),
-                        expression.getValue());
+                return entityManager.getCriteriaBuilder().lt(
+                        from.get(getFieldName(expression.getField())),
+                        (Number) (expression.getValue()));
         }
     }
 

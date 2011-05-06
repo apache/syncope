@@ -14,6 +14,7 @@
  */
 package org.syncope.core.persistence.dao;
 
+import java.util.List;
 import static org.junit.Assert.*;
 import java.util.HashSet;
 import java.util.Set;
@@ -30,23 +31,30 @@ import org.syncope.types.ConnConfPropSchema;
 public class ConnInstanceTest extends AbstractTest {
 
     @Autowired
-    private ConnInstanceDAO connectorInstanceDAO;
+    private ConnInstanceDAO connInstanceDAO;
+
+    @Test
+    public final void findAll() {
+        List<ConnInstance> connectors = connInstanceDAO.findAll();
+        assertNotNull(connectors);
+        assertFalse(connectors.isEmpty());
+    }
 
     @Test
     public final void findById() {
-        ConnInstance connectorInstance = connectorInstanceDAO.find(100L);
+        ConnInstance connectorInstance = connInstanceDAO.find(100L);
 
         assertNotNull("findById did not work", connectorInstance);
 
         assertEquals("invalid connector name",
-                     WebServiceConnector.class.getName(),
-                     connectorInstance.getConnectorName());
+                WebServiceConnector.class.getName(),
+                connectorInstance.getConnectorName());
 
         assertEquals("invalid bundle name", "org.connid.bundles.soap",
-                     connectorInstance.getBundleName());
+                connectorInstance.getBundleName());
 
         assertEquals("invalid bundle version",
-                     connidSoapVersion, connectorInstance.getVersion());
+                connidSoapVersion, connectorInstance.getVersion());
     }
 
     @Test
@@ -95,22 +103,22 @@ public class ConnInstanceTest extends AbstractTest {
 
         // perform save operation
         ConnInstance actual =
-                connectorInstanceDAO.save(connectorInstance);
+                connInstanceDAO.save(connectorInstance);
 
         assertNotNull("save did not work", actual.getId());
 
         assertTrue("save did not work", actual.getId() > 100L);
 
         assertEquals("save did not work for \"name\" attribute",
-                     "WebService",
-                     actual.getConnectorName());
+                "WebService",
+                actual.getConnectorName());
 
         assertEquals("save did not work for \"bundle name\" attribute",
-                     "org.syncope.core.persistence.test.util",
-                     actual.getBundleName());
+                "org.syncope.core.persistence.test.util",
+                actual.getBundleName());
 
         assertEquals("save did not work for \"majorVersion\" attribute",
-                     "1.0", connectorInstance.getVersion());
+                "1.0", connectorInstance.getVersion());
 
         assertEquals("New", actual.getDisplayName());
 
@@ -123,12 +131,12 @@ public class ConnInstanceTest extends AbstractTest {
 
     @Test
     public final void delete() {
-        ConnInstance connectorInstance = connectorInstanceDAO.find(100L);
+        ConnInstance connectorInstance = connInstanceDAO.find(100L);
         assertNotNull("find to delete did not work", connectorInstance);
 
-        connectorInstanceDAO.delete(connectorInstance.getId());
+        connInstanceDAO.delete(connectorInstance.getId());
 
-        ConnInstance actual = connectorInstanceDAO.find(100L);
+        ConnInstance actual = connInstanceDAO.find(100L);
         assertNull("delete did not work", actual);
     }
 }

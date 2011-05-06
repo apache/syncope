@@ -15,9 +15,9 @@
 package org.syncope.core.persistence.dao.impl;
 
 import java.util.List;
+import javax.persistence.CacheRetrieveMode;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
-import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.SchemaMapping;
@@ -34,8 +34,8 @@ public class ResourceDAOImpl extends AbstractDAOImpl
     public TargetResource find(final String name) {
         Query query = entityManager.createQuery(
                 "SELECT e FROM TargetResource e WHERE e.name = :name");
-        query.setHint("org.hibernate.cacheable", true);
-
+        query.setHint("javax.persistence.cache.retrieveMode",
+                CacheRetrieveMode.USE);
         query.setParameter("name", name);
 
         try {
@@ -61,9 +61,8 @@ public class ResourceDAOImpl extends AbstractDAOImpl
     public List<SchemaMapping> findAllMappings() {
         Query query = entityManager.createQuery(
                 "SELECT e FROM SchemaMapping e");
-        query.setHint("org.hibernate.cacheable", true);
-        query.setHint("org.hibernate.cacheRegion",
-                SchemaMapping.class.getName());
+        query.setHint("javax.persistence.cache.retrieveMode",
+                CacheRetrieveMode.USE);
 
         return query.getResultList();
     }
@@ -102,8 +101,8 @@ public class ResourceDAOImpl extends AbstractDAOImpl
         LOG.debug("Removed {} schema mappings", items);
 
         // Make empty SchemaMapping query cache
-        ((Session) entityManager.getDelegate()).getSessionFactory().
-                evictQueries(SchemaMapping.class.getName());
+        entityManager.getEntityManagerFactory().getCache().
+                evict(SchemaMapping.class);
     }
 
     @Override
@@ -119,8 +118,8 @@ public class ResourceDAOImpl extends AbstractDAOImpl
         resource.getMappings().clear();
 
         // Make empty SchemaMapping query cache
-        ((Session) entityManager.getDelegate()).getSessionFactory().
-                evictQueries(SchemaMapping.class.getName());
+        entityManager.getEntityManagerFactory().getCache().
+                evict(SchemaMapping.class);
     }
 
     @Override

@@ -19,6 +19,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.persistence.Basic;
+import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -30,10 +31,8 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.validation.Valid;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Cascade;
-import org.hibernate.validator.constraints.Range;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.validation.entity.TargetResourceCheck;
@@ -44,7 +43,7 @@ import org.syncope.types.SourceMappingType;
  * A resource to which propagation occurs.
  */
 @Entity
-@Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Cacheable
 @TargetResourceCheck
 public class TargetResource extends AbstractBaseBean {
 
@@ -59,7 +58,8 @@ public class TargetResource extends AbstractBaseBean {
      */
     @Column(nullable = false)
     @Basic
-    @Range(min = 0, max = 1)
+    @Min(0)
+    @Max(1)
     private Integer forceMandatoryConstraint;
 
     /**
@@ -83,8 +83,8 @@ public class TargetResource extends AbstractBaseBean {
     /**
      * Attribute mappings.
      */
-    @OneToMany(cascade = CascadeType.MERGE, mappedBy = "resource")
-    @Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
+    @OneToMany(cascade = CascadeType.MERGE, orphanRemoval = true,
+    mappedBy = "resource")
     @Valid
     private List<SchemaMapping> mappings;
 
@@ -101,8 +101,8 @@ public class TargetResource extends AbstractBaseBean {
     /**
      * Tasks associated to this resource.
      */
-    @OneToMany(cascade = CascadeType.MERGE, mappedBy = "resource")
-    @Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
+    @OneToMany(cascade = CascadeType.MERGE, orphanRemoval = true,
+    mappedBy = "resource")
     @Valid
     private List<Task> tasks;
 
