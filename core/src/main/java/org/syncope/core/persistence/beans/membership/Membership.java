@@ -29,6 +29,7 @@ import javax.validation.Valid;
 import org.syncope.core.persistence.beans.AbstractAttributable;
 import org.syncope.core.persistence.beans.AbstractAttr;
 import org.syncope.core.persistence.beans.AbstractDerAttr;
+import org.syncope.core.persistence.beans.AbstractVirAttr;
 import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
@@ -58,9 +59,14 @@ public class Membership extends AbstractAttributable {
     @Valid
     private List<MDerAttr> derivedAttributes;
 
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
+    @Valid
+    private List<MVirAttr> virtualAttributes;
+
     public Membership() {
         attributes = new ArrayList<MAttr>();
         derivedAttributes = new ArrayList<MDerAttr>();
+        virtualAttributes = new ArrayList<MVirAttr>();
         targetResources = Collections.EMPTY_SET;
     }
 
@@ -132,6 +138,32 @@ public class Membership extends AbstractAttributable {
 
         this.derivedAttributes =
                 (List<MDerAttr>) derivedAttributes;
+    }
+
+    @Override
+    public <T extends AbstractVirAttr> boolean addVirtualAttribute(
+            T virtualAttribute) {
+
+        return virtualAttributes.add((MVirAttr) virtualAttribute);
+    }
+
+    @Override
+    public <T extends AbstractVirAttr> boolean removeVirtualAttribute(
+            T virtualAttribute) {
+
+        return virtualAttributes.remove((MVirAttr) virtualAttribute);
+    }
+
+    @Override
+    public List<? extends AbstractVirAttr> getVirtualAttributes() {
+        return virtualAttributes;
+    }
+
+    @Override
+    public void setVirtualAttributes(
+            List<? extends AbstractVirAttr> virtualAttributes) {
+
+        this.virtualAttributes = (List<MVirAttr>) virtualAttributes;
     }
 
     @Override

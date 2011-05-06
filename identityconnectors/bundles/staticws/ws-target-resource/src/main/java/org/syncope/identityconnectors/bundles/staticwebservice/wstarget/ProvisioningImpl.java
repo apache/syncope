@@ -204,9 +204,11 @@ public class ProvisioningImpl implements Provisioning {
             String queryString =
                     "SELECT * FROM user WHERE " + query.toString();
 
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Execute query: " + queryString);
-            }
+            queryString = queryString.replaceAll("__NAME__", "userId").
+                    replaceAll("__UID__", "userId").
+                    replaceAll("__PASSWORD__", "password");
+
+            LOG.debug("Execute query: {}", queryString);
 
             if (queryString == null || queryString.length() == 0) {
                 throw new SQLException("Invalid query [" + queryString + "]");
@@ -219,7 +221,7 @@ public class ProvisioningImpl implements Provisioning {
 
             ResultSetMetaData metaData = rs.getMetaData();
 
-            LOG.debug("Metadata: " + metaData.toString());
+            LOG.debug("Metadata: {}", metaData.toString());
 
             WSUser user = null;
             WSAttributeValue attr = null;
@@ -246,7 +248,7 @@ public class ProvisioningImpl implements Provisioning {
                 results.add(user);
             }
 
-            LOG.debug("Retrieved users: " + results);
+            LOG.debug("Retrieved users: {}", results);
         } catch (SQLException e) {
             LOG.error("Search operation failed", e);
         } finally {

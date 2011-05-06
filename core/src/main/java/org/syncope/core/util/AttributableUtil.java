@@ -19,24 +19,32 @@ import org.syncope.core.persistence.beans.AbstractAttrValue;
 import org.syncope.core.persistence.beans.AbstractDerAttr;
 import org.syncope.core.persistence.beans.AbstractDerSchema;
 import org.syncope.core.persistence.beans.AbstractSchema;
+import org.syncope.core.persistence.beans.AbstractVirAttr;
+import org.syncope.core.persistence.beans.AbstractVirSchema;
 import org.syncope.core.persistence.beans.membership.MAttr;
 import org.syncope.core.persistence.beans.membership.MAttrUniqueValue;
 import org.syncope.core.persistence.beans.membership.MAttrValue;
 import org.syncope.core.persistence.beans.membership.MDerAttr;
 import org.syncope.core.persistence.beans.membership.MDerSchema;
 import org.syncope.core.persistence.beans.membership.MSchema;
+import org.syncope.core.persistence.beans.membership.MVirAttr;
+import org.syncope.core.persistence.beans.membership.MVirSchema;
 import org.syncope.core.persistence.beans.role.RAttr;
 import org.syncope.core.persistence.beans.role.RAttrUniqueValue;
 import org.syncope.core.persistence.beans.role.RAttrValue;
 import org.syncope.core.persistence.beans.role.RDerAttr;
 import org.syncope.core.persistence.beans.role.RDerSchema;
 import org.syncope.core.persistence.beans.role.RSchema;
+import org.syncope.core.persistence.beans.role.RVirAttr;
+import org.syncope.core.persistence.beans.role.RVirSchema;
 import org.syncope.core.persistence.beans.user.UAttr;
 import org.syncope.core.persistence.beans.user.UAttrUniqueValue;
 import org.syncope.core.persistence.beans.user.UAttrValue;
 import org.syncope.core.persistence.beans.user.UDerAttr;
 import org.syncope.core.persistence.beans.user.UDerSchema;
 import org.syncope.core.persistence.beans.user.USchema;
+import org.syncope.core.persistence.beans.user.UVirAttr;
+import org.syncope.core.persistence.beans.user.UVirSchema;
 import org.syncope.types.SourceMappingType;
 
 public enum AttributableUtil {
@@ -73,6 +81,24 @@ public enum AttributableUtil {
                 break;
             case MEMBERSHIP:
                 result = SourceMappingType.MembershipDerivedSchema;
+                break;
+        }
+
+        return result;
+    }
+
+    public SourceMappingType virtualSourceMappingType() {
+        SourceMappingType result = null;
+
+        switch (this) {
+            case USER:
+                result = SourceMappingType.UserVirtualSchema;
+                break;
+            case ROLE:
+                result = SourceMappingType.RoleVirtualSchema;
+                break;
+            case MEMBERSHIP:
+                result = SourceMappingType.MembershipVirtualSchema;
                 break;
         }
 
@@ -127,6 +153,24 @@ public enum AttributableUtil {
                 break;
             case MEMBERSHIP:
                 result = MDerSchema.class;
+                break;
+        }
+
+        return result;
+    }
+
+    public <T extends AbstractVirSchema> Class<T> virtualSchemaClass() {
+        Class result = null;
+
+        switch (this) {
+            case USER:
+                result = UVirSchema.class;
+                break;
+            case ROLE:
+                result = RVirSchema.class;
+                break;
+            case MEMBERSHIP:
+                result = MVirSchema.class;
                 break;
         }
 
@@ -205,6 +249,24 @@ public enum AttributableUtil {
         return result;
     }
 
+    public <T extends AbstractVirAttr> Class<T> virtualAttributeClass() {
+        Class result = null;
+
+        switch (this) {
+            case USER:
+                result = UVirAttr.class;
+                break;
+            case ROLE:
+                result = RVirAttr.class;
+                break;
+            case MEMBERSHIP:
+                result = MVirAttr.class;
+                break;
+        }
+
+        return result;
+    }
+
     public <T extends AbstractDerAttr> T newDerivedAttribute() {
         T result = null;
 
@@ -217,6 +279,42 @@ public enum AttributableUtil {
                 break;
             case MEMBERSHIP:
                 result = (T) new MDerAttr();
+                break;
+        }
+
+        return result;
+    }
+
+    public <T extends AbstractVirAttr> T newVirtualAttribute() {
+        T result = null;
+
+        switch (this) {
+            case USER:
+                result = (T) new UVirAttr();
+                break;
+            case ROLE:
+                result = (T) new RVirAttr();
+                break;
+            case MEMBERSHIP:
+                result = (T) new MVirAttr();
+                break;
+        }
+
+        return result;
+    }
+
+    public <T extends AbstractVirSchema> T newVirtualSchema() {
+        T result = null;
+
+        switch (this) {
+            case USER:
+                result = (T) new UVirSchema();
+                break;
+            case ROLE:
+                result = (T) new RVirSchema();
+                break;
+            case MEMBERSHIP:
+                result = (T) new MVirSchema();
                 break;
         }
 

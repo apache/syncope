@@ -31,11 +31,14 @@ public abstract class AbstractAttributableTO extends AbstractBaseBean {
 
     private List<AttributeTO> derivedAttributes;
 
+    private List<AttributeTO> virtualAttributes;
+
     private Set<String> resources;
 
     protected AbstractAttributableTO() {
         attributes = new ArrayList<AttributeTO>();
         derivedAttributes = new ArrayList<AttributeTO>();
+        virtualAttributes = new ArrayList<AttributeTO>();
         resources = new HashSet<String>();
     }
 
@@ -85,6 +88,17 @@ public abstract class AbstractAttributableTO extends AbstractBaseBean {
         return result;
     }
 
+    @JsonIgnore
+    public Map<String, List<String>> getVirtualAttributeMap() {
+        Map<String, List<String>> result =
+                new HashMap<String, List<String>>(virtualAttributes.size());
+        for (AttributeTO attributeTO : virtualAttributes) {
+            result.put(attributeTO.getSchema(), attributeTO.getValues());
+        }
+
+        return result;
+    }
+
     public boolean addDerivedAttribute(final AttributeTO derivedAttribute) {
         return derivedAttributes.add(derivedAttribute);
     }
@@ -101,6 +115,24 @@ public abstract class AbstractAttributableTO extends AbstractBaseBean {
             final List<AttributeTO> derivedAttributes) {
 
         this.derivedAttributes = derivedAttributes;
+    }
+
+    public boolean addVirtualAttribute(final AttributeTO virtualAttribute) {
+        return virtualAttributes.add(virtualAttribute);
+    }
+
+    public boolean removeVirtualAttribute(final AttributeTO virtualAttribute) {
+        return virtualAttributes.remove(virtualAttribute);
+    }
+
+    public List<AttributeTO> getVirtualAttributes() {
+        return virtualAttributes;
+    }
+
+    public void setVirtualAttributes(
+            final List<AttributeTO> virtualAttributes) {
+
+        this.virtualAttributes = virtualAttributes;
     }
 
     public boolean addResource(final String resource) {

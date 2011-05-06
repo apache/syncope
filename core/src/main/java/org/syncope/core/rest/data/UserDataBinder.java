@@ -34,14 +34,17 @@ import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
 import org.syncope.core.persistence.beans.AbstractAttr;
 import org.syncope.core.persistence.beans.AbstractDerAttr;
+import org.syncope.core.persistence.beans.AbstractVirAttr;
 import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.membership.Membership;
 import org.syncope.core.persistence.beans.membership.MAttr;
 import org.syncope.core.persistence.beans.membership.MDerAttr;
+import org.syncope.core.persistence.beans.membership.MVirAttr;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.beans.user.UAttr;
 import org.syncope.core.persistence.beans.user.UDerAttr;
+import org.syncope.core.persistence.beans.user.UVirAttr;
 import org.syncope.core.persistence.propagation.ResourceOperations;
 import org.syncope.types.CipherAlgorithm;
 import org.syncope.types.ResourceOperationType;
@@ -120,6 +123,15 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         user.getDerivedAttributes().clear();
 
         ids.clear();
+        for (AbstractVirAttr virtualAttribute : user.getVirtualAttributes()) {
+            ids.add(virtualAttribute.getId());
+        }
+        for (Long virAttrId : ids) {
+            virtualAttributeDAO.delete(virAttrId, UVirAttr.class);
+        }
+        user.getVirtualAttributes().clear();
+
+        ids.clear();
         for (Membership membership : user.getMemberships()) {
             ids.add(membership.getId());
         }
@@ -188,7 +200,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
             }
         }
 
-        // attributes, derived attributes and resources
+        // attributes, derived attributes, virtual attributes and resources
         fill(user, userTO, AttributableUtil.USER, scce);
     }
 
@@ -204,7 +216,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
             user.setPassword(userMod.getPassword(), getCipherAlgoritm());
         }
 
-        // attributes, derived attributes and resources
+        // attributes, derived attributes, virtual attributes and resources
         ResourceOperations resourceOperations =
                 fill(user, userMod, AttributableUtil.USER, scce);
 
@@ -266,16 +278,32 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
                                 MAttr.class);
                     }
 
-                    Set<Long> derivedAttributeIds = new HashSet<Long>(
-                            membership.getDerivedAttributes().size());
+                    attributeIds.clear();
+                    // remove derived attributes
+
                     for (AbstractDerAttr derivedAttribute :
                             membership.getDerivedAttributes()) {
 
-                        derivedAttributeIds.add(derivedAttribute.getId());
+                        attributeIds.add(derivedAttribute.getId());
                     }
-                    for (Long derivedAttributeId : derivedAttributeIds) {
+
+                    for (Long derivedAttributeId : attributeIds) {
                         derivedAttributeDAO.delete(derivedAttributeId,
                                 MDerAttr.class);
+                    }
+
+                    attributeIds.clear();
+                    // remove virtual attributes
+
+                    for (AbstractVirAttr virtulaAttribute :
+                            membership.getVirtualAttributes()) {
+
+                        attributeIds.add(virtulaAttribute.getId());
+                    }
+
+                    for (Long virtualAttributeId : attributeIds) {
+                        virtualAttributeDAO.delete(
+                                virtualAttributeId, MVirAttr.class);
                     }
                 } else {
                     user.removeMembership(membership);
@@ -343,8 +371,11 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
                     + user.getWorkflowId());
         }
 
-        fillTO(userTO, user.getAttributes(),
-                user.getDerivedAttributes(), user.getTargetResources());
+        fillTO(userTO,
+                user.getAttributes(),
+                user.getDerivedAttributes(),
+                user.getVirtualAttributes(),
+                user.getTargetResources());
 
         MembershipTO membershipTO;
         for (Membership membership : user.getMemberships()) {
@@ -356,6 +387,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
             fillTO(membershipTO,
                     membership.getAttributes(),
                     membership.getDerivedAttributes(),
+                    membership.getVirtualAttributes(),
                     membership.getTargetResources());
 
             userTO.addMembership(membershipTO);

@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
-import org.syncope.core.persistence.beans.AbstractDerAttr;
 import org.syncope.core.persistence.beans.AbstractDerSchema;
 
 @Entity
@@ -29,31 +28,5 @@ public class UDerSchema extends AbstractDerSchema {
 
     public UDerSchema() {
         derivedAttributes = new ArrayList<UDerAttr>();
-    }
-
-    @Override
-    public <T extends AbstractDerAttr> boolean addDerivedAttribute(
-            T derivedAttribute) {
-
-        return derivedAttributes.add((UDerAttr) derivedAttribute);
-    }
-
-    @Override
-    public <T extends AbstractDerAttr> boolean removeDerivedAttribute(
-            T derivedAttribute) {
-
-        return derivedAttributes.remove((UDerAttr) derivedAttribute);
-    }
-
-    @Override
-    public List<? extends AbstractDerAttr> getDerivedAttributes() {
-        return derivedAttributes;
-    }
-
-    @Override
-    public <T extends AbstractDerAttr> void setDerivedAttributes(
-            List<T> derivedAttributes) {
-
-        this.derivedAttributes = (List<UDerAttr>) derivedAttributes;
     }
 }

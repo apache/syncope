@@ -16,6 +16,8 @@ package org.syncope.core.persistence.propagation;
 
 import java.io.File;
 import java.net.URI;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 import javassist.NotFoundException;
 import org.identityconnectors.common.security.GuardedByteArray;
@@ -27,6 +29,7 @@ import org.identityconnectors.framework.api.ConnectorFacadeFactory;
 import org.identityconnectors.framework.api.ConnectorInfo;
 import org.identityconnectors.framework.api.ConnectorKey;
 import org.identityconnectors.framework.common.objects.Attribute;
+import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.OperationOptions;
 import org.identityconnectors.framework.common.objects.Uid;
@@ -310,6 +313,60 @@ public class ConnectorFacadeProxy {
 
     public void validate() {
         connector.validate();
+    }
+
+    public Set<Attribute> getObject(
+            final ObjectClass objClass,
+            final Uid uid,
+            final OperationOptions options) {
+        ConnectorObject object = connector.getObject(objClass, uid, options);
+        return object.getAttributes();
+    }
+
+    public Attribute getObjectAttribute(
+            final ObjectClass objClass,
+            final Uid uid,
+            final OperationOptions options,
+            final String attributeName) {
+
+        Attribute attribute = null;
+
+        try {
+            final ConnectorObject object =
+                    connector.getObject(objClass, uid, options);
+
+            attribute = object.getAttributeByName(attributeName);
+
+        } catch (NullPointerException e) {
+            // ignore exception
+            LOG.debug("Object for '{}' not found", uid.getUidValue());
+        }
+
+        return attribute;
+    }
+
+    public Set<Attribute> getObjectAttributes(
+            final ObjectClass objClass,
+            final Uid uid,
+            final OperationOptions options,
+            final Collection<String> attributeNames) {
+
+        final Set<Attribute> attributes = new HashSet<Attribute>();
+
+        try {
+
+            final ConnectorObject object = connector.getObject(objClass, uid, options);
+
+            for (String attribute : attributeNames) {
+                attributes.add(object.getAttributeByName(attribute));
+            }
+
+        } catch (NullPointerException e) {
+            // ignore exception
+            LOG.debug("Object for '{}' not found", uid.getUidValue());
+        }
+
+        return attributes;
     }
 
     @Override

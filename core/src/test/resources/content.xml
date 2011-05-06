@@ -49,14 +49,14 @@
     <SyncopeUser id="3" workflowId="0" password="5f4dcc3b5aa765d61d8327deb882cf99" cipherAlgorithm="MD5"/>
     <SyncopeUser id="4" workflowId="0" password="5f4dcc3b5aa765d61d8327deb882cf99" cipherAlgorithm="MD5"/>
 
-    <SyncopeRole id="1" name="root" inheritAttributes="0" inheritDerivedAttributes="0"/>
-    <SyncopeRole id="2" name="child" parent_id="1" inheritAttributes="0" inheritDerivedAttributes="0"/>
-    <SyncopeRole id="3" name="citizen" inheritAttributes="0" inheritDerivedAttributes="0"/>
-    <SyncopeRole id="4" name="employee" parent_id="3" inheritAttributes="0" inheritDerivedAttributes="0"/>
-    <SyncopeRole id="5" name="secretary" parent_id="4" inheritAttributes="0" inheritDerivedAttributes="0"/>
-    <SyncopeRole id="6" name="director" parent_id="4" inheritAttributes="1" inheritDerivedAttributes="1"/>
-    <SyncopeRole id="7" name="managingDirector" parent_id="6" inheritAttributes="1" inheritDerivedAttributes="1"/>
-    <SyncopeRole id="8" name="otherchild" parent_id="1" inheritAttributes="0" inheritDerivedAttributes="0"/>
+    <SyncopeRole id="1" name="root" inheritAttributes="0" inheritDerivedAttributes="0" inheritVirtualAttributes="0"/>
+    <SyncopeRole id="2" name="child" parent_id="1" inheritAttributes="0" inheritDerivedAttributes="0" inheritVirtualAttributes="0"/>
+    <SyncopeRole id="3" name="citizen" inheritAttributes="0" inheritDerivedAttributes="0" inheritVirtualAttributes="0"/>
+    <SyncopeRole id="4" name="employee" parent_id="3" inheritAttributes="0" inheritDerivedAttributes="0" inheritVirtualAttributes="0"/>
+    <SyncopeRole id="5" name="secretary" parent_id="4" inheritAttributes="0" inheritDerivedAttributes="0" inheritVirtualAttributes="0"/>
+    <SyncopeRole id="6" name="director" parent_id="4" inheritAttributes="1" inheritDerivedAttributes="1" inheritVirtualAttributes="1"/>
+    <SyncopeRole id="7" name="managingDirector" parent_id="6" inheritAttributes="1" inheritDerivedAttributes="1" inheritVirtualAttributes="1"/>
+    <SyncopeRole id="8" name="otherchild" parent_id="1" inheritAttributes="0" inheritDerivedAttributes="0" inheritVirtualAttributes="1"/>
 
     <Membership id="1" syncopeUser_id="1" syncopeRole_id="1"/>
     <Membership id="2" syncopeUser_id="2" syncopeRole_id="1"/>
@@ -64,67 +64,79 @@
     <Membership id="4" syncopeUser_id="4" syncopeRole_id="7"/>
     <Membership id="5" syncopeUser_id="1" syncopeRole_id="8"/>
 
-    <USchema name="username" type="String" virtual="0"
+    <USchema name="username" type="String"
                 mandatoryCondition="true" multivalue="0" uniqueConstraint="1" readonly="0"/>
-    <USchema name="userId" type="String" virtual="0"
+    <USchema name="userId" type="String"
                 mandatoryCondition="true" multivalue="0" uniqueConstraint="1" readonly="0"
                 validatorClass="org.syncope.core.persistence.validation.attrvalue.EmailAddressValidator"/>
-    <USchema name="loginDate" type="Date" virtual="0"
+    <USchema name="loginDate" type="Date"
                 mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"
                 conversionPattern="yyyy-MM-dd"/>
-    <USchema name="firstname" type="String" virtual="0"
+    <USchema name="firstname" type="String"
                 mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
-    <USchema name="surname" type="String" virtual="0"
+    <USchema name="surname" type="String"
                 mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
-    <USchema name="type" type="String" virtual="0"
+    <USchema name="type" type="String"
                 mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
-    <USchema name="email" type="String" virtual="0"
+    <USchema name="email" type="String"
                 mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
                 validatorClass="org.syncope.core.persistence.validation.attrvalue.EmailAddressValidator"/>
-    <USchema name="activationDate" type="Date" virtual="0"
+    <USchema name="activationDate" type="Date"
                 mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
                 conversionPattern="yyyy-MM-dd'T'HH:mm:ss.SSSZ"/>
-    <USchema name="uselessReadonly" type="String" virtual="0"
+    <USchema name="uselessReadonly" type="String"
                 mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="1"/>
-    <USchema name="cool" type="Boolean" virtual="0"
+    <USchema name="cool" type="Boolean"
                 mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
 
-    <RSchema name="icon" type="String" virtual="0"
+    <RSchema name="icon" type="String"
                 mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
-    <RSchema name="show" type="Boolean" virtual="0"
+                
+    <RSchema name="show" type="Boolean"
                 mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
 
-    <MSchema name="subscriptionDate" type="Date" virtual="0"
+    <RSchema name="derived_sx" type="String"
+                      mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+
+    <RSchema name="derived_dx" type="String"
+                      mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+
+    <MSchema name="subscriptionDate" type="Date"
                       mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
                       conversionPattern="yyyy-MM-dd'T'HH:mm:ss.SSSZ"/>
 
-    <UAttr id="100" owner_id="1" schema_name="username"/>
-    <UAttr id="200" owner_id="1" schema_name="loginDate"/>
-    <UAttr id="300" owner_id="2" schema_name="username"/>
-    <UAttr id="400" owner_id="3" schema_name="firstname"/>
-    <UAttr id="500" owner_id="3" schema_name="surname"/>
-    <UAttr id="550" owner_id="4" schema_name="loginDate"/>
-    <UAttr id="560" owner_id="4" schema_name="cool"/>
-    <UAttr id="570" owner_id="4" schema_name="username"/>
+    <MSchema name="derived_sx" type="String"
+                      mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
 
+    <MSchema name="derived_dx" type="String"
+                      mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+
+    <UAttr id="100" owner_id="1" schema_name="username"/>
+    <UAttrUniqueValue id="10" attribute_id="100" schema_name="username" stringValue="chicchiricco"/>
+    <UAttr id="200" owner_id="1" schema_name="loginDate"/>
+    <UAttrValue attribute_id="200" id="20" dateValue="2009-05-26"/>
+    <UAttrValue attribute_id="200" id="21" dateValue="2010-05-26 15:40:04"/>
+
+    <UAttr id="300" owner_id="2" schema_name="username"/>
+    <UAttrUniqueValue id="11" attribute_id="300" schema_name="username" stringValue="fabio.martelli"/>
+
+    <UAttr id="400" owner_id="3" schema_name="firstname"/>
+    <UAttrValue attribute_id="400" id="30" stringValue="John"/>
+    <UAttr id="500" owner_id="3" schema_name="surname"/>
+    <UAttrValue attribute_id="500" id="31" stringValue="Doe"/>
+    <UAttr id="540" owner_id="3" schema_name="username"/>
+    <UAttrUniqueValue id="12" attribute_id="540" schema_name="username" stringValue="test1"/>
+
+    <UAttr id="550" owner_id="4" schema_name="loginDate"/>
+    <UAttrValue attribute_id="550" id="22" dateValue="2009-06-24"/>
+    <UAttr id="560" owner_id="4" schema_name="cool"/>
+    <UAttrValue attribute_id="560" id="23" booleanValue="1"/>
+    
     <RAttr id="600" owner_id="1" schema_name="icon"/>
     <RAttr id="700" owner_id="2" schema_name="icon"/>
     <RAttr id="800" owner_id="1" schema_name="show"/>
     <RAttr id="900" owner_id="6" schema_name="icon"/>
     <RAttr id="950" owner_id="4" schema_name="icon"/>
-
-    <MAttr id="1000" owner_id="4" schema_name="subscriptionDate"/>
-
-    <UAttrUniqueValue id="10" attribute_id="100" schema_name="username" stringValue="chicchiricco"/>
-    <UAttrUniqueValue id="11" attribute_id="300" schema_name="username" stringValue="fabio.martelli"/>
-    <UAttrUniqueValue id="12" attribute_id="570" schema_name="username" stringValue="john.doe"/>
-
-    <UAttrValue attribute_id="200" id="20" dateValue="2009-05-26"/>
-    <UAttrValue attribute_id="200" id="21" dateValue="2010-05-26 15:40:04"/>
-    <UAttrValue attribute_id="400" id="30" stringValue="John"/>
-    <UAttrValue attribute_id="500" id="31" stringValue="Doe"/>
-    <UAttrValue attribute_id="550" id="22" dateValue="2009-06-24"/>
-    <UAttrValue attribute_id="560" id="23" booleanValue="1"/>
 
     <RAttrValue attribute_id="600" id="40" stringValue="niceIcon"/>
     <RAttrValue attribute_id="700" id="41" stringValue="badIcon"/>
@@ -132,12 +144,38 @@
     <RAttrValue attribute_id="900" id="43" stringValue="icon6"/>
     <RAttrValue attribute_id="950" id="44" stringValue="icon4"/>
 
+    <RAttr id="1002" owner_id="1" schema_name="derived_sx"/>
+    <RAttrValue attribute_id="1002" id="92" stringValue="sx"/>
+
+    <RAttr id="1003" owner_id="1" schema_name="derived_dx"/>
+    <RAttrValue attribute_id="1003" id="93" stringValue="dx"/>
+
+    <RDerSchema name="deriveddata" expression="derived_sx + '-' + derived_dx"/>
+    <RDerAttr id="1000" derivedSchema_name="deriveddata" owner_id="1"/>
+
+
+    <MAttr id="1000" owner_id="4" schema_name="subscriptionDate"/>
+
     <MAttrValue attribute_id="1000" id="90" dateValue="2009-05-26"/>
     <MAttrValue attribute_id="1000" id="91" dateValue="2010-05-26 15:40:04"/>
 
+    <MAttr id="1002" owner_id="1" schema_name="derived_sx"/>
+    <MAttrValue attribute_id="1002" id="92" stringValue="sx"/>
+
+    <MAttr id="1003" owner_id="1" schema_name="derived_dx"/>
+    <MAttrValue attribute_id="1003" id="93" stringValue="dx"/>
+
+    <MDerSchema name="deriveddata" expression="derived_sx + '-' + derived_dx"/>
+    <MDerAttr id="1000" derivedSchema_name="deriveddata" owner_id="1"/>
+
+    <UVirSchema name="virtualdata"/>
+    <UVirAttr id="1000" virtualSchema_name="virtualdata" owner_id="3"/>
+
     <UDerSchema name="cn" expression="surname + ', ' + firstname"/>
-    
     <UDerAttr id="1000" derivedSchema_name="cn" owner_id="3"/>
+
+    <MVirSchema name="mvirtualdata"/>
+    <RVirSchema name="rvirtualdata"/>
 
     <ConnInstance id="100" displayName="ConnInstance100"
                        bundleName="org.syncope.identityconnectors.bundles.staticws"
@@ -208,7 +246,7 @@
                    sourceAttrName="email" sourceMappingType="UserSchema" mandatoryCondition="true"
                    accountid="0" password="0"/>
 
-    <SchemaMapping id="101" destAttrName="username"
+    <SchemaMapping id="101" destAttrName="userId"
                    resource_name="ws-target-resource-2"
                    sourceAttrName="username" sourceMappingType="UserSchema" mandatoryCondition="true"
                    accountid="1" password="0"/>
@@ -250,7 +288,7 @@
 
     <SchemaMapping id="109" destAttrName="surname"
                    resource_name="ws-target-resource-2"
-                   sourceAttrName="surname" sourceMappingType="UserSchema" mandatoryCondition="true"
+                   sourceAttrName="surname" sourceMappingType="UserSchema" mandatoryCondition="type == 'F'"
                    accountid="0" password="0"/>
 
     <SchemaMapping id="110" destAttrName="email"
@@ -270,7 +308,7 @@
 
     <SchemaMapping id="113" destAttrName="name"
                    resource_name="ws-target-resource-2"
-                   sourceAttrName="firstname" sourceMappingType="UserSchema" mandatoryCondition="type == 'F'"
+                   sourceAttrName="virtualdata" sourceMappingType="UserVirtualSchema" mandatoryCondition="type == 'F'"
                    accountid="0" password="0"/>
 
     <SchemaMapping id="114" destAttrName="fullname"

@@ -25,6 +25,14 @@ import org.syncope.core.persistence.beans.user.UAttrValue;
 import org.syncope.core.persistence.beans.user.UDerAttr;
 import org.syncope.core.persistence.beans.user.UDerSchema;
 import org.syncope.core.persistence.AbstractTest;
+import org.syncope.core.persistence.beans.membership.MAttrValue;
+import org.syncope.core.persistence.beans.membership.MDerAttr;
+import org.syncope.core.persistence.beans.membership.MDerSchema;
+import org.syncope.core.persistence.beans.membership.Membership;
+import org.syncope.core.persistence.beans.role.RAttrValue;
+import org.syncope.core.persistence.beans.role.RDerAttr;
+import org.syncope.core.persistence.beans.role.RDerSchema;
+import org.syncope.core.persistence.beans.role.SyncopeRole;
 
 @Transactional
 public class DerAttrTest extends AbstractTest {
@@ -34,6 +42,12 @@ public class DerAttrTest extends AbstractTest {
 
     @Autowired
     private UserDAO userDAO;
+
+    @Autowired
+    private MembershipDAO membershipDAO;
+
+    @Autowired
+    private RoleDAO roleDAO;
 
     @Autowired
     private DerSchemaDAO derSchemaDAO;
@@ -55,7 +69,7 @@ public class DerAttrTest extends AbstractTest {
     }
 
     @Test
-    public final void save()
+    public final void saveUDerAttribute()
             throws ClassNotFoundException {
         UDerSchema cnSchema =
                 derSchemaDAO.find("cn", UDerSchema.class);
@@ -84,6 +98,70 @@ public class DerAttrTest extends AbstractTest {
 
         assertEquals(surnameAttribute.getValue() + ", "
                 + firstnameAttribute.getValue(),
+                derivedAttribute.getValue(owner.getAttributes()));
+    }
+
+    @Test
+    public final void saveMDerAttribute()
+            throws ClassNotFoundException {
+        MDerSchema deriveddata =
+                derSchemaDAO.find("deriveddata", MDerSchema.class);
+        assertNotNull(deriveddata);
+
+        Membership owner = membershipDAO.find(1L);
+        assertNotNull("did not get expected user", owner);
+
+        MDerAttr derivedAttribute = new MDerAttr();
+        derivedAttribute.setOwner(owner);
+        derivedAttribute.setDerivedSchema(deriveddata);
+
+        derivedAttribute = derAttrDAO.save(derivedAttribute);
+
+        MDerAttr actual = derAttrDAO.find(
+                derivedAttribute.getId(), MDerAttr.class);
+        assertNotNull("expected save to work", actual);
+        assertEquals(derivedAttribute, actual);
+
+        MAttrValue sx =
+                (MAttrValue) owner.getAttribute(
+                "derived_sx").getValues().iterator().next();
+        MAttrValue dx =
+                (MAttrValue) owner.getAttribute(
+                "derived_dx").getValues().iterator().next();
+
+        assertEquals(sx.getValue() + "-" + dx.getValue(),
+                derivedAttribute.getValue(owner.getAttributes()));
+    }
+
+    @Test
+    public final void saveRDerAttribute()
+            throws ClassNotFoundException {
+        RDerSchema deriveddata =
+                derSchemaDAO.find("deriveddata", RDerSchema.class);
+        assertNotNull(deriveddata);
+
+        SyncopeRole owner = roleDAO.find(1L);
+        assertNotNull("did not get expected user", owner);
+
+        RDerAttr derivedAttribute = new RDerAttr();
+        derivedAttribute.setOwner(owner);
+        derivedAttribute.setDerivedSchema(deriveddata);
+
+        derivedAttribute = derAttrDAO.save(derivedAttribute);
+
+        RDerAttr actual = derAttrDAO.find(
+                derivedAttribute.getId(), RDerAttr.class);
+        assertNotNull("expected save to work", actual);
+        assertEquals(derivedAttribute, actual);
+
+        RAttrValue sx =
+                (RAttrValue) owner.getAttribute(
+                "derived_sx").getValues().iterator().next();
+        RAttrValue dx =
+                (RAttrValue) owner.getAttribute(
+                "derived_dx").getValues().iterator().next();
+
+        assertEquals(sx.getValue() + "-" + dx.getValue(),
                 derivedAttribute.getValue(owner.getAttributes()));
     }
 

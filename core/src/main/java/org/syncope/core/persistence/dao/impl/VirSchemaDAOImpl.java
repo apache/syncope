@@ -20,31 +20,31 @@ import java.util.Set;
 import javax.persistence.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import org.syncope.core.persistence.beans.AbstractDerAttr;
-import org.syncope.core.persistence.beans.AbstractDerSchema;
-import org.syncope.core.persistence.dao.DerAttrDAO;
-import org.syncope.core.persistence.dao.DerSchemaDAO;
+import org.syncope.core.persistence.beans.AbstractVirAttr;
+import org.syncope.core.persistence.beans.AbstractVirSchema;
 import org.syncope.core.persistence.dao.ResourceDAO;
+import org.syncope.core.persistence.dao.VirAttrDAO;
+import org.syncope.core.persistence.dao.VirSchemaDAO;
 import org.syncope.core.util.AttributableUtil;
 
 @Repository
-public class DerSchemaDAOImpl extends AbstractDAOImpl implements DerSchemaDAO {
+public class VirSchemaDAOImpl extends AbstractDAOImpl implements VirSchemaDAO {
 
     @Autowired
-    private DerAttrDAO derivedAttributeDAO;
+    private VirAttrDAO virtualAttributeDAO;
 
     @Autowired
     private ResourceDAO resourceDAO;
 
     @Override
-    public <T extends AbstractDerSchema> T find(final String name,
+    public <T extends AbstractVirSchema> T find(final String name,
             final Class<T> reference) {
 
         return entityManager.find(reference, name);
     }
 
     @Override
-    public <T extends AbstractDerSchema> List<T> findAll(
+    public <T extends AbstractVirSchema> List<T> findAll(
             final Class<T> reference) {
 
         Query query = entityManager.createQuery(
@@ -53,54 +53,53 @@ public class DerSchemaDAOImpl extends AbstractDAOImpl implements DerSchemaDAO {
     }
 
     @Override
-    public <T extends AbstractDerSchema> T save(final T derivedSchema) {
-        return entityManager.merge(derivedSchema);
+    public <T extends AbstractVirSchema> T save(final T virtualSchema) {
+        return entityManager.merge(virtualSchema);
     }
 
     @Override
     public void delete(final String name,
             final AttributableUtil attributableUtil) {
 
-        final AbstractDerSchema derivedSchema =
-                find(name, attributableUtil.derivedSchemaClass());
+        final AbstractVirSchema virtualSchema =
+                find(name, attributableUtil.virtualSchemaClass());
 
-        if (derivedSchema == null) {
+        if (virtualSchema == null) {
             return;
         }
 
-        List<? extends AbstractDerAttr> attributes = getAttributes(
-                derivedSchema,
-                attributableUtil.derivedAttributeClass());
+        List<? extends AbstractVirAttr> attributes = getAttributes(
+                virtualSchema,
+                attributableUtil.virtualAttributeClass());
 
-        final Set<Long> derivedAttributeIds =
+        final Set<Long> virtualAttributeIds =
                 new HashSet<Long>(attributes.size());
 
         Class attributeClass = null;
 
-        for (AbstractDerAttr attribute : attributes) {
-            derivedAttributeIds.add(attribute.getId());
+        for (AbstractVirAttr attribute : attributes) {
+            virtualAttributeIds.add(attribute.getId());
             attributeClass = attribute.getClass();
         }
 
-        for (Long derivedAttributeId : derivedAttributeIds) {
-            derivedAttributeDAO.delete(derivedAttributeId, attributeClass);
+        for (Long virtualAttributeId : virtualAttributeIds) {
+            virtualAttributeDAO.delete(virtualAttributeId, attributeClass);
         }
 
         resourceDAO.deleteMappings(
-                name, attributableUtil.derivedSourceMappingType());
+                name, attributableUtil.virtualSourceMappingType());
 
-        entityManager.remove(derivedSchema);
+        entityManager.remove(virtualSchema);
     }
 
     @Override
-    public <T extends AbstractDerAttr> List<T> getAttributes(
-            final AbstractDerSchema derivedSchema, final Class<T> reference) {
+    public <T extends AbstractVirAttr> List<T> getAttributes(
+            final AbstractVirSchema virtualSchema, final Class<T> reference) {
 
         Query query = entityManager.createQuery(
                 "SELECT e FROM " + reference.getSimpleName() + " e"
-                + " WHERE e.derivedSchema=:schema");
-        
-        query.setParameter("schema", derivedSchema);
+                + " WHERE e.virtualSchema=:schema");
+        query.setParameter("schema", virtualSchema);
 
         return query.getResultList();
     }

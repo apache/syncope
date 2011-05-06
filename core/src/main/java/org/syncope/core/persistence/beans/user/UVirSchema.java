@@ -12,14 +12,14 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.persistence.beans.membership;
+package org.syncope.core.persistence.beans.user;
 
 import javax.persistence.Entity;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.syncope.core.persistence.beans.AbstractDerSchema;
+import org.syncope.core.persistence.beans.AbstractVirSchema;
 
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-public class MDerSchema extends AbstractDerSchema {
+public class UVirSchema extends AbstractVirSchema {
 }

@@ -298,8 +298,7 @@ public class UserController extends AbstractController {
         }
 
         List<SyncopeUser> matchingUsers = userSearchDAO.search(
-                EntitlementUtil.getRoleIds(EntitlementUtil.
-                getOwnedEntitlementNames()), searchCondition);
+                EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames()), searchCondition);
         List<UserTO> result = new ArrayList<UserTO>(matchingUsers.size());
         for (SyncopeUser user : matchingUsers) {
             result.add(userDataBinder.getUserTO(user, workflow));

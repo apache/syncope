@@ -18,6 +18,7 @@ import com.opensymphony.workflow.Workflow;
 import com.opensymphony.workflow.WorkflowException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -38,25 +39,35 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.syncope.core.persistence.ConnInstanceLoader;
 import org.syncope.core.persistence.beans.AbstractAttrValue;
+import org.syncope.core.persistence.beans.AbstractAttributable;
 import org.syncope.core.persistence.beans.AbstractDerSchema;
 import org.syncope.core.persistence.beans.AbstractSchema;
+import org.syncope.core.persistence.beans.AbstractVirSchema;
 import org.syncope.core.persistence.beans.ConnInstance;
 import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.beans.Task;
 import org.syncope.core.persistence.beans.TaskExecution;
+import org.syncope.core.persistence.beans.membership.MDerSchema;
 import org.syncope.core.persistence.beans.membership.MSchema;
+import org.syncope.core.persistence.beans.membership.MVirSchema;
 import org.syncope.core.persistence.beans.membership.Membership;
+import org.syncope.core.persistence.beans.role.RDerSchema;
 import org.syncope.core.persistence.beans.role.RSchema;
+import org.syncope.core.persistence.beans.role.RVirSchema;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.beans.user.UAttr;
 import org.syncope.core.persistence.beans.user.UAttrValue;
 import org.syncope.core.persistence.beans.user.UDerAttr;
+import org.syncope.core.persistence.beans.user.UDerSchema;
 import org.syncope.core.persistence.beans.user.USchema;
+import org.syncope.core.persistence.beans.user.UVirAttr;
+import org.syncope.core.persistence.beans.user.UVirSchema;
 import org.syncope.core.persistence.dao.DerSchemaDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.TaskDAO;
 import org.syncope.core.persistence.dao.TaskExecutionDAO;
+import org.syncope.core.persistence.dao.VirSchemaDAO;
 import org.syncope.core.util.JexlUtil;
 import org.syncope.core.workflow.Constants;
 import org.syncope.core.workflow.WFUtils;
@@ -88,6 +99,12 @@ public class PropagationManager {
      */
     @Autowired
     private DerSchemaDAO derSchemaDAO;
+
+    /**
+     * Virtual Schema DAO.
+     */
+    @Autowired
+    private VirSchemaDAO virSchemaDAO;
 
     /**
      * Task DAO.
@@ -315,17 +332,31 @@ public class PropagationManager {
 
             case MembershipSchema:
                 result = MSchema.class;
+                break;
 
             case UserDerivedSchema:
-                result = USchema.class;
+                result = UDerSchema.class;
                 break;
 
             case RoleDerivedSchema:
-                result = RSchema.class;
+                result = RDerSchema.class;
                 break;
 
             case MembershipDerivedSchema:
-                result = MSchema.class;
+                result = MDerSchema.class;
+                break;
+
+            case UserVirtualSchema:
+                result = UVirSchema.class;
+                break;
+
+            case RoleVirtualSchema:
+                result = RVirSchema.class;
+                break;
+
+            case MembershipVirtualSchema:
+                result = MVirSchema.class;
+                break;
 
             default:
                 result = null;
@@ -357,9 +388,11 @@ public class PropagationManager {
         // syncope user attribute
         UAttr attr;
         UDerAttr derAttr;
+        UVirAttr virAttr;
 
         AbstractSchema schema;
         AbstractDerSchema derSchema;
+        AbstractVirSchema virSchema;
 
         // syncope user attribute schema type
         SchemaType schemaType = null;
@@ -371,6 +404,7 @@ public class PropagationManager {
 
             schema = null;
             derSchema = null;
+            virSchema = null;
             values = null;
 
             try {
@@ -398,6 +432,42 @@ public class PropagationManager {
                                 : Collections.EMPTY_LIST;
 
                         LOG.debug("Retrieved attribute {}", attr
+                                + "\n* SourceAttrName {}"
+                                + "\n* SourceMappingType {}"
+                                + "\n* Attribute values {}",
+                                new Object[]{
+                                    mapping.getSourceAttrName(),
+                                    mapping.getSourceMappingType(),
+                                    values});
+                        break;
+
+                    case UserVirtualSchema:
+                    case RoleVirtualSchema:
+                    case MembershipVirtualSchema:
+
+                        virSchema = virSchemaDAO.find(
+                                mapping.getSourceAttrName(),
+                                getSourceMappingTypeClass(
+                                mapping.getSourceMappingType()));
+
+
+                        schemaType = SchemaType.String;
+
+                        virAttr = user.getVirtualAttribute(
+                                mapping.getSourceAttrName());
+
+                        values = new ArrayList<AbstractAttrValue>();
+                        AbstractAttrValue abstractValue;
+
+                        if (virAttr != null && virAttr.getValues() != null) {
+                            for (String value : virAttr.getValues()) {
+                                abstractValue = new UAttrValue();
+                                abstractValue.setStringValue(value);
+                                values.add(abstractValue);
+                            }
+                        }
+
+                        LOG.debug("Retrieved virtual attribute {}", virAttr
                                 + "\n* SourceAttrName {}"
                                 + "\n* SourceMappingType {}"
                                 + "\n* Attribute values {}",
@@ -450,11 +520,13 @@ public class PropagationManager {
 
                         AbstractAttrValue uAttrValue = new UAttrValue();
 
-                        if (SourceMappingType.SyncopeUserId == mapping.getSourceMappingType()) {
+                        if (SourceMappingType.SyncopeUserId
+                                == mapping.getSourceMappingType()) {
 
                             uAttrValue.setStringValue(user.getId().toString());
                         }
-                        if (SourceMappingType.Password == mapping.getSourceMappingType()
+                        if (SourceMappingType.Password
+                                == mapping.getSourceMappingType()
                                 && password != null) {
 
                             uAttrValue.setStringValue(password);
@@ -573,6 +645,15 @@ public class PropagationManager {
             switch (task.getResourceOperationType()) {
                 case CREATE:
                 case UPDATE:
+
+                    if (LOG.isDebugEnabled()) {
+                        for (Attribute attr : task.getAttributes()) {
+                            LOG.debug("Propagate attribute "
+                                    + attr.getName()
+                                    + " " + attr.getValue());
+                        }
+                    }
+
                     Uid userUid = null;
                     try {
                         userUid = connector.resolveUsername(
@@ -675,5 +756,93 @@ public class PropagationManager {
                 LOG.debug("Execution removed: {}", execution);
             }
         }
+    }
+
+    public <T extends AbstractAttributable> Set<String> getObjectAttributeValue(
+            final T attributable,
+            final String attributeName,
+            final SourceMappingType sourceMappingType) {
+
+        List values = new ArrayList();
+
+        Set<String> attributeNames;
+        ConnInstance connectorInstance;
+        ConnectorFacadeProxy connector;
+        Set<Attribute> attributes;
+        String accountLink;
+        String accountId = null;
+
+        LOG.debug("{}: retrieving external values for {}",
+                new Object[]{attributable, attributeName});
+
+        for (TargetResource resource :
+                attributable.getInheritedTargetResources()) {
+
+            LOG.debug("Retrieving attribute mapped on {}", resource);
+
+            attributeNames = new HashSet<String>();
+
+            accountLink = resource.getAccountLink();
+
+            for (SchemaMapping mapping : resource.getMappings()) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Processing mapping."
+                            + "\n\tID: " + mapping.getId()
+                            + "\n\tSource: " + mapping.getSourceAttrName()
+                            + "\n\tDestination: " + mapping.getDestAttrName()
+                            + "\n\tType: " + mapping.getSourceMappingType()
+                            + "\n\tMandatory condition: "
+                            + mapping.getMandatoryCondition()
+                            + "\n\tAccountId: " + mapping.isAccountid()
+                            + "\n\tPassword: " + mapping.isPassword());
+                }
+
+                if (mapping.getSourceAttrName().equals(attributeName)
+                        && mapping.getSourceMappingType() == sourceMappingType) {
+
+                    attributeNames.add(mapping.getDestAttrName());
+                }
+
+                if (mapping.isAccountid()) {
+                    try {
+                        accountId = attributable.getAttribute(
+                                mapping.getSourceAttrName()).
+                                getValuesAsStrings().get(0);
+                    } catch (NullPointerException e) {
+                        // ignore exception
+                        LOG.debug("Invalid accountId specified", e);
+                    }
+                }
+            }
+
+            if (accountId == null && accountLink != null) {
+                accountId = jexlUtil.evaluateWithAttributes(
+                        resource.getAccountLink(),
+                        attributable.getAttributes());
+            }
+
+            if (attributeNames != null && accountId != null) {
+                LOG.debug("Get object attribute for entry {}", accountId);
+
+                connectorInstance = resource.getConnector();
+
+                connector = ConnInstanceLoader.getConnector(
+                        connectorInstance.getId().toString());
+
+                attributes = connector.getObjectAttributes(
+                        ObjectClass.ACCOUNT,
+                        new Uid(accountId),
+                        null,
+                        attributeNames);
+
+                LOG.debug("Retrieved {}", attributes);
+
+                for (Attribute attribute : attributes) {
+                    values.addAll(attribute.getValue());
+                }
+            }
+        }
+
+        return new HashSet<String>(values);
     }
 }

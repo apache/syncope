@@ -61,13 +61,6 @@ public abstract class AbstractSchema extends AbstractBaseBean {
     @Enumerated(STRING)
     private SchemaType type;
 
-    /**
-     * Specify if the attribute should be stored on the local repository.
-     */
-    @Basic
-    @Range(min = 0, max = 1)
-    private Integer virtual;
-
     @Column(nullable = false)
     private String mandatoryCondition;
 
@@ -96,7 +89,6 @@ public abstract class AbstractSchema extends AbstractBaseBean {
         super();
 
         type = SchemaType.String;
-        virtual = getBooleanAsInteger(false);
         mandatoryCondition = Boolean.FALSE.toString();
         multivalue = getBooleanAsInteger(false);
         uniqueConstraint = getBooleanAsInteger(false);
@@ -117,14 +109,6 @@ public abstract class AbstractSchema extends AbstractBaseBean {
 
     public void setType(SchemaType type) {
         this.type = type;
-    }
-
-    public boolean isVirtual() {
-        return isBooleanAsInteger(virtual);
-    }
-
-    public void setVirtual(boolean virtual) {
-        this.virtual = getBooleanAsInteger(virtual);
     }
 
     public String getMandatoryCondition() {

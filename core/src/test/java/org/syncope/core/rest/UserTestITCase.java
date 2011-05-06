@@ -24,6 +24,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.annotation.ExpectedException;
@@ -91,6 +92,12 @@ public class UserTestITCase extends AbstractTest {
         AttributeTO cnTO = new AttributeTO();
         cnTO.setSchema("cn");
         userTO.addDerivedAttribute(cnTO);
+
+        // add a virtual attribute
+        AttributeTO virtualdata = new AttributeTO();
+        virtualdata.setSchema("virtualdata");
+        virtualdata.setValues(Collections.singletonList("virtualvalue"));
+        userTO.addVirtualAttribute(virtualdata);
 
         return userTO;
     }
@@ -248,6 +255,21 @@ public class UserTestITCase extends AbstractTest {
                 restTemplate.getForObject(BASE_URL + "user/status/"
                 + newUserTO.getId(), String.class));
 
+        // 3. check for virtual attribute value
+        newUserTO = restTemplate.getForObject(
+                BASE_URL + "user/read/{userId}.json",
+                UserTO.class,
+                newUserTO.getId());
+        assertNotNull(newUserTO);
+
+        assertNotNull(newUserTO.getVirtualAttributeMap());
+        assertNotNull(newUserTO.getVirtualAttributeMap().get("virtualdata"));
+        assertFalse(newUserTO.getVirtualAttributeMap().get("virtualdata").
+                isEmpty());
+        assertEquals(
+                newUserTO.getVirtualAttributeMap().get("virtualdata").get(0),
+                "virtualvalue");
+
         // get the new task list
         tasks = Arrays.asList(
                 restTemplate.getForObject(
@@ -339,15 +361,15 @@ public class UserTestITCase extends AbstractTest {
         fType.addValue("F");
         userTO.addAttribute(fType);
 
-        AttributeTO firstname = null;
+        AttributeTO surname = null;
         for (AttributeTO attributeTO : userTO.getAttributes()) {
-            if ("firstname".equals(attributeTO.getSchema())) {
-                firstname = attributeTO;
+            if ("surname".equals(attributeTO.getSchema())) {
+                surname = attributeTO;
             }
         }
-        userTO.removeAttribute(firstname);
+        userTO.removeAttribute(surname);
 
-        // 2. create user without firstname (mandatory when type == 'F')
+        // 2. create user without surname (mandatory when type == 'F')
         ex = null;
         try {
             restTemplate.postForObject(

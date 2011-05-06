@@ -44,19 +44,19 @@
     <SyncopeConf key="identityconnectors.bundle.directory" value="${bundles.directory}"/>
     <SyncopeConf key="password.cipher.algorithm" value="MD5"/>
 
-    <USchema name="surname" type="String" virtual="0"
+    <USchema name="surname" type="String"
                 mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
-    <USchema name="firstname" type="String" virtual="0"
+    <USchema name="firstname" type="String"
                 mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
-    <USchema name="email" type="String" virtual="0"
+    <USchema name="email" type="String"
                 mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"
                 validatorClass="org.syncope.core.persistence.validation.attrvalue.EmailAddressValidator"/>
                
     <UDerSchema name="username" expression="firstname + '.' + surname"/>
 
-    <SyncopeRole id="0" name="/" inheritAttributes="0" inheritDerivedAttributes="0"/>
+    <SyncopeRole id="0" name="/" inheritAttributes="0" inheritDerivedAttributes="0" inheritVirtualAttributes="0"/>
 
-    <MSchema name="subscriptionDate" type="Date" virtual="0"
+    <MSchema name="subscriptionDate" type="Date"
                       mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
                       conversionPattern="yyyy-MM-dd'T'HH:mm:ss.SSSZ"/>
 

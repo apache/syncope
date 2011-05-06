@@ -64,37 +64,37 @@
     <Membership id="4" syncopeUser_id="4" syncopeRole_id="7"/>
     <Membership id="5" syncopeUser_id="1" syncopeRole_id="8"/>
 
-    <USchema name="username" type="String" virtual="0"
+    <USchema name="username" type="String"
                 mandatoryCondition="true" multivalue="0" uniqueConstraint="1" readonly="0"/>
-    <USchema name="userId" type="String" virtual="0"
+    <USchema name="userId" type="String"
                 mandatoryCondition="true" multivalue="0" uniqueConstraint="1" readonly="0"
                 validatorClass="org.syncope.core.persistence.validation.attrvalue.EmailAddressValidator"/>
-    <USchema name="loginDate" type="Date" virtual="0"
+    <USchema name="loginDate" type="Date"
                 mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"
                 conversionPattern="yyyy-MM-dd"/>
-    <USchema name="firstname" type="String" virtual="0"
+    <USchema name="firstname" type="String"
                 mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
-    <USchema name="surname" type="String" virtual="0"
+    <USchema name="surname" type="String"
                 mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
-    <USchema name="type" type="String" virtual="0"
+    <USchema name="type" type="String"
                 mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
-    <USchema name="email" type="String" virtual="0"
+    <USchema name="email" type="String"
                 mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
                 validatorClass="org.syncope.core.persistence.validation.attrvalue.EmailAddressValidator"/>
-    <USchema name="activationDate" type="Date" virtual="0"
+    <USchema name="activationDate" type="Date"
                 mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
                 conversionPattern="yyyy-MM-dd'T'HH:mm:ss.SSSZ"/>
-    <USchema name="uselessReadonly" type="String" virtual="0"
+    <USchema name="uselessReadonly" type="String"
                 mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="1"/>
-    <USchema name="cool" type="Boolean" virtual="0"
+    <USchema name="cool" type="Boolean"
                 mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
 
-    <RSchema name="icon" type="String" virtual="0"
+    <RSchema name="icon" type="String"
                 mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
-    <RSchema name="show" type="Boolean" virtual="0"
+    <RSchema name="show" type="Boolean"
                 mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
 
-    <MSchema name="subscriptionDate" type="Date" virtual="0"
+    <MSchema name="subscriptionDate" type="Date"
                       mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
                       conversionPattern="yyyy-MM-dd'T'HH:mm:ss.SSSZ"/>
 

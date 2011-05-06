@@ -91,8 +91,7 @@ public class AuthenticationTestITCase extends AbstractTest {
 
     @Test
     public void testEntitlements() {
-        ((CommonsClientHttpRequestFactory) restTemplate.getRequestFactory()).
-                getHttpClient().getState().setCredentials(AuthScope.ANY,
+        ((CommonsClientHttpRequestFactory) restTemplate.getRequestFactory()).getHttpClient().getState().setCredentials(AuthScope.ANY,
                 new UsernamePasswordCredentials("1", "password"));
 
         String[] entsArray = restTemplate.getForObject(BASE_URL
@@ -167,8 +166,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         assertNotNull(schemaTO);
 
         // 4. read the schema created above (as user) - success
-        ((CommonsClientHttpRequestFactory) restTemplate.getRequestFactory()).
-                getHttpClient().getState().setCredentials(AuthScope.ANY,
+        ((CommonsClientHttpRequestFactory) restTemplate.getRequestFactory()).getHttpClient().getState().setCredentials(AuthScope.ANY,
                 new UsernamePasswordCredentials(
                 String.valueOf(userTO.getId()), "password"));
 
@@ -179,7 +177,6 @@ public class AuthenticationTestITCase extends AbstractTest {
         // 5. update the schema create above (as user) - failure
         HttpClientErrorException exception = null;
         try {
-            schemaTO.setVirtual(true);
             restTemplate.postForObject(BASE_URL
                     + "schema/role/update", schemaTO, SchemaTO.class);
         } catch (HttpClientErrorException e) {
@@ -208,8 +205,7 @@ public class AuthenticationTestITCase extends AbstractTest {
                 userTO, UserTO.class);
         assertNotNull(userTO);
 
-        ((CommonsClientHttpRequestFactory) restTemplate.getRequestFactory()).
-                getHttpClient().getState().setCredentials(AuthScope.ANY,
+        ((CommonsClientHttpRequestFactory) restTemplate.getRequestFactory()).getHttpClient().getState().setCredentials(AuthScope.ANY,
                 new UsernamePasswordCredentials(
                 Long.valueOf(userTO.getId()).toString(), "password"));
 
@@ -217,8 +213,7 @@ public class AuthenticationTestITCase extends AbstractTest {
                 BASE_URL + "user/read/{userId}.json", UserTO.class, 1);
         assertNotNull(readUserTO);
 
-        ((CommonsClientHttpRequestFactory) restTemplate.getRequestFactory()).
-                getHttpClient().getState().setCredentials(AuthScope.ANY,
+        ((CommonsClientHttpRequestFactory) restTemplate.getRequestFactory()).getHttpClient().getState().setCredentials(AuthScope.ANY,
                 new UsernamePasswordCredentials("2", "password"));
 
         HttpClientErrorException exception = null;
@@ -251,8 +246,7 @@ public class AuthenticationTestITCase extends AbstractTest {
                 userTO, UserTO.class);
         assertNotNull(userTO);
 
-        ((CommonsClientHttpRequestFactory) restTemplate.getRequestFactory()).
-                getHttpClient().getState().setCredentials(AuthScope.ANY,
+        ((CommonsClientHttpRequestFactory) restTemplate.getRequestFactory()).getHttpClient().getState().setCredentials(AuthScope.ANY,
                 new UsernamePasswordCredentials(
                 Long.valueOf(userTO.getId()).toString(), "password"));
 
@@ -272,8 +266,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         }
         assertTrue(userIds.contains(1L));
 
-        ((CommonsClientHttpRequestFactory) restTemplate.getRequestFactory()).
-                getHttpClient().getState().setCredentials(AuthScope.ANY,
+        ((CommonsClientHttpRequestFactory) restTemplate.getRequestFactory()).getHttpClient().getState().setCredentials(AuthScope.ANY,
                 new UsernamePasswordCredentials("2", "password"));
 
         matchedUsers = Arrays.asList(

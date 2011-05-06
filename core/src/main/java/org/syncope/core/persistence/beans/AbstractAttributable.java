@@ -71,6 +71,27 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
         return result;
     }
 
+    public <T extends AbstractVirAttr> T getVirtualAttribute(
+            final String virtualSchemaName) {
+
+        T result = null;
+        T virtualAttribute;
+        for (Iterator<? extends AbstractVirAttr> itor =
+                getVirtualAttributes().iterator();
+                result == null && itor.hasNext();) {
+
+            virtualAttribute = (T) itor.next();
+            if (virtualAttribute.getVirtualSchema() != null
+                    && virtualSchemaName.equals(
+                    virtualAttribute.getVirtualSchema().getName())) {
+
+                result = virtualAttribute;
+            }
+        }
+
+        return result;
+    }
+
     public boolean addTargetResource(final TargetResource targetResource) {
         if (targetResources == null) {
             targetResources = new HashSet<TargetResource>();
@@ -127,4 +148,15 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
 
     public abstract void setDerivedAttributes(
             List<? extends AbstractDerAttr> derivedAttributes);
+
+    public abstract <T extends AbstractVirAttr> boolean addVirtualAttribute(
+            T virtualAttributes);
+
+    public abstract <T extends AbstractVirAttr> boolean removeVirtualAttribute(
+            T virtualAttribute);
+
+    public abstract List<? extends AbstractVirAttr> getVirtualAttributes();
+
+    public abstract void setVirtualAttributes(
+            List<? extends AbstractVirAttr> virtualAttributes);
 }

@@ -12,23 +12,23 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.persistence.beans.user;
+package org.syncope.core.persistence.beans.role;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import org.syncope.core.persistence.beans.AbstractAttributable;
-import org.syncope.core.persistence.beans.AbstractDerAttr;
-import org.syncope.core.persistence.beans.AbstractDerSchema;
+import org.syncope.core.persistence.beans.AbstractVirAttr;
+import org.syncope.core.persistence.beans.AbstractVirSchema;
 
 @Entity
-public class UDerAttr extends AbstractDerAttr {
+public class RVirAttr extends AbstractVirAttr {
 
     @ManyToOne
-    private SyncopeUser owner;
+    private SyncopeRole owner;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    UDerSchema derivedSchema;
+    RVirSchema virtualSchema;
 
     @Override
     public <T extends AbstractAttributable> T getOwner() {
@@ -37,18 +37,18 @@ public class UDerAttr extends AbstractDerAttr {
 
     @Override
     public <T extends AbstractAttributable> void setOwner(T owner) {
-        this.owner = (SyncopeUser) owner;
+        this.owner = (SyncopeRole) owner;
     }
 
     @Override
-    public <T extends AbstractDerSchema> T getDerivedSchema() {
-        return (T) derivedSchema;
+    public <T extends AbstractVirSchema> T getVirtualSchema() {
+        return (T) virtualSchema;
     }
 
     @Override
-    public <T extends AbstractDerSchema> void setDerivedSchema(
-            T derivedSchema) {
+    public <T extends AbstractVirSchema> void setVirtualSchema(
+            T virtualSchema) {
 
-        this.derivedSchema = (UDerSchema) derivedSchema;
+        this.virtualSchema = (RVirSchema) virtualSchema;
     }
 }

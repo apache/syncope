@@ -17,21 +17,21 @@ package org.syncope.core.persistence.dao.impl;
 import java.util.List;
 import javax.persistence.Query;
 import org.springframework.stereotype.Repository;
-import org.syncope.core.persistence.beans.AbstractDerAttr;
-import org.syncope.core.persistence.dao.DerAttrDAO;
+import org.syncope.core.persistence.beans.AbstractVirAttr;
+import org.syncope.core.persistence.dao.VirAttrDAO;
 
 @Repository
-public class DerAttrDAOImpl extends AbstractDAOImpl implements DerAttrDAO {
+public class VirAttrDAOImpl extends AbstractDAOImpl implements VirAttrDAO {
 
     @Override
-    public <T extends AbstractDerAttr> T find(
+    public <T extends AbstractVirAttr> T find(
             final Long id, final Class<T> reference) {
 
         return entityManager.find(reference, id);
     }
 
     @Override
-    public <T extends AbstractDerAttr> List<T> findAll(
+    public <T extends AbstractVirAttr> List<T> findAll(
             final Class<T> reference) {
 
         Query query = entityManager.createQuery(
@@ -40,33 +40,33 @@ public class DerAttrDAOImpl extends AbstractDAOImpl implements DerAttrDAO {
     }
 
     @Override
-    public <T extends AbstractDerAttr> T save(
-            final T derivedAttribute) {
+    public <T extends AbstractVirAttr> T save(
+            final T virtualAttribute) {
 
-        return entityManager.merge(derivedAttribute);
+        return entityManager.merge(virtualAttribute);
     }
 
     @Override
-    public <T extends AbstractDerAttr> void delete(
+    public <T extends AbstractVirAttr> void delete(
             final Long id, final Class<T> reference) {
 
-        T derivedAttribute = find(id, reference);
-        if (derivedAttribute == null) {
+        T virtualAttribute = find(id, reference);
+        if (virtualAttribute == null) {
             return;
         }
 
-        delete(derivedAttribute);
+        delete(virtualAttribute);
     }
 
     @Override
-    public <T extends AbstractDerAttr> void delete(
-            final T derivedAttribute) {
+    public <T extends AbstractVirAttr> void delete(
+            final T virtualAttribute) {
 
-        if (derivedAttribute.getOwner() != null) {
-            derivedAttribute.getOwner().
-                    removeDerivedAttribute(derivedAttribute);
+        if (virtualAttribute.getOwner() != null) {
+            virtualAttribute.getOwner().
+                    removeVirtualAttribute(virtualAttribute);
         }
 
-        entityManager.remove(derivedAttribute);
+        entityManager.remove(virtualAttribute);
     }
 }

@@ -18,17 +18,17 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import org.syncope.core.persistence.beans.AbstractAttributable;
-import org.syncope.core.persistence.beans.AbstractDerAttr;
-import org.syncope.core.persistence.beans.AbstractDerSchema;
+import org.syncope.core.persistence.beans.AbstractVirAttr;
+import org.syncope.core.persistence.beans.AbstractVirSchema;
 
 @Entity
-public class UDerAttr extends AbstractDerAttr {
+public class UVirAttr extends AbstractVirAttr {
 
     @ManyToOne
     private SyncopeUser owner;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    UDerSchema derivedSchema;
+    UVirSchema virtualSchema;
 
     @Override
     public <T extends AbstractAttributable> T getOwner() {
@@ -41,14 +41,14 @@ public class UDerAttr extends AbstractDerAttr {
     }
 
     @Override
-    public <T extends AbstractDerSchema> T getDerivedSchema() {
-        return (T) derivedSchema;
+    public <T extends AbstractVirSchema> T getVirtualSchema() {
+        return (T) virtualSchema;
     }
 
     @Override
-    public <T extends AbstractDerSchema> void setDerivedSchema(
-            T derivedSchema) {
+    public <T extends AbstractVirSchema> void setVirtualSchema(
+            T virtualSchema) {
 
-        this.derivedSchema = (UDerSchema) derivedSchema;
+        this.virtualSchema = (UVirSchema) virtualSchema;
     }
 }

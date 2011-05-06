@@ -101,7 +101,6 @@ public class SchemaTestITCase extends AbstractTest {
                 + "schema/role/read/icon.json", SchemaTO.class);
         assertNotNull(schemaTO);
 
-        schemaTO.setVirtual(true);
         SchemaTO updatedTO = restTemplate.postForObject(BASE_URL
                 + "schema/role/update", schemaTO, SchemaTO.class);
         assertEquals(schemaTO, updatedTO);

@@ -41,6 +41,8 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
         role.setInheritAttributes(roleTO.isInheritAttributes());
         role.setInheritDerivedAttributes(
                 roleTO.isInheritDerivedAttributes());
+        role.setInheritVirtualAttributes(
+                roleTO.isInheritVirtualAttributes());
 
         SyncopeClientCompositeErrorException scce =
                 new SyncopeClientCompositeErrorException(
@@ -80,7 +82,7 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
             invalidRoles.addElement(roleTO.getName());
         }
 
-        // attributes, derived attributes and resources
+        // attributes, derived attributes, virtual attributes and resources
         fill(role, roleTO, AttributableUtil.ROLE, scce);
 
         // entitlements
@@ -134,6 +136,12 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
                     !role.isInheritDerivedAttributes());
         }
 
+        // inherited virtual attributes
+        if (roleMod.isChangeInheritVirtualAttributes()) {
+            role.setInheritVirtualAttributes(
+                    !role.isInheritVirtualAttributes());
+        }
+
         // entitlements
         role.getEntitlements().clear();
         Entitlement entitlement;
@@ -146,7 +154,7 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
             }
         }
 
-        // attributes, derived attributes and resources
+        // attributes, derived attributes, virtual attributes and resources
         return fill(role, roleMod, AttributableUtil.ROLE, scce);
     }
 
@@ -156,6 +164,8 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
         roleTO.setName(role.getName());
         roleTO.setInheritAttributes(role.isInheritAttributes());
         roleTO.setInheritDerivedAttributes(role.isInheritDerivedAttributes());
+        roleTO.setInheritVirtualAttributes(role.isInheritVirtualAttributes());
+
         if (role.getParent() != null) {
             roleTO.setParent(role.getParent().getId());
         }
@@ -163,6 +173,7 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
         fillTO(roleTO,
                 role.findInheritedAttributes(),
                 role.findInheritedDerivedAttributes(),
+                role.findInheritedVirtualAttributes(),
                 role.getTargetResources());
 
         for (Entitlement entitlement : role.getEntitlements()) {

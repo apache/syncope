@@ -15,22 +15,22 @@
 package org.syncope.core.persistence.dao;
 
 import java.util.List;
-import org.syncope.core.persistence.beans.AbstractDerAttr;
-import org.syncope.core.persistence.beans.AbstractDerSchema;
+import org.syncope.core.persistence.beans.AbstractVirAttr;
+import org.syncope.core.persistence.beans.AbstractVirSchema;
 import org.syncope.core.persistence.validation.entity.InvalidEntityException;
 import org.syncope.core.util.AttributableUtil;
 
-public interface DerSchemaDAO extends DAO {
+public interface VirSchemaDAO extends DAO {
 
-    <T extends AbstractDerSchema> T find(String name, Class<T> reference);
+    <T extends AbstractVirSchema> T find(String name, Class<T> reference);
 
-    <T extends AbstractDerSchema> List<T> findAll(Class<T> reference);
+    <T extends AbstractVirSchema> List<T> findAll(Class<T> reference);
 
-    <T extends AbstractDerSchema> T save(T derivedSchema)
+    <T extends AbstractVirSchema> T save(T virtualSchema)
             throws InvalidEntityException;
 
-    <T extends AbstractDerAttr> List<T> getAttributes(
-            AbstractDerSchema schema, Class<T> reference);
+    <T extends AbstractVirAttr> List<T> getAttributes(
+            AbstractVirSchema virtualSchema, Class<T> reference);
 
     void delete(String name, AttributableUtil attributableUtil);
 }

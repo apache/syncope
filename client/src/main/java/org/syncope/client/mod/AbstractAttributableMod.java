@@ -21,11 +21,21 @@ import org.syncope.client.AbstractBaseBean;
 public abstract class AbstractAttributableMod extends AbstractBaseBean {
 
     protected long id;
+
     protected Set<AttributeMod> attributesToBeUpdated;
+
     protected Set<String> attributesToBeRemoved;
+
     protected Set<String> derivedAttributesToBeAdded;
+
     protected Set<String> derivedAttributesToBeRemoved;
+
+    protected Set<String> virtualAttributesToBeAdded;
+
+    protected Set<String> virtualAttributesToBeRemoved;
+
     protected Set<String> resourcesToBeAdded;
+
     protected Set<String> resourcesToBeRemoved;
 
     public AbstractAttributableMod() {
@@ -33,6 +43,8 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
         attributesToBeRemoved = new HashSet<String>();
         derivedAttributesToBeAdded = new HashSet<String>();
         derivedAttributesToBeRemoved = new HashSet<String>();
+        virtualAttributesToBeAdded = new HashSet<String>();
+        virtualAttributesToBeRemoved = new HashSet<String>();
         resourcesToBeAdded = new HashSet<String>();
         resourcesToBeRemoved = new HashSet<String>();
     }
@@ -145,5 +157,21 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
 
     public void setResourcesToBeRemoved(Set<String> resourcesToBeRemoved) {
         this.resourcesToBeRemoved = resourcesToBeRemoved;
+    }
+
+    public Set<String> getVirtualAttributesToBeAdded() {
+        return virtualAttributesToBeAdded;
+    }
+
+    public void setVirtualAttributesToBeAdded(Set<String> virtualAttributesToBeAdded) {
+        this.virtualAttributesToBeAdded = virtualAttributesToBeAdded;
+    }
+
+    public Set<String> getVirtualAttributesToBeRemoved() {
+        return virtualAttributesToBeRemoved;
+    }
+
+    public void setVirtualAttributesToBeRemoved(Set<String> virtualAttributesToBeRemoved) {
+        this.virtualAttributesToBeRemoved = virtualAttributesToBeRemoved;
     }
 }

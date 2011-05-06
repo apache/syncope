@@ -182,7 +182,7 @@ public class UserSearchTest {
         ids.add(users.get(0).getId());
         ids.add(users.get(1).getId());
         assertTrue(ids.contains(1L));
-        assertTrue(ids.contains(4L));
+        assertTrue(ids.contains(3L));
     }
 
     @Test

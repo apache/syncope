@@ -14,19 +14,16 @@
  */
 package org.syncope.core.persistence.beans;
 
-import javax.persistence.Column;
+
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import org.syncope.types.SchemaType;
 
 @MappedSuperclass
-public abstract class AbstractDerSchema extends AbstractBaseBean {
+public abstract class AbstractVirSchema extends AbstractBaseBean {
 
     @Id
     private String name;
-
-    @Column(nullable = false)
-    private String expression;
 
     public String getName() {
         return name;
@@ -34,14 +31,6 @@ public abstract class AbstractDerSchema extends AbstractBaseBean {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getExpression() {
-        return expression;
-    }
-
-    public void setExpression(String expression) {
-        this.expression = expression;
     }
 
     public SchemaType getType() {
