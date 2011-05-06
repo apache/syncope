@@ -662,6 +662,7 @@
         <module>client</module>
         <module>core</module>
         <module>console</module>
+        <module>archetype</module>
     </modules>
 
 </project>

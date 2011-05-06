@@ -364,7 +364,8 @@
                         <phase>package</phase>
                         <configuration>
                             <target>
-                                <unzip src="${project.build.directory}/${project.build.finalName}.war" dest="${cargo.run.dir}">
+                                <unzip src="${project.build.directory}/${project.build.finalName}.war" 
+                                       dest="${cargo.run.dir}">
                                     <patternset>
                                         <exclude name="**/content.xml" />
                                         <exclude name="**/ehcache.xml" />
