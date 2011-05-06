@@ -15,6 +15,8 @@
 package org.syncope.core.persistence.dao.impl;
 
 import java.lang.Long;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -193,14 +195,25 @@ public class UserDAOImpl extends AbstractDAOImpl
         }
 
         List<Number> userIds = new ArrayList<Number>();
-        userIds.addAll(query.getResultList());
+        List resultList=query.getResultList();
+
+        //fix for HHH-5902 - bug hibernate
+        if ( resultList != null ) {
+            for (Object userId :  resultList ) {
+                if (userId instanceof Object[]) {
+                    userIds.add((Number)  ((Object[])userId)[0] );
+                } else {
+                    userIds.add((Number) userId);
+                }
+            }
+        }
 
         List<SyncopeUser> result =
                 new ArrayList<SyncopeUser>(userIds.size());
 
         SyncopeUser user;
-        for (Number userId : userIds) {
-            user = find(userId.longValue());
+        for (Object userId : userIds) {
+            user = find(((Number)userId).longValue());
             if (user == null) {
                 LOG.error("Could not find user with id {}, "
                         + "even though returned by the native query", userId);
