@@ -17,6 +17,7 @@
     <properties>
         <hsqldb.version>2.0.0</hsqldb.version>
         <connid.soap.version>1.0-SNAPSHOT</connid.soap.version>
+        <connid.db.table.version>1.1-SNAPSHOT</connid.db.table.version>
 
         <cargo.servlet.port>9080</cargo.servlet.port>
         <cargo.run.dir>${project.build.directory}/syncope-core-test</cargo.run.dir>
@@ -61,10 +62,6 @@
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>jstl</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>javax.persistence</groupId>
-            <artifactId>persistence-api</artifactId>
         </dependency>
 
         <dependency>
@@ -127,49 +124,20 @@
             <version>${connid.soap.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.connid.bundles.db</groupId>
+            <artifactId>org.connid.bundles.db.table</artifactId>
+            <version>${connid.db.table.version}</version>
+            <scope>test</scope>
+        </dependency>
         <!-- /TEST -->
 
     </dependencies>
 
     <build>
-        <finalName>${parent.artifactId}-${parent.version}</finalName>
+        <finalName>${project.parent.artifactId}-${project.parent.version}</finalName>
 
         <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>hibernate3-maven-plugin</artifactId>
-                <inherited>true</inherited>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.hsqldb</groupId>
-                        <artifactId>hsqldb</artifactId>
-                        <version>${hsqldb.version}</version>
-                    </dependency>
-                </dependencies>
-                <configuration>
-                    <components>
-                        <component>
-                            <name>hbm2ddl</name>
-                            <implementation>jpaconfiguration</implementation>
-                        </component>
-                    </components>
-                    <componentProperties>
-                        <jdk5>true</jdk5>
-                        <propertyfile>${project.build.directory}/test-classes/persistence.properties</propertyfile>
-                        <skip>${maven.test.skip}</skip>
-                        <format>true</format>
-                        <persistenceunit>syncopePersistenceUnit</persistenceunit>
-                    </componentProperties>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>test-compile</phase>
-                        <goals>
-                            <goal>hbm2ddl</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
 
             <!-- Integration tests -->
             <plugin>
@@ -199,7 +167,7 @@
                         <id>explodeSyncopeWAR</id>
                         <phase>package</phase>
                         <configuration>
-                            <tasks>
+                            <target>
                                 <unzip src="${project.build.directory}/${project.build.finalName}.war"
                                        dest="${cargo.run.dir}">
                                     <patternset>
@@ -209,7 +177,22 @@
                                         <exclude name="**/security.properties"/>
                                     </patternset>
                                 </unzip>
-                            </tasks>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>setupTomcat</id>
+                        <phase>package</phase>
+                        <configuration>
+                            <target>
+                                <get src="http://www.apache.org/dist/tomcat/tomcat-7/v7.0.12/bin/apache-tomcat-7.0.12.zip" 
+                                     dest="${java.io.tmpdir}" skipexisting="true"/>
+                                <unzip src="${java.io.tmpdir}/apache-tomcat-7.0.12.zip" 
+                                       dest="${java.io.tmpdir}" overwrite="false"/>
+                            </target>
                         </configuration>
                         <goals>
                             <goal>run</goal>
@@ -237,6 +220,12 @@
                                     <version>${connid.soap.version}</version>
                                     <outputDirectory>${bundles.directory}</outputDirectory>                                
                                 </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.connid.bundles.db</groupId>
+                                    <artifactId>org.connid.bundles.db.table</artifactId>
+                                    <version>${connid.db.table.version}</version>
+                                    <outputDirectory>${bundles.directory}</outputDirectory>                                
+                                </artifactItem>
                             </artifactItems>
                         </configuration>
                     </execution>
@@ -248,12 +237,10 @@
                 <artifactId>cargo-maven2-plugin</artifactId>
                 <inherited>true</inherited>
                 <configuration>
+                    <wait>true</wait>
                     <container>
-                        <containerId>tomcat6x</containerId>
-                        <zipUrlInstaller>
-                            <url>http://www.apache.org/dist/tomcat/tomcat-6/v6.0.32/bin/apache-tomcat-6.0.32.zip</url>
-                            <installDir>${java.io.tmpdir}/tomcat6x</installDir>
-                        </zipUrlInstaller>
+                        <containerId>tomcat7x</containerId>
+                        <home>${java.io.tmpdir}/apache-tomcat-7.0.12</home>
                         <log>${cargo.log}</log>
                         <output>${cargo.output}</output>
                         <dependencies>
@@ -267,10 +254,9 @@
                     </container>
                     <configuration>
                         <type>standalone</type>
-                        <home>target/tomcat6x</home>
                         <properties>
                             <cargo.servlet.port>${cargo.servlet.port}</cargo.servlet.port>
-<!--                            <cargo.jvmargs>-Xdebug -Xrunjdwp:transport=dt_socket,address=9009,server=y,suspend=n</cargo.jvmargs>-->
+                            <!--<cargo.jvmargs>-Xdebug -Xrunjdwp:transport=dt_socket,address=9009,server=y,suspend=n</cargo.jvmargs>-->
                         </properties>
                         <deployables>
                             <deployable>
@@ -307,6 +293,21 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.2</version>
+                <configuration>
+                    <executable>java</executable>
+                    <arguments>
+                        <argument>-classpath</argument>
+                        <classpath/>
+                        <argument>org.syncope.core.persistence.util.SchemaExporter</argument>
+                        <argument>HSQL</argument>
+                    </arguments>
+                </configuration>
             </plugin>
 
         </plugins>
