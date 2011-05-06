@@ -195,13 +195,13 @@ public class UserDAOImpl extends AbstractDAOImpl
         }
 
         List<Number> userIds = new ArrayList<Number>();
-        List resultList=query.getResultList();
+        List resultList = query.getResultList();
 
         //fix for HHH-5902 - bug hibernate
-        if ( resultList != null ) {
-            for (Object userId :  resultList ) {
+        if (resultList != null) {
+            for (Object userId : resultList) {
                 if (userId instanceof Object[]) {
-                    userIds.add((Number)  ((Object[])userId)[0] );
+                    userIds.add((Number) ((Object[]) userId)[0]);
                 } else {
                     userIds.add((Number) userId);
                 }
@@ -213,7 +213,7 @@ public class UserDAOImpl extends AbstractDAOImpl
 
         SyncopeUser user;
         for (Object userId : userIds) {
-            user = find(((Number)userId).longValue());
+            user = find(((Number) userId).longValue());
             if (user == null) {
                 LOG.error("Could not find user with id {}, "
                         + "even though returned by the native query", userId);
