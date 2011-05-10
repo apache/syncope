@@ -116,9 +116,17 @@
                     <url>jdbc:hsqldb:hsql://localhost:9001/testdb</url>
                     <username>sa</username>
                     <password></password>
-                    <srcFiles>
-                        <srcFile>${project.build.directory}/test-classes/testdb.sql</srcFile>
-                    </srcFiles>
+                    <sqlCommand>
+			ALTER USER sa SET PASSWORD "sa";
+
+			DROP TABLE test IF EXISTS;
+			CREATE TABLE test (
+			id INTEGER PRIMARY KEY,
+			password VARCHAR(255) NOT NULL,
+			UNIQUE(id));
+
+			INSERT INTO test VALUES (1, 'password');
+                    </sqlCommand>
                 </configuration>
                 <executions>
                     <execution>
