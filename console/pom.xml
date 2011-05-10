@@ -30,8 +30,8 @@
 
     <properties>
         <hsqldb.version>2.0.0</hsqldb.version>
-        <connid.soap.version>1.0-SNAPSHOT</connid.soap.version>
-        <connid.db.table.version>1.1-SNAPSHOT</connid.db.table.version>
+        <connid.soap.version>1.0</connid.soap.version>
+        <connid.db.table.version>1.1</connid.db.table.version>
 
         <logfile>/var/tmp/syncope-console.log</logfile>
         <logfile.test>/var/tmp/syncope-console-test.log</logfile.test>
