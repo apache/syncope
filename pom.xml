@@ -49,10 +49,4 @@
         </pluginManagement>
     </build>
     
-
-  <scm>
-    <connection>scm:svn:http://syncope.googlecode.com/svn/tags/syncope-archetype-0.5.7</connection>
-    <developerConnection>scm:svn:https://syncope.googlecode.com/svn/tags/syncope-archetype-0.5.7</developerConnection>
-    <url>http://syncope.googlecode.com/svn/tags/syncope-archetype-0.5.7</url>
-  </scm>
 </project>
