@@ -19,7 +19,7 @@
     <parent>
         <groupId>org.syncope</groupId>
         <artifactId>syncope</artifactId>
-        <version>0.5-SNAPSHOT</version>
+        <version>0.5</version>
     </parent>
 
     <name>Syncope core</name>
@@ -364,8 +364,7 @@
                         <phase>package</phase>
                         <configuration>
                             <target>
-                                <unzip src="${project.build.directory}/${project.build.finalName}.war" 
-                                       dest="${cargo.run.dir}">
+                                <unzip src="${project.build.directory}/${project.build.finalName}.war" dest="${cargo.run.dir}">
                                     <patternset>
                                         <exclude name="**/content.xml" />
                                         <exclude name="**/ehcache.xml" />
@@ -384,10 +383,8 @@
                         <phase>package</phase>
                         <configuration>
                             <target>
-                                <get src="http://www.apache.org/dist/tomcat/tomcat-7/v7.0.12/bin/apache-tomcat-7.0.12.zip" 
-                                     dest="${java.io.tmpdir}" skipexisting="true"/>
-                                <unzip src="${java.io.tmpdir}/apache-tomcat-7.0.12.zip" 
-                                       dest="${java.io.tmpdir}" overwrite="false"/>
+                                <get src="http://www.apache.org/dist/tomcat/tomcat-7/v7.0.12/bin/apache-tomcat-7.0.12.zip" dest="${java.io.tmpdir}" skipexisting="true" />
+                                <unzip src="${java.io.tmpdir}/apache-tomcat-7.0.12.zip" dest="${java.io.tmpdir}" overwrite="false" />
                             </target>
                         </configuration>
                         <goals>
@@ -463,7 +460,7 @@
                     <driver>org.hsqldb.jdbcDriver</driver>
                     <url>jdbc:hsqldb:hsql://localhost:9001/testdb;shutdown=true</url>
                     <username>sa</username>
-                    <password></password>
+                    <password />
                     <srcFiles>
                         <srcFile>${project.build.directory}/test-classes/testdb.sql</srcFile>
                     </srcFiles>
@@ -550,7 +547,7 @@
                     <executable>java</executable>
                     <arguments>
                         <argument>-classpath</argument>
-                        <classpath/>
+                        <classpath />
                         <argument>org.syncope.core.persistence.util.SchemaExporter</argument>
                         <argument>HSQL</argument>
                     </arguments>
