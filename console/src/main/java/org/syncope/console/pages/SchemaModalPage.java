@@ -31,114 +31,91 @@ import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.string.Strings;
 import org.syncope.client.to.SchemaTO;
-import org.syncope.console.rest.SchemaRestClient;
 import org.syncope.types.SchemaType;
 import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.markup.html.form.CheckBox;
+import org.syncope.client.AbstractBaseBean;
 
 /**
  * Modal window with Schema form.
  */
-public class SchemaModalPage extends BaseModalPage {
+public class SchemaModalPage extends AbstractSchemaModalPage {
 
-    public enum Entity {
+    public SchemaModalPage(String kind) {
+        super(kind);
+    }
 
-        USER, ROLE, MEMBERSHIP
-
-    };
-    private TextField name;
-
-    private TextField conversionPattern;
-
-    private DropDownChoice validatorClass;
-
-    private DropDownChoice type;
-
-    private DropDownChoice action;
-
-    private AutoCompleteTextField mandatoryCondition;
-
-    private CheckBox virtual;
-
-    private CheckBox multivalue;
-
-    private CheckBox readonly;
-
-    private CheckBox uniqueConstraint;
-
-    private AjaxButton submit;
-
-    private Entity entity;
-
-    @SpringBean
-    private SchemaRestClient restClient;
-
-    public SchemaModalPage(final BasePage basePage, final ModalWindow window,
-            SchemaTO schema, final boolean createFlag) {
+    @Override
+    public void setSchemaModalPage(
+            final BasePage basePage,
+            final ModalWindow window,
+            AbstractBaseBean schema,
+            final boolean createFlag) {
 
         if (schema == null) {
             schema = new SchemaTO();
         }
 
-        Form schemaForm = new Form("SchemaForm");
+        final Form schemaForm = new Form("SchemaForm");
 
         schemaForm.setModel(new CompoundPropertyModel(schema));
 
-        name = new TextField("name");
+        final TextField name = new TextField("name");
         name.setRequired(true);
 
         name.setEnabled(createFlag);
 
-        conversionPattern = new TextField("conversionPattern");
+        final TextField conversionPattern = new TextField("conversionPattern");
 
-        ArrayList<String> validatorsList = new ArrayList<String>();
+        final ArrayList<String> validatorsList = new ArrayList<String>();
         validatorsList.add("org.syncope.core.persistence.validation"
                 + ".AlwaysTrueValidator");
         validatorsList.add("org.syncope.core.persistence.validation"
                 + ".EmailAddressValidator");
 
-        validatorClass = new DropDownChoice("validatorClass",
-                new PropertyModel(schema, "validatorClass"), validatorsList);
+        final DropDownChoice validatorClass = new DropDownChoice(
+                "validatorClass",
+                new PropertyModel(schema, "validatorClass"),
+                validatorsList);
 
-        type = new DropDownChoice("type", Arrays.asList(SchemaType.values()));
+        final DropDownChoice type = new DropDownChoice(
+                "type", Arrays.asList(SchemaType.values()));
         type.setRequired(true);
 
-        mandatoryCondition = new AutoCompleteTextField("mandatoryCondition") {
+        final AutoCompleteTextField mandatoryCondition =
+                new AutoCompleteTextField("mandatoryCondition") {
 
-            @Override
-            protected Iterator getChoices(String input) {
-                List<String> choices = new ArrayList<String>();
+                    @Override
+                    protected Iterator getChoices(String input) {
+                        List<String> choices = new ArrayList<String>();
 
-                if (Strings.isEmpty(input)) {
-                    choices = Collections.emptyList();
-                    return choices.iterator();
-                }
+                        if (Strings.isEmpty(input)) {
+                            choices = Collections.emptyList();
+                            return choices.iterator();
+                        }
 
-                if ("true".startsWith(input.toLowerCase())) {
-                    choices.add("true");
-                } else if ("false".startsWith(input.toLowerCase())) {
-                    choices.add("false");
-                }
+                        if ("true".startsWith(input.toLowerCase())) {
+                            choices.add("true");
+                        } else if ("false".startsWith(input.toLowerCase())) {
+                            choices.add("false");
+                        }
 
 
-                return choices.iterator();
-            }
-        };
+                        return choices.iterator();
+                    }
+                };
 
-        virtual = new CheckBox("virtual");
+        final CheckBox multivalue = new CheckBox("multivalue");
 
-        multivalue = new CheckBox("multivalue");
+        final CheckBox readonly = new CheckBox("readonly");
 
-        readonly = new CheckBox("readonly");
+        final CheckBox uniqueConstraint = new CheckBox("uniqueConstraint");
 
-        uniqueConstraint = new CheckBox("uniqueConstraint");
-
-        submit = new IndicatingAjaxButton("submit", new Model(
-                getString("submit"))) {
+        final AjaxButton submit = new IndicatingAjaxButton(
+                "submit", new Model(getString("submit"))) {
 
             @Override
             protected void onSubmit(AjaxRequestTarget target, Form form) {
@@ -150,31 +127,12 @@ public class SchemaModalPage extends BaseModalPage {
                     return;
                 }
 
-                if (getEntity() == Entity.USER) {
-
-                    if (createFlag) {
-                        restClient.createUserSchema(schemaTO);
-                    } else {
-                        restClient.updateUserSchema(schemaTO);
-                    }
-
-                } else if (getEntity() == Entity.ROLE) {
-
-                    if (createFlag) {
-                        restClient.createRoleSchema(schemaTO);
-                    } else {
-                        restClient.updateRoleSchema(schemaTO);
-                    }
-
-                } else if (getEntity() == Entity.MEMBERSHIP) {
-
-                    if (createFlag) {
-                        restClient.createMemberhipSchema(schemaTO);
-                    } else {
-                        restClient.updateMemberhipSchema(schemaTO);
-                    }
-
+                if (createFlag) {
+                    restClient.createSchema(kind, schemaTO);
+                } else {
+                    restClient.updateSchema(kind, schemaTO);
                 }
+
                 Schema callerPage = (Schema) basePage;
                 callerPage.setOperationResult(true);
 
@@ -197,15 +155,14 @@ public class SchemaModalPage extends BaseModalPage {
                     "update");
         }
 
-        MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE,
-                allowedRoles);
+        MetaDataRoleAuthorizationStrategy.authorize(
+                submit, ENABLE, allowedRoles);
 
         schemaForm.add(name);
         schemaForm.add(conversionPattern);
         schemaForm.add(validatorClass);
         schemaForm.add(type);
         schemaForm.add(mandatoryCondition);
-        schemaForm.add(virtual);
         schemaForm.add(multivalue);
         schemaForm.add(readonly);
         schemaForm.add(uniqueConstraint);
@@ -213,13 +170,5 @@ public class SchemaModalPage extends BaseModalPage {
         schemaForm.add(submit);
 
         add(schemaForm);
-    }
-
-    public Entity getEntity() {
-        return entity;
-    }
-
-    public void setEntity(Entity entity) {
-        this.entity = entity;
     }
 }

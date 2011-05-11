@@ -27,17 +27,26 @@ public final class Constants {
     public static final String PREF_USER_DER_SCHEMA_PAGINATOR_ROWS =
             "user.derived.schema.paginator.rows";
 
+    public static final String PREF_USER_VIR_SCHEMA_PAGINATOR_ROWS =
+            "user.virtual.schema.paginator.rows";
+
     public static final String PREF_ROLE_SCHEMA_PAGINATOR_ROWS =
             "role.schema.paginator.rows";
 
     public static final String PREF_ROLE_DER_SCHEMA_PAGINATOR_ROWS =
             "role.derived.schema.paginator.rows";
 
+    public static final String PREF_ROLE_VIR_SCHEMA_PAGINATOR_ROWS =
+            "role.virtual.schema.paginator.rows";
+
     public static final String PREF_MEMBERSHIP_SCHEMA_PAGINATOR_ROWS =
             "membership.schema.paginator.rows";
 
     public static final String PREF_MEMBERSHIP_DER_SCHEMA_PAGINATOR_ROWS =
             "membership.derived.aschema.paginator.rows";
+
+    public static final String PREF_MEMBERSHIP_VIR_SCHEMA_PAGINATOR_ROWS =
+            "membership.virtual.aschema.paginator.rows";
 
     public static final String PREF_USERS_PAGINATOR_ROWS =
             "users.paginator.rows";
@@ -65,6 +74,12 @@ public final class Constants {
     public static final String ITALIAN_DATE_FORMAT = "dd/MM/yyyy hh:mm:ss";
 
     public static final String ENGLISH_DATE_FORMAT = "MM/dd/yyyy hh:mm:ss";
+
+    public static final String[] SCHEMA_FIELDS = {"name", "type"};
+
+    public static final String[] VIRTUAL_SCHEMA_FIELDS = {"name"};
+
+    public static final String[] DERIVED_SCHEMA_FIELDS = {"name", "expression"};
 
     private Constants() {
     }

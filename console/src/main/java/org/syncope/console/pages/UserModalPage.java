@@ -157,6 +157,16 @@ public class UserModalPage extends BaseModalPage {
                     }
                 };
 
+
+        final IModel<List<String>> virtualSchemaNames =
+                new LoadableDetachableModel<List<String>>() {
+
+                    @Override
+                    protected List<String> load() {
+                        return schemaRestClient.getDerivedSchemaNames("user");
+                    }
+                };
+
         final ListView userAttributesView =
                 new ListView("userSchemas", schemaWrappers) {
 
@@ -326,91 +336,13 @@ public class UserModalPage extends BaseModalPage {
         //--------------------------------
         // Derived attributes container
         //--------------------------------
-        final WebMarkupContainer derivedAttributesContainer =
-                new WebMarkupContainer("derivedAttributesContainer");
-        derivedAttributesContainer.setOutputMarkupId(true);
-        userForm.add(derivedAttributesContainer);
+        setDerivedAttributeContainer(userForm, userTO, derivedSchemaNames);
+        //--------------------------------
 
-        AjaxButton addDerivedAttributeBtn = new IndicatingAjaxButton(
-                "addDerivedAttributeBtn",
-                new Model(getString("addDerivedAttributeBtn"))) {
-
-            @Override
-            protected void onSubmit(final AjaxRequestTarget target,
-                    final Form form) {
-
-                userTO.getDerivedAttributes().add(new AttributeTO());
-                target.addComponent(derivedAttributesContainer);
-            }
-        };
-        addDerivedAttributeBtn.setDefaultFormProcessing(false);
-        userForm.add(addDerivedAttributeBtn);
-
-        ListView<AttributeTO> derivedAttributes = new ListView<AttributeTO>(
-                "derivedAttributes", userTO.getDerivedAttributes()) {
-
-            @Override
-            protected void populateItem(final ListItem<AttributeTO> item) {
-                final AttributeTO derivedAttributeTO = item.getModelObject();
-
-                item.add(new AjaxDecoratedCheckbox("toRemove",
-                        new Model(Boolean.FALSE)) {
-
-                    @Override
-                    protected void onUpdate(final AjaxRequestTarget target) {
-                        userTO.getDerivedAttributes().remove(derivedAttributeTO);
-                        item.getParent().removeAll();
-                        target.addComponent(derivedAttributesContainer);
-                    }
-
-                    @Override
-                    protected IAjaxCallDecorator getAjaxCallDecorator() {
-                        return new AjaxPreprocessingCallDecorator(
-                                super.getAjaxCallDecorator()) {
-
-                            @Override
-                            public CharSequence preDecorateScript(
-                                    final CharSequence script) {
-
-                                return "if (confirm('"
-                                        + getString("confirmDelete") + "'))"
-                                        + "{" + script + "} "
-                                        + "else {this.checked = false;}";
-                            }
-                        };
-                    }
-                });
-
-                final DropDownChoice<String> derivedSchemaChoice =
-                        new DropDownChoice<String>(
-                        "schema",
-                        new PropertyModel<String>(derivedAttributeTO, "schema"),
-                        derivedSchemaNames);
-
-                derivedSchemaChoice.setOutputMarkupId(true);
-
-                if (derivedAttributeTO.getSchema() != null) {
-                    item.add(derivedSchemaChoice.setEnabled(Boolean.FALSE));
-                } else {
-                    item.add(derivedSchemaChoice.setRequired(true));
-                }
-
-                final List<String> values = derivedAttributeTO.getValues();
-
-                if (values == null || values.isEmpty()) {
-                    item.add(new TextField(
-                            "derivedAttributeValue",
-                            new Model(null)).setVisible(Boolean.FALSE));
-                } else {
-                    item.add(new TextField(
-                            "derivedAttributeValue",
-                            new Model(values.get(0))).setEnabled(
-                            Boolean.FALSE));
-                }
-            }
-        };
-        derivedAttributes.setReuseItems(true);
-        derivedAttributesContainer.add(derivedAttributes);
+        //--------------------------------
+        // Virtual attributes container
+        //--------------------------------
+        setVirtualAttributeContainer(userForm, userTO, derivedSchemaNames);
         //--------------------------------
 
         ListModel<ResourceTO> selectedResources = new ListModel<ResourceTO>();
@@ -1103,5 +1035,187 @@ public class UserModalPage extends BaseModalPage {
 
             userMod.addMembershipToBeRemoved(oldMembership.getId());
         }
+    }
+
+    private void setDerivedAttributeContainer(
+            final Form userForm,
+            final UserTO userTO,
+            final IModel<List<String>> derivedSchemaNames) {
+        final WebMarkupContainer derivedAttributesContainer =
+                new WebMarkupContainer("derivedAttributesContainer");
+        derivedAttributesContainer.setOutputMarkupId(true);
+        userForm.add(derivedAttributesContainer);
+
+        AjaxButton addDerivedAttributeBtn = new IndicatingAjaxButton(
+                "addDerivedAttributeBtn",
+                new Model(getString("addDerivedAttributeBtn"))) {
+
+            @Override
+            protected void onSubmit(final AjaxRequestTarget target,
+                    final Form form) {
+
+                userTO.getDerivedAttributes().add(new AttributeTO());
+                target.addComponent(derivedAttributesContainer);
+            }
+        };
+        addDerivedAttributeBtn.setDefaultFormProcessing(false);
+        userForm.add(addDerivedAttributeBtn);
+
+        ListView<AttributeTO> derivedAttributes = new ListView<AttributeTO>(
+                "derivedAttributes", userTO.getDerivedAttributes()) {
+
+            @Override
+            protected void populateItem(final ListItem<AttributeTO> item) {
+                final AttributeTO derivedAttributeTO = item.getModelObject();
+
+                item.add(new AjaxDecoratedCheckbox("toRemove",
+                        new Model(Boolean.FALSE)) {
+
+                    @Override
+                    protected void onUpdate(final AjaxRequestTarget target) {
+                        userTO.getDerivedAttributes().remove(derivedAttributeTO);
+                        item.getParent().removeAll();
+                        target.addComponent(derivedAttributesContainer);
+                    }
+
+                    @Override
+                    protected IAjaxCallDecorator getAjaxCallDecorator() {
+                        return new AjaxPreprocessingCallDecorator(
+                                super.getAjaxCallDecorator()) {
+
+                            @Override
+                            public CharSequence preDecorateScript(
+                                    final CharSequence script) {
+
+                                return "if (confirm('"
+                                        + getString("confirmDelete") + "'))"
+                                        + "{" + script + "} "
+                                        + "else {this.checked = false;}";
+                            }
+                        };
+                    }
+                });
+
+                final DropDownChoice<String> derivedSchemaChoice =
+                        new DropDownChoice<String>(
+                        "schema",
+                        new PropertyModel<String>(derivedAttributeTO, "schema"),
+                        derivedSchemaNames);
+
+                derivedSchemaChoice.setOutputMarkupId(true);
+
+                if (derivedAttributeTO.getSchema() != null) {
+                    item.add(derivedSchemaChoice.setEnabled(Boolean.FALSE));
+                } else {
+                    item.add(derivedSchemaChoice.setRequired(true));
+                }
+
+                final List<String> values = derivedAttributeTO.getValues();
+
+                if (values == null || values.isEmpty()) {
+                    item.add(new TextField(
+                            "derivedAttributeValue",
+                            new Model(null)).setVisible(Boolean.FALSE));
+                } else {
+                    item.add(new TextField(
+                            "derivedAttributeValue",
+                            new Model(values.get(0))).setEnabled(
+                            Boolean.FALSE));
+                }
+            }
+        };
+        derivedAttributes.setReuseItems(true);
+        derivedAttributesContainer.add(derivedAttributes);
+    }
+
+    private void setVirtualAttributeContainer(
+            final Form userForm,
+            final UserTO userTO,
+            final IModel<List<String>> virtualSchemaNames) {
+        final WebMarkupContainer virtualAttributesContainer =
+                new WebMarkupContainer("virtualAttributesContainer");
+        virtualAttributesContainer.setOutputMarkupId(true);
+        userForm.add(virtualAttributesContainer);
+
+        AjaxButton addVirtualAttributeBtn = new IndicatingAjaxButton(
+                "addVirtualAttributeBtn",
+                new Model(getString("addVirtualAttributeBtn"))) {
+
+            @Override
+            protected void onSubmit(final AjaxRequestTarget target,
+                    final Form form) {
+
+                userTO.getVirtualAttributes().add(new AttributeTO());
+                target.addComponent(virtualAttributesContainer);
+            }
+        };
+        addVirtualAttributeBtn.setDefaultFormProcessing(false);
+        userForm.add(addVirtualAttributeBtn);
+
+        ListView<AttributeTO> virtulaAttributes = new ListView<AttributeTO>(
+                "virtualAttributes", userTO.getVirtualAttributes()) {
+
+            @Override
+            protected void populateItem(final ListItem<AttributeTO> item) {
+                final AttributeTO virtualAttributeTO = item.getModelObject();
+
+                item.add(new AjaxDecoratedCheckbox("toRemove",
+                        new Model(Boolean.FALSE)) {
+
+                    @Override
+                    protected void onUpdate(final AjaxRequestTarget target) {
+                        userTO.getVirtualAttributes().remove(virtualAttributeTO);
+                        item.getParent().removeAll();
+                        target.addComponent(virtualAttributesContainer);
+                    }
+
+                    @Override
+                    protected IAjaxCallDecorator getAjaxCallDecorator() {
+                        return new AjaxPreprocessingCallDecorator(
+                                super.getAjaxCallDecorator()) {
+
+                            @Override
+                            public CharSequence preDecorateScript(
+                                    final CharSequence script) {
+
+                                return "if (confirm('"
+                                        + getString("confirmDelete") + "'))"
+                                        + "{" + script + "} "
+                                        + "else {this.checked = false;}";
+                            }
+                        };
+                    }
+                });
+
+                final DropDownChoice<String> virtualSchemaChoice =
+                        new DropDownChoice<String>(
+                        "schema",
+                        new PropertyModel<String>(virtualAttributeTO, "schema"),
+                        virtualSchemaNames);
+
+                virtualSchemaChoice.setOutputMarkupId(true);
+
+                if (virtualAttributeTO.getSchema() != null) {
+                    item.add(virtualSchemaChoice.setEnabled(Boolean.FALSE));
+                } else {
+                    item.add(virtualSchemaChoice.setRequired(true));
+                }
+
+                final List<String> values = virtualAttributeTO.getValues();
+
+                if (values == null || values.isEmpty()) {
+                    item.add(new TextField(
+                            "virtualAttributeValue",
+                            new Model(null)).setVisible(Boolean.FALSE));
+                } else {
+                    item.add(new TextField(
+                            "virtualAttributeValue",
+                            new Model(values.get(0))).setEnabled(
+                            Boolean.FALSE));
+                }
+            }
+        };
+        virtulaAttributes.setReuseItems(true);
+        virtualAttributesContainer.add(virtulaAttributes);
     }
 }

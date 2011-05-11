@@ -25,14 +25,14 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.syncope.client.AbstractBaseBean;
-import org.syncope.client.to.DerivedSchemaTO;
+import org.syncope.client.to.VirtualSchemaTO;
 
 /**
  * Modal window with Schema form.
  */
-public class DerivedSchemaModalPage extends AbstractSchemaModalPage {
+public class VirtualSchemaModalPage extends AbstractSchemaModalPage {
 
-    public DerivedSchemaModalPage(String kind) {
+    public VirtualSchemaModalPage(String kind) {
         super(kind);
     }
 
@@ -44,7 +44,7 @@ public class DerivedSchemaModalPage extends AbstractSchemaModalPage {
             final boolean createFlag) {
 
         if (schema == null) {
-            schema = new DerivedSchemaTO();
+            schema = new VirtualSchemaTO();
         }
 
         final Form schemaForm = new Form("SchemaForm");
@@ -54,9 +54,6 @@ public class DerivedSchemaModalPage extends AbstractSchemaModalPage {
         final TextField name = new TextField("name");
         name.setRequired(true);
 
-        final TextField expression = new TextField("expression");
-        expression.setRequired(true);
-
         name.setEnabled(createFlag);
 
         final IndicatingAjaxButton submit = new IndicatingAjaxButton(
@@ -64,12 +61,13 @@ public class DerivedSchemaModalPage extends AbstractSchemaModalPage {
 
             @Override
             protected void onSubmit(AjaxRequestTarget target, Form form) {
+
                 if (createFlag) {
-                    restClient.createDerivedSchema(kind,
-                            (DerivedSchemaTO) form.getDefaultModelObject());
+                    restClient.createVirtualSchema(kind,
+                            (VirtualSchemaTO) form.getDefaultModelObject());
                 } else {
-                    restClient.updateDerivedSchema(kind,
-                            (DerivedSchemaTO) form.getDefaultModelObject());
+                    restClient.updateVirtualSchema(kind,
+                            (VirtualSchemaTO) form.getDefaultModelObject());
                 }
 
                 Schema callerPage = (Schema) basePage;
@@ -100,7 +98,6 @@ public class DerivedSchemaModalPage extends AbstractSchemaModalPage {
                 submit, ENABLE, allowedRoles);
 
         schemaForm.add(name);
-        schemaForm.add(expression);
 
         schemaForm.add(submit);
 

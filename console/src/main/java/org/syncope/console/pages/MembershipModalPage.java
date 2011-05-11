@@ -284,6 +284,71 @@ public class MembershipModalPage extends BaseModalPage {
         //--------------------------------
         // Derived attributes container
         //--------------------------------
+
+        //--------------------------------
+
+        add(form);
+    }
+
+    public List<AttributeTO> getMembershipAttributes() {
+
+        List<AttributeTO> attributes = new ArrayList<AttributeTO>();
+
+        AttributeTO attribute;
+
+        for (SchemaWrapper schemaWrapper : schemaWrappers) {
+
+            attribute = new AttributeTO();
+            attribute.setSchema(schemaWrapper.getSchemaTO().getName());
+            attribute.setValues(new ArrayList<String>());
+
+            for (String value : schemaWrapper.getValues()) {
+                attribute.getValues().add(value);
+            }
+
+            attributes.add(attribute);
+        }
+
+        return attributes;
+    }
+
+    public void setupSchemaWrappers(boolean create, MembershipTO membershipTO) {
+        schemaWrappers = new ArrayList<SchemaWrapper>();
+        SchemaWrapper schemaWrapper;
+
+        List<SchemaTO> schemas = schemaRestClient.getSchemas("membership");
+
+        boolean found = false;
+
+        if (create) {
+            for (SchemaTO schema : schemas) {
+                schemaWrapper = new SchemaWrapper(schema);
+                schemaWrappers.add(schemaWrapper);
+            }
+        } else {
+            for (SchemaTO schema : schemas) {
+                for (AttributeTO attribute : membershipTO.getAttributes()) {
+                    if (schema.getName().equals(attribute.getSchema())) {
+                        schemaWrapper = new SchemaWrapper(schema);
+                        schemaWrapper.setValues(attribute.getValues());
+                        schemaWrappers.add(schemaWrapper);
+                        found = true;
+                    }
+                }
+                if (!found) {
+                    schemaWrapper = new SchemaWrapper(schema);
+                    schemaWrappers.add(schemaWrapper);
+                } else {
+                    found = false;
+                }
+            }
+        }
+    }
+
+    private void setDerivedAttributeContainer(
+            final Form form,
+            final MembershipTO membershipTO,
+            final IModel<List<String>> derivedSchemaNames) {
         final WebMarkupContainer derivedAttributesContainer =
                 new WebMarkupContainer("derivedAttributesContainer");
         derivedAttributesContainer.setOutputMarkupId(true);
@@ -370,63 +435,97 @@ public class MembershipModalPage extends BaseModalPage {
         };
         derivedAttributes.setReuseItems(true);
         derivedAttributesContainer.add(derivedAttributes);
-        //--------------------------------
-
-        add(form);
     }
 
-    public List<AttributeTO> getMembershipAttributes() {
+    private void setVirtualAttributeContainer(
+            final Form form,
+            final MembershipTO membershipTO,
+            final IModel<List<String>> virtualSchemaNames) {
+        final WebMarkupContainer virtualAttributesContainer =
+                new WebMarkupContainer("virtualAttributesContainer");
+        virtualAttributesContainer.setOutputMarkupId(true);
+        form.add(virtualAttributesContainer);
 
-        List<AttributeTO> attributes = new ArrayList<AttributeTO>();
+        AjaxButton addVirtualAttributeBtn = new IndicatingAjaxButton(
+                "addVirtualAttributeBtn",
+                new Model(getString("addVirtualAttributeBtn"))) {
 
-        AttributeTO attribute;
+            @Override
+            protected void onSubmit(final AjaxRequestTarget target,
+                    final Form form) {
 
-        for (SchemaWrapper schemaWrapper : schemaWrappers) {
-
-            attribute = new AttributeTO();
-            attribute.setSchema(schemaWrapper.getSchemaTO().getName());
-            attribute.setValues(new ArrayList<String>());
-
-            for (String value : schemaWrapper.getValues()) {
-                attribute.getValues().add(value);
+                membershipTO.getVirtualAttributes().add(new AttributeTO());
+                target.addComponent(virtualAttributesContainer);
             }
+        };
+        addVirtualAttributeBtn.setDefaultFormProcessing(false);
+        form.add(addVirtualAttributeBtn);
 
-            attributes.add(attribute);
-        }
+        ListView<AttributeTO> virtualAttributes = new ListView<AttributeTO>(
+                "virtualAttributes", membershipTO.getVirtualAttributes()) {
 
-        return attributes;
-    }
+            @Override
+            protected void populateItem(final ListItem<AttributeTO> item) {
+                final AttributeTO virtualAttributeTO = item.getModelObject();
 
-    public void setupSchemaWrappers(boolean create, MembershipTO membershipTO) {
-        schemaWrappers = new ArrayList<SchemaWrapper>();
-        SchemaWrapper schemaWrapper;
+                item.add(new AjaxDecoratedCheckbox("toRemove",
+                        new Model(Boolean.FALSE)) {
 
-        List<SchemaTO> schemas = schemaRestClient.getSchemas("membership");
-
-        boolean found = false;
-
-        if (create) {
-            for (SchemaTO schema : schemas) {
-                schemaWrapper = new SchemaWrapper(schema);
-                schemaWrappers.add(schemaWrapper);
-            }
-        } else {
-            for (SchemaTO schema : schemas) {
-                for (AttributeTO attribute : membershipTO.getAttributes()) {
-                    if (schema.getName().equals(attribute.getSchema())) {
-                        schemaWrapper = new SchemaWrapper(schema);
-                        schemaWrapper.setValues(attribute.getValues());
-                        schemaWrappers.add(schemaWrapper);
-                        found = true;
+                    @Override
+                    protected void onUpdate(final AjaxRequestTarget target) {
+                        membershipTO.getVirtualAttributes().remove(
+                                virtualAttributeTO);
+                        item.getParent().removeAll();
+                        target.addComponent(virtualAttributesContainer);
                     }
-                }
-                if (!found) {
-                    schemaWrapper = new SchemaWrapper(schema);
-                    schemaWrappers.add(schemaWrapper);
+
+                    @Override
+                    protected IAjaxCallDecorator getAjaxCallDecorator() {
+                        return new AjaxPreprocessingCallDecorator(
+                                super.getAjaxCallDecorator()) {
+
+                            @Override
+                            public CharSequence preDecorateScript(
+                                    final CharSequence script) {
+
+                                return "if (confirm('"
+                                        + getString("confirmDelete") + "'))"
+                                        + "{" + script + "} "
+                                        + "else {this.checked = false;}";
+                            }
+                        };
+                    }
+                });
+
+                final DropDownChoice<String> virtualSchemaChoice =
+                        new DropDownChoice<String>(
+                        "schema",
+                        new PropertyModel<String>(virtualAttributeTO, "schema"),
+                        virtualSchemaNames);
+
+                virtualSchemaChoice.setOutputMarkupId(true);
+
+                if (virtualAttributeTO.getSchema() != null) {
+                    item.add(virtualSchemaChoice.setEnabled(Boolean.FALSE));
                 } else {
-                    found = false;
+                    item.add(virtualSchemaChoice.setRequired(true));
+                }
+
+                final List<String> values = virtualAttributeTO.getValues();
+
+                if (values == null || values.isEmpty()) {
+                    item.add(new TextField(
+                            "virtualAttributeValue",
+                            new Model(null)).setVisible(Boolean.FALSE));
+                } else {
+                    item.add(new TextField(
+                            "virtualAttributeValue",
+                            new Model(values.get(0))).setEnabled(
+                            Boolean.FALSE));
                 }
             }
-        }
+        };
+        virtualAttributes.setReuseItems(true);
+        virtualAttributesContainer.add(virtualAttributes);
     }
 }
