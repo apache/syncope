@@ -829,16 +829,21 @@ public class PropagationManager {
                 connector = ConnInstanceLoader.getConnector(
                         connectorInstance.getId().toString());
 
-                attributes = connector.getObjectAttributes(
-                        ObjectClass.ACCOUNT,
-                        new Uid(accountId),
-                        null,
-                        attributeNames);
+                try {
+                    attributes = connector.getObjectAttributes(
+                            ObjectClass.ACCOUNT,
+                            new Uid(accountId),
+                            null,
+                            attributeNames);
 
-                LOG.debug("Retrieved {}", attributes);
+                    LOG.debug("Retrieved {}", attributes);
 
-                for (Attribute attribute : attributes) {
-                    values.addAll(attribute.getValue());
+                    for (Attribute attribute : attributes) {
+                        values.addAll(attribute.getValue());
+                    }
+                } catch (Exception e) {
+                    LOG.warn("Error connecting to {}", resource.getName(), e);
+                    // ignore exception and go ahead
                 }
             }
         }

@@ -781,7 +781,7 @@ public abstract class AbstractAttributableDataBinder {
             attributeTO.setSchema(
                     virtualAttribute.getVirtualSchema().getName());
             attributeTO.setValues(virtualAttribute.getValues());
-            attributeTO.setReadonly(true);
+            attributeTO.setReadonly(false);
 
             abstractAttributableTO.addVirtualAttribute(attributeTO);
         }

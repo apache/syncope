@@ -42,9 +42,9 @@ public class Roles extends BasePage {
 
     private ModalWindow createRoleWin = null;
 
-    private static final int WIN_HEIGHT = 450;
+    private static final int WIN_HEIGHT = 500;
 
-    private static final int WIN_WIDTH = 600;
+    private static final int WIN_WIDTH = 700;
 
     private WebMarkupContainer container;
 

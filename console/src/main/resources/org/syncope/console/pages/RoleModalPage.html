@@ -75,87 +75,99 @@
                 </div>
 
                 <div id="tabs-2">
-                    <table id="derivedAttributes"
-                           class="ui-widget ui-widget-content ui-corner-all"
-                           style="font-size: 1em;margin-top:2px;"
-                           width="100%" cellpadding="2px" cellspacing="1px">
-                        <thead>
-                            <tr class="ui-widget-header">
-                                <th><wicket:message key="derivedAttributeToBeRemoved"/></th>
-                        <th><wicket:message key="derivedAttributeName"/></th>
-                        <th><wicket:message key="derivedAttributeValue"/></th>
-                        </tr>
-                        </thead>
-
-                        <tfoot>
-                            <tr>
-                                <td>
-                                    <input type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
-                                           wicket:id="addDerivedAttributeBtn" />
-                                </td>
+                    <form wicket:id="derAttributesForm">
+                        <table class="ui-widget ui-widget-content ui-corner-all"
+                               style="font-size: 1em;margin-top:2px;"
+                               width="100%" cellpadding="2px" cellspacing="1px">
+                            <thead>
+                                <tr class="ui-widget-header">
+                                    <th><wicket:message key="derivedAttributeToBeRemoved"/></th>
+                            <th><wicket:message key="derivedAttributeName"/></th>
+                            <th><wicket:message key="derivedAttributeValue"/></th>
                             </tr>
-                        </tfoot>
+                            </thead>
 
-                        <tbody wicket:id="derivedAttributesContainer">
-                            <tr wicket:id="derivedAttributes">
-                                <td align="center" valign="middle">
-                                    <input type="checkbox" class="text ui-widget-content ui-corner-all"  wicket:id="toRemove"/>
-                                </td>
+                            <tfoot>
+                                <tr>
+                                    <td>
+                                        <input type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+                                               wicket:id="addAttributeBtn" />
+                                    </td>
+                                </tr>
+                            </tfoot>
 
-                                <td>
-                                    <select class="text ui-widget-content ui-corner-all"
-                                            style="width:100%" wicket:id="schema"/>
-                                </td>
+                            <tbody wicket:id="derAttrContainer">
+                                <tr wicket:id="attributes">
+                                    <td align="center" valign="middle">
+                                        <input type="checkbox" class="text ui-widget-content ui-corner-all"  wicket:id="toRemove"/>
+                                    </td>
 
-                                <td align="center" valign="middle">
-                                    <input type="text" class="text ui-widget-content ui-corner-all"  wicket:id="derivedAttributeValue"/>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                                    <td>
+                                        <select class="text ui-widget-content ui-corner-all"
+                                                style="width:100%" wicket:id="schema"/>
+                                    </td>
 
+                                    <td align="center" valign="middle">
+                                        <input type="text"
+                                               style="width:100%" wicket:id="value"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </form>
                 </div>
 
                 <div id="tabs-3">
-                    <table id="virtualAttributes"
-                           class="ui-widget ui-widget-content ui-corner-all"
-                           style="font-size: 1em;margin-top:2px;"
-                           width="100%" cellpadding="2px" cellspacing="1px">
-                        <thead>
-                            <tr class="ui-widget-header">
-                                <th><wicket:message key="virtualAttributeToBeRemoved"/></th>
-                        <th><wicket:message key="virtualAttributeName"/></th>
-                        <th><wicket:message key="virtualAttributeValue"/></th>
-                        </tr>
-                        </thead>
-
-                        <tfoot>
-                            <tr>
-                                <td>
-                                    <input type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
-                                           wicket:id="addVirtualAttributeBtn" />
-                                </td>
+                    <form wicket:id="virAttributesForm">
+                        <table class="ui-widget ui-widget-content ui-corner-all"
+                               style="font-size: 1em;margin-top:2px;"
+                               width="100%" cellpadding="2px" cellspacing="1px">
+                            <thead>
+                                <tr class="ui-widget-header">
+                                    <th><wicket:message key="virtualAttributeToBeRemoved"/></th>
+                            <th><wicket:message key="virtualAttributeName"/></th>
+                            <th><wicket:message key="virtualAttributeValue"/></th>
                             </tr>
-                        </tfoot>
+                            </thead>
 
-                        <tbody wicket:id="virtualAttributesContainer">
-                            <tr wicket:id="virtualAttributes">
-                                <td align="center" valign="middle">
-                                    <input type="checkbox" class="text ui-widget-content ui-corner-all"  wicket:id="toRemove"/>
-                                </td>
+                            <tfoot>
+                                <tr>
+                                    <td>
+                                        <input type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+                                               wicket:id="addAttributeBtn" />
+                                    </td>
+                                </tr>
+                            </tfoot>
 
-                                <td>
-                                    <select class="text ui-widget-content ui-corner-all"
-                                            style="width:100%" wicket:id="schema"/>
-                                </td>
+                            <tbody wicket:id="virAttrContainer">
+                                <tr wicket:id="attributes">
+                                    <td align="center" valign="top">
+                                        <input type="checkbox" class="text ui-widget-content ui-corner-all"  wicket:id="toRemove"/>
+                                    </td>
 
-                                <td align="center" valign="middle">
-                                    <input type="text" class="text ui-widget-content ui-corner-all"  wicket:id="virtualAttributeValue"/>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                                    <td align="center" valign="top">
+                                        <select class="text ui-widget-content ui-corner-all"
+                                                style="width:100%" wicket:id="schema"/>
+                                    </td>
 
+                                    <td align="center " valign="top">
+                                        <span wicket:id="values" style="width:100%">
+
+                                            <input type="text" style="width:80%" wicket:id="value"/>
+
+                                            <input type="button" wicket:id="drop"/>
+
+                                            <input align="right" type="button" wicket:id="add"/>
+
+                                            <br />
+                                        </span>
+
+                                    </td>
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </form>
                 </div>
 
                 <div id="tabs-4">

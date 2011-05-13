@@ -85,6 +85,8 @@ public class Users extends BasePage {
 
     private final static String DERIVED_ATTRIBUTE_PREFIX = "[D] ";
 
+    private final static String VIRTUAL_ATTRIBUTE_PREFIX = "[V] ";
+
     @SpringBean
     private UserRestClient userRestClient;
 
@@ -135,6 +137,15 @@ public class Users extends BasePage {
                     if (derivedSchemas != null) {
                         for (String schema : derivedSchemas) {
                             schemas.add(DERIVED_ATTRIBUTE_PREFIX + schema);
+                        }
+                    }
+
+                    List<String> virtualSchemas =
+                            schemaRestClient.getVirtualSchemaNames("user");
+
+                    if (virtualSchemas != null) {
+                        for (String schema : virtualSchemas) {
+                            schemas.add(VIRTUAL_ATTRIBUTE_PREFIX + schema);
                         }
                     }
 
@@ -495,7 +506,7 @@ public class Users extends BasePage {
         columns.add(new PropertyColumn(
                 new Model(getString("status")), "status", "status"));
         columns.add(new TokenColumn(new Model(getString("token")), "token"));
-        
+
         for (String schemaName : prefMan.getList(getWebRequestCycle().
                 getWebRequest(), Constants.PREF_USERS_ATTRIBUTES_VIEW)) {
 
@@ -795,6 +806,9 @@ public class Users extends BasePage {
                     schemaName.startsWith(DERIVED_ATTRIBUTE_PREFIX)
                     ? schemaName.substring(
                     DERIVED_ATTRIBUTE_PREFIX.length(), schemaName.length())
+                    : schemaName.startsWith(VIRTUAL_ATTRIBUTE_PREFIX)
+                    ? schemaName.substring(
+                    VIRTUAL_ATTRIBUTE_PREFIX.length(), schemaName.length())
                     : schemaName);
 
             this.schemaName = schemaName;
@@ -813,6 +827,10 @@ public class Users extends BasePage {
                     ? rowModel.getObject().getDerivedAttributeMap().get(
                     schemaName.substring(
                     DERIVED_ATTRIBUTE_PREFIX.length(), schemaName.length()))
+                    : schemaName.startsWith(VIRTUAL_ATTRIBUTE_PREFIX)
+                    ? rowModel.getObject().getVirtualAttributeMap().get(
+                    schemaName.substring(
+                    VIRTUAL_ATTRIBUTE_PREFIX.length(), schemaName.length()))
                     : rowModel.getObject().getAttributeMap().get(schemaName);
 
             if (values == null || values.isEmpty()) {

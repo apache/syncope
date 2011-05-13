@@ -32,8 +32,6 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.IAjaxCallDecorator;
-import org.apache.wicket.ajax.calldecorator.AjaxPreprocessingCallDecorator;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -47,10 +45,8 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebMarkupContainerWithAssociatedMarkup;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
-import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.PasswordTextField;
-import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -83,9 +79,10 @@ import org.syncope.console.rest.SchemaRestClient;
 import org.syncope.console.rest.UserRestClient;
 import org.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
 import org.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
-import org.syncope.console.wicket.markup.html.form.AjaxDecoratedCheckbox;
 import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.syncope.console.wicket.markup.html.form.DateFieldPanel;
+import org.syncope.console.wicket.markup.html.form.DerivedAttributesForm;
+import org.syncope.console.wicket.markup.html.form.VirtualAttributesForm;
 import org.syncope.types.SchemaType;
 
 /**
@@ -141,9 +138,9 @@ public class UserModalPage extends BaseModalPage {
 
         add(new Label("id", String.valueOf(userTO.getId())));
 
-        final Form userForm = new Form("UserForm");
+        final Form form = new Form("UserForm");
 
-        userForm.setModel(new CompoundPropertyModel(userTO));
+        form.setModel(new CompoundPropertyModel(userTO));
 
         setupSchemaWrappers(createFlag, userTO);
         setupMemberships(createFlag, userTO);
@@ -163,7 +160,7 @@ public class UserModalPage extends BaseModalPage {
 
                     @Override
                     protected List<String> load() {
-                        return schemaRestClient.getDerivedSchemaNames("user");
+                        return schemaRestClient.getVirtualSchemaNames("user");
                     }
                 };
 
@@ -180,14 +177,16 @@ public class UserModalPage extends BaseModalPage {
                         item.add(new Label("name",
                                 schemaWrapper.getSchemaTO().getName()));
 
-                        item.add(new ListView("fields", schemaWrapper.getValues()) {
+                        item.add(new ListView("fields",
+                                schemaWrapper.getValues()) {
 
                             Panel panel;
 
                             @Override
                             protected void populateItem(final ListItem item) {
 
-                                String mandatoryCondition = schemaTO.getMandatoryCondition();
+                                String mandatoryCondition =
+                                        schemaTO.getMandatoryCondition();
                                 boolean required = false;
 
                                 if (mandatoryCondition.equalsIgnoreCase("true")) {
@@ -259,7 +258,7 @@ public class UserModalPage extends BaseModalPage {
                                         }
                                     }, schemaTO.getConversionPattern(),
                                             required,
-                                            schemaTO.isReadonly(), userForm);
+                                            schemaTO.isReadonly(), form);
                                 } else {
                                     panel = new AjaxTextFieldPanel("panel",
                                             schemaTO.getName(), new Model() {
@@ -331,18 +330,22 @@ public class UserModalPage extends BaseModalPage {
                     }
                 };
 
-        userForm.add(userAttributesView);
+        form.add(userAttributesView);
 
         //--------------------------------
         // Derived attributes container
         //--------------------------------
-        setDerivedAttributeContainer(userForm, userTO, derivedSchemaNames);
+        form.add(
+                (new DerivedAttributesForm("derAttributesForm")).build(
+                this, userTO, derivedSchemaNames));
         //--------------------------------
 
         //--------------------------------
         // Virtual attributes container
         //--------------------------------
-        setVirtualAttributeContainer(userForm, userTO, derivedSchemaNames);
+        form.add(
+                (new VirtualAttributesForm("virAttributesForm")).build(
+                this, userTO, virtualSchemaNames));
         //--------------------------------
 
         ListModel<ResourceTO> selectedResources = new ListModel<ResourceTO>();
@@ -355,7 +358,7 @@ public class UserModalPage extends BaseModalPage {
         final Palette resourcesPalette = new Palette("resourcesPalette",
                 selectedResources, availableResources, paletteRenderer,
                 8, false);
-        userForm.add(resourcesPalette);
+        form.add(resourcesPalette);
 
         container = new WebMarkupContainer("container");
         container.add(userAttributesView);
@@ -383,7 +386,7 @@ public class UserModalPage extends BaseModalPage {
 
         container.setOutputMarkupId(true);
 
-        userForm.add(container);
+        form.add(container);
 
         submit = new IndicatingAjaxButton("submit", new Model(
                 getString("submit"))) {
@@ -438,7 +441,7 @@ public class UserModalPage extends BaseModalPage {
         MetaDataRoleAuthorizationStrategy.authorize(
                 submit, RENDER, allowedRoles);
 
-        userForm.add(submit);
+        form.add(submit);
 
         // Roles Tab
         final List<RoleTO> roles = roleRestClient.getAllRoles();
@@ -476,7 +479,7 @@ public class UserModalPage extends BaseModalPage {
         tree.getTreeState().expandAll();
         tree.updateTree();
 
-        userForm.add(tree);
+        form.add(tree);
 
 
         ListView membershipsView = new ListView("memberships", membershipTOs) {
@@ -536,8 +539,8 @@ public class UserModalPage extends BaseModalPage {
 
         setWindowClosedCallback(membershipWin, membershipsContainer);
 
-        userForm.add(membershipsContainer);
-        add(userForm);
+        form.add(membershipsContainer);
+        add(form);
     }
 
     private String getRoleName(long roleId, List<RoleTO> roles) {
@@ -795,12 +798,29 @@ public class UserModalPage extends BaseModalPage {
                     newDerivedAttribute.getSchema());
         }
 
-        //3.Update user's schema attributes
+        //3.Update user's schema virtual attributes
+        final List<AttributeTO> newVirtualAttributes =
+                userTO.getDerivedAttributes();
+
+        final List<AttributeTO> oldVirtualAttributes =
+                oldUser.getDerivedAttributes();
+
+        for (AttributeTO oldVirtualAttribute : oldVirtualAttributes) {
+            userMod.addVirtualAttributeToBeRemoved(
+                    oldVirtualAttribute.getSchema());
+        }
+
+        for (AttributeTO newVirtualAttribute : newVirtualAttributes) {
+            userMod.addVirtualAttributeToBeAdded(
+                    newVirtualAttribute.getSchema());
+        }
+
+        //4.Update user's schema attributes
         for (AttributeTO attributeTO : userTO.getAttributes()) {
             searchAndUpdateAttribute(attributeTO);
         }
 
-        //4.Update user's resources
+        //5.Update user's resources
         for (String resource : userTO.getResources()) {
             searchAndAddResource(resource);
         }
@@ -810,7 +830,7 @@ public class UserModalPage extends BaseModalPage {
             searchAndDropResource(resource, userTO);
         }
 
-        //5.Update user's memberships
+        //6.Update user's memberships
         for (MembershipTO membership : userTO.getMemberships()) {
             searchAndUpdateMembership(membership);
         }
@@ -1035,187 +1055,5 @@ public class UserModalPage extends BaseModalPage {
 
             userMod.addMembershipToBeRemoved(oldMembership.getId());
         }
-    }
-
-    private void setDerivedAttributeContainer(
-            final Form userForm,
-            final UserTO userTO,
-            final IModel<List<String>> derivedSchemaNames) {
-        final WebMarkupContainer derivedAttributesContainer =
-                new WebMarkupContainer("derivedAttributesContainer");
-        derivedAttributesContainer.setOutputMarkupId(true);
-        userForm.add(derivedAttributesContainer);
-
-        AjaxButton addDerivedAttributeBtn = new IndicatingAjaxButton(
-                "addDerivedAttributeBtn",
-                new Model(getString("addDerivedAttributeBtn"))) {
-
-            @Override
-            protected void onSubmit(final AjaxRequestTarget target,
-                    final Form form) {
-
-                userTO.getDerivedAttributes().add(new AttributeTO());
-                target.addComponent(derivedAttributesContainer);
-            }
-        };
-        addDerivedAttributeBtn.setDefaultFormProcessing(false);
-        userForm.add(addDerivedAttributeBtn);
-
-        ListView<AttributeTO> derivedAttributes = new ListView<AttributeTO>(
-                "derivedAttributes", userTO.getDerivedAttributes()) {
-
-            @Override
-            protected void populateItem(final ListItem<AttributeTO> item) {
-                final AttributeTO derivedAttributeTO = item.getModelObject();
-
-                item.add(new AjaxDecoratedCheckbox("toRemove",
-                        new Model(Boolean.FALSE)) {
-
-                    @Override
-                    protected void onUpdate(final AjaxRequestTarget target) {
-                        userTO.getDerivedAttributes().remove(derivedAttributeTO);
-                        item.getParent().removeAll();
-                        target.addComponent(derivedAttributesContainer);
-                    }
-
-                    @Override
-                    protected IAjaxCallDecorator getAjaxCallDecorator() {
-                        return new AjaxPreprocessingCallDecorator(
-                                super.getAjaxCallDecorator()) {
-
-                            @Override
-                            public CharSequence preDecorateScript(
-                                    final CharSequence script) {
-
-                                return "if (confirm('"
-                                        + getString("confirmDelete") + "'))"
-                                        + "{" + script + "} "
-                                        + "else {this.checked = false;}";
-                            }
-                        };
-                    }
-                });
-
-                final DropDownChoice<String> derivedSchemaChoice =
-                        new DropDownChoice<String>(
-                        "schema",
-                        new PropertyModel<String>(derivedAttributeTO, "schema"),
-                        derivedSchemaNames);
-
-                derivedSchemaChoice.setOutputMarkupId(true);
-
-                if (derivedAttributeTO.getSchema() != null) {
-                    item.add(derivedSchemaChoice.setEnabled(Boolean.FALSE));
-                } else {
-                    item.add(derivedSchemaChoice.setRequired(true));
-                }
-
-                final List<String> values = derivedAttributeTO.getValues();
-
-                if (values == null || values.isEmpty()) {
-                    item.add(new TextField(
-                            "derivedAttributeValue",
-                            new Model(null)).setVisible(Boolean.FALSE));
-                } else {
-                    item.add(new TextField(
-                            "derivedAttributeValue",
-                            new Model(values.get(0))).setEnabled(
-                            Boolean.FALSE));
-                }
-            }
-        };
-        derivedAttributes.setReuseItems(true);
-        derivedAttributesContainer.add(derivedAttributes);
-    }
-
-    private void setVirtualAttributeContainer(
-            final Form userForm,
-            final UserTO userTO,
-            final IModel<List<String>> virtualSchemaNames) {
-        final WebMarkupContainer virtualAttributesContainer =
-                new WebMarkupContainer("virtualAttributesContainer");
-        virtualAttributesContainer.setOutputMarkupId(true);
-        userForm.add(virtualAttributesContainer);
-
-        AjaxButton addVirtualAttributeBtn = new IndicatingAjaxButton(
-                "addVirtualAttributeBtn",
-                new Model(getString("addVirtualAttributeBtn"))) {
-
-            @Override
-            protected void onSubmit(final AjaxRequestTarget target,
-                    final Form form) {
-
-                userTO.getVirtualAttributes().add(new AttributeTO());
-                target.addComponent(virtualAttributesContainer);
-            }
-        };
-        addVirtualAttributeBtn.setDefaultFormProcessing(false);
-        userForm.add(addVirtualAttributeBtn);
-
-        ListView<AttributeTO> virtulaAttributes = new ListView<AttributeTO>(
-                "virtualAttributes", userTO.getVirtualAttributes()) {
-
-            @Override
-            protected void populateItem(final ListItem<AttributeTO> item) {
-                final AttributeTO virtualAttributeTO = item.getModelObject();
-
-                item.add(new AjaxDecoratedCheckbox("toRemove",
-                        new Model(Boolean.FALSE)) {
-
-                    @Override
-                    protected void onUpdate(final AjaxRequestTarget target) {
-                        userTO.getVirtualAttributes().remove(virtualAttributeTO);
-                        item.getParent().removeAll();
-                        target.addComponent(virtualAttributesContainer);
-                    }
-
-                    @Override
-                    protected IAjaxCallDecorator getAjaxCallDecorator() {
-                        return new AjaxPreprocessingCallDecorator(
-                                super.getAjaxCallDecorator()) {
-
-                            @Override
-                            public CharSequence preDecorateScript(
-                                    final CharSequence script) {
-
-                                return "if (confirm('"
-                                        + getString("confirmDelete") + "'))"
-                                        + "{" + script + "} "
-                                        + "else {this.checked = false;}";
-                            }
-                        };
-                    }
-                });
-
-                final DropDownChoice<String> virtualSchemaChoice =
-                        new DropDownChoice<String>(
-                        "schema",
-                        new PropertyModel<String>(virtualAttributeTO, "schema"),
-                        virtualSchemaNames);
-
-                virtualSchemaChoice.setOutputMarkupId(true);
-
-                if (virtualAttributeTO.getSchema() != null) {
-                    item.add(virtualSchemaChoice.setEnabled(Boolean.FALSE));
-                } else {
-                    item.add(virtualSchemaChoice.setRequired(true));
-                }
-
-                final List<String> values = virtualAttributeTO.getValues();
-
-                if (values == null || values.isEmpty()) {
-                    item.add(new TextField(
-                            "virtualAttributeValue",
-                            new Model(null)).setVisible(Boolean.FALSE));
-                } else {
-                    item.add(new TextField(
-                            "virtualAttributeValue",
-                            new Model(values.get(0))).setEnabled(
-                            Boolean.FALSE));
-                }
-            }
-        };
-        virtulaAttributes.setReuseItems(true);
-        virtualAttributesContainer.add(virtulaAttributes);
     }
 }

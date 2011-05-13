@@ -53,6 +53,8 @@ import org.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.syncope.console.wicket.markup.html.form.AjaxDecoratedCheckbox;
 import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.syncope.console.wicket.markup.html.form.DateFieldPanel;
+import org.syncope.console.wicket.markup.html.form.DerivedAttributesForm;
+import org.syncope.console.wicket.markup.html.form.VirtualAttributesForm;
 import org.syncope.types.SchemaType;
 
 /**
@@ -84,6 +86,15 @@ public class MembershipModalPage extends BaseModalPage {
                     @Override
                     protected List<String> load() {
                         return schemaRestClient.getDerivedSchemaNames("membership");
+                    }
+                };
+
+        final IModel<List<String>> virtualSchemaNames =
+                new LoadableDetachableModel<List<String>>() {
+
+                    @Override
+                    protected List<String> load() {
+                        return schemaRestClient.getVirtualSchemaNames("membership");
                     }
                 };
 
@@ -284,7 +295,17 @@ public class MembershipModalPage extends BaseModalPage {
         //--------------------------------
         // Derived attributes container
         //--------------------------------
+        form.add(
+                (new DerivedAttributesForm("derAttributesForm")).build(
+                this, membershipTO, derivedSchemaNames));
+        //--------------------------------
 
+        //--------------------------------
+        // Virtual attributes container
+        //--------------------------------
+        form.add(
+                (new VirtualAttributesForm("virAttributesForm")).build(
+                this, membershipTO, virtualSchemaNames));
         //--------------------------------
 
         add(form);

@@ -72,13 +72,19 @@ public class ResourceModalPage extends BaseModalPage {
 
     private List<String> uDerSchemaAttrNames;
 
+    private List<String> uVirSchemaAttrNames;
+
     private List<String> rSchemaAttrNames;
 
     private List<String> rDerSchemaAttrNames;
 
+    private List<String> rVirSchemaAttrNames;
+
     private List<String> mSchemaAttrNames;
 
     private List<String> mDerSchemaAttrNames;
+
+    private List<String> mVirSchemaAttrNames;
 
     private WebMarkupContainer mappingContainer;
 
@@ -91,16 +97,22 @@ public class ResourceModalPage extends BaseModalPage {
                 schemaRestClient.getSchemaNames("user");
         uDerSchemaAttrNames =
                 schemaRestClient.getDerivedSchemaNames("user");
+        uVirSchemaAttrNames =
+                schemaRestClient.getVirtualSchemaNames("user");
 
         rSchemaAttrNames =
                 schemaRestClient.getSchemaNames("role");
         rDerSchemaAttrNames =
                 schemaRestClient.getDerivedSchemaNames("role");
+        rVirSchemaAttrNames =
+                schemaRestClient.getVirtualSchemaNames("role");
 
         mSchemaAttrNames =
                 schemaRestClient.getSchemaNames("membership");
         mDerSchemaAttrNames =
                 schemaRestClient.getDerivedSchemaNames("membership");
+        mVirSchemaAttrNames =
+                schemaRestClient.getVirtualSchemaNames("membership");
 
         final IModel<List<ConnInstanceTO>> connectors =
                 new LoadableDetachableModel<List<ConnInstanceTO>>() {
@@ -263,6 +275,10 @@ public class ResourceModalPage extends BaseModalPage {
                             schemaAttrChoice.setChoices(uDerSchemaAttrNames);
                             break;
 
+                        case UserVirtualSchema:
+                            schemaAttrChoice.setChoices(uVirSchemaAttrNames);
+                            break;
+
                         case RoleSchema:
                             schemaAttrChoice.setChoices(rSchemaAttrNames);
                             break;
@@ -271,12 +287,20 @@ public class ResourceModalPage extends BaseModalPage {
                             schemaAttrChoice.setChoices(rDerSchemaAttrNames);
                             break;
 
+                        case RoleVirtualSchema:
+                            schemaAttrChoice.setChoices(rVirSchemaAttrNames);
+                            break;
+
                         case MembershipSchema:
                             schemaAttrChoice.setChoices(mSchemaAttrNames);
                             break;
 
                         case MembershipDerivedSchema:
                             schemaAttrChoice.setChoices(mDerSchemaAttrNames);
+                            break;
+
+                        case MembershipVirtualSchema:
+                            schemaAttrChoice.setChoices(mVirSchemaAttrNames);
                             break;
 
                         case SyncopeUserId:
@@ -442,6 +466,10 @@ public class ResourceModalPage extends BaseModalPage {
                                             result = uDerSchemaAttrNames;
                                             break;
 
+                                        case UserVirtualSchema:
+                                            result = uVirSchemaAttrNames;
+                                            break;
+
                                         case RoleSchema:
                                             result = rSchemaAttrNames;
                                             break;
@@ -450,12 +478,20 @@ public class ResourceModalPage extends BaseModalPage {
                                             result = rDerSchemaAttrNames;
                                             break;
 
+                                        case RoleVirtualSchema:
+                                            result = rVirSchemaAttrNames;
+                                            break;
+
                                         case MembershipSchema:
                                             result = mSchemaAttrNames;
                                             break;
 
                                         case MembershipDerivedSchema:
                                             result = mDerSchemaAttrNames;
+                                            break;
+
+                                        case MembershipVirtualSchema:
+                                            result = mVirSchemaAttrNames;
                                             break;
 
                                         case SyncopeUserId:

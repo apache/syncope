@@ -87,6 +87,10 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
         return derivedAttributesToBeAdded.add(derivedAttribute);
     }
 
+    public boolean addVirtualAttributeToBeAdded(String virtualAttribute) {
+        return virtualAttributesToBeAdded.add(virtualAttribute);
+    }
+
     public boolean removeDerivedAttributeToBeAdded(String derivedAttribute) {
         return derivedAttributesToBeAdded.remove(derivedAttribute);
     }
@@ -103,6 +107,10 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
 
     public boolean addDerivedAttributeToBeRemoved(String derivedAttribute) {
         return derivedAttributesToBeRemoved.add(derivedAttribute);
+    }
+
+    public boolean addVirtualAttributeToBeRemoved(String virtualAttribute) {
+        return virtualAttributesToBeRemoved.add(virtualAttribute);
     }
 
     public boolean removeDerivedAttributeToBeRemoved(String derivedAttribute) {

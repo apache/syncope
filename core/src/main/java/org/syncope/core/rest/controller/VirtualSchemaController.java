@@ -120,4 +120,28 @@ public class VirtualSchemaController extends AbstractController {
 
         return virtualSchemaDataBinder.getVirtualSchemaTO(virtualSchema);
     }
+
+    @PreAuthorize("hasRole('SCHEMA_UPDATE')")
+    @RequestMapping(method = RequestMethod.POST,
+    value = "/{kind}/update")
+    public VirtualSchemaTO update(
+            @RequestBody final VirtualSchemaTO virtualSchemaTO,
+            @PathVariable("kind") final String kind)
+            throws SyncopeClientCompositeErrorException, NotFoundException {
+
+        Class reference = getAttributableUtil(kind).derivedSchemaClass();
+        AbstractVirSchema virtualSchema =
+                virtualSchemaDAO.find(virtualSchemaTO.getName(), reference);
+        if (virtualSchema == null) {
+            LOG.error("Could not find derived schema '"
+                    + virtualSchemaTO.getName() + "'");
+            throw new NotFoundException(virtualSchemaTO.getName());
+        }
+
+        virtualSchema = virtualSchemaDataBinder.update(virtualSchemaTO,
+                virtualSchema, getAttributableUtil(kind).schemaClass());
+
+        virtualSchema = virtualSchemaDAO.save(virtualSchema);
+        return virtualSchemaDataBinder.getVirtualSchemaTO(virtualSchema);
+    }
 }
