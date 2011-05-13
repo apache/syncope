@@ -257,6 +257,12 @@
                                 </properties>
                             </deployable>
                             <deployable>
+                                <location>${basedir}/../identityconnectors/bundles/staticws/ws-target-resource/target/ws-target-resource-${project.version}.war</location>
+                                <properties>
+                                    <context>wstarget</context>
+                                </properties>
+                            </deployable>
+                            <deployable>
                                 <location>${project.build.directory}/${project.build.finalName}.war</location>
                                 <properties>
                                     <context>syncope-console</context>
