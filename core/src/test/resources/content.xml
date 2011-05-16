@@ -176,6 +176,7 @@
 
     <MVirSchema name="mvirtualdata"/>
     <RVirSchema name="rvirtualdata"/>
+    <RVirAttr id="1000" virtualSchema_name="rvirtualdata" owner_id="4"/>
 
     <ConnInstance id="100" displayName="ConnInstance100"
                        bundleName="org.syncope.identityconnectors.bundles.staticws"

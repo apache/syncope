@@ -37,6 +37,7 @@ import org.apache.wicket.extensions.markup.html.form.palette.Palette;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -302,20 +303,32 @@ public class RoleModalPage extends BaseModalPage {
 
         form.add(roleAttributesView);
 
+        final CheckBox inheritAttributes = new CheckBox("inheritAttributes");
+        inheritAttributes.setOutputMarkupId(true);
+        form.add(inheritAttributes);
+
         //--------------------------------
         // Derived attributes container
         //--------------------------------
-        form.add(
-                (new DerivedAttributesForm("derAttributesForm")).build(
+        form.add((new DerivedAttributesForm("derAttributesForm")).build(
                 this, roleTO, derivedSchemaNames));
+
+        final CheckBox inheritDerivedAttributes =
+                new CheckBox("inheritDerivedAttributes");
+        inheritDerivedAttributes.setOutputMarkupId(true);
+        form.add(inheritDerivedAttributes);
         //--------------------------------
 
         //--------------------------------
         // Virtual attributes container
         //--------------------------------
-        form.add(
-                (new VirtualAttributesForm("virAttributesForm")).build(
+        form.add((new VirtualAttributesForm("virAttributesForm")).build(
                 this, roleTO, virtualSchemaNames));
+
+        final CheckBox inheritVirtualAttributes =
+                new CheckBox("inheritVirtualAttributes");
+        inheritVirtualAttributes.setOutputMarkupId(true);
+        form.add(inheritVirtualAttributes);
         //--------------------------------
 
         ListModel<ResourceTO> selectedResources = new ListModel<ResourceTO>();

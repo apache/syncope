@@ -63,6 +63,13 @@ public class RoleTest extends AbstractTest {
     }
 
     @Test
+    public final void inheritedVirtualAttributes() {
+        SyncopeRole director = roleDAO.find(7L);
+
+        assertEquals(1, director.findInheritedVirtualAttributes().size());
+    }
+
+    @Test
     public final void save() {
         SyncopeRole role = new SyncopeRole();
         role.setName("secondChild");

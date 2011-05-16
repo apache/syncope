@@ -65,13 +65,27 @@
                                 <input type="button" wicket:id="drop"/>
                             </td>
                         </tr>
+
+                        <tr>
+                            <td colspan="3">
+
+                            </td>
+                        </tr>
                         <!-- each time this table is rendered, stripe rows' color -->
                         <script type="text/javascript">
                             $(function() {
                                 $('.stripedTable tr:even').addClass("alt");
                             });
                         </script>
+
                     </table>
+
+                    <div>
+                        &nbsp;
+                    </div>
+
+                    <label for="inheritAttributes"><wicket:message key="inheritAttributes"/></label>
+                    <input type="checkbox" class="checkbox"  wicket:id="inheritAttributes"/>
                 </div>
 
                 <div id="tabs-2">
@@ -115,6 +129,13 @@
                             </tbody>
                         </table>
                     </form>
+
+                    <div>
+                        &nbsp;
+                    </div>
+
+                    <label for="inheritDerivedAttributes"><wicket:message key="inheritDerivedAttributes"/></label>
+                    <input type="checkbox" class="checkbox"  wicket:id="inheritDerivedAttributes"/>
                 </div>
 
                 <div id="tabs-3">
@@ -163,11 +184,17 @@
                                         </span>
 
                                     </td>
-
                                 </tr>
                             </tbody>
                         </table>
                     </form>
+
+                    <div>
+                        &nbsp;
+                    </div>
+
+                    <label for="inheritVirtualAttributes"><wicket:message key="inheritVirtualAttributes"/></label>
+                    <input type="checkbox" class="checkbox"  wicket:id="inheritVirtualAttributes"/>
                 </div>
 
                 <div id="tabs-4">
