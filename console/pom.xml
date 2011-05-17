@@ -30,6 +30,8 @@
 
     <properties>
         <hsqldb.version>2.0.0</hsqldb.version>
+        <connid.soap.version>1.1-SNAPSHOT</connid.soap.version>
+        <connid.db.table.version>1.2-SNAPSHOT</connid.db.table.version>
 
         <logfile>/var/tmp/syncope-console.log</logfile>
         <logfile.test>/var/tmp/syncope-console-test.log</logfile.test>
@@ -43,6 +45,12 @@
 
     <dependencies>
 
+        <dependency>
+            <groupId>org.syncope</groupId>
+            <artifactId>syncope-client</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
@@ -69,17 +77,14 @@
             <groupId>org.apache.wicket</groupId>
             <artifactId>wicket</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.apache.wicket</groupId>
             <artifactId>wicket-extensions</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.apache.wicket</groupId>
             <artifactId>wicket-datetime</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.apache.wicket</groupId>
             <artifactId>wicket-spring</artifactId>
@@ -91,18 +96,11 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
         <dependency>
             <groupId>org.apache.wicket</groupId>
             <artifactId>wicket-auth-roles</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>org.syncope</groupId>
-            <artifactId>syncope-client</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
+        
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
@@ -129,7 +127,7 @@
     </dependencies>
 
     <build>
-        <finalName>${artifactId}</finalName>
+        <finalName>${project.artifactId}</finalName>
 
         <plugins>
 
@@ -141,8 +139,59 @@
                     <attachClasses>true</attachClasses>
                 </configuration>
             </plugin>
+            
+            <!-- For cargo:start
+            <plugin>
+                <groupId>org.onebusaway.plugins</groupId>
+                <artifactId>maven-hsqldb-plugin</artifactId>
+                <inherited>true</inherited>
+                <configuration>
+                    <dbName>testdb</dbName>
+                    <mode>server</mode>
+                    <isTransient>true</isTransient>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>startTestDb</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>run</goal>    
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>sql-maven-plugin</artifactId>
+                <inherited>true</inherited>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.hsqldb</groupId>
+                        <artifactId>hsqldb</artifactId>
+                        <version>${hsqldb.version}</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <driver>org.hsqldb.jdbcDriver</driver>
+                    <url>jdbc:hsqldb:hsql://localhost:9001/testdb</url>
+                    <username>sa</username>
+                    <password></password>
+                    <srcFiles>
+                        <srcFile>${project.build.directory}/test-classes/testdb.sql</srcFile>
+                    </srcFiles>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>loadTestDb</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>execute</goal>    
+                        </goals>
+                    </execution>    
+                </executions>
+            </plugin>
 
-            <!-- Integration test -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
@@ -152,7 +201,7 @@
                         <id>explodeSyncopeWAR</id>
                         <phase>package</phase>
                         <configuration>
-                            <tasks>
+                            <target>
                                 <unzip src="${basedir}/../core/target/syncope.war" dest="${project.build.directory}/syncope-core-test">
                                     <patternset>
                                         <exclude name="**/content.xml" />
@@ -160,7 +209,20 @@
                                         <exclude name="**/persistence.properties" />
                                     </patternset>
                                 </unzip>
-                            </tasks>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>setupTomcat</id>
+                        <phase>package</phase>
+                        <configuration>
+                            <target>
+                                <get src="http://www.apache.org/dist/tomcat/tomcat-7/v7.0.12/bin/apache-tomcat-7.0.12.zip" dest="${java.io.tmpdir}" skipexisting="true" />
+                                <unzip src="${java.io.tmpdir}/apache-tomcat-7.0.12.zip" dest="${java.io.tmpdir}" overwrite="false" />
+                            </target>
                         </configuration>
                         <goals>
                             <goal>run</goal>
@@ -171,47 +233,30 @@
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <inherited>true</inherited>
-                <configuration>
-                    <redirectTestOutputToFile>true</redirectTestOutputToFile>
-                    <encoding>utf-8</encoding>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>verify</id>
-                        <goals>
-                            <goal>verify</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
+                <artifactId>maven-dependency-plugin</artifactId>
                 <inherited>true</inherited>
                 <executions>
                     <execution>
                         <id>set-bundles</id>
-                        <phase>pre-integration-test</phase>
+                        <phase>process-test-resources</phase>
                         <goals>
-                            <goal>copy-resources</goal>
+                            <goal>copy</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${bundles.directory}</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>${basedir}/../identityconnectors/bundles/staticws/staticwebservice/target</directory>
-                                    <includes>
-                                        <include>*.jar</include>
-                                    </includes>
-                                    <excludes>
-                                        <exclude>*-javadoc.jar</exclude>
-                                        <exclude>*-sources.jar</exclude>
-                                    </excludes>
-                                </resource>
-                            </resources>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.connid.bundles.soap</groupId>
+                                    <artifactId>org.connid.bundles.soap</artifactId>
+                                    <version>${connid.soap.version}</version>
+                                    <outputDirectory>${bundles.directory}</outputDirectory>                                
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.connid.bundles.db</groupId>
+                                    <artifactId>org.connid.bundles.db.table</artifactId>
+                                    <version>${connid.db.table.version}</version>
+                                    <outputDirectory>${bundles.directory}</outputDirectory>                                
+                                </artifactItem>
+                            </artifactItems>
                         </configuration>
                     </execution>
                 </executions>
@@ -222,12 +267,10 @@
                 <artifactId>cargo-maven2-plugin</artifactId>
                 <inherited>true</inherited>
                 <configuration>
+                    <wait>true</wait>
                     <container>
-                        <containerId>tomcat6x</containerId>
-                        <zipUrlInstaller>
-                            <url>http://www.apache.org/dist/tomcat/tomcat-6/v6.0.32/bin/apache-tomcat-6.0.32.zip</url>
-                            <installDir>${java.io.tmpdir}/tomcat6x</installDir>
-                        </zipUrlInstaller>
+                        <containerId>tomcat7x</containerId>
+                        <home>${java.io.tmpdir}/apache-tomcat-7.0.12</home>
                         <log>${cargo.log}</log>
                         <output>${cargo.output}</output>
                         <dependencies>
@@ -238,7 +281,6 @@
                     </container>
                     <configuration>
                         <type>standalone</type>
-                        <home>target/tomcat6x</home>
                         <configfiles>
                             <configfile>
                                 <file>${project.build.directory}/test-classes/catalina.properties</file>
@@ -247,7 +289,6 @@
                         </configfiles>
                         <properties>
                             <cargo.servlet.port>${cargo.servlet.port}</cargo.servlet.port>
-<!--                            <cargo.jvmargs>-Xdebug -Xrunjdwp:transport=dt_socket,address=9009,server=y,suspend=n</cargo.jvmargs>-->
                         </properties>
                         <deployables>
                             <deployable>
@@ -257,40 +298,22 @@
                                 </properties>
                             </deployable>
                             <deployable>
-                                <location>${basedir}/../identityconnectors/bundles/staticws/ws-target-resource/target/ws-target-resource-${project.version}.war</location>
-                                <properties>
-                                    <context>wstarget</context>
-                                </properties>
-                            </deployable>
-                            <deployable>
                                 <location>${project.build.directory}/${project.build.finalName}.war</location>
                                 <properties>
                                     <context>syncope-console</context>
                                 </properties>
                             </deployable>
+                            <deployable>
+                                <location>${settings.localRepository}/org/connid/bundles/soap/wssample/${connid.soap.version}/wssample-${connid.soap.version}.war</location>
+                                <properties>
+                                    <context>wssample</context>
+                                </properties>
+                            </deployable>
                         </deployables>
                     </configuration>
                 </configuration>
-                <executions>
-                    <execution>
-                        <id>start-container</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>start</goal>
-                        </goals>
-                        <configuration>
-                            <wait>false</wait>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>stop-container</id>
-                        <phase>post-integration-test</phase>
-                        <goals>
-                            <goal>stop</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
+            -->
 
         </plugins>
             
@@ -304,6 +327,10 @@
         <testResources>
             <testResource>
                 <directory>src/test/resources</directory>
+                <filtering>true</filtering>
+            </testResource>
+            <testResource>
+                <directory>../core/src/test/resources</directory>
                 <filtering>true</filtering>
             </testResource>
         </testResources>

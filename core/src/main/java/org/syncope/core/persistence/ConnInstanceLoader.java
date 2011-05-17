@@ -62,7 +62,7 @@ public class ConnInstanceLoader implements ServletContextListener {
         SyncopeConf connectorBundleDir = null;
         try {
             connectorBundleDir = syncopeConfigurationDAO.find(
-                    "identityconnectors.bundle.directory");
+                    "connid.bundles.directory");
         } catch (MissingConfKeyException e) {
             LOG.error("Missing configuration", e);
         }

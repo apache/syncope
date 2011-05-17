@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import org.connid.bundles.soap.WebServiceConnector;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
@@ -31,15 +32,13 @@ import org.syncope.client.to.ConnBundleTO;
 import org.syncope.client.to.ConnInstanceTO;
 import org.syncope.types.ConnConfProperty;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.syncope.identityconnectors.bundles.staticwebservice.WebServiceConnector;
 import org.syncope.types.ConnConfPropSchema;
 import org.syncope.types.ConnectorCapability;
 
 public class ConnInstanceTestITCase extends AbstractTest {
 
-    private static String bundles_version;
-
-    private static String bundles_directory;
+    private static String connidSoapVersion;
+    private static String bundlesDirectory;
 
     @Before
     public void init() {
@@ -49,13 +48,13 @@ public class ConnInstanceTestITCase extends AbstractTest {
                     getClass().getResourceAsStream(
                     "/bundles.properties");
             props.load(propStream);
-            bundles_version = props.getProperty("bundles.version");
-            bundles_directory = props.getProperty("bundles.directory");
+            connidSoapVersion = props.getProperty("connid.soap.version");
+            bundlesDirectory = props.getProperty("bundles.directory");
         } catch (Throwable t) {
             LOG.error("Could not load bundles.properties", t);
         }
-        assertNotNull(bundles_version);
-        assertNotNull(bundles_directory);
+        assertNotNull(connidSoapVersion);
+        assertNotNull(bundlesDirectory);
     }
 
     @Test
@@ -72,14 +71,13 @@ public class ConnInstanceTestITCase extends AbstractTest {
         ConnInstanceTO connectorTO = new ConnInstanceTO();
 
         // set connector version
-        connectorTO.setVersion(bundles_version);
+        connectorTO.setVersion(connidSoapVersion);
 
         // set connector name
         connectorTO.setConnectorName(WebServiceConnector.class.getSimpleName());
 
         // set bundle name
-        connectorTO.setBundleName(
-                "org.syncope.identityconnectors.bundles.staticws");
+        connectorTO.setBundleName("org.connid.bundles.soap");
 
         connectorTO.setDisplayName("Display name");
 
@@ -92,7 +90,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         endpointSchema.setRequired(true);
         ConnConfProperty endpoint = new ConnConfProperty();
         endpoint.setSchema(endpointSchema);
-        endpoint.setValue("http://localhost:8888/wstarget/services");
+        endpoint.setValue("http://localhost:8888/wssample/services");
 
         ConnConfPropSchema servicenameSchema = new ConnConfPropSchema();
         servicenameSchema.setName("servicename");
@@ -176,14 +174,13 @@ public class ConnInstanceTestITCase extends AbstractTest {
         connectorTO.setId(100L);
 
         // set connector version
-        connectorTO.setVersion(bundles_version);
+        connectorTO.setVersion(connidSoapVersion);
 
         // set connector name
         connectorTO.setConnectorName(WebServiceConnector.class.getSimpleName());
 
         // set bundle name
-        connectorTO.setBundleName(
-                "org.syncope.identityconnectors.bundles.staticws");
+        connectorTO.setBundleName("org.connid.bundles.soap");
 
         // set the connector configuration using PropertyTO
         Set<ConnConfProperty> conf = new HashSet<ConnConfProperty>();
@@ -194,7 +191,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         endpointSchema.setRequired(true);
         ConnConfProperty endpoint = new ConnConfProperty();
         endpoint.setSchema(endpointSchema);
-        endpoint.setValue("http://localhost:8888/wstarget/services");
+        endpoint.setValue("http://localhost:8888/wssample/services");
 
         ConnConfPropSchema servicenameSchema = new ConnConfPropSchema();
         servicenameSchema.setName("servicename");

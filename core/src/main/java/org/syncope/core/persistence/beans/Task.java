@@ -31,7 +31,6 @@ import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import org.hibernate.annotations.Cascade;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.syncope.core.util.ApplicationContextManager;
@@ -90,9 +89,8 @@ public class Task extends AbstractBaseBean {
     /**
      * When this task has been (or will be) executed, what its result was.
      */
-    @OneToMany(cascade = CascadeType.MERGE, mappedBy = "task",
-    fetch = FetchType.EAGER)
-    @Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
+    @OneToMany(cascade = CascadeType.MERGE, orphanRemoval = true,
+    mappedBy = "task", fetch = FetchType.EAGER)
     private List<TaskExecution> executions;
 
     /**

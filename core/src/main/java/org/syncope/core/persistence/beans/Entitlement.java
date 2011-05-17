@@ -16,18 +16,17 @@ package org.syncope.core.persistence.beans;
 
 import java.util.HashSet;
 import java.util.Set;
+import javax.persistence.Cacheable;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.syncope.core.persistence.validation.entity.EntitlementCheck;
 
 @Entity
-@Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Cacheable
 @EntitlementCheck
 public class Entitlement extends AbstractBaseBean {
 

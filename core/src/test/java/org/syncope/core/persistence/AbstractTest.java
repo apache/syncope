@@ -54,7 +54,7 @@ public abstract class AbstractTest {
     protected static final Logger LOG = LoggerFactory.getLogger(
             AbstractTest.class);
 
-    protected static String bundlesVersion;
+    protected static String connidSoapVersion;
 
     protected static String bundlesDirectory;
 
@@ -145,12 +145,12 @@ public abstract class AbstractTest {
             InputStream propStream =
                     getClass().getResourceAsStream("/bundles.properties");
             props.load(propStream);
-            bundlesVersion = props.getProperty("bundles.version");
+            connidSoapVersion = props.getProperty("connid.soap.version");
             bundlesDirectory = props.getProperty("bundles.directory");
         } catch (Throwable t) {
             LOG.error("Could not load bundles.properties", t);
         }
-        assertNotNull(bundlesVersion);
+        assertNotNull(connidSoapVersion);
         assertNotNull(bundlesDirectory);
     }
 }

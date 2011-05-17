@@ -24,7 +24,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.validation.Valid;
-import org.hibernate.annotations.Cascade;
 import org.syncope.core.persistence.beans.AbstractAttributable;
 import org.syncope.core.persistence.beans.AbstractAttr;
 import org.syncope.core.persistence.beans.AbstractAttrValue;
@@ -42,8 +41,8 @@ public class RAttr extends AbstractAttr {
     @ManyToOne(fetch = FetchType.EAGER)
     private RSchema schema;
 
-    @OneToMany(cascade = CascadeType.MERGE, mappedBy = "attribute")
-    @Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
+    @OneToMany(cascade = CascadeType.MERGE, orphanRemoval = true,
+    mappedBy = "attribute")
     @Valid
     private List<RAttrValue> values;
 

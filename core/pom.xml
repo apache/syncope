@@ -30,6 +30,8 @@
 
     <properties>
         <hsqldb.version>2.0.0</hsqldb.version>
+        <connid.soap.version>1.1-SNAPSHOT</connid.soap.version>
+        <connid.db.table.version>1.2-SNAPSHOT</connid.db.table.version>
 
         <cargo.servlet.port>9080</cargo.servlet.port>
         <cargo.run.dir>${project.build.directory}/syncope-core-test</cargo.run.dir>
@@ -39,7 +41,7 @@
         <logfile>/var/tmp/syncope-core.log</logfile>
         <logfile.persistence>/var/tmp/syncope-core-persistence.log</logfile.persistence>
         <logfile.rest>/var/tmp/syncope-core-rest.log</logfile.rest>
-        <logfile.identityconnectors>/var/tmp/syncope-core-identityconnectors.log</logfile.identityconnectors>
+        <logfile.connid>/var/tmp/syncope-core-connid.log</logfile.connid>
         <logfile.test>/var/tmp/syncope-core-test.log</logfile.test>
         <logfile.monitor>/var/tmp/syncope-core-monitor.log</logfile.monitor>
 
@@ -221,33 +223,42 @@
             <artifactId>jcl-over-slf4j</artifactId>
         </dependency>
 
-        <!-- IdentityConnectors -->
         <dependency>
-            <groupId>org.syncope.identityconnectors</groupId>
+            <groupId>org.connid</groupId>
             <artifactId>framework</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.syncope.identityconnectors</groupId>
+            <groupId>org.connid</groupId>
             <artifactId>framework-internal</artifactId>
-            <version>${project.version}</version>
         </dependency>
-        <!-- /IdentityConnectors -->
 
+            <!-- CXF: needed by soap connector -->
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-frontend-jaxws</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-transports-http</artifactId>
+            <scope>runtime</scope>
         </dependency>
 
         <!-- TEST -->
         <dependency>
-            <groupId>org.syncope.identityconnectors.bundles.staticws</groupId>
-            <artifactId>staticwebservice</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.connid.bundles.soap</groupId>
+            <artifactId>org.connid.bundles.soap</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.connid.bundles.soap</groupId>
+            <artifactId>wssample</artifactId>
+            <type>war</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.connid.bundles.db</groupId>
+            <artifactId>org.connid.bundles.db.table</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -265,12 +276,6 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.syncope.identityconnectors</groupId>
-            <artifactId>test-common</artifactId>
-            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <!-- /TEST -->
@@ -330,41 +335,6 @@
                 </executions>
             </plugin>
 
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>hibernate3-maven-plugin</artifactId>
-                <inherited>true</inherited>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.hsqldb</groupId>
-                        <artifactId>hsqldb</artifactId>
-                        <version>${hsqldb.version}</version>
-                    </dependency>
-                </dependencies>
-                <configuration>
-                    <components>
-                        <component>
-                            <name>hbm2ddl</name>
-                            <implementation>jpaconfiguration</implementation>
-                        </component>
-                    </components>
-                    <componentProperties>
-                        <jdk5>true</jdk5>
-                        <propertyfile>${project.build.directory}/test-classes/persistence.properties</propertyfile>
-                        <skip>${maven.test.skip}</skip>
-                        <format>true</format>
-                    </componentProperties>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>test-compile</phase>
-                        <goals>
-                            <goal>hbm2ddl</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
             <!-- Integration test -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -393,7 +363,7 @@
                         <id>explodeSyncopeWAR</id>
                         <phase>package</phase>
                         <configuration>
-                            <tasks>
+                            <target>
                                 <unzip src="${project.build.directory}/${project.build.finalName}.war" dest="${cargo.run.dir}">
                                     <patternset>
                                         <exclude name="**/content.xml" />
@@ -402,7 +372,20 @@
                                         <exclude name="**/security.properties" />
                                     </patternset>
                                 </unzip>
-                            </tasks>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>setupTomcat</id>
+                        <phase>package</phase>
+                        <configuration>
+                            <target>
+                                <get src="http://www.apache.org/dist/tomcat/tomcat-7/v7.0.12/bin/apache-tomcat-7.0.12.zip" dest="${java.io.tmpdir}" skipexisting="true" />
+                                <unzip src="${java.io.tmpdir}/apache-tomcat-7.0.12.zip" dest="${java.io.tmpdir}" overwrite="false" />
+                            </target>
                         </configuration>
                         <goals>
                             <goal>run</goal>
@@ -413,30 +396,82 @@
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
+                <artifactId>maven-dependency-plugin</artifactId>
                 <inherited>true</inherited>
                 <executions>
                     <execution>
                         <id>set-bundles</id>
                         <phase>pre-integration-test</phase>
                         <goals>
-                            <goal>copy-resources</goal>
+                            <goal>copy</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${bundles.directory}</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>${basedir}/../identityconnectors/bundles/staticws/staticwebservice/target</directory>
-                                    <includes>
-                                        <include>*.jar</include>
-                                    </includes>
-                                    <excludes>
-                                        <exclude>*-javadoc.jar</exclude>
-                                        <exclude>*-sources.jar</exclude>
-                                    </excludes>
-                                </resource>
-                            </resources>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.connid.bundles.soap</groupId>
+                                    <artifactId>org.connid.bundles.soap</artifactId>
+                                    <version>${connid.soap.version}</version>
+                                    <outputDirectory>${bundles.directory}</outputDirectory>                                
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.connid.bundles.db</groupId>
+                                    <artifactId>org.connid.bundles.db.table</artifactId>
+                                    <version>${connid.db.table.version}</version>
+                                    <outputDirectory>${bundles.directory}</outputDirectory>                                
+                                </artifactItem>
+                            </artifactItems>
                         </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.onebusaway.plugins</groupId>
+                <artifactId>maven-hsqldb-plugin</artifactId>
+                <inherited>true</inherited>
+                <configuration>
+                    <dbName>testdb</dbName>
+                    <mode>server</mode>
+                    <isTransient>true</isTransient>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>startTestDb</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>run</goal>    
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>sql-maven-plugin</artifactId>
+                <inherited>true</inherited>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.hsqldb</groupId>
+                        <artifactId>hsqldb</artifactId>
+                        <version>${hsqldb.version}</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <driver>org.hsqldb.jdbcDriver</driver>
+                    <url>jdbc:hsqldb:hsql://localhost:9001/testdb;shutdown=true</url>
+                    <username>sa</username>
+                    <password />
+                    <srcFiles>
+                        <srcFile>${project.build.directory}/test-classes/testdb.sql</srcFile>
+                    </srcFiles>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>loadTestDb</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>execute</goal>    
+                        </goals>
                     </execution>
                 </executions>
             </plugin>
@@ -446,12 +481,10 @@
                 <artifactId>cargo-maven2-plugin</artifactId>
                 <inherited>true</inherited>
                 <configuration>
+                    <wait>true</wait>
                     <container>
-                        <containerId>tomcat6x</containerId>
-                        <zipUrlInstaller>
-                            <url>http://www.apache.org/dist/tomcat/tomcat-6/v6.0.32/bin/apache-tomcat-6.0.32.zip</url>
-                            <installDir>${java.io.tmpdir}/tomcat6x</installDir>
-                        </zipUrlInstaller>
+                        <containerId>tomcat7x</containerId>
+                        <home>${java.io.tmpdir}/apache-tomcat-7.0.12</home>
                         <log>${cargo.log}</log>
                         <output>${cargo.output}</output>
                         <dependencies>
@@ -465,7 +498,6 @@
                     </container>
                     <configuration>
                         <type>standalone</type>
-                        <home>target/tomcat6x</home>
                         <properties>
                             <cargo.servlet.port>${cargo.servlet.port}</cargo.servlet.port>
                             <!--<cargo.jvmargs>-Xdebug -Xrunjdwp:transport=dt_socket,address=9009,server=y,suspend=n</cargo.jvmargs>-->
@@ -478,9 +510,9 @@
                                 </properties>
                             </deployable>
                             <deployable>
-                                <location>${basedir}/../identityconnectors/bundles/staticws/ws-target-resource/target/ws-target-resource-${project.version}.war</location>
+                                <location>${settings.localRepository}/org/connid/bundles/soap/wssample/${connid.soap.version}/wssample-${connid.soap.version}.war</location>
                                 <properties>
-                                    <context>wstarget</context>
+                                    <context>wssample</context>
                                 </properties>
                             </deployable>
                         </deployables>
@@ -505,6 +537,21 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.2</version>
+                <configuration>
+                    <executable>java</executable>
+                    <arguments>
+                        <argument>-classpath</argument>
+                        <classpath />
+                        <argument>org.syncope.core.persistence.util.SchemaExporter</argument>
+                        <argument>HSQL</argument>
+                    </arguments>
+                </configuration>
             </plugin>
 
         </plugins>

@@ -177,6 +177,38 @@ public class UserTestITCase extends AbstractTest {
     }
 
     @Test
+    public final void createUserWithDbPropagation() {
+        UserTO userTO = new UserTO();
+
+        AttributeTO attributeTO = new AttributeTO();
+        attributeTO.setSchema("firstname");
+        attributeTO.addValue("yyy");
+        userTO.addAttribute(attributeTO);
+
+        attributeTO = new AttributeTO();
+        attributeTO.setSchema("surname");
+        attributeTO.addValue("yyy");
+        userTO.addAttribute(attributeTO);
+
+        attributeTO = new AttributeTO();
+        attributeTO.setSchema("userId");
+        attributeTO.addValue("yyy@yyy.yyy");
+        userTO.addAttribute(attributeTO);
+
+        attributeTO = new AttributeTO();
+        attributeTO.setSchema("username");
+        attributeTO.addValue("yyy");
+        userTO.addAttribute(attributeTO);
+
+        userTO.setPassword("yyy");
+        userTO.addResource("ws-target-resource-testdb");
+
+        restTemplate.postForObject(BASE_URL + "user/create"
+                + "?mandatoryResources=ws-target-resource-testdb",
+                userTO, UserTO.class);
+    }
+
+    @Test
     @ExpectedException(value = SyncopeClientCompositeErrorException.class)
     public final void createWithException() {
         AttributeTO attributeTO = new AttributeTO();

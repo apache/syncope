@@ -2,9 +2,9 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,28 +14,35 @@
  */
 package org.syncope.core.persistence.dao;
 
+import java.util.List;
+import static org.junit.Assert.*;
 import java.util.HashSet;
 import java.util.Set;
-import static org.junit.Assert.*;
-
+import org.connid.bundles.soap.WebServiceConnector;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.types.ConnConfProperty;
 import org.syncope.core.persistence.beans.ConnInstance;
 import org.syncope.core.persistence.AbstractTest;
-import org.syncope.identityconnectors.bundles.staticwebservice.WebServiceConnector;
 import org.syncope.types.ConnConfPropSchema;
 
 @Transactional
 public class ConnInstanceTest extends AbstractTest {
 
     @Autowired
-    private ConnInstanceDAO connectorInstanceDAO;
+    private ConnInstanceDAO connInstanceDAO;
+
+    @Test
+    public final void findAll() {
+        List<ConnInstance> connectors = connInstanceDAO.findAll();
+        assertNotNull(connectors);
+        assertFalse(connectors.isEmpty());
+    }
 
     @Test
     public final void findById() {
-        ConnInstance connectorInstance = connectorInstanceDAO.find(100L);
+        ConnInstance connectorInstance = connInstanceDAO.find(100L);
 
         assertNotNull("findById did not work", connectorInstance);
 
@@ -43,17 +50,17 @@ public class ConnInstanceTest extends AbstractTest {
                 WebServiceConnector.class.getName(),
                 connectorInstance.getConnectorName());
 
-        assertEquals("invalid bundle name",
-                "org.syncope.identityconnectors.bundles.staticws",
+        assertEquals("invalid bundle name", "org.connid.bundles.soap",
                 connectorInstance.getBundleName());
 
         assertEquals("invalid bundle version",
-                bundlesVersion, connectorInstance.getVersion());
+                connidSoapVersion, connectorInstance.getVersion());
     }
 
     @Test
     public final void save()
             throws ClassNotFoundException {
+
         ConnInstance connectorInstance = new ConnInstance();
 
         // set connector version
@@ -96,7 +103,7 @@ public class ConnInstanceTest extends AbstractTest {
 
         // perform save operation
         ConnInstance actual =
-                connectorInstanceDAO.save(connectorInstance);
+                connInstanceDAO.save(connectorInstance);
 
         assertNotNull("save did not work", actual.getId());
 
@@ -124,13 +131,12 @@ public class ConnInstanceTest extends AbstractTest {
 
     @Test
     public final void delete() {
-        ConnInstance connectorInstance = connectorInstanceDAO.find(100L);
-
+        ConnInstance connectorInstance = connInstanceDAO.find(100L);
         assertNotNull("find to delete did not work", connectorInstance);
 
-        connectorInstanceDAO.delete(connectorInstance.getId());
+        connInstanceDAO.delete(connectorInstance.getId());
 
-        ConnInstance actual = connectorInstanceDAO.find(100L);
+        ConnInstance actual = connInstanceDAO.find(100L);
         assertNull("delete did not work", actual);
     }
 }

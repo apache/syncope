@@ -14,11 +14,11 @@
  */
 package org.syncope.core.persistence.dao.impl;
 
-import java.lang.Long;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import javax.persistence.CacheRetrieveMode;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TemporalType;
@@ -50,7 +50,8 @@ public class UserDAOImpl extends AbstractDAOImpl
         Query query = entityManager.createQuery(
                 "SELECT e FROM " + SyncopeUser.class.getSimpleName() + " e "
                 + "WHERE e.id = :id");
-        query.setHint("org.hibernate.cacheable", true);
+        query.setHint("javax.persistence.cache.retrieveMode",
+                CacheRetrieveMode.USE);
         query.setParameter("id", id);
 
         try {
@@ -65,7 +66,8 @@ public class UserDAOImpl extends AbstractDAOImpl
         Query query = entityManager.createQuery(
                 "SELECT e FROM " + SyncopeUser.class.getSimpleName() + " e "
                 + "WHERE e.workflowId = :workflowId");
-        query.setHint("org.hibernate.cacheable", true);
+        query.setHint("javax.persistence.cache.retrieveMode",
+                CacheRetrieveMode.USE);
         query.setParameter("workflowId", workflowId);
 
         return (SyncopeUser) query.getSingleResult();

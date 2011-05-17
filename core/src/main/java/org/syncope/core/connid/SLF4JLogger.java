@@ -12,7 +12,7 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.identityconnectors;
+package org.syncope.core.connid;
 
 import org.identityconnectors.common.logging.Log.Level;
 import org.identityconnectors.common.logging.LogSpi;

@@ -50,11 +50,11 @@
         </encoder>
     </appender>
 
-    <appender name="identityconnectors" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${logfile.identityconnectors}</file>
+    <appender name="connid" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${logfile.connid}</file>
         <append>true</append>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${logfile.identityconnectors}.%d{yyyy-MM-dd}</fileNamePattern>
+            <fileNamePattern>${logfile.connid}.%d{yyyy-MM-dd}</fileNamePattern>
             <maxHistory>30</maxHistory>
         </rollingPolicy>
         <encoder>
@@ -106,11 +106,11 @@
         <appender-ref ref="rest"/>
     </logger>
     
-    <logger name="org.syncope.core.identityconnectors" additivity="false">
+    <logger name="org.connid" additivity="false">
         <level value="DEBUG"/>
-        <appender-ref ref="identityconnectors"/>
+        <appender-ref ref="connid"/>
     </logger>
-
+    
     <logger name="org.syncope.core.test" additivity="false">
         <level value="INFO"/>
         <appender-ref ref="test"/>
@@ -175,6 +175,10 @@
         <level value="INFO"/>
         <appender-ref ref="persistence"/>
     </logger>
+    <logger name="org.hibernate.stat" additivity="false">
+        <level value="OFF"/>
+        <appender-ref ref="persistence"/>
+    </logger>
     <logger name="org.hibernate.SQL" additivity="false">
         <level value="OFF"/>
         <appender-ref ref="persistence"/>
@@ -199,7 +203,7 @@
     </logger>
 
     <root>
-        <priority value="INFO"/>
+        <level value="INFO"/>
         <appender-ref ref="main"/>
     </root>
 </configuration>

@@ -36,7 +36,6 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
@@ -48,7 +47,6 @@ import org.syncope.client.to.ConnInstanceTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.types.ConnConfProperty;
 import org.syncope.console.rest.ConnectorRestClient;
-import org.syncope.console.wicket.markup.html.form.AjaxPasswordFieldPanel;
 import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.syncope.types.ConnConfPropSchema;
 import org.syncope.types.ConnectorCapability;
@@ -177,23 +175,10 @@ public class ConnectorModalPage extends BaseModalPage {
                 item.add(new Label("connPropAttrSchema",
                         property.getSchema().getName()));
 
-                Panel connPropAttrValue;
-                if (property.getSchema().getType().
-                        endsWith("GuardedString")
-                        || property.getSchema().getType().
-                        endsWith("GuardedByteArray")) {
-
-                    connPropAttrValue = new AjaxPasswordFieldPanel(
-                            "connPropAttrValue", property.getSchema().getName(),
-                            new PropertyModel<String>(property, "value"),
-                            property.getSchema().isRequired());
-                } else {
-                    connPropAttrValue = new AjaxTextFieldPanel(
-                            "connPropAttrValue", property.getSchema().getName(),
-                            new PropertyModel<String>(property, "value"),
-                            property.getSchema().isRequired());
-                }
-                item.add(connPropAttrValue);
+                item.add(new AjaxTextFieldPanel(
+                        "connPropAttrValue", property.getSchema().getName(),
+                        new PropertyModel<String>(property, "value"),
+                        property.getSchema().isRequired()));
 
                 connectorTO.getConfiguration().add(property);
             }

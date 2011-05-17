@@ -44,39 +44,15 @@
     </licenses>
 
     <scm>
-        <connection>scm:svn:http://syncope.googlecode.com/svn/trunk/</connection>
-        <developerConnection>scm:svn:https://syncope.googlecode.com/svn/trunk/</developerConnection>
-        <url>http://syncope.googlecode.com/svn/trunk/</url>
+        <connection>scm:svn:http://syncope.googlecode.com/svn/branches/0_5_X/</connection>
+        <developerConnection>scm:svn:https://syncope.googlecode.com/svn/branches/0_5_X/</developerConnection>
+        <url>http://syncope.googlecode.com/svn/branches/0_5_X/</url>
     </scm>
 
     <issueManagement>
         <system>Google Code</system>
         <url>http://code.google.com/p/syncope/issues/</url>
     </issueManagement>
-
-    <developers>
-        <developer>
-            <name>Francesco Chicchiriccò</name>
-            <id>ilgrosso</id>
-            <organization />
-            <roles>
-                <role>Project Lead</role>
-            </roles>
-            <timezone>+1</timezone>
-        </developer>
-        <developer>
-            <name>Fabio Martelli</name>
-            <id>spallone</id>
-            <organization />
-            <roles>
-                <role>Project Lead</role>
-            </roles>
-            <timezone>+1</timezone>
-        </developer>
-    </developers>
-
-    <contributors>
-    </contributors>
 
     <mailingLists>
         <mailingList>
@@ -86,7 +62,7 @@
         </mailingList>
         <mailingList>
             <name>syncope-users</name>
-            <post>syncope-uses@googlegroups.com</post>
+            <post>syncope-users@googlegroups.com</post>
             <archive>http://groups.google.com/group/syncope-users</archive>
         </mailingList>
     </mailingLists>
@@ -95,9 +71,13 @@
         <servlet-api.version>2.5</servlet-api.version>
         <jsp-api.version>2.1</jsp-api.version>
         <jstl.version>1.2</jstl.version>
+        
+        <connid.version>1.4-SNAPSHOT</connid.version>
+        <connid.soap.version>1.1-SNAPSHOT</connid.soap.version>
+        <connid.db.table.version>1.2-SNAPSHOT</connid.db.table.version>
 
         <commons-jexl.version>2.0.1</commons-jexl.version>
-        <commons-lang.version>2.5</commons-lang.version>
+        <commons-lang.version>2.6</commons-lang.version>
         <commons-httpclient.version>3.1</commons-httpclient.version>
 
         <javamail-specs.version>1.6</javamail-specs.version>
@@ -108,34 +88,33 @@
         <oscore.version>2.2.6</oscore.version>
         <bsh.version>2.0b4</bsh.version>
 
-        <org.springframework.version>3.0.5.RELEASE</org.springframework.version>
+        <spring.version>3.0.5.RELEASE</spring.version>
         <cglib.version>2.2</cglib.version>
         <jackson.version>1.5.3</jackson.version>
         <xstream.version>1.3.1</xstream.version>
         <aspectj.version>1.6.9</aspectj.version>
         <velocity.version>1.7</velocity.version>
 
-        <hibernate.version>3.4.0.GA</hibernate.version>
-        <hibernate-validator.version>4.0.2.GA</hibernate-validator.version>
-        <ehcache.version>2.3.2</ehcache.version>
+        <hibernate.version>3.6.4.Final</hibernate.version>
+        <hibernate-validator.version>4.1.0.Final</hibernate-validator.version>
+        <ehcache.version>2.4.2</ehcache.version>
 
-        <wicket.version>1.4.16</wicket.version>
+        <wicket.version>1.4.17</wicket.version>
 
-        <org.apache.cxf.version>2.2.9</org.apache.cxf.version>
+        <org.apache.cxf.version>2.4.0</org.apache.cxf.version>
 
         <hsqldb.version>2.0.0</hsqldb.version>
 
         <reflections.version>0.9.5-RC2</reflections.version>
 
-        <logback.version>0.9.25</logback.version>
+        <logback.version>0.9.28</logback.version>
         <slf4j.version>1.6.1</slf4j.version>
 
-        <junit.version>4.8.1</junit.version>
+        <junit.version>4.8.2</junit.version>
 
-        <dbunit.version>2.4.7</dbunit.version>
+        <dbunit.version>2.4.8</dbunit.version>
 
-        <jetty.version>6.1.26</jetty.version>
-        <cargo.version>1.0.3</cargo.version>
+        <cargo.version>1.1.0</cargo.version>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
@@ -194,6 +173,17 @@
             </dependency>
 
             <dependency>
+                <groupId>org.connid</groupId>
+                <artifactId>framework</artifactId>
+                <version>${connid.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.connid</groupId>
+                <artifactId>framework-internal</artifactId>
+                <version>${connid.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>opensymphony</groupId>
                 <artifactId>osworkflow</artifactId>
                 <version>${osworkflow.version}</version>
@@ -246,65 +236,67 @@
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-core</artifactId>
-                <version>${org.springframework.version}</version>
+                <version>${spring.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-context</artifactId>
-                <version>${org.springframework.version}</version>
+                <version>${spring.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-jdbc</artifactId>
-                <version>${org.springframework.version}</version>
+                <version>${spring.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-orm</artifactId>
-                <version>${org.springframework.version}</version>
+                <version>${spring.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-webmvc</artifactId>
-                <version>${org.springframework.version}</version>
+                <version>${spring.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-oxm</artifactId>
-                <version>${org.springframework.version}</version>
+                <version>${spring.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-tx</artifactId>
-                <version>${org.springframework.version}</version>
+                <version>${spring.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-web</artifactId>
-                <version>${org.springframework.version}</version>
+                <version>${spring.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-web</artifactId>
-                <version>${org.springframework.version}</version>
+                <version>${spring.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-config</artifactId>
-                <version>${org.springframework.version}</version>
+                <version>${spring.version}</version>
             </dependency>
             <!-- /Spring -->
 
-            <!-- CXF -->
+            <!-- CXF: needed by soap connector -->
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-frontend-jaxws</artifactId>
                 <version>${org.apache.cxf.version}</version>
+                <scope>runtime</scope>
             </dependency>
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-transports-http</artifactId>
                 <version>${org.apache.cxf.version}</version>
+                <scope>runtime</scope>
             </dependency>
             <!-- /CXF -->
 
@@ -416,7 +408,26 @@
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-test</artifactId>
-                <version>${org.springframework.version}</version>
+                <version>${spring.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.connid.bundles.soap</groupId>
+                <artifactId>org.connid.bundles.soap</artifactId>
+                <version>${connid.soap.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.connid.bundles.soap</groupId>
+                <artifactId>wssample</artifactId>
+                <version>${connid.soap.version}</version>
+                <type>war</type>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.connid.bundles.db</groupId>
+                <artifactId>org.connid.bundles.db.table</artifactId>
+                <version>${connid.db.table.version}</version>
                 <scope>test</scope>
             </dependency>
             <!-- /TEST -->
@@ -424,6 +435,20 @@
         </dependencies>
 
     </dependencyManagement>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>codehaus-snapshots</id>
+            <name>Codehaus Snapshots</name>
+            <url>http://nexus.codehaus.org/snapshots/</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
 
     <repositories>
 
@@ -461,7 +486,6 @@
         <pluginManagement>
             <plugins>
                 <plugin>
-                    <inherited>true</inherited>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <configuration>
@@ -471,8 +495,13 @@
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>2.5</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.6</version>
+                    <version>2.8</version>
                     <configuration>
                         <redirectTestOutputToFile>true</redirectTestOutputToFile>
                     </configuration>
@@ -480,7 +509,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-checkstyle-plugin</artifactId>
-                    <version>2.5</version>
+                    <version>2.6</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -500,7 +529,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-site-plugin</artifactId>
-                    <version>2.1.1</version>
+                    <version>2.2</version>
                     <configuration>
                         <locales>en,it</locales>
                     </configuration>
@@ -509,6 +538,16 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-war-plugin</artifactId>
                     <version>2.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>sql-maven-plugin</artifactId>
+                    <version>1.4</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.onebusaway.plugins</groupId>
+                    <artifactId>maven-hsqldb-plugin</artifactId>
+                    <version>1.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -524,14 +563,14 @@
                     </executions>
                 </plugin>
                 <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>hibernate3-maven-plugin</artifactId>
-                    <version>2.2</version>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-antrun-plugin</artifactId>
+                    <version>1.6</version>
                 </plugin>
                 <plugin>
-                    <groupId>org.mortbay.jetty</groupId>
-                    <artifactId>maven-jetty-plugin</artifactId>
-                    <version>${jetty.version}</version>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>2.2</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.cargo</groupId>
@@ -547,6 +586,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>2.6</version>
                 <configuration>
                     <configLocation>${basedir}/syncope_checks.xml</configLocation>
                 </configuration>
@@ -554,14 +594,17 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jxr-plugin</artifactId>
+                <version>2.2</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.7</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-pmd-plugin</artifactId>
+                <version>2.5</version>
                 <configuration>
                     <targetJdk>1.6</targetJdk>
                     <rulesets>
@@ -599,7 +642,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.1</version>
+                        <version>1.2</version>
                         <executions>
                             <execution>
                                 <id>sign-artifacts</id>
@@ -616,10 +659,10 @@
     </profiles>
 
     <modules>
-        <module>identityconnectors</module>
         <module>client</module>
         <module>core</module>
         <module>console</module>
+        <module>archetype</module>
     </modules>
 
 </project>
