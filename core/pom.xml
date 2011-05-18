@@ -383,8 +383,8 @@
                         <phase>package</phase>
                         <configuration>
                             <target>
-                                <get src="http://www.apache.org/dist/tomcat/tomcat-7/v7.0.12/bin/apache-tomcat-7.0.12.zip" dest="${java.io.tmpdir}" skipexisting="true" />
-                                <unzip src="${java.io.tmpdir}/apache-tomcat-7.0.12.zip" dest="${java.io.tmpdir}" overwrite="false" />
+                                <get src="http://www.apache.org/dist/tomcat/tomcat-7/v7.0.14/bin/apache-tomcat-7.0.14.zip" dest="${java.io.tmpdir}" skipexisting="true" />
+                                <unzip src="${java.io.tmpdir}/apache-tomcat-7.0.14.zip" dest="${java.io.tmpdir}" overwrite="false" />
                             </target>
                         </configuration>
                         <goals>
