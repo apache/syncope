@@ -16,11 +16,8 @@ package org.syncope.console.pages;
 
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.WebPage;
-import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.console.SyncopeApplication;
-import org.syncope.console.SyncopeSession;
 import org.syncope.console.commons.XMLRolesReader;
 
 /**
@@ -31,13 +28,13 @@ public class WelcomePage extends WebPage {
     @SpringBean
     private XMLRolesReader xmlRolesReader;
 
+    @SpringBean(name = "version")
+    private String version;
+
     public WelcomePage(final PageParameters parameters) {
         super(parameters);
 
         ((SyncopeApplication) getApplication()).setupNavigationPane(
-                this, xmlRolesReader);
-
-        add(new Label("userId", new Model<String>(
-                ((SyncopeSession) getSession()).getUserId())));
+                this, xmlRolesReader, version);
     }
 }

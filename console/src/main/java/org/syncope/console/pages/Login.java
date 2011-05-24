@@ -14,11 +14,15 @@
  */
 package org.syncope.console.pages;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
+import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.form.Button;
@@ -51,6 +55,9 @@ public class Login extends WebPage {
 
     @SpringBean
     private RestTemplate restTemplate;
+
+    @SpringBean
+    private HttpClient httpClient;
 
     @SpringBean(name = "baseURL")
     private String baseURL;
@@ -99,6 +106,7 @@ public class Login extends WebPage {
                             userIdField.getRawInput());
                     SyncopeSession.get().setEntitlements(
                             entitlements);
+                    SyncopeSession.get().setCoreVersion(getCoreVersion());
 
                     setResponsePage(WelcomePage.class, parameters);
                 }
@@ -112,7 +120,7 @@ public class Login extends WebPage {
         add(new FeedbackPanel("feedback"));
     }
 
-    public String[] authenticate(final String userId, final String password) {
+    private String[] authenticate(final String userId, final String password) {
         //1.Set provided credentials to check
         ((CommonsClientHttpRequestFactory) restTemplate.getRequestFactory()).
                 getHttpClient().getState().setCredentials(
@@ -132,10 +140,24 @@ public class Login extends WebPage {
         return entitlements;
     }
 
+    private String getCoreVersion() {
+        String version = "";
+        try {
+            HttpMethod get = new GetMethod(baseURL + "../version.jsp");
+            httpClient.executeMethod(get);
+            version = get.getResponseBodyAsString().trim();
+        } catch (IOException e) {
+            LOG.error("While fetching core version", e);
+            getSession().error(e.getMessage());
+        }
+
+        return version;
+    }
+
     /**
      * Inner class which implements (custom) Locale DropDownChoice component.
      */
-    public class LocaleDropDown extends DropDownChoice<Locale> {
+    private class LocaleDropDown extends DropDownChoice<Locale> {
 
         private class LocaleRenderer extends ChoiceRenderer<Locale> {
 

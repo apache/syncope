@@ -41,6 +41,9 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
     @SpringBean
     protected XMLRolesReader xmlRolesReader;
 
+    @SpringBean(name = "version")
+    private String version;
+
     protected FeedbackPanel feedbackPanel;
 
     public BasePage() {
@@ -63,7 +66,7 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
 
     private void pageSetup() {
         ((SyncopeApplication) getApplication()).setupNavigationPane(
-                this, xmlRolesReader);
+                this, xmlRolesReader, version);
 
         feedbackPanel = new FeedbackPanel("feedback");
         feedbackPanel.setOutputMarkupId(true);
