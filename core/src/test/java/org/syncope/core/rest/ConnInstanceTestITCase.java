@@ -38,6 +38,7 @@ import org.syncope.types.ConnectorCapability;
 public class ConnInstanceTestITCase extends AbstractTest {
 
     private static String connidSoapVersion;
+
     private static String bundlesDirectory;
 
     @Before

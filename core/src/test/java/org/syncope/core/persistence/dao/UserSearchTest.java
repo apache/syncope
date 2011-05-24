@@ -16,29 +16,12 @@ package org.syncope.core.persistence.dao;
 
 import static org.junit.Assert.*;
 
-import java.io.InputStream;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
-import javax.sql.DataSource;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Properties;
 import java.util.Set;
-import org.dbunit.database.DatabaseConfig;
-import org.dbunit.database.DatabaseConnection;
-import org.dbunit.database.IDatabaseConnection;
-import org.dbunit.dataset.IDataSet;
-import org.dbunit.dataset.datatype.DefaultDataTypeFactory;
-import org.dbunit.dataset.xml.FlatXmlDataSetBuilder;
-import org.dbunit.operation.DatabaseOperation;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
@@ -57,80 +40,11 @@ import org.syncope.core.util.EntitlementUtil;
 @Transactional
 public class UserSearchTest {
 
-    /**
-     * Logger.
-     */
-    private static final Logger LOG = LoggerFactory.getLogger(
-            UserSearchTest.class);
-
     @Autowired
     private UserSearchDAO searchDAO;
 
     @Autowired
     private EntitlementDAO entitlementDAO;
-
-    @Autowired
-    private DataSource dataSource;
-
-    @Autowired
-    private DefaultDataTypeFactory dbUnitDataTypeFactory;
-
-    @Before
-    public void createDataAndSearchViews()
-            throws Exception {
-
-        Connection conn = DataSourceUtils.getConnection(dataSource);
-        IDatabaseConnection dbUnitConn = new DatabaseConnection(conn);
-
-        try {
-            conn = dataSource.getConnection();
-
-            Statement statement = conn.createStatement();
-            statement.executeUpdate("DROP VIEW user_search_attr");
-            statement.executeUpdate("DROP VIEW user_search_membership");
-            statement.close();
-        } catch (SQLException e) {
-        }
-
-        DatabaseConfig config = dbUnitConn.getConfig();
-        config.setProperty(DatabaseConfig.PROPERTY_DATATYPE_FACTORY,
-                dbUnitDataTypeFactory);
-
-        FlatXmlDataSetBuilder dataSetBuilder = new FlatXmlDataSetBuilder();
-        dataSetBuilder.setColumnSensing(true);
-        IDataSet dataSet = dataSetBuilder.build(getClass().getResourceAsStream(
-                "/content.xml"));
-        try {
-            DatabaseOperation.CLEAN_INSERT.execute(dbUnitConn, dataSet);
-        } catch (Throwable t) {
-            LOG.error("While executing tests", t);
-        }
-
-        InputStream viewsStream = UserSearchTest.class.getResourceAsStream(
-                "/views.xml");
-        Properties views = new Properties();
-        views.loadFromXML(viewsStream);
-
-        Statement statement = null;
-        for (String idx : views.stringPropertyNames()) {
-            LOG.debug("Creating view {}", views.get(idx).toString());
-
-            try {
-                statement = conn.createStatement();
-                statement.executeUpdate(views.get(idx).toString().
-                        replaceAll("\\n", " "));
-                statement.close();
-            } catch (SQLException e) {
-                LOG.error("Could not create view ", e);
-            } finally {
-                if (statement != null) {
-                    statement.close();
-                }
-            }
-        }
-
-        DataSourceUtils.releaseConnection(conn, dataSource);
-    }
 
     @Test
     public final void searchWithLikeCondition() {

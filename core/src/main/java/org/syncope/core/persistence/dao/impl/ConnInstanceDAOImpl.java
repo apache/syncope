@@ -17,14 +17,18 @@ package org.syncope.core.persistence.dao.impl;
 import java.util.List;
 import javassist.NotFoundException;
 import javax.persistence.Query;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import org.syncope.core.persistence.ConnInstanceLoader;
+import org.syncope.core.init.ConnInstanceLoader;
 import org.syncope.core.persistence.beans.ConnInstance;
 import org.syncope.core.persistence.dao.ConnInstanceDAO;
 
 @Repository
 public class ConnInstanceDAOImpl extends AbstractDAOImpl
         implements ConnInstanceDAO {
+
+    @Autowired
+    private ConnInstanceLoader connInstanceLoader;
 
     @Override
     public ConnInstance find(final Long id) {
@@ -41,7 +45,7 @@ public class ConnInstanceDAOImpl extends AbstractDAOImpl
     public ConnInstance save(final ConnInstance connector) {
         ConnInstance actual = entityManager.merge(connector);
         try {
-            ConnInstanceLoader.registerConnector(actual);
+            connInstanceLoader.registerConnector(actual);
         } catch (NotFoundException e) {
             LOG.error("While registering the connector for instance "
                     + actual, e);
@@ -54,6 +58,6 @@ public class ConnInstanceDAOImpl extends AbstractDAOImpl
     public void delete(final Long id) {
         entityManager.remove(find(id));
 
-        ConnInstanceLoader.removeConnector(id.toString());
+        connInstanceLoader.unregisterConnector(id.toString());
     }
 }

@@ -1,18 +1,17 @@
 /*
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
- *  under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
-package org.syncope.core.persistence;
+package org.syncope.core.init;
 
 import java.io.InputStream;
 import java.sql.Connection;
@@ -20,8 +19,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
 import javax.sql.DataSource;
 import org.dbunit.database.DatabaseConfig;
 import org.dbunit.database.DatabaseConnection;
@@ -32,39 +29,35 @@ import org.dbunit.dataset.xml.FlatXmlDataSetBuilder;
 import org.dbunit.operation.DatabaseOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.datasource.DataSourceUtils;
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.context.support.WebApplicationContextUtils;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.SyncopeConf;
 
 /**
- * Load default content in the database.
+ * If empty, load default content to Syncope database by reading from
+ * <code>content.xml</code>.
  */
-public class DefaultContentLoader implements ServletContextListener {
+@Component
+public class ContentLoader {
 
     /**
      * Logger.
      */
     private static final Logger LOG = LoggerFactory.getLogger(
-            DefaultContentLoader.class);
+            ContentLoader.class);
 
-    /**
-     * <em>WARNING</em>: this method connects to the database by mean of the
-     * underlying Spring's datasource, not using the provided one, to be fetched
-     * via JNDI. This in order to avoid potential conflicts and problems with
-     * DbUnit.
-     * @param sce ServletContext event
-     */
-    @Override
-    public final void contextInitialized(final ServletContextEvent sce) {
-        WebApplicationContext springContext =
-                WebApplicationContextUtils.getWebApplicationContext(
-                sce.getServletContext());
+    @Autowired
+    private DataSource localDataSource;
 
+    @Autowired
+    private DefaultDataTypeFactory dbUnitDataTypeFactory;
+
+    @Transactional(readOnly = true)
+    public void load() {
         // 0. DB connection, to be used below
-        DataSource dataSource =
-                (DataSource) springContext.getBean("localDataSource");
-        Connection conn = DataSourceUtils.getConnection(dataSource);
+        Connection conn = DataSourceUtils.getConnection(localDataSource);
 
         // 1. read persistence.properties
         String dbSchema = null;
@@ -177,8 +170,7 @@ public class DefaultContentLoader implements ServletContextListener {
 
             DatabaseConfig config = dbUnitConn.getConfig();
             config.setProperty(DatabaseConfig.PROPERTY_DATATYPE_FACTORY,
-                    (DefaultDataTypeFactory) springContext.getBean(
-                    "dbUnitDataTypeFactory"));
+                    dbUnitDataTypeFactory);
             config.setProperty(
                     DatabaseConfig.FEATURE_SKIP_ORACLE_RECYCLEBIN_TABLES,
                     true);
@@ -194,7 +186,7 @@ public class DefaultContentLoader implements ServletContextListener {
         } catch (Throwable t) {
             LOG.error("While loading default content", t);
         } finally {
-            DataSourceUtils.releaseConnection(conn, dataSource);
+            DataSourceUtils.releaseConnection(conn, localDataSource);
         }
 
         try {
@@ -202,9 +194,5 @@ public class DefaultContentLoader implements ServletContextListener {
         } catch (SQLException e) {
             LOG.error("While closing SQL connection", e);
         }
-    }
-
-    @Override
-    public void contextDestroyed(final ServletContextEvent sce) {
     }
 }

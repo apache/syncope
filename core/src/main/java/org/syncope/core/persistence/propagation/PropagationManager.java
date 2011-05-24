@@ -36,7 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.syncope.core.persistence.ConnInstanceLoader;
+import org.syncope.core.init.ConnInstanceLoader;
 import org.syncope.core.persistence.beans.AbstractAttrValue;
 import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.beans.ConnInstance;
@@ -73,6 +73,9 @@ public class PropagationManager {
      */
     protected static final Logger LOG =
             LoggerFactory.getLogger(PropagationManager.class);
+
+    @Autowired
+    private ConnInstanceLoader connInstanceLoader;
 
     /**
      * Schema DAO.
@@ -492,7 +495,7 @@ public class PropagationManager {
                     task.getResource().getConnector();
 
             ConnectorFacadeProxy connector =
-                    ConnInstanceLoader.getConnector(
+                    connInstanceLoader.getConnector(
                     connectorInstance.getId().toString());
 
             if (connector == null) {

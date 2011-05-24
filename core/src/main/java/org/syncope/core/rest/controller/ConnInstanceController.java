@@ -35,7 +35,7 @@ import org.syncope.client.to.ConnBundleTO;
 import org.syncope.client.to.ConnInstanceTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
-import org.syncope.core.persistence.ConnInstanceLoader;
+import org.syncope.core.init.ConnInstanceLoader;
 import org.syncope.core.persistence.beans.ConnInstance;
 import org.syncope.core.persistence.dao.ConnInstanceDAO;
 import org.syncope.core.persistence.dao.MissingConfKeyException;
@@ -47,6 +47,9 @@ import org.syncope.types.SyncopeClientExceptionType;
 @Controller
 @RequestMapping("/connector")
 public class ConnInstanceController extends AbstractController {
+
+    @Autowired
+    private ConnInstanceLoader connInstanceLoader;
 
     @Autowired
     private ConnInstanceDAO connInstanceDAO;
@@ -172,7 +175,7 @@ public class ConnInstanceController extends AbstractController {
     value = "/check/{connectorId}")
     public ModelAndView check(@PathVariable("connectorId") String connectorId) {
         ConnectorFacadeProxy connector =
-                ConnInstanceLoader.getConnector(connectorId);
+                connInstanceLoader.getConnector(connectorId);
 
         ModelAndView mav = new ModelAndView();
 
@@ -198,7 +201,7 @@ public class ConnInstanceController extends AbstractController {
             throws NotFoundException, MissingConfKeyException {
 
         ConnectorInfoManager manager =
-                ConnInstanceLoader.getConnectorManager();
+                connInstanceLoader.getConnectorManager();
 
         List<ConnectorInfo> bundles = manager.getConnectorInfos();
 
