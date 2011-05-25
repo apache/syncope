@@ -48,7 +48,7 @@ import org.syncope.types.SyncopeClientExceptionType;
 
 public class UserTestITCase extends AbstractTest {
 
-    private UserTO getSampleTO(final String email) {
+    public static UserTO getSampleTO(final String email) {
         UserTO userTO = new UserTO();
         userTO.setPassword("password");
 

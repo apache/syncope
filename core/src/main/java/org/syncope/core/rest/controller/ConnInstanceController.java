@@ -27,6 +27,7 @@ import org.identityconnectors.framework.api.ConfigurationProperties;
 import org.identityconnectors.framework.api.ConnectorInfo;
 import org.identityconnectors.framework.api.ConnectorInfoManager;
 import org.identityconnectors.framework.api.ConnectorKey;
+import org.springframework.beans.BeansException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -35,7 +36,7 @@ import org.syncope.client.to.ConnBundleTO;
 import org.syncope.client.to.ConnInstanceTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
-import org.syncope.core.persistence.ConnInstanceLoader;
+import org.syncope.core.init.ConnInstanceLoader;
 import org.syncope.core.persistence.beans.ConnInstance;
 import org.syncope.core.persistence.dao.ConnInstanceDAO;
 import org.syncope.core.persistence.dao.MissingConfKeyException;
@@ -47,6 +48,9 @@ import org.syncope.types.SyncopeClientExceptionType;
 @Controller
 @RequestMapping("/connector")
 public class ConnInstanceController extends AbstractController {
+
+    @Autowired
+    private ConnInstanceLoader connInstanceLoader;
 
     @Autowired
     private ConnInstanceDAO connInstanceDAO;
@@ -170,9 +174,15 @@ public class ConnInstanceController extends AbstractController {
     @PreAuthorize("hasRole('CONNECTOR_READ')")
     @RequestMapping(method = RequestMethod.GET,
     value = "/check/{connectorId}")
-    public ModelAndView check(@PathVariable("connectorId") String connectorId) {
-        ConnectorFacadeProxy connector =
-                ConnInstanceLoader.getConnector(connectorId);
+    public ModelAndView check(@PathVariable("connectorId") String connectorId)
+            throws NotFoundException {
+
+        ConnectorFacadeProxy connector;
+        try {
+            connector = connInstanceLoader.getConnector(connectorId);
+        } catch (BeansException e) {
+            throw new NotFoundException("Connector " + connectorId, e);
+        }
 
         ModelAndView mav = new ModelAndView();
 
@@ -198,7 +208,7 @@ public class ConnInstanceController extends AbstractController {
             throws NotFoundException, MissingConfKeyException {
 
         ConnectorInfoManager manager =
-                ConnInstanceLoader.getConnectorManager();
+                connInstanceLoader.getConnectorManager();
 
         List<ConnectorInfo> bundles = manager.getConnectorInfos();
 

@@ -102,8 +102,7 @@ public class ConnInstanceTest extends AbstractTest {
         assertFalse(connectorInstance.getConfiguration().isEmpty());
 
         // perform save operation
-        ConnInstance actual =
-                connInstanceDAO.save(connectorInstance);
+        ConnInstance actual = connInstanceDAO.save(connectorInstance);
 
         assertNotNull("save did not work", actual.getId());
 

@@ -37,7 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.syncope.core.persistence.ConnInstanceLoader;
+import org.syncope.core.init.ConnInstanceLoader;
 import org.syncope.core.persistence.beans.AbstractAttrValue;
 import org.syncope.core.persistence.beans.AbstractAttributable;
 import org.syncope.core.persistence.beans.AbstractDerSchema;
@@ -87,43 +87,38 @@ public class PropagationManager {
      */
     protected static final Logger LOG =
             LoggerFactory.getLogger(PropagationManager.class);
-
+    @Autowired
+    private ConnInstanceLoader connInstanceLoader;
     /**
      * Schema DAO.
      */
     @Autowired
     private SchemaDAO schemaDAO;
-
     /**
      * Derived Schema DAO.
      */
     @Autowired
     private DerSchemaDAO derSchemaDAO;
-
     /**
      * Virtual Schema DAO.
      */
     @Autowired
     private VirSchemaDAO virSchemaDAO;
-
     /**
      * Task DAO.
      */
     @Autowired
     private TaskDAO taskDAO;
-
     /**
      * Task execution DAO.
      */
     @Autowired
     private TaskExecutionDAO taskExecutionDAO;
-
     /**
      * Task execution workflow.
      */
     @Resource(name = "taskExecutionWorkflow")
     private Workflow workflow;
-
     /**
      * JEXL engine for evaluating connector's account link.
      */
@@ -292,7 +287,8 @@ public class PropagationManager {
                     workflowId = workflow.initialize(
                             Constants.TASKEXECUTION_WORKFLOW, 0, null);
                     execution.setWorkflowId(workflowId);
-                } catch (WorkflowException e) {
+                }
+                catch (WorkflowException e) {
                     LOG.error("While initializing workflow for {}",
                             execution, e);
                 }
@@ -425,10 +421,10 @@ public class PropagationManager {
                                 mapping.getSourceAttrName());
 
                         values = attr != null
-                                ? (schema.isUniqueConstraint()
+                                ? ( schema.isUniqueConstraint()
                                 ? Collections.singletonList(
                                 attr.getUniqueValue())
-                                : attr.getValues())
+                                : attr.getValues() )
                                 : Collections.EMPTY_LIST;
 
                         LOG.debug("Retrieved attribute {}", attr
@@ -543,9 +539,9 @@ public class PropagationManager {
                     LOG.debug("Define mapping for: "
                             + "\n* DestAttrName " + mapping.getDestAttrName()
                             + "\n* is accountId " + mapping.isAccountid()
-                            + "\n* is password " + (mapping.isPassword()
+                            + "\n* is password " + ( mapping.isPassword()
                             || mapping.getSourceMappingType().equals(
-                            SourceMappingType.Password))
+                            SourceMappingType.Password) )
                             + "\n* mandatory condition "
                             + mapping.getMandatoryCondition()
                             + "\n* Schema " + mapping.getSourceAttrName()
@@ -599,7 +595,8 @@ public class PropagationManager {
                                 objValues.iterator().next()));
                     }
                 }
-            } catch (Throwable t) {
+            }
+            catch (Throwable t) {
                 LOG.debug("Attribute '{}' processing failed",
                         mapping.getSourceAttrName(), t);
             }
@@ -630,7 +627,7 @@ public class PropagationManager {
                     task.getResource().getConnector();
 
             ConnectorFacadeProxy connector =
-                    ConnInstanceLoader.getConnector(
+                    connInstanceLoader.getConnector(
                     connectorInstance.getId().toString());
 
             if (connector == null) {
@@ -664,7 +661,8 @@ public class PropagationManager {
                                 ? task.getAccountId()
                                 : task.getOldAccountId(),
                                 null);
-                    } catch (RuntimeException ignore) {
+                    }
+                    catch (RuntimeException ignore) {
                         if (LOG.isDebugEnabled()) {
                             LOG.debug("To be ignored, when resolving "
                                     + "username on connector", ignore);
@@ -711,7 +709,8 @@ public class PropagationManager {
 
             LOG.debug("Successfully propagated to resource {}",
                     task.getResource());
-        } catch (Throwable t) {
+        }
+        catch (Throwable t) {
             LOG.error("Exception during provision on resource "
                     + task.getResource().getName(), t);
 
@@ -733,13 +732,15 @@ public class PropagationManager {
                         ? Collections.singletonMap(
                         PropagationMode.SYNC.toString(), null)
                         : null);
-            } catch (Throwable wft) {
+            }
+            catch (Throwable wft) {
                 LOG.error("While executing KO action on {}", execution, wft);
             }
 
             triedPropagationRequests.add(
                     task.getResourceOperationType().toString().toLowerCase());
-        } finally {
+        }
+        finally {
             LOG.debug("Update execution for {}", task);
 
             if (!triedPropagationRequests.isEmpty()) {
@@ -808,7 +809,8 @@ public class PropagationManager {
                         accountId = attributable.getAttribute(
                                 mapping.getSourceAttrName()).
                                 getValuesAsStrings().get(0);
-                    } catch (NullPointerException e) {
+                    }
+                    catch (NullPointerException e) {
                         // ignore exception
                         LOG.debug("Invalid accountId specified", e);
                     }
@@ -826,7 +828,7 @@ public class PropagationManager {
 
                 connectorInstance = resource.getConnector();
 
-                connector = ConnInstanceLoader.getConnector(
+                connector = connInstanceLoader.getConnector(
                         connectorInstance.getId().toString());
 
                 try {
@@ -841,7 +843,8 @@ public class PropagationManager {
                     for (Attribute attribute : attributes) {
                         values.addAll(attribute.getValue());
                     }
-                } catch (Exception e) {
+                }
+                catch (Exception e) {
                     LOG.warn("Error connecting to {}", resource.getName(), e);
                     // ignore exception and go ahead
                 }

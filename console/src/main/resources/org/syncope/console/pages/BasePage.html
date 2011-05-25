@@ -99,8 +99,14 @@
     </head>
     <body>
         <div id="navigationPane">
-            <img src="img/logo.png" alt="syncope" title="syncope" id="logo" />
             <ul>
+                <li style="position: absolute; left: 0px; top: 0px;width:240px;">
+                    <img src="img/logo.png" alt="logo"/><br />
+                    <span style="position: absolute; left: 20px;color:#aaaaaa;">
+                        <span style="font-size:8px;" wicket:id="version"/>
+                        &nbsp;
+                    </span>
+                </li>
                 <li><span>
                         <a href=#" wicket:id="schema"><img src="img/menu/notsel/schema.png" alt="Schema" width="80" height="80" /><br />
                             <wicket:message key="schema"/>

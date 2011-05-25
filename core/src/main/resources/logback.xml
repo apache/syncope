@@ -106,6 +106,14 @@
         <appender-ref ref="rest"/>
     </logger>
     
+    <logger name="org.identityconnectors" additivity="false">
+        <level value="DEBUG"/>
+        <appender-ref ref="connid"/>
+    </logger>
+    <logger name="org.syncope.core.connid" additivity="false">
+        <level value="DEBUG"/>
+        <appender-ref ref="connid"/>
+    </logger>
     <logger name="org.connid" additivity="false">
         <level value="DEBUG"/>
         <appender-ref ref="connid"/>

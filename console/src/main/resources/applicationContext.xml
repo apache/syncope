@@ -32,6 +32,10 @@
         <constructor-arg value="${baseURL}"/>
     </bean>
 
+    <bean id="version" class="java.lang.String">
+        <constructor-arg value="${version}"/>
+    </bean>
+
     <bean id="authorizations" class="java.lang.String">
         <constructor-arg value="authorizations.xml"/>
     </bean>

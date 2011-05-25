@@ -36,8 +36,8 @@ import org.identityconnectors.framework.common.objects.Uid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.ClassUtils;
+import org.syncope.core.init.ConnInstanceLoader;
 import org.syncope.types.ConnConfProperty;
-import org.syncope.core.persistence.ConnInstanceLoader;
 import org.syncope.core.persistence.beans.ConnInstance;
 import org.syncope.types.ConnectorCapability;
 import org.syncope.types.PropagationMode;
@@ -79,7 +79,8 @@ public class ConnectorFacadeProxy {
      * @see ConfigurationProperties
      * @see ConnectorFacade
      */
-    public ConnectorFacadeProxy(final ConnInstance connInstance)
+    public ConnectorFacadeProxy(final ConnInstance connInstance,
+            final ConnInstanceLoader connInstanceLoader)
             throws NotFoundException {
 
         // specify a connector.
@@ -99,10 +100,10 @@ public class ConnectorFacadeProxy {
         }
 
         // get the specified connector.
-        ConnectorInfo info = ConnInstanceLoader.getConnectorManager().
+        ConnectorInfo info = connInstanceLoader.getConnectorManager().
                 findConnectorInfo(key);
         if (info == null) {
-            throw new NotFoundException("Connector Info");
+            throw new NotFoundException("Connector Info for key " + key);
         }
 
         // create default configuration

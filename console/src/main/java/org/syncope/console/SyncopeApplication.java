@@ -27,6 +27,7 @@ import org.apache.wicket.authorization.strategies.role.IRoleCheckingStrategy;
 import org.apache.wicket.authorization.strategies.role.RoleAuthorizationStrategy;
 import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.markup.html.WebPage;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.protocol.http.WebRequest;
@@ -84,7 +85,10 @@ public class SyncopeApplication extends WebApplication
     }
 
     public void setupNavigationPane(final WebPage page,
-            final XMLRolesReader xmlRolesReader) {
+            final XMLRolesReader xmlRolesReader, final String version) {
+
+        page.add(new Label("version", "Console: " + version
+                + "; Core: " + SyncopeSession.get().getCoreVersion()));
 
         BookmarkablePageLink schemaLink =
                 new BookmarkablePageLink("schema", Schema.class);

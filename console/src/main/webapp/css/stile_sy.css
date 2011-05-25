@@ -175,12 +175,6 @@ select[disabled] {
     height: 103px;
 }
 
-#navigationPane img#logo {
-    position: absolute;
-    left: 0px;
-    top: 0px;
-}
-
 #navigationPane a {
     color: #FFF;
     text-decoration: none;
