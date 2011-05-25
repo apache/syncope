@@ -149,9 +149,9 @@ public class Users extends BasePage {
                 }
             };
 
-    final private WebMarkupContainer listContainer;
+    final protected WebMarkupContainer listContainer;
 
-    final private WebMarkupContainer searchResultContainer;
+    final protected WebMarkupContainer searchResultContainer;
 
     public Users(final PageParameters parameters) {
         super(parameters);

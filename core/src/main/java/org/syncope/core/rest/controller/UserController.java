@@ -106,12 +106,10 @@ public class UserController extends AbstractController {
         return user;
     }
 
-    private UserTO executeAction(UserTO userTO, String actionName,
+    private UserTO executeAction(SyncopeUser user, String actionName,
             Map<String, Object> moreInputs)
             throws WorkflowException, NotFoundException,
             UnauthorizedRoleException {
-
-        SyncopeUser user = getUserFromId(userTO.getId());
 
         Map<String, Object> inputs = new HashMap<String, Object>();
         if (moreInputs != null && !moreInputs.isEmpty()) {
@@ -129,6 +127,16 @@ public class UserController extends AbstractController {
         user = userDAO.save(user);
 
         return userDataBinder.getUserTO(user, workflow);
+    }
+
+    private UserTO executeAction(UserTO userTO, String actionName,
+            Map<String, Object> moreInputs)
+            throws WorkflowException, NotFoundException,
+            UnauthorizedRoleException {
+
+        SyncopeUser user = getUserFromId(userTO.getId());
+
+        return executeAction(user, actionName, moreInputs);
     }
 
     @PreAuthorize("hasRole('USER_UPDATE')")
@@ -166,6 +174,40 @@ public class UserController extends AbstractController {
         return executeAction(userTO, Constants.ACTION_VERIFY_TOKEN,
                 Collections.singletonMap(
                 Constants.TOKEN, (Object) userTO.getToken()));
+    }
+
+    @PreAuthorize("hasRole('USER_UPDATE')")
+    @RequestMapping(method = RequestMethod.GET,
+    value = "/suspend/{userId}")
+    public UserTO suspend(@PathVariable("userId") final Long userId)
+            throws NotFoundException, WorkflowException,
+            UnauthorizedRoleException {
+
+        LOG.debug("About to suspend " + userId);
+
+        SyncopeUser user = getUserFromId(userId);
+
+        executeAction(user, "suspend", null);
+        user = userDAO.save(user);
+
+        return userDataBinder.getUserTO(user, workflow);
+    }
+
+    @PreAuthorize("hasRole('USER_UPDATE')")
+    @RequestMapping(method = RequestMethod.GET,
+    value = "/reactivate/{userId}")
+    public UserTO reactivate(final @PathVariable("userId") Long userId)
+            throws NotFoundException, WorkflowException,
+            UnauthorizedRoleException {
+
+        LOG.debug("About to reactivate " + userId);
+
+        SyncopeUser user = getUserFromId(userId);
+
+        executeAction(user, "reactivate", null);
+        user = userDAO.save(user);
+
+        return userDataBinder.getUserTO(user, workflow);
     }
 
     @PreAuthorize("hasRole('USER_READ')")
