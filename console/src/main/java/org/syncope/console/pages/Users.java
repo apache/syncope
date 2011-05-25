@@ -103,7 +103,7 @@ public class Users extends BasePage {
             getWebRequestCycle().getWebRequest(),
             Constants.PREF_USERS_SEARCH_PAGINATOR_ROWS);
 
-    private boolean modalResult = false;
+    protected boolean modalResult = false;
 
     final private IModel<List<String>> schemaNames =
             new LoadableDetachableModel<List<String>>() {
@@ -434,7 +434,7 @@ public class Users extends BasePage {
         searchPaginatorForm.add(searchRowsChooser);
     }
 
-    private void setWindowClosedReloadCallback(final ModalWindow window,
+    protected void setWindowClosedReloadCallback(final ModalWindow window,
             final AjaxFallbackDefaultDataTable<UserTO> table) {
 
         window.setWindowClosedCallback(
