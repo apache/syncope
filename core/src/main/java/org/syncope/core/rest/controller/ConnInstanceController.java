@@ -27,6 +27,7 @@ import org.identityconnectors.framework.api.ConfigurationProperties;
 import org.identityconnectors.framework.api.ConnectorInfo;
 import org.identityconnectors.framework.api.ConnectorInfoManager;
 import org.identityconnectors.framework.api.ConnectorKey;
+import org.springframework.beans.BeansException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -173,9 +174,15 @@ public class ConnInstanceController extends AbstractController {
     @PreAuthorize("hasRole('CONNECTOR_READ')")
     @RequestMapping(method = RequestMethod.GET,
     value = "/check/{connectorId}")
-    public ModelAndView check(@PathVariable("connectorId") String connectorId) {
-        ConnectorFacadeProxy connector =
-                connInstanceLoader.getConnector(connectorId);
+    public ModelAndView check(@PathVariable("connectorId") String connectorId)
+            throws NotFoundException {
+
+        ConnectorFacadeProxy connector;
+        try {
+            connector = connInstanceLoader.getConnector(connectorId);
+        } catch (BeansException e) {
+            throw new NotFoundException("Connector " + connectorId, e);
+        }
 
         ModelAndView mav = new ModelAndView();
 

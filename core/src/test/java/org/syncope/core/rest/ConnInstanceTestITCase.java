@@ -172,13 +172,13 @@ public class ConnInstanceTestITCase extends AbstractTest {
         ConnInstanceTO connectorTO = new ConnInstanceTO();
 
         // set connector instance id
-        connectorTO.setId(100L);
+        connectorTO.setId(103L);
 
         // set connector version
         connectorTO.setVersion(connidSoapVersion);
 
         // set connector name
-        connectorTO.setConnectorName(WebServiceConnector.class.getSimpleName());
+        connectorTO.setConnectorName(WebServiceConnector.class.getName());
 
         // set bundle name
         connectorTO.setBundleName("org.connid.bundles.soap");

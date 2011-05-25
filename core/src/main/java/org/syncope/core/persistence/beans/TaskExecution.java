@@ -15,10 +15,8 @@
 package org.syncope.core.persistence.beans;
 
 import java.util.Date;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
@@ -62,8 +60,7 @@ public class TaskExecution extends AbstractBaseBean {
     /**
      * The referred task.
      */
-    @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.REFRESH},
-    fetch = FetchType.LAZY)
+    @ManyToOne(optional = false)
     private Task task;
 
     /**

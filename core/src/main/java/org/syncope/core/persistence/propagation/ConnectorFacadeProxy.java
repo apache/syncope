@@ -100,7 +100,7 @@ public class ConnectorFacadeProxy {
         ConnectorInfo info = connInstanceLoader.getConnectorManager().
                 findConnectorInfo(key);
         if (info == null) {
-            throw new NotFoundException("Connector Info");
+            throw new NotFoundException("Connector Info for key " + key);
         }
 
         // create default configuration

@@ -47,6 +47,16 @@ public class TaskTest extends AbstractTest {
     private ResourceDAO resourceDAO;
 
     @Test
+    public final void read() {
+        Task task = taskDAO.find(1L);
+        assertNotNull(task);
+
+        assertNotNull(task.getExecutions());
+        assertFalse(task.getExecutions().isEmpty());
+        assertEquals(1, task.getExecutions().size());
+    }
+
+    @Test
     public final void save() {
         TargetResource resource = resourceDAO.find("ws-target-resource-1");
         assertNotNull(resource);

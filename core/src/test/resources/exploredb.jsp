@@ -7,7 +7,6 @@
 <%@page import="java.sql.Connection"%>
 <%@page import="org.syncope.core.util.ApplicationContextManager"%>
 <%@page import="org.springframework.context.ConfigurableApplicationContext"%>
-<%@page import="org.syncope.core.persistence.DefaultContentLoader"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%!
     private void logTableContent(Connection conn, String tableName,

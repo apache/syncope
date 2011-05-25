@@ -58,13 +58,10 @@ public class ConnInstanceLoader {
     private ConfDAO confDAO;
 
     private DefaultListableBeanFactory getBeanFactory() {
+        ConfigurableApplicationContext context =
+                ApplicationContextManager.getApplicationContext();
 
-        synchronized (this) {
-            ConfigurableApplicationContext context =
-                    ApplicationContextManager.getApplicationContext();
-
-            return (DefaultListableBeanFactory) context.getBeanFactory();
-        }
+        return (DefaultListableBeanFactory) context.getBeanFactory();
     }
 
     public ConnectorInfoManager getConnectorManager()

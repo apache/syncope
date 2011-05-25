@@ -26,7 +26,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
@@ -89,8 +88,8 @@ public class Task extends AbstractBaseBean {
     /**
      * When this task has been (or will be) executed, what its result was.
      */
-    @OneToMany(cascade = CascadeType.MERGE, orphanRemoval = true,
-    mappedBy = "task", fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true,
+    mappedBy = "task")
     private List<TaskExecution> executions;
 
     /**
