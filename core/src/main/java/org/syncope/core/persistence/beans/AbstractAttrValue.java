@@ -105,10 +105,6 @@ public abstract class AbstractAttrValue extends AbstractBaseBean {
 
         switch (getAttribute().getSchema().getType()) {
 
-            case String:
-                result = getStringValue();
-                break;
-
             case Boolean:
                 result = getBooleanValue().toString();
                 break;
@@ -126,8 +122,12 @@ public abstract class AbstractAttrValue extends AbstractBaseBean {
             case Date:
                 result = getAttribute().getSchema().getFormatter().
                         format(getDateValue());
+                break;
 
             default:
+                // applied to String and Enum SchemaType
+                result = getStringValue();
+                break;
         }
 
         return result;

@@ -88,6 +88,9 @@
                 mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="1"/>
     <USchema name="cool" type="Boolean"
                 mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+    <USchema name="gender" type="Enum"
+                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
+                enumerationValues="M;F"/>
 
     <RSchema name="icon" type="String"
                 mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
@@ -131,6 +134,8 @@
     <UAttrValue attribute_id="550" id="22" dateValue="2009-06-24"/>
     <UAttr id="560" owner_id="4" schema_name="cool"/>
     <UAttrValue attribute_id="560" id="23" booleanValue="1"/>
+    <UAttr id="561" owner_id="4" schema_name="gender"/>
+    <UAttrValue attribute_id="561" id="24" stringValue="M"/>
     
     <RAttr id="600" owner_id="1" schema_name="icon"/>
     <RAttr id="700" owner_id="2" schema_name="icon"/>

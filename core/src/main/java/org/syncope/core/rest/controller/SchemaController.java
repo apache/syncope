@@ -27,10 +27,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.syncope.client.to.SchemaTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.syncope.core.persistence.beans.AbstractDerSchema;
 import org.syncope.core.rest.data.SchemaDataBinder;
 import org.syncope.core.persistence.beans.AbstractSchema;
-import org.syncope.core.persistence.dao.DerSchemaDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.util.AttributableUtil;
 
@@ -40,9 +38,6 @@ public class SchemaController extends AbstractController {
 
     @Autowired
     private SchemaDAO schemaDAO;
-
-    @Autowired
-    private DerSchemaDAO derSchemaDAO;
 
     @Autowired
     private SchemaDataBinder schemaDataBinder;

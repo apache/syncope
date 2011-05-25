@@ -22,6 +22,7 @@ import java.text.Format;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -62,6 +63,7 @@ import org.syncope.console.rest.ResourceRestClient;
 import org.syncope.console.rest.RoleRestClient;
 import org.syncope.console.rest.SchemaRestClient;
 import org.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
+import org.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.syncope.console.wicket.markup.html.form.DateFieldPanel;
 import org.syncope.console.wicket.markup.html.form.DerivedAttributesForm;
@@ -167,71 +169,96 @@ public class RoleModalPage extends BaseModalPage {
                             required = true;
                         }
 
-                        if (schemaTO.getType() == SchemaType.Boolean) {
-                            panel = new AjaxCheckBoxPanel("panel", schemaTO.getName(), new Model() {
+                        switch (schemaTO.getType()) {
+                            case Boolean:
+                                panel = new AjaxCheckBoxPanel(
+                                        "panel", schemaTO.getName(), new Model() {
 
-                                @Override
-                                public Serializable getObject() {
-                                    return (String) item.getModelObject();
-                                }
-
-                                @Override
-                                public void setObject(Serializable object) {
-                                    Boolean val = (Boolean) object;
-                                    item.setModelObject(val.toString());
-                                }
-                            }, required);
-
-                        } else if (schemaTO.getType() == SchemaType.Date) {
-                            panel = new DateFieldPanel("panel",
-                                    schemaTO.getName(), new Model() {
-
-                                @Override
-                                public Serializable getObject() {
-                                    DateFormat formatter = new SimpleDateFormat(
-                                            schemaTO.getConversionPattern());
-                                    Date date = new Date();
-                                    try {
-                                        String dateValue = (String) item.getModelObject();
-                                        //Default value:yyyy-MM-dd
-                                        if (!dateValue.equals("")) {
-                                            date = formatter.parse(dateValue);
-                                        } else {
-                                            date = null;
-                                        }
-                                    } catch (ParseException e) {
-                                        LOG.error("While parsing a date", e);
+                                    @Override
+                                    public Serializable getObject() {
+                                        return (String) item.getModelObject();
                                     }
-                                    return date;
-                                }
 
-                                @Override
-                                public void setObject(Serializable object) {
-                                    Date date = (Date) object;
-                                    Format formatter = new SimpleDateFormat(
-                                            schemaTO.getConversionPattern());
-                                    String val = formatter.format(date);
-                                    item.setModelObject(val);
-                                }
-                            }, schemaTO.getConversionPattern(),
-                                    required,
-                                    schemaTO.isReadonly(), form);
-                        } else {
-                            /*Common other cases :
-                            java.lang.String,java.lang.Double, java.lang.Long*/
+                                    @Override
+                                    public void setObject(Serializable object) {
+                                        Boolean val = (Boolean) object;
+                                        item.setModelObject(val.toString());
+                                    }
+                                }, required);
+                                break;
 
-                            panel = new AjaxTextFieldPanel("panel", schemaTO.getName(), new Model() {
+                            case Date:
+                                panel = new DateFieldPanel("panel",
+                                        schemaTO.getName(), new Model() {
 
-                                @Override
-                                public Serializable getObject() {
-                                    return (String) item.getModelObject();
-                                }
+                                    @Override
+                                    public Serializable getObject() {
+                                        DateFormat formatter = new SimpleDateFormat(
+                                                schemaTO.getConversionPattern());
+                                        Date date = new Date();
+                                        try {
+                                            String dateValue = (String) item.getModelObject();
+                                            //Default value:yyyy-MM-dd
+                                            if (!dateValue.equals("")) {
+                                                date = formatter.parse(dateValue);
+                                            } else {
+                                                date = null;
+                                            }
+                                        } catch (ParseException e) {
+                                            LOG.error("While parsing a date", e);
+                                        }
+                                        return date;
+                                    }
 
-                                @Override
-                                public void setObject(Serializable object) {
-                                    item.setModelObject((String) object);
-                                }
-                            }, required);
+                                    @Override
+                                    public void setObject(Serializable object) {
+                                        Date date = (Date) object;
+                                        Format formatter = new SimpleDateFormat(
+                                                schemaTO.getConversionPattern());
+                                        String val = formatter.format(date);
+                                        item.setModelObject(val);
+                                    }
+                                }, schemaTO.getConversionPattern(),
+                                        required,
+                                        schemaTO.isReadonly(), form);
+                                break;
+
+                            case Enum:
+                                panel = new AjaxDropDownChoicePanel(
+                                        "panel",
+                                        schemaTO.getName(),
+                                        new Model() {
+
+                                            @Override
+                                            public Serializable getObject() {
+                                                return (String) item.getModelObject();
+                                            }
+
+                                            @Override
+                                            public void setObject(Serializable object) {
+                                                item.setModelObject((String) object);
+                                            }
+                                        },
+                                        Arrays.asList(schemaTO.getEnumerationValues().split(Schema.enumValuesSeparator)),
+                                        new ChoiceRenderer(),
+                                        required);
+                                break;
+
+                            default:
+
+                                panel = new AjaxTextFieldPanel(
+                                        "panel", schemaTO.getName(), new Model() {
+
+                                    @Override
+                                    public Serializable getObject() {
+                                        return (String) item.getModelObject();
+                                    }
+
+                                    @Override
+                                    public void setObject(Serializable object) {
+                                        item.setModelObject((String) object);
+                                    }
+                                }, required);
                         }
 
                         item.add(panel);

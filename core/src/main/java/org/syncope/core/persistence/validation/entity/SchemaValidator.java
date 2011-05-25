@@ -18,6 +18,7 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.types.EntityViolationType;
+import org.syncope.types.SchemaType;
 
 public class SchemaValidator extends AbstractValidator
         implements ConstraintValidator<SchemaCheck, AbstractSchema> {
@@ -31,26 +32,45 @@ public class SchemaValidator extends AbstractValidator
             final ConstraintValidatorContext context) {
 
         boolean isValid = false;
+        EntityViolationType violation = null;
 
-        if (object == null) {
-            isValid = true;
-        } else {
-            isValid = object.isMultivalue()
-                    ? !object.isUniqueConstraint() : true;
+        try {
+            if (object == null) {
+                isValid = true;
+            } else {
+                isValid = !object.getType().equals(SchemaType.Enum)
+                        || object.getEnumerationValues() != null;
 
-            if (!isValid) {
-                LOG.error(object + " cannot be multivalue and have "
-                        + "unique constraint at the same time");
+                if (!isValid) {
+                    violation =
+                            EntityViolationType.InvalidSchemaTypeSpecification;
 
-                context.disableDefaultConstraintViolation();
-                context.buildConstraintViolationWithTemplate(
-                        EntityViolationType.MultivalueAndUniqueConstraint.
-                        toString()).
-                        addNode(object.toString()).
-                        addConstraintViolation();
+                    throw new Exception(object
+                            + " miss enumeration values");
+                }
+
+                isValid = object.isMultivalue()
+                        ? !object.isUniqueConstraint() : true;
+
+                if (!isValid) {
+                    violation =
+                            EntityViolationType.MultivalueAndUniqueConstraint;
+
+                    throw new Exception(object
+                            + " cannot be multivalue and have "
+                            + "unique constraint at the same time");
+                }
             }
-        }
+        } catch (Exception e) {
+            LOG.error(e.getMessage());
 
-        return isValid;
+            context.disableDefaultConstraintViolation();
+            context.buildConstraintViolationWithTemplate(
+                    violation.toString()).
+                    addNode(object.toString()).
+                    addConstraintViolation();
+        } finally {
+            return isValid;
+        }
     }
 }

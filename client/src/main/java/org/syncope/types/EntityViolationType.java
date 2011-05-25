@@ -25,6 +25,8 @@ public enum EntityViolationType {
     "org.syncope.core.validation.attrvalue.moreThanOneNonNull"),
     InvalidSchema(
     "org.syncope.core.validation.attrvalue.invalidSchema"),
+    InvalidSchemaTypeSpecification(
+    "org.syncope.core.validation.attrvalue.invalidSchemaTypeSpecification"),
     InvalidValueList(
     "org.syncope.core.validation.attr.invalidValueList"),
     InvalidEntitlementName(

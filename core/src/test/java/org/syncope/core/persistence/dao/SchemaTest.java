@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.role.RSchema;
 import org.syncope.core.persistence.beans.user.USchema;
 import org.syncope.core.persistence.AbstractTest;
+import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.beans.role.RAttr;
 import org.syncope.core.util.AttributableUtil;
 import org.syncope.core.persistence.validation.entity.InvalidEntityException;
@@ -38,7 +39,7 @@ public class SchemaTest extends AbstractTest {
     @Test
     public final void findAll() {
         List<USchema> userList = schemaDAO.findAll(USchema.class);
-        assertEquals(10, userList.size());
+        assertEquals(11, userList.size());
 
         List<RSchema> roleList = schemaDAO.findAll(RSchema.class);
         assertEquals(4, roleList.size());
@@ -96,6 +97,29 @@ public class SchemaTest extends AbstractTest {
         attributeSchema.setUniqueConstraint(true);
 
         schemaDAO.save(attributeSchema);
+    }
+
+    @Test
+    public final void checkForEnumType() {
+        RSchema schema = new RSchema();
+        schema.setType(SchemaType.Enum);
+        schema.setName("color");
+
+        Throwable ex = null;
+        try {
+            schemaDAO.save(schema);
+        } catch (Throwable t) {
+            ex = t;
+        }
+        assertNotNull(ex);
+
+        schema.setEnumerationValues(
+                "red" + AbstractSchema.enumValuesSeparator + "yellow");
+
+        schemaDAO.save(schema);
+
+        RSchema actual = schemaDAO.find(schema.getName(), RSchema.class);
+        assertNotNull(actual);
     }
 
     @Test

@@ -55,6 +55,8 @@ public abstract class AbstractSchema extends AbstractBaseBean {
                 }
             };
 
+    public static String enumValuesSeparator = ";";
+
     @Id
     private String name;
 
@@ -85,6 +87,9 @@ public abstract class AbstractSchema extends AbstractBaseBean {
 
     @Column(nullable = true)
     private String validatorClass;
+
+    @Column(nullable = true)
+    private String enumerationValues;
 
     @Transient
     private AbstractValidator validator;
@@ -180,6 +185,14 @@ public abstract class AbstractSchema extends AbstractBaseBean {
 
     public void setValidatorClass(String validatorClass) {
         this.validatorClass = validatorClass;
+    }
+
+    public String getEnumerationValues() {
+        return enumerationValues;
+    }
+
+    public void setEnumerationValues(String enumerationValues) {
+        this.enumerationValues = enumerationValues;
     }
 
     public String getConversionPattern() {

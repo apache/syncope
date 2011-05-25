@@ -17,10 +17,18 @@ package org.syncope.core.persistence.validation.attrvalue;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.beans.AbstractAttrValue;
 
 public abstract class AbstractValidator implements Validator {
+
+    /*
+     * Logger
+     */
+    protected static final Logger LOG = LoggerFactory.getLogger(
+            AbstractValidator.class);
 
     protected final AbstractSchema schema;
 
@@ -48,6 +56,7 @@ public abstract class AbstractValidator implements Validator {
         switch (schema.getType()) {
 
             case String:
+            case Enum:
                 attributeValue.setStringValue(value);
                 break;
 

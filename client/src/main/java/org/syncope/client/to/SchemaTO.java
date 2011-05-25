@@ -25,6 +25,8 @@ public class SchemaTO extends AbstractBaseBean {
 
     private String mandatoryCondition;
 
+    private String enumerationValues;
+
     private boolean multivalue;
 
     private boolean uniqueConstraint;
@@ -46,12 +48,21 @@ public class SchemaTO extends AbstractBaseBean {
     public void setConversionPattern(String conversionPattern) {
         this.conversionPattern = conversionPattern;
     }
+
     public String getMandatoryCondition() {
         return mandatoryCondition;
     }
 
     public void setMandatoryCondition(String mandatoryCondition) {
         this.mandatoryCondition = mandatoryCondition;
+    }
+
+    public String getEnumerationValues() {
+        return enumerationValues;
+    }
+
+    public void setEnumerationValues(String enumerationValues) {
+        this.enumerationValues = enumerationValues;
     }
 
     public boolean isMultivalue() {

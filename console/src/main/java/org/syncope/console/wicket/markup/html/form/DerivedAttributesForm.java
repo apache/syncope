@@ -64,7 +64,7 @@ public class DerivedAttributesForm extends Form {
 
         final WebMarkupContainer attributesContainer =
                 new WebMarkupContainer("derAttrContainer");
-
+        
         attributesContainer.setOutputMarkupId(true);
         add(attributesContainer);
 

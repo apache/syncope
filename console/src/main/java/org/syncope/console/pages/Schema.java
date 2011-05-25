@@ -14,6 +14,7 @@
  */
 package org.syncope.console.pages;
 
+import org.syncope.console.SchemaModalPageFactory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -82,6 +83,8 @@ public class Schema extends BasePage {
     private static final int WIN_WIDTH = 400;
 
     private static final int WIN_HEIGHT = 200;
+
+    public static String enumValuesSeparator = ";";
 
     @SpringBean
     private SchemaRestClient restClient;

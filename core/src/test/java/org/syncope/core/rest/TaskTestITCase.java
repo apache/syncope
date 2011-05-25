@@ -18,7 +18,6 @@ import java.util.Arrays;
 import static org.junit.Assert.*;
 
 import java.util.List;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpStatusCodeException;

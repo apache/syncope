@@ -336,6 +336,7 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
                 break;
 
             case String:
+            case Enum:
                 result = "stringvalue";
                 break;
 
@@ -419,7 +420,8 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
                 break;
 
             case LIKE:
-                if (schema.getType() == SchemaType.String) {
+                if (schema.getType() == SchemaType.String
+                        || schema.getType() == SchemaType.Enum) {
                     query.append("' AND ").
                             append(getFieldName(schema.getType()));
                     if (not) {

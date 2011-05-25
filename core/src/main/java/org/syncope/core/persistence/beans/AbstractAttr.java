@@ -41,8 +41,8 @@ public abstract class AbstractAttr extends AbstractBaseBean {
             attrValue = (T) attributableUtil.newAttributeValue();
         }
 
-        attrValue = getSchema().getValidator().getValue(value, attrValue);
         attrValue.setAttribute(this);
+        attrValue = getSchema().getValidator().getValue(value, attrValue);
 
         if (getSchema().isUniqueConstraint()) {
             setUniqueValue(attrValue);

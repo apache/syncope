@@ -46,7 +46,7 @@ public class AttrTest extends AbstractTest {
     public final void findAll() {
         List<UAttr> list = attrDAO.findAll(UAttr.class);
         assertEquals("did not get expected number of attributes ",
-                8, list.size());
+                9, list.size());
     }
 
     @Test
@@ -110,6 +110,48 @@ public class AttrTest extends AbstractTest {
                 UAttr.class);
         assertNotNull("expected save to work", actual);
         assertEquals(attribute, actual);
+    }
+
+    @Test
+    public final void checkForEnumType()
+            throws ClassNotFoundException {
+
+        SyncopeUser user = userDAO.find(1L);
+
+        USchema gender = userSchemaDAO.find("gender", USchema.class);
+        assertNotNull(gender);
+        assertNotNull(gender.getType());
+        assertNotNull(gender.getEnumerationValues());
+
+        UAttr attribute = new UAttr();
+        attribute.setSchema(gender);
+        attribute.setOwner(user);
+        user.addAttribute(attribute);
+
+        Exception thrown = null;
+
+        try {
+            attribute.addValue("A", AttributableUtil.USER);
+        } catch (ValidationException e) {
+            thrown = e;
+        }
+        assertNotNull("validation exception expected here ", thrown);
+
+        attribute.addValue("M", AttributableUtil.USER);
+
+        InvalidEntityException iee = null;
+        try {
+            attribute = attrDAO.save(attribute);
+        } catch (InvalidEntityException e) {
+            iee = e;
+        }
+        assertNull(iee);
+
+        UAttr actual = attrDAO.find(attribute.getId(), UAttr.class);
+        assertNotNull("expected save to work", actual);
+        assertEquals(attribute, actual);
+        assertEquals(actual.getSchema(),gender);
+        assertEquals(actual.getValues().size(),1);
     }
 
     @Test

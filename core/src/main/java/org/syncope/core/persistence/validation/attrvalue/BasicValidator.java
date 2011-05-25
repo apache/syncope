@@ -16,6 +16,7 @@ package org.syncope.core.persistence.validation.attrvalue;
 
 import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.beans.AbstractAttrValue;
+import org.syncope.types.SchemaType;
 
 public class BasicValidator extends AbstractValidator {
 
@@ -27,5 +28,25 @@ public class BasicValidator extends AbstractValidator {
     @Override
     protected void doValidate(AbstractAttrValue attributeValue)
             throws InvalidAttrValueException {
+
+        if (SchemaType.Enum.equals(schema.getType())) {
+            final String[] enumeration =
+                    schema.getEnumerationValues().split(
+                    AbstractSchema.enumValuesSeparator);
+
+            final String value = attributeValue.getValueAsString();
+
+            Boolean found = Boolean.FALSE;
+
+            for (int i = 0; i < enumeration.length && !found; i++) {
+                if (enumeration[i].trim().equals(value)) {
+                    found = Boolean.TRUE;
+                }
+            }
+
+            if (!found) {
+                throw new InvalidAttrValueException(attributeValue);
+            }
+        }
     }
 }

@@ -24,14 +24,29 @@ import org.syncope.core.persistence.beans.user.UAttrValue;
 import org.syncope.core.persistence.dao.AttrDAO;
 import org.syncope.core.persistence.dao.AttrValueDAO;
 import org.syncope.core.persistence.AbstractTest;
+import org.syncope.core.persistence.beans.AbstractSchema;
+import org.syncope.core.persistence.beans.membership.MAttr;
+import org.syncope.core.persistence.beans.membership.MSchema;
+import org.syncope.core.persistence.beans.membership.Membership;
+import org.syncope.core.persistence.dao.MembershipDAO;
+import org.syncope.core.persistence.dao.SchemaDAO;
+import org.syncope.core.util.AttributableUtil;
+import org.syncope.types.SchemaType;
 
 @Transactional
 public class AttrTest extends AbstractTest {
 
     @Autowired
     private AttrDAO attributeDAO;
+
     @Autowired
     private AttrValueDAO attributeValueDAO;
+
+    @Autowired
+    private SchemaDAO schemaDAO;
+
+    @Autowired
+    private MembershipDAO membershipDAO;
 
     @Test
     public final void deleteAttribute() {
@@ -59,5 +74,38 @@ public class AttrTest extends AbstractTest {
         UAttr attribute = attributeDAO.find(200L, UAttr.class);
         assertEquals(attribute.getValues().size(),
                 attributeValueNumber - 1);
+    }
+
+    @Test
+    public final void checkForEnumType() {
+        MSchema schema = new MSchema();
+        schema.setType(SchemaType.Enum);
+        schema.setName("color");
+        schema.setEnumerationValues(
+                "red" + AbstractSchema.enumValuesSeparator + "yellow");
+
+        MSchema actualSchema = schemaDAO.save(schema);
+        assertNotNull(actualSchema);
+
+        Membership membership = membershipDAO.find(1L);
+        assertNotNull(membership);
+
+        MAttr attribute = new MAttr();
+        attribute.setSchema(actualSchema);
+        attribute.setOwner(membership);
+        attribute.addValue("yellow", AttributableUtil.MEMBERSHIP);
+        membership.addAttribute(attribute);
+
+        MAttr actualAttribute = attributeDAO.save(attribute);
+        assertNotNull(actualAttribute);
+
+        membership = membershipDAO.find(1L);
+        assertNotNull(membership);
+        assertNotNull(membership.getAttribute(schema.getName()));
+        assertNotNull(membership.getAttribute(schema.getName()).getValues());
+
+        assertEquals(
+                membership.getAttribute(schema.getName()).getValues().size(),
+                1);
     }
 }
