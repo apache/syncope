@@ -258,4 +258,9 @@ public class UserDAOImpl extends AbstractDAOImpl
 
         entityManager.remove(user);
     }
+
+    @Override
+    public void setSchemaDAO(final SchemaDAO schemaDAO) {
+        this.schemaDAO = schemaDAO;
+    }
 }

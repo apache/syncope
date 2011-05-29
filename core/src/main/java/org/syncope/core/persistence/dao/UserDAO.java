@@ -43,4 +43,6 @@ public interface UserDAO extends DAO {
     void delete(Long id);
 
     void delete(SyncopeUser user);
+
+    void setSchemaDAO(SchemaDAO schemaDAO);
 }

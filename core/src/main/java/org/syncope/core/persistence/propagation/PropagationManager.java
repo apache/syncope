@@ -20,6 +20,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -220,7 +221,7 @@ public class PropagationManager {
      * @param merge
      * @throws PropagationException
      */
-    private void provision(
+    protected void provision(
             final SyncopeUser user,
             final String password,
             final ResourceOperations resourceOperations,
@@ -318,7 +319,7 @@ public class PropagationManager {
     }
 
     private Map<String, Set<Attribute>> prepareAttributes(SyncopeUser user,
-            String password, TargetResource resource) {
+            String password, TargetResource resource) throws PropagationException {
 
         LOG.debug("Preparing resource attributes for {}"
                 + " on resource {}"
@@ -326,13 +327,13 @@ public class PropagationManager {
                 new Object[]{user, resource, user.getAttributes()});
 
         // set of user attributes
-        Set<Attribute> attributes = new HashSet<Attribute>();
+        Set<Attribute> accountAttributes = new HashSet<Attribute>();
 
         // cast to be applied on SchemaValueType
         Class castToBeApplied;
 
         // account id
-        String accountId = null;
+        Map<String, Attribute> accountId = new HashMap<String, Attribute>();
 
         // resource field values
         Set objValues;
@@ -384,13 +385,13 @@ public class PropagationManager {
 
                         AbstractAttrValue uAttrValue = new UAttrValue();
 
-                        if (SourceMappingType.SyncopeUserId == mapping.
-                                getSourceMappingType()) {
+                        if (SourceMappingType.SyncopeUserId
+                                == mapping.getSourceMappingType()) {
 
                             uAttrValue.setStringValue(user.getId().toString());
                         }
-                        if (SourceMappingType.Password == mapping.
-                                getSourceMappingType()
+                        if (SourceMappingType.Password
+                                == mapping.getSourceMappingType()
                                 && password != null) {
 
                             uAttrValue.setStringValue(password);
@@ -441,22 +442,35 @@ public class PropagationManager {
                 // -----------------------------
 
                 if (mapping.isAccountid()) {
-                    accountId = objValues.iterator().next().toString();
+                    if (schema != null && schema.isMultivalue()) {
+                        accountId.put(objValues.iterator().next().toString(),
+                                AttributeBuilder.build(
+                                mapping.getDestAttrName(),
+                                objValues));
+                    } else {
+                        accountId.put(objValues.iterator().next().toString(),
+                                objValues.isEmpty()
+                                ? AttributeBuilder.build(
+                                mapping.getDestAttrName())
+                                : AttributeBuilder.build(
+                                mapping.getDestAttrName(),
+                                objValues.iterator().next()));
+                    }
                 }
 
                 if (mapping.isPassword()) {
-                    attributes.add(AttributeBuilder.buildPassword(
+                    accountAttributes.add(AttributeBuilder.buildPassword(
                             objValues.iterator().next().toString().
                             toCharArray()));
                 }
 
                 if (!mapping.isPassword() && !mapping.isAccountid()) {
                     if (schema != null && schema.isMultivalue()) {
-                        attributes.add(AttributeBuilder.build(
+                        accountAttributes.add(AttributeBuilder.build(
                                 mapping.getDestAttrName(),
                                 objValues));
                     } else {
-                        attributes.add(objValues.isEmpty()
+                        accountAttributes.add(objValues.isEmpty()
                                 ? AttributeBuilder.build(
                                 mapping.getDestAttrName())
                                 : AttributeBuilder.build(
@@ -470,15 +484,30 @@ public class PropagationManager {
             }
         }
 
-        if (accountId != null) {
-            String evaluatedAccountLink = jexlUtil.evaluateWithAttributes(
-                    resource.getAccountLink(), user.getAttributes());
-
-            attributes.add(new Name(evaluatedAccountLink.isEmpty()
-                    ? accountId : evaluatedAccountLink));
+        if (accountId.isEmpty()) {
+            throw new PropagationException(
+                    resource.getName(),
+                    "Missing accountId specification");
         }
 
-        return Collections.singletonMap(accountId, attributes);
+        final String key = accountId.keySet().iterator().next();
+
+        String evaluatedAccountLink = jexlUtil.evaluateWithAttributes(
+                resource.getAccountLink(), user.getAttributes());
+
+        // AccountId must be propagated. It could be a simple attribute for
+        // the target resource or the key (depending on the accountLink)
+        if (evaluatedAccountLink.isEmpty()) {
+            accountAttributes.add(new Name(key));
+        } else {
+            accountAttributes.add(new Name(evaluatedAccountLink));
+
+            // add accountId as attribute ...
+            accountAttributes.add(accountId.values().iterator().next());
+        }
+
+        return Collections.singletonMap(key, accountAttributes);
+
     }
 
     public void propagate(final TaskExecution execution) {

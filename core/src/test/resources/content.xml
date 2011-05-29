@@ -277,7 +277,7 @@
     <SchemaMapping id="114" destAttrName="name"
                    resource_name="ws-target-resource-nopropagation"
                    sourceAttrName="firstname" sourceMappingType="UserSchema" mandatoryCondition="true"
-                   accountid="0" password="0"/>
+                   accountid="1" password="0"/>
                    
     <SchemaMapping id="115" destAttrName="id"
                    resource_name="ws-target-resource-testdb"

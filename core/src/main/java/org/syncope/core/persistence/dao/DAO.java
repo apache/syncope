@@ -14,6 +14,7 @@
  */
 package org.syncope.core.persistence.dao;
 
+import javax.persistence.EntityManager;
 import org.syncope.core.persistence.beans.AbstractBaseBean;
 
 public interface DAO {
@@ -21,4 +22,6 @@ public interface DAO {
     <T extends AbstractBaseBean> T refresh(T entity);
 
     void flush();
+
+    void setEntityManager(EntityManager em);
 }
