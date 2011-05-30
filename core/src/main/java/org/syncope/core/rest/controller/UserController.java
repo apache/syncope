@@ -493,18 +493,6 @@ public class UserController extends AbstractController {
         // Create the user
         user = userDAO.save(user);
 
-        // Now that user is created locally, let's propagate
-        Set<String> mandatoryResourceNames = getMandatoryResourceNames(user,
-                mandatoryRoles, mandatoryResources);
-
-        if (!mandatoryResourceNames.isEmpty()) {
-            LOG.debug("About to propagate mandatory onto resources {}",
-                    mandatoryResourceNames);
-        }
-
-        propagationManager.create(
-                user, userTO.getPassword(), mandatoryResourceNames);
-
         // User is created locally and propagated, let's advance on the workflow
         final Long workflowId =
                 workflow.initialize(Constants.USER_WORKFLOW, 0, null);
@@ -524,7 +512,19 @@ public class UserController extends AbstractController {
             LOG.debug("Action {} on user {} run successfully", wfAction, user);
         }
 
+        // Save possible modifications made by workflow actions
         user = userDAO.save(user);
+
+        // Now that user is created locally, let's propagate
+        Set<String> mandatoryResourceNames = getMandatoryResourceNames(user,
+                mandatoryRoles, mandatoryResources);
+        if (!mandatoryResourceNames.isEmpty()) {
+            LOG.debug("About to propagate mandatory onto resources {}",
+                    mandatoryResourceNames);
+        }
+
+        propagationManager.create(
+                user, userTO.getPassword(), mandatoryResourceNames);
 
         final UserTO savedTO = userDataBinder.getUserTO(user, workflow);
         LOG.debug("About to return create user\n{}", savedTO);
