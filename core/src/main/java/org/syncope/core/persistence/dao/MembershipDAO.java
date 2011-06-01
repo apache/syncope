@@ -32,4 +32,8 @@ public interface MembershipDAO extends DAO {
             throws InvalidEntityException;
 
     void delete(Long id);
+
+    void setRoleDAO(RoleDAO roleDAO);
+
+    void setUserDAO(UserDAO userDAO);
 }

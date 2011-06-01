@@ -158,4 +158,9 @@ public class RoleDAOImpl extends AbstractDAOImpl implements RoleDAO {
 
         entitlementDAO.delete(EntitlementUtil.getEntitlementName(id));
     }
+
+    @Override
+    public void setEntitlementDAO(EntitlementDAO entitlementDAO) {
+        this.entitlementDAO = entitlementDAO;
+    }
 }

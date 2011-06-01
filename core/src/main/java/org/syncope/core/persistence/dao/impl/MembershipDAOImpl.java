@@ -89,4 +89,14 @@ public class MembershipDAOImpl extends AbstractDAOImpl
 
         entityManager.remove(membership);
     }
+
+    @Override
+    public void setRoleDAO(RoleDAO roleDAO) {
+        this.roleDAO = roleDAO;
+    }
+
+    @Override
+    public void setUserDAO(UserDAO userDAO) {
+        this.userDAO = userDAO;
+    }
 }

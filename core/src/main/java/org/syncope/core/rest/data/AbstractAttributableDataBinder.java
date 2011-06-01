@@ -639,4 +639,48 @@ public abstract class AbstractAttributableDataBinder {
             abstractAttributableTO.addResource(resource.getName());
         }
     }
+
+    public void setAttributeDAO(AttrDAO attributeDAO) {
+        this.attributeDAO = attributeDAO;
+    }
+
+    public void setAttributeValueDAO(AttrValueDAO attributeValueDAO) {
+        this.attributeValueDAO = attributeValueDAO;
+    }
+
+    public void setConfDAO(ConfDAO confDAO) {
+        this.confDAO = confDAO;
+    }
+
+    public void setDerivedAttributeDAO(DerAttrDAO derivedAttributeDAO) {
+        this.derivedAttributeDAO = derivedAttributeDAO;
+    }
+
+    public void setDerivedSchemaDAO(DerSchemaDAO derivedSchemaDAO) {
+        this.derivedSchemaDAO = derivedSchemaDAO;
+    }
+
+    public void setMembershipDAO(MembershipDAO membershipDAO) {
+        this.membershipDAO = membershipDAO;
+    }
+
+    public void setResourceDAO(ResourceDAO resourceDAO) {
+        this.resourceDAO = resourceDAO;
+    }
+
+    public void setRoleDAO(RoleDAO roleDAO) {
+        this.roleDAO = roleDAO;
+    }
+
+    public void setSchemaDAO(SchemaDAO schemaDAO) {
+        this.schemaDAO = schemaDAO;
+    }
+
+    public void setUserDAO(UserDAO userDAO) {
+        this.userDAO = userDAO;
+    }
+
+    public void setJexlUtil(JexlUtil jexlUtil) {
+        this.jexlUtil = jexlUtil;
+    }
 }

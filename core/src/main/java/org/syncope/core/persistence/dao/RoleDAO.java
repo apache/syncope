@@ -37,4 +37,6 @@ public interface RoleDAO extends DAO {
             throws InvalidEntityException;
 
     void delete(Long id);
+
+    void setEntitlementDAO(EntitlementDAO entitlementDAO);
 }

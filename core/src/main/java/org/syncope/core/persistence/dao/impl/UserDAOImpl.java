@@ -263,4 +263,9 @@ public class UserDAOImpl extends AbstractDAOImpl
     public void setSchemaDAO(final SchemaDAO schemaDAO) {
         this.schemaDAO = schemaDAO;
     }
+
+    @Override
+    public void setRoleDAO(RoleDAO roleDAO) {
+        this.roleDAO = roleDAO;
+    }
 }
