@@ -62,6 +62,18 @@ public class JPAWorkflowStore implements WorkflowStore {
     @Autowired
     private PropertySetDelegate propertySetDelegate;
 
+    public JPAWorkflowStore() {
+    }
+
+    public JPAWorkflowStore(
+            final EntityManager entityManager,
+            final JPAWorkflowEntryDAO workflowEntryDAO,
+            final PropertySetDelegate propertySetDelegate) {
+        this.entityManager = entityManager;
+        this.workflowEntryDAO = workflowEntryDAO;
+        this.propertySetDelegate = propertySetDelegate;
+    }
+
     private JPAWorkflowEntry getEntry(final long entryId)
             throws StoreException {
 
@@ -286,8 +298,7 @@ public class JPAWorkflowStore implements WorkflowStore {
 
                 default:
                     throw new QueryNotSupportedException(
-                            "Query for unsupported context " + fieldExpression.
-                            getContext());
+                            "Query for unsupported context " + fieldExpression.getContext());
             }
         } else {
             NestedExpression nestedExpression = (NestedExpression) expr;
@@ -296,8 +307,7 @@ public class JPAWorkflowStore implements WorkflowStore {
                 Expression expression = nestedExpression.getExpression(i);
 
                 if (expression.isNested()) {
-                    classesCache.add(getQueryClass(nestedExpression.
-                            getExpression(i), classesCache));
+                    classesCache.add(getQueryClass(nestedExpression.getExpression(i), classesCache));
                 } else {
                     classesCache.add(getQueryClass(expression, classesCache));
                 }
@@ -323,11 +333,9 @@ public class JPAWorkflowStore implements WorkflowStore {
             Expression expression = nestedExpression.getExpression(i);
 
             if (expression.isNested()) {
-                expr = buildNested((NestedExpression) nestedExpression.
-                        getExpression(i), from);
+                expr = buildNested((NestedExpression) nestedExpression.getExpression(i), from);
             } else {
-                FieldExpression sub = (FieldExpression) nestedExpression.
-                        getExpression(i);
+                FieldExpression sub = (FieldExpression) nestedExpression.getExpression(i);
                 expr = queryComp(sub, from);
 
                 if (sub.isNegate()) {
