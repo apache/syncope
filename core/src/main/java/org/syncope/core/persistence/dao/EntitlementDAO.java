@@ -33,4 +33,6 @@ public interface EntitlementDAO extends DAO {
     void delete(String name);
 
     void delete(Entitlement entitlement);
+
+    void setRoleDAO(RoleDAO roleDAO);
 }

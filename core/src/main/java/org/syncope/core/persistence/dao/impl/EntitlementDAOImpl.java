@@ -83,4 +83,9 @@ public class EntitlementDAOImpl extends AbstractDAOImpl
 
         entityManager.remove(entitlement);
     }
+
+    @Override
+    public void setRoleDAO(final RoleDAO roleDAO) {
+        this.roleDAO = roleDAO;
+    }
 }
