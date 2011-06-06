@@ -61,21 +61,24 @@ public class JexlUtil {
 
         JexlContext jexlContext = new MapContext();
 
-        List<? extends AbstractAttrValue> attributeValues;
+        List<String> attributeValues;
         String expressionValue;
         AbstractAttr attribute;
-        AbstractAttrValue attributeValue;
         for (Iterator<? extends AbstractAttr> itor =
                 attributes.iterator(); itor.hasNext();) {
 
             attribute = itor.next();
-            attributeValues = attribute.getValues();
+            attributeValues = attribute.getValuesAsStrings();
             if (attributeValues.isEmpty()) {
                 expressionValue = "";
             } else {
-                attributeValue = attributeValues.iterator().next();
-                expressionValue = attributeValue.getValueAsString();
+                expressionValue = attributeValues.iterator().next();
             }
+
+            LOG.debug("Add attribute {} with value {}",
+                    new Object[]{attribute.getSchema().getName(),
+                        expressionValue
+                    });
 
             jexlContext.set(attribute.getSchema().getName(), expressionValue);
         }
