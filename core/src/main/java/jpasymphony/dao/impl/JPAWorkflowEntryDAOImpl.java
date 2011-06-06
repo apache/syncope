@@ -74,4 +74,10 @@ public class JPAWorkflowEntryDAOImpl extends AbstractDAOImpl
             entityManager.remove(step);
         }
     }
+
+    @Override
+    public void setPropertySetItemDAO(
+            final JPAPropertySetItemDAO propertySetItemDAO) {
+        this.propertySetItemDAO = propertySetItemDAO;
+    }
 }

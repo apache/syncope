@@ -29,4 +29,6 @@ public interface JPAWorkflowEntryDAO extends DAO {
     void delete(Long id);
 
     void deleteCurrentStep(Long stepId);
+
+    void setPropertySetItemDAO(JPAPropertySetItemDAO propertySetItemDAO);
 }
