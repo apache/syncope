@@ -27,6 +27,7 @@ import org.identityconnectors.framework.api.ConnectorFacadeFactory;
 import org.identityconnectors.framework.api.ConnectorInfo;
 import org.identityconnectors.framework.api.ConnectorKey;
 import org.identityconnectors.framework.common.objects.Attribute;
+import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.OperationOptions;
 import org.identityconnectors.framework.common.objects.Uid;
@@ -203,8 +204,6 @@ public class ConnectorFacadeProxy {
     }
 
     public Uid resolveUsername(
-            final PropagationMode propagationMode,
-            final ResourceOperationType operationType,
             final ObjectClass objectClass,
             final String username,
             final OperationOptions options) {
@@ -212,33 +211,9 @@ public class ConnectorFacadeProxy {
         Uid result = null;
 
         if (capabitilies.contains(ConnectorCapability.RESOLVE)) {
-            switch (operationType) {
-                case CREATE:
-                    if (propagationMode == PropagationMode.SYNC
-                            ? capabitilies.contains(
-                            ConnectorCapability.SYNC_CREATE)
-                            : capabitilies.contains(
-                            ConnectorCapability.ASYNC_CREATE)) {
 
-                        result = connector.resolveUsername(
-                                objectClass, username, options);
-                    }
-                    break;
-                case UPDATE:
-                    if (propagationMode == PropagationMode.SYNC
-                            ? capabitilies.contains(
-                            ConnectorCapability.SYNC_UPDATE)
-                            : capabitilies.contains(
-                            ConnectorCapability.ASYNC_UPDATE)) {
-
-                        result = connector.resolveUsername(
-                                objectClass, username, options);
-                    }
-                    break;
-                default:
-                    result = connector.resolveUsername(
-                            objectClass, username, options);
-            }
+            result = connector.resolveUsername(
+                    objectClass, username, options);
         }
 
         return result;
@@ -307,6 +282,67 @@ public class ConnectorFacadeProxy {
 
             connector.delete(objClass, uid, options);
         }
+    }
+
+    /**
+     * Get remote object.
+     */
+    public ConnectorObject getObject(
+            final ObjectClass objectClass,
+            final Uid uid,
+            final OperationOptions options) {
+        return getObject(null, null, objectClass, uid, options);
+    }
+
+    /**
+     * Get remote object used by the propagation manager in order to choose
+     * for a create (object doesn't exist) or an update (object exists)
+     */
+    public ConnectorObject getObject(
+            final PropagationMode propagationMode,
+            final ResourceOperationType operationType,
+            final ObjectClass objectClass,
+            final Uid uid,
+            final OperationOptions options) {
+
+        ConnectorObject result = null;
+
+        if (capabitilies.contains(ConnectorCapability.SEARCH)) {
+            if (operationType == null) {
+                result = connector.getObject(objectClass, uid, options);
+            } else {
+                switch (operationType) {
+                    case CREATE:
+                        if (propagationMode == null
+                                || (propagationMode == PropagationMode.SYNC
+                                ? capabitilies.contains(
+                                ConnectorCapability.SYNC_CREATE)
+                                : capabitilies.contains(
+                                ConnectorCapability.ASYNC_CREATE))) {
+
+                            result = connector.getObject(
+                                    objectClass, uid, options);
+                        }
+                        break;
+                    case UPDATE:
+                        if (propagationMode == null
+                                || (propagationMode == PropagationMode.SYNC
+                                ? capabitilies.contains(
+                                ConnectorCapability.SYNC_UPDATE)
+                                : capabitilies.contains(
+                                ConnectorCapability.ASYNC_UPDATE))) {
+
+                            result = connector.getObject(
+                                    objectClass, uid, options);
+                        }
+                        break;
+                    default:
+                        result = connector.getObject(objectClass, uid, options);
+                }
+            }
+        }
+
+        return result;
     }
 
     public void validate() {

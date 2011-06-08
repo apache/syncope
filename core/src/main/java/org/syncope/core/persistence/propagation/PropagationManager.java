@@ -30,6 +30,8 @@ import org.identityconnectors.framework.common.FrameworkUtil;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
+import org.identityconnectors.framework.common.objects.AttributeUtil;
+import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.Uid;
@@ -498,12 +500,16 @@ public class PropagationManager {
         // AccountId must be propagated. It could be a simple attribute for
         // the target resource or the key (depending on the accountLink)
         if (evaluatedAccountLink.isEmpty()) {
+            // add accountId as __NAME__ attribute ...
+            LOG.debug("Add AccountId [{}] as __NAME__", key);
             accountAttributes.add(new Name(key));
         } else {
+            LOG.debug("Add AccountLink [{}] as __NAME__", evaluatedAccountLink);
             accountAttributes.add(new Name(evaluatedAccountLink));
 
-            // add accountId as attribute ...
-            accountAttributes.add(accountId.values().iterator().next());
+            // AccountId not propagated: 
+            // it will be used to set the value for __UID__ attribute
+            LOG.debug("AccountId will be used just as __UID__ attribute");
         }
 
         return Collections.singletonMap(key, accountAttributes);
@@ -539,16 +545,17 @@ public class PropagationManager {
             switch (task.getResourceOperationType()) {
                 case CREATE:
                 case UPDATE:
-                    Uid userUid = null;
+                    ConnectorObject remoteObject = null;
                     try {
-                        userUid = connector.resolveUsername(
+                        remoteObject = connector.getObject(
                                 task.getPropagationMode(),
                                 task.getResourceOperationType(),
                                 ObjectClass.ACCOUNT,
-                                task.getOldAccountId() == null
+                                new Uid(task.getOldAccountId() == null
                                 ? task.getAccountId()
-                                : task.getOldAccountId(),
+                                : task.getOldAccountId()),
                                 null);
+
                     } catch (RuntimeException ignore) {
                         if (LOG.isDebugEnabled()) {
                             LOG.debug("To be ignored, when resolving "
@@ -556,12 +563,32 @@ public class PropagationManager {
                         }
                     }
 
-                    if (userUid != null) {
+                    if (remoteObject != null) {
+                        // 0. prepare new set of attributes
+                        final Set<Attribute> attributes =
+                                new HashSet<Attribute>(task.getAttributes());
+
+                        // 1. check if rename is really required
+                        final Name newName = (Name) AttributeUtil.find(
+                                Name.NAME, attributes);
+
+                        LOG.debug("Rename required with value {}", newName);
+
+                        if (newName != null) {
+                            if (newName.equals(remoteObject.getName())) {
+                                LOG.debug("Remote object name unchanged");
+                                attributes.remove(newName);
+                            }
+                        }
+
+                        LOG.debug("Attributes to be replaced {}", attributes);
+
+                        // 2. update with a new "normalized" attribute set
                         connector.update(
                                 task.getPropagationMode(),
                                 ObjectClass.ACCOUNT,
-                                userUid,
-                                task.getAttributes(),
+                                remoteObject.getUid(),
+                                attributes,
                                 null,
                                 triedPropagationRequests);
                     } else {
