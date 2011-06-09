@@ -220,14 +220,25 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
 
         // 5. Prepare the result (avoiding duplicates - set)
         Set<Number> userIds = new HashSet<Number>();
-        userIds.addAll(query.getResultList());
+        List resultList = query.getResultList();
+
+        //fix for HHH-5902 - bug hibernate
+        if (resultList != null) {
+            for (Object userId : resultList) {
+                if (userId instanceof Object[]) {
+                    userIds.add((Number) ((Object[]) userId)[0]);
+                } else {
+                    userIds.add((Number) userId);
+                }
+            }
+        }
 
         List<SyncopeUser> result =
                 new ArrayList<SyncopeUser>(userIds.size());
 
         SyncopeUser user;
-        for (Number userId : userIds) {
-            user = userDAO.find(userId.longValue());
+        for (Object userId : userIds) {
+            user = userDAO.find(((Number) userId).longValue());
             if (user == null) {
                 LOG.error("Could not find user with id {}, "
                         + "even though returned by the native query", userId);
