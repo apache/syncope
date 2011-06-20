@@ -147,14 +147,15 @@ public class Resources extends BasePage {
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
                         try {
-                            restClient.delete(resourceTO.getName());
 
+                            restClient.delete(resourceTO.getName());
                             info(getString("operation_succeded"));
+
                         } catch (SyncopeClientCompositeErrorException e) {
-                            info(getString("operation_error"));
+                            error(getString("operation_error"));
 
                             LOG.error("While deleting resource "
-                                    + resourceTO.getName());
+                                    + resourceTO.getName(), e);
                         }
 
                         target.addComponent(feedbackPanel);
