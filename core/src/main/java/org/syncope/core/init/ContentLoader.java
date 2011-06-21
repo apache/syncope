@@ -19,6 +19,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NameClassPair;
+import javax.naming.NamingEnumeration;
 import javax.sql.DataSource;
 import org.dbunit.database.DatabaseConfig;
 import org.dbunit.database.DatabaseConnection;
@@ -49,15 +53,16 @@ public class ContentLoader {
             ContentLoader.class);
 
     @Autowired
-    private DataSource localDataSource;
+    private DataSource dataSource;
 
     @Autowired
     private DefaultDataTypeFactory dbUnitDataTypeFactory;
 
     @Transactional(readOnly = true)
     public void load() {
+
         // 0. DB connection, to be used below
-        Connection conn = DataSourceUtils.getConnection(localDataSource);
+        Connection conn = DataSourceUtils.getConnection(dataSource);
 
         // 1. read persistence.properties
         String dbSchema = null;
@@ -186,7 +191,7 @@ public class ContentLoader {
         } catch (Throwable t) {
             LOG.error("While loading default content", t);
         } finally {
-            DataSourceUtils.releaseConnection(conn, localDataSource);
+            DataSourceUtils.releaseConnection(conn, dataSource);
         }
 
         try {

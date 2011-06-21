@@ -27,6 +27,8 @@
                 <value>classpath:security.properties</value>
             </list>
         </property>
+        <property name="ignoreResourceNotFound" value="true" />
+        <property name="ignoreUnresolvablePlaceholders" value="true" />
     </bean>
 
     <bean class="org.syncope.core.util.ApplicationContextProvider"/>
