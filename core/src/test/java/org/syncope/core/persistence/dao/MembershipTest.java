@@ -40,7 +40,7 @@ public class MembershipTest extends AbstractTest {
     @Test
     public final void findAll() {
         List<Membership> list = membershipDAO.findAll();
-        assertEquals(5, list.size());
+        assertEquals(6, list.size());
     }
 
     @Test

@@ -21,13 +21,15 @@ public class NodeCond extends AbstractBaseBean {
     public enum Type {
 
         LEAF, NOT_LEAF, AND, OR
-
     }
+
     private Type type;
 
     private AttributeCond attributeCond;
 
     private MembershipCond membershipCond;
+
+    private ResourceCond resourceCond;
 
     private NodeCond leftNodeCond;
 
@@ -51,6 +53,15 @@ public class NodeCond extends AbstractBaseBean {
         return nodeCond;
     }
 
+    public static NodeCond getLeafCond(final ResourceCond resourceCond) {
+        NodeCond nodeCond = new NodeCond();
+
+        nodeCond.type = Type.LEAF;
+        nodeCond.resourceCond = resourceCond;
+
+        return nodeCond;
+    }
+
     public static NodeCond getNotLeafCond(final AttributeCond attributeCond) {
         NodeCond nodeCond = getLeafCond(attributeCond);
         nodeCond.type = Type.NOT_LEAF;
@@ -59,6 +70,12 @@ public class NodeCond extends AbstractBaseBean {
 
     public static NodeCond getNotLeafCond(final MembershipCond membershipCond) {
         NodeCond nodeCond = getLeafCond(membershipCond);
+        nodeCond.type = Type.NOT_LEAF;
+        return nodeCond;
+    }
+
+    public static NodeCond getNotLeafCond(final ResourceCond resourceCond) {
+        NodeCond nodeCond = getLeafCond(resourceCond);
         nodeCond.type = Type.NOT_LEAF;
         return nodeCond;
     }
@@ -99,8 +116,16 @@ public class NodeCond extends AbstractBaseBean {
         return membershipCond;
     }
 
+    public final ResourceCond getResourceCond() {
+        return resourceCond;
+    }
+
     public final void setMembershipCond(final MembershipCond membershipCond) {
         this.membershipCond = membershipCond;
+    }
+
+    public void setResourceCond(ResourceCond resourceCond) {
+        this.resourceCond = resourceCond;
     }
 
     public final NodeCond getLeftNodeCond() {
@@ -135,10 +160,18 @@ public class NodeCond extends AbstractBaseBean {
         switch (type) {
             case LEAF:
             case NOT_LEAF:
-                return (attributeCond != null && membershipCond == null
+                return (attributeCond != null
+                        && membershipCond == null
+                        && resourceCond == null
                         && attributeCond.checkValidity())
-                        || (attributeCond == null && membershipCond != null
-                        && membershipCond.checkValidity());
+                        || (attributeCond == null
+                        && membershipCond != null
+                        && resourceCond == null
+                        && membershipCond.checkValidity())
+                        || (attributeCond == null
+                        && membershipCond == null
+                        && resourceCond != null
+                        && resourceCond.checkValidity());
             case AND:
             case OR:
                 return (leftNodeCond == null || rightNodeCond == null)

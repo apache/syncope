@@ -32,6 +32,7 @@ import org.springframework.stereotype.Repository;
 import org.syncope.client.search.AttributeCond;
 import org.syncope.client.search.MembershipCond;
 import org.syncope.client.search.NodeCond;
+import org.syncope.client.search.ResourceCond;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.beans.user.UAttrValue;
 import org.syncope.core.persistence.beans.user.USchema;
@@ -264,6 +265,11 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
                             nodeCond.getType() == NodeCond.Type.NOT_LEAF,
                             parameters));
                 }
+                if (nodeCond.getResourceCond() != null) {
+                    query.append(getQuery(nodeCond.getResourceCond(),
+                            nodeCond.getType() == NodeCond.Type.NOT_LEAF,
+                            parameters));
+                }
                 if (nodeCond.getAttributeCond() != null) {
                     query.append(getQuery(nodeCond.getAttributeCond(),
                             nodeCond.getType() == NodeCond.Type.NOT_LEAF,
@@ -322,6 +328,35 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
             query.append(")");
         }
 
+        return query.toString();
+    }
+
+    private String getQuery(final ResourceCond cond,
+            final boolean not, final Map<Integer, Object> parameters) {
+
+        StringBuilder query = new StringBuilder(
+                "SELECT id AS user_id FROM syncopeuser WHERE id ");
+
+        if (not) {
+            query.append("NOT IN (");
+        } else {
+            query.append(" IN (");
+        }
+
+        query.append("SELECT DISTINCT m.syncopeuser_id AS user_id ").
+                append("FROM membership m, ").
+                append("syncoperole_targetresource rr ").
+                append("WHERE rr.targetresources_name=:param").
+                append(setParameter(random, parameters, cond.getName())).
+                append(" ").
+                append("AND rr.roles_id=m.syncoperole_id ").
+                append("UNION ").
+                append("SELECT DISTINCT ur.users_id AS user_id ").
+                append("FROM syncopeuser_targetresource ur ").
+                append("WHERE ur.targetresources_name=:param").
+                append(setParameter(random, parameters, cond.getName()));
+
+        query.append(")");
 
         return query.toString();
     }
