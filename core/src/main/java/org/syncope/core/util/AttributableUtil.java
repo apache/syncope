@@ -47,15 +47,8 @@ public enum AttributableUtil {
         SourceMappingType result = null;
 
         switch (this) {
-            case USER:
+            default:
                 result = SourceMappingType.UserSchema;
-                break;
-            case ROLE:
-                result = SourceMappingType.RoleSchema;
-                break;
-            case MEMBERSHIP:
-                result = SourceMappingType.MembershipSchema;
-                break;
         }
 
         return result;

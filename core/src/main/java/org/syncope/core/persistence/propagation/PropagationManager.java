@@ -47,9 +47,7 @@ import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.beans.Task;
 import org.syncope.core.persistence.beans.TaskExecution;
-import org.syncope.core.persistence.beans.membership.MSchema;
 import org.syncope.core.persistence.beans.membership.Membership;
-import org.syncope.core.persistence.beans.role.RSchema;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.beans.user.UAttr;
 import org.syncope.core.persistence.beans.user.UAttrValue;
@@ -306,13 +304,6 @@ public class PropagationManager {
                 result = USchema.class;
                 break;
 
-            case RoleSchema:
-                result = RSchema.class;
-                break;
-
-            case MembershipSchema:
-                result = MSchema.class;
-
             default:
                 result = null;
         }
@@ -354,8 +345,6 @@ public class PropagationManager {
             try {
                 switch (mapping.getSourceMappingType()) {
                     case UserSchema:
-                    case RoleSchema:
-                    case MembershipSchema:
                         schema = schemaDAO.find(mapping.getSourceAttrName(),
                                 getSourceMappingTypeClass(
                                 mapping.getSourceMappingType()));
