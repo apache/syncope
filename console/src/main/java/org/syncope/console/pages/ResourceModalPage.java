@@ -70,10 +70,6 @@ public class ResourceModalPage extends BaseModalPage {
 
     private List<String> uSchemaAttrNames;
 
-    private List<String> rSchemaAttrNames;
-
-    private List<String> mSchemaAttrNames;
-
     private WebMarkupContainer mappingContainer;
 
     public ResourceModalPage(final Resources basePage, final ModalWindow window,
@@ -82,8 +78,6 @@ public class ResourceModalPage extends BaseModalPage {
         super();
 
         uSchemaAttrNames = schemaRestClient.getAllUSchemaNames();
-        rSchemaAttrNames = schemaRestClient.getAllRSchemaNames();
-        mSchemaAttrNames = schemaRestClient.getAllMSchemaNames();
 
         final IModel<List<ConnInstanceTO>> connectors =
                 new LoadableDetachableModel<List<ConnInstanceTO>>() {
@@ -212,8 +206,7 @@ public class ResourceModalPage extends BaseModalPage {
 
                     @Override
                     protected IAjaxCallDecorator getAjaxCallDecorator() {
-                        return new AjaxPreprocessingCallDecorator(super.
-                                getAjaxCallDecorator()) {
+                        return new AjaxPreprocessingCallDecorator(super.getAjaxCallDecorator()) {
 
                             @Override
                             public CharSequence preDecorateScript(
@@ -239,14 +232,6 @@ public class ResourceModalPage extends BaseModalPage {
                     switch (mappingTO.getSourceMappingType()) {
                         case UserSchema:
                             schemaAttrChoice.setChoices(uSchemaAttrNames);
-                            break;
-
-                        case RoleSchema:
-                            schemaAttrChoice.setChoices(rSchemaAttrNames);
-                            break;
-
-                        case MembershipSchema:
-                            schemaAttrChoice.setChoices(mSchemaAttrNames);
                             break;
 
                         case SyncopeUserId:
@@ -278,8 +263,7 @@ public class ResourceModalPage extends BaseModalPage {
                         setOutputMarkupId(true));
 
                 item.add(new TextField("destAttrName",
-                        new PropertyModel(mappingTO, "destAttrName")).
-                        setRequired(true).
+                        new PropertyModel(mappingTO, "destAttrName")).setRequired(true).
                         setLabel(new Model(getString("fieldName"))).
                         setOutputMarkupId(true));
 
@@ -407,14 +391,6 @@ public class ResourceModalPage extends BaseModalPage {
                                     switch (model.getObject()) {
                                         case UserSchema:
                                             result = uSchemaAttrNames;
-                                            break;
-
-                                        case RoleSchema:
-                                            result = rSchemaAttrNames;
-                                            break;
-
-                                        case MembershipSchema:
-                                            result = mSchemaAttrNames;
                                             break;
 
                                         case SyncopeUserId:

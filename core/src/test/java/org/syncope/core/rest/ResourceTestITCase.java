@@ -57,12 +57,6 @@ public class ResourceTestITCase extends AbstractTest {
         resourceTO.addMapping(schemaMappingTO);
 
         schemaMappingTO = new SchemaMappingTO();
-        schemaMappingTO.setDestAttrName("icon");
-        schemaMappingTO.setSourceAttrName("icon");
-        schemaMappingTO.setSourceMappingType(SourceMappingType.RoleSchema);
-        resourceTO.addMapping(schemaMappingTO);
-
-        schemaMappingTO = new SchemaMappingTO();
         schemaMappingTO.setDestAttrName("username");
         schemaMappingTO.setSourceAttrName("username");
         schemaMappingTO.setSourceMappingType(SourceMappingType.SyncopeUserId);
