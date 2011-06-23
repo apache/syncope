@@ -75,7 +75,6 @@ import org.syncope.types.ResourceOperationType;
 import org.syncope.types.SourceMappingType;
 import org.syncope.types.SchemaType;
 import org.syncope.types.TaskExecutionStatus;
-import sun.security.util.Password;
 
 /**
  * Manage the data propagation to target resources.
