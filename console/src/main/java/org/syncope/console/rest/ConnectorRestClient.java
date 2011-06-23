@@ -83,12 +83,8 @@ public class ConnectorRestClient extends AbstractBaseRestClient {
      * @return schemaTO
      */
     public void delete(Long id) {
-        try {
-            restTemplate.delete(baseURL
-                    + "connector/delete/{connectorId}.json", id.toString());
-        } catch (SyncopeClientCompositeErrorException e) {
-            LOG.error("While deleting a connector", e);
-        }
+        restTemplate.delete(baseURL
+                + "connector/delete/{connectorId}.json", id.toString());
     }
 
     public List<ConnBundleTO> getAllBundles() {

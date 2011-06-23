@@ -49,10 +49,10 @@
     </bean>
     <bean id="localDataSource"
           class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-        <property name="driverClassName" value="${hibernate.connection.driver_class}"/>
-        <property name="url" value="${hibernate.connection.url}"/>
-        <property name="username" value="${hibernate.connection.username}"/>
-        <property name="password" value="${hibernate.connection.password}"/>
+        <property name="driverClassName" value="${hibernate.connection.driver_class:org.hsqldb.jdbcDriver}"/>
+        <property name="url" value="${hibernate.connection.url:jdbc:hsqldb:mem:syncopedb}"/>
+        <property name="username" value="${hibernate.connection.username:sa}"/>
+        <property name="password" value="${hibernate.connection.password:}"/>
     </bean>
 
     <bean id="entityManagerFactory"

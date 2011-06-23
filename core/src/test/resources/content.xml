@@ -63,6 +63,7 @@
     <Membership id="3" syncopeUser_id="2" syncopeRole_id="2"/>
     <Membership id="4" syncopeUser_id="4" syncopeRole_id="7"/>
     <Membership id="5" syncopeUser_id="1" syncopeRole_id="8"/>
+    <Membership id="6" syncopeUser_id="2" syncopeRole_id="3"/>
 
     <USchema name="username" type="String"
                 mandatoryCondition="true" multivalue="0" uniqueConstraint="1" readonly="0"/>
@@ -242,6 +243,7 @@
     <SyncopeUser_TargetResource users_id="3" targetResources_name="ws-target-resource-2" />
     <SyncopeRole_TargetResource roles_id="8" targetResources_name="ws-target-resource-2" />
     <SyncopeRole_TargetResource roles_id="3" targetResources_name="ws-target-resource-list-mappings-2" />
+    <SyncopeUser_TargetResource users_id="3" targetResources_name="ws-target-resource-1" />
 
     <SchemaMapping id="99" destAttrName="userid"
                    resource_name="ws-target-resource-1"
@@ -326,7 +328,7 @@
     <SchemaMapping id="115" destAttrName="name"
                    resource_name="ws-target-resource-nopropagation"
                    sourceAttrName="firstname" sourceMappingType="UserSchema" mandatoryCondition="true"
-                   accountid="0" password="0"/>
+                   accountid="1" password="0"/>
                    
     <SchemaMapping id="116" destAttrName="id"
                    resource_name="ws-target-resource-testdb"

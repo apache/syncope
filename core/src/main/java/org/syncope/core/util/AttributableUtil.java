@@ -55,15 +55,8 @@ public enum AttributableUtil {
         SourceMappingType result = null;
 
         switch (this) {
-            case USER:
+            default:
                 result = SourceMappingType.UserSchema;
-                break;
-            case ROLE:
-                result = SourceMappingType.RoleSchema;
-                break;
-            case MEMBERSHIP:
-                result = SourceMappingType.MembershipSchema;
-                break;
         }
 
         return result;
@@ -73,15 +66,8 @@ public enum AttributableUtil {
         SourceMappingType result = null;
 
         switch (this) {
-            case USER:
+            default:
                 result = SourceMappingType.UserDerivedSchema;
-                break;
-            case ROLE:
-                result = SourceMappingType.RoleDerivedSchema;
-                break;
-            case MEMBERSHIP:
-                result = SourceMappingType.MembershipDerivedSchema;
-                break;
         }
 
         return result;
@@ -91,15 +77,8 @@ public enum AttributableUtil {
         SourceMappingType result = null;
 
         switch (this) {
-            case USER:
+            default:
                 result = SourceMappingType.UserVirtualSchema;
-                break;
-            case ROLE:
-                result = SourceMappingType.RoleVirtualSchema;
-                break;
-            case MEMBERSHIP:
-                result = SourceMappingType.MembershipVirtualSchema;
-                break;
         }
 
         return result;

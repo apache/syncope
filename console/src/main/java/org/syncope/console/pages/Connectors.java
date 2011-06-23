@@ -43,6 +43,7 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.to.ConnInstanceTO;
 import org.syncope.client.to.ResourceTO;
+import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.PreferenceManager;
 import org.syncope.console.commons.SortableDataProviderComparator;
@@ -170,11 +171,20 @@ public class Connectors extends BasePage {
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
 
-                        if (!checkDeleteIsForbidden(connectorTO)) {
-                            restClient.delete(connectorTO.getId());
-                            info(getString("operation_succeded"));
-                        } else {
-                            error(getString("delete_error"));
+                        try {
+
+                            if (!checkDeleteIsForbidden(connectorTO)) {
+                                restClient.delete(connectorTO.getId());
+                                info(getString("operation_succeded"));
+                            } else {
+                                error(getString("delete_error"));
+                            }
+
+                        } catch (SyncopeClientCompositeErrorException e) {
+                            error(getString("operation_error"));
+
+                            LOG.error("While deleting connector "
+                                    + connectorTO.getId(), e);
                         }
 
                         target.addComponent(container);
@@ -277,10 +287,9 @@ public class Connectors extends BasePage {
     public boolean checkDeleteIsForbidden(ConnInstanceTO connectorTO) {
 
         boolean forbidden = false;
-        List<ResourceTO> resources = resourceRestClient.getAllResources();
 
-        for (ResourceTO resourceTO : resources) {
-            if (resourceTO.getConnectorId() == connectorTO.getId()) {
+        for (ResourceTO resourceTO : resourceRestClient.getAllResources()) {
+            if (resourceTO.getConnectorId().equals(connectorTO.getId())) {
                 forbidden = true;
             }
         }

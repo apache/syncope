@@ -21,6 +21,7 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +31,8 @@ import org.identityconnectors.framework.common.FrameworkUtil;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
+import org.identityconnectors.framework.common.objects.AttributeUtil;
+import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.Uid;
@@ -48,13 +51,7 @@ import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.beans.Task;
 import org.syncope.core.persistence.beans.TaskExecution;
-import org.syncope.core.persistence.beans.membership.MDerSchema;
-import org.syncope.core.persistence.beans.membership.MSchema;
-import org.syncope.core.persistence.beans.membership.MVirSchema;
 import org.syncope.core.persistence.beans.membership.Membership;
-import org.syncope.core.persistence.beans.role.RDerSchema;
-import org.syncope.core.persistence.beans.role.RSchema;
-import org.syncope.core.persistence.beans.role.RVirSchema;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.beans.user.UAttr;
 import org.syncope.core.persistence.beans.user.UAttrValue;
@@ -238,7 +235,7 @@ public class PropagationManager {
      * @param merge
      * @throws PropagationException
      */
-    private void provision(
+    protected void provision(
             final SyncopeUser user,
             final String password,
             final ResourceOperations resourceOperations,
@@ -322,36 +319,12 @@ public class PropagationManager {
                 result = USchema.class;
                 break;
 
-            case RoleSchema:
-                result = RSchema.class;
-                break;
-
-            case MembershipSchema:
-                result = MSchema.class;
-                break;
-
             case UserDerivedSchema:
                 result = UDerSchema.class;
                 break;
 
-            case RoleDerivedSchema:
-                result = RDerSchema.class;
-                break;
-
-            case MembershipDerivedSchema:
-                result = MDerSchema.class;
-                break;
-
             case UserVirtualSchema:
                 result = UVirSchema.class;
-                break;
-
-            case RoleVirtualSchema:
-                result = RVirSchema.class;
-                break;
-
-            case MembershipVirtualSchema:
-                result = MVirSchema.class;
                 break;
 
             default:
@@ -362,7 +335,7 @@ public class PropagationManager {
     }
 
     private Map<String, Set<Attribute>> prepareAttributes(SyncopeUser user,
-            String password, TargetResource resource) {
+            String password, TargetResource resource) throws PropagationException {
 
         LOG.debug("Preparing resource attributes for {}"
                 + " on resource {}"
@@ -370,13 +343,13 @@ public class PropagationManager {
                 new Object[]{user, resource, user.getAttributes()});
 
         // set of user attributes
-        Set<Attribute> attributes = new HashSet<Attribute>();
+        Set<Attribute> accountAttributes = new HashSet<Attribute>();
 
         // cast to be applied on SchemaValueType
         Class castToBeApplied;
 
         // account id
-        String accountId = null;
+        Map<String, Attribute> accountId = new HashMap<String, Attribute>();
 
         // resource field values
         Set objValues;
@@ -406,8 +379,6 @@ public class PropagationManager {
             try {
                 switch (mapping.getSourceMappingType()) {
                     case UserSchema:
-                    case RoleSchema:
-                    case MembershipSchema:
 
                         schema = schemaDAO.find(
                                 mapping.getSourceAttrName(),
@@ -438,8 +409,6 @@ public class PropagationManager {
                         break;
 
                     case UserVirtualSchema:
-                    case RoleVirtualSchema:
-                    case MembershipVirtualSchema:
 
                         virSchema = virSchemaDAO.find(
                                 mapping.getSourceAttrName(),
@@ -474,8 +443,6 @@ public class PropagationManager {
                         break;
 
                     case UserDerivedSchema:
-                    case RoleDerivedSchema:
-                    case MembershipDerivedSchema:
 
                         derSchema = derSchemaDAO.find(
                                 mapping.getSourceAttrName(),
@@ -572,22 +539,35 @@ public class PropagationManager {
                 // -----------------------------
 
                 if (mapping.isAccountid()) {
-                    accountId = objValues.iterator().next().toString();
+                    if (schema != null && schema.isMultivalue()) {
+                        accountId.put(objValues.iterator().next().toString(),
+                                AttributeBuilder.build(
+                                mapping.getDestAttrName(),
+                                objValues));
+                    } else {
+                        accountId.put(objValues.iterator().next().toString(),
+                                objValues.isEmpty()
+                                ? AttributeBuilder.build(
+                                mapping.getDestAttrName())
+                                : AttributeBuilder.build(
+                                mapping.getDestAttrName(),
+                                objValues.iterator().next()));
+                    }
                 }
 
                 if (mapping.isPassword()) {
-                    attributes.add(AttributeBuilder.buildPassword(
+                    accountAttributes.add(AttributeBuilder.buildPassword(
                             objValues.iterator().next().toString().
                             toCharArray()));
                 }
 
                 if (!mapping.isPassword() && !mapping.isAccountid()) {
                     if (schema != null && schema.isMultivalue()) {
-                        attributes.add(AttributeBuilder.build(
+                        accountAttributes.add(AttributeBuilder.build(
                                 mapping.getDestAttrName(),
                                 objValues));
                     } else {
-                        attributes.add(objValues.isEmpty()
+                        accountAttributes.add(objValues.isEmpty()
                                 ? AttributeBuilder.build(
                                 mapping.getDestAttrName())
                                 : AttributeBuilder.build(
@@ -602,15 +582,34 @@ public class PropagationManager {
             }
         }
 
-        if (accountId != null) {
-            String evaluatedAccountLink = jexlUtil.evaluateWithAttributes(
-                    resource.getAccountLink(), user.getAttributes());
-
-            attributes.add(new Name(evaluatedAccountLink.isEmpty()
-                    ? accountId : evaluatedAccountLink));
+        if (accountId.isEmpty()) {
+            throw new PropagationException(
+                    resource.getName(),
+                    "Missing accountId specification");
         }
 
-        return Collections.singletonMap(accountId, attributes);
+        final String key = accountId.keySet().iterator().next();
+
+        String evaluatedAccountLink = jexlUtil.evaluateWithAttributes(
+                resource.getAccountLink(), user.getAttributes());
+
+        // AccountId must be propagated. It could be a simple attribute for
+        // the target resource or the key (depending on the accountLink)
+        if (evaluatedAccountLink.isEmpty()) {
+            // add accountId as __NAME__ attribute ...
+            LOG.debug("Add AccountId [{}] as __NAME__", key);
+            accountAttributes.add(new Name(key));
+        } else {
+            LOG.debug("Add AccountLink [{}] as __NAME__", evaluatedAccountLink);
+            accountAttributes.add(new Name(evaluatedAccountLink));
+
+            // AccountId not propagated: 
+            // it will be used to set the value for __UID__ attribute
+            LOG.debug("AccountId will be used just as __UID__ attribute");
+        }
+
+        return Collections.singletonMap(key, accountAttributes);
+
     }
 
     public void propagate(final TaskExecution execution) {
@@ -642,24 +641,15 @@ public class PropagationManager {
             switch (task.getResourceOperationType()) {
                 case CREATE:
                 case UPDATE:
-
-                    if (LOG.isDebugEnabled()) {
-                        for (Attribute attr : task.getAttributes()) {
-                            LOG.debug("Propagate attribute "
-                                    + attr.getName()
-                                    + " " + attr.getValue());
-                        }
-                    }
-
-                    Uid userUid = null;
+                    ConnectorObject remoteObject = null;
                     try {
-                        userUid = connector.resolveUsername(
+                        remoteObject = connector.getObject(
                                 task.getPropagationMode(),
                                 task.getResourceOperationType(),
                                 ObjectClass.ACCOUNT,
-                                task.getOldAccountId() == null
+                                new Uid(task.getOldAccountId() == null
                                 ? task.getAccountId()
-                                : task.getOldAccountId(),
+                                : task.getOldAccountId()),
                                 null);
                     }
                     catch (RuntimeException ignore) {
@@ -669,12 +659,32 @@ public class PropagationManager {
                         }
                     }
 
-                    if (userUid != null) {
+                    if (remoteObject != null) {
+                        // 0. prepare new set of attributes
+                        final Set<Attribute> attributes =
+                                new HashSet<Attribute>(task.getAttributes());
+
+                        // 1. check if rename is really required
+                        final Name newName = (Name) AttributeUtil.find(
+                                Name.NAME, attributes);
+
+                        LOG.debug("Rename required with value {}", newName);
+
+                        if (newName != null) {
+                            if (newName.equals(remoteObject.getName())) {
+                                LOG.debug("Remote object name unchanged");
+                                attributes.remove(newName);
+                            }
+                        }
+
+                        LOG.debug("Attributes to be replaced {}", attributes);
+
+                        // 2. update with a new "normalized" attribute set
                         connector.update(
                                 task.getPropagationMode(),
                                 ObjectClass.ACCOUNT,
-                                userUid,
-                                task.getAttributes(),
+                                remoteObject.getUid(),
+                                attributes,
                                 null,
                                 triedPropagationRequests);
                     } else {

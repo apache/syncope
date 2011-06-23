@@ -32,6 +32,7 @@ import org.springframework.stereotype.Repository;
 import org.syncope.client.search.AttributeCond;
 import org.syncope.client.search.MembershipCond;
 import org.syncope.client.search.NodeCond;
+import org.syncope.client.search.ResourceCond;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.beans.user.UAttrValue;
 import org.syncope.core.persistence.beans.user.USchema;
@@ -220,14 +221,25 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
 
         // 5. Prepare the result (avoiding duplicates - set)
         Set<Number> userIds = new HashSet<Number>();
-        userIds.addAll(query.getResultList());
+        List resultList = query.getResultList();
+
+        //fix for HHH-5902 - bug hibernate
+        if (resultList != null) {
+            for (Object userId : resultList) {
+                if (userId instanceof Object[]) {
+                    userIds.add((Number) ((Object[]) userId)[0]);
+                } else {
+                    userIds.add((Number) userId);
+                }
+            }
+        }
 
         List<SyncopeUser> result =
                 new ArrayList<SyncopeUser>(userIds.size());
 
         SyncopeUser user;
-        for (Number userId : userIds) {
-            user = userDAO.find(userId.longValue());
+        for (Object userId : userIds) {
+            user = userDAO.find(((Number) userId).longValue());
             if (user == null) {
                 LOG.error("Could not find user with id {}, "
                         + "even though returned by the native query", userId);
@@ -250,6 +262,11 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
             case NOT_LEAF:
                 if (nodeCond.getMembershipCond() != null) {
                     query.append(getQuery(nodeCond.getMembershipCond(),
+                            nodeCond.getType() == NodeCond.Type.NOT_LEAF,
+                            parameters));
+                }
+                if (nodeCond.getResourceCond() != null) {
+                    query.append(getQuery(nodeCond.getResourceCond(),
                             nodeCond.getType() == NodeCond.Type.NOT_LEAF,
                             parameters));
                 }
@@ -311,6 +328,35 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
             query.append(")");
         }
 
+        return query.toString();
+    }
+
+    private String getQuery(final ResourceCond cond,
+            final boolean not, final Map<Integer, Object> parameters) {
+
+        StringBuilder query = new StringBuilder(
+                "SELECT id AS user_id FROM syncopeuser WHERE id ");
+
+        if (not) {
+            query.append("NOT IN (");
+        } else {
+            query.append(" IN (");
+        }
+
+        query.append("SELECT DISTINCT m.syncopeuser_id AS user_id ").
+                append("FROM membership m, ").
+                append("syncoperole_targetresource rr ").
+                append("WHERE rr.targetresources_name=:param").
+                append(setParameter(random, parameters, cond.getName())).
+                append(" ").
+                append("AND rr.roles_id=m.syncoperole_id ").
+                append("UNION ").
+                append("SELECT DISTINCT ur.users_id AS user_id ").
+                append("FROM syncopeuser_targetresource ur ").
+                append("WHERE ur.targetresources_name=:param").
+                append(setParameter(random, parameters, cond.getName()));
+
+        query.append(")");
 
         return query.toString();
     }

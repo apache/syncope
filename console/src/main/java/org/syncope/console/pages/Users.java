@@ -57,6 +57,8 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.search.AttributeCond;
 import org.syncope.client.search.MembershipCond;
 import org.syncope.client.search.NodeCond;
+import org.syncope.client.search.ResourceCond;
+import org.syncope.client.to.ResourceTO;
 import org.syncope.client.to.RoleTO;
 import org.syncope.client.to.UserTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
@@ -66,6 +68,7 @@ import org.syncope.console.commons.SearchConditionWrapper;
 import org.syncope.console.commons.SearchConditionWrapper.FilterType;
 import org.syncope.console.commons.SearchConditionWrapper.OperationType;
 import org.syncope.console.commons.SortableUserProviderComparator;
+import org.syncope.console.rest.ResourceRestClient;
 import org.syncope.console.rest.RoleRestClient;
 import org.syncope.console.rest.SchemaRestClient;
 import org.syncope.console.rest.UserRestClient;
@@ -97,6 +100,9 @@ public class Users extends BasePage {
     private RoleRestClient roleRestClient;
 
     @SpringBean
+    private ResourceRestClient resourceRestClient;
+
+    @SpringBean
     private PreferenceManager prefMan;
 
     final private int paginatorRows = prefMan.getPaginatorRows(
@@ -107,7 +113,7 @@ public class Users extends BasePage {
             getWebRequestCycle().getWebRequest(),
             Constants.PREF_USERS_SEARCH_PAGINATOR_ROWS);
 
-    private boolean modalResult = false;
+    protected boolean modalResult = false;
 
     final private IModel<List<String>> schemaNames =
             new LoadableDetachableModel<List<String>>() {
@@ -170,6 +176,24 @@ public class Users extends BasePage {
                 }
             };
 
+    final private IModel<List<String>> resourceNames =
+            new LoadableDetachableModel<List<String>>() {
+
+                @Override
+                protected List<String> load() {
+                    List<ResourceTO> resourceTOs = resourceRestClient.getAllResources();
+
+                    List<String> result =
+                            new ArrayList<String>(resourceTOs.size());
+
+                    for (ResourceTO resource : resourceTOs) {
+                        result.add(resource.getName());
+                    }
+
+                    return result;
+                }
+            };
+
     final private IModel<List<AttributeCond.Type>> attributeTypes =
             new LoadableDetachableModel<List<AttributeCond.Type>>() {
 
@@ -188,9 +212,9 @@ public class Users extends BasePage {
                 }
             };
 
-    final private WebMarkupContainer listContainer;
+    final protected WebMarkupContainer listContainer;
 
-    final private WebMarkupContainer searchResultContainer;
+    final protected WebMarkupContainer searchResultContainer;
 
     public Users(final PageParameters parameters) {
         super(parameters);
@@ -474,7 +498,7 @@ public class Users extends BasePage {
         searchPaginatorForm.add(searchRowsChooser);
     }
 
-    private void setWindowClosedReloadCallback(final ModalWindow window,
+    protected void setWindowClosedReloadCallback(final ModalWindow window,
             final AjaxFallbackDefaultDataTable<UserTO> table) {
 
         window.setWindowClosedCallback(
@@ -607,95 +631,84 @@ public class Users extends BasePage {
     private NodeCond buildSearchCond(
             final List<SearchConditionWrapper> conditions) {
 
+        // inverse processing: from right to left
+        // (OperationType is specified on the right)
         SearchConditionWrapper searchConditionWrapper =
-                conditions.iterator().next();
+                conditions.get(conditions.size() - 1);
 
-        AttributeCond attributeCond = null;
-        MembershipCond membershipCond = null;
-        if (searchConditionWrapper.getFilterType() == FilterType.ATTRIBUTE) {
-            attributeCond = new AttributeCond();
-            attributeCond.setSchema(searchConditionWrapper.getFilterName());
-            attributeCond.setType(searchConditionWrapper.getType());
-            attributeCond.setExpression(
-                    searchConditionWrapper.getFilterValue());
-        } else {
-            membershipCond = new MembershipCond();
-            membershipCond.setRoleId(RoleTO.fromDisplayName(
-                    searchConditionWrapper.getFilterName()));
+        LOG.debug("Search conditions: "
+                + "fname {}; ftype {}; fvalue {}; OP {}; type {}; isnot {}",
+                new Object[]{
+                    searchConditionWrapper.getFilterName(),
+                    searchConditionWrapper.getFilterType(),
+                    searchConditionWrapper.getFilterValue(),
+                    searchConditionWrapper.getOperationType(),
+                    searchConditionWrapper.getType(),
+                    searchConditionWrapper.isNotOperator()});
+
+        NodeCond nodeCond = null;
+
+        switch (searchConditionWrapper.getFilterType()) {
+            case ATTRIBUTE:
+                final AttributeCond attributeCond = new AttributeCond();
+                attributeCond.setSchema(searchConditionWrapper.getFilterName());
+                attributeCond.setType(searchConditionWrapper.getType());
+                attributeCond.setExpression(
+                        searchConditionWrapper.getFilterValue());
+
+                if (searchConditionWrapper.isNotOperator()) {
+                    nodeCond = NodeCond.getNotLeafCond(attributeCond);
+                } else {
+                    nodeCond = NodeCond.getLeafCond(attributeCond);
+                }
+
+                break;
+            case MEMBERSHIP:
+                final MembershipCond membershipCond = new MembershipCond();
+                membershipCond.setRoleId(RoleTO.fromDisplayName(
+                        searchConditionWrapper.getFilterName()));
+
+                if (searchConditionWrapper.isNotOperator()) {
+                    nodeCond = NodeCond.getNotLeafCond(membershipCond);
+                } else {
+                    nodeCond = NodeCond.getLeafCond(membershipCond);
+                }
+
+                break;
+            case RESOURCE:
+                final ResourceCond resourceCond = new ResourceCond();
+                resourceCond.setName(searchConditionWrapper.getFilterName());
+
+                if (searchConditionWrapper.isNotOperator()) {
+                    nodeCond = NodeCond.getNotLeafCond(resourceCond);
+                } else {
+                    nodeCond = NodeCond.getLeafCond(resourceCond);
+                }
+
+                break;
+            default:
+            // nothing to do
         }
 
-        if (conditions.size() == 1) {
-            if (searchConditionWrapper.getFilterType()
-                    == SearchConditionWrapper.FilterType.ATTRIBUTE) {
-                if (searchConditionWrapper.isNotOperator()) {
-                    return NodeCond.getNotLeafCond(attributeCond);
-                } else {
-                    return NodeCond.getLeafCond(attributeCond);
-                }
-            } else {
-                if (searchConditionWrapper.isNotOperator()) {
-                    return NodeCond.getNotLeafCond(membershipCond);
-                } else {
-                    return NodeCond.getLeafCond(membershipCond);
-                }
-            }
-        } else {
+        LOG.debug("Processed condition {}", nodeCond);
+
+        if (conditions.size() > 1) {
             List<SearchConditionWrapper> subList =
-                    conditions.subList(1, conditions.size());
+                    conditions.subList(0, conditions.size() - 1);
 
-            searchConditionWrapper = subList.iterator().next();
-
-            if (searchConditionWrapper.getOperationType()
-                    == SearchConditionWrapper.OperationType.AND) {
-
-                if (searchConditionWrapper.getFilterType()
-                        == SearchConditionWrapper.FilterType.ATTRIBUTE) {
-
-                    if (attributeCond != null) {
-                        return NodeCond.getAndCond(
-                                NodeCond.getLeafCond(attributeCond),
-                                buildSearchCond(subList));
-                    } else {
-                        return NodeCond.getAndCond(
-                                NodeCond.getLeafCond(membershipCond),
-                                buildSearchCond(subList));
-                    }
-                } else {
-                    if (attributeCond != null) {
-                        return NodeCond.getAndCond(
-                                NodeCond.getLeafCond(attributeCond),
-                                buildSearchCond(subList));
-                    } else {
-                        return NodeCond.getAndCond(
-                                NodeCond.getLeafCond(membershipCond),
-                                buildSearchCond(subList));
-                    }
-                }
+            if (OperationType.OR.equals(
+                    searchConditionWrapper.getOperationType())) {
+                nodeCond = NodeCond.getOrCond(
+                        nodeCond,
+                        buildSearchCond(subList));
             } else {
-                if (searchConditionWrapper.getFilterType()
-                        == SearchConditionWrapper.FilterType.ATTRIBUTE) {
-                    if (attributeCond != null) {
-                        return NodeCond.getOrCond(
-                                NodeCond.getLeafCond(attributeCond),
-                                buildSearchCond(subList));
-                    } else {
-                        return NodeCond.getOrCond(
-                                NodeCond.getLeafCond(membershipCond),
-                                buildSearchCond(subList));
-                    }
-                } else {
-                    if (attributeCond != null) {
-                        return NodeCond.getOrCond(
-                                NodeCond.getLeafCond(attributeCond),
-                                buildSearchCond(subList));
-                    } else {
-                        return NodeCond.getOrCond(
-                                NodeCond.getLeafCond(membershipCond),
-                                buildSearchCond(subList));
-                    }
-                }
+                nodeCond = NodeCond.getAndCond(
+                        nodeCond,
+                        buildSearchCond(subList));
             }
         }
+
+        return nodeCond;
     }
 
     private class UserDataProvider extends SortableDataProvider<UserTO> {
@@ -883,20 +896,7 @@ public class Users extends BasePage {
                     new PropertyModel<String>(
                     searchCondition, "filterName"), (IModel) null);
             filterNameChooser.setOutputMarkupId(true);
-
-            if (searchCondition.getFilterType() == null) {
-                filterNameChooser.setChoices(
-                        Collections.EMPTY_LIST);
-            } else if (searchCondition.getFilterType()
-                    == FilterType.ATTRIBUTE) {
-
-                filterNameChooser.setChoices(schemaNames);
-            } else {
-                filterNameChooser.setChoices(roleNames);
-            }
-
             filterNameChooser.setRequired(true);
-
             item.add(filterNameChooser);
 
             final DropDownChoice<AttributeCond.Type> type =
@@ -912,23 +912,44 @@ public class Users extends BasePage {
                     "filterValue"));
             item.add(filterValue);
 
-            if (searchCondition.getFilterType()
-                    == FilterType.MEMBERSHIP) {
+            try {
+                switch (searchCondition.getFilterType()) {
+                    case ATTRIBUTE:
+                        filterNameChooser.setChoices(schemaNames);
+                        if (!type.isEnabled()) {
+                            type.setEnabled(true);
+                            type.setRequired(true);
+                        }
+                        if (!filterValue.isEnabled()) {
+                            filterValue.setEnabled(true);
+                        }
+                        break;
+                    case MEMBERSHIP:
+                        filterNameChooser.setChoices(roleNames);
+                        type.setEnabled(false);
+                        type.setRequired(false);
+                        type.setModelObject(null);
 
-                type.setEnabled(false);
-                type.setRequired(false);
-                type.setModelObject(null);
+                        filterValue.setEnabled(false);
+                        filterValue.setModelObject("");
 
-                filterValue.setEnabled(false);
-                filterValue.setModelObject("");
-            } else {
-                if (!type.isEnabled()) {
-                    type.setEnabled(true);
-                    type.setRequired(true);
+                        break;
+                    case RESOURCE:
+                        filterNameChooser.setChoices(resourceNames);
+                        type.setEnabled(false);
+                        type.setRequired(false);
+                        type.setModelObject(null);
+
+                        filterValue.setEnabled(false);
+                        filterValue.setModelObject("");
+
+                        break;
+                    default:
+                        filterNameChooser.setChoices(Collections.EMPTY_LIST);
                 }
-                if (!filterValue.isEnabled()) {
-                    filterValue.setEnabled(true);
-                }
+            } catch (NullPointerException npe) {
+                // searchCondition null
+                filterNameChooser.setChoices(Collections.EMPTY_LIST);
             }
 
             DropDownChoice<FilterType> filterTypeChooser =

@@ -44,7 +44,8 @@ public class RoleDAOImpl extends AbstractDAOImpl implements RoleDAO {
 
         try {
             return (SyncopeRole) query.getSingleResult();
-        } catch (NoResultException e) {
+        }
+        catch (NoResultException e) {
             return null;
         }
     }

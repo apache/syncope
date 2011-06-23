@@ -32,7 +32,6 @@ public class MembershipDAOImpl extends AbstractDAOImpl
 
     @Autowired
     private UserDAO userDAO;
-
     @Autowired
     private RoleDAO roleDAO;
 
@@ -52,7 +51,8 @@ public class MembershipDAOImpl extends AbstractDAOImpl
 
         try {
             result = (Membership) query.getSingleResult();
-        } catch (NoResultException e) {
+        }
+        catch (NoResultException e) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("No membership was found for user "
                         + user + " and role " + role);

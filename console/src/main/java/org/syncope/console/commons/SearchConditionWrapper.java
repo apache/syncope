@@ -31,7 +31,7 @@ public class SearchConditionWrapper implements Serializable {
 
     public enum FilterType {
 
-        ATTRIBUTE, MEMBERSHIP
+        ATTRIBUTE, MEMBERSHIP, RESOURCE
 
     };
     private boolean notOperator;

@@ -55,12 +55,10 @@ public class ConnectorFacadeProxy {
      */
     private static final Logger LOG = LoggerFactory.getLogger(
             ConnectorFacadeProxy.class);
-
     /**
      * Connector facade wrapped instance.
      */
     private final ConnectorFacade connector;
-
     /**
      * Set of configure connecto instance capabilities.
      * @see org.syncope.core.persistence.beans.ConnInstance
@@ -185,7 +183,8 @@ public class ConnectorFacadeProxy {
 
                     properties.setPropertyValue(
                             property.getSchema().getName(), propertyValue);
-                } catch (Throwable t) {
+                }
+                catch (Throwable t) {
                     LOG.error("Invalid ConnConfProperty specified: {}",
                             property, t);
                 }
@@ -206,8 +205,6 @@ public class ConnectorFacadeProxy {
     }
 
     public Uid resolveUsername(
-            final PropagationMode propagationMode,
-            final ResourceOperationType operationType,
             final ObjectClass objectClass,
             final String username,
             final OperationOptions options) {
@@ -215,33 +212,9 @@ public class ConnectorFacadeProxy {
         Uid result = null;
 
         if (capabitilies.contains(ConnectorCapability.RESOLVE)) {
-            switch (operationType) {
-                case CREATE:
-                    if (propagationMode == PropagationMode.SYNC
-                            ? capabitilies.contains(
-                            ConnectorCapability.SYNC_CREATE)
-                            : capabitilies.contains(
-                            ConnectorCapability.ASYNC_CREATE)) {
 
-                        result = connector.resolveUsername(
-                                objectClass, username, options);
-                    }
-                    break;
-                case UPDATE:
-                    if (propagationMode == PropagationMode.SYNC
-                            ? capabitilies.contains(
-                            ConnectorCapability.SYNC_UPDATE)
-                            : capabitilies.contains(
-                            ConnectorCapability.ASYNC_UPDATE)) {
-
-                        result = connector.resolveUsername(
-                                objectClass, username, options);
-                    }
-                    break;
-                default:
-                    result = connector.resolveUsername(
-                            objectClass, username, options);
-            }
+            result = connector.resolveUsername(
+                    objectClass, username, options);
         }
 
         return result;
@@ -312,16 +285,70 @@ public class ConnectorFacadeProxy {
         }
     }
 
-    public void validate() {
-        connector.validate();
-    }
-
-    public Set<Attribute> getObject(
-            final ObjectClass objClass,
+    /**
+     * Get remote object.
+     */
+    public ConnectorObject getObject(
+            final ObjectClass objectClass,
             final Uid uid,
             final OperationOptions options) {
-        ConnectorObject object = connector.getObject(objClass, uid, options);
-        return object.getAttributes();
+
+        return getObject(null, null, objectClass, uid, options);
+    }
+
+    /**
+     * Get remote object used by the propagation manager in order to choose
+     * for a create (object doesn't exist) or an update (object exists)
+     */
+    public ConnectorObject getObject(
+            final PropagationMode propagationMode,
+            final ResourceOperationType operationType,
+            final ObjectClass objectClass,
+            final Uid uid,
+            final OperationOptions options) {
+
+        ConnectorObject result = null;
+
+        if (capabitilies.contains(ConnectorCapability.SEARCH)) {
+            if (operationType == null) {
+                result = connector.getObject(objectClass, uid, options);
+            } else {
+                switch (operationType) {
+                    case CREATE:
+                        if (propagationMode == null
+                                || ( propagationMode == PropagationMode.SYNC
+                                ? capabitilies.contains(
+                                ConnectorCapability.SYNC_CREATE)
+                                : capabitilies.contains(
+                                ConnectorCapability.ASYNC_CREATE) )) {
+
+                            result = connector.getObject(
+                                    objectClass, uid, options);
+                        }
+                        break;
+                    case UPDATE:
+                        if (propagationMode == null
+                                || ( propagationMode == PropagationMode.SYNC
+                                ? capabitilies.contains(
+                                ConnectorCapability.SYNC_UPDATE)
+                                : capabitilies.contains(
+                                ConnectorCapability.ASYNC_UPDATE) )) {
+
+                            result = connector.getObject(
+                                    objectClass, uid, options);
+                        }
+                        break;
+                    default:
+                        result = connector.getObject(objectClass, uid, options);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    public void validate() {
+        connector.validate();
     }
 
     public Attribute getObjectAttribute(
@@ -338,7 +365,8 @@ public class ConnectorFacadeProxy {
 
             attribute = object.getAttributeByName(attributeName);
 
-        } catch (NullPointerException e) {
+        }
+        catch (NullPointerException e) {
             // ignore exception
             LOG.debug("Object for '{}' not found", uid.getUidValue());
         }
@@ -362,7 +390,8 @@ public class ConnectorFacadeProxy {
                 attributes.add(object.getAttributeByName(attribute));
             }
 
-        } catch (NullPointerException e) {
+        }
+        catch (NullPointerException e) {
             // ignore exception
             LOG.debug("Object for '{}' not found", uid.getUidValue());
         }

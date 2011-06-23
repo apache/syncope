@@ -41,7 +41,6 @@ public class UserDAOImpl extends AbstractDAOImpl
 
     @Autowired
     private SchemaDAO schemaDAO;
-
     @Autowired
     private RoleDAO roleDAO;
 
@@ -56,7 +55,8 @@ public class UserDAOImpl extends AbstractDAOImpl
 
         try {
             return (SyncopeUser) query.getSingleResult();
-        } catch (NoResultException e) {
+        }
+        catch (NoResultException e) {
             return null;
         }
     }
@@ -189,21 +189,32 @@ public class UserDAOImpl extends AbstractDAOImpl
         final Query query = entityManager.createNativeQuery(
                 getFindAllQuery(adminRoles).toString());
 
-        query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
+        query.setFirstResult(itemsPerPage * ( page <= 0 ? 0 : page - 1 ));
 
         if (itemsPerPage > 0) {
             query.setMaxResults(itemsPerPage);
         }
 
         List<Number> userIds = new ArrayList<Number>();
-        userIds.addAll(query.getResultList());
+        List resultList = query.getResultList();
+
+        //fix for HHH-5902 - bug hibernate
+        if (resultList != null) {
+            for (Object userId : resultList) {
+                if (userId instanceof Object[]) {
+                    userIds.add((Number) ( (Object[]) userId )[0]);
+                } else {
+                    userIds.add((Number) userId);
+                }
+            }
+        }
 
         List<SyncopeUser> result =
                 new ArrayList<SyncopeUser>(userIds.size());
 
         SyncopeUser user;
-        for (Number userId : userIds) {
-            user = find(userId.longValue());
+        for (Object userId : userIds) {
+            user = find(( (Number) userId ).longValue());
             if (user == null) {
                 LOG.error("Could not find user with id {}, "
                         + "even though returned by the native query", userId);
@@ -224,7 +235,7 @@ public class UserDAOImpl extends AbstractDAOImpl
         Query countQuery =
                 entityManager.createNativeQuery(queryString.toString());
 
-        return ((Number) countQuery.getSingleResult()).intValue();
+        return ( (Number) countQuery.getSingleResult() ).intValue();
     }
 
     @Override
@@ -236,7 +247,7 @@ public class UserDAOImpl extends AbstractDAOImpl
                     virtual.getVirtualSchema().getName()).
                     getValues());
         }
-        
+
         return merged;
     }
 

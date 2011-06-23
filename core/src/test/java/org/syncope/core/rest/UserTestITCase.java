@@ -36,6 +36,7 @@ import org.syncope.client.to.AttributeTO;
 import org.syncope.client.search.AttributeCond;
 import org.syncope.client.to.MembershipTO;
 import org.syncope.client.search.NodeCond;
+import org.syncope.client.search.ResourceCond;
 import org.syncope.client.to.TaskTO;
 import org.syncope.client.to.UserTO;
 import org.syncope.client.to.WorkflowActionsTO;
@@ -577,6 +578,36 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(2, userIds.size());
         assertTrue(userIds.contains(2L));
         assertTrue(userIds.contains(3L));
+    }
+
+    @Test
+    public final void searchUserByResourceName() {
+        ResourceCond ws2 = new ResourceCond();
+        ws2.setName("ws-target-resource2");
+
+        ResourceCond ws1 = new ResourceCond();
+        ws1.setName("ws-target-resource-list-mappings-2");
+
+        NodeCond searchCondition = NodeCond.getAndCond(
+                NodeCond.getNotLeafCond(ws2),
+                NodeCond.getLeafCond(ws1));
+
+        assertTrue(searchCondition.checkValidity());
+
+        List<UserTO> matchedUsers = Arrays.asList(
+                restTemplate.postForObject(
+                BASE_URL + "user/search",
+                searchCondition, UserTO[].class));
+        assertNotNull(matchedUsers);
+        assertFalse(matchedUsers.isEmpty());
+
+        Set<Long> userIds = new HashSet<Long>(matchedUsers.size());
+        for (UserTO user : matchedUsers) {
+            userIds.add(user.getId());
+        }
+
+        assertEquals(1, userIds.size());
+        assertTrue(userIds.contains(2L));
     }
 
     @Test

@@ -1,5 +1,3 @@
-package org.syncope.types;
-
 /*
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,11 +12,30 @@ package org.syncope.types;
  *  limitations under the License.
  *  under the License.
  */
-public enum SourceMappingType {
+package org.syncope.client.search;
 
-    UserSchema,
-    UserDerivedSchema,
-    UserVirtualSchema,
-    SyncopeUserId,
-    Password;
+import org.syncope.client.AbstractBaseBean;
+
+/**
+ * Search condition to be applied when searching for associated resources.
+ */
+public class ResourceCond extends AbstractBaseBean {
+
+    private String name;
+
+    public ResourceCond() {
+        super();
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public final boolean checkValidity() {
+        return name != null;
+    }
 }
