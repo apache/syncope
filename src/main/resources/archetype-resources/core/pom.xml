@@ -188,9 +188,9 @@
                         <phase>package</phase>
                         <configuration>
                             <target>
-                                <get src="http://www.apache.org/dist/tomcat/tomcat-7/v7.0.14/bin/apache-tomcat-7.0.14.zip" 
+                                <get src="http://www.apache.org/dist/tomcat/tomcat-7/v7.0.16/bin/apache-tomcat-7.0.16.zip" 
                                      dest="${java.io.tmpdir}" skipexisting="true"/>
-                                <unzip src="${java.io.tmpdir}/apache-tomcat-7.0.14.zip" 
+                                <unzip src="${java.io.tmpdir}/apache-tomcat-7.0.16.zip" 
                                        dest="${java.io.tmpdir}" overwrite="false"/>
                             </target>
                         </configuration>
@@ -240,7 +240,7 @@
                     <wait>true</wait>
                     <container>
                         <containerId>tomcat7x</containerId>
-                        <home>${java.io.tmpdir}/apache-tomcat-7.0.14</home>
+                        <home>${java.io.tmpdir}/apache-tomcat-7.0.16</home>
                         <log>${cargo.log}</log>
                         <output>${cargo.output}</output>
                         <dependencies>
