@@ -22,6 +22,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import javax.validation.ValidationException;
+import org.apache.commons.jexl2.JexlContext;
+import org.apache.commons.jexl2.MapContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -195,9 +197,12 @@ public abstract class AbstractAttributableDataBinder {
             final String mandatoryCondition,
             final List<? extends AbstractAttr> attributes) {
 
+        JexlContext jexlContext = new MapContext();
+        jexlUtil.addAttributesToContext(attributes, jexlContext);
+
         return Boolean.parseBoolean(
                 jexlUtil.evaluateWithAttributes(
-                mandatoryCondition, attributes));
+                mandatoryCondition, jexlContext));
     }
 
     private boolean evaluateMandatoryCondition(

@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.Resource;
+import org.apache.commons.jexl2.JexlContext;
+import org.apache.commons.jexl2.MapContext;
 import org.identityconnectors.framework.common.FrameworkUtil;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.objects.Attribute;
@@ -73,6 +75,7 @@ import org.syncope.types.ResourceOperationType;
 import org.syncope.types.SourceMappingType;
 import org.syncope.types.SchemaType;
 import org.syncope.types.TaskExecutionStatus;
+import sun.security.util.Password;
 
 /**
  * Manage the data propagation to target resources.
@@ -84,38 +87,46 @@ public class PropagationManager {
      */
     protected static final Logger LOG =
             LoggerFactory.getLogger(PropagationManager.class);
+
     @Autowired
     private ConnInstanceLoader connInstanceLoader;
+
     /**
      * Schema DAO.
      */
     @Autowired
     private SchemaDAO schemaDAO;
+
     /**
      * Derived Schema DAO.
      */
     @Autowired
     private DerSchemaDAO derSchemaDAO;
+
     /**
      * Virtual Schema DAO.
      */
     @Autowired
     private VirSchemaDAO virSchemaDAO;
+
     /**
      * Task DAO.
      */
     @Autowired
     private TaskDAO taskDAO;
+
     /**
      * Task execution DAO.
      */
     @Autowired
     private TaskExecutionDAO taskExecutionDAO;
+
     /**
      * Task execution workflow.
      */
     @Resource(name = "taskExecutionWorkflow")
     private Workflow workflow;
+
     /**
      * JEXL engine for evaluating connector's account link.
      */
@@ -284,8 +295,7 @@ public class PropagationManager {
                     workflowId = workflow.initialize(
                             Constants.TASKEXECUTION_WORKFLOW, 0, null);
                     execution.setWorkflowId(workflowId);
-                }
-                catch (WorkflowException e) {
+                } catch (WorkflowException e) {
                     LOG.error("While initializing workflow for {}",
                             execution, e);
                 }
@@ -392,10 +402,10 @@ public class PropagationManager {
                                 mapping.getSourceAttrName());
 
                         values = attr != null
-                                ? ( schema.isUniqueConstraint()
+                                ? (schema.isUniqueConstraint()
                                 ? Collections.singletonList(
                                 attr.getUniqueValue())
-                                : attr.getValues() )
+                                : attr.getValues())
                                 : Collections.EMPTY_LIST;
 
                         LOG.debug("Retrieved attribute {}", attr
@@ -506,9 +516,9 @@ public class PropagationManager {
                     LOG.debug("Define mapping for: "
                             + "\n* DestAttrName " + mapping.getDestAttrName()
                             + "\n* is accountId " + mapping.isAccountid()
-                            + "\n* is password " + ( mapping.isPassword()
+                            + "\n* is password " + (mapping.isPassword()
                             || mapping.getSourceMappingType().equals(
-                            SourceMappingType.Password) )
+                            SourceMappingType.Password))
                             + "\n* mandatory condition "
                             + mapping.getMandatoryCondition()
                             + "\n* Schema " + mapping.getSourceAttrName()
@@ -575,8 +585,7 @@ public class PropagationManager {
                                 objValues.iterator().next()));
                     }
                 }
-            }
-            catch (Throwable t) {
+            } catch (Throwable t) {
                 LOG.debug("Attribute '{}' processing failed",
                         mapping.getSourceAttrName(), t);
             }
@@ -590,8 +599,9 @@ public class PropagationManager {
 
         final String key = accountId.keySet().iterator().next();
 
-        String evaluatedAccountLink = jexlUtil.evaluateWithAttributes(
-                resource.getAccountLink(), user.getAttributes());
+        // Evaluate AccountLink expression
+        String evaluatedAccountLink =
+                evaluateAccountLink(user, resource.getAccountLink());
 
         // AccountId must be propagated. It could be a simple attribute for
         // the target resource or the key (depending on the accountLink)
@@ -651,8 +661,7 @@ public class PropagationManager {
                                 ? task.getAccountId()
                                 : task.getOldAccountId()),
                                 null);
-                    }
-                    catch (RuntimeException ignore) {
+                    } catch (RuntimeException ignore) {
                         if (LOG.isDebugEnabled()) {
                             LOG.debug("To be ignored, when resolving "
                                     + "username on connector", ignore);
@@ -719,8 +728,7 @@ public class PropagationManager {
 
             LOG.debug("Successfully propagated to resource {}",
                     task.getResource());
-        }
-        catch (Throwable t) {
+        } catch (Throwable t) {
             LOG.error("Exception during provision on resource "
                     + task.getResource().getName(), t);
 
@@ -742,15 +750,13 @@ public class PropagationManager {
                         ? Collections.singletonMap(
                         PropagationMode.SYNC.toString(), null)
                         : null);
-            }
-            catch (Throwable wft) {
+            } catch (Throwable wft) {
                 LOG.error("While executing KO action on {}", execution, wft);
             }
 
             triedPropagationRequests.add(
                     task.getResourceOperationType().toString().toLowerCase());
-        }
-        finally {
+        } finally {
             LOG.debug("Update execution for {}", task);
 
             if (!triedPropagationRequests.isEmpty()) {
@@ -819,8 +825,7 @@ public class PropagationManager {
                         accountId = attributable.getAttribute(
                                 mapping.getSourceAttrName()).
                                 getValuesAsStrings().get(0);
-                    }
-                    catch (NullPointerException e) {
+                    } catch (NullPointerException e) {
                         // ignore exception
                         LOG.debug("Invalid accountId specified", e);
                     }
@@ -828,9 +833,7 @@ public class PropagationManager {
             }
 
             if (accountId == null && accountLink != null) {
-                accountId = jexlUtil.evaluateWithAttributes(
-                        resource.getAccountLink(),
-                        attributable.getAttributes());
+                accountId = evaluateAccountLink(attributable, accountLink);
             }
 
             if (attributeNames != null && accountId != null) {
@@ -853,8 +856,7 @@ public class PropagationManager {
                     for (Attribute attribute : attributes) {
                         values.addAll(attribute.getValue());
                     }
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     LOG.warn("Error connecting to {}", resource.getName(), e);
                     // ignore exception and go ahead
                 }
@@ -862,5 +864,23 @@ public class PropagationManager {
         }
 
         return new HashSet<String>(values);
+    }
+
+    private String evaluateAccountLink(
+            final AbstractAttributable attributable, final String accountLink) {
+
+        final JexlContext jexlContext = new MapContext();
+
+        jexlUtil.addAttributesToContext(
+                attributable.getAttributes(),
+                jexlContext);
+
+        jexlUtil.addDerAttributesToContext(
+                attributable.getDerivedAttributes(),
+                attributable.getAttributes(),
+                jexlContext);
+
+        // Evaluate expression using the context prepared before
+        return jexlUtil.evaluateWithAttributes(accountLink, jexlContext);
     }
 }

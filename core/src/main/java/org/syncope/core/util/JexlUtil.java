@@ -26,7 +26,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.syncope.core.persistence.beans.AbstractAttr;
-import org.syncope.core.persistence.beans.AbstractAttrValue;
+import org.syncope.core.persistence.beans.AbstractDerAttr;
+import org.syncope.core.persistence.beans.AbstractVirAttr;
 
 /**
  * @see http://commons.apache.org/jexl/reference/index.html
@@ -53,13 +54,37 @@ public class JexlUtil {
     }
 
     public String evaluateWithAttributes(final String expression,
-            final Collection<? extends AbstractAttr> attributes) {
+            final JexlContext jexlContext) {
 
-        if (expression == null || expression.isEmpty()) {
-            return "";
+        String result;
+
+        if (expression != null
+                && !expression.isEmpty() && jexlContext != null) {
+
+            try {
+                Expression jexlExpression =
+                        jexlEngine.createExpression(expression);
+                result = jexlExpression.evaluate(jexlContext).toString();
+            } catch (JexlException e) {
+                LOG.error("Invalid jexl expression: " + expression, e);
+                result = "";
+            }
+
+        } else {
+            LOG.debug("Expression not provided or invalid context");
+            result = "";
         }
 
-        JexlContext jexlContext = new MapContext();
+        return result;
+    }
+
+    public JexlContext addAttributesToContext(
+            final Collection<? extends AbstractAttr> attributes,
+            JexlContext jexlContext) {
+
+        if (jexlContext == null) {
+            jexlContext = new MapContext();
+        }
 
         List<String> attributeValues;
         String expressionValue;
@@ -83,15 +108,67 @@ public class JexlUtil {
             jexlContext.set(attribute.getSchema().getName(), expressionValue);
         }
 
-        String result;
-        try {
-            Expression jexlExpression = jexlEngine.createExpression(expression);
-            result = jexlExpression.evaluate(jexlContext).toString();
-        } catch (JexlException e) {
-            LOG.error("Invalid jexl expression: " + expression, e);
-            result = "";
+        return jexlContext;
+    }
+
+    public JexlContext addVirAttributesToContext(
+            final Collection<? extends AbstractVirAttr> attributes,
+            JexlContext jexlContext) {
+
+        if (jexlContext == null) {
+            jexlContext = new MapContext();
         }
 
-        return result;
+        List<String> attributeValues;
+        String expressionValue;
+
+        for (AbstractVirAttr attribute : attributes) {
+            attributeValues = attribute.getValues();
+            if (attributeValues.isEmpty()) {
+                expressionValue = "";
+            } else {
+                expressionValue = attributeValues.iterator().next();
+            }
+
+            LOG.debug("Add virtual attribute {} with value {}",
+                    new Object[]{attribute.getVirtualSchema().getName(),
+                        expressionValue
+                    });
+
+            jexlContext.set(
+                    attribute.getVirtualSchema().getName(), expressionValue);
+        }
+
+        return jexlContext;
+    }
+
+    public JexlContext addDerAttributesToContext(
+            final Collection<? extends AbstractDerAttr> derAttributes,
+            final Collection<? extends AbstractAttr> attributes,
+            JexlContext jexlContext) {
+
+        if (jexlContext == null) {
+            jexlContext = new MapContext();
+        }
+
+        String expressionValue;
+
+        for (AbstractDerAttr attribute : derAttributes) {
+            expressionValue = attribute.getValue(attributes);
+
+            if (expressionValue == null) {
+                expressionValue = "";
+            }
+
+            LOG.debug("Add derived attribute {} with value {}",
+                    new Object[]{attribute.getDerivedSchema().getName(),
+                        expressionValue
+                    });
+
+            jexlContext.set(
+                    attribute.getDerivedSchema().getName(), expressionValue);
+        }
+
+        return jexlContext;
     }
 }

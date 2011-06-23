@@ -14,6 +14,8 @@
  */
 package org.syncope.core.persistence.dao.impl;
 
+import java.lang.reflect.Field;
+import java.util.logging.Level;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceContextType;
@@ -44,5 +46,20 @@ public abstract class AbstractDAOImpl implements DAO {
     @Override
     public void flush() {
         entityManager.flush();
+    }
+
+    @Override
+    public void setEntityManager(final EntityManager em) {
+        try {
+
+            Field field = getClass().getDeclaredField("entityManager");
+            field.set(this, em);
+
+        } catch (NoSuchFieldException e) {
+            LOG.error("Field {} not found", "entityManager", e);
+        } catch (Exception e) {
+            LOG.error("Security exception during field retrieving", e);
+        }
+        //entityManager = em;
     }
 }

@@ -19,6 +19,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
+import org.apache.commons.jexl2.JexlContext;
+import org.apache.commons.jexl2.MapContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.syncope.core.util.ApplicationContextManager;
 import org.syncope.core.util.JexlUtil;
@@ -47,8 +49,15 @@ public abstract class AbstractDerAttr extends AbstractBaseBean {
                 ApplicationContextManager.getApplicationContext();
         JexlUtil jexlUtil = (JexlUtil) context.getBean("jexlUtil");
 
+        // Prepare context using user attributes
+        JexlContext jexlContext = new MapContext();
+
+        jexlContext = jexlUtil.addAttributesToContext(
+                attributes, jexlContext);
+
+        // Evaluate expression using the context prepared before
         return jexlUtil.evaluateWithAttributes(
-                getDerivedSchema().getExpression(), attributes);
+                getDerivedSchema().getExpression(), jexlContext);
     }
 
     public abstract <T extends AbstractAttributable> T getOwner();
