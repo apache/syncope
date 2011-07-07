@@ -14,14 +14,11 @@
  */
 package org.syncope.core.persistence.dao;
 
-import javax.persistence.EntityManager;
 import org.syncope.core.persistence.beans.AbstractBaseBean;
 
 public interface DAO {
 
-    <T extends AbstractBaseBean> T refresh(T entity);
+     <T extends AbstractBaseBean> T refresh(T entity);
 
     void flush();
-
-    void setEntityManager(final EntityManager em);
 }
