@@ -13,7 +13,7 @@
     <packaging>pom</packaging>
 
     <properties>
-        <syncope.version>0.6.1-SNAPSHOT</syncope.version>
+        <syncope.version>0.6</syncope.version>
 
         <servlet-api.version>2.5</servlet-api.version>
         <jsp-api.version>2.1</jsp-api.version>
