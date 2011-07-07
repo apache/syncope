@@ -95,26 +95,26 @@
         <aspectj.version>1.6.9</aspectj.version>
         <velocity.version>1.7</velocity.version>
 
-        <hibernate.version>3.6.4.Final</hibernate.version>
-        <hibernate-validator.version>4.1.0.Final</hibernate-validator.version>
+        <hibernate.version>3.6.5.Final</hibernate.version>
+        <hibernate-validator.version>4.2.0.Final</hibernate-validator.version>
         <ehcache.version>2.4.2</ehcache.version>
 
         <wicket.version>1.4.17</wicket.version>
 
-        <org.apache.cxf.version>2.4.0</org.apache.cxf.version>
+        <org.apache.cxf.version>2.4.1</org.apache.cxf.version>
 
         <hsqldb.version>2.0.0</hsqldb.version>
 
         <reflections.version>0.9.5-RC2</reflections.version>
 
-        <logback.version>0.9.28</logback.version>
+        <logback.version>0.9.29</logback.version>
         <slf4j.version>1.6.1</slf4j.version>
 
         <junit.version>4.8.2</junit.version>
 
         <dbunit.version>2.4.8</dbunit.version>
 
-        <cargo.version>1.1.0</cargo.version>
+        <cargo.version>1.1.1</cargo.version>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
@@ -436,20 +436,6 @@
 
     </dependencyManagement>
 
-    <pluginRepositories>
-        <pluginRepository>
-            <id>codehaus-snapshots</id>
-            <name>Codehaus Snapshots</name>
-            <url>http://nexus.codehaus.org/snapshots/</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </pluginRepository>
-    </pluginRepositories>
-
     <repositories>
 
         <repository>
@@ -460,11 +446,6 @@
         <repository>
             <id>jboss</id>
             <url>http://repository.jboss.org/nexus/content/groups/public-jboss/</url>
-        </repository>
-
-        <repository>
-            <id>forgerock</id>
-            <url>http://repo.forgerock.org</url>
         </repository>
 
         <repository>
