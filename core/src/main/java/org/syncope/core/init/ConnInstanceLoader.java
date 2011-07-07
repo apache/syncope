@@ -154,6 +154,9 @@ public class ConnInstanceLoader {
             } catch (NotFoundException e) {
                 LOG.error("While loading connector bundle for instance "
                         + instance, e);
+            } catch (RuntimeException e) {
+                LOG.error("While validating connector bundle for instance "
+                        + instance, e);
             }
         }
     }

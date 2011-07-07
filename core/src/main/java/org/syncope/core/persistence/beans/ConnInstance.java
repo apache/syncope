@@ -78,8 +78,9 @@ public class ConnInstance extends AbstractBaseBean {
      * This is directly implemented by the Configuration bean class which
      * contains annotated ConfigurationProperties (@ConfigurationProperty).
      */
-    @Lob
-    @Column(nullable = false)
+    // @Lob
+    // TODO: http://code.google.com/p/syncope/issues/detail?id=127
+    @Column(nullable = false, length = 1000000)
     private String xmlConfiguration;
 
     private String displayName;
