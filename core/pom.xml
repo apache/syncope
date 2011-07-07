@@ -29,10 +29,6 @@
     <packaging>war</packaging>
 
     <properties>
-        <hsqldb.version>2.0.0</hsqldb.version>
-        <connid.soap.version>1.1-SNAPSHOT</connid.soap.version>
-        <connid.db.table.version>1.2-SNAPSHOT</connid.db.table.version>
-
         <cargo.servlet.port>9080</cargo.servlet.port>
         <cargo.run.dir>${project.build.directory}/syncope-core-test</cargo.run.dir>
         <cargo.log>/var/tmp/syncope-core-cargo.log</cargo.log>
@@ -269,8 +265,6 @@
         <dependency>
             <groupId>org.hsqldb</groupId>
             <artifactId>hsqldb</artifactId>
-            <!-- Putting here 2.0.0 will cause unit tests to hang -->
-            <version>1.8.0.10</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -443,6 +437,13 @@
                     <mode>server</mode>
                     <isTransient>true</isTransient>
                 </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.hsqldb</groupId>
+                        <artifactId>hsqldb</artifactId>
+                        <version>${hsqldb.version}</version>
+                    </dependency>
+                </dependencies>
                 <executions>
                     <execution>
                         <id>startTestDb</id>

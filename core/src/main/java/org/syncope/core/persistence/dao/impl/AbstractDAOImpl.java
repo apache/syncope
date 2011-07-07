@@ -20,6 +20,7 @@ import javax.persistence.PersistenceContextType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.beans.factory.annotation.Value;
 import org.syncope.core.persistence.beans.AbstractBaseBean;
 import org.syncope.core.persistence.dao.DAO;
 
@@ -32,6 +33,7 @@ public abstract class AbstractDAOImpl implements DAO {
     protected static final Logger LOG =
             LoggerFactory.getLogger(AbstractDAOImpl.class);
 
+    @Value("#{entityManager}")
     @PersistenceContext(type = PersistenceContextType.TRANSACTION)
     protected EntityManager entityManager;
 
