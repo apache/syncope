@@ -20,7 +20,7 @@
     <description>Syncope</description>
     <groupId>org.syncope</groupId>
     <artifactId>syncope</artifactId>
-    <version>0.6</version>
+    <version>0.7-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <!-- maven repository on sonatype -->
@@ -44,9 +44,9 @@
     </licenses>
 
     <scm>
-        <connection>scm:svn:http://syncope.googlecode.com/svn/tags/syncope-0.6</connection>
-        <developerConnection>scm:svn:https://syncope.googlecode.com/svn/tags/syncope-0.6</developerConnection>
-        <url>http://syncope.googlecode.com/svn/tags/syncope-0.6</url>
+        <connection>scm:svn:http://syncope.googlecode.com/svn/trunk/</connection>
+        <developerConnection>scm:svn:https://syncope.googlecode.com/svn/trunk/</developerConnection>
+        <url>http://syncope.googlecode.com/svn/trunk/</url>
     </scm>
 
     <issueManagement>
@@ -175,12 +175,12 @@
             <dependency>
                 <groupId>org.connid</groupId>
                 <artifactId>framework</artifactId>
-                <version>1.3</version>
+                <version>1.4-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.connid</groupId>
                 <artifactId>framework-internal</artifactId>
-                <version>1.3</version>
+                <version>1.4-SNAPSHOT</version>
             </dependency>
 
             <dependency>
@@ -414,20 +414,20 @@
             <dependency>
                 <groupId>org.connid.bundles.soap</groupId>
                 <artifactId>org.connid.bundles.soap</artifactId>
-                <version>1.0</version>
+                <version>1.1-SNAPSHOT</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.connid.bundles.soap</groupId>
                 <artifactId>wssample</artifactId>
-                <version>1.0</version>
+                <version>1.1-SNAPSHOT</version>
                 <type>war</type>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.connid.bundles.db</groupId>
                 <artifactId>org.connid.bundles.db.table</artifactId>
-                <version>1.1</version>
+                <version>1.2-SNAPSHOT</version>
                 <scope>test</scope>
             </dependency>
             <!-- /TEST -->
