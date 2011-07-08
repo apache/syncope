@@ -111,16 +111,6 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
                 : targetResources;
     }
 
-    /**
-     * Provide al inherited target resources.
-     * This method must be implemented by all that beans that can be indirectly
-     * associated to some target resources (SyncopeUser for example).
-     * @return
-     */
-    public Set<TargetResource> getInheritedTargetResources() {
-        return Collections.EMPTY_SET;
-    }
-
     public void setResources(Set<TargetResource> resources) {
         this.targetResources = resources;
     }

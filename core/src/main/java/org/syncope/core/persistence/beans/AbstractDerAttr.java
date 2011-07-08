@@ -20,7 +20,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import org.apache.commons.jexl2.JexlContext;
-import org.apache.commons.jexl2.MapContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.syncope.core.util.ApplicationContextManager;
 import org.syncope.core.util.JexlUtil;
@@ -28,6 +27,7 @@ import org.syncope.core.util.JexlUtil;
 @MappedSuperclass
 public abstract class AbstractDerAttr extends AbstractBaseBean {
 
+    private static final long serialVersionUID = 4740924251090424771L;
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     protected Long id;
@@ -47,16 +47,14 @@ public abstract class AbstractDerAttr extends AbstractBaseBean {
 
         ConfigurableApplicationContext context =
                 ApplicationContextManager.getApplicationContext();
-        JexlUtil jexlUtil = (JexlUtil) context.getBean("jexlUtil");
+        JexlUtil jexlUtil = context.getBean(JexlUtil.class);
 
         // Prepare context using user attributes
-        JexlContext jexlContext = new MapContext();
-
-        jexlContext = jexlUtil.addAttributesToContext(
-                attributes, jexlContext);
+        JexlContext jexlContext = jexlUtil.addAttributesToContext(
+                attributes, null);
 
         // Evaluate expression using the context prepared before
-        return jexlUtil.evaluateWithAttributes(
+        return jexlUtil.evaluate(
                 getDerivedSchema().getExpression(), jexlContext);
     }
 

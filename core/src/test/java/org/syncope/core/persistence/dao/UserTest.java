@@ -123,10 +123,4 @@ public class UserTest extends AbstractTest {
         SyncopeUser actual = userDAO.find(3L);
         assertNull("delete did not work", actual);
     }
-
-    @Test
-    public final void getRoleResources() {
-        SyncopeUser user = userDAO.find(1L);
-        assertFalse(user.getInheritedTargetResources().isEmpty());
-    }
 }

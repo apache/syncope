@@ -27,6 +27,8 @@ import org.syncope.core.util.AttributableUtil;
 @AttrCheck
 public abstract class AbstractAttr extends AbstractBaseBean {
 
+    private static final long serialVersionUID = -9115431608821806124L;
+
     public abstract Long getId();
 
     public <T extends AbstractAttrValue> T addValue(final String value,
@@ -36,7 +38,7 @@ public abstract class AbstractAttr extends AbstractBaseBean {
         T attrValue;
         if (getSchema().isUniqueConstraint()) {
             attrValue = (T) attributableUtil.newAttributeUniqueValue();
-            ((AbstractAttrUniqueValue) attrValue).setSchema(getSchema());
+            ( (AbstractAttrUniqueValue) attrValue ).setSchema(getSchema());
         } else {
             attrValue = (T) attributableUtil.newAttributeValue();
         }

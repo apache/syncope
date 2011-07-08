@@ -42,6 +42,8 @@ import org.syncope.core.persistence.beans.user.SyncopeUser;
 }))
 public class Membership extends AbstractAttributable {
 
+    private static final long serialVersionUID = 5030106264797289469L;
+
     @Id
     private Long id;
 
@@ -64,6 +66,8 @@ public class Membership extends AbstractAttributable {
     private List<MVirAttr> virtualAttributes;
 
     public Membership() {
+        super();
+
         attributes = new ArrayList<MAttr>();
         derivedAttributes = new ArrayList<MDerAttr>();
         virtualAttributes = new ArrayList<MVirAttr>();

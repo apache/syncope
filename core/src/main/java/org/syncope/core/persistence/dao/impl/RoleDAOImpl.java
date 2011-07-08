@@ -89,18 +89,6 @@ public class RoleDAOImpl extends AbstractDAOImpl implements RoleDAO {
         return query.getResultList();
     }
 
-    private List<Long> getAncestors(final SyncopeRole role,
-            final List<Long> ancestors) {
-
-        ancestors.add(role.getId());
-
-        if (role.getParent() != null && role.isInheritAttributes()) {
-            return getAncestors(role.getParent(), ancestors);
-        }
-
-        return ancestors;
-    }
-
     @Override
     public List<SyncopeRole> findAll() {
         Query query = entityManager.createQuery("SELECT e FROM SyncopeRole e");

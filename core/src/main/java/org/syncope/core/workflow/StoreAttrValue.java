@@ -69,7 +69,7 @@ public class StoreAttrValue extends OSWorkflowComponent
                     + attributableUtil);
         }
 
-        SchemaDAO schemaDAO = (SchemaDAO) context.getBean("schemaDAOImpl");
+        SchemaDAO schemaDAO = context.getBean(SchemaDAO.class);
         AbstractSchema schema = schemaDAO.find(schemaName,
                 attributableUtil.schemaClass());
         if (schema == null) {

@@ -53,8 +53,7 @@ public class SendVelocityEmail extends AbstractSendEmail {
         final SyncopeUser user =
                 (SyncopeUser) transientVars.get(Constants.SYNCOPE_USER);
 
-        VelocityEngine velocityEngine =
-                (VelocityEngine) context.getBean("velocityEngine");
+        VelocityEngine velocityEngine = context.getBean(VelocityEngine.class);
 
         final Map<String, Object> model = new HashMap<String, Object>();
         List<String> values;

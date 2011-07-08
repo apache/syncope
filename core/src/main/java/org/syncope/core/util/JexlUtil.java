@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.syncope.core.persistence.beans.AbstractAttr;
+import org.syncope.core.persistence.beans.AbstractAttributable;
 import org.syncope.core.persistence.beans.AbstractDerAttr;
 import org.syncope.core.persistence.beans.AbstractVirAttr;
 
@@ -43,17 +44,19 @@ public class JexlUtil {
     private JexlEngine jexlEngine;
 
     public boolean isExpressionValid(final String expression) {
-        boolean result = true;
+        boolean result;
         try {
             jexlEngine.createExpression(expression);
+            result = true;
         } catch (JexlException e) {
             LOG.error("Invalid jexl expression: " + expression, e);
             result = false;
         }
+
         return result;
     }
 
-    public String evaluateWithAttributes(final String expression,
+    public String evaluate(final String expression,
             final JexlContext jexlContext) {
 
         String result;
@@ -76,6 +79,24 @@ public class JexlUtil {
         }
 
         return result;
+    }
+
+    public String evaluate(final String expression,
+            final AbstractAttributable attributable) {
+
+        final JexlContext jexlContext = new MapContext();
+
+        addAttributesToContext(
+                attributable.getAttributes(),
+                jexlContext);
+
+        addDerAttributesToContext(
+                attributable.getDerivedAttributes(),
+                attributable.getAttributes(),
+                jexlContext);
+
+        // Evaluate expression using the context prepared before
+        return evaluate(expression, jexlContext);
     }
 
     public JexlContext addAttributesToContext(

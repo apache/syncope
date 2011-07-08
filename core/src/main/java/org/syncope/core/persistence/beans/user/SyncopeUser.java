@@ -52,14 +52,14 @@ import org.syncope.types.CipherAlgorithm;
 @Cacheable
 public class SyncopeUser extends AbstractAttributable {
 
+    private static final long serialVersionUID = -3905046855521446823L;
+
     private static SecretKeySpec keySpec;
 
     static {
         try {
-
             keySpec = new SecretKeySpec(
                     "1abcdefghilmnopqrstuvz2!".getBytes("UTF8"), "AES");
-
         } catch (Exception e) {
             LOG.error("Error during key specification", e);
         }
@@ -97,9 +97,11 @@ public class SyncopeUser extends AbstractAttributable {
 
     @Column(nullable = true)
     @Enumerated(STRING)
-    CipherAlgorithm cipherAlgorithm;
+    private CipherAlgorithm cipherAlgorithm;
 
     public SyncopeUser() {
+        super();
+
         memberships = new ArrayList<Membership>();
         attributes = new ArrayList<UAttr>();
         derivedAttributes = new ArrayList<UDerAttr>();
@@ -121,9 +123,8 @@ public class SyncopeUser extends AbstractAttributable {
 
     public Membership getMembership(Long syncopeRoleId) {
         Membership result = null;
-        Membership membership = null;
-        for (Iterator<Membership> itor =
-                getMemberships().iterator();
+        Membership membership;
+        for (Iterator<Membership> itor = getMemberships().iterator();
                 result == null && itor.hasNext();) {
 
             membership = itor.next();
@@ -152,34 +153,23 @@ public class SyncopeUser extends AbstractAttributable {
         Set<SyncopeRole> result = new HashSet<SyncopeRole>();
 
         for (Membership membership : memberships) {
-            result.add(membership.getSyncopeRole());
+            if (membership.getSyncopeRole() != null) {
+                result.add(membership.getSyncopeRole());
+            }
         }
 
         return result;
     }
 
     @Override
-    public Set<TargetResource> getInheritedTargetResources() {
-        Set<TargetResource> inheritedTargetResources =
-                new HashSet<TargetResource>();
-
-        SyncopeRole role = null;
-
-        for (Membership membership : memberships) {
-            role = membership.getSyncopeRole();
-
-            try {
-
-                inheritedTargetResources.addAll(role.getTargetResources());
-
-            } catch (Throwable t) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Invalid role " + role, t);
-                }
-            }
+    public Set<TargetResource> getTargetResources() {
+        Set<TargetResource> result = new HashSet<TargetResource>();
+        result.addAll(super.getTargetResources());
+        for (SyncopeRole role : getRoles()) {
+            result.addAll(role.getTargetResources());
         }
 
-        return inheritedTargetResources;
+        return result;
     }
 
     public String getPassword() {

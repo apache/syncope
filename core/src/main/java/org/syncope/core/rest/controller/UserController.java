@@ -46,6 +46,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.ModelAndView;
 import org.syncope.client.mod.UserMod;
 import org.syncope.client.search.NodeCond;
+import org.syncope.client.to.MembershipTO;
 import org.syncope.client.to.UserTO;
 import org.syncope.client.to.WorkflowActionsTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
@@ -91,16 +92,18 @@ public class UserController extends AbstractController {
             throw new NotFoundException("User " + userId);
         }
 
+        // Check if roles requested for this user are allowed to be
+        // administrated by the caller
+        Set<Long> roleIds =
+                new HashSet<Long>(user.getRoles().size());
+        for (SyncopeRole role : user.getRoles()) {
+            roleIds.add(role.getId());
+        }
         Set<Long> adminRoleIds = EntitlementUtil.getRoleIds(
                 EntitlementUtil.getOwnedEntitlementNames());
-        Set<Long> notAdminRoleIds = new HashSet<Long>();
-        for (SyncopeRole role : user.getRoles()) {
-            if (!adminRoleIds.contains(role.getId())) {
-                notAdminRoleIds.add(role.getId());
-            }
-        }
-        if (!notAdminRoleIds.isEmpty()) {
-            throw new UnauthorizedRoleException(notAdminRoleIds);
+        roleIds.removeAll(adminRoleIds);
+        if (!roleIds.isEmpty()) {
+            throw new UnauthorizedRoleException(roleIds);
         }
 
         return user;
@@ -340,7 +343,8 @@ public class UserController extends AbstractController {
         }
 
         List<SyncopeUser> matchingUsers = userSearchDAO.search(
-                EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames()), searchCondition);
+                EntitlementUtil.getRoleIds(EntitlementUtil.
+                getOwnedEntitlementNames()), searchCondition);
         List<UserTO> result = new ArrayList<UserTO>(matchingUsers.size());
         for (SyncopeUser user : matchingUsers) {
             result.add(userDataBinder.getUserTO(user, workflow));
@@ -427,69 +431,14 @@ public class UserController extends AbstractController {
         return mandatoryResourceNames;
     }
 
-    @PreAuthorize("hasRole('USER_CREATE')")
-    @RequestMapping(method = RequestMethod.POST,
-    value = "/create")
-    public UserTO create(HttpServletResponse response,
-            @RequestBody UserTO userTO,
-            @RequestParam(value = "mandatoryRoles",
-            required = false) Set<Long> mandatoryRoles,
-            @RequestParam(value = "mandatoryResources",
-            required = false) Set<String> mandatoryResources)
-            throws SyncopeClientCompositeErrorException,
-            DataIntegrityViolationException, WorkflowException,
-            PropagationException, NotFoundException, UnauthorizedRoleException {
-
-        LOG.debug("User create called with parameters {}\n{}\n{}",
-                new Object[]{userTO, mandatoryRoles, mandatoryResources});
-
-        CheckInResult checkInResult = userDataBinder.checkIn(userTO);
-        LOG.debug("Check-in result: {}", checkInResult);
-
-        switch (checkInResult.getAction()) {
-            case CREATE:
-                break;
-
-            case OVERWRITE:
-                delete(checkInResult.getSyncopeUserId(),
-                        mandatoryRoles, mandatoryResources);
-                break;
-
-            case REJECT:
-                SyncopeClientCompositeErrorException compositeException =
-                        new SyncopeClientCompositeErrorException(
-                        HttpStatus.BAD_REQUEST);
-                SyncopeClientException rejectedUserCreate =
-                        new SyncopeClientException(
-                        SyncopeClientExceptionType.RejectedUserCreate);
-                rejectedUserCreate.addElement(
-                        String.valueOf(checkInResult.getSyncopeUserId()));
-                compositeException.addException(rejectedUserCreate);
-
-                throw compositeException;
-
-            default:
-        }
-
-        // The user to be created
-        SyncopeUser user = new SyncopeUser();
-        userDataBinder.create(user, userTO);
-
-        // Check if roles requested for this user are allowed to be
-        // administrated by the caller
-        Set<Long> adminRoleIds = EntitlementUtil.getRoleIds(
-                EntitlementUtil.getOwnedEntitlementNames());
-        Set<Long> notAdminRoleIds = new HashSet<Long>();
-        for (SyncopeRole role : user.getRoles()) {
-            if (!adminRoleIds.contains(role.getId())) {
-                notAdminRoleIds.add(role.getId());
-            }
-        }
-        if (!notAdminRoleIds.isEmpty()) {
-            throw new UnauthorizedRoleException(notAdminRoleIds);
-        }
+    public SyncopeUser create(UserTO userTO, Set<Long> mandatoryRoles,
+            Set<String> mandatoryResources)
+            throws SyncopeClientCompositeErrorException, NotFoundException,
+            WorkflowException, PropagationException {
 
         // Create the user
+        SyncopeUser user = new SyncopeUser();
+        userDataBinder.create(user, userTO);
         user = userDAO.save(user);
 
         // User is created locally and propagated, let's advance on the workflow
@@ -525,28 +474,78 @@ public class UserController extends AbstractController {
         propagationManager.create(
                 user, userTO.getPassword(), mandatoryResourceNames);
 
-        final UserTO savedTO = userDataBinder.getUserTO(user, workflow);
+        return user;
+    }
+
+    @PreAuthorize("hasRole('USER_CREATE')")
+    @RequestMapping(method = RequestMethod.POST,
+    value = "/create")
+    public UserTO create(HttpServletResponse response,
+            @RequestBody UserTO userTO,
+            @RequestParam(value = "mandatoryRoles",
+            required = false) Set<Long> mandatoryRoles,
+            @RequestParam(value = "mandatoryResources",
+            required = false) Set<String> mandatoryResources)
+            throws SyncopeClientCompositeErrorException,
+            DataIntegrityViolationException, WorkflowException,
+            PropagationException, NotFoundException, UnauthorizedRoleException {
+
+        LOG.debug("User create called with parameters {}\n{}\n{}",
+                new Object[]{userTO, mandatoryRoles, mandatoryResources});
+
+        // Check if roles requested for this user are allowed to be
+        // administrated by the caller
+        Set<Long> requestRoleIds =
+                new HashSet<Long>(userTO.getMemberships().size());
+        for (MembershipTO membership : userTO.getMemberships()) {
+            requestRoleIds.add(membership.getRoleId());
+        }
+        Set<Long> adminRoleIds = EntitlementUtil.getRoleIds(
+                EntitlementUtil.getOwnedEntitlementNames());
+        requestRoleIds.removeAll(adminRoleIds);
+        if (!requestRoleIds.isEmpty()) {
+            throw new UnauthorizedRoleException(requestRoleIds);
+        }
+
+        CheckInResult checkInResult = userDataBinder.checkIn(userTO);
+        LOG.debug("Check-in result: {}", checkInResult);
+
+        switch (checkInResult.getAction()) {
+            case CREATE:
+                break;
+
+            case OVERWRITE:
+                delete(checkInResult.getSyncopeUserId(),
+                        mandatoryRoles, mandatoryResources);
+                break;
+
+            case REJECT:
+                SyncopeClientCompositeErrorException compositeException =
+                        new SyncopeClientCompositeErrorException(
+                        HttpStatus.BAD_REQUEST);
+                SyncopeClientException rejectedUserCreate =
+                        new SyncopeClientException(
+                        SyncopeClientExceptionType.RejectedUserCreate);
+                rejectedUserCreate.addElement(
+                        String.valueOf(checkInResult.getSyncopeUserId()));
+                compositeException.addException(rejectedUserCreate);
+
+                throw compositeException;
+
+            default:
+        }
+
+        final UserTO savedTO = userDataBinder.getUserTO(
+                create(userTO, mandatoryRoles, mandatoryResources), workflow);
         LOG.debug("About to return create user\n{}", savedTO);
 
         response.setStatus(HttpServletResponse.SC_CREATED);
         return savedTO;
     }
 
-    @PreAuthorize("hasRole('USER_UPDATE')")
-    @RequestMapping(method = RequestMethod.POST,
-    value = "/update")
-    public UserTO update(@RequestBody UserMod userMod,
-            @RequestParam(value = "mandatoryRoles",
-            required = false) Set<Long> mandatoryRoles,
-            @RequestParam(value = "mandatoryResources",
-            required = false) Set<String> mandatoryResources)
-            throws NotFoundException, PropagationException, WorkflowException,
-            UnauthorizedRoleException {
-
-        LOG.debug("User update called with parameters {}\n{}\n{}",
-                new Object[]{userMod, mandatoryRoles, mandatoryResources});
-
-        SyncopeUser user = getUserFromId(userMod.getId());
+    public SyncopeUser update(SyncopeUser user, UserMod userMod,
+            Set<Long> mandatoryRoles, Set<String> mandatoryResources)
+            throws WorkflowException, NotFoundException, PropagationException {
 
         // First of all, let's check if update is allowed
         Map<String, Object> inputs = new HashMap<String, Object>();
@@ -575,21 +574,34 @@ public class UserController extends AbstractController {
         propagationManager.update(user, userMod.getPassword(),
                 resourceOperations, mandatoryResourceNames);
 
-        return userDataBinder.getUserTO(user, workflow);
+        return user;
     }
 
-    @PreAuthorize("hasRole('USER_DELETE')")
-    @RequestMapping(method = RequestMethod.DELETE,
-    value = "/delete/{userId}")
-    public void delete(@PathVariable("userId") Long userId,
+    @PreAuthorize("hasRole('USER_UPDATE')")
+    @RequestMapping(method = RequestMethod.POST,
+    value = "/update")
+    public UserTO update(@RequestBody UserMod userMod,
             @RequestParam(value = "mandatoryRoles",
             required = false) Set<Long> mandatoryRoles,
             @RequestParam(value = "mandatoryResources",
             required = false) Set<String> mandatoryResources)
-            throws NotFoundException, WorkflowException, PropagationException,
+            throws NotFoundException, PropagationException, WorkflowException,
             UnauthorizedRoleException {
 
-        SyncopeUser user = getUserFromId(userId);
+        LOG.debug("User update called with parameters {}\n{}\n{}",
+                new Object[]{userMod, mandatoryRoles, mandatoryResources});
+
+        UserTO updatedTO =
+                userDataBinder.getUserTO(update(getUserFromId(userMod.getId()),
+                userMod, mandatoryRoles, mandatoryResources), workflow);
+        LOG.debug("About to return updated user\n{}", updatedTO);
+
+        return updatedTO;
+    }
+
+    public void delete(SyncopeUser user, Set<Long> mandatoryRoles,
+            Set<String> mandatoryResources)
+            throws WorkflowException, NotFoundException, PropagationException {
 
         WFUtils.doExecuteAction(workflow,
                 Constants.USER_WORKFLOW,
@@ -612,6 +624,20 @@ public class UserController extends AbstractController {
         if (user.getWorkflowId() != null) {
             workflowEntryDAO.delete(user.getWorkflowId());
         }
-        userDAO.delete(userId);
+        userDAO.delete(user);
+    }
+
+    @PreAuthorize("hasRole('USER_DELETE')")
+    @RequestMapping(method = RequestMethod.DELETE,
+    value = "/delete/{userId}")
+    public void delete(@PathVariable("userId") Long userId,
+            @RequestParam(value = "mandatoryRoles",
+            required = false) Set<Long> mandatoryRoles,
+            @RequestParam(value = "mandatoryResources",
+            required = false) Set<String> mandatoryResources)
+            throws NotFoundException, WorkflowException, PropagationException,
+            UnauthorizedRoleException {
+
+        delete(getUserFromId(userId), mandatoryRoles, mandatoryResources);
     }
 }

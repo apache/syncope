@@ -201,7 +201,7 @@ public abstract class AbstractAttributableDataBinder {
         jexlUtil.addAttributesToContext(attributes, jexlContext);
 
         return Boolean.parseBoolean(
-                jexlUtil.evaluateWithAttributes(
+                jexlUtil.evaluate(
                 mandatoryCondition, jexlContext));
     }
 
@@ -259,11 +259,8 @@ public abstract class AbstractAttributableDataBinder {
                 new SyncopeClientException(
                 SyncopeClientExceptionType.RequiredValuesMissing);
 
-        Set<TargetResource> resources = new HashSet<TargetResource>();
-        resources.addAll(attributable.getTargetResources());
-        resources.addAll(attributable.getInheritedTargetResources());
-
-        LOG.debug("Check mandatory constraint among resources {}", resources);
+        LOG.debug("Check mandatory constraint among resources {}",
+                attributable.getTargetResources());
         // Check if there is some mandatory schema defined for which no value
         // has been provided
         List<AbstractSchema> allSchemas =
@@ -275,7 +272,8 @@ public abstract class AbstractAttributableDataBinder {
                     && (evaluateMandatoryCondition(
                     schema.getMandatoryCondition(),
                     attributable.getAttributes())
-                    || evaluateMandatoryCondition(resources,
+                    || evaluateMandatoryCondition(
+                    attributable.getTargetResources(),
                     attributable.getAttributes(),
                     schema.getName(),
                     attributableUtil))) {
@@ -296,10 +294,6 @@ public abstract class AbstractAttributableDataBinder {
             final AttributableUtil attributableUtil,
             final SyncopeClientCompositeErrorException compositeErrorException)
             throws SyncopeClientCompositeErrorException {
-
-        Set<TargetResource> resources = new HashSet<TargetResource>();
-        resources.addAll(attributable.getTargetResources());
-        resources.addAll(attributable.getInheritedTargetResources());
 
         ResourceOperations resourceOperations = new ResourceOperations();
 
@@ -336,7 +330,8 @@ public abstract class AbstractAttributableDataBinder {
                             && mapping.getSourceMappingType()
                             == attributableUtil.sourceMappingType()
                             && mapping.getResource() != null
-                            && resources.contains(mapping.getResource())) {
+                            && attributable.getTargetResources().
+                            contains(mapping.getResource())) {
 
                         resourceOperations.add(ResourceOperationType.UPDATE,
                                 mapping.getResource());
@@ -370,7 +365,8 @@ public abstract class AbstractAttributableDataBinder {
                             && mapping.getSourceMappingType()
                             == attributableUtil.sourceMappingType()
                             && mapping.getResource() != null
-                            && resources.contains(mapping.getResource())) {
+                            && attributable.getTargetResources().
+                            contains(mapping.getResource())) {
 
                         resourceOperations.add(ResourceOperationType.UPDATE,
                                 mapping.getResource());
@@ -461,7 +457,8 @@ public abstract class AbstractAttributableDataBinder {
                             && mapping.getSourceMappingType()
                             == attributableUtil.derivedSourceMappingType()
                             && mapping.getResource() != null
-                            && resources.contains(mapping.getResource())) {
+                            && attributable.getTargetResources().
+                            contains(mapping.getResource())) {
 
                         resourceOperations.add(ResourceOperationType.UPDATE,
                                 mapping.getResource());
@@ -508,7 +505,8 @@ public abstract class AbstractAttributableDataBinder {
                             && mapping.getSourceMappingType()
                             == attributableUtil.virtualSourceMappingType()
                             && mapping.getResource() != null
-                            && resources.contains(mapping.getResource())) {
+                            && attributable.getTargetResources().
+                            contains(mapping.getResource())) {
 
                         resourceOperations.add(ResourceOperationType.UPDATE,
                                 mapping.getResource());
@@ -542,7 +540,8 @@ public abstract class AbstractAttributableDataBinder {
                             && mapping.getSourceMappingType()
                             == attributableUtil.derivedSourceMappingType()
                             && mapping.getResource() != null
-                            && resources.contains(mapping.getResource())) {
+                            && attributable.getTargetResources().
+                            contains(mapping.getResource())) {
 
                         resourceOperations.add(ResourceOperationType.UPDATE,
                                 mapping.getResource());
@@ -573,7 +572,8 @@ public abstract class AbstractAttributableDataBinder {
                             && mapping.getSourceMappingType()
                             == attributableUtil.virtualSourceMappingType()
                             && mapping.getResource() != null
-                            && resources.contains(mapping.getResource())) {
+                            && attributable.getTargetResources().
+                            contains(mapping.getResource())) {
 
                         resourceOperations.add(ResourceOperationType.UPDATE,
                                 mapping.getResource());

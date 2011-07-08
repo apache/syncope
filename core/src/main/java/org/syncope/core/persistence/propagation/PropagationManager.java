@@ -27,8 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.Resource;
-import org.apache.commons.jexl2.JexlContext;
-import org.apache.commons.jexl2.MapContext;
 import org.identityconnectors.framework.common.FrameworkUtil;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.objects.Attribute;
@@ -44,7 +42,6 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.syncope.core.init.ConnInstanceLoader;
 import org.syncope.core.persistence.beans.AbstractAttrValue;
-import org.syncope.core.persistence.beans.AbstractAttributable;
 import org.syncope.core.persistence.beans.AbstractDerSchema;
 import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.beans.AbstractVirSchema;
@@ -53,7 +50,6 @@ import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.beans.Task;
 import org.syncope.core.persistence.beans.TaskExecution;
-import org.syncope.core.persistence.beans.membership.Membership;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.beans.user.UAttr;
 import org.syncope.core.persistence.beans.user.UAttrValue;
@@ -166,16 +162,9 @@ public class PropagationManager {
             mandatoryResourceNames = Collections.EMPTY_SET;
         }
 
-        Set<TargetResource> resources = new HashSet<TargetResource>();
-        for (TargetResource resource : user.getTargetResources()) {
-            resources.add(resource);
-        }
-        for (Membership membership : user.getMemberships()) {
-            resources.addAll(membership.getSyncopeRole().getTargetResources());
-        }
-
         ResourceOperations resourceOperations = new ResourceOperations();
-        resourceOperations.set(ResourceOperationType.CREATE, resources);
+        resourceOperations.set(ResourceOperationType.CREATE,
+                user.getTargetResources());
 
         provision(user, password, resourceOperations, mandatoryResourceNames);
     }
@@ -224,16 +213,9 @@ public class PropagationManager {
             mandatoryResourceNames = Collections.EMPTY_SET;
         }
 
-        Set<TargetResource> resources = new HashSet<TargetResource>();
-        for (TargetResource resource : user.getTargetResources()) {
-            resources.add(resource);
-        }
-        for (Membership membership : user.getMemberships()) {
-            resources.addAll(membership.getSyncopeRole().getTargetResources());
-        }
-
         ResourceOperations resourceOperations = new ResourceOperations();
-        resourceOperations.set(ResourceOperationType.DELETE, resources);
+        resourceOperations.set(ResourceOperationType.DELETE,
+                user.getTargetResources());
 
         provision(user, null, resourceOperations, mandatoryResourceNames);
     }
@@ -344,7 +326,8 @@ public class PropagationManager {
     }
 
     private Map<String, Set<Attribute>> prepareAttributes(SyncopeUser user,
-            String password, TargetResource resource) throws PropagationException {
+            String password, TargetResource resource)
+            throws PropagationException {
 
         LOG.debug("Preparing resource attributes for {}"
                 + " on resource {}"
@@ -600,7 +583,7 @@ public class PropagationManager {
 
         // Evaluate AccountLink expression
         String evaluatedAccountLink =
-                evaluateAccountLink(user, resource.getAccountLink());
+                jexlUtil.evaluate(resource.getAccountLink(), user);
 
         // AccountId must be propagated. It could be a simple attribute for
         // the target resource or the key (depending on the accountLink)
@@ -772,114 +755,5 @@ public class PropagationManager {
                 LOG.debug("Execution removed: {}", execution);
             }
         }
-    }
-
-    public <T extends AbstractAttributable> Set<String> getObjectAttributeValue(
-            final T attributable,
-            final String attributeName,
-            final SourceMappingType sourceMappingType) {
-
-        List values = new ArrayList();
-
-        Set<String> attributeNames;
-        ConnInstance connectorInstance;
-        ConnectorFacadeProxy connector;
-        Set<Attribute> attributes;
-        String accountLink;
-        String accountId = null;
-
-        LOG.debug("{}: retrieving external values for {}",
-                new Object[]{attributable, attributeName});
-
-        for (TargetResource resource :
-                attributable.getInheritedTargetResources()) {
-
-            LOG.debug("Retrieving attribute mapped on {}", resource);
-
-            attributeNames = new HashSet<String>();
-
-            accountLink = resource.getAccountLink();
-
-            for (SchemaMapping mapping : resource.getMappings()) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Processing mapping."
-                            + "\n\tID: " + mapping.getId()
-                            + "\n\tSource: " + mapping.getSourceAttrName()
-                            + "\n\tDestination: " + mapping.getDestAttrName()
-                            + "\n\tType: " + mapping.getSourceMappingType()
-                            + "\n\tMandatory condition: "
-                            + mapping.getMandatoryCondition()
-                            + "\n\tAccountId: " + mapping.isAccountid()
-                            + "\n\tPassword: " + mapping.isPassword());
-                }
-
-                if (mapping.getSourceAttrName().equals(attributeName)
-                        && mapping.getSourceMappingType() == sourceMappingType) {
-
-                    attributeNames.add(mapping.getDestAttrName());
-                }
-
-                if (mapping.isAccountid()) {
-                    try {
-                        accountId = attributable.getAttribute(
-                                mapping.getSourceAttrName()).
-                                getValuesAsStrings().get(0);
-                    } catch (NullPointerException e) {
-                        // ignore exception
-                        LOG.debug("Invalid accountId specified", e);
-                    }
-                }
-            }
-
-            if (accountId == null && accountLink != null) {
-                accountId = evaluateAccountLink(attributable, accountLink);
-            }
-
-            if (attributeNames != null && accountId != null) {
-                LOG.debug("Get object attribute for entry {}", accountId);
-
-                connectorInstance = resource.getConnector();
-
-                connector = connInstanceLoader.getConnector(
-                        connectorInstance.getId().toString());
-
-                try {
-                    attributes = connector.getObjectAttributes(
-                            ObjectClass.ACCOUNT,
-                            new Uid(accountId),
-                            null,
-                            attributeNames);
-
-                    LOG.debug("Retrieved {}", attributes);
-
-                    for (Attribute attribute : attributes) {
-                        values.addAll(attribute.getValue());
-                    }
-                } catch (Exception e) {
-                    LOG.warn("Error connecting to {}", resource.getName(), e);
-                    // ignore exception and go ahead
-                }
-            }
-        }
-
-        return new HashSet<String>(values);
-    }
-
-    private String evaluateAccountLink(
-            final AbstractAttributable attributable, final String accountLink) {
-
-        final JexlContext jexlContext = new MapContext();
-
-        jexlUtil.addAttributesToContext(
-                attributable.getAttributes(),
-                jexlContext);
-
-        jexlUtil.addDerAttributesToContext(
-                attributable.getDerivedAttributes(),
-                attributable.getAttributes(),
-                jexlContext);
-
-        // Evaluate expression using the context prepared before
-        return jexlUtil.evaluateWithAttributes(accountLink, jexlContext);
     }
 }

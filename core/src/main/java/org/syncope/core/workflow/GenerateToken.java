@@ -31,7 +31,7 @@ public class GenerateToken extends OSWorkflowComponent
     public void execute(Map transientVars, Map args, PropertySet ps)
             throws WorkflowException {
 
-        final ConfDAO confDAO = (ConfDAO) context.getBean("confDAOImpl");
+        final ConfDAO confDAO = context.getBean(ConfDAO.class);
 
         SyncopeUser user = (SyncopeUser) transientVars.get(
                 Constants.SYNCOPE_USER);

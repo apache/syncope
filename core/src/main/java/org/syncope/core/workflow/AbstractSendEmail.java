@@ -28,7 +28,7 @@ public abstract class AbstractSendEmail extends OSWorkflowComponent
     public AbstractSendEmail() {
         super();
 
-        confDAO = (ConfDAO) context.getBean("confDAOImpl");
+        confDAO = context.getBean(ConfDAO.class);
     }
 
     protected void sendMail(final String smtpHost,

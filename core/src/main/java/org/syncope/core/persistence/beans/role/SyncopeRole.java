@@ -48,6 +48,8 @@ import org.syncope.core.persistence.beans.Entitlement;
 @Cacheable
 public class SyncopeRole extends AbstractAttributable {
 
+    private static final long serialVersionUID = -5281258853142421875L;
+
     @Id
     private Long id;
 

@@ -37,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.ClassUtils;
 import org.syncope.core.init.ConnInstanceLoader;
+import org.syncope.core.persistence.dao.MissingConfKeyException;
 import org.syncope.types.ConnConfProperty;
 import org.syncope.core.persistence.beans.ConnInstance;
 import org.syncope.types.ConnectorCapability;
@@ -55,10 +56,12 @@ public class ConnectorFacadeProxy {
      */
     private static final Logger LOG = LoggerFactory.getLogger(
             ConnectorFacadeProxy.class);
+
     /**
      * Connector facade wrapped instance.
      */
     private final ConnectorFacade connector;
+
     /**
      * Set of configure connecto instance capabilities.
      * @see org.syncope.core.persistence.beans.ConnInstance
@@ -98,10 +101,15 @@ public class ConnectorFacadeProxy {
         }
 
         // get the specified connector.
-        ConnectorInfo info = connInstanceLoader.getConnectorManager().
-                findConnectorInfo(key);
-        if (info == null) {
-            throw new NotFoundException("Connector Info for key " + key);
+        ConnectorInfo info;
+        try {
+            info = connInstanceLoader.getConnectorManager().
+                    findConnectorInfo(key);
+            if (info == null) {
+                throw new NotFoundException("Connector Info for key " + key);
+            }
+        } catch (MissingConfKeyException e) {
+            throw new NotFoundException("Connector Info for key " + key, e);
         }
 
         // create default configuration
@@ -183,8 +191,7 @@ public class ConnectorFacadeProxy {
 
                     properties.setPropertyValue(
                             property.getSchema().getName(), propertyValue);
-                }
-                catch (Throwable t) {
+                } catch (Throwable t) {
                     LOG.error("Invalid ConnConfProperty specified: {}",
                             property, t);
                 }
@@ -316,11 +323,11 @@ public class ConnectorFacadeProxy {
                 switch (operationType) {
                     case CREATE:
                         if (propagationMode == null
-                                || ( propagationMode == PropagationMode.SYNC
+                                || (propagationMode == PropagationMode.SYNC
                                 ? capabitilies.contains(
                                 ConnectorCapability.SYNC_CREATE)
                                 : capabitilies.contains(
-                                ConnectorCapability.ASYNC_CREATE) )) {
+                                ConnectorCapability.ASYNC_CREATE))) {
 
                             result = connector.getObject(
                                     objectClass, uid, options);
@@ -328,11 +335,11 @@ public class ConnectorFacadeProxy {
                         break;
                     case UPDATE:
                         if (propagationMode == null
-                                || ( propagationMode == PropagationMode.SYNC
+                                || (propagationMode == PropagationMode.SYNC
                                 ? capabitilies.contains(
                                 ConnectorCapability.SYNC_UPDATE)
                                 : capabitilies.contains(
-                                ConnectorCapability.ASYNC_UPDATE) )) {
+                                ConnectorCapability.ASYNC_UPDATE))) {
 
                             result = connector.getObject(
                                     objectClass, uid, options);
@@ -365,8 +372,7 @@ public class ConnectorFacadeProxy {
 
             attribute = object.getAttributeByName(attributeName);
 
-        }
-        catch (NullPointerException e) {
+        } catch (NullPointerException e) {
             // ignore exception
             LOG.debug("Object for '{}' not found", uid.getUidValue());
         }
@@ -384,14 +390,14 @@ public class ConnectorFacadeProxy {
 
         try {
 
-            final ConnectorObject object = connector.getObject(objClass, uid, options);
+            final ConnectorObject object = connector.getObject(objClass, uid,
+                    options);
 
             for (String attribute : attributeNames) {
                 attributes.add(object.getAttributeByName(attribute));
             }
 
-        }
-        catch (NullPointerException e) {
+        } catch (NullPointerException e) {
             // ignore exception
             LOG.debug("Object for '{}' not found", uid.getUidValue());
         }

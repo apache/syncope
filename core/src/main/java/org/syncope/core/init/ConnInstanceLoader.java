@@ -65,16 +65,11 @@ public class ConnInstanceLoader {
     }
 
     public ConnectorInfoManager getConnectorManager()
-            throws NotFoundException {
+            throws NotFoundException, MissingConfKeyException {
 
         // 1. Bundles directory
-        SyncopeConf connectorBundleDir = null;
-        try {
-            connectorBundleDir = confDAO.find(
-                    "connid.bundles.directory");
-        } catch (MissingConfKeyException e) {
-            LOG.error("Missing configuration", e);
-        }
+        SyncopeConf connectorBundleDir =
+                confDAO.find("connid.bundles.directory");
 
         // 2. Find bundles inside that directory
         File bundleDirectory = new File(connectorBundleDir.getValue());

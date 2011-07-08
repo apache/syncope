@@ -42,6 +42,8 @@ import org.syncope.types.ResourceOperationType;
 @Entity
 public class Task extends AbstractBaseBean {
 
+    private static final long serialVersionUID = 7086054884614511210L;
+
     /**
      * Id.
      */
@@ -126,7 +128,7 @@ public class Task extends AbstractBaseBean {
 
         ConfigurableApplicationContext context =
                 ApplicationContextManager.getApplicationContext();
-        XStream xStream = (XStream) context.getBean("xStream");
+        XStream xStream = context.getBean(XStream.class);
         try {
             result = (Set<Attribute>) xStream.fromXML(
                     URLDecoder.decode(xmlAttributes, "UTF-8"));
@@ -140,7 +142,7 @@ public class Task extends AbstractBaseBean {
     public void setAttributes(final Set<Attribute> attributes) {
         ConfigurableApplicationContext context =
                 ApplicationContextManager.getApplicationContext();
-        XStream xStream = (XStream) context.getBean("xStream");
+        XStream xStream = context.getBean(XStream.class);
         try {
             xmlAttributes = URLEncoder.encode(
                     xStream.toXML(attributes), "UTF-8");

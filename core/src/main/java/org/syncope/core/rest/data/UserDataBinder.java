@@ -42,9 +42,6 @@ import org.syncope.core.persistence.beans.membership.MDerAttr;
 import org.syncope.core.persistence.beans.membership.MVirAttr;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
-import org.syncope.core.persistence.beans.user.UAttr;
-import org.syncope.core.persistence.beans.user.UDerAttr;
-import org.syncope.core.persistence.beans.user.UVirAttr;
 import org.syncope.core.persistence.propagation.ResourceOperations;
 import org.syncope.types.CipherAlgorithm;
 import org.syncope.types.ResourceOperationType;
@@ -101,50 +98,6 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         CheckInResult result = new CheckInResult();
         result.setAction(CheckinResultAction.CREATE);
         return result;
-    }
-
-    public void empty(final SyncopeUser user) {
-        Set<Long> ids = new HashSet<Long>();
-        for (AbstractAttr attribute : user.getAttributes()) {
-            ids.add(attribute.getId());
-        }
-        for (Long attrId : ids) {
-            attributeDAO.delete(attrId, UAttr.class);
-        }
-        user.getAttributes().clear();
-
-        ids.clear();
-        for (AbstractDerAttr derivedAttribute : user.getDerivedAttributes()) {
-            ids.add(derivedAttribute.getId());
-        }
-        for (Long derAttrId : ids) {
-            derivedAttributeDAO.delete(derAttrId, UDerAttr.class);
-        }
-        user.getDerivedAttributes().clear();
-
-        ids.clear();
-        for (AbstractVirAttr virtualAttribute : user.getVirtualAttributes()) {
-            ids.add(virtualAttribute.getId());
-        }
-        for (Long virAttrId : ids) {
-            virtualAttributeDAO.delete(virAttrId, UVirAttr.class);
-        }
-        user.getVirtualAttributes().clear();
-
-        ids.clear();
-        for (Membership membership : user.getMemberships()) {
-            ids.add(membership.getId());
-        }
-        for (Long membershipId : ids) {
-            membershipDAO.delete(membershipId);
-        }
-
-        for (TargetResource resource : user.getTargetResources()) {
-            resource.removeUser(user);
-        }
-        user.getTargetResources().clear();
-
-        user.setPassword(null, getCipherAlgoritm());
     }
 
     public void create(final SyncopeUser user, final UserTO userTO)
