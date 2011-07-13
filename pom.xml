@@ -26,7 +26,7 @@
     <description>Syncope archetype</description>
     <groupId>org.syncope</groupId>
     <artifactId>syncope-archetype</artifactId>
-    <version>0.6.1</version>
+    <version>0.6.1-SNAPSHOT</version>
     <packaging>maven-archetype</packaging>
 
     <scm>
@@ -55,10 +55,4 @@
         </pluginManagement>
     </build>
 
-
-  <scm>
-    <connection>scm:svn:http://syncope.googlecode.com/svn/tags/syncope-archetype-0.6.1</connection>
-    <developerConnection>scm:svn:https://syncope.googlecode.com/svn/tags/syncope-archetype-0.6.1</developerConnection>
-    <url>http://syncope.googlecode.com/svn/tags/syncope-archetype-0.6.1</url>
-  </scm>
 </project>
