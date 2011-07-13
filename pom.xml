@@ -29,6 +29,12 @@
     <version>0.6.1</version>
     <packaging>maven-archetype</packaging>
 
+    <scm>
+        <connection>scm:svn:http://syncope.googlecode.com/svn/branches/0_6_X/archetype</connection>
+        <developerConnection>scm:svn:https://syncope.googlecode.com/svn/branches/0_6_X/archetype</developerConnection>
+        <url>http://syncope.googlecode.com/svn/branches/0_6_X/archetype</url>
+    </scm>
+
     <build>
         <extensions>
             <extension>
