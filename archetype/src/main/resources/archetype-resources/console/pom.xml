@@ -15,10 +15,6 @@
     <packaging>war</packaging>
 
     <properties>
-        <hsqldb.version>2.0.0</hsqldb.version>
-        <connid.soap.version>1.0</connid.soap.version>
-        <connid.db.table.version>1.1</connid.db.table.version>
-
         <logfile>/var/tmp/syncope-console.log</logfile>
         <logfile.test>/var/tmp/syncope-console-test.log</logfile.test>
 
@@ -89,12 +85,19 @@
                     <mode>server</mode>
                     <isTransient>true</isTransient>
                 </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.hsqldb</groupId>
+                        <artifactId>hsqldb</artifactId>
+                        <version>${hsqldb.version}</version>
+                    </dependency>
+                </dependencies>
                 <executions>
                     <execution>
                         <id>startTestDb</id>
                         <phase>package</phase>
                         <goals>
-                            <goal>run</goal>    
+                            <goal>run</goal>
                         </goals>
                     </execution>
                 </executions>
@@ -119,13 +122,12 @@
                     <sqlCommand>
 			ALTER USER sa SET PASSWORD "sa";
 
-			DROP TABLE test IF EXISTS;
-			CREATE TABLE test (
-			id INTEGER PRIMARY KEY,
-			password VARCHAR(255) NOT NULL,
-			UNIQUE(id));
+                        DROP TABLE test IF EXISTS;
+                        CREATE TABLE test (
+                        id INTEGER PRIMARY KEY,
+                        password VARCHAR(255) NOT NULL);
 
-			INSERT INTO test VALUES (1, 'password');
+                        INSERT INTO test VALUES (1, 'password');
                     </sqlCommand>
                 </configuration>
                 <executions>
@@ -133,9 +135,9 @@
                         <id>loadTestDb</id>
                         <phase>package</phase>
                         <goals>
-                            <goal>execute</goal>    
+                            <goal>execute</goal>
                         </goals>
-                    </execution>    
+                    </execution>
                 </executions>
             </plugin>
 
@@ -149,7 +151,7 @@
                         <phase>package</phase>
                         <configuration>
                             <target>
-                                <unzip src="${basedir}/../core/target/${project.parent.artifactId}-${project.parent.version}.war" 
+                                <unzip src="${basedir}/../core/target/${project.parent.artifactId}-${project.parent.version}.war"
                                        dest="${project.build.directory}/syncope-core-test">
                                     <patternset>
                                         <exclude name="**/content.xml" />
@@ -168,9 +170,9 @@
                         <phase>package</phase>
                         <configuration>
                             <target>
-                                <get src="http://www.apache.org/dist/tomcat/tomcat-7/v7.0.16/bin/apache-tomcat-7.0.16.zip" 
+                                <get src="http://www.apache.org/dist/tomcat/tomcat-7/v7.0.19/bin/apache-tomcat-7.0.19.zip"
                                      dest="${java.io.tmpdir}" skipexisting="true"/>
-                                <unzip src="${java.io.tmpdir}/apache-tomcat-7.0.16.zip" 
+                                <unzip src="${java.io.tmpdir}/apache-tomcat-7.0.19.zip"
                                        dest="${java.io.tmpdir}" overwrite="false"/>
                             </target>
                         </configuration>
@@ -198,13 +200,13 @@
                                     <groupId>org.connid.bundles.soap</groupId>
                                     <artifactId>org.connid.bundles.soap</artifactId>
                                     <version>${connid.soap.version}</version>
-                                    <outputDirectory>${bundles.directory}</outputDirectory>                                
+                                    <outputDirectory>${bundles.directory}</outputDirectory>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.connid.bundles.db</groupId>
                                     <artifactId>org.connid.bundles.db.table</artifactId>
                                     <version>${connid.db.table.version}</version>
-                                    <outputDirectory>${bundles.directory}</outputDirectory>                                
+                                    <outputDirectory>${bundles.directory}</outputDirectory>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>
@@ -220,7 +222,7 @@
                     <wait>true</wait>
                     <container>
                         <containerId>tomcat7x</containerId>
-                        <home>${java.io.tmpdir}/apache-tomcat-7.0.16</home>
+                        <home>${java.io.tmpdir}/apache-tomcat-7.0.19</home>
                         <log>${cargo.log}</log>
                         <output>${cargo.output}</output>
                         <dependencies>

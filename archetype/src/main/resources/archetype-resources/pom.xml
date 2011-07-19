@@ -14,6 +14,9 @@
 
     <properties>
         <syncope.version>0.7-SNAPSHOT</syncope.version>
+        <hsqldb.version>2.2.4</hsqldb.version>
+        <connid.soap.version>1.0</connid.soap.version>
+        <connid.db.table.version>1.1</connid.db.table.version>
 
         <servlet-api.version>2.5</servlet-api.version>
         <jsp-api.version>2.1</jsp-api.version>
@@ -228,6 +231,26 @@
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-test</artifactId>
                 <version>${spring}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.hsqldb</groupId>
+                <artifactId>hsqldb</artifactId>
+                <version>${hsqldb.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.connid.bundles.soap</groupId>
+                <artifactId>wssample</artifactId>
+                <type>war</type>
+                <version>${connid.soap.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.connid.bundles.db</groupId>
+                <artifactId>org.connid.bundles.db.table</artifactId>
+                <version>${connid.db.table.version}</version>
                 <scope>test</scope>
             </dependency>
 

@@ -15,9 +15,6 @@
     <packaging>war</packaging>
 
     <properties>
-        <hsqldb.version>2.0.0</hsqldb.version>
-        <connid.soap.version>1.0</connid.soap.version>
-        <connid.db.table.version>1.1</connid.db.table.version>
 
         <cargo.servlet.port>9080</cargo.servlet.port>
         <cargo.run.dir>${project.build.directory}/syncope-core-test</cargo.run.dir>
@@ -114,20 +111,17 @@
         <dependency>
             <groupId>org.hsqldb</groupId>
             <artifactId>hsqldb</artifactId>
-            <version>${hsqldb.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.connid.bundles.soap</groupId>
             <artifactId>wssample</artifactId>
             <type>war</type>
-            <version>${connid.soap.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.connid.bundles.db</groupId>
             <artifactId>org.connid.bundles.db.table</artifactId>
-            <version>${connid.db.table.version}</version>
             <scope>test</scope>
         </dependency>
         <!-- /TEST -->
@@ -188,9 +182,9 @@
                         <phase>package</phase>
                         <configuration>
                             <target>
-                                <get src="http://www.apache.org/dist/tomcat/tomcat-7/v7.0.16/bin/apache-tomcat-7.0.16.zip" 
+                                <get src="http://www.apache.org/dist/tomcat/tomcat-7/v7.0.19/bin/apache-tomcat-7.0.19.zip"
                                      dest="${java.io.tmpdir}" skipexisting="true"/>
-                                <unzip src="${java.io.tmpdir}/apache-tomcat-7.0.16.zip" 
+                                <unzip src="${java.io.tmpdir}/apache-tomcat-7.0.19.zip"
                                        dest="${java.io.tmpdir}" overwrite="false"/>
                             </target>
                         </configuration>
@@ -218,13 +212,13 @@
                                     <groupId>org.connid.bundles.soap</groupId>
                                     <artifactId>org.connid.bundles.soap</artifactId>
                                     <version>${connid.soap.version}</version>
-                                    <outputDirectory>${bundles.directory}</outputDirectory>                                
+                                    <outputDirectory>${bundles.directory}</outputDirectory>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.connid.bundles.db</groupId>
                                     <artifactId>org.connid.bundles.db.table</artifactId>
                                     <version>${connid.db.table.version}</version>
-                                    <outputDirectory>${bundles.directory}</outputDirectory>                                
+                                    <outputDirectory>${bundles.directory}</outputDirectory>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>
@@ -240,7 +234,7 @@
                     <wait>true</wait>
                     <container>
                         <containerId>tomcat7x</containerId>
-                        <home>${java.io.tmpdir}/apache-tomcat-7.0.16</home>
+                        <home>${java.io.tmpdir}/apache-tomcat-7.0.19</home>
                         <log>${cargo.log}</log>
                         <output>${cargo.output}</output>
                         <dependencies>

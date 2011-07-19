@@ -26,7 +26,7 @@
     <description>Syncope archetype</description>
     <groupId>org.syncope</groupId>
     <artifactId>syncope-archetype</artifactId>
-    <version>0.6.3-SNAPSHOT</version>
+    <version>0.7-SNAPSHOT</version>
     <packaging>maven-archetype</packaging>
 
     <scm>
