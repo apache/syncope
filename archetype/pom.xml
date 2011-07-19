@@ -26,13 +26,13 @@
     <description>Syncope archetype</description>
     <groupId>org.syncope</groupId>
     <artifactId>syncope-archetype</artifactId>
-    <version>0.6.3-SNAPSHOT</version>
+    <version>0.6.3</version>
     <packaging>maven-archetype</packaging>
 
     <scm>
-        <connection>scm:svn:http://syncope.googlecode.com/svn/branches/0_6_X/archetype</connection>
-        <developerConnection>scm:svn:https://syncope.googlecode.com/svn/branches/0_6_X/archetype</developerConnection>
-        <url>http://syncope.googlecode.com/svn/branches/0_6_X/archetype</url>
+        <connection>scm:svn:http://syncope.googlecode.com/svn/tags/syncope-archetype-0.6.3</connection>
+        <developerConnection>scm:svn:https://syncope.googlecode.com/svn/tags/syncope-archetype-0.6.3</developerConnection>
+        <url>http://syncope.googlecode.com/svn/tags/syncope-archetype-0.6.3</url>
     </scm>
 
     <build>
