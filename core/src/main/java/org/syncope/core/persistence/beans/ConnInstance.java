@@ -33,7 +33,6 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
-import javax.persistence.Lob;
 import javax.persistence.OneToMany;
 import org.syncope.types.ConnConfProperty;
 import org.syncope.types.ConnectorCapability;

@@ -24,6 +24,7 @@ import java.util.List;
 import javassist.NotFoundException;
 import javax.servlet.http.HttpServletResponse;
 import org.identityconnectors.framework.api.ConfigurationProperties;
+import org.identityconnectors.framework.api.ConfigurationProperty;
 import org.identityconnectors.framework.api.ConnectorInfo;
 import org.identityconnectors.framework.api.ConnectorInfoManager;
 import org.identityconnectors.framework.api.ConnectorKey;
@@ -249,14 +250,32 @@ public class ConnInstanceController extends AbstractController {
                         getConfigurationProperties();
 
                 ConnConfPropSchema connConfPropSchema;
+                ConfigurationProperty configurationProperty;
+
                 for (String propName : properties.getPropertyNames()) {
                     connConfPropSchema = new ConnConfPropSchema();
-                    connConfPropSchema.setName(propName);
+
+                    configurationProperty = properties.getProperty(propName);
+
+                    // set name
+                    connConfPropSchema.setName(
+                            configurationProperty.getName());
+
+                    // set display name
+                    connConfPropSchema.setDisplayName(
+                            configurationProperty.getDisplayName(propName));
+
+                    // set help message
+                    connConfPropSchema.setHelpMessage(
+                            configurationProperty.getHelpMessage(propName));
+
+                    // set if mandatory
                     connConfPropSchema.setRequired(
-                            properties.getProperty(propName).isRequired());
+                            configurationProperty.isRequired());
+
+                    // set type
                     connConfPropSchema.setType(
-                            properties.getProperty(propName).
-                            getType().getName());
+                            configurationProperty.getType().getName());
 
                     connectorBundleTO.addProperty(connConfPropSchema);
                 }

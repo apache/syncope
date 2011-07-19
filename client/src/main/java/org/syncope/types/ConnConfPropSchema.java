@@ -20,6 +20,10 @@ public class ConnConfPropSchema extends AbstractBaseBean {
 
     private String name;
 
+    private String displayName;
+
+    private String helpMessage;
+
     private String type;
 
     private boolean required;
@@ -46,5 +50,21 @@ public class ConnConfPropSchema extends AbstractBaseBean {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
+
+    public String getHelpMessage() {
+        return helpMessage;
+    }
+
+    public void setHelpMessage(String helpMessage) {
+        this.helpMessage = helpMessage;
     }
 }

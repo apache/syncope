@@ -14,6 +14,7 @@
  */
 package org.syncope.console.wicket.markup.html.form;
 
+import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -21,6 +22,23 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
 public class AjaxTextFieldPanel extends Panel {
+
+    public AjaxTextFieldPanel(final String id, final String name,
+            final IModel model, final boolean required, final String title) {
+
+        super(id, model);
+
+        if (required) {
+            add(new Label("required", "*"));
+        } else {
+            add(new Label("required", ""));
+        }
+
+        add(new TextField("textField", model).setRequired(required).
+                setLabel(new Model(name)).add(
+                new SimpleAttributeModifier(
+                "title", title != null ? title : "")));
+    }
 
     public AjaxTextFieldPanel(final String id, final String name,
             final IModel model, final boolean required) {
@@ -33,8 +51,8 @@ public class AjaxTextFieldPanel extends Panel {
             add(new Label("required", ""));
         }
 
-        add(new TextField("textField", model).setRequired(required).
-                setLabel(new Model(name)));
+        add(new TextField("textField", model).setRequired(required).setLabel(
+                new Model(name)));
     }
 
     public AjaxTextFieldPanel(final String id, final String name,

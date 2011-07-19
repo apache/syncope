@@ -25,6 +25,7 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -173,12 +174,16 @@ public class ConnectorModalPage extends BaseModalPage {
                 ConnConfProperty property = item.getModelObject();
 
                 item.add(new Label("connPropAttrSchema",
-                        property.getSchema().getName()));
+                        property.getSchema().getDisplayName() == null
+                        || property.getSchema().getDisplayName().isEmpty()
+                        ? property.getSchema().getName()
+                        : property.getSchema().getDisplayName()));
 
                 item.add(new AjaxTextFieldPanel(
                         "connPropAttrValue", property.getSchema().getName(),
                         new PropertyModel<String>(property, "value"),
-                        property.getSchema().isRequired()));
+                        property.getSchema().isRequired(),
+                        property.getSchema().getHelpMessage()));
 
                 connectorTO.getConfiguration().add(property);
             }
@@ -199,17 +204,22 @@ public class ConnectorModalPage extends BaseModalPage {
             protected void onSubmit(final AjaxRequestTarget target,
                     final Form form) {
 
-                ConnInstanceTO connector = (ConnInstanceTO) form.
-                        getDefaultModelObject();
+                ConnInstanceTO connector = (ConnInstanceTO) form.getDefaultModelObject();
 
                 // Set the model object configuration's properties to
                 // connectorPropertiesMap reference
                 connector.setBundleName(bundle.getModelValue());
+
                 // Set the model object's capabilites to
                 // capabilitiesPalette's converted Set
-                connector.setCapabilities(
-                        new HashSet<ConnectorCapability>(selectedCapabilities));
-
+                if (!selectedCapabilities.isEmpty()) {
+                    // exception if selectedCapabilities is empy
+                    connector.setCapabilities(
+                            EnumSet.copyOf(selectedCapabilities));
+                } else {
+                    connector.setCapabilities(
+                            EnumSet.noneOf(ConnectorCapability.class));
+                }
                 try {
                     if (createFlag) {
                         restClient.create(connector);
