@@ -12,22 +12,29 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.persistence.dao;
+package org.syncope.client.to;
 
-import java.util.List;
-import org.syncope.core.persistence.beans.TaskExecution;
-import org.syncope.core.persistence.validation.entity.InvalidEntityException;
+public class SchedTaskTO extends TaskTO {
 
-public interface TaskExecutionDAO extends DAO {
+    private static final long serialVersionUID = -5722284116974636425L;
 
-    TaskExecution find(Long id);
+    private String cronExpression;
 
-    List<TaskExecution> findAll();
+    private String jobClassName;
 
-    TaskExecution save(TaskExecution execution)
-            throws InvalidEntityException;
+    public String getCronExpression() {
+        return cronExpression;
+    }
 
-    void delete(Long id);
+    public void setCronExpression(String cronExpression) {
+        this.cronExpression = cronExpression;
+    }
 
-    void delete(TaskExecution execution);
+    public String getJobClassName() {
+        return jobClassName;
+    }
+
+    public void setJobClassName(String jobClassName) {
+        this.jobClassName = jobClassName;
+    }
 }

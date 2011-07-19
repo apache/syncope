@@ -16,15 +16,21 @@ package org.syncope.client.to;
 
 import java.util.Date;
 import org.syncope.client.AbstractBaseBean;
-import org.syncope.types.TaskExecutionStatus;
 
-public class TaskExecutionTO extends AbstractBaseBean {
+public class TaskExecTO extends AbstractBaseBean {
+
+    private static final long serialVersionUID = -5401795154606268973L;
 
     private long id;
+
     private Date startDate;
+
     private Date endDate;
-    private TaskExecutionStatus status;
+
+    private String status;
+
     private String message;
+
     private long task;
 
     public Date getEndDate() {
@@ -59,11 +65,11 @@ public class TaskExecutionTO extends AbstractBaseBean {
         this.startDate = startDate;
     }
 
-    public TaskExecutionStatus getStatus() {
+    public String getStatus() {
         return status;
     }
 
-    public void setStatus(TaskExecutionStatus status) {
+    public void setStatus(String status) {
         this.status = status;
     }
 

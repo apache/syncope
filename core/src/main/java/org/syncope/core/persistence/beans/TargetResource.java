@@ -47,6 +47,8 @@ import org.syncope.types.SourceMappingType;
 @TargetResourceCheck
 public class TargetResource extends AbstractBaseBean {
 
+    private static final long serialVersionUID = -6937712883512073278L;
+
     /**
      * The resource identifier is the name.
      */
@@ -99,14 +101,6 @@ public class TargetResource extends AbstractBaseBean {
     private PropagationMode optionalPropagationMode;
 
     /**
-     * Tasks associated to this resource.
-     */
-    @OneToMany(cascade = CascadeType.MERGE, orphanRemoval = true,
-    mappedBy = "resource")
-    @Valid
-    private List<Task> tasks;
-
-    /**
      * Default constructor.
      */
     public TargetResource() {
@@ -117,7 +111,6 @@ public class TargetResource extends AbstractBaseBean {
         roles = new HashSet<SyncopeRole>();
         mappings = new ArrayList<SchemaMapping>();
         optionalPropagationMode = PropagationMode.ASYNC;
-        tasks = new ArrayList<Task>();
     }
 
     public boolean isForceMandatoryConstraint() {
@@ -145,25 +138,6 @@ public class TargetResource extends AbstractBaseBean {
             PropagationMode optionalPropagationMode) {
 
         this.optionalPropagationMode = optionalPropagationMode;
-    }
-
-    public List<Task> getTasks() {
-        return tasks;
-    }
-
-    public boolean addTask(Task task) {
-        return this.tasks.add(task);
-    }
-
-    public boolean removeTask(Task task) {
-        return this.tasks.remove(task);
-    }
-
-    public void setTasks(List<Task> tasks) {
-        this.tasks.clear();
-        if (tasks != null && !tasks.isEmpty()) {
-            this.tasks.addAll(tasks);
-        }
     }
 
     public List<SchemaMapping> getMappings() {

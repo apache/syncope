@@ -17,8 +17,8 @@ package org.syncope.console.rest;
 import java.util.Arrays;
 import java.util.List;
 import org.springframework.stereotype.Component;
-import org.syncope.client.to.TaskExecutionTO;
-import org.syncope.client.to.TaskTO;
+import org.syncope.client.to.TaskExecTO;
+import org.syncope.client.to.PropagationTaskTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 
 /**
@@ -38,10 +38,10 @@ public class TaskRestClient extends AbstractBaseRestClient {
      * @param size maximum number to fetch
      * @return list of TaskTO objects
      */
-    public List<TaskTO> list(final int page, final int size) {
+    public List<PropagationTaskTO> list(final int page, final int size) {
         return Arrays.asList(restTemplate.getForObject(
                 baseURL + "task/list/{page}/{size}.json",
-                TaskTO[].class, page, size));
+                PropagationTaskTO[].class, page, size));
     }
 
     /**
@@ -49,12 +49,12 @@ public class TaskRestClient extends AbstractBaseRestClient {
      * @param taskId task to read
      * @return TaskTO object if the configuration exists, null otherwise
      */
-    public TaskTO read(final String taskId) {
-        TaskTO taskTO = null;
+    public PropagationTaskTO read(final String taskId) {
+        PropagationTaskTO taskTO = null;
         try {
             taskTO = restTemplate.getForObject(
                     baseURL + "task/read/{taskId}",
-                    TaskTO.class, taskId);
+                    PropagationTaskTO.class, taskId);
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While reading a task", e);
         }
@@ -66,11 +66,11 @@ public class TaskRestClient extends AbstractBaseRestClient {
      * Get all executions.
      * @return list of all executions
      */
-    public List<TaskExecutionTO> listExecutions() {
+    public List<TaskExecTO> listExecutions() {
         return Arrays.asList(
                 restTemplate.getForObject(
                 baseURL + "task/execution/list",
-                TaskExecutionTO[].class));
+                TaskExecTO[].class));
     }
 
     /**
@@ -89,7 +89,7 @@ public class TaskRestClient extends AbstractBaseRestClient {
     public void startExecution(final Long taskId) {
         restTemplate.getForObject(
                 baseURL + "task/execute/{taskId}",
-                TaskExecutionTO.class, taskId);
+                TaskExecTO.class, taskId);
     }
 
     /**

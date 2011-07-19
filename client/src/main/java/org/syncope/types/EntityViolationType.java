@@ -30,7 +30,11 @@ public enum EntityViolationType {
     InvalidValueList(
     "org.syncope.core.validation.attr.invalidValueList"),
     InvalidEntitlementName(
-    "org.syncope.core.validation.entitlement.invalidName");
+    "org.syncope.core.validation.entitlement.invalidName"),
+    InvalidPropagationTask(
+    "org.syncope.core.validation.propagationtask.invalid"),
+    InvalidSchedTask(
+    "org.syncope.core.validation.schedtask.invalid");
 
     private String message;
 

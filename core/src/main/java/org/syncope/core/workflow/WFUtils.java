@@ -18,16 +18,11 @@ import com.opensymphony.workflow.InvalidActionException;
 import com.opensymphony.workflow.Workflow;
 import com.opensymphony.workflow.WorkflowException;
 import com.opensymphony.workflow.loader.ActionDescriptor;
-import com.opensymphony.workflow.loader.WorkflowDescriptor;
-import com.opensymphony.workflow.spi.Step;
-import java.util.HashMap;
-import java.util.List;
+import java.util.Collections;
 import java.util.Map;
 import javassist.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.syncope.core.persistence.beans.TaskExecution;
-import org.syncope.types.TaskExecutionStatus;
 
 public class WFUtils {
 
@@ -46,25 +41,26 @@ public class WFUtils {
             final Long workflowId,
             final String actionName) {
 
-        WorkflowDescriptor workflowDescriptor =
-                workflow.getWorkflowDescriptor(workflowName);
-
         int[] actions = workflow.getAvailableActions(workflowId, null);
 
         Integer actionId = null;
         for (int i = 0; i < actions.length && actionId == null; i++) {
             if (actionName.equals(
-                    workflowDescriptor.getAction(actions[i]).getName())) {
+                    workflow.getWorkflowDescriptor(workflowName).
+                    getAction(actions[i]).getName())) {
 
                 actionId = actions[i];
             }
         }
 
-        Map<Integer, ActionDescriptor> commonActions =
-                workflowDescriptor.getCommonActions();
-        for (Integer actionNumber : commonActions.keySet()) {
-            if (actionName.equals(commonActions.get(actionNumber).getName())) {
-                actionId = actionNumber;
+        if (actionId == null) {
+            Map<Integer, ActionDescriptor> commonActions = workflow.
+                    getWorkflowDescriptor(workflowName).getCommonActions();
+            for (Map.Entry<Integer, ActionDescriptor> action :
+                    commonActions.entrySet()) {
+                if (actionName.equals(action.getValue().getName())) {
+                    actionId = action.getKey();
+                }
             }
         }
 
@@ -79,11 +75,6 @@ public class WFUtils {
             final Map<String, Object> moreInputs)
             throws WorkflowException, NotFoundException {
 
-        Map<String, Object> inputs = new HashMap<String, Object>();
-        if (moreInputs != null && !moreInputs.isEmpty()) {
-            inputs.putAll(moreInputs);
-        }
-
         Integer actionId = findWorkflowAction(
                 workflow, workflowName, workflowId, actionName);
         if (actionId == null) {
@@ -91,29 +82,10 @@ public class WFUtils {
         }
 
         try {
-            workflow.doAction(workflowId, actionId, inputs);
+            workflow.doAction(workflowId, actionId, moreInputs == null
+                    ? Collections.EMPTY_MAP : moreInputs);
         } catch (InvalidActionException e) {
             throw new WorkflowException(e);
         }
-    }
-
-    public static TaskExecutionStatus getTaskExecutionStatus(
-            final Workflow workflow,
-            final TaskExecution execution) {
-
-        TaskExecutionStatus result = TaskExecutionStatus.FAILURE;
-
-        try {
-            List<Step> steps =
-                    workflow.getCurrentSteps(execution.getWorkflowId());
-            if (steps != null && !steps.isEmpty()) {
-                result = TaskExecutionStatus.valueOf(
-                        steps.iterator().next().getStatus());
-            }
-        } catch (Throwable t) {
-            LOG.error("While getting status of {}", execution, t);
-        }
-
-        return result;
     }
 }

@@ -18,17 +18,24 @@ import java.util.List;
 import javax.persistence.CacheRetrieveMode;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.syncope.core.persistence.beans.PropagationTask;
 import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.SchemaMapping;
+import org.syncope.core.persistence.beans.SyncTask;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.ResourceDAO;
+import org.syncope.core.persistence.dao.TaskDAO;
 import org.syncope.types.SourceMappingType;
 
 @Repository
 public class ResourceDAOImpl extends AbstractDAOImpl
         implements ResourceDAO {
+
+    @Autowired
+    private TaskDAO taskDAO;
 
     @Override
     public TargetResource find(final String name) {
@@ -131,7 +138,8 @@ public class ResourceDAOImpl extends AbstractDAOImpl
 
         deleteAllMappings(resource);
 
-        resource.getTasks().clear();
+        taskDAO.deleteAll(resource, PropagationTask.class);
+        taskDAO.deleteAll(resource, SyncTask.class);
 
         for (SyncopeUser user : resource.getUsers()) {
             user.removeTargetResource(resource);

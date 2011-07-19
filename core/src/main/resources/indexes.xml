@@ -52,7 +52,7 @@
     <entry key="SyncopeUser_TargetResource_targetResources_nameIndex">CREATE INDEX SyncopeUser_TargetResour2Index ON SyncopeUser_TargetResource(targetResources_name)</entry>
     <entry key="TargetResource_connector_idIndex">CREATE INDEX TargetResource_connector_Index ON TargetResource(connector_id)</entry>
     <entry key="Task_resource_nameIndex">CREATE INDEX Task_resource_nameIndex ON Task(resource_name)</entry>
-    <entry key="TaskExecution_task_idIndex">CREATE INDEX TaskExecution_task_idIndeIndex ON TaskExecution(task_id)</entry>
+    <entry key="TaskExec_task_idIndex">CREATE INDEX TaskExec_task_idIndeIndex ON TaskExec(task_id)</entry>
     <entry key="UAttr_schema_nameIndex">CREATE INDEX UAttr_schema_nameIndex ON UAttr(schema_name)</entry>
     <entry key="UAttr_owner_idIndex">CREATE INDEX UAttr_owner_idIndex ON UAttr(owner_id)</entry>
     <entry key="UAttrValue_attribute_idIndex">CREATE INDEX UAttrValue_attribute_idIndex ON UAttrValue(attribute_id)</entry>

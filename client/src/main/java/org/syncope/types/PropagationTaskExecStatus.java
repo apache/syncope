@@ -12,13 +12,24 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.persistence.beans;
+package org.syncope.types;
 
-public abstract class AbstractAttrUniqueValue extends AbstractAttrValue {
+/**
+ * Status of a TaskExecution.
+ *
+ * CREATED -> SUBMITTED or UBSUBMITTED (depending on the external resource to
+ * return success or failure).
+ * SUBMITTED -> SUCCESS or FAILURE (depending on the external resource to
+ * report success or failure).
+ *
+ * @see TaskExecution
+ */
+public enum PropagationTaskExecStatus {
 
-    private static final long serialVersionUID = -1114553598914979353L;
+    CREATED,
+    SUBMITTED,
+    UNSUBMITTED,
+    SUCCESS,
+    FAILURE
 
-    public abstract <T extends AbstractSchema> T getSchema();
-
-    public abstract <T extends AbstractSchema> void setSchema(T schema);
 }

@@ -16,22 +16,30 @@ package org.syncope.core.persistence.dao;
 
 import java.util.List;
 import org.syncope.core.persistence.beans.Task;
+import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.validation.entity.InvalidEntityException;
 
 public interface TaskDAO extends DAO {
 
-    Task find(Long id);
+     <T extends Task> T find(Long id);
 
-    List<Task> findAll();
+     <T extends Task> List<T> findAll(TargetResource resource,
+            Class<T> reference);
 
-    List<Task> findAll(int page, int itemsPerPage);
+     <T extends Task> List<T> findAll(Class<T> reference);
 
-    Integer count();
+     <T extends Task> List<T> findAll(int page, int itemsPerPage,
+            Class<T> reference);
 
-    Task save(Task task)
+     <T extends Task> Integer count(Class<T> reference);
+
+     <T extends Task> T save(T task)
             throws InvalidEntityException;
 
-    void delete(Long id);
+     <T extends Task> void delete(Long id);
 
-    void delete(Task task);
+     <T extends Task> void delete(T task);
+
+     <T extends Task> void deleteAll(TargetResource resource,
+            Class<T> reference);
 }

@@ -21,27 +21,28 @@ import java.util.List;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpStatusCodeException;
-import org.syncope.client.to.TaskExecutionTO;
+import org.syncope.client.to.TaskExecTO;
+import org.syncope.client.to.PropagationTaskTO;
 import org.syncope.client.to.TaskTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.syncope.types.PropagationTaskExecStatus;
 import org.syncope.types.SyncopeClientExceptionType;
-import org.syncope.types.TaskExecutionStatus;
 
 public class TaskTestITCase extends AbstractTest {
 
     @Test
     public final void count() {
         Integer count = restTemplate.getForObject(
-                BASE_URL + "task/count.json", Integer.class);
+                BASE_URL + "task/propagation/count.json", Integer.class);
         assertNotNull(count);
         assertTrue(count > 0);
     }
 
     @Test
     public final void list() {
-        List<TaskTO> tasks = Arrays.asList(
+        List<PropagationTaskTO> tasks = Arrays.asList(
                 restTemplate.getForObject(
-                BASE_URL + "task/list", TaskTO[].class));
+                BASE_URL + "task/propagation/list", PropagationTaskTO[].class));
         assertNotNull(tasks);
         assertFalse(tasks.isEmpty());
         for (TaskTO task : tasks) {
@@ -51,9 +52,9 @@ public class TaskTestITCase extends AbstractTest {
 
     @Test
     public final void paginatedList() {
-        List<TaskTO> tasks = Arrays.asList(restTemplate.getForObject(
-                BASE_URL + "task/list/{page}/{size}.json",
-                TaskTO[].class, 1, 2));
+        List<PropagationTaskTO> tasks = Arrays.asList(restTemplate.getForObject(
+                BASE_URL + "task/propagation/list/{page}/{size}.json",
+                PropagationTaskTO[].class, 1, 2));
 
         assertNotNull(tasks);
         assertFalse(tasks.isEmpty());
@@ -64,8 +65,8 @@ public class TaskTestITCase extends AbstractTest {
         }
 
         tasks = Arrays.asList(restTemplate.getForObject(
-                BASE_URL + "task/list/{page}/{size}.json",
-                TaskTO[].class, 2, 2));
+                BASE_URL + "task/propagation/list/{page}/{size}.json",
+                PropagationTaskTO[].class, 2, 2));
 
         assertNotNull(tasks);
         assertFalse(tasks.isEmpty());
@@ -76,8 +77,8 @@ public class TaskTestITCase extends AbstractTest {
         }
 
         tasks = Arrays.asList(restTemplate.getForObject(
-                BASE_URL + "task/list/{page}/{size}.json",
-                TaskTO[].class, 100, 2));
+                BASE_URL + "task/propagation/list/{page}/{size}.json",
+                PropagationTaskTO[].class, 100, 2));
 
         assertNotNull(tasks);
         assertTrue(tasks.isEmpty());
@@ -85,20 +86,21 @@ public class TaskTestITCase extends AbstractTest {
 
     @Test
     public final void listExecutions() {
-        List<TaskExecutionTO> executions = Arrays.asList(
+        List<TaskExecTO> executions = Arrays.asList(
                 restTemplate.getForObject(
-                BASE_URL + "task/execution/list", TaskExecutionTO[].class));
+                BASE_URL + "task/propagation/execution/list",
+                TaskExecTO[].class));
         assertNotNull(executions);
         assertFalse(executions.isEmpty());
-        for (TaskExecutionTO execution : executions) {
+        for (TaskExecTO execution : executions) {
             assertNotNull(execution);
         }
     }
 
     @Test
     public final void read() {
-        TaskTO taskTO = restTemplate.getForObject(
-                BASE_URL + "task/read/{taskId}", TaskTO.class, 1);
+        PropagationTaskTO taskTO = restTemplate.getForObject(
+                BASE_URL + "task/read/{taskId}", PropagationTaskTO.class, 1);
 
         assertNotNull(taskTO);
         assertNotNull(taskTO.getExecutions());
@@ -107,9 +109,9 @@ public class TaskTestITCase extends AbstractTest {
 
     @Test
     public final void readExecution() {
-        TaskExecutionTO taskTO = restTemplate.getForObject(
+        TaskExecTO taskTO = restTemplate.getForObject(
                 BASE_URL + "task/execution/read/{taskId}",
-                TaskExecutionTO.class, 1);
+                TaskExecTO.class, 1);
         assertNotNull(taskTO);
     }
 
@@ -121,17 +123,18 @@ public class TaskTestITCase extends AbstractTest {
             assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
         }
 
-        TaskExecutionTO execution = restTemplate.getForObject(
+        TaskExecTO execution = restTemplate.getForObject(
                 BASE_URL + "task/execute/{taskId}",
-                TaskExecutionTO.class, 1);
-        assertEquals(TaskExecutionStatus.SUBMITTED, execution.getStatus());
+                TaskExecTO.class, 1);
+        assertEquals(PropagationTaskExecStatus.SUBMITTED.toString(),
+                execution.getStatus());
 
         Exception exception = null;
         try {
             restTemplate.delete(BASE_URL + "task/delete/{taskId}", 1);
         } catch (SyncopeClientCompositeErrorException scce) {
             assertTrue(scce.hasException(
-                    SyncopeClientExceptionType.IncompleteTaskExecution));
+                    SyncopeClientExceptionType.IncompletePropagationTaskExec));
             exception = scce;
         }
         assertNotNull(exception);
@@ -139,15 +142,16 @@ public class TaskTestITCase extends AbstractTest {
         execution = restTemplate.getForObject(
                 BASE_URL + "task/execution/report/{executionId}"
                 + "?executionStatus=SUCCESS&message=OK",
-                TaskExecutionTO.class, execution.getId());
-        assertEquals(TaskExecutionStatus.SUCCESS, execution.getStatus());
+                TaskExecTO.class, execution.getId());
+        assertEquals(PropagationTaskExecStatus.SUCCESS.toString(),
+                execution.getStatus());
         assertEquals("OK", execution.getMessage());
 
         restTemplate.delete(BASE_URL + "task/delete/{taskId}", 1);
         try {
             restTemplate.getForObject(
                     BASE_URL + "task/execution/read/{executionId}",
-                    TaskExecutionTO.class, execution.getId());
+                    TaskExecTO.class, execution.getId());
         } catch (HttpStatusCodeException e) {
             assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
         }

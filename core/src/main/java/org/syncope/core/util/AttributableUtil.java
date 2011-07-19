@@ -49,7 +49,9 @@ import org.syncope.types.SourceMappingType;
 
 public enum AttributableUtil {
 
-    USER, ROLE, MEMBERSHIP;
+    USER,
+    ROLE,
+    MEMBERSHIP;
 
     public SourceMappingType sourceMappingType() {
         SourceMappingType result = null;

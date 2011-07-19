@@ -17,33 +17,36 @@ package org.syncope.core.persistence.dao.impl;
 import java.util.List;
 import javax.persistence.Query;
 import org.springframework.stereotype.Repository;
-import org.syncope.core.persistence.beans.TaskExecution;
-import org.syncope.core.persistence.dao.TaskExecutionDAO;
+import org.syncope.core.persistence.beans.Task;
+import org.syncope.core.persistence.beans.TaskExec;
+import org.syncope.core.persistence.dao.TaskExecDAO;
 
 @Repository
-public class TaskExecutionDAOImpl extends AbstractDAOImpl
-        implements TaskExecutionDAO {
+public class TaskExecDAOImpl extends AbstractDAOImpl
+        implements TaskExecDAO {
 
     @Override
-    public TaskExecution find(final Long id) {
-        return entityManager.find(TaskExecution.class, id);
+    public TaskExec find(final Long id) {
+        return entityManager.find(TaskExec.class, id);
     }
 
     @Override
-    public List<TaskExecution> findAll() {
-        Query query = entityManager.createQuery(
-                "SELECT e FROM TaskExecution e");
+    public <T extends Task> List<TaskExec> findAll(Class<T> reference) {
+        Query query = entityManager.createQuery("SELECT e "
+                + "FROM " + TaskExec.class.getSimpleName() + " e "
+                + "WHERE e.task.class=:taskClass");
+        query.setParameter("taskClass", reference.getSimpleName());
         return query.getResultList();
     }
 
     @Override
-    public TaskExecution save(final TaskExecution execution) {
+    public TaskExec save(final TaskExec execution) {
         return entityManager.merge(execution);
     }
 
     @Override
     public void delete(final Long id) {
-        TaskExecution execution = find(id);
+        TaskExec execution = find(id);
         if (execution == null) {
             return;
         }
@@ -52,9 +55,9 @@ public class TaskExecutionDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    public void delete(final TaskExecution execution) {
+    public void delete(final TaskExec execution) {
         if (execution.getTask() != null) {
-            execution.getTask().removeExecution(execution);
+            execution.getTask().removeExec(execution);
         }
 
         entityManager.remove(execution);

@@ -32,6 +32,8 @@ import org.syncope.core.persistence.beans.AbstractSchema;
 @Entity
 public class MAttr extends AbstractAttr {
 
+    private static final long serialVersionUID = 3755864809152866489L;
+
     @Id
     private Long id;
 

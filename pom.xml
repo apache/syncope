@@ -94,6 +94,7 @@
         <xstream.version>1.3.1</xstream.version>
         <aspectj.version>1.6.9</aspectj.version>
         <velocity.version>1.7</velocity.version>
+        <quartz.version>1.8.5</quartz.version>
 
         <hibernate.version>3.6.5.Final</hibernate.version>
         <hibernate-validator.version>4.2.0.Final</hibernate-validator.version>
@@ -328,36 +329,45 @@
                 <artifactId>aspectjrt</artifactId>
                 <version>${aspectj.version}</version>
             </dependency>
+            
+            <dependency>
+                <groupId>org.quartz-scheduler</groupId>
+                <artifactId>quartz</artifactId>
+                <version>${quartz.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.quartz-scheduler</groupId>
+                <artifactId>quartz-oracle</artifactId>
+                <version>${quartz.version}</version>
+            </dependency>
 
+            <!-- Wicket -->
             <dependency>
                 <groupId>org.apache.wicket</groupId>
                 <artifactId>wicket</artifactId>
                 <version>${wicket.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.apache.wicket</groupId>
                 <artifactId>wicket-extensions</artifactId>
                 <version>${wicket.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.apache.wicket</groupId>
                 <artifactId>wicket-datetime</artifactId>
                 <version>${wicket.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.apache.wicket</groupId>
                 <artifactId>wicket-spring</artifactId>
                 <version>${wicket.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.apache.wicket</groupId>
                 <artifactId>wicket-auth-roles</artifactId>
                 <version>${wicket.version}</version>
             </dependency>
+            <!-- /Wicket -->
 
             <dependency>
                 <groupId>org.hsqldb</groupId>

@@ -38,7 +38,7 @@ public abstract class AbstractAttr extends AbstractBaseBean {
         T attrValue;
         if (getSchema().isUniqueConstraint()) {
             attrValue = (T) attributableUtil.newAttributeUniqueValue();
-            ( (AbstractAttrUniqueValue) attrValue ).setSchema(getSchema());
+            ((AbstractAttrUniqueValue) attrValue).setSchema(getSchema());
         } else {
             attrValue = (T) attributableUtil.newAttributeValue();
         }
@@ -75,7 +75,7 @@ public abstract class AbstractAttr extends AbstractBaseBean {
     public abstract <T extends AbstractAttrValue> boolean removeValue(
             T attrValue);
 
-    public <T extends AbstractAttrValue> List<String> getValuesAsStrings() {
+    public List<String> getValuesAsStrings() {
         List<String> result;
         if (getUniqueValue() != null) {
             result = Collections.singletonList(

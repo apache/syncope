@@ -12,20 +12,23 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.types;
+package org.syncope.core.persistence.dao;
 
-/**
- * Status of a TaskExecution.
- *
- * CREATED -> SUBMITTED or UBSUBMITTED (depending on the external resource to
- * return success or failure).
- * SUBMITTED -> SUCCESS or FAILURE (depending on the external resource to
- * report success or failure).
- *
- * @see TaskExecution
- */
-public enum TaskExecutionStatus {
+import java.util.List;
+import org.syncope.core.persistence.beans.Task;
+import org.syncope.core.persistence.beans.TaskExec;
+import org.syncope.core.persistence.validation.entity.InvalidEntityException;
 
-    CREATED, SUBMITTED, UNSUBMITTED, SUCCESS, FAILURE
+public interface TaskExecDAO extends DAO {
 
+    TaskExec find(Long id);
+
+     <T extends Task> List<TaskExec> findAll(Class<T> reference);
+
+    TaskExec save(TaskExec execution)
+            throws InvalidEntityException;
+
+    void delete(Long id);
+
+    void delete(TaskExec execution);
 }

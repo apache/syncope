@@ -14,8 +14,6 @@
  */
 package org.syncope.core.persistence.propagation;
 
-import com.opensymphony.workflow.Workflow;
-import com.opensymphony.workflow.WorkflowException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -26,7 +24,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.annotation.Resource;
 import org.identityconnectors.framework.common.FrameworkUtil;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.objects.Attribute;
@@ -48,8 +45,8 @@ import org.syncope.core.persistence.beans.AbstractVirSchema;
 import org.syncope.core.persistence.beans.ConnInstance;
 import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.SchemaMapping;
-import org.syncope.core.persistence.beans.Task;
-import org.syncope.core.persistence.beans.TaskExecution;
+import org.syncope.core.persistence.beans.PropagationTask;
+import org.syncope.core.persistence.beans.TaskExec;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.beans.user.UAttr;
 import org.syncope.core.persistence.beans.user.UAttrValue;
@@ -61,16 +58,14 @@ import org.syncope.core.persistence.beans.user.UVirSchema;
 import org.syncope.core.persistence.dao.DerSchemaDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.TaskDAO;
-import org.syncope.core.persistence.dao.TaskExecutionDAO;
+import org.syncope.core.persistence.dao.TaskExecDAO;
 import org.syncope.core.persistence.dao.VirSchemaDAO;
 import org.syncope.core.util.JexlUtil;
-import org.syncope.core.workflow.Constants;
-import org.syncope.core.workflow.WFUtils;
 import org.syncope.types.PropagationMode;
 import org.syncope.types.ResourceOperationType;
 import org.syncope.types.SourceMappingType;
 import org.syncope.types.SchemaType;
-import org.syncope.types.TaskExecutionStatus;
+import org.syncope.types.PropagationTaskExecStatus;
 
 /**
  * Manage the data propagation to target resources.
@@ -114,13 +109,7 @@ public class PropagationManager {
      * Task execution DAO.
      */
     @Autowired
-    private TaskExecutionDAO taskExecutionDAO;
-
-    /**
-     * Task execution workflow.
-     */
-    @Resource(name = "taskExecutionWorkflow")
-    private Workflow workflow;
+    private TaskExecDAO taskExecDAO;
 
     /**
      * JEXL engine for evaluating connector's account link.
@@ -240,9 +229,8 @@ public class PropagationManager {
         resourceOperations.purge();
         LOG.debug("After purge: {}", resourceOperations);
 
-        Task task;
-        TaskExecution execution;
-        Long workflowId;
+        PropagationTask task;
+        TaskExec execution;
         for (ResourceOperationType type : ResourceOperationType.values()) {
             for (TargetResource resource : resourceOperations.get(type)) {
                 Map<String, Set<Attribute>> preparedAttributes =
@@ -250,7 +238,7 @@ public class PropagationManager {
                 String accountId =
                         preparedAttributes.keySet().iterator().next();
 
-                task = new Task();
+                task = new PropagationTask();
                 task.setResource(resource);
                 task.setResourceOperationType(type);
                 task.setPropagationMode(
@@ -263,23 +251,17 @@ public class PropagationManager {
                 task.setAttributes(
                         preparedAttributes.values().iterator().next());
 
-                execution = new TaskExecution();
+                execution = new TaskExec();
                 execution.setTask(task);
+                execution.setStatus(
+                        PropagationTaskExecStatus.CREATED.toString());
 
-                task.addExecution(execution);
+                task.addExec(execution);
                 task = taskDAO.save(task);
 
                 // Re-read execution to get the unique id
-                execution = task.getExecutions().iterator().next();
-
-                try {
-                    workflowId = workflow.initialize(
-                            Constants.TASKEXECUTION_WORKFLOW, 0, null);
-                    execution.setWorkflowId(workflowId);
-                } catch (WorkflowException e) {
-                    LOG.error("While initializing workflow for {}",
-                            execution, e);
-                }
+                execution = (TaskExec) task.getExecs().
+                        iterator().next();
 
                 LOG.debug("Execution started for {}", task);
 
@@ -290,8 +272,8 @@ public class PropagationManager {
                 // Propagation is interrupted as soon as the result of the
                 // communication with a mandatory resource is in error
                 if (mandatoryResourceNames.contains(resource.getName())
-                        && WFUtils.getTaskExecutionStatus(workflow, execution)
-                        != TaskExecutionStatus.SUCCESS) {
+                        && !PropagationTaskExecStatus.SUCCESS.toString().
+                        equals(execution.getStatus())) {
 
                     throw new PropagationException(resource.getName(),
                             execution.getMessage());
@@ -604,11 +586,11 @@ public class PropagationManager {
 
     }
 
-    public void propagate(final TaskExecution execution) {
+    public void propagate(final TaskExec execution) {
         final Date startDate = new Date();
         String taskExecutionMessage = null;
 
-        final Task task = execution.getTask();
+        final PropagationTask task = (PropagationTask) execution.getTask();
 
         // Output parameter to verify the propagation request tryed
         final Set<String> triedPropagationRequests = new HashSet<String>();
@@ -699,14 +681,10 @@ public class PropagationManager {
                 default:
             }
 
-            WFUtils.doExecuteAction(workflow,
-                    Constants.TASKEXECUTION_WORKFLOW,
-                    Constants.ACTION_OK,
-                    execution.getWorkflowId(),
+            execution.setStatus(
                     task.getPropagationMode() == PropagationMode.SYNC
-                    ? Collections.singletonMap(
-                    PropagationMode.SYNC.toString(), null)
-                    : null);
+                    ? PropagationTaskExecStatus.SUCCESS.toString()
+                    : PropagationTaskExecStatus.SUBMITTED.toString());
 
             LOG.debug("Successfully propagated to resource {}",
                     task.getResource());
@@ -724,14 +702,10 @@ public class PropagationManager {
             }
 
             try {
-                WFUtils.doExecuteAction(workflow,
-                        Constants.TASKEXECUTION_WORKFLOW,
-                        Constants.ACTION_KO,
-                        execution.getWorkflowId(),
+                execution.setStatus(
                         task.getPropagationMode() == PropagationMode.SYNC
-                        ? Collections.singletonMap(
-                        PropagationMode.SYNC.toString(), null)
-                        : null);
+                        ? PropagationTaskExecStatus.FAILURE.toString()
+                        : PropagationTaskExecStatus.UNSUBMITTED.toString());
             } catch (Throwable wft) {
                 LOG.error("While executing KO action on {}", execution, wft);
             }
@@ -746,11 +720,11 @@ public class PropagationManager {
                 execution.setMessage(taskExecutionMessage);
                 execution.setEndDate(new Date());
 
-                taskExecutionDAO.save(execution);
+                taskExecDAO.save(execution);
 
                 LOG.debug("Execution finished: {}", execution);
             } else {
-                taskExecutionDAO.delete(execution);
+                taskExecDAO.delete(execution);
 
                 LOG.debug("Execution removed: {}", execution);
             }

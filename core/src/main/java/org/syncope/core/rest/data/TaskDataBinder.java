@@ -14,46 +14,77 @@
  */
 package org.syncope.core.rest.data;
 
-import com.opensymphony.workflow.Workflow;
+import java.util.List;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
-import org.syncope.client.to.TaskExecutionTO;
+import org.syncope.client.to.PropagationTaskTO;
+import org.syncope.client.to.SyncTaskTO;
+import org.syncope.client.to.TaskExecTO;
 import org.syncope.client.to.TaskTO;
+import org.syncope.core.persistence.beans.PropagationTask;
+import org.syncope.core.persistence.beans.SyncTask;
+import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.Task;
-import org.syncope.core.persistence.beans.TaskExecution;
-import org.syncope.core.workflow.WFUtils;
+import org.syncope.core.persistence.beans.TaskExec;
+import org.syncope.core.persistence.beans.role.SyncopeRole;
+import org.syncope.core.util.TaskUtil;
 
 @Component
 public class TaskDataBinder {
 
     private static final String[] IGNORE_TASK_PROPERTIES = {
-        "executions", "resource"};
+        "executions", "resource", "defaultResources", "defaultRoles",
+        "updateIdentities"};
 
     private static final String[] IGNORE_TASK_EXECUTION_PROPERTIES = {
         "task"};
 
-    public TaskExecutionTO getTaskExecutionTO(final Workflow workflow,
-            final TaskExecution execution) {
+    public TaskExecTO getTaskExecutionTO(
+            final TaskExec execution) {
 
-        TaskExecutionTO executionTO = new TaskExecutionTO();
+        TaskExecTO executionTO = new TaskExecTO();
         BeanUtils.copyProperties(execution, executionTO,
                 IGNORE_TASK_EXECUTION_PROPERTIES);
-        executionTO.setStatus(
-                WFUtils.getTaskExecutionStatus(workflow, execution));
         executionTO.setTask(execution.getTask().getId());
 
         return executionTO;
     }
 
-    public TaskTO getTaskTO(final Workflow workflow, final Task task) {
-        TaskTO taskTO = new TaskTO();
+    public TaskTO getTaskTO(final Task task, final TaskUtil taskUtil) {
+        TaskTO taskTO = taskUtil.newTaskTO();
         BeanUtils.copyProperties(task, taskTO, IGNORE_TASK_PROPERTIES);
 
-        for (TaskExecution execution : task.getExecutions()) {
-            taskTO.addExecution(getTaskExecutionTO(workflow, execution));
+        List<TaskExec> executions = task.getExecs();
+        for (TaskExec execution : executions) {
+            taskTO.addExecution(getTaskExecutionTO(execution));
         }
 
-        taskTO.setResource(task.getResource().getName());
+        switch (taskUtil) {
+            case PROPAGATION:
+                ((PropagationTaskTO) taskTO).setResource(
+                        ((PropagationTask) task).getResource().getName());
+                break;
+
+            case SCHED:
+                break;
+
+            case SYNC:
+                ((SyncTaskTO) taskTO).setResource(
+                        ((SyncTask) task).getResource().getName());
+                for (TargetResource resource :
+                        ((SyncTask) task).getDefaultResources()) {
+
+                    ((SyncTaskTO) taskTO).addDefaultResource(resource.getName());
+                }
+                for (SyncopeRole role :
+                        ((SyncTask) task).getDefaultRoles()) {
+
+                    ((SyncTaskTO) taskTO).addDefaultRole(role.getId());
+                }
+                ((SyncTaskTO) taskTO).setUpdateIdentities(
+                        ((SyncTask) task).isUpdateIdentities());
+                break;
+        }
 
         return taskTO;
     }

@@ -25,10 +25,12 @@ import javax.persistence.TemporalType;
 
 /**
  * An execution (with result) of a Task.
- * @see Task
+ * @see PropagationTask
  */
 @Entity
-public class TaskExecution extends AbstractBaseBean {
+public class TaskExec extends AbstractBaseBean {
+
+    private static final long serialVersionUID = 1909033231464074554L;
 
     /**
      * Id.
@@ -48,9 +50,6 @@ public class TaskExecution extends AbstractBaseBean {
     @Temporal(TemporalType.TIMESTAMP)
     private Date endDate;
 
-    @Column(nullable = true)
-    private Long workflowId;
-
     /**
      * Any information to be accompained to this execution's result.
      */
@@ -63,12 +62,8 @@ public class TaskExecution extends AbstractBaseBean {
     @ManyToOne(optional = false)
     private Task task;
 
-    /**
-     * Default constructor.
-     */
-    public TaskExecution() {
-        super();
-    }
+    @Column(nullable = false)
+    private String status;
 
     public Long getId() {
         return id;
@@ -98,14 +93,6 @@ public class TaskExecution extends AbstractBaseBean {
         this.startDate = startDate;
     }
 
-    public Long getWorkflowId() {
-        return workflowId;
-    }
-
-    public void setWorkflowId(Long workflowId) {
-        this.workflowId = workflowId;
-    }
-
     public Task getTask() {
         return task;
     }
@@ -114,14 +101,22 @@ public class TaskExecution extends AbstractBaseBean {
         this.task = task;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     @Override
     public String toString() {
-        return "TaskExecution{"
-                + "id=" + id + ", "
+        return getClass().getSimpleName() + "{"
+                + "id=" + getId() + ", "
                 + "startDate=" + startDate + ", "
                 + "endDate=" + endDate + ", "
-                + "workflowId=" + workflowId + ", "
                 + "task=" + task + ", "
+                + "status=" + status + ", "
                 + "message=" + message + '}';
     }
 }

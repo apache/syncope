@@ -20,6 +20,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.transaction.annotation.Transactional;
+import org.syncope.core.persistence.beans.PropagationTask;
+import org.syncope.core.persistence.beans.SchedTask;
+import org.syncope.core.persistence.beans.SyncTask;
+import org.syncope.core.persistence.beans.Task;
+import org.syncope.core.util.TaskUtil;
 
 @Transactional(rollbackFor = {
     Throwable.class
@@ -41,6 +46,39 @@ public abstract class AbstractController {
             LOG.error("Attributable not supported: " + kind);
 
             throw new TypeMismatchException(kind, AttributableUtil.class, e);
+        }
+
+        return result;
+    }
+
+    protected TaskUtil getTaskUtil(final String kind) {
+        TaskUtil result = null;
+
+        try {
+            result = TaskUtil.valueOf(kind.toUpperCase());
+        } catch (Exception e) {
+            LOG.error("Task not supported: " + kind);
+
+            throw new TypeMismatchException(kind, TaskUtil.class, e);
+        }
+
+        return result;
+    }
+
+    protected TaskUtil getTaskUtil(final Task task) {
+        TaskUtil result = (task instanceof PropagationTask)
+                ? TaskUtil.PROPAGATION
+                : (task instanceof SchedTask)
+                ? TaskUtil.SCHED
+                : (task instanceof SyncTask)
+                ? TaskUtil.SYNC
+                : null;
+
+        if (result == null) {
+            LOG.error("Task not supported: " + task.getClass().getName());
+
+            throw new TypeMismatchException(task.getClass().getName(),
+                    TaskUtil.class);
         }
 
         return result;

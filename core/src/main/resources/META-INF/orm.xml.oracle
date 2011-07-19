@@ -174,11 +174,11 @@
             </id>
         </attributes>
     </entity>
-    <entity class="org.syncope.core.persistence.beans.TaskExecution">
+    <entity class="org.syncope.core.persistence.beans.TaskExec">
         <attributes>
             <id name="id">
-                <generated-value generator="SEQ_TaskExecution" strategy="TABLE"/>
-                <table-generator name="SEQ_TaskExecution" pk-column-value="SEQ_TaskExecution" initial-value="10"/>
+                <generated-value generator="SEQ_TaskExec" strategy="TABLE"/>
+                <table-generator name="SEQ_TaskExec" pk-column-value="SEQ_TaskExec" initial-value="10"/>
             </id>
         </attributes>
     </entity>

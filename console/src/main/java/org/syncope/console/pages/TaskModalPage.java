@@ -45,8 +45,8 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.syncope.client.to.TaskExecutionTO;
-import org.syncope.client.to.TaskTO;
+import org.syncope.client.to.TaskExecTO;
+import org.syncope.client.to.PropagationTaskTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.commons.SortableDataProviderComparator;
 import org.syncope.console.rest.TaskRestClient;
@@ -80,7 +80,7 @@ public class TaskModalPage extends BaseModalPage {
      * @param create : set to true only if a CREATE operation is required
      */
     public TaskModalPage(final BasePage basePage, final ModalWindow window,
-            final TaskTO taskTO) {
+            final PropagationTaskTO taskTO) {
 
         dialogContent = new Label("dialogContent", new Model<String>(""));
 
@@ -117,14 +117,14 @@ public class TaskModalPage extends BaseModalPage {
         columns.add(new PropertyColumn(new Model(getString("status")),
                 "status", "status"));
 
-        columns.add(new AbstractColumn<TaskExecutionTO>(
+        columns.add(new AbstractColumn<TaskExecTO>(
                 new Model<String>(getString("message"))) {
 
             @Override
             public void populateItem(
-                    final Item<ICellPopulator<TaskExecutionTO>> cellItem,
+                    final Item<ICellPopulator<TaskExecTO>> cellItem,
                     final String componentId,
-                    final IModel<TaskExecutionTO> model) {
+                    final IModel<TaskExecTO> model) {
 
                 AjaxLink messageLink = new IndicatingAjaxLink("link") {
 
@@ -150,16 +150,16 @@ public class TaskModalPage extends BaseModalPage {
             }
         });
 
-        columns.add(new AbstractColumn<TaskExecutionTO>(
+        columns.add(new AbstractColumn<TaskExecTO>(
                 new Model<String>(getString("delete"))) {
 
             @Override
             public void populateItem(
-                    final Item<ICellPopulator<TaskExecutionTO>> cellItem,
+                    final Item<ICellPopulator<TaskExecTO>> cellItem,
                     final String componentId,
-                    final IModel<TaskExecutionTO> model) {
+                    final IModel<TaskExecTO> model) {
 
-                final TaskExecutionTO taskExecutionTO = model.getObject();
+                final TaskExecTO taskExecutionTO = model.getObject();
 
                 AjaxLink deleteLink = new IndicatingDeleteOnConfirmAjaxLink(
                         "deleteLink") {
@@ -202,25 +202,25 @@ public class TaskModalPage extends BaseModalPage {
         add(form);
     }
 
-    class TaskExecutionsProvider extends SortableDataProvider<TaskExecutionTO> {
+    class TaskExecutionsProvider extends SortableDataProvider<TaskExecTO> {
 
-        private SortableDataProviderComparator<TaskExecutionTO> comparator;
+        private SortableDataProviderComparator<TaskExecTO> comparator;
 
-        private TaskTO taskTO;
+        private PropagationTaskTO taskTO;
 
-        public TaskExecutionsProvider(TaskTO taskTO) {
+        public TaskExecutionsProvider(PropagationTaskTO taskTO) {
             //Default sorting
             this.taskTO = taskTO;
             setSort("startDate", true);
             comparator =
-                    new SortableDataProviderComparator<TaskExecutionTO>(this);
+                    new SortableDataProviderComparator<TaskExecTO>(this);
         }
 
         @Override
-        public Iterator<TaskExecutionTO> iterator(final int first,
+        public Iterator<TaskExecTO> iterator(final int first,
                 final int count) {
 
-            List<TaskExecutionTO> list = getTaskDB();
+            List<TaskExecTO> list = getTaskDB();
 
             Collections.sort(list, comparator);
 
@@ -233,19 +233,19 @@ public class TaskModalPage extends BaseModalPage {
         }
 
         @Override
-        public IModel<TaskExecutionTO> model(
-                final TaskExecutionTO taskExecution) {
+        public IModel<TaskExecTO> model(
+                final TaskExecTO taskExecution) {
 
-            return new AbstractReadOnlyModel<TaskExecutionTO>() {
+            return new AbstractReadOnlyModel<TaskExecTO>() {
 
                 @Override
-                public TaskExecutionTO getObject() {
+                public TaskExecTO getObject() {
                     return taskExecution;
                 }
             };
         }
 
-        public List<TaskExecutionTO> getTaskDB() {
+        public List<TaskExecTO> getTaskDB() {
             return taskTO.getExecutions();
         }
     }

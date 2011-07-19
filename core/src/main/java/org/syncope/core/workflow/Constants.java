@@ -44,13 +44,6 @@ public final class Constants {
 
     public static final String USER_WORKFLOW = "userWorkflow";
 
-    // ----- Task execution workflow ------ //
-    public static final String ACTION_OK = "ok";
-
-    public static final String ACTION_KO = "ko";
-
-    public static final String TASKEXECUTION_WORKFLOW = "taskExecutionWorkflow";
-
     private Constants() {
     }
 }

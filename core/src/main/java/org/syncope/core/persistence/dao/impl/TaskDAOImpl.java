@@ -14,10 +14,12 @@
  */
 package org.syncope.core.persistence.dao.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
 import org.springframework.stereotype.Repository;
 import org.syncope.core.persistence.beans.Task;
+import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.dao.TaskDAO;
 
 @Repository
@@ -25,18 +27,33 @@ public class TaskDAOImpl extends AbstractDAOImpl
         implements TaskDAO {
 
     @Override
-    public Task find(final Long id) {
-        return entityManager.find(Task.class, id);
+    public <T extends Task> T find(final Long id) {
+        return (T) entityManager.find(Task.class, id);
     }
 
     @Override
-    public List<Task> findAll() {
-        return findAll(-1, -1);
+    public <T extends Task> List<T> findAll(
+            final TargetResource resource, final Class<T> reference) {
+
+        final Query query = entityManager.createQuery("SELECT e FROM "
+                + reference.getSimpleName() + " e "
+                + "WHERE e.resource=:resource");
+        query.setParameter("resource", resource);
+
+        return query.getResultList();
     }
 
     @Override
-    public List<Task> findAll(final int page, final int itemsPerPage) {
-        final Query query = entityManager.createQuery("SELECT e FROM Task e");
+    public <T extends Task> List<T> findAll(final Class<T> reference) {
+        return findAll(-1, -1, reference);
+    }
+
+    @Override
+    public <T extends Task> List<T> findAll(final int page,
+            final int itemsPerPage, final Class<T> reference) {
+
+        final Query query = entityManager.createQuery("SELECT e FROM "
+                + reference.getSimpleName() + " e");
 
         query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
 
@@ -48,21 +65,23 @@ public class TaskDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    public final Integer count() {
+    public <T extends Task> Integer count(final Class<T> reference) {
         Query countQuery =
-                entityManager.createNativeQuery("SELECT COUNT(id) FROM Task");
+                entityManager.createNativeQuery("SELECT COUNT(id) "
+                + "FROM Task WHERE DTYPE=:dtype");
+        countQuery.setParameter("dtype", reference.getSimpleName());
 
         return ((Number) countQuery.getSingleResult()).intValue();
     }
 
     @Override
-    public Task save(final Task task) {
+    public <T extends Task> T save(final T task) {
         return entityManager.merge(task);
     }
 
     @Override
-    public void delete(final Long id) {
-        Task task = find(id);
+    public <T extends Task> void delete(final Long id) {
+        T task = find(id);
         if (task == null) {
             return;
         }
@@ -71,11 +90,23 @@ public class TaskDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    public void delete(final Task task) {
-        if (task.getResource() != null) {
-            task.getResource().removeTask(task);
-        }
-
+    public <T extends Task> void delete(final T task) {
         entityManager.remove(task);
+    }
+
+    @Override
+    public <T extends Task> void deleteAll(
+            final TargetResource resource, final Class<T> reference) {
+
+        List<T> tasks = findAll(resource, reference);
+        if (tasks != null) {
+            List<Long> taskIds = new ArrayList<Long>(tasks.size());
+            for (T task : tasks) {
+                taskIds.add(task.getId());
+            }
+            for (Long taskId : taskIds) {
+                delete(taskId);
+            }
+        }
     }
 }

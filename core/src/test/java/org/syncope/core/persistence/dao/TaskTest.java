@@ -26,7 +26,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.AbstractTest;
 import org.syncope.core.persistence.beans.TargetResource;
-import org.syncope.core.persistence.beans.Task;
+import org.syncope.core.persistence.beans.PropagationTask;
+import org.syncope.core.persistence.beans.SyncTask;
+import org.syncope.core.persistence.validation.entity.InvalidEntityException;
 import org.syncope.types.PropagationMode;
 import org.syncope.types.ResourceOperationType;
 
@@ -41,16 +43,16 @@ public class TaskTest extends AbstractTest {
 
     @Test
     public final void findAll() {
-        List<Task> list = taskDAO.findAll();
+        List<PropagationTask> list = taskDAO.findAll(PropagationTask.class);
         assertEquals(3, list.size());
     }
 
     @Test
-    public final void save() {
+    public final void savePropagationTask() {
         TargetResource resource = resourceDAO.find("ws-target-resource-1");
         assertNotNull(resource);
 
-        Task task = new Task();
+        PropagationTask task = new PropagationTask();
         task.setResource(resource);
         task.setPropagationMode(PropagationMode.ASYNC);
         task.setResourceOperationType(ResourceOperationType.CREATE);
@@ -66,13 +68,38 @@ public class TaskTest extends AbstractTest {
         task = taskDAO.save(task);
         assertNotNull(task);
 
-        Task actual = taskDAO.find(task.getId());
+        PropagationTask actual = taskDAO.find(task.getId());
+        assertEquals(task, actual);
+    }
+
+    @Test
+    public final void saveSyncTask() {
+        TargetResource resource = resourceDAO.find("ws-target-resource-1");
+        assertNotNull(resource);
+
+        SyncTask task = new SyncTask();
+        task.addDefaultResource(resource);
+        task.setCronExpression("BLA BLA");
+
+        InvalidEntityException exception = null;
+        try {
+            taskDAO.save(task);
+        } catch (InvalidEntityException e) {
+            exception = e;
+        }
+        assertNotNull(exception);
+
+        task.setCronExpression(null);
+        task = taskDAO.save(task);
+        assertNotNull(task);
+
+        SyncTask actual = taskDAO.find(task.getId());
         assertEquals(task, actual);
     }
 
     @Test
     public final void delete() {
-        Task task = taskDAO.find(1L);
+        PropagationTask task = taskDAO.find(1L);
         assertNotNull(task);
 
         TargetResource resource = task.getResource();
@@ -84,6 +111,7 @@ public class TaskTest extends AbstractTest {
 
         resource = resourceDAO.find(resource.getName());
         assertNotNull(resource);
-        assertFalse(resource.getTasks().contains(task));
+        assertFalse(taskDAO.findAll(resource, PropagationTask.class).
+                contains(task));
     }
 }

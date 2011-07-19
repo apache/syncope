@@ -14,24 +14,26 @@
  */
 package org.syncope.core.persistence.relationships;
 
+import static org.junit.Assert.*;
+
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
-import static org.junit.Assert.*;
 import org.junit.Test;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.AbstractTest;
 import org.syncope.core.persistence.beans.TargetResource;
-import org.syncope.core.persistence.beans.Task;
-import org.syncope.core.persistence.beans.TaskExecution;
+import org.syncope.core.persistence.beans.PropagationTask;
+import org.syncope.core.persistence.beans.TaskExec;
+import org.syncope.core.persistence.beans.SyncTask;
 import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.dao.TaskDAO;
-import org.syncope.core.persistence.dao.TaskExecutionDAO;
+import org.syncope.core.persistence.dao.TaskExecDAO;
 import org.syncope.types.PropagationMode;
+import org.syncope.types.PropagationTaskExecStatus;
 import org.syncope.types.ResourceOperationType;
 
 @Transactional
@@ -41,19 +43,19 @@ public class TaskTest extends AbstractTest {
     private TaskDAO taskDAO;
 
     @Autowired
-    private TaskExecutionDAO taskExecutionDAO;
+    private TaskExecDAO taskExecDAO;
 
     @Autowired
     private ResourceDAO resourceDAO;
 
     @Test
     public final void read() {
-        Task task = taskDAO.find(1L);
+        PropagationTask task = taskDAO.find(1L);
         assertNotNull(task);
 
-        assertNotNull(task.getExecutions());
-        assertFalse(task.getExecutions().isEmpty());
-        assertEquals(1, task.getExecutions().size());
+        assertNotNull(task.getExecs());
+        assertFalse(task.getExecs().isEmpty());
+        assertEquals(1, task.getExecs().size());
     }
 
     @Test
@@ -61,7 +63,7 @@ public class TaskTest extends AbstractTest {
         TargetResource resource = resourceDAO.find("ws-target-resource-1");
         assertNotNull(resource);
 
-        Task task = new Task();
+        PropagationTask task = new PropagationTask();
         task.setResource(resource);
         task.setPropagationMode(PropagationMode.ASYNC);
         task.setResourceOperationType(ResourceOperationType.CREATE);
@@ -77,25 +79,27 @@ public class TaskTest extends AbstractTest {
         task = taskDAO.save(task);
         assertNotNull(task);
 
-        Task actual = taskDAO.find(task.getId());
+        PropagationTask actual = taskDAO.find(task.getId());
         assertEquals(task, actual);
 
         taskDAO.flush();
 
         resource = resourceDAO.find("ws-target-resource-1");
-        assertTrue(resource.getTasks().contains(task));
+        assertTrue(taskDAO.findAll(resource, PropagationTask.class).
+                contains(task));
     }
 
     @Test
-    public final void addTaskExecution() {
-        Task task = taskDAO.find(1L);
+    public final void addPropagationTaskExecution() {
+        PropagationTask task = taskDAO.find(1L);
         assertNotNull(task);
 
-        int executionNumber = task.getExecutions().size();
+        int executionNumber = task.getExecs().size();
 
-        TaskExecution execution = new TaskExecution();
+        TaskExec execution = new TaskExec();
         execution.setTask(task);
-        task.addExecution(execution);
+        execution.setStatus(PropagationTaskExecStatus.CREATED.toString());
+        task.addExec(execution);
         execution.setStartDate(new Date());
 
         task = taskDAO.save(task);
@@ -105,7 +109,30 @@ public class TaskTest extends AbstractTest {
         task = taskDAO.find(1L);
         assertNotNull(task);
 
-        assertEquals(executionNumber + 1, task.getExecutions().size());
+        assertEquals(executionNumber + 1, task.getExecs().size());
+    }
+
+    @Test
+    public final void addSyncTaskExecution() {
+        SyncTask task = taskDAO.find(4L);
+        assertNotNull(task);
+
+        int executionNumber = task.getExecs().size();
+
+        TaskExec execution = new TaskExec();
+        execution.setStatus("Text-free status");
+        execution.setTask(task);
+        task.addExec(execution);
+        execution.setMessage("A message");
+
+        task = taskDAO.save(task);
+
+        taskDAO.flush();
+
+        task = taskDAO.find(4L);
+        assertNotNull(task);
+
+        assertEquals(executionNumber + 1, task.getExecs().size());
     }
 
     @Test
@@ -115,24 +142,22 @@ public class TaskTest extends AbstractTest {
         taskDAO.flush();
 
         assertNull(taskDAO.find(1L));
-        assertNull(taskExecutionDAO.find(1L));
+        assertNull(taskExecDAO.find(1L));
     }
 
     @Test
     public final void deleteTaskExecution() {
-        TaskExecution execution =
-                taskExecutionDAO.find(1L);
-        int executionNumber =
-                execution.getTask().getExecutions().size();
+        TaskExec execution = taskExecDAO.find(1L);
+        int executionNumber = execution.getTask().getExecs().size();
 
-        taskExecutionDAO.delete(1L);
+        taskExecDAO.delete(1L);
 
-        taskExecutionDAO.flush();
+        taskExecDAO.flush();
 
-        assertNull(taskExecutionDAO.find(1L));
+        assertNull(taskExecDAO.find(1L));
 
-        Task task = taskDAO.find(1L);
-        assertEquals(task.getExecutions().size(),
+        PropagationTask task = taskDAO.find(1L);
+        assertEquals(task.getExecs().size(),
                 executionNumber - 1);
     }
 }

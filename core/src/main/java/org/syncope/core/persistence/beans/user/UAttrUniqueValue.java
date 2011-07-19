@@ -25,6 +25,8 @@ import org.syncope.core.persistence.beans.AbstractSchema;
 @Entity
 public class UAttrUniqueValue extends AbstractAttrUniqueValue {
 
+    private static final long serialVersionUID = -64080804563305387L;
+
     @Id
     private Long id;
 

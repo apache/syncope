@@ -37,7 +37,7 @@ import org.syncope.client.search.AttributeCond;
 import org.syncope.client.to.MembershipTO;
 import org.syncope.client.search.NodeCond;
 import org.syncope.client.search.ResourceCond;
-import org.syncope.client.to.TaskTO;
+import org.syncope.client.to.PropagationTaskTO;
 import org.syncope.client.to.UserTO;
 import org.syncope.client.to.WorkflowActionsTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
@@ -106,16 +106,16 @@ public class UserTestITCase extends AbstractTest {
     @Test
     public final void createUserWithNoPropagation() {
         // get task list
-        List<TaskTO> tasks = Arrays.asList(
+        List<PropagationTaskTO> tasks = Arrays.asList(
                 restTemplate.getForObject(
-                BASE_URL + "task/list", TaskTO[].class));
+                BASE_URL + "task/propagation/list", PropagationTaskTO[].class));
 
         assertNotNull(tasks);
         assertFalse(tasks.isEmpty());
 
         // get max task id
         long maxId = Long.MIN_VALUE;
-        for (TaskTO task : tasks) {
+        for (PropagationTaskTO task : tasks) {
             if (task.getId() > maxId) {
                 maxId = task.getId();
             }
@@ -154,14 +154,14 @@ public class UserTestITCase extends AbstractTest {
         // get the new task list
         tasks = Arrays.asList(
                 restTemplate.getForObject(
-                BASE_URL + "task/list", TaskTO[].class));
+                BASE_URL + "task/propagation/list", PropagationTaskTO[].class));
 
         assertNotNull(tasks);
         assertFalse(tasks.isEmpty());
 
         // get max task id
         long newMaxId = Long.MIN_VALUE;
-        for (TaskTO task : tasks) {
+        for (PropagationTaskTO task : tasks) {
             if (task.getId() > newMaxId) {
                 newMaxId = task.getId();
             }
@@ -170,8 +170,8 @@ public class UserTestITCase extends AbstractTest {
         assertTrue(newMaxId > maxId);
 
         // get last task
-        TaskTO taskTO = restTemplate.getForObject(
-                BASE_URL + "task/read/{taskId}", TaskTO.class, newMaxId);
+        PropagationTaskTO taskTO = restTemplate.getForObject(
+                BASE_URL + "task/read/{taskId}", PropagationTaskTO.class, newMaxId);
 
         assertNotNull(taskTO);
         assertTrue(taskTO.getExecutions().isEmpty());
@@ -226,16 +226,16 @@ public class UserTestITCase extends AbstractTest {
     @Test
     public final void create() {
         // get task list
-        List<TaskTO> tasks = Arrays.asList(
+        List<PropagationTaskTO> tasks = Arrays.asList(
                 restTemplate.getForObject(
-                BASE_URL + "task/list", TaskTO[].class));
+                BASE_URL + "task/propagation/list", PropagationTaskTO[].class));
 
         assertNotNull(tasks);
         assertFalse(tasks.isEmpty());
 
         // get max task id
         long maxId = Long.MIN_VALUE;
-        for (TaskTO task : tasks) {
+        for (PropagationTaskTO task : tasks) {
             if (task.getId() > maxId) {
                 maxId = task.getId();
             }
@@ -306,14 +306,14 @@ public class UserTestITCase extends AbstractTest {
         // get the new task list
         tasks = Arrays.asList(
                 restTemplate.getForObject(
-                BASE_URL + "task/list", TaskTO[].class));
+                BASE_URL + "task/propagation/list", PropagationTaskTO[].class));
 
         assertNotNull(tasks);
         assertFalse(tasks.isEmpty());
 
         // get max task id
         long newMaxId = Long.MIN_VALUE;
-        for (TaskTO task : tasks) {
+        for (PropagationTaskTO task : tasks) {
             if (task.getId() > newMaxId) {
                 newMaxId = task.getId();
             }
@@ -322,8 +322,8 @@ public class UserTestITCase extends AbstractTest {
         assertTrue(newMaxId > maxId);
 
         // get last task
-        TaskTO taskTO = restTemplate.getForObject(
-                BASE_URL + "task/read/{taskId}", TaskTO.class, newMaxId);
+        PropagationTaskTO taskTO = restTemplate.getForObject(
+                BASE_URL + "task/read/{taskId}", PropagationTaskTO.class, newMaxId);
 
         assertNotNull(taskTO);
         assertFalse(taskTO.getExecutions().isEmpty());

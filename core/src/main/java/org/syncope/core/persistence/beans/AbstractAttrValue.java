@@ -29,6 +29,8 @@ import org.syncope.core.persistence.validation.entity.AttrValueCheck;
 @AttrValueCheck
 public abstract class AbstractAttrValue extends AbstractBaseBean {
 
+    private static final long serialVersionUID = -9141923816611244785L;
+
     private String stringValue;
 
     @Temporal(TemporalType.TIMESTAMP)

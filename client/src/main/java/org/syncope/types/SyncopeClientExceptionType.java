@@ -31,9 +31,9 @@ public enum SyncopeClientExceptionType {
     InvalidPassword(
     "Syncope.InvalidPassword",
     "Syncope.InvalidPassword.reason"),
-    IncompleteTaskExecution(
-    "Syncope.IncompleteTaskExecution",
-    "Syncope.IncompleteTaskExecution.id"),
+    IncompletePropagationTaskExec(
+    "Syncope.IncompletePropagationTaskExec",
+    "Syncope.IncompletePropagationTaskExec.id"),
     InvalidRoles(
     "Syncope.InvalidRoles",
     "Syncope.InvalidRoles.name"),
@@ -43,9 +43,9 @@ public enum SyncopeClientExceptionType {
     InvalidSearchCondition(
     "Syncope.InvalidSearchCondition",
     ""),
-    InvalidTaskExecutionReport(
-    "Syncope.InvalidTaskExecutionReport",
-    "Syncope.InvalidTaskExecutionReport.element"),
+    InvalidPropagationTaskExecReport(
+    "Syncope.InvalidPropagationTaskExecReport",
+    "Syncope.InvalidPropagationTaskExecReport.element"),
     InvalidSchemaMapping(
     "Syncope.InvalidSchemaMapping",
     ""),

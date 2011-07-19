@@ -57,6 +57,8 @@ public abstract class AbstractSchema extends AbstractBaseBean {
 
     public static String enumValuesSeparator = ";";
 
+    private static final long serialVersionUID = -8621028596062054739L;
+
     @Id
     private String name;
 

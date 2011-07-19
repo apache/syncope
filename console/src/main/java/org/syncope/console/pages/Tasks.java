@@ -42,7 +42,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.syncope.client.to.TaskTO;
+import org.syncope.client.to.PropagationTaskTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.PreferenceManager;
@@ -89,7 +89,7 @@ public class Tasks extends BasePage {
                 getWebRequestCycle().getWebRequest(),
                 Constants.PREF_TASKS_PAGINATOR_ROWS);
 
-        List<IColumn<TaskTO>> columns = new ArrayList<IColumn<TaskTO>>();
+        List<IColumn<PropagationTaskTO>> columns = new ArrayList<IColumn<PropagationTaskTO>>();
 
         columns.add(new PropertyColumn(
                 new Model(getString("id")), "id", "id"));
@@ -108,16 +108,16 @@ public class Tasks extends BasePage {
                 new Model(getString("resourceOperationType")),
                 "resourceOperationType", "resourceOperationType"));
 
-        columns.add(new AbstractColumn<TaskTO>(new Model<String>(getString(
+        columns.add(new AbstractColumn<PropagationTaskTO>(new Model<String>(getString(
                 "detail"))) {
 
             @Override
             public void populateItem(
-                    final Item<ICellPopulator<TaskTO>> cellItem,
+                    final Item<ICellPopulator<PropagationTaskTO>> cellItem,
                     final String componentId,
-                    final IModel<TaskTO> model) {
+                    final IModel<PropagationTaskTO> model) {
 
-                final TaskTO taskTO = model.getObject();
+                final PropagationTaskTO taskTO = model.getObject();
 
                 AjaxLink viewLink = new IndicatingAjaxLink("editLink") {
 
@@ -149,16 +149,16 @@ public class Tasks extends BasePage {
             }
         });
 
-        columns.add(new AbstractColumn<TaskTO>(new Model<String>(getString(
+        columns.add(new AbstractColumn<PropagationTaskTO>(new Model<String>(getString(
                 "execute"))) {
 
             @Override
             public void populateItem(
-                    final Item<ICellPopulator<TaskTO>> cellItem,
+                    final Item<ICellPopulator<PropagationTaskTO>> cellItem,
                     final String componentId,
-                    final IModel<TaskTO> model) {
+                    final IModel<PropagationTaskTO> model) {
 
-                final TaskTO taskTO = model.getObject();
+                final PropagationTaskTO taskTO = model.getObject();
 
                 AjaxLink executeLink = new IndicatingAjaxLink("link") {
 
@@ -188,16 +188,16 @@ public class Tasks extends BasePage {
             }
         });
 
-        columns.add(new AbstractColumn<TaskTO>(new Model<String>(getString(
+        columns.add(new AbstractColumn<PropagationTaskTO>(new Model<String>(getString(
                 "delete"))) {
 
             @Override
             public void populateItem(
-                    final Item<ICellPopulator<TaskTO>> cellItem,
+                    final Item<ICellPopulator<PropagationTaskTO>> cellItem,
                     final String componentId,
-                    final IModel<TaskTO> model) {
+                    final IModel<PropagationTaskTO> model) {
 
-                final TaskTO taskTO = model.getObject();
+                final PropagationTaskTO taskTO = model.getObject();
 
                 AjaxLink deleteLink = new IndicatingDeleteOnConfirmAjaxLink(
                         "deleteLink") {
@@ -229,8 +229,8 @@ public class Tasks extends BasePage {
         });
 
 
-        final AjaxFallbackDefaultDataTable<TaskTO> table =
-                new AjaxFallbackDefaultDataTable<TaskTO>("datatable", columns,
+        final AjaxFallbackDefaultDataTable<PropagationTaskTO> table =
+                new AjaxFallbackDefaultDataTable<PropagationTaskTO>("datatable", columns,
                 new TasksProvider(), paginatorRows);
 
         container = new WebMarkupContainer("container");
@@ -284,20 +284,20 @@ public class Tasks extends BasePage {
         add(paginatorForm);
     }
 
-    private class TasksProvider extends SortableDataProvider<TaskTO> {
+    private class TasksProvider extends SortableDataProvider<PropagationTaskTO> {
 
-        private SortableDataProviderComparator<TaskTO> comparator;
+        private SortableDataProviderComparator<PropagationTaskTO> comparator;
 
         public TasksProvider() {
             super();
             //Default sorting
             setSort("id", true);
-            comparator = new SortableDataProviderComparator<TaskTO>(this);
+            comparator = new SortableDataProviderComparator<PropagationTaskTO>(this);
         }
 
         @Override
-        public Iterator<TaskTO> iterator(int first, int count) {
-            List<TaskTO> tasks = restClient.list(
+        public Iterator<PropagationTaskTO> iterator(int first, int count) {
+            List<PropagationTaskTO> tasks = restClient.list(
                     (first / paginatorRows) + 1, count);
             Collections.sort(tasks, comparator);
             return tasks.iterator();
@@ -309,8 +309,8 @@ public class Tasks extends BasePage {
         }
 
         @Override
-        public IModel<TaskTO> model(final TaskTO object) {
-            return new CompoundPropertyModel<TaskTO>(object);
+        public IModel<PropagationTaskTO> model(final PropagationTaskTO object) {
+            return new CompoundPropertyModel<PropagationTaskTO>(object);
         }
     }
 }
