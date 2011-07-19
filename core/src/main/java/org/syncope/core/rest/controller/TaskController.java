@@ -15,14 +15,18 @@
 package org.syncope.core.rest.controller;
 
 import com.opensymphony.workflow.WorkflowException;
+import java.lang.reflect.Modifier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import javassist.NotFoundException;
+import org.reflections.Reflections;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -38,6 +42,8 @@ import org.syncope.core.persistence.dao.TaskDAO;
 import org.syncope.core.persistence.dao.TaskExecDAO;
 import org.syncope.core.persistence.propagation.PropagationManager;
 import org.syncope.core.rest.data.TaskDataBinder;
+import org.syncope.core.scheduling.Job;
+import org.syncope.core.scheduling.SyncJob;
 import org.syncope.core.util.TaskUtil;
 import org.syncope.types.PropagationMode;
 import org.syncope.types.PropagationTaskExecStatus;
@@ -117,6 +123,30 @@ public class TaskController extends AbstractController {
         }
 
         return executionTOs;
+    }
+
+    @PreAuthorize("hasRole('TASK_LIST')")
+    @RequestMapping(method = RequestMethod.GET,
+    value = "/jobClasses")
+    public ModelAndView getJobClasses() {
+        Reflections reflections = new Reflections(
+                "org.syncope.core.scheduling");
+
+        Set<Class<? extends Job>> subTypes =
+                reflections.getSubTypesOf(Job.class);
+
+        Set<String> jobClasses = new HashSet<String>();
+        for (Class jobClass : subTypes) {
+            if (!Modifier.isAbstract(jobClass.getModifiers())
+                    && !jobClass.equals(SyncJob.class)) {
+
+                jobClasses.add(jobClass.getName());
+            }
+        }
+
+        ModelAndView result = new ModelAndView();
+        result.addObject(jobClasses);
+        return result;
     }
 
     @PreAuthorize("hasRole('TASK_READ')")

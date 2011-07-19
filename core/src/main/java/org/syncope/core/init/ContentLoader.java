@@ -13,16 +13,13 @@
  */
 package org.syncope.core.init;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NameClassPair;
-import javax.naming.NamingEnumeration;
 import javax.sql.DataSource;
 import org.dbunit.database.DatabaseConfig;
 import org.dbunit.database.DatabaseConnection;
@@ -65,18 +62,29 @@ public class ContentLoader {
         Connection conn = DataSourceUtils.getConnection(dataSource);
 
         // 1. read persistence.properties
+        InputStream dbPropsStream = null;
         String dbSchema = null;
+        String quartzSQL = null;
         try {
-            InputStream dbPropsStream = getClass().getResourceAsStream(
+            dbPropsStream = getClass().getResourceAsStream(
                     "/persistence.properties");
             Properties dbProps = new Properties();
             dbProps.load(dbPropsStream);
             dbSchema = dbProps.getProperty("database.schema");
+            quartzSQL = dbProps.getProperty("quartz.sql");
         } catch (Throwable t) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Could not find persistence.properties", t);
             } else {
                 LOG.error("Could not find persistence.properties");
+            }
+        } finally {
+            if (dbPropsStream != null) {
+                try {
+                    dbPropsStream.close();
+                } catch (IOException e) {
+                    LOG.error("While trying to read persistence.properties", e);
+                }
             }
         }
 
