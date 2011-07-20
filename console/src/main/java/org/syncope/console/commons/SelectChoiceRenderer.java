@@ -16,15 +16,19 @@ package org.syncope.console.commons;
 
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 
-public class StringChoiceRenderer implements IChoiceRenderer<String> {
+public class SelectChoiceRenderer implements IChoiceRenderer {
 
     @Override
-    public Object getDisplayValue(final String t) {
-        return t;
+    public Object getDisplayValue(Object obj) {
+        if (obj instanceof SelectOption) {
+            return ((SelectOption) obj).getDisplayValue();
+        } else {
+            return obj.toString();
+        }
     }
 
     @Override
-    public String getIdValue(final String t, final int i) {
-        return t;
+    public String getIdValue(Object obj, int i) {
+        return obj.toString();
     }
 }

@@ -35,23 +35,33 @@
     <div id="dialog-form">
         <p class="ui-widget ui-corner-all ui-widget-header"><wicket:message key="title"/></p>
         <form wicket:id="TaskForm">
-            <div id="users-contain" class="ui-widget">
-                <fieldset>
-                    <label for="id"><wicket:message key="id"/></label>
-                    <input type="text" id="id" class="text ui-widget-content ui-corner-all" wicket:id="id" />
+            <div id="tabs">
+                <ul>
+                    <li class="tabs-selected"><a href="#profile"><span><wicket:message key="profile"/></span></a></li>
+                    <li><a href="#executions"><span><wicket:message key="executions"/></span></a></li>
+                </ul>
+                <div id="profile">
+                    <div id="users-contain" class="ui-widget">
+                        <span wicket:id="profile">
+                            <fieldset>
+                                <span wicket:id="idLabel">[Id]</span>
+                                <input type="text" id="id" class="text ui-widget-content ui-corner-all" wicket:id="id" />
 
-                    <label for="accountId"><wicket:message key="accountId"/></label>
-                    <input type="text" id="accountId" class="text ui-widget-content ui-corner-all" wicket:id="accountId" />
+                                <label for="accountId"><wicket:message key="accountId"/></label>
+                                <input type="text" id="accountId" class="text ui-widget-content ui-corner-all" wicket:id="accountId" />
 
-                    <label for="resource"><wicket:message key="resource"/></label>
-                    <input type="text" id="resource" class="text ui-widget-content ui-corner-all" wicket:id="resource" />
-
-                    <span wicket:id="container">
-                        <label for="executions"><wicket:message key="taskExecutions"/></label>
+                                <label for="resource"><wicket:message key="resource"/></label>
+                                <input type="text" id="resource" class="text ui-widget-content ui-corner-all" wicket:id="resource" />
+                            </fieldset>
+                        </span>
+                    </div>
+                </div>
+                <div id="executions">
+                    <span wicket:id="executions">
                         <table id="executions" class="ui-widget ui-widget-content"
-                               wicket:id="executionsTable"/>
+                               wicket:id="executionsTable" style="width: 100%"/>
                     </span>
-                </fieldset>
+                </div>
             </div>
         </form>
     </div>

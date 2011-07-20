@@ -180,5 +180,9 @@ page@id= Schema|Users|Roles|Resources|Connectors|Report|Configuration|Task
         <action id="delete">
             <entitlement>TASK_DELETE</entitlement>
         </action>
+
+        <action id="create">
+            <entitlement>TASK_CREATE</entitlement>
+        </action>
     </page>
 </auth>

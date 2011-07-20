@@ -34,7 +34,7 @@ public class SyncTask extends SchedTask {
     /**
      * TargetResource to which the sync happens.
      */
-    @ManyToOne(optional = false)
+    @ManyToOne
     private TargetResource resource;
 
     @OneToMany

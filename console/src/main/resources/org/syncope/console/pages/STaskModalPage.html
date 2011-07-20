@@ -1,0 +1,113 @@
+<!--
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ under the License.
+-->
+<wicket:head>
+    <style type="text/css">
+        /* WICKET DATATABLE HEADERS */
+        .headers {
+            border: 1px solid #aaaaaa;
+            background: #cccccc url(css/images/ui-bg_highlight-soft_75_cccccc_1x100.png)
+                50% 50% repeat-x;
+        }
+
+        #resources table{
+            font-size: 1.1em;
+        }
+        #roles table{
+            font-size: 1.1em;
+        }
+    </style>
+    <script type="text/javascript">
+        jQuery(function() {
+            $("#dialog").dialog({
+                autoOpen: false, height: 500,  width: 700, modal: true,
+                show: "fade",
+                hide: "fade"
+            });
+        });
+    </script>
+</wicket:head>
+<wicket:extend>
+    <div id="dialog-form">
+        <p class="ui-widget ui-corner-all ui-widget-header"><wicket:message key="title"/></p>
+        <form wicket:id="TaskForm">
+
+            <div id="tabs">
+                <ul>
+                    <li class="tabs-selected"><a href="#profile"><span><wicket:message key="profile"/></span></a></li>
+                    <li><a href="#crontab"><span><wicket:message key="crontab"/></span></a></li>
+                    <li><a href="#resources"><span><wicket:message key="resources"/></span></a></li>
+                    <li><a href="#roles"><span><wicket:message key="roles"/></span></a></li>
+                    <li><a href="#executions"><span><wicket:message key="executions"/></span></a></li>
+                </ul>
+                <div id="profile">
+                    <div id="users-contain" class="ui-widget">
+                        <span wicket:id="profile">
+                            <fieldset>
+                                <span wicket:id="idLabel">[Id]</span>
+                                <input type="text" id="id" class="text ui-widget-content ui-corner-all" wicket:id="id" />
+
+                                <label for="resource"><wicket:message key="resourceName"/></label>
+                                <select class="text ui-widget-content ui-corner-all" wicket:id="resource"/>
+
+                                <label for="lastExec"><wicket:message key="lastExec"/></label>
+                                <input type="text" id="lastExec" class="text ui-widget-content ui-corner-all" wicket:id="lastExec" />
+
+                                <label for="nextExec"><wicket:message key="nextExec"/></label>
+                                <input type="text" id="nextExec" class="text ui-widget-content ui-corner-all" wicket:id="nextExec" />
+
+                                <label for="updateIdentities"><wicket:message key="updates"/></label>
+                                <input type="checkbox" wicket:id="updateIdentities" />
+                            </fieldset>
+                        </span>
+                    </div>
+                </div>
+                <div id="crontab">
+                    <span wicket:id="crontab">
+                        <label for="cron"><wicket:message key="cron"/></label>
+                        <input type="text" id="seconds" class="text ui-widget-content ui-corner-all" wicket:id="seconds" style="width: 50px;float: left" />
+                        <input type="text" id="minutes" class="text ui-widget-content ui-corner-all" wicket:id="minutes" style="width: 50px;float: left" />
+                        <input type="text" id="hours" class="text ui-widget-content ui-corner-all" wicket:id="hours" style="width: 50px;float: left" />
+                        <input type="text" id="daysOfMonth" class="text ui-widget-content ui-corner-all" wicket:id="daysOfMonth" style="width: 50px;float: left" />
+                        <input type="text" id="months" class="text ui-widget-content ui-corner-all" wicket:id="months" style="width: 50px;float: left" />
+                        <input type="text" id="daysOfWeek" class="text ui-widget-content ui-corner-all" wicket:id="daysOfWeek" style="width: 50px" />
+
+                        <label for="cron"><wicket:message key="templates"/></label>
+                        <select class="text ui-widget-content ui-corner-all" wicket:id="cronTemplateChooser" style="width: 250px"/>
+                    </span>
+                </div>
+                <div id="resources">
+                    <span wicket:id="defaultResources"/>
+                </div>
+                <div id="roles">
+                    <span wicket:id="defaultRoles"/>
+                </div>
+                <div id="executions">
+                    <span wicket:id="executions" style="width: 100%">
+                        <table id="executions" class="ui-widget ui-widget-content"
+                               wicket:id="executionsTable" style="width: 100%"/>
+                    </span>
+                </div>
+            </div>
+            <div style="margin: 20px 10px 0">
+                <input type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" wicket:id="apply"/>
+            </div>
+        </form>
+    </div>
+    <div id="dialog">&nbsp;
+        <span wicket:id="dialogContent">
+            [Task execution's message to show]
+        </span>
+    </div>
+</wicket:extend>

@@ -22,7 +22,7 @@ public class TaskTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = 386450127003321197L;
 
-    private Long id;
+    private long id;
 
     private List<TaskExecTO> executions;
 
@@ -45,7 +45,7 @@ public class TaskTO extends AbstractBaseBean {
     }
 
     public boolean removeExecution(TaskExecTO execution) {
-        return executions.add(execution);
+        return executions.remove(execution);
     }
 
     public List<TaskExecTO> getExecutions() {

@@ -22,13 +22,12 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import org.syncope.console.commons.Constants;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.syncope.console.commons.Constants;
 import org.apache.wicket.datetime.DateConverter;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
@@ -38,6 +37,7 @@ import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvid
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.FormComponent;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.AbstractReadOnlyModel;
@@ -46,7 +46,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.to.TaskExecTO;
-import org.syncope.client.to.PropagationTaskTO;
+import org.syncope.client.to.TaskTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.commons.SortableDataProviderComparator;
 import org.syncope.console.rest.TaskRestClient;
@@ -59,53 +59,44 @@ import org.syncope.console.wicket.markup.html.form.LinkPanel;
  */
 public class TaskModalPage extends BaseModalPage {
 
-    private TextField id;
-
-    private TextField accountId;
-
-    private TextField resource;
-
-    private Label dialogContent;
-
     @SpringBean
-    private TaskRestClient taskRestClient;
+    protected TaskRestClient taskRestClient;
 
-    private WebMarkupContainer container;
+    protected WebMarkupContainer profile;
 
-    /**
-     *
-     * @param basePage base
-     * @param modalWindow modal window
-     * @param connectorTO
-     * @param create : set to true only if a CREATE operation is required
-     */
-    public TaskModalPage(final BasePage basePage, final ModalWindow window,
-            final PropagationTaskTO taskTO) {
+    protected WebMarkupContainer executions;
 
-        dialogContent = new Label("dialogContent", new Model<String>(""));
+    protected Form form;
+
+    public TaskModalPage(final TaskTO taskTO) {
+        final Label dialogContent =
+                new Label("dialogContent", new Model<String>(""));
 
         add(dialogContent.setOutputMarkupId(true));
 
-        final Form form = new Form("TaskForm");
+        form = new Form("TaskForm");
+        add(form);
 
         form.setModel(new CompoundPropertyModel(taskTO));
 
-        id = new TextField("id");
+        profile = new WebMarkupContainer("profile");
+        profile.setOutputMarkupId(true);
+        form.add(profile);
+
+        executions = new WebMarkupContainer("executions");
+        executions.setOutputMarkupId(true);
+        form.add(executions);
+
+        final Label idLabel = new Label("idLabel", getString("id"));
+        idLabel.setVisible(taskTO.getId() != 0);
+        profile.add(idLabel);
+
+        final TextField id = new TextField("id");
         id.setEnabled(false);
+        id.setVisible(taskTO.getId() != 0);
+        profile.add(id);
 
-        form.add(id);
-
-        accountId = new TextField("accountId");
-        accountId.setEnabled(false);
-
-        form.add(accountId);
-
-        resource = new TextField("resource");
-        resource.setEnabled(false);
-
-        form.add(resource);
-
-        List<IColumn> columns = new ArrayList<IColumn>();
+        final List<IColumn> columns = new ArrayList<IColumn>();
         columns.add(new PropertyColumn(new Model(getString("id")), "id", "id"));
 
         columns.add(new DatePropertyColumn(new Model(getString("startDate")),
@@ -169,13 +160,16 @@ public class TaskModalPage extends BaseModalPage {
                         try {
                             taskRestClient.deleteExecution(
                                     taskExecutionTO.getId());
+
+                            taskTO.removeExecution(taskExecutionTO);
+
                             info(getString("operation_succeded"));
                         } catch (SyncopeClientCompositeErrorException scce) {
                             error(scce.getMessage());
                         }
 
                         target.addComponent(feedbackPanel);
-                        target.addComponent(container);
+                        target.addComponent(executions);
                     }
                 };
 
@@ -193,22 +187,17 @@ public class TaskModalPage extends BaseModalPage {
                 new AjaxFallbackDefaultDataTable("executionsTable", columns,
                 new TaskExecutionsProvider(taskTO), 10);
 
-        container = new WebMarkupContainer("container");
-        container.add(table);
-        container.setOutputMarkupId(true);
-
-        form.add(container);
-
-        add(form);
+        executions.add(table);
     }
 
-    class TaskExecutionsProvider extends SortableDataProvider<TaskExecTO> {
+    protected class TaskExecutionsProvider
+            extends SortableDataProvider<TaskExecTO> {
 
         private SortableDataProviderComparator<TaskExecTO> comparator;
 
-        private PropagationTaskTO taskTO;
+        private TaskTO taskTO;
 
-        public TaskExecutionsProvider(PropagationTaskTO taskTO) {
+        public TaskExecutionsProvider(TaskTO taskTO) {
             //Default sorting
             this.taskTO = taskTO;
             setSort("startDate", true);
@@ -253,7 +242,7 @@ public class TaskModalPage extends BaseModalPage {
     /**
      * Format column's value as date string.
      */
-    public class DatePropertyColumn<T> extends PropertyColumn<T> {
+    protected class DatePropertyColumn<T> extends PropertyColumn<T> {
 
         private SimpleDateFormat formatter;
 
@@ -289,5 +278,60 @@ public class TaskModalPage extends BaseModalPage {
                 item.add(new Label(componentId, convertedDate));
             }
         }
+    }
+
+    protected String getCronField(
+            final FormComponent formComponent, final int field) {
+        String cronField = null;
+
+        if (formComponent != null) {
+            cronField = getCronField(formComponent.getInput(), field);
+        }
+
+        return cronField;
+    }
+
+    protected String getCronField(
+            final String cron, final int field) {
+        String cronField = null;
+
+        if (cron != null && !cron.isEmpty() && !"UNSCHEDULE".equals(cron)) {
+            cronField = cron.split(" ")[field].trim();
+        }
+
+        return cronField;
+    }
+
+    protected String getCron(
+            final FormComponent seconds,
+            final FormComponent minutes,
+            final FormComponent hours,
+            final FormComponent daysOfMonth,
+            final FormComponent months,
+            final FormComponent daysOfWeek) {
+
+        final StringBuilder cron = new StringBuilder();
+
+        if (seconds != null && seconds.getInput() != null
+                && minutes != null && minutes.getInput() != null
+                && hours != null && hours.getInput() != null
+                && daysOfMonth != null && daysOfMonth.getInput() != null
+                && months != null && months.getInput() != null
+                && daysOfWeek != null && daysOfWeek.getInput() != null) {
+
+            cron.append(seconds.getInput().trim()).
+                    append(" ").
+                    append(minutes.getInput().trim()).
+                    append(" ").
+                    append(hours.getInput().trim()).
+                    append(" ").
+                    append(daysOfMonth.getInput().trim()).
+                    append(" ").
+                    append(months.getInput().trim()).
+                    append(" ").
+                    append(daysOfWeek.getInput().trim());
+        }
+
+        return cron.toString();
     }
 }

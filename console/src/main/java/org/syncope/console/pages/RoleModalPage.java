@@ -57,7 +57,7 @@ import org.syncope.client.to.ResourceTO;
 import org.syncope.client.to.RoleTO;
 import org.syncope.client.to.SchemaTO;
 import org.syncope.console.commons.SchemaWrapper;
-import org.syncope.console.commons.StringChoiceRenderer;
+import org.syncope.console.commons.SelectChoiceRenderer;
 import org.syncope.console.rest.EntitlementRestClient;
 import org.syncope.console.rest.ResourceRestClient;
 import org.syncope.console.rest.RoleRestClient;
@@ -379,7 +379,7 @@ public class RoleModalPage extends BaseModalPage {
 
         final Palette<String> entitlementsPalette = new Palette(
                 "entitlementsPalette", selectedEntitlements,
-                availableEntitlements, new StringChoiceRenderer(), 20, false);
+                availableEntitlements, new SelectChoiceRenderer(), 20, false);
 
         form.add(entitlementsPalette);
 
@@ -469,7 +469,7 @@ public class RoleModalPage extends BaseModalPage {
      * @param roleTO
      * @return List<ResourceTO>
      */
-    public List<ResourceTO> getSelectedResources(RoleTO roleTO) {
+    private List<ResourceTO> getSelectedResources(RoleTO roleTO) {
         List<ResourceTO> resources = new ArrayList<ResourceTO>();
         ResourceTO clusterableResourceTO;
 
@@ -486,7 +486,7 @@ public class RoleModalPage extends BaseModalPage {
      * @param roleTO
      * @return List<ResourceTO>
      */
-    public List<ResourceTO> getAvailableResources(RoleTO roleTO) {
+    private List<ResourceTO> getAvailableResources(RoleTO roleTO) {
 
         List<ResourceTO> resources = new ArrayList<ResourceTO>();
 
@@ -499,7 +499,7 @@ public class RoleModalPage extends BaseModalPage {
         return resources;
     }
 
-    public void setupSchemaWrappers(boolean create, RoleTO roleTO) {
+    private void setupSchemaWrappers(boolean create, RoleTO roleTO) {
         schemaWrappers = new ArrayList<SchemaWrapper>();
         SchemaWrapper schemaWrapper;
 
@@ -532,7 +532,7 @@ public class RoleModalPage extends BaseModalPage {
         }
     }
 
-    public List<AttributeTO> getRoleAttributes() {
+    private List<AttributeTO> getRoleAttributes() {
 
         List<AttributeTO> attributes = new ArrayList<AttributeTO>();
 
@@ -558,7 +558,7 @@ public class RoleModalPage extends BaseModalPage {
      * Create a copy of old RoleTO
      * @param roleTO
      */
-    public void cloneOldRoleTO(RoleTO roleTO) {
+    private void cloneOldRoleTO(RoleTO roleTO) {
         oldRole = new RoleTO();
 
         oldRole.setId(roleTO.getId());
@@ -608,7 +608,7 @@ public class RoleModalPage extends BaseModalPage {
         oldRole.setEntitlements(entList);
     }
 
-    public void setupRoleMod(final RoleTO roleTO) {
+    private void setupRoleMod(final RoleTO roleTO) {
         roleMod = new RoleMod();
 
         //1.Check if the role's name has been changed
@@ -690,7 +690,7 @@ public class RoleModalPage extends BaseModalPage {
      * it doesn't exist.
      * @param resource, new resource added
      */
-    public void searchAndAddResource(String resource) {
+    private void searchAndAddResource(String resource) {
         boolean found = false;
 
         /*
@@ -719,7 +719,7 @@ public class RoleModalPage extends BaseModalPage {
      * @param resource
      * @param roleTO
      */
-    public void searchAndDropResource(final String resource,
+    private void searchAndDropResource(final String resource,
             final RoleTO roleTO) {
 
         boolean found = false;
@@ -740,7 +740,7 @@ public class RoleModalPage extends BaseModalPage {
         }
     }
 
-    public void searchAndUpdateAttribute(AttributeTO attributeTO) {
+    private void searchAndUpdateAttribute(AttributeTO attributeTO) {
         boolean found = false;
         boolean changed = false;
 

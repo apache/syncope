@@ -17,7 +17,7 @@ package org.syncope.client.to;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SyncTaskTO extends TaskTO {
+public class SyncTaskTO extends SchedTaskTO {
 
     private String resource;
 

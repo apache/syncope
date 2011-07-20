@@ -498,7 +498,7 @@ public class Users extends BasePage {
         searchPaginatorForm.add(searchRowsChooser);
     }
 
-    protected void setWindowClosedReloadCallback(final ModalWindow window,
+    private void setWindowClosedReloadCallback(final ModalWindow window,
             final AjaxFallbackDefaultDataTable<UserTO> table) {
 
         window.setWindowClosedCallback(
@@ -523,7 +523,7 @@ public class Users extends BasePage {
                 });
     }
 
-    protected List<IColumn<UserTO>> getColumns(final ModalWindow editModalWin) {
+    private List<IColumn<UserTO>> getColumns(final ModalWindow editModalWin) {
         List<IColumn<UserTO>> columns = new ArrayList<IColumn<UserTO>>();
         columns.add(new PropertyColumn(
                 new Model(getString("id")), "id", "id"));

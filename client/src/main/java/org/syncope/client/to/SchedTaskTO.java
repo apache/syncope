@@ -14,6 +14,8 @@
  */
 package org.syncope.client.to;
 
+import java.util.Date;
+
 public class SchedTaskTO extends TaskTO {
 
     private static final long serialVersionUID = -5722284116974636425L;
@@ -21,6 +23,10 @@ public class SchedTaskTO extends TaskTO {
     private String cronExpression;
 
     private String jobClassName;
+
+    private Date lastExec;
+
+    private Date nextExec;
 
     public String getCronExpression() {
         return cronExpression;
@@ -36,5 +42,21 @@ public class SchedTaskTO extends TaskTO {
 
     public void setJobClassName(String jobClassName) {
         this.jobClassName = jobClassName;
+    }
+
+    public Date getLastExec() {
+        return lastExec;
+    }
+
+    public void setLastExec(Date lastExec) {
+        this.lastExec = lastExec;
+    }
+
+    public Date getNextExec() {
+        return nextExec;
+    }
+
+    public void setNextExec(Date nextExec) {
+        this.nextExec = nextExec;
     }
 }

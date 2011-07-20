@@ -36,31 +36,18 @@
 
     <div id="tabs">
         <ul>
-            <li class="tabs-selected">
-                <a href="#tabs-1">
-                    <span><wicket:message key="tab1"/>
-                    </span>
-                </a>
-            </li>
+            <li class="tabs-selected"><a href="#tabs-1"><span><wicket:message key="tab1"/></span></a></li>
+            <li><a href="#tabs-2"><span><wicket:message key="tab2"/></span></a></li>
+            <li><a href="#tabs-3"><span><wicket:message key="tab3"/></span></a></li>
         </ul>
         <div id="tabs-1">
-            <div id="users-contain" class="ui-widget" style="width:auto">
-                <span wicket:id="container">
-                    <table class="ui-widget ui-widget-content table-hover"
-                           wicket:id="datatable"/>
-                </span>
-
-                <span style="float:right">
-                    <form wicket:id="PaginatorForm" style="display:inline">
-                        <label><wicket:message key="displayRows"/></label>
-                        <select class="text ui-widget-content ui-corner-all"
-                                wicket:id="rowsChooser"/>
-                    </form>
-                </span>
-            </div>
-            <div wicket:id="taskWin">
-                [Show modal window for viewing task]
-            </div>
+            <span wicket:id="propagation">[propagation tasks]</span>
+        </div>
+        <div id="tabs-2">
+            <span wicket:id="sync">[synchronization tasks]</span>
+        </div>
+        <div id="tabs-3">
+            <span wicket:id="sched">[scheduled tasks]</span>
         </div>
     </div>
 
