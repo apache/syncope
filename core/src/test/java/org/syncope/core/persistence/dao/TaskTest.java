@@ -27,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.AbstractTest;
 import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.PropagationTask;
+import org.syncope.core.persistence.beans.SchedTask;
 import org.syncope.core.persistence.beans.SyncTask;
 import org.syncope.core.persistence.validation.entity.InvalidEntityException;
 import org.syncope.types.PropagationMode;
@@ -43,8 +44,14 @@ public class TaskTest extends AbstractTest {
 
     @Test
     public final void findAll() {
-        List<PropagationTask> list = taskDAO.findAll(PropagationTask.class);
-        assertEquals(3, list.size());
+        List<PropagationTask> plist = taskDAO.findAll(PropagationTask.class);
+        assertEquals(3, plist.size());
+
+        List<SchedTask> sclist = taskDAO.findAll(SchedTask.class);
+        assertEquals(1, sclist.size());
+
+        List<SyncTask> sylist = taskDAO.findAll(SyncTask.class);
+        assertEquals(1, sylist.size());
     }
 
     @Test
@@ -81,6 +88,7 @@ public class TaskTest extends AbstractTest {
         task.addDefaultResource(resource);
         task.setCronExpression("BLA BLA");
 
+        // this save() fails because of an invalid Cron Expression
         InvalidEntityException exception = null;
         try {
             taskDAO.save(task);
@@ -90,6 +98,17 @@ public class TaskTest extends AbstractTest {
         assertNotNull(exception);
 
         task.setCronExpression(null);
+        // this save() fails because a SyncTask requires a target resource
+        exception = null;
+        try {
+            taskDAO.save(task);
+        } catch (InvalidEntityException e) {
+            exception = e;
+        }
+        assertNotNull(exception);
+
+        // this save() finally works
+        task.setResource(resource);
         task = taskDAO.save(task);
         assertNotNull(task);
 

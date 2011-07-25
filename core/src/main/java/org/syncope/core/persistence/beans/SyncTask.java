@@ -22,11 +22,11 @@ import javax.persistence.OneToMany;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
-import org.syncope.core.persistence.validation.entity.SchedTaskCheck;
+import org.syncope.core.persistence.validation.entity.SyncTaskCheck;
 import org.syncope.core.scheduling.SyncJob;
 
 @Entity
-@SchedTaskCheck
+@SyncTaskCheck
 public class SyncTask extends SchedTask {
 
     private static final long serialVersionUID = -4141057723006682562L;

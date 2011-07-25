@@ -34,7 +34,9 @@ public enum EntityViolationType {
     InvalidPropagationTask(
     "org.syncope.core.validation.propagationtask.invalid"),
     InvalidSchedTask(
-    "org.syncope.core.validation.schedtask.invalid");
+    "org.syncope.core.validation.schedtask.invalid"),
+    InvalidSyncTask(
+    "org.syncope.core.validation.synctask.invalid");
 
     private String message;
 

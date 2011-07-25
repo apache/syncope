@@ -18,6 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
 import org.springframework.stereotype.Repository;
+import org.syncope.core.persistence.beans.SchedTask;
+import org.syncope.core.persistence.beans.SyncTask;
 import org.syncope.core.persistence.beans.Task;
 import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.dao.TaskDAO;
@@ -31,13 +33,33 @@ public class TaskDAOImpl extends AbstractDAOImpl
         return (T) entityManager.find(Task.class, id);
     }
 
+    private <T extends Task> StringBuilder buildfindAllQuery(
+            final Class<T> reference) {
+
+        StringBuilder queryString =
+                new StringBuilder("SELECT e FROM ").append(reference.
+                getSimpleName()).append(" e ");
+        if (SchedTask.class.equals(reference)) {
+            queryString.append("WHERE e NOT IN (FROM ").
+                    append(SyncTask.class.getName()).append(") ");
+        }
+
+        return queryString;
+    }
+
     @Override
     public <T extends Task> List<T> findAll(
             final TargetResource resource, final Class<T> reference) {
 
-        final Query query = entityManager.createQuery("SELECT e FROM "
-                + reference.getSimpleName() + " e "
-                + "WHERE e.resource=:resource");
+        StringBuilder queryString = buildfindAllQuery(reference);
+        if (SchedTask.class.equals(reference)) {
+                queryString.append("AND ");
+        } else {
+                queryString.append("WHERE ");            
+        }
+        queryString.append("e.resource=:resource");
+
+        final Query query = entityManager.createQuery(queryString.toString());
         query.setParameter("resource", resource);
 
         return query.getResultList();
@@ -52,8 +74,8 @@ public class TaskDAOImpl extends AbstractDAOImpl
     public <T extends Task> List<T> findAll(final int page,
             final int itemsPerPage, final Class<T> reference) {
 
-        final Query query = entityManager.createQuery("SELECT e FROM "
-                + reference.getSimpleName() + " e");
+        final Query query = entityManager.createQuery(
+                buildfindAllQuery(reference).toString());
 
         query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
 
