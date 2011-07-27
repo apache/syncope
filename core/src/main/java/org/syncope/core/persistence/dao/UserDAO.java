@@ -19,12 +19,16 @@ import java.util.Set;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.beans.user.UAttrValue;
 import org.syncope.core.persistence.validation.entity.InvalidEntityException;
+import org.syncope.core.rest.controller.InvalidSearchConditionException;
 
 public interface UserDAO extends DAO {
 
     SyncopeUser find(Long id);
 
     SyncopeUser findByWorkflowId(Long workflowId);
+
+    List<SyncopeUser> findByDerAttrValue(String schemaName, String value)
+            throws InvalidSearchConditionException;
 
     List<SyncopeUser> findByAttrValue(String schemaName, UAttrValue attrValue);
 

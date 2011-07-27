@@ -20,10 +20,12 @@ import java.util.List;
 import java.util.Set;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.ExpectedException;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.AbstractTest;
 import org.syncope.core.persistence.beans.user.UAttrValue;
+import org.syncope.core.rest.controller.InvalidSearchConditionException;
 import org.syncope.core.util.EntitlementUtil;
 import org.syncope.types.CipherAlgorithm;
 
@@ -71,6 +73,28 @@ public class UserTest extends AbstractTest {
         // get unexistent page
         list = userDAO.findAll(allRoleIds, 3, 2);
         assertEquals("did not get expected number of users ", 0, list.size());
+    }
+
+    @Test
+    public final void findByDerAttributeValue()
+            throws InvalidSearchConditionException {
+        final List<SyncopeUser> list = userDAO.findByDerAttrValue(
+                "cn", "Doe, John");
+        assertEquals("did not get expected number of users ", 1, list.size());
+    }
+
+    @Test
+    @ExpectedException(value = InvalidSearchConditionException.class)
+    public final void findByInvalidDerAttrValue()
+            throws InvalidSearchConditionException {
+        userDAO.findByDerAttrValue("cn", "Antonio, Maria, Rossi");
+    }
+
+    @Test
+    @ExpectedException(value = InvalidSearchConditionException.class)
+    public final void findByInvalidDerAttrExpression()
+            throws InvalidSearchConditionException {
+        userDAO.findByDerAttrValue("noschema", "Antonio, Maria");
     }
 
     @Test

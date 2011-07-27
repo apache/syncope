@@ -15,4 +15,11 @@
 package org.syncope.core.rest.controller;
 
 public class InvalidSearchConditionException extends Exception {
+
+    public InvalidSearchConditionException() {
+    }
+
+    public InvalidSearchConditionException(String string) {
+        super(string);
+    }
 }

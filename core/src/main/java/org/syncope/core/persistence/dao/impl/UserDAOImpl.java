@@ -14,26 +14,37 @@
  */
 package org.syncope.core.persistence.dao.impl;
 
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 import javax.persistence.CacheRetrieveMode;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TemporalType;
+import org.apache.commons.jexl2.parser.Parser;
+import org.apache.commons.jexl2.parser.ParserConstants;
+import org.apache.commons.jexl2.parser.Token;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.StringUtils;
 import org.syncope.core.persistence.beans.AbstractAttrValue;
 import org.syncope.core.persistence.beans.AbstractVirAttr;
 import org.syncope.core.persistence.beans.membership.Membership;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.beans.user.UAttrUniqueValue;
 import org.syncope.core.persistence.beans.user.UAttrValue;
+import org.syncope.core.persistence.beans.user.UDerSchema;
 import org.syncope.core.persistence.beans.user.USchema;
+import org.syncope.core.persistence.dao.DerSchemaDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.RoleDAO;
 import org.syncope.core.persistence.dao.UserDAO;
+import org.syncope.core.rest.controller.InvalidSearchConditionException;
 
 @Repository
 public class UserDAOImpl extends AbstractDAOImpl
@@ -41,6 +52,10 @@ public class UserDAOImpl extends AbstractDAOImpl
 
     @Autowired
     private SchemaDAO schemaDAO;
+
+    @Autowired
+    private DerSchemaDAO derSchemaDAO;
+
     @Autowired
     private RoleDAO roleDAO;
 
@@ -55,8 +70,7 @@ public class UserDAOImpl extends AbstractDAOImpl
 
         try {
             return (SyncopeUser) query.getSingleResult();
-        }
-        catch (NoResultException e) {
+        } catch (NoResultException e) {
             return null;
         }
     }
@@ -71,6 +85,66 @@ public class UserDAOImpl extends AbstractDAOImpl
         query.setParameter("workflowId", workflowId);
 
         return (SyncopeUser) query.getSingleResult();
+    }
+
+    /**
+     * Find users by derived attribute value.
+     * This method could fail if one or more string literals contained into the
+     * derived attribute value provided derive from identifier (schema name)
+     * replacement. When you are going to specify a derived attribute expression
+     * you must be quite sure that string literals used to build the expression
+     * cannot be found into the attribute values used to replace attribute
+     * schema names used as identifiers.
+     * @param schemaName derived schema name.
+     * @param value derived attribute value.
+     * @return list of users.
+     * @throws InvalidSearchConditionException in case of errors retrieving
+     * schema names used to buid the derived schema expression.
+     */
+    @Override
+    public List<SyncopeUser> findByDerAttrValue(
+            final String schemaName, final String value)
+            throws InvalidSearchConditionException {
+
+        UDerSchema schema = derSchemaDAO.find(schemaName, UDerSchema.class);
+        if (schema == null) {
+            LOG.error("Invalid schema name '{}'", schemaName);
+            return Collections.EMPTY_LIST;
+        }
+
+        // query string
+        final StringBuilder querystring = new StringBuilder();
+
+        for (String clause : getWhereClause(schema.getExpression(), value)) {
+
+            if (querystring.length() > 0) {
+                querystring.append(" INTERSECT ");
+            }
+
+            querystring.append("SELECT a.owner_id ").
+                    append("FROM uattr a, uattrvalue v, uschema s ").
+                    append("WHERE ").append(clause);
+
+
+        }
+
+        LOG.debug("Execute query {}", querystring);
+
+        final Query query = entityManager.createNativeQuery(
+                querystring.toString());
+
+        final List<SyncopeUser> result = new ArrayList<SyncopeUser>();
+
+        SyncopeUser user;
+
+        for (Object userId : query.getResultList()) {
+            user = find(Long.parseLong(userId.toString()));
+            if (!result.contains(user)) {
+                result.add(user);
+            }
+        }
+
+        return result;
     }
 
     @Override
@@ -189,7 +263,7 @@ public class UserDAOImpl extends AbstractDAOImpl
         final Query query = entityManager.createNativeQuery(
                 getFindAllQuery(adminRoles).toString());
 
-        query.setFirstResult(itemsPerPage * ( page <= 0 ? 0 : page - 1 ));
+        query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
 
         if (itemsPerPage > 0) {
             query.setMaxResults(itemsPerPage);
@@ -202,7 +276,7 @@ public class UserDAOImpl extends AbstractDAOImpl
         if (resultList != null) {
             for (Object userId : resultList) {
                 if (userId instanceof Object[]) {
-                    userIds.add((Number) ( (Object[]) userId )[0]);
+                    userIds.add((Number) ((Object[]) userId)[0]);
                 } else {
                     userIds.add((Number) userId);
                 }
@@ -214,7 +288,7 @@ public class UserDAOImpl extends AbstractDAOImpl
 
         SyncopeUser user;
         for (Object userId : userIds) {
-            user = find(( (Number) userId ).longValue());
+            user = find(((Number) userId).longValue());
             if (user == null) {
                 LOG.error("Could not find user with id {}, "
                         + "even though returned by the native query", userId);
@@ -235,7 +309,7 @@ public class UserDAOImpl extends AbstractDAOImpl
         Query countQuery =
                 entityManager.createNativeQuery(queryString.toString());
 
-        return ( (Number) countQuery.getSingleResult() ).intValue();
+        return ((Number) countQuery.getSingleResult()).intValue();
     }
 
     @Override
@@ -277,5 +351,181 @@ public class UserDAOImpl extends AbstractDAOImpl
         user.getMemberships().clear();
 
         entityManager.remove(user);
+    }
+
+    /**
+     * Generate one where clause for each different attribute schema into the
+     * derived schema expression provided.
+     * @param expression derived schema expression.
+     * @param value derived attribute value.
+     * @return where clauses to use to build the query.
+     * @throws InvalidSearchConditionException in case of errors retrieving
+     * identifiers.
+     */
+    private Set<String> getWhereClause(
+            final String expression, final String value)
+            throws InvalidSearchConditionException {
+        final Parser parser = new Parser(new StringReader(expression));
+
+        // Schema names
+        final List<String> identifiers = new ArrayList<String>();
+
+        // Literals
+        final List<String> literals = new ArrayList<String>();
+
+        // Get schema names and literals
+        Token token;
+        while ((token = parser.getNextToken()) != null
+                && StringUtils.hasText(token.toString())) {
+
+            if (token.kind == ParserConstants.STRING_LITERAL) {
+                literals.add(token.toString().
+                        substring(1, token.toString().length() - 1));
+            }
+
+            if (token.kind == ParserConstants.IDENTIFIER) {
+                identifiers.add(token.toString());
+            }
+        }
+
+        // Sort literals in order to process later literals included into others
+        Collections.sort(literals, new Comparator<String>() {
+
+            @Override
+            public int compare(String t, String t1) {
+                if (t == null && t1 == null) {
+                    return 0;
+                }
+
+                if (t != null && t1 == null) {
+                    return -1;
+                }
+
+                if (t == null && t1 != null) {
+                    return 1;
+                }
+
+                if (t.length() == t1.length()) {
+                    return 0;
+                }
+
+                if (t.length() > t1.length()) {
+                    return -1;
+                } else {
+                    return 1;
+                }
+            }
+        });
+
+        // Split value on provided literals
+        final List<String> attrValues = split(value, literals);
+
+        if (attrValues.size() != identifiers.size()) {
+            LOG.error("Ambiguous jexl expression resolution.");
+            throw new InvalidSearchConditionException(
+                    "literals and values have different size");
+        }
+
+        // clauses to be used with INTERSECTed queries
+        final Set<String> clauses = new HashSet<String>();
+
+        // builder to build the clauses
+        final StringBuilder bld = new StringBuilder();
+
+        // Contains used identifiers in order to avoid replications
+        final Set<String> used = new HashSet<String>();
+
+        USchema schema;
+
+        // Create several clauses: one for eanch identifiers
+        for (int i = 0; i < identifiers.size(); i++) {
+            if (!used.contains(identifiers.get(i))) {
+
+                // verify schema existence and get schema type
+                schema = schemaDAO.find(identifiers.get(i), USchema.class);
+                if (schema == null) {
+                    LOG.error("Invalid schema name '{}'", identifiers.get(i));
+                    throw new InvalidSearchConditionException(
+                            "Invalid schema name " + identifiers.get(i));
+                }
+
+                // clear builder
+                bld.delete(0, bld.length());
+
+                bld.append("(");
+
+                // set schema name
+                bld.append("s.name = '").
+                        append(identifiers.get(i)).append("'");
+
+                bld.append(" AND ");
+
+                bld.append("s.name = a.schema_name").append(" AND ");
+
+                bld.append("a.id = v.attribute_id");
+
+                bld.append(" AND ");
+
+                // use a value clause different for eanch different schema type
+                switch (schema.getType()) {
+                    case Boolean:
+                        bld.append("v.booleanValue = '").
+                                append(attrValues.get(i)).append("'");
+                        break;
+                    case Long:
+                        bld.append("v.longValue = ").
+                                append(attrValues.get(i));
+                        break;
+                    case Double:
+                        bld.append("v.doubleValue = ").
+                                append(attrValues.get(i));
+                        break;
+                    case Date:
+                        bld.append("v.dateValue = '").
+                                append(attrValues.get(i)).append("'");
+                        break;
+                    default:
+                        bld.append("v.stringValue = '").
+                                append(attrValues.get(i)).append("'");
+                }
+
+                bld.append(")");
+
+                used.add(identifiers.get(i));
+
+                clauses.add(bld.toString());
+            }
+        }
+
+        LOG.debug("Generated where clauses {}", clauses);
+
+        return clauses;
+    }
+
+    /**
+     * Split an attribute value recurring on provided literals/tokens.
+     * @param attrValue value to be splitted.
+     * @param literals literals/tokens.
+     * @return
+     */
+    private List<String> split(
+            final String attrValue,
+            final List<String> literals) {
+
+        final List<String> attrValues = new ArrayList<String>();
+
+        if (literals.isEmpty()) {
+            attrValues.add(attrValue);
+        } else {
+
+            for (String token :
+                    attrValue.split(Pattern.quote(literals.get(0)))) {
+
+                attrValues.addAll(
+                        split(token, literals.subList(1, literals.size())));
+            }
+        }
+
+        return attrValues;
     }
 }
