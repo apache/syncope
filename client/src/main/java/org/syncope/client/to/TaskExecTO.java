@@ -34,11 +34,13 @@ public class TaskExecTO extends AbstractBaseBean {
     private long task;
 
     public Date getEndDate() {
-        return endDate;
+        return endDate == null ? null : new Date(endDate.getTime());
     }
 
     public void setEndDate(Date endDate) {
-        this.endDate = endDate;
+        if (endDate != null) {
+            this.endDate = new Date(endDate.getTime());
+        }
     }
 
     public long getId() {
@@ -58,11 +60,13 @@ public class TaskExecTO extends AbstractBaseBean {
     }
 
     public Date getStartDate() {
-        return startDate;
+        return startDate == null ? null : new Date(startDate.getTime());
     }
 
     public void setStartDate(Date startDate) {
-        this.startDate = startDate;
+        if (startDate != null) {
+            this.startDate = new Date(startDate.getTime());
+        }
     }
 
     public String getStatus() {

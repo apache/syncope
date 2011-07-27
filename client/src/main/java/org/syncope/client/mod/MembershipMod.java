@@ -19,6 +19,8 @@ import java.util.Set;
 
 public class MembershipMod extends AbstractAttributableMod {
 
+    private static final long serialVersionUID = 2511869129977331525L;
+
     private long role;
 
     public long getRole() {

@@ -30,6 +30,33 @@ public class TaskExecDAOImpl extends AbstractDAOImpl
         return entityManager.find(TaskExec.class, id);
     }
 
+    private <T extends Task> TaskExec findLatest(final T task,
+            final String field) {
+
+        Query query = entityManager.createQuery("SELECT e "
+                + "FROM " + TaskExec.class.getSimpleName() + " e "
+                + "WHERE e.task=:task "
+                + "ORDER BY e." + field + " DESC");
+        query.setParameter("task", task);
+        query.setMaxResults(1);
+
+        List<TaskExec> result = query.getResultList();
+        return result == null || result.isEmpty()
+                ? null : result.iterator().next();
+    }
+
+    @Override
+    public <T extends Task> TaskExec findLatestStarted(final T task) {
+
+        return findLatest(task, "startDate");
+    }
+
+    @Override
+    public <T extends Task> TaskExec findLatestEnded(final T task) {
+
+        return findLatest(task, "endDate");
+    }
+
     @Override
     public <T extends Task> List<TaskExec> findAll(Class<T> reference) {
         Query query = entityManager.createQuery("SELECT e "

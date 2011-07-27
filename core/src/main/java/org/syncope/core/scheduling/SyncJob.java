@@ -14,21 +14,15 @@
 package org.syncope.core.scheduling;
 
 import org.quartz.JobExecutionException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class SyncJob implements Job {
-
-    /**
-     * Logger.
-     */
-    private static final Logger LOG =
-            LoggerFactory.getLogger(SyncJob.class);
+public class SyncJob extends AbstractJob {
 
     @Override
-    public void execute()
+    protected String doExecute()
             throws JobExecutionException {
 
         LOG.info("SyncJob running");
+
+        return "MO SCI";
     }
 }

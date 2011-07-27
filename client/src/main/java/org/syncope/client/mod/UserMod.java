@@ -19,11 +19,17 @@ import java.util.Set;
 
 public class UserMod extends AbstractAttributableMod {
 
+    private static final long serialVersionUID = 3081848906558106204L;
+
     private String password;
+
     private Set<MembershipMod> membershipsToBeAddeded;
+
     private Set<Long> membershipsToBeRemoved;
 
     public UserMod() {
+        super();
+
         membershipsToBeAddeded = new HashSet<MembershipMod>();
         membershipsToBeRemoved = new HashSet<Long>();
     }

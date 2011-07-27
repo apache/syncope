@@ -144,6 +144,12 @@
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-config</artifactId>
         </dependency>
+        <dependency>
+            <groupId>javax.inject</groupId>
+            <artifactId>inject-api</artifactId>
+            <version>1.0.0-PRD</version>
+            <scope>compile</scope>
+        </dependency>
 
         <dependency>
             <groupId>cglib</groupId>
@@ -530,6 +536,7 @@
                         <type>standalone</type>
                         <properties>
                             <cargo.servlet.port>${cargo.servlet.port}</cargo.servlet.port>
+<!--                            <cargo.jvmargs>-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n</cargo.jvmargs>-->
                         </properties>
                         <deployables>
                             <deployable>

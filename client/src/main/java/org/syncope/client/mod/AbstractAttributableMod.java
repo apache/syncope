@@ -20,6 +20,8 @@ import org.syncope.client.AbstractBaseBean;
 
 public abstract class AbstractAttributableMod extends AbstractBaseBean {
 
+    private static final long serialVersionUID = 3241118574016303198L;
+
     protected long id;
 
     protected Set<AttributeMod> attributesToBeUpdated;
@@ -39,6 +41,8 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
     protected Set<String> resourcesToBeRemoved;
 
     public AbstractAttributableMod() {
+        super();
+
         attributesToBeUpdated = new HashSet<AttributeMod>();
         attributesToBeRemoved = new HashSet<String>();
         derivedAttributesToBeAdded = new HashSet<String>();
@@ -171,7 +175,8 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
         return virtualAttributesToBeAdded;
     }
 
-    public void setVirtualAttributesToBeAdded(Set<String> virtualAttributesToBeAdded) {
+    public void setVirtualAttributesToBeAdded(
+            Set<String> virtualAttributesToBeAdded) {
         this.virtualAttributesToBeAdded = virtualAttributesToBeAdded;
     }
 
@@ -179,7 +184,8 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
         return virtualAttributesToBeRemoved;
     }
 
-    public void setVirtualAttributesToBeRemoved(Set<String> virtualAttributesToBeRemoved) {
+    public void setVirtualAttributesToBeRemoved(
+            Set<String> virtualAttributesToBeRemoved) {
         this.virtualAttributesToBeRemoved = virtualAttributesToBeRemoved;
     }
 }

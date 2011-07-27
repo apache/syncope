@@ -232,7 +232,7 @@ public class ConnectorFacadeProxy {
             final ObjectClass oclass,
             final Set<Attribute> attrs,
             final OperationOptions options,
-            final Set<String> triedPropagationRequests) {
+            final Set<String> propagationAttempted) {
 
         Uid result = null;
 
@@ -242,7 +242,7 @@ public class ConnectorFacadeProxy {
                 : capabitilies.contains(
                 ConnectorCapability.ASYNC_CREATE)) {
 
-            triedPropagationRequests.add("create");
+            propagationAttempted.add("create");
 
             result = connector.create(oclass, attrs, options);
         }
@@ -255,7 +255,7 @@ public class ConnectorFacadeProxy {
             final Uid uid,
             final Set<Attribute> replaceAttributes,
             final OperationOptions options,
-            final Set<String> triedPropagationRequests) {
+            final Set<String> propagationAttempted) {
 
         Uid result = null;
 
@@ -265,7 +265,7 @@ public class ConnectorFacadeProxy {
                 : capabitilies.contains(
                 ConnectorCapability.ASYNC_UPDATE)) {
 
-            triedPropagationRequests.add("update");
+            propagationAttempted.add("update");
 
             result = connector.update(
                     objclass, uid, replaceAttributes, options);
@@ -278,7 +278,7 @@ public class ConnectorFacadeProxy {
             final ObjectClass objClass,
             final Uid uid,
             final OperationOptions options,
-            final Set<String> triedPropagationRequests) {
+            final Set<String> propagationAttempted) {
 
         if (propagationMode == PropagationMode.SYNC
                 ? capabitilies.contains(
@@ -286,7 +286,7 @@ public class ConnectorFacadeProxy {
                 : capabitilies.contains(
                 ConnectorCapability.ASYNC_DELETE)) {
 
-            triedPropagationRequests.add("delete");
+            propagationAttempted.add("delete");
 
             connector.delete(objClass, uid, options);
         }

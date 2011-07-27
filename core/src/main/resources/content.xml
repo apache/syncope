@@ -97,6 +97,7 @@
     <Entitlement name="TASK_LIST"/>
     <Entitlement name="TASK_EXECUTE"/>
     <Entitlement name="TASK_READ"/>
+    <Entitlement name="TASK_UPDATE"/>
     <Entitlement name="TASK_DELETE"/>
     <Entitlement name="LOG_LIST"/>
     <Entitlement name="LOG_SET_LEVEL"/>

@@ -45,18 +45,22 @@ public class SchedTaskTO extends TaskTO {
     }
 
     public Date getLastExec() {
-        return new Date(lastExec.getTime());
+        return lastExec == null ? null : new Date(lastExec.getTime());
     }
 
     public void setLastExec(Date lastExec) {
-        this.lastExec = new Date(lastExec.getTime());
+        if (lastExec != null) {
+            this.lastExec = new Date(lastExec.getTime());
+        }
     }
 
     public Date getNextExec() {
-        return new Date(nextExec.getTime());
+        return nextExec == null ? null : new Date(nextExec.getTime());
     }
 
     public void setNextExec(Date nextExec) {
-        this.nextExec = new Date(nextExec.getTime());
+        if (nextExec != null) {
+            this.nextExec = new Date(nextExec.getTime());
+        }
     }
 }

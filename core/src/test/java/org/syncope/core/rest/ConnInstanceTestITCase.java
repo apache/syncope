@@ -261,7 +261,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
     public void check() {
         Boolean verify = restTemplate.getForObject(
                 BASE_URL + "connector/check/{connectorId}.json",
-                Boolean.class, 100L);
+                Boolean.class, "connInstance100");
 
         assertTrue(verify);
     }

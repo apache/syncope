@@ -16,35 +16,50 @@ package org.syncope.core.rest.controller;
 
 import com.opensymphony.workflow.WorkflowException;
 import java.lang.reflect.Modifier;
+import org.quartz.SchedulerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javassist.NotFoundException;
+import javax.servlet.http.HttpServletResponse;
+import org.quartz.JobDetail;
+import org.quartz.Scheduler;
 import org.reflections.Reflections;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import org.syncope.client.mod.SchedTaskMod;
+import org.syncope.client.to.SchedTaskTO;
 import org.syncope.client.to.TaskExecTO;
 import org.syncope.client.to.TaskTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
+import org.syncope.core.init.JobInstanceLoader;
 import org.syncope.core.persistence.beans.PropagationTask;
+import org.syncope.core.persistence.beans.SchedTask;
 import org.syncope.core.persistence.beans.Task;
 import org.syncope.core.persistence.beans.TaskExec;
 import org.syncope.core.persistence.dao.TaskDAO;
 import org.syncope.core.persistence.dao.TaskExecDAO;
 import org.syncope.core.persistence.propagation.PropagationManager;
+import org.syncope.core.persistence.validation.entity.InvalidEntityException;
 import org.syncope.core.rest.data.TaskDataBinder;
 import org.syncope.core.scheduling.Job;
 import org.syncope.core.scheduling.SyncJob;
+import org.syncope.core.util.ApplicationContextManager;
 import org.syncope.core.util.TaskUtil;
+import org.syncope.types.EntityViolationType;
 import org.syncope.types.PropagationMode;
 import org.syncope.types.PropagationTaskExecStatus;
 import org.syncope.types.SyncopeClientExceptionType;
@@ -60,10 +75,124 @@ public class TaskController extends AbstractController {
     private TaskExecDAO taskExecDAO;
 
     @Autowired
-    private TaskDataBinder taskDataBinder;
+    private TaskDataBinder binder;
 
     @Autowired
     private PropagationManager propagationManager;
+
+    @Autowired
+    private JobInstanceLoader jobInstanceLoader;
+
+    @Autowired
+    private SchedulerFactoryBean scheduler;
+
+    @PreAuthorize("hasRole('TASK_CREATE')")
+    @RequestMapping(method = RequestMethod.POST,
+    value = "/create")
+    public TaskTO create(final HttpServletResponse response,
+            final @RequestBody SchedTaskTO taskTO)
+            throws NotFoundException {
+
+        LOG.debug("Creating task " + taskTO);
+
+        SyncopeClientCompositeErrorException scce =
+                new SyncopeClientCompositeErrorException(
+                HttpStatus.BAD_REQUEST);
+
+        TaskUtil taskUtil = getTaskUtil(taskTO);
+
+        SchedTask task = binder.createSchedTask(taskTO, taskUtil);
+        try {
+            task = taskDAO.save(task);
+        } catch (InvalidEntityException e) {
+            SyncopeClientException sce = new SyncopeClientException(
+                    SyncopeClientExceptionType.InvalidTask);
+
+            for (Map.Entry<Class, Set<EntityViolationType>> violation :
+                    e.getViolations().entrySet()) {
+
+                for (EntityViolationType violationType : violation.getValue()) {
+                    sce.addElement(violation.getClass().getSimpleName() + ": "
+                            + violationType);
+                }
+            }
+
+            scce.addException(sce);
+            throw scce;
+        }
+
+        try {
+            jobInstanceLoader.registerJob(task);
+        } catch (Exception e) {
+            LOG.error("While registering quartz job for task "
+                    + task.getId(), e);
+
+            SyncopeClientException sce = new SyncopeClientException(
+                    SyncopeClientExceptionType.Scheduling);
+            sce.addElement(e.getMessage());
+            scce.addException(sce);
+            throw scce;
+        }
+
+        response.setStatus(HttpServletResponse.SC_CREATED);
+        return binder.getTaskTO(task, taskUtil);
+    }
+
+    @PreAuthorize("hasRole('TASK_UPDATE')")
+    @RequestMapping(method = RequestMethod.POST,
+    value = "/update")
+    public TaskTO update(@RequestBody SchedTaskMod taskMod)
+            throws NotFoundException {
+
+        LOG.debug("Task update called with parameter {}", taskMod);
+
+        SchedTask task = taskDAO.find(taskMod.getId());
+        if (task == null) {
+            throw new NotFoundException(
+                    "Task " + String.valueOf(taskMod.getId()));
+        }
+
+        TaskUtil taskUtil = getTaskUtil(task);
+
+        SyncopeClientCompositeErrorException scce =
+                new SyncopeClientCompositeErrorException(
+                HttpStatus.BAD_REQUEST);
+
+        binder.updateSchedTask(task, taskMod, taskUtil);
+        try {
+            task = taskDAO.save(task);
+        } catch (InvalidEntityException e) {
+            SyncopeClientException sce = new SyncopeClientException(
+                    SyncopeClientExceptionType.InvalidTask);
+
+            for (Map.Entry<Class, Set<EntityViolationType>> violation :
+                    e.getViolations().entrySet()) {
+
+                for (EntityViolationType violationType : violation.getValue()) {
+                    sce.addElement(violation.getClass().getSimpleName() + ": "
+                            + violationType);
+                }
+            }
+
+            scce.addException(sce);
+            throw scce;
+        }
+
+        try {
+            jobInstanceLoader.registerJob(task);
+        } catch (Exception e) {
+            LOG.error("While registering quartz job for task "
+                    + task.getId(), e);
+
+            SyncopeClientException sce = new SyncopeClientException(
+                    SyncopeClientExceptionType.Scheduling);
+            sce.addElement(e.getMessage());
+            scce.addException(sce);
+            throw scce;
+        }
+
+        return binder.getTaskTO(task, taskUtil);
+    }
 
     @PreAuthorize("hasRole('TASK_LIST')")
     @RequestMapping(method = RequestMethod.GET,
@@ -82,7 +211,7 @@ public class TaskController extends AbstractController {
         List<Task> tasks = taskDAO.findAll(taskUtil.taskClass());
         List<TaskTO> taskTOs = new ArrayList<TaskTO>(tasks.size());
         for (Task task : tasks) {
-            taskTOs.add(taskDataBinder.getTaskTO(task, taskUtil));
+            taskTOs.add(binder.getTaskTO(task, taskUtil));
         }
 
         return taskTOs;
@@ -101,7 +230,7 @@ public class TaskController extends AbstractController {
         List<Task> tasks = taskDAO.findAll(page, size, taskUtil.taskClass());
         List<TaskTO> taskTOs = new ArrayList<TaskTO>(tasks.size());
         for (Task task : tasks) {
-            taskTOs.add(taskDataBinder.getTaskTO(task, taskUtil));
+            taskTOs.add(binder.getTaskTO(task, taskUtil));
         }
 
         return taskTOs;
@@ -118,8 +247,7 @@ public class TaskController extends AbstractController {
         List<TaskExecTO> executionTOs =
                 new ArrayList<TaskExecTO>(executions.size());
         for (TaskExec execution : executions) {
-            executionTOs.add(
-                    taskDataBinder.getTaskExecutionTO(execution));
+            executionTOs.add(binder.getTaskExecutionTO(execution));
         }
 
         return executionTOs;
@@ -160,7 +288,7 @@ public class TaskController extends AbstractController {
             throw new NotFoundException("Task " + taskId);
         }
 
-        return taskDataBinder.getTaskTO(task, getTaskUtil(task));
+        return binder.getTaskTO(task, getTaskUtil(task));
     }
 
     @PreAuthorize("hasRole('TASK_READ')")
@@ -175,7 +303,7 @@ public class TaskController extends AbstractController {
             throw new NotFoundException("Task execution " + executionId);
         }
 
-        return taskDataBinder.getTaskExecutionTO(execution);
+        return binder.getTaskExecutionTO(execution);
     }
 
     @PreAuthorize("hasRole('TASK_EXECUTE')")
@@ -190,27 +318,48 @@ public class TaskController extends AbstractController {
             throw new NotFoundException("Task " + taskId);
         }
 
-        TaskExec execution = new TaskExec();
-        execution.setTask(task);
+        TaskExec execution = null;
+        LOG.debug("Execution started for {}", task);
         switch (getTaskUtil(task)) {
             case PROPAGATION:
-                execution.setStatus(
-                        PropagationTaskExecStatus.CREATED.toString());
-                execution = taskExecDAO.save(execution);
-
-                LOG.debug("Execution started for {}", task);
-                propagationManager.propagate(execution);
-                LOG.debug("Execution finished for {}, {}", task, execution);
+                execution = propagationManager.propagate(
+                        (PropagationTask) task, new Date());
+                execution = taskExecDAO.find(execution.getId());
                 break;
 
             case SCHED:
-                break;
-
             case SYNC:
+                JobDetail jobDetail = (JobDetail) ApplicationContextManager.
+                        getApplicationContext().getBean(
+                        JobInstanceLoader.getJobDetailName(task.getId()));
+                jobDetail.setName(
+                        JobInstanceLoader.getJobDetailName(task.getId()));
+                jobDetail.setGroup(Scheduler.DEFAULT_GROUP);
+                try {
+                    scheduler.getScheduler().triggerJob(
+                            JobInstanceLoader.getJobDetailName(task.getId()),
+                            Scheduler.DEFAULT_GROUP);
+                } catch (SchedulerException e) {
+                    LOG.error("While executing task {}", task, e);
+
+                    SyncopeClientCompositeErrorException scce =
+                            new SyncopeClientCompositeErrorException(
+                            HttpStatus.BAD_REQUEST);
+                    SyncopeClientException sce = new SyncopeClientException(
+                            SyncopeClientExceptionType.Scheduling);
+                    sce.addElement(e.getMessage());
+                    scce.addException(sce);
+                    throw scce;
+                }
+
+                // Re-read to get the latest execution started
+                task = taskDAO.find(taskId);
+                execution = taskExecDAO.findLatestStarted(task);
                 break;
         }
+        LOG.debug("Execution finished for {}, {}", task, execution);
 
-        return taskDataBinder.getTaskExecutionTO(execution);
+        return binder.getTaskExecutionTO(execution);
     }
 
     @PreAuthorize("hasRole('TASK_READ')")
@@ -271,7 +420,7 @@ public class TaskController extends AbstractController {
         exec.setMessage(message);
         exec = taskExecDAO.save(exec);
 
-        return taskDataBinder.getTaskExecutionTO(exec);
+        return binder.getTaskExecutionTO(exec);
     }
 
     @PreAuthorize("hasRole('TASK_DELETE')")

@@ -20,11 +20,17 @@ import org.syncope.client.AbstractBaseBean;
 
 public class AttributeMod extends AbstractBaseBean {
 
+    private static final long serialVersionUID = -913573979137431406L;
+
     private String schema;
+
     private List<String> valuesToBeAdded;
+
     private List<String> valuesToBeRemoved;
 
     public AttributeMod() {
+        super();
+
         valuesToBeAdded = new ArrayList<String>();
         valuesToBeRemoved = new ArrayList<String>();
     }

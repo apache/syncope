@@ -250,24 +250,13 @@ public class PropagationManager {
                         resourceOperations.getOldAccountId(resource.getName()));
                 task.setAttributes(
                         preparedAttributes.values().iterator().next());
-
-                execution = new TaskExec();
-                execution.setTask(task);
-                execution.setStatus(
-                        PropagationTaskExecStatus.CREATED.toString());
-
-                task.addExec(execution);
                 task = taskDAO.save(task);
-
-                // Re-read execution to get the unique id
-                execution = (TaskExec) task.getExecs().
-                        iterator().next();
 
                 LOG.debug("Execution started for {}", task);
 
-                propagate(execution);
+                execution = propagate(task, new Date());
 
-                LOG.debug("Execution finished for {}", task);
+                LOG.debug("Execution finished for {}, {}", task, execution);
 
                 // Propagation is interrupted as soon as the result of the
                 // communication with a mandatory resource is in error
@@ -586,14 +575,19 @@ public class PropagationManager {
 
     }
 
-    public void propagate(final TaskExec execution) {
-        final Date startDate = new Date();
+    public TaskExec propagate(final PropagationTask task,
+            final Date startDate) {
+
+        TaskExec execution = new TaskExec();
+        execution.setTask(task);
+        execution.setStatus(
+                PropagationTaskExecStatus.CREATED.toString());
+        execution = taskExecDAO.save(execution);
+
         String taskExecutionMessage = null;
 
-        final PropagationTask task = (PropagationTask) execution.getTask();
-
-        // Output parameter to verify the propagation request tryed
-        final Set<String> triedPropagationRequests = new HashSet<String>();
+        // Flag to state wether any propagation has been attempted
+        Set<String> propagationAttempted = new HashSet<String>();
 
         try {
             ConnInstance connectorInstance =
@@ -601,7 +595,7 @@ public class PropagationManager {
 
             ConnectorFacadeProxy connector =
                     connInstanceLoader.getConnector(
-                    connectorInstance.getId().toString());
+                    "connInstance" + connectorInstance.getId());
 
             if (connector == null) {
                 LOG.error("Connector instance bean "
@@ -643,11 +637,11 @@ public class PropagationManager {
 
                         LOG.debug("Rename required with value {}", newName);
 
-                        if (newName != null) {
-                            if (newName.equals(remoteObject.getName())) {
-                                LOG.debug("Remote object name unchanged");
-                                attributes.remove(newName);
-                            }
+                        if (newName != null
+                                && newName.equals(remoteObject.getName())) {
+
+                            LOG.debug("Remote object name unchanged");
+                            attributes.remove(newName);
                         }
 
                         LOG.debug("Attributes to be replaced {}", attributes);
@@ -659,14 +653,14 @@ public class PropagationManager {
                                 remoteObject.getUid(),
                                 attributes,
                                 null,
-                                triedPropagationRequests);
+                                propagationAttempted);
                     } else {
                         connector.create(
                                 task.getPropagationMode(),
                                 ObjectClass.ACCOUNT,
                                 task.getAttributes(),
                                 null,
-                                triedPropagationRequests);
+                                propagationAttempted);
                     }
                     break;
 
@@ -675,7 +669,7 @@ public class PropagationManager {
                             ObjectClass.ACCOUNT,
                             new Uid(task.getAccountId()),
                             null,
-                            triedPropagationRequests);
+                            propagationAttempted);
                     break;
 
                 default:
@@ -710,12 +704,12 @@ public class PropagationManager {
                 LOG.error("While executing KO action on {}", execution, wft);
             }
 
-            triedPropagationRequests.add(
+            propagationAttempted.add(
                     task.getResourceOperationType().toString().toLowerCase());
         } finally {
             LOG.debug("Update execution for {}", task);
 
-            if (!triedPropagationRequests.isEmpty()) {
+            if (!propagationAttempted.isEmpty()) {
                 execution.setStartDate(startDate);
                 execution.setMessage(taskExecutionMessage);
                 execution.setEndDate(new Date());
@@ -729,5 +723,7 @@ public class PropagationManager {
                 LOG.debug("Execution removed: {}", execution);
             }
         }
+
+        return execution;
     }
 }

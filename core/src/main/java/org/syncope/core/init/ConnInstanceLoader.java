@@ -23,12 +23,8 @@ import org.identityconnectors.common.IOUtil;
 import org.identityconnectors.common.l10n.CurrentLocale;
 import org.identityconnectors.framework.api.ConnectorInfoManager;
 import org.identityconnectors.framework.api.ConnectorInfoManagerFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.support.DefaultListableBeanFactory;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.ConnInstance;
@@ -37,32 +33,18 @@ import org.syncope.core.persistence.dao.ConfDAO;
 import org.syncope.core.persistence.dao.ConnInstanceDAO;
 import org.syncope.core.persistence.dao.MissingConfKeyException;
 import org.syncope.core.persistence.propagation.ConnectorFacadeProxy;
-import org.syncope.core.util.ApplicationContextManager;
 
 /**
- * Load ConnId connectos instances.
+ * Load ConnId connector instances.
  */
 @Component
-public class ConnInstanceLoader {
-
-    /**
-     * Logger.
-     */
-    private static final Logger LOG = LoggerFactory.getLogger(
-            ConnInstanceLoader.class);
+public class ConnInstanceLoader extends AbstractLoader {
 
     @Autowired
     private ConnInstanceDAO connInstanceDAO;
 
     @Autowired
     private ConfDAO confDAO;
-
-    private DefaultListableBeanFactory getBeanFactory() {
-        ConfigurableApplicationContext context =
-                ApplicationContextManager.getApplicationContext();
-
-        return (DefaultListableBeanFactory) context.getBeanFactory();
-    }
 
     public ConnectorInfoManager getConnectorManager()
             throws NotFoundException, MissingConfKeyException {
@@ -117,26 +99,29 @@ public class ConnInstanceLoader {
     public void registerConnector(final ConnInstance instance)
             throws NotFoundException {
 
-        if (getBeanFactory().containsSingleton(instance.getId().toString())) {
-            unregisterConnector(instance.getId().toString());
+        if (getBeanFactory().containsSingleton(
+                "connInstance" + instance.getId())) {
+
+            unregisterConnector("connInstance" + instance.getId());
         }
 
         ConnectorFacadeProxy connector =
                 new ConnectorFacadeProxy(instance, this);
         LOG.debug("Connector to be registered: {}", connector);
 
-        getBeanFactory().registerSingleton(
-                instance.getId().toString(), connector);
+        getBeanFactory().registerSingleton("connInstance" + instance.getId(),
+                connector);
         LOG.debug("Successfully registered bean {}",
-                instance.getId().toString());
+                "connInstance" + instance.getId());
     }
 
     public void unregisterConnector(final String id) {
         getBeanFactory().destroySingleton(id);
     }
 
+    @Override
     @Transactional(readOnly = true)
-    public void loadAllConnInstances() {
+    public void load() {
         // This is needed to avoid encoding problems when sending error
         // messages via REST
         CurrentLocale.set(Locale.ENGLISH);

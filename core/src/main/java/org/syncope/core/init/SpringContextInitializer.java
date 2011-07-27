@@ -35,6 +35,9 @@ public class SpringContextInitializer implements ServletContextAware,
     @Autowired
     private ContentLoader contentLoader;
 
+    @Autowired
+    private JobInstanceLoader jobInstanceLoader;
+
     @Override
     public void setServletContext(final ServletContext servletContext) {
     }
@@ -48,7 +51,8 @@ public class SpringContextInitializer implements ServletContextAware,
     public void afterPropertiesSet()
             throws Exception {
 
-        connInstanceLoader.loadAllConnInstances();
         contentLoader.load();
+        connInstanceLoader.load();
+        jobInstanceLoader.load();
     }
 }

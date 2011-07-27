@@ -2,9 +2,9 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *
+ * 
  *       http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -12,16 +12,14 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.client.to;
+package org.syncope.client.mod;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class SyncTaskTO extends SchedTaskTO {
+public class SyncTaskMod extends SchedTaskMod {
 
-    private static final long serialVersionUID = -2143537546915809016L;
-
-    private String resource;
+    private static final long serialVersionUID = 2194093947655403368L;
 
     private List<String> defaultResources;
 
@@ -29,20 +27,11 @@ public class SyncTaskTO extends SchedTaskTO {
 
     private boolean updateIdentities;
 
-    public SyncTaskTO() {
+    public SyncTaskMod() {
         super();
 
         defaultResources = new ArrayList<String>();
         defaultRoles = new ArrayList<Long>();
-    }
-
-    public boolean addDefaultResource(String resource) {
-        return resource != null && !defaultResources.contains(resource)
-                && defaultResources.add(resource);
-    }
-
-    public boolean removeDefaultResource(String resource) {
-        return resource != null && defaultResources.remove(resource);
     }
 
     public List<String> getDefaultResources() {
@@ -53,29 +42,12 @@ public class SyncTaskTO extends SchedTaskTO {
         this.defaultResources = defaultResources;
     }
 
-    public boolean addDefaultRole(Long role) {
-        return role != null && !defaultRoles.contains(role)
-                && defaultRoles.add(role);
-    }
-
-    public boolean removeDefaultRole(Long role) {
-        return role != null && defaultRoles.remove(role);
-    }
-
     public List<Long> getDefaultRoles() {
         return defaultRoles;
     }
 
     public void setDefaultRoles(List<Long> defaultRoles) {
         this.defaultRoles = defaultRoles;
-    }
-
-    public String getResource() {
-        return resource;
-    }
-
-    public void setResource(String resource) {
-        this.resource = resource;
     }
 
     public boolean isUpdateIdentities() {

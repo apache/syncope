@@ -47,6 +47,24 @@ public enum TaskUtil {
         return result;
     }
 
+    public <T extends Task> T newTask() {
+        T result = null;
+
+        switch (this) {
+            case PROPAGATION:
+                result = (T) new PropagationTask();
+                break;
+            case SCHED:
+                result = (T) new SchedTask();
+                break;
+            case SYNC:
+                result = (T) new SyncTask();
+                break;
+        }
+
+        return result;
+    }
+
     public <T extends TaskTO> Class<T> taskTOClass() {
         Class result = null;
 

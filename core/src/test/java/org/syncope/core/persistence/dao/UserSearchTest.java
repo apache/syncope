@@ -35,6 +35,7 @@ import org.syncope.core.util.EntitlementUtil;
 @ContextConfiguration(locations = {
     "classpath:syncopeContext.xml",
     "classpath:persistenceContext.xml",
+    "classpath:schedulingContext.xml",
     "classpath:workflowContext.xml"
 })
 @Transactional

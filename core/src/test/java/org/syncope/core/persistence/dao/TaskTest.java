@@ -107,8 +107,8 @@ public class TaskTest extends AbstractTest {
         }
         assertNotNull(exception);
 
-        // this save() finally works
         task.setResource(resource);
+        // this save() finally works
         task = taskDAO.save(task);
         assertNotNull(task);
 

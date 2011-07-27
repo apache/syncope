@@ -30,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 @ContextConfiguration(locations = {
     "classpath:syncopeContext.xml",
     "classpath:persistenceContext.xml",
+    "classpath:schedulingContext.xml",
     "classpath:workflowContext.xml"
 })
 public class JPAWorkflowEntryTest {

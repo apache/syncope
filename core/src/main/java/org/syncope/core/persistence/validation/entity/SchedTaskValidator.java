@@ -15,10 +15,13 @@
 package org.syncope.core.persistence.validation.entity;
 
 import java.text.ParseException;
+import java.util.Arrays;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import org.quartz.CronExpression;
 import org.syncope.core.persistence.beans.SchedTask;
+import org.syncope.core.scheduling.AbstractJob;
+import org.syncope.core.scheduling.Job;
 import org.syncope.types.EntityViolationType;
 
 public class SchedTaskValidator extends AbstractValidator
@@ -47,8 +50,8 @@ public class SchedTaskValidator extends AbstractValidator
                         addConstraintViolation();
             } else {
                 try {
-                    Class.forName(object.getJobClassName());
-                    isValid = true;
+                    Class jobClass = Class.forName(object.getJobClassName());
+                    isValid = AbstractJob.class.isAssignableFrom(jobClass);
                 } catch (ClassNotFoundException e) {
                     LOG.error("Job class " + object.getJobClassName()
                             + " not found", e);
@@ -59,6 +62,17 @@ public class SchedTaskValidator extends AbstractValidator
                             EntityViolationType.InvalidSchedTask.toString()).
                             addNode(object + ".jobClassName=="
                             + object.getJobClassName()).
+                            addConstraintViolation();
+                }
+                if (!isValid) {
+                    LOG.error("Job class " + object.getJobClassName()
+                            + "does not implement " + Job.class.getName());
+
+                    context.disableDefaultConstraintViolation();
+                    context.buildConstraintViolationWithTemplate(
+                            EntityViolationType.InvalidSchedTask.toString()).
+                            addNode(object + ".jobClassName does not implement "
+                            + Job.class.getName()).
                             addConstraintViolation();
                 }
 

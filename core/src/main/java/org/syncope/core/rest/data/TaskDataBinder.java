@@ -14,19 +14,25 @@
  */
 package org.syncope.core.rest.data;
 
-import java.util.Date;
 import java.util.List;
 import javassist.NotFoundException;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
+import org.quartz.Trigger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.stereotype.Component;
+import org.syncope.client.mod.SchedTaskMod;
+import org.syncope.client.mod.SyncTaskMod;
 import org.syncope.client.to.PropagationTaskTO;
 import org.syncope.client.to.SchedTaskTO;
 import org.syncope.client.to.SyncTaskTO;
 import org.syncope.client.to.TaskExecTO;
 import org.syncope.client.to.TaskTO;
+import org.syncope.core.init.JobInstanceLoader;
 import org.syncope.core.persistence.beans.PropagationTask;
 import org.syncope.core.persistence.beans.SchedTask;
 import org.syncope.core.persistence.beans.SyncTask;
@@ -60,50 +66,86 @@ public class TaskDataBinder {
     @Autowired
     private RoleDAO roleDAO;
 
-    public SchedTask getSchedTask(final SchedTaskTO taskTO,
+    @Autowired
+    private SchedulerFactoryBean scheduler;
+
+    private void fill(final SyncTask task, final List<String> resources,
+            final List<Long> roles, boolean updateIndentities) {
+
+        TargetResource resource;
+        for (String resourceName : resources) {
+            resource = resourceDAO.find(resourceName);
+            if (resource == null) {
+                LOG.warn("Ignoring invalid resource " + resourceName);
+            } else {
+                ((SyncTask) task).addDefaultResource(resource);
+            }
+        }
+
+        SyncopeRole role;
+        for (Long roleId : roles) {
+            role = roleDAO.find(roleId);
+            if (role == null) {
+                LOG.warn("Ignoring invalid role " + roleId);
+            } else {
+                ((SyncTask) task).addDefaultRole(role);
+            }
+        }
+
+        ((SyncTask) task).setUpdateIdentities(updateIndentities);
+    }
+
+    public SchedTask createSchedTask(final SchedTaskTO taskTO,
             final TaskUtil taskUtil)
             throws NotFoundException {
 
         SchedTask task = taskUtil.newTask();
         task.setCronExpression(taskTO.getCronExpression());
 
-        if (task instanceof SchedTask) {
-            task.setJobClassName(taskTO.getJobClassName());
-        }
-        if (task instanceof SyncTask) {
-            SyncTaskTO syncTaskTO = (SyncTaskTO) taskTO;
+        switch (taskUtil) {
+            case SCHED:
+                task.setJobClassName(taskTO.getJobClassName());
+                break;
 
-            TargetResource resource = resourceDAO.find(syncTaskTO.getResource());
-            if (resource == null) {
-                throw new NotFoundException("Resource "
-                        + syncTaskTO.getResource());
-            }
-            ((SyncTask) task).setResource(resource);
+            case SYNC:
+                SyncTaskTO syncTaskTO = (SyncTaskTO) taskTO;
 
-            for (String resourceName : syncTaskTO.getDefaultResources()) {
-                resource = resourceDAO.find(resourceName);
+                TargetResource resource = resourceDAO.find(syncTaskTO.
+                        getResource());
                 if (resource == null) {
-                    LOG.warn("Ignoring invalid resource " + resourceName);
-                } else {
-                    ((SyncTask) task).addDefaultResource(resource);
+                    throw new NotFoundException("Resource "
+                            + syncTaskTO.getResource());
                 }
-            }
+                ((SyncTask) task).setResource(resource);
 
-            SyncopeRole role;
-            for (Long roleId : syncTaskTO.getDefaultRoles()) {
-                role = roleDAO.find(roleId);
-                if (role == null) {
-                    LOG.warn("Ignoring invalid role " + roleId);
-                } else {
-                    ((SyncTask) task).addDefaultRole(role);
-                }
-            }
-
-            ((SyncTask) task).setUpdateIdentities(
-                    syncTaskTO.isUpdateIdentities());
+                fill((SyncTask) task, syncTaskTO.getDefaultResources(),
+                        syncTaskTO.getDefaultRoles(),
+                        syncTaskTO.isUpdateIdentities());
+                break;
         }
 
         return task;
+    }
+
+    public void updateSchedTask(final SchedTask task, final SchedTaskMod taskMod,
+            final TaskUtil taskUtil) {
+
+        switch (taskUtil) {
+            case SCHED:
+                task.setCronExpression(taskMod.getCronExpression());
+                break;
+
+            case SYNC:
+                task.setCronExpression(taskMod.getCronExpression());
+
+                SyncTaskMod syncTaskMod = (SyncTaskMod) taskMod;
+                fill((SyncTask) task, syncTaskMod.getDefaultResources(),
+                        syncTaskMod.getDefaultRoles(),
+                        syncTaskMod.isUpdateIdentities());
+                ((SyncTask) task).setUpdateIdentities(
+                        ((SyncTaskMod) taskMod).isUpdateIdentities());
+                break;
+        }
     }
 
     public TaskExecTO getTaskExecutionTO(final TaskExec execution) {
@@ -115,7 +157,26 @@ public class TaskDataBinder {
         return executionTO;
     }
 
+    private void setExecTime(final SchedTaskTO taskTO) {
+        Trigger trigger;
+        try {
+            trigger = scheduler.getScheduler().getTrigger(
+                    JobInstanceLoader.getTriggerName(taskTO.getId()),
+                    Scheduler.DEFAULT_GROUP);
+        } catch (SchedulerException e) {
+            LOG.warn("While trying to get to " + JobInstanceLoader.
+                    getTriggerName(taskTO.getId()), e);
+            trigger = null;
+        }
+
+        if (trigger != null) {
+            taskTO.setLastExec(trigger.getPreviousFireTime());
+            taskTO.setNextExec(trigger.getNextFireTime());
+        }
+    }
+
     public TaskTO getTaskTO(final Task task, final TaskUtil taskUtil) {
+
         TaskTO taskTO = taskUtil.newTaskTO();
         BeanUtils.copyProperties(task, taskTO, IGNORE_TASK_PROPERTIES);
 
@@ -131,13 +192,11 @@ public class TaskDataBinder {
                 break;
 
             case SCHED:
-                ((SchedTaskTO) taskTO).setLastExec(new Date());
-                ((SchedTaskTO) taskTO).setNextExec(new Date());
+                setExecTime((SchedTaskTO) taskTO);
                 break;
 
             case SYNC:
-                ((SyncTaskTO) taskTO).setLastExec(new Date());
-                ((SyncTaskTO) taskTO).setNextExec(new Date());
+                setExecTime((SchedTaskTO) taskTO);
 
                 ((SyncTaskTO) taskTO).setResource(
                         ((SyncTask) task).getResource().getName());

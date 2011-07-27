@@ -49,6 +49,9 @@ public enum SyncopeClientExceptionType {
     InvalidSchemaMapping(
     "Syncope.InvalidSchemaMapping",
     ""),
+    InvalidTask(
+    "Syncope.InvalidTask",
+    "Syncope.InvalidTask.element"),
     InvalidUpdate(
     "Syncope.InvalidUpdate",
     "Syncope.InvalidUpdate.name"),
@@ -67,6 +70,9 @@ public enum SyncopeClientExceptionType {
     RequiredValuesMissing(
     "Syncope.RequiredValuesMissing",
     "Syncope.RequiredValuesMissing.attributeName"),
+    Scheduling(
+    "Syncope.Scheduling",
+    "Syncope.Scheduling.message"),
     UnauthorizedRole(
     "Syncope.UnauthorizedRole",
     "Syncope.UnauthorizedRole.id"),

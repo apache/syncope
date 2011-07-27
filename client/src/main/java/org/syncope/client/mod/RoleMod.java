@@ -19,6 +19,8 @@ import java.util.List;
 
 public class RoleMod extends AbstractAttributableMod {
 
+    private static final long serialVersionUID = 7455805264680210747L;
+
     private String name;
 
     private boolean changeInheritAttributes;
@@ -30,6 +32,8 @@ public class RoleMod extends AbstractAttributableMod {
     private List<String> entitlements;
 
     public RoleMod() {
+        super();
+
         entitlements = new ArrayList<String>();
     }
 

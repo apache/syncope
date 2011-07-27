@@ -21,14 +21,54 @@ import java.util.List;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpStatusCodeException;
+import org.syncope.client.mod.SchedTaskMod;
 import org.syncope.client.to.TaskExecTO;
 import org.syncope.client.to.PropagationTaskTO;
+import org.syncope.client.to.SchedTaskTO;
 import org.syncope.client.to.TaskTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.syncope.core.scheduling.SampleJob;
 import org.syncope.types.PropagationTaskExecStatus;
 import org.syncope.types.SyncopeClientExceptionType;
 
 public class TaskTestITCase extends AbstractTest {
+
+    @Test
+    public final void create() {
+        SchedTaskTO task = new SchedTaskTO();
+        task.setJobClassName(SampleJob.class.getName());
+
+        SchedTaskTO actual = restTemplate.postForObject(
+                BASE_URL + "task/create",
+                task, SchedTaskTO.class);
+        assertNotNull(actual);
+
+        task = restTemplate.getForObject(
+                BASE_URL + "task/read/{taskId}", SchedTaskTO.class,
+                actual.getId());
+        assertNotNull(task);
+        assertEquals(actual.getId(), task.getId());
+        assertEquals(actual.getJobClassName(), task.getJobClassName());
+    }
+
+    @Test
+    public final void update() {
+        SchedTaskTO task = restTemplate.getForObject(
+                BASE_URL + "task/read/{taskId}", SchedTaskTO.class,
+                4);
+        assertNotNull(task);
+
+        SchedTaskMod taskMod = new SchedTaskMod();
+        taskMod.setId(4);
+        taskMod.setCronExpression(null);
+
+        SchedTaskTO actual = restTemplate.postForObject(
+                BASE_URL + "task/update",
+                taskMod, SchedTaskTO.class);
+        assertNotNull(actual);
+        assertEquals(task.getId(), actual.getId());
+        assertNull(actual.getCronExpression());
+    }
 
     @Test
     public final void count() {

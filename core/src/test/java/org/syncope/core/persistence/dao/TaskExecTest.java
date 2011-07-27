@@ -30,9 +30,22 @@ public class TaskExecTest extends AbstractTest {
     @Autowired
     private TaskExecDAO taskExecDAO;
 
+    @Autowired
+    private TaskDAO taskDAO;
+
     @Test
     public final void findAll() {
         List<TaskExec> list = taskExecDAO.findAll(PropagationTask.class);
         assertEquals(1, list.size());
+    }
+
+    @Test
+    public final void findLatestStarted() {
+        PropagationTask task = taskDAO.find(1L);
+        assertNotNull(task);
+
+        TaskExec latestStarted = taskExecDAO.findLatestStarted(task);
+        assertNotNull(latestStarted);
+        assertEquals(Long.valueOf(1L), latestStarted.getId());
     }
 }

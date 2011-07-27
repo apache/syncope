@@ -129,7 +129,7 @@ public abstract class AbstractVirAttr extends AbstractBaseBean {
                 connectorInstance = resource.getConnector();
 
                 connector = connInstanceLoader.getConnector(
-                        connectorInstance.getId().toString());
+                        "connInstance" + connectorInstance.getId());
 
                 try {
                     attributes = connector.getObjectAttributes(
