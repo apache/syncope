@@ -91,10 +91,10 @@ public abstract class AbstractController {
     protected TaskUtil getTaskUtil(final TaskTO taskTO) {
         TaskUtil result = (taskTO instanceof PropagationTaskTO)
                 ? TaskUtil.PROPAGATION
-                : (taskTO instanceof SchedTaskTO)
-                ? TaskUtil.SCHED
                 : (taskTO instanceof SyncTaskTO)
                 ? TaskUtil.SYNC
+                : (taskTO instanceof SchedTaskTO)
+                ? TaskUtil.SCHED
                 : null;
 
         if (result == null) {

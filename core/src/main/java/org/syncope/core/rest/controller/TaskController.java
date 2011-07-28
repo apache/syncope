@@ -41,6 +41,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.syncope.client.mod.SchedTaskMod;
 import org.syncope.client.to.SchedTaskTO;
+import org.syncope.client.to.SyncTaskTO;
 import org.syncope.client.to.TaskExecTO;
 import org.syncope.client.to.TaskTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
@@ -88,8 +89,18 @@ public class TaskController extends AbstractController {
 
     @PreAuthorize("hasRole('TASK_CREATE')")
     @RequestMapping(method = RequestMethod.POST,
-    value = "/create")
-    public TaskTO create(final HttpServletResponse response,
+    value = "/create/sync")
+    public TaskTO createSyncTask(final HttpServletResponse response,
+            final @RequestBody SyncTaskTO taskTO)
+            throws NotFoundException {
+
+        return createSchedTask(response, taskTO);
+    }
+
+    @PreAuthorize("hasRole('TASK_CREATE')")
+    @RequestMapping(method = RequestMethod.POST,
+    value = "/create/sched")
+    public TaskTO createSchedTask(final HttpServletResponse response,
             final @RequestBody SchedTaskTO taskTO)
             throws NotFoundException {
 
