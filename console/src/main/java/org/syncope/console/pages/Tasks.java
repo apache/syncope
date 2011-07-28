@@ -30,6 +30,8 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.util.convert.converters.DateConverter;
 import org.syncope.client.to.TaskExecTO;
 import org.syncope.client.to.TaskTO;
+import org.syncope.console.SyncopeApplication;
+import org.syncope.console.SyncopeSession;
 import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.SortableDataProviderComparator;
 import org.syncope.console.commons.SelectOption;
@@ -46,7 +48,7 @@ public class Tasks extends BasePage {
         new SelectOption(
         "Fire at 12am (midnight) every Last day of the month", "0 0 0 L * ?"),
         new SelectOption(
-        "Fire at 12am (midnight) every Monday", "0 0 0 ? ? 2")
+        "Fire at 12am (midnight) every Monday", "0 0 0 ? * 2")
     };
 
     public Tasks(final PageParameters parameters) {
@@ -107,7 +109,7 @@ public class Tasks extends BasePage {
     /**
      * Format column's value as date string.
      */
-    public class DatePropertyColumn<T> extends PropertyColumn<T> {
+    public static class DatePropertyColumn<T> extends PropertyColumn<T> {
 
         private SimpleDateFormat formatter;
 
@@ -117,8 +119,8 @@ public class Tasks extends BasePage {
             super(displayModel, sortProperty, propertyExpression);
 
             String language = "en";
-            if (getSession().getLocale() != null) {
-                language = getSession().getLocale().getLanguage();
+            if (SyncopeSession.get().getLocale() != null) {
+                language = SyncopeSession.get().getLocale().getLanguage();
             }
 
             if ("it".equals(language)) {

@@ -29,6 +29,7 @@ import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.syncope.client.to.SchedTaskTO;
+import org.syncope.client.to.SyncTaskTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.commons.SelectChoiceRenderer;
 
@@ -142,14 +143,35 @@ public class SchedTaskModalPage extends TaskModalPage {
                     final Form form) {
 
                 SchedTaskTO taskTO = (SchedTaskTO) form.getModelObject();
+                if (taskTO.getCronExpression() != null
+                        && taskTO.getCronExpression().isEmpty()) {
+                    taskTO.setCronExpression(null);
+                }
 
                 try {
                     taskTO.setCronExpression(getCron(
                             seconds, minutes, hours,
                             daysOfMonth, months, daysOfWeek));
 
-                    // update task
-                    // taskRestClient.update(taskTO);
+                    if (taskTO.getId() > 0) {
+                        // update task
+                        if (taskTO instanceof SyncTaskTO) {
+                            taskTO = taskRestClient.updateSyncTask(
+                                    (SyncTaskTO) taskTO);
+                        } else {
+                            taskTO = taskRestClient.updateSchedTask(
+                                    taskTO);
+                        }
+                    } else {
+                        if (taskTO instanceof SyncTaskTO) {
+                            // create task
+                            taskTO = taskRestClient.createSyncTask(
+                                    (SyncTaskTO) taskTO);
+                        } else {
+                            taskTO = taskRestClient.createSchedTask(
+                                    taskTO);
+                        }
+                    }
                     window.close(target);
                 } catch (SyncopeClientCompositeErrorException e) {
                     LOG.error("While creating or updating task", e);

@@ -16,17 +16,13 @@
  */
 package org.syncope.console.pages;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
-import org.syncope.console.commons.Constants;
-import org.apache.wicket.datetime.DateConverter;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
@@ -49,6 +45,7 @@ import org.syncope.client.to.TaskExecTO;
 import org.syncope.client.to.TaskTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.commons.SortableDataProviderComparator;
+import org.syncope.console.pages.Tasks.DatePropertyColumn;
 import org.syncope.console.rest.TaskRestClient;
 import org.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
 import org.syncope.console.wicket.markup.html.form.DeleteLinkPanel;
@@ -236,47 +233,6 @@ public class TaskModalPage extends BaseModalPage {
 
         public List<TaskExecTO> getTaskDB() {
             return taskTO.getExecutions();
-        }
-    }
-
-    /**
-     * Format column's value as date string.
-     */
-    protected class DatePropertyColumn<T> extends PropertyColumn<T> {
-
-        private SimpleDateFormat formatter;
-
-        public DatePropertyColumn(
-                IModel<String> displayModel, String sortProperty,
-                String propertyExpression, DateConverter converter) {
-            super(displayModel, sortProperty, propertyExpression);
-
-            String language = "en";
-            if (getSession().getLocale() != null) {
-                language = getSession().getLocale().getLanguage();
-            }
-
-            if ("it".equals(language)) {
-                formatter = new SimpleDateFormat(Constants.ITALIAN_DATE_FORMAT);
-            } else {
-                formatter = new SimpleDateFormat(Constants.ENGLISH_DATE_FORMAT);
-            }
-        }
-
-        @Override
-        public void populateItem(
-                Item<ICellPopulator<T>> item, String componentId,
-                IModel<T> rowModel) {
-            IModel date = (IModel<Date>) createLabelModel(rowModel);
-
-            String convertedDate = "";
-
-            if (date.getObject() != null) {
-                convertedDate = formatter.format(date.getObject());
-                item.add(new Label(componentId, convertedDate));
-            } else {
-                item.add(new Label(componentId, convertedDate));
-            }
         }
     }
 

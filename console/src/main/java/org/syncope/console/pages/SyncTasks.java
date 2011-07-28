@@ -51,6 +51,7 @@ import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.PreferenceManager;
 import org.syncope.console.commons.SortableDataProviderComparator;
 import org.syncope.console.commons.XMLRolesReader;
+import org.syncope.console.pages.Tasks.DatePropertyColumn;
 import org.syncope.console.rest.TaskRestClient;
 import org.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
 import org.syncope.console.wicket.markup.html.form.DeleteLinkPanel;
@@ -111,11 +112,11 @@ public class SyncTasks extends Panel {
         columns.add(new PropertyColumn(
                 new Model(getString("resourceName")), "resource", "resource"));
 
-        columns.add(new PropertyColumn(
-                new Model(getString("lastExec")), "lastExec", "lastExec"));
+        columns.add(new DatePropertyColumn(new Model(getString("lastExec")),
+                "lastExec", "lastExec", null));
 
-        columns.add(new PropertyColumn(
-                new Model(getString("nextExec")), "nextExec", "nextExec"));
+        columns.add(new DatePropertyColumn(new Model(getString("nextExec")),
+                "nextExec", "nextExec", null));
 
         columns.add(new AbstractColumn<SyncTaskTO>(
                 new Model<String>(getString("detail"))) {

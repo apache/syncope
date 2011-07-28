@@ -18,6 +18,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import org.springframework.stereotype.Component;
+import org.syncope.client.mod.SchedTaskMod;
+import org.syncope.client.mod.SyncTaskMod;
 import org.syncope.client.to.TaskExecTO;
 import org.syncope.client.to.PropagationTaskTO;
 import org.syncope.client.to.SchedTaskTO;
@@ -98,24 +100,6 @@ public class TaskRestClient extends AbstractBaseRestClient {
     }
 
     /**
-     * Load an existing task.
-     * @param taskId task to read.
-     * @return TaskTO object if the configuration exists, null otherwise.
-     */
-    public PropagationTaskTO read(final String taskId) {
-        PropagationTaskTO taskTO = null;
-        try {
-            taskTO = restTemplate.getForObject(
-                    baseURL + "task/read/{taskId}",
-                    PropagationTaskTO.class, taskId);
-        } catch (SyncopeClientCompositeErrorException e) {
-            LOG.error("While reading a task", e);
-        }
-
-        return taskTO;
-    }
-
-    /**
      * Get all executions.
      * @return list of all executions
      */
@@ -152,5 +136,35 @@ public class TaskRestClient extends AbstractBaseRestClient {
     public void deleteExecution(final Long taskExecId) {
         restTemplate.delete(baseURL
                 + "task/execution/delete/{execId}", taskExecId);
+    }
+
+    public SyncTaskTO createSyncTask(final SyncTaskTO taskTO) {
+        return restTemplate.postForObject(baseURL
+                + "task/create/sync", taskTO, SyncTaskTO.class);
+    }
+
+    public SchedTaskTO createSchedTask(final SchedTaskTO taskTO) {
+        return restTemplate.postForObject(baseURL
+                + "task/create/sched", taskTO, SchedTaskTO.class);
+    }
+
+    public SchedTaskTO updateSchedTask(final SchedTaskTO taskTO) {
+        final SchedTaskMod taskMod = new SchedTaskMod();
+        taskMod.setId(taskTO.getId());
+        taskMod.setCronExpression(taskTO.getCronExpression());
+
+        return restTemplate.postForObject(baseURL
+                + "task/update/sched", taskMod, SchedTaskTO.class);
+    }
+
+    public SyncTaskTO updateSyncTask(final SyncTaskTO taskTO) {
+        final SyncTaskMod taskMod = new SyncTaskMod();
+        taskMod.setId(taskTO.getId());
+        taskMod.setCronExpression(taskTO.getCronExpression());
+        taskMod.setDefaultResources(taskTO.getDefaultResources());
+        taskMod.setDefaultRoles(taskTO.getDefaultRoles());
+
+        return restTemplate.postForObject(baseURL
+                + "task/update/sync", taskMod, SyncTaskTO.class);
     }
 }
