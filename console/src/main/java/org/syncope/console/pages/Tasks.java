@@ -26,15 +26,17 @@ import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvid
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.AbstractReadOnlyModel;
+import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.util.convert.converters.DateConverter;
+import org.syncope.client.to.SchedTaskTO;
 import org.syncope.client.to.TaskExecTO;
 import org.syncope.client.to.TaskTO;
-import org.syncope.console.SyncopeApplication;
 import org.syncope.console.SyncopeSession;
 import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.SortableDataProviderComparator;
 import org.syncope.console.commons.SelectOption;
+import org.syncope.console.rest.TaskRestClient;
 
 public class Tasks extends BasePage {
 
@@ -144,6 +146,55 @@ public class Tasks extends BasePage {
             } else {
                 item.add(new Label(componentId, convertedDate));
             }
+        }
+    }
+
+    public static class TasksProvider<T extends SchedTaskTO>
+            extends SortableDataProvider<T> {
+
+        private SortableDataProviderComparator<T> comparator;
+
+        private TaskRestClient restClient;
+
+        private int paginatorRows;
+
+        private String id;
+
+        private Class<T> reference;
+
+        public TasksProvider(
+                final TaskRestClient restClient,
+                final int paginatorRows,
+                final String id,
+                final Class<T> reference) {
+            super();
+            //Default sorting
+            setSort("id", true);
+            comparator = new SortableDataProviderComparator<T>(this);
+            this.paginatorRows = paginatorRows;
+            this.restClient = restClient;
+            this.id = id;
+            this.reference = reference;
+        }
+
+        @Override
+        public Iterator<T> iterator(int first, int count) {
+
+            final List<T> tasks = (List<T>) restClient.listSchedTasks(
+                    reference, (first / paginatorRows) + 1, count);
+
+            Collections.sort(tasks, comparator);
+            return tasks.iterator();
+        }
+
+        @Override
+        public int size() {
+            return restClient.count(id);
+        }
+
+        @Override
+        public IModel<SchedTaskTO> model(final SchedTaskTO object) {
+            return new CompoundPropertyModel<SchedTaskTO>(object);
         }
     }
 }

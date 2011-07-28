@@ -109,7 +109,7 @@ public class STaskModalPage extends SchedTaskModalPage {
         profile.add(resource);
 
         final CheckBox updates = new CheckBox("updateIdentities",
-                Model.of(taskTO.isUpdateIdentities()));
+                new PropertyModel<Boolean>(taskTO, "updateIdentities"));
         profile.add(updates);
 
         final Palette<String> defaultResources = new Palette(

@@ -15,8 +15,6 @@
 package org.syncope.console.pages;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -30,14 +28,12 @@ import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulato
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
-import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
-import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
@@ -46,12 +42,13 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.syncope.client.to.SyncTaskTO;
+import org.syncope.client.to.TaskTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.PreferenceManager;
-import org.syncope.console.commons.SortableDataProviderComparator;
 import org.syncope.console.commons.XMLRolesReader;
 import org.syncope.console.pages.Tasks.DatePropertyColumn;
+import org.syncope.console.pages.Tasks.TasksProvider;
 import org.syncope.console.rest.TaskRestClient;
 import org.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
 import org.syncope.console.wicket.markup.html.form.DeleteLinkPanel;
@@ -235,7 +232,9 @@ public class SyncTasks extends Panel {
 
         final AjaxFallbackDefaultDataTable<SyncTaskTO> table =
                 new AjaxFallbackDefaultDataTable<SyncTaskTO>(
-                "datatable", columns, new TasksProvider(), paginatorRows);
+                "datatable", columns, new TasksProvider(
+                restClient, paginatorRows, id, SyncTaskTO.class),
+                paginatorRows);
 
         container = new WebMarkupContainer("container");
         container.add(table);
@@ -310,37 +309,5 @@ public class SyncTasks extends Panel {
                 xmlRolesReader.getAllAllowedRoles("Tasks", "create"));
 
         add(createLink);
-    }
-
-    private class TasksProvider extends SortableDataProvider<SyncTaskTO> {
-
-        private SortableDataProviderComparator<SyncTaskTO> comparator;
-
-        public TasksProvider() {
-            super();
-            //Default sorting
-            setSort("id", true);
-            comparator =
-                    new SortableDataProviderComparator<SyncTaskTO>(this);
-        }
-
-        @Override
-        public Iterator<SyncTaskTO> iterator(int first, int count) {
-            final List<SyncTaskTO> tasks = restClient.listSyncTasks(
-                    (first / paginatorRows) + 1, count);
-
-            Collections.sort(tasks, comparator);
-            return tasks.iterator();
-        }
-
-        @Override
-        public int size() {
-            return restClient.count(getId());
-        }
-
-        @Override
-        public IModel<SyncTaskTO> model(final SyncTaskTO object) {
-            return new CompoundPropertyModel<SyncTaskTO>(object);
-        }
     }
 }
