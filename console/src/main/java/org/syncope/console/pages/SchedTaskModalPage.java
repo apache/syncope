@@ -28,6 +28,7 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.springframework.util.StringUtils;
 import org.syncope.client.to.SchedTaskTO;
 import org.syncope.client.to.SyncTaskTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
@@ -143,16 +144,16 @@ public class SchedTaskModalPage extends TaskModalPage {
                     final Form form) {
 
                 SchedTaskTO taskTO = (SchedTaskTO) form.getModelObject();
-                if (taskTO.getCronExpression() != null
-                        && taskTO.getCronExpression().isEmpty()) {
+                if (!StringUtils.hasText(taskTO.getCronExpression())
+                        || "UNSCHEDULE".equals(taskTO.getCronExpression())) {
                     taskTO.setCronExpression(null);
-                }
-
-                try {
+                } else {
                     taskTO.setCronExpression(getCron(
                             seconds, minutes, hours,
                             daysOfMonth, months, daysOfWeek));
+                }
 
+                try {
                     if (taskTO.getId() > 0) {
                         // update task
                         if (taskTO instanceof SyncTaskTO) {
