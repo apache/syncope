@@ -19,6 +19,7 @@ package org.syncope.console.pages;
 import java.util.Arrays;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
+import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -161,6 +162,15 @@ public class SchedTaskModalPage extends TaskModalPage {
                 target.addComponent(feedbackPanel);
             }
         };
+
+
+        if (taskTO.getId() > 0) {
+            MetaDataRoleAuthorizationStrategy.authorize(submit, RENDER,
+                    xmlRolesReader.getAllAllowedRoles("Tasks", "update"));
+        } else {
+            MetaDataRoleAuthorizationStrategy.authorize(submit, RENDER,
+                    xmlRolesReader.getAllAllowedRoles("Tasks", "create"));
+        }
 
         form.add(submit);
     }

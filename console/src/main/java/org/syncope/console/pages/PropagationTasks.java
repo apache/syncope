@@ -158,8 +158,7 @@ public class PropagationTasks extends Panel {
                 panel.add(viewLink);
 
                 MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
-                        xmlRolesReader.getAllAllowedRoles("Tasks",
-                        "read"));
+                        xmlRolesReader.getAllAllowedRoles("Tasks", "read"));
 
                 cellItem.add(panel);
             }
@@ -234,11 +233,8 @@ public class PropagationTasks extends Panel {
                 DeleteLinkPanel panel = new DeleteLinkPanel(componentId, model);
                 panel.add(deleteLink);
 
-                String allowedRoles = xmlRolesReader.getAllAllowedRoles("Tasks",
-                        "delete");
-
                 MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
-                        allowedRoles);
+                        xmlRolesReader.getAllAllowedRoles("Tasks", "delete"));
 
                 cellItem.add(panel);
             }

@@ -150,8 +150,7 @@ public class SyncTasks extends Panel {
                 panel.add(viewLink);
 
                 MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
-                        xmlRolesReader.getAllAllowedRoles("Tasks",
-                        "read"));
+                        xmlRolesReader.getAllAllowedRoles("Tasks", "read"));
 
                 cellItem.add(panel);
             }
@@ -226,11 +225,8 @@ public class SyncTasks extends Panel {
                 DeleteLinkPanel panel = new DeleteLinkPanel(componentId, model);
                 panel.add(deleteLink);
 
-                String allowedRoles = xmlRolesReader.getAllAllowedRoles("Tasks",
-                        "delete");
-
                 MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
-                        allowedRoles);
+                        xmlRolesReader.getAllAllowedRoles("Tasks", "delete"));
 
                 cellItem.add(panel);
             }
@@ -308,9 +304,10 @@ public class SyncTasks extends Panel {
                 window.show(target);
             }
         };
-        MetaDataRoleAuthorizationStrategy.authorize(
-                createLink, ENABLE, xmlRolesReader.getAllAllowedRoles(
-                "Tasks", "create"));
+
+        MetaDataRoleAuthorizationStrategy.authorize(createLink, RENDER,
+                xmlRolesReader.getAllAllowedRoles("Tasks", "create"));
+
         add(createLink);
     }
 

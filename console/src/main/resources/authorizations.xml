@@ -117,7 +117,7 @@ page@id= Schema|Users|Roles|Resources|Connectors|Report|Configuration|Task
     </page>
 
     <page id="Connectors">
-       <action id="list">
+        <action id="list">
             <entitlement>CONNECTOR_LIST</entitlement>
         </action>
 
@@ -143,7 +143,7 @@ page@id= Schema|Users|Roles|Resources|Connectors|Report|Configuration|Task
     </page>
 
     <page id="Configuration">
-       <action id="list">
+        <action id="list">
             <entitlement>CONFIGURATION_LIST</entitlement>
         </action>
 
@@ -165,7 +165,7 @@ page@id= Schema|Users|Roles|Resources|Connectors|Report|Configuration|Task
     </page>
 
     <page id="Tasks">
-       <action id="list">
+        <action id="list">
             <entitlement>TASK_LIST</entitlement>
         </action>
 
@@ -183,6 +183,10 @@ page@id= Schema|Users|Roles|Resources|Connectors|Report|Configuration|Task
 
         <action id="create">
             <entitlement>TASK_CREATE</entitlement>
+        </action>
+
+        <action id="update">
+            <entitlement>TASK_UPDATE</entitlement>
         </action>
     </page>
 </auth>
