@@ -25,9 +25,9 @@ import org.syncope.client.mod.SchedTaskMod;
 import org.syncope.client.to.TaskExecTO;
 import org.syncope.client.to.PropagationTaskTO;
 import org.syncope.client.to.SchedTaskTO;
+import org.syncope.client.to.SyncTaskTO;
 import org.syncope.client.to.TaskTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.syncope.core.scheduling.SampleJob;
 import org.syncope.types.PropagationTaskExecStatus;
 import org.syncope.types.SyncopeClientExceptionType;
 
@@ -35,16 +35,18 @@ public class TaskTestITCase extends AbstractTest {
 
     @Test
     public final void create() {
-        SchedTaskTO task = new SchedTaskTO();
-        task.setJobClassName(SampleJob.class.getName());
+        SyncTaskTO task = new SyncTaskTO();
+        task.setResource("ws-target-resource-2");
+        task.addDefaultResource("ws-target-resource-2");
+        task.addDefaultRole(8L);
 
-        SchedTaskTO actual = restTemplate.postForObject(
-                BASE_URL + "task/create",
-                task, SchedTaskTO.class);
+        SyncTaskTO actual = restTemplate.postForObject(
+                BASE_URL + "task/create/sync",
+                task, SyncTaskTO.class);
         assertNotNull(actual);
 
         task = restTemplate.getForObject(
-                BASE_URL + "task/read/{taskId}", SchedTaskTO.class,
+                BASE_URL + "task/read/{taskId}", SyncTaskTO.class,
                 actual.getId());
         assertNotNull(task);
         assertEquals(actual.getId(), task.getId());
@@ -55,15 +57,15 @@ public class TaskTestITCase extends AbstractTest {
     public final void update() {
         SchedTaskTO task = restTemplate.getForObject(
                 BASE_URL + "task/read/{taskId}", SchedTaskTO.class,
-                4);
+                5);
         assertNotNull(task);
 
         SchedTaskMod taskMod = new SchedTaskMod();
-        taskMod.setId(4);
+        taskMod.setId(5);
         taskMod.setCronExpression(null);
 
         SchedTaskTO actual = restTemplate.postForObject(
-                BASE_URL + "task/update",
+                BASE_URL + "task/update/sched",
                 taskMod, SchedTaskTO.class);
         assertNotNull(actual);
         assertEquals(task.getId(), actual.getId());

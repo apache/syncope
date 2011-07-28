@@ -40,6 +40,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.syncope.client.mod.SchedTaskMod;
+import org.syncope.client.mod.SyncTaskMod;
 import org.syncope.client.to.SchedTaskTO;
 import org.syncope.client.to.SyncTaskTO;
 import org.syncope.client.to.TaskExecTO;
@@ -151,8 +152,17 @@ public class TaskController extends AbstractController {
 
     @PreAuthorize("hasRole('TASK_UPDATE')")
     @RequestMapping(method = RequestMethod.POST,
-    value = "/update")
-    public TaskTO update(@RequestBody SchedTaskMod taskMod)
+    value = "/update/sync")
+    public TaskTO updateSync(@RequestBody SyncTaskMod taskMod)
+            throws NotFoundException {
+
+        return updateSched(taskMod);
+    }
+
+    @PreAuthorize("hasRole('TASK_UPDATE')")
+    @RequestMapping(method = RequestMethod.POST,
+    value = "/update/sched")
+    public TaskTO updateSched(@RequestBody SchedTaskMod taskMod)
             throws NotFoundException {
 
         LOG.debug("Task update called with parameter {}", taskMod);

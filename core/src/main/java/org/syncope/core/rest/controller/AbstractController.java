@@ -72,10 +72,10 @@ public abstract class AbstractController {
     protected TaskUtil getTaskUtil(final Task task) {
         TaskUtil result = (task instanceof PropagationTask)
                 ? TaskUtil.PROPAGATION
-                : (task instanceof SchedTask)
-                ? TaskUtil.SCHED
                 : (task instanceof SyncTask)
                 ? TaskUtil.SYNC
+                : (task instanceof SchedTask)
+                ? TaskUtil.SCHED
                 : null;
 
         if (result == null) {
