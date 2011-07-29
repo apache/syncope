@@ -84,7 +84,7 @@ public class ConnInstanceDataBinder {
 
     public ConnInstance updateConnInstance(
             Long connectorInstanceId,
-            ConnInstanceTO connectorInstanceTO)
+            ConnInstanceTO connInstanceTO)
             throws SyncopeClientCompositeErrorException {
 
         SyncopeClientCompositeErrorException compositeErrorException =
@@ -99,37 +99,41 @@ public class ConnInstanceDataBinder {
             requiredValuesMissing.addElement("connector id");
         }
 
-        ConnInstance connectorInstance =
+        ConnInstance connInstance =
                 connectorInstanceDAO.find(connectorInstanceId);
 
-        if (connectorInstanceTO.getBundleName() != null) {
-            connectorInstance.setBundleName(
-                    connectorInstanceTO.getBundleName());
+        if (connInstanceTO.getBundleName() != null) {
+            connInstance.setBundleName(
+                    connInstanceTO.getBundleName());
         }
 
-        if (connectorInstanceTO.getVersion() != null) {
-            connectorInstance.setVersion(connectorInstanceTO.getVersion());
+        if (connInstanceTO.getVersion() != null) {
+            connInstance.setVersion(connInstanceTO.getVersion());
         }
 
-        if (connectorInstanceTO.getConnectorName() != null) {
-            connectorInstance.setConnectorName(
-                    connectorInstanceTO.getConnectorName());
+        if (connInstanceTO.getConnectorName() != null) {
+            connInstance.setConnectorName(
+                    connInstanceTO.getConnectorName());
         }
 
-        if (connectorInstanceTO.getConfiguration() != null
-                || connectorInstanceTO.getConfiguration().isEmpty()) {
+        if (connInstanceTO.getConfiguration() != null
+                || connInstanceTO.getConfiguration().isEmpty()) {
 
-            connectorInstance.setConfiguration(
-                    connectorInstanceTO.getConfiguration());
+            connInstance.setConfiguration(
+                    connInstanceTO.getConfiguration());
         }
 
-        if (connectorInstanceTO.getDisplayName() != null) {
-            connectorInstance.setDisplayName(
-                    connectorInstanceTO.getDisplayName());
+        if (connInstanceTO.getDisplayName() != null) {
+            connInstance.setDisplayName(
+                    connInstanceTO.getDisplayName());
         }
 
-        connectorInstance.setCapabilities(
-                connectorInstanceTO.getCapabilities());
+        connInstance.setCapabilities(
+                connInstanceTO.getCapabilities());
+
+        if (connInstanceTO.getSyncToken() == null) {
+            connInstance.setSerializedSyncToken(null);
+        }
 
         if (!requiredValuesMissing.getElements().isEmpty()) {
             compositeErrorException.addException(requiredValuesMissing);
@@ -141,7 +145,7 @@ public class ConnInstanceDataBinder {
             throw compositeErrorException;
         }
 
-        return connectorInstance;
+        return connInstance;
     }
 
     public ConnInstanceTO getConnInstanceTO(ConnInstance connInstance) {

@@ -226,6 +226,10 @@ public class ConnInstance extends AbstractBaseBean {
         return serializedSyncToken;
     }
 
+    public void setSerializedSyncToken(final String serializedSyncToken) {
+        this.serializedSyncToken = serializedSyncToken;
+    }
+
     public SyncToken getSyncToken() {
         SyncToken result = null;
 
