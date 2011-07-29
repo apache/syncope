@@ -27,7 +27,6 @@ public enum ConnectorCapability {
     ASYNC_DELETE,
     SEARCH,
     RESOLVE,
-    RECONCILIATION,
-    ACTIVE_SYNC
+    SYNC
 
 }

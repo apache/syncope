@@ -14,12 +14,19 @@
 package org.syncope.core.scheduling;
 
 import org.quartz.JobExecutionException;
+import org.syncope.core.persistence.beans.SchedTask;
 
 public class SampleJob extends AbstractJob {
 
     @Override
     protected String doExecute()
             throws JobExecutionException {
+
+        if (!(task instanceof SchedTask)) {
+            throw new JobExecutionException("Task " + taskId
+                    + " isn't a SchedTask");
+        }
+        final SchedTask schedTask = (SchedTask) this.task;
 
         LOG.info("SampleJob running");
 

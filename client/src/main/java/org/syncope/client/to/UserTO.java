@@ -23,6 +23,8 @@ import org.apache.commons.lang.builder.ToStringStyle;
 
 public class UserTO extends AbstractAttributableTO {
 
+    private static final long serialVersionUID = 7791304495192615740L;
+
     private String password;
 
     private List<MembershipTO> memberships;
@@ -80,21 +82,25 @@ public class UserTO extends AbstractAttributableTO {
     }
 
     public Date getTokenExpireTime() {
-        return tokenExpireTime;
+        return tokenExpireTime == null
+                ? null : new Date(tokenExpireTime.getTime());
     }
 
     public void setTokenExpireTime(Date tokenExpireTime) {
-        this.tokenExpireTime = tokenExpireTime;
+        if (tokenExpireTime != null) {
+            this.tokenExpireTime = new Date(tokenExpireTime.getTime());
+        }
     }
 
     @Override
     public String toString() {
-        return (new ReflectionToStringBuilder(this,
+        return new ReflectionToStringBuilder(this,
                 ToStringStyle.MULTI_LINE_STYLE) {
 
+            @Override
             protected boolean accept(Field f) {
                 return super.accept(f) && !f.getName().equals("password");
             }
-        }).toString();
+        }.toString();
     }
 }

@@ -353,6 +353,7 @@ public abstract class AbstractAttributableDataBinder {
 
         // 2. attributes to be updated
         Set<Long> valuesToBeRemoved;
+        List<String> valuesToBeAdded;
         for (AttributeMod attributeMod :
                 attributableMod.getAttributesToBeUpdated()) {
 
@@ -410,8 +411,17 @@ public abstract class AbstractAttributableDataBinder {
                 }
 
                 // 1.2 add values
-                fillAttribute(attributeMod.getValuesToBeAdded(),
-                        attributableUtil, schema, attribute, invalidValues);
+                valuesToBeAdded = attributeMod.getValuesToBeAdded();
+                if (valuesToBeAdded != null && !valuesToBeAdded.isEmpty()
+                        && (!schema.isUniqueConstraint()
+                        || attribute.getUniqueValue() == null
+                        || !valuesToBeAdded.iterator().next().equals(
+                        attribute.getUniqueValue().getValueAsString()))) {
+
+                    fillAttribute(attributeMod.getValuesToBeAdded(),
+                            attributableUtil, schema, attribute,
+                            invalidValues);
+                }
 
                 // if no values are in, the attribute can be safely removed
                 if (attribute.getValuesAsStrings().isEmpty()) {

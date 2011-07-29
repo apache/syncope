@@ -590,16 +590,15 @@ public class PropagationManager {
         Set<String> propagationAttempted = new HashSet<String>();
 
         try {
-            ConnInstance connectorInstance =
+            ConnInstance connInstance =
                     task.getResource().getConnector();
 
-            ConnectorFacadeProxy connector =
-                    connInstanceLoader.getConnector(
-                    "connInstance" + connectorInstance.getId());
+            ConnectorFacadeProxy connector = connInstanceLoader.getConnector(
+                    ConnInstanceLoader.getBeanName(connInstance.getId()));
 
             if (connector == null) {
                 LOG.error("Connector instance bean "
-                        + connectorInstance.getId().toString()
+                        + ConnInstanceLoader.getBeanName(connInstance.getId())
                         + " not found");
 
                 throw new NoSuchBeanDefinitionException(

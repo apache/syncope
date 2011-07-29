@@ -66,24 +66,18 @@ public class TaskRestClient extends AbstractBaseRestClient {
      * @param size per page.
      * @return paginated list.
      */
-    public List<SchedTaskTO> listSchedTasks(
-            final int page, final int size) {
-        return Arrays.asList(restTemplate.getForObject(
-                baseURL + "task/sched/list/{page}/{size}.json",
-                SchedTaskTO[].class, page, size));
-    }
+    public <T extends SchedTaskTO> List<T> listSchedTasks(
+            final Class<T> reference, final int page, final int size) {
 
-    /**
-     * Return a paginated list of sync tasks.
-     * @param page number.
-     * @param size per page.
-     * @return paginated list.
-     */
-    public List<SyncTaskTO> listSyncTasks(
-            final int page, final int size) {
-        return Arrays.asList(restTemplate.getForObject(
-                baseURL + "task/sync/list/{page}/{size}.json",
-                SyncTaskTO[].class, page, size));
+        if (SyncTaskTO.class.getName().equals(reference.getName())) {
+            return (List<T>) Arrays.asList(restTemplate.getForObject(
+                    baseURL + "task/sync/list/{page}/{size}.json",
+                    SyncTaskTO[].class, page, size));
+        } else {
+            return (List<T>) Arrays.asList(restTemplate.getForObject(
+                    baseURL + "task/sched/list/{page}/{size}.json",
+                    SchedTaskTO[].class, page, size));
+        }
     }
 
     /**
@@ -163,6 +157,7 @@ public class TaskRestClient extends AbstractBaseRestClient {
         taskMod.setCronExpression(taskTO.getCronExpression());
         taskMod.setDefaultResources(taskTO.getDefaultResources());
         taskMod.setDefaultRoles(taskTO.getDefaultRoles());
+        taskMod.setUpdateIdentities(taskTO.isUpdateIdentities());
 
         return restTemplate.postForObject(baseURL
                 + "task/update/sync", taskMod, SyncTaskTO.class);

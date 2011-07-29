@@ -19,7 +19,7 @@
     <parent>
         <groupId>org.syncope</groupId>
         <artifactId>syncope</artifactId>
-        <version>0.7-SNAPSHOT</version>
+        <version>0.7-EA</version>
     </parent>
 
     <name>Syncope core</name>
@@ -40,8 +40,6 @@
         <logfile.connid>/var/tmp/syncope-core-connid.log</logfile.connid>
         <logfile.test>/var/tmp/syncope-core-test.log</logfile.test>
         <logfile.monitor>/var/tmp/syncope-core-monitor.log</logfile.monitor>
-
-        <bundles.directory>/var/tmp/bundles</bundles.directory>
     </properties>
 
     <dependencies>

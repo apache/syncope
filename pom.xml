@@ -20,7 +20,7 @@
     <description>Syncope</description>
     <groupId>org.syncope</groupId>
     <artifactId>syncope</artifactId>
-    <version>0.7-SNAPSHOT</version>
+    <version>0.7-EA</version>
     <packaging>pom</packaging>
 
     <!-- maven repository on sonatype -->
@@ -72,9 +72,9 @@
         <jsp-api.version>2.1</jsp-api.version>
         <jstl.version>1.2</jstl.version>
         
-        <connid.version>1.4-SNAPSHOT</connid.version>
+        <connid.version>1.3</connid.version>
         <connid.soap.version>1.1-SNAPSHOT</connid.soap.version>
-        <connid.db.table.version>1.2-SNAPSHOT</connid.db.table.version>
+        <connid.db.table.version>1.1</connid.db.table.version>
 
         <commons-jexl.version>2.0.1</commons-jexl.version>
         <commons-lang.version>2.6</commons-lang.version>
@@ -96,7 +96,7 @@
         <velocity.version>1.7</velocity.version>
         <quartz.version>1.8.5</quartz.version>
 
-        <hibernate.version>3.6.5.Final</hibernate.version>
+        <hibernate.version>3.6.6.Final</hibernate.version>
         <hibernate-validator.version>4.2.0.Final</hibernate-validator.version>
         <ehcache.version>2.4.2</ehcache.version>
 
@@ -117,6 +117,7 @@
 
         <cargo.version>1.1.1</cargo.version>
 
+        <bundles.directory>/var/tmp/bundles</bundles.directory>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -176,12 +177,12 @@
             <dependency>
                 <groupId>org.connid</groupId>
                 <artifactId>framework</artifactId>
-                <version>1.4-SNAPSHOT</version>
+                <version>${connid.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.connid</groupId>
                 <artifactId>framework-internal</artifactId>
-                <version>1.4-SNAPSHOT</version>
+                <version>${connid.version}</version>
             </dependency>
 
             <dependency>
@@ -424,20 +425,20 @@
             <dependency>
                 <groupId>org.connid.bundles.soap</groupId>
                 <artifactId>org.connid.bundles.soap</artifactId>
-                <version>1.1-SNAPSHOT</version>
+                <version>${connid.soap.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.connid.bundles.soap</groupId>
                 <artifactId>wssample</artifactId>
-                <version>1.1-SNAPSHOT</version>
+                <version>${connid.soap.version}</version>
                 <type>war</type>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.connid.bundles.db</groupId>
                 <artifactId>org.connid.bundles.db.table</artifactId>
-                <version>1.2-SNAPSHOT</version>
+                <version>${connid.db.table.version}</version>
                 <scope>test</scope>
             </dependency>
             <!-- /TEST -->

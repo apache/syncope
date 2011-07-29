@@ -25,11 +25,11 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
-import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.CheckBoxMultipleChoice;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
@@ -270,6 +270,22 @@ public class ConnectorModalPage extends BaseModalPage {
         capabilitiesPalette = new CheckBoxMultipleChoice("capabilitiesPalette",
                 new PropertyModel(this, "selectedCapabilities"), capabilities);
         connectorForm.add(capabilitiesPalette);
+
+
+        final CheckBox resetToken =
+                new CheckBox("resetToken", new Model(getString("resetToken")));
+
+        resetToken.add(
+                new AjaxFormComponentUpdatingBehavior("onchange") {
+
+                    @Override
+                    protected void onUpdate(AjaxRequestTarget art) {
+                        if (resetToken.getModelObject()) {
+                            connectorTO.setSyncToken(null);
+                        }
+                    }
+                });
+        connectorForm.add(resetToken);
 
         connectorForm.add(submit);
 

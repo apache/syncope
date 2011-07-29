@@ -19,7 +19,7 @@
     <parent>
         <groupId>org.syncope</groupId>
         <artifactId>syncope</artifactId>
-        <version>0.7-SNAPSHOT</version>
+        <version>0.7-EA</version>
     </parent>
 
     <name>Syncope console</name>
@@ -35,8 +35,6 @@
         <cargo.servlet.port>9080</cargo.servlet.port>
         <cargo.log>/var/tmp/syncope-console-cargo.log</cargo.log>
         <cargo.output>/var/tmp/syncope-console-cargo-output.log</cargo.output>
-
-        <bundles.directory>/var/tmp/bundles</bundles.directory>
     </properties>
 
     <dependencies>
@@ -173,6 +171,7 @@
         <profile>
             <id>dev</id>
             <build>
+                <defaultGoal>clean package cargo:run</defaultGoal>
                 <plugins>
                     <plugin>
                         <groupId>org.onebusaway.plugins</groupId>

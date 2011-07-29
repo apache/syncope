@@ -95,12 +95,14 @@ public class JobInstanceLoader extends AbstractLoader {
         getBeanFactory().registerSingleton(getJobDetailName(task.getId()),
                 jobDetailFactory);
 
-        if (task.getCronExpression() != null) {
-            JobDetail jobDetail = (JobDetail) ctx.getBean(
-                    getJobDetailName(task.getId()));
-            jobDetail.setName(getJobDetailName(task.getId()));
-            jobDetail.setGroup(Scheduler.DEFAULT_GROUP);
+        JobDetail jobDetail = (JobDetail) ctx.getBean(
+                getJobDetailName(task.getId()));
+        jobDetail.setName(getJobDetailName(task.getId()));
+        jobDetail.setGroup(Scheduler.DEFAULT_GROUP);
 
+        if (task.getCronExpression() == null) {
+            scheduler.getScheduler().addJob(jobDetail, true);
+        } else {
             CronTriggerBean cronTrigger = new CronTriggerBean();
             cronTrigger.setName(getTriggerName(task.getId()));
             cronTrigger.setCronExpression(task.getCronExpression());

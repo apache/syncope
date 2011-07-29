@@ -142,8 +142,6 @@ public class TaskDataBinder {
                 fill((SyncTask) task, syncTaskMod.getDefaultResources(),
                         syncTaskMod.getDefaultRoles(),
                         syncTaskMod.isUpdateIdentities());
-                ((SyncTask) task).setUpdateIdentities(
-                        ((SyncTaskMod) taskMod).isUpdateIdentities());
                 break;
         }
     }

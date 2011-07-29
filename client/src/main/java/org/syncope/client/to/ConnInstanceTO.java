@@ -23,6 +23,8 @@ import org.syncope.types.ConnectorCapability;
 
 public class ConnInstanceTO extends AbstractBaseBean {
 
+    private static final long serialVersionUID = 2707778645445168671L;
+
     private Long id;
 
     private String bundleName;
@@ -33,11 +35,15 @@ public class ConnInstanceTO extends AbstractBaseBean {
 
     private Set<ConnConfProperty> configuration;
 
+    private String syncToken;
+
     private Set<ConnectorCapability> capabilities;
 
     private String displayName;
 
     public ConnInstanceTO() {
+        super();
+
         configuration = new HashSet<ConnConfProperty>();
         capabilities = EnumSet.noneOf(ConnectorCapability.class);
     }
@@ -84,6 +90,14 @@ public class ConnInstanceTO extends AbstractBaseBean {
         } else {
             this.configuration = configuration;
         }
+    }
+
+    public String getSyncToken() {
+        return syncToken;
+    }
+
+    public void setSyncToken(String syncToken) {
+        this.syncToken = syncToken;
     }
 
     public String getConnectorName() {
