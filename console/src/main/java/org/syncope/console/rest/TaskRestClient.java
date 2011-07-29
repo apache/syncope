@@ -80,6 +80,20 @@ public class TaskRestClient extends AbstractBaseRestClient {
         }
     }
 
+    public <T extends SchedTaskTO> T readSchedTasks(
+            final Class<T> reference, final Long taskId) {
+
+        if (SyncTaskTO.class.getName().equals(reference.getName())) {
+            return (T) restTemplate.getForObject(
+                    baseURL + "task/read/{taskId}",
+                    SyncTaskTO.class, taskId);
+        } else {
+            return (T) restTemplate.getForObject(
+                    baseURL + "task/read/{taskId}",
+                    SchedTaskTO.class, taskId);
+        }
+    }
+
     /**
      * Return a paginated list of propagation tasks.
      * @param page number.
