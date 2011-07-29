@@ -41,6 +41,8 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.syncope.client.to.SchedTaskTO;
+import org.syncope.client.to.SyncTaskTO;
 import org.syncope.client.to.TaskExecTO;
 import org.syncope.client.to.TaskTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
@@ -66,6 +68,13 @@ public class TaskModalPage extends BaseModalPage {
     protected Form form;
 
     public TaskModalPage(final TaskTO taskTO) {
+
+        final TaskTO actual = taskTO instanceof SyncTaskTO
+                ? taskRestClient.readSchedTasks(
+                SyncTaskTO.class, taskTO.getId())
+                : taskRestClient.readSchedTasks(
+                SchedTaskTO.class, taskTO.getId());
+
         final Label dialogContent =
                 new Label("dialogContent", new Model<String>(""));
 
@@ -74,7 +83,7 @@ public class TaskModalPage extends BaseModalPage {
         form = new Form("TaskForm");
         add(form);
 
-        form.setModel(new CompoundPropertyModel(taskTO));
+        form.setModel(new CompoundPropertyModel(actual));
 
         profile = new WebMarkupContainer("profile");
         profile.setOutputMarkupId(true);
@@ -85,12 +94,12 @@ public class TaskModalPage extends BaseModalPage {
         form.add(executions);
 
         final Label idLabel = new Label("idLabel", getString("id"));
-        idLabel.setVisible(taskTO.getId() != 0);
+        idLabel.setVisible(actual.getId() != 0);
         profile.add(idLabel);
 
         final TextField id = new TextField("id");
         id.setEnabled(false);
-        id.setVisible(taskTO.getId() != 0);
+        id.setVisible(actual.getId() != 0);
         profile.add(id);
 
         final List<IColumn> columns = new ArrayList<IColumn>();
@@ -158,7 +167,7 @@ public class TaskModalPage extends BaseModalPage {
                             taskRestClient.deleteExecution(
                                     taskExecutionTO.getId());
 
-                            taskTO.removeExecution(taskExecutionTO);
+                            actual.removeExecution(taskExecutionTO);
 
                             info(getString("operation_succeded"));
                         } catch (SyncopeClientCompositeErrorException scce) {
@@ -182,7 +191,7 @@ public class TaskModalPage extends BaseModalPage {
 
         final AjaxFallbackDefaultDataTable table =
                 new AjaxFallbackDefaultDataTable("executionsTable", columns,
-                new TaskExecutionsProvider(taskTO), 10);
+                new TaskExecutionsProvider(actual), 10);
 
         executions.add(table);
     }
