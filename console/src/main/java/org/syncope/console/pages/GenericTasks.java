@@ -293,9 +293,7 @@ public class GenericTasks extends Panel {
 
                     @Override
                     public Page createPage() {
-                        return new GTaskModalPage(
-                                (BasePage) getPage(),
-                                window,
+                        return new GTaskModalPage((BasePage) getPage(), window,
                                 new SchedTaskTO());
                     }
                 });

@@ -67,6 +67,7 @@ import org.syncope.console.commons.PreferenceManager;
 import org.syncope.console.commons.SearchConditionWrapper;
 import org.syncope.console.commons.SearchConditionWrapper.FilterType;
 import org.syncope.console.commons.SearchConditionWrapper.OperationType;
+import org.syncope.console.commons.SelectChoiceRenderer;
 import org.syncope.console.commons.SortableUserProviderComparator;
 import org.syncope.console.rest.ResourceRestClient;
 import org.syncope.console.rest.RoleRestClient;
@@ -326,7 +327,8 @@ public class Users extends BasePage {
         final DropDownChoice<Integer> rowsChooser =
                 new DropDownChoice<Integer>("rowsChooser",
                 new PropertyModel(this, "paginatorRows"),
-                prefMan.getPaginatorChoices());
+                prefMan.getPaginatorChoices(),
+                new SelectChoiceRenderer());
         rowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
             @Override
@@ -334,9 +336,10 @@ public class Users extends BasePage {
                 prefMan.set(getWebRequestCycle().getWebRequest(),
                         getWebRequestCycle().getWebResponse(),
                         Constants.PREF_USERS_PAGINATOR_ROWS,
-                        String.valueOf(paginatorRows));
+                        String.valueOf(rowsChooser.getInput()));
 
-                listTable.setRowsPerPage(paginatorRows);
+                listTable.setRowsPerPage(
+                        Integer.parseInt(rowsChooser.getInput()));
 
                 target.addComponent(listContainer);
             }

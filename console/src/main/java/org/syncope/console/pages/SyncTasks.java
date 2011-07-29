@@ -42,7 +42,6 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.syncope.client.to.SyncTaskTO;
-import org.syncope.client.to.TaskTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.PreferenceManager;
@@ -176,8 +175,8 @@ public class SyncTasks extends Panel {
                             error(scce.getMessage());
                         }
 
-                        target.addComponent(getPage().get("feedback"));
                         target.addComponent(container);
+                        target.addComponent(getPage().get("feedback"));
                     }
                 };
 
@@ -294,9 +293,7 @@ public class SyncTasks extends Panel {
 
                     @Override
                     public Page createPage() {
-                        return new STaskModalPage(
-                                (BasePage) getPage(),
-                                window,
+                        return new STaskModalPage((BasePage) getPage(), window,
                                 new SyncTaskTO());
                     }
                 });

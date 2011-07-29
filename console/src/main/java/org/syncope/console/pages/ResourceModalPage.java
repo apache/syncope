@@ -215,8 +215,7 @@ public class ResourceModalPage extends BaseModalPage {
 
                     @Override
                     protected IAjaxCallDecorator getAjaxCallDecorator() {
-                        return new AjaxPreprocessingCallDecorator(super.
-                                getAjaxCallDecorator()) {
+                        return new AjaxPreprocessingCallDecorator(super.getAjaxCallDecorator()) {
 
                             @Override
                             public CharSequence preDecorateScript(
@@ -231,10 +230,20 @@ public class ResourceModalPage extends BaseModalPage {
                     }
                 });
 
-                DropDownChoice<String> schemaAttrChoice =
+                final DropDownChoice<String> schemaAttrChoice =
                         new DropDownChoice<String>(
                         "sourceAttrNames", new PropertyModel<String>(
                         mappingTO, "sourceAttrName"), (IModel) null);
+
+                schemaAttrChoice.add(
+                        new AjaxFormComponentUpdatingBehavior("onblur") {
+
+                            @Override
+                            protected void onUpdate(AjaxRequestTarget art) {
+                                mappingTO.setSourceAttrName(
+                                        schemaAttrChoice.getModelObject());
+                            }
+                        });
 
                 schemaAttrChoice.setOutputMarkupId(true);
 
@@ -282,35 +291,81 @@ public class ResourceModalPage extends BaseModalPage {
                         schemaAttrChoice).setRequired(true).
                         setOutputMarkupId(true));
 
-                item.add(new TextField("destAttrName",
-                        new PropertyModel(mappingTO, "destAttrName")).
-                        setRequired(true).
-                        setLabel(new Model(getString("fieldName"))).
-                        setOutputMarkupId(true));
+                final TextField<String> destAttrName = new TextField<String>(
+                        "destAttrName", new PropertyModel(
+                        mappingTO, "destAttrName"));
+                destAttrName.setRequired(true);
+                destAttrName.setLabel(new Model(getString("fieldName")));
+                destAttrName.setOutputMarkupId(true);
 
-                item.add(new AutoCompleteTextField("mandatoryCondition",
+                destAttrName.add(
+                        new AjaxFormComponentUpdatingBehavior("onblur") {
+
+                            @Override
+                            protected void onUpdate(AjaxRequestTarget art) {
+                                mappingTO.setDestAttrName(
+                                        destAttrName.getModelObject());
+                            }
+                        });
+                item.add(destAttrName);
+
+                final AutoCompleteTextField<String> mandatoryCondirion =
+                        new AutoCompleteTextField<String>("mandatoryCondition",
                         new PropertyModel(mappingTO, "mandatoryCondition")) {
 
-                    @Override
-                    protected Iterator getChoices(final String input) {
-                        List<String> choices;
-                        if ("true".startsWith(input.toLowerCase())) {
-                            choices = Collections.singletonList("true");
-                        } else if ("false".startsWith(input.toLowerCase())) {
-                            choices = Collections.singletonList("true");
-                        } else {
-                            choices = Collections.EMPTY_LIST;
-                        }
+                            @Override
+                            protected Iterator getChoices(final String input) {
+                                List<String> choices;
+                                if ("true".startsWith(input.toLowerCase())) {
+                                    choices = Collections.singletonList("true");
+                                } else if ("false".startsWith(input.toLowerCase())) {
+                                    choices = Collections.singletonList("true");
+                                } else {
+                                    choices = Collections.EMPTY_LIST;
+                                }
 
-                        return choices.iterator();
-                    }
-                });
+                                return choices.iterator();
+                            }
+                        };
 
-                item.add(new CheckBox("accountId",
-                        new PropertyModel(mappingTO, "accountid")));
+                mandatoryCondirion.add(
+                        new AjaxFormComponentUpdatingBehavior("onblur") {
 
-                item.add(new CheckBox("password",
-                        new PropertyModel(mappingTO, "password")));
+                            @Override
+                            protected void onUpdate(AjaxRequestTarget art) {
+                                mappingTO.setMandatoryCondition(
+                                        mandatoryCondirion.getModelObject());
+                            }
+                        });
+                item.add(mandatoryCondirion);
+
+                final CheckBox accountId = new CheckBox("accountId",
+                        new PropertyModel(mappingTO, "accountid"));
+
+                accountId.add(
+                        new AjaxFormComponentUpdatingBehavior("onchange") {
+
+                            @Override
+                            protected void onUpdate(AjaxRequestTarget art) {
+                                mappingTO.setAccountid(
+                                        accountId.getModelObject());
+                            }
+                        });
+
+                item.add(accountId);
+
+                final CheckBox password = new CheckBox("password",
+                        new PropertyModel(mappingTO, "password"));
+                password.add(
+                        new AjaxFormComponentUpdatingBehavior("onchange") {
+
+                            @Override
+                            protected void onUpdate(AjaxRequestTarget art) {
+                                mappingTO.setPassword(
+                                        password.getModelObject());
+                            }
+                        });
+                item.add(password);
             }
         };
         mappings.setReuseItems(true);

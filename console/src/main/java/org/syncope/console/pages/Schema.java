@@ -34,6 +34,7 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.repeater.Item;
@@ -48,6 +49,7 @@ import org.syncope.client.to.SchemaTO;
 import org.syncope.client.to.VirtualSchemaTO;
 import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.PreferenceManager;
+import org.syncope.console.commons.SelectChoiceRenderer;
 import org.syncope.console.commons.SortableDataProviderComparator;
 import org.syncope.console.rest.SchemaRestClient;
 import org.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
@@ -306,8 +308,7 @@ public class Schema extends BasePage {
                 tableRoles,
                 "RolesPaginatorForm",
                 "rolePageRows",
-                Constants.PREF_ROLE_SCHEMA_PAGINATOR_ROWS,
-                rolePageRows));
+                Constants.PREF_ROLE_SCHEMA_PAGINATOR_ROWS));
 
         List<IColumn> columnsRolesDer = getColumnsForSchema(
                 roleDerivedSchemasContainer,
@@ -328,8 +329,7 @@ public class Schema extends BasePage {
                 tableRolesDer,
                 "RolesDerPaginatorForm",
                 "roleDerPageRows",
-                Constants.PREF_ROLE_DER_SCHEMA_PAGINATOR_ROWS,
-                roleDerPageRows));
+                Constants.PREF_ROLE_DER_SCHEMA_PAGINATOR_ROWS));
 
         List<IColumn> columnsRolesVir = getColumnsForSchema(
                 roleVirtualSchemasContainer,
@@ -350,8 +350,7 @@ public class Schema extends BasePage {
                 tableRolesVir,
                 "RolesVirPaginatorForm",
                 "roleVirPageRows",
-                Constants.PREF_ROLE_VIR_SCHEMA_PAGINATOR_ROWS,
-                roleVirPageRows));
+                Constants.PREF_ROLE_VIR_SCHEMA_PAGINATOR_ROWS));
 
         List<IColumn> userColumns = getColumnsForSchema(
                 userSchemasContainer,
@@ -373,8 +372,7 @@ public class Schema extends BasePage {
                 tableUsers,
                 "UsersPaginatorForm",
                 "userSchemaPageRows",
-                Constants.PREF_USER_SCHEMA_PAGINATOR_ROWS,
-                userSchemaPageRows));
+                Constants.PREF_USER_SCHEMA_PAGINATOR_ROWS));
 
         List<IColumn> columnsUsersDer = getColumnsForSchema(
                 userDerivedSchemasContainer,
@@ -395,8 +393,7 @@ public class Schema extends BasePage {
                 tableUsersDer,
                 "UsersDerPaginatorForm",
                 "userDerSchemaPageRows",
-                Constants.PREF_USER_DER_SCHEMA_PAGINATOR_ROWS,
-                userDerSchemaPageRows));
+                Constants.PREF_USER_DER_SCHEMA_PAGINATOR_ROWS));
 
         List<IColumn> columnsUsersVir = getColumnsForSchema(
                 userVirtualSchemasContainer,
@@ -417,8 +414,7 @@ public class Schema extends BasePage {
                 tableUsersVir,
                 "UsersVirPaginatorForm",
                 "userVirSchemaPageRows",
-                Constants.PREF_USER_VIR_SCHEMA_PAGINATOR_ROWS,
-                userVirSchemaPageRows));
+                Constants.PREF_USER_VIR_SCHEMA_PAGINATOR_ROWS));
 
         List<IColumn> membershipsColumns = getColumnsForSchema(
                 membershipSchemaContainer,
@@ -440,8 +436,7 @@ public class Schema extends BasePage {
                 tableMemberships,
                 "MembershipPaginatorForm",
                 "membershipPageRows",
-                Constants.PREF_MEMBERSHIP_SCHEMA_PAGINATOR_ROWS,
-                membershipPageRows));
+                Constants.PREF_MEMBERSHIP_SCHEMA_PAGINATOR_ROWS));
 
         List<IColumn> columnsMembershipsDer = getColumnsForSchema(
                 membershipDerivedSchemaContainer,
@@ -464,8 +459,7 @@ public class Schema extends BasePage {
                 tableMembershipsDer,
                 "MembershipDerPaginatorForm",
                 "membershipDerPageRows",
-                Constants.PREF_MEMBERSHIP_DER_SCHEMA_PAGINATOR_ROWS,
-                membershipDerPageRows));
+                Constants.PREF_MEMBERSHIP_DER_SCHEMA_PAGINATOR_ROWS));
 
         List<IColumn> columnsMembershipsVir = getColumnsForSchema(
                 membershipVirtualSchemaContainer,
@@ -488,8 +482,7 @@ public class Schema extends BasePage {
                 tableMembershipsVir,
                 "MembershipVirPaginatorForm",
                 "membershipVirPageRows",
-                Constants.PREF_MEMBERSHIP_VIR_SCHEMA_PAGINATOR_ROWS,
-                membershipVirPageRows));
+                Constants.PREF_MEMBERSHIP_VIR_SCHEMA_PAGINATOR_ROWS));
 
         roleSchemasContainer.add(tableRoles);
         roleSchemasContainer.setOutputMarkupId(true);
@@ -637,12 +630,12 @@ public class Schema extends BasePage {
         editMembershipVirtualSchemaWin.setCookieName("modal-18");
 
         setWindowClosedCallback(createUserSchemaWin, userSchemasContainer);
-        
+
         setWindowClosedCallback(editUserSchemaWin, userSchemasContainer);
 
         setWindowClosedCallback(createUserDerivedSchemaWin,
                 userDerivedSchemasContainer);
-        
+
         setWindowClosedCallback(createUserVirtualSchemaWin,
                 userVirtualSchemasContainer);
 
@@ -676,7 +669,7 @@ public class Schema extends BasePage {
 
         setWindowClosedCallback(createMembershipDerivedSchemaWin,
                 membershipDerivedSchemaContainer);
-        
+
         setWindowClosedCallback(createMembershipVirtualSchemaWin,
                 membershipVirtualSchemaContainer);
 
@@ -1076,17 +1069,17 @@ public class Schema extends BasePage {
             final AjaxFallbackDefaultDataTable dataTable,
             final String formname,
             final String rowname,
-            final String rowsPerPagePrefName,
-            final int rowsPerPagePrefValue) {
+            final String rowsPerPagePrefName) {
 
         Form usersPaginatorForm = new Form(formname);
 
-        final DropDownChoice usersRowsChooser = new DropDownChoice(
+        final DropDownChoice rowChooser = new DropDownChoice(
                 "rowsChooser",
                 new PropertyModel(this, rowname),
-                prefMan.getPaginatorChoices());
+                prefMan.getPaginatorChoices(),
+                new SelectChoiceRenderer());
 
-        usersRowsChooser.add(
+        rowChooser.add(
                 new AjaxFormComponentUpdatingBehavior("onchange") {
 
                     @Override
@@ -1094,14 +1087,15 @@ public class Schema extends BasePage {
                         prefMan.set(getWebRequestCycle().getWebRequest(),
                                 getWebRequestCycle().getWebResponse(),
                                 rowsPerPagePrefName,
-                                String.valueOf(rowsPerPagePrefValue));
-                        dataTable.setRowsPerPage(rowsPerPagePrefValue);
+                                String.valueOf(rowChooser.getInput()));
+                        dataTable.setRowsPerPage(
+                                Integer.parseInt(rowChooser.getInput()));
 
                         target.addComponent(webContainer);
                     }
                 });
 
-        usersPaginatorForm.add(usersRowsChooser);
+        usersPaginatorForm.add(rowChooser);
 
         return usersPaginatorForm;
     }
