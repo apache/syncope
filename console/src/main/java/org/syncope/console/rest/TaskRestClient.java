@@ -157,6 +157,7 @@ public class TaskRestClient extends AbstractBaseRestClient {
         taskMod.setCronExpression(taskTO.getCronExpression());
         taskMod.setDefaultResources(taskTO.getDefaultResources());
         taskMod.setDefaultRoles(taskTO.getDefaultRoles());
+        taskMod.setUpdateIdentities(taskTO.isUpdateIdentities());
 
         return restTemplate.postForObject(baseURL
                 + "task/update/sync", taskMod, SyncTaskTO.class);
