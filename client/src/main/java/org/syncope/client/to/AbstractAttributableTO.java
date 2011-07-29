@@ -25,6 +25,8 @@ import org.syncope.client.AbstractBaseBean;
 
 public abstract class AbstractAttributableTO extends AbstractBaseBean {
 
+    private static final long serialVersionUID = 4083884098736820255L;
+
     private long id;
 
     private List<AttributeTO> attributes;
@@ -36,6 +38,8 @@ public abstract class AbstractAttributableTO extends AbstractBaseBean {
     private Set<String> resources;
 
     protected AbstractAttributableTO() {
+        super();
+
         attributes = new ArrayList<AttributeTO>();
         derivedAttributes = new ArrayList<AttributeTO>();
         virtualAttributes = new ArrayList<AttributeTO>();

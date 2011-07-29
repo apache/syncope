@@ -16,8 +16,10 @@ package org.syncope.core.persistence.propagation;
 
 import java.io.File;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import javassist.NotFoundException;
 import org.identityconnectors.common.security.GuardedByteArray;
@@ -32,6 +34,9 @@ import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.OperationOptions;
+import org.identityconnectors.framework.common.objects.SyncDelta;
+import org.identityconnectors.framework.common.objects.SyncResultsHandler;
+import org.identityconnectors.framework.common.objects.SyncToken;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -290,6 +295,33 @@ public class ConnectorFacadeProxy {
 
             connector.delete(objClass, uid, options);
         }
+    }
+
+    public List<SyncDelta> sync(final SyncToken token) {
+        final List<SyncDelta> result = new ArrayList<SyncDelta>();
+
+        if (capabitilies.contains(ConnectorCapability.SYNC)) {
+            connector.sync(ObjectClass.ACCOUNT, token,
+                    new SyncResultsHandler() {
+
+                        @Override
+                        public boolean handle(SyncDelta delta) {
+                            return result.add(delta);
+                        }
+                    }, null);
+        }
+
+        return result;
+    }
+
+    public SyncToken getLatestSyncToken() {
+        SyncToken result = null;
+
+        if (capabitilies.contains(ConnectorCapability.SYNC)) {
+            result = connector.getLatestSyncToken(ObjectClass.ACCOUNT);
+        }
+
+        return result;
     }
 
     /**

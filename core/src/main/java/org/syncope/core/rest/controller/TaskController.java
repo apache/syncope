@@ -339,13 +339,13 @@ public class TaskController extends AbstractController {
             throw new NotFoundException("Task " + taskId);
         }
 
-        TaskExec execution = null;
+        TaskExecTO result = null;
         LOG.debug("Execution started for {}", task);
         switch (getTaskUtil(task)) {
             case PROPAGATION:
-                execution = propagationManager.propagate(
+                final TaskExec execution = propagationManager.propagate(
                         (PropagationTask) task, new Date());
-                execution = taskExecDAO.find(execution.getId());
+                result = binder.getTaskExecutionTO(execution);
                 break;
 
             case SCHED:
@@ -373,14 +373,16 @@ public class TaskController extends AbstractController {
                     throw scce;
                 }
 
-                // Re-read to get the latest execution started
-                task = taskDAO.find(taskId);
-                execution = taskExecDAO.findLatestStarted(task);
+                result = new TaskExecTO();
+                result.setTask(taskId);
+                result.setStartDate(new Date());
+                result.setStatus("JOB_FIRED");
+                result.setMessage("Job fired; waiting for results...");
                 break;
         }
-        LOG.debug("Execution finished for {}, {}", task, execution);
+        LOG.debug("Execution finished for {}, {}", task, result);
 
-        return binder.getTaskExecutionTO(execution);
+        return result;
     }
 
     @PreAuthorize("hasRole('TASK_READ')")

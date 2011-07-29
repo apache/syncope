@@ -46,6 +46,10 @@ public class ConnInstanceLoader extends AbstractLoader {
     @Autowired
     private ConfDAO confDAO;
 
+    public static String getBeanName(final Long connInstanceId) {
+        return "connInstance" + connInstanceId;
+    }
+
     public ConnectorInfoManager getConnectorManager()
             throws NotFoundException, MissingConfKeyException {
 
@@ -99,20 +103,18 @@ public class ConnInstanceLoader extends AbstractLoader {
     public void registerConnector(final ConnInstance instance)
             throws NotFoundException {
 
-        if (getBeanFactory().containsSingleton(
-                "connInstance" + instance.getId())) {
-
-            unregisterConnector("connInstance" + instance.getId());
+        if (getBeanFactory().containsSingleton(getBeanName(instance.getId()))) {
+            unregisterConnector(getBeanName(instance.getId()));
         }
 
         ConnectorFacadeProxy connector =
                 new ConnectorFacadeProxy(instance, this);
         LOG.debug("Connector to be registered: {}", connector);
 
-        getBeanFactory().registerSingleton("connInstance" + instance.getId(),
+        getBeanFactory().registerSingleton(getBeanName(instance.getId()),
                 connector);
         LOG.debug("Successfully registered bean {}",
-                "connInstance" + instance.getId());
+                getBeanName(instance.getId()));
     }
 
     public void unregisterConnector(final String id) {

@@ -170,7 +170,8 @@ public class UserTestITCase extends AbstractTest {
 
         // get last task
         PropagationTaskTO taskTO = restTemplate.getForObject(
-                BASE_URL + "task/read/{taskId}", PropagationTaskTO.class, newMaxId);
+                BASE_URL + "task/read/{taskId}", PropagationTaskTO.class,
+                newMaxId);
 
         assertNotNull(taskTO);
         assertTrue(taskTO.getExecutions().isEmpty());
@@ -322,7 +323,8 @@ public class UserTestITCase extends AbstractTest {
 
         // get last task
         PropagationTaskTO taskTO = restTemplate.getForObject(
-                BASE_URL + "task/read/{taskId}", PropagationTaskTO.class, newMaxId);
+                BASE_URL + "task/read/{taskId}", PropagationTaskTO.class,
+                newMaxId);
 
         assertNotNull(taskTO);
         assertFalse(taskTO.getExecutions().isEmpty());
@@ -686,15 +688,21 @@ public class UserTestITCase extends AbstractTest {
         membershipMod.setRole(8L);
         membershipMod.addAttributeToBeUpdated(attributeMod);
 
-        attributeMod = new AttributeMod();
-        attributeMod.setSchema("userId");
-        attributeMod.addValueToBeAdded("t.w@spre.net");
-
         UserMod userMod = new UserMod();
         userMod.setId(userTO.getId());
         userMod.setPassword("newPassword");
+
         userMod.addAttributeToBeRemoved("userId");
+        attributeMod = new AttributeMod();
+        attributeMod.setSchema("userId");
+        attributeMod.addValueToBeAdded("t.w@spre.net");
         userMod.addAttributeToBeUpdated(attributeMod);
+
+        attributeMod = new AttributeMod();
+        attributeMod.setSchema("username");
+        attributeMod.addValueToBeAdded("g.h@t.com");
+        userMod.addAttributeToBeUpdated(attributeMod);
+
         userMod.addDerivedAttributeToBeAdded("cn");
         userMod.addMembershipToBeAdded(membershipMod);
         userMod.addMembershipToBeRemoved(

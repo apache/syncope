@@ -32,6 +32,7 @@ import org.syncope.client.to.ConnBundleTO;
 import org.syncope.client.to.ConnInstanceTO;
 import org.syncope.types.ConnConfProperty;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.syncope.core.init.ConnInstanceLoader;
 import org.syncope.types.ConnConfPropSchema;
 import org.syncope.types.ConnectorCapability;
 
@@ -261,7 +262,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
     public void check() {
         Boolean verify = restTemplate.getForObject(
                 BASE_URL + "connector/check/{connectorId}.json",
-                Boolean.class, "connInstance100");
+                Boolean.class, ConnInstanceLoader.getBeanName(100L));
 
         assertTrue(verify);
     }

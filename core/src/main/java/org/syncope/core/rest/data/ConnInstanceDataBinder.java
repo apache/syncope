@@ -29,7 +29,7 @@ import org.syncope.types.SyncopeClientExceptionType;
 public class ConnInstanceDataBinder {
 
     private static final String[] ignoreProperties = {
-        "id", "resources"};
+        "id", "resources", "syncToken"};
 
     @Autowired
     private ConnInstanceDAO connectorInstanceDAO;
@@ -144,17 +144,16 @@ public class ConnInstanceDataBinder {
         return connectorInstance;
     }
 
-    public ConnInstanceTO getConnInstanceTO(
-            ConnInstance connectorInstance) {
-
-        ConnInstanceTO connectorInstanceTO =
-                new ConnInstanceTO();
+    public ConnInstanceTO getConnInstanceTO(ConnInstance connInstance) {
+        ConnInstanceTO connInstanceTO = new ConnInstanceTO();
+        connInstanceTO.setId(connInstance.getId());
 
         BeanUtils.copyProperties(
-                connectorInstance, connectorInstanceTO, ignoreProperties);
+                connInstance, connInstanceTO, ignoreProperties);
 
-        connectorInstanceTO.setId(connectorInstance.getId());
+        connInstanceTO.setSyncToken(
+                connInstance.getSerializedSyncToken());
 
-        return connectorInstanceTO;
+        return connInstanceTO;
     }
 }

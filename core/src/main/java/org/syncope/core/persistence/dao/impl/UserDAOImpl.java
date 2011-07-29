@@ -116,7 +116,6 @@ public class UserDAOImpl extends AbstractDAOImpl
         final StringBuilder querystring = new StringBuilder();
 
         for (String clause : getWhereClause(schema.getExpression(), value)) {
-
             if (querystring.length() > 0) {
                 querystring.append(" INTERSECT ");
             }
@@ -124,8 +123,6 @@ public class UserDAOImpl extends AbstractDAOImpl
             querystring.append("SELECT a.owner_id ").
                     append("FROM uattr a, uattrvalue v, uschema s ").
                     append("WHERE ").append(clause);
-
-
         }
 
         LOG.debug("Execute query {}", querystring);
@@ -136,7 +133,6 @@ public class UserDAOImpl extends AbstractDAOImpl
         final List<SyncopeUser> result = new ArrayList<SyncopeUser>();
 
         SyncopeUser user;
-
         for (Object userId : query.getResultList()) {
             user = find(Long.parseLong(userId.toString()));
             if (!result.contains(user)) {

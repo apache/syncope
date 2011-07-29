@@ -76,7 +76,7 @@ public abstract class AbstractVirAttr extends AbstractBaseBean {
         JexlUtil jexlUtil = context.getBean(JexlUtil.class);
 
         Set<String> attributeNames;
-        ConnInstance connectorInstance;
+        ConnInstance connInstance;
         ConnectorFacadeProxy connector;
         Set<Attribute> attributes;
         String accountLink;
@@ -126,10 +126,10 @@ public abstract class AbstractVirAttr extends AbstractBaseBean {
             if (attributeNames != null && accountId != null) {
                 LOG.debug("Get object attribute for entry {}", accountId);
 
-                connectorInstance = resource.getConnector();
+                connInstance = resource.getConnector();
 
                 connector = connInstanceLoader.getConnector(
-                        "connInstance" + connectorInstance.getId());
+                        ConnInstanceLoader.getBeanName(connInstance.getId()));
 
                 try {
                     attributes = connector.getObjectAttributes(

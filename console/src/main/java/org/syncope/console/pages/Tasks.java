@@ -15,7 +15,9 @@
 package org.syncope.console.pages;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -70,8 +72,7 @@ public class Tasks extends BasePage {
             //Default sorting
             this.taskTO = taskTO;
             setSort("startDate", true);
-            comparator =
-                    new SortableDataProviderComparator<TaskExecTO>(this);
+            comparator = new SortableDataProviderComparator<TaskExecTO>(this);
         }
 
         @Override
@@ -180,8 +181,32 @@ public class Tasks extends BasePage {
         @Override
         public Iterator<T> iterator(int first, int count) {
 
-            final List<T> tasks = (List<T>) restClient.listSchedTasks(
-                    reference, (first / paginatorRows) + 1, count);
+            final List<T> tasks = new ArrayList<T>();
+
+            for (T task : (List<T>) restClient.listSchedTasks(
+                    reference, (first / paginatorRows) + 1, count)) {
+                if (task.getLastExec() == null
+                        && task.getExecutions() != null
+                        && !task.getExecutions().isEmpty()) {
+
+                    Collections.sort(task.getExecutions(),
+                            new Comparator<TaskExecTO>() {
+
+                                @Override
+                                public int compare(
+                                        final TaskExecTO left,
+                                        final TaskExecTO right) {
+                                    return left.getStartDate().
+                                            compareTo(right.getStartDate());
+                                }
+                            });
+
+                    task.setLastExec(
+                            task.getExecutions().get(
+                            task.getExecutions().size() - 1).getStartDate());
+                }
+                tasks.add(task);
+            }
 
             Collections.sort(tasks, comparator);
             return tasks.iterator();
