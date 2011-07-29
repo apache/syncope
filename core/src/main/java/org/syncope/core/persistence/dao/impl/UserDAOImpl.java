@@ -21,7 +21,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.persistence.CacheRetrieveMode;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
@@ -514,8 +514,8 @@ public class UserDAOImpl extends AbstractDAOImpl
             attrValues.add(attrValue);
         } else {
 
-            for (String token : attrValue.split(
-                    Matcher.quoteReplacement(literals.get(0)))) {
+            for (String token :
+                    attrValue.split(Pattern.quote(literals.get(0)))) {
 
                 attrValues.addAll(
                         split(token, literals.subList(1, literals.size())));
