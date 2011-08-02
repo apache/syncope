@@ -20,7 +20,7 @@
     <description>Syncope</description>
     <groupId>org.syncope</groupId>
     <artifactId>syncope</artifactId>
-    <version>0.7-EA</version>
+    <version>0.7-EA-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <!-- maven repository on sonatype -->
