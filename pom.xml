@@ -74,7 +74,7 @@
         
         <connid.version>1.3.1</connid.version>
         <connid.soap.version>1.1</connid.soap.version>
-        <connid.db.table.version>1.1</connid.db.table.version>
+        <connid.db.table.version>1.2</connid.db.table.version>
 
         <commons-jexl.version>2.0.1</commons-jexl.version>
         <commons-lang.version>2.6</commons-lang.version>
