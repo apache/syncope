@@ -16,15 +16,8 @@
  */
 package org.syncope.console.pages;
 
-import java.io.Serializable;
-import java.text.DateFormat;
-import java.text.Format;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import org.syncope.console.pages.panels.AttributesPanel;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -40,52 +33,37 @@ import org.apache.wicket.behavior.AbstractBehavior;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.extensions.markup.html.form.palette.Palette;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebMarkupContainerWithAssociatedMarkup;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.PasswordTextField;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.html.tree.BaseTree;
 import org.apache.wicket.markup.html.tree.LinkTree;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
-import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.mod.AttributeMod;
 import org.syncope.client.mod.MembershipMod;
 import org.syncope.client.mod.UserMod;
 import org.syncope.client.to.AttributeTO;
-import org.syncope.client.to.DerivedSchemaTO;
 import org.syncope.client.to.MembershipTO;
-import org.syncope.client.to.ResourceTO;
 import org.syncope.client.to.RoleTO;
-import org.syncope.client.to.SchemaTO;
 import org.syncope.client.to.UserTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.RoleTreeBuilder;
-import org.syncope.console.commons.SchemaWrapper;
-import org.syncope.console.rest.ResourceRestClient;
 import org.syncope.console.rest.RoleRestClient;
-import org.syncope.console.rest.SchemaRestClient;
 import org.syncope.console.rest.UserRestClient;
 import org.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
-import org.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
-import org.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
-import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
-import org.syncope.console.wicket.markup.html.form.DateFieldPanel;
-import org.syncope.console.wicket.markup.html.form.DerivedAttributesForm;
-import org.syncope.console.wicket.markup.html.form.VirtualAttributesForm;
-import org.syncope.types.SchemaType;
+import org.syncope.console.pages.panels.DerivedAttributesPanel;
+import org.syncope.console.pages.panels.ResourcesPanel;
+import org.syncope.console.pages.panels.VirtualAttributesPanel;
 
 /**
  * Modal window with User form.
@@ -99,21 +77,11 @@ public class UserModalPage extends BaseModalPage {
     private RoleRestClient roleRestClient;
 
     @SpringBean
-    private ResourceRestClient resourceRestClient;
-
-    @SpringBean
-    private SchemaRestClient schemaRestClient;
-
-    @SpringBean
     private RoleTreeBuilder roleTreeBuilder;
-
-    private WebMarkupContainer container;
 
     private WebMarkupContainer membershipsContainer;
 
     private AjaxButton submit;
-
-    private List<SchemaWrapper> schemaWrappers;
 
     private List<MembershipTO> membershipTOs;
 
@@ -123,12 +91,14 @@ public class UserModalPage extends BaseModalPage {
 
     private UserMod userMod;
 
-    public UserModalPage(final Users basePage, final ModalWindow window,
-            final UserTO userTO, final boolean createFlag) {
+    public UserModalPage(
+            final Users basePage,
+            final ModalWindow window,
+            final UserTO userTO) {
 
         super();
 
-        if (!createFlag) {
+        if (userTO.getId() > 0) {
             cloneOldUserTO(userTO);
         }
 
@@ -144,244 +114,19 @@ public class UserModalPage extends BaseModalPage {
 
         form.setModel(new CompoundPropertyModel(userTO));
 
-        setupSchemaWrappers(createFlag, userTO);
-        setupMemberships(createFlag, userTO);
-
-        final IModel<List<String>> derivedSchemaNames =
-                new LoadableDetachableModel<List<String>>() {
-
-                    @Override
-                    protected List<String> load() {
-                        return schemaRestClient.getDerivedSchemaNames("user");
-                    }
-                };
-
-
-        final IModel<List<String>> virtualSchemaNames =
-                new LoadableDetachableModel<List<String>>() {
-
-                    @Override
-                    protected List<String> load() {
-                        return schemaRestClient.getVirtualSchemaNames("user");
-                    }
-                };
-
-        final ListView userAttributesView =
-                new ListView("userSchemas", schemaWrappers) {
-
-                    @Override
-                    protected void populateItem(ListItem item) {
-                        final SchemaWrapper schemaWrapper =
-                                (SchemaWrapper) item.getDefaultModelObject();
-
-                        final SchemaTO schemaTO = schemaWrapper.getSchemaTO();
-
-                        item.add(new Label("name",
-                                schemaWrapper.getSchemaTO().getName()));
-
-                        item.add(new ListView("fields",
-                                schemaWrapper.getValues()) {
-
-                            Panel panel;
-
-                            @Override
-                            protected void populateItem(final ListItem item) {
-
-                                String mandatoryCondition =
-                                        schemaTO.getMandatoryCondition();
-                                boolean required = false;
-
-                                if (mandatoryCondition.equalsIgnoreCase("true")) {
-                                    required = true;
-                                }
-
-                                switch (schemaTO.getType()) {
-                                    case Boolean:
-                                        panel = new AjaxCheckBoxPanel("panel",
-                                                schemaTO.getName(), new Model() {
-
-                                            @Override
-                                            public Serializable getObject() {
-                                                return (String) item.getModelObject();
-                                            }
-
-                                            @Override
-                                            public void setObject(Serializable object) {
-                                                Boolean val = (Boolean) object;
-                                                item.setModelObject(val.toString());
-                                            }
-                                        }, required, schemaTO.isReadonly());
-
-                                        break;
-                                    case Date:
-                                        panel = new DateFieldPanel("panel",
-                                                schemaTO.getName(), new Model() {
-
-                                            @Override
-                                            public Serializable getObject() {
-                                                DateFormat formatter =
-                                                        new SimpleDateFormat(
-                                                        schemaTO.getConversionPattern());
-                                                Date date = new Date();
-                                                try {
-                                                    String dateValue = (String) item.getModelObject();
-                                                    //Default value:yyyy-MM-dd
-                                                    if (!dateValue.equals("")) {
-                                                        date = formatter.parse(
-                                                                dateValue);
-                                                    } else {
-                                                        date = null;
-                                                    }
-                                                } catch (ParseException e) {
-                                                    LOG.error("While parsing date", e);
-                                                }
-                                                return date;
-                                            }
-
-                                            @Override
-                                            public void setObject(Serializable object) {
-                                                Date date = (Date) object;
-                                                Format formatter = new SimpleDateFormat(
-                                                        schemaTO.getConversionPattern());
-                                                String val = formatter.format(date);
-                                                item.setModelObject(val);
-                                            }
-                                        }, schemaTO.getConversionPattern(),
-                                                required,
-                                                schemaTO.isReadonly(), form);
-                                        break;
-
-                                    case Enum:
-                                        panel = new AjaxDropDownChoicePanel(
-                                                "panel",
-                                                schemaTO.getName(),
-                                                new Model() {
-
-                                                    @Override
-                                                    public Serializable getObject() {
-                                                        return (String) item.getModelObject();
-                                                    }
-
-                                                    @Override
-                                                    public void setObject(Serializable object) {
-                                                        item.setModelObject((String) object);
-                                                    }
-                                                },
-                                                Arrays.asList(schemaTO.getEnumerationValues().split(Schema.enumValuesSeparator)),
-                                                new ChoiceRenderer(),
-                                                required);
-                                        break;
-
-                                    default:
-                                        panel = new AjaxTextFieldPanel("panel",
-                                                schemaTO.getName(), new Model() {
-
-                                            @Override
-                                            public Serializable getObject() {
-                                                return (String) item.getModelObject();
-                                            }
-
-                                            @Override
-                                            public void setObject(Serializable object) {
-                                                item.setModelObject((String) object);
-                                            }
-                                        }, required, schemaTO.isReadonly());
-                                }
-
-                                item.add(panel);
-                            }
-                        });
-
-                        AjaxButton addButton = new IndicatingAjaxButton("add",
-                                new Model(getString("add"))) {
-
-                            @Override
-                            protected void onSubmit(AjaxRequestTarget target,
-                                    Form form) {
-                                schemaWrapper.getValues().add("");
-
-                                target.addComponent(container);
-                            }
-                        };
-
-                        AjaxButton dropButton = new IndicatingAjaxButton("drop",
-                                new Model(getString("drop"))) {
-
-                            @Override
-                            protected void onSubmit(AjaxRequestTarget target,
-                                    Form form) {
-                                //Drop the last component added
-                                schemaWrapper.getValues().remove(
-                                        schemaWrapper.getValues().size() - 1);
-
-                                target.addComponent(container);
-                            }
-                        };
-
-                        if (schemaTO.getType() == SchemaType.Boolean) {
-                            addButton.setVisible(false);
-                            dropButton.setVisible(false);
-                        }
-
-                        addButton.setDefaultFormProcessing(false);
-                        addButton.setVisible(schemaTO.isMultivalue());
-
-                        dropButton.setDefaultFormProcessing(false);
-                        dropButton.setVisible(schemaTO.isMultivalue());
-
-                        if (schemaWrapper.getValues().size() == 1) {
-                            dropButton.setVisible(false);
-                        }
-
-                        if (schemaTO.isReadonly()) {
-                            addButton.setEnabled(false);
-                            dropButton.setEnabled(false);
-                        }
-
-                        item.add(addButton);
-                        item.add(dropButton);
-                    }
-                };
-
-        form.add(userAttributesView);
+        setupMemberships(userTO);
 
         //--------------------------------
-        // Derived attributes container
+        // Attributes panel
         //--------------------------------
-        form.add(
-                (new DerivedAttributesForm("derAttributesForm")).build(
-                this, userTO, derivedSchemaNames));
-        //--------------------------------
+        form.add(new AttributesPanel("attributes", userTO, form));
 
-        //--------------------------------
-        // Virtual attributes container
-        //--------------------------------
-        form.add(
-                (new VirtualAttributesForm("virAttributesForm")).build(
-                this, userTO, virtualSchemaNames));
-        //--------------------------------
-
-        ListModel<ResourceTO> selectedResources = new ListModel<ResourceTO>();
-        selectedResources.setObject(getSelectedResources(userTO));
-
-        ListModel<ResourceTO> availableResources = new ListModel<ResourceTO>();
-        availableResources.setObject(getAvailableResources(userTO));
-
-        ChoiceRenderer paletteRenderer = new ChoiceRenderer("name", "name");
-        final Palette resourcesPalette = new Palette("resourcesPalette",
-                selectedResources, availableResources, paletteRenderer,
-                8, false);
-        form.add(resourcesPalette);
-
-        container = new WebMarkupContainer("container");
-        container.add(userAttributesView);
-
-        PasswordTextField password = new PasswordTextField("password");
-        password.setRequired(createFlag);
+        final PasswordTextField password = new PasswordTextField("password");
+        password.setRequired(userTO.getId() == 0);
         password.setResetPassword(true);
-        container.add(password);
+        form.add(password);
 
-        WebMarkupContainerWithAssociatedMarkup mandatoryPassword =
+        final WebMarkupContainerWithAssociatedMarkup mandatoryPassword =
                 new WebMarkupContainerWithAssociatedMarkup("mandatory_pwd");
         mandatoryPassword.add(new AbstractBehavior() {
 
@@ -389,17 +134,32 @@ public class UserModalPage extends BaseModalPage {
             public void onComponentTag(final Component component,
                     final ComponentTag tag) {
 
-                if (!createFlag) {
+                if (userTO.getId() > 0) {
                     tag.put("style", "display:none;");
                 }
             }
         });
 
-        container.add(mandatoryPassword);
+        form.add(mandatoryPassword);
+        //--------------------------------
 
-        container.setOutputMarkupId(true);
+        //--------------------------------
+        // Derived attributes panel
+        //--------------------------------
+        form.add(new DerivedAttributesPanel("derivedAttributes", userTO));
+        //--------------------------------
 
-        form.add(container);
+        //--------------------------------
+        // Virtual attributes panel
+        //--------------------------------
+        form.add(new VirtualAttributesPanel("virtualAttributes", userTO));
+        //--------------------------------
+
+        //--------------------------------
+        // Resources panel
+        //--------------------------------
+        form.add(new ResourcesPanel("resources", userTO));
+        //--------------------------------
 
         submit = new IndicatingAjaxButton("submit", new Model(
                 getString("submit"))) {
@@ -408,15 +168,12 @@ public class UserModalPage extends BaseModalPage {
             protected void onSubmit(final AjaxRequestTarget target,
                     final Form form) {
 
-                UserTO userTO = (UserTO) form.getModelObject();
+                final UserTO userTO = (UserTO) form.getModelObject();
 
                 try {
-                    userTO.setResources(getResourcesSet(
-                            resourcesPalette.getModelCollection()));
-                    userTO.setAttributes(getUserAttributesList());
                     userTO.setMemberships(getMembershipsSet());
 
-                    if (createFlag) {
+                    if (userTO.getId() == 0) {
                         userRestClient.create(userTO);
                     } else {
                         setupUserMod(userTO);
@@ -429,7 +186,7 @@ public class UserModalPage extends BaseModalPage {
 
                     basePage.setModalResult(true);
                     basePage.getPageParameters().put(
-                            Constants.PAGEPARAM_CREATE, createFlag);
+                            Constants.PAGEPARAM_CREATE, userTO.getId() == 0);
                     window.close(target);
                 } catch (SyncopeClientCompositeErrorException e) {
                     LOG.error("While creating or updating user", e);
@@ -445,7 +202,7 @@ public class UserModalPage extends BaseModalPage {
 
         String allowedRoles = null;
 
-        if (createFlag) {
+        if (userTO.getId() == 0) {
             allowedRoles = xmlRolesReader.getAllAllowedRoles("Users", "create");
         } else {
             allowedRoles = xmlRolesReader.getAllAllowedRoles("Users", "update");
@@ -493,7 +250,6 @@ public class UserModalPage extends BaseModalPage {
         tree.updateTree();
 
         form.add(tree);
-
 
         ListView membershipsView = new ListView("memberships", membershipTOs) {
 
@@ -572,50 +328,6 @@ public class UserModalPage extends BaseModalPage {
         return result;
     }
 
-    private List<ResourceTO> getSelectedResources(final UserTO userTO) {
-        List<ResourceTO> resources = new ArrayList<ResourceTO>();
-        ResourceTO clusterableResourceTO;
-
-        for (String resourceName : userTO.getResources()) {
-            clusterableResourceTO = new ResourceTO();
-            clusterableResourceTO.setName(resourceName);
-            resources.add(clusterableResourceTO);
-        }
-        return resources;
-    }
-
-    private List<DerivedSchemaTO> getSelectedDerivedSchemas(final UserTO userTO) {
-        List<AttributeTO> attributes = userTO.getDerivedAttributes();
-
-        List<DerivedSchemaTO> schemas = new ArrayList<DerivedSchemaTO>();
-
-        DerivedSchemaTO schema;
-
-        for (AttributeTO attribute : attributes) {
-            schema = new DerivedSchemaTO();
-            schema.setName(attribute.getSchema());
-            schemas.add(schema);
-        }
-
-        return schemas;
-    }
-
-    private List<ResourceTO> getAvailableResources(final UserTO userTO) {
-        List<ResourceTO> resources = new ArrayList<ResourceTO>();
-
-        List<ResourceTO> resourcesTos = resourceRestClient.getAllResources();
-
-        for (ResourceTO resourceTO : resourcesTos) {
-            resources.add(resourceTO);
-        }
-
-        return resources;
-    }
-
-    private List<DerivedSchemaTO> getAvailableDerivedSchemas(final UserTO userTO) {
-        return schemaRestClient.getDerivedSchemas("user");
-    }
-
     /**
      * Create a copy of old userTO object.
      * @param userTO the original TO
@@ -681,72 +393,16 @@ public class UserModalPage extends BaseModalPage {
                 });
     }
 
-    private void setupSchemaWrappers(boolean create, final UserTO userTO) {
-        schemaWrappers = new ArrayList<SchemaWrapper>();
-        SchemaWrapper schemaWrapper;
-
-        List<SchemaTO> schemas = schemaRestClient.getSchemas("user");
-
-        boolean found = false;
-
-        if (create) {
-            for (SchemaTO schema : schemas) {
-                schemaWrapper = new SchemaWrapper(schema);
-                schemaWrappers.add(schemaWrapper);
-            }
-        } else {
-            for (SchemaTO schema : schemas) {
-                for (AttributeTO attribute : userTO.getAttributes()) {
-                    if (schema.getName().equals(attribute.getSchema())) {
-                        schemaWrapper = new SchemaWrapper(schema);
-
-                        schemaWrapper.setValues(attribute.getValues());
-
-                        schemaWrappers.add(schemaWrapper);
-                        found = true;
-                    }
-                }
-                if (!found) {
-                    schemaWrapper = new SchemaWrapper(schema);
-                    schemaWrappers.add(schemaWrapper);
-                } else {
-                    found = false;
-                }
-            }
-        }
-    }
-
-    private void setupMemberships(final boolean create, final UserTO userTO) {
+    private void setupMemberships(final UserTO userTO) {
         membershipTOs = new ArrayList<MembershipTO>();
 
-        if (!create) {
+        if (userTO.getId() > 0) {
             List<MembershipTO> memberships = userTO.getMemberships();
 
             for (MembershipTO membership : memberships) {
                 membershipTOs.add(membership);
             }
         }
-    }
-
-    private List<AttributeTO> getUserAttributesList() {
-        List<AttributeTO> attributes = new ArrayList<AttributeTO>();
-
-        AttributeTO attribute;
-
-        for (SchemaWrapper schemaWrapper : schemaWrappers) {
-            attribute = new AttributeTO();
-            attribute.setSchema(schemaWrapper.getSchemaTO().getName());
-            attribute.setValues(new ArrayList<String>());
-            attribute.setReadonly(schemaWrapper.getSchemaTO().isReadonly());
-
-            for (String value : schemaWrapper.getValues()) {
-                attribute.getValues().add(value);
-            }
-
-            attributes.add(attribute);
-        }
-
-        return attributes;
     }
 
     /**
@@ -761,20 +417,6 @@ public class UserModalPage extends BaseModalPage {
         }
 
         return memberships;
-    }
-
-    /**
-     * Covert a resources List<String> to Set<String>.
-     * @return Set<String>
-     */
-    private Set<String> getResourcesSet(Collection<ResourceTO> resourcesList) {
-        Set<String> resourcesSet = new HashSet<String>();
-
-        for (ResourceTO resourceTO : resourcesList) {
-            resourcesSet.add(resourceTO.getName());
-        }
-
-        return resourcesSet;
     }
 
     public List<MembershipTO> getMembershipTOs() {

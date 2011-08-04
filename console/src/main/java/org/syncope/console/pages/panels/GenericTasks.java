@@ -2,9 +2,9 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *
+ * 
  *       http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -12,7 +12,7 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.console.pages;
+package org.syncope.console.pages.panels;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,11 +41,13 @@ import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.syncope.client.to.SyncTaskTO;
+import org.syncope.client.to.SchedTaskTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.PreferenceManager;
 import org.syncope.console.commons.XMLRolesReader;
+import org.syncope.console.pages.BasePage;
+import org.syncope.console.pages.GTaskModalPage;
 import org.syncope.console.pages.Tasks.DatePropertyColumn;
 import org.syncope.console.pages.Tasks.TasksProvider;
 import org.syncope.console.rest.TaskRestClient;
@@ -54,13 +56,13 @@ import org.syncope.console.wicket.markup.html.form.DeleteLinkPanel;
 import org.syncope.console.wicket.markup.html.form.EditLinkPanel;
 import org.syncope.console.wicket.markup.html.form.LinkPanel;
 
-public class SyncTasks extends Panel {
+public class GenericTasks extends Panel {
 
     /**
      * Logger.
      */
     protected static final Logger LOG = LoggerFactory.getLogger(
-            SyncTasks.class);
+            GenericTasks.class);
 
     private static final int WIN_HEIGHT = 500;
 
@@ -87,11 +89,11 @@ public class SyncTasks extends Panel {
     @SpringBean
     protected XMLRolesReader xmlRolesReader;
 
-    public SyncTasks(String id, IModel<?> model) {
+    public GenericTasks(String id, IModel<?> model) {
         super(id, model);
     }
 
-    public SyncTasks(String id) {
+    public GenericTasks(String id) {
         super(id);
         add(window = new ModalWindow("taskWin"));
 
@@ -99,14 +101,14 @@ public class SyncTasks extends Panel {
                 getWebRequest(),
                 Constants.PREF_TASKS_PAGINATOR_ROWS);
 
-        List<IColumn<SyncTaskTO>> columns =
-                new ArrayList<IColumn<SyncTaskTO>>();
+        List<IColumn<SchedTaskTO>> columns =
+                new ArrayList<IColumn<SchedTaskTO>>();
 
         columns.add(new PropertyColumn(
                 new Model(getString("id")), "id", "id"));
 
         columns.add(new PropertyColumn(
-                new Model(getString("resourceName")), "resource", "resource"));
+                new Model(getString("class")), "jobClassName", "jobClassName"));
 
         columns.add(new DatePropertyColumn(new Model(getString("lastExec")),
                 "lastExec", "lastExec", null));
@@ -114,16 +116,16 @@ public class SyncTasks extends Panel {
         columns.add(new DatePropertyColumn(new Model(getString("nextExec")),
                 "nextExec", "nextExec", null));
 
-        columns.add(new AbstractColumn<SyncTaskTO>(
+        columns.add(new AbstractColumn<SchedTaskTO>(
                 new Model<String>(getString("detail"))) {
 
             @Override
             public void populateItem(
-                    final Item<ICellPopulator<SyncTaskTO>> cellItem,
+                    final Item<ICellPopulator<SchedTaskTO>> cellItem,
                     final String componentId,
-                    final IModel<SyncTaskTO> model) {
+                    final IModel<SchedTaskTO> model) {
 
-                final SyncTaskTO taskTO = model.getObject();
+                final SchedTaskTO taskTO = model.getObject();
 
                 AjaxLink viewLink = new IndicatingAjaxLink("editLink") {
 
@@ -134,7 +136,7 @@ public class SyncTasks extends Panel {
 
                             @Override
                             public Page createPage() {
-                                return new STaskModalPage(
+                                return new GTaskModalPage(
                                         (BasePage) getPage(), window, taskTO);
                             }
                         });
@@ -153,16 +155,16 @@ public class SyncTasks extends Panel {
             }
         });
 
-        columns.add(new AbstractColumn<SyncTaskTO>(
+        columns.add(new AbstractColumn<SchedTaskTO>(
                 new Model<String>(getString("execute"))) {
 
             @Override
             public void populateItem(
-                    final Item<ICellPopulator<SyncTaskTO>> cellItem,
+                    final Item<ICellPopulator<SchedTaskTO>> cellItem,
                     final String componentId,
-                    final IModel<SyncTaskTO> model) {
+                    final IModel<SchedTaskTO> model) {
 
-                final SyncTaskTO taskTO = model.getObject();
+                final SchedTaskTO taskTO = model.getObject();
 
                 AjaxLink executeLink = new IndicatingAjaxLink("link") {
 
@@ -175,8 +177,8 @@ public class SyncTasks extends Panel {
                             error(scce.getMessage());
                         }
 
-                        target.addComponent(container);
                         target.addComponent(getPage().get("feedback"));
+                        target.addComponent(container);
                     }
                 };
 
@@ -192,16 +194,16 @@ public class SyncTasks extends Panel {
             }
         });
 
-        columns.add(new AbstractColumn<SyncTaskTO>(
+        columns.add(new AbstractColumn<SchedTaskTO>(
                 new Model<String>(getString("delete"))) {
 
             @Override
             public void populateItem(
-                    final Item<ICellPopulator<SyncTaskTO>> cellItem,
+                    final Item<ICellPopulator<SchedTaskTO>> cellItem,
                     final String componentId,
-                    final IModel<SyncTaskTO> model) {
+                    final IModel<SchedTaskTO> model) {
 
-                final SyncTaskTO taskTO = model.getObject();
+                final SchedTaskTO taskTO = model.getObject();
 
                 AjaxLink deleteLink = new IndicatingDeleteOnConfirmAjaxLink(
                         "deleteLink") {
@@ -229,10 +231,10 @@ public class SyncTasks extends Panel {
             }
         });
 
-        final AjaxFallbackDefaultDataTable<SyncTaskTO> table =
-                new AjaxFallbackDefaultDataTable<SyncTaskTO>(
+        final AjaxFallbackDefaultDataTable<SchedTaskTO> table =
+                new AjaxFallbackDefaultDataTable<SchedTaskTO>(
                 "datatable", columns, new TasksProvider(
-                restClient, paginatorRows, id, SyncTaskTO.class),
+                restClient, paginatorRows, getId(), SchedTaskTO.class),
                 paginatorRows);
 
         container = new WebMarkupContainer("container");
@@ -293,8 +295,8 @@ public class SyncTasks extends Panel {
 
                     @Override
                     public Page createPage() {
-                        return new STaskModalPage((BasePage) getPage(), window,
-                                new SyncTaskTO());
+                        return new GTaskModalPage((BasePage) getPage(), window,
+                                new SchedTaskTO());
                     }
                 });
 

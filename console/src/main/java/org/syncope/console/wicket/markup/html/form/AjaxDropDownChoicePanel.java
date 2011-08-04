@@ -15,6 +15,8 @@
 package org.syncope.console.wicket.markup.html.form;
 
 import java.util.List;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
@@ -37,8 +39,18 @@ public class AjaxDropDownChoicePanel extends Panel {
             add(new Label("required", ""));
         }
 
-        add(new DropDownChoice("dropDownChoiceField", model, choices,
-                renderer).setRequired(required).setLabel(new Model(name)));
+        final DropDownChoice field = new DropDownChoice(
+                "dropDownChoiceField", model, choices, renderer);
+
+        add(field.setRequired(required).setLabel(new Model(name)));
+
+        field.add(new AjaxFormComponentUpdatingBehavior("onblur") {
+
+            @Override
+            protected void onUpdate(AjaxRequestTarget art) {
+                // nothing to do
+            }
+        });
     }
 
     public AjaxDropDownChoicePanel(final String id, final String name,
@@ -53,7 +65,17 @@ public class AjaxDropDownChoicePanel extends Panel {
             add(new Label("required", ""));
         }
 
-        add(new TextField("dropDownChoiceField", model).setRequired(
+        final TextField field = new TextField("dropDownChoiceField", model);
+
+        add(field.setRequired(
                 required).setLabel(new Model(name)).setEnabled(!readonly));
+
+        field.add(new AjaxFormComponentUpdatingBehavior("change") {
+
+            @Override
+            protected void onUpdate(AjaxRequestTarget art) {
+                // nothing to do
+            }
+        });
     }
 }

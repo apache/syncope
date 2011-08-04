@@ -14,6 +14,9 @@
  */
 package org.syncope.console.pages;
 
+import org.syncope.console.pages.panels.PropagationTasks;
+import org.syncope.console.pages.panels.SyncTasks;
+import org.syncope.console.pages.panels.GenericTasks;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;

@@ -14,6 +14,8 @@
  */
 package org.syncope.console.wicket.markup.html.form;
 
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.TextField;
@@ -34,10 +36,20 @@ public class AjaxTextFieldPanel extends Panel {
             add(new Label("required", ""));
         }
 
+        final TextField field = new TextField("textField", model);
+
         add(new TextField("textField", model).setRequired(required).
                 setLabel(new Model(name)).add(
                 new SimpleAttributeModifier(
                 "title", title != null ? title : "")));
+
+        field.add(new AjaxFormComponentUpdatingBehavior("onblur") {
+
+            @Override
+            protected void onUpdate(AjaxRequestTarget art) {
+                // nothing to do
+            }
+        });
     }
 
     public AjaxTextFieldPanel(final String id, final String name,
@@ -51,13 +63,25 @@ public class AjaxTextFieldPanel extends Panel {
             add(new Label("required", ""));
         }
 
-        add(new TextField("textField", model).setRequired(required).setLabel(
-                new Model(name)));
+        final TextField field = new TextField("textField", model);
+
+        add(field.setRequired(required).setLabel(new Model(name)));
+
+        field.add(new AjaxFormComponentUpdatingBehavior("onblur") {
+
+            @Override
+            protected void onUpdate(AjaxRequestTarget art) {
+                // nothing to do
+            }
+        });
     }
 
-    public AjaxTextFieldPanel(final String id, final String name,
+    public AjaxTextFieldPanel(
+            final String id,
+            final String name,
             final IModel model,
-            final boolean required, final boolean readonly) {
+            final boolean required,
+            final boolean readonly) {
 
         super(id, model);
 
@@ -67,7 +91,17 @@ public class AjaxTextFieldPanel extends Panel {
             add(new Label("required", ""));
         }
 
-        add(new TextField("textField", model).setRequired(required).
+        final TextField field = new TextField("textField", model);
+
+        add(field.setRequired(required).
                 setLabel(new Model(name)).setEnabled(!readonly));
+
+        field.add(new AjaxFormComponentUpdatingBehavior("onblur") {
+
+            @Override
+            protected void onUpdate(AjaxRequestTarget art) {
+                // nothing to do
+            }
+        });
     }
 }

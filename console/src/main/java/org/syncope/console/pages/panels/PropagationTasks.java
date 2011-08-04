@@ -12,9 +12,11 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.console.pages;
+package org.syncope.console.pages.panels;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -28,12 +30,14 @@ import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulato
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
+import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
+import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
@@ -41,26 +45,31 @@ import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.syncope.client.to.SchedTaskTO;
+import org.syncope.client.to.PropagationTaskTO;
+import org.syncope.client.to.TaskTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.PreferenceManager;
+import org.syncope.console.commons.SortableDataProviderComparator;
 import org.syncope.console.commons.XMLRolesReader;
-import org.syncope.console.pages.Tasks.DatePropertyColumn;
-import org.syncope.console.pages.Tasks.TasksProvider;
+import org.syncope.console.pages.BasePage;
+import org.syncope.console.pages.PTaskModalPage;
 import org.syncope.console.rest.TaskRestClient;
 import org.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
 import org.syncope.console.wicket.markup.html.form.DeleteLinkPanel;
 import org.syncope.console.wicket.markup.html.form.EditLinkPanel;
 import org.syncope.console.wicket.markup.html.form.LinkPanel;
 
-public class GenericTasks extends Panel {
+/**
+ * Tasks page.
+ */
+public class PropagationTasks extends Panel {
 
     /**
      * Logger.
      */
     protected static final Logger LOG = LoggerFactory.getLogger(
-            GenericTasks.class);
+            PropagationTasks.class);
 
     private static final int WIN_HEIGHT = 500;
 
@@ -87,43 +96,46 @@ public class GenericTasks extends Panel {
     @SpringBean
     protected XMLRolesReader xmlRolesReader;
 
-    public GenericTasks(String id, IModel<?> model) {
-        super(id, model);
-    }
+    public PropagationTasks(
+            final String id) {
 
-    public GenericTasks(String id) {
         super(id);
+
         add(window = new ModalWindow("taskWin"));
 
         paginatorRows = prefMan.getPaginatorRows(
                 getWebRequest(),
                 Constants.PREF_TASKS_PAGINATOR_ROWS);
 
-        List<IColumn<SchedTaskTO>> columns =
-                new ArrayList<IColumn<SchedTaskTO>>();
+        List<IColumn<TaskTO>> columns = new ArrayList<IColumn<TaskTO>>();
 
         columns.add(new PropertyColumn(
                 new Model(getString("id")), "id", "id"));
 
         columns.add(new PropertyColumn(
-                new Model(getString("class")), "jobClassName", "jobClassName"));
+                new Model(getString("resource")), "resource", "resource"));
 
-        columns.add(new DatePropertyColumn(new Model(getString("lastExec")),
-                "lastExec", "lastExec", null));
+        columns.add(new PropertyColumn(
+                new Model(getString("accountId")), "accountId", "accountId"));
 
-        columns.add(new DatePropertyColumn(new Model(getString("nextExec")),
-                "nextExec", "nextExec", null));
+        columns.add(new PropertyColumn(
+                new Model(getString("propagationMode")),
+                "propagationMode", "propagationMode"));
 
-        columns.add(new AbstractColumn<SchedTaskTO>(
-                new Model<String>(getString("detail"))) {
+        columns.add(new PropertyColumn(
+                new Model(getString("resourceOperationType")),
+                "resourceOperationType", "resourceOperationType"));
+
+        columns.add(new AbstractColumn<TaskTO>(new Model<String>(getString(
+                "detail"))) {
 
             @Override
             public void populateItem(
-                    final Item<ICellPopulator<SchedTaskTO>> cellItem,
+                    final Item<ICellPopulator<TaskTO>> cellItem,
                     final String componentId,
-                    final IModel<SchedTaskTO> model) {
+                    final IModel<TaskTO> model) {
 
-                final SchedTaskTO taskTO = model.getObject();
+                final TaskTO taskTO = model.getObject();
 
                 AjaxLink viewLink = new IndicatingAjaxLink("editLink") {
 
@@ -134,7 +146,7 @@ public class GenericTasks extends Panel {
 
                             @Override
                             public Page createPage() {
-                                return new GTaskModalPage(
+                                return new PTaskModalPage(
                                         (BasePage) getPage(), window, taskTO);
                             }
                         });
@@ -143,7 +155,8 @@ public class GenericTasks extends Panel {
                     }
                 };
 
-                EditLinkPanel panel = new EditLinkPanel(componentId, model);
+                EditLinkPanel panel = new EditLinkPanel(componentId,
+                        model);
                 panel.add(viewLink);
 
                 MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
@@ -153,16 +166,16 @@ public class GenericTasks extends Panel {
             }
         });
 
-        columns.add(new AbstractColumn<SchedTaskTO>(
-                new Model<String>(getString("execute"))) {
+        columns.add(new AbstractColumn<TaskTO>(new Model<String>(getString(
+                "execute"))) {
 
             @Override
             public void populateItem(
-                    final Item<ICellPopulator<SchedTaskTO>> cellItem,
+                    final Item<ICellPopulator<TaskTO>> cellItem,
                     final String componentId,
-                    final IModel<SchedTaskTO> model) {
+                    final IModel<TaskTO> model) {
 
-                final SchedTaskTO taskTO = model.getObject();
+                final TaskTO taskTO = model.getObject();
 
                 AjaxLink executeLink = new IndicatingAjaxLink("link") {
 
@@ -192,16 +205,16 @@ public class GenericTasks extends Panel {
             }
         });
 
-        columns.add(new AbstractColumn<SchedTaskTO>(
-                new Model<String>(getString("delete"))) {
+        columns.add(new AbstractColumn<TaskTO>(new Model<String>(getString(
+                "delete"))) {
 
             @Override
             public void populateItem(
-                    final Item<ICellPopulator<SchedTaskTO>> cellItem,
+                    final Item<ICellPopulator<TaskTO>> cellItem,
                     final String componentId,
-                    final IModel<SchedTaskTO> model) {
+                    final IModel<TaskTO> model) {
 
-                final SchedTaskTO taskTO = model.getObject();
+                final TaskTO taskTO = model.getObject();
 
                 AjaxLink deleteLink = new IndicatingDeleteOnConfirmAjaxLink(
                         "deleteLink") {
@@ -229,11 +242,9 @@ public class GenericTasks extends Panel {
             }
         });
 
-        final AjaxFallbackDefaultDataTable<SchedTaskTO> table =
-                new AjaxFallbackDefaultDataTable<SchedTaskTO>(
-                "datatable", columns, new TasksProvider(
-                restClient, paginatorRows, getId(), SchedTaskTO.class),
-                paginatorRows);
+        final AjaxFallbackDefaultDataTable<TaskTO> table =
+                new AjaxFallbackDefaultDataTable<TaskTO>(
+                "datatable", columns, new TasksProvider(), paginatorRows);
 
         container = new WebMarkupContainer("container");
         container.add(table);
@@ -283,28 +294,36 @@ public class GenericTasks extends Panel {
 
         paginatorForm.add(rowsChooser);
         add(paginatorForm);
+    }
 
-        // create new user
-        AjaxLink createLink = new IndicatingAjaxLink("createLink") {
+    private class TasksProvider extends SortableDataProvider<TaskTO> {
 
-            @Override
-            public void onClick(final AjaxRequestTarget target) {
-                window.setPageCreator(new ModalWindow.PageCreator() {
+        private SortableDataProviderComparator<TaskTO> comparator;
 
-                    @Override
-                    public Page createPage() {
-                        return new GTaskModalPage((BasePage) getPage(), window,
-                                new SchedTaskTO());
-                    }
-                });
+        public TasksProvider() {
+            super();
+            //Default sorting
+            setSort("id", true);
+            comparator = new SortableDataProviderComparator<TaskTO>(this);
+        }
 
-                window.show(target);
-            }
-        };
+        @Override
+        public Iterator<PropagationTaskTO> iterator(int first, int count) {
+            final List<PropagationTaskTO> tasks =
+                    restClient.listPropagationTasks(
+                    (first / paginatorRows) + 1, count);
+            Collections.sort(tasks, comparator);
+            return tasks.iterator();
+        }
 
-        MetaDataRoleAuthorizationStrategy.authorize(createLink, RENDER,
-                xmlRolesReader.getAllAllowedRoles("Tasks", "create"));
+        @Override
+        public int size() {
+            return restClient.count(getId());
+        }
 
-        add(createLink);
+        @Override
+        public IModel<TaskTO> model(final TaskTO object) {
+            return new CompoundPropertyModel<TaskTO>(object);
+        }
     }
 }
