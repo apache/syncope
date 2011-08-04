@@ -87,8 +87,7 @@ public class VirtualAttributesPanel extends Panel {
         add(attributesContainer);
 
         AjaxButton addAttributeBtn = new IndicatingAjaxButton(
-                "addAttributeBtn",
-                new Model(getString("addAttributeBtn"))) {
+                "addAttributeBtn", new Model(getString("addAttributeBtn"))) {
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target,
@@ -115,7 +114,7 @@ public class VirtualAttributesPanel extends Panel {
 
                     @Override
                     protected void onUpdate(final AjaxRequestTarget target) {
-                        entityTO.getVirtualAttributes().remove(attributeTO);
+                        entityTO.removeVirtualAttribute(attributeTO);
                         target.addComponent(attributesContainer);
                     }
 
@@ -215,7 +214,8 @@ public class VirtualAttributesPanel extends Panel {
                         item.add(addButton.setDefaultFormProcessing(
                                 Boolean.FALSE));
 
-                        if (item.getIndex() == attributeTO.getValues().size() - 1) {
+                        if (item.getIndex()
+                                == attributeTO.getValues().size() - 1) {
                             addButton.setVisible(Boolean.TRUE);
                             addButton.setEnabled(Boolean.TRUE);
                         } else {

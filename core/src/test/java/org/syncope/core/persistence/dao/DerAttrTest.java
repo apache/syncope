@@ -105,7 +105,7 @@ public class DerAttrTest extends AbstractTest {
     public final void saveMDerAttribute()
             throws ClassNotFoundException {
         MDerSchema deriveddata =
-                derSchemaDAO.find("deriveddata", MDerSchema.class);
+                derSchemaDAO.find("mderiveddata", MDerSchema.class);
         assertNotNull(deriveddata);
 
         Membership owner = membershipDAO.find(1L);
@@ -124,10 +124,10 @@ public class DerAttrTest extends AbstractTest {
 
         MAttrValue sx =
                 (MAttrValue) owner.getAttribute(
-                "derived_sx").getValues().iterator().next();
+                "mderived_sx").getValues().iterator().next();
         MAttrValue dx =
                 (MAttrValue) owner.getAttribute(
-                "derived_dx").getValues().iterator().next();
+                "mderived_dx").getValues().iterator().next();
 
         assertEquals(sx.getValue() + "-" + dx.getValue(),
                 derivedAttribute.getValue(owner.getAttributes()));
@@ -137,7 +137,7 @@ public class DerAttrTest extends AbstractTest {
     public final void saveRDerAttribute()
             throws ClassNotFoundException {
         RDerSchema deriveddata =
-                derSchemaDAO.find("deriveddata", RDerSchema.class);
+                derSchemaDAO.find("rderiveddata", RDerSchema.class);
         assertNotNull(deriveddata);
 
         SyncopeRole owner = roleDAO.find(1L);
@@ -156,10 +156,10 @@ public class DerAttrTest extends AbstractTest {
 
         RAttrValue sx =
                 (RAttrValue) owner.getAttribute(
-                "derived_sx").getValues().iterator().next();
+                "rderived_sx").getValues().iterator().next();
         RAttrValue dx =
                 (RAttrValue) owner.getAttribute(
-                "derived_dx").getValues().iterator().next();
+                "rderived_dx").getValues().iterator().next();
 
         assertEquals(sx.getValue() + "-" + dx.getValue(),
                 derivedAttribute.getValue(owner.getAttributes()));

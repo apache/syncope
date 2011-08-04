@@ -15,7 +15,6 @@
 package org.syncope.core.persistence.validation.entity;
 
 import java.text.ParseException;
-import java.util.Arrays;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import org.quartz.CronExpression;

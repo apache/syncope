@@ -99,20 +99,20 @@
     <RSchema name="show" type="Boolean"
                 mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
 
-    <RSchema name="derived_sx" type="String"
+    <RSchema name="rderived_sx" type="String"
                       mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
 
-    <RSchema name="derived_dx" type="String"
+    <RSchema name="rderived_dx" type="String"
                       mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
 
     <MSchema name="subscriptionDate" type="Date"
                       mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
                       conversionPattern="yyyy-MM-dd'T'HH:mm:ss.SSSZ"/>
 
-    <MSchema name="derived_sx" type="String"
+    <MSchema name="mderived_sx" type="String"
                       mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
 
-    <MSchema name="derived_dx" type="String"
+    <MSchema name="mderived_dx" type="String"
                       mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
 
     <UAttr id="100" owner_id="1" schema_name="username"/>
@@ -150,29 +150,31 @@
     <RAttrValue attribute_id="900" id="43" stringValue="icon6"/>
     <RAttrValue attribute_id="950" id="44" stringValue="icon4"/>
 
-    <RAttr id="1002" owner_id="1" schema_name="derived_sx"/>
+    <RAttr id="1002" owner_id="1" schema_name="rderived_sx"/>
     <RAttrValue attribute_id="1002" id="92" stringValue="sx"/>
 
-    <RAttr id="1003" owner_id="1" schema_name="derived_dx"/>
+    <RAttr id="1003" owner_id="1" schema_name="rderived_dx"/>
     <RAttrValue attribute_id="1003" id="93" stringValue="dx"/>
 
-    <RDerSchema name="deriveddata" expression="derived_sx + '-' + derived_dx"/>
-    <RDerAttr id="1000" derivedSchema_name="deriveddata" owner_id="1"/>
+    <RDerSchema name="rderiveddata" expression="rderived_sx + '-' + rderived_dx"/>
+    <RDerAttr id="1000" derivedSchema_name="rderiveddata" owner_id="1"/>
 
+    <!-- rderiveddata is used th verify der schema deletion -->
+    <RDerSchema name="rderivedschema" expression="rderived_sx + '-' + rderived_dx"/>
 
     <MAttr id="1000" owner_id="4" schema_name="subscriptionDate"/>
 
     <MAttrValue attribute_id="1000" id="90" dateValue="2009-05-26"/>
     <MAttrValue attribute_id="1000" id="91" dateValue="2010-05-26 15:40:04"/>
 
-    <MAttr id="1002" owner_id="1" schema_name="derived_sx"/>
+    <MAttr id="1002" owner_id="1" schema_name="mderived_sx"/>
     <MAttrValue attribute_id="1002" id="92" stringValue="sx"/>
 
-    <MAttr id="1003" owner_id="1" schema_name="derived_dx"/>
+    <MAttr id="1003" owner_id="1" schema_name="mderived_dx"/>
     <MAttrValue attribute_id="1003" id="93" stringValue="dx"/>
 
-    <MDerSchema name="deriveddata" expression="derived_sx + '-' + derived_dx"/>
-    <MDerAttr id="1000" derivedSchema_name="deriveddata" owner_id="1"/>
+    <MDerSchema name="mderiveddata" expression="mderived_sx + '-' + mderived_dx"/>
+    <MDerAttr id="1000" derivedSchema_name="mderiveddata" owner_id="1"/>
 
     <UVirSchema name="virtualdata"/>
     <UVirAttr id="1000" virtualSchema_name="virtualdata" owner_id="3"/>

@@ -108,85 +108,84 @@ public class AttributesPanel extends Panel {
 
         initEntityData(entityTO, schemas.getObject().values());
 
-        final ListView<AttributeTO> userAttributesView =
-                new ListView<AttributeTO>(
+        final ListView<AttributeTO> attributeView = new ListView<AttributeTO>(
                 "schemas", new PropertyModel<List<? extends AttributeTO>>(
                 entityTO, "attributes")) {
 
+            @Override
+            protected void populateItem(ListItem item) {
+                final AttributeTO attributeTO =
+                        (AttributeTO) item.getDefaultModelObject();
+
+                item.add(new Label("name", attributeTO.getSchema()));
+
+                item.add(new ListView(
+                        "fields", attributeTO.getValues()) {
+
                     @Override
-                    protected void populateItem(ListItem item) {
-                        final AttributeTO attributeTO =
-                                (AttributeTO) item.getDefaultModelObject();
+                    protected void populateItem(final ListItem item) {
+                        item.add(getFieldPanel(schemas.getObject().get(
+                                attributeTO.getSchema()), form, item));
+                    }
+                });
 
-                        item.add(new Label("name", attributeTO.getSchema()));
-
-                        item.add(new ListView(
-                                "fields", attributeTO.getValues()) {
+                final AjaxButton addButton =
+                        new IndicatingAjaxButton("add",
+                        new Model(getString("add"))) {
 
                             @Override
-                            protected void populateItem(final ListItem item) {
-                                item.add(getFieldPanel(schemas.getObject().get(
-                                        attributeTO.getSchema()), form, item));
+                            protected void onSubmit(
+                                    final AjaxRequestTarget target,
+                                    final Form form) {
+                                attributeTO.getValues().add("");
+                                target.addComponent(attributesContainer);
                             }
-                        });
+                        };
 
-                        final AjaxButton addButton =
-                                new IndicatingAjaxButton("add",
-                                new Model(getString("add"))) {
+                final AjaxButton dropButton =
+                        new IndicatingAjaxButton("drop",
+                        new Model(getString("drop"))) {
 
-                                    @Override
-                                    protected void onSubmit(
-                                            final AjaxRequestTarget target,
-                                            final Form form) {
-                                        attributeTO.getValues().add("");
-                                        target.addComponent(attributesContainer);
-                                    }
-                                };
+                            @Override
+                            protected void onSubmit(
+                                    final AjaxRequestTarget target,
+                                    final Form form) {
+                                //Drop the last component added
+                                attributeTO.getValues().remove(
+                                        attributeTO.getValues().size() - 1);
 
-                        final AjaxButton dropButton =
-                                new IndicatingAjaxButton("drop",
-                                new Model(getString("drop"))) {
+                                target.addComponent(attributesContainer);
+                            }
+                        };
 
-                                    @Override
-                                    protected void onSubmit(
-                                            final AjaxRequestTarget target,
-                                            final Form form) {
-                                        //Drop the last component added
-                                        attributeTO.getValues().remove(
-                                                attributeTO.getValues().size() - 1);
+                if (schemas.getObject().get(attributeTO.getSchema()).
+                        getType() == SchemaType.Boolean) {
+                    addButton.setVisible(false);
+                    dropButton.setVisible(false);
+                }
 
-                                        target.addComponent(attributesContainer);
-                                    }
-                                };
+                addButton.setVisible(
+                        schemas.getObject().get(
+                        attributeTO.getSchema()).isMultivalue());
+                dropButton.setVisible(
+                        schemas.getObject().get(
+                        attributeTO.getSchema()).isMultivalue());
 
-                        if (schemas.getObject().get(attributeTO.getSchema()).
-                                getType() == SchemaType.Boolean) {
-                            addButton.setVisible(false);
-                            dropButton.setVisible(false);
-                        }
+                dropButton.setVisible(
+                        attributeTO.getValues().size() > 1);
 
-                        addButton.setVisible(
-                                schemas.getObject().get(
-                                attributeTO.getSchema()).isMultivalue());
-                        dropButton.setVisible(
-                                schemas.getObject().get(
-                                attributeTO.getSchema()).isMultivalue());
+                addButton.setEnabled(!attributeTO.isReadonly());
+                dropButton.setEnabled(!attributeTO.isReadonly());
 
-                        dropButton.setVisible(
-                                attributeTO.getValues().size() > 1);
+                addButton.setDefaultFormProcessing(false);
+                dropButton.setDefaultFormProcessing(false);
 
-                        addButton.setEnabled(!attributeTO.isReadonly());
-                        dropButton.setEnabled(!attributeTO.isReadonly());
+                item.add(addButton);
+                item.add(dropButton);
+            }
+        };
 
-                        addButton.setDefaultFormProcessing(false);
-                        dropButton.setDefaultFormProcessing(false);
-
-                        item.add(addButton);
-                        item.add(dropButton);
-                    }
-                };
-
-        attributesContainer.add(userAttributesView);
+        attributesContainer.add(attributeView);
     }
 
     private List<AttributeTO> initEntityData(

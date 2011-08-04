@@ -16,53 +16,38 @@
  */
 package org.syncope.console.pages;
 
-import org.syncope.console.pages.panels.AttributesPanel;
 import java.util.ArrayList;
+import org.syncope.console.pages.panels.AttributesPanel;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.wicket.Component;
-import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.behavior.AbstractBehavior;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.ComponentTag;
-import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebMarkupContainerWithAssociatedMarkup;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.PasswordTextField;
-import org.apache.wicket.markup.html.list.ListItem;
-import org.apache.wicket.markup.html.list.ListView;
-import org.apache.wicket.markup.html.tree.BaseTree;
-import org.apache.wicket.markup.html.tree.LinkTree;
 import org.apache.wicket.model.CompoundPropertyModel;
-import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.mod.AttributeMod;
 import org.syncope.client.mod.MembershipMod;
 import org.syncope.client.mod.UserMod;
 import org.syncope.client.to.AttributeTO;
 import org.syncope.client.to.MembershipTO;
-import org.syncope.client.to.RoleTO;
 import org.syncope.client.to.UserTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.commons.Constants;
-import org.syncope.console.commons.RoleTreeBuilder;
-import org.syncope.console.rest.RoleRestClient;
 import org.syncope.console.rest.UserRestClient;
-import org.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
 import org.syncope.console.pages.panels.DerivedAttributesPanel;
 import org.syncope.console.pages.panels.ResourcesPanel;
+import org.syncope.console.pages.panels.RolesPanel;
 import org.syncope.console.pages.panels.VirtualAttributesPanel;
 
 /**
@@ -72,20 +57,6 @@ public class UserModalPage extends BaseModalPage {
 
     @SpringBean
     private UserRestClient userRestClient;
-
-    @SpringBean
-    private RoleRestClient roleRestClient;
-
-    @SpringBean
-    private RoleTreeBuilder roleTreeBuilder;
-
-    private WebMarkupContainer membershipsContainer;
-
-    private AjaxButton submit;
-
-    private List<MembershipTO> membershipTOs;
-
-    private final ModalWindow membershipWin;
 
     private UserTO oldUser;
 
@@ -102,19 +73,11 @@ public class UserModalPage extends BaseModalPage {
             cloneOldUserTO(userTO);
         }
 
-        membershipWin = new ModalWindow("membershipWin");
-        membershipWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
-        membershipWin.setPageMapName("create-membership-modal");
-        membershipWin.setCookieName("create-membership-modal");
-        add(membershipWin);
-
         add(new Label("id", String.valueOf(userTO.getId())));
 
         final Form form = new Form("UserForm");
 
         form.setModel(new CompoundPropertyModel(userTO));
-
-        setupMemberships(userTO);
 
         //--------------------------------
         // Attributes panel
@@ -161,7 +124,13 @@ public class UserModalPage extends BaseModalPage {
         form.add(new ResourcesPanel("resources", userTO));
         //--------------------------------
 
-        submit = new IndicatingAjaxButton("submit", new Model(
+        //--------------------------------
+        // Roles panel
+        //--------------------------------
+        form.add(new RolesPanel("roles", userTO));
+        //--------------------------------
+
+        final AjaxButton submit = new IndicatingAjaxButton("submit", new Model(
                 getString("submit"))) {
 
             @Override
@@ -171,7 +140,6 @@ public class UserModalPage extends BaseModalPage {
                 final UserTO userTO = (UserTO) form.getModelObject();
 
                 try {
-                    userTO.setMemberships(getMembershipsSet());
 
                     if (userTO.getId() == 0) {
                         userRestClient.create(userTO);
@@ -213,119 +181,7 @@ public class UserModalPage extends BaseModalPage {
 
         form.add(submit);
 
-        // Roles Tab
-        final List<RoleTO> roles = roleRestClient.getAllRoles();
-        BaseTree tree = new LinkTree("treeTable",
-                roleTreeBuilder.build(roles)) {
-
-            @Override
-            protected IModel getNodeTextModel(final IModel model) {
-                return new PropertyModel(model, "userObject.displayName");
-            }
-
-            @Override
-            protected void onNodeLinkClicked(final Object node,
-                    final BaseTree tree, final AjaxRequestTarget target) {
-
-                final RoleTO roleTO = (RoleTO) ((DefaultMutableTreeNode) node).getUserObject();
-
-                membershipWin.setPageCreator(new ModalWindow.PageCreator() {
-
-                    private MembershipTO membershipTO;
-
-                    @Override
-                    public Page createPage() {
-                        membershipTO = new MembershipTO();
-                        membershipTO.setRoleId(roleTO.getId());
-
-                        return new MembershipModalPage(getPage(),
-                                membershipWin, membershipTO, true);
-                    }
-                });
-                membershipWin.show(target);
-            }
-        };
-
-        tree.getTreeState().expandAll();
-        tree.updateTree();
-
-        form.add(tree);
-
-        ListView membershipsView = new ListView("memberships", membershipTOs) {
-
-            @Override
-            protected void populateItem(final ListItem item) {
-                final MembershipTO membershipTO =
-                        (MembershipTO) item.getDefaultModelObject();
-
-                item.add(new Label("roleId", new Model(
-                        membershipTO.getRoleId())));
-                item.add(new Label("roleName", new Model(
-                        getRoleName(membershipTO.getRoleId(), roles))));
-
-                AjaxLink editLink = new IndicatingAjaxLink("editLink") {
-
-                    @Override
-                    public void onClick(AjaxRequestTarget target) {
-                        membershipWin.setPageCreator(
-                                new ModalWindow.PageCreator() {
-
-                                    @Override
-                                    public Page createPage() {
-                                        MembershipModalPage window =
-                                                new MembershipModalPage(
-                                                getPage(), membershipWin,
-                                                membershipTO,
-                                                false);
-
-                                        return window;
-
-                                    }
-                                });
-                        membershipWin.show(target);
-                    }
-                };
-                item.add(editLink);
-
-                AjaxLink deleteLink = new IndicatingDeleteOnConfirmAjaxLink(
-                        "deleteLink") {
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target) {
-                        int componentId = new Integer(getParent().getId());
-                        membershipTOs.remove(componentId);
-
-                        target.addComponent(membershipsContainer);
-                    }
-                };
-                item.add(deleteLink);
-            }
-        };
-
-        membershipsContainer = new WebMarkupContainer("membershipsContainer");
-        membershipsContainer.add(membershipsView);
-        membershipsContainer.setOutputMarkupId(true);
-
-        setWindowClosedCallback(membershipWin, membershipsContainer);
-
-        form.add(membershipsContainer);
         add(form);
-    }
-
-    private String getRoleName(long roleId, List<RoleTO> roles) {
-        boolean found = false;
-        RoleTO roleTO;
-        String result = null;
-        for (Iterator<RoleTO> itor = roles.iterator();
-                itor.hasNext() && !found;) {
-
-            roleTO = itor.next();
-            if (roleTO.getId() == roleId) {
-                result = roleTO.getName();
-            }
-        }
-
-        return result;
     }
 
     /**
@@ -338,6 +194,8 @@ public class UserModalPage extends BaseModalPage {
         oldUser.setId(userTO.getId());
         oldUser.setPassword(userTO.getPassword());
 
+        List<AttributeTO> attributes = new ArrayList<AttributeTO>();
+
         AttributeTO attributeTO;
         for (AttributeTO attribute : userTO.getAttributes()) {
             attributeTO = new AttributeTO();
@@ -349,21 +207,32 @@ public class UserModalPage extends BaseModalPage {
                 attributeTO.addValue(value);
             }
 
-            oldUser.addAttribute(attributeTO);
+            attributes.add(attributeTO);
         }
+
+        oldUser.setAttributes(attributes);
+
+        attributes = new ArrayList<AttributeTO>();
 
         for (AttributeTO attribute : userTO.getDerivedAttributes()) {
             attributeTO = new AttributeTO();
             attributeTO.setReadonly(attribute.isReadonly());
-
             attributeTO.setSchema(attribute.getSchema());
-
-            for (String value : attribute.getValues()) {
-                attributeTO.addValue(value);
-            }
-
-            oldUser.addDerivedAttribute(attributeTO);
+            attributes.add(attributeTO);
         }
+
+        oldUser.setDerivedAttributes(attributes);
+
+        attributes = new ArrayList<AttributeTO>();
+
+        for (AttributeTO attribute : userTO.getVirtualAttributes()) {
+            attributeTO = new AttributeTO();
+            attributeTO.setReadonly(attribute.isReadonly());
+            attributeTO.setSchema(attribute.getSchema());
+            attributes.add(attributeTO);
+        }
+
+        oldUser.setVirtualAttributes(attributes);
 
         for (String resource : userTO.getResources()) {
             oldUser.addResource(resource);
@@ -376,51 +245,12 @@ public class UserModalPage extends BaseModalPage {
             membership.setId(membershipTO.getId());
             membership.setRoleId(membershipTO.getRoleId());
             membership.setAttributes(membershipTO.getAttributes());
+            membership.setVirtualAttributes(
+                    membershipTO.getVirtualAttributes());
+            membership.setDerivedAttributes(
+                    membershipTO.getDerivedAttributes());
             oldUser.addMembership(membership);
         }
-    }
-
-    private void setWindowClosedCallback(final ModalWindow window,
-            final WebMarkupContainer container) {
-
-        window.setWindowClosedCallback(
-                new ModalWindow.WindowClosedCallback() {
-
-                    @Override
-                    public void onClose(final AjaxRequestTarget target) {
-                        target.addComponent(container);
-                    }
-                });
-    }
-
-    private void setupMemberships(final UserTO userTO) {
-        membershipTOs = new ArrayList<MembershipTO>();
-
-        if (userTO.getId() > 0) {
-            List<MembershipTO> memberships = userTO.getMemberships();
-
-            for (MembershipTO membership : memberships) {
-                membershipTOs.add(membership);
-            }
-        }
-    }
-
-    /**
-     * Convert a memberships ArrayList in a memberships HashSet list.
-     * @return Set<MembershipTO> selected for a new user.
-     */
-    private List<MembershipTO> getMembershipsSet() {
-        List<MembershipTO> memberships = new ArrayList<MembershipTO>();
-
-        for (MembershipTO membership : membershipTOs) {
-            memberships.add(membership);
-        }
-
-        return memberships;
-    }
-
-    public List<MembershipTO> getMembershipTOs() {
-        return membershipTOs;
     }
 
     /**
@@ -428,6 +258,7 @@ public class UserModalPage extends BaseModalPage {
      * @param userTO
      */
     private void setupUserMod(final UserTO userTO) {
+
         userMod = new UserMod();
 
         //1.Check if the password has been changed and update it
@@ -455,10 +286,10 @@ public class UserModalPage extends BaseModalPage {
 
         //3.Update user's schema virtual attributes
         final List<AttributeTO> newVirtualAttributes =
-                userTO.getDerivedAttributes();
+                userTO.getVirtualAttributes();
 
         final List<AttributeTO> oldVirtualAttributes =
-                oldUser.getDerivedAttributes();
+                oldUser.getVirtualAttributes();
 
         for (AttributeTO oldVirtualAttribute : oldVirtualAttributes) {
             userMod.addVirtualAttributeToBeRemoved(
@@ -621,6 +452,12 @@ public class UserModalPage extends BaseModalPage {
                         membership.getDerivedAttributes()) {
                     membershipMod.addDerivedAttributeToBeAdded(
                             newDerivedAttribute.getSchema());
+                }
+
+                for (AttributeTO newVirtualAttribute :
+                        membership.getVirtualAttributes()) {
+                    membershipMod.addVirtualAttributeToBeAdded(
+                            newVirtualAttribute.getSchema());
                 }
 
                 for (AttributeTO newAttribute : membership.getAttributes()) {

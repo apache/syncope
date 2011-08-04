@@ -24,6 +24,7 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.Model;
 import org.syncope.client.to.MembershipTO;
+import org.syncope.client.to.UserTO;
 import org.syncope.console.pages.panels.DerivedAttributesPanel;
 import org.syncope.console.pages.panels.VirtualAttributesPanel;
 
@@ -34,28 +35,22 @@ public class MembershipModalPage extends BaseModalPage {
 
     private AjaxButton submit;
 
-    public MembershipModalPage(final Page basePage, final ModalWindow window,
-            final MembershipTO membershipTO, final boolean createFlag) {
+    public MembershipModalPage(
+            final Page basePage,
+            final ModalWindow window,
+            final MembershipTO membershipTO,
+            final UserTO userTO) {
 
         final Form form = new Form("MembershipForm");
 
         form.setModel(new CompoundPropertyModel(membershipTO));
 
-
         submit = new AjaxButton("submit", new Model(getString("submit"))) {
 
             @Override
             protected void onSubmit(AjaxRequestTarget target, Form form) {
-
-                if (createFlag) {
-                    ((UserModalPage) basePage).getMembershipTOs().add(
-                            membershipTO);
-                } else {
-                    ((UserModalPage) basePage).getMembershipTOs().remove(
-                            membershipTO);
-                    ((UserModalPage) basePage).getMembershipTOs().add(
-                            membershipTO);
-                }
+                userTO.removeMembership(membershipTO);
+                userTO.addMembership(membershipTO);
                 window.close(target);
             }
 
@@ -67,7 +62,7 @@ public class MembershipModalPage extends BaseModalPage {
 
         String allowedRoles = null;
 
-        if (createFlag) {
+        if (userTO.getId() == 0) {
             allowedRoles = xmlRolesReader.getAllAllowedRoles("Users", "create");
         } else {
             allowedRoles = xmlRolesReader.getAllAllowedRoles("Users", "update");

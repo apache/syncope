@@ -207,7 +207,7 @@ public class RoleModalPage extends BaseModalPage {
         oldRole.setName(roleTO.getName());
         oldRole.setParent(roleTO.getParent());
 
-        final List<AttributeTO> attributes = new ArrayList<AttributeTO>();
+        List<AttributeTO> attributes = new ArrayList<AttributeTO>();
 
         AttributeTO attributeTO;
 
@@ -225,17 +225,27 @@ public class RoleModalPage extends BaseModalPage {
 
         oldRole.setAttributes(attributes);
 
+        attributes = new ArrayList<AttributeTO>();
+
         for (AttributeTO attribute : roleTO.getDerivedAttributes()) {
             attributeTO = new AttributeTO();
             attributeTO.setReadonly(attribute.isReadonly());
             attributeTO.setSchema(attribute.getSchema());
-
-            for (String value : attribute.getValues()) {
-                attributeTO.addValue(value);
-            }
-
-            oldRole.addDerivedAttribute(attributeTO);
+            attributes.add(attributeTO);
         }
+
+        oldRole.setDerivedAttributes(attributes);
+
+        attributes = new ArrayList<AttributeTO>();
+
+        for (AttributeTO attribute : roleTO.getVirtualAttributes()) {
+            attributeTO = new AttributeTO();
+            attributeTO.setReadonly(attribute.isReadonly());
+            attributeTO.setSchema(attribute.getSchema());
+            attributes.add(attributeTO);
+        }
+
+        oldRole.setVirtualAttributes(attributes);
 
         for (String resource : roleTO.getResources()) {
             oldRole.addResource(resource);
@@ -253,12 +263,15 @@ public class RoleModalPage extends BaseModalPage {
     private void setupRoleMod(final RoleTO roleTO) {
         roleMod = new RoleMod();
 
+        LOG.error("AAAAAAAAA1 {}", roleTO);
+        LOG.error("AAAAAAAAA2 {}", oldRole);
+
         //1.Check if the role's name has been changed
         if (!oldRole.getName().equals(roleTO.getName())) {
             roleMod.setName(roleTO.getName());
         }
 
-        //2.Update user's schema derived attributes
+        //2.Update roles's schema derived attributes
         final List<AttributeTO> newDerivedAttributes =
                 roleTO.getDerivedAttributes();
 
@@ -275,7 +288,7 @@ public class RoleModalPage extends BaseModalPage {
                     newDerivedAttribute.getSchema());
         }
 
-        //4.Update user's schema virtual attributes
+        //4.Update roles's schema virtual attributes
         final List<AttributeTO> newVirtualAttributes =
                 roleTO.getVirtualAttributes();
 
@@ -291,6 +304,8 @@ public class RoleModalPage extends BaseModalPage {
             roleMod.addVirtualAttributeToBeAdded(
                     newVirtualAttribute.getSchema());
         }
+
+        LOG.error("AAAAAAAAA2 {}", roleMod);
 
         //4.Search and update role's attributes
         for (AttributeTO attributeTO : roleTO.getAttributes()) {
@@ -393,7 +408,8 @@ public class RoleModalPage extends BaseModalPage {
             if (attributeTO.getSchema().equals(oldAttribute.getSchema())) {
 
                 if (attributeTO.getSchema().equals(oldAttribute.getSchema())
-                        && !attributeTO.equals(oldAttribute) && !oldAttribute.isReadonly()) {
+                        && !attributeTO.equals(oldAttribute)
+                        && !oldAttribute.isReadonly()) {
 
                     if (attributeTO.getValues().size() > 1) {
                         attributeMod.setValuesToBeAdded(
