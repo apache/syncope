@@ -68,7 +68,7 @@ public class PropagationTasks extends Panel {
     /**
      * Logger.
      */
-    protected static final Logger LOG = LoggerFactory.getLogger(
+    private static final Logger LOG = LoggerFactory.getLogger(
             PropagationTasks.class);
 
     private static final int WIN_HEIGHT = 500;
@@ -96,9 +96,7 @@ public class PropagationTasks extends Panel {
     @SpringBean
     protected XMLRolesReader xmlRolesReader;
 
-    public PropagationTasks(
-            final String id) {
-
+    public PropagationTasks(final String id) {
         super(id);
 
         add(window = new ModalWindow("taskWin"));
@@ -155,8 +153,7 @@ public class PropagationTasks extends Panel {
                     }
                 };
 
-                EditLinkPanel panel = new EditLinkPanel(componentId,
-                        model);
+                EditLinkPanel panel = new EditLinkPanel(componentId, model);
                 panel.add(viewLink);
 
                 MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,

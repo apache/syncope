@@ -45,7 +45,7 @@ import org.syncope.console.rest.TaskRestClient;
 
 public class Tasks extends BasePage {
 
-    public final static SelectOption[] cronTemplates = new SelectOption[]{
+    public static final SelectOption[] CRON_TEMPLATES = new SelectOption[]{
         new SelectOption(
         "Unschedule", "UNSCHEDULE"),
         new SelectOption(
@@ -59,19 +59,23 @@ public class Tasks extends BasePage {
     };
 
     public Tasks(final PageParameters parameters) {
+        super();
+
         add(new PropagationTasks("propagation"));
         add(new GenericTasks("sched"));
         add(new SyncTasks("sync"));
     }
 
-    public class TaskExecutionsProvider
+    public static class TaskExecutionsProvider
             extends SortableDataProvider<TaskExecTO> {
 
         private SortableDataProviderComparator<TaskExecTO> comparator;
 
         private TaskTO taskTO;
 
-        public TaskExecutionsProvider(TaskTO taskTO) {
+        public TaskExecutionsProvider(final TaskTO taskTO) {
+            super();
+
             //Default sorting
             this.taskTO = taskTO;
             setSort("startDate", true);
@@ -119,9 +123,11 @@ public class Tasks extends BasePage {
 
         private SimpleDateFormat formatter;
 
-        public DatePropertyColumn(
-                IModel<String> displayModel, String sortProperty,
-                String propertyExpression, DateConverter converter) {
+        public DatePropertyColumn(final IModel<String> displayModel,
+                final String sortProperty,
+                final String propertyExpression,
+                final DateConverter converter) {
+
             super(displayModel, sortProperty, propertyExpression);
 
             String language = "en";
@@ -137,9 +143,9 @@ public class Tasks extends BasePage {
         }
 
         @Override
-        public void populateItem(
-                Item<ICellPopulator<T>> item, String componentId,
-                IModel<T> rowModel) {
+        public void populateItem(final Item<ICellPopulator<T>> item,
+                final String componentId, final IModel<T> rowModel) {
+
             IModel date = (IModel<Date>) createLabelModel(rowModel);
 
             String convertedDate = "";
@@ -171,7 +177,9 @@ public class Tasks extends BasePage {
                 final int paginatorRows,
                 final String id,
                 final Class<T> reference) {
+
             super();
+
             //Default sorting
             setSort("id", true);
             comparator = new SortableDataProviderComparator<T>(this);
@@ -182,12 +190,13 @@ public class Tasks extends BasePage {
         }
 
         @Override
-        public Iterator<T> iterator(int first, int count) {
+        public Iterator<T> iterator(final int first, final int count) {
 
             final List<T> tasks = new ArrayList<T>();
 
             for (T task : (List<T>) restClient.listSchedTasks(
                     reference, (first / paginatorRows) + 1, count)) {
+
                 if (task.getLastExec() == null
                         && task.getExecutions() != null
                         && !task.getExecutions().isEmpty()) {
