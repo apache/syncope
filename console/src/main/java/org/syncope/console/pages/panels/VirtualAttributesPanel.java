@@ -14,7 +14,7 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.console.wicket.markup.html.form;
+package org.syncope.console.pages.panels;
 
 import java.util.List;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -24,43 +24,61 @@ import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.WebPage;
-import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.syncope.client.to.AbstractAttributableTO;
 import org.syncope.client.to.AttributeTO;
+import org.syncope.client.to.RoleTO;
+import org.syncope.client.to.UserTO;
+import org.syncope.console.rest.SchemaRestClient;
+import org.syncope.console.wicket.markup.html.form.AjaxDecoratedCheckbox;
 
-public class VirtualAttributesForm extends Form {
+public class VirtualAttributesPanel extends Panel {
 
     /**
      * Logger.
      */
     protected static final Logger LOG =
-            LoggerFactory.getLogger(VirtualAttributesForm.class);
+            LoggerFactory.getLogger(VirtualAttributesPanel.class);
 
-    public VirtualAttributesForm(String id, IModel<?> model) {
-        super(id, model);
-    }
+    @SpringBean
+    private SchemaRestClient schemaRestClient;
 
-    public VirtualAttributesForm(String id) {
+    public <T extends AbstractAttributableTO> VirtualAttributesPanel(
+            final String id, final T entityTO) {
+
         super(id);
-    }
-
-    public <T extends AbstractAttributableTO> Form build(
-            final WebPage page,
-            final T entityTO,
-            final IModel<List<String>> schemaNames) {
 
         setOutputMarkupId(true);
+
+        final IModel<List<String>> virtualSchemaNames =
+                new LoadableDetachableModel<List<String>>() {
+
+                    @Override
+                    protected List<String> load() {
+                        if (entityTO instanceof RoleTO) {
+                            return schemaRestClient.getVirtualSchemaNames(
+                                    "role");
+                        } else if (entityTO instanceof UserTO) {
+                            return schemaRestClient.getVirtualSchemaNames(
+                                    "user");
+                        } else {
+                            return schemaRestClient.getVirtualSchemaNames(
+                                    "membership");
+                        }
+                    }
+                };
 
         final WebMarkupContainer attributesContainer =
                 new WebMarkupContainer("virAttrContainer");
@@ -69,8 +87,7 @@ public class VirtualAttributesForm extends Form {
         add(attributesContainer);
 
         AjaxButton addAttributeBtn = new IndicatingAjaxButton(
-                "addAttributeBtn",
-                new Model(page.getString("addAttributeBtn"))) {
+                "addAttributeBtn", new Model(getString("addAttributeBtn"))) {
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target,
@@ -97,7 +114,7 @@ public class VirtualAttributesForm extends Form {
 
                     @Override
                     protected void onUpdate(final AjaxRequestTarget target) {
-                        entityTO.getVirtualAttributes().remove(attributeTO);
+                        entityTO.removeVirtualAttribute(attributeTO);
                         target.addComponent(attributesContainer);
                     }
 
@@ -123,7 +140,7 @@ public class VirtualAttributesForm extends Form {
                         new DropDownChoice<String>(
                         "schema",
                         new PropertyModel<String>(attributeTO, "schema"),
-                        schemaNames);
+                        virtualSchemaNames);
 
                 schemaChoice.add(new AjaxFormComponentUpdatingBehavior("onblur") {
 
@@ -165,7 +182,7 @@ public class VirtualAttributesForm extends Form {
                         item.add(field);
 
                         AjaxButton dropButton = new IndicatingAjaxButton("drop",
-                                new Model(page.getString("drop"))) {
+                                new Model(getString("drop"))) {
 
                             @Override
                             protected void onSubmit(
@@ -183,7 +200,7 @@ public class VirtualAttributesForm extends Form {
                                 Boolean.FALSE));
 
                         AjaxButton addButton = new IndicatingAjaxButton("add",
-                                new Model(page.getString("add"))) {
+                                new Model(getString("add"))) {
 
                             @Override
                             protected void onSubmit(
@@ -197,7 +214,8 @@ public class VirtualAttributesForm extends Form {
                         item.add(addButton.setDefaultFormProcessing(
                                 Boolean.FALSE));
 
-                        if (item.getIndex() == attributeTO.getValues().size() - 1) {
+                        if (item.getIndex()
+                                == attributeTO.getValues().size() - 1) {
                             addButton.setVisible(Boolean.TRUE);
                             addButton.setEnabled(Boolean.TRUE);
                         } else {
@@ -218,7 +236,5 @@ public class VirtualAttributesForm extends Form {
         };
 
         attributesContainer.add(attributes);
-
-        return this;
     }
 }

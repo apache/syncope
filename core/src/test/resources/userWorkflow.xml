@@ -26,7 +26,23 @@
             <actions>
                 <action name="create" id="1001">
                     <results>
-                        <unconditional-result old-status="creationRequest" status="active" step="3"/>
+                        <unconditional-result old-status="creationRequest" status="doubleOptIn" step="2">
+                            <post-functions>
+                                <function type="class">
+                                    <arg name="class.name">org.syncope.core.workflow.SendVelocityEmail</arg>
+                                    <arg name="kind">optin</arg>
+                                </function>
+                            </post-functions>
+                        </unconditional-result>
+                    </results>
+                </action>
+            </actions>
+        </step>
+        <step name="doubleOptIn" id="2">
+            <actions>
+                <action name="activate" id="2001">
+                    <results>
+                        <unconditional-result old-status="doubleOptIn" status="active" step="3"/>
                     </results>
                 </action>
             </actions>

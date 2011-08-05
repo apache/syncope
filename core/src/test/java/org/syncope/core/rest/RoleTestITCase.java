@@ -140,4 +140,58 @@ public class RoleTestITCase extends AbstractTest {
         assertEquals("finalRole", roleTO.getName());
         assertEquals(2, roleTO.getAttributes().size());
     }
+
+    @Test
+    public void updateRemovingVirAttribute() {
+        RoleTO roleTO = new RoleTO();
+        roleTO.setName("withvirtual");
+        roleTO.setParent(8L);
+
+        final AttributeTO rvirtualdata = new AttributeTO();
+        rvirtualdata.setSchema("rvirtualdata");
+        roleTO.addVirtualAttribute(rvirtualdata);
+
+        roleTO = restTemplate.postForObject(
+                BASE_URL + "role/create", roleTO, RoleTO.class);
+
+        assertNotNull(roleTO);
+        assertEquals(1, roleTO.getVirtualAttributes().size());
+
+        final RoleMod roleMod = new RoleMod();
+        roleMod.setId(roleTO.getId());
+        roleMod.addVirtualAttributeToBeRemoved("rvirtualdata");
+
+        roleTO = restTemplate.postForObject(
+                BASE_URL + "role/update", roleMod, RoleTO.class);
+
+        assertNotNull(roleTO);
+        assertTrue(roleTO.getVirtualAttributes().isEmpty());
+    }
+
+    @Test
+    public void updateRemovingDerAttribute() {
+        RoleTO roleTO = new RoleTO();
+        roleTO.setName("withderived");
+        roleTO.setParent(8L);
+
+        final AttributeTO deriveddata = new AttributeTO();
+        deriveddata.setSchema("rderivedschema");
+        roleTO.addDerivedAttribute(deriveddata);
+
+        roleTO = restTemplate.postForObject(
+                BASE_URL + "role/create", roleTO, RoleTO.class);
+
+        assertNotNull(roleTO);
+        assertEquals(1, roleTO.getDerivedAttributes().size());
+
+        final RoleMod roleMod = new RoleMod();
+        roleMod.setId(roleTO.getId());
+        roleMod.addDerivedAttributeToBeRemoved("rderivedschema");
+
+        roleTO = restTemplate.postForObject(
+                BASE_URL + "role/update", roleMod, RoleTO.class);
+
+        assertNotNull(roleTO);
+        assertTrue(roleTO.getDerivedAttributes().isEmpty());
+    }
 }

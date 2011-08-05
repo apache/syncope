@@ -14,6 +14,8 @@
  */
 package org.syncope.console.wicket.markup.html.form;
 
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
@@ -21,22 +23,44 @@ import org.apache.wicket.model.Model;
 
 public class AjaxCheckBoxPanel extends Panel {
 
-    public AjaxCheckBoxPanel(final String id, final String name,
-            final IModel<Boolean> model, final boolean required) {
+    public AjaxCheckBoxPanel(
+            final String id,
+            final String name,
+            final IModel<Boolean> model,
+            final boolean required) {
 
         super(id, model);
 
-        add(new CheckBox("checkboxField", model).setLabel(
-                new Model(name)));
+        final CheckBox field = new CheckBox("checkboxField", model);
+        add(field.setLabel(new Model(name)));
+
+        field.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+
+            @Override
+            protected void onUpdate(AjaxRequestTarget art) {
+                // nothing to do
+            }
+        });
     }
 
-    public AjaxCheckBoxPanel(final String id, final String name,
+    public AjaxCheckBoxPanel(
+            final String id,
+            final String name,
             final IModel<Boolean> model,
-            final boolean required, final boolean readonly) {
+            final boolean required,
+            final boolean readonly) {
 
         super(id, model);
 
-        add(new CheckBox("checkboxField", model).setLabel(
-                new Model(name)).setEnabled(!readonly));
+        final CheckBox field = new CheckBox("checkboxField", model);
+        add(field.setLabel(new Model(name)).setEnabled(!readonly));
+
+        field.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+
+            @Override
+            protected void onUpdate(AjaxRequestTarget art) {
+                // nothing to do
+            }
+        });
     }
 }

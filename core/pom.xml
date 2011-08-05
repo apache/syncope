@@ -395,6 +395,7 @@
                                     <patternset>
                                         <exclude name="**/content.xml" />
                                         <exclude name="**/ehcache.xml" />
+                                        <exclude name="**/userWorkflow.xml" />
                                         <exclude name="**/persistence.properties" />
                                         <exclude name="**/security.properties" />
                                     </patternset>
@@ -438,13 +439,13 @@
                                     <groupId>org.connid.bundles.soap</groupId>
                                     <artifactId>org.connid.bundles.soap</artifactId>
                                     <version>${connid.soap.version}</version>
-                                    <outputDirectory>${bundles.directory}</outputDirectory>                                
+                                    <outputDirectory>${bundles.directory}</outputDirectory>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.connid.bundles.db</groupId>
                                     <artifactId>org.connid.bundles.db.table</artifactId>
                                     <version>${connid.db.table.version}</version>
-                                    <outputDirectory>${bundles.directory}</outputDirectory>                                
+                                    <outputDirectory>${bundles.directory}</outputDirectory>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>
@@ -473,7 +474,7 @@
                         <id>startTestDb</id>
                         <phase>package</phase>
                         <goals>
-                            <goal>run</goal>    
+                            <goal>run</goal>
                         </goals>
                     </execution>
                 </executions>
@@ -504,7 +505,7 @@
                         <id>loadTestDb</id>
                         <phase>pre-integration-test</phase>
                         <goals>
-                            <goal>execute</goal>    
+                            <goal>execute</goal>
                         </goals>
                     </execution>
                 </executions>

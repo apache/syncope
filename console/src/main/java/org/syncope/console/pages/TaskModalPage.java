@@ -41,6 +41,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.syncope.client.to.PropagationTaskTO;
 import org.syncope.client.to.SchedTaskTO;
 import org.syncope.client.to.SyncTaskTO;
 import org.syncope.client.to.TaskExecTO;
@@ -69,10 +70,12 @@ public class TaskModalPage extends BaseModalPage {
 
     public TaskModalPage(final TaskTO taskTO) {
 
-        final TaskTO actual = taskTO instanceof SyncTaskTO
-                ? taskRestClient.readSchedTasks(
+        final TaskTO actual = taskTO instanceof PropagationTaskTO
+                ? taskRestClient.readPropagationTask(taskTO.getId())
+                : taskTO instanceof SyncTaskTO
+                ? taskRestClient.readSchedTask(
                 SyncTaskTO.class, taskTO.getId())
-                : taskRestClient.readSchedTasks(
+                : taskRestClient.readSchedTask(
                 SchedTaskTO.class, taskTO.getId());
 
         final Label dialogContent =

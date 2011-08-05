@@ -285,7 +285,7 @@ public class Users extends BasePage {
                     @Override
                     public Page createPage() {
                         return new UserModalPage(
-                                Users.this, editModalWin, new UserTO(), true);
+                                Users.this, editModalWin, new UserTO());
                     }
                 });
 
@@ -565,7 +565,7 @@ public class Users extends BasePage {
                                     public Page createPage() {
                                         return new UserModalPage(
                                                 Users.this, editModalWin,
-                                                model.getObject(), false);
+                                                model.getObject());
                                     }
                                 });
 

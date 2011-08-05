@@ -72,7 +72,7 @@ public class SchedTaskModalPage extends TaskModalPage {
                 new DropDownChoice(
                 "cronTemplateChooser",
                 new PropertyModel(taskTO, "cronExpression"),
-                Arrays.asList(Tasks.cronTemplates),
+                Arrays.asList(Tasks.CRON_TEMPLATES),
                 new SelectChoiceRenderer()) {
 
                     @Override

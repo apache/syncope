@@ -14,6 +14,7 @@
  */
 package org.syncope.console.wicket.markup.html.form;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.StringTokenizer;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -23,7 +24,6 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.FormComponent;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.extensions.yui.calendar.DatePicker;
 import org.apache.wicket.extensions.yui.calendar.DateTimeField;
 import org.apache.wicket.markup.html.form.validation.AbstractFormValidator;
 import org.apache.wicket.model.Model;
@@ -31,12 +31,17 @@ import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.validation.IValidationError;
 import org.apache.wicket.validation.ValidationError;
 import org.apache.wicket.datetime.markup.html.form.DateTextField;
+import org.apache.wicket.extensions.yui.calendar.DatePicker;
 
 public class DateFieldPanel extends Panel {
 
-    public DateFieldPanel(final String id, final String name,
-            final IModel<Date> model, final String datePattern,
-            final boolean required, final boolean readonly,
+    public DateFieldPanel(
+            final String id,
+            final String name,
+            final IModel<Date> model,
+            final String datePattern,
+            final boolean required,
+            final boolean readonly,
             final Form form) {
 
         super(id, model);
@@ -52,34 +57,96 @@ public class DateFieldPanel extends Panel {
         if (!datePattern.contains("H")) {
             datePanel = new Fragment("datePanel", "dateField", this);
 
-            DateTextField field = DateTextField.forDatePattern("field", model,
-                    datePattern);
+            final DateTextField field = DateTextField.forDatePattern(
+                    "field", model, datePattern);
+
+            field.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+
+                @Override
+                protected void onUpdate(AjaxRequestTarget art) {
+                    // nothing to do
+                }
+            });
 
             field.add(getDatePicker());
 
             field.setEnabled(!readonly);
             field.setLabel(new Model(name));
 
-            field.add(new AjaxFormComponentUpdatingBehavior("onblur") {
-
-                protected void onUpdate(AjaxRequestTarget target) {
-                }
-            });
-
             datePanel.add(field);
         } else {
             datePanel = new Fragment("datePanel", "dateTimeField", this);
 
-            DateTimeField field = new DateTimeField("field", model);
+            final DateTimeField field = new DateTimeField("field", model);
+
+            final Calendar cal = Calendar.getInstance();
+
+            field.get("hours").
+                    add(new AjaxFormComponentUpdatingBehavior("onchange") {
+
+                @Override
+                protected void onUpdate(AjaxRequestTarget art) {
+                    // nothing to do
+                    //cal.setTime(field.getModelObject());
+                    if (field.getHours() > 12) {
+                        cal.set(Calendar.HOUR_OF_DAY, field.getHours());
+                    } else {
+                        cal.set(Calendar.HOUR, field.getHours());
+                    }
+                    field.setModelObject(cal.getTime());
+                }
+            });
+
+            field.get("minutes").
+                    add(new AjaxFormComponentUpdatingBehavior("onchange") {
+
+                @Override
+                protected void onUpdate(AjaxRequestTarget art) {
+                    // nothing to do
+                    //cal.setTime(field.getModelObject());
+                    cal.set(Calendar.MINUTE, field.getMinutes());
+                    field.setModelObject(cal.getTime());
+                }
+            });
+
+            field.get("date").
+                    add(new AjaxFormComponentUpdatingBehavior("onchange") {
+
+                @Override
+                protected void onUpdate(AjaxRequestTarget art) {
+                    // nothing to do
+                    cal.setTime(field.getDate());
+
+                    if ("PM".equals("" + field.getAmOrPm())) {
+                        cal.set(Calendar.AM_PM, Calendar.PM);
+                    } else {
+                        cal.set(Calendar.AM_PM, Calendar.AM);
+                    }
+
+                    field.setModelObject(cal.getTime());
+                }
+            });
+
+            field.get("amOrPmChoice").
+                    add(new AjaxFormComponentUpdatingBehavior("onchange") {
+
+                @Override
+                protected void onUpdate(AjaxRequestTarget art) {
+                    // nothing to do
+                    //cal.setTime(field.getModelObject());
+
+                    if ("PM".equals("" + field.getAmOrPm())) {
+                        cal.set(Calendar.AM_PM, Calendar.PM);
+                    } else {
+                        cal.set(Calendar.AM_PM, Calendar.AM);
+                    }
+
+                    field.setModelObject(cal.getTime());
+                }
+            });
 
             field.setEnabled(!readonly);
             field.setLabel(new Model(name));
-
-            field.add(new AjaxFormComponentUpdatingBehavior("onblur") {
-
-                protected void onUpdate(AjaxRequestTarget target) {
-                }
-            });
 
             datePanel.add(field);
 
@@ -94,7 +161,7 @@ public class DateFieldPanel extends Panel {
     /**
      * Setup a DatePicker component.
      */
-    public DatePicker getDatePicker() {
+    private DatePicker getDatePicker() {
         final DatePicker picker = new DatePicker() {
 
             @Override
@@ -112,15 +179,14 @@ public class DateFieldPanel extends Panel {
      * Custom form validator for registering and handling DateTimeField
      * components that are in it.
      */
-    public class DateTimeFormValidator extends AbstractFormValidator {
+    private class DateTimeFormValidator extends AbstractFormValidator {
 
         private FormComponent[] dateTimeComponents;
 
         public DateTimeFormValidator(DateTimeField dateTimeComponent) {
             if (dateTimeComponent == null) {
                 throw new IllegalArgumentException(
-                        "argument dateTimeComponent cannot "
-                        + "be null");
+                        "argument dateTimeComponent cannot be null");
             }
 
             dateTimeComponents = new FormComponent[]{dateTimeComponent};
@@ -139,6 +205,7 @@ public class DateFieldPanel extends Panel {
         public void validate(Form form) {
             DateTimeField dateTimeField = (DateTimeField) dateTimeComponents[0];
 
+            // TODO: must be done better than this
             StringTokenizer inputDateTokenizer = new StringTokenizer(
                     dateTimeField.getInput(), ",");
 
@@ -150,7 +217,8 @@ public class DateFieldPanel extends Panel {
                 isValid = false;
             } else {
                 //First token = date
-                String date = inputDateTokenizer.nextToken();
+                inputDateTokenizer.nextToken();
+
                 //Second token = time
                 StringTokenizer timeTokenizer = new StringTokenizer(
                         inputDateTokenizer.nextToken(), ":");

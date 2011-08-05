@@ -14,7 +14,7 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.console.wicket.markup.html.form;
+package org.syncope.console.pages.panels;
 
 import java.util.List;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -24,53 +24,70 @@ import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.WebPage;
-import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.syncope.client.to.AbstractAttributableTO;
 import org.syncope.client.to.AttributeTO;
+import org.syncope.client.to.RoleTO;
+import org.syncope.client.to.UserTO;
+import org.syncope.console.rest.SchemaRestClient;
+import org.syncope.console.wicket.markup.html.form.AjaxDecoratedCheckbox;
 
-public class DerivedAttributesForm extends Form {
+public class DerivedAttributesPanel extends Panel {
 
     /**
      * Logger.
      */
     protected static final Logger LOG =
-            LoggerFactory.getLogger(DerivedAttributesForm.class);
+            LoggerFactory.getLogger(DerivedAttributesPanel.class);
 
-    public DerivedAttributesForm(String id, IModel<?> model) {
-        super(id, model);
-    }
+    @SpringBean
+    private SchemaRestClient schemaRestClient;
 
-    public DerivedAttributesForm(String id) {
+    public <T extends AbstractAttributableTO> DerivedAttributesPanel(
+            final String id, final T entityTO) {
+
         super(id);
-    }
-
-    public <T extends AbstractAttributableTO> Form build(
-            final WebPage page,
-            final T entityTO,
-            final IModel<List<String>> schemaNames) {
-
         setOutputMarkupId(true);
+
+        final IModel<List<String>> derivedSchemaNames =
+                new LoadableDetachableModel<List<String>>() {
+
+                    @Override
+                    protected List<String> load() {
+                        if (entityTO instanceof RoleTO) {
+                            return schemaRestClient.getDerivedSchemaNames(
+                                    "role");
+                        } else if (entityTO instanceof UserTO) {
+                            return schemaRestClient.getDerivedSchemaNames(
+                                    "user");
+                        } else {
+                            return schemaRestClient.getDerivedSchemaNames(
+                                    "membership");
+                        }
+                    }
+                };
 
         final WebMarkupContainer attributesContainer =
                 new WebMarkupContainer("derAttrContainer");
-        
+
         attributesContainer.setOutputMarkupId(true);
         add(attributesContainer);
 
         AjaxButton addAttributeBtn = new IndicatingAjaxButton(
                 "addAttributeBtn",
-                new Model(page.getString("addAttributeBtn"))) {
+                new Model(getString("addAttributeBtn"))) {
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target,
@@ -123,7 +140,7 @@ public class DerivedAttributesForm extends Form {
                         new DropDownChoice<String>(
                         "schema",
                         new PropertyModel<String>(attributeTO, "schema"),
-                        schemaNames);
+                        derivedSchemaNames);
 
                 schemaChoice.add(new AjaxFormComponentUpdatingBehavior("onblur") {
 
@@ -155,6 +172,5 @@ public class DerivedAttributesForm extends Form {
         };
 
         attributesContainer.add(attributes);
-        return this;
     }
 }

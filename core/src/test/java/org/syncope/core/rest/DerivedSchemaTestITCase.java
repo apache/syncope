@@ -64,7 +64,7 @@ public class DerivedSchemaTestITCase extends AbstractTest {
     @Test
     public void delete() {
         DerivedSchemaTO schema = restTemplate.getForObject(BASE_URL
-                + "derivedSchema/role/read/deriveddata.json",
+                + "derivedSchema/role/read/rderiveddata.json",
                 DerivedSchemaTO.class);
         assertNotNull(schema);
 
@@ -75,7 +75,7 @@ public class DerivedSchemaTestITCase extends AbstractTest {
         Throwable t = null;
         try {
             restTemplate.getForObject(BASE_URL
-                    + "derivedSchema/role/read/deriveddata.json",
+                    + "derivedSchema/role/read/rderiveddata.json",
                     DerivedSchemaTO.class);
         } catch (SyncopeClientCompositeErrorException e) {
             t = e;
@@ -87,12 +87,12 @@ public class DerivedSchemaTestITCase extends AbstractTest {
     @Test
     public void update() {
         DerivedSchemaTO schema = restTemplate.getForObject(BASE_URL
-                + "derivedSchema/membership/read/deriveddata.json",
+                + "derivedSchema/membership/read/mderiveddata.json",
                 DerivedSchemaTO.class);
         assertNotNull(schema);
-        assertEquals("derived_sx + '-' + derived_dx", schema.getExpression());
+        assertEquals("mderived_sx + '-' + mderived_dx", schema.getExpression());
 
-        schema.setExpression("derived_sx + '.' + derived_dx");
+        schema.setExpression("mderived_sx + '.' + mderived_dx");
 
         schema = restTemplate.postForObject(BASE_URL
                 + "derivedSchema/membership/update.json",
@@ -101,9 +101,9 @@ public class DerivedSchemaTestITCase extends AbstractTest {
         assertNotNull(schema);
 
         schema = restTemplate.getForObject(BASE_URL
-                + "derivedSchema/membership/read/deriveddata.json",
+                + "derivedSchema/membership/read/mderiveddata.json",
                 DerivedSchemaTO.class);
         assertNotNull(schema);
-        assertEquals("derived_sx + '.' + derived_dx", schema.getExpression());
+        assertEquals("mderived_sx + '.' + mderived_dx", schema.getExpression());
     }
 }
