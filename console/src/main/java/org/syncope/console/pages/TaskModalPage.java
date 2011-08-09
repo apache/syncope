@@ -70,7 +70,9 @@ public class TaskModalPage extends BaseModalPage {
 
     public TaskModalPage(final TaskTO taskTO) {
 
-        final TaskTO actual = taskTO instanceof PropagationTaskTO
+        final TaskTO actual = taskTO.getId() == 0
+                ? taskTO
+                : taskTO instanceof PropagationTaskTO
                 ? taskRestClient.readPropagationTask(taskTO.getId())
                 : taskTO instanceof SyncTaskTO
                 ? taskRestClient.readSchedTask(
