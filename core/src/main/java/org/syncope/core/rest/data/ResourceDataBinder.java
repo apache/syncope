@@ -111,6 +111,10 @@ public class ResourceDataBinder {
 
         resource.setAccountLink(resourceTO.getAccountLink());
 
+        resource.setCreatesTrackingMode(resourceTO.getCreatesTrackingMode());
+        resource.setUpdatesTrackingMode(resourceTO.getUpdatesTrackingMode());
+        resource.setDeletesTrackingMode(resourceTO.getDeletesTrackingMode());
+
         return resource;
     }
 
@@ -156,6 +160,10 @@ public class ResourceDataBinder {
 
         resourceTO.setOptionalPropagationMode(
                 resource.getOptionalPropagationMode());
+
+        resourceTO.setCreatesTrackingMode(resource.getCreatesTrackingMode());
+        resourceTO.setUpdatesTrackingMode(resource.getUpdatesTrackingMode());
+        resourceTO.setDeletesTrackingMode(resource.getDeletesTrackingMode());
 
         return resourceTO;
     }

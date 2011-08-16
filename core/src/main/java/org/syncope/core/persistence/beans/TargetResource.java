@@ -38,6 +38,7 @@ import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.validation.entity.TargetResourceCheck;
 import org.syncope.types.PropagationMode;
 import org.syncope.types.SourceMappingType;
+import org.syncope.types.TrackingMode;
 
 /**
  * A resource to which propagation occurs.
@@ -100,6 +101,18 @@ public class TargetResource extends AbstractBaseBean {
     @Column(nullable = false)
     private PropagationMode optionalPropagationMode;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TrackingMode createsTrackingMode;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TrackingMode deletesTrackingMode;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TrackingMode updatesTrackingMode;
+
     /**
      * Default constructor.
      */
@@ -111,6 +124,10 @@ public class TargetResource extends AbstractBaseBean {
         roles = new HashSet<SyncopeRole>();
         mappings = new ArrayList<SchemaMapping>();
         optionalPropagationMode = PropagationMode.ASYNC;
+        
+        createsTrackingMode = TrackingMode.FAILURES;
+        deletesTrackingMode = TrackingMode.FAILURES;
+        updatesTrackingMode = TrackingMode.FAILURES;
     }
 
     public boolean isForceMandatoryConstraint() {
@@ -238,5 +255,29 @@ public class TargetResource extends AbstractBaseBean {
         if (users != null && !users.isEmpty()) {
             this.users.addAll(users);
         }
+    }
+
+    public TrackingMode getCreatesTrackingMode() {
+        return createsTrackingMode;
+    }
+
+    public void setCreatesTrackingMode(TrackingMode createsTrackingMode) {
+        this.createsTrackingMode = createsTrackingMode;
+    }
+
+    public TrackingMode getDeletesTrackingMode() {
+        return deletesTrackingMode;
+    }
+
+    public void setDeletesTrackingMode(TrackingMode deletesTrackingMode) {
+        this.deletesTrackingMode = deletesTrackingMode;
+    }
+
+    public TrackingMode getUpdatesTrackingMode() {
+        return updatesTrackingMode;
+    }
+
+    public void setUpdatesTrackingMode(TrackingMode updatesTrackingMode) {
+        this.updatesTrackingMode = updatesTrackingMode;
     }
 }

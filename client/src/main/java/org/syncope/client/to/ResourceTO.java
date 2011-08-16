@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.syncope.client.AbstractBaseBean;
 import org.syncope.types.PropagationMode;
+import org.syncope.types.TrackingMode;
 
 public class ResourceTO extends AbstractBaseBean {
 
@@ -48,9 +49,18 @@ public class ResourceTO extends AbstractBaseBean {
      */
     private boolean forceMandatoryConstraint;
 
+    private TrackingMode createsTrackingMode;
+
+    private TrackingMode deletesTrackingMode;
+
+    private TrackingMode updatesTrackingMode;
+
     public ResourceTO() {
         mappings = new ArrayList<SchemaMappingTO>();
         optionalPropagationMode = PropagationMode.ASYNC;
+        createsTrackingMode = TrackingMode.ALL;
+        deletesTrackingMode = TrackingMode.ALL;
+        updatesTrackingMode = TrackingMode.ALL;
     }
 
     public boolean isForceMandatoryConstraint() {
@@ -109,5 +119,29 @@ public class ResourceTO extends AbstractBaseBean {
             PropagationMode optionalPropagationMode) {
 
         this.optionalPropagationMode = optionalPropagationMode;
+    }
+
+    public TrackingMode getCreatesTrackingMode() {
+        return createsTrackingMode;
+    }
+
+    public void setCreatesTrackingMode(TrackingMode createsTrackingMode) {
+        this.createsTrackingMode = createsTrackingMode;
+    }
+
+    public TrackingMode getDeletesTrackingMode() {
+        return deletesTrackingMode;
+    }
+
+    public void setDeletesTrackingMode(TrackingMode deletesTrackingMode) {
+        this.deletesTrackingMode = deletesTrackingMode;
+    }
+
+    public TrackingMode getUpdatesTrackingMode() {
+        return updatesTrackingMode;
+    }
+
+    public void setUpdatesTrackingMode(TrackingMode updatesTrackingMode) {
+        this.updatesTrackingMode = updatesTrackingMode;
     }
 }

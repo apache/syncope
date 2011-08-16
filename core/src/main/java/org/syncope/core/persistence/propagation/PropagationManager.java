@@ -66,6 +66,7 @@ import org.syncope.types.ResourceOperationType;
 import org.syncope.types.SourceMappingType;
 import org.syncope.types.SchemaType;
 import org.syncope.types.PropagationTaskExecStatus;
+import org.syncope.types.TrackingMode;
 
 /**
  * Manage the data propagation to target resources.
@@ -233,6 +234,7 @@ public class PropagationManager {
         TaskExec execution;
         for (ResourceOperationType type : ResourceOperationType.values()) {
             for (TargetResource resource : resourceOperations.get(type)) {
+
                 Map<String, Set<Attribute>> preparedAttributes =
                         prepareAttributes(user, password, resource);
                 String accountId =
@@ -250,7 +252,6 @@ public class PropagationManager {
                         resourceOperations.getOldAccountId(resource.getName()));
                 task.setAttributes(
                         preparedAttributes.values().iterator().next());
-                task = taskDAO.save(task);
 
                 LOG.debug("Execution started for {}", task);
 
@@ -575,14 +576,10 @@ public class PropagationManager {
 
     }
 
-    public TaskExec propagate(final PropagationTask task,
-            final Date startDate) {
+    public TaskExec propagate(PropagationTask task, final Date startDate) {
 
         TaskExec execution = new TaskExec();
-        execution.setTask(task);
-        execution.setStatus(
-                PropagationTaskExecStatus.CREATED.toString());
-        execution = taskExecDAO.save(execution);
+        execution.setStatus(PropagationTaskExecStatus.CREATED.toString());
 
         String taskExecutionMessage = null;
 
@@ -708,21 +705,62 @@ public class PropagationManager {
         } finally {
             LOG.debug("Update execution for {}", task);
 
-            if (!propagationAttempted.isEmpty()) {
-                execution.setStartDate(startDate);
-                execution.setMessage(taskExecutionMessage);
-                execution.setEndDate(new Date());
+            if (hasToBeregistered(task, execution)) {
+                task = taskDAO.save(task);
 
-                taskExecDAO.save(execution);
+                if (!propagationAttempted.isEmpty()) {
+                    execution.setStartDate(startDate);
+                    execution.setMessage(taskExecutionMessage);
+                    execution.setEndDate(new Date());
 
-                LOG.debug("Execution finished: {}", execution);
-            } else {
-                taskExecDAO.delete(execution);
+                    execution.setTask(task);
+                    execution = taskExecDAO.save(execution);
 
-                LOG.debug("Execution removed: {}", execution);
+                    LOG.debug("Execution finished: {}", execution);
+                } else {
+                    LOG.debug("No propagation attemped for {}", execution);
+                }
             }
         }
 
         return execution;
+    }
+
+    private boolean hasToBeregistered(
+            final PropagationTask task,
+            final TaskExec execution) {
+
+        final Boolean failed = !PropagationTaskExecStatus.SUCCESS.toString().
+                equals(execution.getStatus());
+
+        final Boolean all =
+                (task.getResourceOperationType().
+                equals(ResourceOperationType.CREATE)
+                && task.getResource().getCreatesTrackingMode().
+                equals(TrackingMode.ALL))
+                || (task.getResourceOperationType().
+                equals(ResourceOperationType.UPDATE)
+                && task.getResource().getUpdatesTrackingMode().
+                equals(TrackingMode.ALL))
+                || (task.getResourceOperationType().
+                equals(ResourceOperationType.DELETE)
+                && task.getResource().getDeletesTrackingMode().
+                equals(TrackingMode.ALL));
+
+        final Boolean failures =
+                (task.getResourceOperationType().
+                equals(ResourceOperationType.CREATE)
+                && task.getResource().getCreatesTrackingMode().
+                equals(TrackingMode.FAILURES))
+                || (task.getResourceOperationType().
+                equals(ResourceOperationType.UPDATE)
+                && task.getResource().getUpdatesTrackingMode().
+                equals(TrackingMode.FAILURES))
+                || (task.getResourceOperationType().
+                equals(ResourceOperationType.DELETE)
+                && task.getResource().getDeletesTrackingMode().
+                equals(TrackingMode.FAILURES));
+
+        return all || (failed && failures);
     }
 }
