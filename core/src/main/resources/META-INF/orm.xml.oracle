@@ -215,4 +215,12 @@
             </id>
         </attributes>
     </entity>
+    <entity class="org.syncope.core.persistence.beans.Policy">
+        <attributes>
+            <id name="id">
+                <generated-value generator="SEQ_Policy" strategy="TABLE"/>
+                <table-generator name="SEQ_Policy" pk-column-value="SEQ_Policy" initial-value="1000"/>
+            </id>
+        </attributes>
+    </entity>
 </entity-mappings>

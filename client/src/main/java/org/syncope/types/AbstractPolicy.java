@@ -12,19 +12,9 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.persistence.validation.attrvalue;
+package org.syncope.types;
 
-import javax.validation.ValidationException;
-import org.syncope.core.persistence.beans.AbstractAttrValue;
+import org.syncope.client.AbstractBaseBean;
 
-public class InvalidAttrValueException extends ValidationException {
-
-    public InvalidAttrValueException(final AbstractAttrValue value) {
-        super("Could not validate " + value);
-    }
-
-    public InvalidAttrValueException(
-            final AbstractAttrValue value, Throwable t) {
-        super("Could not validate " + value, t);
-    }
+public abstract class AbstractPolicy extends AbstractBaseBean {
 }

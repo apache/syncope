@@ -108,7 +108,6 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
                 HttpStatus.BAD_REQUEST);
 
         // password
-        // TODO: check password policies
         SyncopeClientException invalidPassword = new SyncopeClientException(
                 SyncopeClientExceptionType.InvalidPassword);
         if (userTO.getPassword() == null || userTO.getPassword().isEmpty()) {

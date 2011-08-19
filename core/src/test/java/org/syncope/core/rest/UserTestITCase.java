@@ -143,7 +143,7 @@ public class UserTestITCase extends AbstractTest {
         attributeTO.addValue("xxx");
         userTO.addAttribute(attributeTO);
 
-        userTO.setPassword("xxx");
+        userTO.setPassword("password");
         userTO.addResource("ws-target-resource-nopropagation");
 
         restTemplate.postForObject(BASE_URL + "user/create"
@@ -201,12 +201,22 @@ public class UserTestITCase extends AbstractTest {
         attributeTO.addValue("yyy");
         userTO.addAttribute(attributeTO);
 
-        userTO.setPassword("yyy");
+        userTO.setPassword("password");
         userTO.addResource("ws-target-resource-testdb");
 
         restTemplate.postForObject(BASE_URL + "user/create"
                 + "?mandatoryResources=ws-target-resource-testdb",
                 userTO, UserTO.class);
+    }
+
+    @Test
+    @ExpectedException(value = SyncopeClientCompositeErrorException.class)
+    public final void createWithInvalidPassword() {
+        UserTO userTO = getSampleTO("invalidpasswd@passwd.com");
+        userTO.setPassword("pass");
+
+        restTemplate.postForObject(
+                BASE_URL + "user/create", userTO, UserTO.class);
     }
 
     @Test
@@ -664,6 +674,55 @@ public class UserTestITCase extends AbstractTest {
     }
 
     @Test
+    public final void updateWithouPassword() {
+        UserTO userTO = getSampleTO("updatewithout@password.com");
+
+        userTO = restTemplate.postForObject(
+                BASE_URL + "user/create", userTO, UserTO.class);
+
+        assertNotNull(userTO);
+
+        userTO = restTemplate.postForObject(BASE_URL + "user/activate",
+                userTO, UserTO.class);
+
+        assertNotNull(userTO);
+
+        UserMod userMod = new UserMod();
+        userMod.setId(userTO.getId());
+        userMod.addDerivedAttributeToBeRemoved("cn");
+
+        userTO = restTemplate.postForObject(
+                BASE_URL + "user/update", userMod, UserTO.class);
+
+        assertNotNull(userTO);
+        assertNotNull(userTO.getDerivedAttributeMap());
+        assertFalse(userTO.getDerivedAttributeMap().containsKey("cn"));
+    }
+
+    @Test
+    @ExpectedException(value = SyncopeClientCompositeErrorException.class)
+    public final void updateInvalidPassword() {
+        UserTO userTO = getSampleTO("updateinvalid@password.com");
+
+        userTO = restTemplate.postForObject(
+                BASE_URL + "user/create", userTO, UserTO.class);
+
+        assertNotNull(userTO);
+
+        userTO = restTemplate.postForObject(BASE_URL + "user/activate",
+                userTO, UserTO.class);
+
+        assertNotNull(userTO);
+
+        UserMod userMod = new UserMod();
+        userMod.setId(userTO.getId());
+        userMod.setPassword("pass");
+
+        restTemplate.postForObject(
+                BASE_URL + "user/update", userMod, UserTO.class);
+    }
+
+    @Test
     public final void update() {
         UserTO userTO = getSampleTO("g.h@t.com");
 
@@ -716,8 +775,7 @@ public class UserTestITCase extends AbstractTest {
 
         SyncopeUser passwordTestUser = new SyncopeUser();
         passwordTestUser.setPassword("newPassword", CipherAlgorithm.MD5);
-        assertEquals(passwordTestUser.getPassword(),
-                userTO.getPassword());
+        assertEquals(passwordTestUser.getPassword(), userTO.getPassword());
 
         assertEquals(1, userTO.getMemberships().size());
         assertEquals(1, userTO.getMemberships().iterator().next().

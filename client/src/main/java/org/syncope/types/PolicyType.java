@@ -2,9 +2,9 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *
+ * 
  *       http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -12,19 +12,21 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.persistence.validation.attrvalue;
+package org.syncope.types;
 
-import javax.validation.ValidationException;
-import org.syncope.core.persistence.beans.AbstractAttrValue;
+public enum PolicyType {
 
-public class InvalidAttrValueException extends ValidationException {
-
-    public InvalidAttrValueException(final AbstractAttrValue value) {
-        super("Could not validate " + value);
-    }
-
-    public InvalidAttrValueException(
-            final AbstractAttrValue value, Throwable t) {
-        super("Could not validate " + value, t);
-    }
+    /**
+     * Account policy like:
+     * password expire time, chenage password at first access, ...
+     */
+    ACCOUNT,
+    /**
+     * Password policy regarding password synctax.
+     */
+    PASSWORD,
+    /**
+     * Schema policy regarding attribute value syntax.
+     */
+    SCHEMA
 }

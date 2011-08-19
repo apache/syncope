@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.AbstractTest;
 import org.syncope.core.persistence.beans.user.UAttrValue;
+import org.syncope.core.persistence.validation.entity.InvalidEntityException;
 import org.syncope.core.rest.controller.InvalidSearchConditionException;
 import org.syncope.core.util.EntitlementUtil;
 import org.syncope.types.CipherAlgorithm;
@@ -130,11 +131,21 @@ public class UserTest extends AbstractTest {
     @Test
     public final void save() {
         SyncopeUser user = new SyncopeUser();
+
+        user.setPassword("pass", CipherAlgorithm.SHA256);
+
+        Throwable t = null;
+        try {
+            userDAO.save(user);
+        } catch (InvalidEntityException e) {
+            t = e;
+        }
+
+        assertNotNull(t);
+
         user.setPassword("password", CipherAlgorithm.SHA256);
 
-        user = userDAO.save(user);
-
-        SyncopeUser actual = userDAO.find(user.getId());
+        SyncopeUser actual = userDAO.save(user);
         assertNotNull("expected save to work", actual);
     }
 

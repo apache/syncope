@@ -70,6 +70,8 @@ public class SyncopeUser extends AbstractAttributable {
 
     private String password;
 
+    private transient String clearPassword;
+
     @OneToMany(cascade = CascadeType.MERGE, mappedBy = "syncopeUser")
     @Valid
     private List<Membership> memberships;
@@ -176,12 +178,19 @@ public class SyncopeUser extends AbstractAttributable {
         return password;
     }
 
+    public String getClearPassword() {
+        return clearPassword;
+    }
+
     /**
-     * TODO: password policies.
      * @param password the password to be set
      */
     public void setPassword(
-            final String password, final CipherAlgorithm cipherAlgoritm) {
+            final String password,
+            final CipherAlgorithm cipherAlgoritm) {
+
+        // clear password
+        clearPassword = password;
 
         try {
             if (cipherAlgoritm == null

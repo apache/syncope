@@ -12,19 +12,22 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.persistence.validation.attrvalue;
+package org.syncope.core.persistence.dao;
 
-import javax.validation.ValidationException;
-import org.syncope.core.persistence.beans.AbstractAttrValue;
+import java.util.List;
+import org.syncope.core.persistence.beans.Policy;
 
-public class InvalidAttrValueException extends ValidationException {
+public interface PolicyDAO extends DAO {
 
-    public InvalidAttrValueException(final AbstractAttrValue value) {
-        super("Could not validate " + value);
-    }
+    Policy find(Long id);
 
-    public InvalidAttrValueException(
-            final AbstractAttrValue value, Throwable t) {
-        super("Could not validate " + value, t);
-    }
+    Policy getPasswordPolicy();
+
+    Policy getAccountPolicy();
+
+    List<Policy> findAll();
+
+    Policy save(Policy policy);
+
+    void delete(Long id);
 }
