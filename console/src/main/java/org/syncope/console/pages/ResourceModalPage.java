@@ -53,7 +53,7 @@ import org.syncope.console.rest.SchemaRestClient;
 import org.syncope.console.wicket.markup.html.form.AjaxDecoratedCheckbox;
 import org.syncope.types.PropagationMode;
 import org.syncope.types.SourceMappingType;
-import org.syncope.types.TrackingMode;
+import org.syncope.types.TraceLevel;
 
 /**
  * Modal window with Resource form.
@@ -153,23 +153,23 @@ public class ResourceModalPage extends BaseModalPage {
         optionalPropagationMode.setOutputMarkupId(true);
         resourceForm.add(optionalPropagationMode);
 
-        final DropDownChoice<TrackingMode> createsTrackingMode =
-                new DropDownChoice<TrackingMode>("createsTrackingMode",
-                new PropertyModel<TrackingMode>(resourceTO, "createsTrackingMode"),
-                Arrays.asList(TrackingMode.values()));
-        resourceForm.add(createsTrackingMode);
+        final DropDownChoice<TraceLevel> createTraceLevel =
+                new DropDownChoice<TraceLevel>("createTraceLevel",
+                new PropertyModel<TraceLevel>(resourceTO, "createTraceLevel"),
+                Arrays.asList(TraceLevel.values()));
+        resourceForm.add(createTraceLevel);
 
-        final DropDownChoice<TrackingMode> updatesTrackingMode =
-                new DropDownChoice<TrackingMode>("updatesTrackingMode",
-                new PropertyModel<TrackingMode>(resourceTO, "updatesTrackingMode"),
-                Arrays.asList(TrackingMode.values()));
-        resourceForm.add(updatesTrackingMode);
+        final DropDownChoice<TraceLevel> updateTraceLevel =
+                new DropDownChoice<TraceLevel>("updateTraceLevel",
+                new PropertyModel<TraceLevel>(resourceTO, "updateTraceLevel"),
+                Arrays.asList(TraceLevel.values()));
+        resourceForm.add(updateTraceLevel);
 
-        final DropDownChoice<TrackingMode> deletesTrackingMode =
-                new DropDownChoice<TrackingMode>("deletesTrackingMode",
-                new PropertyModel<TrackingMode>(resourceTO, "deletesTrackingMode"),
-                Arrays.asList(TrackingMode.values()));
-        resourceForm.add(deletesTrackingMode);
+        final DropDownChoice<TraceLevel> deleteTraceLevel =
+                new DropDownChoice<TraceLevel>("deleteTraceLevel",
+                new PropertyModel<TraceLevel>(resourceTO, "deleteTraceLevel"),
+                Arrays.asList(TraceLevel.values()));
+        resourceForm.add(deleteTraceLevel);
 
         ChoiceRenderer renderer = new ChoiceRenderer("displayName", "id");
         DropDownChoice<ConnInstanceTO> connector =

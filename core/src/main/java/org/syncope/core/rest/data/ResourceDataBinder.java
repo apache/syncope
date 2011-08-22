@@ -53,17 +53,17 @@ public class ResourceDataBinder {
     @Autowired
     private JexlUtil jexlUtil;
 
-    public TargetResource getResource(ResourceTO resourceTO)
+    public TargetResource getResource(final ResourceTO resourceTO)
             throws SyncopeClientCompositeErrorException {
 
         return getResource(new TargetResource(), resourceTO);
     }
 
-    public TargetResource getResource(TargetResource resource,
-            ResourceTO resourceTO)
+    public TargetResource getResource(final TargetResource resource,
+            final ResourceTO resourceTO)
             throws SyncopeClientCompositeErrorException {
 
-        SyncopeClientException requiredValuesMissing =
+        final SyncopeClientException requiredValuesMissing =
                 new SyncopeClientException(
                 SyncopeClientExceptionType.RequiredValuesMissing);
 
@@ -111,9 +111,9 @@ public class ResourceDataBinder {
 
         resource.setAccountLink(resourceTO.getAccountLink());
 
-        resource.setCreatesTrackingMode(resourceTO.getCreatesTrackingMode());
-        resource.setUpdatesTrackingMode(resourceTO.getUpdatesTrackingMode());
-        resource.setDeletesTrackingMode(resourceTO.getDeletesTrackingMode());
+        resource.setCreateTraceLevel(resourceTO.getCreateTraceLevel());
+        resource.setUpdateTraceLevel(resourceTO.getUpdateTraceLevel());
+        resource.setDeleteTraceLevel(resourceTO.getDeleteTraceLevel());
 
         return resource;
     }
@@ -161,9 +161,9 @@ public class ResourceDataBinder {
         resourceTO.setOptionalPropagationMode(
                 resource.getOptionalPropagationMode());
 
-        resourceTO.setCreatesTrackingMode(resource.getCreatesTrackingMode());
-        resourceTO.setUpdatesTrackingMode(resource.getUpdatesTrackingMode());
-        resourceTO.setDeletesTrackingMode(resource.getDeletesTrackingMode());
+        resourceTO.setCreateTraceLevel(resource.getCreateTraceLevel());
+        resourceTO.setUpdateTraceLevel(resource.getUpdateTraceLevel());
+        resourceTO.setDeleteTraceLevel(resource.getDeleteTraceLevel());
 
         return resourceTO;
     }

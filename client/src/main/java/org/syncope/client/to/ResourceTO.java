@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.syncope.client.AbstractBaseBean;
 import org.syncope.types.PropagationMode;
-import org.syncope.types.TrackingMode;
+import org.syncope.types.TraceLevel;
 
 public class ResourceTO extends AbstractBaseBean {
 
@@ -49,18 +49,18 @@ public class ResourceTO extends AbstractBaseBean {
      */
     private boolean forceMandatoryConstraint;
 
-    private TrackingMode createsTrackingMode;
+    private TraceLevel createTraceLevel;
 
-    private TrackingMode deletesTrackingMode;
+    private TraceLevel deleteTraceLevel;
 
-    private TrackingMode updatesTrackingMode;
+    private TraceLevel updateTraceLevel;
 
     public ResourceTO() {
         mappings = new ArrayList<SchemaMappingTO>();
         optionalPropagationMode = PropagationMode.ASYNC;
-        createsTrackingMode = TrackingMode.ALL;
-        deletesTrackingMode = TrackingMode.ALL;
-        updatesTrackingMode = TrackingMode.ALL;
+        createTraceLevel = TraceLevel.ALL;
+        deleteTraceLevel = TraceLevel.ALL;
+        updateTraceLevel = TraceLevel.ALL;
     }
 
     public boolean isForceMandatoryConstraint() {
@@ -121,27 +121,27 @@ public class ResourceTO extends AbstractBaseBean {
         this.optionalPropagationMode = optionalPropagationMode;
     }
 
-    public TrackingMode getCreatesTrackingMode() {
-        return createsTrackingMode;
+    public TraceLevel getCreateTraceLevel() {
+        return createTraceLevel;
     }
 
-    public void setCreatesTrackingMode(TrackingMode createsTrackingMode) {
-        this.createsTrackingMode = createsTrackingMode;
+    public void setCreateTraceLevel(TraceLevel createTraceLevel) {
+        this.createTraceLevel = createTraceLevel;
     }
 
-    public TrackingMode getDeletesTrackingMode() {
-        return deletesTrackingMode;
+    public TraceLevel getDeleteTraceLevel() {
+        return deleteTraceLevel;
     }
 
-    public void setDeletesTrackingMode(TrackingMode deletesTrackingMode) {
-        this.deletesTrackingMode = deletesTrackingMode;
+    public void setDeleteTraceLevel(TraceLevel deleteTraceLevel) {
+        this.deleteTraceLevel = deleteTraceLevel;
     }
 
-    public TrackingMode getUpdatesTrackingMode() {
-        return updatesTrackingMode;
+    public TraceLevel getUpdateTraceLevel() {
+        return updateTraceLevel;
     }
 
-    public void setUpdatesTrackingMode(TrackingMode updatesTrackingMode) {
-        this.updatesTrackingMode = updatesTrackingMode;
+    public void setUpdateTraceLevel(TraceLevel updateTraceLevel) {
+        this.updateTraceLevel = updateTraceLevel;
     }
 }

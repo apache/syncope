@@ -66,7 +66,7 @@ import org.syncope.types.ResourceOperationType;
 import org.syncope.types.SourceMappingType;
 import org.syncope.types.SchemaType;
 import org.syncope.types.PropagationTaskExecStatus;
-import org.syncope.types.TrackingMode;
+import org.syncope.types.TraceLevel;
 
 /**
  * Manage the data propagation to target resources.
@@ -616,10 +616,8 @@ public class PropagationManager {
                                 : task.getOldAccountId()),
                                 null);
                     } catch (RuntimeException ignore) {
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug("To be ignored, when resolving "
-                                    + "username on connector", ignore);
-                        }
+                        LOG.debug("To be ignored, when resolving "
+                                + "username on connector", ignore);
                     }
 
                     if (remoteObject != null) {
@@ -726,41 +724,44 @@ public class PropagationManager {
         return execution;
     }
 
-    private boolean hasToBeregistered(
-            final PropagationTask task,
+    private boolean hasToBeregistered(final PropagationTask task,
             final TaskExec execution) {
 
-        final Boolean failed = !PropagationTaskExecStatus.SUCCESS.toString().
-                equals(execution.getStatus());
+        boolean result;
 
-        final Boolean all =
-                (task.getResourceOperationType().
-                equals(ResourceOperationType.CREATE)
-                && task.getResource().getCreatesTrackingMode().
-                equals(TrackingMode.ALL))
-                || (task.getResourceOperationType().
-                equals(ResourceOperationType.UPDATE)
-                && task.getResource().getUpdatesTrackingMode().
-                equals(TrackingMode.ALL))
-                || (task.getResourceOperationType().
-                equals(ResourceOperationType.DELETE)
-                && task.getResource().getDeletesTrackingMode().
-                equals(TrackingMode.ALL));
+        final boolean failed = !PropagationTaskExecStatus.valueOf(
+                execution.getStatus()).isSuccessful();
 
-        final Boolean failures =
-                (task.getResourceOperationType().
-                equals(ResourceOperationType.CREATE)
-                && task.getResource().getCreatesTrackingMode().
-                equals(TrackingMode.FAILURES))
-                || (task.getResourceOperationType().
-                equals(ResourceOperationType.UPDATE)
-                && task.getResource().getUpdatesTrackingMode().
-                equals(TrackingMode.FAILURES))
-                || (task.getResourceOperationType().
-                equals(ResourceOperationType.DELETE)
-                && task.getResource().getDeletesTrackingMode().
-                equals(TrackingMode.FAILURES));
+        switch (task.getResourceOperationType()) {
 
-        return all || (failed && failures);
+            case CREATE:
+                result = (failed
+                        && task.getResource().getCreateTraceLevel().
+                        ordinal() >= TraceLevel.FAILURES.ordinal())
+                        || task.getResource().getCreateTraceLevel()
+                        == TraceLevel.ALL;
+                break;
+
+            case UPDATE:
+                result = (failed
+                        && task.getResource().getUpdateTraceLevel().
+                        ordinal() >= TraceLevel.FAILURES.ordinal())
+                        || task.getResource().getUpdateTraceLevel()
+                        == TraceLevel.ALL;
+                break;
+
+            case DELETE:
+                result = (failed
+                        && task.getResource().getDeleteTraceLevel().
+                        ordinal() >= TraceLevel.FAILURES.ordinal())
+                        || task.getResource().getDeleteTraceLevel()
+                        == TraceLevel.ALL;
+                break;
+
+            default:
+                result = false;
+        }
+
+        return result;
     }
 }

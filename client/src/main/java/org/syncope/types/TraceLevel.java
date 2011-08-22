@@ -14,7 +14,7 @@
  */
 package org.syncope.types;
 
-public enum TrackingMode {
+public enum TraceLevel {
 
-    FAILURES, ALL, NONE
+    NONE, FAILURES, ALL
 }
