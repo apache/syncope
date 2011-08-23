@@ -58,9 +58,8 @@ public class Policy extends AbstractBaseBean {
         this.type = type;
     }
 
-    // TODO: http://code.google.com/p/syncope/issues/detail?id=127
     @Lob
-    @Type(type = "org.hibernate.type.TextType")
+    @Type(type = "org.hibernate.type.StringClobType")
     private String specification;
 
     public <T extends AbstractPolicy> T getSpecification() {

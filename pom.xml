@@ -96,13 +96,13 @@
         <velocity.version>1.7</velocity.version>
         <quartz.version>1.8.5</quartz.version>
 
-        <hibernate.version>3.6.6.Final</hibernate.version>
+        <hibernate.version>3.6.7.Final</hibernate.version>
         <hibernate-validator.version>4.2.0.Final</hibernate-validator.version>
-        <ehcache.version>2.4.3</ehcache.version>
+        <ehcache.version>2.4.4</ehcache.version>
 
         <wicket.version>1.4.17</wicket.version>
 
-        <org.apache.cxf.version>2.4.1</org.apache.cxf.version>
+        <org.apache.cxf.version>2.4.2</org.apache.cxf.version>
 
         <hsqldb.version>2.2.4</hsqldb.version>
 
@@ -116,6 +116,7 @@
         <dbunit.version>2.4.8</dbunit.version>
 
         <cargo.version>1.1.1</cargo.version>
+        <tomcat.version>7.0.20</tomcat.version>
 
         <bundles.directory>/var/tmp/bundles</bundles.directory>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
 import javax.persistence.Query;
@@ -139,21 +140,18 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
             final int page,
             final int itemsPerPage) {
 
-        List<SyncopeUser> result;
+        List<SyncopeUser> result = Collections.EMPTY_LIST;
 
         LOG.debug("Search condition:\n{}", searchCondition);
         if (!searchCondition.checkValidity()) {
             LOG.error("Invalid search condition:\n{}", searchCondition);
-
-            result = Collections.EMPTY_LIST;
-        }
-
-        try {
-            result = doSearch(adminRoles, searchCondition, page, itemsPerPage);
-        } catch (Throwable t) {
-            LOG.error("While searching users", t);
-
-            result = Collections.EMPTY_LIST;
+        } else {
+            try {
+                result = doSearch(adminRoles, searchCondition, page,
+                        itemsPerPage);
+            } catch (Throwable t) {
+                LOG.error("While searching users", t);
+            }
         }
 
         return result;
@@ -178,12 +176,15 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
     private void fillWithParameters(final Query query,
             final Map<Integer, Object> parameters) {
 
-        for (Integer key : parameters.keySet()) {
-            if (parameters.get(key) instanceof Date) {
-                query.setParameter("param" + key,
-                        (Date) parameters.get(key), TemporalType.TIMESTAMP);
+        for (Entry<Integer, Object> entry : parameters.entrySet()) {
+            if (entry.getValue() instanceof Date) {
+                query.setParameter("param" + entry.getKey(),
+                        (Date) entry.getValue(), TemporalType.TIMESTAMP);
+            } else if (entry.getValue() instanceof Boolean) {
+                query.setParameter("param" + entry.getKey(),
+                        ((Boolean) entry.getValue()) ? 1 : 0);
             } else {
-                query.setParameter("param" + key, parameters.get(key));
+                query.setParameter("param" + entry.getKey(), entry.getValue());
             }
         }
     }

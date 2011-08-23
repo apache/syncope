@@ -669,8 +669,6 @@ public class UserTestITCase extends AbstractTest {
             userIds.add(user.getId());
         }
         assertEquals(2, userIds.size());
-        assertTrue(userIds.contains(2L));
-        assertTrue(userIds.contains(3L));
     }
 
     @Test

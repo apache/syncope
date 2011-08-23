@@ -18,11 +18,11 @@ public enum PolicyType {
 
     /**
      * Account policy like:
-     * password expire time, chenage password at first access, ...
+     * password expire time, change password at first access, ...
      */
     ACCOUNT,
     /**
-     * Password policy regarding password synctax.
+     * Password policy regarding password syntax.
      */
     PASSWORD,
     /**
