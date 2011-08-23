@@ -36,6 +36,7 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.OneToMany;
+import org.hibernate.annotations.Type;
 import org.identityconnectors.framework.common.objects.SyncToken;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.syncope.core.util.ApplicationContextManager;
@@ -84,9 +85,8 @@ public class ConnInstance extends AbstractBaseBean {
      * This is directly implemented by the Configuration bean class which
      * contains annotated ConfigurationProperties (@ConfigurationProperty).
      */
-    // @Lob
-    // TODO: http://code.google.com/p/syncope/issues/detail?id=127
-    @Column(nullable = false, length = 1000000)
+    @Lob
+    @Type(type = "org.hibernate.type.StringClobType")
     private String xmlConfiguration;
 
     private String displayName;

@@ -34,7 +34,8 @@
     <hibernate_sequences sequence_name="SEQ_JPAHistoryStep" sequence_next_hi_value="10"/>
     <hibernate_sequences sequence_name="SEQ_JPAPropertySetItem" sequence_next_hi_value="10"/>
     <hibernate_sequences sequence_name="SEQ_JPAWorkflowEntry" sequence_next_hi_value="10"/>
-
+    <hibernate_sequences sequence_name="SEQ_Policy" sequence_next_hi_value="10"/>
+    
     <SyncopeConf key="token.length" value="256"/>
     <SyncopeConf key="token.expireTime" value="60"/>
     <SyncopeConf key="token.encryption.key" value="1abcdefghil3mnopqrstuvz2"/>
@@ -43,24 +44,340 @@
     <SyncopeConf key="optin.email.subject" value="Welcome to Syncope!"/>
     <SyncopeConf key="connid.bundles.directory" value="${bundles.directory}"/>
     <SyncopeConf key="password.cipher.algorithm" value="MD5"/>
+                          
+    <SyncopeUser id="1" workflowId="0" password="5f4dcc3b5aa765d61d8327deb882cf99" cipherAlgorithm="MD5"/>
+    <SyncopeUser id="2" workflowId="0" password="5f4dcc3b5aa765d61d8327deb882cf99" cipherAlgorithm="MD5"/>
+    <SyncopeUser id="3" workflowId="0" password="5f4dcc3b5aa765d61d8327deb882cf99" cipherAlgorithm="MD5"/>
+    <SyncopeUser id="4" workflowId="0" password="5f4dcc3b5aa765d61d8327deb882cf99" cipherAlgorithm="MD5"/>
 
-    <USchema name="surname" type="String"
-                mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+    <SyncopeRole id="1" name="root" inheritAttributes="0" inheritDerivedAttributes="0" inheritVirtualAttributes="0"/>
+    <SyncopeRole id="2" name="child" parent_id="1" inheritAttributes="0" inheritDerivedAttributes="0" inheritVirtualAttributes="0"/>
+    <SyncopeRole id="3" name="citizen" inheritAttributes="0" inheritDerivedAttributes="0" inheritVirtualAttributes="0"/>
+    <SyncopeRole id="4" name="employee" parent_id="3" inheritAttributes="0" inheritDerivedAttributes="0" inheritVirtualAttributes="0"/>
+    <SyncopeRole id="5" name="secretary" parent_id="4" inheritAttributes="0" inheritDerivedAttributes="0" inheritVirtualAttributes="0"/>
+    <SyncopeRole id="6" name="director" parent_id="4" inheritAttributes="1" inheritDerivedAttributes="1" inheritVirtualAttributes="1"/>
+    <SyncopeRole id="7" name="managingDirector" parent_id="6" inheritAttributes="1" inheritDerivedAttributes="1" inheritVirtualAttributes="1"/>
+    <SyncopeRole id="8" name="otherchild" parent_id="1" inheritAttributes="0" inheritDerivedAttributes="0" inheritVirtualAttributes="1"/>
+
+    <Membership id="1" syncopeUser_id="1" syncopeRole_id="1"/>
+    <Membership id="2" syncopeUser_id="2" syncopeRole_id="1"/>
+    <Membership id="3" syncopeUser_id="2" syncopeRole_id="2"/>
+    <Membership id="4" syncopeUser_id="4" syncopeRole_id="7"/>
+    <Membership id="5" syncopeUser_id="1" syncopeRole_id="8"/>
+    <Membership id="6" syncopeUser_id="2" syncopeRole_id="3"/>
+
+    <USchema name="username" type="String"
+                mandatoryCondition="true" multivalue="0" uniqueConstraint="1" readonly="0"/>
+    <USchema name="userId" type="String"
+                mandatoryCondition="true" multivalue="0" uniqueConstraint="1" readonly="0"
+                validatorClass="org.syncope.core.persistence.validation.attrvalue.EmailAddressValidator"/>
+    <USchema name="loginDate" type="Date"
+                mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"
+                conversionPattern="yyyy-MM-dd"/>
     <USchema name="firstname" type="String"
                 mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+    <USchema name="surname" type="String"
+                mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+    <USchema name="type" type="String"
+                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
     <USchema name="email" type="String"
-                mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"
+                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
                 validatorClass="org.syncope.core.persistence.validation.attrvalue.EmailAddressValidator"/>
-               
-    <UDerSchema name="username" expression="firstname + '.' + surname"/>
+    <USchema name="activationDate" type="Date"
+                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
+                conversionPattern="yyyy-MM-dd'T'HH:mm:ss.SSSZ"/>
+    <USchema name="uselessReadonly" type="String"
+                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="1"/>
+    <USchema name="cool" type="Boolean"
+                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+    <USchema name="gender" type="Enum"
+                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
+                enumerationValues="M;F"/>
 
-    <SyncopeRole id="0" name="/" inheritAttributes="0" inheritDerivedAttributes="0" inheritVirtualAttributes="0"/>
+    <RSchema name="icon" type="String"
+                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+                
+    <RSchema name="show" type="Boolean"
+                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+
+    <RSchema name="rderived_sx" type="String"
+                      mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+
+    <RSchema name="rderived_dx" type="String"
+                      mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
 
     <MSchema name="subscriptionDate" type="Date"
                       mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
                       conversionPattern="yyyy-MM-dd'T'HH:mm:ss.SSSZ"/>
 
+    <MSchema name="mderived_sx" type="String"
+                      mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+
+    <MSchema name="mderived_dx" type="String"
+                      mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+
+    <UAttr id="100" owner_id="1" schema_name="username"/>
+    <UAttrUniqueValue id="10" attribute_id="100" schema_name="username" stringValue="chicchiricco"/>
+    <UAttr id="200" owner_id="1" schema_name="loginDate"/>
+    <UAttrValue attribute_id="200" id="20" dateValue="2009-05-26"/>
+    <UAttrValue attribute_id="200" id="21" dateValue="2010-05-26 15:40:04"/>
+
+    <UAttr id="300" owner_id="2" schema_name="username"/>
+    <UAttrUniqueValue id="11" attribute_id="300" schema_name="username" stringValue="fabio.martelli"/>
+
+    <UAttr id="400" owner_id="3" schema_name="firstname"/>
+    <UAttrValue attribute_id="400" id="30" stringValue="John"/>
+    <UAttr id="500" owner_id="3" schema_name="surname"/>
+    <UAttrValue attribute_id="500" id="31" stringValue="Doe"/>
+    <UAttr id="540" owner_id="3" schema_name="username"/>
+    <UAttrUniqueValue id="12" attribute_id="540" schema_name="username" stringValue="test1"/>
+
+    <UAttr id="550" owner_id="4" schema_name="loginDate"/>
+    <UAttrValue attribute_id="550" id="22" dateValue="2009-06-24"/>
+    <UAttr id="560" owner_id="4" schema_name="cool"/>
+    <UAttrValue attribute_id="560" id="23" booleanValue="1"/>
+    <UAttr id="561" owner_id="4" schema_name="gender"/>
+    <UAttrValue attribute_id="561" id="24" stringValue="M"/>
+    
+    <RAttr id="600" owner_id="1" schema_name="icon"/>
+    <RAttr id="700" owner_id="2" schema_name="icon"/>
+    <RAttr id="800" owner_id="1" schema_name="show"/>
+    <RAttr id="900" owner_id="6" schema_name="icon"/>
+    <RAttr id="950" owner_id="4" schema_name="icon"/>
+
+    <RAttrValue attribute_id="600" id="40" stringValue="niceIcon"/>
+    <RAttrValue attribute_id="700" id="41" stringValue="badIcon"/>
+    <RAttrValue attribute_id="800" id="42" booleanValue="1"/>
+    <RAttrValue attribute_id="900" id="43" stringValue="icon6"/>
+    <RAttrValue attribute_id="950" id="44" stringValue="icon4"/>
+
+    <RAttr id="1002" owner_id="1" schema_name="rderived_sx"/>
+    <RAttrValue attribute_id="1002" id="92" stringValue="sx"/>
+
+    <RAttr id="1003" owner_id="1" schema_name="rderived_dx"/>
+    <RAttrValue attribute_id="1003" id="93" stringValue="dx"/>
+
+    <RDerSchema name="rderiveddata" expression="rderived_sx + '-' + rderived_dx"/>
+    <RDerAttr id="1000" derivedSchema_name="rderiveddata" owner_id="1"/>
+
+    <!-- rderiveddata is used th verify der schema deletion -->
+    <RDerSchema name="rderivedschema" expression="rderived_sx + '-' + rderived_dx"/>
+
+    <MAttr id="1000" owner_id="4" schema_name="subscriptionDate"/>
+
+    <MAttrValue attribute_id="1000" id="90" dateValue="2009-05-26"/>
+    <MAttrValue attribute_id="1000" id="91" dateValue="2010-05-26 15:40:04"/>
+
+    <MAttr id="1002" owner_id="1" schema_name="mderived_sx"/>
+    <MAttrValue attribute_id="1002" id="92" stringValue="sx"/>
+
+    <MAttr id="1003" owner_id="1" schema_name="mderived_dx"/>
+    <MAttrValue attribute_id="1003" id="93" stringValue="dx"/>
+
+    <MDerSchema name="mderiveddata" expression="mderived_sx + '-' + mderived_dx"/>
+    <MDerAttr id="1000" derivedSchema_name="mderiveddata" owner_id="1"/>
+
+    <UVirSchema name="virtualdata"/>
+    <UVirAttr id="1000" virtualSchema_name="virtualdata" owner_id="3"/>
+
+    <UDerSchema name="cn" expression="surname + ', ' + firstname"/>
+    <UDerAttr id="1000" derivedSchema_name="cn" owner_id="3"/>
+
+    <UDerSchema name="noschema" expression="surname + ', ' + notfound"/>
+
+    <MVirSchema name="mvirtualdata"/>
+    <RVirSchema name="rvirtualdata"/>
+    <RVirAttr id="1000" virtualSchema_name="rvirtualdata" owner_id="4"/>
+
+    <ConnInstance id="100" displayName="ConnInstance100"
+                       bundleName="org.connid.bundles.soap"
+                       connectorName="org.connid.bundles.soap.WebServiceConnector"
+                       version="${connid.soap.version}"
+		       xmlConfiguration="%3C%3Fxml+version%3D%221.0%22+encoding%3D%22UTF-8%22%3F%3E+%0A%3Cjava+version%3D%221.6.0_24%22+class%3D%22java.beans.XMLDecoder%22%3E+%0A+%3Cobject+class%3D%22java.util.HashSet%22%3E+%0A++%3Cvoid+method%3D%22add%22%3E+%0A+++%3Cobject+class%3D%22org.syncope.types.ConnConfProperty%22%3E+%0A++++%3Cvoid+property%3D%22schema%22%3E+%0A+++++%3Cobject+class%3D%22org.syncope.types.ConnConfPropSchema%22%3E+%0A++++++%3Cvoid+property%3D%22name%22%3E+%0A+++++++%3Cstring%3Eendpoint%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A++++++%3Cvoid+property%3D%22required%22%3E+%0A+++++++%3Cboolean%3Etrue%3C%2Fboolean%3E+%0A++++++%3C%2Fvoid%3E+%0A++++++%3Cvoid+property%3D%22type%22%3E+%0A+++++++%3Cstring%3Ejava.lang.String%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A+++++%3C%2Fobject%3E+%0A++++%3C%2Fvoid%3E+%0A++++%3Cvoid+property%3D%22value%22%3E+%0A+++++%3Cstring%3Ehttp%3A%2F%2Flocalhost%3A9080%2Fwssample%2Fservices%2Fprovisioning%3C%2Fstring%3E+%0A++++%3C%2Fvoid%3E+%0A+++%3C%2Fobject%3E+%0A++%3C%2Fvoid%3E+%0A++%3Cvoid+method%3D%22add%22%3E+%0A+++%3Cobject+class%3D%22org.syncope.types.ConnConfProperty%22%3E+%0A++++%3Cvoid+property%3D%22schema%22%3E+%0A+++++%3Cobject+class%3D%22org.syncope.types.ConnConfPropSchema%22%3E+%0A++++++%3Cvoid+property%3D%22name%22%3E+%0A+++++++%3Cstring%3Eservicename%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A++++++%3Cvoid+property%3D%22required%22%3E+%0A+++++++%3Cboolean%3Etrue%3C%2Fboolean%3E+%0A++++++%3C%2Fvoid%3E+%0A++++++%3Cvoid+property%3D%22type%22%3E+%0A+++++++%3Cstring%3Ejava.lang.String%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A+++++%3C%2Fobject%3E+%0A++++%3C%2Fvoid%3E+%0A++++%3Cvoid+property%3D%22value%22%3E+%0A+++++%3Cstring%3Eorg.connid.bundles.soap.provisioning.interfaces.Provisioning%3C%2Fstring%3E+%0A++++%3C%2Fvoid%3E+%0A+++%3C%2Fobject%3E+%0A++%3C%2Fvoid%3E+%0A+%3C%2Fobject%3E+%0A%3C%2Fjava%3E+%0A"/>
+    <ConnInstance_capabilities ConnInstance_id="100" capabilities="SYNC_CREATE"/>
+    <ConnInstance_capabilities ConnInstance_id="100" capabilities="SYNC_UPDATE"/>
+    <ConnInstance_capabilities ConnInstance_id="100" capabilities="SYNC_DELETE"/>
+    <ConnInstance_capabilities ConnInstance_id="100" capabilities="ASYNC_CREATE"/>
+    <ConnInstance_capabilities ConnInstance_id="100" capabilities="ASYNC_UPDATE"/>
+    <ConnInstance_capabilities ConnInstance_id="100" capabilities="ASYNC_DELETE"/>
+    <ConnInstance_capabilities ConnInstance_id="100" capabilities="SEARCH"/>
+
+    <ConnInstance id="101" displayName="ConnInstance101"
+                       bundleName="org.connid.bundles.db.table"
+                       connectorName="org.identityconnectors.databasetable.DatabaseTableConnector"
+                       version="${connid.db.table.version}"
+                       xmlConfiguration="%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22UTF-8%22%3F%3E%20%0A%3Cjava%20version%3D%221.6.0_24%22%20class%3D%22java.beans.XMLDecoder%22%3E%20%0A%20%3Cobject%20class%3D%22java.util.HashSet%22%3E%20%0A%20%20%3Cvoid%20method%3D%22add%22%3E%20%0A%20%20%20%3Cobject%20class%3D%22org.syncope.types.ConnConfProperty%22%3E%20%0A%20%20%20%20%3Cvoid%20property%3D%22schema%22%3E%20%0A%20%20%20%20%20%3Cobject%20class%3D%22org.syncope.types.ConnConfPropSchema%22%3E%20%0A%20%20%20%20%20%20%3Cvoid%20property%3D%22name%22%3E%20%0A%20%20%20%20%20%20%20%3Cstring%3Epassword%3C%2Fstring%3E%20%0A%20%20%20%20%20%20%3C%2Fvoid%3E%20%0A%20%20%20%20%20%20%3Cvoid%20property%3D%22type%22%3E%20%0A%20%20%20%20%20%20%20%3Cstring%3Eorg.identityconnectors.common.security.GuardedString%3C%2Fstring%3E%20%0A%20%20%20%20%20%20%3C%2Fvoid%3E%20%0A%20%20%20%20%20%3C%2Fobject%3E%20%0A%20%20%20%20%3C%2Fvoid%3E%20%0A%20%20%20%20%3Cvoid%20property%3D%22value%22%3E%20%0A%20%20%20%20%20%3Cstring%3Esa%3C%2Fstring%3E%20%0A%20%20%20%20%3C%2Fvoid%3E%20%0A%20%20%20%3C%2Fobject%3E%20%0A%20%20%3C%2Fvoid%3E%20%0A%20%20%3Cvoid%20method%3D%22add%22%3E%20%0A%20%20%20%3Cobject%20class%3D%22org.syncope.types.ConnConfProperty%22%3E%20%0A%20%20%20%20%3Cvoid%20property%3D%22schema%22%3E%20%0A%20%20%20%20%20%3Cobject%20class%3D%22org.syncope.types.ConnConfPropSchema%22%3E%20%0A%20%20%20%20%20%20%3Cvoid%20property%3D%22name%22%3E%20%0A%20%20%20%20%20%20%20%3Cstring%3EjdbcDriver%3C%2Fstring%3E%20%0A%20%20%20%20%20%20%3C%2Fvoid%3E%20%0A%20%20%20%20%20%20%3Cvoid%20property%3D%22type%22%3E%20%0A%20%20%20%20%20%20%20%3Cstring%3Ejava.lang.String%3C%2Fstring%3E%20%0A%20%20%20%20%20%20%3C%2Fvoid%3E%20%0A%20%20%20%20%20%3C%2Fobject%3E%20%0A%20%20%20%20%3C%2Fvoid%3E%20%0A%20%20%20%20%3Cvoid%20property%3D%22value%22%3E%20%0A%20%20%20%20%20%3Cstring%3Eorg.hsqldb.jdbcDriver%3C%2Fstring%3E%20%0A%20%20%20%20%3C%2Fvoid%3E%20%0A%20%20%20%3C%2Fobject%3E%20%0A%20%20%3C%2Fvoid%3E%20%0A%20%20%3Cvoid%20method%3D%22add%22%3E%20%0A%20%20%20%3Cobject%20class%3D%22org.syncope.types.ConnConfProperty%22%3E%20%0A%20%20%20%20%3Cvoid%20property%3D%22schema%22%3E%20%0A%20%20%20%20%20%3Cobject%20class%3D%22org.syncope.types.ConnConfPropSchema%22%3E%20%0A%20%20%20%20%20%20%3Cvoid%20property%3D%22name%22%3E%20%0A%20%20%20%20%20%20%20%3Cstring%3Etable%3C%2Fstring%3E%20%0A%20%20%20%20%20%20%3C%2Fvoid%3E%20%0A%20%20%20%20%20%20%3Cvoid%20property%3D%22required%22%3E%20%0A%20%20%20%20%20%20%20%3Cboolean%3Etrue%3C%2Fboolean%3E%20%0A%20%20%20%20%20%20%3C%2Fvoid%3E%20%0A%20%20%20%20%20%20%3Cvoid%20property%3D%22type%22%3E%20%0A%20%20%20%20%20%20%20%3Cstring%3Ejava.lang.String%3C%2Fstring%3E%20%0A%20%20%20%20%20%20%3C%2Fvoid%3E%20%0A%20%20%20%20%20%3C%2Fobject%3E%20%0A%20%20%20%20%3C%2Fvoid%3E%20%0A%20%20%20%20%3Cvoid%20property%3D%22value%22%3E%20%0A%20%20%20%20%20%3Cstring%3Etest%3C%2Fstring%3E%20%0A%20%20%20%20%3C%2Fvoid%3E%20%0A%20%20%20%3C%2Fobject%3E%20%0A%20%20%3C%2Fvoid%3E%20%0A%20%20%3Cvoid%20method%3D%22add%22%3E%20%0A%20%20%20%3Cobject%20class%3D%22org.syncope.types.ConnConfProperty%22%3E%20%0A%20%20%20%20%3Cvoid%20property%3D%22schema%22%3E%20%0A%20%20%20%20%20%3Cobject%20class%3D%22org.syncope.types.ConnConfPropSchema%22%3E%20%0A%20%20%20%20%20%20%3Cvoid%20property%3D%22name%22%3E%20%0A%20%20%20%20%20%20%20%3Cstring%3EpasswordColumn%3C%2Fstring%3E%20%0A%20%20%20%20%20%20%3C%2Fvoid%3E%20%0A%20%20%20%20%20%20%3Cvoid%20property%3D%22type%22%3E%20%0A%20%20%20%20%20%20%20%3Cstring%3Ejava.lang.String%3C%2Fstring%3E%20%0A%20%20%20%20%20%20%3C%2Fvoid%3E%20%0A%20%20%20%20%20%3C%2Fobject%3E%20%0A%20%20%20%20%3C%2Fvoid%3E%20%0A%20%20%20%20%3Cvoid%20property%3D%22value%22%3E%20%0A%20%20%20%20%20%3Cstring%3Epassword%3C%2Fstring%3E%20%0A%20%20%20%20%3C%2Fvoid%3E%20%0A%20%20%20%3C%2Fobject%3E%20%0A%20%20%3C%2Fvoid%3E%20%0A%20%20%3Cvoid%20method%3D%22add%22%3E%20%0A%20%20%20%3Cobject%20class%3D%22org.syncope.types.ConnConfProperty%22%3E%20%0A%20%20%20%20%3Cvoid%20property%3D%22schema%22%3E%20%0A%20%20%20%20%20%3Cobject%20class%3D%22org.syncope.types.ConnConfPropSchema%22%3E%20%0A%20%20%20%20%20%20%3Cvoid%20property%3D%22name%22%3E%20%0A%20%20%20%20%20%20%20%3Cstring%3Euser%3C%2Fstring%3E%20%0A%20%20%20%20%20%20%3C%2Fvoid%3E%20%0A%20%20%20%20%20%20%3Cvoid%20property%3D%22type%22%3E%20%0A%20%20%20%20%20%20%20%3Cstring%3Ejava.lang.String%3C%2Fstring%3E%20%0A%20%20%20%20%20%20%3C%2Fvoid%3E%20%0A%20%20%20%20%20%3C%2Fobject%3E%20%0A%20%20%20%20%3C%2Fvoid%3E%20%0A%20%20%20%20%3Cvoid%20property%3D%22value%22%3E%20%0A%20%20%20%20%20%3Cstring%3Esa%3C%2Fstring%3E%20%0A%20%20%20%20%3C%2Fvoid%3E%20%0A%20%20%20%3C%2Fobject%3E%20%0A%20%20%3C%2Fvoid%3E%20%0A%20%20%3Cvoid%20method%3D%22add%22%3E%20%0A%20%20%20%3Cobject%20class%3D%22org.syncope.types.ConnConfProperty%22%3E%20%0A%20%20%20%20%3Cvoid%20property%3D%22schema%22%3E%20%0A%20%20%20%20%20%3Cobject%20class%3D%22org.syncope.types.ConnConfPropSchema%22%3E%20%0A%20%20%20%20%20%20%3Cvoid%20property%3D%22name%22%3E%20%0A%20%20%20%20%20%20%20%3Cstring%3EkeyColumn%3C%2Fstring%3E%20%0A%20%20%20%20%20%20%3C%2Fvoid%3E%20%0A%20%20%20%20%20%20%3Cvoid%20property%3D%22required%22%3E%20%0A%20%20%20%20%20%20%20%3Cboolean%3Etrue%3C%2Fboolean%3E%20%0A%20%20%20%20%20%20%3C%2Fvoid%3E%20%0A%20%20%20%20%20%20%3Cvoid%20property%3D%22type%22%3E%20%0A%20%20%20%20%20%20%20%3Cstring%3Ejava.lang.String%3C%2Fstring%3E%20%0A%20%20%20%20%20%20%3C%2Fvoid%3E%20%0A%20%20%20%20%20%3C%2Fobject%3E%20%0A%20%20%20%20%3C%2Fvoid%3E%20%0A%20%20%20%20%3Cvoid%20property%3D%22value%22%3E%20%0A%20%20%20%20%20%3Cstring%3Eid%3C%2Fstring%3E%20%0A%20%20%20%20%3C%2Fvoid%3E%20%0A%20%20%20%3C%2Fobject%3E%20%0A%20%20%3C%2Fvoid%3E%20%0A%20%20%3Cvoid%20method%3D%22add%22%3E%20%0A%20%20%20%3Cobject%20class%3D%22org.syncope.types.ConnConfProperty%22%3E%20%0A%20%20%20%20%3Cvoid%20property%3D%22schema%22%3E%20%0A%20%20%20%20%20%3Cobject%20class%3D%22org.syncope.types.ConnConfPropSchema%22%3E%20%0A%20%20%20%20%20%20%3Cvoid%20property%3D%22name%22%3E%20%0A%20%20%20%20%20%20%20%3Cstring%3EjdbcUrlTemplate%3C%2Fstring%3E%20%0A%20%20%20%20%20%20%3C%2Fvoid%3E%20%0A%20%20%20%20%20%20%3Cvoid%20property%3D%22type%22%3E%20%0A%20%20%20%20%20%20%20%3Cstring%3Ejava.lang.String%3C%2Fstring%3E%20%0A%20%20%20%20%20%20%3C%2Fvoid%3E%20%0A%20%20%20%20%20%3C%2Fobject%3E%20%0A%20%20%20%20%3C%2Fvoid%3E%20%0A%20%20%20%20%3Cvoid%20property%3D%22value%22%3E%20%0A%20%20%20%20%20%3Cstring%3Ejdbc%3Ahsqldb%3Ahsql%3A%2F%2Flocalhost%3A9001%2Ftestdb%3C%2Fstring%3E%20%0A%20%20%20%20%3C%2Fvoid%3E%20%0A%20%20%20%3C%2Fobject%3E%20%0A%20%20%3C%2Fvoid%3E%20%0A%20%3C%2Fobject%3E%20%0A%3C%2Fjava%3E%20%0A"/>   
+    <ConnInstance_capabilities ConnInstance_id="101" capabilities="SYNC_CREATE"/>
+    <ConnInstance_capabilities ConnInstance_id="101" capabilities="SYNC_UPDATE"/>
+    <ConnInstance_capabilities ConnInstance_id="101" capabilities="SYNC_DELETE"/>
+    <ConnInstance_capabilities ConnInstance_id="101" capabilities="ASYNC_CREATE"/>
+    <ConnInstance_capabilities ConnInstance_id="101" capabilities="ASYNC_UPDATE"/>
+    <ConnInstance_capabilities ConnInstance_id="101" capabilities="ASYNC_DELETE"/>
+    <ConnInstance_capabilities ConnInstance_id="101" capabilities="SEARCH"/>
+
+    <ConnInstance id="102" displayName="ConnInstance102"
+                       bundleName="org.connid.bundles.soap"
+                       connectorName="org.connid.bundles.soap.WebServiceConnector"
+                       version="${connid.soap.version}"
+		       xmlConfiguration="%3C%3Fxml+version%3D%221.0%22+encoding%3D%22UTF-8%22%3F%3E+%0A%3Cjava+version%3D%221.6.0_24%22+class%3D%22java.beans.XMLDecoder%22%3E+%0A+%3Cobject+class%3D%22java.util.HashSet%22%3E+%0A++%3Cvoid+method%3D%22add%22%3E+%0A+++%3Cobject+class%3D%22org.syncope.types.ConnConfProperty%22%3E+%0A++++%3Cvoid+property%3D%22schema%22%3E+%0A+++++%3Cobject+class%3D%22org.syncope.types.ConnConfPropSchema%22%3E+%0A++++++%3Cvoid+property%3D%22name%22%3E+%0A+++++++%3Cstring%3Eendpoint%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A++++++%3Cvoid+property%3D%22required%22%3E+%0A+++++++%3Cboolean%3Etrue%3C%2Fboolean%3E+%0A++++++%3C%2Fvoid%3E+%0A++++++%3Cvoid+property%3D%22type%22%3E+%0A+++++++%3Cstring%3Ejava.lang.String%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A+++++%3C%2Fobject%3E+%0A++++%3C%2Fvoid%3E+%0A++++%3Cvoid+property%3D%22value%22%3E+%0A+++++%3Cstring%3Ehttp%3A%2F%2Flocalhost%3A9080%2Fwssample%2Fservices%2Fprovisioning%3C%2Fstring%3E+%0A++++%3C%2Fvoid%3E+%0A+++%3C%2Fobject%3E+%0A++%3C%2Fvoid%3E+%0A++%3Cvoid+method%3D%22add%22%3E+%0A+++%3Cobject+class%3D%22org.syncope.types.ConnConfProperty%22%3E+%0A++++%3Cvoid+property%3D%22schema%22%3E+%0A+++++%3Cobject+class%3D%22org.syncope.types.ConnConfPropSchema%22%3E+%0A++++++%3Cvoid+property%3D%22name%22%3E+%0A+++++++%3Cstring%3Eservicename%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A++++++%3Cvoid+property%3D%22required%22%3E+%0A+++++++%3Cboolean%3Etrue%3C%2Fboolean%3E+%0A++++++%3C%2Fvoid%3E+%0A++++++%3Cvoid+property%3D%22type%22%3E+%0A+++++++%3Cstring%3Ejava.lang.String%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A+++++%3C%2Fobject%3E+%0A++++%3C%2Fvoid%3E+%0A++++%3Cvoid+property%3D%22value%22%3E+%0A+++++%3Cstring%3Eorg.connid.bundles.soap.provisioning.interfaces.Provisioning%3C%2Fstring%3E+%0A++++%3C%2Fvoid%3E+%0A+++%3C%2Fobject%3E+%0A++%3C%2Fvoid%3E+%0A+%3C%2Fobject%3E+%0A%3C%2Fjava%3E+%0A"/>
+    <ConnInstance_capabilities ConnInstance_id="102" capabilities="SYNC_CREATE"/>
+    <ConnInstance_capabilities ConnInstance_id="102" capabilities="SYNC_UPDATE"/>
+    <ConnInstance_capabilities ConnInstance_id="102" capabilities="SYNC_DELETE"/>
+    <ConnInstance_capabilities ConnInstance_id="102" capabilities="ASYNC_CREATE"/>
+    <ConnInstance_capabilities ConnInstance_id="102" capabilities="ASYNC_UPDATE"/>
+    <ConnInstance_capabilities ConnInstance_id="102" capabilities="ASYNC_DELETE"/>
+    <ConnInstance_capabilities ConnInstance_id="102" capabilities="SEARCH"/>
+
+    <ConnInstance id="103" displayName="ConnInstance103"
+                       bundleName="org.connid.bundles.soap"
+                       connectorName="org.connid.bundles.soap.WebServiceConnector"
+                       version="${connid.soap.version}"
+		       xmlConfiguration="%3C%3Fxml+version%3D%221.0%22+encoding%3D%22UTF-8%22%3F%3E+%0A%3Cjava+version%3D%221.6.0_24%22+class%3D%22java.beans.XMLDecoder%22%3E+%0A+%3Cobject+class%3D%22java.util.HashSet%22%3E+%0A++%3Cvoid+method%3D%22add%22%3E+%0A+++%3Cobject+class%3D%22org.syncope.types.ConnConfProperty%22%3E+%0A++++%3Cvoid+property%3D%22schema%22%3E+%0A+++++%3Cobject+class%3D%22org.syncope.types.ConnConfPropSchema%22%3E+%0A++++++%3Cvoid+property%3D%22name%22%3E+%0A+++++++%3Cstring%3Eendpoint%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A++++++%3Cvoid+property%3D%22required%22%3E+%0A+++++++%3Cboolean%3Etrue%3C%2Fboolean%3E+%0A++++++%3C%2Fvoid%3E+%0A++++++%3Cvoid+property%3D%22type%22%3E+%0A+++++++%3Cstring%3Ejava.lang.String%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A+++++%3C%2Fobject%3E+%0A++++%3C%2Fvoid%3E+%0A++++%3Cvoid+property%3D%22value%22%3E+%0A+++++%3Cstring%3Ehttp%3A%2F%2Flocalhost%3A9080%2Fwssample%2Fservices%2Fprovisioning%3C%2Fstring%3E+%0A++++%3C%2Fvoid%3E+%0A+++%3C%2Fobject%3E+%0A++%3C%2Fvoid%3E+%0A++%3Cvoid+method%3D%22add%22%3E+%0A+++%3Cobject+class%3D%22org.syncope.types.ConnConfProperty%22%3E+%0A++++%3Cvoid+property%3D%22schema%22%3E+%0A+++++%3Cobject+class%3D%22org.syncope.types.ConnConfPropSchema%22%3E+%0A++++++%3Cvoid+property%3D%22name%22%3E+%0A+++++++%3Cstring%3Eservicename%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A++++++%3Cvoid+property%3D%22required%22%3E+%0A+++++++%3Cboolean%3Etrue%3C%2Fboolean%3E+%0A++++++%3C%2Fvoid%3E+%0A++++++%3Cvoid+property%3D%22type%22%3E+%0A+++++++%3Cstring%3Ejava.lang.String%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A+++++%3C%2Fobject%3E+%0A++++%3C%2Fvoid%3E+%0A++++%3Cvoid+property%3D%22value%22%3E+%0A+++++%3Cstring%3Eorg.connid.bundles.soap.provisioning.interfaces.Provisioning%3C%2Fstring%3E+%0A++++%3C%2Fvoid%3E+%0A+++%3C%2Fobject%3E+%0A++%3C%2Fvoid%3E+%0A+%3C%2Fobject%3E+%0A%3C%2Fjava%3E+%0A"/>
+
+    <TargetResource name="ws-target-resource-1" connector_id="100" forceMandatoryConstraint="1" optionalPropagationMode="ASYNC"
+                       createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL"/>
+    <TargetResource name="ws-target-resource-2" connector_id="100" forceMandatoryConstraint="1" optionalPropagationMode="ASYNC"
+                       createTraceLevel="FAILURES" deleteTraceLevel="NONE" updateTraceLevel="ALL"/>
+    <TargetResource name="ws-target-resource-list-mappings-1" connector_id="100" forceMandatoryConstraint="0" optionalPropagationMode="ASYNC"
+                       createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL"/>
+    <TargetResource name="ws-target-resource-list-mappings-2" connector_id="100" forceMandatoryConstraint="1" optionalPropagationMode="ASYNC"
+                       createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL"/>
+    <TargetResource name="ws-target-resource-delete" connector_id="102" forceMandatoryConstraint="0" optionalPropagationMode="ASYNC"
+                       createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL"/>
+    <TargetResource name="ws-target-resource-update" connector_id="100" forceMandatoryConstraint="1" optionalPropagationMode="ASYNC"
+                       createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL"/>
+    <TargetResource name="ws-target-resource-nopropagation" connector_id="103" forceMandatoryConstraint="1" optionalPropagationMode="ASYNC"
+                       createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL"/>
+    <TargetResource name="ws-target-resource-testdb" connector_id="101" forceMandatoryConstraint="1" optionalPropagationMode="SYNC"
+                       createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL"/>
+
+    <SyncopeUser_TargetResource users_id="3" targetResources_name="ws-target-resource-delete" />
+    <SyncopeRole_TargetResource roles_id="3" targetResources_name="ws-target-resource-list-mappings-1" />
+    <SyncopeUser_TargetResource users_id="3" targetResources_name="ws-target-resource-2" />
+    <SyncopeRole_TargetResource roles_id="8" targetResources_name="ws-target-resource-2" />
+    <SyncopeRole_TargetResource roles_id="3" targetResources_name="ws-target-resource-list-mappings-2" />
+    <SyncopeUser_TargetResource users_id="3" targetResources_name="ws-target-resource-1" />
+
+    <SchemaMapping id="99" destAttrName="userid"
+                   resource_name="ws-target-resource-1"
+                   sourceAttrName="SyncopeUserId" sourceMappingType="SyncopeUserId" mandatoryCondition="true"
+                   accountid="1" password="0"/>
+
+    <SchemaMapping id="100" destAttrName="email"
+                   resource_name="ws-target-resource-1"
+                   sourceAttrName="email" sourceMappingType="UserSchema" mandatoryCondition="true"
+                   accountid="0" password="0"/>
+
+    <SchemaMapping id="101" destAttrName="userId"
+                   resource_name="ws-target-resource-2"
+                   sourceAttrName="username" sourceMappingType="UserSchema" mandatoryCondition="true"
+                   accountid="1" password="0"/>
+
+    <SchemaMapping id="102" destAttrName="email"
+                   resource_name="ws-target-resource-list-mappings-1"
+                   sourceAttrName="email" sourceMappingType="UserSchema" mandatoryCondition="true"
+                   accountid="1" password="0"/>
+
+    <SchemaMapping id="103" destAttrName="surname"
+                   resource_name="ws-target-resource-list-mappings-1"
+                   sourceAttrName="surname" sourceMappingType="UserSchema" mandatoryCondition="true"
+                   accountid="0" password="0"/>
+
+    <SchemaMapping id="104" destAttrName="userid"
+                   resource_name="ws-target-resource-list-mappings-2"
+                   sourceAttrName="userId" sourceMappingType="UserSchema" mandatoryCondition="true"
+                   accountid="1" password="0"/>
+
+    <SchemaMapping id="105" destAttrName="surname"
+                   resource_name="ws-target-resource-1"
+                   sourceAttrName="surname" sourceMappingType="UserSchema" mandatoryCondition="true"
+                   accountid="0" password="0"/>
+
+    <SchemaMapping id="106" destAttrName="password"
+                   resource_name="ws-target-resource-1"
+                   sourceAttrName="Password" sourceMappingType="Password" mandatoryCondition="true"
+                   accountid="0" password="1"/>
+
+    <SchemaMapping id="107" destAttrName="password"
+                   resource_name="ws-target-resource-2"
+                   sourceAttrName="Password" sourceMappingType="Password" mandatoryCondition="true"
+                   accountid="0" password="1"/>
+
+    <SchemaMapping id="108" destAttrName="type"
+                   resource_name="ws-target-resource-2"
+                   sourceAttrName="type" sourceMappingType="UserSchema" mandatoryCondition="true"
+                   accountid="0" password="0"/>
+
+    <SchemaMapping id="109" destAttrName="surname"
+                   resource_name="ws-target-resource-2"
+                   sourceAttrName="surname" sourceMappingType="UserSchema" mandatoryCondition="type == 'F'"
+                   accountid="0" password="0"/>
+
+    <SchemaMapping id="110" destAttrName="email"
+                   resource_name="ws-target-resource-update"
+                   sourceAttrName="email" sourceMappingType="UserSchema" mandatoryCondition="false"
+                   accountid="0" password="0"/>
+
+    <SchemaMapping id="111" destAttrName="userId"
+                   resource_name="ws-target-resource-update"
+                   sourceAttrName="userId" sourceMappingType="UserSchema" mandatoryCondition="false"
+                   accountid="0" password="0"/>
+    
+    <SchemaMapping id="112" destAttrName="test3"
+                   resource_name="ws-target-resource-update"
+                   sourceAttrName="username" sourceMappingType="UserSchema" mandatoryCondition="false"
+                   accountid="0" password="0"/>
+
+    <SchemaMapping id="113" destAttrName="name"
+                   resource_name="ws-target-resource-2"
+                   sourceAttrName="virtualdata" sourceMappingType="UserVirtualSchema" mandatoryCondition="type == 'F'"
+                   accountid="0" password="0"/>
+
+    <SchemaMapping id="114" destAttrName="fullname"
+                   resource_name="ws-target-resource-2"
+                   sourceAttrName="cn" sourceMappingType="UserDerivedSchema" mandatoryCondition="true"
+                   accountid="0" password="0"/>
+
+    <SchemaMapping id="115" destAttrName="name"
+                   resource_name="ws-target-resource-nopropagation"
+                   sourceAttrName="firstname" sourceMappingType="UserSchema" mandatoryCondition="true"
+                   accountid="1" password="0"/>
+                   
+    <SchemaMapping id="116" destAttrName="id"
+                   resource_name="ws-target-resource-testdb"
+                   sourceAttrName="SyncopeUserId" sourceMappingType="SyncopeUserId" mandatoryCondition="true"
+                   accountid="1" password="0"/>
+                   
+    <SchemaMapping id="117" destAttrName="password"
+                   resource_name="ws-target-resource-testdb"
+                   sourceAttrName="Password" sourceMappingType="Password" mandatoryCondition="true"
+                   accountid="0" password="1"/>
+
+    <Task DTYPE="PropagationTask" id="1" propagationMode="ASYNC" resourceOperationType="UPDATE"
+                 resource_name="ws-target-resource-2"
+                 xmlAttributes="%3Cset%3E%0A++%3Corg.identityconnectors.framework.common.objects.Name%3E%0A++++%3Cname%3E__NAME__%3C%2Fname%3E%0A++++%3Cvalue+class%3D%22java.util.Collections%24UnmodifiableRandomAccessList%22+resolves-to%3D%22java.util.Collections%24UnmodifiableList%22%3E%0A++++++%3Cc+class%3D%22list%22%3E%0A++++++++%3Cstring%3EuserId%3C%2Fstring%3E%0A++++++%3C%2Fc%3E%0A++++++%3Clist+reference%3D%22..%2Fc%22%2F%3E%0A++++%3C%2Fvalue%3E%0A++%3C%2Forg.identityconnectors.framework.common.objects.Name%3E%0A++%3Corg.identityconnectors.framework.common.objects.Attribute%3E%0A++++%3Cname%3E__PASSWORD__%3C%2Fname%3E%0A++++%3Cvalue+class%3D%22java.util.Collections%24UnmodifiableRandomAccessList%22+resolves-to%3D%22java.util.Collections%24UnmodifiableList%22%3E%0A++++++%3Cc+class%3D%22list%22%3E%0A++++++++%3Corg.identityconnectors.common.security.GuardedString%3E%0A++++++++++%3C__readOnly%3Efalse%3C%2F__readOnly%3E%0A++++++++++%3C__disposed%3Efalse%3C%2F__disposed%3E%0A++++++++++%3C__encryptedBytes%3EQTOgwEhIHqtAI%2FYlgDhYc37esEF8VLDMU2IY1ciltrg%3D%3C%2F__encryptedBytes%3E%0A++++++++++%3C__base64SHA1Hash%3EW5%2FrwtdCnI8gAnIUhKcahMEnMMc%3D%3C%2F__base64SHA1Hash%3E%0A++++++++%3C%2Forg.identityconnectors.common.security.GuardedString%3E%0A++++++%3C%2Fc%3E%0A++++++%3Clist+reference%3D%22..%2Fc%22%2F%3E%0A++++%3C%2Fvalue%3E%0A++%3C%2Forg.identityconnectors.framework.common.objects.Attribute%3E%0A++%3Corg.identityconnectors.framework.common.objects.Attribute%3E%0A++++%3Cname%3Etype%3C%2Fname%3E%0A++++%3Cvalue+class%3D%22java.util.Collections%24UnmodifiableRandomAccessList%22+resolves-to%3D%22java.util.Collections%24UnmodifiableList%22%3E%0A++++++%3Cc+class%3D%22list%22%3E%0A++++++++%3Cstring%3Etype%3C%2Fstring%3E%0A++++++%3C%2Fc%3E%0A++++++%3Clist+reference%3D%22..%2Fc%22%2F%3E%0A++++%3C%2Fvalue%3E%0A++%3C%2Forg.identityconnectors.framework.common.objects.Attribute%3E%0A++%3Corg.identityconnectors.framework.common.objects.Attribute%3E%0A++++%3Cname%3Efullname%3C%2Fname%3E%0A++++%3Cvalue+class%3D%22java.util.Collections%24UnmodifiableRandomAccessList%22+resolves-to%3D%22java.util.Collections%24UnmodifiableList%22%3E%0A++++++%3Cc+class%3D%22list%22%3E%0A++++++++%3Cstring%3Efullname%3C%2Fstring%3E%0A++++++%3C%2Fc%3E%0A++++++%3Clist+reference%3D%22..%2Fc%22%2F%3E%0A++++%3C%2Fvalue%3E%0A++%3C%2Forg.identityconnectors.framework.common.objects.Attribute%3E%0A%3C%2Fset%3E%0A"/>
+    <TaskExec id="1" task_id="1" status="SUCCESS"/>
+    <Task DTYPE="PropagationTask" id="2" propagationMode="SYNC" resourceOperationType="CREATE"
+                 resource_name="ws-target-resource-2"
+                 xmlAttributes="%3Cset%3E%0A++%3Corg.identityconnectors.framework.common.objects.Name%3E%0A++++%3Cname%3E__NAME__%3C%2Fname%3E%0A++++%3Cvalue+class%3D%22java.util.Collections%24UnmodifiableRandomAccessList%22+resolves-to%3D%22java.util.Collections%24UnmodifiableList%22%3E%0A++++++%3Cc+class%3D%22list%22%3E%0A++++++++%3Cstring%3EuserId%3C%2Fstring%3E%0A++++++%3C%2Fc%3E%0A++++++%3Clist+reference%3D%22..%2Fc%22%2F%3E%0A++++%3C%2Fvalue%3E%0A++%3C%2Forg.identityconnectors.framework.common.objects.Name%3E%0A++%3Corg.identityconnectors.framework.common.objects.Attribute%3E%0A++++%3Cname%3E__PASSWORD__%3C%2Fname%3E%0A++++%3Cvalue+class%3D%22java.util.Collections%24UnmodifiableRandomAccessList%22+resolves-to%3D%22java.util.Collections%24UnmodifiableList%22%3E%0A++++++%3Cc+class%3D%22list%22%3E%0A++++++++%3Corg.identityconnectors.common.security.GuardedString%3E%0A++++++++++%3C__readOnly%3Efalse%3C%2F__readOnly%3E%0A++++++++++%3C__disposed%3Efalse%3C%2F__disposed%3E%0A++++++++++%3C__encryptedBytes%3EQTOgwEhIHqtAI%2FYlgDhYc37esEF8VLDMU2IY1ciltrg%3D%3C%2F__encryptedBytes%3E%0A++++++++++%3C__base64SHA1Hash%3EW5%2FrwtdCnI8gAnIUhKcahMEnMMc%3D%3C%2F__base64SHA1Hash%3E%0A++++++++%3C%2Forg.identityconnectors.common.security.GuardedString%3E%0A++++++%3C%2Fc%3E%0A++++++%3Clist+reference%3D%22..%2Fc%22%2F%3E%0A++++%3C%2Fvalue%3E%0A++%3C%2Forg.identityconnectors.framework.common.objects.Attribute%3E%0A++%3Corg.identityconnectors.framework.common.objects.Attribute%3E%0A++++%3Cname%3Etype%3C%2Fname%3E%0A++++%3Cvalue+class%3D%22java.util.Collections%24UnmodifiableRandomAccessList%22+resolves-to%3D%22java.util.Collections%24UnmodifiableList%22%3E%0A++++++%3Cc+class%3D%22list%22%3E%0A++++++++%3Cstring%3Etype%3C%2Fstring%3E%0A++++++%3C%2Fc%3E%0A++++++%3Clist+reference%3D%22..%2Fc%22%2F%3E%0A++++%3C%2Fvalue%3E%0A++%3C%2Forg.identityconnectors.framework.common.objects.Attribute%3E%0A++%3Corg.identityconnectors.framework.common.objects.Attribute%3E%0A++++%3Cname%3Efullname%3C%2Fname%3E%0A++++%3Cvalue+class%3D%22java.util.Collections%24UnmodifiableRandomAccessList%22+resolves-to%3D%22java.util.Collections%24UnmodifiableList%22%3E%0A++++++%3Cc+class%3D%22list%22%3E%0A++++++++%3Cstring%3Efullname%3C%2Fstring%3E%0A++++++%3C%2Fc%3E%0A++++++%3Clist+reference%3D%22..%2Fc%22%2F%3E%0A++++%3C%2Fvalue%3E%0A++%3C%2Forg.identityconnectors.framework.common.objects.Attribute%3E%0A%3C%2Fset%3E%0A"/>
+    <Task DTYPE="PropagationTask" id="3" propagationMode="ASYNC" resourceOperationType="DELETE"
+                 resource_name="ws-target-resource-2"
+                 xmlAttributes="%3Cset%3E%0A++%3Corg.identityconnectors.framework.common.objects.Name%3E%0A++++%3Cname%3E__NAME__%3C%2Fname%3E%0A++++%3Cvalue+class%3D%22java.util.Collections%24UnmodifiableRandomAccessList%22+resolves-to%3D%22java.util.Collections%24UnmodifiableList%22%3E%0A++++++%3Cc+class%3D%22list%22%3E%0A++++++++%3Cstring%3EuserId%3C%2Fstring%3E%0A++++++%3C%2Fc%3E%0A++++++%3Clist+reference%3D%22..%2Fc%22%2F%3E%0A++++%3C%2Fvalue%3E%0A++%3C%2Forg.identityconnectors.framework.common.objects.Name%3E%0A++%3Corg.identityconnectors.framework.common.objects.Attribute%3E%0A++++%3Cname%3E__PASSWORD__%3C%2Fname%3E%0A++++%3Cvalue+class%3D%22java.util.Collections%24UnmodifiableRandomAccessList%22+resolves-to%3D%22java.util.Collections%24UnmodifiableList%22%3E%0A++++++%3Cc+class%3D%22list%22%3E%0A++++++++%3Corg.identityconnectors.common.security.GuardedString%3E%0A++++++++++%3C__readOnly%3Efalse%3C%2F__readOnly%3E%0A++++++++++%3C__disposed%3Efalse%3C%2F__disposed%3E%0A++++++++++%3C__encryptedBytes%3EQTOgwEhIHqtAI%2FYlgDhYc37esEF8VLDMU2IY1ciltrg%3D%3C%2F__encryptedBytes%3E%0A++++++++++%3C__base64SHA1Hash%3EW5%2FrwtdCnI8gAnIUhKcahMEnMMc%3D%3C%2F__base64SHA1Hash%3E%0A++++++++%3C%2Forg.identityconnectors.common.security.GuardedString%3E%0A++++++%3C%2Fc%3E%0A++++++%3Clist+reference%3D%22..%2Fc%22%2F%3E%0A++++%3C%2Fvalue%3E%0A++%3C%2Forg.identityconnectors.framework.common.objects.Attribute%3E%0A++%3Corg.identityconnectors.framework.common.objects.Attribute%3E%0A++++%3Cname%3Etype%3C%2Fname%3E%0A++++%3Cvalue+class%3D%22java.util.Collections%24UnmodifiableRandomAccessList%22+resolves-to%3D%22java.util.Collections%24UnmodifiableList%22%3E%0A++++++%3Cc+class%3D%22list%22%3E%0A++++++++%3Cstring%3Etype%3C%2Fstring%3E%0A++++++%3C%2Fc%3E%0A++++++%3Clist+reference%3D%22..%2Fc%22%2F%3E%0A++++%3C%2Fvalue%3E%0A++%3C%2Forg.identityconnectors.framework.common.objects.Attribute%3E%0A%3C%2Fset%3E"/>
+    <Task DTYPE="SyncTask" id="4" resource_name="ws-target-resource-2" updateIdentities="1" jobClassName="org.syncope.core.scheduling.SyncJob" cronExpression="0 0 10 * * ?"/>
+    <Task DTYPE="SchedTask" id="5" jobClassName="org.syncope.core.scheduling.SampleJob" cronExpression="0 0 0 1 * ?"/>
+
+    <RDerSchema name="displayProperty" expression="icon + ': ' + show"/>
+
+    <RDerAttr id="1001" derivedSchema_name="displayProperty" owner_id="1"/>
+    <RDerAttr id="1002" derivedSchema_name="displayProperty" owner_id="4"/>
+
+    <!-- sample policies -->
+    <Policy id="1" specification="%3C%3Fxml+version%3D%221.0%22+encoding%3D%22UTF-8%22%3F%3E+%0A%3Cjava+version%3D%221.6.0_26%22+class%3D%22java.beans.XMLDecoder%22%3E+%0A+%3Cobject+class%3D%22org.syncope.types.SyntaxPolicy%22%3E+%0A++%3Cvoid+property%3D%22maxLength%22%3E+%0A+++%3Cint%3E8%3C/int%3E+%0A++%3C/void%3E%0A+%3C/object%3E+%0A%3C/java%3E+%0A" type="SCHEMA"/>
+    <Policy id="2" specification="%3C%3Fxml+version%3D%221.0%22+encoding%3D%22UTF-8%22%3F%3E+%0A%3Cjava+version%3D%221.6.0_26%22+class%3D%22java.beans.XMLDecoder%22%3E+%0A+%3Cobject+class%3D%22org.syncope.types.SyntaxPolicy%22%3E+%0A++%3Cvoid+property%3D%22minLength%22%3E+%0A+++%3Cint%3E8%3C/int%3E+%0A++%3C/void%3E+%0A+%3C/object%3E+%0A%3C/java%3E+%0A" type="PASSWORD"/>
+
     <!-- Authentication and authorization -->
+    <Entitlement name="base"/>
+    <Entitlement name="advanced" description="Advanced entitlement"/>
     <Entitlement name="SCHEMA_LIST"/>
     <Entitlement name="SCHEMA_CREATE"/>
     <Entitlement name="SCHEMA_READ"/>
@@ -101,5 +418,24 @@
     <Entitlement name="TASK_DELETE"/>
     <Entitlement name="LOG_LIST"/>
     <Entitlement name="LOG_SET_LEVEL"/>
+    <Entitlement name="ROLE_1"/>
+    <Entitlement name="ROLE_2"/>
+    <Entitlement name="ROLE_3"/>
+    <Entitlement name="ROLE_4"/>
+    <Entitlement name="ROLE_5"/>
+    <Entitlement name="ROLE_6"/>
+    <Entitlement name="ROLE_7"/>
+    <Entitlement name="ROLE_8"/>
 
+    <SyncopeRole_Entitlement entitlements_name="base" roles_id="1"/>
+    <SyncopeRole_Entitlement entitlements_name="advanced" roles_id="1"/>
+    <SyncopeRole_Entitlement entitlements_name="base" roles_id="2"/>
+    <SyncopeRole_Entitlement entitlements_name="SCHEMA_READ" roles_id="8"/>
+    <SyncopeRole_Entitlement entitlements_name="ROLE_LIST" roles_id="8"/>
+    <SyncopeRole_Entitlement entitlements_name="USER_READ" roles_id="2"/>
+    <SyncopeRole_Entitlement entitlements_name="USER_LIST" roles_id="2"/>
+    <SyncopeRole_Entitlement entitlements_name="USER_READ" roles_id="7"/>
+    <SyncopeRole_Entitlement entitlements_name="USER_LIST" roles_id="7"/>
+    <SyncopeRole_Entitlement entitlements_name="ROLE_8" roles_id="7"/>
+    <SyncopeRole_Entitlement entitlements_name="ROLE_1" roles_id="7"/>
 </dataset>

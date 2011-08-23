@@ -36,7 +36,11 @@ public enum EntityViolationType {
     InvalidSchedTask(
     "org.syncope.core.validation.schedtask.invalid"),
     InvalidSyncTask(
-    "org.syncope.core.validation.synctask.invalid");
+    "org.syncope.core.validation.synctask.invalid"),
+    InvalidPassword(
+    "org.syncope.core.validation.password.invalid"),
+    InvalidPolicy(
+    "org.syncope.core.validation.policy.invalid");
 
     private String message;
 

@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.util.List;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageParameters;
+import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -350,26 +351,25 @@ public class Users extends BasePage {
         final Form searchForm = new Form("searchForm");
         add(searchForm);
 
-        FeedbackPanel searchFeedback = new FeedbackPanel("searchFeedback",
-                new IFeedbackMessageFilter() {
+        final FeedbackPanel searchFeedback = new FeedbackPanel(
+                "searchFeedback", new IFeedbackMessageFilter() {
 
-                    @Override
-                    public boolean accept(final FeedbackMessage message) {
-                        boolean result;
+            @Override
+            public boolean accept(final FeedbackMessage message) {
+                boolean result;
 
-                        // messages reported on the session have a null reporter
-                        if (message.getReporter() != null) {
-                            // only accept messages coming from the children
-                            // of the form
-                            result = searchForm.contains(message.getReporter(),
-                                    true);
-                        } else {
-                            result = false;
-                        }
+                // messages reported on the session have a null reporter
+                if (message.getReporter() != null) {
+                    // only accept messages coming from the children
+                    // of the form
+                    result = searchForm.contains(message.getReporter(), true);
+                } else {
+                    result = false;
+                }
 
-                        return result;
-                    }
-                });
+                return result;
+            }
+        });
         searchFeedback.setOutputMarkupId(true);
         searchForm.add(searchFeedback);
 
@@ -466,13 +466,16 @@ public class Users extends BasePage {
 
                 doSearch(target, searchConditionList, searchDataProvider,
                         searchResultTable);
+
+                Session.get().getFeedbackMessages().clear();
+                target.addComponent(searchFeedback);
             }
 
             @Override
             protected void onError(final AjaxRequestTarget target,
                     final Form form) {
 
-                target.addComponent(form.get("searchFeedback"));
+                target.addComponent(searchFeedback);
             }
         });
 

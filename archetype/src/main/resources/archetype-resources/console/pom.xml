@@ -170,9 +170,9 @@
                         <phase>package</phase>
                         <configuration>
                             <target>
-                                <get src="http://www.apache.org/dist/tomcat/tomcat-7/v7.0.20/bin/apache-tomcat-7.0.20.zip"
+                                <get src="http://www.apache.org/dist/tomcat/tomcat-7/v${tomcat.version}/bin/apache-tomcat-${tomcat.version}.zip"
                                      dest="${java.io.tmpdir}" skipexisting="true"/>
-                                <unzip src="${java.io.tmpdir}/apache-tomcat-7.0.20.zip"
+                                <unzip src="${java.io.tmpdir}/apache-tomcat-${tomcat.version}.zip"
                                        dest="${java.io.tmpdir}" overwrite="false"/>
                             </target>
                         </configuration>
@@ -222,7 +222,7 @@
                     <wait>true</wait>
                     <container>
                         <containerId>tomcat7x</containerId>
-                        <home>${java.io.tmpdir}/apache-tomcat-7.0.20</home>
+                        <home>${java.io.tmpdir}/apache-tomcat-${tomcat.version}</home>
                         <log>${cargo.log}</log>
                         <output>${cargo.output}</output>
                         <dependencies>

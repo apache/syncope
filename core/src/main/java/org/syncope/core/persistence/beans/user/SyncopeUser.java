@@ -39,6 +39,7 @@ import javax.persistence.TemporalType;
 import javax.validation.Valid;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.RandomStringUtils;
+import org.hibernate.annotations.Type;
 import org.syncope.core.persistence.beans.AbstractAttributable;
 import org.syncope.core.persistence.beans.AbstractAttr;
 import org.syncope.core.persistence.beans.AbstractDerAttr;
@@ -70,6 +71,8 @@ public class SyncopeUser extends AbstractAttributable {
 
     private String password;
 
+    private transient String clearPassword;
+
     @OneToMany(cascade = CascadeType.MERGE, mappedBy = "syncopeUser")
     @Valid
     private List<Membership> memberships;
@@ -90,6 +93,7 @@ public class SyncopeUser extends AbstractAttributable {
     private Long workflowId;
 
     @Lob
+    @Type(type = "org.hibernate.type.StringClobType")
     private String token;
 
     @Temporal(TemporalType.TIMESTAMP)
@@ -176,12 +180,19 @@ public class SyncopeUser extends AbstractAttributable {
         return password;
     }
 
+    public String getClearPassword() {
+        return clearPassword;
+    }
+
     /**
-     * TODO: password policies.
      * @param password the password to be set
      */
     public void setPassword(
-            final String password, final CipherAlgorithm cipherAlgoritm) {
+            final String password,
+            final CipherAlgorithm cipherAlgoritm) {
+
+        // clear password
+        clearPassword = password;
 
         try {
             if (cipherAlgoritm == null

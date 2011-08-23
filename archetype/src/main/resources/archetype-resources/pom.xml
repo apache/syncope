@@ -34,7 +34,7 @@
         <commons-lang.version>2.6</commons-lang.version>
         <commons-httpclient.version>3.1</commons-httpclient.version>
 
-        <cxf.version>2.4.1</cxf.version>
+        <cxf.version>2.4.2</cxf.version>
 
         <logback.version>0.9.29</logback.version>
         <slf4j.version>1.6.1</slf4j.version>
@@ -42,6 +42,7 @@
         <junit.version>4.8.2</junit.version>
 
         <cargo.version>1.1.1</cargo.version>
+        <tomcat.version>7.0.20</tomcat.version>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>

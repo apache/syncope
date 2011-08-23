@@ -66,6 +66,7 @@ import org.syncope.types.ResourceOperationType;
 import org.syncope.types.SourceMappingType;
 import org.syncope.types.SchemaType;
 import org.syncope.types.PropagationTaskExecStatus;
+import org.syncope.types.TraceLevel;
 
 /**
  * Manage the data propagation to target resources.
@@ -233,6 +234,7 @@ public class PropagationManager {
         TaskExec execution;
         for (ResourceOperationType type : ResourceOperationType.values()) {
             for (TargetResource resource : resourceOperations.get(type)) {
+
                 Map<String, Set<Attribute>> preparedAttributes =
                         prepareAttributes(user, password, resource);
                 String accountId =
@@ -250,7 +252,6 @@ public class PropagationManager {
                         resourceOperations.getOldAccountId(resource.getName()));
                 task.setAttributes(
                         preparedAttributes.values().iterator().next());
-                task = taskDAO.save(task);
 
                 LOG.debug("Execution started for {}", task);
 
@@ -575,14 +576,10 @@ public class PropagationManager {
 
     }
 
-    public TaskExec propagate(final PropagationTask task,
-            final Date startDate) {
+    public TaskExec propagate(PropagationTask task, final Date startDate) {
 
         TaskExec execution = new TaskExec();
-        execution.setTask(task);
-        execution.setStatus(
-                PropagationTaskExecStatus.CREATED.toString());
-        execution = taskExecDAO.save(execution);
+        execution.setStatus(PropagationTaskExecStatus.CREATED.toString());
 
         String taskExecutionMessage = null;
 
@@ -619,10 +616,8 @@ public class PropagationManager {
                                 : task.getOldAccountId()),
                                 null);
                     } catch (RuntimeException ignore) {
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug("To be ignored, when resolving "
-                                    + "username on connector", ignore);
-                        }
+                        LOG.debug("To be ignored, when resolving "
+                                + "username on connector", ignore);
                     }
 
                     if (remoteObject != null) {
@@ -708,21 +703,65 @@ public class PropagationManager {
         } finally {
             LOG.debug("Update execution for {}", task);
 
-            if (!propagationAttempted.isEmpty()) {
-                execution.setStartDate(startDate);
-                execution.setMessage(taskExecutionMessage);
-                execution.setEndDate(new Date());
+            if (hasToBeregistered(task, execution)) {
+                task = taskDAO.save(task);
 
-                taskExecDAO.save(execution);
+                if (!propagationAttempted.isEmpty()) {
+                    execution.setStartDate(startDate);
+                    execution.setMessage(taskExecutionMessage);
+                    execution.setEndDate(new Date());
 
-                LOG.debug("Execution finished: {}", execution);
-            } else {
-                taskExecDAO.delete(execution);
+                    execution.setTask(task);
+                    execution = taskExecDAO.save(execution);
 
-                LOG.debug("Execution removed: {}", execution);
+                    LOG.debug("Execution finished: {}", execution);
+                } else {
+                    LOG.debug("No propagation attemped for {}", execution);
+                }
             }
         }
 
         return execution;
+    }
+
+    private boolean hasToBeregistered(final PropagationTask task,
+            final TaskExec execution) {
+
+        boolean result;
+
+        final boolean failed = !PropagationTaskExecStatus.valueOf(
+                execution.getStatus()).isSuccessful();
+
+        switch (task.getResourceOperationType()) {
+
+            case CREATE:
+                result = (failed
+                        && task.getResource().getCreateTraceLevel().
+                        ordinal() >= TraceLevel.FAILURES.ordinal())
+                        || task.getResource().getCreateTraceLevel()
+                        == TraceLevel.ALL;
+                break;
+
+            case UPDATE:
+                result = (failed
+                        && task.getResource().getUpdateTraceLevel().
+                        ordinal() >= TraceLevel.FAILURES.ordinal())
+                        || task.getResource().getUpdateTraceLevel()
+                        == TraceLevel.ALL;
+                break;
+
+            case DELETE:
+                result = (failed
+                        && task.getResource().getDeleteTraceLevel().
+                        ordinal() >= TraceLevel.FAILURES.ordinal())
+                        || task.getResource().getDeleteTraceLevel()
+                        == TraceLevel.ALL;
+                break;
+
+            default:
+                result = false;
+        }
+
+        return result;
     }
 }

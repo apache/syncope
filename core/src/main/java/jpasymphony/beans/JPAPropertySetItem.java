@@ -24,6 +24,7 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
+import org.hibernate.annotations.Type;
 import org.syncope.core.persistence.beans.AbstractBaseBean;
 
 @Entity
@@ -54,6 +55,7 @@ public class JPAPropertySetItem extends AbstractBaseBean {
     private String stringValue;
 
     @Lob
+    @Type(type = "org.hibernate.type.StringClobType")
     private String textValue;
 
     @Temporal(TemporalType.TIMESTAMP)

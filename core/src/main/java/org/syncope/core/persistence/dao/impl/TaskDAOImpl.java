@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.SchedTask;
 import org.syncope.core.persistence.beans.SyncTask;
 import org.syncope.core.persistence.beans.Task;
@@ -29,6 +30,7 @@ public class TaskDAOImpl extends AbstractDAOImpl
         implements TaskDAO {
 
     @Override
+    @Transactional(readOnly = true)
     public <T extends Task> T find(final Long id) {
         return (T) entityManager.find(Task.class, id);
     }
@@ -53,9 +55,9 @@ public class TaskDAOImpl extends AbstractDAOImpl
 
         StringBuilder queryString = buildfindAllQuery(reference);
         if (SchedTask.class.equals(reference)) {
-                queryString.append("AND ");
+            queryString.append("AND ");
         } else {
-                queryString.append("WHERE ");            
+            queryString.append("WHERE ");
         }
         queryString.append("e.resource=:resource");
 

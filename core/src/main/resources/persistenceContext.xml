@@ -32,6 +32,7 @@
     <context:annotation-config/>
     <context:component-scan base-package="org.syncope.core.persistence"/>
     <context:component-scan base-package="org.syncope.core.rest.data"/>
+    <context:component-scan base-package="org.syncope.core.policy"/>
 
     <aop:aspectj-autoproxy/>
     <bean class="org.syncope.core.monitor.CacheMonitor"/>
@@ -52,10 +53,10 @@
     </bean>
     <bean id="localDataSource"
           class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-        <property name="driverClassName" value="${hibernate.connection.driver_class:org.hsqldb.jdbcDriver}"/>
-        <property name="url" value="${hibernate.connection.url:jdbc:hsqldb:mem:syncopedb}"/>
-        <property name="username" value="${hibernate.connection.username:sa}"/>
-        <property name="password" value="${hibernate.connection.password:}"/>
+        <property name="driverClassName" value="${hibernate.connection.driver_class}"/>
+        <property name="url" value="${hibernate.connection.url}"/>
+        <property name="username" value="${hibernate.connection.username}"/>
+        <property name="password" value="${hibernate.connection.password}"/>
     </bean>
 
     <bean id="entityManagerFactory"

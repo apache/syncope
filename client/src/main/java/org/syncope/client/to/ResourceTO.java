@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.syncope.client.AbstractBaseBean;
 import org.syncope.types.PropagationMode;
+import org.syncope.types.TraceLevel;
 
 public class ResourceTO extends AbstractBaseBean {
 
@@ -48,9 +49,18 @@ public class ResourceTO extends AbstractBaseBean {
      */
     private boolean forceMandatoryConstraint;
 
+    private TraceLevel createTraceLevel;
+
+    private TraceLevel deleteTraceLevel;
+
+    private TraceLevel updateTraceLevel;
+
     public ResourceTO() {
         mappings = new ArrayList<SchemaMappingTO>();
         optionalPropagationMode = PropagationMode.ASYNC;
+        createTraceLevel = TraceLevel.ALL;
+        deleteTraceLevel = TraceLevel.ALL;
+        updateTraceLevel = TraceLevel.ALL;
     }
 
     public boolean isForceMandatoryConstraint() {
@@ -109,5 +119,29 @@ public class ResourceTO extends AbstractBaseBean {
             PropagationMode optionalPropagationMode) {
 
         this.optionalPropagationMode = optionalPropagationMode;
+    }
+
+    public TraceLevel getCreateTraceLevel() {
+        return createTraceLevel;
+    }
+
+    public void setCreateTraceLevel(TraceLevel createTraceLevel) {
+        this.createTraceLevel = createTraceLevel;
+    }
+
+    public TraceLevel getDeleteTraceLevel() {
+        return deleteTraceLevel;
+    }
+
+    public void setDeleteTraceLevel(TraceLevel deleteTraceLevel) {
+        this.deleteTraceLevel = deleteTraceLevel;
+    }
+
+    public TraceLevel getUpdateTraceLevel() {
+        return updateTraceLevel;
+    }
+
+    public void setUpdateTraceLevel(TraceLevel updateTraceLevel) {
+        this.updateTraceLevel = updateTraceLevel;
     }
 }

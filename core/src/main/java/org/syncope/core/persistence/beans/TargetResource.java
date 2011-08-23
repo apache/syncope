@@ -38,6 +38,7 @@ import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.validation.entity.TargetResourceCheck;
 import org.syncope.types.PropagationMode;
 import org.syncope.types.SourceMappingType;
+import org.syncope.types.TraceLevel;
 
 /**
  * A resource to which propagation occurs.
@@ -100,6 +101,18 @@ public class TargetResource extends AbstractBaseBean {
     @Column(nullable = false)
     private PropagationMode optionalPropagationMode;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TraceLevel createTraceLevel;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TraceLevel deleteTraceLevel;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TraceLevel updateTraceLevel;
+
     /**
      * Default constructor.
      */
@@ -111,6 +124,10 @@ public class TargetResource extends AbstractBaseBean {
         roles = new HashSet<SyncopeRole>();
         mappings = new ArrayList<SchemaMapping>();
         optionalPropagationMode = PropagationMode.ASYNC;
+
+        createTraceLevel = TraceLevel.FAILURES;
+        deleteTraceLevel = TraceLevel.FAILURES;
+        updateTraceLevel = TraceLevel.FAILURES;
     }
 
     public boolean isForceMandatoryConstraint() {
@@ -238,5 +255,29 @@ public class TargetResource extends AbstractBaseBean {
         if (users != null && !users.isEmpty()) {
             this.users.addAll(users);
         }
+    }
+
+    public TraceLevel getCreateTraceLevel() {
+        return createTraceLevel;
+    }
+
+    public void setCreateTraceLevel(TraceLevel createTraceLevel) {
+        this.createTraceLevel = createTraceLevel;
+    }
+
+    public TraceLevel getDeleteTraceLevel() {
+        return deleteTraceLevel;
+    }
+
+    public void setDeleteTraceLevel(TraceLevel deleteTraceLevel) {
+        this.deleteTraceLevel = deleteTraceLevel;
+    }
+
+    public TraceLevel getUpdateTraceLevel() {
+        return updateTraceLevel;
+    }
+
+    public void setUpdateTraceLevel(TraceLevel updateTraceLevel) {
+        this.updateTraceLevel = updateTraceLevel;
     }
 }

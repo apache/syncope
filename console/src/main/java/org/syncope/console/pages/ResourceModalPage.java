@@ -53,6 +53,7 @@ import org.syncope.console.rest.SchemaRestClient;
 import org.syncope.console.wicket.markup.html.form.AjaxDecoratedCheckbox;
 import org.syncope.types.PropagationMode;
 import org.syncope.types.SourceMappingType;
+import org.syncope.types.TraceLevel;
 
 /**
  * Modal window with Resource form.
@@ -151,6 +152,24 @@ public class ResourceModalPage extends BaseModalPage {
                 Arrays.asList(PropagationMode.values()));
         optionalPropagationMode.setOutputMarkupId(true);
         resourceForm.add(optionalPropagationMode);
+
+        final DropDownChoice<TraceLevel> createTraceLevel =
+                new DropDownChoice<TraceLevel>("createTraceLevel",
+                new PropertyModel<TraceLevel>(resourceTO, "createTraceLevel"),
+                Arrays.asList(TraceLevel.values()));
+        resourceForm.add(createTraceLevel);
+
+        final DropDownChoice<TraceLevel> updateTraceLevel =
+                new DropDownChoice<TraceLevel>("updateTraceLevel",
+                new PropertyModel<TraceLevel>(resourceTO, "updateTraceLevel"),
+                Arrays.asList(TraceLevel.values()));
+        resourceForm.add(updateTraceLevel);
+
+        final DropDownChoice<TraceLevel> deleteTraceLevel =
+                new DropDownChoice<TraceLevel>("deleteTraceLevel",
+                new PropertyModel<TraceLevel>(resourceTO, "deleteTraceLevel"),
+                Arrays.asList(TraceLevel.values()));
+        resourceForm.add(deleteTraceLevel);
 
         ChoiceRenderer renderer = new ChoiceRenderer("displayName", "id");
         DropDownChoice<ConnInstanceTO> connector =

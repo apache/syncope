@@ -14,29 +14,7 @@
  */
 package org.syncope.types;
 
-/**
- * Status of a TaskExecution.
- *
- * CREATED -> SUBMITTED or UBSUBMITTED (depending on the external resource to
- * return success or failure).
- * SUBMITTED -> SUCCESS or FAILURE (depending on the external resource to
- * report success or failure).
- *
- * @see TaskExecution
- */
-public enum PropagationTaskExecStatus {
+import org.syncope.client.AbstractBaseBean;
 
-    CREATED,
-    SUBMITTED,
-    UNSUBMITTED,
-    SUCCESS,
-    FAILURE;
-
-    public boolean isSuccessful() {
-        return this == SUCCESS || this == SUBMITTED;
-    }
-
-    public boolean isFinal() {
-        return this == SUCCESS || this == FAILURE;
-    }
+public abstract class AbstractPolicy extends AbstractBaseBean {
 }

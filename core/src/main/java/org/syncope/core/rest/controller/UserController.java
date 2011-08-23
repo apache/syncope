@@ -56,10 +56,12 @@ import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.dao.UserSearchDAO;
 import org.syncope.core.persistence.propagation.PropagationManager;
 import org.syncope.core.persistence.propagation.ResourceOperations;
+import org.syncope.core.persistence.validation.entity.InvalidEntityException;
 import org.syncope.core.rest.data.UserDataBinder.CheckInResult;
 import org.syncope.core.util.EntitlementUtil;
 import org.syncope.core.workflow.Constants;
 import org.syncope.core.workflow.WFUtils;
+import org.syncope.types.EntityViolationType;
 import org.syncope.types.SyncopeClientExceptionType;
 
 @Controller
@@ -344,8 +346,7 @@ public class UserController extends AbstractController {
         }
 
         List<SyncopeUser> matchingUsers = userSearchDAO.search(
-                EntitlementUtil.getRoleIds(EntitlementUtil.
-                getOwnedEntitlementNames()), searchCondition);
+                EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames()), searchCondition);
         List<UserTO> result = new ArrayList<UserTO>(matchingUsers.size());
         for (SyncopeUser user : matchingUsers) {
             result.add(userDataBinder.getUserTO(user, workflow));
@@ -440,7 +441,28 @@ public class UserController extends AbstractController {
         // Create the user
         SyncopeUser user = new SyncopeUser();
         userDataBinder.create(user, userTO);
-        user = userDAO.save(user);
+
+        try {
+            user = userDAO.save(user);
+        } catch (InvalidEntityException e) {
+            SyncopeClientCompositeErrorException scce =
+                    new SyncopeClientCompositeErrorException(
+                    HttpStatus.BAD_REQUEST);
+
+            SyncopeClientException sce = new SyncopeClientException(
+                    SyncopeClientExceptionType.InvalidPassword);
+
+            for (Map.Entry<Class, Set<EntityViolationType>> violation :
+                    e.getViolations().entrySet()) {
+
+                for (EntityViolationType violationType : violation.getValue()) {
+                    sce.addElement(violationType.toString());
+                }
+            }
+
+            scce.addException(sce);
+            throw scce;
+        }
 
         // User is created locally and propagated, let's advance on the workflow
         final Long workflowId =
@@ -562,7 +584,28 @@ public class UserController extends AbstractController {
         // Update user with provided userMod
         ResourceOperations resourceOperations =
                 userDataBinder.update(user, userMod);
-        user = userDAO.save(user);
+
+        try {
+            user = userDAO.save(user);
+        } catch (InvalidEntityException e) {
+            SyncopeClientCompositeErrorException scce =
+                    new SyncopeClientCompositeErrorException(
+                    HttpStatus.BAD_REQUEST);
+
+            SyncopeClientException sce = new SyncopeClientException(
+                    SyncopeClientExceptionType.InvalidPassword);
+
+            for (Map.Entry<Class, Set<EntityViolationType>> violation :
+                    e.getViolations().entrySet()) {
+
+                for (EntityViolationType violationType : violation.getValue()) {
+                    sce.addElement(violationType.toString());
+                }
+            }
+
+            scce.addException(sce);
+            throw scce;
+        }
 
         // Now that user is update locally, let's propagate
         Set<String> mandatoryResourceNames = getMandatoryResourceNames(user,

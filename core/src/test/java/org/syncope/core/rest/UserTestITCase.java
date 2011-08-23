@@ -143,7 +143,7 @@ public class UserTestITCase extends AbstractTest {
         attributeTO.addValue("xxx");
         userTO.addAttribute(attributeTO);
 
-        userTO.setPassword("xxx");
+        userTO.setPassword("password");
         userTO.addResource("ws-target-resource-nopropagation");
 
         restTemplate.postForObject(BASE_URL + "user/create"
@@ -201,12 +201,22 @@ public class UserTestITCase extends AbstractTest {
         attributeTO.addValue("yyy");
         userTO.addAttribute(attributeTO);
 
-        userTO.setPassword("yyy");
+        userTO.setPassword("password");
         userTO.addResource("ws-target-resource-testdb");
 
         restTemplate.postForObject(BASE_URL + "user/create"
                 + "?mandatoryResources=ws-target-resource-testdb",
                 userTO, UserTO.class);
+    }
+
+    @Test
+    @ExpectedException(value = SyncopeClientCompositeErrorException.class)
+    public final void createWithInvalidPassword() {
+        UserTO userTO = getSampleTO("invalidpasswd@passwd.com");
+        userTO.setPassword("pass");
+
+        restTemplate.postForObject(
+                BASE_URL + "user/create", userTO, UserTO.class);
     }
 
     @Test
@@ -319,7 +329,10 @@ public class UserTestITCase extends AbstractTest {
             }
         }
 
-        assertTrue(newMaxId > maxId);
+        // default configuration for ws-target-resource2:
+        //             only failed executions have to be registered
+        // --> no more tasks/executions should be added
+        assertEquals(newMaxId, maxId);
 
         // get last task
         PropagationTaskTO taskTO = restTemplate.getForObject(
@@ -327,7 +340,7 @@ public class UserTestITCase extends AbstractTest {
                 newMaxId);
 
         assertNotNull(taskTO);
-        assertFalse(taskTO.getExecutions().isEmpty());
+        assertTrue(taskTO.getExecutions().isEmpty());
 
         // 3. verify password
         Boolean verify = restTemplate.getForObject(
@@ -656,8 +669,55 @@ public class UserTestITCase extends AbstractTest {
             userIds.add(user.getId());
         }
         assertEquals(2, userIds.size());
-        assertTrue(userIds.contains(2L));
-        assertTrue(userIds.contains(3L));
+    }
+
+    @Test
+    public final void updateWithouPassword() {
+        UserTO userTO = getSampleTO("updatewithout@password.com");
+
+        userTO = restTemplate.postForObject(
+                BASE_URL + "user/create", userTO, UserTO.class);
+
+        assertNotNull(userTO);
+
+        userTO = restTemplate.postForObject(BASE_URL + "user/activate",
+                userTO, UserTO.class);
+
+        assertNotNull(userTO);
+
+        UserMod userMod = new UserMod();
+        userMod.setId(userTO.getId());
+        userMod.addDerivedAttributeToBeRemoved("cn");
+
+        userTO = restTemplate.postForObject(
+                BASE_URL + "user/update", userMod, UserTO.class);
+
+        assertNotNull(userTO);
+        assertNotNull(userTO.getDerivedAttributeMap());
+        assertFalse(userTO.getDerivedAttributeMap().containsKey("cn"));
+    }
+
+    @Test
+    @ExpectedException(value = SyncopeClientCompositeErrorException.class)
+    public final void updateInvalidPassword() {
+        UserTO userTO = getSampleTO("updateinvalid@password.com");
+
+        userTO = restTemplate.postForObject(
+                BASE_URL + "user/create", userTO, UserTO.class);
+
+        assertNotNull(userTO);
+
+        userTO = restTemplate.postForObject(BASE_URL + "user/activate",
+                userTO, UserTO.class);
+
+        assertNotNull(userTO);
+
+        UserMod userMod = new UserMod();
+        userMod.setId(userTO.getId());
+        userMod.setPassword("pass");
+
+        restTemplate.postForObject(
+                BASE_URL + "user/update", userMod, UserTO.class);
     }
 
     @Test
@@ -713,8 +773,7 @@ public class UserTestITCase extends AbstractTest {
 
         SyncopeUser passwordTestUser = new SyncopeUser();
         passwordTestUser.setPassword("newPassword", CipherAlgorithm.MD5);
-        assertEquals(passwordTestUser.getPassword(),
-                userTO.getPassword());
+        assertEquals(passwordTestUser.getPassword(), userTO.getPassword());
 
         assertEquals(1, userTO.getMemberships().size());
         assertEquals(1, userTO.getMemberships().iterator().next().
@@ -730,5 +789,135 @@ public class UserTestITCase extends AbstractTest {
             }
         }
         assertTrue(attributeFound);
+    }
+
+    @Test
+    public final void verifyTaskRegistration() {
+        // get task list
+        List<PropagationTaskTO> tasks = Arrays.asList(
+                restTemplate.getForObject(
+                BASE_URL + "task/propagation/list", PropagationTaskTO[].class));
+
+        assertNotNull(tasks);
+        assertFalse(tasks.isEmpty());
+
+        // get max task id
+        long maxId = Long.MIN_VALUE;
+        for (PropagationTaskTO task : tasks) {
+            if (task.getId() > maxId) {
+                maxId = task.getId();
+            }
+        }
+
+        // --------------------------------------
+        // Create operation
+        // --------------------------------------
+
+        UserTO userTO = getSampleTO("task@propagation.mode");
+
+        // add a membership
+        MembershipTO membershipTO = new MembershipTO();
+        membershipTO.setRoleId(8L);
+        userTO.addMembership(membershipTO);
+
+        // 1. create user
+        userTO = restTemplate.postForObject(
+                BASE_URL + "user/create?mandatoryRoles=8",
+                userTO, UserTO.class);
+
+        assertNotNull(userTO);
+
+        WorkflowActionsTO workflowActions = restTemplate.getForObject(
+                BASE_URL + "user/actions/{userId}", WorkflowActionsTO.class,
+                userTO.getId());
+        assertTrue(workflowActions.getActions().equals(
+                Collections.singleton(Constants.ACTION_ACTIVATE)));
+
+        // 2. activate user
+        userTO = restTemplate.postForObject(BASE_URL + "user/activate",
+                userTO, UserTO.class);
+        assertEquals("active",
+                restTemplate.getForObject(BASE_URL + "user/status/"
+                + userTO.getId(), String.class));
+
+        // get the new task list
+        tasks = Arrays.asList(
+                restTemplate.getForObject(
+                BASE_URL + "task/propagation/list", PropagationTaskTO[].class));
+
+        assertNotNull(tasks);
+        assertFalse(tasks.isEmpty());
+
+        // get max task id
+        long newMaxId = Long.MIN_VALUE;
+        for (PropagationTaskTO task : tasks) {
+            if (task.getId() > newMaxId) {
+                newMaxId = task.getId();
+            }
+        }
+
+        // default configuration for ws-target-resource2:
+        //             only failed executions have to be registered
+        // --> no more tasks/executions should be added
+        assertEquals(newMaxId, maxId);
+
+        // --------------------------------------
+        // Update operation
+        // --------------------------------------
+        UserMod userMod = new UserMod();
+        userMod.setId(userTO.getId());
+
+        AttributeMod attributeMod = new AttributeMod();
+        attributeMod.setSchema("surname");
+        attributeMod.addValueToBeAdded("surname");
+        userMod.addAttributeToBeUpdated(attributeMod);
+
+        userTO = restTemplate.postForObject(
+                BASE_URL + "user/update", userMod, UserTO.class);
+
+        assertNotNull(userTO);
+
+        // get the new task list
+        tasks = Arrays.asList(
+                restTemplate.getForObject(
+                BASE_URL + "task/propagation/list", PropagationTaskTO[].class));
+
+        // get max task id
+        maxId = newMaxId;
+        newMaxId = Long.MIN_VALUE;
+        for (PropagationTaskTO task : tasks) {
+            if (task.getId() > newMaxId) {
+                newMaxId = task.getId();
+            }
+        }
+
+        // default configuration for ws-target-resource2:
+        //             all update executions have to be registered
+        assertTrue(newMaxId > maxId);
+
+        // --------------------------------------
+        // Delete operation
+        // --------------------------------------
+        restTemplate.delete(
+                BASE_URL + "user/delete/{userId}", userTO.getId());
+
+        // get the new task list
+        tasks = Arrays.asList(
+                restTemplate.getForObject(
+                BASE_URL + "task/propagation/list", PropagationTaskTO[].class));
+
+        // get max task id
+        maxId = newMaxId;
+        newMaxId = Long.MIN_VALUE;
+        for (PropagationTaskTO task : tasks) {
+            if (task.getId() > newMaxId) {
+                newMaxId = task.getId();
+            }
+        }
+
+        // default configuration for ws-target-resource2:
+        //             no delete executions have to be registered
+        // --> no more tasks/executions should be added
+        assertEquals(newMaxId, maxId);
     }
 }
