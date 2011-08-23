@@ -14,17 +14,32 @@
  */
 package org.syncope.core.rest.controller;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
 import java.lang.reflect.Modifier;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.sql.DataSource;
+import org.dbunit.database.DatabaseConfig;
+import org.dbunit.database.DatabaseConnection;
+import org.dbunit.database.IDatabaseConnection;
+import org.dbunit.dataset.IDataSet;
+import org.dbunit.dataset.datatype.DefaultDataTypeFactory;
+import org.dbunit.dataset.xml.FlatXmlDataSet;
 import org.reflections.Reflections;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -46,6 +61,12 @@ public class ConfigurationController extends AbstractController {
 
     @Autowired
     private ConfigurationDataBinder configurationDataBinder;
+
+    @Autowired
+    private DataSource dataSource;
+
+    @Autowired
+    private DefaultDataTypeFactory dbUnitDataTypeFactory;
 
     @PreAuthorize("hasRole('CONFIGURATION_CREATE')")
     @RequestMapping(method = RequestMethod.POST,
@@ -151,5 +172,70 @@ public class ConfigurationController extends AbstractController {
         ModelAndView result = new ModelAndView();
         result.addObject(validators);
         return result;
+    }
+
+    @PreAuthorize("hasRole('CONFIGURATION_READ')")
+    @RequestMapping(method = RequestMethod.GET,
+    value = "/dbexport")
+    @Transactional(readOnly = true)
+    public ModelAndView dbExport() {
+
+        // 0. DB connection, to be used below
+        Connection conn = DataSourceUtils.getConnection(dataSource);
+
+        // 1. read persistence.properties
+        InputStream dbPropsStream = null;
+        String dbSchema = null;
+        try {
+            dbPropsStream = getClass().getResourceAsStream(
+                    "/persistence.properties");
+            Properties dbProps = new Properties();
+            dbProps.load(dbPropsStream);
+            dbSchema = dbProps.getProperty("database.schema");
+        } catch (Throwable t) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Could not find persistence.properties", t);
+            } else {
+                LOG.error("Could not find persistence.properties");
+            }
+        } finally {
+            if (dbPropsStream != null) {
+                try {
+                    dbPropsStream.close();
+                } catch (IOException e) {
+                    LOG.error("While trying to read persistence.properties", e);
+                }
+            }
+        }
+
+        // 2. Export content
+        StringWriter export = new StringWriter();
+        try {
+            IDatabaseConnection dbUnitConn = dbSchema == null
+                    ? new DatabaseConnection(conn)
+                    : new DatabaseConnection(conn, dbSchema);
+
+            DatabaseConfig config = dbUnitConn.getConfig();
+            config.setProperty(DatabaseConfig.PROPERTY_DATATYPE_FACTORY,
+                    dbUnitDataTypeFactory);
+
+            IDataSet fullDataSet = dbUnitConn.createDataSet();
+            FlatXmlDataSet.write(fullDataSet, export);
+
+            LOG.debug("Default content successfully exported");
+        } catch (Throwable t) {
+            LOG.error("While exporting content", t);
+        } finally {
+            DataSourceUtils.releaseConnection(conn, dataSource);
+        }
+
+        try {
+            conn.close();
+        } catch (SQLException e) {
+            LOG.error("While closing SQL connection", e);
+        }
+
+        return new ModelAndView("dbExport").addObject("export",
+                export.toString());
     }
 }
