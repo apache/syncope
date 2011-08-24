@@ -34,7 +34,6 @@
     <hibernate_sequences sequence_name="SEQ_JPAHistoryStep" sequence_next_hi_value="10"/>
     <hibernate_sequences sequence_name="SEQ_JPAPropertySetItem" sequence_next_hi_value="10"/>
     <hibernate_sequences sequence_name="SEQ_JPAWorkflowEntry" sequence_next_hi_value="10"/>
-    <hibernate_sequences sequence_name="SEQ_Policy" sequence_next_hi_value="10"/>
     
     <SyncopeConf key="token.length" value="256"/>
     <SyncopeConf key="token.expireTime" value="60"/>
@@ -370,10 +369,6 @@
 
     <RDerAttr id="1001" derivedSchema_name="displayProperty" owner_id="1"/>
     <RDerAttr id="1002" derivedSchema_name="displayProperty" owner_id="4"/>
-
-    <!-- sample policies -->
-    <Policy id="1" specification="%3C%3Fxml+version%3D%221.0%22+encoding%3D%22UTF-8%22%3F%3E+%0A%3Cjava+version%3D%221.6.0_26%22+class%3D%22java.beans.XMLDecoder%22%3E+%0A+%3Cobject+class%3D%22org.syncope.types.SyntaxPolicy%22%3E+%0A++%3Cvoid+property%3D%22maxLength%22%3E+%0A+++%3Cint%3E8%3C/int%3E+%0A++%3C/void%3E%0A+%3C/object%3E+%0A%3C/java%3E+%0A" type="SCHEMA"/>
-    <Policy id="2" specification="%3C%3Fxml+version%3D%221.0%22+encoding%3D%22UTF-8%22%3F%3E+%0A%3Cjava+version%3D%221.6.0_26%22+class%3D%22java.beans.XMLDecoder%22%3E+%0A+%3Cobject+class%3D%22org.syncope.types.SyntaxPolicy%22%3E+%0A++%3Cvoid+property%3D%22minLength%22%3E+%0A+++%3Cint%3E8%3C/int%3E+%0A++%3C/void%3E+%0A+%3C/object%3E+%0A%3C/java%3E+%0A" type="PASSWORD"/>
 
     <!-- Authentication and authorization -->
     <Entitlement name="base"/>

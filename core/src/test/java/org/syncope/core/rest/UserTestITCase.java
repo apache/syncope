@@ -211,16 +211,6 @@ public class UserTestITCase extends AbstractTest {
 
     @Test
     @ExpectedException(value = SyncopeClientCompositeErrorException.class)
-    public final void createWithInvalidPassword() {
-        UserTO userTO = getSampleTO("invalidpasswd@passwd.com");
-        userTO.setPassword("pass");
-
-        restTemplate.postForObject(
-                BASE_URL + "user/create", userTO, UserTO.class);
-    }
-
-    @Test
-    @ExpectedException(value = SyncopeClientCompositeErrorException.class)
     public final void createWithException() {
         AttributeTO attributeTO = new AttributeTO();
         attributeTO.setSchema("userId");
@@ -695,29 +685,6 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(userTO);
         assertNotNull(userTO.getDerivedAttributeMap());
         assertFalse(userTO.getDerivedAttributeMap().containsKey("cn"));
-    }
-
-    @Test
-    @ExpectedException(value = SyncopeClientCompositeErrorException.class)
-    public final void updateInvalidPassword() {
-        UserTO userTO = getSampleTO("updateinvalid@password.com");
-
-        userTO = restTemplate.postForObject(
-                BASE_URL + "user/create", userTO, UserTO.class);
-
-        assertNotNull(userTO);
-
-        userTO = restTemplate.postForObject(BASE_URL + "user/activate",
-                userTO, UserTO.class);
-
-        assertNotNull(userTO);
-
-        UserMod userMod = new UserMod();
-        userMod.setId(userTO.getId());
-        userMod.setPassword("pass");
-
-        restTemplate.postForObject(
-                BASE_URL + "user/update", userMod, UserTO.class);
     }
 
     @Test

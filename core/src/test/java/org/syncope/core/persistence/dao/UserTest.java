@@ -131,18 +131,6 @@ public class UserTest extends AbstractTest {
     @Test
     public final void save() {
         SyncopeUser user = new SyncopeUser();
-
-        user.setPassword("pass", CipherAlgorithm.SHA256);
-
-        Throwable t = null;
-        try {
-            userDAO.save(user);
-        } catch (InvalidEntityException e) {
-            t = e;
-        }
-
-        assertNotNull(t);
-
         user.setPassword("password", CipherAlgorithm.SHA256);
 
         SyncopeUser actual = userDAO.save(user);

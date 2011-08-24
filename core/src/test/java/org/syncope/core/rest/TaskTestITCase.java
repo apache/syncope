@@ -112,7 +112,6 @@ public class TaskTestITCase extends AbstractTest {
 
         assertNotNull(tasks);
         assertFalse(tasks.isEmpty());
-        assertEquals(2, tasks.size());
 
         for (TaskTO task : tasks) {
             assertNotNull(task);

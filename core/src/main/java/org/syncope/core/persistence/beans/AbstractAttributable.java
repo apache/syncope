@@ -22,10 +22,8 @@ import java.util.Set;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToMany;
 import javax.persistence.MappedSuperclass;
-import org.syncope.core.persistence.validation.entity.AttributableCheck;
 
 @MappedSuperclass
-@AttributableCheck
 public abstract class AbstractAttributable extends AbstractBaseBean {
 
     /**
