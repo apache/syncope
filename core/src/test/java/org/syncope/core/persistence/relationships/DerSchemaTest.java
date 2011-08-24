@@ -21,10 +21,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.user.UDerAttr;
 import org.syncope.core.persistence.beans.user.UDerSchema;
-import org.syncope.core.persistence.dao.AttrDAO;
 import org.syncope.core.persistence.dao.DerAttrDAO;
 import org.syncope.core.persistence.dao.DerSchemaDAO;
-import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.UserDAO;
 import org.syncope.core.persistence.AbstractTest;
 import org.syncope.core.util.AttributableUtil;
@@ -36,13 +34,7 @@ public class DerSchemaTest extends AbstractTest {
     private UserDAO userDAO;
 
     @Autowired
-    private SchemaDAO schemaDAO;
-
-    @Autowired
     private DerSchemaDAO derSchemaDAO;
-
-    @Autowired
-    private AttrDAO attrDAO;
 
     @Autowired
     private DerAttrDAO derAttrDAO;
@@ -56,7 +48,7 @@ public class DerSchemaTest extends AbstractTest {
         derSchemaDAO.flush();
 
         assertNull(derSchemaDAO.find(schema.getName(), UDerSchema.class));
-        assertNull(derAttrDAO.find(1000L, UDerAttr.class));
+        assertNull(derAttrDAO.find(100L, UDerAttr.class));
         assertNull(userDAO.find(3L).getDerivedAttribute(schema.getName()));
     }
 }

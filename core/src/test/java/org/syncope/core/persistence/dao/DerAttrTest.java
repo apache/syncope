@@ -62,7 +62,7 @@ public class DerAttrTest extends AbstractTest {
 
     @Test
     public final void findById() {
-        UDerAttr attribute = derAttrDAO.find(1000L,
+        UDerAttr attribute = derAttrDAO.find(100L,
                 UDerAttr.class);
         assertNotNull("did not find expected attribute schema",
                 attribute);
@@ -167,7 +167,7 @@ public class DerAttrTest extends AbstractTest {
 
     @Test
     public final void delete() {
-        UDerAttr attribute = derAttrDAO.find(1000L,
+        UDerAttr attribute = derAttrDAO.find(100L,
                 UDerAttr.class);
         String attributeSchemaName =
                 attribute.getDerivedSchema().getName();
@@ -175,7 +175,7 @@ public class DerAttrTest extends AbstractTest {
         derAttrDAO.delete(attribute.getId(),
                 UDerAttr.class);
 
-        UDerAttr actual = derAttrDAO.find(1000L,
+        UDerAttr actual = derAttrDAO.find(100L,
                 UDerAttr.class);
         assertNull("delete did not work", actual);
 
