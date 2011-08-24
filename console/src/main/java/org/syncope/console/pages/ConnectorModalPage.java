@@ -73,14 +73,7 @@ public class ConnectorModalPage extends BaseModalPage {
             final ConnInstanceTO connectorTO,
             final boolean createFlag) {
 
-        final IModel<List<ConnBundleTO>> bundles =
-                new LoadableDetachableModel<List<ConnBundleTO>>() {
-
-                    @Override
-                    protected List<ConnBundleTO> load() {
-                        return restClient.getAllBundles();
-                    }
-                };
+        super();
 
         selectedCapabilities = new ArrayList(createFlag
                 ? EnumSet.noneOf(ConnectorCapability.class)
@@ -132,9 +125,35 @@ public class ConnectorModalPage extends BaseModalPage {
         version.setEnabled(false);
         version.setOutputMarkupId(true);
 
+
+        final IModel<List<ConnBundleTO>> bundles =
+                new LoadableDetachableModel<List<ConnBundleTO>>() {
+
+                    @Override
+                    protected List<ConnBundleTO> load() {
+                        return restClient.getAllBundles();
+                    }
+                };
         final DropDownChoice<ConnBundleTO> bundle =
                 new DropDownChoice<ConnBundleTO>("bundle", bundles,
-                new ChoiceRenderer<ConnBundleTO>("bundleName", "bundleName"));
+                new ChoiceRenderer<ConnBundleTO>() {
+
+                    @Override
+                    public Object getDisplayValue(final ConnBundleTO object) {
+                        return object.getBundleName() + " "
+                                + object.getVersion();
+                    }
+
+                    @Override
+                    public String getIdValue(final ConnBundleTO object,
+                            final int index) {
+
+                        // idValue must include version as well in order to cope
+                        //with multiple version of the same bundle.
+                        return object.getBundleName() + "#"
+                                + object.getVersion();
+                    }
+                });
         bundle.setModel(new IModel<ConnBundleTO>() {
 
             @Override
@@ -204,11 +223,14 @@ public class ConnectorModalPage extends BaseModalPage {
             protected void onSubmit(final AjaxRequestTarget target,
                     final Form form) {
 
-                ConnInstanceTO connector = (ConnInstanceTO) form.getDefaultModelObject();
+                ConnInstanceTO connector =
+                        (ConnInstanceTO) form.getDefaultModelObject();
 
-                // Set the model object configuration's properties to
-                // connectorPropertiesMap reference
-                connector.setBundleName(bundle.getModelValue());
+                // bundle.getModelValue() will call bundle.getChoiceRenderer.
+                // getIdValue(), so we need to remove version number appended
+                // above
+                connector.setBundleName(bundle.getModelValue().substring(
+                        0, bundle.getModelValue().lastIndexOf('#')));
 
                 // Set the model object's capabilites to
                 // capabilitiesPalette's converted Set
@@ -279,7 +301,7 @@ public class ConnectorModalPage extends BaseModalPage {
                 new AjaxFormComponentUpdatingBehavior("onchange") {
 
                     @Override
-                    protected void onUpdate(AjaxRequestTarget art) {
+                    protected void onUpdate(final AjaxRequestTarget art) {
                         if (resetToken.getModelObject()) {
                             connectorTO.setSyncToken(null);
                         }
