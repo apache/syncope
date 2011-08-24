@@ -13,29 +13,6 @@
   limitations under the License.
 -->
 <dataset>
-    <!-- The actual starting value for auto-generated ids is
-    @TableGenerator.allocationSize * hibernate_sequences.sequence_next_hi_value,
-    so since SyncopeUser.id@TableGenerator.allocationSize == 100, actual
-    starting value for SyncopeUser.id is 1000 -->
-    <hibernate_sequences sequence_name="SEQ_SyncopeUser" sequence_next_hi_value="10"/>
-    <hibernate_sequences sequence_name="SEQ_SyncopeRole" sequence_next_hi_value="10"/>
-    <hibernate_sequences sequence_name="SEQ_Membership" sequence_next_hi_value="10"/>
-    <hibernate_sequences sequence_name="SEQ_SchemaMapping" sequence_next_hi_value="10"/>
-    <hibernate_sequences sequence_name="SEQ_ConnInstance" sequence_next_hi_value="10"/>
-    <hibernate_sequences sequence_name="SEQ_UAttr" sequence_next_hi_value="1000"/>
-    <hibernate_sequences sequence_name="SEQ_RAttr" sequence_next_hi_value="1000"/>
-    <hibernate_sequences sequence_name="SEQ_MAttr" sequence_next_hi_value="1000"/>
-    <hibernate_sequences sequence_name="SEQ_UAttrValue" sequence_next_hi_value="1000"/>
-    <hibernate_sequences sequence_name="SEQ_RAttrValue" sequence_next_hi_value="1000"/>
-    <hibernate_sequences sequence_name="SEQ_MAttrValue" sequence_next_hi_value="1000"/>
-    <hibernate_sequences sequence_name="SEQ_Task" sequence_next_hi_value="10"/>
-    <hibernate_sequences sequence_name="SEQ_TaskExec" sequence_next_hi_value="10"/>
-    <hibernate_sequences sequence_name="SEQ_JPACurrentStep" sequence_next_hi_value="10"/>
-    <hibernate_sequences sequence_name="SEQ_JPAHistoryStep" sequence_next_hi_value="10"/>
-    <hibernate_sequences sequence_name="SEQ_JPAPropertySetItem" sequence_next_hi_value="10"/>
-    <hibernate_sequences sequence_name="SEQ_JPAWorkflowEntry" sequence_next_hi_value="10"/>
-    <hibernate_sequences sequence_name="SEQ_Policy" sequence_next_hi_value="10"/>
-    
     <SyncopeConf key="token.length" value="256"/>
     <SyncopeConf key="token.expireTime" value="60"/>
     <SyncopeConf key="token.encryption.key" value="1abcdefghil3mnopqrstuvz2"/>
@@ -151,11 +128,11 @@
     <RAttrValue attribute_id="900" id="43" stringValue="icon6"/>
     <RAttrValue attribute_id="950" id="44" stringValue="icon4"/>
 
-    <RAttr id="1002" owner_id="1" schema_name="rderived_sx"/>
-    <RAttrValue attribute_id="1002" id="92" stringValue="sx"/>
+    <RAttr id="992" owner_id="1" schema_name="rderived_sx"/>
+    <RAttrValue attribute_id="992" id="92" stringValue="sx"/>
 
-    <RAttr id="1003" owner_id="1" schema_name="rderived_dx"/>
-    <RAttrValue attribute_id="1003" id="93" stringValue="dx"/>
+    <RAttr id="993" owner_id="1" schema_name="rderived_dx"/>
+    <RAttrValue attribute_id="993" id="93" stringValue="dx"/>
 
     <RDerSchema name="rderiveddata" expression="rderived_sx + '-' + rderived_dx"/>
     <RDerAttr id="1000" derivedSchema_name="rderiveddata" owner_id="1"/>
@@ -163,31 +140,31 @@
     <!-- rderiveddata is used th verify der schema deletion -->
     <RDerSchema name="rderivedschema" expression="rderived_sx + '-' + rderived_dx"/>
 
-    <MAttr id="1000" owner_id="4" schema_name="subscriptionDate"/>
+    <MAttr id="100" owner_id="4" schema_name="subscriptionDate"/>
 
-    <MAttrValue attribute_id="1000" id="90" dateValue="2009-05-26"/>
-    <MAttrValue attribute_id="1000" id="91" dateValue="2010-05-26 15:40:04"/>
+    <MAttrValue attribute_id="100" id="90" dateValue="2009-05-26"/>
+    <MAttrValue attribute_id="100" id="91" dateValue="2010-05-26 15:40:04"/>
 
-    <MAttr id="1002" owner_id="1" schema_name="mderived_sx"/>
-    <MAttrValue attribute_id="1002" id="92" stringValue="sx"/>
+    <MAttr id="102" owner_id="1" schema_name="mderived_sx"/>
+    <MAttrValue attribute_id="102" id="92" stringValue="sx"/>
 
-    <MAttr id="1003" owner_id="1" schema_name="mderived_dx"/>
-    <MAttrValue attribute_id="1003" id="93" stringValue="dx"/>
+    <MAttr id="103" owner_id="1" schema_name="mderived_dx"/>
+    <MAttrValue attribute_id="103" id="93" stringValue="dx"/>
 
     <MDerSchema name="mderiveddata" expression="mderived_sx + '-' + mderived_dx"/>
-    <MDerAttr id="1000" derivedSchema_name="mderiveddata" owner_id="1"/>
+    <MDerAttr id="100" derivedSchema_name="mderiveddata" owner_id="1"/>
 
     <UVirSchema name="virtualdata"/>
-    <UVirAttr id="1000" virtualSchema_name="virtualdata" owner_id="3"/>
+    <UVirAttr id="100" virtualSchema_name="virtualdata" owner_id="3"/>
 
     <UDerSchema name="cn" expression="surname + ', ' + firstname"/>
-    <UDerAttr id="1000" derivedSchema_name="cn" owner_id="3"/>
+    <UDerAttr id="100" derivedSchema_name="cn" owner_id="3"/>
 
     <UDerSchema name="noschema" expression="surname + ', ' + notfound"/>
 
     <MVirSchema name="mvirtualdata"/>
     <RVirSchema name="rvirtualdata"/>
-    <RVirAttr id="1000" virtualSchema_name="rvirtualdata" owner_id="4"/>
+    <RVirAttr id="100" virtualSchema_name="rvirtualdata" owner_id="4"/>
 
     <ConnInstance id="100" displayName="ConnInstance100"
                        bundleName="org.connid.bundles.soap"
