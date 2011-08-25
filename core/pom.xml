@@ -269,6 +269,11 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.connid.bundles</groupId>
+            <artifactId>org.connid.bundles.csvdir</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
@@ -287,6 +292,7 @@
             <groupId>org.lazyluke</groupId>
             <artifactId>log4jdbc-remix</artifactId>
             <version>0.2.4</version>
+            <scope>test</scope>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
@@ -417,6 +423,18 @@
                             <goal>run</goal>
                         </goals>
                     </execution>
+                    <execution>
+                        <id>setupCSV</id>
+                        <phase>package</phase>
+                        <configuration>
+                            <target>
+                                <copy file="${project.build.directory}/test-classes/test.csv" todir="${java.io.tmpdir}" overwrite="true"/>
+                            </target>    
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
                 </executions>
             </plugin>
 
@@ -443,6 +461,12 @@
                                     <groupId>org.connid.bundles.db</groupId>
                                     <artifactId>org.connid.bundles.db.table</artifactId>
                                     <version>${connid.db.table.version}</version>
+                                    <outputDirectory>${bundles.directory}</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.connid.bundles</groupId>
+                                    <artifactId>org.connid.bundles.csvdir</artifactId>
+                                    <version>${connid.csvdir.version}</version>
                                     <outputDirectory>${bundles.directory}</outputDirectory>
                                 </artifactItem>
                             </artifactItems>

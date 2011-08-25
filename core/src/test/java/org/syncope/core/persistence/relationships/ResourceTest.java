@@ -38,7 +38,6 @@ import org.syncope.core.persistence.dao.UserDAO;
 import org.syncope.core.rest.data.ResourceDataBinder;
 import org.syncope.core.persistence.AbstractTest;
 import org.syncope.core.persistence.beans.PropagationTask;
-import org.syncope.core.persistence.beans.SyncTask;
 import org.syncope.core.persistence.beans.user.UDerSchema;
 import org.syncope.core.persistence.dao.DerSchemaDAO;
 import org.syncope.core.persistence.dao.TaskDAO;
@@ -242,7 +241,7 @@ public class ResourceTest extends AbstractTest {
         // -------------------------------------
 
         // -------------------------------------
-        // Get originally assoicated users
+        // Get originally associated users
         // -------------------------------------
         Set<SyncopeUser> users = resource.getUsers();
 
@@ -258,9 +257,6 @@ public class ResourceTest extends AbstractTest {
         List<PropagationTask> propagationTasks = taskDAO.findAll(resource,
                 PropagationTask.class);
         assertFalse(propagationTasks.isEmpty());
-        List<SyncTask> syncTasks = taskDAO.findAll(resource,
-                SyncTask.class);
-        assertFalse(syncTasks.isEmpty());
 
         // delete resource
         resourceDAO.delete(resource.getName());
@@ -295,9 +291,6 @@ public class ResourceTest extends AbstractTest {
 
         // there must be no tasks
         for (PropagationTask task : propagationTasks) {
-            assertNull(taskDAO.find(task.getId()));
-        }
-        for (SyncTask task : syncTasks) {
             assertNull(taskDAO.find(task.getId()));
         }
     }

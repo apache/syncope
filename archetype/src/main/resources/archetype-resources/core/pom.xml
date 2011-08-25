@@ -15,7 +15,6 @@
     <packaging>war</packaging>
 
     <properties>
-
         <cargo.servlet.port>9080</cargo.servlet.port>
         <cargo.run.dir>${project.build.directory}/syncope-core-test</cargo.run.dir>
         <cargo.log>/var/tmp/syncope-core-cargo.log</cargo.log>
@@ -27,8 +26,6 @@
         <logfile.connid>/var/tmp/syncope-core-connid.log</logfile.connid>
         <logfile.test>/var/tmp/syncope-core-test.log</logfile.test>
         <logfile.monitor>/var/tmp/syncope-core-monitor.log</logfile.monitor>
-
-        <bundles.directory>/var/tmp/bundles</bundles.directory>
     </properties>
 
     <dependencies>
@@ -124,6 +121,11 @@
             <artifactId>org.connid.bundles.db.table</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.connid.bundles</groupId>
+            <artifactId>org.connid.bundles.csvdir</artifactId>
+            <scope>test</scope>
+        </dependency>
         <!-- /TEST -->
 
     </dependencies>
@@ -192,6 +194,18 @@
                             <goal>run</goal>
                         </goals>
                     </execution>
+                    <execution>
+                        <id>setupCSV</id>
+                        <phase>package</phase>
+                        <configuration>
+                            <target>
+                                <copy file="${project.build.directory}/test-classes/test.csv" todir="${java.io.tmpdir}" overwrite="true"/>
+                            </target>    
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
                 </executions>
             </plugin>
 
@@ -218,6 +232,12 @@
                                     <groupId>org.connid.bundles.db</groupId>
                                     <artifactId>org.connid.bundles.db.table</artifactId>
                                     <version>${connid.db.table.version}</version>
+                                    <outputDirectory>${bundles.directory}</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.connid.bundles</groupId>
+                                    <artifactId>org.connid.bundles.csvdir</artifactId>
+                                    <version>${connid.csvdir.version}</version>
                                     <outputDirectory>${bundles.directory}</outputDirectory>
                                 </artifactItem>
                             </artifactItems>

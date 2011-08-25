@@ -589,7 +589,6 @@ public class UserTestITCase extends AbstractTest {
         for (UserTO user : matchedUsers) {
             userIds.add(user.getId());
         }
-        assertEquals(2, userIds.size());
         assertTrue(userIds.contains(2L));
         assertTrue(userIds.contains(3L));
     }

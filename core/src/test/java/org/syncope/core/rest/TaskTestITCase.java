@@ -14,9 +14,9 @@
  */
 package org.syncope.core.rest;
 
-import java.util.Arrays;
 import static org.junit.Assert.*;
 
+import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
@@ -196,5 +196,28 @@ public class TaskTestITCase extends AbstractTest {
         } catch (HttpStatusCodeException e) {
             assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
         }
+    }
+
+    @Test
+    public void sync() {
+        Integer usersPre = restTemplate.getForObject(
+                BASE_URL + "user/count.json", Integer.class);
+        assertNotNull(usersPre);
+
+        TaskExecTO execution = restTemplate.getForObject(
+                BASE_URL + "task/execute/{taskId}",
+                TaskExecTO.class, 4);
+        assertEquals("JOB_FIRED", execution.getStatus());
+
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+        }
+
+        Integer usersPost = restTemplate.getForObject(
+                BASE_URL + "user/count.json", Integer.class);
+        assertNotNull(usersPost);
+
+        assertTrue(usersPost == usersPre + 10);
     }
 }
