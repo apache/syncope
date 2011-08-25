@@ -111,8 +111,8 @@
         <logback.version>0.9.29</logback.version>
         <slf4j.version>1.6.1</slf4j.version>
 
-        <junit.version>4.8.2</junit.version>
-
+        <junit.version>4.9</junit.version>
+        <selenium-java-client-driver.version>1.0.2</selenium-java-client-driver.version>
         <dbunit.version>2.4.8</dbunit.version>
 
         <tomcat.version>7.0.20</tomcat.version>
@@ -417,6 +417,12 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
+                <groupId>org.seleniumhq.selenium.client-drivers</groupId>
+                <artifactId>selenium-java-client-driver</artifactId>
+                <version>${selenium-java-client-driver.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-test</artifactId>
                 <version>${spring.version}</version>
@@ -487,6 +493,11 @@
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-enforcer-plugin</artifactId>
+                    <version>1.0.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-resources-plugin</artifactId>
                     <version>2.5</version>
                 </plugin>
@@ -540,6 +551,11 @@
                     <groupId>org.onebusaway.plugins</groupId>
                     <artifactId>maven-hsqldb-plugin</artifactId>
                     <version>1.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>selenium-maven-plugin</artifactId>
+                    <version>2.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>

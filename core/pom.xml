@@ -628,6 +628,13 @@
     <profiles>
         
         <profile>
+            <id>dev</id>
+            <build>
+                <defaultGoal>clean package cargo:run</defaultGoal>
+            </build>
+        </profile>
+        
+        <profile>
             <id>oracle-it</id>
             <properties>
                 <jdbcdriver.groupId>com.oracle</jdbcdriver.groupId>    
