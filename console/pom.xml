@@ -168,8 +168,63 @@
     <build>
         <finalName>${project.artifactId}</finalName>
 
-        <plugins>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-antrun-plugin</artifactId>
+                    <inherited>true</inherited>
+                    <executions>
+                        <execution>
+                            <id>explodeSyncopeWAR</id>
+                            <phase>pre-integration-test</phase>
+                            <configuration>
+                                <target>
+                                    <unzip src="${basedir}/../core/target/syncope.war" dest="${project.build.directory}/syncope-core-test">
+                                        <patternset>
+                                            <exclude name="**/content.xml" />
+                                            <exclude name="**/ehcache.xml" />
+                                            <exclude name="**/persistence.properties" />
+                                        </patternset>
+                                    </unzip>
+                                </target>
+                            </configuration>
+                            <goals>
+                                <goal>run</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>setupTomcat</id>
+                            <phase>pre-integration-test</phase>
+                            <configuration>
+                                <target>
+                                    <get src="http://www.apache.org/dist/tomcat/tomcat-7/v${tomcat.version}/bin/apache-tomcat-${tomcat.version}.zip" dest="${java.io.tmpdir}" skipexisting="true" />
+                                    <unzip src="${java.io.tmpdir}/apache-tomcat-${tomcat.version}.zip" dest="${java.io.tmpdir}" overwrite="false" />
+                                </target>
+                            </configuration>
+                            <goals>
+                                <goal>run</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>setupCSV</id>
+                            <phase>pre-integration-test</phase>
+                            <configuration>
+                                <target>
+                                    <copy file="${project.build.directory}/test-classes/test.csv" todir="${java.io.tmpdir}" overwrite="true"/>
+                                </target>    
+                            </configuration>
+                            <goals>
+                                <goal>run</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
 
+        <plugins>
+            
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
@@ -179,57 +234,6 @@
                 </configuration>
             </plugin>
             
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <inherited>true</inherited>
-                <executions>
-                    <execution>
-                        <id>explodeSyncopeWAR</id>
-                        <phase>package</phase>
-                        <configuration>
-                            <target>
-                                <unzip src="${basedir}/../core/target/syncope.war" dest="${project.build.directory}/syncope-core-test">
-                                    <patternset>
-                                        <exclude name="**/content.xml" />
-                                        <exclude name="**/ehcache.xml" />
-                                        <exclude name="**/persistence.properties" />
-                                    </patternset>
-                                </unzip>
-                            </target>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>setupTomcat</id>
-                        <phase>package</phase>
-                        <configuration>
-                            <target>
-                                <get src="http://www.apache.org/dist/tomcat/tomcat-7/v${tomcat.version}/bin/apache-tomcat-${tomcat.version}.zip" dest="${java.io.tmpdir}" skipexisting="true" />
-                                <unzip src="${java.io.tmpdir}/apache-tomcat-${tomcat.version}.zip" dest="${java.io.tmpdir}" overwrite="false" />
-                            </target>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>setupCSV</id>
-                        <phase>package</phase>
-                        <configuration>
-                            <target>
-                                <copy file="${project.build.directory}/test-classes/test.csv" todir="${java.io.tmpdir}" overwrite="true"/>
-                            </target>    
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
@@ -385,8 +389,11 @@
     <profiles>
         <profile>
             <id>dev</id>
+            <properties>
+                <maven.test.skip>true</maven.test.skip>
+            </properties>
             <build>
-                <defaultGoal>clean package cargo:run</defaultGoal>
+                <defaultGoal>clean verify cargo:run</defaultGoal>
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
@@ -402,6 +409,7 @@
                             </execution>
                         </executions>
                     </plugin>
+                    
                     <plugin>
                         <groupId>org.onebusaway.plugins</groupId>
                         <artifactId>maven-hsqldb-plugin</artifactId>
@@ -409,13 +417,14 @@
                         <executions>
                             <execution>
                                 <id>startTestDb</id>
-                                <phase>package</phase>
+                                <phase>pre-integration-test</phase>
                                 <goals>
                                     <goal>run</goal>    
                                 </goals>
                             </execution>
                         </executions>
                     </plugin>
+                    
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>sql-maven-plugin</artifactId>
@@ -423,13 +432,19 @@
                         <executions>
                             <execution>
                                 <id>loadTestDb</id>
-                                <phase>package</phase>
+                                <phase>pre-integration-test</phase>
                                 <goals>
                                     <goal>execute</goal>    
                                 </goals>
                             </execution>    
                         </executions>
-                    </plugin>    
+                    </plugin>
+                    
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <inherited>true</inherited>
+                    </plugin>
                 </plugins>
             </build>
         </profile>
@@ -505,13 +520,14 @@
                         <executions>
                             <execution>
                                 <id>startTestDb</id>
-                                <phase>package</phase>
+                                <phase>pre-integration-test</phase>
                                 <goals>
                                     <goal>run</goal>    
                                 </goals>
                             </execution>
                         </executions>
                     </plugin>
+                    
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>sql-maven-plugin</artifactId>
@@ -519,13 +535,20 @@
                         <executions>
                             <execution>
                                 <id>loadTestDb</id>
-                                <phase>package</phase>
+                                <phase>pre-integration-test</phase>
                                 <goals>
                                     <goal>execute</goal>    
                                 </goals>
                             </execution>    
                         </executions>
                     </plugin>
+                    
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <inherited>true</inherited>
+                    </plugin>
+                    
                     <plugin>
                         <groupId>org.codehaus.cargo</groupId>
                         <artifactId>cargo-maven2-plugin</artifactId>

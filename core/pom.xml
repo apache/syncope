@@ -307,7 +307,7 @@
         <finalName>${project.parent.artifactId}</finalName>
 
         <plugins>
-
+                
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
@@ -392,7 +392,7 @@
                 <executions>
                     <execution>
                         <id>explodeSyncopeWAR</id>
-                        <phase>package</phase>
+                        <phase>pre-integration-test</phase>
                         <configuration>
                             <target>
                                 <unzip src="${project.build.directory}/${project.build.finalName}.war" dest="${cargo.run.dir}">
@@ -412,7 +412,7 @@
                     </execution>
                     <execution>
                         <id>setupTomcat</id>
-                        <phase>package</phase>
+                        <phase>pre-integration-test</phase>
                         <configuration>
                             <target>
                                 <get src="http://www.apache.org/dist/tomcat/tomcat-7/v${tomcat.version}/bin/apache-tomcat-${tomcat.version}.zip" dest="${java.io.tmpdir}" skipexisting="true" />
@@ -425,7 +425,7 @@
                     </execution>
                     <execution>
                         <id>setupCSV</id>
-                        <phase>package</phase>
+                        <phase>pre-integration-test</phase>
                         <configuration>
                             <target>
                                 <copy file="${project.build.directory}/test-classes/test.csv" todir="${java.io.tmpdir}" overwrite="true"/>
@@ -494,7 +494,7 @@
                 <executions>
                     <execution>
                         <id>startTestDb</id>
-                        <phase>package</phase>
+                        <phase>pre-integration-test</phase>
                         <goals>
                             <goal>run</goal>
                         </goals>
@@ -538,7 +538,6 @@
                 <artifactId>cargo-maven2-plugin</artifactId>
                 <inherited>true</inherited>
                 <configuration>
-                    <wait>true</wait>
                     <container>
                         <containerId>tomcat7x</containerId>
                         <home>${java.io.tmpdir}/apache-tomcat-${tomcat.version}</home>
@@ -587,9 +586,6 @@
                         <goals>
                             <goal>start</goal>
                         </goals>
-                        <configuration>
-                            <wait>false</wait>
-                        </configuration>
                     </execution>
                     <execution>
                         <id>stop-container</id>
@@ -653,8 +649,22 @@
         
         <profile>
             <id>dev</id>
+            <properties>
+                <maven.test.skip>true</maven.test.skip>
+            </properties>    
             <build>
-                <defaultGoal>clean package cargo:run</defaultGoal>
+                <defaultGoal>clean verify</defaultGoal>
+                
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.cargo</groupId>
+                        <artifactId>cargo-maven2-plugin</artifactId>
+                        <inherited>true</inherited>
+                        <configuration>
+                            <wait>true</wait>    
+                        </configuration>
+                    </plugin>
+                </plugins>
             </build>
         </profile>
         
