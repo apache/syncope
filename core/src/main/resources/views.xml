@@ -16,8 +16,7 @@
 <properties>
     <comment>Views</comment>
     <entry key="user_search_attr">
-CREATE VIEW user_search_attr
-AS
+CREATE VIEW user_search_attr AS
 
 SELECT ua.owner_id AS user_id,
 ua.schema_name AS schema_name,
@@ -26,7 +25,7 @@ uav.datevalue AS datevalue,
 uav.doublevalue AS doublevalue,
 uav.longvalue AS longvalue,
 uav.stringvalue AS stringvalue
-FROM uattruniquevalue uav, uattr ua
+FROM UAttrUniqueValue uav, UAttr ua
 WHERE uav.attribute_id = ua.id
 
 UNION ALL
@@ -38,28 +37,39 @@ uav.datevalue AS datevalue,
 uav.doublevalue AS doublevalue,
 uav.longvalue AS longvalue,
 uav.stringvalue AS stringvalue
-FROM uattrvalue uav, uattr ua
+FROM UAttrValue uav, UAttr ua
 WHERE uav.attribute_id = ua.id
 
 UNION ALL
 
 SELECT u.id AS user_id,
-uschema.name AS schema_name,
+USchema.name AS schema_name,
 NULL AS booleanvalue,
 NULL AS datevalue,
 NULL AS doublevalue,
 NULL AS longvalue,
 NULL AS stringvalue
-FROM syncopeuser u CROSS JOIN uschema
-LEFT OUTER JOIN uattr ua ON (uschema.name = ua.schema_name AND ua.owner_id = u.id)
+FROM SyncopeUser u CROSS JOIN USchema
+LEFT OUTER JOIN UAttr ua ON (USchema.name = ua.schema_name AND ua.owner_id = u.id)
 WHERE ua.id IS NULL
     </entry>
     <entry key="user_search_membership">
-CREATE VIEW user_search_membership
-AS
+CREATE VIEW user_search_membership AS
 
 SELECT m.syncopeuser_id AS user_id, r.id AS role_id, r.name AS role_name
-FROM membership m, syncoperole r
+FROM Membership m, SyncopeRole r
 WHERE m.syncoperole_id = r.id
+    </entry>
+    <entry key="user_search_resource">
+CREATE VIEW user_search_resource AS
+
+SELECT st.users_id AS user_id, st.targetResources_name AS resource_name
+FROM SyncopeUser_TargetResource st
+
+UNION ALL
+
+SELECT m.syncopeuser_id AS user_id, st.targetResources_name AS resource_name
+FROM Membership m, SyncopeRole r, SyncopeRole_TargetResource st
+WHERE m.syncoperole_id = r.id AND st.roles_id = r.id
     </entry>
 </properties>

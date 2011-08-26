@@ -210,7 +210,7 @@ public class TaskTestITCase extends AbstractTest {
         assertEquals("JOB_FIRED", execution.getStatus());
 
         try {
-            Thread.sleep(3000);
+            Thread.sleep(5000);
         } catch (InterruptedException e) {
         }
 

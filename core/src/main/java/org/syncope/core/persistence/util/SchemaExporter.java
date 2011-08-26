@@ -110,7 +110,7 @@ public class SchemaExporter {
 
         ORACLE("org.hibernate.dialect.Oracle10gDialect"),
         POSTGRESQL("org.hibernate.dialect.PostgreSQLDialect"),
-        MYSQL("org.hibernate.dialect.MySQLDialect"),
+        MYSQL("org.hibernate.dialect.MySQL5InnoDBDialect"),
         HSQL("org.hibernate.dialect.HSQLDialect");
 
         private String dialectClass;

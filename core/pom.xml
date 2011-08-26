@@ -756,6 +756,49 @@
                 </plugins>
             </build>
         </profile> 
+        
+        <profile>
+            <id>mysql-it</id>
+            <properties>
+                <jdbcdriver.groupId>mysql</jdbcdriver.groupId>    
+                <jdbcdriver.artifactId>mysql-connector-java</jdbcdriver.artifactId>    
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>mysql</groupId>
+                    <artifactId>mysql-connector-java</artifactId>
+                    <version>5.1.17</version>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+            <build>
+                <defaultGoal>clean verify</defaultGoal>
+        
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <inherited>true</inherited>
+                        <executions>
+                            <execution>
+                                <id>set-mysql</id>
+                                <phase>process-test-resources</phase>
+                                <configuration>
+                                    <target>
+                                        <copy todir="${project.build.directory}/test-classes" overwrite="true">
+                                            <fileset dir="${basedir}/src/test/resources/mysql"/>
+                                        </copy>
+                                    </target>
+                                </configuration>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
     </profiles>
     
 </project>

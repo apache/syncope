@@ -115,14 +115,20 @@ public class UserDAOImpl extends AbstractDAOImpl
         // query string
         final StringBuilder querystring = new StringBuilder();
 
+        boolean subquery = false;
         for (String clause : getWhereClause(schema.getExpression(), value)) {
             if (querystring.length() > 0) {
-                querystring.append(" INTERSECT ");
+                subquery = true;
+                querystring.append(" AND a.owner_id IN ( ");
             }
 
             querystring.append("SELECT a.owner_id ").
-                    append("FROM uattr a, uattrvalue v, uschema s ").
+                    append("FROM UAttr a, UAttrValue v, USchema s ").
                     append("WHERE ").append(clause);
+
+            if (subquery) {
+                querystring.append(')');
+            }
         }
 
         LOG.debug("Execute query {}", querystring);

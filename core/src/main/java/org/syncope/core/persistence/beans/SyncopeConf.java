@@ -14,6 +14,7 @@
  */
 package org.syncope.core.persistence.beans;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
@@ -21,8 +22,10 @@ import javax.persistence.Id;
 public class SyncopeConf extends AbstractBaseBean {
 
     @Id
+    @Column(name = "confKey")
     private String key;
 
+    @Column(name = "confValue")
     private String value;
 
     public String getKey() {

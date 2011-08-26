@@ -596,10 +596,10 @@ public class UserTestITCase extends AbstractTest {
     @Test
     public final void searchUserByResourceName() {
         ResourceCond ws2 = new ResourceCond();
-        ws2.setName("ws-target-resource2");
+        ws2.setResourceName("ws-target-resource2");
 
         ResourceCond ws1 = new ResourceCond();
-        ws1.setName("ws-target-resource-list-mappings-2");
+        ws1.setResourceName("ws-target-resource-list-mappings-2");
 
         NodeCond searchCondition = NodeCond.getAndCond(
                 NodeCond.getNotLeafCond(ws2),

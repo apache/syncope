@@ -28,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.syncope.client.search.AttributeCond;
 import org.syncope.client.search.MembershipCond;
 import org.syncope.client.search.NodeCond;
+import org.syncope.client.search.ResourceCond;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.util.EntitlementUtil;
 
@@ -184,8 +185,7 @@ public class UserSearchTest {
                 new AttributeCond(AttributeCond.Type.ISNULL);
         coolLeafCond.setSchema("cool");
 
-        List<SyncopeUser> users =
-                searchDAO.search(
+        List<SyncopeUser> users = searchDAO.search(
                 EntitlementUtil.getRoleIds(entitlementDAO.findAll()),
                 NodeCond.getLeafCond(coolLeafCond));
         assertNotNull(users);
@@ -195,10 +195,31 @@ public class UserSearchTest {
                 new AttributeCond(AttributeCond.Type.ISNOTNULL);
         coolLeafCond.setSchema("cool");
 
-        users =
-                searchDAO.search(
+        users = searchDAO.search(
                 EntitlementUtil.getRoleIds(entitlementDAO.findAll()),
                 NodeCond.getLeafCond(coolLeafCond));
+        assertNotNull(users);
+        assertEquals(1, users.size());
+    }
+
+    @Test
+    public void searchByResource() {
+        ResourceCond ws2 = new ResourceCond();
+        ws2.setResourceName("ws-target-resource2");
+
+        ResourceCond ws1 = new ResourceCond();
+        ws1.setResourceName("ws-target-resource-list-mappings-2");
+
+        NodeCond searchCondition = NodeCond.getAndCond(
+                NodeCond.getNotLeafCond(ws2),
+                NodeCond.getLeafCond(ws1));
+
+        assertTrue(searchCondition.checkValidity());
+
+        List<SyncopeUser> users = searchDAO.search(
+                EntitlementUtil.getRoleIds(entitlementDAO.findAll()),
+                searchCondition);
+
         assertNotNull(users);
         assertEquals(1, users.size());
     }

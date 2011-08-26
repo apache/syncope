@@ -13,14 +13,14 @@
   limitations under the License.
 -->
 <dataset>
-    <SyncopeConf key="token.length" value="256"/>
-    <SyncopeConf key="token.expireTime" value="60"/>
-    <SyncopeConf key="token.encryption.key" value="1abcdefghil3mnopqrstuvz2"/>
-    <SyncopeConf key="smtp.host" value="smtp.ngi.it"/>
-    <SyncopeConf key="optin.email.from" value="syncope@googlecode.com"/>
-    <SyncopeConf key="optin.email.subject" value="Welcome to Syncope!"/>
-    <SyncopeConf key="connid.bundles.directory" value="${bundles.directory}"/>
-    <SyncopeConf key="password.cipher.algorithm" value="MD5"/>
+    <SyncopeConf confKey="token.length" confValue="256"/>
+    <SyncopeConf confKey="token.expireTime" confValue="60"/>
+    <SyncopeConf confKey="token.encryption.confKey" confValue="1abcdefghil3mnopqrstuvz2"/>
+    <SyncopeConf confKey="smtp.host" confValue="smtp.ngi.it"/>
+    <SyncopeConf confKey="optin.email.from" confValue="syncope@googlecode.com"/>
+    <SyncopeConf confKey="optin.email.subject" confValue="Welcome to Syncope!"/>
+    <SyncopeConf confKey="connid.bundles.directory" confValue="${bundles.directory}"/>
+    <SyncopeConf confKey="password.cipher.algorithm" confValue="MD5"/>
 
     <USchema name="surname" type="String"
                 mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>

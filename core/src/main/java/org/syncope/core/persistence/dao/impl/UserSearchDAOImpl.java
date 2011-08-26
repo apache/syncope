@@ -279,10 +279,9 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
                 break;
 
             case AND:
-                query.append("(").
-                        append(getQuery(nodeCond.getLeftNodeCond(),
+                query.append(getQuery(nodeCond.getLeftNodeCond(),
                         parameters)).
-                        append(" INTERSECT ").
+                        append(" AND user_id IN ( ").
                         append(getQuery(nodeCond.getRightNodeCond(),
                         parameters).
                         append(")"));
@@ -316,13 +315,12 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
                     append("FROM user_search_membership WHERE ");
         }
 
-        Integer paramKey;
         if (cond.getRoleId() != null) {
-            paramKey = setParameter(random, parameters, cond.getRoleId());
-            query.append("role_id=:param").append(paramKey);
+            query.append("role_id=:param").append(
+                    setParameter(random, parameters, cond.getRoleId()));
         } else if (cond.getRoleName() != null) {
-            paramKey = setParameter(random, parameters, cond.getRoleName());
-            query.append("role_name=:param").append(paramKey);
+            query.append("role_name=:param").append(
+                    setParameter(random, parameters, cond.getRoleName()));
         }
 
         if (not) {
@@ -336,29 +334,20 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
             final boolean not, final Map<Integer, Object> parameters) {
 
         StringBuilder query = new StringBuilder(
-                "SELECT id AS user_id FROM syncopeuser WHERE id ");
+                "SELECT DISTINCT user_id FROM user_search_resource WHERE ");
 
         if (not) {
-            query.append("NOT IN (");
-        } else {
-            query.append(" IN (");
+            query.append("user_id NOT IN (").
+                    append("SELECT DISTINCT user_id ").
+                    append("FROM user_search_resource WHERE ");
         }
 
-        query.append("SELECT DISTINCT m.syncopeuser_id AS user_id ").
-                append("FROM membership m, ").
-                append("syncoperole_targetresource rr ").
-                append("WHERE rr.targetresources_name=:param").
-                append(setParameter(random, parameters, cond.getName())).
-                append(" ").
-                append("AND rr.roles_id=m.syncoperole_id ").
-                append("UNION ").
-                append("SELECT DISTINCT ur.users_id AS user_id ").
-                append("FROM syncopeuser_targetresource ur ").
-                append("WHERE ur.targetresources_name=:param").
-                append(setParameter(random, parameters, cond.getName()));
+        query.append("resource_name=:param").append(
+                setParameter(random, parameters, cond.getResourceName()));
 
-        query.append(")");
-
+        if (not) {
+            query.append(")");
+        }
         return query.toString();
     }
 

@@ -683,7 +683,7 @@ public class Users extends BasePage {
                 break;
             case RESOURCE:
                 final ResourceCond resourceCond = new ResourceCond();
-                resourceCond.setName(searchConditionWrapper.getFilterName());
+                resourceCond.setResourceName(searchConditionWrapper.getFilterName());
 
                 if (searchConditionWrapper.isNotOperator()) {
                     nodeCond = NodeCond.getNotLeafCond(resourceCond);
