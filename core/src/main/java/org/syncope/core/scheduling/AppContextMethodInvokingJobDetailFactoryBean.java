@@ -21,6 +21,7 @@ import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.Scheduler;
+import org.quartz.StatefulJob;
 import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -151,7 +152,8 @@ public class AppContextMethodInvokingJobDetailFactoryBean
         }
     }
 
-    public static class MethodInvokingJob extends QuartzJobBean {
+    public static class MethodInvokingJob extends QuartzJobBean
+            implements StatefulJob {
 
         private String targetBeanName;
 

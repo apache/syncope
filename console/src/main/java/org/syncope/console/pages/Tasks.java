@@ -49,6 +49,8 @@ public class Tasks extends BasePage {
         new SelectOption(
         "Unschedule", "UNSCHEDULE"),
         new SelectOption(
+        "Every 5 minutes", "0 0/5 * * * ?"),
+        new SelectOption(
         "Fire at 12pm (noon) every day", "0 0 12 * * ?"),
         new SelectOption(
         "Fire at 12am (midnight) every first day of the month", "0 0 0 1 * ?"),
