@@ -53,6 +53,30 @@
                 </plugin>
             </plugins>
         </pluginManagement>
+        
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <inherited>true</inherited>
+                <executions>
+                    <execution>
+                        <id>setupTestContentXML</id>
+                        <phase>process-test-resources</phase>
+                        <configuration>
+                            <target>
+                                <copy file="${basedir}/../core/src/test/resources/content.xml"
+                                      todir="${basedir}/src/main/resources/archetype-resources/core/src/test/resources"
+                                      overwrite="true"/>
+                            </target>    
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>    
+        </plugins>
     </build>
 
 </project>
