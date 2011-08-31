@@ -84,7 +84,7 @@ public class RoleTestITCase extends AbstractTest {
                 restTemplate.getForObject(BASE_URL
                 + "role/list.json", RoleTO[].class));
         assertNotNull(roleTOs);
-        assertEquals(8, roleTOs.size());
+        assertTrue(roleTOs.size() >= 8);
         for (RoleTO roleTO : roleTOs) {
             assertNotNull(roleTO);
         }

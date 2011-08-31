@@ -329,6 +329,8 @@
                         </configfiles>
                         <properties>
                             <cargo.servlet.port>${cargo.servlet.port}</cargo.servlet.port>
+                            <cargo.tomcat.ajp.port>8889</cargo.tomcat.ajp.port>
+                            <cargo.rmi.port>8805</cargo.rmi.port>
                         </properties>
                         <deployables>
                             <deployable>
