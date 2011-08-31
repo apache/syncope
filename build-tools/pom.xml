@@ -22,44 +22,10 @@
         <version>0.7-SNAPSHOT</version>
     </parent>
 
-    <name>Syncope client</name>
-    <description>Syncope client</description>
+    <name>Syncope build tools</name>
+    <description>Syncope build tools</description>
     <groupId>org.syncope</groupId>
-    <artifactId>syncope-client</artifactId>
+    <artifactId>syncope-build-tools</artifactId>
     <packaging>jar</packaging>
 
-    <dependencies>
-
-        <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-webmvc</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-mapper-lgpl</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-        </dependency>
-        
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-    </dependencies>
-        
 </project>

@@ -32,7 +32,7 @@
 
     <url>http://syncope.googlecode.com/</url>
     <prerequisites>
-        <maven>[2.2.1,)</maven>
+        <maven>[3.0.3,)</maven>
     </prerequisites>
 
     <licenses>
@@ -518,34 +518,6 @@
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-checkstyle-plugin</artifactId>
-                    <version>2.7</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-jxr-plugin</artifactId>
-                    <version>2.3</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>2.8</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-pmd-plugin</artifactId>
-                    <version>2.5</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-site-plugin</artifactId>
-                    <version>3.0</version>
-                    <configuration>
-                        <locales>en,it</locales>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-war-plugin</artifactId>
                     <version>2.1.1</version>
                 </plugin>
@@ -594,54 +566,78 @@
                 </plugin>
             </plugins>
         </pluginManagement>
-    </build>
-
-    <reporting>
+        
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>2.6</version>
-                <configuration>
-                    <configLocation>${basedir}/syncope_checks.xml</configLocation>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jxr-plugin</artifactId>
-                <version>2.2</version>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
                 <version>2.7</version>
+                <dependencies>    
+                    <dependency>
+                        <groupId>org.syncope</groupId>
+                        <artifactId>syncope-build-tools</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                </dependencies>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-pmd-plugin</artifactId>
-                <version>2.5</version>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>3.0</version>
                 <configuration>
-                    <targetJdk>1.6</targetJdk>
-                    <rulesets>
-                        <ruleset>/rulesets/basic.xml</ruleset>
-                        <ruleset>/rulesets/controversial.xml</ruleset>
-                    </rulesets>
-                    <format>xml</format>
-                    <linkXref>true</linkXref>
-                    <sourceEncoding>utf-8</sourceEncoding>
-                    <minimumTokens>100</minimumTokens>
+                    <locales>en,it</locales>
+                    <reportPlugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-checkstyle-plugin</artifactId>
+                            <version>2.7</version>
+                            <configuration>
+                                <configLocation>org/syncope/checkstyle.xml</configLocation>
+                                <targetJdk>1.6</targetJdk>
+                            </configuration>
+                        </plugin>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-jxr-plugin</artifactId>
+                            <version>2.3</version>
+                        </plugin>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-javadoc-plugin</artifactId>
+                            <version>2.8</version>
+                        </plugin>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-pmd-plugin</artifactId>
+                            <version>2.5</version>
+                            <configuration>
+                                <targetJdk>1.6</targetJdk>
+                                <rulesets>
+                                    <ruleset>/rulesets/basic.xml</ruleset>
+                                    <ruleset>/rulesets/controversial.xml</ruleset>
+                                </rulesets>
+                                <format>xml</format>
+                                <linkXref>true</linkXref>
+                                <sourceEncoding>utf-8</sourceEncoding>
+                                <minimumTokens>100</minimumTokens>
+                            </configuration>
+                        </plugin>
+                        <plugin>
+                            <groupId>org.codehaus.mojo</groupId>
+                            <artifactId>findbugs-maven-plugin</artifactId>
+                            <version>2.3.2</version>
+                            <configuration>
+                                <findbugsXmlOutput>true</findbugsXmlOutput>
+                                <findbugsXmlWithMessages>true</findbugsXmlWithMessages>
+                                <xmlOutput>true</xmlOutput>
+                                <targetJdk>1.6</targetJdk>
+                            </configuration>
+                        </plugin>
+                    </reportPlugins>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-release-plugin</artifactId>
-                <version>2.0</version>
-                <configuration>
-                    <tagBase>https://syncope.googlecode.com/svn/tags</tagBase>
-                </configuration>
-            </plugin>
+            </plugin>    
         </plugins>
-    </reporting>
+    </build>
 
     <profiles>
         <profile>
@@ -657,7 +653,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.2</version>
+                        <version>1.4</version>
                         <executions>
                             <execution>
                                 <id>sign-artifacts</id>
@@ -674,6 +670,7 @@
     </profiles>
 
     <modules>
+        <module>build-tools</module>
         <module>client</module>
         <module>core</module>
         <module>console</module>
