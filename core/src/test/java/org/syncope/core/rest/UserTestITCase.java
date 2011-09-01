@@ -14,12 +14,12 @@
  */
 package org.syncope.core.rest;
 
+import static org.junit.Assert.*;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collections;
-import static org.junit.Assert.*;
-
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -250,6 +250,11 @@ public class UserTestITCase extends AbstractTest {
                 maxId = task.getId();
             }
         }
+        PropagationTaskTO taskTO = restTemplate.getForObject(
+                BASE_URL + "task/read/{taskId}", PropagationTaskTO.class,
+                maxId);
+        assertNotNull(taskTO);
+        int maxTaskExecutions = taskTO.getExecutions().size();
 
         UserTO userTO = getSampleTO("a.b@c.com");
 
@@ -335,12 +340,12 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(newMaxId, maxId);
 
         // get last task
-        PropagationTaskTO taskTO = restTemplate.getForObject(
+        taskTO = restTemplate.getForObject(
                 BASE_URL + "task/read/{taskId}", PropagationTaskTO.class,
                 newMaxId);
 
         assertNotNull(taskTO);
-        assertTrue(taskTO.getExecutions().isEmpty());
+        assertEquals(maxTaskExecutions, taskTO.getExecutions().size());
 
         // 3. verify password
         Boolean verify = restTemplate.getForObject(

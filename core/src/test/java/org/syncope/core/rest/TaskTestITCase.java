@@ -141,11 +141,11 @@ public class TaskTestITCase extends AbstractTest {
     @Test
     public final void read() {
         PropagationTaskTO taskTO = restTemplate.getForObject(
-                BASE_URL + "task/read/{taskId}", PropagationTaskTO.class, 1);
+                BASE_URL + "task/read/{taskId}", PropagationTaskTO.class, 3);
 
         assertNotNull(taskTO);
         assertNotNull(taskTO.getExecutions());
-        assertFalse(taskTO.getExecutions().isEmpty());
+        assertTrue(taskTO.getExecutions().isEmpty());
     }
 
     @Test
