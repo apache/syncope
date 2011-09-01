@@ -62,7 +62,7 @@
                 <executions>
                     <execution>
                         <id>setupTestContentXML</id>
-                        <phase>process-test-resources</phase>
+                        <phase>validate</phase>
                         <configuration>
                             <target>
                                 <copy file="${basedir}/../core/src/test/resources/content.xml"
