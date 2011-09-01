@@ -15,14 +15,9 @@
     <packaging>war</packaging>
 
     <properties>
-        <logfile>/var/tmp/syncope-console.log</logfile>
-        <logfile.test>/var/tmp/syncope-console-test.log</logfile.test>
-
         <cargo.servlet.port>9080</cargo.servlet.port>
-        <cargo.log>/var/tmp/syncope-core-cargo.log</cargo.log>
-        <cargo.output>/var/tmp/syncope-core-cargo-output.log</cargo.output>
-
-        <bundles.directory>/var/tmp/bundles</bundles.directory>
+        <cargo.log>${log.directory}/console-cargo.log</cargo.log>
+        <cargo.output>${log.directory}/console-cargo-output.log</cargo.output>
     </properties>
 
     <dependencies>
@@ -100,9 +95,23 @@
     </dependencies>
 
     <build>
-        <finalName>${artifactId}-${project.parent.version}</finalName>
+        <finalName>syncope-console-${project.parent.version}</finalName>
 
         <plugins>
+            
+            <plugin>
+                <groupId>org.syncope</groupId>
+                <artifactId>syncope-build-tools</artifactId>
+                <executions>
+                    <execution>
+                        <id>set-dynamic-properties</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>set-dynamic-properties</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 
              <!-- For cargo:run -->
             <plugin>
@@ -180,7 +189,7 @@
                         <phase>package</phase>
                         <configuration>
                             <target>
-                                <unzip src="${basedir}/../core/target/${project.parent.artifactId}-${project.parent.version}.war"
+                                <unzip src="${basedir}/../core/target/syncope-${project.parent.version}.war"
                                        dest="${project.build.directory}/syncope-core-test">
                                     <patternset>
                                         <exclude name="**/content.xml" />

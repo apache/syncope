@@ -17,15 +17,8 @@
     <properties>
         <cargo.servlet.port>9080</cargo.servlet.port>
         <cargo.run.dir>${project.build.directory}/syncope-core-test</cargo.run.dir>
-        <cargo.log>/var/tmp/syncope-core-cargo.log</cargo.log>
-        <cargo.output>/var/tmp/syncope-core-cargo-output.log</cargo.output>
-
-        <logfile>/var/tmp/syncope-core.log</logfile>
-        <logfile.persistence>/var/tmp/syncope-core-persistence.log</logfile.persistence>
-        <logfile.rest>/var/tmp/syncope-core-rest.log</logfile.rest>
-        <logfile.connid>/var/tmp/syncope-core-connid.log</logfile.connid>
-        <logfile.test>/var/tmp/syncope-core-test.log</logfile.test>
-        <logfile.monitor>/var/tmp/syncope-core-monitor.log</logfile.monitor>
+        <cargo.log>${log.directory}/core-cargo.log</cargo.log>
+        <cargo.output>${log.directory}/core-cargo-output.log</cargo.output>
     </properties>
 
     <dependencies>
@@ -112,6 +105,11 @@
         </dependency>
         <dependency>
             <groupId>org.connid.bundles.soap</groupId>
+            <artifactId>org.connid.bundles.soap</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.connid.bundles.soap</groupId>
             <artifactId>wssample</artifactId>
             <type>war</type>
             <scope>test</scope>
@@ -131,9 +129,23 @@
     </dependencies>
 
     <build>
-        <finalName>${project.parent.artifactId}-${project.parent.version}</finalName>
+        <finalName>syncope-${project.parent.version}</finalName>
 
         <plugins>
+            
+            <plugin>
+                <groupId>org.syncope</groupId>
+                <artifactId>syncope-build-tools</artifactId>
+                <executions>
+                    <execution>
+                        <id>set-dynamic-properties</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>set-dynamic-properties</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 
             <!-- Integration tests -->
             <plugin>

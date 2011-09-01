@@ -40,10 +40,13 @@
         <logback.version>0.9.29</logback.version>
         <slf4j.version>1.6.1</slf4j.version>
 
-        <junit.version>4.8.2</junit.version>
+        <junit.version>4.9</junit.version>
 
         <cargo.version>1.1.2</cargo.version>
         <tomcat.version>7.0.20</tomcat.version>
+
+        <bundles.directory>${project.build.directory}/bundles</bundles.directory>
+        <log.directory>${project.build.directory}/log</log.directory>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
@@ -244,6 +247,12 @@
 
             <dependency>
                 <groupId>org.connid.bundles.soap</groupId>
+                <artifactId>org.connid.bundles.soap</artifactId>
+                <version>${connid.soap.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.connid.bundles.soap</groupId>
                 <artifactId>wssample</artifactId>
                 <type>war</type>
                 <version>${connid.soap.version}</version>
@@ -302,6 +311,11 @@
                         <source>1.6</source>
                         <target>1.6</target>
                     </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.syncope</groupId>
+                    <artifactId>syncope-build-tools</artifactId>
+                    <version>${syncope.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>

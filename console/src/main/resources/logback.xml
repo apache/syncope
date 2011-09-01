@@ -14,7 +14,7 @@
 -->
 <configuration scan="true">
     <appender name="main" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${logfile}</file>
+        <file>${log.directory}/console.log</file>
         <append>true</append>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>${logfile}.%d{yyyy-MM-dd}</fileNamePattern>
@@ -26,7 +26,7 @@
     </appender>
 
     <appender name="test" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${logfile.test}</file>
+        <file>${log.directory}/console-test.log</file>
         <append>true</append>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>${logfile.test}.%d{yyyy-MM-dd}</fileNamePattern>

@@ -34,15 +34,8 @@
         
         <cargo.servlet.port>9080</cargo.servlet.port>
         <cargo.run.dir>${project.build.directory}/syncope-core-test</cargo.run.dir>
-        <cargo.log>/var/tmp/syncope-core-cargo.log</cargo.log>
-        <cargo.output>/var/tmp/syncope-core-cargo-output.log</cargo.output>
-
-        <logfile>/var/tmp/syncope-core.log</logfile>
-        <logfile.persistence>/var/tmp/syncope-core-persistence.log</logfile.persistence>
-        <logfile.rest>/var/tmp/syncope-core-rest.log</logfile.rest>
-        <logfile.connid>/var/tmp/syncope-core-connid.log</logfile.connid>
-        <logfile.test>/var/tmp/syncope-core-test.log</logfile.test>
-        <logfile.monitor>/var/tmp/syncope-core-monitor.log</logfile.monitor>
+        <cargo.log>${log.directory}/core-cargo.log</cargo.log>
+        <cargo.output>${log.directory}/core-cargo-output.log</cargo.output>
     </properties>
 
     <dependencies>
@@ -239,7 +232,7 @@
             <artifactId>framework-internal</artifactId>
         </dependency>
 
-            <!-- CXF: needed by soap connector -->
+        <!-- CXF: needed by soap connector -->
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-frontend-jaxws</artifactId>
@@ -307,6 +300,20 @@
         <finalName>${project.parent.artifactId}</finalName>
 
         <plugins>
+                
+            <plugin>
+                <groupId>org.syncope</groupId>
+                <artifactId>syncope-build-tools</artifactId>
+                <executions>
+                    <execution>
+                        <id>set-dynamic-properties</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>set-dynamic-properties</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
                 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

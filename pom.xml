@@ -30,7 +30,7 @@
         <version>7</version>
     </parent>
 
-    <url>http://syncope.googlecode.com/</url>
+    <url>http://www.syncope-idm.org/</url>
     <prerequisites>
         <maven>[3.0.3,)</maven>
     </prerequisites>
@@ -68,6 +68,8 @@
     </mailingLists>
 
     <properties>
+        <maven.version>3.0.3</maven.version>
+        
         <servlet-api.version>2.5</servlet-api.version>
         <jsp-api.version>2.1</jsp-api.version>
         <jstl.version>1.2</jstl.version>
@@ -118,13 +120,26 @@
 
         <tomcat.version>7.0.20</tomcat.version>
 
-        <bundles.directory>/var/tmp/bundles</bundles.directory>
+        <bundles.directory>${project.build.directory}/bundles</bundles.directory>
+        <log.directory>${project.build.directory}/log</log.directory>
+        
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <dependencyManagement>
 
         <dependencies>
+
+            <dependency>
+                <groupId>org.apache.maven</groupId>
+                <artifactId>maven-plugin-api</artifactId>
+                <version>${maven.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven</groupId>
+                <artifactId>maven-core</artifactId>
+                <version>${maven.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>javax.servlet</groupId>
@@ -497,6 +512,11 @@
                         <source>1.6</source>
                         <target>1.6</target>
                     </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.syncope</groupId>
+                    <artifactId>syncope-build-tools</artifactId>
+                    <version>${project.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>

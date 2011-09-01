@@ -2,7 +2,7 @@
 <ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="http://ehcache.org/ehcache.xsd">
   
-    <diskStore path="java.io.tmpdir/syncope-cache"/>
+    <diskStore path="${project.build.directory}/syncope-cache"/>
 
     <defaultCache
             maxElementsInMemory="10000"

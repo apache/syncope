@@ -72,7 +72,7 @@ public class UserTestITCase extends AbstractTest {
             }
         }
 
-        assertEquals("test1",
+        assertEquals("testUsername",
                 selenium.getAttribute("//form/div[2]/div/span/table/tbody/"
                 + "tr[2]/td[2]/span/span/input@value"));
         assertEquals("Doe",

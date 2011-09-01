@@ -15,7 +15,7 @@
 <configuration>
 
     <appender name="main" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${logfile}</file>
+        <file>${log.directory}/core.log</file>
         <append>true</append>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>${logfile}.%d{yyyy-MM-dd}</fileNamePattern>
@@ -27,7 +27,7 @@
     </appender>
 
     <appender name="persistence" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${logfile.persistence}</file>
+        <file>${log.directory}/core-persistence.log</file>
         <append>true</append>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>${logfile.persistence}.%d{yyyy-MM-dd}</fileNamePattern>
@@ -39,7 +39,7 @@
     </appender>
 
     <appender name="rest" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${logfile.rest}</file>
+        <file>${log.directory}/core-rest.log</file>
         <append>true</append>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>${logfile.rest}.%d{yyyy-MM-dd}</fileNamePattern>
@@ -51,7 +51,7 @@
     </appender>
 
     <appender name="connid" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${logfile.connid}</file>
+        <file>${log.directory}/core-connid.log</file>
         <append>true</append>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>${logfile.connid}.%d{yyyy-MM-dd}</fileNamePattern>
@@ -63,7 +63,7 @@
     </appender>
 
     <appender name="test" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${logfile.test}</file>
+        <file>${log.directory}/core-test.log</file>
         <append>true</append>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>${logfile.test}.%d{yyyy-MM-dd}</fileNamePattern>
@@ -75,7 +75,7 @@
     </appender>
 
     <appender name="monitor" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${logfile.monitor}</file>
+        <file>${log.directory}/core-monitor.log</file>
         <append>true</append>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>${logfile.monitor}.%d{yyyy-MM-dd}</fileNamePattern>
