@@ -61,12 +61,29 @@
                 <inherited>true</inherited>
                 <executions>
                     <execution>
-                        <id>setupTestContentXML</id>
+                        <id>setupResources</id>
                         <phase>validate</phase>
                         <configuration>
                             <target>
+                                <copy file="${basedir}/../core/src/test/resources/persistence.properties"
+                                      todir="${basedir}/src/main/resources/archetype-resources/core/src/test/resources"
+                                      overwrite="true"/>
                                 <copy file="${basedir}/../core/src/test/resources/content.xml"
                                       todir="${basedir}/src/main/resources/archetype-resources/core/src/test/resources"
+                                      overwrite="true"/>
+                                <copy file="${basedir}/../core/src/test/resources/test.csv"
+                                      todir="${basedir}/src/main/resources/archetype-resources/core/src/test/resources"
+                                      overwrite="true"/>
+                                      
+                                <copy file="${basedir}/../core/src/main/resources/content.xml"
+                                      todir="${basedir}/src/main/resources/archetype-resources/core/src/main/resources"
+                                      overwrite="true"/>
+                                <copy file="${basedir}/../core/src/main/resources/logback.xml"
+                                      todir="${basedir}/src/main/resources/archetype-resources/core/src/main/resources"
+                                      overwrite="true"/>
+                                      
+                                <copy file="${basedir}/../console/src/main/resources/logback.xml"
+                                      todir="${basedir}/src/main/resources/archetype-resources/console/src/main/resources"
                                       overwrite="true"/>
                             </target>    
                         </configuration>
