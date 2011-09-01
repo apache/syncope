@@ -17,7 +17,14 @@ package org.syncope.types;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SyntaxPolicy extends AbstractPolicy {
+public class PasswordPolicy extends AbstractPolicy {
+
+    private static final long serialVersionUID = -7988778083915548547L;
+
+    /**
+     * History length
+     */
+    private int historyLength;
 
     /**
      * Minimum length.
@@ -43,6 +50,11 @@ public class SyntaxPolicy extends AbstractPolicy {
      * Specify if one or more non alphanumeric characters are required.
      */
     private boolean nonAlphanumericRequired;
+
+    /**
+     * Specify if one or more alphanumeric characters are required.
+     */
+    private boolean alphanumericRequired;
 
     /**
      * Specify if one or more digits are required.
@@ -85,9 +97,19 @@ public class SyntaxPolicy extends AbstractPolicy {
     private boolean mustStartWithNonAlpha;
 
     /**
+     * Specify if must start with a alphanumeric caracther.
+     */
+    private boolean mustStartWithAlpha;
+
+    /**
      * Specify if mustn't start with a non alphanumeric caracther.
      */
     private boolean mustntStartWithNonAlpha;
+
+    /**
+     * Specify if mustn't start with a alphanumeric caracther.
+     */
+    private boolean mustntStartWithAlpha;
 
     /**
      * Specify if must end with a non alphanumeric caracther.
@@ -95,9 +117,19 @@ public class SyntaxPolicy extends AbstractPolicy {
     private boolean mustEndWithNonAlpha;
 
     /**
+     * Specify if must end with a alphanumeric caracther.
+     */
+    private boolean mustEndWithAlpha;
+
+    /**
      * Specify if mustn't end with a non alphanumeric caracther.
      */
     private boolean mustntEndWithNonAlpha;
+
+    /**
+     * Specify if mustn't end with a alphanumeric caracther.
+     */
+    private boolean mustntEndWithAlpha;
 
     /**
      * Substrings not permitted as prefix.
@@ -263,5 +295,53 @@ public class SyntaxPolicy extends AbstractPolicy {
 
     public void setWordsNotPermitted(List<String> wordsNotPermitted) {
         this.wordsNotPermitted = wordsNotPermitted;
+    }
+
+    public boolean isAlphanumericRequired() {
+        return alphanumericRequired;
+    }
+
+    public void setAlphanumericRequired(boolean alphanumericRequired) {
+        this.alphanumericRequired = alphanumericRequired;
+    }
+
+    public boolean isMustEndWithAlpha() {
+        return mustEndWithAlpha;
+    }
+
+    public void setMustEndWithAlpha(boolean mustEndWithAlpha) {
+        this.mustEndWithAlpha = mustEndWithAlpha;
+    }
+
+    public boolean isMustStartWithAlpha() {
+        return mustStartWithAlpha;
+    }
+
+    public void setMustStartWithAlpha(boolean mustStartWithAlpha) {
+        this.mustStartWithAlpha = mustStartWithAlpha;
+    }
+
+    public boolean isMustntEndWithAlpha() {
+        return mustntEndWithAlpha;
+    }
+
+    public void setMustntEndWithAlpha(boolean mustntEndWithAlpha) {
+        this.mustntEndWithAlpha = mustntEndWithAlpha;
+    }
+
+    public boolean isMustntStartWithAlpha() {
+        return mustntStartWithAlpha;
+    }
+
+    public void setMustntStartWithAlpha(boolean mustntStartWithAlpha) {
+        this.mustntStartWithAlpha = mustntStartWithAlpha;
+    }
+
+    public int getHistoryLength() {
+        return historyLength;
+    }
+
+    public void setHistoryLength(int historyLength) {
+        this.historyLength = historyLength;
     }
 }

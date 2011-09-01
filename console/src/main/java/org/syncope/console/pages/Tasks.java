@@ -60,6 +60,8 @@ public class Tasks extends BasePage {
         "Fire at 12am (midnight) every Monday", "0 0 0 ? * 2")
     };
 
+    private static final long serialVersionUID = 5289215853622289061L;
+
     public Tasks(final PageParameters parameters) {
         super();
 

@@ -40,6 +40,8 @@ import org.syncope.console.commons.SelectChoiceRenderer;
  */
 public class SchedTaskModalPage extends TaskModalPage {
 
+    private static final long serialVersionUID = 2892005971093059242L;
+
     protected WebMarkupContainer crontab;
 
     /**

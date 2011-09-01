@@ -18,10 +18,12 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 
 /**
- * This empty class must exist because there not seems to be altrernative to
+ * This empty class must exist because there not seems to be alternative to
  * provide specialized HTML for links.
  */
 public class LinkPanel extends Panel {
+
+    private static final long serialVersionUID = 4799005986804366330L;
 
     public LinkPanel(final String id) {
         super(id);

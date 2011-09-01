@@ -19,6 +19,7 @@ import javax.persistence.Query;
 import org.springframework.stereotype.Repository;
 import org.syncope.core.persistence.beans.Policy;
 import org.syncope.core.persistence.dao.PolicyDAO;
+import org.syncope.types.PolicyType;
 
 @Repository
 public class PolicyDAOImpl extends AbstractDAOImpl
@@ -30,12 +31,19 @@ public class PolicyDAOImpl extends AbstractDAOImpl
     }
 
     @Override
+    public List<Policy> find(final PolicyType type) {
+        final Query query = entityManager.createQuery(
+                "SELECT e FROM Policy e WHERE type=:type");
+
+        query.setParameter("type", type);
+
+        return query.getResultList();
+    }
+
+    @Override
     public Policy getPasswordPolicy() {
-        Query query = entityManager.createQuery(
-                "SELECT e FROM Policy e WHERE type='PASSWORD'");
 
-        final List<Policy> policies = query.getResultList();
-
+        List<Policy> policies = find(PolicyType.PASSWORD);
         if (policies != null && !policies.isEmpty()) {
             return policies.get(0);
         } else {
@@ -45,16 +53,13 @@ public class PolicyDAOImpl extends AbstractDAOImpl
 
     @Override
     public Policy getAccountPolicy() {
-        Query query = entityManager.createQuery(
-                "SELECT e FROM Policy e WHERE type='ACCOUNT'");
-
-        final List<Policy> policies = query.getResultList();
-
+        List<Policy> policies = find(PolicyType.ACCOUNT);
         if (policies != null && !policies.isEmpty()) {
             return policies.get(0);
         } else {
             return null;
         }
+
     }
 
     @Override

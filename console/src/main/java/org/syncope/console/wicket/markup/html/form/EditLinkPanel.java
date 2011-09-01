@@ -18,10 +18,12 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 
 /**
- * This empty class must exist because there not seems to be altrernative to
+ * This empty class must exist because there not seems to be alternative to
  * provide specialized HTML for edit links.
  */
 public class EditLinkPanel extends Panel {
+
+    private static final long serialVersionUID = 322966537010107771L;
 
     public EditLinkPanel(final String componentId, final IModel<?> model) {
         super(componentId, model);

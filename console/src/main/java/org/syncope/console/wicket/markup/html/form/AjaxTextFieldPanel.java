@@ -16,92 +16,36 @@ package org.syncope.console.wicket.markup.html.form;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
-import org.apache.wicket.behavior.SimpleAttributeModifier;
-import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.TextField;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
-public class AjaxTextFieldPanel extends Panel {
+public class AjaxTextFieldPanel extends FieldPanel<String> {
 
-    public AjaxTextFieldPanel(final String id, final String name,
-            final IModel model, final boolean required, final String title) {
-
-        super(id, model);
-
-        if (required) {
-            add(new Label("required", "*"));
-        } else {
-            add(new Label("required", ""));
-        }
-
-        final TextField field = new TextField("textField", model);
-
-        add(new TextField("textField", model).setRequired(required).
-                setLabel(new Model(name)).add(
-                new SimpleAttributeModifier(
-                "title", title != null ? title : "")));
-
-        field.add(new AjaxFormComponentUpdatingBehavior("onblur") {
-
-            @Override
-            protected void onUpdate(AjaxRequestTarget art) {
-                // nothing to do
-            }
-        });
-    }
-
-    public AjaxTextFieldPanel(final String id, final String name,
-            final IModel model, final boolean required) {
-
-        super(id, model);
-
-        if (required) {
-            add(new Label("required", "*"));
-        } else {
-            add(new Label("required", ""));
-        }
-
-        final TextField field = new TextField("textField", model);
-
-        add(field.setRequired(required).setLabel(new Model(name)));
-
-        field.add(new AjaxFormComponentUpdatingBehavior("onblur") {
-
-            @Override
-            protected void onUpdate(AjaxRequestTarget art) {
-                // nothing to do
-            }
-        });
-    }
+    private static final long serialVersionUID = 238940918106696068L;
 
     public AjaxTextFieldPanel(
             final String id,
             final String name,
-            final IModel model,
-            final boolean required,
-            final boolean readonly) {
+            final IModel<String> model,
+            final boolean active) {
 
-        super(id, model);
+        super(id, name, model, active);
 
-        if (required) {
-            add(new Label("required", "*"));
-        } else {
-            add(new Label("required", ""));
+        field = new TextField("textField", model);
+        add(field.setLabel(new Model(name)).setOutputMarkupId(true));
+
+        if (active) {
+            field.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+
+                private static final long serialVersionUID =
+                        -1107858522700306810L;
+
+                @Override
+                protected void onUpdate(AjaxRequestTarget art) {
+                    // nothing to do
+                }
+            });
         }
-
-        final TextField field = new TextField("textField", model);
-
-        add(field.setRequired(required).
-                setLabel(new Model(name)).setEnabled(!readonly));
-
-        field.add(new AjaxFormComponentUpdatingBehavior("onblur") {
-
-            @Override
-            protected void onUpdate(AjaxRequestTarget art) {
-                // nothing to do
-            }
-        });
     }
 }

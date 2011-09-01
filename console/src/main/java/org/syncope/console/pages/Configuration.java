@@ -57,6 +57,7 @@ import org.syncope.client.to.LoggerTO;
 import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.PreferenceManager;
 import org.syncope.console.commons.SortableDataProviderComparator;
+import org.syncope.console.pages.panels.PasswordPolicyPanel;
 import org.syncope.console.rest.ConfigurationRestClient;
 import org.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
 import org.syncope.console.wicket.markup.html.form.DeleteLinkPanel;
@@ -272,6 +273,8 @@ public class Configuration extends BasePage {
         add(paginatorForm);
 
         add(paginatorForm);
+
+        add(new PasswordPolicyPanel("passwordPolicy"));
 
         // Logger stuff
         PropertyListView coreLoggerList =

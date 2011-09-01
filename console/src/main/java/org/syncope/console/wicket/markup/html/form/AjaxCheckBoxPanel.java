@@ -17,50 +17,47 @@ package org.syncope.console.wicket.markup.html.form;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.markup.html.form.CheckBox;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
-public class AjaxCheckBoxPanel extends Panel {
+public class AjaxCheckBoxPanel extends FieldPanel<Boolean> {
+
+    private static final long serialVersionUID = 5664138233103884310L;
 
     public AjaxCheckBoxPanel(
             final String id,
             final String name,
             final IModel<Boolean> model,
-            final boolean required) {
+            final boolean active) {
 
-        super(id, model);
+        super(id, name, model, active);
 
-        final CheckBox field = new CheckBox("checkboxField", model);
-        add(field.setLabel(new Model(name)));
+        field = new CheckBox("checkboxField", model);
+        add(field.setLabel(new Model(name)).setOutputMarkupId(true));
 
-        field.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+        if (active) {
+            field.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
-            @Override
-            protected void onUpdate(AjaxRequestTarget art) {
-                // nothing to do
-            }
-        });
+                private static final long serialVersionUID =
+                        -1107858522700306810L;
+
+                @Override
+                protected void onUpdate(AjaxRequestTarget art) {
+                    // nothing to do
+                }
+            });
+        }
     }
 
-    public AjaxCheckBoxPanel(
-            final String id,
-            final String name,
-            final IModel<Boolean> model,
-            final boolean required,
-            final boolean readonly) {
+    @Override
+    public FieldPanel addRequiredLabel() {
 
-        super(id, model);
+        if (!isRequired()) {
+            setRequired(true);
+        }
 
-        final CheckBox field = new CheckBox("checkboxField", model);
-        add(field.setLabel(new Model(name)).setEnabled(!readonly));
+        this.isRequiredLabelAdded = true;
 
-        field.add(new AjaxFormComponentUpdatingBehavior("onchange") {
-
-            @Override
-            protected void onUpdate(AjaxRequestTarget art) {
-                // nothing to do
-            }
-        });
+        return this;
     }
 }

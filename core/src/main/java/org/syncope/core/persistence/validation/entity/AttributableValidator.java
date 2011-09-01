@@ -21,10 +21,10 @@ import org.syncope.core.persistence.beans.AbstractAttributable;
 import org.syncope.core.persistence.beans.Policy;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.PolicyDAO;
-import org.syncope.core.policy.PolicyEnforcer;
+import org.syncope.core.policy.PasswordPolicyEnforcer;
 import org.syncope.core.policy.PolicyEvaluator;
 import org.syncope.types.EntityViolationType;
-import org.syncope.types.SyntaxPolicy;
+import org.syncope.types.PasswordPolicy;
 
 public class AttributableValidator extends AbstractValidator
         implements ConstraintValidator<AttributableCheck, AbstractAttributable> {
@@ -36,7 +36,7 @@ public class AttributableValidator extends AbstractValidator
     private PolicyEvaluator evaluator;
 
     @Autowired
-    private PolicyEnforcer enforcer;
+    private PasswordPolicyEnforcer enforcer;
 
     @Override
     public void initialize(final AttributableCheck constraintAnnotation) {
@@ -47,9 +47,9 @@ public class AttributableValidator extends AbstractValidator
             final AbstractAttributable object,
             final ConstraintValidatorContext context) {
 
-        boolean isValid = Boolean.TRUE;
+        boolean isValid = true;
         context.disableDefaultConstraintViolation();
-        
+
         if (object instanceof SyncopeUser) {
             // ------------------------------
             // Verify password policy
@@ -59,14 +59,14 @@ public class AttributableValidator extends AbstractValidator
             final Policy policy = policyDAO.getPasswordPolicy();
 
             // evaluate policy
-            SyntaxPolicy syntaxPolicy = evaluator.evaluate(policy, object);
+            PasswordPolicy passwordPolicy = evaluator.evaluate(policy, object);
 
             try {
                 final String password =
                         ((SyncopeUser) object).getClearPassword();
 
                 if (password != null) {
-                    enforcer.enforce(syntaxPolicy, policy.getType(), password);
+                    enforcer.enforce(passwordPolicy, policy.getType(), password);
                 }
 
             } catch (Exception e) {
@@ -75,7 +75,7 @@ public class AttributableValidator extends AbstractValidator
                 context.buildConstraintViolationWithTemplate(e.getMessage()).
                         addNode(EntityViolationType.InvalidPassword.toString()).
                         addConstraintViolation();
-                isValid = Boolean.FALSE;
+                isValid = false;
             }
             // ------------------------------
         }

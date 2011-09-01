@@ -720,6 +720,29 @@ public class UserTestITCase extends AbstractTest {
     }
 
     @Test
+    @ExpectedException(value = SyncopeClientCompositeErrorException.class)
+    public final void updateSamePassword() {
+        UserTO userTO = getSampleTO("updatesame@password.com");
+
+        userTO = restTemplate.postForObject(
+                BASE_URL + "user/create", userTO, UserTO.class);
+
+        assertNotNull(userTO);
+
+        userTO = restTemplate.postForObject(BASE_URL + "user/activate",
+                userTO, UserTO.class);
+
+        assertNotNull(userTO);
+
+        UserMod userMod = new UserMod();
+        userMod.setId(userTO.getId());
+        userMod.setPassword("password");
+
+        restTemplate.postForObject(
+                BASE_URL + "user/update", userMod, UserTO.class);
+    }
+
+    @Test
     public final void update() {
         UserTO userTO = getSampleTO("g.h@t.com");
 
@@ -771,7 +794,7 @@ public class UserTestITCase extends AbstractTest {
                 userMod, UserTO.class);
 
         SyncopeUser passwordTestUser = new SyncopeUser();
-        passwordTestUser.setPassword("newPassword", CipherAlgorithm.MD5);
+        passwordTestUser.setPassword("newPassword", CipherAlgorithm.MD5, 0);
         assertEquals(passwordTestUser.getPassword(), userTO.getPassword());
 
         assertEquals(1, userTO.getMemberships().size());

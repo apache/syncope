@@ -14,6 +14,12 @@
  */
 package org.syncope.core.persistence.beans.user;
 
+import java.io.UnsupportedEncodingException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import static javax.persistence.EnumType.STRING;
 
 import java.security.MessageDigest;
@@ -29,6 +35,7 @@ import javax.crypto.spec.SecretKeySpec;
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
@@ -103,6 +110,9 @@ public class SyncopeUser extends AbstractAttributable {
     @Enumerated(STRING)
     private CipherAlgorithm cipherAlgorithm;
 
+    @ElementCollection
+    private List<String> passwordHistory;
+
     public SyncopeUser() {
         super();
 
@@ -110,6 +120,7 @@ public class SyncopeUser extends AbstractAttributable {
         attributes = new ArrayList<UAttr>();
         derivedAttributes = new ArrayList<UDerAttr>();
         virtualAttributes = new ArrayList<UVirAttr>();
+        passwordHistory = new ArrayList<String>();
     }
 
     @Override
@@ -189,46 +200,15 @@ public class SyncopeUser extends AbstractAttributable {
      */
     public void setPassword(
             final String password,
-            final CipherAlgorithm cipherAlgoritm) {
+            final CipherAlgorithm cipherAlgoritm,
+            final int historySize) {
 
         // clear password
         clearPassword = password;
 
         try {
-            if (cipherAlgoritm == null
-                    || cipherAlgoritm == CipherAlgorithm.AES) {
 
-                final byte[] cleartext = password.getBytes("UTF8");
-
-                final Cipher cipher = Cipher.getInstance(
-                        CipherAlgorithm.AES.getAlgorithm());
-
-                cipher.init(Cipher.ENCRYPT_MODE, keySpec);
-
-                byte[] encoded = cipher.doFinal(cleartext);
-
-                this.password = new String(
-                        Base64.encodeBase64(encoded));
-
-            } else {
-
-                MessageDigest algorithm = MessageDigest.getInstance(
-                        cipherAlgoritm.getAlgorithm());
-
-                algorithm.reset();
-                algorithm.update(password.getBytes());
-
-                byte messageDigest[] = algorithm.digest();
-
-                StringBuilder hexString = new StringBuilder();
-                for (int i = 0; i < messageDigest.length; i++) {
-                    hexString.append(
-                            Integer.toHexString(0xFF & messageDigest[i]));
-                }
-
-                this.password = hexString.toString();
-            }
-
+            this.password = encodePassword(password, cipherAlgoritm);
             this.cipherAlgorithm = cipherAlgoritm;
 
         } catch (Throwable t) {
@@ -360,5 +340,79 @@ public class SyncopeUser extends AbstractAttributable {
 
     public void setCipherAlgoritm(CipherAlgorithm cipherAlgoritm) {
         this.cipherAlgorithm = cipherAlgoritm;
+    }
+
+    public List<String> getPasswordHistory() {
+        return passwordHistory;
+    }
+
+    private String encodePassword(
+            final String password, final CipherAlgorithm cipherAlgoritm)
+            throws NoSuchAlgorithmException,
+            IllegalBlockSizeException,
+            InvalidKeyException,
+            BadPaddingException,
+            NoSuchPaddingException,
+            UnsupportedEncodingException {
+
+        String encodedPassword = null;
+
+        if (password != null) {
+            if (cipherAlgoritm == null
+                    || cipherAlgoritm == CipherAlgorithm.AES) {
+
+                final byte[] cleartext = password.getBytes("UTF8");
+
+                final Cipher cipher = Cipher.getInstance(
+                        CipherAlgorithm.AES.getAlgorithm());
+
+                cipher.init(Cipher.ENCRYPT_MODE, keySpec);
+
+                byte[] encoded = cipher.doFinal(cleartext);
+
+                encodedPassword = new String(
+                        Base64.encodeBase64(encoded));
+
+            } else {
+
+                MessageDigest algorithm = MessageDigest.getInstance(
+                        cipherAlgoritm.getAlgorithm());
+
+                algorithm.reset();
+                algorithm.update(password.getBytes());
+
+                byte messageDigest[] = algorithm.digest();
+
+                StringBuilder hexString = new StringBuilder();
+                for (int i = 0; i < messageDigest.length; i++) {
+                    hexString.append(
+                            Integer.toHexString(0xFF & messageDigest[i]));
+                }
+
+                encodedPassword = hexString.toString();
+            }
+        }
+
+        return encodedPassword;
+    }
+
+    public boolean verifyPasswordHistory(final String password, final int size) {
+        try {
+
+            boolean res = false;
+
+            if (size != 0) {
+                res = passwordHistory.subList(size >= passwordHistory.size() ? 0
+                        : passwordHistory.size() - size, passwordHistory.size()).
+                        contains(cipherAlgorithm != null
+                        ? encodePassword(password, cipherAlgorithm) : password);
+            }
+
+            return res;
+
+        } catch (Throwable t) {
+            LOG.error("Error evaluating password history", t);
+            return false;
+        }
     }
 }

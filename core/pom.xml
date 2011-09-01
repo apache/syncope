@@ -29,8 +29,8 @@
     <packaging>war</packaging>
 
     <properties>
-        <jdbcdriver.groupId>org.hsqldb</jdbcdriver.groupId>    
-        <jdbcdriver.artifactId>hsqldb</jdbcdriver.artifactId>    
+        <jdbcdriver.groupId>org.hsqldb</jdbcdriver.groupId>
+        <jdbcdriver.artifactId>hsqldb</jdbcdriver.artifactId>
         
         <cargo.servlet.port>9080</cargo.servlet.port>
         <cargo.run.dir>${project.build.directory}/syncope-core-test</cargo.run.dir>
@@ -436,7 +436,7 @@
                         <configuration>
                             <target>
                                 <copy file="${project.build.directory}/test-classes/test.csv" todir="${java.io.tmpdir}" overwrite="true"/>
-                            </target>    
+                            </target>
                         </configuration>
                         <goals>
                             <goal>run</goal>
@@ -636,8 +636,8 @@
                 <directory>src/test/resources</directory>
                 <filtering>true</filtering>
                 <excludes>
-                    <exclude>oracle/**</exclude>    
-                    <exclude>postgres/**</exclude>    
+                    <exclude>oracle/**</exclude>
+                    <exclude>postgres/**</exclude>
                 </excludes>
             </testResource>
         </testResources>
@@ -649,7 +649,7 @@
             <id>dev</id>
             <properties>
                 <maven.test.skip>true</maven.test.skip>
-            </properties>    
+            </properties>
             <build>
                 <defaultGoal>clean verify</defaultGoal>
                 
@@ -659,7 +659,7 @@
                         <artifactId>cargo-maven2-plugin</artifactId>
                         <inherited>true</inherited>
                         <configuration>
-                            <wait>true</wait>    
+                            <wait>true</wait>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -669,8 +669,8 @@
         <profile>
             <id>oracle-it</id>
             <properties>
-                <jdbcdriver.groupId>com.oracle</jdbcdriver.groupId>    
-                <jdbcdriver.artifactId>ojdbc6</jdbcdriver.artifactId>    
+                <jdbcdriver.groupId>com.oracle</jdbcdriver.groupId>
+                <jdbcdriver.artifactId>ojdbc6</jdbcdriver.artifactId>
             </properties>
             <dependencies>
                 <dependency>
@@ -710,13 +710,13 @@
                     </plugin>
                 </plugins>
             </build>
-        </profile>    
+        </profile>
         
         <profile>
             <id>postgres-it</id>
             <properties>
-                <jdbcdriver.groupId>postgresql</jdbcdriver.groupId>    
-                <jdbcdriver.artifactId>postgresql</jdbcdriver.artifactId>    
+                <jdbcdriver.groupId>postgresql</jdbcdriver.groupId>
+                <jdbcdriver.artifactId>postgresql</jdbcdriver.artifactId>
             </properties>
             <dependencies>
                 <dependency>
@@ -753,13 +753,13 @@
                     </plugin>
                 </plugins>
             </build>
-        </profile> 
+        </profile>
         
         <profile>
             <id>mysql-it</id>
             <properties>
-                <jdbcdriver.groupId>mysql</jdbcdriver.groupId>    
-                <jdbcdriver.artifactId>mysql-connector-java</jdbcdriver.artifactId>    
+                <jdbcdriver.groupId>mysql</jdbcdriver.groupId>
+                <jdbcdriver.artifactId>mysql-connector-java</jdbcdriver.artifactId>
             </properties>
             <dependencies>
                 <dependency>

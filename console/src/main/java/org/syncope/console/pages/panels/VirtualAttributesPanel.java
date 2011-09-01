@@ -52,6 +52,8 @@ public class VirtualAttributesPanel extends Panel {
     protected static final Logger LOG =
             LoggerFactory.getLogger(VirtualAttributesPanel.class);
 
+    private static final long serialVersionUID = -7982691107029848579L;
+
     @SpringBean
     private SchemaRestClient schemaRestClient;
 
@@ -64,6 +66,8 @@ public class VirtualAttributesPanel extends Panel {
 
         final IModel<List<String>> virtualSchemaNames =
                 new LoadableDetachableModel<List<String>>() {
+
+                    private static final long serialVersionUID = 5275935387613157437L;
 
                     @Override
                     protected List<String> load() {
@@ -89,6 +93,8 @@ public class VirtualAttributesPanel extends Panel {
         AjaxButton addAttributeBtn = new IndicatingAjaxButton(
                 "addAttributeBtn", new Model(getString("addAttributeBtn"))) {
 
+            private static final long serialVersionUID = -4804368561204623354L;
+
             @Override
             protected void onSubmit(final AjaxRequestTarget target,
                     final Form form) {
@@ -105,12 +111,17 @@ public class VirtualAttributesPanel extends Panel {
                 new PropertyModel<List<? extends AttributeTO>>(
                 entityTO, "virtualAttributes")) {
 
+            private static final long serialVersionUID = 9101744072914090143L;
+
             @Override
             protected void populateItem(final ListItem<AttributeTO> item) {
                 final AttributeTO attributeTO = item.getModelObject();
 
                 item.add(new AjaxDecoratedCheckbox(
                         "toRemove", new Model(Boolean.FALSE)) {
+
+                    private static final long serialVersionUID =
+                            7170946748485726506L;
 
                     @Override
                     protected void onUpdate(final AjaxRequestTarget target) {
@@ -122,6 +133,9 @@ public class VirtualAttributesPanel extends Panel {
                     protected IAjaxCallDecorator getAjaxCallDecorator() {
                         return new AjaxPreprocessingCallDecorator(
                                 super.getAjaxCallDecorator()) {
+
+                            private static final long serialVersionUID =
+                                    -7927968187160354605L;
 
                             @Override
                             public CharSequence preDecorateScript(
@@ -142,13 +156,18 @@ public class VirtualAttributesPanel extends Panel {
                         new PropertyModel<String>(attributeTO, "schema"),
                         virtualSchemaNames);
 
-                schemaChoice.add(new AjaxFormComponentUpdatingBehavior("onblur") {
+                schemaChoice.add(
+                        new AjaxFormComponentUpdatingBehavior("onblur") {
 
-                    @Override
-                    protected void onUpdate(AjaxRequestTarget art) {
-                        attributeTO.setSchema(schemaChoice.getModelObject());
-                    }
-                });
+                            private static final long serialVersionUID =
+                                    -1107858522700306810L;
+
+                            @Override
+                            protected void onUpdate(AjaxRequestTarget art) {
+                                attributeTO.setSchema(
+                                        schemaChoice.getModelObject());
+                            }
+                        });
 
                 schemaChoice.setOutputMarkupId(true);
                 schemaChoice.setRequired(true);
@@ -162,6 +181,9 @@ public class VirtualAttributesPanel extends Panel {
                         "values", new PropertyModel<List<String>>(
                         attributeTO, "values")) {
 
+                    private static final long serialVersionUID =
+                            9101744072914090143L;
+
                     @Override
                     protected void populateItem(final ListItem<String> item) {
 
@@ -170,7 +192,11 @@ public class VirtualAttributesPanel extends Panel {
                                 item.getModel(),
                                 String.class);
 
-                        field.add(new AjaxFormComponentUpdatingBehavior("onblur") {
+                        field.add(new AjaxFormComponentUpdatingBehavior(
+                                "onblur") {
+
+                            private static final long serialVersionUID =
+                                    -1107858522700306810L;
 
                             @Override
                             protected void onUpdate(AjaxRequestTarget art) {
@@ -201,6 +227,9 @@ public class VirtualAttributesPanel extends Panel {
 
                         AjaxButton addButton = new IndicatingAjaxButton("add",
                                 new Model(getString("add"))) {
+
+                            private static final long serialVersionUID =
+                                    -4804368561204623354L;
 
                             @Override
                             protected void onSubmit(

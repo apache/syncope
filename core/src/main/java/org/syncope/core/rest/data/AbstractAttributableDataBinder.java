@@ -51,6 +51,7 @@ import org.syncope.core.persistence.dao.ConfDAO;
 import org.syncope.core.persistence.dao.DerAttrDAO;
 import org.syncope.core.persistence.dao.DerSchemaDAO;
 import org.syncope.core.persistence.dao.MembershipDAO;
+import org.syncope.core.persistence.dao.PolicyDAO;
 import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.RoleDAO;
@@ -105,6 +106,9 @@ public abstract class AbstractAttributableDataBinder {
 
     @Autowired
     protected MembershipDAO membershipDAO;
+
+    @Autowired
+    protected PolicyDAO policyDAO;
 
     @Autowired
     private JexlUtil jexlUtil;

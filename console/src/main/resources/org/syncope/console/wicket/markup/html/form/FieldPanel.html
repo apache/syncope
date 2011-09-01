@@ -12,22 +12,19 @@
  limitations under the License.
  under the License.
 -->
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<wicket:panel>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+    <wicket:panel>
 
-<span wicket:id="datePanel"/>
+        <wicket:fragment wicket:id="requiredFragment">
+            <span wicket:id="requiredLabel"/>
+        </wicket:fragment>
 
-<wicket:fragment wicket:id="dateField">
-    <input type="text" class="text ui-widget-content ui-corner-all"
-           style="margin-bottom:10px;width:80%;padding:.4em;"
-           wicket:id="field"/>
-</wicket:fragment>
+        <wicket:fragment wicket:id="notRequiredFragment">
+        </wicket:fragment>
 
-<wicket:fragment wicket:id="dateTimeField">
-    <span wicket:id="field"/>
-</wicket:fragment>
+        <wicket:child />
 
-<span wicket:id="required"/>
-<br/>
-</wicket:panel>
+        <span wicket:id="required"/>
+    </wicket:panel>
+</html>

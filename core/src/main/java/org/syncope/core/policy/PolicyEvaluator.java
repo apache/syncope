@@ -15,16 +15,25 @@
 package org.syncope.core.policy;
 
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
 import org.syncope.core.persistence.beans.AbstractAttr;
 import org.syncope.core.persistence.beans.AbstractAttributable;
 import org.syncope.core.persistence.beans.Policy;
+import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.types.AbstractPolicy;
-import org.syncope.types.SyntaxPolicy;
+import org.syncope.types.PasswordPolicy;
 
 @Component
 public class PolicyEvaluator {
+
+    /**
+     * Logger.
+     */
+    protected static final Logger LOG = LoggerFactory.getLogger(
+            PolicyEvaluator.class);
 
     public <T extends AbstractPolicy> T evaluate(
             final Policy policy, final AbstractAttributable attributable) {
@@ -34,32 +43,59 @@ public class PolicyEvaluator {
         if (policy != null) {
             switch (policy.getType()) {
                 case PASSWORD:
-                case SCHEMA:
-                    final SyntaxPolicy specification = policy.getSpecification();
-                    final SyntaxPolicy syntaxPolicy = new SyntaxPolicy();
+                    final PasswordPolicy spec = policy.getSpecification();
+                    final PasswordPolicy passwordPolicy = new PasswordPolicy();
 
                     BeanUtils.copyProperties(
-                            specification,
-                            syntaxPolicy,
+                            spec,
+                            passwordPolicy,
                             new String[]{"schemasNotPermitted"});
 
                     AbstractAttr attribute;
                     List<String> values;
-                    for (String schema : specification.getSchemasNotPermitted()) {
+                    for (String schema : spec.getSchemasNotPermitted()) {
                         attribute = attributable.getAttribute(schema);
                         if (attribute != null) {
                             values = attribute.getValuesAsStrings();
                             if (values != null && !values.isEmpty()) {
-                                syntaxPolicy.getWordsNotPermitted().add(
+                                passwordPolicy.getWordsNotPermitted().add(
                                         values.get(0));
                             }
                         }
                     }
 
-                    result = (T) syntaxPolicy;
+                    // Password history verification and update
+                    final String password =
+                            ((SyncopeUser) attributable).getPassword();
+
+                    final List<String> passwordHistory =
+                            ((SyncopeUser) attributable).getPasswordHistory();
+
+                    if (((SyncopeUser) attributable).verifyPasswordHistory(
+                            ((SyncopeUser) attributable).getClearPassword(),
+                            spec.getHistoryLength())) {
+                        passwordPolicy.getWordsNotPermitted().add(
+                                ((SyncopeUser) attributable).getClearPassword());
+                    } else {
+
+                        if (spec.getHistoryLength() > 0 && password != null) {
+                            passwordHistory.add(password);
+                        }
+
+                        if (spec.getHistoryLength() < passwordHistory.size()) {
+                            for (int i = 0; i < passwordHistory.size()
+                                    - spec.getHistoryLength(); i++) {
+                                passwordHistory.remove(i);
+                            }
+                        }
+                    }
+
+                    result = (T) passwordPolicy;
                     break;
                 case ACCOUNT:
                     result = null;
+                    break;
+                case SYNC:
                     break;
                 default:
                     result = null;

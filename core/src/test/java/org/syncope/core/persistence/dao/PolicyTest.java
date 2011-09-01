@@ -18,12 +18,14 @@ import java.util.List;
 import static org.junit.Assert.*;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.ExpectedException;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.AbstractTest;
 import org.syncope.core.persistence.beans.Policy;
 import org.syncope.core.persistence.validation.entity.InvalidEntityException;
 import org.syncope.types.PolicyType;
-import org.syncope.types.SyntaxPolicy;
+import org.syncope.types.PasswordPolicy;
+import org.syncope.types.SyncPolicy;
 
 @Transactional
 public class PolicyTest extends AbstractTest {
@@ -42,9 +44,13 @@ public class PolicyTest extends AbstractTest {
     public final void findById() {
         Policy policy = policyDAO.find(1L);
         assertNotNull("findById did not work", policy);
+    }
 
-        assertEquals("invalid policy values",
-                8, ((SyntaxPolicy) policy.getSpecification()).getMaxLength());
+    @Test
+    public final void findByType() {
+        List<Policy> policies = policyDAO.find(PolicyType.SYNC);
+        assertNotNull("findById did not work", policies);
+        assertFalse(policies.isEmpty());
     }
 
     @Test
@@ -55,41 +61,70 @@ public class PolicyTest extends AbstractTest {
         assertEquals(PolicyType.PASSWORD, policy.getType());
 
         assertEquals("invalid policy values",
-                8, ((SyntaxPolicy) policy.getSpecification()).getMinLength());
+                8, ((PasswordPolicy) policy.getSpecification()).getMinLength());
     }
 
     @Test
-    public final void save() {
+    @ExpectedException(value = InvalidEntityException.class)
+    public final void saveInvalidPolicy() {
 
-        SyntaxPolicy syntaxPolicy = new SyntaxPolicy();
-        syntaxPolicy.setMaxLength(8);
-        syntaxPolicy.setMinLength(6);
+        PasswordPolicy passwordPolicy = new PasswordPolicy();
+        passwordPolicy.setMaxLength(8);
+        passwordPolicy.setMinLength(6);
 
         Policy policy = new Policy();
-        policy.setSpecification(syntaxPolicy);
+        policy.setSpecification(passwordPolicy);
+        policy.setType(PolicyType.SYNC);
+
+        policyDAO.save(policy);
+    }
+
+    @Test
+    @ExpectedException(value = InvalidEntityException.class)
+    public final void saveSecondPasswordPolicy() {
+
+        PasswordPolicy passwordPolicy = new PasswordPolicy();
+        passwordPolicy.setMaxLength(8);
+        passwordPolicy.setMinLength(6);
+
+        Policy policy = new Policy();
+        policy.setSpecification(passwordPolicy);
         policy.setType(PolicyType.PASSWORD);
 
-        Throwable t = null;
-        try {
-            policy = policyDAO.save(policy);
-        } catch (InvalidEntityException e) {
-            t = e;
-        }
-        assertNotNull(t);
+        policyDAO.save(policy);
+    }
 
-        Policy passwordPolicy = policyDAO.getPasswordPolicy();
-        assertNotNull(passwordPolicy);
-        passwordPolicy.setSpecification(policy.getSpecification());
+    @Test
+    public final void create() {
+        Policy policy = new Policy();
+        policy.setType(PolicyType.SYNC);
+        policy.setSpecification(new SyncPolicy());
+
+        policy = policyDAO.save(policy);
+
+        assertNotNull(policy);
+        assertEquals(PolicyType.SYNC, policy.getType());
+    }
+
+    @Test
+    public final void update() {
+        PasswordPolicy specification = new PasswordPolicy();
+        specification.setMaxLength(8);
+        specification.setMinLength(6);
+
+        Policy policy = policyDAO.getPasswordPolicy();
+        assertNotNull(policy);
+        policy.setSpecification(specification);
 
 
-        policy = policyDAO.save(passwordPolicy);
+        policy = policyDAO.save(policy);
 
         assertNotNull(policy);
         assertEquals(PolicyType.PASSWORD, policy.getType());
         assertEquals(
-                ((SyntaxPolicy) policy.getSpecification()).getMaxLength(), 8);
+                ((PasswordPolicy) policy.getSpecification()).getMaxLength(), 8);
         assertEquals(
-                ((SyntaxPolicy) policy.getSpecification()).getMinLength(), 6);
+                ((PasswordPolicy) policy.getSpecification()).getMinLength(), 6);
     }
 
     @Test

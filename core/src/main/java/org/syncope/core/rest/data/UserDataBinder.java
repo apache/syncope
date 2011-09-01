@@ -35,6 +35,7 @@ import org.syncope.client.validation.SyncopeClientException;
 import org.syncope.core.persistence.beans.AbstractAttr;
 import org.syncope.core.persistence.beans.AbstractDerAttr;
 import org.syncope.core.persistence.beans.AbstractVirAttr;
+import org.syncope.core.persistence.beans.Policy;
 import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.membership.Membership;
 import org.syncope.core.persistence.beans.membership.MAttr;
@@ -44,6 +45,7 @@ import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.propagation.ResourceOperations;
 import org.syncope.types.CipherAlgorithm;
+import org.syncope.types.PasswordPolicy;
 import org.syncope.types.ResourceOperationType;
 import org.syncope.types.SyncopeClientExceptionType;
 
@@ -108,14 +110,26 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
                 HttpStatus.BAD_REQUEST);
 
         // password
+        int passwordHistorySize = 0;
+
+        try {
+            Policy policy = policyDAO.getPasswordPolicy();
+            PasswordPolicy passwordPolicy = policy.getSpecification();
+            passwordHistorySize = passwordPolicy.getHistoryLength();
+        } catch (Throwable ignore) {
+            // ignore exceptions
+        }
+
         SyncopeClientException invalidPassword = new SyncopeClientException(
                 SyncopeClientExceptionType.InvalidPassword);
+
         if (userTO.getPassword() == null || userTO.getPassword().isEmpty()) {
             LOG.error("No password provided");
 
             invalidPassword.addElement("Null password");
         } else {
-            user.setPassword(userTO.getPassword(), getCipherAlgoritm());
+            user.setPassword(userTO.getPassword(), getCipherAlgoritm(),
+                    passwordHistorySize);
         }
 
         if (!invalidPassword.getElements().isEmpty()) {
@@ -164,8 +178,21 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
                 HttpStatus.BAD_REQUEST);
 
         // password
+
         if (userMod.getPassword() != null) {
-            user.setPassword(userMod.getPassword(), getCipherAlgoritm());
+
+            int passwordHistorySize = 0;
+
+            try {
+                Policy policy = policyDAO.getPasswordPolicy();
+                PasswordPolicy passwordPolicy = policy.getSpecification();
+                passwordHistorySize = passwordPolicy.getHistoryLength();
+            } catch (Throwable ignore) {
+                // ignore exceptions
+            }
+
+            user.setPassword(userMod.getPassword(), getCipherAlgoritm(),
+                    passwordHistorySize);
         }
 
         // attributes, derived attributes, virtual attributes and resources

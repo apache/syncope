@@ -41,6 +41,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.springframework.util.StringUtils;
 import org.syncope.client.to.PropagationTaskTO;
 import org.syncope.client.to.SchedTaskTO;
 import org.syncope.client.to.SyncTaskTO;
@@ -149,6 +150,10 @@ public class TaskModalPage extends BaseModalPage {
                 panel.add(messageLink);
 
                 cellItem.add(panel);
+
+                if (!StringUtils.hasText(model.getObject().getMessage())) {
+                    messageLink.setEnabled(false);
+                }
             }
         });
 

@@ -31,6 +31,9 @@ public enum SyncopeClientExceptionType {
     InvalidPassword(
     "Syncope.InvalidPassword",
     "Syncope.InvalidPassword.reason"),
+    InvalidPolicy(
+    "Syncope.InvalidPolicy",
+    "Syncope.InvalidPolicy.reason"),
     IncompletePropagationTaskExec(
     "Syncope.IncompletePropagationTaskExec",
     "Syncope.IncompletePropagationTaskExec.id"),

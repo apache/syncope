@@ -30,6 +30,8 @@ import org.syncope.client.to.SchedTaskTO;
  */
 public class GTaskModalPage extends SchedTaskModalPage {
 
+    private static final long serialVersionUID = -2501860242590060867L;
+
     /**
      *
      * @param basePage base

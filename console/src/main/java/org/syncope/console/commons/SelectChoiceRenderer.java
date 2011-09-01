@@ -18,6 +18,8 @@ import org.apache.wicket.markup.html.form.IChoiceRenderer;
 
 public class SelectChoiceRenderer implements IChoiceRenderer {
 
+    private static final long serialVersionUID = -3242441544405909243L;
+
     @Override
     public Object getDisplayValue(Object obj) {
         if (obj instanceof SelectOption) {

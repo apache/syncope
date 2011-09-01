@@ -14,68 +14,66 @@
  */
 package org.syncope.console.wicket.markup.html.form;
 
+import java.util.Collections;
 import java.util.List;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
-import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
-import org.apache.wicket.markup.html.form.TextField;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
-public class AjaxDropDownChoicePanel extends Panel {
+public class AjaxDropDownChoicePanel extends FieldPanel<String> {
 
-    public AjaxDropDownChoicePanel(final String id, final String name,
-            final IModel model, final List choices,
-            final IChoiceRenderer renderer, final boolean required) {
+    private static final long serialVersionUID = -4716376580659196095L;
 
-        super(id, model);
+    public AjaxDropDownChoicePanel(
+            final String id,
+            final String name,
+            final IModel<String> model,
+            final boolean active) {
 
-        if (required) {
-            add(new Label("required", "*"));
-        } else {
-            add(new Label("required", ""));
+        super(id, name, model, active);
+
+        field = new DropDownChoice("dropDownChoiceField", model,
+                Collections.EMPTY_LIST, new ChoiceRenderer());
+
+        add(field.setLabel(new Model(name)).setOutputMarkupId(true));
+
+        if (active) {
+            field.add(new AjaxFormComponentUpdatingBehavior("onblur") {
+
+                private static final long serialVersionUID =
+                        -1107858522700306810L;
+
+                @Override
+                protected void onUpdate(AjaxRequestTarget art) {
+                    // nothing to do
+                }
+            });
         }
-
-        final DropDownChoice field = new DropDownChoice(
-                "dropDownChoiceField", model, choices, renderer);
-
-        add(field.setRequired(required).setLabel(new Model(name)));
-
-        field.add(new AjaxFormComponentUpdatingBehavior("onblur") {
-
-            @Override
-            protected void onUpdate(AjaxRequestTarget art) {
-                // nothing to do
-            }
-        });
     }
 
-    public AjaxDropDownChoicePanel(final String id, final String name,
-            final IModel model,
-            final boolean required, final boolean readonly) {
+    public FieldPanel setChoiceRenderer(final IChoiceRenderer renderer) {
+        ((DropDownChoice) field).setChoiceRenderer(renderer);
+        return this;
+    }
 
-        super(id, model);
+    public FieldPanel setChoices(final List<String> choices) {
+        ((DropDownChoice) field).setChoices(choices);
+        return this;
+    }
 
-        if (required) {
-            add(new Label("required", "*"));
-        } else {
-            add(new Label("required", ""));
-        }
+    @Override
+    public FieldPanel clone() {
 
-        final TextField field = new TextField("dropDownChoiceField", model);
+        AjaxDropDownChoicePanel panel =
+                (AjaxDropDownChoicePanel) super.clone();
 
-        add(field.setRequired(
-                required).setLabel(new Model(name)).setEnabled(!readonly));
+        setChoices(((DropDownChoice) field).getChoices());
+        setChoiceRenderer(((DropDownChoice) field).getChoiceRenderer());
 
-        field.add(new AjaxFormComponentUpdatingBehavior("change") {
-
-            @Override
-            protected void onUpdate(AjaxRequestTarget art) {
-                // nothing to do
-            }
-        });
+        return panel;
     }
 }

@@ -1,0 +1,29 @@
+.drop_button{
+    vertical-align: middle;
+    margin-left: 6px;
+}
+
+.add_button{
+    vertical-align: middle;
+    margin-left: 6px;
+}
+
+.date_size{
+    width: 90px;
+}
+
+.long_dynamicsize{
+    width: 80%;
+}
+
+.medium_dynamicsize{
+    width: 50%;
+}
+
+.long_fixedsize{
+    width: 500px;
+}
+
+.medium_fixedsize{
+    width: 300px;
+}

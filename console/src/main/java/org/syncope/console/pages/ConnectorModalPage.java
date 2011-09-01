@@ -49,6 +49,7 @@ import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.types.ConnConfProperty;
 import org.syncope.console.rest.ConnectorRestClient;
 import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.syncope.console.wicket.markup.html.form.FieldPanel;
 import org.syncope.types.ConnConfPropSchema;
 import org.syncope.types.ConnectorCapability;
 
@@ -56,6 +57,8 @@ import org.syncope.types.ConnectorCapability;
  * Modal window with Connector form.
  */
 public class ConnectorModalPage extends BaseModalPage {
+
+    private static final long serialVersionUID = -2025535531121434050L;
 
     @SpringBean
     private ConnectorRestClient restClient;
@@ -192,17 +195,26 @@ public class ConnectorModalPage extends BaseModalPage {
             protected void populateItem(final ListItem<ConnConfProperty> item) {
                 ConnConfProperty property = item.getModelObject();
 
-                item.add(new Label("connPropAttrSchema",
+                Label label = new Label("connPropAttrSchema",
                         property.getSchema().getDisplayName() == null
                         || property.getSchema().getDisplayName().isEmpty()
                         ? property.getSchema().getName()
-                        : property.getSchema().getDisplayName()));
+                        : property.getSchema().getDisplayName());
 
-                item.add(new AjaxTextFieldPanel(
-                        "connPropAttrValue", property.getSchema().getName(),
+                item.add(label);
+
+                final FieldPanel field = new AjaxTextFieldPanel(
+                        "connPropAttrValue",
+                        label.getDefaultModelObjectAsString(),
                         new PropertyModel<String>(property, "value"),
-                        property.getSchema().isRequired(),
-                        property.getSchema().getHelpMessage()));
+                        true).setRequired(property.getSchema().isRequired()).
+                        setTitle(property.getSchema().getHelpMessage());
+
+                if (property.getSchema().isRequired()) {
+                    field.addRequiredLabel();
+                }
+
+                item.add(field);
 
                 connectorTO.getConfiguration().add(property);
             }

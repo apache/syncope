@@ -81,7 +81,7 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
         if (adminUser.equals(authentication.getPrincipal())) {
             passwordUser.setPassword(
                     authentication.getCredentials().toString(),
-                    CipherAlgorithm.MD5);
+                    CipherAlgorithm.MD5, 0);
 
             authenticated = adminMD5Password.equalsIgnoreCase(
                     passwordUser.getPassword());
@@ -102,7 +102,7 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
 
             passwordUser.setPassword(
                     authentication.getCredentials().toString(),
-                    user.getCipherAlgoritm());
+                    user.getCipherAlgoritm(), 0);
 
             authenticated = user.getPassword().equalsIgnoreCase(
                     passwordUser.getPassword());

@@ -28,6 +28,8 @@ import org.syncope.core.persistence.validation.entity.AttributableCheck;
 @AttributableCheck
 public abstract class AbstractAttributable extends AbstractBaseBean {
 
+    private static final long serialVersionUID = -4801685541488201119L;
+
     /**
      * Provisioning target resources.
      */

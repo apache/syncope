@@ -226,7 +226,7 @@ public class UserController extends AbstractController {
         SyncopeUser user = getUserFromId(userId);
 
         SyncopeUser passwordUser = new SyncopeUser();
-        passwordUser.setPassword(password, user.getCipherAlgoritm());
+        passwordUser.setPassword(password, user.getCipherAlgoritm(), 0);
 
         return new ModelAndView().addObject(user.getPassword().
                 equalsIgnoreCase(passwordUser.getPassword()));

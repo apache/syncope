@@ -18,6 +18,8 @@ import org.syncope.client.AbstractBaseBean;
 
 public class ConfigurationTO extends AbstractBaseBean {
 
+    private static final long serialVersionUID = -3825039700228595590L;
+
     private String key;
 
     private String value;

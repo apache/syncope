@@ -32,6 +32,8 @@ public class BaseModalPage extends WebPage {
     protected static final Logger LOG = LoggerFactory.getLogger(
             BasePage.class);
 
+    private static final long serialVersionUID = -1443079028368471943L;
+
     @SpringBean
     protected XMLRolesReader xmlRolesReader;
 

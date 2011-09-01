@@ -26,7 +26,7 @@ public enum PolicyType {
      */
     PASSWORD,
     /**
-     * Schema policy regarding attribute value syntax.
+     * SYNC policy regarding account conflicts resolution.
      */
-    SCHEMA
+    SYNC
 }

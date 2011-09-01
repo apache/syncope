@@ -35,12 +35,18 @@ import org.syncope.types.PolicyType;
 @PolicyCheck
 public class Policy extends AbstractBaseBean {
 
+    private static final long serialVersionUID = -5844833125843247458L;
+
     @Id
     private Long id;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private PolicyType type;
+
+    @Lob
+    @Type(type = "org.hibernate.type.StringClobType")
+    private String specification;
 
     public Long getId() {
         return id;
@@ -57,10 +63,6 @@ public class Policy extends AbstractBaseBean {
     public void setType(PolicyType type) {
         this.type = type;
     }
-
-    @Lob
-    @Type(type = "org.hibernate.type.StringClobType")
-    private String specification;
 
     public <T extends AbstractPolicy> T getSpecification() {
         T result = null;

@@ -21,6 +21,7 @@
             </li>
             <li><a href="#tabs-2"><span><wicket:message key="tab2"/></span></a></li>
             <li><a href="#tabs-3"><span><wicket:message key="tab3"/></span></a></li>
+            <li><a href="#tabs-4"><span><wicket:message key="tab4"/></span></a></li>
         </ul>
         <div id="tabs-1">
 
@@ -42,11 +43,15 @@
             <div wicket:id="createConfigurationWin">[Show modal window for creating configuration]</div>
             <div wicket:id="editConfigurationWin">[Show modal window for editing configuration]</div>
 
-            <a class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" wicket:id="createConfigurationLink">
+            <a class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+               wicket:id="createConfigurationLink">
                 <wicket:message key="create_configuration"/>
             </a>
         </div>
         <div id="tabs-2">
+            <span wicket:id="passwordPolicy">[synchronization tasks]</span>
+        </div>
+        <div id="tabs-3">
 
             <div id="users-contain" class="ui-widget" style="width:inherit">
                 <span wicket:id="coreLoggerContainer">
@@ -67,7 +72,7 @@
                 </span>
             </div>
         </div>
-        <div id="tabs-3">
+        <div id="tabs-4">
 
             <div id="users-contain" class="ui-widget" style="width:inherit">
                 <span wicket:id="consoleLoggerContainer">

@@ -19,7 +19,11 @@ import javax.validation.ConstraintValidatorContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.syncope.core.persistence.beans.Policy;
 import org.syncope.core.persistence.dao.PolicyDAO;
+import org.syncope.types.AccountPolicy;
 import org.syncope.types.EntityViolationType;
+import org.syncope.types.PasswordPolicy;
+import org.syncope.types.PolicyType;
+import org.syncope.types.SyncPolicy;
 
 public class PolicyValidator extends AbstractValidator
         implements ConstraintValidator<PolicyCheck, Policy> {
@@ -36,8 +40,24 @@ public class PolicyValidator extends AbstractValidator
             final Policy object,
             final ConstraintValidatorContext context) {
 
-        boolean isValid = Boolean.TRUE;
         context.disableDefaultConstraintViolation();
+
+        if (object.getSpecification() != null
+                && ((object.getType() == PolicyType.PASSWORD
+                && !(object.getSpecification() instanceof PasswordPolicy))
+                || (object.getType() == PolicyType.ACCOUNT
+                && !(object.getSpecification() instanceof AccountPolicy))
+                || (object.getType() == PolicyType.SYNC
+                && !(object.getSpecification() instanceof SyncPolicy)))) {
+
+            context.buildConstraintViolationWithTemplate(
+                    "Invalid password specification or password type").
+                    addNode(
+                    EntityViolationType.InvalidPolicy.toString()).
+                    addConstraintViolation();
+
+            return false;
+        }
 
         switch (object.getType()) {
             case PASSWORD:
@@ -45,33 +65,36 @@ public class PolicyValidator extends AbstractValidator
                 Policy passwordPolicy = policyDAO.getPasswordPolicy();
                 if (passwordPolicy != null
                         && !passwordPolicy.getId().equals(object.getId())) {
-                    isValid = Boolean.FALSE;
 
                     context.buildConstraintViolationWithTemplate(
                             "Password policy already exists").addNode(
                             EntityViolationType.InvalidPolicy.toString()).
                             addConstraintViolation();
+
+                    return false;
                 }
                 break;
 
             case ACCOUNT:
+
                 // just one policy with type ACCOUNT
                 Policy accountPolicy = policyDAO.getAccountPolicy();
                 if (accountPolicy != null
                         && !accountPolicy.getId().equals(object.getId())) {
-                    isValid = Boolean.FALSE;
 
                     context.buildConstraintViolationWithTemplate(
                             "Account policy already exists").
                             addNode(EntityViolationType.InvalidPolicy.toString()).
                             addConstraintViolation();
+
+                    return false;
                 }
                 break;
 
-            case SCHEMA:
+            case SYNC:
             default:
         }
 
-        return isValid;
+        return true;
     }
 }

@@ -16,5 +16,10 @@ package org.syncope.types;
 
 import org.syncope.client.AbstractBaseBean;
 
-public abstract class AbstractPolicy extends AbstractBaseBean {
+public class AbstractPolicy extends AbstractBaseBean {
+
+    private static final long serialVersionUID = 2740439904103716653L;
+
+    public AbstractPolicy() {
+    }
 }

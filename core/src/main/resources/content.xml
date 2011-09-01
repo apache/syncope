@@ -79,5 +79,10 @@
     <Entitlement name="TASK_DELETE"/>
     <Entitlement name="LOG_LIST"/>
     <Entitlement name="LOG_SET_LEVEL"/>
+    <Entitlement name="POLICY_CREATE"/>
+    <Entitlement name="POLICY_LIST"/>
+    <Entitlement name="POLICY_READ"/>
+    <Entitlement name="POLICY_UPDATE"/>
+    <Entitlement name="POLICY_DELETE"/>
 
 </dataset>

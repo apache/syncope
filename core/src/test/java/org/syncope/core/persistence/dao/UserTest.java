@@ -132,7 +132,7 @@ public class UserTest extends AbstractTest {
     public final void save() {
         SyncopeUser user = new SyncopeUser();
 
-        user.setPassword("pass", CipherAlgorithm.SHA256);
+        user.setPassword("pass", CipherAlgorithm.SHA256, 0);
 
         Throwable t = null;
         try {
@@ -143,10 +143,11 @@ public class UserTest extends AbstractTest {
 
         assertNotNull(t);
 
-        user.setPassword("password", CipherAlgorithm.SHA256);
+        user.setPassword("password", CipherAlgorithm.SHA256, 1);
 
         SyncopeUser actual = userDAO.save(user);
         assertNotNull("expected save to work", actual);
+        assertEquals(1, actual.getPasswordHistory().size());
     }
 
     @Test

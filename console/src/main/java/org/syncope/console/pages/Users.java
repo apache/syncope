@@ -972,7 +972,9 @@ public class Users extends BasePage {
                         protected void onUpdate(
                                 final AjaxRequestTarget target) {
 
-                            filterNameChooser.setChoices(searchCondition.getFilterType() == FilterType.ATTRIBUTE
+                            filterNameChooser.setChoices(
+                                    searchCondition.getFilterType() ==
+                                    FilterType.ATTRIBUTE
                                     ? schemaNames : roleNames);
                             target.addComponent(filterNameChooser);
                             target.addComponent(searchFormContainer);
