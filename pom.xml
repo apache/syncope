@@ -115,7 +115,7 @@
 
         <dbunit.version>2.4.8</dbunit.version>
 
-        <tomcat.version>7.0.20</tomcat.version>
+        <tomcat.version>7.0.21</tomcat.version>
 
         <bundles.directory>/var/tmp/bundles</bundles.directory>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

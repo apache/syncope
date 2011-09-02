@@ -193,6 +193,9 @@ public class SyncJob extends AbstractJob {
                     break;
 
                 case UserSchema:
+                    userMod.addAttributeToBeRemoved(
+                            mapping.getSourceAttrName());
+
                     attributeMod = new AttributeMod();
                     attributeMod.setSchema(mapping.getSourceAttrName());
                     for (Object value : values) {

@@ -319,10 +319,24 @@ public abstract class AbstractAttributableDataBinder {
                 if (attribute == null) {
                     LOG.debug("No attribute found for schema {}", schema);
                 } else {
-                    attributable.removeAttribute(attribute);
+                    String newValue = null;
+                    for (AttributeMod mod : attributableMod.
+                            getAttributesToBeUpdated()) {
 
-                    attributeDAO.delete(attribute.getId(),
-                            attributableUtil.attributeClass());
+                        if (schema.getName().equals(mod.getSchema())) {
+                            newValue = mod.getValuesToBeAdded().
+                                    iterator().next();
+                        }
+                    }
+
+                    if (!schema.isUniqueConstraint()
+                            || (!attribute.getUniqueValue().getStringValue().
+                            equals(newValue))) {
+
+                        attributable.removeAttribute(attribute);
+                        attributeDAO.delete(attribute.getId(),
+                                attributableUtil.attributeClass());
+                    }
                 }
 
                 for (SchemaMapping mapping : resourceDAO.findAllMappings()) {
