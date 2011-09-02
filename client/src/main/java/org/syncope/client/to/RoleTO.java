@@ -97,7 +97,7 @@ public class RoleTO extends AbstractAttributableTO {
 
     public void setEntitlements(List<String> entitlements) {
         this.entitlements.clear();
-        if (entitlements != null || !entitlements.isEmpty()) {
+        if (entitlements != null && !entitlements.isEmpty()) {
             this.entitlements.addAll(entitlements);
         }
     }
@@ -126,6 +126,8 @@ public class RoleTO extends AbstractAttributableTO {
             try {
                 result = Long.valueOf(displayName.split(" ")[0]);
             } catch (NumberFormatException e) {
+                // just to avoid PMD warning about "empty catch block"
+                result = 0;
             }
         }
 

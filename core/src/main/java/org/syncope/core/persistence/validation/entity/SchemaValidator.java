@@ -61,6 +61,8 @@ public class SchemaValidator extends AbstractValidator
                             + "unique constraint at the same time");
                 }
             }
+
+            return isValid;
         } catch (Exception e) {
             LOG.error(e.getMessage());
 
@@ -69,8 +71,8 @@ public class SchemaValidator extends AbstractValidator
                     violation.toString()).
                     addNode(object.toString()).
                     addConstraintViolation();
-        } finally {
-            return isValid;
+
+            return false;
         }
     }
 }

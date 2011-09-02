@@ -14,8 +14,6 @@
  */
 package org.syncope.core.rest.data;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -31,12 +29,6 @@ import org.syncope.types.SyncopeClientExceptionType;
 @Component
 public class DerivedSchemaDataBinder {
 
-    /**
-     * Logger.
-     */
-    private static final Logger LOG = LoggerFactory.getLogger(
-            DerivedSchemaDataBinder.class);
-
     private static final String[] ignoreDerivedSchemaProperties = {
         "schemas", "derivedAttributes"};
 
@@ -44,9 +36,8 @@ public class DerivedSchemaDataBinder {
     private JexlUtil jexlUtil;
 
     private <T extends AbstractSchema> AbstractDerSchema populate(
-            AbstractDerSchema derivedSchema,
+            final AbstractDerSchema derivedSchema,
             final DerivedSchemaTO derivedSchemaTO,
-            final Class<T> reference,
             final SyncopeClientCompositeErrorException scce)
             throws SyncopeClientCompositeErrorException {
 
@@ -81,20 +72,18 @@ public class DerivedSchemaDataBinder {
 
     public <T extends AbstractSchema> AbstractDerSchema create(
             final DerivedSchemaTO derivedSchemaTO,
-            AbstractDerSchema derivedSchema,
-            final Class<T> reference) {
+            final AbstractDerSchema derivedSchema) {
 
-        return populate(derivedSchema, derivedSchemaTO, reference,
+        return populate(derivedSchema, derivedSchemaTO,
                 new SyncopeClientCompositeErrorException(
                 HttpStatus.BAD_REQUEST));
     }
 
-    public <K extends AbstractSchema> AbstractDerSchema update(
+    public AbstractDerSchema update(
             final DerivedSchemaTO derivedSchemaTO,
-            AbstractDerSchema derivedSchema,
-            final Class<K> reference) {
+            final AbstractDerSchema derivedSchema) {
 
-        return populate(derivedSchema, derivedSchemaTO, reference,
+        return populate(derivedSchema, derivedSchemaTO,
                 new SyncopeClientCompositeErrorException(
                 HttpStatus.BAD_REQUEST));
     }

@@ -50,10 +50,8 @@ public class DerivedSchemaController extends AbstractController {
             throws SyncopeClientCompositeErrorException {
 
         AbstractDerSchema derivedSchema =
-                derivedSchemaDataBinder.create(
-                derivedSchemaTO,
-                getAttributableUtil(kind).newDerivedSchema(),
-                getAttributableUtil(kind).schemaClass());
+                derivedSchemaDataBinder.create(derivedSchemaTO,
+                getAttributableUtil(kind).newDerivedSchema());
 
         derivedSchema = derivedSchemaDAO.save(derivedSchema);
 
@@ -139,7 +137,7 @@ public class DerivedSchemaController extends AbstractController {
         }
 
         derivedSchema = derivedSchemaDataBinder.update(derivedSchemaTO,
-                derivedSchema, getAttributableUtil(kind).schemaClass());
+                derivedSchema);
 
         derivedSchema = derivedSchemaDAO.save(derivedSchema);
         return derivedSchemaDataBinder.getDerivedSchemaTO(derivedSchema);

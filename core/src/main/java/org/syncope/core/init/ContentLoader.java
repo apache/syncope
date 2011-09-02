@@ -64,14 +64,12 @@ public class ContentLoader {
         // 1. read persistence.properties
         InputStream dbPropsStream = null;
         String dbSchema = null;
-        String quartzSQL = null;
         try {
             dbPropsStream = getClass().getResourceAsStream(
                     "/persistence.properties");
             Properties dbProps = new Properties();
             dbProps.load(dbPropsStream);
             dbSchema = dbProps.getProperty("database.schema");
-            quartzSQL = dbProps.getProperty("quartz.sql");
         } catch (Throwable t) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Could not find persistence.properties", t);

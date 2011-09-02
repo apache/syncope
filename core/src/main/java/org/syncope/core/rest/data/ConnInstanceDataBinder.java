@@ -117,7 +117,7 @@ public class ConnInstanceDataBinder {
         }
 
         if (connInstanceTO.getConfiguration() != null
-                || connInstanceTO.getConfiguration().isEmpty()) {
+                && !connInstanceTO.getConfiguration().isEmpty()) {
 
             connInstance.setConfiguration(
                     connInstanceTO.getConfiguration());

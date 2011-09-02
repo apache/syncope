@@ -90,7 +90,7 @@ public class RoleMod extends AbstractAttributableMod {
 
     public void setEntitlements(List<String> entitlements) {
         this.entitlements.clear();
-        if (entitlements != null || !entitlements.isEmpty()) {
+        if (entitlements != null && !entitlements.isEmpty()) {
             this.entitlements.addAll(entitlements);
         }
     }

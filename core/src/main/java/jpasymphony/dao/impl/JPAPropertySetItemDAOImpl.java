@@ -46,6 +46,7 @@ public class JPAPropertySetItemDAOImpl extends AbstractDAOImpl
         try {
             result = (JPAPropertySetItem) query.getSingleResult();
         } catch (NoResultException e) {
+            LOG.warn("No results found");
         } catch (Throwable t) {
             LOG.error("Unexpected exception", t);
         }
