@@ -22,12 +22,25 @@ import java.util.Set;
 import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.types.ResourceOperationType;
 
+/**
+ * Utility class for encapsulating operations to be performed on various
+ * resources.
+ */
 public class ResourceOperations {
 
+    /**
+     * Resources for creation.
+     */
     private Set<TargetResource> toBeCreated;
 
+    /**
+     * Resources for update.
+     */
     private Set<TargetResource> toBeUpdated;
 
+    /**
+     * Resources for deletion.
+     */
     private Set<TargetResource> toBeDeleted;
 
     /**
@@ -35,6 +48,9 @@ public class ResourceOperations {
      */
     private Map<String, String> oldAccountIds;
 
+    /**
+     * Default constructor.
+     */
     public ResourceOperations() {
         toBeCreated = new HashSet<TargetResource>();
         toBeUpdated = new HashSet<TargetResource>();
@@ -58,6 +74,13 @@ public class ResourceOperations {
         }
     }
 
+    /**
+     * Add an element.
+     *
+     * @param type resource operation type
+     * @param resource target resource
+     * @return wether the operation was succeful or not
+     */
     public final boolean add(final ResourceOperationType type,
             final TargetResource resource) {
 
@@ -82,22 +105,29 @@ public class ResourceOperations {
         return result;
     }
 
+    /**
+     * Add some elements.
+     *
+     * @param type resource operation type
+     * @param resources target resources
+     * @return wether the operation was succeful or not
+     */
     public boolean addAll(final ResourceOperationType type,
-            final Set<TargetResource> resource) {
+            final Set<TargetResource> resources) {
 
         boolean result = false;
 
         switch (type) {
             case CREATE:
-                result = toBeCreated.addAll(resource);
+                result = toBeCreated.addAll(resources);
                 break;
 
             case UPDATE:
-                result = toBeUpdated.addAll(resource);
+                result = toBeUpdated.addAll(resources);
                 break;
 
             case DELETE:
-                result = toBeDeleted.addAll(resource);
+                result = toBeDeleted.addAll(resources);
                 break;
 
             default:
@@ -106,6 +136,13 @@ public class ResourceOperations {
         return result;
     }
 
+    /**
+     * Remove an element.
+     *
+     * @param type resource operation type
+     * @param resource target resource
+     * @return wether the operation was succeful or not
+     */
     public final boolean remove(final ResourceOperationType type,
             final TargetResource resource) {
 
@@ -130,6 +167,12 @@ public class ResourceOperations {
         return result;
     }
 
+    /**
+     * Get resources for a given resource operation type.
+     *
+     * @param type resource operation type
+     * @return resource matching the given type
+     */
     public final Set<TargetResource> get(final ResourceOperationType type) {
         Set<TargetResource> result = Collections.EMPTY_SET;
 
@@ -152,6 +195,12 @@ public class ResourceOperations {
         return result;
     }
 
+    /**
+     * Set resources for a given resource operation type.
+     *
+     * @param type resource operation type
+     * @param resources to be set
+     */
     public final void set(final ResourceOperationType type,
             final Set<TargetResource> resources) {
 
@@ -176,6 +225,11 @@ public class ResourceOperations {
         }
     }
 
+    /**
+     * Merge another resource operation instance into this instance.
+     *
+     * @param resourceOperations to be merged
+     */
     public final void merge(final ResourceOperations resourceOperations) {
         toBeCreated.addAll(
                 resourceOperations.get(ResourceOperationType.CREATE));
@@ -185,16 +239,33 @@ public class ResourceOperations {
                 resourceOperations.get(ResourceOperationType.DELETE));
     }
 
+    /**
+     * Wether no operations are present.
+     *
+     * @return true if no operations (create / update / delete) are present
+     */
     public final boolean isEmpty() {
         return toBeCreated.isEmpty()
                 && toBeUpdated.isEmpty()
                 && toBeUpdated.isEmpty();
     }
 
+    /**
+     * Fetch old account id for given resource name.
+     *
+     * @param resourceName resource name
+     * @return old account id; can be null
+     */
     public String getOldAccountId(final String resourceName) {
         return oldAccountIds.get(resourceName);
     }
 
+    /**
+     * Add old account id for a given resource name.
+     *
+     * @param resourceName resourceName resource name
+     * @param oldAccountId old account id
+     */
     public void addOldAccountId(final String resourceName,
             final String oldAccountId) {
 

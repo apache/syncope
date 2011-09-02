@@ -19,11 +19,11 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.commons.collections.keyvalue.DefaultMapEntry;
 import org.identityconnectors.framework.common.FrameworkUtil;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.objects.Attribute;
@@ -37,11 +37,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.syncope.core.init.ConnInstanceLoader;
 import org.syncope.core.persistence.beans.AbstractAttrValue;
-import org.syncope.core.persistence.beans.AbstractDerSchema;
 import org.syncope.core.persistence.beans.AbstractSchema;
-import org.syncope.core.persistence.beans.AbstractVirSchema;
 import org.syncope.core.persistence.beans.ConnInstance;
 import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.SchemaMapping;
@@ -55,11 +54,9 @@ import org.syncope.core.persistence.beans.user.UDerSchema;
 import org.syncope.core.persistence.beans.user.USchema;
 import org.syncope.core.persistence.beans.user.UVirAttr;
 import org.syncope.core.persistence.beans.user.UVirSchema;
-import org.syncope.core.persistence.dao.DerSchemaDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.TaskDAO;
 import org.syncope.core.persistence.dao.TaskExecDAO;
-import org.syncope.core.persistence.dao.VirSchemaDAO;
 import org.syncope.core.util.JexlUtil;
 import org.syncope.types.PropagationMode;
 import org.syncope.types.ResourceOperationType;
@@ -79,26 +76,17 @@ public class PropagationManager {
     protected static final Logger LOG =
             LoggerFactory.getLogger(PropagationManager.class);
 
+    /**
+     * Connector instance loader.
+     */
     @Autowired
-    private ConnInstanceLoader connInstanceLoader;
+    private ConnInstanceLoader connLoader;
 
     /**
      * Schema DAO.
      */
     @Autowired
     private SchemaDAO schemaDAO;
-
-    /**
-     * Derived Schema DAO.
-     */
-    @Autowired
-    private DerSchemaDAO derSchemaDAO;
-
-    /**
-     * Virtual Schema DAO.
-     */
-    @Autowired
-    private VirSchemaDAO virSchemaDAO;
 
     /**
      * Task DAO.
@@ -140,23 +128,19 @@ public class PropagationManager {
      *
      * @param user to be created.
      * @param password to be set.
-     * @param mandatoryResourceNames to ask for mandatory or optional
+     * @param mandResNames to ask for mandatory or optional
      * provisioning.
-     * @throws PropagationException
+     * @throws PropagationException when anything goes wrong
      */
     public void create(final SyncopeUser user,
-            final String password, Set<String> mandatoryResourceNames)
+            final String password, final Set<String> mandResNames)
             throws PropagationException {
 
-        if (mandatoryResourceNames == null) {
-            mandatoryResourceNames = Collections.EMPTY_SET;
-        }
+        final ResourceOperations resOps = new ResourceOperations();
+        resOps.set(ResourceOperationType.CREATE, user.getTargetResources());
 
-        ResourceOperations resourceOperations = new ResourceOperations();
-        resourceOperations.set(ResourceOperationType.CREATE,
-                user.getTargetResources());
-
-        provision(user, password, resourceOperations, mandatoryResourceNames);
+        provision(user, password, resOps,
+                mandResNames == null ? Collections.EMPTY_SET : mandResNames);
     }
 
     /**
@@ -168,21 +152,18 @@ public class PropagationManager {
      *
      * @param user to be updated.
      * @param password to be updated.
-     * @param affectedResources resources affected by this update
-     * @param mandatoryResourceNames to ask for mandatory or optional update.
+     * @param resOps operations to perform on each resource.
+     * @param mandResNames to ask for mandatory or optional update.
      * @throws PropagationException if anything goes wrong
      */
     public void update(final SyncopeUser user,
             final String password,
-            final ResourceOperations resourceOperations,
-            Set<String> mandatoryResourceNames)
+            final ResourceOperations resOps,
+            final Set<String> mandResNames)
             throws PropagationException {
 
-        if (mandatoryResourceNames == null) {
-            mandatoryResourceNames = Collections.EMPTY_SET;
-        }
-
-        provision(user, password, resourceOperations, mandatoryResourceNames);
+        provision(user, password, resOps,
+                mandResNames == null ? Collections.EMPTY_SET : mandResNames);
     }
 
     /**
@@ -193,65 +174,62 @@ public class PropagationManager {
      * creation fails onto a mandatory resource.
      *
      * @param user to be deleted
-     * @param mandatoryResourceNames to ask for mandatory or optyional delete
+     * @param mandResNames to ask for mandatory or optyional delete
      * @throws PropagationException if anything goes wrong
      */
-    public void delete(SyncopeUser user, Set<String> mandatoryResourceNames)
+    public void delete(final SyncopeUser user,
+            final Set<String> mandResNames)
             throws PropagationException {
 
-        if (mandatoryResourceNames == null) {
-            mandatoryResourceNames = Collections.EMPTY_SET;
-        }
-
-        ResourceOperations resourceOperations = new ResourceOperations();
-        resourceOperations.set(ResourceOperationType.DELETE,
+        final ResourceOperations resOps = new ResourceOperations();
+        resOps.set(ResourceOperationType.DELETE,
                 user.getTargetResources());
 
-        provision(user, null, resourceOperations, mandatoryResourceNames);
+        provision(user, null, resOps,
+                mandResNames == null ? Collections.EMPTY_SET : mandResNames);
     }
 
     /**
      * Implementation of the provisioning feature.
-     * @param user
-     * @param mandatoryResourceNames
-     * @param merge
-     * @throws PropagationException
+     *
+     * @param user user to be provisioned
+     * @param password cleartext password to be provisioned
+     * @param resOps operation to be performed per resource
+     * @param mandResNames resources for mandatory propagation
+     * @throws PropagationException if anything goes wrong
      */
     protected void provision(
             final SyncopeUser user,
             final String password,
-            final ResourceOperations resourceOperations,
-            final Set<String> mandatoryResourceNames)
+            final ResourceOperations resOps,
+            final Set<String> mandResNames)
             throws PropagationException {
 
-        LOG.debug("Provisioning with user {}:\n{}", user, resourceOperations);
+        LOG.debug("Provisioning with user {}:\n{}", user, resOps);
 
         // Avoid duplicates - see javadoc
-        resourceOperations.purge();
-        LOG.debug("After purge: {}", resourceOperations);
+        resOps.purge();
+        LOG.debug("After purge: {}", resOps);
 
+        Map.Entry<String, Set<Attribute>> preparedAttrs;
         PropagationTask task;
         TaskExec execution;
         for (ResourceOperationType type : ResourceOperationType.values()) {
-            for (TargetResource resource : resourceOperations.get(type)) {
+            for (TargetResource resource : resOps.get(type)) {
 
-                Map<String, Set<Attribute>> preparedAttributes =
-                        prepareAttributes(user, password, resource);
-                String accountId =
-                        preparedAttributes.keySet().iterator().next();
+                preparedAttrs = prepareAttributes(user, password, resource);
 
                 task = new PropagationTask();
                 task.setResource(resource);
                 task.setResourceOperationType(type);
                 task.setPropagationMode(
-                        mandatoryResourceNames.contains(resource.getName())
+                        mandResNames.contains(resource.getName())
                         ? PropagationMode.SYNC
                         : resource.getOptionalPropagationMode());
-                task.setAccountId(accountId);
+                task.setAccountId(preparedAttrs.getKey());
                 task.setOldAccountId(
-                        resourceOperations.getOldAccountId(resource.getName()));
-                task.setAttributes(
-                        preparedAttributes.values().iterator().next());
+                        resOps.getOldAccountId(resource.getName()));
+                task.setAttributes(preparedAttrs.getValue());
 
                 LOG.debug("Execution started for {}", task);
 
@@ -261,7 +239,7 @@ public class PropagationManager {
 
                 // Propagation is interrupted as soon as the result of the
                 // communication with a mandatory resource is in error
-                if (mandatoryResourceNames.contains(resource.getName())
+                if (mandResNames.contains(resource.getName())
                         && !PropagationTaskExecStatus.SUCCESS.toString().
                         equals(execution.getStatus())) {
 
@@ -272,8 +250,14 @@ public class PropagationManager {
         }
     }
 
+    /**
+     * For given source mapping type, return the corresponding Class object.
+     *
+     * @param sourceMappingType source mapping type
+     * @return corresponding Class object, if any (can be null)
+     */
     private Class getSourceMappingTypeClass(
-            SourceMappingType sourceMappingType) {
+            final SourceMappingType sourceMappingType) {
 
         Class result;
 
@@ -297,8 +281,181 @@ public class PropagationManager {
         return result;
     }
 
-    private Map<String, Set<Attribute>> prepareAttributes(SyncopeUser user,
-            String password, TargetResource resource)
+    /**
+     * Prepare an attribute for sending to a connector instance.
+     * 
+     * @param mapping schema mapping for the given attribute
+     * @param user given user
+     * @param password clear-text password
+     * @return account link + prepare attributes
+     * @throws ClassNotFoundException if schema type for given mapping does not
+     * exists in current class loader
+     */
+    private Map.Entry<String, Attribute> prepareAttribute(
+            final SchemaMapping mapping,
+            final SyncopeUser user, final String password)
+            throws ClassNotFoundException {
+
+        AbstractSchema schema = null;
+        SchemaType schemaType = null;
+        List<AbstractAttrValue> values = null;
+        AbstractAttrValue attrValue;
+        switch (mapping.getSourceMappingType()) {
+            case UserSchema:
+                schema = schemaDAO.find(mapping.getSourceAttrName(),
+                        getSourceMappingTypeClass(
+                        mapping.getSourceMappingType()));
+                schemaType = schema.getType();
+
+                UAttr attr = user.getAttribute(mapping.getSourceAttrName());
+                values = attr != null
+                        ? (schema.isUniqueConstraint()
+                        ? Collections.singletonList(attr.getUniqueValue())
+                        : attr.getValues())
+                        : Collections.EMPTY_LIST;
+
+                LOG.debug("Retrieved attribute {}", attr
+                        + "\n* SourceAttrName {}"
+                        + "\n* SourceMappingType {}"
+                        + "\n* Attribute values {}",
+                        new Object[]{mapping.getSourceAttrName(),
+                            mapping.getSourceMappingType(), values});
+                break;
+
+            case UserVirtualSchema:
+                schemaType = SchemaType.String;
+
+                UVirAttr virAttr = user.getVirtualAttribute(
+                        mapping.getSourceAttrName());
+
+                values = new ArrayList<AbstractAttrValue>();
+                if (virAttr != null && virAttr.getValues() != null) {
+                    for (String value : virAttr.getValues()) {
+                        attrValue = new UAttrValue();
+                        attrValue.setStringValue(value);
+                        values.add(attrValue);
+                    }
+                }
+
+                LOG.debug("Retrieved virtual attribute {}", virAttr
+                        + "\n* SourceAttrName {}"
+                        + "\n* SourceMappingType {}"
+                        + "\n* Attribute values {}",
+                        new Object[]{mapping.getSourceAttrName(),
+                            mapping.getSourceMappingType(), values});
+                break;
+
+            case UserDerivedSchema:
+                schemaType = SchemaType.String;
+
+                UDerAttr derAttr = user.getDerivedAttribute(
+                        mapping.getSourceAttrName());
+                attrValue = new UAttrValue();
+                if (derAttr != null) {
+                    attrValue.setStringValue(
+                            derAttr.getValue(user.getAttributes()));
+
+                    values = Collections.singletonList(attrValue);
+                } else {
+                    values = Collections.EMPTY_LIST;
+                }
+
+                LOG.debug("Retrieved attribute {}", derAttr
+                        + "\n* SourceAttrName {}"
+                        + "\n* SourceMappingType {}"
+                        + "\n* Attribute values {}",
+                        new Object[]{mapping.getSourceAttrName(),
+                            mapping.getSourceMappingType(), values});
+                break;
+
+            case SyncopeUserId:
+            case Password:
+                schema = null;
+                schemaType = SchemaType.String;
+
+                attrValue = new UAttrValue();
+                if (SourceMappingType.SyncopeUserId
+                        == mapping.getSourceMappingType()) {
+
+                    attrValue.setStringValue(user.getId().toString());
+                }
+                if (SourceMappingType.Password
+                        == mapping.getSourceMappingType() && password != null) {
+
+                    attrValue.setStringValue(password);
+                }
+
+                values = Collections.singletonList(attrValue);
+                break;
+
+            default:
+        }
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Define mapping for: "
+                    + "\n* DestAttrName " + mapping.getDestAttrName()
+                    + "\n* is accountId " + mapping.isAccountid()
+                    + "\n* is password " + (mapping.isPassword()
+                    || mapping.getSourceMappingType().equals(
+                    SourceMappingType.Password))
+                    + "\n* mandatory condition "
+                    + mapping.getMandatoryCondition()
+                    + "\n* Schema " + mapping.getSourceAttrName()
+                    + "\n* SourceMappingType "
+                    + mapping.getSourceMappingType().toString()
+                    + "\n* ClassType " + schemaType.getClassName()
+                    + "\n* Values " + values);
+        }
+
+        List<Object> objValues = new ArrayList<Object>();
+        for (AbstractAttrValue value : values) {
+            if (!FrameworkUtil.isSupportedAttributeType(
+                    Class.forName(schemaType.getClassName()))) {
+
+                objValues.add(value.getValueAsString());
+            } else {
+                objValues.add(value.getValue());
+            }
+        }
+
+        String accountId = null;
+        if (mapping.isAccountid()) {
+            accountId = objValues.iterator().next().toString();
+        }
+
+        Attribute attribute = null;
+        if (mapping.isPassword()) {
+            attribute = AttributeBuilder.buildPassword(
+                    objValues.iterator().next().toString().toCharArray());
+        }
+
+        if (!mapping.isPassword() && !mapping.isAccountid()) {
+            if (schema != null && schema.isMultivalue()) {
+                attribute = AttributeBuilder.build(mapping.getDestAttrName(),
+                        objValues);
+            } else {
+                attribute = objValues.isEmpty()
+                        ? AttributeBuilder.build(mapping.getDestAttrName())
+                        : AttributeBuilder.build(mapping.getDestAttrName(),
+                        objValues.iterator().next());
+            }
+        }
+
+        return new DefaultMapEntry(accountId, attribute);
+    }
+
+    /**
+     * Prepare attributes for sending to a connector instance.
+     *
+     * @param user given user
+     * @param password clear-text password
+     * @param resource target resource
+     * @return account link + prepared attributes
+     * @throws PropagationException if anything goes wrong
+     */
+    private Map.Entry<String, Set<Attribute>> prepareAttributes(
+            final SyncopeUser user, final String password,
+            final TargetResource resource)
             throws PropagationException {
 
         LOG.debug("Preparing resource attributes for {}"
@@ -306,238 +463,20 @@ public class PropagationManager {
                 + " with attributes {}",
                 new Object[]{user, resource, user.getAttributes()});
 
-        // set of user attributes
-        Set<Attribute> accountAttributes = new HashSet<Attribute>();
+        Set<Attribute> attributes = new HashSet<Attribute>();
+        String accountId = null;
 
-        // cast to be applied on SchemaValueType
-        Class castToBeApplied;
-
-        // account id
-        Map<String, Attribute> accountId = new HashMap<String, Attribute>();
-
-        // resource field values
-        Set objValues;
-
-        // syncope user attribute
-        UAttr attr;
-        UDerAttr derAttr;
-        UVirAttr virAttr;
-
-        AbstractSchema schema;
-        AbstractDerSchema derSchema;
-        AbstractVirSchema virSchema;
-
-        // syncope user attribute schema type
-        SchemaType schemaType = null;
-        // syncope user attribute values
-        List<AbstractAttrValue> values;
-
+        Map.Entry<String, Attribute> preparedAttribute;
         for (SchemaMapping mapping : resource.getMappings()) {
             LOG.debug("Processing schema {}", mapping.getSourceAttrName());
 
-            schema = null;
-            derSchema = null;
-            virSchema = null;
-            values = null;
-
             try {
-                switch (mapping.getSourceMappingType()) {
-                    case UserSchema:
-
-                        schema = schemaDAO.find(
-                                mapping.getSourceAttrName(),
-                                getSourceMappingTypeClass(
-                                mapping.getSourceMappingType()));
-
-
-                        schemaType = schema.getType();
-
-                        attr = user.getAttribute(
-                                mapping.getSourceAttrName());
-
-                        values = attr != null
-                                ? (schema.isUniqueConstraint()
-                                ? Collections.singletonList(
-                                attr.getUniqueValue())
-                                : attr.getValues())
-                                : Collections.EMPTY_LIST;
-
-                        LOG.debug("Retrieved attribute {}", attr
-                                + "\n* SourceAttrName {}"
-                                + "\n* SourceMappingType {}"
-                                + "\n* Attribute values {}",
-                                new Object[]{
-                                    mapping.getSourceAttrName(),
-                                    mapping.getSourceMappingType(),
-                                    values});
-                        break;
-
-                    case UserVirtualSchema:
-
-                        virSchema = virSchemaDAO.find(
-                                mapping.getSourceAttrName(),
-                                getSourceMappingTypeClass(
-                                mapping.getSourceMappingType()));
-
-
-                        schemaType = SchemaType.String;
-
-                        virAttr = user.getVirtualAttribute(
-                                mapping.getSourceAttrName());
-
-                        values = new ArrayList<AbstractAttrValue>();
-                        AbstractAttrValue abstractValue;
-
-                        if (virAttr != null && virAttr.getValues() != null) {
-                            for (String value : virAttr.getValues()) {
-                                abstractValue = new UAttrValue();
-                                abstractValue.setStringValue(value);
-                                values.add(abstractValue);
-                            }
-                        }
-
-                        LOG.debug("Retrieved virtual attribute {}", virAttr
-                                + "\n* SourceAttrName {}"
-                                + "\n* SourceMappingType {}"
-                                + "\n* Attribute values {}",
-                                new Object[]{
-                                    mapping.getSourceAttrName(),
-                                    mapping.getSourceMappingType(),
-                                    values});
-                        break;
-
-                    case UserDerivedSchema:
-
-                        derSchema = derSchemaDAO.find(
-                                mapping.getSourceAttrName(),
-                                getSourceMappingTypeClass(
-                                mapping.getSourceMappingType()));
-
-                        schemaType = SchemaType.String;
-
-                        derAttr = user.getDerivedAttribute(
-                                mapping.getSourceAttrName());
-
-                        if (derAttr != null) {
-                            AbstractAttrValue value = new UAttrValue();
-                            value.setStringValue(
-                                    derAttr.getValue(user.getAttributes()));
-
-                            values = Collections.singletonList(value);
-                        } else {
-                            values = Collections.EMPTY_LIST;
-                        }
-
-
-                        LOG.debug("Retrieved attribute {}", derAttr
-                                + "\n* SourceAttrName {}"
-                                + "\n* SourceMappingType {}"
-                                + "\n* Attribute values {}",
-                                new Object[]{
-                                    mapping.getSourceAttrName(),
-                                    mapping.getSourceMappingType(),
-                                    values});
-
-                        break;
-
-                    case SyncopeUserId:
-                    case Password:
-                        schema = null;
-                        schemaType = SchemaType.String;
-
-                        AbstractAttrValue uAttrValue = new UAttrValue();
-
-                        if (SourceMappingType.SyncopeUserId
-                                == mapping.getSourceMappingType()) {
-
-                            uAttrValue.setStringValue(user.getId().toString());
-                        }
-                        if (SourceMappingType.Password
-                                == mapping.getSourceMappingType()
-                                && password != null) {
-
-                            uAttrValue.setStringValue(password);
-                        }
-
-                        values = Collections.singletonList(uAttrValue);
-                        break;
-
-                    default:
-                        break;
+                preparedAttribute = prepareAttribute(mapping, user, password);
+                if (preparedAttribute.getKey() != null) {
+                    accountId = preparedAttribute.getKey();
                 }
-
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Define mapping for: "
-                            + "\n* DestAttrName " + mapping.getDestAttrName()
-                            + "\n* is accountId " + mapping.isAccountid()
-                            + "\n* is password " + (mapping.isPassword()
-                            || mapping.getSourceMappingType().equals(
-                            SourceMappingType.Password))
-                            + "\n* mandatory condition "
-                            + mapping.getMandatoryCondition()
-                            + "\n* Schema " + mapping.getSourceAttrName()
-                            + "\n* SourceMappingType "
-                            + mapping.getSourceMappingType().toString()
-                            + "\n* ClassType " + schemaType.getClassName()
-                            + "\n* Values " + values);
-                }
-
-                // -----------------------------
-                // Retrieve user attribute values
-                // -----------------------------
-                objValues = new HashSet();
-
-                for (AbstractAttrValue value : values) {
-                    castToBeApplied =
-                            Class.forName(schemaType.getClassName());
-
-                    if (!FrameworkUtil.isSupportedAttributeType(
-                            castToBeApplied)) {
-
-                        castToBeApplied = String.class;
-                        objValues.add(value.getValueAsString());
-                    } else {
-                        objValues.add(value.getValue());
-                    }
-                }
-                // -----------------------------
-
-                if (mapping.isAccountid()) {
-                    if (schema != null && schema.isMultivalue()) {
-                        accountId.put(objValues.iterator().next().toString(),
-                                AttributeBuilder.build(
-                                mapping.getDestAttrName(),
-                                objValues));
-                    } else {
-                        accountId.put(objValues.iterator().next().toString(),
-                                objValues.isEmpty()
-                                ? AttributeBuilder.build(
-                                mapping.getDestAttrName())
-                                : AttributeBuilder.build(
-                                mapping.getDestAttrName(),
-                                objValues.iterator().next()));
-                    }
-                }
-
-                if (mapping.isPassword()) {
-                    accountAttributes.add(AttributeBuilder.buildPassword(
-                            objValues.iterator().next().toString().
-                            toCharArray()));
-                }
-
-                if (!mapping.isPassword() && !mapping.isAccountid()) {
-                    if (schema != null && schema.isMultivalue()) {
-                        accountAttributes.add(AttributeBuilder.build(
-                                mapping.getDestAttrName(),
-                                objValues));
-                    } else {
-                        accountAttributes.add(objValues.isEmpty()
-                                ? AttributeBuilder.build(
-                                mapping.getDestAttrName())
-                                : AttributeBuilder.build(
-                                mapping.getDestAttrName(),
-                                objValues.iterator().next()));
-                    }
+                if (preparedAttribute.getValue() != null) {
+                    attributes.add(preparedAttribute.getValue());
                 }
             } catch (Throwable t) {
                 LOG.debug("Attribute '{}' processing failed",
@@ -545,13 +484,10 @@ public class PropagationManager {
             }
         }
 
-        if (accountId.isEmpty()) {
-            throw new PropagationException(
-                    resource.getName(),
+        if (!StringUtils.hasText(accountId)) {
+            throw new PropagationException(resource.getName(),
                     "Missing accountId specification");
         }
-
-        final String key = accountId.keySet().iterator().next();
 
         // Evaluate AccountLink expression
         String evaluatedAccountLink =
@@ -561,22 +497,77 @@ public class PropagationManager {
         // the target resource or the key (depending on the accountLink)
         if (evaluatedAccountLink.isEmpty()) {
             // add accountId as __NAME__ attribute ...
-            LOG.debug("Add AccountId [{}] as __NAME__", key);
-            accountAttributes.add(new Name(key));
+            LOG.debug("Add AccountId [{}] as __NAME__", accountId);
+            attributes.add(new Name(accountId));
         } else {
             LOG.debug("Add AccountLink [{}] as __NAME__", evaluatedAccountLink);
-            accountAttributes.add(new Name(evaluatedAccountLink));
+            attributes.add(new Name(evaluatedAccountLink));
 
             // AccountId not propagated: 
             // it will be used to set the value for __UID__ attribute
             LOG.debug("AccountId will be used just as __UID__ attribute");
         }
 
-        return Collections.singletonMap(key, accountAttributes);
-
+        return new DefaultMapEntry(accountId, attributes);
     }
 
-    public TaskExec propagate(PropagationTask task, final Date startDate) {
+    /**
+     * Check wether an execution has to be stored, for a given task.
+     *
+     * @param task execution's task
+     * @param execution to be decide wether to store or not
+     * @return true if execution has to be store, false otherwise
+     */
+    private boolean hasToBeregistered(final PropagationTask task,
+            final TaskExec execution) {
+
+        boolean result;
+
+        final boolean failed = !PropagationTaskExecStatus.valueOf(
+                execution.getStatus()).isSuccessful();
+
+        switch (task.getResourceOperationType()) {
+
+            case CREATE:
+                result = (failed
+                        && task.getResource().getCreateTraceLevel().
+                        ordinal() >= TraceLevel.FAILURES.ordinal())
+                        || task.getResource().getCreateTraceLevel()
+                        == TraceLevel.ALL;
+                break;
+
+            case UPDATE:
+                result = (failed
+                        && task.getResource().getUpdateTraceLevel().
+                        ordinal() >= TraceLevel.FAILURES.ordinal())
+                        || task.getResource().getUpdateTraceLevel()
+                        == TraceLevel.ALL;
+                break;
+
+            case DELETE:
+                result = (failed
+                        && task.getResource().getDeleteTraceLevel().
+                        ordinal() >= TraceLevel.FAILURES.ordinal())
+                        || task.getResource().getDeleteTraceLevel()
+                        == TraceLevel.ALL;
+                break;
+
+            default:
+                result = false;
+        }
+
+        return result;
+    }
+
+    /**
+     * Execute a propagation task.
+     *
+     * @param task to execute
+     * @param startDate timestamp for beginning task excecution
+     * @return TaskExecution
+     */
+    public TaskExec propagate(final PropagationTask task,
+            final Date startDate) {
 
         TaskExec execution = new TaskExec();
         execution.setStatus(PropagationTaskExecStatus.CREATED.toString());
@@ -590,7 +581,7 @@ public class PropagationManager {
             ConnInstance connInstance =
                     task.getResource().getConnector();
 
-            ConnectorFacadeProxy connector = connInstanceLoader.getConnector(
+            ConnectorFacadeProxy connector = connLoader.getConnector(
                     ConnInstanceLoader.getBeanName(connInstance.getId()));
 
             if (connector == null) {
@@ -704,14 +695,14 @@ public class PropagationManager {
             LOG.debug("Update execution for {}", task);
 
             if (hasToBeregistered(task, execution)) {
-                task = taskDAO.save(task);
+                PropagationTask savedTask = taskDAO.save(task);
 
                 if (!propagationAttempted.isEmpty()) {
                     execution.setStartDate(startDate);
                     execution.setMessage(taskExecutionMessage);
                     execution.setEndDate(new Date());
 
-                    execution.setTask(task);
+                    execution.setTask(savedTask);
                     execution = taskExecDAO.save(execution);
 
                     LOG.debug("Execution finished: {}", execution);
@@ -722,46 +713,5 @@ public class PropagationManager {
         }
 
         return execution;
-    }
-
-    private boolean hasToBeregistered(final PropagationTask task,
-            final TaskExec execution) {
-
-        boolean result;
-
-        final boolean failed = !PropagationTaskExecStatus.valueOf(
-                execution.getStatus()).isSuccessful();
-
-        switch (task.getResourceOperationType()) {
-
-            case CREATE:
-                result = (failed
-                        && task.getResource().getCreateTraceLevel().
-                        ordinal() >= TraceLevel.FAILURES.ordinal())
-                        || task.getResource().getCreateTraceLevel()
-                        == TraceLevel.ALL;
-                break;
-
-            case UPDATE:
-                result = (failed
-                        && task.getResource().getUpdateTraceLevel().
-                        ordinal() >= TraceLevel.FAILURES.ordinal())
-                        || task.getResource().getUpdateTraceLevel()
-                        == TraceLevel.ALL;
-                break;
-
-            case DELETE:
-                result = (failed
-                        && task.getResource().getDeleteTraceLevel().
-                        ordinal() >= TraceLevel.FAILURES.ordinal())
-                        || task.getResource().getDeleteTraceLevel()
-                        == TraceLevel.ALL;
-                break;
-
-            default:
-                result = false;
-        }
-
-        return result;
     }
 }

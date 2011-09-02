@@ -31,7 +31,6 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.scheduling.quartz.JobMethodInvocationFailedException;
 import org.springframework.scheduling.quartz.QuartzJobBean;
-import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.util.MethodInvoker;
 import org.syncope.core.util.ApplicationContextManager;
 
@@ -46,27 +45,50 @@ public class AppContextMethodInvokingJobDetailFactoryBean
         implements FactoryBean<JobDetail>, BeanNameAware, BeanClassLoaderAware,
         BeanFactoryAware, InitializingBean, Serializable {
 
+    /**
+     * Serial version UID.
+     */
     private static final long serialVersionUID = -9164669094205867738L;
 
+    /**
+     * Scheduler group name (defaults to org.quartz.Scheduler#DEFAULT_GROUP).
+     */
     private String group = Scheduler.DEFAULT_GROUP;
 
+    /**
+     * Bean name.
+     */
     private String beanName;
 
+    /**
+     * Job listener names.
+     */
     private String[] jobListenerNames;
 
+    /**
+     * Job detail.
+     */
     private JobDetail jobDetail;
 
+    /**
+     * Target bean name.
+     */
     private String targetBeanName;
 
+    /**
+     * Target method name.
+     */
     private String targetMethod;
 
     /**
      * Set the group of the job.
-     * <p>Default is the default group of the Scheduler.
+     * Default is the default group of the Scheduler.
+     *
+     * @param group to be set
      * @see org.quartz.JobDetail#setGroup
      * @see org.quartz.Scheduler#DEFAULT_GROUP
      */
-    public void setGroup(String group) {
+    public void setGroup(final String group) {
         this.group = group;
     }
 
@@ -91,34 +113,46 @@ public class AppContextMethodInvokingJobDetailFactoryBean
      * Set a list of JobListener names for this job, referring to
      * non-global JobListeners registered with the Scheduler.
      * <p>A JobListener name always refers to the name returned
-     * by the JobListener implementation.
+     * by the JobListener implementation.</p>
+     *
+     * @param names to be set
      * @see SchedulerFactoryBean#setJobListeners
      * @see org.quartz.JobListener#getName
      */
-    public void setJobListenerNames(String[] names) {
+    public void setJobListenerNames(final String[] names) {
         if (names != null) {
             this.jobListenerNames = names.clone();
         }
     }
 
     @Override
-    public void setBeanName(String beanName) {
+    public void setBeanName(final String beanName) {
         this.beanName = beanName;
     }
 
     @Override
-    public void setBeanClassLoader(ClassLoader classLoader) {
+    public void setBeanClassLoader(final ClassLoader classLoader) {
     }
 
     @Override
-    public void setBeanFactory(BeanFactory beanFactory) {
+    public void setBeanFactory(final BeanFactory beanFactory) {
     }
 
-    public void setTargetBeanName(String targetBeanName) {
+    /**
+     * Set target bean name.
+     *
+     * @param targetBeanName to be set
+     */
+    public void setTargetBeanName(final String targetBeanName) {
         this.targetBeanName = targetBeanName;
     }
 
-    public void setTargetMethod(String targetMethod) {
+    /**
+     * Set target method name.
+     *
+     * @param targetMethod to be set
+     */
+    public void setTargetMethod(final String targetMethod) {
         this.targetMethod = targetMethod;
     }
 
@@ -152,23 +186,47 @@ public class AppContextMethodInvokingJobDetailFactoryBean
         }
     }
 
+    /**
+     * Spring's QuartzJobBean implementation delegating actual operations to
+     * a bean fetched from application context.<br/>
+     * Being a StatefulJob, no concurrent executions are allowed.
+     *
+     * @see QuartzJobBean
+     * @see StatefulJob
+     */
     public static class MethodInvokingJob extends QuartzJobBean
             implements StatefulJob {
 
+        /**
+         * Target bean name.
+         */
         private String targetBeanName;
 
+        /**
+         * Target method name.
+         */
         private String targetMethod;
 
-        public void setTargetBeanName(String targetBeanName) {
+        /**
+         * Target bean name setter.
+         *
+         * @param targetBeanName to be set
+         */
+        public void setTargetBeanName(final String targetBeanName) {
             this.targetBeanName = targetBeanName;
         }
 
-        public void setTargetMethod(String targetMethod) {
+        /**
+         * Target method setter.
+         *
+         * @param targetMethod to be set
+         */
+        public void setTargetMethod(final String targetMethod) {
             this.targetMethod = targetMethod;
         }
 
         @Override
-        protected void executeInternal(JobExecutionContext context)
+        protected void executeInternal(final JobExecutionContext context)
                 throws JobExecutionException {
 
             ConfigurableApplicationContext appContext =

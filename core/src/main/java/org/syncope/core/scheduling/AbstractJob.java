@@ -25,6 +25,11 @@ import org.syncope.core.persistence.beans.TaskExec;
 import org.syncope.core.persistence.dao.TaskDAO;
 import org.syncope.core.persistence.dao.TaskExecDAO;
 
+/**
+ * Base job implementation that delegates to concrete implementation the actual
+ * job execution and provides some background settings (like as the
+ * corresponding Task, for example).
+ */
 public abstract class AbstractJob implements Job {
 
     /**
@@ -33,21 +38,44 @@ public abstract class AbstractJob implements Job {
     protected static final Logger LOG = LoggerFactory.getLogger(
             AbstractJob.class);
 
+    /**
+     * Success task execution status.
+     */
     protected static final String SUCCESS = "SUCCESS";
 
+    /**
+     * Faliure task execution status.
+     */
     protected static final String FAILURE = "FAILURE";
 
+    /**
+     * Task DAO.
+     */
     @Autowired
     protected TaskDAO taskDAO;
 
+    /**
+     * Task execution DAO.
+     */
     @Autowired
     private TaskExecDAO taskExecDAO;
 
+    /**
+     * Id, set by the caller, for identifying the task to be executed.
+     */
     protected Long taskId;
 
+    /**
+     * The actual task to be executed.
+     */
     protected Task task;
 
-    public void setTaskId(Long taskId) {
+    /**
+     * Task id setter.
+     *
+     * @param taskId to be set
+     */
+    public void setTaskId(final Long taskId) {
         this.taskId = taskId;
     }
 
@@ -83,6 +111,12 @@ public abstract class AbstractJob implements Job {
         taskExecDAO.save(execution);
     }
 
+    /**
+     * The actual execution, delegated to child classes.
+     *
+     * @return the task execution status to be set
+     * @throws JobExecutionException 
+     */
     protected abstract String doExecute()
             throws JobExecutionException;
 }

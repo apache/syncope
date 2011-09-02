@@ -68,6 +68,7 @@
     </mailingLists>
 
     <properties>
+        <targetJdk>1.6</targetJdk>
         <maven.version>3.0.3</maven.version>
         
         <servlet-api.version>2.5</servlet-api.version>
@@ -118,7 +119,7 @@
         <selenium-java-client-driver.version>1.0.2</selenium-java-client-driver.version>
         <dbunit.version>2.4.8</dbunit.version>
 
-        <tomcat.version>7.0.20</tomcat.version>
+        <tomcat.version>7.0.21</tomcat.version>
 
         <bundles.directory>${project.build.directory}/bundles</bundles.directory>
         <log.directory>${project.build.directory}/log</log.directory>
@@ -509,8 +510,8 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <configuration>
-                        <source>1.6</source>
-                        <target>1.6</target>
+                        <source>${targetJdk}</source>
+                        <target>${targetJdk}</target>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -602,6 +603,23 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <version>2.5</version>
+                <dependencies>    
+                    <dependency>
+                        <groupId>org.syncope</groupId>
+                        <artifactId>syncope-build-tools</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jxr-plugin</artifactId>
+                <version>2.3</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
                 <version>3.0</version>
                 <configuration>
@@ -613,7 +631,7 @@
                             <version>2.7</version>
                             <configuration>
                                 <configLocation>org/syncope/checkstyle.xml</configLocation>
-                                <targetJdk>1.6</targetJdk>
+                                <targetJdk>${targetJdk}</targetJdk>
                             </configuration>
                         </plugin>
                         <plugin>
@@ -631,10 +649,9 @@
                             <artifactId>maven-pmd-plugin</artifactId>
                             <version>2.5</version>
                             <configuration>
-                                <targetJdk>1.6</targetJdk>
+                                <targetJdk>${targetJdk}</targetJdk>
                                 <rulesets>
-                                    <ruleset>/rulesets/basic.xml</ruleset>
-                                    <ruleset>/rulesets/controversial.xml</ruleset>
+                                    <ruleset>org/syncope/pmd.xml</ruleset>
                                 </rulesets>
                                 <format>xml</format>
                                 <linkXref>true</linkXref>
@@ -650,7 +667,7 @@
                                 <findbugsXmlOutput>true</findbugsXmlOutput>
                                 <findbugsXmlWithMessages>true</findbugsXmlWithMessages>
                                 <xmlOutput>true</xmlOutput>
-                                <targetJdk>1.6</targetJdk>
+                                <targetJdk>${targetJdk}</targetJdk>
                             </configuration>
                         </plugin>
                     </reportPlugins>

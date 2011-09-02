@@ -785,6 +785,7 @@ public class UserTestITCase extends AbstractTest {
         attributeMod.addValueToBeAdded("t.w@spre.net");
         userMod.addAttributeToBeUpdated(attributeMod);
 
+        userMod.addAttributeToBeRemoved("username");
         attributeMod = new AttributeMod();
         attributeMod.setSchema("username");
         attributeMod.addValueToBeAdded("g.h@t.com");
@@ -806,16 +807,24 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(1, userTO.getMemberships().iterator().next().
                 getAttributes().size());
         assertFalse(userTO.getDerivedAttributes().isEmpty());
-        boolean attributeFound = false;
+        boolean userIdFound = false;
+        boolean usernameFound = false;
         for (AttributeTO attributeTO : userTO.getAttributes()) {
             if ("userId".equals(attributeTO.getSchema())) {
-                attributeFound = true;
+                userIdFound = true;
 
                 assertEquals(Collections.singletonList("t.w@spre.net"),
                         attributeTO.getValues());
             }
+            if ("username".equals(attributeTO.getSchema())) {
+                usernameFound = true;
+
+                assertEquals(Collections.singletonList("g.h@t.com"),
+                        attributeTO.getValues());
+            }
         }
-        assertTrue(attributeFound);
+        assertTrue(userIdFound);
+        assertTrue(usernameFound);
     }
 
     @Test

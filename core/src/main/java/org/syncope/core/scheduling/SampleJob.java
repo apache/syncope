@@ -16,6 +16,11 @@ package org.syncope.core.scheduling;
 import org.quartz.JobExecutionException;
 import org.syncope.core.persistence.beans.SchedTask;
 
+/**
+ * Sample implementation for execution a scheduled task.
+ *
+ * @see SchedTask
+ */
 public class SampleJob extends AbstractJob {
 
     @Override
@@ -28,7 +33,7 @@ public class SampleJob extends AbstractJob {
         }
         final SchedTask schedTask = (SchedTask) this.task;
 
-        LOG.info("SampleJob running");
+        LOG.info("SampleJob running [SchedTask {}]", schedTask.getId());
 
         return "RUNNING";
     }

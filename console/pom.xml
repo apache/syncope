@@ -342,6 +342,8 @@
                             <cargo.servlet.port>${cargo.servlet.port}</cargo.servlet.port>
                             <cargo.tomcat.ajp.port>8889</cargo.tomcat.ajp.port>
                             <cargo.rmi.port>8805</cargo.rmi.port>
+                            
+<!--                            <cargo.jvmargs>-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n</cargo.jvmargs>-->
                         </properties>
                         <deployables>
                             <deployable>
@@ -579,4 +581,33 @@
         </profile>
     </profiles>
 
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>2.7</version>
+                <configuration>
+                    <configLocation>org/syncope/checkstyle.xml</configLocation>
+                    <targetJdk>${targetJdk}</targetJdk>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <version>2.5</version>
+                <configuration>
+                    <rulesets>
+                        <ruleset>org/syncope/pmd.xml</ruleset>
+                    </rulesets>
+                    <targetJdk>${targetJdk}</targetJdk>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jxr-plugin</artifactId>
+                <version>2.3</version>
+            </plugin>
+        </plugins>
+    </reporting>
 </project>

@@ -15,7 +15,17 @@ package org.syncope.core.scheduling;
 
 import org.quartz.JobExecutionException;
 
+/**
+ * Interface for jobs to be executed within Syncope, by empowering
+ * Spring and Quartz.
+ */
 public interface Job {
 
-    void execute() throws JobExecutionException;
+    /**
+     * The actual execution.
+     *
+     * @throws JobExecutionException 
+     */
+    void execute()
+            throws JobExecutionException;
 }

@@ -799,4 +799,33 @@
         </profile>
     </profiles>
     
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>2.7</version>
+                <configuration>
+                    <configLocation>org/syncope/checkstyle.xml</configLocation>
+                    <targetJdk>${targetJdk}</targetJdk>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <version>2.5</version>
+                <configuration>
+                    <rulesets>
+                        <ruleset>org/syncope/pmd.xml</ruleset>
+                    </rulesets>
+                    <targetJdk>${targetJdk}</targetJdk>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jxr-plugin</artifactId>
+                <version>2.3</version>
+            </plugin>
+        </plugins>
+    </reporting>
 </project>

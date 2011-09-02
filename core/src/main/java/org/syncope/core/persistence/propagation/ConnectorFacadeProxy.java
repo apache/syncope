@@ -78,6 +78,7 @@ public class ConnectorFacadeProxy {
      * be used to make all wrapped calls.
      *
      * @param connInstance the connector instance configuration
+     * @param connInstanceLoader connector instance loader
      * @throws NotFoundException when not able to fetch all the required data
      * @see ConnectorKey
      * @see ConnectorInfo
@@ -216,15 +217,22 @@ public class ConnectorFacadeProxy {
         this.capabitilies = connInstance.getCapabilities();
     }
 
+    /**
+     * Resolve username to ConnId's Uid.
+     *
+     * @param objectClass ConnId's object class
+     * @param username to resolve
+     * @param options ConnId's OperationOptions
+     * @return the resolved Uid (if connector instance is capable); can be null
+     * if not found
+     */
     public Uid resolveUsername(
             final ObjectClass objectClass,
             final String username,
             final OperationOptions options) {
 
         Uid result = null;
-
         if (capabitilies.contains(ConnectorCapability.RESOLVE)) {
-
             result = connector.resolveUsername(
                     objectClass, username, options);
         }
@@ -232,9 +240,20 @@ public class ConnectorFacadeProxy {
         return result;
     }
 
+    /**
+     * Create user on a connector instance.
+     *
+     * @param propagationMode propagation mode (SYNC / ASYNC)
+     * @param objectClass ConnId's object class
+     * @param attrs attributes for creation
+     * @param options ConnId's OperationOptions
+     * @param propagationAttempted if creation is actually performed (based on
+     * connector instance's capabilities)
+     * @return Uid for created user
+     */
     public Uid create(
             final PropagationMode propagationMode,
-            final ObjectClass oclass,
+            final ObjectClass objectClass,
             final Set<Attribute> attrs,
             final OperationOptions options,
             final Set<String> propagationAttempted) {
@@ -249,16 +268,28 @@ public class ConnectorFacadeProxy {
 
             propagationAttempted.add("create");
 
-            result = connector.create(oclass, attrs, options);
+            result = connector.create(objectClass, attrs, options);
         }
 
         return result;
     }
 
+    /**
+     * Update user on a connector instance.
+     *
+     * @param propagationMode propagation mode (SYNC / ASYNC)
+     * @param objectClass ConnId's object class
+     * @param uid user to be updated
+     * @param attrs attributes for update
+     * @param options ConnId's OperationOptions
+     * @param propagationAttempted if update is actually performed (based on
+     * connector instance's capabilities)
+     * @return Uid for created user
+     */
     public Uid update(final PropagationMode propagationMode,
-            final ObjectClass objclass,
+            final ObjectClass objectClass,
             final Uid uid,
-            final Set<Attribute> replaceAttributes,
+            final Set<Attribute> attrs,
             final OperationOptions options,
             final Set<String> propagationAttempted) {
 
@@ -273,14 +304,24 @@ public class ConnectorFacadeProxy {
             propagationAttempted.add("update");
 
             result = connector.update(
-                    objclass, uid, replaceAttributes, options);
+                    objectClass, uid, attrs, options);
         }
 
         return result;
     }
 
+    /**
+     * Delete user on a connector instance.
+     *
+     * @param propagationMode propagation mode (SYNC / ASYNC)
+     * @param objectClass ConnId's object class
+     * @param uid user to be deleted
+     * @param options ConnId's OperationOptions
+     * @param propagationAttempted if deletion is actually performed (based on
+     * connector instance's capabilities)
+     */
     public void delete(final PropagationMode propagationMode,
-            final ObjectClass objClass,
+            final ObjectClass objectClass,
             final Uid uid,
             final OperationOptions options,
             final Set<String> propagationAttempted) {
@@ -293,10 +334,16 @@ public class ConnectorFacadeProxy {
 
             propagationAttempted.add("delete");
 
-            connector.delete(objClass, uid, options);
+            connector.delete(objectClass, uid, options);
         }
     }
 
+    /**
+     * Sync users from a connector instance.
+     *
+     * @param token to be passed to the underlying connector
+     * @return list of sync operations to be performed
+     */
     public List<SyncDelta> sync(final SyncToken token) {
         final List<SyncDelta> result = new ArrayList<SyncDelta>();
 
@@ -305,7 +352,7 @@ public class ConnectorFacadeProxy {
                     new SyncResultsHandler() {
 
                         @Override
-                        public boolean handle(SyncDelta delta) {
+                        public boolean handle(final SyncDelta delta) {
                             return result.add(delta);
                         }
                     }, null);
@@ -314,6 +361,11 @@ public class ConnectorFacadeProxy {
         return result;
     }
 
+    /**
+     * Read latest sync token from a connector instance.
+     *
+     * @return latest sync token
+     */
     public SyncToken getLatestSyncToken() {
         SyncToken result = null;
 
@@ -326,6 +378,11 @@ public class ConnectorFacadeProxy {
 
     /**
      * Get remote object.
+     *
+     * @param objectClass ConnId's object class
+     * @param uid ConnId's Uid
+     * @param options ConnId's OperationOptions
+     * @return ConnId's connector object for given uid
      */
     public ConnectorObject getObject(
             final ObjectClass objectClass,
@@ -337,7 +394,14 @@ public class ConnectorFacadeProxy {
 
     /**
      * Get remote object used by the propagation manager in order to choose
-     * for a create (object doesn't exist) or an update (object exists)
+     * for a create (object doesn't exist) or an update (object exists).
+     *
+     * @param propagationMode propagation mode (SYNC / ASYNC)
+     * @param operationType resource operation type
+     * @param objectClass ConnId's object class
+     * @param uid ConnId's Uid
+     * @param options ConnId's OperationOptions
+     * @return ConnId's connector object for given uid
      */
     public ConnectorObject getObject(
             final PropagationMode propagationMode,
@@ -386,12 +450,17 @@ public class ConnectorFacadeProxy {
         return result;
     }
 
-    public void validate() {
-        connector.validate();
-    }
-
+    /**
+     * Read attribute for a given connector object.
+     *
+     * @param objectClass ConnId's object class
+     * @param uid ConnId's Uid
+     * @param options ConnId's OperationOptions
+     * @param attributeName attribute to read
+     * @return attribute (if present)
+     */
     public Attribute getObjectAttribute(
-            final ObjectClass objClass,
+            final ObjectClass objectClass,
             final Uid uid,
             final OperationOptions options,
             final String attributeName) {
@@ -400,10 +469,9 @@ public class ConnectorFacadeProxy {
 
         try {
             final ConnectorObject object =
-                    connector.getObject(objClass, uid, options);
+                    connector.getObject(objectClass, uid, options);
 
             attribute = object.getAttributeByName(attributeName);
-
         } catch (NullPointerException e) {
             // ignore exception
             LOG.debug("Object for '{}' not found", uid.getUidValue());
@@ -412,8 +480,16 @@ public class ConnectorFacadeProxy {
         return attribute;
     }
 
+    /**
+     * 
+     * @param objectClass ConnId's object class
+     * @param uid ConnId's Uid
+     * @param options ConnId's OperationOptions
+     * @param attributeNames attributes to read
+     * @return attributes (if present)
+     */
     public Set<Attribute> getObjectAttributes(
-            final ObjectClass objClass,
+            final ObjectClass objectClass,
             final Uid uid,
             final OperationOptions options,
             final Collection<String> attributeNames) {
@@ -421,20 +497,25 @@ public class ConnectorFacadeProxy {
         final Set<Attribute> attributes = new HashSet<Attribute>();
 
         try {
-
-            final ConnectorObject object = connector.getObject(objClass, uid,
+            final ConnectorObject object = connector.getObject(objectClass, uid,
                     options);
 
             for (String attribute : attributeNames) {
                 attributes.add(object.getAttributeByName(attribute));
             }
-
         } catch (NullPointerException e) {
             // ignore exception
             LOG.debug("Object for '{}' not found", uid.getUidValue());
         }
 
         return attributes;
+    }
+
+    /**
+     * Validate a connector instance.
+     */
+    public void validate() {
+        connector.validate();
     }
 
     @Override

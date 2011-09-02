@@ -50,27 +50,57 @@ import org.syncope.core.persistence.propagation.ConnectorFacadeProxy;
 import org.syncope.core.rest.controller.InvalidSearchConditionException;
 import org.syncope.core.rest.controller.UserController;
 
+/**
+ * Job for executing synchronization tasks.
+ * @see Job
+ * @see SyncTask
+ */
 public class SyncJob extends AbstractJob {
 
+    /**
+     * ConnInstance loader.
+     */
     @Autowired
     private ConnInstanceLoader connInstanceLoader;
 
-    @Autowired
-    private SchemaDAO schemaDAO;
-
-    @Autowired
-    private DerSchemaDAO derSchemaDAO;
-
-    @Autowired
-    private UserDAO userDAO;
-
-    @Autowired
-    private UserController userController;
-
+    /**
+     * Connector instance DAO.
+     */
     @Autowired
     private ConnInstanceDAO connInstanceDAO;
 
-    private String getPassword(List<Object> values) {
+    /**
+     * Schema DAO.
+     */
+    @Autowired
+    private SchemaDAO schemaDAO;
+
+    /**
+     * Derived schema DAO.
+     */
+    @Autowired
+    private DerSchemaDAO derSchemaDAO;
+
+    /**
+     * User DAO.
+     */
+    @Autowired
+    private UserDAO userDAO;
+
+    /**
+     * User REST controller.
+     */
+    @Autowired
+    private UserController userController;
+
+    /**
+     * Extract password value from passed values (if instance of GuardedString
+     * or GuardedByteArray).
+     *
+     * @param values list of values received from the underlying connector.
+     * @return password value
+     */
+    private String getPassword(final List<Object> values) {
         final StringBuilder result = new StringBuilder();
 
         Object pwd;
@@ -84,7 +114,7 @@ public class SyncJob extends AbstractJob {
             ((GuardedString) pwd).access(new GuardedString.Accessor() {
 
                 @Override
-                public void access(char[] clearChars) {
+                public void access(final char[] clearChars) {
                     result.append(clearChars);
                 }
             });
@@ -92,7 +122,7 @@ public class SyncJob extends AbstractJob {
             ((GuardedByteArray) pwd).access(new GuardedByteArray.Accessor() {
 
                 @Override
-                public void access(byte[] clearBytes) {
+                public void access(final byte[] clearBytes) {
                     result.append(new String(clearBytes));
                 }
             });
@@ -105,6 +135,15 @@ public class SyncJob extends AbstractJob {
         return result.toString();
     }
 
+    /**
+     * Build an UserTO out of connector object attributes and schema mapping.
+     *
+     * @param obj connector object
+     * @param mappings schema mappings
+     * @param roles default roles to be assigned
+     * @param resources default resources to be assigned
+     * @return UserTO for the user to be created
+     */
     private UserTO getUserTO(final ConnectorObject obj,
             final List<SchemaMapping> mappings,
             final Set<Long> roles, final Set<String> resources) {
@@ -155,12 +194,24 @@ public class SyncJob extends AbstractJob {
                     attributeTO.setSchema(mapping.getSourceAttrName());
                     userTO.addVirtualAttribute(attributeTO);
                     break;
+
+                default:
             }
         }
 
         return userTO;
     }
 
+    /**
+     * Build an UserMod out of connector object attributes and schema mapping.
+     *
+     * @param userId user to be updated
+     * @param obj connector object
+     * @param mappings schema mappings
+     * @param roles default roles to be assigned
+     * @param resources default resources to be assigned
+     * @return UserMod for the user to be updated
+     */
     private UserMod getUserMod(final Long userId, final ConnectorObject obj,
             final List<SchemaMapping> mappings,
             final Set<Long> roles, final Set<String> resources) {
@@ -193,6 +244,9 @@ public class SyncJob extends AbstractJob {
                     break;
 
                 case UserSchema:
+                    userMod.addAttributeToBeRemoved(
+                            mapping.getSourceAttrName());
+
                     attributeMod = new AttributeMod();
                     attributeMod.setSchema(mapping.getSourceAttrName());
                     for (Object value : values) {
@@ -210,12 +264,22 @@ public class SyncJob extends AbstractJob {
                     userMod.addVirtualAttributeToBeAdded(
                             mapping.getSourceAttrName());
                     break;
+
+                default:
             }
         }
 
         return userMod;
     }
 
+    /**
+     * Find users based on mapped uid value (or previous uid value, if updated).
+     *
+     * @param schemaName schema name mapped as accountId
+     * @param uidValue Uid value
+     * @param previousUidValue Uid value before last update (if available)
+     * @return list of matching users
+     */
     private List<SyncopeUser> findExistingUsers(
             final String schemaName, final String uidValue,
             final String previousUidValue) {
@@ -240,7 +304,8 @@ public class SyncJob extends AbstractJob {
                     LOG.error("Could not search for matching users", e);
                 }
             } else {
-                LOG.warn("Invalid account Id source schema name: " + schemaName);
+                LOG.warn("Invalid account Id source schema name: {}",
+                        schemaName);
             }
         }
 
@@ -319,7 +384,8 @@ public class SyncJob extends AbstractJob {
                         try {
                             userController.create(getUserTO(delta.getObject(),
                                     syncTask.getResource().getMappings(),
-                                    defaultRoles, defaultResources), null, null);
+                                    defaultRoles, defaultResources),
+                                    null, null);
                             created++;
                         } catch (Throwable t) {
                             failCreated++;
@@ -366,6 +432,8 @@ public class SyncJob extends AbstractJob {
                         }
                     }
                     break;
+
+                default:
             }
         }
 

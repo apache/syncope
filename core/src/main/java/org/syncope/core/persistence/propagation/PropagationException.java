@@ -14,10 +14,23 @@
  */
 package org.syncope.core.persistence.propagation;
 
+/**
+ * Bear stacktrace received during propagation towards a certain resource.
+ */
 public class PropagationException extends Exception {
 
+    /**
+     * The resource involved in this exception.
+     */
     private final String resourceName;
 
+    /**
+     * Create a new instance based on resource name and original stacktrace
+     * received during propagation.
+     *
+     * @param resourceName name of resource involved in this exception
+     * @param stackTrace original stacktrace
+     */
     public PropagationException(final String resourceName,
             final String stackTrace) {
 
@@ -27,6 +40,9 @@ public class PropagationException extends Exception {
         this.resourceName = resourceName;
     }
 
+    /**
+     * @return name of resource involved in this exception
+     */
     public String getResourceName() {
         return resourceName;
     }

@@ -26,12 +26,20 @@ import org.springframework.web.context.support.XmlWebApplicationContext;
  */
 public class SpringBeanContextAwareJobFactory extends SpringBeanJobFactory {
 
+    /**
+     * Properties to ignore.
+     */
     private String[] ignoredUnknownProperties;
 
+    /**
+     * Scheduler context.
+     */
     private SchedulerContext schedulerContext;
 
     @Override
-    public void setIgnoredUnknownProperties(String[] ignoredUnknownProperties) {
+    public void setIgnoredUnknownProperties(
+            final String[] ignoredUnknownProperties) {
+
         super.setIgnoredUnknownProperties(ignoredUnknownProperties);
         if (ignoredUnknownProperties != null) {
             this.ignoredUnknownProperties = ignoredUnknownProperties.clone();
@@ -39,7 +47,7 @@ public class SpringBeanContextAwareJobFactory extends SpringBeanJobFactory {
     }
 
     @Override
-    public void setSchedulerContext(SchedulerContext schedulerContext) {
+    public void setSchedulerContext(final SchedulerContext schedulerContext) {
         super.setSchedulerContext(schedulerContext);
         this.schedulerContext = schedulerContext;
     }
@@ -51,9 +59,13 @@ public class SpringBeanContextAwareJobFactory extends SpringBeanJobFactory {
      * This method is overriden.
      * @see org.springframework.scheduling.quartz.SpringBeanJobFactory
      * #createJobInstance(org.quartz.spi.TriggerFiredBundle)
+     *
+     * @param bundle Spring's TriggerFiredBundle
+     * @return the actual JobInstance
+     * @throws Exception if anything goes wrong
      */
     @Override
-    protected Object createJobInstance(TriggerFiredBundle bundle)
+    protected Object createJobInstance(final TriggerFiredBundle bundle)
             throws Exception {
 
         XmlWebApplicationContext ctx =

@@ -71,6 +71,8 @@
                 mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
                 enumerationValues="M;F"/>
 
+    <UDerSchema name="csvuserid" expression="firstname + ',' + surname"/>
+
     <RSchema name="icon" type="String"
                 mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
                 
@@ -358,6 +360,10 @@
     <SchemaMapping id="204" destAttrName="email"
                    resource_name="resource-csv"
                    sourceAttrName="userId" sourceMappingType="UserSchema" mandatoryCondition="true"
+                   accountid="0" password="0"/>
+    <SchemaMapping id="205" destAttrName="IGNORE"
+                   resource_name="resource-csv"
+                   sourceAttrName="csvuserid" sourceMappingType="UserDerivedSchema" mandatoryCondition="true"
                    accountid="1" password="0"/>
                    
     <Task DTYPE="PropagationTask" id="1" propagationMode="ASYNC" resourceOperationType="UPDATE"
