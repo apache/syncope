@@ -22,11 +22,11 @@ public interface PolicyDAO extends DAO {
 
     Policy find(Long id);
 
-    Policy getPasswordPolicy();
+    Policy getGlobalPasswordPolicy();
 
     List<Policy> find(PolicyType type);
 
-    Policy getAccountPolicy();
+    Policy getGlobalAccountPolicy();
 
     List<Policy> findAll();
 

@@ -27,11 +27,11 @@ public class PasswordPolicyTO extends PolicyTO {
         setType(PolicyType.PASSWORD);
     }
 
-    public PasswordPolicy getSpecification() {
-        return specification;
+    public void setSpecification(final PasswordPolicy specification) {
+        this.specification = specification;
     }
 
-    public void setSpecification(PasswordPolicy specification) {
-        this.specification = specification;
+    public PasswordPolicy getSpecification() {
+        return specification;
     }
 }

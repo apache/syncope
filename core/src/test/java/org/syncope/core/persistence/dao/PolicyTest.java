@@ -54,11 +54,11 @@ public class PolicyTest extends AbstractTest {
     }
 
     @Test
-    public final void findPasswordPolicy() {
-        Policy policy = policyDAO.getPasswordPolicy();
+    public final void findGlobalPasswordPolicy() {
+        Policy policy = policyDAO.getGlobalPasswordPolicy();
         assertNotNull("findById did not work", policy);
 
-        assertEquals(PolicyType.PASSWORD, policy.getType());
+        assertEquals(PolicyType.GLOBAL_PASSWORD, policy.getType());
 
         assertEquals("invalid policy values",
                 8, ((PasswordPolicy) policy.getSpecification()).getMinLength());
@@ -75,6 +75,7 @@ public class PolicyTest extends AbstractTest {
         Policy policy = new Policy();
         policy.setSpecification(passwordPolicy);
         policy.setType(PolicyType.SYNC);
+        policy.setDescription("sync policy");
 
         policyDAO.save(policy);
     }
@@ -89,7 +90,8 @@ public class PolicyTest extends AbstractTest {
 
         Policy policy = new Policy();
         policy.setSpecification(passwordPolicy);
-        policy.setType(PolicyType.PASSWORD);
+        policy.setType(PolicyType.GLOBAL_PASSWORD);
+        policy.setDescription("global password policy");
 
         policyDAO.save(policy);
     }
@@ -99,6 +101,7 @@ public class PolicyTest extends AbstractTest {
         Policy policy = new Policy();
         policy.setType(PolicyType.SYNC);
         policy.setSpecification(new SyncPolicy());
+        policy.setDescription("Sync policy");
 
         policy = policyDAO.save(policy);
 
@@ -112,15 +115,14 @@ public class PolicyTest extends AbstractTest {
         specification.setMaxLength(8);
         specification.setMinLength(6);
 
-        Policy policy = policyDAO.getPasswordPolicy();
+        Policy policy = policyDAO.getGlobalPasswordPolicy();
         assertNotNull(policy);
         policy.setSpecification(specification);
-
 
         policy = policyDAO.save(policy);
 
         assertNotNull(policy);
-        assertEquals(PolicyType.PASSWORD, policy.getType());
+        assertEquals(PolicyType.GLOBAL_PASSWORD, policy.getType());
         assertEquals(
                 ((PasswordPolicy) policy.getSpecification()).getMaxLength(), 8);
         assertEquals(

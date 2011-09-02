@@ -27,11 +27,11 @@ public class AccountPolicyTO extends PolicyTO {
         setType(PolicyType.ACCOUNT);
     }
 
-    public AccountPolicy getSpecification() {
-        return specification;
+    public void setSpecification(final AccountPolicy specification) {
+        this.specification = specification;
     }
 
-    public void setSpecification(AccountPolicy specification) {
-        this.specification = specification;
+    public AccountPolicy getSpecification() {
+        return specification;
     }
 }

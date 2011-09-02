@@ -31,6 +31,7 @@ import org.syncope.core.persistence.beans.ConnInstance;
 import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.dao.ConnInstanceDAO;
+import org.syncope.core.persistence.dao.PolicyDAO;
 import org.syncope.core.util.JexlUtil;
 import org.syncope.types.SourceMappingType;
 import org.syncope.types.SyncopeClientExceptionType;
@@ -52,6 +53,12 @@ public class ResourceDataBinder {
 
     @Autowired
     private JexlUtil jexlUtil;
+
+    @Autowired
+    private PolicyDataBinder policyDataBinder;
+
+    @Autowired
+    private PolicyDAO policyDAO;
 
     public TargetResource getResource(final ResourceTO resourceTO)
             throws SyncopeClientCompositeErrorException {
@@ -115,6 +122,9 @@ public class ResourceDataBinder {
         resource.setUpdateTraceLevel(resourceTO.getUpdateTraceLevel());
         resource.setDeleteTraceLevel(resourceTO.getDeleteTraceLevel());
 
+        resource.setPasswordPolicy(resourceTO.getPasswordPolicy() != null
+                ? policyDAO.find(resourceTO.getPasswordPolicy()) : null);
+
         return resource;
     }
 
@@ -164,6 +174,9 @@ public class ResourceDataBinder {
         resourceTO.setCreateTraceLevel(resource.getCreateTraceLevel());
         resourceTO.setUpdateTraceLevel(resource.getUpdateTraceLevel());
         resourceTO.setDeleteTraceLevel(resource.getDeleteTraceLevel());
+
+        resourceTO.setPasswordPolicy(resource.getPasswordPolicy() != null
+                ? resource.getPasswordPolicy().getId() : null);
 
         return resourceTO;
     }

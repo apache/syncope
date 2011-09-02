@@ -87,6 +87,40 @@ public class ResourceTestITCase extends AbstractTest {
     }
 
     @Test
+    public void createWithPasswordPolicy() {
+        String resourceName = "res-with-password-policy";
+        ResourceTO resourceTO = new ResourceTO();
+
+        resourceTO.setName(resourceName);
+        resourceTO.setConnectorId(102L);
+        resourceTO.setPasswordPolicy(4L);
+
+        SchemaMappingTO schemaMappingTO = new SchemaMappingTO();
+        schemaMappingTO.setDestAttrName("uid");
+        schemaMappingTO.setSourceAttrName("userId");
+        schemaMappingTO.setSourceMappingType(SourceMappingType.UserSchema);
+        schemaMappingTO.setAccountid(true);
+        resourceTO.addMapping(schemaMappingTO);
+
+        ResourceTO actual = restTemplate.postForObject(
+                BASE_URL + "resource/create.json",
+                resourceTO, ResourceTO.class);
+
+        assertNotNull(actual);
+
+        // check the existence
+
+        actual = restTemplate.getForObject(
+                BASE_URL + "resource/read/{resourceName}.json",
+                ResourceTO.class,
+                resourceName);
+
+        assertNotNull(actual);
+        assertNotNull(actual.getPasswordPolicy());
+        assertEquals(4L, (long) actual.getPasswordPolicy());
+    }
+
+    @Test
     public void updateWithException() {
         try {
             ResourceTO resourceTO = new ResourceTO();

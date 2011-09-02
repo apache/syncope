@@ -41,9 +41,9 @@ public class PolicyDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    public Policy getPasswordPolicy() {
+    public Policy getGlobalPasswordPolicy() {
 
-        List<Policy> policies = find(PolicyType.PASSWORD);
+        List<Policy> policies = find(PolicyType.GLOBAL_PASSWORD);
         if (policies != null && !policies.isEmpty()) {
             return policies.get(0);
         } else {
@@ -52,8 +52,8 @@ public class PolicyDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    public Policy getAccountPolicy() {
-        List<Policy> policies = find(PolicyType.ACCOUNT);
+    public Policy getGlobalAccountPolicy() {
+        List<Policy> policies = find(PolicyType.GLOBAL_ACCOUNT);
         if (policies != null && !policies.isEmpty()) {
             return policies.get(0);
         } else {

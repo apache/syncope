@@ -40,11 +40,9 @@ import org.syncope.client.validation.SyncopeClientException;
 import org.syncope.core.persistence.beans.Policy;
 import org.syncope.core.persistence.dao.PolicyDAO;
 import org.syncope.core.persistence.validation.entity.InvalidEntityException;
-import org.syncope.types.AccountPolicy;
+import org.syncope.core.rest.data.PolicyDataBinder;
 import org.syncope.types.EntityViolationType;
-import org.syncope.types.PasswordPolicy;
 import org.syncope.types.PolicyType;
-import org.syncope.types.SyncPolicy;
 import org.syncope.types.SyncopeClientExceptionType;
 
 @Controller
@@ -54,16 +52,16 @@ public class PolicyController extends AbstractController {
     @Autowired
     private PolicyDAO policyDAO;
 
+    @Autowired
+    private PolicyDataBinder policyDataBinder;
+
     @PreAuthorize("hasRole('POLICY_CREATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/password/create")
     public PasswordPolicyTO create(final HttpServletResponse response,
             final @RequestBody PasswordPolicyTO policyTO)
             throws SyncopeClientCompositeErrorException {
 
-        Policy policy = new Policy();
-        policy.setType(policyTO.getType());
-        policy.setSpecification(policyTO.getSpecification());
-
+        final Policy policy = policyDataBinder.getPolicy(policyTO);
         return (PasswordPolicyTO) create(policy, policyTO);
     }
 
@@ -73,10 +71,7 @@ public class PolicyController extends AbstractController {
             final @RequestBody AccountPolicyTO policyTO)
             throws SyncopeClientCompositeErrorException {
 
-        Policy policy = new Policy();
-        policy.setType(policyTO.getType());
-        policy.setSpecification(policyTO.getSpecification());
-
+        final Policy policy = policyDataBinder.getPolicy(policyTO);
         return (AccountPolicyTO) create(policy, policyTO);
     }
 
@@ -86,10 +81,7 @@ public class PolicyController extends AbstractController {
             final @RequestBody SyncPolicyTO policyTO)
             throws SyncopeClientCompositeErrorException {
 
-        Policy policy = new Policy();
-        policy.setType(policyTO.getType());
-        policy.setSpecification(policyTO.getSpecification());
-
+        final Policy policy = policyDataBinder.getPolicy(policyTO);
         return (SyncPolicyTO) create(policy, policyTO);
 
     }
@@ -138,19 +130,10 @@ public class PolicyController extends AbstractController {
 
         LOG.debug("Updating policy " + policyMod);
 
-        Policy policy = new Policy();
-        policy.setId(policyMod.getId());
-        policy.setType(policyMod.getType());
-        policy.setSpecification(policyMod.getSpecification());
+        final Policy policy = policyDataBinder.getPolicy(policyMod);
+        final Policy actual = update(policy);
 
-        Policy actual = update(policy);
-
-        PasswordPolicyTO policyTO = new PasswordPolicyTO();
-        policyTO.setId(actual.getId());
-        policyTO.setType(actual.getType());
-        policyTO.setSpecification((PasswordPolicy) actual.getSpecification());
-
-        return policyTO;
+        return (PasswordPolicyTO) policyDataBinder.getPolicyTO(actual);
     }
 
     @PreAuthorize("hasRole('POLICY_UPDATE')")
@@ -161,19 +144,10 @@ public class PolicyController extends AbstractController {
 
         LOG.debug("Updating policy " + policyMod);
 
-        Policy policy = new Policy();
-        policy.setId(policyMod.getId());
-        policy.setType(policyMod.getType());
-        policy.setSpecification(policyMod.getSpecification());
+        final Policy policy = policyDataBinder.getPolicy(policyMod);
+        final Policy actual = update(policy);
 
-        Policy actual = update(policy);
-
-        AccountPolicyTO policyTO = new AccountPolicyTO();
-        policyTO.setId(actual.getId());
-        policyTO.setType(actual.getType());
-        policyTO.setSpecification((AccountPolicy) actual.getSpecification());
-
-        return policyTO;
+        return (AccountPolicyTO) policyDataBinder.getPolicyTO(actual);
     }
 
     @PreAuthorize("hasRole('POLICY_UPDATE')")
@@ -184,19 +158,10 @@ public class PolicyController extends AbstractController {
 
         LOG.debug("Updating policy " + policyMod);
 
-        Policy policy = new Policy();
-        policy.setId(policyMod.getId());
-        policy.setType(policyMod.getType());
-        policy.setSpecification(policyMod.getSpecification());
+        final Policy policy = policyDataBinder.getPolicy(policyMod);
+        final Policy actual = update(policy);
 
-        Policy actual = update(policy);
-
-        SyncPolicyTO policyTO = new SyncPolicyTO();
-        policyTO.setId(actual.getId());
-        policyTO.setType(actual.getType());
-        policyTO.setSpecification((SyncPolicy) actual.getSpecification());
-
-        return policyTO;
+        return (SyncPolicyTO) policyDataBinder.getPolicyTO(actual);
     }
 
     private Policy update(final Policy policy)
@@ -247,72 +212,42 @@ public class PolicyController extends AbstractController {
                 policyDAO.find(PolicyType.valueOf(kind.toUpperCase()));
 
         final List<PolicyTO> policyTOs = new ArrayList<PolicyTO>();
-        PolicyTO policyTO;
 
         for (Policy policy : policies) {
-            switch (policy.getType()) {
-                case PASSWORD:
-                    policyTO = new PasswordPolicyTO();
-                    ((PasswordPolicyTO) policyTO).setSpecification(
-                            (PasswordPolicy) policy.getSpecification());
-                    break;
-                case ACCOUNT:
-                    policyTO = new AccountPolicyTO();
-                    ((AccountPolicyTO) policyTO).setSpecification(
-                            (AccountPolicy) policy.getSpecification());
-                    break;
-                default:
-                    policyTO = new SyncPolicyTO();
-                    ((SyncPolicyTO) policyTO).setSpecification(
-                            (SyncPolicy) policy.getSpecification());
-            }
-
-            policyTO.setId(policy.getId());
-            policyTO.setType(policy.getType());
-            policyTOs.add(policyTO);
+            policyTOs.add(policyDataBinder.getPolicyTO(policy));
         }
 
         return policyTOs;
     }
 
     @PreAuthorize("hasRole('POLICY_READ')")
-    @RequestMapping(method = RequestMethod.GET, value = "/password/read")
-    public PasswordPolicyTO getPasswordPolicy(
+    @RequestMapping(method = RequestMethod.GET, value = "/password/global/read")
+    public PasswordPolicyTO getGlobalPasswordPolicy(
             final HttpServletResponse response) throws NotFoundException {
 
         LOG.debug("Reading password policy");
-        Policy policy = policyDAO.getPasswordPolicy();
+        Policy policy = policyDAO.getGlobalPasswordPolicy();
 
         if (policy == null) {
             throw new NotFoundException("No password policy found");
         }
 
-        PasswordPolicyTO policyTO = new PasswordPolicyTO();
-        policyTO.setId(policy.getId());
-        policyTO.setSpecification((PasswordPolicy) policy.getSpecification());
-        policyTO.setType(policy.getType());
-
-        return policyTO;
+        return (PasswordPolicyTO) policyDataBinder.getPolicyTO(policy);
     }
 
     @PreAuthorize("hasRole('POLICY_READ')")
-    @RequestMapping(method = RequestMethod.GET, value = "/account/read")
-    public AccountPolicyTO getAccountPolicy(
+    @RequestMapping(method = RequestMethod.GET, value = "/account/global/read")
+    public AccountPolicyTO getGlobalAccountPolicy(
             final HttpServletResponse response) throws NotFoundException {
 
         LOG.debug("Reading account policy");
-        Policy policy = policyDAO.getAccountPolicy();
+        Policy policy = policyDAO.getGlobalAccountPolicy();
 
         if (policy == null) {
             throw new NotFoundException("No account policy found");
         }
 
-        AccountPolicyTO policyTO = new AccountPolicyTO();
-        policyTO.setId(policy.getId());
-        policyTO.setSpecification((AccountPolicy) policy.getSpecification());
-        policyTO.setType(policy.getType());
-
-        return policyTO;
+        return (AccountPolicyTO) policyDataBinder.getPolicyTO(policy);
     }
 
     @PreAuthorize("hasRole('POLICY_READ')")
@@ -328,31 +263,7 @@ public class PolicyController extends AbstractController {
         if (policy == null) {
             throw new NotFoundException("Policy " + id + " not found");
         }
-
-        final PolicyTO policyTO;
-
-        switch (policy.getType()) {
-            case PASSWORD:
-                policyTO = new PasswordPolicyTO();
-                ((PasswordPolicyTO) policyTO).setSpecification(
-                        (PasswordPolicy) policy.getSpecification());
-                break;
-            case ACCOUNT:
-                policyTO = new AccountPolicyTO();
-                ((AccountPolicyTO) policyTO).setSpecification(
-                        (AccountPolicy) policy.getSpecification());
-                break;
-            default:
-                policyTO = new SyncPolicyTO();
-                ((SyncPolicyTO) policyTO).setSpecification(
-                        (SyncPolicy) policy.getSpecification());
-
-        }
-
-        policyTO.setId(policy.getId());
-        policyTO.setType(policy.getType());
-
-        return policyTO;
+        return policyDataBinder.getPolicyTO(policy);
     }
 
     @PreAuthorize("hasRole('POLICY_DELETE')")

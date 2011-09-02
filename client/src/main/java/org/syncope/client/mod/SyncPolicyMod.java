@@ -25,11 +25,11 @@ public class SyncPolicyMod extends PolicyMod {
     public SyncPolicyMod() {
     }
 
-    public SyncPolicy getSpecification() {
-        return specification;
-    }
-
     public void setSpecification(SyncPolicy specification) {
         this.specification = specification;
+    }
+
+    public SyncPolicy getSpecification() {
+        return specification;
     }
 }

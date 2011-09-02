@@ -43,9 +43,11 @@ public class PolicyValidator extends AbstractValidator
         context.disableDefaultConstraintViolation();
 
         if (object.getSpecification() != null
-                && ((object.getType() == PolicyType.PASSWORD
+                && (((object.getType() == PolicyType.PASSWORD
+                || object.getType() == PolicyType.GLOBAL_PASSWORD)
                 && !(object.getSpecification() instanceof PasswordPolicy))
-                || (object.getType() == PolicyType.ACCOUNT
+                || ((object.getType() == PolicyType.ACCOUNT
+                || object.getType() == PolicyType.GLOBAL_ACCOUNT)
                 && !(object.getSpecification() instanceof AccountPolicy))
                 || (object.getType() == PolicyType.SYNC
                 && !(object.getSpecification() instanceof SyncPolicy)))) {
@@ -60,9 +62,9 @@ public class PolicyValidator extends AbstractValidator
         }
 
         switch (object.getType()) {
-            case PASSWORD:
+            case GLOBAL_PASSWORD:
                 // just one policy with type PASSWORD
-                Policy passwordPolicy = policyDAO.getPasswordPolicy();
+                Policy passwordPolicy = policyDAO.getGlobalPasswordPolicy();
                 if (passwordPolicy != null
                         && !passwordPolicy.getId().equals(object.getId())) {
 
@@ -74,11 +76,13 @@ public class PolicyValidator extends AbstractValidator
                     return false;
                 }
                 break;
+            case PASSWORD:
+                break;
 
-            case ACCOUNT:
+            case GLOBAL_ACCOUNT:
 
                 // just one policy with type ACCOUNT
-                Policy accountPolicy = policyDAO.getAccountPolicy();
+                Policy accountPolicy = policyDAO.getGlobalAccountPolicy();
                 if (accountPolicy != null
                         && !accountPolicy.getId().equals(object.getId())) {
 
@@ -91,6 +95,9 @@ public class PolicyValidator extends AbstractValidator
                 }
                 break;
 
+            case ACCOUNT:
+                break;
+                
             case SYNC:
             default:
         }

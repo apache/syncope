@@ -56,7 +56,7 @@ public class AttributableValidator extends AbstractValidator
             // ------------------------------
             LOG.debug("Password Policy enforcement");
 
-            final Policy policy = policyDAO.getPasswordPolicy();
+            final Policy policy = policyDAO.getGlobalPasswordPolicy();
 
             // evaluate policy
             PasswordPolicy passwordPolicy = evaluator.evaluate(policy, object);

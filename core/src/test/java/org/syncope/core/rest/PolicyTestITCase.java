@@ -51,35 +51,50 @@ public class PolicyTestITCase extends AbstractTest {
     }
 
     @Test
-    public final void getPasswordPolicy() {
+    public final void getGlobalPasswordPolicy() {
         PasswordPolicyTO policyTO = restTemplate.getForObject(
-                BASE_URL + "policy/password/read", PasswordPolicyTO.class);
+                BASE_URL + "policy/password/global/read", PasswordPolicyTO.class);
 
         assertNotNull(policyTO);
-        assertEquals(PolicyType.PASSWORD, policyTO.getType());
+        assertEquals(PolicyType.GLOBAL_PASSWORD, policyTO.getType());
         assertEquals(8,
                 ((PasswordPolicy) policyTO.getSpecification()).getMinLength());
     }
 
     @Test
     @ExpectedException(value = SyncopeClientCompositeErrorException.class)
-    public final void getAccountPolicy() {
+    public final void getGlobalAccountPolicy() {
         AccountPolicyTO policyTO = restTemplate.getForObject(
-                BASE_URL + "policy/account/read", AccountPolicyTO.class);
+                BASE_URL + "policy/account/global/read", AccountPolicyTO.class);
 
         assertNull(policyTO);
+        assertEquals(PolicyType.GLOBAL_ACCOUNT, policyTO.getType());
     }
 
     @Test
     @ExpectedException(value = SyncopeClientCompositeErrorException.class)
-    public final void saveWithException() {
+    public final void createWithException() {
 
         PasswordPolicyTO policy = new PasswordPolicyTO();
         policy.setSpecification(new PasswordPolicy());
-        policy.setType(PolicyType.PASSWORD);
+        policy.setType(PolicyType.GLOBAL_PASSWORD);
+        policy.setDescription("global password policy");
 
         restTemplate.postForObject(
                 BASE_URL + "policy/password/create",
+                policy, PasswordPolicyTO.class);
+    }
+
+    @Test
+    @ExpectedException(value = SyncopeClientCompositeErrorException.class)
+    public final void createMissingDescription() {
+
+        SyncPolicyTO policy = new SyncPolicyTO();
+        policy.setSpecification(new SyncPolicy());
+        policy.setType(PolicyType.SYNC);
+
+        restTemplate.postForObject(
+                BASE_URL + "policy/sync/create",
                 policy, PasswordPolicyTO.class);
     }
 
@@ -88,6 +103,7 @@ public class PolicyTestITCase extends AbstractTest {
         SyncPolicyTO policy = new SyncPolicyTO();
         policy.setSpecification(new SyncPolicy());
         policy.setType(PolicyType.SYNC);
+        policy.setDescription("Sync policy");
 
         SyncPolicyTO policyTO = restTemplate.postForObject(
                 BASE_URL + "policy/sync/create", policy, SyncPolicyTO.class);
@@ -109,15 +125,16 @@ public class PolicyTestITCase extends AbstractTest {
 
         PasswordPolicyMod policyMod = new PasswordPolicyMod();
         policyMod.setId(policyTO.getId());
-        policyMod.setType(PolicyType.PASSWORD);
+        policyMod.setType(PolicyType.GLOBAL_PASSWORD);
         policyMod.setSpecification(policy);
+        policyMod.setDescription(policyTO.getDescription());
 
         policyTO = restTemplate.postForObject(
                 BASE_URL + "policy/password/update",
                 policyMod, PasswordPolicyTO.class);
 
         assertNotNull(policyTO);
-        assertEquals(PolicyType.PASSWORD, policyTO.getType());
+        assertEquals(PolicyType.GLOBAL_PASSWORD, policyTO.getType());
         assertEquals(22,
                 ((PasswordPolicyTO) policyTO).getSpecification().getMaxLength());
         assertEquals(8,

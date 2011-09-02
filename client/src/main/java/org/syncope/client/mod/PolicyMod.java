@@ -25,6 +25,8 @@ public abstract class PolicyMod extends AbstractBaseBean {
 
     private PolicyType type;
 
+    private String description;
+
     public PolicyMod() {
     }
 
@@ -42,5 +44,13 @@ public abstract class PolicyMod extends AbstractBaseBean {
 
     public void setType(PolicyType type) {
         this.type = type;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

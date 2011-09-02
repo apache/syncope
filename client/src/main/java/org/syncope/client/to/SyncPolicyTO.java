@@ -27,11 +27,11 @@ public class SyncPolicyTO extends PolicyTO {
         setType(PolicyType.SYNC);
     }
 
-    public SyncPolicy getSpecification() {
-        return specification;
+    public void setSpecification(final SyncPolicy specification) {
+        this.specification = specification;
     }
 
-    public void setSpecification(SyncPolicy specification) {
-        this.specification = specification;
+    public SyncPolicy getSpecification() {
+        return specification;
     }
 }

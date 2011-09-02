@@ -41,6 +41,9 @@ public class Policy extends AbstractBaseBean {
     private Long id;
 
     @Column(nullable = false)
+    private String description;
+
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private PolicyType type;
 
@@ -54,6 +57,14 @@ public class Policy extends AbstractBaseBean {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public PolicyType getType() {

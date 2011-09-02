@@ -113,7 +113,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         int passwordHistorySize = 0;
 
         try {
-            Policy policy = policyDAO.getPasswordPolicy();
+            Policy policy = policyDAO.getGlobalPasswordPolicy();
             PasswordPolicy passwordPolicy = policy.getSpecification();
             passwordHistorySize = passwordPolicy.getHistoryLength();
         } catch (Throwable ignore) {
@@ -184,7 +184,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
             int passwordHistorySize = 0;
 
             try {
-                Policy policy = policyDAO.getPasswordPolicy();
+                Policy policy = policyDAO.getGlobalPasswordPolicy();
                 PasswordPolicy passwordPolicy = policy.getSpecification();
                 passwordHistorySize = passwordPolicy.getHistoryLength();
             } catch (Throwable ignore) {

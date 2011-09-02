@@ -16,6 +16,7 @@ package org.syncope.client.mod;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.syncope.client.to.PasswordPolicyTO;
 
 public class RoleMod extends AbstractAttributableMod {
 
@@ -30,6 +31,8 @@ public class RoleMod extends AbstractAttributableMod {
     private boolean changeInheritVirtualAttributes;
 
     private List<String> entitlements;
+
+    private PasswordPolicyTO passwordPolicy;
 
     public RoleMod() {
         super();
@@ -90,5 +93,13 @@ public class RoleMod extends AbstractAttributableMod {
         if (entitlements != null || !entitlements.isEmpty()) {
             this.entitlements.addAll(entitlements);
         }
+    }
+
+    public PasswordPolicyTO getPasswordPolicy() {
+        return passwordPolicy;
+    }
+
+    public void setPasswordPolicy(PasswordPolicyTO passwordPolicy) {
+        this.passwordPolicy = passwordPolicy;
     }
 }

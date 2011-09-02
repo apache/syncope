@@ -27,7 +27,7 @@ public class PolicyRestClient extends AbstractBaseRestClient {
     public PasswordPolicyTO getPasswordPolicy() {
         try {
             return restTemplate.getForObject(
-                    baseURL + "policy/password/read", PasswordPolicyTO.class);
+                    baseURL + "policy/password/global/read", PasswordPolicyTO.class);
         } catch (Exception e) {
             LOG.debug("No password policy found", e);
             return new PasswordPolicyTO();

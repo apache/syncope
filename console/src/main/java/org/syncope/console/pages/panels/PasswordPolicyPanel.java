@@ -51,6 +51,7 @@ import org.syncope.console.wicket.markup.html.form.AjaxPalettePanel;
 import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.syncope.console.wicket.markup.html.form.FieldPanel;
 import org.syncope.types.PasswordPolicy;
+import org.syncope.types.PolicyType;
 
 public class PasswordPolicyPanel extends Panel {
 
@@ -95,7 +96,16 @@ public class PasswordPolicyPanel extends Panel {
     public PasswordPolicyPanel(String id) {
         super(id);
 
-        final PasswordPolicyTO policyTO = policyRestClient.getPasswordPolicy();
+        final PasswordPolicyTO policyTO;
+
+        if (policyRestClient.getPasswordPolicy() == null) {
+            policyTO = new PasswordPolicyTO();
+            policyTO.setType(PolicyType.GLOBAL_PASSWORD);
+            policyTO.setDescription("Global Password Policy");
+            policyTO.setSpecification(new PasswordPolicy());
+        } else {
+            policyTO = policyRestClient.getPasswordPolicy();
+        }
 
         final PasswordPolicy policy = policyTO.getSpecification() != null
                 ? policyTO.getSpecification() : new PasswordPolicy();
@@ -250,6 +260,7 @@ public class PasswordPolicyPanel extends Panel {
                     policyMod.setId(policyTO.getId());
                     policyMod.setType(policyTO.getType());
                     policyMod.setSpecification(policyTO.getSpecification());
+                    policyMod.setDescription(policyTO.getDescription());
 
                     policyRestClient.updatePasswordPolicy(policyMod);
                 } else {

@@ -113,6 +113,9 @@ public class TargetResource extends AbstractBaseBean {
     @Column(nullable = false)
     private TraceLevel updateTraceLevel;
 
+    @ManyToOne(fetch = FetchType.EAGER, optional = true)
+    private Policy passwordPolicy;
+
     /**
      * Default constructor.
      */
@@ -279,5 +282,13 @@ public class TargetResource extends AbstractBaseBean {
 
     public void setUpdateTraceLevel(TraceLevel updateTraceLevel) {
         this.updateTraceLevel = updateTraceLevel;
+    }
+
+    public Policy getPasswordPolicy() {
+        return passwordPolicy;
+    }
+
+    public void setPasswordPolicy(Policy passwordPolicy) {
+        this.passwordPolicy = passwordPolicy;
     }
 }

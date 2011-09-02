@@ -20,13 +20,25 @@ public enum PolicyType {
      * Account policy like:
      * password expire time, change password at first access, ...
      */
-    ACCOUNT,
+    ACCOUNT("Account Policy"),
+    GLOBAL_ACCOUNT("Account Global Policy"),
     /**
      * Password policy regarding password syntax.
      */
-    PASSWORD,
+    PASSWORD("Password Policy"),
+    GLOBAL_PASSWORD("Password Global Policy"),
     /**
      * SYNC policy regarding account conflicts resolution.
      */
-    SYNC
+    SYNC("Synchronization Policy");
+
+    private String description;
+
+    PolicyType(final String description) {
+        this.description = description;
+    }
+
+    public String getDescription() {
+        return description;
+    }
 }

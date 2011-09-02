@@ -29,6 +29,9 @@ import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.RoleDAO;
 import org.syncope.core.persistence.dao.UserDAO;
 import org.syncope.core.persistence.AbstractTest;
+import org.syncope.core.persistence.beans.Policy;
+import org.syncope.core.persistence.beans.role.SyncopeRole;
+import org.syncope.core.persistence.dao.PolicyDAO;
 
 @Transactional
 public class RoleTest extends AbstractTest {
@@ -50,6 +53,30 @@ public class RoleTest extends AbstractTest {
 
     @Autowired
     private EntitlementDAO entitlementDAO;
+
+    @Autowired
+    private PolicyDAO policyDAO;
+
+    public final void createWithPasswordPolicy() {
+        final String ROLE_NAME = "roleWithPasswordPolicy";
+
+        Policy policy = policyDAO.find(4L);
+        SyncopeRole role = new SyncopeRole();
+        role.setName(ROLE_NAME);
+        role.setPasswordPolicy(policy);
+
+        SyncopeRole actual = roleDAO.save(role);
+        assertNotNull(actual);
+
+        actual = roleDAO.find(actual.getId());
+        assertNotNull(actual);
+        assertNotNull(actual.getPasswordPolicy());
+
+        roleDAO.delete(actual.getId());
+        assertNull(roleDAO.find(actual.getId()));
+
+        assertNotNull(policyDAO.find(4L));
+    }
 
     @Test
     public final void delete() {

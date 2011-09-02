@@ -62,6 +62,26 @@ public class RoleTestITCase extends AbstractTest {
     }
 
     @Test
+    public void createWithPasswordPolicy() {
+        RoleTO roleTO = new RoleTO();
+        roleTO.setName("roleWithPassword");
+        roleTO.setParent(8L);
+        roleTO.setPasswordPolicy(4L);
+
+        RoleTO actual = restTemplate.postForObject(BASE_URL + "role/create",
+                roleTO, RoleTO.class);
+
+        assertNotNull(actual);
+
+        actual = restTemplate.getForObject(BASE_URL
+                + "role/read/{roleId}.json", RoleTO.class, actual.getId());
+
+        assertNotNull(actual);
+        assertNotNull(actual.getPasswordPolicy());
+        assertEquals(4L, (long) actual.getPasswordPolicy());
+    }
+
+    @Test
     public void delete() {
         try {
             restTemplate.delete(BASE_URL + "role/delete/{roleId}", 0);

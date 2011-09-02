@@ -42,7 +42,7 @@ public class PolicyEvaluator {
 
         if (policy != null) {
             switch (policy.getType()) {
-                case PASSWORD:
+                case GLOBAL_PASSWORD:
                     final PasswordPolicy spec = policy.getSpecification();
                     final PasswordPolicy passwordPolicy = new PasswordPolicy();
 
@@ -92,8 +92,12 @@ public class PolicyEvaluator {
 
                     result = (T) passwordPolicy;
                     break;
-                case ACCOUNT:
+                case PASSWORD:
+                    break;
+                case GLOBAL_ACCOUNT:
                     result = null;
+                    break;
+                case ACCOUNT:
                     break;
                 case SYNC:
                     break;

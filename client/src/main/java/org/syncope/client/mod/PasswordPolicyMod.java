@@ -25,11 +25,11 @@ public class PasswordPolicyMod extends PolicyMod {
     public PasswordPolicyMod() {
     }
 
-    public PasswordPolicy getSpecification() {
-        return specification;
-    }
-
     public void setSpecification(PasswordPolicy specification) {
         this.specification = specification;
+    }
+
+    public PasswordPolicy getSpecification() {
+        return specification;
     }
 }

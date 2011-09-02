@@ -23,10 +23,14 @@ import java.util.Arrays;
 import java.util.List;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.syncope.client.search.AttributeCond;
 import org.syncope.client.search.MembershipCond;
 import org.syncope.client.search.NodeCond;
 import org.syncope.client.to.SchemaTO;
+import org.syncope.client.to.SyncPolicyTO;
+import org.syncope.types.PolicyType;
+import org.syncope.types.SyncPolicy;
 
 public class JSONTest {
 

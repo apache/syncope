@@ -21,6 +21,8 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 @JsonIgnoreProperties({"displayName", "empty"})
 public class RoleTO extends AbstractAttributableTO {
 
+    private static final long serialVersionUID = -7785920258290147542L;
+
     private String name;
 
     private long parent;
@@ -32,6 +34,8 @@ public class RoleTO extends AbstractAttributableTO {
     private boolean inheritVirtualAttributes;
 
     private List<String> entitlements;
+
+    private Long passwordPolicy;
 
     public RoleTO() {
         entitlements = new ArrayList<String>();
@@ -96,6 +100,14 @@ public class RoleTO extends AbstractAttributableTO {
         if (entitlements != null || !entitlements.isEmpty()) {
             this.entitlements.addAll(entitlements);
         }
+    }
+
+    public Long getPasswordPolicy() {
+        return passwordPolicy;
+    }
+
+    public void setPasswordPolicy(Long passwordPolicy) {
+        this.passwordPolicy = passwordPolicy;
     }
 
     public String getDisplayName() {

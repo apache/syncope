@@ -34,6 +34,9 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
     @Autowired
     private EntitlementDAO entitlementDAO;
 
+    @Autowired
+    private PolicyDataBinder policyDataBinder;
+
     public SyncopeRole create(final RoleTO roleTO)
             throws SyncopeClientCompositeErrorException {
 
@@ -96,6 +99,9 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
             }
         }
 
+        role.setPasswordPolicy(roleTO.getPasswordPolicy() != null
+                ? policyDAO.find(roleTO.getPasswordPolicy()) : null);
+
         return role;
     }
 
@@ -154,6 +160,9 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
             }
         }
 
+        role.setPasswordPolicy(
+                policyDataBinder.getPolicy(roleMod.getPasswordPolicy()));
+
         // attributes, derived attributes, virtual attributes and resources
         return fill(role, roleMod, AttributableUtil.ROLE, scce);
     }
@@ -179,6 +188,9 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
         for (Entitlement entitlement : role.getEntitlements()) {
             roleTO.addEntitlement(entitlement.getName());
         }
+
+        roleTO.setPasswordPolicy(role.getPasswordPolicy() != null
+                ? role.getPasswordPolicy().getId() : null);
 
         return roleTO;
     }

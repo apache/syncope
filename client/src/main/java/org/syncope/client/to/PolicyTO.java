@@ -23,6 +23,8 @@ public abstract class PolicyTO extends AbstractBaseBean {
 
     private long id;
 
+    private String description;
+
     private PolicyType type;
 
     public long getId() {
@@ -31,6 +33,14 @@ public abstract class PolicyTO extends AbstractBaseBean {
 
     public void setId(long id) {
         this.id = id;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public PolicyType getType() {

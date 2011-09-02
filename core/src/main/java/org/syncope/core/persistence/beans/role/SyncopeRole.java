@@ -38,6 +38,7 @@ import org.syncope.core.persistence.beans.AbstractAttr;
 import org.syncope.core.persistence.beans.AbstractDerAttr;
 import org.syncope.core.persistence.beans.AbstractVirAttr;
 import org.syncope.core.persistence.beans.Entitlement;
+import org.syncope.core.persistence.beans.Policy;
 
 @Entity
 @Table(uniqueConstraints =
@@ -88,6 +89,9 @@ public class SyncopeRole extends AbstractAttributable {
     @Min(0)
     @Max(1)
     private Integer inheritVirtualAttributes;
+
+    @ManyToOne(fetch = FetchType.EAGER, optional = true)
+    private Policy passwordPolicy;
 
     public SyncopeRole() {
         super();
@@ -264,5 +268,13 @@ public class SyncopeRole extends AbstractAttributable {
         }
 
         return result;
+    }
+
+    public Policy getPasswordPolicy() {
+        return passwordPolicy;
+    }
+
+    public void setPasswordPolicy(Policy passwordPolicy) {
+        this.passwordPolicy = passwordPolicy;
     }
 }

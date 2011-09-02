@@ -37,9 +37,11 @@ import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.UserDAO;
 import org.syncope.core.rest.data.ResourceDataBinder;
 import org.syncope.core.persistence.AbstractTest;
+import org.syncope.core.persistence.beans.Policy;
 import org.syncope.core.persistence.beans.PropagationTask;
 import org.syncope.core.persistence.beans.user.UDerSchema;
 import org.syncope.core.persistence.dao.DerSchemaDAO;
+import org.syncope.core.persistence.dao.PolicyDAO;
 import org.syncope.core.persistence.dao.TaskDAO;
 import org.syncope.types.PropagationMode;
 import org.syncope.types.SourceMappingType;
@@ -67,6 +69,30 @@ public class ResourceTest extends AbstractTest {
 
     @Autowired
     private ResourceDataBinder resourceDataBinder;
+
+    @Autowired
+    private PolicyDAO policyDAO;
+
+    public final void createWithPasswordPolicy() {
+        final String RESOURCE_NAME = "resourceWithPasswordPolicy";
+
+        Policy policy = policyDAO.find(4L);
+        TargetResource resource = new TargetResource();
+        resource.setName(RESOURCE_NAME);
+        resource.setPasswordPolicy(policy);
+
+        TargetResource actual = resourceDAO.save(resource);
+        assertNotNull(actual);
+
+        actual = resourceDAO.find(actual.getName());
+        assertNotNull(actual);
+        assertNotNull(actual.getPasswordPolicy());
+
+        resourceDAO.delete(RESOURCE_NAME);
+        assertNull(resourceDAO.find(RESOURCE_NAME));
+
+        assertNotNull(policyDAO.find(4L));
+    }
 
     /**
      * @see http://code.google.com/p/syncope/issues/detail?id=42

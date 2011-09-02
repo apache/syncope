@@ -55,6 +55,8 @@ public class ResourceTO extends AbstractBaseBean {
 
     private TraceLevel updateTraceLevel;
 
+    private Long passwordPolicy;
+
     public ResourceTO() {
         mappings = new ArrayList<SchemaMappingTO>();
         optionalPropagationMode = PropagationMode.ASYNC;
@@ -143,5 +145,13 @@ public class ResourceTO extends AbstractBaseBean {
 
     public void setUpdateTraceLevel(TraceLevel updateTraceLevel) {
         this.updateTraceLevel = updateTraceLevel;
+    }
+
+    public Long getPasswordPolicy() {
+        return passwordPolicy;
+    }
+
+    public void setPasswordPolicy(Long passwordPolicy) {
+        this.passwordPolicy = passwordPolicy;
     }
 }
