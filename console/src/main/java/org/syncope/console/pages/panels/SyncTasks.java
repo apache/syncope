@@ -119,6 +119,8 @@ public class SyncTasks extends Panel {
         columns.add(new AbstractColumn<SyncTaskTO>(
                 new Model<String>(getString("detail"))) {
 
+            private static final long serialVersionUID = 2054811145491901166L;
+
             @Override
             public void populateItem(
                     final Item<ICellPopulator<SyncTaskTO>> cellItem,
@@ -158,6 +160,8 @@ public class SyncTasks extends Panel {
         columns.add(new AbstractColumn<SyncTaskTO>(
                 new Model<String>(getString("execute"))) {
 
+            private static final long serialVersionUID = 2054811145491901166L;
+
             @Override
             public void populateItem(
                     final Item<ICellPopulator<SyncTaskTO>> cellItem,
@@ -196,6 +200,8 @@ public class SyncTasks extends Panel {
 
         columns.add(new AbstractColumn<SyncTaskTO>(
                 new Model<String>(getString("delete"))) {
+
+            private static final long serialVersionUID = 2054811145491901166L;
 
             @Override
             public void populateItem(
@@ -246,6 +252,9 @@ public class SyncTasks extends Panel {
         window.setWindowClosedCallback(
                 new ModalWindow.WindowClosedCallback() {
 
+                    private static final long serialVersionUID =
+                            8804221891699487139L;
+
                     @Override
                     public void onClose(final AjaxRequestTarget target) {
                         target.addComponent(container);
@@ -271,6 +280,8 @@ public class SyncTasks extends Panel {
 
         rowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
+            private static final long serialVersionUID = -1107858522700306810L;
+
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
                 prefMan.set(getWebRequest(), (WebResponse) getResponse(),
@@ -289,9 +300,14 @@ public class SyncTasks extends Panel {
         // create new user
         AjaxLink createLink = new IndicatingAjaxLink("createLink") {
 
+            private static final long serialVersionUID = -7978723352517770644L;
+
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 window.setPageCreator(new ModalWindow.PageCreator() {
+
+                    private static final long serialVersionUID =
+                            -7834632442532690940L;
 
                     @Override
                     public Page createPage() {

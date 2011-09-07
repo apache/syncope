@@ -22,25 +22,23 @@ import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuth
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.to.ConfigurationTO;
 import org.syncope.console.rest.ConfigurationRestClient;
+import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 
 /**
  * Modal window with Connector form.
  */
 public class ConfigurationModalPage extends BaseModalPage {
 
+    private static final long serialVersionUID = -5266230025217580098L;
+
     @SpringBean
     private ConfigurationRestClient configurationsRestClient;
-
-    private TextField key;
-
-    private TextField value;
 
     private AjaxButton submit;
 
@@ -57,23 +55,27 @@ public class ConfigurationModalPage extends BaseModalPage {
             final ConfigurationTO configurationTO,
             final boolean createFlag) {
 
-        Form form = new Form("ConfigurationForm", new CompoundPropertyModel(
+        Form form = new Form("form", new CompoundPropertyModel(
                 configurationTO));
 
-        form.add(key = new TextField("key", new PropertyModel(configurationTO,
-                "key")));
-
+        final AjaxTextFieldPanel key = new AjaxTextFieldPanel(
+                "key", "key",
+                new PropertyModel(configurationTO, "key"), false);
+        form.add(key);
         key.setEnabled(createFlag);
+        key.addRequiredLabel();
 
-        key.setRequired(true);
+        final AjaxTextFieldPanel value = new AjaxTextFieldPanel(
+                "value", "value",
+                new PropertyModel(configurationTO, "value"), false);
+        form.add(value);
+        value.setEnabled(createFlag);
+        value.addRequiredLabel();
 
-        form.add(value = new TextField("value", new PropertyModel(
-                configurationTO, "value")));
+        submit = new IndicatingAjaxButton(
+                "apply", new Model<String>(getString("submit"))) {
 
-        value.setRequired(true);
-
-        submit = new IndicatingAjaxButton("submit", new Model<String>(getString(
-                "submit"))) {
+            private static final long serialVersionUID = -958724007591692537L;
 
             @Override
             protected void onSubmit(AjaxRequestTarget target, Form form) {

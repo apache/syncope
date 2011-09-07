@@ -81,6 +81,9 @@ public final class Constants {
 
     public static final String[] DERIVED_SCHEMA_FIELDS = {"name", "expression"};
 
+    public static final String PREF_POLICY_PAGINATOR_ROWS =
+            "policy.paginator.rows";
+
     private Constants() {
     }
 }

@@ -23,14 +23,14 @@ public class ResourceTestITCase extends AbstractTest {
 
         selenium.click("css=img[alt=\"Resources\"]");
         selenium.waitForPageToLoad("30000");
-        selenium.click("//div/a");
+        selenium.click("//div[3]/div/a");
         for (int second = 0;; second++) {
             if (second >= 60) {
                 fail("timeout");
             }
             try {
                 if (selenium.isElementPresent(
-                        "//form/fieldset/label[text()='Name']")) {
+                        "//form/div[2]/div/div/label[text()='Name']")) {
                     break;
                 }
             } catch (Exception e) {
@@ -41,7 +41,6 @@ public class ResourceTestITCase extends AbstractTest {
             }
         }
 
-        selenium.click("//td/input");
         selenium.click("css=a.w_close");
     }
 
@@ -49,8 +48,6 @@ public class ResourceTestITCase extends AbstractTest {
     public void browseEditModal() {
         selenium.setSpeed("1000");
 
-        selenium.click("css=img[alt=\"Configuration\"]");
-        selenium.waitForPageToLoad("30000");
         selenium.click("css=img[alt=\"Resources\"]");
         selenium.waitForPageToLoad("30000");
         selenium.click("//td[2]/span/a");
@@ -60,7 +57,7 @@ public class ResourceTestITCase extends AbstractTest {
             }
             try {
                 if (selenium.isElementPresent(
-                        "//form/fieldset/label[text()='Name']")) {
+                        "//form/div[2]/div/div/label[text()='Name']")) {
                     break;
                 }
             } catch (Exception e) {
@@ -74,7 +71,7 @@ public class ResourceTestITCase extends AbstractTest {
         selenium.click("//tr[2]/td/input");
         assertTrue(selenium.getConfirmation().matches(
                 "^Do you really want to delete the selected item[\\s\\S]$"));
-        selenium.click("name=:submit");
+        selenium.click("name=apply");
 
     }
 

@@ -22,58 +22,90 @@
 </wicket:head>
 <wicket:extend>
     <p class="ui-widget ui-corner-all ui-widget-header"><wicket:message key="title"/></p>
-<form wicket:id="ConnectorForm">
-    <div id="tabs">
-        <ul>
-            <li class="tabs-selected">
-                <a href="#tabs-1"><span><wicket:message key="tab1"/></span></a>
-            </li>
-            <li><a href="#tabs-2"><span><wicket:message key="tab2"/></span></a></li>
-        </ul>
-        <div id="tabs-1">
-            <table class="stripedTable" style="font-size:1.1em;border:none" width="100%">
-                <tr>
-                    <td><wicket:message key="displayName"/></td>
-                <td>
-                    <input type="text" id="displayName" class="text ui-widget-content ui-corner-all" wicket:id="displayName" />
-                    <span>*</span>
-                </td>
-                </tr>
-                <tr>
-                    <td><wicket:message key="bundleName"/></td>
-                <td><select id="bundle" class="text ui-widget-content ui-corner-all" wicket:id="bundle" /></td>
-                </tr>
-                <tr>
-                    <td><wicket:message key="name"/></td>
-                <td><input type="text" id="name" class="text ui-widget-content ui-corner-all" size="60" wicket:id="connectorName" /></td>
-                </tr>
-                <tr>
-                    <td><wicket:message key="version"/></td>
-                <td><input type="text" id="version" class="text ui-widget-content ui-corner-all" wicket:id="version" /></td>
-                </tr>
-                <tr>
-                    <td><wicket:message key="resetToken"/></td>
-                <td><input type="checkbox" class="text ui-widget-content ui-corner-all"  wicket:id="resetToken"/></td>
-                </tr>
+<div style="margin:10px">
+    <form wicket:id="form">
+        <div id="tabs">
+            <ul>
+                <li class="tabs-selected">
+                    <a href="#tabs-1"><span><wicket:message key="tab1"/></span></a>
+                </li>
+                <li><a href="#tabs-2"><span><wicket:message key="tab2"/></span></a></li>
+            </ul>
+            <div id="tabs-1">
+                <div id="formtable">
+                    <div class="tablerow">
+                        <div class="tablecolumn_label medium_dynamicsize">
+                            <label for="displayName"><wicket:message key="displayName"/></label>
+                        </div>
+                        <div class="tablecolumn_field medium_dynamicsize">
+                            <span wicket:id="displayName">[displayName]</span>
+                        </div>
+                    </div>
 
-                <tbody wicket:id="propertiesContainer">
-                    <tr wicket:id="connectorProperties">
-                        <td wicket:id="connPropAttrSchema"/>
-                        <td wicket:id="connPropAttrValue"/>
-                    </tr>
-                </tbody>
-                <!-- each time this table is rendered, stripe rows' color -->
-                <script type="text/javascript">
-                    $(function() {
-                        $('.stripedTable tr:even').addClass("alt");
-                    });
-                </script>
-            </table>
+                    <div class="tablerow">
+                        <div class="tablecolumn_label medium_dynamicsize">
+                            <label for="bundleName"><wicket:message key="bundleName"/></label>
+                        </div>
+                        <div class="tablecolumn_field medium_dynamicsize">
+                            <span wicket:id="bundle">[bundle]</span>
+                        </div>
+                    </div>
+
+                    <div class="tablerow">
+                        <div class="tablecolumn_label medium_dynamicsize">
+                            <label for="name"><wicket:message key="name"/></label>
+                        </div>
+                        <div class="tablecolumn_field medium_dynamicsize">
+                            <span wicket:id="connectorName">[name]</span>
+                        </div>
+                    </div>
+
+                    <div class="tablerow">
+                        <div class="tablecolumn_label medium_dynamicsize">
+                            <label for="version"><wicket:message key="version"/></label>
+                        </div>
+                        <div class="tablecolumn_field medium_dynamicsize">
+                            <span wicket:id="version">[version]</span>
+                        </div>
+                    </div>
+
+                    <div class="tablerow">
+                        <div class="tablecolumn_label medium_dynamicsize">
+                            <label for="resetToken"><wicket:message key="resetToken"/></label>
+                        </div>
+                        <div class="tablecolumn_field medium_dynamicsize">
+                            <span wicket:id="resetToken">[resetToken]</span>
+                        </div>
+                    </div>
+
+                    <span wicket:id="container">
+                        <div class="tablerow" wicket:id="connectorProperties">
+                            <div class="tablecolumn_label medium_dynamicsize">
+                                <span wicket:id="connPropAttrSchema">[connPropAttrSchema]</span>
+                            </div>
+                            <div class="tablecolumn_field medium_dynamicsize">
+                                <span wicket:id="connPropAttrValue">[connPropAttrValue]</span>
+                            </div>
+                        </div>
+
+                        <!-- inside the contaoiner in order to re-process javascript -->
+                        <script type="text/javascript">
+                            $(function() {
+                                $('#formtable div.tablerow:even').addClass("alt");
+                            });
+                        </script>
+                    </span>
+                </div>
+            </div>
+            <div id="tabs-2">
+                <span wicket:id="capabilitiesPalette"/>
+            </div>
         </div>
-        <div id="tabs-2">
-            <span wicket:id="capabilitiesPalette"/>
+        <div style="margin: 20px 10px 0">
+            <input type="submit"
+                   class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+                   wicket:id="apply"/>
         </div>
-        <input type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" wicket:id="submit"/>
-    </div>
-</form>
+    </form>
+</div>
 </wicket:extend>

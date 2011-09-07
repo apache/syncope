@@ -14,21 +14,15 @@
 -->
 <html>
     <wicket:panel>
-        <table class="stripedTable" style="font-size:1.1em;border:none" wicket:id="container" width="100%">
-            <tr wicket:id="schemas">
-                <td><span wicket:id="name"/></td>
-                <td>
-                    <span wicket:id="panel">
-                        [panel for dynamic input type markup]
-                    </span>
-                </td>
-            </tr>
-            <!-- each time this table is rendered, stripe rows' color -->
-            <script type="text/javascript">
-                $(function() {
-                    $('.stripedTable tr:even').addClass("alt");
-                });
-            </script>
-        </table>
+        <div class="tablerow" wicket:id="schemas">
+            <div class="tablecolumn_label short_dynamicsize">
+                <span wicket:id="name"/>
+            </div>
+            <div class="tablecolumn_field medium_dynamicsize">
+                <span wicket:id="panel">
+                    [panel for dynamic input type markup]
+                </span>
+            </div>
+        </div>
     </wicket:panel>
 </html>

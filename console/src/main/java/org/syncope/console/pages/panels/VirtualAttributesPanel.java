@@ -26,7 +26,6 @@ import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -43,6 +42,8 @@ import org.syncope.client.to.RoleTO;
 import org.syncope.client.to.UserTO;
 import org.syncope.console.rest.SchemaRestClient;
 import org.syncope.console.wicket.markup.html.form.AjaxDecoratedCheckbox;
+import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.syncope.console.wicket.markup.html.form.MultiValueSelectorPanel;
 
 public class VirtualAttributesPanel extends Panel {
 
@@ -177,90 +178,16 @@ public class VirtualAttributesPanel extends Panel {
                     attributeTO.addValue("");
                 }
 
-                item.add(new ListView<String>(
-                        "values", new PropertyModel<List<String>>(
-                        attributeTO, "values")) {
+                final MultiValueSelectorPanel values =
+                        new MultiValueSelectorPanel(
+                        "values",
+                        new PropertyModel<List<String>>(
+                        attributeTO, "values"),
+                        String.class,
+                        new AjaxTextFieldPanel(
+                        "panel", "values", new Model(null), true));
 
-                    private static final long serialVersionUID =
-                            9101744072914090143L;
-
-                    @Override
-                    protected void populateItem(final ListItem<String> item) {
-
-                        final TextField field = new TextField(
-                                "value",
-                                item.getModel(),
-                                String.class);
-
-                        field.add(new AjaxFormComponentUpdatingBehavior(
-                                "onblur") {
-
-                            private static final long serialVersionUID =
-                                    -1107858522700306810L;
-
-                            @Override
-                            protected void onUpdate(AjaxRequestTarget art) {
-                                attributeTO.getValues().set(
-                                        item.getIndex(), item.getModelObject());
-                            }
-                        });
-
-                        item.add(field);
-
-                        AjaxButton dropButton = new IndicatingAjaxButton("drop",
-                                new Model(getString("drop"))) {
-
-                            @Override
-                            protected void onSubmit(
-                                    AjaxRequestTarget target, Form form) {
-
-                                //Drop current component
-                                attributeTO.getValues().remove(
-                                        item.getModelObject());
-
-                                target.addComponent(attributesContainer);
-                            }
-                        };
-
-                        item.add(dropButton.setDefaultFormProcessing(
-                                Boolean.FALSE));
-
-                        AjaxButton addButton = new IndicatingAjaxButton("add",
-                                new Model(getString("add"))) {
-
-                            private static final long serialVersionUID =
-                                    -4804368561204623354L;
-
-                            @Override
-                            protected void onSubmit(
-                                    AjaxRequestTarget target, Form form) {
-
-                                attributeTO.addValue("");
-                                target.addComponent(attributesContainer);
-                            }
-                        };
-
-                        item.add(addButton.setDefaultFormProcessing(
-                                Boolean.FALSE));
-
-                        if (item.getIndex()
-                                == attributeTO.getValues().size() - 1) {
-                            addButton.setVisible(Boolean.TRUE);
-                            addButton.setEnabled(Boolean.TRUE);
-                        } else {
-                            addButton.setVisible(Boolean.FALSE);
-                            addButton.setEnabled(Boolean.FALSE);
-                        }
-
-                        if (attributeTO.getValues().size() <= 1) {
-                            dropButton.setVisible(Boolean.FALSE);
-                            dropButton.setEnabled(Boolean.FALSE);
-                        } else {
-                            dropButton.setVisible(Boolean.TRUE);
-                            dropButton.setEnabled(Boolean.TRUE);
-                        }
-                    }
-                });
+                item.add(values);
             }
         };
 

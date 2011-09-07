@@ -31,41 +31,104 @@
     </style>
 </wicket:head>
 <wicket:extend>
-    <div id="dialog-form">
-        <p class="ui-widget ui-corner-all ui-widget-header"><wicket:message key="title"/></p>
-        <form wicket:id="SchemaForm">
-            <fieldset>
-                <label for="name"><wicket:message key="name"/></label>
-                <input type="text" id="name" class="text ui-widget-content ui-corner-all" wicket:id="name" />
+    <p class="ui-widget ui-corner-all ui-widget-header"><wicket:message key="title"/></p>
+<div style="margin:10px">
+    <form wicket:id="form">
+        <div id="formtable">
+            <div class="tablerow alt">
+                <div class="tablecolumn_label short_dynamicsize">
+                    <label for="name"><wicket:message key="name"/></label>
+                </div>
+                <div class="tablecolumn_field medium_dynamicsize">
+                    <span wicket:id="name">[name]</span>
+                </div>
+            </div>
 
-                <label for="conversionPattern"><wicket:message key="conversionPattern"/></label>
-                <input type="text" id="conversionPattern" class="text ui-widget-content ui-corner-all" wicket:id="conversionPattern" />
+            <div class="tablerow">
+                <div class="tablecolumn_label short_dynamicsize">
+                    <label for="conversionPattern"><wicket:message key="conversionPattern"/></label>
+                </div>
+                <div class="tablecolumn_field medium_dynamicsize">
+                    <span wicket:id="conversionPattern">[conversionPattern]</span>
+                </div>
+            </div>
 
-                <label for="validatorClass"><wicket:message key="validatorClass"/></label>
-                <select id="validatorClass" class="text ui-widget-content ui-corner-all" wicket:id="validatorClass"/>
+            <div class="tablerow">
+                <div class="tablecolumn_label short_dynamicsize">
+                    <label for="validatorClass"><wicket:message key="validatorClass"/></label>
+                </div>
+                <div class="tablecolumn_field medium_dynamicsize">
+                    <span wicket:id="validatorClass">[validatorClass]</span>
+                </div>
+            </div>
 
-                <label for="type"><wicket:message key="type"/></label>
-                <select id="type"  class="text ui-widget-content ui-corner-all" wicket:id="type"/>
+            <div class="tablerow">
+                <div class="tablecolumn_label short_dynamicsize">
+                    <label for="type"><wicket:message key="type"/></label>
+                </div>
+                <div class="tablecolumn_field medium_dynamicsize">
+                    <span wicket:id="type">[type]</span>
+                </div>
+            </div>
 
-                <label for="mandatoryCondition"><wicket:message key="mandatoryCondition"/></label>
-                <input type="text" class="text ui-widget-content ui-corner-all"
-                       id="mandatoryCondition" wicket:id="mandatoryCondition"/>
+            <div class="tablerow">
+                <div class="tablecolumn_label short_dynamicsize">
+                    <label for="mandatoryCondition"><wicket:message key="mandatoryCondition"/></label>
+                </div>
+                <div class="tablecolumn_field medium_dynamicsize">
+                    <input type="text" class="ui-widget-content ui-corner-all"
+                           id="mandatoryCondition" wicket:id="mandatoryCondition"/>
+                </div>
+            </div>
 
-                <label for="enumerationValues"><wicket:message key="enumerationValues"/></label>
-                <input type="text" class="text ui-widget-content ui-corner-all"
-                       id="enumerationValues" wicket:id="enumerationValues"/>
+            <div class="tablerow">
+                <div class="tablecolumn_label short_dynamicsize">
+                    <label for="enumerationValues"><wicket:message key="enumerationValues"/></label>
+                </div>
+                <div class="tablecolumn_field medium_dynamicsize">
+                    <span wicket:id="enumerationValues">[enumerationValues]</span>
+                </div>
+            </div>
 
-                <label for="multivalue" class="onerowlabel"><wicket:message key="multivalue"/></label>
-                <input type="checkbox" id="multivalue" wicket:id="multivalue" class="onerowcheckbox"/>
+            <div class="tablerow">
+                <div class="tablecolumn_label short_dynamicsize">
+                    <label for="multivalue" class="onerowlabel"><wicket:message key="multivalue"/></label>
+                </div>
+                <div class="tablecolumn_field medium_dynamicsize">
+                    <span wicket:id="multivalue">[multivalue]</span>
+                </div>
+            </div>
 
-                <label for="readonly" class="onerowlabel"><wicket:message key="readonly"/></label>
-                <input type="checkbox" id="readonly" wicket:id="readonly" class="onerowcheckbox"/>
+            <div class="tablerow">
+                <div class="tablecolumn_label short_dynamicsize">
+                    <label for="readonly" class="onerowlabel"><wicket:message key="readonly"/></label>
+                </div>
+                <div class="tablecolumn_field medium_dynamicsize">
+                    <span wicket:id="readonly">[readonly]</span>
+                </div>
+            </div>
 
-                <label for="uniqueConstraint" class="onerowlabel"><wicket:message key="uniqueConstraint"/></label>
-                <input type="checkbox" id="uniqueConstraint" wicket:id="uniqueConstraint" class="onerowcheckbox"/>
+            <div class="tablerow">
+                <div class="tablecolumn_label short_dynamicsize">
+                    <label for="uniqueConstraint" class="onerowlabel"><wicket:message key="uniqueConstraint"/></label>
+                </div>
+                <div class="tablecolumn_field medium_dynamicsize">
+                    <span wicket:id="uniqueConstraint">[uniqueConstraint]</span>
+                </div>
+            </div>
+        </div>
 
-                <input type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" wicket:id="submit"/>
-            </fieldset>
-        </form>
-    </div>
+        <script type="text/javascript">
+            $(function() {
+                $('#formtable div.tablerow:even').addClass("alt");
+            });
+        </script>
+
+        <div style="margin: 10px 0px 0">
+            <input type="submit"
+                   class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+                   wicket:id="apply"/>
+        </div>
+    </form>
+</div>
 </wicket:extend>

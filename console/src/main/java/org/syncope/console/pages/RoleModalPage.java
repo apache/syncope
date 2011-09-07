@@ -25,12 +25,12 @@ import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuth
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.markup.html.form.palette.Palette;
-import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.mod.AttributeMod;
@@ -43,11 +43,15 @@ import org.syncope.console.rest.RoleRestClient;
 import org.syncope.console.pages.panels.DerivedAttributesPanel;
 import org.syncope.console.pages.panels.ResourcesPanel;
 import org.syncope.console.pages.panels.VirtualAttributesPanel;
+import org.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
+import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 
 /**
  * Modal window with Role form.
  */
 public class RoleModalPage extends BaseModalPage {
+
+    private static final long serialVersionUID = -1732493223434085205L;
 
     @SpringBean
     private RoleRestClient roleRestClient;
@@ -88,10 +92,17 @@ public class RoleModalPage extends BaseModalPage {
         //--------------------------------
         // Attributes panel
         //--------------------------------
+        final AjaxTextFieldPanel name = new AjaxTextFieldPanel(
+                "name", getString("name"),
+                new PropertyModel<String>(roleTO, "name"), false);
+        name.addRequiredLabel();
+        form.add(name);
+
         form.add(new AttributesPanel("attributes", roleTO, form));
 
-        final CheckBox inheritAttributes = new CheckBox("inheritAttributes");
-        inheritAttributes.setOutputMarkupId(true);
+        final AjaxCheckBoxPanel inheritAttributes = new AjaxCheckBoxPanel(
+                "inheritAttributes", getString("inheritAttributes"),
+                new PropertyModel<Boolean>(roleTO, "inheritAttributes"), false);
         form.add(inheritAttributes);
         //--------------------------------
 
@@ -132,12 +143,10 @@ public class RoleModalPage extends BaseModalPage {
 
         form.add(entitlementsPalette);
 
-        TextField name = new TextField("name");
-        name.setRequired(true);
-        form.add(name);
+        submit = new IndicatingAjaxButton(
+                "submit", new Model(getString("submit"))) {
 
-        submit = new IndicatingAjaxButton("submit", new Model(
-                getString("submit"))) {
+            private static final long serialVersionUID = -958724007591692537L;
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target,

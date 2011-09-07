@@ -21,7 +21,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -61,10 +60,10 @@ public class AttributesPanel extends Panel {
     @SpringBean
     private SchemaRestClient schemaRestClient;
 
-    final WebMarkupContainer attributesContainer;
-
     public <T extends AbstractAttributableTO> AttributesPanel(
-            final String id, final T entityTO, final Form form) {
+            final String id,
+            final T entityTO,
+            final Form form) {
         super(id);
 
         final IModel<Map<String, SchemaTO>> schemas =
@@ -97,10 +96,6 @@ public class AttributesPanel extends Panel {
                         return schemas;
                     }
                 };
-
-        attributesContainer = new WebMarkupContainer("container");
-        attributesContainer.setOutputMarkupId(true);
-        add(attributesContainer);
 
         initEntityData(entityTO, schemas.getObject().values());
 
@@ -140,7 +135,7 @@ public class AttributesPanel extends Panel {
             }
         };
 
-        attributesContainer.add(attributeView);
+        add(attributeView);
     }
 
     private List<AttributeTO> initEntityData(
@@ -226,7 +221,7 @@ public class AttributesPanel extends Panel {
                 break;
 
             case Enum:
-                panel = new AjaxDropDownChoicePanel(
+                panel = new AjaxDropDownChoicePanel<String>(
                         "panel", schemaTO.getName(), new Model(), true);
 
                 ((AjaxDropDownChoicePanel) panel).setChoices(

@@ -13,21 +13,32 @@
  under the License.
 -->
 <wicket:extend>
-    <form wicket:id="ConfigurationForm">
-        <div id="dialog-form">
-            <p class="ui-widget ui-corner-all ui-widget-header">
-            <wicket:message key="title"/>
-            </p>
-            <fieldset>
-
-                <label for="key"><wicket:message key="key"/></label>
-                <input type="text" id="key" class="text ui-widget-content ui-corner-all" wicket:id="key" />
-
-                <label for="value"><wicket:message key="value"/></label>
-                <input type="text" id="value" class="text ui-widget-content ui-corner-all" wicket:id="value" />
-
-            </fieldset>
+    <p class="ui-widget ui-corner-all ui-widget-header"><wicket:message key="title" /></p>
+<div style="margin:10px">
+    <form wicket:id="form">
+        <div id="formtable">
+            <div class="tablerow alt">
+                <div class="tablecolumn_label short_dynamicsize">
+                    <label for="key"><wicket:message key="key"/></label>
+                </div>
+                <div class="tablecolumn_field medium_dynamicsize">
+                    <span wicket:id="key">[key]</span>
+                </div>
+            </div>
+            <div class="tablerow">
+                <div class="tablecolumn_label short_dynamicsize">
+                    <label for="value"><wicket:message key="value"/></label>
+                </div>
+                <div class="tablecolumn_field medium_dynamicsize">
+                    <span wicket:id="value">[value]</span>
+                </div>
+            </div>
         </div>
-        <input type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" wicket:id="submit"/>
+        <div style="margin: 10px 0px 0">
+            <input type="submit"
+                   class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+                   wicket:id="apply"/>
+        </div>
     </form>
+</div>
 </wicket:extend>

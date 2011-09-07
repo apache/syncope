@@ -50,7 +50,10 @@ import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.rest.ConnectorRestClient;
 import org.syncope.console.rest.ResourceRestClient;
 import org.syncope.console.rest.SchemaRestClient;
+import org.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.syncope.console.wicket.markup.html.form.AjaxDecoratedCheckbox;
+import org.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
+import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.syncope.types.PropagationMode;
 import org.syncope.types.SourceMappingType;
 import org.syncope.types.TraceLevel;
@@ -59,6 +62,8 @@ import org.syncope.types.TraceLevel;
  * Modal window with Resource form.
  */
 public class ResourceModalPage extends BaseModalPage {
+
+    private static final long serialVersionUID = 1734415311027284221L;
 
     @SpringBean
     private SchemaRestClient schemaRestClient;
@@ -92,6 +97,9 @@ public class ResourceModalPage extends BaseModalPage {
         final IModel<List<ConnInstanceTO>> connectors =
                 new LoadableDetachableModel<List<ConnInstanceTO>>() {
 
+                    private static final long serialVersionUID =
+                            5275935387613157437L;
+
                     @Override
                     protected List<ConnInstanceTO> load() {
                         return connectorRestClient.getAllConnectors();
@@ -100,6 +108,9 @@ public class ResourceModalPage extends BaseModalPage {
 
         final IModel<List<SourceMappingType>> sourceMappingTypes =
                 new LoadableDetachableModel<List<SourceMappingType>>() {
+
+                    private static final long serialVersionUID =
+                            5275935387613157437L;
 
                     @Override
                     protected List<SourceMappingType> load() {
@@ -112,71 +123,72 @@ public class ResourceModalPage extends BaseModalPage {
             connectorTO.setId(resourceTO.getConnectorId());
         }
 
-        Form resourceForm = new Form("ResourceForm");
-        resourceForm.setModel(new CompoundPropertyModel(resourceTO));
+        final Form form = new Form("form");
+        form.setModel(new CompoundPropertyModel(resourceTO));
 
-        TextField resourceName = new TextField("name");
+        final AjaxTextFieldPanel resourceName = new AjaxTextFieldPanel(
+                "name", getString("name"),
+                new PropertyModel<String>(resourceTO, "name"), false);
         resourceName.setEnabled(createFlag);
-        resourceName.setRequired(true);
-        resourceName.setOutputMarkupId(true);
-        resourceForm.add(resourceName);
+        resourceName.addRequiredLabel();
+        form.add(resourceName);
 
-        TextField accountLink = new TextField("accountLink");
-        accountLink.setOutputMarkupId(true);
-        resourceForm.add(accountLink);
+        final AjaxTextFieldPanel accountLink = new AjaxTextFieldPanel(
+                "accountLink", getString("accountLink"),
+                new PropertyModel<String>(resourceTO, "accountLink"), false);
+        form.add(accountLink);
 
-        CheckBox forceMandatoryConstraint =
-                new CheckBox("forceMandatoryConstraint");
-        forceMandatoryConstraint.setOutputMarkupId(true);
-        resourceForm.add(forceMandatoryConstraint);
+        final AjaxCheckBoxPanel forceMandatoryConstraint =
+                new AjaxCheckBoxPanel(
+                "forceMandatoryConstraint",
+                getString("forceMandatoryConstraint"),
+                new PropertyModel<Boolean>(resourceTO, "forceMandatoryConstraint"),
+                false);
+        form.add(forceMandatoryConstraint);
 
-        DropDownChoice<PropagationMode> optionalPropagationMode =
-                new DropDownChoice<PropagationMode>("optionalPropagationMode");
-        optionalPropagationMode.setModel(new IModel<PropagationMode>() {
-
-            @Override
-            public PropagationMode getObject() {
-                return resourceTO.getOptionalPropagationMode();
-            }
-
-            @Override
-            public void setObject(final PropagationMode object) {
-                resourceTO.setOptionalPropagationMode(object);
-            }
-
-            @Override
-            public void detach() {
-            }
-        });
+        final AjaxDropDownChoicePanel<PropagationMode> optionalPropagationMode =
+                new AjaxDropDownChoicePanel<PropagationMode>("optionalPropagationMode",
+                getString("optionalPropagationMode"),
+                new PropertyModel(resourceTO, "optionalPropagationMode"),
+                false);
         optionalPropagationMode.setChoices(
                 Arrays.asList(PropagationMode.values()));
-        optionalPropagationMode.setOutputMarkupId(true);
-        resourceForm.add(optionalPropagationMode);
+        form.add(optionalPropagationMode);
 
-        final DropDownChoice<TraceLevel> createTraceLevel =
-                new DropDownChoice<TraceLevel>("createTraceLevel",
-                new PropertyModel<TraceLevel>(resourceTO, "createTraceLevel"),
-                Arrays.asList(TraceLevel.values()));
-        resourceForm.add(createTraceLevel);
+        final AjaxDropDownChoicePanel<TraceLevel> createTraceLevel =
+                new AjaxDropDownChoicePanel<TraceLevel>("createTraceLevel",
+                getString("createTraceLevel"),
+                new PropertyModel(resourceTO, "createTraceLevel"),
+                false);
+        createTraceLevel.setChoices(Arrays.asList(TraceLevel.values()));
+        form.add(createTraceLevel);
 
-        final DropDownChoice<TraceLevel> updateTraceLevel =
-                new DropDownChoice<TraceLevel>("updateTraceLevel",
-                new PropertyModel<TraceLevel>(resourceTO, "updateTraceLevel"),
-                Arrays.asList(TraceLevel.values()));
-        resourceForm.add(updateTraceLevel);
+        final AjaxDropDownChoicePanel<TraceLevel> updateTraceLevel =
+                new AjaxDropDownChoicePanel<TraceLevel>("updateTraceLevel",
+                getString("updateTraceLevel"),
+                new PropertyModel(resourceTO, "updateTraceLevel"),
+                false);
+        updateTraceLevel.setChoices(Arrays.asList(TraceLevel.values()));
+        form.add(updateTraceLevel);
 
-        final DropDownChoice<TraceLevel> deleteTraceLevel =
-                new DropDownChoice<TraceLevel>("deleteTraceLevel",
-                new PropertyModel<TraceLevel>(resourceTO, "deleteTraceLevel"),
-                Arrays.asList(TraceLevel.values()));
-        resourceForm.add(deleteTraceLevel);
+        final AjaxDropDownChoicePanel<TraceLevel> deleteTraceLevel =
+                new AjaxDropDownChoicePanel<TraceLevel>("deleteTraceLevel",
+                getString("deleteTraceLevel"),
+                new PropertyModel(resourceTO, "deleteTraceLevel"),
+                false);
+        deleteTraceLevel.setChoices(Arrays.asList(TraceLevel.values()));
+        form.add(deleteTraceLevel);
 
-        ChoiceRenderer renderer = new ChoiceRenderer("displayName", "id");
-        DropDownChoice<ConnInstanceTO> connector =
-                new DropDownChoice<ConnInstanceTO>("connectors",
-                new Model<ConnInstanceTO>(connectorTO), connectors, renderer);
-        connector.setEnabled(createFlag);
-        connector.setModel(new IModel<ConnInstanceTO>() {
+        final AjaxDropDownChoicePanel<ConnInstanceTO> connector =
+                new AjaxDropDownChoicePanel<ConnInstanceTO>("connector",
+                getString("connector"),
+                new Model<ConnInstanceTO>(connectorTO),
+                false);
+        connector.setChoices(connectors.getObject());
+        connector.setChoiceRenderer(new ChoiceRenderer("displayName", "id"));
+        connector.getField().setModel(new IModel<ConnInstanceTO>() {
+
+            private static final long serialVersionUID = -4202872830392400310L;
 
             @Override
             public ConnInstanceTO getObject() {
@@ -192,16 +204,18 @@ public class ResourceModalPage extends BaseModalPage {
             public void detach() {
             }
         });
-        connector.setRequired(true);
+        connector.addRequiredLabel();
         connector.setEnabled(createFlag);
-        resourceForm.add(connector);
+        form.add(connector);
 
         mappingContainer = new WebMarkupContainer("mappingContainer");
         mappingContainer.setOutputMarkupId(true);
-        resourceForm.add(mappingContainer);
+        form.add(mappingContainer);
 
-        ListView<SchemaMappingTO> mappings = new ListView<SchemaMappingTO>(
+        final ListView<SchemaMappingTO> mappings = new ListView<SchemaMappingTO>(
                 "mappings", resourceTO.getMappings()) {
+
+            private static final long serialVersionUID = 4949588177564901031L;
 
             @Override
             protected void populateItem(
@@ -211,6 +225,9 @@ public class ResourceModalPage extends BaseModalPage {
 
                 item.add(new AjaxDecoratedCheckbox("toRemove",
                         new Model(Boolean.FALSE)) {
+
+                    private static final long serialVersionUID =
+                            7170946748485726506L;
 
                     @Override
                     protected void onUpdate(final AjaxRequestTarget target) {
@@ -234,7 +251,11 @@ public class ResourceModalPage extends BaseModalPage {
 
                     @Override
                     protected IAjaxCallDecorator getAjaxCallDecorator() {
-                        return new AjaxPreprocessingCallDecorator(super.getAjaxCallDecorator()) {
+                        return new AjaxPreprocessingCallDecorator(
+                                super.getAjaxCallDecorator()) {
+
+                            private static final long serialVersionUID =
+                                    -7927968187160354605L;
 
                             @Override
                             public CharSequence preDecorateScript(
@@ -256,6 +277,9 @@ public class ResourceModalPage extends BaseModalPage {
 
                 schemaAttrChoice.add(
                         new AjaxFormComponentUpdatingBehavior("onblur") {
+
+                            private static final long serialVersionUID =
+                                    -1107858522700306810L;
 
                             @Override
                             protected void onUpdate(AjaxRequestTarget art) {
@@ -320,6 +344,9 @@ public class ResourceModalPage extends BaseModalPage {
                 destAttrName.add(
                         new AjaxFormComponentUpdatingBehavior("onblur") {
 
+                            private static final long serialVersionUID =
+                                    -1107858522700306810L;
+
                             @Override
                             protected void onUpdate(AjaxRequestTarget art) {
                                 mappingTO.setDestAttrName(
@@ -331,6 +358,9 @@ public class ResourceModalPage extends BaseModalPage {
                 final AutoCompleteTextField<String> mandatoryCondirion =
                         new AutoCompleteTextField<String>("mandatoryCondition",
                         new PropertyModel(mappingTO, "mandatoryCondition")) {
+
+                            private static final long serialVersionUID =
+                                    -6648767303091874219L;
 
                             @Override
                             protected Iterator getChoices(final String input) {
@@ -350,6 +380,9 @@ public class ResourceModalPage extends BaseModalPage {
                 mandatoryCondirion.add(
                         new AjaxFormComponentUpdatingBehavior("onblur") {
 
+                            private static final long serialVersionUID =
+                                    -1107858522700306810L;
+
                             @Override
                             protected void onUpdate(AjaxRequestTarget art) {
                                 mappingTO.setMandatoryCondition(
@@ -364,6 +397,9 @@ public class ResourceModalPage extends BaseModalPage {
                 accountId.add(
                         new AjaxFormComponentUpdatingBehavior("onchange") {
 
+                            private static final long serialVersionUID =
+                                    -1107858522700306810L;
+
                             @Override
                             protected void onUpdate(AjaxRequestTarget art) {
                                 mappingTO.setAccountid(
@@ -377,6 +413,9 @@ public class ResourceModalPage extends BaseModalPage {
                         new PropertyModel(mappingTO, "password"));
                 password.add(
                         new AjaxFormComponentUpdatingBehavior("onchange") {
+
+                            private static final long serialVersionUID =
+                                    -1107858522700306810L;
 
                             @Override
                             protected void onUpdate(AjaxRequestTarget art) {
@@ -393,6 +432,8 @@ public class ResourceModalPage extends BaseModalPage {
         AjaxButton addSchemaMappingBtn = new IndicatingAjaxButton(
                 "addUserSchemaMappingBtn", new Model(getString("add"))) {
 
+            private static final long serialVersionUID = -4804368561204623354L;
+
             @Override
             protected void onSubmit(final AjaxRequestTarget target,
                     final Form form) {
@@ -402,10 +443,12 @@ public class ResourceModalPage extends BaseModalPage {
             }
         };
         addSchemaMappingBtn.setDefaultFormProcessing(false);
-        resourceForm.add(addSchemaMappingBtn);
+        form.add(addSchemaMappingBtn);
 
-        AjaxButton submit = new IndicatingAjaxButton("submit", new Model(
+        AjaxButton submit = new IndicatingAjaxButton("apply", new Model(
                 getString("submit"))) {
+
+            private static final long serialVersionUID = -958724007591692537L;
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target,
@@ -437,8 +480,8 @@ public class ResourceModalPage extends BaseModalPage {
                         error(getString("error") + ":" + e.getMessage());
                         basePage.setOperationResult(false);
 
-                        LOG.error("While creating or updating resource "
-                                + resourceTO);
+                        LOG.error("While creating/updating resource {}",
+                                resourceTO);
                     }
                 }
             }
@@ -450,9 +493,9 @@ public class ResourceModalPage extends BaseModalPage {
                 target.addComponent(feedbackPanel);
             }
         };
-        resourceForm.add(submit);
+        form.add(submit);
 
-        add(resourceForm);
+        add(form);
 
         MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE,
                 xmlRolesReader.getAllAllowedRoles("Resources",
@@ -466,6 +509,8 @@ public class ResourceModalPage extends BaseModalPage {
      */
     private class SourceMappingTypesDropDownChoice extends DropDownChoice {
 
+        private static final long serialVersionUID = -2855668124505116627L;
+
         public SourceMappingTypesDropDownChoice(final String id,
                 final PropertyModel<SourceMappingType> model,
                 final IModel imodel,
@@ -475,10 +520,16 @@ public class ResourceModalPage extends BaseModalPage {
 
             add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
+                private static final long serialVersionUID =
+                        -1107858522700306810L;
+
                 @Override
                 protected void onUpdate(final AjaxRequestTarget target) {
                     chooserToPopulate.setChoices(
                             new LoadableDetachableModel<List<String>>() {
+
+                                private static final long serialVersionUID =
+                                        5275935387613157437L;
 
                                 @Override
                                 protected List<String> load() {

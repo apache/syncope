@@ -21,15 +21,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteTextField;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
@@ -37,14 +34,18 @@ import org.apache.wicket.util.string.Strings;
 import org.syncope.client.to.SchemaTO;
 import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
-import org.apache.wicket.markup.html.form.CheckBox;
 import org.syncope.client.AbstractBaseBean;
+import org.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
+import org.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
+import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.syncope.types.SchemaType;
 
 /**
  * Modal window with Schema form.
  */
 public class SchemaModalPage extends AbstractSchemaModalPage {
+
+    private static final long serialVersionUID = -5991561277287424057L;
 
     public SchemaModalPage(String kind) {
         super(kind);
@@ -60,20 +61,20 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
         final SchemaTO schema =
                 schemaTO == null ? new SchemaTO() : (SchemaTO) schemaTO;
 
-        final Form schemaForm = new Form("SchemaForm");
+        final Form schemaForm = new Form("form");
 
         schemaForm.setModel(new CompoundPropertyModel(schema));
         schemaForm.setOutputMarkupId(Boolean.TRUE);
 
-
-        final TextField name = new TextField("name");
-        addEmptyBehaviour(name, "onblur");
-        name.setRequired(true);
-
+        final AjaxTextFieldPanel name = new AjaxTextFieldPanel(
+                "name", getString("name"),
+                new PropertyModel<String>(schema, "name"), true);
+        name.addRequiredLabel();
         name.setEnabled(createFlag);
 
-        final TextField conversionPattern = new TextField("conversionPattern");
-        addEmptyBehaviour(conversionPattern, "onblur");
+        final AjaxTextFieldPanel conversionPattern = new AjaxTextFieldPanel(
+                "conversionPattern", getString("conversionPattern"),
+                new PropertyModel<String>(schema, "conversionPattern"), true);
 
         final ArrayList<String> validatorsList = new ArrayList<String>();
         validatorsList.add("org.syncope.core.persistence.validation"
@@ -81,43 +82,48 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
         validatorsList.add("org.syncope.core.persistence.validation"
                 + ".EmailAddressValidator");
 
-        final DropDownChoice validatorClass = new DropDownChoice(
-                "validatorClass",
-                new PropertyModel(schema, "validatorClass"),
-                validatorsList);
+        final AjaxDropDownChoicePanel<String> validatorClass =
+                new AjaxDropDownChoicePanel<String>(
+                "validatorClass", getString("validatorClass"),
+                new PropertyModel(schema, "validatorClass"), true);
+        validatorClass.setChoices(validatorsList);
 
-        addEmptyBehaviour(validatorClass, "onblur");
+        final AjaxDropDownChoicePanel<SchemaType> type =
+                new AjaxDropDownChoicePanel<SchemaType>(
+                "type", getString("type"),
+                new PropertyModel(schema, "type"), false);
+        type.setChoices(Arrays.asList(SchemaType.Enum.values()));
+        type.addRequiredLabel();
 
-        final DropDownChoice type = new DropDownChoice(
-                "type",
-                Arrays.asList(SchemaType.Enum.values()));
-        type.setRequired(true);
-
-        final TextField enumerationValues = new TextField("enumerationValues");
+        final AjaxTextFieldPanel enumerationValues = new AjaxTextFieldPanel(
+                "enumerationValues", getString("enumerationValues"),
+                new PropertyModel<String>(schema, "enumerationValues"), false);
 
         if (schema != null
                 && SchemaType.Enum.equals(((SchemaTO) schema).getType())) {
-            enumerationValues.setRequired(Boolean.TRUE);
+            enumerationValues.addRequiredLabel();
             enumerationValues.setEnabled(Boolean.TRUE);
         } else {
-            enumerationValues.setRequired(Boolean.FALSE);
+            enumerationValues.removeRequiredLabel();
             enumerationValues.setEnabled(Boolean.FALSE);
         }
 
-        type.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+        type.getField().add(new AjaxFormComponentUpdatingBehavior("onchange") {
+
+            private static final long serialVersionUID = -1107858522700306810L;
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
                 if (SchemaType.Enum.ordinal()
-                        == Integer.parseInt(type.getValue())) {
-                    enumerationValues.setRequired(Boolean.TRUE);
+                        == Integer.parseInt(type.getField().getValue())) {
+                    enumerationValues.addRequiredLabel();
                     enumerationValues.setEnabled(Boolean.TRUE);
-                    enumerationValues.getModel().setObject(
+                    enumerationValues.setModelObject(
                             ((SchemaTO) schema).getEnumerationValues());
                 } else {
-                    enumerationValues.setRequired(Boolean.FALSE);
+                    enumerationValues.removeRequiredLabel();
                     enumerationValues.setEnabled(Boolean.FALSE);
-                    enumerationValues.getModel().setObject(null);
+                    enumerationValues.setModelObject(null);
                 }
 
                 target.addComponent(schemaForm);
@@ -126,6 +132,9 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
 
         final AutoCompleteTextField mandatoryCondition =
                 new AutoCompleteTextField("mandatoryCondition") {
+
+                    private static final long serialVersionUID =
+                            -2428903969518079100L;
 
                     @Override
                     protected Iterator getChoices(String input) {
@@ -147,19 +156,33 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
                     }
                 };
 
-        addEmptyBehaviour(mandatoryCondition, "onblur");
+        mandatoryCondition.add(
+                new AjaxFormComponentUpdatingBehavior("onchange") {
 
-        final CheckBox multivalue = new CheckBox("multivalue");
-        addEmptyBehaviour(multivalue, "onchange");
+                    private static final long serialVersionUID =
+                            -1107858522700306810L;
 
-        final CheckBox readonly = new CheckBox("readonly");
-        addEmptyBehaviour(readonly, "onchange");
+                    @Override
+                    protected void onUpdate(AjaxRequestTarget art) {
+                    }
+                });
 
-        final CheckBox uniqueConstraint = new CheckBox("uniqueConstraint");
-        addEmptyBehaviour(uniqueConstraint, "onchange");
+        final AjaxCheckBoxPanel multivalue = new AjaxCheckBoxPanel(
+                "multivalue", getString("multivalue"),
+                new PropertyModel<Boolean>(schema, "multivalue"), true);
+
+        final AjaxCheckBoxPanel readonly = new AjaxCheckBoxPanel(
+                "readonly", getString("readonly"),
+                new PropertyModel<Boolean>(schema, "readonly"), true);
+
+        final AjaxCheckBoxPanel uniqueConstraint = new AjaxCheckBoxPanel(
+                "uniqueConstraint", getString("uniqueConstraint"),
+                new PropertyModel<Boolean>(schema, "uniqueConstraint"), true);
 
         final AjaxButton submit = new IndicatingAjaxButton(
-                "submit", new Model(getString("submit"))) {
+                "apply", new Model(getString("submit"))) {
+
+            private static final long serialVersionUID = -958724007591692537L;
 
             @Override
             protected void onSubmit(AjaxRequestTarget target, Form form) {
@@ -217,14 +240,5 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
         schemaForm.add(submit);
 
         add(schemaForm);
-    }
-
-    private void addEmptyBehaviour(Component component, String event) {
-        component.add(new AjaxFormComponentUpdatingBehavior(event) {
-
-            @Override
-            protected void onUpdate(AjaxRequestTarget art) {
-            }
-        });
     }
 }

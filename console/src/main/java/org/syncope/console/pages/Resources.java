@@ -56,6 +56,8 @@ import org.syncope.console.wicket.markup.html.form.EditLinkPanel;
  */
 public class Resources extends BasePage {
 
+    private static final long serialVersionUID = -3789252860990261728L;
+
     @SpringBean
     private ResourceRestClient restClient;
 
@@ -64,11 +66,11 @@ public class Resources extends BasePage {
 
     private final ModalWindow createResourceWin;
 
-    private final ModalWindow editResourceWin;
+    private final ModalWindow mwindow;
 
     private static final int WIN_HEIGHT = 500;
 
-    private static final int WIN_WIDTH = 775;
+    private static final int WIN_WIDTH = 850;
 
     private WebMarkupContainer container;
 
@@ -84,7 +86,7 @@ public class Resources extends BasePage {
         super(parameters);
 
         add(createResourceWin = new ModalWindow("createResourceWin"));
-        add(editResourceWin = new ModalWindow("editResourceWin"));
+        add(mwindow = new ModalWindow("editResourceWin"));
 
         add(feedbackPanel);
 
@@ -100,30 +102,44 @@ public class Resources extends BasePage {
         columns.add(new AbstractColumn<ResourceTO>(new Model<String>(
                 getString("edit"))) {
 
-            public void populateItem(Item<ICellPopulator<ResourceTO>> cellItem,
-                    String componentId, IModel<ResourceTO> model) {
+            private static final long serialVersionUID = 2054811145491901166L;
+
+            @Override
+            public void populateItem(
+                    final Item<ICellPopulator<ResourceTO>> cellItem,
+                    final String componentId,
+                    final IModel<ResourceTO> model) {
                 final ResourceTO resourceTO = model.getObject();
 
                 AjaxLink editLink = new IndicatingAjaxLink("editLink") {
 
+                    private static final long serialVersionUID =
+                            -7978723352517770644L;
+
                     @Override
                     public void onClick(AjaxRequestTarget target) {
 
-                        editResourceWin.setPageCreator(new ModalWindow.PageCreator() {
+                        mwindow.setPageCreator(new ModalWindow.PageCreator() {
 
+                            private static final long serialVersionUID =
+                                    -7834632442532690940L;
+
+                            @Override
                             public Page createPage() {
                                 ResourceModalPage form = new ResourceModalPage(
-                                        Resources.this, editResourceWin,
+                                        Resources.this,
+                                        mwindow,
                                         resourceTO, false);
                                 return form;
                             }
                         });
 
-                        editResourceWin.show(target);
+                        mwindow.show(target);
                     }
                 };
 
-                EditLinkPanel panel = new EditLinkPanel(componentId, model);
+                final EditLinkPanel panel =
+                        new EditLinkPanel(componentId, model);
                 panel.add(editLink);
 
                 MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
@@ -137,12 +153,20 @@ public class Resources extends BasePage {
         columns.add(new AbstractColumn<ResourceTO>(new Model<String>(getString(
                 "delete"))) {
 
-            public void populateItem(Item<ICellPopulator<ResourceTO>> cellItem,
-                    String componentId, IModel<ResourceTO> model) {
+            private static final long serialVersionUID = 2054811145491901166L;
+
+            @Override
+            public void populateItem(
+                    final Item<ICellPopulator<ResourceTO>> cellItem,
+                    final String componentId,
+                    final IModel<ResourceTO> model) {
                 final ResourceTO resourceTO = model.getObject();
 
                 AjaxLink deleteLink = new IndicatingDeleteOnConfirmAjaxLink(
                         "deleteLink") {
+
+                    private static final long serialVersionUID =
+                            -7978723352517770644L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -162,14 +186,14 @@ public class Resources extends BasePage {
                         target.addComponent(container);
                     }
                 };
-                DeleteLinkPanel panel = new DeleteLinkPanel(componentId, model);
+
+                final DeleteLinkPanel panel =
+                        new DeleteLinkPanel(componentId, model);
                 panel.add(deleteLink);
 
-                String allowedRoles = xmlRolesReader.getAllAllowedRoles(
-                        "Resources", "delete");
-
                 MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
-                        allowedRoles);
+                        xmlRolesReader.getAllAllowedRoles(
+                        "Resources", "delete"));
 
                 cellItem.add(panel);
             }
@@ -187,7 +211,7 @@ public class Resources extends BasePage {
         add(container);
 
         setWindowClosedCallback(createResourceWin, container);
-        setWindowClosedCallback(editResourceWin, container);
+        setWindowClosedCallback(mwindow, container);
 
         createResourceWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         createResourceWin.setInitialHeight(WIN_HEIGHT);
@@ -195,23 +219,28 @@ public class Resources extends BasePage {
         createResourceWin.setPageMapName("create-res-modal");
         createResourceWin.setCookieName("create-res-modal");
 
-        editResourceWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
-        editResourceWin.setInitialHeight(WIN_HEIGHT);
-        editResourceWin.setInitialWidth(WIN_WIDTH);
-        editResourceWin.setPageMapName("edit-res-modal");
-        editResourceWin.setCookieName("edit-res-modal");
+        mwindow.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+        mwindow.setInitialHeight(WIN_HEIGHT);
+        mwindow.setInitialWidth(WIN_WIDTH);
+        mwindow.setPageMapName("edit-res-modal");
+        mwindow.setCookieName("edit-res-modal");
 
         add(new IndicatingAjaxLink("createResourceLink") {
+
+            private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
             public void onClick(AjaxRequestTarget target) {
 
                 createResourceWin.setPageCreator(new ModalWindow.PageCreator() {
 
+                    private static final long serialVersionUID =
+                            -7834632442532690940L;
+
                     @Override
                     public Page createPage() {
-                        ResourceModalPage windows = new ResourceModalPage(
-                                Resources.this, editResourceWin,
+                        final ResourceModalPage windows = new ResourceModalPage(
+                                Resources.this, mwindow,
                                 new ResourceTO(), true);
                         return windows;
                     }
@@ -221,7 +250,7 @@ public class Resources extends BasePage {
             }
         });
 
-        Form paginatorForm = new Form("PaginatorForm");
+        final Form paginatorForm = new Form("PaginatorForm");
 
         final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser",
                 new PropertyModel(this, "paginatorRows"),
@@ -229,14 +258,16 @@ public class Resources extends BasePage {
 
         rowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
+            private static final long serialVersionUID = -1107858522700306810L;
+
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
                 prefMan.set(getWebRequestCycle().getWebRequest(),
                         getWebRequestCycle().getWebResponse(),
                         Constants.PREF_RESOURCES_PAGINATOR_ROWS,
                         String.valueOf(paginatorRows));
-                table.setRowsPerPage(paginatorRows);
 
+                table.setRowsPerPage(paginatorRows);
                 target.addComponent(container);
             }
         });
@@ -245,25 +276,21 @@ public class Resources extends BasePage {
         add(paginatorForm);
     }
 
-    public boolean isOperationResult() {
-        return operationResult;
-    }
-
-    public void setOperationResult(boolean operationResult) {
-        this.operationResult = operationResult;
-    }
-
     /**
      * Set a WindowClosedCallback for a ModalWindow instance.
      * @param window
      * @param container
      */
-    public void setWindowClosedCallback(ModalWindow window,
+    private void setWindowClosedCallback(ModalWindow window,
             final WebMarkupContainer container) {
 
         window.setWindowClosedCallback(
                 new ModalWindow.WindowClosedCallback() {
 
+                    private static final long serialVersionUID =
+                            8804221891699487139L;
+
+                    @Override
                     public void onClose(AjaxRequestTarget target) {
                         target.addComponent(container);
                         if (operationResult) {
@@ -275,7 +302,13 @@ public class Resources extends BasePage {
                 });
     }
 
+    public void setOperationResult(boolean result) {
+        operationResult = result;
+    }
+
     class ResourcesProvider extends SortableDataProvider<ResourceTO> {
+
+        private static final long serialVersionUID = -9055916672926643975L;
 
         private SortableDataProviderComparator<ResourceTO> comparator;
 
@@ -287,7 +320,7 @@ public class Resources extends BasePage {
         }
 
         @Override
-        public Iterator<ResourceTO> iterator(int first, int count) {
+        public Iterator<ResourceTO> iterator(final int first, final int count) {
             List<ResourceTO> list = getResourcesListDB();
 
             Collections.sort(list, comparator);

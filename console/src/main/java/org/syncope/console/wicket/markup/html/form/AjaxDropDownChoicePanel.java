@@ -24,14 +24,14 @@ import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
-public class AjaxDropDownChoicePanel extends FieldPanel<String> {
+public class AjaxDropDownChoicePanel<T> extends FieldPanel {
 
     private static final long serialVersionUID = -4716376580659196095L;
 
     public AjaxDropDownChoicePanel(
             final String id,
             final String name,
-            final IModel<String> model,
+            final IModel<T> model,
             final boolean active) {
 
         super(id, name, model, active);
@@ -60,7 +60,7 @@ public class AjaxDropDownChoicePanel extends FieldPanel<String> {
         return this;
     }
 
-    public FieldPanel setChoices(final List<String> choices) {
+    public FieldPanel setChoices(final List<T> choices) {
         ((DropDownChoice) field).setChoices(choices);
         return this;
     }
@@ -68,8 +68,8 @@ public class AjaxDropDownChoicePanel extends FieldPanel<String> {
     @Override
     public FieldPanel clone() {
 
-        AjaxDropDownChoicePanel panel =
-                (AjaxDropDownChoicePanel) super.clone();
+        AjaxDropDownChoicePanel<T> panel =
+                (AjaxDropDownChoicePanel<T>) super.clone();
 
         setChoices(((DropDownChoice) field).getChoices());
         setChoiceRenderer(((DropDownChoice) field).getChoiceRenderer());

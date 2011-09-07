@@ -24,10 +24,10 @@ public class ConfigurationTestITCase extends AbstractTest {
         selenium.click("css=img[alt=\"Configuration\"]");
         selenium.waitForPageToLoad("30000");
         selenium.click("//a[contains(text(),'Create new configuration')]");
-        assertTrue(selenium.isElementPresent("//input[@name='key']"));
-        selenium.type("id=key", "test1");
-        selenium.type("id=value", "value1");
-        selenium.click("name=:submit");
+        assertTrue(selenium.isElementPresent("//input[@name='key:textField']"));
+        selenium.type("name=key:textField", "test1");
+        selenium.type("name=value:textField", "value1");
+        selenium.click("name=apply");
         assertTrue(selenium.isTextPresent("Operation executed successfully"));
     }
 
@@ -38,11 +38,26 @@ public class ConfigurationTestITCase extends AbstractTest {
         selenium.click("css=img[alt=\"Configuration\"]");
         selenium.waitForPageToLoad("30000");
         selenium.click("//td[3]/span/a");
-        assertTrue(selenium.isElementPresent("//input[@name='key']"));
+        assertTrue(selenium.isElementPresent("//input[@name='key:textField']"));
         assertEquals("connid.bundles.directory",
-                selenium.getAttribute("//input[@name='key']@value"));
+                selenium.getAttribute("//input[@name='key:textField']@value"));
         selenium.click("css=a.w_close");
 
+    }
+
+    @Test
+    public void browsePasswordPolicy() {
+        selenium.setSpeed("1000");
+
+        selenium.click("css=img[alt=\"Configuration\"]");
+        selenium.waitForPageToLoad("30000");
+        selenium.click("//div[3]/ul/li[2]/a");
+        selenium.click("//div[3]/div[2]/span/div/a");
+
+        assertTrue(selenium.isElementPresent("//input[@name='id:textField']"));
+        selenium.type("name=description:textField", "new description");
+        selenium.click("name=apply");
+        assertTrue(selenium.isTextPresent("new description"));
     }
 
     @Test

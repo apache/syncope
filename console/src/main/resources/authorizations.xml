@@ -189,4 +189,26 @@ page@id= Schema|Users|Roles|Resources|Connectors|Report|Configuration|Task
             <entitlement>TASK_UPDATE</entitlement>
         </action>
     </page>
+
+    <page id="Policies">
+        <action id="list">
+            <entitlement>POLICY_LIST</entitlement>
+        </action>
+
+        <action id="read">
+            <entitlement>POLICY_READ</entitlement>
+        </action>
+
+        <action id="delete">
+            <entitlement>POLICY_DELETE</entitlement>
+        </action>
+
+        <action id="create">
+            <entitlement>POLICY_CREATE</entitlement>
+        </action>
+
+        <action id="update">
+            <entitlement>POLICY_UPDATE</entitlement>
+        </action>
+    </page>
 </auth>

@@ -14,8 +14,12 @@
  */
 package org.syncope.console.rest;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.springframework.stereotype.Component;
 import org.syncope.client.mod.PasswordPolicyMod;
+import org.syncope.client.to.AccountPolicyTO;
 import org.syncope.client.to.PasswordPolicyTO;
 
 /**
@@ -24,13 +28,60 @@ import org.syncope.client.to.PasswordPolicyTO;
 @Component
 public class PolicyRestClient extends AbstractBaseRestClient {
 
-    public PasswordPolicyTO getPasswordPolicy() {
+    public PasswordPolicyTO getGlobalPasswordPolicy() {
         try {
             return restTemplate.getForObject(
                     baseURL + "policy/password/global/read", PasswordPolicyTO.class);
         } catch (Exception e) {
             LOG.debug("No password policy found", e);
             return new PasswordPolicyTO();
+        }
+    }
+
+    public List<PasswordPolicyTO> getPasswordPolicies() {
+        final List<PasswordPolicyTO> policies =
+                new ArrayList<PasswordPolicyTO>();
+
+        PasswordPolicyTO[] passwordPolicies = null;
+
+        try {
+
+            passwordPolicies = restTemplate.getForObject(
+                    baseURL + "policy/password/list",
+                    PasswordPolicyTO[].class);
+        } catch (Exception ignore) {
+            LOG.debug("No password policy found", ignore);
+        }
+
+        if (passwordPolicies != null) {
+            policies.addAll(Arrays.asList(passwordPolicies));
+        }
+
+        PasswordPolicyTO globalPasswordPolicy = null;
+
+        try {
+            globalPasswordPolicy =
+                    restTemplate.getForObject(
+                    baseURL + "policy/password/global/read",
+                    PasswordPolicyTO.class);
+        } catch (Exception ignore) {
+            LOG.debug("No global password policy found", ignore);
+        }
+
+        if (globalPasswordPolicy != null) {
+            policies.add(0, globalPasswordPolicy);
+        }
+
+        return policies;
+    }
+
+    public AccountPolicyTO getGlobalAccountPolicy() {
+        try {
+            return restTemplate.getForObject(
+                    baseURL + "policy/acount/global/read", AccountPolicyTO.class);
+        } catch (Exception e) {
+            LOG.debug("No account policy found", e);
+            return new AccountPolicyTO();
         }
     }
 
@@ -45,5 +96,9 @@ public class PolicyRestClient extends AbstractBaseRestClient {
 
         return restTemplate.postForObject(baseURL + "policy/password/update",
                 policy, PasswordPolicyTO.class);
+    }
+
+    public void delete(final Long id) {
+        restTemplate.delete(baseURL + "policy/delete/" + id);
     }
 }

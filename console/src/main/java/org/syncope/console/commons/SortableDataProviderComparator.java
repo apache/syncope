@@ -23,6 +23,8 @@ import org.apache.wicket.model.PropertyModel;
 public class SortableDataProviderComparator<T> implements
         Comparator<T>, Serializable {
 
+    private static final long serialVersionUID = -8897687699977460543L;
+
     protected final SortableDataProvider<T> provider;
 
     public SortableDataProviderComparator(

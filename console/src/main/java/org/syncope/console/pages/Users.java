@@ -120,6 +120,9 @@ public class Users extends BasePage {
     final private IModel<List<String>> schemaNames =
             new LoadableDetachableModel<List<String>>() {
 
+                private static final long serialVersionUID =
+                        5275935387613157437L;
+
                 @Override
                 protected List<String> load() {
                     return schemaRestClient.getSchemaNames("user");
@@ -128,6 +131,9 @@ public class Users extends BasePage {
 
     final private IModel<List<String>> choosableSchemaNames =
             new LoadableDetachableModel<List<String>>() {
+
+                private static final long serialVersionUID =
+                        5275935387613157437L;
 
                 @Override
                 protected List<String> load() {
@@ -181,9 +187,13 @@ public class Users extends BasePage {
     final private IModel<List<String>> resourceNames =
             new LoadableDetachableModel<List<String>>() {
 
+                private static final long serialVersionUID =
+                        5275935387613157437L;
+
                 @Override
                 protected List<String> load() {
-                    List<ResourceTO> resourceTOs = resourceRestClient.getAllResources();
+                    List<ResourceTO> resourceTOs =
+                            resourceRestClient.getAllResources();
 
                     List<String> result =
                             new ArrayList<String>(resourceTOs.size());
@@ -199,6 +209,9 @@ public class Users extends BasePage {
     final private IModel<List<AttributeCond.Type>> attributeTypes =
             new LoadableDetachableModel<List<AttributeCond.Type>>() {
 
+                private static final long serialVersionUID =
+                        5275935387613157437L;
+
                 @Override
                 protected List<AttributeCond.Type> load() {
                     return Arrays.asList(AttributeCond.Type.values());
@@ -207,6 +220,9 @@ public class Users extends BasePage {
 
     final private IModel<List<FilterType>> filterTypes =
             new LoadableDetachableModel<List<FilterType>>() {
+
+                private static final long serialVersionUID =
+                        5275935387613157437L;
 
                 @Override
                 protected List<FilterType> load() {
@@ -422,14 +438,18 @@ public class Users extends BasePage {
         // search result
         final UserSearchDataProvider searchDataProvider =
                 new UserSearchDataProvider();
+
         final AjaxFallbackDefaultDataTable<UserTO> searchResultTable =
                 new AjaxFallbackDefaultDataTable<UserTO>("searchResultTable",
                 getColumns(searchEditModalWin), searchDataProvider,
                 searchPaginatorRows);
+
         searchResultTable.setOutputMarkupId(true);
+
         searchResultTable.setCurrentPage(parameters.getAsInteger(
                 searchResultTable.getId()
                 + Constants.PAGEPARAM_CURRENT_PAGE, 0));
+
         searchResultContainer.add(searchResultTable);
 
         searchEditModalWin.setWindowClosedCallback(
@@ -894,9 +914,20 @@ public class Users extends BasePage {
                         toString()));
             }
 
-            item.add(new CheckBox("notOperator",
+            final CheckBox notOperator = new CheckBox("notOperator",
                     new PropertyModel(searchCondition,
-                    "notOperator")));
+                    "notOperator"));
+            notOperator.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+
+                private static final long serialVersionUID =
+                        -1107858522700306810L;
+
+                @Override
+                protected void onUpdate(AjaxRequestTarget art) {
+                }
+            });
+
+            item.add(notOperator);
 
             final DropDownChoice<String> filterNameChooser =
                     new DropDownChoice<String>("filterName",
@@ -906,11 +937,32 @@ public class Users extends BasePage {
             filterNameChooser.setRequired(true);
             item.add(filterNameChooser);
 
+            filterNameChooser.add(
+                    new AjaxFormComponentUpdatingBehavior("onchange") {
+
+                        private static final long serialVersionUID =
+                                -1107858522700306810L;
+
+                        @Override
+                        protected void onUpdate(AjaxRequestTarget art) {
+                        }
+                    });
+
             final DropDownChoice<AttributeCond.Type> type =
                     new DropDownChoice<AttributeCond.Type>(
                     "type", new PropertyModel<AttributeCond.Type>(
                     searchCondition, "type"),
                     attributeTypes);
+            type.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+
+                private static final long serialVersionUID =
+                        -1107858522700306810L;
+
+                @Override
+                protected void onUpdate(AjaxRequestTarget art) {
+                }
+            });
+
             item.add(type);
 
             final TextField<String> filterValue =
@@ -918,6 +970,15 @@ public class Users extends BasePage {
                     new PropertyModel<String>(searchCondition,
                     "filterValue"));
             item.add(filterValue);
+            filterValue.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+
+                private static final long serialVersionUID =
+                        -1107858522700306810L;
+
+                @Override
+                protected void onUpdate(AjaxRequestTarget art) {
+                }
+            });
 
             try {
                 switch (searchCondition.getFilterType()) {
@@ -959,7 +1020,7 @@ public class Users extends BasePage {
                 filterNameChooser.setChoices(Collections.EMPTY_LIST);
             }
 
-            DropDownChoice<FilterType> filterTypeChooser =
+            final DropDownChoice<FilterType> filterTypeChooser =
                     new DropDownChoice<FilterType>("filterType",
                     new PropertyModel<FilterType>(searchCondition,
                     "filterType"), filterTypes);
@@ -969,13 +1030,16 @@ public class Users extends BasePage {
                     new AjaxFormComponentUpdatingBehavior(
                     "onchange") {
 
+                        private static final long serialVersionUID =
+                                -1107858522700306810L;
+
                         @Override
                         protected void onUpdate(
                                 final AjaxRequestTarget target) {
 
                             filterNameChooser.setChoices(
-                                    searchCondition.getFilterType() ==
-                                    FilterType.ATTRIBUTE
+                                    searchCondition.getFilterType()
+                                    == FilterType.ATTRIBUTE
                                     ? schemaNames : roleNames);
                             target.addComponent(filterNameChooser);
                             target.addComponent(searchFormContainer);
@@ -988,6 +1052,9 @@ public class Users extends BasePage {
 
             AjaxButton dropButton = new IndicatingAjaxButton(
                     "dropButton", new Model(getString("dropButton"))) {
+
+                private static final long serialVersionUID =
+                        -4804368561204623354L;
 
                 @Override
                 protected void onSubmit(

@@ -55,6 +55,8 @@ import org.syncope.console.pages.panels.VirtualAttributesPanel;
  */
 public class UserModalPage extends BaseModalPage {
 
+    private static final long serialVersionUID = 5002005009737457667L;
+
     @SpringBean
     private UserRestClient userRestClient;
 
@@ -130,8 +132,10 @@ public class UserModalPage extends BaseModalPage {
         form.add(new RolesPanel("roles", userTO));
         //--------------------------------
 
-        final AjaxButton submit = new IndicatingAjaxButton("submit", new Model(
+        final AjaxButton submit = new IndicatingAjaxButton("apply", new Model(
                 getString("submit"))) {
+
+            private static final long serialVersionUID = -958724007591692537L;
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target,

@@ -210,4 +210,20 @@ public abstract class FieldPanel<T extends Serializable>
 
         return this;
     }
+
+    public FieldPanel removeRequiredLabel() {
+
+        if (isRequired()) {
+            setRequired(false);
+        }
+
+        final Fragment fragment =
+                new Fragment("required", "notRequiredFragment", this);
+
+        replace(fragment);
+
+        this.isRequiredLabelAdded = false;
+
+        return this;
+    }
 }

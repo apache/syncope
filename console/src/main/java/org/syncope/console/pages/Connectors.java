@@ -60,7 +60,9 @@ public class Connectors extends BasePage {
 
     private static final int WIN_HEIGHT = 400;
 
-    private static final int WIN_WIDTH = 400;
+    private static final int WIN_WIDTH = 600;
+
+    private static final long serialVersionUID = 4983541555239865907L;
 
     @SpringBean
     private ConnectorRestClient restClient;

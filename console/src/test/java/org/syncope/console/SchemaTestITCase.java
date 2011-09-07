@@ -24,7 +24,7 @@ public class SchemaTestITCase extends AbstractTest {
         selenium.click("css=img[alt=\"Schema\"]");
         selenium.waitForPageToLoad("30000");
         selenium.click("//div[@id='tabs']/ul/li[2]/a/span");
-        selenium.click("//div[2]/div/a");
+        selenium.click("//div[3]/div/div/a");
         for (int second = 0;; second++) {
             if (second >= 60) {
                 fail("timeout");
@@ -47,7 +47,7 @@ public class SchemaTestITCase extends AbstractTest {
                 fail("timeout");
             }
             try {
-                if (selenium.isElementPresent("//*[@name=\"name\"]")) {
+                if (selenium.isElementPresent("//*[@name=\"name:textField\"]")) {
                     break;
                 }
             } catch (Exception e) {
@@ -58,9 +58,9 @@ public class SchemaTestITCase extends AbstractTest {
             }
         }
 
-        selenium.select("name=type", "value=0");
-        selenium.type("name=name", "newschema");
-        selenium.click("name=:submit");
+        selenium.select("name=type:dropDownChoiceField", "value=0");
+        selenium.type("name=name:textField", "newschema");
+        selenium.click("name=apply");
         assertTrue(selenium.isTextPresent("newschema"));
     }
 

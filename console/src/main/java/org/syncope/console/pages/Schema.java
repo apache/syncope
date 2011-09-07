@@ -82,7 +82,7 @@ public class Schema extends BasePage {
         MembershipVirtualSchema
     };
 
-    private static final int WIN_WIDTH = 400;
+    private static final int WIN_WIDTH = 550;
 
     private static final int WIN_HEIGHT = 200;
 

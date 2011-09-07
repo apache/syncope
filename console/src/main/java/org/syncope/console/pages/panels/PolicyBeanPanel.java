@@ -22,13 +22,10 @@ import java.util.List;
 import java.util.Set;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
@@ -38,11 +35,8 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
-import org.syncope.client.mod.PasswordPolicyMod;
-import org.syncope.client.to.PasswordPolicyTO;
 import org.syncope.client.to.SchemaTO;
 import org.syncope.console.commons.XMLRolesReader;
-import org.syncope.console.rest.PolicyRestClient;
 import org.syncope.console.rest.SchemaRestClient;
 import org.syncope.console.wicket.markup.html.form.AbstractFieldPanel;
 import org.syncope.console.wicket.markup.html.form.MultiValueSelectorPanel;
@@ -50,16 +44,15 @@ import org.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.syncope.console.wicket.markup.html.form.AjaxPalettePanel;
 import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.syncope.console.wicket.markup.html.form.FieldPanel;
-import org.syncope.types.PasswordPolicy;
-import org.syncope.types.PolicyType;
+import org.syncope.types.AbstractPolicy;
 
-public class PasswordPolicyPanel extends Panel {
+public class PolicyBeanPanel extends Panel {
 
     /**
      * Logger.
      */
     protected static final Logger LOG = LoggerFactory.getLogger(
-            PasswordPolicyPanel.class);
+            PolicyBeanPanel.class);
 
     private static final long serialVersionUID = -3035998190456928143L;
 
@@ -88,48 +81,33 @@ public class PasswordPolicyPanel extends Panel {
             };
 
     @SpringBean
-    private PolicyRestClient policyRestClient;
-
-    @SpringBean
     protected XMLRolesReader xmlRolesReader;
 
-    public PasswordPolicyPanel(String id) {
+    public PolicyBeanPanel(
+            final String id, final AbstractPolicy policy) {
         super(id);
 
-        final PasswordPolicyTO policyTO;
+        FieldWrapper fieldWrapper = null;
+        final List<FieldWrapper> items = new ArrayList<FieldWrapper>();
 
-        if (policyRestClient.getPasswordPolicy() == null) {
-            policyTO = new PasswordPolicyTO();
-            policyTO.setType(PolicyType.GLOBAL_PASSWORD);
-            policyTO.setDescription("Global Password Policy");
-            policyTO.setSpecification(new PasswordPolicy());
-        } else {
-            policyTO = policyRestClient.getPasswordPolicy();
-        }
 
-        final PasswordPolicy policy = policyTO.getSpecification() != null
-                ? policyTO.getSpecification() : new PasswordPolicy();
-
-        final Form form = new Form("form", new CompoundPropertyModel(policy));
-        form.setOutputMarkupId(true);
-
-        final Field[] fields = policy.getClass().getDeclaredFields();
-        List<Field> items = new ArrayList<Field>();
-
-        for (Field field : fields) {
+        for (Field field : policy.getClass().getDeclaredFields()) {
             if (!"serialVersionUID".equals(field.getName())) {
-                items.add(field);
+                fieldWrapper = new FieldWrapper();
+                fieldWrapper.setName(field.getName());
+                fieldWrapper.setType(field.getType());
+                items.add(fieldWrapper);
             }
         }
 
-        final ListView<Field> policies = new ListView<Field>("policies", items) {
+        final ListView<FieldWrapper> policies = new ListView<FieldWrapper>("policies", items) {
 
             private static final long serialVersionUID = 9101744072914090143L;
 
             @Override
-            protected void populateItem(ListItem<Field> item) {
+            protected void populateItem(ListItem<FieldWrapper> item) {
 
-                final Field field = item.getModelObject();
+                final FieldWrapper field = item.getModelObject();
 
                 item.add(new Label(
                         "label", new Model(getString(field.getName()))));
@@ -192,12 +170,6 @@ public class PasswordPolicyPanel extends Panel {
 
                             reinitializedValue.add("");
 
-                            item.add(new AjaxCheckBoxPanel(
-                                    "check",
-                                    field.getName(),
-                                    new Model(),
-                                    false));
-
                             item.add(getActivationControl(
                                     component,
                                     !((List<String>) method.invoke(
@@ -241,46 +213,7 @@ public class PasswordPolicyPanel extends Panel {
             }
         };
 
-        form.add(policies);
-
-        final IndicatingAjaxButton submit = new IndicatingAjaxButton(
-                "apply", new Model(getString("apply"))) {
-
-            private static final long serialVersionUID = -958724007591692537L;
-
-            @Override
-            protected void onSubmit(
-                    final AjaxRequestTarget target,
-                    final Form form) {
-
-                policyTO.setSpecification(policy);
-
-                if (policyTO.getId() > 0) {
-                    final PasswordPolicyMod policyMod = new PasswordPolicyMod();
-                    policyMod.setId(policyTO.getId());
-                    policyMod.setType(policyTO.getType());
-                    policyMod.setSpecification(policyTO.getSpecification());
-                    policyMod.setDescription(policyTO.getDescription());
-
-                    policyRestClient.updatePasswordPolicy(policyMod);
-                } else {
-                    policyRestClient.createPasswordPolicy(policyTO);
-                }
-
-                info(getString("operation_succeded"));
-                target.addComponent(getPage().get("feedback"));
-            }
-
-            @Override
-            protected void onError(AjaxRequestTarget target, Form form) {
-                target.addComponent(getPage().get("feedback"));
-            }
-        };
-
-        form.add(submit);
-        add(form);
-
-        LOG.error("AAA {}", policies.getPath());
+        add(policies);
     }
 
     private <T extends Serializable> AjaxCheckBoxPanel getActivationControl(
@@ -316,5 +249,30 @@ public class PasswordPolicyPanel extends Panel {
         });
 
         return check;
+    }
+
+    private class FieldWrapper implements Serializable {
+
+        private static final long serialVersionUID = -6770429509752964215L;
+
+        private Class type;
+
+        private String name;
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public Class getType() {
+            return type;
+        }
+
+        public void setType(Class type) {
+            this.type = type;
+        }
     }
 }

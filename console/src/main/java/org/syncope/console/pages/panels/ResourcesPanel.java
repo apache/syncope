@@ -16,7 +16,6 @@ package org.syncope.console.pages.panels;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.wicket.extensions.markup.html.form.palette.Palette;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
@@ -25,16 +24,21 @@ import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.to.AbstractAttributableTO;
 import org.syncope.client.to.ResourceTO;
-import org.syncope.console.commons.SelectChoiceRenderer;
 import org.syncope.console.rest.ResourceRestClient;
+import org.syncope.console.wicket.markup.html.form.AjaxPalettePanel;
 
 public class ResourcesPanel extends Panel {
+
+    private static final long serialVersionUID = -8728071019777410008L;
 
     @SpringBean
     private ResourceRestClient resourceRestClient;
 
     final IModel<List<String>> allResources =
             new LoadableDetachableModel<List<String>>() {
+
+                private static final long serialVersionUID =
+                        5275935387613157437L;
 
                 @Override
                 protected List<String> load() {
@@ -53,11 +57,11 @@ public class ResourcesPanel extends Panel {
             final String id, final T entityTO) {
         super(id);
 
-        final Palette<String> resourcesPalette = new Palette(
+        final AjaxPalettePanel resourcesPalette = new AjaxPalettePanel(
                 "resourcesPalette",
                 new PropertyModel(entityTO, "resources"),
-                new ListModel<String>(allResources.getObject()),
-                new SelectChoiceRenderer(), 8, false);
+                new ListModel<String>(allResources.getObject()));
+
         add(resourcesPalette);
     }
 }

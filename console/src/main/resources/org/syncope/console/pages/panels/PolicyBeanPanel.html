@@ -12,25 +12,32 @@
  limitations under the License.
  under the License.
 -->
-<wicket:extend>
-    <p class="ui-widget ui-corner-all ui-widget-header"><wicket:message key="title" /></p>
-<div style="margin:10px">
-    <form wicket:id="form">
+<html>
+    <wicket:head>
+        <style type="text/css">
+            table.palette td.header {
+                background:url("images/ui-bg_glass_75_e6e6e6_1x400.png")
+                    repeat-x scroll 50% 50% #E6E6E6 !important;
+            }
+        </style>
+    </wicket:head>
+    <wicket:panel>
+
         <div id="formtable">
-            <div class="tablerow alt">
+            <div class="tablerow" wicket:id="policies">
+                <div class="tablecolumn_check">
+                    <span wicket:id="check">[check]</span>
+                </div>
                 <div class="tablecolumn_label short_dynamicsize">
-                    <label for="name"><wicket:message key="name"/></label>
+                    <label for="label">
+                        <span wicket:id="label">[label]</span>
+                    </label>
                 </div>
                 <div class="tablecolumn_field medium_dynamicsize">
-                    <span wicket:id="name">[name]</span>
+                    <span wicket:id="field">[field]</span>
                 </div>
             </div>
         </div>
-        <div style="margin: 10px 0px 0">
-            <input type="submit"
-                   class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
-                   wicket:id="apply"/>
-        </div>
-    </form>
-</div>
-</wicket:extend>
+
+    </wicket:panel>
+</html>

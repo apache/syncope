@@ -14,6 +14,7 @@
  */
 package org.syncope.console.pages;
 
+import org.syncope.console.pages.panels.PasswordPoliciesPanel;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
@@ -57,7 +58,6 @@ import org.syncope.client.to.LoggerTO;
 import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.PreferenceManager;
 import org.syncope.console.commons.SortableDataProviderComparator;
-import org.syncope.console.pages.panels.PasswordPolicyPanel;
 import org.syncope.console.rest.ConfigurationRestClient;
 import org.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
 import org.syncope.console.wicket.markup.html.form.DeleteLinkPanel;
@@ -67,6 +67,8 @@ import org.syncope.console.wicket.markup.html.form.EditLinkPanel;
  * Configurations WebPage.
  */
 public class Configuration extends BasePage {
+
+    private static final long serialVersionUID = -2838270869037702214L;
 
     @SpringBean
     private ConfigurationRestClient restClient;
@@ -78,9 +80,9 @@ public class Configuration extends BasePage {
 
     private final ModalWindow editConfigWin;
 
-    private static final int WIN_HEIGHT = 300;
+    private static final int WIN_HEIGHT = 200;
 
-    private static final int WIN_WIDTH = 400;
+    private static final int WIN_WIDTH = 350;
 
     private WebMarkupContainer confContainer;
 
@@ -112,6 +114,8 @@ public class Configuration extends BasePage {
 
         confColumns.add(new AbstractColumn<ConfigurationTO>(new Model<String>(
                 getString("edit"))) {
+
+            private static final long serialVersionUID = 2054811145491901166L;
 
             @Override
             public void populateItem(
@@ -156,6 +160,8 @@ public class Configuration extends BasePage {
         confColumns.add(new AbstractColumn<ConfigurationTO>(
                 new Model<String>(getString("delete"))) {
 
+            private static final long serialVersionUID = 2054811145491901166L;
+
             @Override
             public void populateItem(
                     final Item<ICellPopulator<ConfigurationTO>> cellItem,
@@ -169,8 +175,7 @@ public class Configuration extends BasePage {
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
                         try {
-                            restClient.deleteConfiguration(configurationTO.
-                                    getKey());
+                            restClient.deleteConfiguration(configurationTO.getKey());
                         } catch (UnsupportedEncodingException e) {
                             LOG.error("While deleting a conf key", e);
                             error(e.getMessage());
@@ -274,7 +279,9 @@ public class Configuration extends BasePage {
 
         add(paginatorForm);
 
-        add(new PasswordPolicyPanel("passwordPolicy"));
+//        add(new PasswordPolicyPanel("passwordPolicy"));
+
+        add(new PasswordPoliciesPanel("passwordPoliciesPanel"));
 
         // Logger stuff
         PropertyListView coreLoggerList =
@@ -307,11 +314,14 @@ public class Configuration extends BasePage {
      * @param window
      * @param container
      */
-    public void setWindowClosedCallback(ModalWindow window,
+    private void setWindowClosedCallback(ModalWindow window,
             final WebMarkupContainer container) {
 
         window.setWindowClosedCallback(
                 new ModalWindow.WindowClosedCallback() {
+
+                    private static final long serialVersionUID =
+                            8804221891699487139L;
 
                     public void onClose(AjaxRequestTarget target) {
                         target.addComponent(container);
@@ -334,6 +344,8 @@ public class Configuration extends BasePage {
 
     private class SyncopeConfProvider
             extends SortableDataProvider<ConfigurationTO> {
+
+        private static final long serialVersionUID = -276043813563988590L;
 
         private SortableDataProviderComparator<ConfigurationTO> comparator;
 
@@ -386,10 +398,11 @@ public class Configuration extends BasePage {
     enum LoggerLevel {
 
         OFF, ERROR, WARN, INFO, DEBUG, TRACE, ALL
-
     }
 
     private class LoggerPropertyList extends PropertyListView<LoggerTO> {
+
+        private static final long serialVersionUID = 5911412425994616111L;
 
         private final ConsoleLoggerController consoleLoggerController;
 
@@ -409,6 +422,9 @@ public class Configuration extends BasePage {
             DropDownChoice<LoggerLevel> level =
                     new DropDownChoice<LoggerLevel>("level");
             level.setModel(new IModel<LoggerLevel>() {
+
+                private static final long serialVersionUID =
+                        -2350428186089596562L;
 
                 @Override
                 public LoggerLevel getObject() {

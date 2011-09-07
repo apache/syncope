@@ -65,16 +65,29 @@
                     <li><a href="#tabs-5"><span><wicket:message key="tab5"/></span></a></li>
                 </ul>
                 <div id="tabs-1">
-                    <span wicket:id="attributes">[user attributes]</span>
+                    <div id="formtable">
+                        <span wicket:id="attributes">[user attributes]</span>
 
-                    <wicket:message key="password"/>
+                        <div class="tablerow">
+                            <div class="tablecolumn_label short_dynamicsize">
+                                <wicket:message key="password"/>
+                            </div>
+                            <div class="tablecolumn_field medium_dynamicsize">
+                                <input type="password"
+                                       class="ui-widget-content ui-corner-all"
+                                       size="40px"
+                                       wicket:id="password"/>
 
-                    <input type="password"
-                           class="text ui-widget-content ui-corner-all"
-                           size="40px" style="margin-bottom:10px;padding:.4em;"
-                           wicket:id="password"/>
+                                <span wicket:id="mandatory_pwd">*</span>
+                            </div>
+                        </div>
+                    </div>
 
-                    <span wicket:id="mandatory_pwd">*</span>
+                    <script type="text/javascript">
+                        $(function() {
+                            $('#formtable div.tablerow:even').addClass("alt");
+                        });
+                    </script>
                 </div>
 
                 <div id="tabs-2">
@@ -93,11 +106,10 @@
                     <span wicket:id="roles">[roles]</span>
                 </div>
             </div>
-            <div>
-                &nbsp;
-            </div>
-            <div style="bottom:0">
-                <input type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" wicket:id="submit"/>
+            <div style="margin: 20px 10px 0">
+                <input type="submit"
+                       class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+                       wicket:id="apply"/>
             </div>
         </form>
     </div>

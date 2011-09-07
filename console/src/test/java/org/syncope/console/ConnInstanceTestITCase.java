@@ -23,13 +23,14 @@ public class ConnInstanceTestITCase extends AbstractTest {
 
         selenium.click("css=img[alt=\"Connectors\"]");
         selenium.waitForPageToLoad("30000");
-        selenium.click("//div/a");
+        selenium.click("//div[3]/div/a");
         for (int second = 0;; second++) {
             if (second >= 60) {
                 fail("timeout");
             }
             try {
-                if (selenium.isElementPresent("//input[@name='version']")) {
+                if (selenium.isElementPresent(
+                        "//input[@name='version:textField']")) {
                     break;
                 }
             } catch (Exception e) {
@@ -40,12 +41,12 @@ public class ConnInstanceTestITCase extends AbstractTest {
             }
         }
 
-        selenium.select("//select[@name='bundle']",
+        selenium.select("//select[@name='bundle:dropDownChoiceField']",
                 "label=org.connid.bundles.soap 1.1");
         selenium.click("//div[@id='tabs']/ul/li[2]/a/span");
         selenium.click("//form/div[@id='tabs']/ul/li[1]/a/span");
         assertTrue(selenium.isElementPresent(
-                "//form/div[2]/div/table/tbody[2]/tr[4]/td"));
+                "//form/div[2]/div/div/div[4]/div[2]"));
         selenium.click("css=a.w_close");
     }
 
@@ -61,7 +62,8 @@ public class ConnInstanceTestITCase extends AbstractTest {
                 fail("timeout");
             }
             try {
-                if (selenium.isElementPresent("//input[@name='version']")) {
+                if (selenium.isElementPresent(
+                        "//input[@name='version:textField']")) {
                     break;
                 }
             } catch (Exception e) {
@@ -73,7 +75,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         }
 
         assertEquals("ConnInstance103", selenium.getAttribute(
-                "//input[@name='displayName']/@value"));
+                "//input[@name='displayName:textField']/@value"));
         selenium.click("//div[@id='tabs']/ul/li[2]/a/span");
         selenium.click("css=a.w_close");
     }
