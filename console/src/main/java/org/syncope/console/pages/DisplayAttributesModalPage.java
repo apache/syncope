@@ -24,8 +24,8 @@ import org.apache.wicket.markup.html.form.CheckBoxMultipleChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.PreferenceManager;
@@ -53,9 +53,11 @@ public class DisplayAttributesModalPage extends BaseModalPage {
 
         userAttributesForm.add(new CheckBoxMultipleChoice("schemaNames",
                 new PropertyModel(this, "selectedSchemas"), schemaNames));
-        
+
         IndicatingAjaxButton submit = new IndicatingAjaxButton("submit",
-                new Model(getString("submit"))) {
+                new ResourceModel("submit")) {
+
+            private static final long serialVersionUID = -4804368561204623354L;
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target,

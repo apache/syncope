@@ -38,8 +38,8 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.to.ResourceTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
@@ -96,11 +96,10 @@ public class Resources extends BasePage {
 
         List<IColumn> columns = new ArrayList<IColumn>();
 
-        columns.add(new PropertyColumn(new Model(getString("name")),
-                "name", "name"));
+        columns.add(new PropertyColumn(
+                new ResourceModel("name"), "name", "name"));
 
-        columns.add(new AbstractColumn<ResourceTO>(new Model<String>(
-                getString("edit"))) {
+        columns.add(new AbstractColumn<ResourceTO>(new ResourceModel("edit")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 
@@ -150,8 +149,7 @@ public class Resources extends BasePage {
             }
         });
 
-        columns.add(new AbstractColumn<ResourceTO>(new Model<String>(getString(
-                "delete"))) {
+        columns.add(new AbstractColumn<ResourceTO>(new ResourceModel("delete")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 

@@ -23,17 +23,18 @@ import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuth
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.ResourceModel;
 import org.springframework.util.StringUtils;
 import org.syncope.client.to.SchedTaskTO;
 import org.syncope.client.to.SyncTaskTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.commons.SelectChoiceRenderer;
+import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 
 /**
  * Modal window with Task form (to stop and start execution).
@@ -62,28 +63,33 @@ public class SchedTaskModalPage extends TaskModalPage {
         crontab.setOutputMarkupId(true);
         form.add(crontab);
 
-        final TextField lastExec = new TextField("lastExec");
+        final AjaxTextFieldPanel lastExec = new AjaxTextFieldPanel(
+                "lastExec", getString("lastExec"),
+                new PropertyModel<String>(taskTO, "lastExec"), false);
         lastExec.setEnabled(false);
         profile.add(lastExec);
 
-        final TextField nextExec = new TextField("nextExec");
+        final AjaxTextFieldPanel nextExec = new AjaxTextFieldPanel(
+                "nextExec", getString("nextExec"),
+                new PropertyModel<String>(taskTO, "nextExec"), false);
         nextExec.setEnabled(false);
         profile.add(nextExec);
 
-        final DropDownChoice<String> cronTemplateChooser =
-                new DropDownChoice(
+        final DropDownChoice<String> cronTemplateChooser = new DropDownChoice(
                 "cronTemplateChooser",
                 new PropertyModel(taskTO, "cronExpression"),
                 Arrays.asList(Tasks.CRON_TEMPLATES),
                 new SelectChoiceRenderer()) {
 
-                    @Override
-                    protected CharSequence getDefaultChoice(Object selected) {
-                        return "<option value=\"\">"
-                                + getString("chooseForTemplate")
-                                + "</option>";
-                    }
-                };
+            private static final long serialVersionUID = -5843424545478691442L;
+
+            @Override
+            protected CharSequence getDefaultChoice(Object selected) {
+                return "<option value=\"\">"
+                        + getString("chooseForTemplate")
+                        + "</option>";
+            }
+        };
 
         final TextField seconds = new TextField(
                 "seconds",
@@ -118,6 +124,9 @@ public class SchedTaskModalPage extends TaskModalPage {
         cronTemplateChooser.add(
                 new AjaxFormComponentUpdatingBehavior("onchange") {
 
+                    private static final long serialVersionUID =
+                            -1107858522700306810L;
+
                     @Override
                     protected void onUpdate(final AjaxRequestTarget target) {
                         seconds.setModelObject(
@@ -139,7 +148,9 @@ public class SchedTaskModalPage extends TaskModalPage {
         crontab.add(cronTemplateChooser);
 
         final IndicatingAjaxButton submit = new IndicatingAjaxButton(
-                "apply", new Model(getString("apply"))) {
+                "apply", new ResourceModel("apply")) {
+
+            private static final long serialVersionUID = -958724007591692537L;
 
             @Override
             protected void onSubmit(
@@ -163,8 +174,7 @@ public class SchedTaskModalPage extends TaskModalPage {
                             taskTO = taskRestClient.updateSyncTask(
                                     (SyncTaskTO) taskTO);
                         } else {
-                            taskTO = taskRestClient.updateSchedTask(
-                                    taskTO);
+                            taskTO = taskRestClient.updateSchedTask(taskTO);
                         }
                     } else {
                         if (taskTO instanceof SyncTaskTO) {
@@ -172,8 +182,7 @@ public class SchedTaskModalPage extends TaskModalPage {
                             taskTO = taskRestClient.createSyncTask(
                                     (SyncTaskTO) taskTO);
                         } else {
-                            taskTO = taskRestClient.createSchedTask(
-                                    taskTO);
+                            taskTO = taskRestClient.createSchedTask(taskTO);
                         }
                     }
                     window.close(target);

@@ -35,8 +35,8 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
@@ -105,19 +105,21 @@ public class GenericTasks extends Panel {
                 new ArrayList<IColumn<SchedTaskTO>>();
 
         columns.add(new PropertyColumn(
-                new Model(getString("id")), "id", "id"));
+                new ResourceModel("id"), "id", "id"));
 
         columns.add(new PropertyColumn(
-                new Model(getString("class")), "jobClassName", "jobClassName"));
+                new ResourceModel("class"), "jobClassName", "jobClassName"));
 
-        columns.add(new DatePropertyColumn(new Model(getString("lastExec")),
-                "lastExec", "lastExec", null));
+        columns.add(new DatePropertyColumn(
+                new ResourceModel("lastExec"), "lastExec", "lastExec", null));
 
-        columns.add(new DatePropertyColumn(new Model(getString("nextExec")),
-                "nextExec", "nextExec", null));
+        columns.add(new DatePropertyColumn(
+                new ResourceModel("nextExec"), "nextExec", "nextExec", null));
 
         columns.add(new AbstractColumn<SchedTaskTO>(
-                new Model<String>(getString("detail"))) {
+                new ResourceModel("detail")) {
+
+            private static final long serialVersionUID = 2054811145491901166L;
 
             @Override
             public void populateItem(
@@ -129,10 +131,16 @@ public class GenericTasks extends Panel {
 
                 AjaxLink viewLink = new IndicatingAjaxLink("editLink") {
 
+                    private static final long serialVersionUID =
+                            -7978723352517770644L;
+
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
 
                         window.setPageCreator(new ModalWindow.PageCreator() {
+
+                            private static final long serialVersionUID =
+                                    -7834632442532690940L;
 
                             @Override
                             public Page createPage() {
@@ -156,7 +164,9 @@ public class GenericTasks extends Panel {
         });
 
         columns.add(new AbstractColumn<SchedTaskTO>(
-                new Model<String>(getString("execute"))) {
+                new ResourceModel("execute")) {
+
+            private static final long serialVersionUID = 2054811145491901166L;
 
             @Override
             public void populateItem(
@@ -167,6 +177,9 @@ public class GenericTasks extends Panel {
                 final SchedTaskTO taskTO = model.getObject();
 
                 AjaxLink executeLink = new IndicatingAjaxLink("link") {
+
+                    private static final long serialVersionUID =
+                            -7978723352517770644L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -195,7 +208,9 @@ public class GenericTasks extends Panel {
         });
 
         columns.add(new AbstractColumn<SchedTaskTO>(
-                new Model<String>(getString("delete"))) {
+                new ResourceModel("delete")) {
+
+            private static final long serialVersionUID = 2054811145491901166L;
 
             @Override
             public void populateItem(
@@ -207,6 +222,9 @@ public class GenericTasks extends Panel {
 
                 AjaxLink deleteLink = new IndicatingDeleteOnConfirmAjaxLink(
                         "deleteLink") {
+
+                    private static final long serialVersionUID =
+                            -7978723352517770644L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -246,6 +264,8 @@ public class GenericTasks extends Panel {
         window.setWindowClosedCallback(
                 new ModalWindow.WindowClosedCallback() {
 
+                    private static final long serialVersionUID = 8804221891699487139L;
+
                     @Override
                     public void onClose(final AjaxRequestTarget target) {
                         target.addComponent(container);
@@ -271,6 +291,8 @@ public class GenericTasks extends Panel {
 
         rowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
+            private static final long serialVersionUID = -1107858522700306810L;
+
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
                 prefMan.set(getWebRequest(), (WebResponse) getResponse(),
@@ -289,9 +311,14 @@ public class GenericTasks extends Panel {
         // create new user
         AjaxLink createLink = new IndicatingAjaxLink("createLink") {
 
+            private static final long serialVersionUID = -7978723352517770644L;
+
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 window.setPageCreator(new ModalWindow.PageCreator() {
+
+                    private static final long serialVersionUID =
+                            -7834632442532690940L;
 
                     @Override
                     public Page createPage() {

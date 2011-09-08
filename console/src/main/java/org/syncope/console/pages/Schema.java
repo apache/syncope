@@ -34,14 +34,13 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.AbstractBaseBean;
 import org.syncope.client.to.DerivedSchemaTO;
@@ -757,22 +756,23 @@ public class Schema extends BasePage {
      * @param window
      * @param container
      */
-    public void setWindowClosedCallback(final ModalWindow window,
+    private void setWindowClosedCallback(final ModalWindow window,
             final WebMarkupContainer container) {
 
-        window.setWindowClosedCallback(
-                new ModalWindow.WindowClosedCallback() {
+        window.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 
-                    @Override
-                    public void onClose(final AjaxRequestTarget target) {
-                        target.addComponent(container);
-                        if (operationResult) {
-                            info(getString("operation_succeded"));
-                            target.addComponent(feedbackPanel);
-                            operationResult = false;
-                        }
-                    }
-                });
+            private static final long serialVersionUID = 8804221891699487139L;
+
+            @Override
+            public void onClose(final AjaxRequestTarget target) {
+                target.addComponent(container);
+                if (operationResult) {
+                    info(getString("operation_succeded"));
+                    target.addComponent(feedbackPanel);
+                    operationResult = false;
+                }
+            }
+        });
     }
 
     public void setOperationResult(boolean operationResult) {
@@ -780,6 +780,8 @@ public class Schema extends BasePage {
     }
 
     private class SchemaProvider extends SortableDataProvider<SchemaTO> {
+
+        private static final long serialVersionUID = 712816496206559637L;
 
         private final SortableDataProviderComparator<SchemaTO> comparator;
 
@@ -840,6 +842,8 @@ public class Schema extends BasePage {
     private class DerivedSchemaProvider
             extends SortableDataProvider<DerivedSchemaTO> {
 
+        private static final long serialVersionUID = -8518694430295937917L;
+
         private SortableDataProviderComparator<DerivedSchemaTO> comparator;
 
         private SchemaDerivedType schema;
@@ -891,6 +895,8 @@ public class Schema extends BasePage {
 
     private class VirtualSchemaProvider
             extends SortableDataProvider<VirtualSchemaTO> {
+
+        private static final long serialVersionUID = -5431560608852987760L;
 
         private SortableDataProviderComparator<VirtualSchemaTO> comparator;
 
@@ -954,13 +960,15 @@ public class Schema extends BasePage {
 
         for (String field : fields) {
             columns.add(
-                    new PropertyColumn(new Model(getString(field)),
+                    new PropertyColumn(new ResourceModel(field),
                     field,
                     field));
         }
 
         columns.add(new AbstractColumn<AbstractBaseBean>(
-                new Model<String>(getString("edit"))) {
+                new ResourceModel("edit")) {
+
+            private static final long serialVersionUID = 2054811145491901166L;
 
             @Override
             public void populateItem(
@@ -972,11 +980,17 @@ public class Schema extends BasePage {
 
                 AjaxLink editLink = new IndicatingAjaxLink("editLink") {
 
+                    private static final long serialVersionUID =
+                            -7978723352517770644L;
+
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
 
                         modalWindow.setPageCreator(
                                 new ModalWindow.PageCreator() {
+
+                                    private static final long serialVersionUID =
+                                            -7834632442532690940L;
 
                                     @Override
                                     public Page createPage() {
@@ -1009,7 +1023,9 @@ public class Schema extends BasePage {
         });
 
         columns.add(new AbstractColumn<AbstractBaseBean>(
-                new Model<String>(getString("delete"))) {
+                new ResourceModel("delete")) {
+
+            private static final long serialVersionUID = 2054811145491901166L;
 
             @Override
             public void populateItem(
@@ -1021,6 +1037,9 @@ public class Schema extends BasePage {
 
                 AjaxLink deleteLink = new IndicatingDeleteOnConfirmAjaxLink(
                         "deleteLink") {
+
+                    private static final long serialVersionUID =
+                            -7978723352517770644L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -1079,21 +1098,22 @@ public class Schema extends BasePage {
                 prefMan.getPaginatorChoices(),
                 new SelectChoiceRenderer());
 
-        rowChooser.add(
-                new AjaxFormComponentUpdatingBehavior("onchange") {
+        rowChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
-                    @Override
-                    protected void onUpdate(final AjaxRequestTarget target) {
-                        prefMan.set(getWebRequestCycle().getWebRequest(),
-                                getWebRequestCycle().getWebResponse(),
-                                rowsPerPagePrefName,
-                                String.valueOf(rowChooser.getInput()));
-                        dataTable.setRowsPerPage(
-                                Integer.parseInt(rowChooser.getInput()));
+            private static final long serialVersionUID = -1107858522700306810L;
 
-                        target.addComponent(webContainer);
-                    }
-                });
+            @Override
+            protected void onUpdate(final AjaxRequestTarget target) {
+                prefMan.set(getWebRequestCycle().getWebRequest(),
+                        getWebRequestCycle().getWebResponse(),
+                        rowsPerPagePrefName,
+                        String.valueOf(rowChooser.getInput()));
+                dataTable.setRowsPerPage(
+                        Integer.parseInt(rowChooser.getInput()));
+
+                target.addComponent(webContainer);
+            }
+        });
 
         usersPaginatorForm.add(rowChooser);
 
@@ -1110,25 +1130,31 @@ public class Schema extends BasePage {
 
         AjaxLink createSchemaWinLink = new IndicatingAjaxLink(winLinkName) {
 
+            private static final long serialVersionUID = -7978723352517770644L;
+
             @Override
             public void onClick(final AjaxRequestTarget target) {
 
-                createSchemaWin.setPageCreator(
-                        new ModalWindow.PageCreator() {
+                createSchemaWin.setPageCreator(new ModalWindow.PageCreator() {
 
-                            public Page createPage() {
-                                AbstractSchemaModalPage page =
-                                        SchemaModalPageFactory.getSchemaModalPage(entity, schemaType);
+                    private static final long serialVersionUID =
+                            -7834632442532690940L;
 
-                                page.setSchemaModalPage(
-                                        Schema.this,
-                                        new ModalWindow(winName),
-                                        null,
-                                        true);
+                    @Override
+                    public Page createPage() {
+                        AbstractSchemaModalPage page =
+                                SchemaModalPageFactory.getSchemaModalPage(
+                                entity, schemaType);
 
-                                return page;
-                            }
-                        });
+                        page.setSchemaModalPage(
+                                Schema.this,
+                                new ModalWindow(winName),
+                                null,
+                                true);
+
+                        return page;
+                    }
+                });
 
                 createSchemaWin.show(target);
             }

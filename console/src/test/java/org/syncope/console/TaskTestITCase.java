@@ -25,16 +25,16 @@ public class TaskTestITCase extends AbstractTest {
         selenium.waitForPageToLoad("30000");
         selenium.click("//div[@id='tabs']/ul/li[3]/a/span");
         selenium.click(
-                "//div[3]/span/div/span/table/tbody/tr/td[6]/span/a/span");
+                "//div[3]/div[3]/span/div/span/table/tbody/tr/td[6]/span/a/span");
         assertTrue(selenium.isTextPresent("Operation executed successfully"));
-        selenium.click("//div[3]/span/div/span/table/tbody/tr/td[5]/span/a");
+        selenium.click("//div[3]/div[3]/span/div/span/table/tbody/tr/td[5]/span/a");
         for (int second = 0;; second++) {
             if (second >= 60) {
                 fail("timeout");
             }
             try {
                 if (selenium.isElementPresent(
-                        "//input[@name=\"profile:id\"]")) {
+                        "//input[@name=\"profile:id:textField\"]")) {
 
                     break;
                 }
@@ -64,7 +64,7 @@ public class TaskTestITCase extends AbstractTest {
         selenium.click("css=img[alt=\"Tasks\"]");
         selenium.waitForPageToLoad("30000");
         selenium.click("//div[@id='tabs']/ul/li[2]/a/span");
-        selenium.click("//div[2]/span/div/span/table/tbody/tr/td[7]/span/a");
+        selenium.click("//div[3]/div[2]/span/div/span/table/tbody/tr/td[7]/span/a");
         assertTrue(selenium.getConfirmation().matches(
                 "^Do you really want to delete the selected item[\\s\\S]$"));
         assertTrue(selenium.isTextPresent("Operation executed successfully"));

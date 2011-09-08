@@ -54,6 +54,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.search.AttributeCond;
 import org.syncope.client.search.MembershipCond;
@@ -91,6 +92,8 @@ public class Users extends BasePage {
     private final static String DERIVED_ATTRIBUTE_PREFIX = "[D] ";
 
     private final static String VIRTUAL_ATTRIBUTE_PREFIX = "[V] ";
+
+    private static final long serialVersionUID = 134681165644474568L;
 
     @SpringBean
     private UserRestClient userRestClient;
@@ -169,6 +172,9 @@ public class Users extends BasePage {
 
     final private IModel<List<String>> roleNames =
             new LoadableDetachableModel<List<String>>() {
+
+                private static final long serialVersionUID =
+                        5275935387613157437L;
 
                 @Override
                 protected List<String> load() {
@@ -293,11 +299,16 @@ public class Users extends BasePage {
         setWindowClosedReloadCallback(displayAttrsModalWin, listTable);
 
         // create new user
-        AjaxLink createLink = new IndicatingAjaxLink("createLink") {
+        final AjaxLink createLink = new IndicatingAjaxLink("createLink") {
+
+            private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 editModalWin.setPageCreator(new ModalWindow.PageCreator() {
+
+                    private static final long serialVersionUID =
+                            -7834632442532690940L;
 
                     @Override
                     public Page createPage() {
@@ -316,11 +327,16 @@ public class Users extends BasePage {
         // select attributes to be displayed
         AjaxLink displayAttrsLink = new IndicatingAjaxLink("displayAttrsLink") {
 
+            private static final long serialVersionUID = -7978723352517770644L;
+
             @Override
             public void onClick(final AjaxRequestTarget target) {
 
                 displayAttrsModalWin.setPageCreator(
                         new ModalWindow.PageCreator() {
+
+                            private static final long serialVersionUID =
+                                    -7834632442532690940L;
 
                             @Override
                             public Page createPage() {
@@ -348,6 +364,8 @@ public class Users extends BasePage {
                 new SelectChoiceRenderer());
         rowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
+            private static final long serialVersionUID = -1107858522700306810L;
+
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
                 prefMan.set(getWebRequestCycle().getWebRequest(),
@@ -369,6 +387,8 @@ public class Users extends BasePage {
 
         final FeedbackPanel searchFeedback = new FeedbackPanel(
                 "searchFeedback", new IFeedbackMessageFilter() {
+
+            private static final long serialVersionUID = 6895024863321391672L;
 
             @Override
             public boolean accept(final FeedbackMessage message) {
@@ -402,7 +422,9 @@ public class Users extends BasePage {
                 searchConditionList, searchFormContainer));
 
         AjaxButton addAndButton = new IndicatingAjaxButton("addAndButton",
-                new Model(getString("addAndButton"))) {
+                new ResourceModel("addAndButton")) {
+
+            private static final long serialVersionUID = -4804368561204623354L;
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target,
@@ -419,7 +441,9 @@ public class Users extends BasePage {
         searchFormContainer.add(addAndButton);
 
         AjaxButton addOrButton = new IndicatingAjaxButton("addOrButton",
-                new Model(getString("addOrButton"))) {
+                new ResourceModel("addOrButton")) {
+
+            private static final long serialVersionUID = -4804368561204623354L;
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target,
@@ -455,6 +479,9 @@ public class Users extends BasePage {
         searchEditModalWin.setWindowClosedCallback(
                 new ModalWindow.WindowClosedCallback() {
 
+                    private static final long serialVersionUID =
+                            8804221891699487139L;
+
                     @Override
                     public void onClose(final AjaxRequestTarget target) {
                         doSearch(target, searchConditionList,
@@ -477,8 +504,10 @@ public class Users extends BasePage {
                     }
                 });
 
-        searchForm.add(new IndicatingAjaxButton("search", new Model(
-                getString("search"))) {
+        searchForm.add(new IndicatingAjaxButton(
+                "search", new ResourceModel("search")) {
+
+            private static final long serialVersionUID = -958724007591692537L;
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target,
@@ -506,56 +535,57 @@ public class Users extends BasePage {
                 new DropDownChoice<Integer>("searchRowsChooser",
                 new PropertyModel(this, "searchPaginatorRows"),
                 prefMan.getPaginatorChoices());
-        searchRowsChooser.add(
-                new AjaxFormComponentUpdatingBehavior("onchange") {
+        searchRowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
-                    @Override
-                    protected void onUpdate(final AjaxRequestTarget target) {
-                        prefMan.set(getWebRequestCycle().getWebRequest(),
-                                getWebRequestCycle().getWebResponse(),
-                                Constants.PREF_USERS_SEARCH_PAGINATOR_ROWS,
-                                String.valueOf(searchPaginatorRows));
+            private static final long serialVersionUID = -1107858522700306810L;
 
-                        searchResultTable.setRowsPerPage(searchPaginatorRows);
+            @Override
+            protected void onUpdate(final AjaxRequestTarget target) {
+                prefMan.set(getWebRequestCycle().getWebRequest(),
+                        getWebRequestCycle().getWebResponse(),
+                        Constants.PREF_USERS_SEARCH_PAGINATOR_ROWS,
+                        String.valueOf(searchPaginatorRows));
 
-                        target.addComponent(searchResultContainer);
-                    }
-                });
+                searchResultTable.setRowsPerPage(searchPaginatorRows);
+
+                target.addComponent(searchResultContainer);
+            }
+        });
         searchPaginatorForm.add(searchRowsChooser);
     }
 
     private void setWindowClosedReloadCallback(final ModalWindow window,
             final AjaxFallbackDefaultDataTable<UserTO> table) {
 
-        window.setWindowClosedCallback(
-                new ModalWindow.WindowClosedCallback() {
+        window.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 
-                    @Override
-                    public void onClose(final AjaxRequestTarget target) {
-                        if (modalResult) {
-                            getSession().info(getString("operation_succeded"));
+            private static final long serialVersionUID = 8804221891699487139L;
 
-                            getPage().getPageParameters().put(table.getId()
-                                    + Constants.PAGEPARAM_CURRENT_PAGE,
-                                    table.getCurrentPage());
-                            setResponsePage(Users.class,
-                                    getPage().getPageParameters());
+            @Override
+            public void onClose(final AjaxRequestTarget target) {
+                if (modalResult) {
+                    getSession().info(getString("operation_succeded"));
 
-                            target.addComponent(feedbackPanel);
+                    getPage().getPageParameters().put(table.getId()
+                            + Constants.PAGEPARAM_CURRENT_PAGE,
+                            table.getCurrentPage());
+                    setResponsePage(Users.class,
+                            getPage().getPageParameters());
 
-                            modalResult = false;
-                        }
-                    }
-                });
+                    target.addComponent(feedbackPanel);
+
+                    modalResult = false;
+                }
+            }
+        });
     }
 
     private List<IColumn<UserTO>> getColumns(final ModalWindow editModalWin) {
         List<IColumn<UserTO>> columns = new ArrayList<IColumn<UserTO>>();
+        columns.add(new PropertyColumn(new ResourceModel("id"), "id", "id"));
         columns.add(new PropertyColumn(
-                new Model(getString("id")), "id", "id"));
-        columns.add(new PropertyColumn(
-                new Model(getString("status")), "status", "status"));
-        columns.add(new TokenColumn(new Model(getString("token")), "token"));
+                new ResourceModel("status"), "status", "status"));
+        columns.add(new TokenColumn(new ResourceModel("token"), "token"));
 
         for (String schemaName : prefMan.getList(getWebRequestCycle().
                 getWebRequest(), Constants.PREF_USERS_ATTRIBUTES_VIEW)) {
@@ -564,8 +594,9 @@ public class Users extends BasePage {
                     new Model<String>(schemaName), schemaName));
         }
 
-        columns.add(new AbstractColumn<UserTO>(new Model<String>(getString(
-                "edit"))) {
+        columns.add(new AbstractColumn<UserTO>(new ResourceModel("edit")) {
+
+            private static final long serialVersionUID = 2054811145491901166L;
 
             @Override
             public void populateItem(
@@ -579,10 +610,16 @@ public class Users extends BasePage {
 
                 panel.add(new IndicatingAjaxLink("editLink") {
 
+                    private static final long serialVersionUID =
+                            -7978723352517770644L;
+
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
                         editModalWin.setPageCreator(
                                 new ModalWindow.PageCreator() {
+
+                                    private static final long serialVersionUID =
+                                            -7834632442532690940L;
 
                                     @Override
                                     public Page createPage() {
@@ -598,8 +635,9 @@ public class Users extends BasePage {
                 cellItem.add(panel);
             }
         });
-        columns.add(new AbstractColumn<UserTO>(new Model<String>(getString(
-                "delete"))) {
+        columns.add(new AbstractColumn<UserTO>(new ResourceModel("delete")) {
+
+            private static final long serialVersionUID = 2054811145491901166L;
 
             @Override
             public void populateItem(
@@ -612,6 +650,9 @@ public class Users extends BasePage {
                         xmlRolesReader.getAllAllowedRoles("Users", "delete"));
 
                 panel.add(new IndicatingDeleteOnConfirmAjaxLink("deleteLink") {
+
+                    private static final long serialVersionUID =
+                            -7978723352517770644L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -740,6 +781,8 @@ public class Users extends BasePage {
 
     private class UserDataProvider extends SortableDataProvider<UserTO> {
 
+        private static final long serialVersionUID = -990501676569033716L;
+
         private SortableUserProviderComparator comparator;
 
         public UserDataProvider() {
@@ -769,6 +812,8 @@ public class Users extends BasePage {
     }
 
     private class UserSearchDataProvider extends SortableDataProvider<UserTO> {
+
+        private static final long serialVersionUID = -691642206401562808L;
 
         private SortableUserProviderComparator comparator;
 
@@ -813,6 +858,8 @@ public class Users extends BasePage {
 
     private class TokenColumn extends AbstractColumn<UserTO> {
 
+        private static final long serialVersionUID = 8077865338230121496L;
+
         public TokenColumn(final IModel<String> displayModel,
                 final String sortProperty) {
 
@@ -836,6 +883,8 @@ public class Users extends BasePage {
     }
 
     private static class UserAttrColumn extends AbstractColumn<UserTO> {
+
+        private static final long serialVersionUID = 2624734332447371372L;
 
         private final String schemaName;
 
@@ -888,6 +937,8 @@ public class Users extends BasePage {
     }
 
     private class SearchView extends ListView<SearchConditionWrapper> {
+
+        private static final long serialVersionUID = -527351923968737757L;
 
         final private WebMarkupContainer searchFormContainer;
 
@@ -1051,7 +1102,7 @@ public class Users extends BasePage {
             item.add(filterTypeChooser);
 
             AjaxButton dropButton = new IndicatingAjaxButton(
-                    "dropButton", new Model(getString("dropButton"))) {
+                    "dropButton", new ResourceModel("dropButton")) {
 
                 private static final long serialVersionUID =
                         -4804368561204623354L;

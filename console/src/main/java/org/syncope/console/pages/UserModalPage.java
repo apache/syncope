@@ -34,7 +34,7 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.PasswordTextField;
 import org.apache.wicket.model.CompoundPropertyModel;
-import org.apache.wicket.model.Model;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.mod.AttributeMod;
 import org.syncope.client.mod.MembershipMod;
@@ -95,6 +95,8 @@ public class UserModalPage extends BaseModalPage {
                 new WebMarkupContainerWithAssociatedMarkup("mandatory_pwd");
         mandatoryPassword.add(new AbstractBehavior() {
 
+            private static final long serialVersionUID = 1469628524240283489L;
+
             @Override
             public void onComponentTag(final Component component,
                     final ComponentTag tag) {
@@ -132,8 +134,8 @@ public class UserModalPage extends BaseModalPage {
         form.add(new RolesPanel("roles", userTO));
         //--------------------------------
 
-        final AjaxButton submit = new IndicatingAjaxButton("apply", new Model(
-                getString("submit"))) {
+        final AjaxButton submit = new IndicatingAjaxButton(
+                "apply", new ResourceModel("submit")) {
 
             private static final long serialVersionUID = -958724007591692537L;
 

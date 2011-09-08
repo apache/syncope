@@ -34,12 +34,13 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.FormComponent;
-import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.springframework.util.StringUtils;
 import org.syncope.client.to.PropagationTaskTO;
@@ -52,6 +53,7 @@ import org.syncope.console.commons.SortableDataProviderComparator;
 import org.syncope.console.pages.Tasks.DatePropertyColumn;
 import org.syncope.console.rest.TaskRestClient;
 import org.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
+import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.syncope.console.wicket.markup.html.form.DeleteLinkPanel;
 import org.syncope.console.wicket.markup.html.form.LinkPanel;
 
@@ -59,6 +61,8 @@ import org.syncope.console.wicket.markup.html.form.LinkPanel;
  * Modal window with Task form (to stop and start execution).
  */
 public class TaskModalPage extends BaseModalPage {
+
+    private static final long serialVersionUID = -4110576026663173545L;
 
     @SpringBean
     protected TaskRestClient taskRestClient;
@@ -81,15 +85,17 @@ public class TaskModalPage extends BaseModalPage {
                 : taskRestClient.readSchedTask(
                 SchedTaskTO.class, taskTO.getId());
 
+        taskTO.setExecutions(actual.getExecutions());
+
         final Label dialogContent =
                 new Label("dialogContent", new Model<String>(""));
 
         add(dialogContent.setOutputMarkupId(true));
 
-        form = new Form("TaskForm");
+        form = new Form("form");
         add(form);
 
-        form.setModel(new CompoundPropertyModel(actual));
+        form.setModel(new CompoundPropertyModel(taskTO));
 
         profile = new WebMarkupContainer("profile");
         profile.setOutputMarkupId(true);
@@ -99,29 +105,34 @@ public class TaskModalPage extends BaseModalPage {
         executions.setOutputMarkupId(true);
         form.add(executions);
 
-        final Label idLabel = new Label("idLabel", getString("id"));
-        idLabel.setVisible(actual.getId() != 0);
+        final Label idLabel = new Label("idLabel", new ResourceModel("id"));
+//        idLabel.setVisible(actual.getId() != 0);
         profile.add(idLabel);
 
-        final TextField id = new TextField("id");
+        final AjaxTextFieldPanel id = new AjaxTextFieldPanel(
+                "id", getString("id"),
+                new PropertyModel<String>(taskTO, "id"), false);
+
         id.setEnabled(false);
-        id.setVisible(actual.getId() != 0);
+//        id.setVisible(actual.getId() != 0);
         profile.add(id);
 
         final List<IColumn> columns = new ArrayList<IColumn>();
-        columns.add(new PropertyColumn(new Model(getString("id")), "id", "id"));
+        columns.add(new PropertyColumn(new ResourceModel("id"), "id", "id"));
 
-        columns.add(new DatePropertyColumn(new Model(getString("startDate")),
-                "startDate", "startDate", null));
+        columns.add(new DatePropertyColumn(
+                new ResourceModel("startDate"), "startDate", "startDate", null));
 
-        columns.add(new DatePropertyColumn(new Model(getString("endDate")),
-                "endDate", "endDate", null));
+        columns.add(new DatePropertyColumn(
+                new ResourceModel("endDate"), "endDate", "endDate", null));
 
-        columns.add(new PropertyColumn(new Model(getString("status")),
-                "status", "status"));
+        columns.add(new PropertyColumn(
+                new ResourceModel("status"), "status", "status"));
 
         columns.add(new AbstractColumn<TaskExecTO>(
-                new Model<String>(getString("message"))) {
+                new ResourceModel("message")) {
+
+            private static final long serialVersionUID = 2054811145491901166L;
 
             @Override
             public void populateItem(
@@ -130,6 +141,9 @@ public class TaskModalPage extends BaseModalPage {
                     final IModel<TaskExecTO> model) {
 
                 AjaxLink messageLink = new IndicatingAjaxLink("link") {
+
+                    private static final long serialVersionUID =
+                            -7978723352517770644L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -158,7 +172,9 @@ public class TaskModalPage extends BaseModalPage {
         });
 
         columns.add(new AbstractColumn<TaskExecTO>(
-                new Model<String>(getString("delete"))) {
+                new ResourceModel("delete")) {
+
+            private static final long serialVersionUID = 2054811145491901166L;
 
             @Override
             public void populateItem(
@@ -171,13 +187,16 @@ public class TaskModalPage extends BaseModalPage {
                 AjaxLink deleteLink = new IndicatingDeleteOnConfirmAjaxLink(
                         "deleteLink") {
 
+                    private static final long serialVersionUID =
+                            -7978723352517770644L;
+
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
                         try {
                             taskRestClient.deleteExecution(
                                     taskExecutionTO.getId());
 
-                            actual.removeExecution(taskExecutionTO);
+                            taskTO.removeExecution(taskExecutionTO);
 
                             info(getString("operation_succeded"));
                         } catch (SyncopeClientCompositeErrorException scce) {
@@ -201,13 +220,15 @@ public class TaskModalPage extends BaseModalPage {
 
         final AjaxFallbackDefaultDataTable table =
                 new AjaxFallbackDefaultDataTable("executionsTable", columns,
-                new TaskExecutionsProvider(actual), 10);
+                new TaskExecutionsProvider(taskTO), 10);
 
         executions.add(table);
     }
 
     protected class TaskExecutionsProvider
             extends SortableDataProvider<TaskExecTO> {
+
+        private static final long serialVersionUID = 8943636537120648961L;
 
         private SortableDataProviderComparator<TaskExecTO> comparator;
 
@@ -242,6 +263,9 @@ public class TaskModalPage extends BaseModalPage {
                 final TaskExecTO taskExecution) {
 
             return new AbstractReadOnlyModel<TaskExecTO>() {
+
+                private static final long serialVersionUID =
+                        7485475149862342421L;
 
                 @Override
                 public TaskExecTO getObject() {

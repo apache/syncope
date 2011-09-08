@@ -38,8 +38,8 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.to.ConnInstanceTO;
 import org.syncope.client.to.ResourceTO;
@@ -98,23 +98,25 @@ public class Connectors extends BasePage {
 
         List<IColumn> columns = new ArrayList<IColumn>();
 
-        columns.add(new PropertyColumn(new Model(getString("id")),
+        columns.add(new PropertyColumn(new ResourceModel("id"),
                 "id", "id"));
 
-        columns.add(new PropertyColumn(new Model(getString("name")),
+        columns.add(new PropertyColumn(new ResourceModel("name"),
                 "connectorName", "connectorName"));
 
-        columns.add(new PropertyColumn(new Model(getString("displayName")),
+        columns.add(new PropertyColumn(new ResourceModel("displayName"),
                 "displayName", "displayName"));
 
-        columns.add(new PropertyColumn(new Model(getString("version")),
+        columns.add(new PropertyColumn(new ResourceModel("version"),
                 "version", "version"));
 
-        columns.add(new PropertyColumn(new Model(getString("bundleName")),
+        columns.add(new PropertyColumn(new ResourceModel("bundleName"),
                 "bundleName", "bundleName"));
 
-        columns.add(new AbstractColumn<ConnInstanceTO>(new Model<String>(
-                getString("edit"))) {
+        columns.add(new AbstractColumn<ConnInstanceTO>(
+                new ResourceModel("edit")) {
+
+            private static final long serialVersionUID = 2054811145491901166L;
 
             @Override
             public void populateItem(
@@ -126,11 +128,17 @@ public class Connectors extends BasePage {
 
                 final AjaxLink editLink = new IndicatingAjaxLink("editLink") {
 
+                    private static final long serialVersionUID =
+                            -7978723352517770644L;
+
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
 
                         editConnectorWin.setPageCreator(
                                 new ModalWindow.PageCreator() {
+
+                                    private static final long serialVersionUID =
+                                            -7834632442532690940L;
 
                                     @Override
                                     public Page createPage() {
@@ -157,7 +165,9 @@ public class Connectors extends BasePage {
         });
 
         columns.add(new AbstractColumn<ConnInstanceTO>(
-                new Model<String>(getString("delete"))) {
+                new ResourceModel("delete")) {
+
+            private static final long serialVersionUID = 2054811145491901166L;
 
             @Override
             public void populateItem(
@@ -169,6 +179,9 @@ public class Connectors extends BasePage {
 
                 AjaxLink deleteLink = new IndicatingDeleteOnConfirmAjaxLink(
                         "deleteLink") {
+
+                    private static final long serialVersionUID =
+                            -7978723352517770644L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -234,11 +247,17 @@ public class Connectors extends BasePage {
         AjaxLink createConnectorLink = new IndicatingAjaxLink(
                 "createConnectorLink") {
 
+            private static final long serialVersionUID = -7978723352517770644L;
+
             @Override
             public void onClick(AjaxRequestTarget target) {
 
                 createConnectorWin.setPageCreator(new ModalWindow.PageCreator() {
 
+                    private static final long serialVersionUID =
+                            -7834632442532690940L;
+
+                    @Override
                     public Page createPage() {
                         ConnectorModalPage form = new ConnectorModalPage(
                                 Connectors.this, editConnectorWin,
@@ -266,6 +285,9 @@ public class Connectors extends BasePage {
 
         rowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
+            private static final long serialVersionUID = -1107858522700306810L;
+
+            @Override
             protected void onUpdate(AjaxRequestTarget target) {
                 prefMan.set(getWebRequestCycle().getWebRequest(),
                         getWebRequestCycle().getWebResponse(),
@@ -304,12 +326,16 @@ public class Connectors extends BasePage {
      * @param current window
      * @param container to refresh
      */
-    public void setWindowClosedCallback(ModalWindow window,
+    private void setWindowClosedCallback(ModalWindow window,
             final WebMarkupContainer container) {
 
         window.setWindowClosedCallback(
                 new ModalWindow.WindowClosedCallback() {
 
+                    private static final long serialVersionUID =
+                            8804221891699487139L;
+
+                    @Override
                     public void onClose(AjaxRequestTarget target) {
                         target.addComponent(container);
                         if (operationResult) {
@@ -330,6 +356,8 @@ public class Connectors extends BasePage {
     }
 
     class ConnectorsProvider extends SortableDataProvider<ConnInstanceTO> {
+
+        private static final long serialVersionUID = 4445909568349448518L;
 
         private SortableDataProviderComparator<ConnInstanceTO> comparator;
 
@@ -360,6 +388,9 @@ public class Connectors extends BasePage {
                 final ConnInstanceTO connector) {
 
             return new AbstractReadOnlyModel<ConnInstanceTO>() {
+
+                private static final long serialVersionUID =
+                        -6033068018293569398L;
 
                 @Override
                 public ConnInstanceTO getObject() {

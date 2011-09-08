@@ -48,8 +48,8 @@ import org.apache.wicket.markup.html.list.PropertyListView;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.client.RestClientException;
@@ -106,14 +106,14 @@ public class Configuration extends BasePage {
 
         List<IColumn> confColumns = new ArrayList<IColumn>();
 
-        confColumns.add(new PropertyColumn(new Model(getString("key")),
+        confColumns.add(new PropertyColumn(new ResourceModel("key"),
                 "key", "key"));
 
-        confColumns.add(new PropertyColumn(new Model(getString("value")),
+        confColumns.add(new PropertyColumn(new ResourceModel("value"),
                 "value", "value"));
 
-        confColumns.add(new AbstractColumn<ConfigurationTO>(new Model<String>(
-                getString("edit"))) {
+        confColumns.add(new AbstractColumn<ConfigurationTO>(
+                new ResourceModel("edit")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 
@@ -158,7 +158,7 @@ public class Configuration extends BasePage {
         });
 
         confColumns.add(new AbstractColumn<ConfigurationTO>(
-                new Model<String>(getString("delete"))) {
+                new ResourceModel("delete")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 

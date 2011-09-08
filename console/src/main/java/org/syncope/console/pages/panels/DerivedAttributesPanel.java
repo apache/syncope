@@ -34,6 +34,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,6 +65,9 @@ public class DerivedAttributesPanel extends Panel {
         final IModel<List<String>> derivedSchemaNames =
                 new LoadableDetachableModel<List<String>>() {
 
+                    private static final long serialVersionUID =
+                            5275935387613157437L;
+
                     @Override
                     protected List<String> load() {
                         if (entityTO instanceof RoleTO) {
@@ -86,8 +90,9 @@ public class DerivedAttributesPanel extends Panel {
         add(attributesContainer);
 
         AjaxButton addAttributeBtn = new IndicatingAjaxButton(
-                "addAttributeBtn",
-                new Model(getString("addAttributeBtn"))) {
+                "addAttributeBtn", new ResourceModel("addAttributeBtn")) {
+
+            private static final long serialVersionUID = -4804368561204623354L;
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target,
@@ -100,10 +105,13 @@ public class DerivedAttributesPanel extends Panel {
 
         add(addAttributeBtn.setDefaultFormProcessing(Boolean.FALSE));
 
-        ListView<AttributeTO> attributes = new ListView<AttributeTO>(
+        final ListView<AttributeTO> attributes = new ListView<AttributeTO>(
                 "attributes",
                 new PropertyModel<List<? extends AttributeTO>>(
                 entityTO, "derivedAttributes")) {
+
+            private static final long serialVersionUID =
+                    9101744072914090143L;
 
             @Override
             protected void populateItem(final ListItem<AttributeTO> item) {
@@ -111,6 +119,9 @@ public class DerivedAttributesPanel extends Panel {
 
                 item.add(new AjaxDecoratedCheckbox(
                         "toRemove", new Model(Boolean.FALSE)) {
+
+                    private static final long serialVersionUID =
+                            7170946748485726506L;
 
                     @Override
                     protected void onUpdate(final AjaxRequestTarget target) {
@@ -122,6 +133,9 @@ public class DerivedAttributesPanel extends Panel {
                     protected IAjaxCallDecorator getAjaxCallDecorator() {
                         return new AjaxPreprocessingCallDecorator(
                                 super.getAjaxCallDecorator()) {
+
+                            private static final long serialVersionUID =
+                                    -7927968187160354605L;
 
                             @Override
                             public CharSequence preDecorateScript(
@@ -143,6 +157,9 @@ public class DerivedAttributesPanel extends Panel {
                         derivedSchemaNames);
 
                 schemaChoice.add(new AjaxFormComponentUpdatingBehavior("onblur") {
+
+                    private static final long serialVersionUID =
+                            -1107858522700306810L;
 
                     @Override
                     protected void onUpdate(AjaxRequestTarget art) {

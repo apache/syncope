@@ -29,8 +29,8 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.mod.AttributeMod;
@@ -144,7 +144,7 @@ public class RoleModalPage extends BaseModalPage {
         form.add(entitlementsPalette);
 
         submit = new IndicatingAjaxButton(
-                "submit", new Model(getString("submit"))) {
+                "submit", new ResourceModel("submit")) {
 
             private static final long serialVersionUID = -958724007591692537L;
 

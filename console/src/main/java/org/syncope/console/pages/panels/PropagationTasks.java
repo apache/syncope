@@ -39,8 +39,8 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
@@ -75,6 +75,8 @@ public class PropagationTasks extends Panel {
 
     private static final int WIN_WIDTH = 700;
 
+    private static final long serialVersionUID = 4984337552918213290L;
+
     @SpringBean
     private TaskRestClient restClient;
 
@@ -108,24 +110,25 @@ public class PropagationTasks extends Panel {
         List<IColumn<TaskTO>> columns = new ArrayList<IColumn<TaskTO>>();
 
         columns.add(new PropertyColumn(
-                new Model(getString("id")), "id", "id"));
+                new ResourceModel("id"), "id", "id"));
 
         columns.add(new PropertyColumn(
-                new Model(getString("resource")), "resource", "resource"));
+                new ResourceModel("resource"), "resource", "resource"));
 
         columns.add(new PropertyColumn(
-                new Model(getString("accountId")), "accountId", "accountId"));
+                new ResourceModel("accountId"), "accountId", "accountId"));
 
         columns.add(new PropertyColumn(
-                new Model(getString("propagationMode")),
+                new ResourceModel("propagationMode"),
                 "propagationMode", "propagationMode"));
 
         columns.add(new PropertyColumn(
-                new Model(getString("resourceOperationType")),
+                new ResourceModel("resourceOperationType"),
                 "resourceOperationType", "resourceOperationType"));
 
-        columns.add(new AbstractColumn<TaskTO>(new Model<String>(getString(
-                "detail"))) {
+        columns.add(new AbstractColumn<TaskTO>(new ResourceModel("detail")) {
+
+            private static final long serialVersionUID = 2054811145491901166L;
 
             @Override
             public void populateItem(
@@ -141,6 +144,9 @@ public class PropagationTasks extends Panel {
                     public void onClick(final AjaxRequestTarget target) {
 
                         window.setPageCreator(new ModalWindow.PageCreator() {
+
+                            private static final long serialVersionUID =
+                                    -7834632442532690940L;
 
                             @Override
                             public Page createPage() {
@@ -163,8 +169,9 @@ public class PropagationTasks extends Panel {
             }
         });
 
-        columns.add(new AbstractColumn<TaskTO>(new Model<String>(getString(
-                "execute"))) {
+        columns.add(new AbstractColumn<TaskTO>(new ResourceModel("execute")) {
+
+            private static final long serialVersionUID = 2054811145491901166L;
 
             @Override
             public void populateItem(
@@ -175,6 +182,9 @@ public class PropagationTasks extends Panel {
                 final TaskTO taskTO = model.getObject();
 
                 AjaxLink executeLink = new IndicatingAjaxLink("link") {
+
+                    private static final long serialVersionUID =
+                            -7978723352517770644L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -202,8 +212,9 @@ public class PropagationTasks extends Panel {
             }
         });
 
-        columns.add(new AbstractColumn<TaskTO>(new Model<String>(getString(
-                "delete"))) {
+        columns.add(new AbstractColumn<TaskTO>(new ResourceModel("delete")) {
+
+            private static final long serialVersionUID = 2054811145491901166L;
 
             @Override
             public void populateItem(
@@ -215,6 +226,9 @@ public class PropagationTasks extends Panel {
 
                 AjaxLink deleteLink = new IndicatingDeleteOnConfirmAjaxLink(
                         "deleteLink") {
+
+                    private static final long serialVersionUID =
+                            -7978723352517770644L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -252,6 +266,9 @@ public class PropagationTasks extends Panel {
         window.setWindowClosedCallback(
                 new ModalWindow.WindowClosedCallback() {
 
+                    private static final long serialVersionUID =
+                            8804221891699487139L;
+
                     @Override
                     public void onClose(final AjaxRequestTarget target) {
                         target.addComponent(container);
@@ -277,6 +294,8 @@ public class PropagationTasks extends Panel {
 
         rowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
+            private static final long serialVersionUID = -1107858522700306810L;
+
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
                 prefMan.set(getWebRequest(), (WebResponse) getResponse(),
@@ -294,6 +313,8 @@ public class PropagationTasks extends Panel {
     }
 
     private class TasksProvider extends SortableDataProvider<TaskTO> {
+
+        private static final long serialVersionUID = 4086548740205316461L;
 
         private SortableDataProviderComparator<TaskTO> comparator;
 

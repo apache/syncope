@@ -39,9 +39,10 @@
     </script>
 </wicket:head>
 <wicket:extend>
-    <div id="dialog-form">
+    <div style="margin:10px">
         <p class="ui-widget ui-corner-all ui-widget-header"><wicket:message key="title"/></p>
-        <form wicket:id="TaskForm">
+
+        <form wicket:id="form">
 
             <div id="tabs">
                 <ul>
@@ -54,37 +55,83 @@
                 <div id="profile">
                     <div id="users-contain" class="ui-widget">
                         <span wicket:id="profile">
-                            <fieldset>
-                                <span wicket:id="idLabel">[Id]</span>
-                                <input type="text" id="id" class="text ui-widget-content ui-corner-all" wicket:id="id" />
+                            <div id="formtable">
 
-                                <label for="resource"><wicket:message key="resourceName"/></label>
-                                <select class="text ui-widget-content ui-corner-all" wicket:id="resource"/>
+                                <div class="tablerow">
+                                    <div class="tablecolumn_label short_dynamicsize">
+                                        <span wicket:id="idLabel">[Id]</span>
+                                    </div>
+                                    <div class="tablecolumn_field medium_dynamicsize">
+                                        <span wicket:id="id">[id]</span>
+                                    </div>
+                                </div>
 
-                                <label for="lastExec"><wicket:message key="lastExec"/></label>
-                                <input type="text" id="lastExec" class="text ui-widget-content ui-corner-all" wicket:id="lastExec" />
+                                <div class="tablerow">
+                                    <div class="tablecolumn_label short_dynamicsize">
+                                        <label for="resource"><wicket:message key="resourceName"/></label>
+                                    </div>
+                                    <div class="tablecolumn_field medium_dynamicsize">
+                                        <span wicket:id="resource">[resource]</span>
+                                    </div>
+                                </div>
 
-                                <label for="nextExec"><wicket:message key="nextExec"/></label>
-                                <input type="text" id="nextExec" class="text ui-widget-content ui-corner-all" wicket:id="nextExec" />
+                                <div class="tablerow">
+                                    <div class="tablecolumn_label short_dynamicsize">
+                                        <label for="lastExec"><wicket:message key="lastExec"/></label>
+                                    </div>
+                                    <div class="tablecolumn_field medium_dynamicsize">
+                                        <span wicket:id="lastExec">[lastExec]</span>
+                                    </div>
+                                </div>
 
-                                <label for="updateIdentities"><wicket:message key="updates"/></label>
-                                <input type="checkbox" wicket:id="updateIdentities" />
-                            </fieldset>
+                                <div class="tablerow">
+                                    <div class="tablecolumn_label short_dynamicsize">
+                                        <label for="nextExec"><wicket:message key="nextExec"/></label>
+                                    </div>
+                                    <div class="tablecolumn_field medium_dynamicsize">
+                                        <span wicket:id="nextExec">[nextExec]</span>
+                                    </div>
+                                </div>
+
+                                <div class="tablerow">
+                                    <div class="tablecolumn_label short_dynamicsize">
+                                        <label for="updateIdentities"><wicket:message key="updates"/></label>
+                                    </div>
+                                    <div class="tablecolumn_field medium_dynamicsize">
+                                        <span wicket:id="updateIdentities">[updateIdentities]</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <script type="text/javascript">
+                                $(function() {
+                                    $('#formtable div.tablerow:even').addClass("alt");
+                                });
+                            </script>
                         </span>
                     </div>
                 </div>
                 <div id="crontab">
                     <span wicket:id="crontab">
-                        <label for="cron"><wicket:message key="cron"/></label>
-                        <input type="text" id="seconds" class="text ui-widget-content ui-corner-all" wicket:id="seconds" style="width: 50px;float: left" />
-                        <input type="text" id="minutes" class="text ui-widget-content ui-corner-all" wicket:id="minutes" style="width: 50px;float: left" />
-                        <input type="text" id="hours" class="text ui-widget-content ui-corner-all" wicket:id="hours" style="width: 50px;float: left" />
-                        <input type="text" id="daysOfMonth" class="text ui-widget-content ui-corner-all" wicket:id="daysOfMonth" style="width: 50px;float: left" />
-                        <input type="text" id="months" class="text ui-widget-content ui-corner-all" wicket:id="months" style="width: 50px;float: left" />
-                        <input type="text" id="daysOfWeek" class="text ui-widget-content ui-corner-all" wicket:id="daysOfWeek" style="width: 50px" />
-
-                        <label for="cron"><wicket:message key="templates"/></label>
-                        <select class="text ui-widget-content ui-corner-all" wicket:id="cronTemplateChooser" style="width: 250px"/>
+                        <div id="formtable">
+                            <div class="tablerow alt">
+                                <label for="cron"><wicket:message key="cron"/></label>
+                            </div>
+                            <div class="tablerow">
+                                <input type="text" id="seconds" class="text ui-widget-content ui-corner-all" wicket:id="seconds" style="width: 50px;float: left" />
+                                <input type="text" id="minutes" class="text ui-widget-content ui-corner-all" wicket:id="minutes" style="width: 50px;float: left" />
+                                <input type="text" id="hours" class="text ui-widget-content ui-corner-all" wicket:id="hours" style="width: 50px;float: left" />
+                                <input type="text" id="daysOfMonth" class="text ui-widget-content ui-corner-all" wicket:id="daysOfMonth" style="width: 50px;float: left" />
+                                <input type="text" id="months" class="text ui-widget-content ui-corner-all" wicket:id="months" style="width: 50px;float: left" />
+                                <input type="text" id="daysOfWeek" class="text ui-widget-content ui-corner-all" wicket:id="daysOfWeek" style="width: 50px" />
+                            </div>
+                            <div class="tablerow alt">
+                                <label for="cronExpression"><wicket:message key="templates"/></label>
+                            </div>
+                            <div class="tablerow">
+                                <select class="text ui-widget-content ui-corner-all" wicket:id="cronTemplateChooser" style="width: 250px"/>
+                            </div>
+                        </div>
                     </span>
                 </div>
                 <div id="resources">

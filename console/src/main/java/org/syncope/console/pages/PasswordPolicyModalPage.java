@@ -22,8 +22,8 @@ import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.syncope.console.pages.panels.PasswordPoliciesPanel;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.mod.PasswordPolicyMod;
 import org.syncope.client.to.PasswordPolicyTO;
@@ -87,7 +87,7 @@ public class PasswordPolicyModalPage extends BaseModalPage {
         form.add(new PolicyBeanPanel("panel", policy));
 
         final IndicatingAjaxButton submit = new IndicatingAjaxButton(
-                "apply", new Model(getString("apply"))) {
+                "apply", new ResourceModel("apply")) {
 
             private static final long serialVersionUID = -958724007591692537L;
 

@@ -20,10 +20,10 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.ResourceModel;
 import org.syncope.client.AbstractBaseBean;
 import org.syncope.client.to.DerivedSchemaTO;
 import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
@@ -67,7 +67,7 @@ public class DerivedSchemaModalPage extends AbstractSchemaModalPage {
         name.setEnabled(createFlag);
 
         final IndicatingAjaxButton submit = new IndicatingAjaxButton(
-                "apply", new Model(getString("submit"))) {
+                "apply", new ResourceModel("submit")) {
 
             private static final long serialVersionUID = -958724007591692537L;
 

@@ -42,6 +42,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.to.ConnInstanceTO;
 import org.syncope.client.to.ResourceTO;
@@ -338,7 +339,7 @@ public class ResourceModalPage extends BaseModalPage {
                         "destAttrName", new PropertyModel(
                         mappingTO, "destAttrName"));
                 destAttrName.setRequired(true);
-                destAttrName.setLabel(new Model(getString("fieldName")));
+                destAttrName.setLabel(new ResourceModel("fieldName"));
                 destAttrName.setOutputMarkupId(true);
 
                 destAttrName.add(
@@ -430,7 +431,7 @@ public class ResourceModalPage extends BaseModalPage {
         mappingContainer.add(mappings);
 
         AjaxButton addSchemaMappingBtn = new IndicatingAjaxButton(
-                "addUserSchemaMappingBtn", new Model(getString("add"))) {
+                "addUserSchemaMappingBtn", new ResourceModel("add")) {
 
             private static final long serialVersionUID = -4804368561204623354L;
 
@@ -445,8 +446,8 @@ public class ResourceModalPage extends BaseModalPage {
         addSchemaMappingBtn.setDefaultFormProcessing(false);
         form.add(addSchemaMappingBtn);
 
-        AjaxButton submit = new IndicatingAjaxButton("apply", new Model(
-                getString("submit"))) {
+        AjaxButton submit = new IndicatingAjaxButton(
+                "apply", new ResourceModel("submit")) {
 
             private static final long serialVersionUID = -958724007591692537L;
 

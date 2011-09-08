@@ -35,8 +35,8 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
@@ -67,6 +67,8 @@ public class SyncTasks extends Panel {
     private static final int WIN_HEIGHT = 500;
 
     private static final int WIN_WIDTH = 700;
+
+    private static final long serialVersionUID = -8674781241465369244L;
 
     @SpringBean
     private TaskRestClient restClient;
@@ -105,19 +107,19 @@ public class SyncTasks extends Panel {
                 new ArrayList<IColumn<SyncTaskTO>>();
 
         columns.add(new PropertyColumn(
-                new Model(getString("id")), "id", "id"));
+                new ResourceModel("id"), "id", "id"));
 
         columns.add(new PropertyColumn(
-                new Model(getString("resourceName")), "resource", "resource"));
+                new ResourceModel("resourceName"), "resource", "resource"));
 
-        columns.add(new DatePropertyColumn(new Model(getString("lastExec")),
-                "lastExec", "lastExec", null));
+        columns.add(new DatePropertyColumn(
+                new ResourceModel("lastExec"), "lastExec", "lastExec", null));
 
-        columns.add(new DatePropertyColumn(new Model(getString("nextExec")),
-                "nextExec", "nextExec", null));
+        columns.add(new DatePropertyColumn(
+                new ResourceModel("nextExec"), "nextExec", "nextExec", null));
 
         columns.add(new AbstractColumn<SyncTaskTO>(
-                new Model<String>(getString("detail"))) {
+                new ResourceModel("detail")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 
@@ -131,10 +133,16 @@ public class SyncTasks extends Panel {
 
                 AjaxLink viewLink = new IndicatingAjaxLink("editLink") {
 
+                    private static final long serialVersionUID =
+                            -7978723352517770644L;
+
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
 
                         window.setPageCreator(new ModalWindow.PageCreator() {
+
+                            private static final long serialVersionUID =
+                                    -7834632442532690940L;
 
                             @Override
                             public Page createPage() {
@@ -158,7 +166,7 @@ public class SyncTasks extends Panel {
         });
 
         columns.add(new AbstractColumn<SyncTaskTO>(
-                new Model<String>(getString("execute"))) {
+                new ResourceModel("execute")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 
@@ -171,6 +179,9 @@ public class SyncTasks extends Panel {
                 final SyncTaskTO taskTO = model.getObject();
 
                 AjaxLink executeLink = new IndicatingAjaxLink("link") {
+
+                    private static final long serialVersionUID =
+                            -7978723352517770644L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -199,7 +210,7 @@ public class SyncTasks extends Panel {
         });
 
         columns.add(new AbstractColumn<SyncTaskTO>(
-                new Model<String>(getString("delete"))) {
+                new ResourceModel("delete")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 
@@ -213,6 +224,9 @@ public class SyncTasks extends Panel {
 
                 AjaxLink deleteLink = new IndicatingDeleteOnConfirmAjaxLink(
                         "deleteLink") {
+
+                    private static final long serialVersionUID =
+                            -7978723352517770644L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {

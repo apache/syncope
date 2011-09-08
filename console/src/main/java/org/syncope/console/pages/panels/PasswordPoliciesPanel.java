@@ -38,8 +38,8 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
@@ -106,17 +106,17 @@ public class PasswordPoliciesPanel extends Panel {
 
         final List<IColumn> columns = new ArrayList<IColumn>();
 
-        columns.add(new PropertyColumn(new Model(getString("id")),
-                "id", "id"));
+        columns.add(new PropertyColumn(
+                new ResourceModel("id"), "id", "id"));
 
-        columns.add(new PropertyColumn(new Model(getString("description")),
-                "description", "description"));
+        columns.add(new PropertyColumn(
+                new ResourceModel("description"), "description", "description"));
 
-        columns.add(new PropertyColumn(new Model(getString("type")),
-                "type", "type"));
+        columns.add(new PropertyColumn(
+                new ResourceModel("type"), "type", "type"));
 
-        columns.add(new AbstractColumn<PasswordPolicyTO>(new Model<String>(
-                getString("edit"))) {
+        columns.add(new AbstractColumn<PasswordPolicyTO>(
+                new ResourceModel("edit")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 
@@ -168,8 +168,8 @@ public class PasswordPoliciesPanel extends Panel {
             }
         });
 
-        columns.add(new AbstractColumn<PasswordPolicyTO>(new Model<String>(
-                getString("delete"))) {
+        columns.add(new AbstractColumn<PasswordPolicyTO>(
+                new ResourceModel("delete")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 

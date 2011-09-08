@@ -22,7 +22,7 @@ import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuth
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
-import org.apache.wicket.model.Model;
+import org.apache.wicket.model.ResourceModel;
 import org.syncope.client.to.MembershipTO;
 import org.syncope.client.to.UserTO;
 import org.syncope.console.pages.panels.DerivedAttributesPanel;
@@ -45,7 +45,7 @@ public class MembershipModalPage extends BaseModalPage {
 
         form.setModel(new CompoundPropertyModel(membershipTO));
 
-        submit = new AjaxButton("submit", new Model(getString("submit"))) {
+        submit = new AjaxButton("submit", new ResourceModel("submit")) {
 
             @Override
             protected void onSubmit(AjaxRequestTarget target, Form form) {

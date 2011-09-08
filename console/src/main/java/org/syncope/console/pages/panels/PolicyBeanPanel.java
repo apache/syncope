@@ -30,6 +30,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
@@ -110,7 +111,7 @@ public class PolicyBeanPanel extends Panel {
                 final FieldWrapper field = item.getModelObject();
 
                 item.add(new Label(
-                        "label", new Model(getString(field.getName()))));
+                        "label", new ResourceModel(field.getName())));
 
                 final AbstractFieldPanel component;
                 Method method;

@@ -81,14 +81,14 @@ public class PreferenceManager {
                 prefs = getPrefs(new String(Base64.decodeBase64(
                         prefCookie.getValue().getBytes())));
             } catch (IOException e) {
-                LOG.error("Could not get preferences from "
-                        + prefCookie.getValue(), e);
+                LOG.error("Could not get preferences from {}",
+                        prefCookie.getValue(), e);
 
                 prefs = new HashMap<String, String>();
             }
             result = prefs.get(key);
         } else {
-            LOG.warn("Could not find cookie " + Constants.PREFS_COOKIE_NAME);
+            LOG.debug("Could not find cookie []", Constants.PREFS_COOKIE_NAME);
         }
 
         return result;

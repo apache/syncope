@@ -21,10 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.extensions.markup.html.form.palette.Palette;
-import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
-import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.PropertyModel;
@@ -36,11 +33,16 @@ import org.syncope.client.to.SyncTaskTO;
 import org.syncope.console.commons.SelectChoiceRenderer;
 import org.syncope.console.rest.ResourceRestClient;
 import org.syncope.console.rest.RoleRestClient;
+import org.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
+import org.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
+import org.syncope.console.wicket.markup.html.form.AjaxPalettePanel;
 
 /**
  * Modal window with Task form (to stop and start execution).
  */
 public class STaskModalPage extends SchedTaskModalPage {
+
+    private static final long serialVersionUID = 2148403203517274669L;
 
     @SpringBean
     private RoleRestClient roleRestClient;
@@ -65,6 +67,9 @@ public class STaskModalPage extends SchedTaskModalPage {
         final IModel<List<String>> allResources =
                 new LoadableDetachableModel<List<String>>() {
 
+                    private static final long serialVersionUID =
+                            5275935387613157437L;
+
                     @Override
                     protected List<String> load() {
                         final List<String> resourceNames =
@@ -80,6 +85,9 @@ public class STaskModalPage extends SchedTaskModalPage {
 
         final IModel<Map<Long, String>> allRoles =
                 new LoadableDetachableModel<Map<Long, String>>() {
+
+                    private static final long serialVersionUID =
+                            -2012833443695917883L;
 
                     @Override
                     protected Map<Long, String> load() {
@@ -98,33 +106,40 @@ public class STaskModalPage extends SchedTaskModalPage {
                     }
                 };
 
-        final DropDownChoice<ResourceTO> resource =
-                new DropDownChoice(
-                "resource",
-                new PropertyModel(taskTO, "resource"),
-                allResources,
-                new SelectChoiceRenderer());
+        final AjaxDropDownChoicePanel<String> resource =
+                new AjaxDropDownChoicePanel<String>(
+                "resource", getString("resourceName"),
+                new PropertyModel(taskTO, "resource"), false);
+        resource.setChoices(allResources.getObject());
+        resource.setChoiceRenderer(new SelectChoiceRenderer());
+        resource.addRequiredLabel();
+        resource.setEnabled(taskTO.getId() == 0);
+        resource.setStyleShet(
+                "ui-widget-content ui-corner-all long_dynamicsize");
 
         profile.add(resource);
 
-        final CheckBox updates = new CheckBox("updateIdentities",
-                new PropertyModel<Boolean>(taskTO, "updateIdentities"));
+        final AjaxCheckBoxPanel updates = new AjaxCheckBoxPanel(
+                "updateIdentities", getString("updates"),
+                new PropertyModel<Boolean>(taskTO, "updateIdentities"), false);
+
         profile.add(updates);
 
-        final Palette<String> defaultResources = new Palette(
+        final AjaxPalettePanel defaultResources = new AjaxPalettePanel(
                 "defaultResources",
                 new PropertyModel(taskTO, "defaultResources"),
-                new ListModel<String>(allResources.getObject()),
-                new SelectChoiceRenderer(), 8, false);
+                new ListModel<String>(allResources.getObject()));
 
         form.add(defaultResources);
 
-        final Palette<Long> defaultRoles = new Palette(
+        final AjaxPalettePanel<Long> defaultRoles = new AjaxPalettePanel<Long>(
                 "defaultRoles",
-                new PropertyModel(taskTO, "defaultRoles"),
-                new ListModel<Long>(
+                new PropertyModel(taskTO, "defaultRoles"), new ListModel<Long>(
                 new ArrayList<Long>(allRoles.getObject().keySet())),
                 new ChoiceRenderer<Long>() {
+
+                    private static final long serialVersionUID =
+                            8463000788871139550L;
 
                     @Override
                     public String getDisplayValue(Long id) {
@@ -135,7 +150,7 @@ public class STaskModalPage extends SchedTaskModalPage {
                     public String getIdValue(Long id, int index) {
                         return id.toString();
                     }
-                }, 8, false);
+                });
 
         form.add(defaultRoles);
     }

@@ -19,11 +19,11 @@ package org.syncope.console.pages;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.PropertyModel;
 import org.syncope.client.to.SchedTaskTO;
+import org.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 
 /**
  * Modal window with Task form (to stop and start execution).
@@ -49,6 +49,8 @@ public class GTaskModalPage extends SchedTaskModalPage {
         final IModel<List<String>> classNames =
                 new LoadableDetachableModel<List<String>>() {
 
+                    private static final long serialVersionUID = 5275935387613157437L;
+
                     @Override
                     protected List<String> load() {
                         final List<String> classes = new ArrayList<String>(
@@ -58,11 +60,15 @@ public class GTaskModalPage extends SchedTaskModalPage {
                     }
                 };
 
-        final DropDownChoice<String> className =
-                new DropDownChoice(
-                "jobClassName",
-                new PropertyModel(taskTO, "jobClassName"),
-                classNames);
+        final AjaxDropDownChoicePanel<String> className =
+                new AjaxDropDownChoicePanel<String>(
+                "jobClassName", getString("class"),
+                new PropertyModel(taskTO, "jobClassName"), false);
+        className.setChoices(classNames.getObject());
+        className.addRequiredLabel();
+        className.setEnabled(taskTO.getId() == 0);
+        className.setStyleShet(
+                "ui-widget-content ui-corner-all long_dynamicsize");
         profile.add(className);
     }
 }
