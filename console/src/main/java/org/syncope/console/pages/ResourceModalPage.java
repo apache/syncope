@@ -18,7 +18,6 @@ package org.syncope.console.pages;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.IAjaxCallDecorator;
@@ -27,14 +26,10 @@ import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
-import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteTextField;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
-import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -55,6 +50,7 @@ import org.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.syncope.console.wicket.markup.html.form.AjaxDecoratedCheckbox;
 import org.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.syncope.console.wicket.markup.html.form.FieldPanel;
 import org.syncope.types.PropagationMode;
 import org.syncope.types.SourceMappingType;
 import org.syncope.types.TraceLevel;
@@ -82,6 +78,8 @@ public class ResourceModalPage extends BaseModalPage {
     private List<String> uVirSchemaAttrNames;
 
     private WebMarkupContainer mappingContainer;
+
+    private List<String> resourceSchemaNames;
 
     public ResourceModalPage(final Resources basePage, final ModalWindow window,
             final ResourceTO resourceTO, final boolean createFlag) {
@@ -118,6 +116,8 @@ public class ResourceModalPage extends BaseModalPage {
                         return Arrays.asList(SourceMappingType.values());
                     }
                 };
+
+        updateResourceSchemaNames(resourceTO.getConnectorId());
 
         final ConnInstanceTO connectorTO = new ConnInstanceTO();
         if (!createFlag) {
@@ -180,6 +180,10 @@ public class ResourceModalPage extends BaseModalPage {
         deleteTraceLevel.setChoices(Arrays.asList(TraceLevel.values()));
         form.add(deleteTraceLevel);
 
+        mappingContainer = new WebMarkupContainer("mappingContainer");
+        mappingContainer.setOutputMarkupId(true);
+        form.add(mappingContainer);
+
         final AjaxDropDownChoicePanel<ConnInstanceTO> connector =
                 new AjaxDropDownChoicePanel<ConnInstanceTO>("connector",
                 getString("connector"),
@@ -205,13 +209,10 @@ public class ResourceModalPage extends BaseModalPage {
             public void detach() {
             }
         });
+
         connector.addRequiredLabel();
         connector.setEnabled(createFlag);
         form.add(connector);
-
-        mappingContainer = new WebMarkupContainer("mappingContainer");
-        mappingContainer.setOutputMarkupId(true);
-        form.add(mappingContainer);
 
         final ListView<SchemaMappingTO> mappings = new ListView<SchemaMappingTO>(
                 "mappings", resourceTO.getMappings()) {
@@ -271,166 +272,166 @@ public class ResourceModalPage extends BaseModalPage {
                     }
                 });
 
-                final DropDownChoice<String> schemaAttrChoice =
-                        new DropDownChoice<String>(
-                        "sourceAttrNames", new PropertyModel<String>(
-                        mappingTO, "sourceAttrName"), (IModel) null);
-
-                schemaAttrChoice.add(
-                        new AjaxFormComponentUpdatingBehavior("onblur") {
-
-                            private static final long serialVersionUID =
-                                    -1107858522700306810L;
-
-                            @Override
-                            protected void onUpdate(AjaxRequestTarget art) {
-                                mappingTO.setSourceAttrName(
-                                        schemaAttrChoice.getModelObject());
-                            }
-                        });
-
-                schemaAttrChoice.setOutputMarkupId(true);
+                final AjaxDropDownChoicePanel sourceAttrNames =
+                        new AjaxDropDownChoicePanel<String>("sourceAttrNames",
+                        getString("sourceAttrNames"),
+                        new PropertyModel(mappingTO, "sourceAttrName"),
+                        true);
+                sourceAttrNames.setChoices(resourceSchemaNames);
+                sourceAttrNames.setRequired(true);
+                sourceAttrNames.setStyleShet(
+                        "ui-widget-content ui-corner-all short_fixedsize");
 
                 if (mappingTO.getSourceMappingType() == null) {
-                    schemaAttrChoice.setChoices(Collections.EMPTY_LIST);
+                    sourceAttrNames.setChoices(Collections.EMPTY_LIST);
                 } else {
                     switch (mappingTO.getSourceMappingType()) {
                         case UserSchema:
-                            schemaAttrChoice.setChoices(uSchemaAttrNames);
+                            sourceAttrNames.setChoices(uSchemaAttrNames);
                             break;
 
                         case UserDerivedSchema:
-                            schemaAttrChoice.setChoices(uDerSchemaAttrNames);
+                            sourceAttrNames.setChoices(uDerSchemaAttrNames);
                             break;
 
                         case UserVirtualSchema:
-                            schemaAttrChoice.setChoices(uVirSchemaAttrNames);
+                            sourceAttrNames.setChoices(uVirSchemaAttrNames);
                             break;
 
                         case SyncopeUserId:
-                            schemaAttrChoice.setEnabled(false);
-                            schemaAttrChoice.setRequired(false);
-                            schemaAttrChoice.setChoices(Collections.EMPTY_LIST);
+                            sourceAttrNames.setEnabled(false);
+                            sourceAttrNames.setRequired(false);
+                            sourceAttrNames.setChoices(Collections.EMPTY_LIST);
                             mappingTO.setSourceAttrName("SyncopeUserId");
                             break;
 
                         case Password:
-                            schemaAttrChoice.setEnabled(false);
-                            schemaAttrChoice.setRequired(false);
-                            schemaAttrChoice.setChoices(Collections.EMPTY_LIST);
+                            sourceAttrNames.setEnabled(false);
+                            sourceAttrNames.setRequired(false);
+                            sourceAttrNames.setChoices(Collections.EMPTY_LIST);
                             mappingTO.setSourceAttrName("Password");
                             break;
 
                         default:
-                            schemaAttrChoice.setChoices(
+                            sourceAttrNames.setChoices(
                                     Collections.EMPTY_LIST);
                     }
                 }
-                item.add(schemaAttrChoice);
+                item.add(sourceAttrNames);
 
-                item.add(new SourceMappingTypesDropDownChoice(
+                final SourceMappingTypesDropDownChoice mappingTypesPanel =
+                        new SourceMappingTypesDropDownChoice(
                         "sourceMappingTypes",
-                        new PropertyModel<SourceMappingType>(mappingTO,
-                        "sourceMappingType"), sourceMappingTypes,
-                        schemaAttrChoice).setRequired(true).
-                        setOutputMarkupId(true));
+                        getString("sourceMappingTypes"),
+                        new PropertyModel<SourceMappingType>(
+                        mappingTO, "sourceMappingType"),
+                        sourceAttrNames);
 
-                final TextField<String> destAttrName = new TextField<String>(
-                        "destAttrName", new PropertyModel(
-                        mappingTO, "destAttrName"));
-                destAttrName.setRequired(true);
-                destAttrName.setLabel(new ResourceModel("fieldName"));
-                destAttrName.setOutputMarkupId(true);
+                mappingTypesPanel.setRequired(true);
+                mappingTypesPanel.setChoices(sourceMappingTypes.getObject());
+                mappingTypesPanel.setStyleShet(
+                        "ui-widget-content ui-corner-all short_fixedsize");
+                item.add(mappingTypesPanel);
 
-                destAttrName.add(
-                        new AjaxFormComponentUpdatingBehavior("onblur") {
+                final FieldPanel destAttrName;
 
-                            private static final long serialVersionUID =
-                                    -1107858522700306810L;
+                if (resourceSchemaNames.isEmpty()) {
+                    destAttrName = new AjaxTextFieldPanel(
+                            "destAttrName", getString("destAttrNames"),
+                            new PropertyModel<String>(mappingTO, "destAttrName"),
+                            true);
 
-                            @Override
-                            protected void onUpdate(AjaxRequestTarget art) {
-                                mappingTO.setDestAttrName(
-                                        destAttrName.getModelObject());
-                            }
-                        });
+                } else {
+                    destAttrName =
+                            new AjaxDropDownChoicePanel<String>(
+                            "destAttrName", getString("destAttrNames"),
+                            new PropertyModel(mappingTO, "destAttrName"),
+                            true);
+                    ((AjaxDropDownChoicePanel) destAttrName).setChoices(
+                            resourceSchemaNames);
+
+                }
+
+                boolean required = mappingTO != null
+                        && !mappingTO.isAccountid()
+                        && !mappingTO.isPassword();
+
+                destAttrName.setRequired(required);
+                destAttrName.setEnabled(required);
+
+                destAttrName.setStyleShet(
+                        "ui-widget-content ui-corner-all short_fixedsize");
                 item.add(destAttrName);
 
-                final AutoCompleteTextField<String> mandatoryCondirion =
-                        new AutoCompleteTextField<String>("mandatoryCondition",
-                        new PropertyModel(mappingTO, "mandatoryCondition")) {
+                final AjaxTextFieldPanel mandatoryCondition =
+                        new AjaxTextFieldPanel(
+                        "mandatoryCondition",
+                        getString("mandatoryCondition"),
+                        new PropertyModel(mappingTO, "mandatoryCondition"),
+                        true);
 
-                            private static final long serialVersionUID =
-                                    -6648767303091874219L;
+                mandatoryCondition.setChoices(Arrays.asList(
+                        new String[]{"true", "false"}));
 
-                            @Override
-                            protected Iterator getChoices(final String input) {
-                                List<String> choices;
-                                if ("true".startsWith(input.toLowerCase())) {
-                                    choices = Collections.singletonList("true");
-                                } else if ("false".startsWith(input.toLowerCase())) {
-                                    choices = Collections.singletonList("true");
-                                } else {
-                                    choices = Collections.EMPTY_LIST;
-                                }
+                mandatoryCondition.setStyleShet(
+                        "ui-widget-content ui-corner-all short_fixedsize");
 
-                                return choices.iterator();
-                            }
-                        };
+                item.add(mandatoryCondition);
 
-                mandatoryCondirion.add(
-                        new AjaxFormComponentUpdatingBehavior("onblur") {
+                final AjaxCheckBoxPanel accountId = new AjaxCheckBoxPanel(
+                        "accountId", getString("accountId"),
+                        new PropertyModel(mappingTO, "accountid"), false);
 
-                            private static final long serialVersionUID =
-                                    -1107858522700306810L;
-
-                            @Override
-                            protected void onUpdate(AjaxRequestTarget art) {
-                                mappingTO.setMandatoryCondition(
-                                        mandatoryCondirion.getModelObject());
-                            }
-                        });
-                item.add(mandatoryCondirion);
-
-                final CheckBox accountId = new CheckBox("accountId",
-                        new PropertyModel(mappingTO, "accountid"));
-
-                accountId.add(
+                accountId.getField().add(
                         new AjaxFormComponentUpdatingBehavior("onchange") {
 
                             private static final long serialVersionUID =
                                     -1107858522700306810L;
 
                             @Override
-                            protected void onUpdate(AjaxRequestTarget art) {
-                                mappingTO.setAccountid(
-                                        accountId.getModelObject());
+                            protected void onUpdate(AjaxRequestTarget target) {
+                                destAttrName.setEnabled(
+                                        !accountId.getModelObject()
+                                        && !mappingTO.isPassword());
+                                destAttrName.setModelObject(null);
+                                destAttrName.setRequired(
+                                        !accountId.getModelObject());
+                                target.addComponent(destAttrName);
                             }
                         });
 
                 item.add(accountId);
 
-                final CheckBox password = new CheckBox("password",
-                        new PropertyModel(mappingTO, "password"));
-                password.add(
+                final AjaxCheckBoxPanel password = new AjaxCheckBoxPanel(
+                        "password", getString("password"),
+                        new PropertyModel(mappingTO, "password"), true);
+
+                password.getField().add(
                         new AjaxFormComponentUpdatingBehavior("onchange") {
 
                             private static final long serialVersionUID =
                                     -1107858522700306810L;
 
                             @Override
-                            protected void onUpdate(AjaxRequestTarget art) {
-                                mappingTO.setPassword(
-                                        password.getModelObject());
+                            protected void onUpdate(AjaxRequestTarget target) {
+                                destAttrName.setEnabled(
+                                        !mappingTO.isAccountid()
+                                        && !password.getModelObject());
+                                destAttrName.setModelObject(null);
+                                destAttrName.setRequired(
+                                        !password.getModelObject());
+                                target.addComponent(destAttrName);
                             }
                         });
+
                 item.add(password);
             }
         };
+
         mappings.setReuseItems(true);
         mappingContainer.add(mappings);
 
-        AjaxButton addSchemaMappingBtn = new IndicatingAjaxButton(
+        final AjaxButton addSchemaMappingBtn = new IndicatingAjaxButton(
                 "addUserSchemaMappingBtn", new ResourceModel("add")) {
 
             private static final long serialVersionUID = -4804368561204623354L;
@@ -442,9 +443,35 @@ public class ResourceModalPage extends BaseModalPage {
                 resourceTO.getMappings().add(new SchemaMappingTO());
                 target.addComponent(mappingContainer);
             }
+
+            @Override
+            protected void onError(AjaxRequestTarget target, Form<?> form) {
+                // ignore errors
+            }
         };
+
         addSchemaMappingBtn.setDefaultFormProcessing(false);
-        form.add(addSchemaMappingBtn);
+        addSchemaMappingBtn.setEnabled(!createFlag);
+        mappingContainer.add(addSchemaMappingBtn);
+
+        connector.getField().add(
+                new AjaxFormComponentUpdatingBehavior("onchange") {
+
+                    private static final long serialVersionUID =
+                            -1107858522700306810L;
+
+                    @Override
+                    protected void onUpdate(AjaxRequestTarget target) {
+                        mappings.removeAll();
+                        addSchemaMappingBtn.setEnabled(
+                                resourceTO.getConnectorId() != null
+                                && resourceTO.getConnectorId() > 0);
+
+                        updateResourceSchemaNames(resourceTO.getConnectorId());
+
+                        target.addComponent(mappingContainer);
+                    }
+                });
 
         AjaxButton submit = new IndicatingAjaxButton(
                 "apply", new ResourceModel("submit")) {
@@ -508,59 +535,67 @@ public class ResourceModalPage extends BaseModalPage {
      * It's purposed for storing values in the
      * corresponding property model after pressing 'Add' button.
      */
-    private class SourceMappingTypesDropDownChoice extends DropDownChoice {
+    private class SourceMappingTypesDropDownChoice
+            extends AjaxDropDownChoicePanel {
 
         private static final long serialVersionUID = -2855668124505116627L;
 
-        public SourceMappingTypesDropDownChoice(final String id,
+        public SourceMappingTypesDropDownChoice(
+                final String id,
+                final String name,
                 final PropertyModel<SourceMappingType> model,
-                final IModel imodel,
-                final DropDownChoice<String> chooserToPopulate) {
+                final AjaxDropDownChoicePanel<String> chooserToPopulate) {
 
-            super(id, model, imodel);
+            super(id, name, model, false);
 
-            add(new AjaxFormComponentUpdatingBehavior("onchange") {
+            field.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
                 private static final long serialVersionUID =
                         -1107858522700306810L;
 
                 @Override
                 protected void onUpdate(final AjaxRequestTarget target) {
-                    chooserToPopulate.setChoices(
-                            new LoadableDetachableModel<List<String>>() {
 
-                                private static final long serialVersionUID =
-                                        5275935387613157437L;
+                    chooserToPopulate.setRequired(true);
+                    chooserToPopulate.setEnabled(true);
 
-                                @Override
-                                protected List<String> load() {
-                                    List<String> result;
-                                    switch (model.getObject()) {
-                                        case UserSchema:
-                                            result = uSchemaAttrNames;
-                                            break;
+                    final List<String> result;
 
-                                        case UserDerivedSchema:
-                                            result = uDerSchemaAttrNames;
-                                            break;
+                    switch (model.getObject()) {
+                        case UserSchema:
+                            result = uSchemaAttrNames;
+                            break;
 
-                                        case UserVirtualSchema:
-                                            result = uVirSchemaAttrNames;
-                                            break;
+                        case UserDerivedSchema:
+                            result = uDerSchemaAttrNames;
+                            break;
 
-                                        case SyncopeUserId:
-                                        case Password:
-                                        default:
-                                            result = Collections.EMPTY_LIST;
-                                    }
+                        case UserVirtualSchema:
+                            result = uVirSchemaAttrNames;
+                            break;
 
-                                    return result;
-                                }
-                            });
+                        case SyncopeUserId:
+                        case Password:
+                        default:
+                            chooserToPopulate.setRequired(false);
+                            chooserToPopulate.setEnabled(false);
+                            result = Collections.EMPTY_LIST;
+                    }
+
+                    chooserToPopulate.setChoices(result);
                     target.addComponent(chooserToPopulate);
-                    target.addComponent(mappingContainer);
                 }
             });
+        }
+    }
+
+    public final void updateResourceSchemaNames(Long connectorId) {
+        if (connectorId != null && connectorId > 0) {
+            resourceSchemaNames =
+                    connectorRestClient.getSchemaNames(connectorId);
+        } else {
+            resourceSchemaNames =
+                    Collections.EMPTY_LIST;
         }
     }
 }

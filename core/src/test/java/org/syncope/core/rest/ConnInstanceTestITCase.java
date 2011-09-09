@@ -279,4 +279,28 @@ public class ConnInstanceTestITCase extends AbstractTest {
             assertNotNull(bundle);
         }
     }
+
+    @Test
+    public void getSchemaNames() {
+        List<String> schemaNames = Arrays.asList(restTemplate.getForObject(
+                BASE_URL + "connector/{connectorId}/schema/list/all",
+                String[].class, 100));
+
+        assertNotNull(schemaNames);
+        assertFalse(schemaNames.isEmpty());
+
+        schemaNames = Arrays.asList(restTemplate.getForObject(
+                BASE_URL + "connector/{connectorId}/schema/list",
+                String[].class, 101));
+
+        assertNotNull(schemaNames);
+        assertTrue(schemaNames.isEmpty());
+
+        schemaNames = Arrays.asList(restTemplate.getForObject(
+                BASE_URL + "connector/{connectorId}/schema/list",
+                String[].class, 104));
+
+        assertNotNull(schemaNames);
+        assertFalse(schemaNames.isEmpty());
+    }
 }

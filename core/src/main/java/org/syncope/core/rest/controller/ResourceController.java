@@ -63,18 +63,19 @@ public class ResourceController extends AbstractController {
 
         LOG.debug("Resource creation: {}", resourceTO);
 
-        SyncopeClientCompositeErrorException scce =
-                new SyncopeClientCompositeErrorException(
-                HttpStatus.BAD_REQUEST);
-
         if (resourceTO == null) {
             LOG.error("Missing resource");
 
             throw new NotFoundException("Missing resource");
         }
 
+        SyncopeClientCompositeErrorException scce =
+                new SyncopeClientCompositeErrorException(
+                HttpStatus.BAD_REQUEST);
+
         LOG.debug("Verify that resource doesn't exist yet");
-        if (resourceDAO.find(resourceTO.getName()) != null) {
+        if (resourceTO.getName() != null
+                && resourceDAO.find(resourceTO.getName()) != null) {
             SyncopeClientException ex = new SyncopeClientException(
                     SyncopeClientExceptionType.DuplicateUniqueValue);
 

@@ -100,4 +100,18 @@ public class ConnectorRestClient extends AbstractBaseRestClient {
 
         return bundles;
     }
+
+    public List<String> getSchemaNames(final Long connectorId) {
+        List<String> schemaNames = null;
+
+        try {
+            schemaNames = Arrays.asList(restTemplate.getForObject(
+                    baseURL + "connector/{connectorId}/schema/list",
+                    String[].class, connectorId));
+        } catch (SyncopeClientCompositeErrorException e) {
+            LOG.error("While getting resource schema names", e);
+        }
+
+        return schemaNames;
+    }
 }

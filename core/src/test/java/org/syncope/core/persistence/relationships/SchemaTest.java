@@ -61,7 +61,7 @@ public class SchemaTest extends AbstractTest {
         // check for associated mappings
         Set<SchemaMapping> mappings = new HashSet<SchemaMapping>();
         for (SchemaMapping mapping : resourceDAO.findAllMappings()) {
-            if (mapping.getSourceAttrName().equals(schema.getName())
+            if (schema.getName().equals(mapping.getSourceAttrName())
                     && mapping.getSourceMappingType()
                     == SourceMappingType.UserSchema) {
 
@@ -83,7 +83,7 @@ public class SchemaTest extends AbstractTest {
         // check for mappings deletion
         mappings = new HashSet<SchemaMapping>();
         for (SchemaMapping mapping : resourceDAO.findAllMappings()) {
-            if (mapping.getSourceAttrName().equals("username")
+            if ("username".equals(mapping.getSourceAttrName())
                     && mapping.getSourceMappingType()
                     == SourceMappingType.UserSchema) {
 
@@ -109,7 +109,7 @@ public class SchemaTest extends AbstractTest {
         // check for associated mappings
         Set<SchemaMapping> mappings = new HashSet<SchemaMapping>();
         for (SchemaMapping mapping : resourceDAO.findAllMappings()) {
-            if (mapping.getSourceAttrName().equals(schema.getName())
+            if (schema.getName().equals(mapping.getSourceAttrName())
                     && mapping.getSourceMappingType()
                     == SourceMappingType.UserSchema) {
 

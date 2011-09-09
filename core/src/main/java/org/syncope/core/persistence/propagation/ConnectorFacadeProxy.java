@@ -31,9 +31,12 @@ import org.identityconnectors.framework.api.ConnectorFacadeFactory;
 import org.identityconnectors.framework.api.ConnectorInfo;
 import org.identityconnectors.framework.api.ConnectorKey;
 import org.identityconnectors.framework.common.objects.Attribute;
+import org.identityconnectors.framework.common.objects.AttributeInfo;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ObjectClass;
+import org.identityconnectors.framework.common.objects.ObjectClassInfo;
 import org.identityconnectors.framework.common.objects.OperationOptions;
+import org.identityconnectors.framework.common.objects.Schema;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.identityconnectors.framework.common.objects.SyncResultsHandler;
 import org.identityconnectors.framework.common.objects.SyncToken;
@@ -509,6 +512,33 @@ public class ConnectorFacadeProxy {
         }
 
         return attributes;
+    }
+
+    /**
+     * Return resource schema names.
+     * @param showall return __NAME__ and __PASSWORD__ attribute if true.
+     * @return a list of schema names.
+     */
+    public List<String> getSchema(final boolean showall) {
+        final List<String> resourceSchemaNames = new ArrayList<String>();
+
+        final Schema schema = connector.schema();
+
+        try {
+            for (ObjectClassInfo info : schema.getObjectClassInfo()) {
+                for (AttributeInfo attrInfo : info.getAttributeInfo()) {
+                    if (showall || (!"__NAME__".equals(attrInfo.getName())
+                            && !"__PASSWORD__".equals(attrInfo.getName()))) {
+                        resourceSchemaNames.add(attrInfo.getName());
+                    }
+                }
+            }
+        } catch (Throwable t) {
+            // catch throwable in order to manage unpredictable behaviors
+            LOG.debug("Unsupported operation {}", t);
+        }
+
+        return resourceSchemaNames;
     }
 
     /**

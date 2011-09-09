@@ -103,7 +103,7 @@ public class ResourceTest extends AbstractTest {
 
         Set<SchemaMapping> beforeUserIdMappings = new HashSet<SchemaMapping>();
         for (SchemaMapping mapping : resourceDAO.findAllMappings()) {
-            if (mapping.getSourceAttrName().equals(userId.getName())
+            if (userId.getName().equals(mapping.getSourceAttrName())
                     && mapping.getSourceMappingType()
                     == SourceMappingType.UserSchema) {
 
@@ -141,7 +141,7 @@ public class ResourceTest extends AbstractTest {
 
         Set<SchemaMapping> afterUserIdMappings = new HashSet<SchemaMapping>();
         for (SchemaMapping mapping : resourceDAO.findAllMappings()) {
-            if (mapping.getSourceAttrName().equals(userId.getName())
+            if (userId.getName().equals(mapping.getSourceAttrName())
                     && mapping.getSourceMappingType()
                     == SourceMappingType.UserSchema) {
 

@@ -30,7 +30,7 @@ public class ResourceTestITCase extends AbstractTest {
             }
             try {
                 if (selenium.isElementPresent(
-                        "//form/div[2]/div/div/label[text()='Name']")) {
+                        "//form/div[2]/div/div/div/div/label[text()='Name']")) {
                     break;
                 }
             } catch (Exception e) {
@@ -57,7 +57,7 @@ public class ResourceTestITCase extends AbstractTest {
             }
             try {
                 if (selenium.isElementPresent(
-                        "//form/div[2]/div/div/label[text()='Name']")) {
+                        "//form/div[2]/div/div/div/div/label[text()='Name']")) {
                     break;
                 }
             } catch (Exception e) {
@@ -68,7 +68,23 @@ public class ResourceTestITCase extends AbstractTest {
             }
         }
 
-        selenium.click("//tr[2]/td/input");
+        selenium.click("//li[2]/a");
+        for (int second = 0;; second++) {
+            if (second >= 60) {
+                fail("timeout");
+            }
+            try {
+                if (selenium.isElementPresent("//tbody/tr")) {
+                    break;
+                }
+            } catch (Exception e) {
+            }
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
+        }
+        selenium.click("//tbody/tr[2]/td/input");
         assertTrue(selenium.getConfirmation().matches(
                 "^Do you really want to delete the selected item[\\s\\S]$"));
         selenium.click("name=apply");

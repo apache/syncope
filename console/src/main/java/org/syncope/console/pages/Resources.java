@@ -70,7 +70,7 @@ public class Resources extends BasePage {
 
     private static final int WIN_HEIGHT = 500;
 
-    private static final int WIN_WIDTH = 850;
+    private static final int WIN_WIDTH = 900;
 
     private WebMarkupContainer container;
 

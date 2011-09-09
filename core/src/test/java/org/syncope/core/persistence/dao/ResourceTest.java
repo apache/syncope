@@ -20,11 +20,13 @@ import java.util.List;
 import org.connid.bundles.soap.WebServiceConnector;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.ExpectedException;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.ConnInstance;
 import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.AbstractTest;
+import org.syncope.core.persistence.validation.entity.InvalidEntityException;
 import org.syncope.types.SourceMappingType;
 
 @Transactional
@@ -89,6 +91,54 @@ public class ResourceTest extends AbstractTest {
         accountId.setSourceMappingType(SourceMappingType.SyncopeUserId);
 
         resource.addMapping(accountId);
+
+        // save the resource
+        TargetResource actual = resourceDAO.save(resource);
+
+        assertNotNull(actual);
+    }
+
+    @Test
+    @ExpectedException(value = InvalidEntityException.class)
+    public final void saveInvalidMappingSourceAttr() {
+
+        TargetResource resource = new TargetResource();
+        resource.setName("ws-target-resource-basic-save-invalid");
+
+        SchemaMapping accountId = new SchemaMapping();
+        accountId.setResource(resource);
+        accountId.setAccountid(true);
+        accountId.setSourceMappingType(SourceMappingType.UserSchema);
+
+        resource.addMapping(accountId);
+
+        // save the resource
+        TargetResource actual = resourceDAO.save(resource);
+
+        assertNotNull(actual);
+    }
+
+    @Test
+    @ExpectedException(value = InvalidEntityException.class)
+    public final void saveInvalidMappingDestAttr() {
+
+        TargetResource resource = new TargetResource();
+        resource.setName("ws-target-resource-basic-save-invalid");
+
+        SchemaMapping mapping = new SchemaMapping();
+        mapping.setResource(resource);
+        mapping.setAccountid(true);
+        mapping.setSourceAttrName("username");
+        mapping.setSourceMappingType(SourceMappingType.UserSchema);
+
+        resource.addMapping(mapping);
+
+        mapping = new SchemaMapping();
+        mapping.setResource(resource);
+        mapping.setSourceAttrName("username");
+        mapping.setSourceMappingType(SourceMappingType.UserSchema);
+
+        resource.addMapping(mapping);
 
         // save the resource
         TargetResource actual = resourceDAO.save(resource);

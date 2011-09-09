@@ -26,7 +26,9 @@ import org.springframework.web.client.HttpStatusCodeException;
 import org.syncope.client.to.ResourceTO;
 import org.syncope.client.to.SchemaMappingTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.syncope.client.validation.SyncopeClientException;
 import org.syncope.types.SourceMappingType;
+import org.syncope.types.SyncopeClientExceptionType;
 
 public class ResourceTestITCase extends AbstractTest {
 
@@ -37,6 +39,7 @@ public class ResourceTestITCase extends AbstractTest {
         ResourceTO resourceTO = new ResourceTO();
 
         resourceTO.setName(resourceName);
+        resourceTO.setConnectorId(100L);
 
         restTemplate.postForObject(BASE_URL + "resource/create.json",
                 resourceTO, ResourceTO.class);
@@ -84,6 +87,93 @@ public class ResourceTestITCase extends AbstractTest {
                 resourceName);
 
         assertNotNull(actual);
+    }
+
+    @Test
+    public void createWithSingleMapping() {
+        String resourceName = "ws-target-resource-create-single";
+        ResourceTO resourceTO = new ResourceTO();
+
+        resourceTO.setName(resourceName);
+        resourceTO.setConnectorId(102L);
+
+        SchemaMappingTO schemaMappingTO = new SchemaMappingTO();
+        schemaMappingTO.setSourceMappingType(SourceMappingType.SyncopeUserId);
+        schemaMappingTO.setAccountid(true);
+        resourceTO.addMapping(schemaMappingTO);
+
+        ResourceTO actual = restTemplate.postForObject(
+                BASE_URL + "resource/create.json",
+                resourceTO, ResourceTO.class);
+
+        assertNotNull(actual);
+    }
+
+    @Test
+    public void createWithWrongMapping() {
+        String resourceName = "ws-target-resource-create-wrong";
+        ResourceTO resourceTO = new ResourceTO();
+
+        resourceTO.setName(resourceName);
+        resourceTO.setConnectorId(102L);
+
+        SchemaMappingTO schemaMappingTO = new SchemaMappingTO();
+        schemaMappingTO.setSourceMappingType(SourceMappingType.SyncopeUserId);
+        schemaMappingTO.setAccountid(true);
+        resourceTO.addMapping(schemaMappingTO);
+
+        schemaMappingTO = new SchemaMappingTO();
+        schemaMappingTO.setSourceMappingType(SourceMappingType.UserSchema);
+        schemaMappingTO.setDestAttrName("email");
+        // missing sourceAttrName ...
+        resourceTO.addMapping(schemaMappingTO);
+
+
+        Throwable t = null;
+
+        try {
+
+            restTemplate.postForObject(
+                    BASE_URL + "resource/create.json",
+                    resourceTO, ResourceTO.class);
+
+        } catch (SyncopeClientCompositeErrorException e) {
+            t = e;
+
+            SyncopeClientException requiredValueMissing = e.getException(
+                    SyncopeClientExceptionType.RequiredValuesMissing);
+            assertNotNull(requiredValueMissing);
+            assertNotNull(requiredValueMissing.getElements());
+            assertEquals(1, requiredValueMissing.getElements().size());
+            assertEquals("sourceAttrName",
+                    requiredValueMissing.getElements().iterator().next());
+        }
+        assertNotNull(t);
+    }
+
+    @Test
+    @ExpectedException(value = SyncopeClientCompositeErrorException.class)
+    public final void createWithoutDestAttr() {
+        String resourceName = "ws-target-resource-create-wrong";
+        ResourceTO resourceTO = new ResourceTO();
+
+        resourceTO.setName(resourceName);
+        resourceTO.setConnectorId(102L);
+
+        SchemaMappingTO schemaMappingTO = new SchemaMappingTO();
+        schemaMappingTO.setSourceMappingType(SourceMappingType.SyncopeUserId);
+        schemaMappingTO.setAccountid(true);
+        resourceTO.addMapping(schemaMappingTO);
+
+        schemaMappingTO = new SchemaMappingTO();
+        schemaMappingTO.setSourceMappingType(SourceMappingType.UserSchema);
+        schemaMappingTO.setSourceAttrName("usernane");
+        // missing destAttrName ...
+        resourceTO.addMapping(schemaMappingTO);
+
+        restTemplate.postForObject(
+                BASE_URL + "resource/create.json",
+                resourceTO, ResourceTO.class);
     }
 
     @Test

@@ -70,17 +70,11 @@ public class ResourceDataBinder {
             final ResourceTO resourceTO)
             throws SyncopeClientCompositeErrorException {
 
-        final SyncopeClientException requiredValuesMissing =
-                new SyncopeClientException(
-                SyncopeClientExceptionType.RequiredValuesMissing);
-
         if (resourceTO == null) {
             return null;
         }
 
-        if (resourceTO.getName() == null) {
-            requiredValuesMissing.addElement("name");
-        }
+        resource.setName(resourceTO.getName());
 
         ConnInstance connector = null;
 
@@ -88,25 +82,11 @@ public class ResourceDataBinder {
             connector = connectorInstanceDAO.find(resourceTO.getConnectorId());
         }
 
-        if (connector == null) {
-            requiredValuesMissing.addElement("connector");
+        if (connector != null) {
+            resource.setConnector(connector);
+            connector.addResource(resource);
         }
-
-        // Throw composite exception if there is at least one element set
-        // in the composing exceptions
-        if (!requiredValuesMissing.getElements().isEmpty()) {
-            SyncopeClientCompositeErrorException scce =
-                    new SyncopeClientCompositeErrorException(
-                    HttpStatus.BAD_REQUEST);
-            scce.addException(requiredValuesMissing);
-            throw scce;
-        }
-
-        resource.setName(resourceTO.getName());
-
-        resource.setConnector(connector);
-        connector.addResource(resource);
-
+        
         resource.setForceMandatoryConstraint(
                 resourceTO.isForceMandatoryConstraint());
 
@@ -229,20 +209,6 @@ public class ResourceDataBinder {
                 default:
                     requiredValuesMissing.addElement("sourceAttrName");
             }
-        }
-        if (mappingTO.getDestAttrName() == null) {
-            requiredValuesMissing.addElement("destAttrName");
-        }
-        if (mappingTO.getSourceMappingType() == null) {
-            requiredValuesMissing.addElement("sourceMappingType");
-        }
-        if (mappingTO.getMandatoryCondition() == null) {
-            requiredValuesMissing.addElement("mandatoryCondition");
-        }
-
-        // a resource must be provided
-        if (resource == null) {
-            requiredValuesMissing.addElement("resource");
         }
 
         // Throw composite exception if there is at least one element set

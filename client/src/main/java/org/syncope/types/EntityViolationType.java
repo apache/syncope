@@ -40,7 +40,9 @@ public enum EntityViolationType {
     InvalidPassword(
     "org.syncope.core.validation.password.invalid"),
     InvalidPolicy(
-    "org.syncope.core.validation.policy.invalid");
+    "org.syncope.core.validation.policy.invalid"),
+    InvalidSchemaMapping(
+    "org.syncope.core.validation.mapping.invalid");
 
     private String message;
 

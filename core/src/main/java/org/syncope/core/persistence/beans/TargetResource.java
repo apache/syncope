@@ -169,7 +169,7 @@ public class TargetResource extends AbstractBaseBean {
 
         List<SchemaMapping> result = new ArrayList<SchemaMapping>();
         for (SchemaMapping mapping : mappings) {
-            if (mapping.getSourceAttrName().equals(sourceAttrName)
+            if (sourceAttrName.equals(mapping.getSourceAttrName())
                     && mapping.getSourceMappingType() == sourceMappingType) {
 
                 result.add(mapping);

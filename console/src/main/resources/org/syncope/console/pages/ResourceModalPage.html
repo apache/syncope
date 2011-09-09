@@ -41,150 +41,151 @@
 <wicket:extend>
     <div style="margin:10px">
         <p class="ui-widget ui-corner-all ui-widget-header"><wicket:message key="title"/></p>
-
         <form wicket:id="form">
-            <div id="formtable">
-                <div class="tablerow">
-                    <div class="tablecolumn_label medium_fixedsize">
-                         <label for="name"><wicket:message key="name"/></label>
+            <div id="tabs">
+                <ul>
+                    <li  class="tabs-selected"><a href="#resource"><span><wicket:message key="resource"/></span></a></li>
+                    <li><a href="#mappings"><span><wicket:message key="mappings"/></span></a></li>
+                </ul>
+                <div id="resource">
+                    <div id="formtable">
+                        <div class="tablerow">
+                            <div class="tablecolumn_label medium_fixedsize">
+                                <label for="name"><wicket:message key="name"/></label>
+                            </div>
+                            <div class="tablecolumn_field medium_dynamicsize">
+                                <span wicket:id="name">[name]</span>
+                            </div>
+                        </div>
+
+                        <div class="tablerow">
+                            <div class="tablecolumn_label medium_fixedsize">
+                                <label for="connector"><wicket:message key="connector"/></label>
+                            </div>
+                            <div class="tablecolumn_field medium_dynamicsize">
+                                <span wicket:id="connector">[connector]</span>
+                            </div>
+                        </div>
+
+                        <div class="tablerow">
+                            <div class="tablecolumn_label medium_fixedsize">
+                                <label for="mandatoryConstraint"><wicket:message key="forceMandatoryConstraint"/></label>
+                            </div>
+                            <div class="tablecolumn_field medium_dynamicsize">
+                                <span wicket:id="forceMandatoryConstraint">[forceMandatoryConstraint]</span>
+                            </div>
+                        </div>
+
+                        <div class="tablerow">
+                            <div class="tablecolumn_label medium_fixedsize">
+                                <label for="optionalPropagationMode"><wicket:message key="optionalPropagationMode"/></label>
+                            </div>
+                            <div class="tablecolumn_field medium_dynamicsize">
+                                <span wicket:id="optionalPropagationMode">[optionalPropagationMode]</span>
+                            </div>
+                        </div>
+
+                        <div class="tablerow">
+                            <div class="tablecolumn_label medium_fixedsize">
+                                <label for="createTraceLevel"><wicket:message key="createTraceLevel"/></label>
+                            </div>
+                            <div class="tablecolumn_field medium_dynamicsize">
+                                <span wicket:id="createTraceLevel">[createTraceLevel]</span>
+                            </div>
+                        </div>
+
+                        <div class="tablerow">
+                            <div class="tablecolumn_label medium_fixedsize">
+                                <label for="updateTraceLevel"><wicket:message key="updateTraceLevel"/></label>
+                            </div>
+                            <div class="tablecolumn_field medium_dynamicsize">
+                                <span wicket:id="updateTraceLevel">[updateTraceLevel]</span>
+                            </div>
+                        </div>
+
+                        <div class="tablerow">
+                            <div class="tablecolumn_label medium_fixedsize">
+                                <label for="deleteTraceLevel"><wicket:message key="deleteTraceLevel"/></label>
+                            </div>
+                            <div class="tablecolumn_field medium_dynamicsize">
+                                <span wicket:id="deleteTraceLevel">[deleteTraceLevel]</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="tablecolumn_field medium_dynamicsize">
-                         <span wicket:id="name">[name]</span>
+                </div>
+                <div id="mappings">
+                    <div id="formtable">
+                        <div class="tablerow">
+                            <div class="tablecolumn_field all_dynamicsize">
+                                <table id="mappingUserSchema"
+                                       class="ui-widget ui-widget-content ui-corner-all"
+                                       style="font-size: 1em;margin-top:2px;"
+                                       width="100%" cellpadding="2px" cellspacing="1px"
+                                       wicket:id="mappingContainer">
+                                    <thead>
+                                        <tr class="ui-widget-header">
+                                            <th><wicket:message key="delete"/></th>
+                                    <th><wicket:message key="sourceMappingTypes"/></th>
+                                    <th><wicket:message key="sourceAttrNames"/></th>
+                                    <th><wicket:message key="destAttrNames"/></th>
+                                    <th><wicket:message key="mandatoryCondition"/></th>
+                                    <th><wicket:message key="accountId"/></th>
+                                    <th><wicket:message key="password"/></th>
+                                    </tr>
+                                    </thead>
+                                    <tfoot>
+                                        <tr>
+                                            <td colspan="7" style="padding: 5px">
+                                                <input type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+                                                       wicket:id="addUserSchemaMappingBtn" />
+                                            </td>
+                                        </tr>
+                                    </tfoot>
+                                    <tbody>
+                                        <tr wicket:id="mappings">
+                                            <td align="center" valign="middle">
+                                                <input type="checkbox" class="text ui-widget-content ui-corner-all"  wicket:id="toRemove"/>
+                                            </td>
+                                            <td align="center" valign="middle">
+                                                <span wicket:id="sourceMappingTypes">[sourceMappingTypes]</span>
+                                            </td>
+                                            <td align="center" valign="middle">
+                                                <span wicket:id="sourceAttrNames">[sourceAttrNames]</span>
+                                            </td>
+                                            <td align="center" valign="middle">
+                                                <span wicket:id="destAttrName">[destAttrName]</span>
+                                            </td>
+                                            <td align="center" valign="middle">
+                                                <span wicket:id="mandatoryCondition">[mandatoryCondition]</span>
+                                            </td>
+                                            <td align="center" valign="middle">
+                                                <span wicket:id="accountId">[accountId]</span>
+                                            </td>
+                                            <td align="center" valign="middle">
+                                                <span wicket:id="password">[password]</span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="tablerow" style="margin-top: 10px">
+                            <div class="tablecolumn_label long_fixedsize">
+                                <label for="accountLink"><wicket:message key="accountLink"/></label>
+                                <span wicket:id="accountLink">[accountLink]</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="tablerow">
-                    <div class="tablecolumn_label medium_fixedsize">
-                         <label for="connector"><wicket:message key="connector"/></label>
-                    </div>
-                    <div class="tablecolumn_field medium_dynamicsize">
-                         <span wicket:id="connector">[connector]</span>
-                    </div>
-                </div>
-
-                <div class="tablerow">
-                    <div class="tablecolumn_label medium_fixedsize">
-                         <label for="mandatoryConstraint"><wicket:message key="forceMandatoryConstraint"/></label>
-                    </div>
-                    <div class="tablecolumn_field medium_dynamicsize">
-                         <span wicket:id="forceMandatoryConstraint">[forceMandatoryConstraint]</span>
-                    </div>
-                </div>
-
-                <div class="tablerow">
-                    <div class="tablecolumn_label medium_fixedsize">
-                         <label for="optionalPropagationMode"><wicket:message key="optionalPropagationMode"/></label>
-                    </div>
-                    <div class="tablecolumn_field medium_dynamicsize">
-                         <span wicket:id="optionalPropagationMode">[optionalPropagationMode]</span>
-                    </div>
-                </div>
-
-                <div class="tablerow">
-                    <div class="tablecolumn_label medium_fixedsize">
-                         <label for="createTraceLevel"><wicket:message key="createTraceLevel"/></label>
-                    </div>
-                    <div class="tablecolumn_field medium_dynamicsize">
-                         <span wicket:id="createTraceLevel">[createTraceLevel]</span>
-                    </div>
-                </div>
-
-                <div class="tablerow">
-                    <div class="tablecolumn_label medium_fixedsize">
-                         <label for="updateTraceLevel"><wicket:message key="updateTraceLevel"/></label>
-                    </div>
-                    <div class="tablecolumn_field medium_dynamicsize">
-                         <span wicket:id="updateTraceLevel">[updateTraceLevel]</span>
-                    </div>
-                </div>
-
-                <div class="tablerow">
-                    <div class="tablecolumn_label medium_fixedsize">
-                         <label for="deleteTraceLevel"><wicket:message key="deleteTraceLevel"/></label>
-                    </div>
-                    <div class="tablecolumn_field medium_dynamicsize">
-                         <span wicket:id="deleteTraceLevel">[deleteTraceLevel]</span>
-                    </div>
-                </div>
-
-                <div class="tablerow">
-                    <div class="tablecolumn_label medium_fixedsize">
-                         <label for="accountLink"><wicket:message key="accountLink"/></label>
-                    </div>
-                    <div class="tablecolumn_field medium_dynamicsize">
-                         <span wicket:id="accountLink">[accountLink]</span>
-                    </div>
-                </div>
-
-                <div class="tablerow">
-                    <div class="tablecolumn_label medium_fixedsize">
-                         <label for="mappingUserSchema"><wicket:message key="mappingUserSchema"/></label>
-                    </div>
-                    <div class="tablecolumn_field all_dynamicsize">
-                         <table id="mappingUserSchema"
-                           class="ui-widget ui-widget-content ui-corner-all"
-                           style="font-size: 1em;margin-top:2px;"
-                           width="100%" cellpadding="2px" cellspacing="1px">
-                            <thead>
-                                <tr class="ui-widget-header">
-                                    <th><wicket:message key="delete"/></th>
-                            <th><wicket:message key="sourceMappingTypes"/></th>
-                            <th><wicket:message key="sourceAttrNames"/></th>
-                            <th><wicket:message key="destAttrNames"/></th>
-                            <th><wicket:message key="mandatoryCondition"/></th>
-                            <th><wicket:message key="accountId"/></th>
-                            <th><wicket:message key="password"/></th>
-                            </tr>
-                            </thead>
-                            <tfoot>
-                                <tr>
-                                    <td>
-                                        <input type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
-                                               wicket:id="addUserSchemaMappingBtn" />
-                                    </td>
-                                </tr>
-                            </tfoot>
-                            <tbody wicket:id="mappingContainer">
-                                <tr wicket:id="mappings">
-                                    <td align="center" valign="middle">
-                                        <input type="checkbox" class="text ui-widget-content ui-corner-all"  wicket:id="toRemove"/>
-                                    </td>
-                                    <td>
-                                        <select class="text ui-widget-content ui-corner-all"
-                                                style="width:100%" wicket:id="sourceMappingTypes"/>
-                                    </td>
-                                    <td>
-                                        <select class="text ui-widget-content ui-corner-all"
-                                                style="width:100%" wicket:id="sourceAttrNames"/>
-                                    </td>
-                                    <td align="center" valign="middle">
-                                        <input type="text" class="text ui-widget-content ui-corner-all"  wicket:id="destAttrName"/>
-                                    </td>
-                                    <td align="center" valign="middle">
-                                        <input type="text"
-                                               class="text ui-widget-content ui-corner-all"
-                                               wicket:id="mandatoryCondition"/>
-                                    </td>
-                                    <td align="center" valign="middle">
-                                        <input type="checkbox" class="checkbox" wicket:id="accountId"/>
-                                    </td>
-                                    <td align="center" valign="middle">
-                                        <input type="checkbox" class="checkbox" wicket:id="password"/>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
+                <script type="text/javascript">
+                    $(function() {
+                        $('#formtable div.tablerow:even').addClass("alt");
+                    });
+                </script>
             </div>
-            <script type="text/javascript">
-                $(function() {
-                    $('#formtable div.tablerow:even').addClass("alt");
-                });
-            </script>   
-
-            <div style="margin: 10px 0px 0">
+            <div style="margin: 20px 10px 0">
                 <input type="submit"
                        class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
                        wicket:id="apply"/>

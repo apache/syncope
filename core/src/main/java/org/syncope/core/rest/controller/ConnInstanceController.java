@@ -29,6 +29,7 @@ import org.identityconnectors.framework.api.ConnectorInfo;
 import org.identityconnectors.framework.api.ConnectorInfoManager;
 import org.identityconnectors.framework.api.ConnectorKey;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -288,5 +289,44 @@ public class ConnInstanceController extends AbstractController {
         }
 
         return connectorBundleTOs;
+    }
+
+    @PreAuthorize("hasRole('CONNECTOR_READ')")
+    @RequestMapping(method = RequestMethod.GET,
+    value = "/{connectorId}/schema/list")
+    public List<String> getSchemaNames(
+            @PathVariable("connectorId") final Long connectorId)
+            throws NotFoundException {
+
+        return getSchemaNames(connectorId, false);
+    }
+
+    @PreAuthorize("hasRole('CONNECTOR_READ')")
+    @RequestMapping(method = RequestMethod.GET,
+    value = "/{connectorId}/schema/list/all")
+    public List<String> getAllSchemaNames(
+            @PathVariable("connectorId") final Long connectorId)
+            throws NotFoundException {
+        return getSchemaNames(connectorId, true);
+    }
+
+    private List<String> getSchemaNames(
+            final Long connectorId, final boolean showall)
+            throws NotFoundException {
+        try {
+            final ConnectorFacadeProxy connector = connInstanceLoader.getConnector(
+                    ConnInstanceLoader.getBeanName(connectorId));
+
+            if (connector == null) {
+                throw new NoSuchBeanDefinitionException(
+                        "Connector instance bean not found");
+            }
+
+            return connector.getSchema(showall);
+
+        } catch (BeansException e) {
+            LOG.error("Connector instance bean '{}' not found", connectorId);
+            throw new NotFoundException("Connector bean not found", e);
+        }
     }
 }

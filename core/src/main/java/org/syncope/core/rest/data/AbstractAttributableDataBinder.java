@@ -324,8 +324,7 @@ public abstract class AbstractAttributableDataBinder {
                     LOG.debug("No attribute found for schema {}", schema);
                 } else {
                     String newValue = null;
-                    for (AttributeMod mod : attributableMod.
-                            getAttributesToBeUpdated()) {
+                    for (AttributeMod mod : attributableMod.getAttributesToBeUpdated()) {
 
                         if (schema.getName().equals(mod.getSchema())) {
                             newValue = mod.getValuesToBeAdded().
@@ -344,7 +343,7 @@ public abstract class AbstractAttributableDataBinder {
                 }
 
                 for (SchemaMapping mapping : resourceDAO.findAllMappings()) {
-                    if (mapping.getSourceAttrName().equals(schema.getName())
+                    if (schema.getName().equals(mapping.getSourceAttrName())
                             && mapping.getSourceMappingType()
                             == attributableUtil.sourceMappingType()
                             && mapping.getResource() != null
@@ -380,7 +379,7 @@ public abstract class AbstractAttributableDataBinder {
 
             if (schema != null) {
                 for (SchemaMapping mapping : resourceDAO.findAllMappings()) {
-                    if (mapping.getSourceAttrName().equals(schema.getName())
+                    if (schema.getName().equals(mapping.getSourceAttrName())
                             && mapping.getSourceMappingType()
                             == attributableUtil.sourceMappingType()
                             && mapping.getResource() != null
@@ -480,8 +479,8 @@ public abstract class AbstractAttributableDataBinder {
                 }
 
                 for (SchemaMapping mapping : resourceDAO.findAllMappings()) {
-                    if (mapping.getSourceAttrName().equals(
-                            derivedSchema.getName())
+                    if (derivedSchema.getName().equals(
+                            mapping.getSourceAttrName())
                             && mapping.getSourceMappingType()
                             == attributableUtil.derivedSourceMappingType()
                             && mapping.getResource() != null
@@ -528,8 +527,8 @@ public abstract class AbstractAttributableDataBinder {
                 }
 
                 for (SchemaMapping mapping : resourceDAO.findAllMappings()) {
-                    if (mapping.getSourceAttrName().equals(
-                            virtualSchema.getName())
+                    if (virtualSchema.getName().equals(
+                            mapping.getSourceAttrName())
                             && mapping.getSourceMappingType()
                             == attributableUtil.virtualSourceMappingType()
                             && mapping.getResource() != null
@@ -563,8 +562,8 @@ public abstract class AbstractAttributableDataBinder {
 
             if (derivedSchema != null) {
                 for (SchemaMapping mapping : resourceDAO.findAllMappings()) {
-                    if (mapping.getSourceAttrName().equals(
-                            derivedSchema.getName())
+                    if (derivedSchema.getName().equals(
+                            mapping.getSourceAttrName())
                             && mapping.getSourceMappingType()
                             == attributableUtil.derivedSourceMappingType()
                             && mapping.getResource() != null

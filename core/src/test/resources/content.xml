@@ -248,7 +248,7 @@
 
     <SchemaMapping id="99" destAttrName="userid"
                    resource_name="ws-target-resource-1"
-                   sourceAttrName="SyncopeUserId" sourceMappingType="SyncopeUserId" mandatoryCondition="true"
+                   sourceMappingType="SyncopeUserId" mandatoryCondition="true"
                    accountid="1" password="0"/>
 
     <SchemaMapping id="100" destAttrName="email"
@@ -283,12 +283,12 @@
 
     <SchemaMapping id="106" destAttrName="password"
                    resource_name="ws-target-resource-1"
-                   sourceAttrName="Password" sourceMappingType="Password" mandatoryCondition="true"
+                   sourceMappingType="Password" mandatoryCondition="true"
                    accountid="0" password="1"/>
 
     <SchemaMapping id="107" destAttrName="password"
                    resource_name="ws-target-resource-2"
-                   sourceAttrName="Password" sourceMappingType="Password" mandatoryCondition="true"
+                   sourceMappingType="Password" mandatoryCondition="true"
                    accountid="0" password="1"/>
 
     <SchemaMapping id="108" destAttrName="type"
@@ -333,12 +333,12 @@
                    
     <SchemaMapping id="116" destAttrName="id"
                    resource_name="ws-target-resource-testdb"
-                   sourceAttrName="SyncopeUserId" sourceMappingType="SyncopeUserId" mandatoryCondition="true"
+                   sourceMappingType="SyncopeUserId" mandatoryCondition="true"
                    accountid="1" password="0"/>
                    
     <SchemaMapping id="117" destAttrName="password"
                    resource_name="ws-target-resource-testdb"
-                   sourceAttrName="Password" sourceMappingType="Password" mandatoryCondition="true"
+                   sourceMappingType="Password" mandatoryCondition="true"
                    accountid="0" password="1"/>
 
     <SchemaMapping id="200" destAttrName="id"
@@ -347,7 +347,7 @@
                    accountid="0" password="0"/>
     <SchemaMapping id="201" destAttrName="password"
                    resource_name="resource-csv"
-                   sourceAttrName="Password" sourceMappingType="Password" mandatoryCondition="true"
+                   sourceMappingType="Password" mandatoryCondition="true"
                    accountid="0" password="1"/>
     <SchemaMapping id="202" destAttrName="name"
                    resource_name="resource-csv"

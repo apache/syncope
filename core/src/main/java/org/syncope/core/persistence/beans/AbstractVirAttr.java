@@ -101,7 +101,7 @@ public abstract class AbstractVirAttr extends AbstractBaseBean {
                             + "\n\tPassword: " + mapping.isPassword());
                 }
 
-                if (mapping.getSourceAttrName().equals(attributeName)
+                if (attributeName.equals(mapping.getSourceAttrName())
                         && mapping.getSourceMappingType() == sourceMappingType) {
 
                     attributeNames.add(mapping.getDestAttrName());

@@ -25,16 +25,20 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import org.syncope.core.persistence.validation.entity.SchemaMappingCheck;
 import org.syncope.types.SourceMappingType;
 
 @Entity
 @Cacheable
+@SchemaMappingCheck
 public class SchemaMapping extends AbstractBaseBean {
+
+    private static final long serialVersionUID = 7383601853619332424L;
 
     @Id
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String sourceAttrName;
 
     @Column(nullable = false)
@@ -50,7 +54,7 @@ public class SchemaMapping extends AbstractBaseBean {
     /**
      * Target resource's field to be mapped.
      */
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String destAttrName;
 
     /**
