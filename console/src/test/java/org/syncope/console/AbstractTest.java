@@ -47,11 +47,7 @@ public abstract class AbstractTest extends SeleneseTestCase {
     public void setUp()
             throws Exception {
 
-        super.setUp();
-
-        selenium = new DefaultSelenium(
-                "localhost", 4444, "*chrome", "http://localhost:9080/");
-        selenium.start();
+        super.setUp(BASE_URL, "*firefox");
 
         selenium.open("/syncope-console/");
         selenium.type("name=userId", ADMIN);
