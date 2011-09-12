@@ -76,6 +76,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
 
         assertEquals("ConnInstance103", selenium.getAttribute(
                 "//input[@name='displayName:textField']/@value"));
+        assertEquals("org.connid.bundles.soap#1.1", selenium.getSelectedValue("//select[@name='bundle:dropDownChoiceField']"));
         selenium.click("//div[@id='tabs']/ul/li[2]/a/span");
         selenium.click("css=a.w_close");
     }

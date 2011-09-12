@@ -111,6 +111,7 @@ public class ConnectorModalPage extends BaseModalPage {
                         } else {
                             selectedBundleTO.setBundleName(
                                     connectorTO.getBundleName());
+                            selectedBundleTO.setVersion(connectorTO.getVersion());
                             result = new ArrayList(
                                     connectorTO.getConfiguration());
                         }
