@@ -54,7 +54,10 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
     public enum CheckinResultAction {
 
-        CREATE, OVERWRITE, REJECT
+        CREATE,
+        OVERWRITE,
+        REJECT
+
     }
 
     public class CheckInResult {
@@ -173,16 +176,15 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
     public ResourceOperations update(SyncopeUser user, UserMod userMod)
             throws SyncopeClientCompositeErrorException {
 
+        ResourceOperations resOps = new ResourceOperations();
+
         SyncopeClientCompositeErrorException scce =
                 new SyncopeClientCompositeErrorException(
                 HttpStatus.BAD_REQUEST);
 
         // password
-
         if (userMod.getPassword() != null) {
-
             int passwordHistorySize = 0;
-
             try {
                 Policy policy = policyDAO.getGlobalPasswordPolicy();
                 PasswordPolicy passwordPolicy = policy.getSpecification();
@@ -193,11 +195,12 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
             user.setPassword(userMod.getPassword(), getCipherAlgoritm(),
                     passwordHistorySize);
+            resOps.addAll(ResourceOperationType.UPDATE,
+                    user.getTargetResources());
         }
 
         // attributes, derived attributes, virtual attributes and resources
-        ResourceOperations resourceOperations =
-                fill(user, userMod, AttributableUtil.USER, scce);
+        resOps.merge(fill(user, userMod, AttributableUtil.USER, scce));
 
         // store the role ids of membership required to be added
         Set<Long> membershipToBeAddedRoleIds = new HashSet<Long>();
@@ -209,21 +212,15 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
         // memberships to be removed
         Membership membership = null;
-        for (Long membershipToBeRemovedId :
+        for (Long membershipId :
                 userMod.getMembershipsToBeRemoved()) {
 
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Membership to be removed: "
-                        + membershipToBeRemovedId);
-            }
+            LOG.debug("Membership to be removed: {}", membershipId);
 
-            membership = membershipDAO.find(membershipToBeRemovedId);
+            membership = membershipDAO.find(membershipId);
             if (membership == null) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug(
-                            "Invalid membership id specified to be removed: "
-                            + membershipToBeRemovedId);
-                }
+                LOG.debug("Invalid membership id specified to be removed: {}",
+                        membershipId);
             } else {
                 for (TargetResource resource :
                         membership.getSyncopeRole().getTargetResources()) {
@@ -231,8 +228,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
                     if (!membershipToBeAddedRoleIds.contains(
                             membership.getSyncopeRole().getId())) {
 
-                        resourceOperations.add(ResourceOperationType.DELETE,
-                                resource);
+                        resOps.add(ResourceOperationType.DELETE, resource);
                     }
                 }
 
@@ -247,47 +243,39 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
                     Set<Long> attributeIds = new HashSet<Long>(
                             membership.getAttributes().size());
-                    for (AbstractAttr attribute :
-                            membership.getAttributes()) {
-
+                    for (AbstractAttr attribute : membership.getAttributes()) {
                         attributeIds.add(attribute.getId());
                     }
                     for (Long attributeId : attributeIds) {
-                        attributeDAO.delete(attributeId,
-                                MAttr.class);
+                        attributeDAO.delete(attributeId, MAttr.class);
                     }
-
                     attributeIds.clear();
-                    // remove derived attributes
 
-                    for (AbstractDerAttr derivedAttribute :
+                    // remove derived attributes
+                    for (AbstractDerAttr derAttr :
                             membership.getDerivedAttributes()) {
 
-                        attributeIds.add(derivedAttribute.getId());
+                        attributeIds.add(derAttr.getId());
                     }
-
-                    for (Long derivedAttributeId : attributeIds) {
-                        derivedAttributeDAO.delete(derivedAttributeId,
-                                MDerAttr.class);
+                    for (Long derAttrId : attributeIds) {
+                        derAttrDAO.delete(derAttrId, MDerAttr.class);
                     }
-
                     attributeIds.clear();
-                    // remove virtual attributes
 
-                    for (AbstractVirAttr virtulaAttribute :
+                    // remove virtual attributes
+                    for (AbstractVirAttr virAttr :
                             membership.getVirtualAttributes()) {
 
-                        attributeIds.add(virtulaAttribute.getId());
+                        attributeIds.add(virAttr.getId());
                     }
-
-                    for (Long virtualAttributeId : attributeIds) {
-                        virtualAttributeDAO.delete(
-                                virtualAttributeId, MVirAttr.class);
+                    for (Long virAttrId : attributeIds) {
+                        virAttrDAO.delete(virAttrId, MVirAttr.class);
                     }
+                    attributeIds.clear();
                 } else {
                     user.removeMembership(membership);
 
-                    membershipDAO.delete(membershipToBeRemovedId);
+                    membershipDAO.delete(membershipId);
                 }
             }
         }
@@ -297,17 +285,12 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         for (MembershipMod membershipMod :
                 userMod.getMembershipsToBeAdded()) {
 
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Membership to be added: role("
-                        + membershipMod.getRole() + ")");
-            }
+            LOG.debug("Membership to be added: role({})",
+                    membershipMod.getRole());
 
             role = roleDAO.find(membershipMod.getRole());
             if (role == null) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Ignoring invalid role "
-                            + membershipMod.getRole());
-                }
+                LOG.debug("Ignoring invalid role {}", membershipMod.getRole());
             } else {
                 membership = user.getMembership(role.getId());
                 if (membership == null) {
@@ -317,16 +300,16 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
                     user.addMembership(membership);
 
-                    resourceOperations.addAll(ResourceOperationType.UPDATE,
+                    resOps.addAll(ResourceOperationType.UPDATE,
                             role.getTargetResources());
                 }
 
-                resourceOperations.merge(fill(membership, membershipMod,
+                resOps.merge(fill(membership, membershipMod,
                         AttributableUtil.MEMBERSHIP, scce));
             }
         }
 
-        return resourceOperations;
+        return resOps;
     }
 
     public UserTO getUserTO(SyncopeUser user, Workflow userWorkflow) {

@@ -346,7 +346,8 @@ public class UserController extends AbstractController {
         }
 
         List<SyncopeUser> matchingUsers = userSearchDAO.search(
-                EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames()), searchCondition);
+                EntitlementUtil.getRoleIds(EntitlementUtil.
+                getOwnedEntitlementNames()), searchCondition);
         List<UserTO> result = new ArrayList<UserTO>(matchingUsers.size());
         for (SyncopeUser user : matchingUsers) {
             result.add(userDataBinder.getUserTO(user, workflow));
@@ -566,8 +567,9 @@ public class UserController extends AbstractController {
         return savedTO;
     }
 
-    public SyncopeUser update(SyncopeUser user, UserMod userMod,
-            Set<Long> mandatoryRoles, Set<String> mandatoryResources)
+    public SyncopeUser update(SyncopeUser user, final UserMod userMod,
+            final Set<Long> mandatoryRoles,
+            final Set<String> mandatoryResources)
             throws WorkflowException, NotFoundException, PropagationException {
 
         // First of all, let's check if update is allowed
@@ -582,8 +584,7 @@ public class UserController extends AbstractController {
                 inputs);
 
         // Update user with provided userMod
-        ResourceOperations resourceOperations =
-                userDataBinder.update(user, userMod);
+        ResourceOperations resOps = userDataBinder.update(user, userMod);
 
         try {
             user = userDAO.save(user);
@@ -616,7 +617,7 @@ public class UserController extends AbstractController {
         }
 
         propagationManager.update(user, userMod.getPassword(),
-                resourceOperations, mandatoryResourceNames);
+                resOps, mandatoryResourceNames);
 
         return user;
     }

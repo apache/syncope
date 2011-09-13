@@ -90,10 +90,10 @@ public abstract class AbstractAttributableDataBinder {
     protected AttrDAO attributeDAO;
 
     @Autowired
-    protected DerAttrDAO derivedAttributeDAO;
+    protected DerAttrDAO derAttrDAO;
 
     @Autowired
-    protected VirAttrDAO virtualAttributeDAO;
+    protected VirAttrDAO virAttrDAO;
 
     @Autowired
     protected AttrValueDAO attributeValueDAO;
@@ -475,7 +475,7 @@ public abstract class AbstractAttributableDataBinder {
                     LOG.debug("No derived attribute found for schema {}",
                             derivedSchema.getName());
                 } else {
-                    derivedAttributeDAO.delete(derivedAttribute);
+                    derAttrDAO.delete(derivedAttribute);
                 }
 
                 for (SchemaMapping mapping : resourceDAO.findAllMappings()) {
@@ -523,7 +523,7 @@ public abstract class AbstractAttributableDataBinder {
                     LOG.debug("No virtual attribute found for schema {}",
                             virtualSchema.getName());
                 } else {
-                    virtualAttributeDAO.delete(virtualAttribute);
+                    virAttrDAO.delete(virtualAttribute);
                 }
 
                 for (SchemaMapping mapping : resourceDAO.findAllMappings()) {

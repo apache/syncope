@@ -828,6 +828,48 @@ public class UserTestITCase extends AbstractTest {
     }
 
     @Test
+    public void updatePasswordOnly() {
+        List<PropagationTaskTO> beforeTasks = Arrays.asList(
+                restTemplate.getForObject(
+                BASE_URL + "task/propagation/list", PropagationTaskTO[].class));
+        assertNotNull(beforeTasks);
+        assertFalse(beforeTasks.isEmpty());
+
+        UserTO userTO = getSampleTO("pwdonly@t.com");
+        MembershipTO membershipTO = new MembershipTO();
+        membershipTO.setRoleId(8L);
+        AttributeTO membershipAttr = new AttributeTO();
+        membershipAttr.setSchema("subscriptionDate");
+        membershipAttr.addValue("2009-08-18T16:33:12.203+0200");
+        membershipTO.addAttribute(membershipAttr);
+        userTO.addMembership(membershipTO);
+
+        userTO = restTemplate.postForObject(BASE_URL + "user/create",
+                userTO, UserTO.class);
+        userTO = restTemplate.postForObject(BASE_URL + "user/activate",
+                userTO, UserTO.class);
+
+        UserMod userMod = new UserMod();
+        userMod.setId(userTO.getId());
+        userMod.setPassword("newPassword");
+
+        userTO = restTemplate.postForObject(BASE_URL + "user/update",
+                userMod, UserTO.class);
+
+        SyncopeUser passwordTestUser = new SyncopeUser();
+        passwordTestUser.setPassword("newPassword", CipherAlgorithm.MD5, 0);
+        assertEquals(passwordTestUser.getPassword(), userTO.getPassword());
+
+        List<PropagationTaskTO> afterTasks = Arrays.asList(
+                restTemplate.getForObject(
+                BASE_URL + "task/propagation/list", PropagationTaskTO[].class));
+        assertNotNull(afterTasks);
+        assertFalse(afterTasks.isEmpty());
+
+        assertTrue(beforeTasks.size() < afterTasks.size());
+    }
+
+    @Test
     public final void verifyTaskRegistration() {
         // get task list
         List<PropagationTaskTO> tasks = Arrays.asList(
