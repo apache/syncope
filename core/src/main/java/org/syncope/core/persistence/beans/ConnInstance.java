@@ -92,6 +92,7 @@ public class ConnInstance extends AbstractBaseBean {
     private String displayName;
 
     @Lob
+    @Type(type = "org.hibernate.type.StringClobType")
     private String serializedSyncToken;
 
     /**
