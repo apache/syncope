@@ -16,7 +16,9 @@ package org.syncope.core.rest.data;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -28,11 +30,12 @@ import org.syncope.client.to.SchemaMappingTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
 import org.syncope.core.persistence.beans.ConnInstance;
-import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.SchemaMapping;
+import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.dao.ConnInstanceDAO;
 import org.syncope.core.persistence.dao.PolicyDAO;
 import org.syncope.core.util.JexlUtil;
+import org.syncope.types.ConnConfProperty;
 import org.syncope.types.SourceMappingType;
 import org.syncope.types.SyncopeClientExceptionType;
 
@@ -86,7 +89,7 @@ public class ResourceDataBinder {
             resource.setConnector(connector);
             connector.addResource(resource);
         }
-        
+
         resource.setForceMandatoryConstraint(
                 resourceTO.isForceMandatoryConstraint());
 
@@ -104,7 +107,9 @@ public class ResourceDataBinder {
 
         resource.setPasswordPolicy(resourceTO.getPasswordPolicy() != null
                 ? policyDAO.find(resourceTO.getPasswordPolicy()) : null);
-
+        resource.setConnectorConfigurationProperties(
+                new HashSet<ConnConfProperty>(
+                resourceTO.getConnectorConfigurationProperties()));
         return resource;
     }
 
@@ -157,7 +162,8 @@ public class ResourceDataBinder {
 
         resourceTO.setPasswordPolicy(resource.getPasswordPolicy() != null
                 ? resource.getPasswordPolicy().getId() : null);
-
+        resourceTO.setConnectorConfigurationProperties(
+                resource.getConfiguration());
         return resourceTO;
     }
 
@@ -168,9 +174,15 @@ public class ResourceDataBinder {
             return null;
         }
 
-        List<SchemaMapping> schemaMappings = new ArrayList<SchemaMapping>();
+        final List<SchemaMapping> schemaMappings =
+                new ArrayList<SchemaMapping>();
+
+        SchemaMapping schemaMapping;
         for (SchemaMappingTO mapping : mappings) {
-            schemaMappings.add(getSchemaMapping(resource, mapping));
+            schemaMapping = getSchemaMapping(resource, mapping);
+            if (schemaMapping != null) {
+                schemaMappings.add(schemaMapping);
+            }
         }
 
         return schemaMappings;
@@ -188,9 +200,10 @@ public class ResourceDataBinder {
                 new SyncopeClientException(
                 SyncopeClientExceptionType.RequiredValuesMissing);
 
-        if (mappingTO == null) {
+        // this control needs to be free to get schema names
+        // without a complete/good resourceTO object
+        if (mappingTO == null || mappingTO.getSourceMappingType() == null) {
             LOG.error("Null mappingTO provided");
-
             return null;
         }
 
@@ -217,7 +230,10 @@ public class ResourceDataBinder {
             compositeErrorException.addException(requiredValuesMissing);
         }
 
-        if (!jexlUtil.isExpressionValid(mappingTO.getMandatoryCondition())) {
+        // no mandatory condition implies mandatory condition false
+        if (!jexlUtil.isExpressionValid(
+                mappingTO.getMandatoryCondition() != null
+                ? mappingTO.getMandatoryCondition() : "false")) {
             SyncopeClientException invalidMandatoryCondition =
                     new SyncopeClientException(
                     SyncopeClientExceptionType.InvalidValues);

@@ -15,36 +15,44 @@
 package org.syncope.core.rest.controller;
 
 import java.util.ArrayList;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import java.util.List;
+
 import javassist.NotFoundException;
+
 import javax.servlet.http.HttpServletResponse;
+
 import org.identityconnectors.framework.api.ConfigurationProperties;
 import org.identityconnectors.framework.api.ConfigurationProperty;
 import org.identityconnectors.framework.api.ConnectorInfo;
 import org.identityconnectors.framework.api.ConnectorInfoManager;
 import org.identityconnectors.framework.api.ConnectorKey;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.syncope.client.to.ConnBundleTO;
 import org.syncope.client.to.ConnInstanceTO;
+import org.syncope.client.to.ResourceTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
 import org.syncope.core.init.ConnInstanceLoader;
+import org.syncope.core.util.ConnBundleManager;
 import org.syncope.core.persistence.beans.ConnInstance;
+import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.dao.ConnInstanceDAO;
 import org.syncope.core.persistence.dao.MissingConfKeyException;
+import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.propagation.ConnectorFacadeProxy;
 import org.syncope.core.rest.data.ConnInstanceDataBinder;
+import org.syncope.core.rest.data.ResourceDataBinder;
 import org.syncope.types.ConnConfPropSchema;
+import org.syncope.types.ConnConfProperty;
 import org.syncope.types.SyncopeClientExceptionType;
 
 @Controller
@@ -58,7 +66,16 @@ public class ConnInstanceController extends AbstractController {
     private ConnInstanceDAO connInstanceDAO;
 
     @Autowired
+    private ResourceDAO respourceDAO;
+
+    @Autowired
+    private ResourceDataBinder resourceDataBinder;
+
+    @Autowired
     private ConnInstanceDataBinder binder;
+
+    @Autowired
+    private ConnBundleManager connBundleManager;
 
     @PreAuthorize("hasRole('CONNECTOR_CREATE')")
     @RequestMapping(method = RequestMethod.POST,
@@ -175,15 +192,24 @@ public class ConnInstanceController extends AbstractController {
 
     @PreAuthorize("hasRole('CONNECTOR_READ')")
     @RequestMapping(method = RequestMethod.GET,
-    value = "/check/{connectorId}")
-    public ModelAndView check(@PathVariable("connectorId") String connectorId)
+    value = "/check/{resourceName}")
+    public ModelAndView check(@PathVariable("resourceName") String resourceName)
             throws NotFoundException {
 
+        final TargetResource resource = respourceDAO.find(resourceName);
+
+        if (resource == null) {
+            LOG.error("Missing resource: {}", resourceName);
+            throw new NotFoundException("Resource '" + resourceName + "'");
+        }
+
         ConnectorFacadeProxy connector;
+
         try {
-            connector = connInstanceLoader.getConnector(connectorId);
+            connector = connInstanceLoader.getConnector(resource);
         } catch (BeansException e) {
-            throw new NotFoundException("Connector " + connectorId, e);
+            throw new NotFoundException(
+                    "Connector " + resource.getConnector().getId(), e);
         }
 
         ModelAndView mav = new ModelAndView();
@@ -210,7 +236,7 @@ public class ConnInstanceController extends AbstractController {
             throws NotFoundException, MissingConfKeyException {
 
         ConnectorInfoManager manager =
-                connInstanceLoader.getConnectorManager();
+                connBundleManager.getConnectorManager();
 
         List<ConnectorInfo> bundles = manager.getConnectorInfos();
 
@@ -292,41 +318,53 @@ public class ConnInstanceController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('CONNECTOR_READ')")
-    @RequestMapping(method = RequestMethod.GET,
-    value = "/{connectorId}/schema/list")
+    @RequestMapping(method = RequestMethod.POST,
+    value = "/schema/list")
     public List<String> getSchemaNames(
-            @PathVariable("connectorId") final Long connectorId)
+            @RequestBody final ResourceTO resourceTO)
             throws NotFoundException {
 
-        return getSchemaNames(connectorId, false);
+        return getSchemaNames(
+                resourceDataBinder.getResource(resourceTO), false);
+    }
+
+    @PreAuthorize("hasRole('CONNECTOR_READ')")
+    @RequestMapping(method = RequestMethod.POST,
+    value = "/schema/list/all")
+    public List<String> getAllSchemaNames(
+            @RequestBody final ResourceTO resourceTO)
+            throws NotFoundException {
+
+        return getSchemaNames(
+                resourceDataBinder.getResource(resourceTO), true);
     }
 
     @PreAuthorize("hasRole('CONNECTOR_READ')")
     @RequestMapping(method = RequestMethod.GET,
-    value = "/{connectorId}/schema/list/all")
-    public List<String> getAllSchemaNames(
+    value = "/{connectorId}/configurationProperty/list")
+    public List<ConnConfProperty> getConfigurationProperties(
             @PathVariable("connectorId") final Long connectorId)
             throws NotFoundException {
-        return getSchemaNames(connectorId, true);
+
+        final ConnInstance connector = connInstanceDAO.find(connectorId);
+        if (connector == null) {
+            throw new NotFoundException(String.format(
+                    "Connector instance with id %d not found", connectorId));
+        }
+        return new ArrayList<ConnConfProperty>(connector.getConfiguration());
     }
 
     private List<String> getSchemaNames(
-            final Long connectorId, final boolean showall)
+            final TargetResource resource, final boolean showall)
             throws NotFoundException {
-        try {
-            final ConnectorFacadeProxy connector = connInstanceLoader.getConnector(
-                    ConnInstanceLoader.getBeanName(connectorId));
 
-            if (connector == null) {
-                throw new NoSuchBeanDefinitionException(
-                        "Connector instance bean not found");
-            }
+        // We cannot use bean because this method could be used in phase of
+        // resource definition or modification: bean couldn't exist or bean
+        // couldn't be updated.
+        // This is the reason why we should take a "not mature" connector
+        // facade proxy to ask for schema names.
 
-            return connector.getSchema(showall);
-
-        } catch (BeansException e) {
-            LOG.error("Connector instance bean '{}' not found", connectorId);
-            throw new NotFoundException("Connector bean not found", e);
-        }
+        return connInstanceLoader.createConnectorBean(resource).
+                getSchema(showall);
     }
 }

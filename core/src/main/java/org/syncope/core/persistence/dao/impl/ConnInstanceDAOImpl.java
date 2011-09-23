@@ -15,7 +15,6 @@
 package org.syncope.core.persistence.dao.impl;
 
 import java.util.List;
-import javassist.NotFoundException;
 import javax.persistence.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -43,15 +42,7 @@ public class ConnInstanceDAOImpl extends AbstractDAOImpl
 
     @Override
     public ConnInstance save(final ConnInstance connector) {
-        ConnInstance actual = entityManager.merge(connector);
-        try {
-            connInstanceLoader.registerConnector(actual);
-        } catch (NotFoundException e) {
-            LOG.error("While registering the connector for instance "
-                    + actual, e);
-        }
-
-        return actual;
+        return entityManager.merge(connector);
     }
 
     @Override

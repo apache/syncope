@@ -15,9 +15,11 @@
 package org.syncope.core.persistence.beans;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
 import javax.persistence.Basic;
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
@@ -27,15 +29,20 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+
+import org.hibernate.annotations.Type;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
+import org.syncope.core.persistence.util.XmlConfiguration;
 import org.syncope.core.persistence.validation.entity.TargetResourceCheck;
+import org.syncope.types.ConnConfProperty;
 import org.syncope.types.PropagationMode;
 import org.syncope.types.SourceMappingType;
 import org.syncope.types.TraceLevel;
@@ -115,6 +122,13 @@ public class TargetResource extends AbstractBaseBean {
 
     @ManyToOne(fetch = FetchType.EAGER, optional = true)
     private Policy passwordPolicy;
+
+    /**
+     * Configuration properties that are overridden from the connector instance.
+     */
+    @Lob
+    @Type(type = "org.hibernate.type.StringClobType")
+    private String xmlConfiguration;
 
     /**
      * Default constructor.
@@ -290,5 +304,25 @@ public class TargetResource extends AbstractBaseBean {
 
     public void setPasswordPolicy(Policy passwordPolicy) {
         this.passwordPolicy = passwordPolicy;
+    }
+
+    public void setConnectorConfigurationProperties(
+            final Set<ConnConfProperty> properties) {
+        
+        // create new set to make sure it's a serializable set implementation.
+        xmlConfiguration = XmlConfiguration.serialize(
+                new HashSet<ConnConfProperty>(properties));
+    }
+
+    public Set<ConnConfProperty> getConfiguration() {
+        Set<ConnConfProperty> deserializedSet =
+                XmlConfiguration.<HashSet<ConnConfProperty>>deserialize(
+                xmlConfiguration);
+
+        if (deserializedSet == null) {
+            deserializedSet = Collections.emptySet();
+        }
+
+        return deserializedSet;
     }
 }

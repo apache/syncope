@@ -92,10 +92,16 @@ public class ResourceTest extends AbstractTest {
 
         resource.addMapping(accountId);
 
+        ConnInstance connector =
+                resourceDAO.find("ws-target-resource-1").getConnector();
+
+        resource.setConnector(connector);
+
         // save the resource
         TargetResource actual = resourceDAO.save(resource);
 
         assertNotNull(actual);
+        assertNotNull(actual.getConnector());
     }
 
     @Test

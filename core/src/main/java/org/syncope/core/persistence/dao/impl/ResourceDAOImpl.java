@@ -15,11 +15,15 @@
 package org.syncope.core.persistence.dao.impl;
 
 import java.util.List;
+
+import javassist.NotFoundException;
+
 import javax.persistence.CacheRetrieveMode;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.syncope.core.init.ConnInstanceLoader;
 import org.syncope.core.persistence.beans.PropagationTask;
 import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.SchemaMapping;
@@ -36,6 +40,9 @@ public class ResourceDAOImpl extends AbstractDAOImpl
 
     @Autowired
     private TaskDAO taskDAO;
+
+    @Autowired
+    private ConnInstanceLoader connInstanceLoader;
 
     @Override
     public TargetResource find(final String name) {
@@ -61,7 +68,13 @@ public class ResourceDAOImpl extends AbstractDAOImpl
 
     @Override
     public TargetResource save(final TargetResource resource) {
-        return entityManager.merge(resource);
+        TargetResource merged = entityManager.merge(resource);
+        try {
+            connInstanceLoader.registerConnector(merged);
+        } catch (NotFoundException e) {
+            LOG.error("While registering connector for resource", e);
+        }
+        return merged;
     }
 
     @Override

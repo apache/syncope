@@ -18,9 +18,13 @@ import org.syncope.client.AbstractBaseBean;
 
 public class ConnConfProperty extends AbstractBaseBean {
 
+    private static final long serialVersionUID = -8391413960221862238L;
+
     private ConnConfPropSchema schema;
 
     private String value;
+
+    private boolean overridable;
 
     public ConnConfPropSchema getSchema() {
         return schema;
@@ -36,5 +40,13 @@ public class ConnConfProperty extends AbstractBaseBean {
 
     public void setValue(String value) {
         this.value = value;
+    }
+
+    public boolean isOverridable() {
+        return overridable;
+    }
+
+    public void setOverridable(boolean overridable) {
+        this.overridable = overridable;
     }
 }

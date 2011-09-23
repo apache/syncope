@@ -34,5 +34,6 @@
     <bean class="org.syncope.core.util.ApplicationContextProvider"/>
 
     <context:component-scan base-package="org.syncope.core.init"/>
+    <context:component-scan base-package="org.syncope.core.util"/>
 
 </beans>

@@ -16,9 +16,13 @@
  */
 package org.syncope.console.pages;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.IAjaxCallDecorator;
 import org.apache.wicket.ajax.calldecorator.AjaxPreprocessingCallDecorator;
@@ -28,6 +32,7 @@ import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuth
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -51,6 +56,7 @@ import org.syncope.console.wicket.markup.html.form.AjaxDecoratedCheckbox;
 import org.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.syncope.console.wicket.markup.html.form.FieldPanel;
+import org.syncope.types.ConnConfProperty;
 import org.syncope.types.PropagationMode;
 import org.syncope.types.SourceMappingType;
 import org.syncope.types.TraceLevel;
@@ -78,6 +84,10 @@ public class ResourceModalPage extends BaseModalPage {
     private List<String> uVirSchemaAttrNames;
 
     private WebMarkupContainer mappingContainer;
+
+    private WebMarkupContainer connectorPropertiesContainer;
+
+    private Set<ConnConfProperty> overridableConnectorProperties;
 
     private List<String> resourceSchemaNames;
 
@@ -116,8 +126,26 @@ public class ResourceModalPage extends BaseModalPage {
                         return Arrays.asList(SourceMappingType.values());
                     }
                 };
+        final IModel<List<ConnConfProperty>> connectorPropertiesModel =
+                new LoadableDetachableModel<List<ConnConfProperty>>() {
 
-        updateResourceSchemaNames(resourceTO.getConnectorId());
+                    private static final long serialVersionUID =
+                            5275935387613157437L;
+
+                    @Override
+                    protected List<ConnConfProperty> load() {
+                        Set<ConnConfProperty> props =
+                                resourceTO.getConnectorConfigurationProperties();
+
+                        if (props == null || props.isEmpty() || createFlag) {
+                            props = overridableConnectorProperties;
+                        }
+                        return new ArrayList<ConnConfProperty>(props);
+                    }
+                };
+
+        updateResourceSchemaNames(resourceTO);
+        updateConnectorProperties(resourceTO.getConnectorId());
 
         final ConnInstanceTO connectorTO = new ConnInstanceTO();
         if (!createFlag) {
@@ -183,6 +211,11 @@ public class ResourceModalPage extends BaseModalPage {
         mappingContainer = new WebMarkupContainer("mappingContainer");
         mappingContainer.setOutputMarkupId(true);
         form.add(mappingContainer);
+
+        connectorPropertiesContainer =
+                new WebMarkupContainer("connectorPropertiesContainer");
+        connectorPropertiesContainer.setOutputMarkupId(true);
+        form.add(connectorPropertiesContainer);
 
         final AjaxDropDownChoicePanel<ConnInstanceTO> connector =
                 new AjaxDropDownChoicePanel<ConnInstanceTO>("connector",
@@ -454,6 +487,61 @@ public class ResourceModalPage extends BaseModalPage {
         addSchemaMappingBtn.setEnabled(!createFlag);
         mappingContainer.add(addSchemaMappingBtn);
 
+        /*
+         * the list of overridable connector properties 
+         */
+        connectorPropertiesContainer.add(new ListView<ConnConfProperty>(
+                "connectorProperties", connectorPropertiesModel) {
+
+            private static final long serialVersionUID = 9101744072914090143L;
+
+            @Override
+            protected void populateItem(final ListItem<ConnConfProperty> item) {
+                final ConnConfProperty property = item.getModelObject();
+
+                final Label label = new Label("connPropAttrSchema",
+                        property.getSchema().getDisplayName() == null
+                        || property.getSchema().getDisplayName().isEmpty()
+                        ? property.getSchema().getName()
+                        : property.getSchema().getDisplayName());
+
+                item.add(label);
+
+                final FieldPanel field = new AjaxTextFieldPanel(
+                        "connPropAttrValue",
+                        label.getDefaultModelObjectAsString(),
+                        new PropertyModel<String>(property, "value"),
+                        false).setRequired(property.getSchema().isRequired()).
+                        setTitle(property.getSchema().getHelpMessage());
+
+                if (property.getSchema().isRequired()) {
+                    field.addRequiredLabel();
+                }
+
+                field.getField().add(
+                        new AjaxFormComponentUpdatingBehavior("onchange") {
+
+                            private static final long serialVersionUID =
+                                    -1107858522700306810L;
+
+                            @Override
+                            protected void onUpdate(AjaxRequestTarget target) {
+                                mappings.removeAll();
+                                addSchemaMappingBtn.setEnabled(
+                                        resourceTO.getConnectorId() != null
+                                        && resourceTO.getConnectorId() > 0);
+
+                                updateResourceSchemaNames(resourceTO);
+
+                                target.addComponent(mappingContainer);
+                            }
+                        });
+
+                item.add(field);
+                resourceTO.getConnectorConfigurationProperties().add(property);
+            }
+        });
+
         connector.getField().add(
                 new AjaxFormComponentUpdatingBehavior("onchange") {
 
@@ -467,9 +555,11 @@ public class ResourceModalPage extends BaseModalPage {
                                 resourceTO.getConnectorId() != null
                                 && resourceTO.getConnectorId() > 0);
 
-                        updateResourceSchemaNames(resourceTO.getConnectorId());
+                        updateResourceSchemaNames(resourceTO);
+                        updateConnectorProperties(resourceTO.getConnectorId());
 
                         target.addComponent(mappingContainer);
+                        target.addComponent(connectorPropertiesContainer);
                     }
                 });
 
@@ -589,13 +679,29 @@ public class ResourceModalPage extends BaseModalPage {
         }
     }
 
-    public final void updateResourceSchemaNames(Long connectorId) {
-        if (connectorId != null && connectorId > 0) {
+    public final void updateResourceSchemaNames(final ResourceTO resourceTO) {
+        if (resourceTO != null && resourceTO.getConnectorId() != null) {
             resourceSchemaNames =
-                    connectorRestClient.getSchemaNames(connectorId);
+                    connectorRestClient.getSchemaNames(resourceTO);
         } else {
             resourceSchemaNames =
                     Collections.EMPTY_LIST;
+        }
+    }
+
+    public final void updateConnectorProperties(final Long connectorId) {
+        if (connectorId != null && connectorId > 0) {
+            Set<ConnConfProperty> overridableProperties =
+                    new HashSet<ConnConfProperty>();
+            for (ConnConfProperty p :
+                    connectorRestClient.getConnectorProperties(connectorId)) {
+                if (p.isOverridable()) {
+                    overridableProperties.add(p);
+                }
+            }
+            overridableConnectorProperties = overridableProperties;
+        } else {
+            overridableConnectorProperties = Collections.emptySet();
         }
     }
 }

@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
+
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -43,13 +44,13 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.to.ConnBundleTO;
 import org.syncope.client.to.ConnInstanceTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.syncope.types.ConnConfProperty;
 import org.syncope.console.rest.ConnectorRestClient;
 import org.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.syncope.console.wicket.markup.html.form.FieldPanel;
 import org.syncope.types.ConnConfPropSchema;
+import org.syncope.types.ConnConfProperty;
 import org.syncope.types.ConnectorCapability;
 
 /**
@@ -112,7 +113,7 @@ public class ConnectorModalPage extends BaseModalPage {
                             selectedBundleTO.setBundleName(
                                     connectorTO.getBundleName());
                             selectedBundleTO.setVersion(connectorTO.getVersion());
-                            result = new ArrayList(
+                            result = new ArrayList<ConnConfProperty>(
                                     connectorTO.getConfiguration());
                         }
                         return result;
@@ -251,12 +252,17 @@ public class ConnectorModalPage extends BaseModalPage {
                         new PropertyModel<String>(property, "value"),
                         true).setRequired(property.getSchema().isRequired()).
                         setTitle(property.getSchema().getHelpMessage());
-
                 if (property.getSchema().isRequired()) {
                     field.addRequiredLabel();
                 }
 
                 item.add(field);
+
+                item.add(new AjaxCheckBoxPanel(
+                        "connPropAttrOverridable",
+                        "Overridable",
+                        new PropertyModel<Boolean>(property, "overridable"),
+                        true).setTitle("Overridable"));
 
                 connectorTO.getConfiguration().add(property);
             }

@@ -124,7 +124,7 @@ public class ResourceController extends AbstractController {
             resource = resourceDAO.find(resourceTO.getName());
         }
         if (resource == null) {
-            LOG.error("Missing resource: " + resourceTO.getName());
+            LOG.error("Missing resource: {}", resourceTO.getName());
             throw new NotFoundException(
                     "Resource '" + resourceTO.getName() + "'");
         }

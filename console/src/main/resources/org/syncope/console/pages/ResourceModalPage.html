@@ -46,6 +46,7 @@
                 <ul>
                     <li  class="tabs-selected"><a href="#resource"><span><wicket:message key="resource"/></span></a></li>
                     <li><a href="#mappings"><span><wicket:message key="mappings"/></span></a></li>
+                    <li><a href="#connectorProperties"><span><wicket:message key="connectorProperties"/></span></a></li>
                 </ul>
                 <div id="resource">
                     <div id="formtable">
@@ -112,6 +113,11 @@
                             </div>
                         </div>
                     </div>
+                    <script type="text/javascript">
+                        $(function() {
+                            $('div#resource div#formtable div.tablerow:even').addClass("alt");
+                        });
+                    </script>
                 </div>
                 <div id="mappings">
                     <div id="formtable">
@@ -177,13 +183,32 @@
                             </div>
                         </div>
                     </div>
+                    <script type="text/javascript">
+                        $(function() {
+                            $('div#mappings div#formtable div.tablerow:even').addClass("alt");
+                        });
+                    </script>
                 </div>
+                <div id="connectorProperties">
+                    <span wicket:id="connectorPropertiesContainer">
+                        <div id="formtable">
+                            <div class="tablerow" wicket:id="connectorProperties">
+                                <div class="tablecolumn_label medium_fixedsize">
+                                    <span wicket:id="connPropAttrSchema">[connPropAttrSchema]</span>
+                                </div>
+                                <div class="tablecolumn_field medium_dynamicsize">
+                                    <span wicket:id="connPropAttrValue">[connPropAttrValue]</span>
+                                </div>
+                            </div>
+                        </div>
 
-                <script type="text/javascript">
-                    $(function() {
-                        $('#formtable div.tablerow:even').addClass("alt");
-                    });
-                </script>
+                        <script type="text/javascript">
+                            $(function() {
+                                $('div#connectorProperties div#formtable div.tablerow:even').addClass("alt");
+                            });
+                        </script>
+                    </span>
+                </div>
             </div>
             <div style="margin: 20px 10px 0">
                 <input type="submit"

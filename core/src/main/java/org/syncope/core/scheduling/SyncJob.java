@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
 import org.identityconnectors.common.security.GuardedByteArray;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.objects.Attribute;
@@ -33,7 +34,6 @@ import org.syncope.client.to.AttributeTO;
 import org.syncope.client.to.MembershipTO;
 import org.syncope.client.to.UserTO;
 import org.syncope.core.init.ConnInstanceLoader;
-import org.syncope.core.persistence.beans.ConnInstance;
 import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.beans.SyncTask;
 import org.syncope.core.persistence.beans.TargetResource;
@@ -322,22 +322,23 @@ public class SyncJob extends AbstractJob {
         }
         final SyncTask syncTask = (SyncTask) this.task;
 
-        ConnInstance connInstance =
-                syncTask.getResource().getConnector();
-
         ConnectorFacadeProxy connector;
         try {
-            connector = connInstanceLoader.getConnector(
-                    ConnInstanceLoader.getBeanName(connInstance.getId()));
+            connector = connInstanceLoader.getConnector(syncTask.getResource());
         } catch (BeansException e) {
-            throw new JobExecutionException("Connector instance bean "
-                    + ConnInstanceLoader.getBeanName(connInstance.getId())
-                    + " not found", e);
+            final String msg = String.format(
+                    "Connector instance bean for resource %s "
+                    + "and connInstance %s not found",
+                    syncTask.getResource(),
+                    syncTask.getResource().getConnector());
+
+            throw new JobExecutionException(msg, e);
         }
 
         List<SyncDelta> deltas;
         try {
-            deltas = connector.sync(connInstance.getSyncToken());
+            deltas = connector.sync(
+                    syncTask.getResource().getConnector().getSyncToken());
         } catch (Throwable t) {
             throw new JobExecutionException("While syncing on connector", t);
         }
@@ -447,8 +448,9 @@ public class SyncJob extends AbstractJob {
         LOG.debug("Sync result: {}", result);
 
         try {
-            connInstance.setSyncToken(connector.getLatestSyncToken());
-            connInstanceDAO.save(connInstance);
+            syncTask.getResource().getConnector().setSyncToken(
+                    connector.getLatestSyncToken());
+            connInstanceDAO.save(syncTask.getResource().getConnector());
         } catch (Throwable t) {
             throw new JobExecutionException("While updating SyncToken", t);
         }

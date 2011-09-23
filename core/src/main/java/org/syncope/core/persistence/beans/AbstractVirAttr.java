@@ -60,7 +60,7 @@ public abstract class AbstractVirAttr extends AbstractBaseBean {
         LOG.debug("{}: retrieving external values for {}",
                 new Object[]{attributable, attributeName});
 
-        List<Object> values;
+        List<Object> virAttrValues;
 
         ConfigurableApplicationContext context =
                 ApplicationContextManager.getApplicationContext();
@@ -70,7 +70,7 @@ public abstract class AbstractVirAttr extends AbstractBaseBean {
             LOG.error("Could not get to ConnInstanceLoader");
             return null;
         } else {
-            values = new ArrayList<Object>();
+            virAttrValues = new ArrayList<Object>();
         }
 
         JexlUtil jexlUtil = context.getBean(JexlUtil.class);
@@ -128,8 +128,7 @@ public abstract class AbstractVirAttr extends AbstractBaseBean {
 
                 connInstance = resource.getConnector();
 
-                connector = connInstanceLoader.getConnector(
-                        ConnInstanceLoader.getBeanName(connInstance.getId()));
+                connector = connInstanceLoader.getConnector(resource);
 
                 try {
                     attributes = connector.getObjectAttributes(
@@ -141,7 +140,7 @@ public abstract class AbstractVirAttr extends AbstractBaseBean {
                     LOG.debug("Retrieved {}", attributes);
 
                     for (Attribute attribute : attributes) {
-                        values.addAll(attribute.getValue());
+                        virAttrValues.addAll(attribute.getValue());
                     }
                 } catch (Exception e) {
                     LOG.warn("Error connecting to {}", resource.getName(), e);
@@ -150,7 +149,7 @@ public abstract class AbstractVirAttr extends AbstractBaseBean {
             }
         }
 
-        return values;
+        return virAttrValues;
     }
 
     public abstract List<String> getValues();

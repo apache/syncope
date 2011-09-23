@@ -17,6 +17,8 @@ import java.util.List;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.aop.framework.ProxyFactoryBean;
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +38,9 @@ import org.syncope.core.util.ApplicationContextManager;
 
 @Component
 public class JobInstanceLoader extends AbstractLoader {
+    
+    private static final Logger LOG = LoggerFactory.getLogger(
+                    JobInstanceLoader.class);
 
     @Autowired
     private SchedulerFactoryBean scheduler;

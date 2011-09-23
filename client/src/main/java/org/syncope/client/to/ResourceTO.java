@@ -15,12 +15,18 @@
 package org.syncope.client.to;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
 import org.syncope.client.AbstractBaseBean;
+import org.syncope.types.ConnConfProperty;
 import org.syncope.types.PropagationMode;
 import org.syncope.types.TraceLevel;
 
 public class ResourceTO extends AbstractBaseBean {
+
+    private static final long serialVersionUID = -9193551354041698963L;
 
     /**
      * The resource identifier is the name.
@@ -57,8 +63,11 @@ public class ResourceTO extends AbstractBaseBean {
 
     private Long passwordPolicy;
 
+    private Set<ConnConfProperty> connectorConfigurationProperties;
+
     public ResourceTO() {
         mappings = new ArrayList<SchemaMappingTO>();
+        connectorConfigurationProperties = new HashSet<ConnConfProperty>();
         optionalPropagationMode = PropagationMode.ASYNC;
         createTraceLevel = TraceLevel.ALL;
         deleteTraceLevel = TraceLevel.ALL;
@@ -153,5 +162,15 @@ public class ResourceTO extends AbstractBaseBean {
 
     public void setPasswordPolicy(Long passwordPolicy) {
         this.passwordPolicy = passwordPolicy;
+    }
+
+    public Set<ConnConfProperty> getConnectorConfigurationProperties() {
+        return connectorConfigurationProperties;
+    }
+
+    public void setConnectorConfigurationProperties(
+            final Set<ConnConfProperty> connectorConfigurationProperties) {
+        this.connectorConfigurationProperties =
+                connectorConfigurationProperties;
     }
 }

@@ -14,18 +14,15 @@
  */
 package org.syncope.core.persistence.beans;
 
-import com.thoughtworks.xstream.XStream;
-import java.beans.XMLDecoder;
-import java.beans.XMLEncoder;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -36,12 +33,16 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.OneToMany;
+
 import org.hibernate.annotations.Type;
 import org.identityconnectors.framework.common.objects.SyncToken;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.syncope.core.persistence.util.XmlConfiguration;
 import org.syncope.core.util.ApplicationContextManager;
 import org.syncope.types.ConnConfProperty;
 import org.syncope.types.ConnectorCapability;
+
+import com.thoughtworks.xstream.XStream;
 
 @Entity
 public class ConnInstance extends AbstractBaseBean {
@@ -105,8 +106,32 @@ public class ConnInstance extends AbstractBaseBean {
 
     public ConnInstance() {
         super();
-
         capabilities = EnumSet.noneOf(ConnectorCapability.class);
+    }
+
+    /**
+     * Copy constructor.
+     * 
+     * @param that
+     */
+    public ConnInstance(final ConnInstance that) {
+        super();
+        this.bundleName = that.bundleName;
+        this.capabilities = that.capabilities.isEmpty()
+                ? EnumSet.noneOf(ConnectorCapability.class)
+                : EnumSet.copyOf(that.capabilities);
+        this.connectorName = that.connectorName;
+        this.displayName = that.displayName;
+        this.id = that.id;
+
+        this.resources = new ArrayList<TargetResource>();
+        if (that.resources != null) {
+            this.resources.addAll(that.resources);
+        }
+
+        this.serializedSyncToken = that.serializedSyncToken;
+        this.version = that.version;
+        this.xmlConfiguration = that.xmlConfiguration;
     }
 
     public String getVersion() {
@@ -134,37 +159,18 @@ public class ConnInstance extends AbstractBaseBean {
     }
 
     public Set<ConnConfProperty> getConfiguration() {
-        Set<ConnConfProperty> result = Collections.EMPTY_SET;
-
-        try {
-            ByteArrayInputStream tokenContentIS = new ByteArrayInputStream(
-                    URLDecoder.decode(xmlConfiguration, "UTF-8").getBytes());
-
-            XMLDecoder decoder = new XMLDecoder(tokenContentIS);
-            Object object = decoder.readObject();
-            decoder.close();
-
-            result = (Set<ConnConfProperty>) object;
-        } catch (Throwable t) {
-            LOG.error("During connector properties deserialization", t);
+        Set<ConnConfProperty> result =
+                XmlConfiguration.<HashSet<ConnConfProperty>>deserialize(
+                xmlConfiguration);
+        if (result == null) {
+            result = Collections.emptySet();
         }
-
         return result;
     }
 
     public void setConfiguration(final Set<ConnConfProperty> configuration) {
-        try {
-            ByteArrayOutputStream tokenContentOS = new ByteArrayOutputStream();
-            XMLEncoder encoder = new XMLEncoder(tokenContentOS);
-            encoder.writeObject(configuration);
-            encoder.flush();
-            encoder.close();
-
-            xmlConfiguration = URLEncoder.encode(tokenContentOS.toString(),
-                    "UTF-8");
-        } catch (Throwable t) {
-            LOG.error("During connector properties serialization", t);
-        }
+        xmlConfiguration = XmlConfiguration.serialize(
+                new HashSet<ConnConfProperty>(configuration));
     }
 
     public Long getId() {

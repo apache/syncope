@@ -16,7 +16,9 @@ package org.syncope.core.rest;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
@@ -27,6 +29,8 @@ import org.syncope.client.to.ResourceTO;
 import org.syncope.client.to.SchemaMappingTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
+import org.syncope.types.ConnConfPropSchema;
+import org.syncope.types.ConnConfProperty;
 import org.syncope.types.SourceMappingType;
 import org.syncope.types.SyncopeClientExceptionType;
 
@@ -84,6 +88,62 @@ public class ResourceTestITCase extends AbstractTest {
         actual = restTemplate.getForObject(
                 BASE_URL + "resource/read/{resourceName}.json",
                 ResourceTO.class,
+                resourceName);
+
+        assertNotNull(actual);
+    }
+
+    @Test
+    public void createOverridingProps() {
+        String resourceName = "overriding-conn-conf-target-resource-create";
+        ResourceTO resourceTO = new ResourceTO();
+
+        SchemaMappingTO schemaMappingTO = new SchemaMappingTO();
+        schemaMappingTO.setDestAttrName("uid");
+        schemaMappingTO.setSourceAttrName("userId");
+        schemaMappingTO.setSourceMappingType(SourceMappingType.UserSchema);
+        resourceTO.addMapping(schemaMappingTO);
+
+        schemaMappingTO = new SchemaMappingTO();
+        schemaMappingTO.setDestAttrName("username");
+        schemaMappingTO.setSourceAttrName("username");
+        schemaMappingTO.setSourceMappingType(SourceMappingType.SyncopeUserId);
+        schemaMappingTO.setAccountid(true);
+        resourceTO.addMapping(schemaMappingTO);
+
+        schemaMappingTO = new SchemaMappingTO();
+        schemaMappingTO.setDestAttrName("fullname");
+        schemaMappingTO.setSourceAttrName("cn");
+        schemaMappingTO.setSourceMappingType(SourceMappingType.UserSchema);
+        schemaMappingTO.setAccountid(false);
+        resourceTO.addMapping(schemaMappingTO);
+
+        resourceTO.setName(resourceName);
+        resourceTO.setConnectorId(102L);
+
+        ConnConfProperty p = new ConnConfProperty();
+        ConnConfPropSchema schema = new ConnConfPropSchema();
+        schema.setType("java.lang.String");
+        schema.setName("endpoint");
+        schema.setRequired(true);
+        p.setSchema(schema);
+        p.setValue("http://invalidurl/");
+
+        Set<ConnConfProperty> connectorConfigurationProperties =
+                new HashSet<ConnConfProperty>(Arrays.asList(p));
+
+        resourceTO.setConnectorConfigurationProperties(
+                connectorConfigurationProperties);
+
+        ResourceTO actual = restTemplate.postForObject(BASE_URL
+                + "resource/create.json", resourceTO, ResourceTO.class);
+
+        assertNotNull(actual);
+
+        // check the existence
+
+        actual = restTemplate.getForObject(BASE_URL
+                + "resource/read/{resourceName}.json", ResourceTO.class,
                 resourceName);
 
         assertNotNull(actual);
@@ -314,5 +374,14 @@ public class ResourceTestITCase extends AbstractTest {
         for (ResourceTO resourceTO : actuals) {
             assertNotNull(resourceTO);
         }
+    }
+
+    @Test
+    public void read() {
+        ResourceTO actual = restTemplate.getForObject(
+                BASE_URL + "/resource/read/{resourceName}.json",
+                ResourceTO.class, "ws-target-resource-testdb");
+
+        assertNotNull(actual);
     }
 }

@@ -14,7 +14,11 @@
  */
 package org.syncope.core.rest;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.InputStream;
 import java.util.Arrays;
@@ -22,6 +26,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+
 import org.connid.bundles.soap.WebServiceConnector;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,10 +35,10 @@ import org.springframework.test.annotation.ExpectedException;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.syncope.client.to.ConnBundleTO;
 import org.syncope.client.to.ConnInstanceTO;
-import org.syncope.types.ConnConfProperty;
+import org.syncope.client.to.ResourceTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.syncope.core.init.ConnInstanceLoader;
 import org.syncope.types.ConnConfPropSchema;
+import org.syncope.types.ConnConfProperty;
 import org.syncope.types.ConnectorCapability;
 
 public class ConnInstanceTestITCase extends AbstractTest {
@@ -261,8 +266,8 @@ public class ConnInstanceTestITCase extends AbstractTest {
     @Test
     public void check() {
         Boolean verify = restTemplate.getForObject(
-                BASE_URL + "connector/check/{connectorId}.json",
-                Boolean.class, ConnInstanceLoader.getBeanName(100L));
+                BASE_URL + "connector/check/{resourceName}.json",
+                Boolean.class, "ws-target-resource-1");
 
         assertTrue(verify);
     }
@@ -282,25 +287,51 @@ public class ConnInstanceTestITCase extends AbstractTest {
 
     @Test
     public void getSchemaNames() {
-        List<String> schemaNames = Arrays.asList(restTemplate.getForObject(
-                BASE_URL + "connector/{connectorId}/schema/list/all",
-                String[].class, 100));
+        ResourceTO resourceTO = null;
+
+        resourceTO = restTemplate.getForObject(
+                BASE_URL + "/resource/read/{resourceName}.json",
+                ResourceTO.class, "ws-target-resource-1");
+        assertNotNull(resourceTO);
+
+        List<String> schemaNames = Arrays.asList(restTemplate.postForObject(
+                BASE_URL + "connector/schema/list/all",
+                resourceTO, String[].class));
 
         assertNotNull(schemaNames);
         assertFalse(schemaNames.isEmpty());
 
-        schemaNames = Arrays.asList(restTemplate.getForObject(
-                BASE_URL + "connector/{connectorId}/schema/list",
-                String[].class, 101));
+        resourceTO = restTemplate.getForObject(
+                BASE_URL + "/resource/read/{resourceName}.json",
+                ResourceTO.class, "ws-target-resource-testdb");
+        assertNotNull(resourceTO);
+
+        schemaNames = Arrays.asList(restTemplate.postForObject(
+                BASE_URL + "connector/schema/list",
+                resourceTO, String[].class));
 
         assertNotNull(schemaNames);
         assertTrue(schemaNames.isEmpty());
 
-        schemaNames = Arrays.asList(restTemplate.getForObject(
-                BASE_URL + "connector/{connectorId}/schema/list",
-                String[].class, 104));
+        resourceTO = restTemplate.getForObject(
+                BASE_URL + "/resource/read/{resourceName}.json",
+                ResourceTO.class, "resource-csv");
+        assertNotNull(resourceTO);
+
+        schemaNames = Arrays.asList(restTemplate.postForObject(
+                BASE_URL + "connector/schema/list",
+                resourceTO, String[].class));
 
         assertNotNull(schemaNames);
         assertFalse(schemaNames.isEmpty());
+    }
+
+    @Test
+    public void getConnectorConfiguration() {
+        List<ConnConfProperty> props = Arrays.asList(restTemplate.getForObject(
+                BASE_URL + "connector/{connectorId}/configurationProperty/list",
+                ConnConfProperty[].class, 104));
+        assertNotNull(props);
+        assertFalse(props.isEmpty());
     }
 }

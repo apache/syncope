@@ -19,7 +19,9 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 import org.syncope.client.to.ConnBundleTO;
 import org.syncope.client.to.ConnInstanceTO;
+import org.syncope.client.to.ResourceTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.syncope.types.ConnConfProperty;
 
 /**
  * Console client for invoking Rest Connectors services.
@@ -49,21 +51,21 @@ public class ConnectorRestClient extends AbstractBaseRestClient {
 
     /**
      * Load an already existent connector by its name.
-     * @param name (e.g.:surname)
-     * @return schemaTO
+     * @param connectorInstanceId the id
+     * @return ConnInstanceTO
      */
-    public ConnInstanceTO read(String name) {
-        ConnInstanceTO schema = null;
+    public ConnInstanceTO read(final Long connectorInstanceId) {
+        ConnInstanceTO connectorTO = null;
 
         try {
-            schema = restTemplate.getForObject(
-                    baseURL + "connector/read/" + name + ".json",
+            connectorTO = restTemplate.getForObject(
+                    baseURL + "connector/read/" + connectorInstanceId,
                     ConnInstanceTO.class);
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While reading a connector", e);
         }
 
-        return schema;
+        return connectorTO;
     }
 
     /**
@@ -101,17 +103,36 @@ public class ConnectorRestClient extends AbstractBaseRestClient {
         return bundles;
     }
 
-    public List<String> getSchemaNames(final Long connectorId) {
+    public List<String> getSchemaNames(final ResourceTO resourceTO) {
         List<String> schemaNames = null;
 
         try {
-            schemaNames = Arrays.asList(restTemplate.getForObject(
-                    baseURL + "connector/{connectorId}/schema/list",
-                    String[].class, connectorId));
+            schemaNames = Arrays.asList(restTemplate.postForObject(
+                    baseURL + "connector/schema/list",
+                    resourceTO, String[].class));
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While getting resource schema names", e);
         }
 
         return schemaNames;
+    }
+
+    /**
+     * Get all configuration properties for the given connector instance.
+     * @param connectorId the connector id
+     * @return List of ConnConfProperty, or an empty list in case none found
+     */
+    public List<ConnConfProperty> getConnectorProperties(
+            final Long connectorId) {
+        List<ConnConfProperty> properties = null;
+        try {
+            properties = Arrays.asList(restTemplate.getForObject(baseURL
+                    + "connector/{connectorId}/configurationProperty/list",
+                    ConnConfProperty[].class, connectorId));
+        } catch (SyncopeClientCompositeErrorException e) {
+            LOG.error("While getting connector configuration properties", e);
+        }
+
+        return properties;
     }
 }
