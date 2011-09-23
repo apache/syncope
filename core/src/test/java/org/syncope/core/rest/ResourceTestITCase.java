@@ -348,7 +348,7 @@ public class ResourceTestITCase extends AbstractTest {
 
     @Test
     public void delete() {
-        final String resourceName = "ws-target-resource-1";
+        final String resourceName = "ws-target-resource-delete";
 
         restTemplate.delete(
                 BASE_URL + "resource/delete/{resourceName}.json",

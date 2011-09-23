@@ -106,14 +106,14 @@
 
         <wicket.version>1.4.18</wicket.version>
 
-        <org.apache.cxf.version>2.4.2</org.apache.cxf.version>
+        <cxf.version>2.4.2</cxf.version>
 
         <hsqldb.version>2.2.4</hsqldb.version>
 
         <reflections.version>0.9.5-RC2</reflections.version>
 
         <logback.version>0.9.29</logback.version>
-        <slf4j.version>1.6.1</slf4j.version>
+        <slf4j.version>1.6.2</slf4j.version>
 
         <junit.version>4.9</junit.version>
         <selenium-java-client-driver.version>1.0.2</selenium-java-client-driver.version>
@@ -308,13 +308,13 @@
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-frontend-jaxws</artifactId>
-                <version>${org.apache.cxf.version}</version>
+                <version>${cxf.version}</version>
                 <scope>runtime</scope>
             </dependency>
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-transports-http</artifactId>
-                <version>${org.apache.cxf.version}</version>
+                <version>${cxf.version}</version>
                 <scope>runtime</scope>
             </dependency>
             <!-- /CXF -->
