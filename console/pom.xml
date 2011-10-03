@@ -128,8 +128,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.hsqldb</groupId>
-            <artifactId>hsqldb</artifactId>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -269,21 +269,37 @@
             </plugin>
             
             <plugin>
-                <groupId>org.onebusaway.plugins</groupId>
-                <artifactId>maven-hsqldb-plugin</artifactId>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
                 <inherited>true</inherited>
-                <configuration>
-                    <dbName>testdb</dbName>
-                    <mode>server</mode>
-                    <isTransient>true</isTransient>
-                </configuration>
                 <dependencies>
                     <dependency>
-                        <groupId>org.hsqldb</groupId>
-                        <artifactId>hsqldb</artifactId>
-                        <version>${hsqldb.version}</version>
+                        <groupId>com.h2database</groupId>
+                        <artifactId>h2</artifactId>
+                        <version>${h2.version}</version>
                     </dependency>
                 </dependencies>
+                <configuration>
+                    <includeProjectDependencies>false</includeProjectDependencies>
+                    <includePluginDependencies>true</includePluginDependencies>
+                    <executableDependency>
+                        <groupId>com.h2database</groupId>
+                        <artifactId>h2</artifactId>
+                    </executableDependency>
+                    <mainClass>org.h2.tools.Server</mainClass>
+                    <arguments>
+                        <argument>-tcp</argument>    
+                        <argument>-tcpDaemon</argument>
+                        <argument>-web</argument>
+                        <argument>-webDaemon</argument>
+                    </arguments>
+                    <systemProperties>
+                        <systemProperty>
+                            <key>h2.baseDir</key>
+                            <value>${project.build.directory}/test-classes</value>
+                        </systemProperty>
+                    </systemProperties>
+                </configuration>
             </plugin>
             
             <plugin>
@@ -292,14 +308,14 @@
                 <inherited>true</inherited>
                 <dependencies>
                     <dependency>
-                        <groupId>org.hsqldb</groupId>
-                        <artifactId>hsqldb</artifactId>
-                        <version>${hsqldb.version}</version>
+                        <groupId>com.h2database</groupId>
+                        <artifactId>h2</artifactId>
+                        <version>${h2.version}</version>
                     </dependency>
                 </dependencies>
                 <configuration>
-                    <driver>org.hsqldb.jdbcDriver</driver>
-                    <url>jdbc:hsqldb:hsql://localhost:9001/testdb</url>
+                    <driver>org.h2.Driver</driver>
+                    <url>jdbc:h2:tcp://localhost:9092/testdb</url>
                     <username>sa</username>
                     <password />
                     <srcFiles>
@@ -320,8 +336,8 @@
                         <output>${cargo.output}</output>
                         <dependencies>
                             <dependency>
-                                <groupId>org.hsqldb</groupId>
-                                <artifactId>hsqldb</artifactId>
+                                <groupId>com.h2database</groupId>
+                                <artifactId>h2</artifactId>
                             </dependency>
                         </dependencies>
                     </container>
@@ -374,11 +390,14 @@
 
         <testResources>
             <testResource>
-                <directory>src/test/resources</directory>
+                <directory>../core/src/test/resources</directory>
                 <filtering>true</filtering>
+                <excludes>
+                    <exclude>persistence.properties</exclude>
+                </excludes>
             </testResource>
             <testResource>
-                <directory>../core/src/test/resources</directory>
+                <directory>src/test/resources</directory>
                 <filtering>true</filtering>
             </testResource>
         </testResources>
@@ -409,15 +428,15 @@
                     </plugin>
                     
                     <plugin>
-                        <groupId>org.onebusaway.plugins</groupId>
-                        <artifactId>maven-hsqldb-plugin</artifactId>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
                         <inherited>true</inherited>
                         <executions>
                             <execution>
                                 <id>startTestDb</id>
                                 <phase>pre-integration-test</phase>
                                 <goals>
-                                    <goal>run</goal>    
+                                    <goal>java</goal>    
                                 </goals>
                             </execution>
                         </executions>
@@ -512,15 +531,15 @@
                     </plugin>
 
                     <plugin>
-                        <groupId>org.onebusaway.plugins</groupId>
-                        <artifactId>maven-hsqldb-plugin</artifactId>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
                         <inherited>true</inherited>
                         <executions>
                             <execution>
                                 <id>startTestDb</id>
                                 <phase>pre-integration-test</phase>
                                 <goals>
-                                    <goal>run</goal>    
+                                    <goal>java</goal>    
                                 </goals>
                             </execution>
                         </executions>

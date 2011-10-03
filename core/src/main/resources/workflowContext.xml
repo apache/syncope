@@ -17,7 +17,9 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans   
                            http://www.springframework.org/schema/beans/spring-beans.xsd">
     
-<!--    <bean id="processEngineConfiguration" class="org.activiti.spring.SpringProcessEngineConfiguration">
+    <bean id="wfAdapter" class="${wfAdapter}"/>
+
+    <bean id="processEngineConfiguration" class="org.activiti.spring.SpringProcessEngineConfiguration">
         <property name="dataSource" ref="dataSource" />
         <property name="transactionManager" ref="transactionManager" />
         <property name="databaseSchemaUpdate" value="true" />
@@ -39,6 +41,6 @@
     <bean id="historyService" factory-bean="processEngine" factory-method="getHistoryService" />
     <bean id="managementService" factory-bean="processEngine" factory-method="getManagementService" />
     <bean id="identityService" factory-bean="processEngine" factory-method="getIdentityService" />
-    <bean id="formService" factory-bean="processEngine" factory-method="getFormService" />-->
+    <bean id="formService" factory-bean="processEngine" factory-method="getFormService" />
 
 </beans>

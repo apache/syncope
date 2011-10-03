@@ -29,8 +29,8 @@
     <packaging>war</packaging>
 
     <properties>
-        <jdbcdriver.groupId>org.hsqldb</jdbcdriver.groupId>
-        <jdbcdriver.artifactId>hsqldb</jdbcdriver.artifactId>
+        <jdbcdriver.groupId>com.h2database</jdbcdriver.groupId>
+        <jdbcdriver.artifactId>h2</jdbcdriver.artifactId>
         
         <cargo.servlet.port>9080</cargo.servlet.port>
         <cargo.run.dir>${project.build.directory}/syncope-core-test</cargo.run.dir>
@@ -198,6 +198,18 @@
             <artifactId>framework-internal</artifactId>
         </dependency>
 
+        <!-- CXF: needed by soap connector -->
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-frontend-jaxws</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-transports-http</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
         <!-- TEST -->
         <dependency>
             <groupId>org.connid.bundles.soap</groupId>
@@ -226,8 +238,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.hsqldb</groupId>
-            <artifactId>hsqldb</artifactId>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -439,28 +451,57 @@
             </plugin>
             
             <plugin>
-                <groupId>org.onebusaway.plugins</groupId>
-                <artifactId>maven-hsqldb-plugin</artifactId>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
                 <inherited>true</inherited>
-                <configuration>
-                    <dbName>testdb</dbName>
-                    <mode>server</mode>
-                    <isTransient>true</isTransient>
-                </configuration>
                 <dependencies>
                     <dependency>
-                        <groupId>org.hsqldb</groupId>
-                        <artifactId>hsqldb</artifactId>
-                        <version>${hsqldb.version}</version>
+                        <groupId>com.h2database</groupId>
+                        <artifactId>h2</artifactId>
+                        <version>${h2.version}</version>
                     </dependency>
                 </dependencies>
                 <executions>
                     <execution>
                         <id>startTestDb</id>
-                        <phase>pre-integration-test</phase>
+                        <phase>process-test-resources</phase>
                         <goals>
-                            <goal>run</goal>
+                            <goal>java</goal>
                         </goals>
+                        <configuration>
+                            <includeProjectDependencies>false</includeProjectDependencies>
+                            <includePluginDependencies>true</includePluginDependencies>
+                            <executableDependency>
+                                <groupId>com.h2database</groupId>
+                                <artifactId>h2</artifactId>
+                            </executableDependency>
+                            <mainClass>org.h2.tools.Server</mainClass>
+                            <arguments>
+                                <argument>-tcp</argument>    
+                                <argument>-tcpDaemon</argument>
+                            </arguments>
+                            <systemProperties>
+                                <systemProperty>
+                                    <key>h2.baseDir</key>
+                                    <value>${project.build.directory}/test-classes</value>
+                                </systemProperty>
+                            </systemProperties>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>default-cli</id>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>java</executable>
+                            <arguments>
+                                <argument>-classpath</argument>
+                                <classpath />
+                                <argument>org.syncope.core.persistence.util.SchemaExporter</argument>
+                                <argument>H2</argument>
+                            </arguments>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -471,14 +512,14 @@
                 <inherited>true</inherited>
                 <dependencies>
                     <dependency>
-                        <groupId>org.hsqldb</groupId>
-                        <artifactId>hsqldb</artifactId>
-                        <version>${hsqldb.version}</version>
+                        <groupId>com.h2database</groupId>
+                        <artifactId>h2</artifactId>
+                        <version>${h2.version}</version>
                     </dependency>
                 </dependencies>
                 <configuration>
-                    <driver>org.hsqldb.jdbcDriver</driver>
-                    <url>jdbc:hsqldb:hsql://localhost:9001/testdb;shutdown=true</url>
+                    <driver>org.h2.Driver</driver>
+                    <url>jdbc:h2:tcp://localhost:9092/testdb</url>
                     <username>sa</username>
                     <password />
                     <srcFiles>
@@ -511,8 +552,8 @@
                                 <location>${project.build.directory}/test-classes/</location>
                             </dependency>
                             <dependency>
-                                <groupId>org.hsqldb</groupId>
-                                <artifactId>hsqldb</artifactId>
+                                <groupId>com.h2database</groupId>
+                                <artifactId>h2</artifactId>
                             </dependency>
                             <dependency>
                                 <groupId>${jdbcdriver.groupId}</groupId>
@@ -561,21 +602,6 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-            
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>1.2</version>
-                <configuration>
-                    <executable>java</executable>
-                    <arguments>
-                        <argument>-classpath</argument>
-                        <classpath />
-                        <argument>org.syncope.core.persistence.util.SchemaExporter</argument>
-                        <argument>HSQL</argument>
-                    </arguments>
-                </configuration>
             </plugin>
 
         </plugins>

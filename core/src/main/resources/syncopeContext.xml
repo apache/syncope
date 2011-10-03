@@ -25,6 +25,7 @@
             <list>
                 <value>classpath:persistence.properties</value>
                 <value>classpath:security.properties</value>
+                <value>classpath:workflow.properties</value>
             </list>
         </property>
         <property name="ignoreResourceNotFound" value="true" />
