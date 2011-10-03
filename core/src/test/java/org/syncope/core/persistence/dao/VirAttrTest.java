@@ -21,7 +21,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
-import org.syncope.core.persistence.AbstractTest;
+import org.syncope.core.AbstractTest;
 import org.syncope.core.persistence.beans.membership.MVirAttr;
 import org.syncope.core.persistence.beans.membership.MVirSchema;
 import org.syncope.core.persistence.beans.membership.Membership;

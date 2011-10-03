@@ -20,13 +20,13 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import org.syncope.core.persistence.beans.TargetResource;
-import org.syncope.types.ResourceOperationType;
+import org.syncope.types.PropagationOperation;
 
 /**
  * Utility class for encapsulating operations to be performed on various
  * resources.
  */
-public class ResourceOperations {
+public class PropagationByResource {
 
     /**
      * Resources for creation.
@@ -51,7 +51,7 @@ public class ResourceOperations {
     /**
      * Default constructor.
      */
-    public ResourceOperations() {
+    public PropagationByResource() {
         toBeCreated = new HashSet<TargetResource>();
         toBeUpdated = new HashSet<TargetResource>();
         toBeDeleted = new HashSet<TargetResource>();
@@ -81,7 +81,7 @@ public class ResourceOperations {
      * @param resource target resource
      * @return wether the operation was succeful or not
      */
-    public final boolean add(final ResourceOperationType type,
+    public final boolean add(final PropagationOperation type,
             final TargetResource resource) {
 
         boolean result = false;
@@ -112,7 +112,7 @@ public class ResourceOperations {
      * @param resources target resources
      * @return wether the operation was succeful or not
      */
-    public boolean addAll(final ResourceOperationType type,
+    public boolean addAll(final PropagationOperation type,
             final Set<TargetResource> resources) {
 
         boolean result = false;
@@ -143,7 +143,7 @@ public class ResourceOperations {
      * @param resource target resource
      * @return wether the operation was succeful or not
      */
-    public final boolean remove(final ResourceOperationType type,
+    public final boolean remove(final PropagationOperation type,
             final TargetResource resource) {
 
         boolean result = false;
@@ -173,7 +173,7 @@ public class ResourceOperations {
      * @param type resource operation type
      * @return resource matching the given type
      */
-    public final Set<TargetResource> get(final ResourceOperationType type) {
+    public final Set<TargetResource> get(final PropagationOperation type) {
         Set<TargetResource> result = Collections.EMPTY_SET;
 
         switch (type) {
@@ -201,7 +201,7 @@ public class ResourceOperations {
      * @param type resource operation type
      * @param resources to be set
      */
-    public final void set(final ResourceOperationType type,
+    public final void set(final PropagationOperation type,
             final Set<TargetResource> resources) {
 
         switch (type) {
@@ -230,13 +230,13 @@ public class ResourceOperations {
      *
      * @param resourceOperations to be merged
      */
-    public final void merge(final ResourceOperations resourceOperations) {
+    public final void merge(final PropagationByResource resourceOperations) {
         toBeCreated.addAll(
-                resourceOperations.get(ResourceOperationType.CREATE));
+                resourceOperations.get(PropagationOperation.CREATE));
         toBeUpdated.addAll(
-                resourceOperations.get(ResourceOperationType.UPDATE));
+                resourceOperations.get(PropagationOperation.UPDATE));
         toBeDeleted.addAll(
-                resourceOperations.get(ResourceOperationType.DELETE));
+                resourceOperations.get(PropagationOperation.DELETE));
     }
 
     /**

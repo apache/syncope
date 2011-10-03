@@ -20,7 +20,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.ExpectedException;
 import org.springframework.transaction.annotation.Transactional;
-import org.syncope.core.persistence.AbstractTest;
+import org.syncope.core.AbstractTest;
 import org.syncope.core.persistence.beans.Policy;
 import org.syncope.core.persistence.validation.entity.InvalidEntityException;
 import org.syncope.types.PolicyType;

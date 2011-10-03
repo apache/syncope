@@ -24,7 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.types.ConnConfProperty;
 import org.syncope.core.persistence.beans.ConnInstance;
-import org.syncope.core.persistence.AbstractTest;
+import org.syncope.core.AbstractTest;
 import org.syncope.types.ConnConfPropSchema;
 
 @Transactional

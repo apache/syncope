@@ -32,7 +32,7 @@ import org.springframework.web.client.RestTemplate;
     "classpath:persistenceContext.xml",
     "classpath:workflowContext.xml",
     "classpath:schedulingContext.xml",
-    "classpath:restContext.xml"
+    "classpath:restClientContext.xml"
 })
 public abstract class AbstractTest {
 

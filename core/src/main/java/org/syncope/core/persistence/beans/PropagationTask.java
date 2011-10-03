@@ -30,7 +30,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.syncope.core.persistence.validation.entity.PropagationTaskCheck;
 import org.syncope.core.util.ApplicationContextManager;
 import org.syncope.types.PropagationMode;
-import org.syncope.types.ResourceOperationType;
+import org.syncope.types.PropagationOperation;
 
 /**
  * Encapsulate all information about a propagation task.
@@ -51,7 +51,7 @@ public class PropagationTask extends Task {
      * @see ResourceOperationType
      */
     @Enumerated(EnumType.STRING)
-    private ResourceOperationType resourceOperationType;
+    private PropagationOperation resourceOperationType;
 
     /**
      * The accountId on the target resource.
@@ -128,12 +128,12 @@ public class PropagationTask extends Task {
         this.propagationMode = propagationMode;
     }
 
-    public ResourceOperationType getResourceOperationType() {
+    public PropagationOperation getResourceOperationType() {
         return resourceOperationType;
     }
 
     public void setResourceOperationType(
-            final ResourceOperationType resourceOperationType) {
+            final PropagationOperation resourceOperationType) {
 
         this.resourceOperationType = resourceOperationType;
     }

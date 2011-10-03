@@ -14,7 +14,6 @@
  */
 package org.syncope.core.rest.controller;
 
-import com.opensymphony.workflow.WorkflowException;
 import java.lang.reflect.Modifier;
 import org.quartz.SchedulerException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -393,8 +392,7 @@ public class TaskController extends AbstractController {
             @RequestParam("executionStatus")
             final PropagationTaskExecStatus status,
             @RequestParam("message") final String message)
-            throws NotFoundException, SyncopeClientCompositeErrorException,
-            WorkflowException {
+            throws NotFoundException, SyncopeClientCompositeErrorException {
 
         TaskExec exec = taskExecDAO.find(executionId);
         if (exec == null) {

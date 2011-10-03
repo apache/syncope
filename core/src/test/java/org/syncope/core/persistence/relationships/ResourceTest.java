@@ -36,7 +36,7 @@ import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.UserDAO;
 import org.syncope.core.rest.data.ResourceDataBinder;
-import org.syncope.core.persistence.AbstractTest;
+import org.syncope.core.AbstractTest;
 import org.syncope.core.persistence.beans.Policy;
 import org.syncope.core.persistence.beans.PropagationTask;
 import org.syncope.core.persistence.beans.user.UDerSchema;

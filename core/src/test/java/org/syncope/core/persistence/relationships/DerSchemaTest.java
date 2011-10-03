@@ -24,7 +24,7 @@ import org.syncope.core.persistence.beans.user.UDerSchema;
 import org.syncope.core.persistence.dao.DerAttrDAO;
 import org.syncope.core.persistence.dao.DerSchemaDAO;
 import org.syncope.core.persistence.dao.UserDAO;
-import org.syncope.core.persistence.AbstractTest;
+import org.syncope.core.AbstractTest;
 import org.syncope.core.util.AttributableUtil;
 
 @Transactional

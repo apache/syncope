@@ -24,7 +24,7 @@ import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.syncope.core.persistence.AbstractTest;
+import org.syncope.core.AbstractTest;
 import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.PropagationTask;
 import org.syncope.core.persistence.beans.TaskExec;
@@ -34,7 +34,7 @@ import org.syncope.core.persistence.dao.TaskDAO;
 import org.syncope.core.persistence.dao.TaskExecDAO;
 import org.syncope.types.PropagationMode;
 import org.syncope.types.PropagationTaskExecStatus;
-import org.syncope.types.ResourceOperationType;
+import org.syncope.types.PropagationOperation;
 
 @Transactional
 public class TaskTest extends AbstractTest {
@@ -66,7 +66,7 @@ public class TaskTest extends AbstractTest {
         PropagationTask task = new PropagationTask();
         task.setResource(resource);
         task.setPropagationMode(PropagationMode.ASYNC);
-        task.setResourceOperationType(ResourceOperationType.CREATE);
+        task.setResourceOperationType(PropagationOperation.CREATE);
         task.setAccountId("one@two.com");
 
         Set<Attribute> attributes = new HashSet<Attribute>();

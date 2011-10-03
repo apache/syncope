@@ -25,7 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.ConnInstance;
 import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.SchemaMapping;
-import org.syncope.core.persistence.AbstractTest;
+import org.syncope.core.AbstractTest;
 import org.syncope.core.persistence.validation.entity.InvalidEntityException;
 import org.syncope.types.SourceMappingType;
 

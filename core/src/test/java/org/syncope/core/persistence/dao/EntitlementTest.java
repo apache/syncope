@@ -23,7 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.Entitlement;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
-import org.syncope.core.persistence.AbstractTest;
+import org.syncope.core.AbstractTest;
 
 @Transactional
 public class EntitlementTest extends AbstractTest {

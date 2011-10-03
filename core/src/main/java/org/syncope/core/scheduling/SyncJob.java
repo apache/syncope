@@ -48,7 +48,7 @@ import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.UserDAO;
 import org.syncope.core.persistence.propagation.ConnectorFacadeProxy;
 import org.syncope.core.rest.controller.InvalidSearchConditionException;
-import org.syncope.core.rest.controller.UserController;
+import org.syncope.core.workflow.UserWorkflowAdapter;
 
 /**
  * Job for executing synchronization tasks.
@@ -88,10 +88,10 @@ public class SyncJob extends AbstractJob {
     private UserDAO userDAO;
 
     /**
-     * User REST controller.
+     * User workflow adapter.
      */
     @Autowired
-    private UserController userController;
+    private UserWorkflowAdapter wfAdapter;
 
     /**
      * Extract password value from passed values (if instance of GuardedString
@@ -383,7 +383,7 @@ public class SyncJob extends AbstractJob {
                 case CREATE_OR_UPDATE:
                     if (users.isEmpty()) {
                         try {
-                            userController.create(getUserTO(delta.getObject(),
+                            wfAdapter.create(getUserTO(delta.getObject(),
                                     syncTask.getResource().getMappings(),
                                     defaultRoles, defaultResources),
                                     null, null);
@@ -397,7 +397,7 @@ public class SyncJob extends AbstractJob {
                         if (syncTask.isUpdateIdentities()) {
                             userToUpdate = users.iterator().next();
                             try {
-                                userController.update(userToUpdate,
+                                wfAdapter.update(userToUpdate,
                                         getUserMod(userToUpdate.getId(),
                                         delta.getObject(),
                                         syncTask.getResource().getMappings(),
@@ -424,7 +424,7 @@ public class SyncJob extends AbstractJob {
                     }
                     for (Long userId : userIds) {
                         try {
-                            userController.delete(userDAO.find(userId),
+                            wfAdapter.delete(userDAO.find(userId),
                                     null, null);
                             deleted++;
                         } catch (Throwable t) {

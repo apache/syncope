@@ -58,9 +58,9 @@ import org.syncope.core.persistence.dao.RoleDAO;
 import org.syncope.core.persistence.dao.UserDAO;
 import org.syncope.core.persistence.dao.VirAttrDAO;
 import org.syncope.core.persistence.dao.VirSchemaDAO;
-import org.syncope.core.persistence.propagation.ResourceOperations;
+import org.syncope.core.persistence.propagation.PropagationByResource;
 import org.syncope.core.util.JexlUtil;
-import org.syncope.types.ResourceOperationType;
+import org.syncope.types.PropagationOperation;
 import org.syncope.types.SyncopeClientExceptionType;
 
 public abstract class AbstractAttributableDataBinder {
@@ -292,14 +292,14 @@ public abstract class AbstractAttributableDataBinder {
         return requiredValuesMissing;
     }
 
-    protected ResourceOperations fill(
+    protected PropagationByResource fill(
             final AbstractAttributable attributable,
             final AbstractAttributableMod attributableMod,
             final AttributableUtil attributableUtil,
             final SyncopeClientCompositeErrorException compositeErrorException)
             throws SyncopeClientCompositeErrorException {
 
-        ResourceOperations resourceOperations = new ResourceOperations();
+        PropagationByResource propByRes = new PropagationByResource();
 
         SyncopeClientException invalidValues = new SyncopeClientException(
                 SyncopeClientExceptionType.InvalidValues);
@@ -350,13 +350,13 @@ public abstract class AbstractAttributableDataBinder {
                             && attributable.getTargetResources().
                             contains(mapping.getResource())) {
 
-                        resourceOperations.add(ResourceOperationType.UPDATE,
+                        propByRes.add(PropagationOperation.UPDATE,
                                 mapping.getResource());
 
                         if (mapping.isAccountid() && attribute != null
                                 && !attribute.getValuesAsStrings().isEmpty()) {
 
-                            resourceOperations.addOldAccountId(
+                            propByRes.addOldAccountId(
                                     mapping.getResource().getName(),
                                     attribute.getValuesAsStrings().
                                     iterator().next());
@@ -366,7 +366,7 @@ public abstract class AbstractAttributableDataBinder {
             }
         }
 
-        LOG.debug("About attributes to be removed:\n{}", resourceOperations);
+        LOG.debug("About attributes to be removed:\n{}", propByRes);
 
         // 2. attributes to be updated
         Set<Long> valuesToBeRemoved;
@@ -386,7 +386,7 @@ public abstract class AbstractAttributableDataBinder {
                             && attributable.getTargetResources().
                             contains(mapping.getResource())) {
 
-                        resourceOperations.add(ResourceOperationType.UPDATE,
+                        propByRes.add(PropagationOperation.UPDATE,
                                 mapping.getResource());
                     }
                 }
@@ -457,7 +457,7 @@ public abstract class AbstractAttributableDataBinder {
             compositeErrorException.addException(requiredValuesMissing);
         }
 
-        LOG.debug("About attributes to be updated:\n{}", resourceOperations);
+        LOG.debug("About attributes to be updated:\n{}", propByRes);
 
         // 3. derived attributes to be removed
         for (String derivedAttributeToBeRemoved :
@@ -487,14 +487,14 @@ public abstract class AbstractAttributableDataBinder {
                             && attributable.getTargetResources().
                             contains(mapping.getResource())) {
 
-                        resourceOperations.add(ResourceOperationType.UPDATE,
+                        propByRes.add(PropagationOperation.UPDATE,
                                 mapping.getResource());
 
                         if (mapping.isAccountid() && derivedAttribute != null
                                 && !derivedAttribute.getValue(
                                 attributable.getAttributes()).isEmpty()) {
 
-                            resourceOperations.addOldAccountId(
+                            propByRes.addOldAccountId(
                                     mapping.getResource().getName(),
                                     derivedAttribute.getValue(
                                     attributable.getAttributes()));
@@ -505,7 +505,7 @@ public abstract class AbstractAttributableDataBinder {
         }
 
         LOG.debug("About derived attributes to be removed:\n{}",
-                resourceOperations);
+                propByRes);
 
         // 4. virtual attributes to be removed
         for (String virtualAttributeToBeRemoved :
@@ -535,13 +535,13 @@ public abstract class AbstractAttributableDataBinder {
                             && attributable.getTargetResources().
                             contains(mapping.getResource())) {
 
-                        resourceOperations.add(ResourceOperationType.UPDATE,
+                        propByRes.add(PropagationOperation.UPDATE,
                                 mapping.getResource());
 
                         if (mapping.isAccountid() && virtualAttribute != null
                                 && !virtualAttribute.getValues().isEmpty()) {
 
-                            resourceOperations.addOldAccountId(
+                            propByRes.addOldAccountId(
                                     mapping.getResource().getName(),
                                     virtualAttribute.getValues().get(0));
                         }
@@ -551,7 +551,7 @@ public abstract class AbstractAttributableDataBinder {
         }
 
         LOG.debug("About virtual attributes to be removed:\n{}",
-                resourceOperations);
+                propByRes);
 
         // 5. derived attributes to be added
         for (String derivedAttributeToBeAdded :
@@ -570,7 +570,7 @@ public abstract class AbstractAttributableDataBinder {
                             && attributable.getTargetResources().
                             contains(mapping.getResource())) {
 
-                        resourceOperations.add(ResourceOperationType.UPDATE,
+                        propByRes.add(PropagationOperation.UPDATE,
                                 mapping.getResource());
                     }
                 }
@@ -583,7 +583,7 @@ public abstract class AbstractAttributableDataBinder {
         }
 
         LOG.debug("About derived attributes to be added:\n{}",
-                resourceOperations);
+                propByRes);
 
         // 6. virtual attributes to be added
         for (String virtualAttributeToBeAdded :
@@ -602,7 +602,7 @@ public abstract class AbstractAttributableDataBinder {
                             && attributable.getTargetResources().
                             contains(mapping.getResource())) {
 
-                        resourceOperations.add(ResourceOperationType.UPDATE,
+                        propByRes.add(PropagationOperation.UPDATE,
                                 mapping.getResource());
                     }
                 }
@@ -615,7 +615,7 @@ public abstract class AbstractAttributableDataBinder {
         }
 
         LOG.debug("About virtual attributes to be added:\n{}",
-                resourceOperations);
+                propByRes);
 
         // 7. resources to be removed
         TargetResource resource;
@@ -625,7 +625,7 @@ public abstract class AbstractAttributableDataBinder {
             resource = getResource(resourceToBeRemoved);
 
             if (resource != null) {
-                resourceOperations.add(ResourceOperationType.DELETE, resource);
+                propByRes.add(PropagationOperation.DELETE, resource);
 
                 attributable.removeTargetResource(resource);
 
@@ -638,7 +638,7 @@ public abstract class AbstractAttributableDataBinder {
             }
         }
 
-        LOG.debug("About resources to be removed:\n{}", resourceOperations);
+        LOG.debug("About resources to be removed:\n{}", propByRes);
 
         // 6. resources to be added
         for (String resourceToBeAdded :
@@ -647,7 +647,7 @@ public abstract class AbstractAttributableDataBinder {
             resource = getResource(resourceToBeAdded);
 
             if (resource != null) {
-                resourceOperations.add(ResourceOperationType.CREATE, resource);
+                propByRes.add(PropagationOperation.CREATE, resource);
 
                 attributable.addTargetResource(resource);
 
@@ -660,7 +660,7 @@ public abstract class AbstractAttributableDataBinder {
             }
         }
 
-        LOG.debug("About resources to be added:\n{}", resourceOperations);
+        LOG.debug("About resources to be added:\n{}", propByRes);
 
         // Throw composite exception if there is at least one element set
         // in the composing exceptions
@@ -668,7 +668,7 @@ public abstract class AbstractAttributableDataBinder {
             throw compositeErrorException;
         }
 
-        return resourceOperations;
+        return propByRes;
     }
 
     protected void fill(AbstractAttributable attributable,

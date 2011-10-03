@@ -14,9 +14,6 @@
  */
 package org.syncope.core.rest.controller;
 
-import com.opensymphony.workflow.Workflow;
-import com.opensymphony.workflow.WorkflowException;
-import com.opensymphony.workflow.spi.Step;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,18 +26,11 @@ import org.syncope.core.persistence.dao.UserDAO;
 import org.syncope.core.persistence.propagation.PropagationException;
 import org.syncope.core.rest.data.UserDataBinder;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import javassist.NotFoundException;
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
-import jpasymphony.dao.JPAWorkflowEntryDAO;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.ModelAndView;
@@ -48,21 +38,11 @@ import org.syncope.client.mod.UserMod;
 import org.syncope.client.search.NodeCond;
 import org.syncope.client.to.MembershipTO;
 import org.syncope.client.to.UserTO;
-import org.syncope.client.to.WorkflowActionsTO;
-import org.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.syncope.client.validation.SyncopeClientException;
-import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.dao.UserSearchDAO;
-import org.syncope.core.persistence.propagation.PropagationManager;
-import org.syncope.core.persistence.propagation.ResourceOperations;
-import org.syncope.core.persistence.validation.entity.InvalidEntityException;
-import org.syncope.core.rest.data.UserDataBinder.CheckInResult;
 import org.syncope.core.util.EntitlementUtil;
-import org.syncope.core.workflow.Constants;
-import org.syncope.core.workflow.WFUtils;
-import org.syncope.types.EntityViolationType;
-import org.syncope.types.SyncopeClientExceptionType;
+import org.syncope.core.workflow.UserWorkflowAdapter;
+import org.syncope.core.workflow.WorkflowException;
 
 @Controller
 @RequestMapping("/user")
@@ -75,16 +55,10 @@ public class UserController extends AbstractController {
     private UserSearchDAO userSearchDAO;
 
     @Autowired
-    private JPAWorkflowEntryDAO workflowEntryDAO;
-
-    @Autowired
     private UserDataBinder userDataBinder;
 
-    @Resource(name = "userWorkflow")
-    private Workflow workflow;
-
     @Autowired
-    private PropagationManager propagationManager;
+    private UserWorkflowAdapter wfAdapter;
 
     private SyncopeUser getUserFromId(final Long userId)
             throws NotFoundException, UnauthorizedRoleException {
@@ -109,110 +83,6 @@ public class UserController extends AbstractController {
         }
 
         return user;
-    }
-
-    private UserTO executeAction(SyncopeUser user, String actionName,
-            Map<String, Object> moreInputs)
-            throws WorkflowException, NotFoundException,
-            UnauthorizedRoleException {
-
-        Map<String, Object> inputs = new HashMap<String, Object>();
-        if (moreInputs != null && !moreInputs.isEmpty()) {
-            inputs.putAll(moreInputs);
-        }
-
-        inputs.put(Constants.SYNCOPE_USER, user);
-
-        WFUtils.doExecuteAction(workflow,
-                Constants.USER_WORKFLOW,
-                actionName,
-                user.getWorkflowId(),
-                inputs);
-
-        user = userDAO.save(user);
-
-        return userDataBinder.getUserTO(user, workflow);
-    }
-
-    private UserTO executeAction(UserTO userTO, String actionName,
-            Map<String, Object> moreInputs)
-            throws WorkflowException, NotFoundException,
-            UnauthorizedRoleException {
-
-        SyncopeUser user = getUserFromId(userTO.getId());
-
-        return executeAction(user, actionName, moreInputs);
-    }
-
-    @PreAuthorize("hasRole('USER_UPDATE')")
-    @RequestMapping(method = RequestMethod.POST,
-    value = "/activate")
-    public UserTO activate(@RequestBody UserTO userTO)
-            throws WorkflowException, NotFoundException,
-            UnauthorizedRoleException {
-
-        return executeAction(userTO, Constants.ACTION_ACTIVATE,
-                Collections.singletonMap(
-                Constants.TOKEN, (Object) userTO.getToken()));
-    }
-
-    @PreAuthorize("hasRole('USER_UPDATE')")
-    @RequestMapping(method = RequestMethod.GET,
-    value = "/generateToken/{userId}")
-    public UserTO generateToken(@PathVariable("userId") Long userId)
-            throws WorkflowException, NotFoundException,
-            UnauthorizedRoleException {
-
-        UserTO userTO = new UserTO();
-        userTO.setId(userId);
-
-        return executeAction(userTO, Constants.ACTION_GENERATE_TOKEN, null);
-    }
-
-    @PreAuthorize("hasRole('USER_UPDATE')")
-    @RequestMapping(method = RequestMethod.POST,
-    value = "/verifyToken")
-    public UserTO verifyToken(@RequestBody UserTO userTO)
-            throws WorkflowException, NotFoundException,
-            UnauthorizedRoleException {
-
-        return executeAction(userTO, Constants.ACTION_VERIFY_TOKEN,
-                Collections.singletonMap(
-                Constants.TOKEN, (Object) userTO.getToken()));
-    }
-
-    @PreAuthorize("hasRole('USER_UPDATE')")
-    @RequestMapping(method = RequestMethod.GET,
-    value = "/suspend/{userId}")
-    public UserTO suspend(@PathVariable("userId") final Long userId)
-            throws NotFoundException, WorkflowException,
-            UnauthorizedRoleException {
-
-        LOG.debug("About to suspend " + userId);
-
-        SyncopeUser user = getUserFromId(userId);
-
-        executeAction(user, "suspend", null);
-        user = userDAO.save(user);
-
-        return userDataBinder.getUserTO(user, workflow);
-    }
-
-    @PreAuthorize("hasRole('USER_UPDATE')")
-    @RequestMapping(method = RequestMethod.GET,
-    value = "/reactivate/{userId}")
-    public UserTO reactivate(final @PathVariable("userId") Long userId)
-            throws NotFoundException, WorkflowException,
-            UnauthorizedRoleException {
-
-        LOG.debug("About to reactivate " + userId);
-
-        SyncopeUser user = getUserFromId(userId);
-
-        executeAction(user, "reactivate", null);
-        user = userDAO.save(user);
-
-        return userDataBinder.getUserTO(user, workflow);
     }
 
     @PreAuthorize("hasRole('USER_READ')")
@@ -247,7 +117,7 @@ public class UserController extends AbstractController {
     @RequestMapping(method = RequestMethod.POST,
     value = "/search/count")
     @Transactional(readOnly = true)
-    public ModelAndView searchCount(@RequestBody NodeCond searchCondition)
+    public ModelAndView searchCount(@RequestBody final NodeCond searchCondition)
             throws InvalidSearchConditionException {
 
         if (!searchCondition.checkValidity()) {
@@ -271,7 +141,7 @@ public class UserController extends AbstractController {
                 EntitlementUtil.getOwnedEntitlementNames()));
         List<UserTO> userTOs = new ArrayList<UserTO>(users.size());
         for (SyncopeUser user : users) {
-            userTOs.add(userDataBinder.getUserTO(user, workflow));
+            userTOs.add(userDataBinder.getUserTO(user));
         }
 
         return userTOs;
@@ -291,7 +161,7 @@ public class UserController extends AbstractController {
         List<SyncopeUser> users = userDAO.findAll(adminRoleIds, page, size);
         List<UserTO> userTOs = new ArrayList<UserTO>(users.size());
         for (SyncopeUser user : users) {
-            userTOs.add(userDataBinder.getUserTO(user, workflow));
+            userTOs.add(userDataBinder.getUserTO(user));
         }
 
         return userTOs;
@@ -301,41 +171,17 @@ public class UserController extends AbstractController {
     @RequestMapping(method = RequestMethod.GET,
     value = "/read/{userId}")
     @Transactional(readOnly = true)
-    public UserTO read(@PathVariable("userId") Long userId)
+    public UserTO read(@PathVariable("userId") final Long userId)
             throws NotFoundException, UnauthorizedRoleException {
 
-        SyncopeUser user = getUserFromId(userId);
-
-        return userDataBinder.getUserTO(user, workflow);
-    }
-
-    @PreAuthorize("hasRole('USER_READ')")
-    @RequestMapping(method = RequestMethod.GET,
-    value = "/actions/{userId}")
-    @Transactional(readOnly = true)
-    public WorkflowActionsTO getActions(@PathVariable("userId") Long userId)
-            throws NotFoundException, UnauthorizedRoleException {
-
-        SyncopeUser user = getUserFromId(userId);
-
-        WorkflowActionsTO result = new WorkflowActionsTO();
-
-        int[] availableActions = workflow.getAvailableActions(
-                user.getWorkflowId(), Collections.EMPTY_MAP);
-        for (int i = 0; i < availableActions.length; i++) {
-            result.addAction(
-                    workflow.getWorkflowDescriptor(Constants.USER_WORKFLOW).
-                    getAction(availableActions[i]).getName());
-        }
-
-        return result;
+        return userDataBinder.getUserTO(getUserFromId(userId));
     }
 
     @PreAuthorize("hasRole('USER_READ')")
     @RequestMapping(method = RequestMethod.POST,
     value = "/search")
     @Transactional(readOnly = true)
-    public List<UserTO> search(@RequestBody NodeCond searchCondition)
+    public List<UserTO> search(@RequestBody final NodeCond searchCondition)
             throws InvalidSearchConditionException {
 
         LOG.debug("User search called with condition {}", searchCondition);
@@ -350,7 +196,7 @@ public class UserController extends AbstractController {
                 getOwnedEntitlementNames()), searchCondition);
         List<UserTO> result = new ArrayList<UserTO>(matchingUsers.size());
         for (SyncopeUser user : matchingUsers) {
-            result.add(userDataBinder.getUserTO(user, workflow));
+            result.add(userDataBinder.getUserTO(user));
         }
 
         return result;
@@ -380,139 +226,23 @@ public class UserController extends AbstractController {
 
         final List<UserTO> result = new ArrayList<UserTO>(matchingUsers.size());
         for (SyncopeUser user : matchingUsers) {
-            result.add(userDataBinder.getUserTO(user, workflow));
+            result.add(userDataBinder.getUserTO(user));
         }
 
         return result;
     }
 
-    @PreAuthorize("hasRole('USER_READ')")
-    @RequestMapping(method = RequestMethod.GET,
-    value = "/status/{userId}")
-    @Transactional(readOnly = true)
-    public ModelAndView getStatus(@PathVariable("userId") Long userId)
-            throws NotFoundException, UnauthorizedRoleException {
-
-        SyncopeUser user = getUserFromId(userId);
-
-        List<Step> currentSteps = workflow.getCurrentSteps(
-                user.getWorkflowId());
-
-        ModelAndView mav = new ModelAndView();
-        if (currentSteps != null && !currentSteps.isEmpty()) {
-            mav.addObject(currentSteps.iterator().next().getStatus());
-        }
-
-        return mav;
-    }
-
-    private Set<String> getMandatoryResourceNames(SyncopeUser user,
-            Set<Long> mandatoryRoles, Set<String> mandatoryResources) {
-
-        if (mandatoryRoles == null) {
-            mandatoryRoles = Collections.EMPTY_SET;
-        }
-        if (mandatoryResources == null) {
-            mandatoryResources = Collections.EMPTY_SET;
-        }
-
-        Set<String> mandatoryResourceNames = new HashSet<String>();
-
-        for (TargetResource resource : user.getTargetResources()) {
-            if (mandatoryResources.contains(resource.getName())) {
-                mandatoryResourceNames.add(resource.getName());
-            }
-        }
-        for (SyncopeRole role : user.getRoles()) {
-            if (mandatoryRoles.contains(role.getId())) {
-                for (TargetResource resource : role.getTargetResources()) {
-                    mandatoryResourceNames.add(resource.getName());
-                }
-            }
-        }
-
-        return mandatoryResourceNames;
-    }
-
-    public SyncopeUser create(UserTO userTO, Set<Long> mandatoryRoles,
-            Set<String> mandatoryResources)
-            throws SyncopeClientCompositeErrorException, NotFoundException,
-            WorkflowException, PropagationException {
-
-        // Create the user
-        SyncopeUser user = new SyncopeUser();
-        userDataBinder.create(user, userTO);
-
-        try {
-            user = userDAO.save(user);
-        } catch (InvalidEntityException e) {
-            SyncopeClientCompositeErrorException scce =
-                    new SyncopeClientCompositeErrorException(
-                    HttpStatus.BAD_REQUEST);
-
-            SyncopeClientException sce = new SyncopeClientException(
-                    SyncopeClientExceptionType.InvalidPassword);
-
-            for (Map.Entry<Class, Set<EntityViolationType>> violation :
-                    e.getViolations().entrySet()) {
-
-                for (EntityViolationType violationType : violation.getValue()) {
-                    sce.addElement(violationType.toString());
-                }
-            }
-
-            scce.addException(sce);
-            throw scce;
-        }
-
-        // User is created locally and propagated, let's advance on the workflow
-        final Long workflowId =
-                workflow.initialize(Constants.USER_WORKFLOW, 0, null);
-        user.setWorkflowId(workflowId);
-
-        Map<String, Object> inputs = new HashMap<String, Object>();
-        inputs.put(Constants.SYNCOPE_USER, user);
-        inputs.put(Constants.USER_TO, userTO);
-
-        int[] wfActions = workflow.getAvailableActions(workflowId, null);
-        LOG.debug("Available workflow actions for user {}: {}",
-                user, wfActions);
-
-        for (int wfAction : wfActions) {
-            LOG.debug("About to execute action {} on user {}", wfAction, user);
-            workflow.doAction(workflowId, wfAction, inputs);
-            LOG.debug("Action {} on user {} run successfully", wfAction, user);
-        }
-
-        // Save possible modifications made by workflow actions
-        user = userDAO.save(user);
-
-        // Now that user is created locally, let's propagate
-        Set<String> mandatoryResourceNames = getMandatoryResourceNames(user,
-                mandatoryRoles, mandatoryResources);
-        if (!mandatoryResourceNames.isEmpty()) {
-            LOG.debug("About to propagate mandatory onto resources {}",
-                    mandatoryResourceNames);
-        }
-
-        propagationManager.create(
-                user, userTO.getPassword(), mandatoryResourceNames);
-
-        return user;
-    }
-
     @PreAuthorize("hasRole('USER_CREATE')")
     @RequestMapping(method = RequestMethod.POST,
     value = "/create")
-    public UserTO create(HttpServletResponse response,
-            @RequestBody UserTO userTO,
+    public UserTO create(final HttpServletResponse response,
+            @RequestBody final UserTO userTO,
             @RequestParam(value = "mandatoryRoles",
-            required = false) Set<Long> mandatoryRoles,
+            required = false) final Set<Long> mandatoryRoles,
             @RequestParam(value = "mandatoryResources",
-            required = false) Set<String> mandatoryResources)
-            throws SyncopeClientCompositeErrorException,
-            DataIntegrityViolationException, WorkflowException,
-            PropagationException, NotFoundException, UnauthorizedRoleException {
+            required = false) final Set<String> mandatoryResources)
+            throws PropagationException, UnauthorizedRoleException,
+            WorkflowException {
 
         LOG.debug("User create called with parameters {}\n{}\n{}",
                 new Object[]{userTO, mandatoryRoles, mandatoryResources});
@@ -531,158 +261,55 @@ public class UserController extends AbstractController {
             throw new UnauthorizedRoleException(requestRoleIds);
         }
 
-        CheckInResult checkInResult = userDataBinder.checkIn(userTO);
-        LOG.debug("Check-in result: {}", checkInResult);
-
-        switch (checkInResult.getAction()) {
-            case CREATE:
-                break;
-
-            case OVERWRITE:
-                delete(checkInResult.getSyncopeUserId(),
-                        mandatoryRoles, mandatoryResources);
-                break;
-
-            case REJECT:
-                SyncopeClientCompositeErrorException compositeException =
-                        new SyncopeClientCompositeErrorException(
-                        HttpStatus.BAD_REQUEST);
-                SyncopeClientException rejectedUserCreate =
-                        new SyncopeClientException(
-                        SyncopeClientExceptionType.RejectedUserCreate);
-                rejectedUserCreate.addElement(
-                        String.valueOf(checkInResult.getSyncopeUserId()));
-                compositeException.addException(rejectedUserCreate);
-
-                throw compositeException;
-
-            default:
-        }
-
         final UserTO savedTO = userDataBinder.getUserTO(
-                create(userTO, mandatoryRoles, mandatoryResources), workflow);
-        LOG.debug("About to return create user\n{}", savedTO);
+                wfAdapter.create(userTO, mandatoryRoles, mandatoryResources));
+
+        LOG.debug("About to return created user\n{}", savedTO);
 
         response.setStatus(HttpServletResponse.SC_CREATED);
         return savedTO;
     }
 
-    public SyncopeUser update(SyncopeUser user, final UserMod userMod,
-            final Set<Long> mandatoryRoles,
-            final Set<String> mandatoryResources)
-            throws WorkflowException, NotFoundException, PropagationException {
-
-        // First of all, let's check if update is allowed
-        Map<String, Object> inputs = new HashMap<String, Object>();
-        inputs.put(Constants.SYNCOPE_USER, user);
-        inputs.put(Constants.USER_MOD, userMod);
-
-        WFUtils.doExecuteAction(workflow,
-                Constants.USER_WORKFLOW,
-                Constants.ACTION_UPDATE,
-                user.getWorkflowId(),
-                inputs);
-
-        // Update user with provided userMod
-        ResourceOperations resOps = userDataBinder.update(user, userMod);
-
-        try {
-            user = userDAO.save(user);
-        } catch (InvalidEntityException e) {
-            SyncopeClientCompositeErrorException scce =
-                    new SyncopeClientCompositeErrorException(
-                    HttpStatus.BAD_REQUEST);
-
-            SyncopeClientException sce = new SyncopeClientException(
-                    SyncopeClientExceptionType.InvalidPassword);
-
-            for (Map.Entry<Class, Set<EntityViolationType>> violation :
-                    e.getViolations().entrySet()) {
-
-                for (EntityViolationType violationType : violation.getValue()) {
-                    sce.addElement(violationType.toString());
-                }
-            }
-
-            scce.addException(sce);
-            throw scce;
-        }
-
-        // Now that user is update locally, let's propagate
-        Set<String> mandatoryResourceNames = getMandatoryResourceNames(user,
-                mandatoryRoles, mandatoryResources);
-        if (!mandatoryResourceNames.isEmpty()) {
-            LOG.debug("About to propagate mandatory onto resources {}",
-                    mandatoryResourceNames);
-        }
-
-        propagationManager.update(user, userMod.getPassword(),
-                resOps, mandatoryResourceNames);
-
-        return user;
-    }
-
     @PreAuthorize("hasRole('USER_UPDATE')")
     @RequestMapping(method = RequestMethod.POST,
     value = "/update")
-    public UserTO update(@RequestBody UserMod userMod,
+    public UserTO update(@RequestBody final UserMod userMod,
             @RequestParam(value = "mandatoryRoles",
-            required = false) Set<Long> mandatoryRoles,
+            required = false) final Set<Long> mandatoryRoles,
             @RequestParam(value = "mandatoryResources",
-            required = false) Set<String> mandatoryResources)
-            throws NotFoundException, PropagationException, WorkflowException,
-            UnauthorizedRoleException {
+            required = false) final Set<String> mandatoryResources)
+            throws NotFoundException, PropagationException,
+            UnauthorizedRoleException, WorkflowException {
 
         LOG.debug("User update called with parameters {}\n{}\n{}",
                 new Object[]{userMod, mandatoryRoles, mandatoryResources});
 
-        UserTO updatedTO =
-                userDataBinder.getUserTO(update(getUserFromId(userMod.getId()),
-                userMod, mandatoryRoles, mandatoryResources), workflow);
+        final UserTO updatedTO = userDataBinder.getUserTO(
+                wfAdapter.update(getUserFromId(userMod.getId()), userMod,
+                mandatoryRoles, mandatoryResources));
+
         LOG.debug("About to return updated user\n{}", updatedTO);
 
         return updatedTO;
     }
 
-    public void delete(SyncopeUser user, Set<Long> mandatoryRoles,
-            Set<String> mandatoryResources)
-            throws WorkflowException, NotFoundException, PropagationException {
-
-        WFUtils.doExecuteAction(workflow,
-                Constants.USER_WORKFLOW,
-                Constants.ACTION_DELETE,
-                user.getWorkflowId(),
-                Collections.singletonMap(Constants.SYNCOPE_USER,
-                (Object) user));
-
-        // Propagate delete
-        Set<String> mandatoryResourceNames = getMandatoryResourceNames(user,
-                mandatoryRoles, mandatoryResources);
-        if (!mandatoryResourceNames.isEmpty()) {
-            LOG.debug("About to propagate mandatory onto resources {}",
-                    mandatoryResourceNames);
-        }
-
-        propagationManager.delete(user, mandatoryResourceNames);
-
-        // Now that delete has been propagated, let's remove everything
-        if (user.getWorkflowId() != null) {
-            workflowEntryDAO.delete(user.getWorkflowId());
-        }
-        userDAO.delete(user);
-    }
-
     @PreAuthorize("hasRole('USER_DELETE')")
     @RequestMapping(method = RequestMethod.DELETE,
     value = "/delete/{userId}")
-    public void delete(@PathVariable("userId") Long userId,
+    public void delete(@PathVariable("userId") final Long userId,
             @RequestParam(value = "mandatoryRoles",
-            required = false) Set<Long> mandatoryRoles,
+            required = false) final Set<Long> mandatoryRoles,
             @RequestParam(value = "mandatoryResources",
-            required = false) Set<String> mandatoryResources)
+            required = false) final Set<String> mandatoryResources)
             throws NotFoundException, WorkflowException, PropagationException,
             UnauthorizedRoleException {
 
-        delete(getUserFromId(userId), mandatoryRoles, mandatoryResources);
+        LOG.debug("User delete called with parameters {}\n{}\n{}",
+                new Object[]{userId, mandatoryRoles, mandatoryResources});
+
+        wfAdapter.delete(getUserFromId(userId),
+                mandatoryRoles, mandatoryResources);
+
+        LOG.debug("User successfully deleted: {}", userId);
     }
 }

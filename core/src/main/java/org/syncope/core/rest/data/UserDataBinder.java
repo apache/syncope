@@ -15,15 +15,8 @@
 package org.syncope.core.rest.data;
 
 import org.syncope.core.util.AttributableUtil;
-import com.opensymphony.workflow.Workflow;
-import com.opensymphony.workflow.spi.Step;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import javassist.NotFoundException;
-import javax.persistence.EntityNotFoundException;
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.syncope.client.mod.MembershipMod;
@@ -43,70 +36,17 @@ import org.syncope.core.persistence.beans.membership.MDerAttr;
 import org.syncope.core.persistence.beans.membership.MVirAttr;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
-import org.syncope.core.persistence.propagation.ResourceOperations;
+import org.syncope.core.persistence.propagation.PropagationByResource;
 import org.syncope.types.CipherAlgorithm;
 import org.syncope.types.PasswordPolicy;
-import org.syncope.types.ResourceOperationType;
+import org.syncope.types.PropagationOperation;
 import org.syncope.types.SyncopeClientExceptionType;
 
 @Component
 public class UserDataBinder extends AbstractAttributableDataBinder {
 
-    public enum CheckinResultAction {
-
-        CREATE,
-        OVERWRITE,
-        REJECT
-
-    }
-
-    public class CheckInResult {
-
-        private CheckinResultAction action;
-
-        private Long syncopeUserId;
-
-        private Long workflowId;
-
-        public CheckinResultAction getAction() {
-            return action;
-        }
-
-        public void setAction(CheckinResultAction action) {
-            this.action = action;
-        }
-
-        public Long getSyncopeUserId() {
-            return syncopeUserId;
-        }
-
-        public void setSyncopeUserId(Long syncopeUserId) {
-            this.syncopeUserId = syncopeUserId;
-        }
-
-        public Long getWorkflowId() {
-            return workflowId;
-        }
-
-        public void setWorkflowId(Long workflowId) {
-            this.workflowId = workflowId;
-        }
-
-        @Override
-        public String toString() {
-            return ReflectionToStringBuilder.toString(this,
-                    ToStringStyle.MULTI_LINE_STYLE);
-        }
-    }
-
-    public CheckInResult checkIn(final UserTO userTO) {
-        CheckInResult result = new CheckInResult();
-        result.setAction(CheckinResultAction.CREATE);
-        return result;
-    }
-
     public void create(final SyncopeUser user, final UserTO userTO)
-            throws SyncopeClientCompositeErrorException, NotFoundException {
+            throws SyncopeClientCompositeErrorException {
 
         SyncopeClientCompositeErrorException scce =
                 new SyncopeClientCompositeErrorException(
@@ -173,10 +113,10 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         fill(user, userTO, AttributableUtil.USER, scce);
     }
 
-    public ResourceOperations update(SyncopeUser user, UserMod userMod)
+    public PropagationByResource update(SyncopeUser user, UserMod userMod)
             throws SyncopeClientCompositeErrorException {
 
-        ResourceOperations resOps = new ResourceOperations();
+        PropagationByResource propByRes = new PropagationByResource();
 
         SyncopeClientCompositeErrorException scce =
                 new SyncopeClientCompositeErrorException(
@@ -195,12 +135,12 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
             user.setPassword(userMod.getPassword(), getCipherAlgoritm(),
                     passwordHistorySize);
-            resOps.addAll(ResourceOperationType.UPDATE,
+            propByRes.addAll(PropagationOperation.UPDATE,
                     user.getTargetResources());
         }
 
         // attributes, derived attributes, virtual attributes and resources
-        resOps.merge(fill(user, userMod, AttributableUtil.USER, scce));
+        propByRes.merge(fill(user, userMod, AttributableUtil.USER, scce));
 
         // store the role ids of membership required to be added
         Set<Long> membershipToBeAddedRoleIds = new HashSet<Long>();
@@ -228,7 +168,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
                     if (!membershipToBeAddedRoleIds.contains(
                             membership.getSyncopeRole().getId())) {
 
-                        resOps.add(ResourceOperationType.DELETE, resource);
+                        propByRes.add(PropagationOperation.DELETE, resource);
                     }
                 }
 
@@ -300,38 +240,25 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
                     user.addMembership(membership);
 
-                    resOps.addAll(ResourceOperationType.UPDATE,
+                    propByRes.addAll(PropagationOperation.UPDATE,
                             role.getTargetResources());
                 }
 
-                resOps.merge(fill(membership, membershipMod,
+                propByRes.merge(fill(membership, membershipMod,
                         AttributableUtil.MEMBERSHIP, scce));
             }
         }
 
-        return resOps;
+        return propByRes;
     }
 
-    public UserTO getUserTO(SyncopeUser user, Workflow userWorkflow) {
+    public UserTO getUserTO(final SyncopeUser user) {
         UserTO userTO = new UserTO();
         userTO.setId(user.getId());
         userTO.setToken(user.getToken());
         userTO.setTokenExpireTime(user.getTokenExpireTime());
         userTO.setPassword(user.getPassword());
-
-        try {
-            List<Step> currentSteps = userWorkflow.getCurrentSteps(
-                    user.getWorkflowId());
-
-            if (currentSteps != null && !currentSteps.isEmpty()) {
-                userTO.setStatus(currentSteps.iterator().next().getStatus());
-            } else {
-                LOG.error("Could not find status information for {}", user);
-            }
-        } catch (EntityNotFoundException e) {
-            LOG.error("Could not find workflow entry with id "
-                    + user.getWorkflowId());
-        }
+        userTO.setStatus(user.getStatus());
 
         fillTO(userTO,
                 user.getAttributes(),

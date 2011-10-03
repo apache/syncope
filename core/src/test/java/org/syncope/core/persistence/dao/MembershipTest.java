@@ -23,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.membership.Membership;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
-import org.syncope.core.persistence.AbstractTest;
+import org.syncope.core.AbstractTest;
 
 @Transactional
 public class MembershipTest extends AbstractTest {

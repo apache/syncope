@@ -15,48 +15,55 @@
 package org.syncope.core.init;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.util.Collections;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
-import org.springframework.context.support.StaticApplicationContext;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.transaction.annotation.Transactional;
+import org.syncope.core.AbstractTest;
 import org.syncope.core.persistence.beans.ConnInstance;
 import org.syncope.core.persistence.beans.TargetResource;
-import org.syncope.core.persistence.dao.ConnInstanceDAO;
 import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.propagation.ConnectorFacadeProxy;
 import org.syncope.core.util.ApplicationContextManager;
+import org.syncope.core.util.ConnBundleManager;
 
-public class ConnInstanceLoaderTest {
+@Transactional
+public class ConnInstanceLoaderTest extends AbstractTest {
 
     private ConnInstanceLoader cil;
 
-    private ConnInstanceDAO connInstanceDAOMock;
+    @Autowired
+    private ResourceDAO resourceDAO;
 
-    private ResourceDAO resourceDAOMock;
+    @Autowired
+    private ConnBundleManager connBundleManager;
 
     @Before
     public void before() {
-        ApplicationContextManager.setApplicationContext(new StaticApplicationContext());
         cil = new ConnInstanceLoader();
-        connInstanceDAOMock = mock(ConnInstanceDAO.class);
-        resourceDAOMock = mock(ResourceDAO.class);
-        ReflectionTestUtils.setField(cil, "connInstanceDAO",
-                connInstanceDAOMock);
-        ReflectionTestUtils.setField(cil, "resourceDAO", resourceDAOMock);
+        ReflectionTestUtils.setField(cil,
+                "resourceDAO", resourceDAO);
+        ReflectionTestUtils.setField(cil,
+                "connBundleManager", connBundleManager);
+
+        // Remove any other connector instance bean set up by
+        // standard ConnInstanceLoader.load()
+        for (String bean : ApplicationContextManager.getApplicationContext().
+                getBeanNamesForType(ConnectorFacadeProxy.class)) {
+
+            cil.unregisterConnector(bean);
+        }
     }
 
     @Test
-    public void loadEmpty() {
-        when(resourceDAOMock.findAll()).thenReturn(
-                Collections.<TargetResource>emptyList());
+    public void load() {
         cil.load();
-        assertEquals(0, ApplicationContextManager.getApplicationContext().
+
+        assertEquals(resourceDAO.findAll().size(),
+                ApplicationContextManager.getApplicationContext().
                 getBeanNamesForType(ConnectorFacadeProxy.class).length);
     }
 

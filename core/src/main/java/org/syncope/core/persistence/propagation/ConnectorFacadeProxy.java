@@ -52,7 +52,7 @@ import org.syncope.core.persistence.dao.MissingConfKeyException;
 import org.syncope.types.ConnConfProperty;
 import org.syncope.types.ConnectorCapability;
 import org.syncope.types.PropagationMode;
-import org.syncope.types.ResourceOperationType;
+import org.syncope.types.PropagationOperation;
 
 /**
  * Intercept calls to ConnectorFacade's methods and check if the correspondant
@@ -411,7 +411,7 @@ public class ConnectorFacadeProxy {
      */
     public ConnectorObject getObject(
             final PropagationMode propagationMode,
-            final ResourceOperationType operationType,
+            final PropagationOperation operationType,
             final ObjectClass objectClass,
             final Uid uid,
             final OperationOptions options) {

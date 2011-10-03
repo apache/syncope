@@ -2,9 +2,9 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *
+ * 
  *       http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -12,25 +12,9 @@
  *  limitations under the License.
  *  under the License.
  */
-package jpasymphony.dao;
+package org.syncope.types;
 
-import java.util.List;
-import jpasymphony.beans.JPAPropertySetItem;
-import org.syncope.core.persistence.dao.DAO;
+public enum PropagationOperation {
 
-public interface JPAPropertySetItemDAO extends DAO {
-
-    JPAPropertySetItem find(Long id);
-
-    JPAPropertySetItem find(Long workflowEntryId, String propertyKey);
-
-    List<JPAPropertySetItem> findAll();
-
-    List<JPAPropertySetItem> findAll(Long workflowEntryId);
-
-    JPAPropertySetItem save(JPAPropertySetItem property);
-
-    void delete(Long id);
-
-    void delete(Long workflowEntryId, String propertyKey);
+    CREATE, UPDATE, DELETE
 }

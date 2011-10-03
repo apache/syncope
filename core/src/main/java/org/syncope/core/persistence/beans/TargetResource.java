@@ -37,6 +37,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.annotations.Type;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
@@ -308,21 +309,24 @@ public class TargetResource extends AbstractBaseBean {
 
     public void setConnectorConfigurationProperties(
             final Set<ConnConfProperty> properties) {
-        
+
         // create new set to make sure it's a serializable set implementation.
         xmlConfiguration = XmlConfiguration.serialize(
                 new HashSet<ConnConfProperty>(properties));
     }
 
     public Set<ConnConfProperty> getConfiguration() {
-        Set<ConnConfProperty> deserializedSet =
-                XmlConfiguration.<HashSet<ConnConfProperty>>deserialize(
-                xmlConfiguration);
+        Set<ConnConfProperty> result = Collections.EMPTY_SET;
 
-        if (deserializedSet == null) {
-            deserializedSet = Collections.emptySet();
+        Set<ConnConfProperty> deserializedSet;
+        if (StringUtils.isNotBlank(xmlConfiguration)) {
+            deserializedSet = XmlConfiguration.<HashSet<ConnConfProperty>>
+                    deserialize(xmlConfiguration);
+            if (deserializedSet != null) {
+                result = deserializedSet;
+            }
         }
 
-        return deserializedSet;
+        return result;
     }
 }

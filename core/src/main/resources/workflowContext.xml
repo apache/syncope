@@ -12,65 +12,33 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:context="http://www.springframework.org/schema/context"
+<beans xmlns="http://www.springframework.org/schema/beans" 
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans
-       http://www.springframework.org/schema/beans/spring-beans.xsd
-       http://www.springframework.org/schema/context
-       http://www.springframework.org/schema/context/spring-context.xsd">
-
-    <context:component-scan base-package="jpasymphony.dao"/>
-
-    <bean id="propertySetDelegate"
-          class="jpasymphony.workflow.spi.jpa.JPAPropertySetDelegate"/>
-    <bean id="workflowStore"
-          class="jpasymphony.workflow.spi.jpa.JPAWorkflowStore"/>
-
-    <bean id="workflowFactory"
-          class="jpasymphony.workflow.spi.jpa.SpringWorkflowFactory"
-          init-method="init">
-        <property name="resource">
-            <value>workflows.xml</value>
-        </property>
-        <property name="reload">
-            <value>true</value>
-        </property>
+       xsi:schemaLocation="http://www.springframework.org/schema/beans   
+                           http://www.springframework.org/schema/beans/spring-beans.xsd">
+    
+<!--    <bean id="processEngineConfiguration" class="org.activiti.spring.SpringProcessEngineConfiguration">
+        <property name="dataSource" ref="dataSource" />
+        <property name="transactionManager" ref="transactionManager" />
+        <property name="databaseSchemaUpdate" value="true" />
+        
+        <property name="jpaEntityManagerFactory" ref="entityManagerFactory" />
+        <property name="jpaHandleTransaction" value="false" />
+        <property name="jpaCloseEntityManager" value="false" />
+        
+        <property name="jobExecutorActivate" value="false" />
     </bean>
-
-    <bean id="osworkflowConfiguration"
-          class="com.opensymphony.workflow.config.SpringConfiguration">
-        <property name="store">
-            <ref local="workflowStore"/>
-        </property>
-        <property name="factory">
-            <ref local="workflowFactory"/>
-        </property>
+  
+    <bean id="processEngine" class="org.activiti.spring.ProcessEngineFactoryBean">
+        <property name="processEngineConfiguration" ref="processEngineConfiguration" />
     </bean>
-
-    <bean id="workflowTypeResolver"
-          class="com.opensymphony.workflow.util.SpringTypeResolver"/>
-
-    <bean id="userWorkflow"
-          class="com.opensymphony.workflow.basic.BasicWorkflow">
-        <constructor-arg>
-            <value>userWorkflow</value>
-        </constructor-arg>
-        <property name="configuration">
-            <ref local="osworkflowConfiguration"/>
-        </property>
-        <property name="resolver">
-            <ref local="workflowTypeResolver"/>
-        </property>
-    </bean>
-
-    <bean id="velocityEngine" class="org.springframework.ui.velocity.VelocityEngineFactoryBean">
-        <property name="velocityProperties">
-            <value>
-          resource.loader=class
-          class.resource.loader.class=org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
-            </value>
-        </property>
-    </bean>
+  
+    <bean id="repositoryService" factory-bean="processEngine" factory-method="getRepositoryService" />
+    <bean id="runtimeService" factory-bean="processEngine" factory-method="getRuntimeService" />
+    <bean id="taskService" factory-bean="processEngine" factory-method="getTaskService" />
+    <bean id="historyService" factory-bean="processEngine" factory-method="getHistoryService" />
+    <bean id="managementService" factory-bean="processEngine" factory-method="getManagementService" />
+    <bean id="identityService" factory-bean="processEngine" factory-method="getIdentityService" />
+    <bean id="formService" factory-bean="processEngine" factory-method="getFormService" />-->
 
 </beans>

@@ -34,10 +34,10 @@ import org.slf4j.LoggerFactory;
  */
 public class XmlConfiguration {
 
-    protected static final Logger LOG =
+    private static final Logger LOG =
             LoggerFactory.getLogger(XmlConfiguration.class);
 
-    public static String serialize(Serializable object) {
+    public static String serialize(final Serializable object) {
         try {
             OutputStream os = new ByteArrayOutputStream();
             XMLEncoder encoder = new XMLEncoder(os);
@@ -52,7 +52,9 @@ public class XmlConfiguration {
         }
     }
 
-    public static <T extends Serializable> T deserialize(String serialized) {
+    public static <T extends Serializable> T deserialize(
+            final String serialized) {
+
         try {
             InputStream is = new ByteArrayInputStream(
                     URLDecoder.decode(serialized, "UTF-8").getBytes());

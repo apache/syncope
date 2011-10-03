@@ -38,11 +38,9 @@ import org.syncope.client.search.NodeCond;
 import org.syncope.client.search.ResourceCond;
 import org.syncope.client.to.PropagationTaskTO;
 import org.syncope.client.to.UserTO;
-import org.syncope.client.to.WorkflowActionsTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
-import org.syncope.core.workflow.Constants;
 import org.syncope.types.CipherAlgorithm;
 import org.syncope.types.SyncopeClientExceptionType;
 
@@ -290,20 +288,7 @@ public class UserTestITCase extends AbstractTest {
         assertFalse(newUserTO.getAttributes().contains(
                 attrWithInvalidSchemaTO));
 
-        WorkflowActionsTO workflowActions = restTemplate.getForObject(
-                BASE_URL + "user/actions/{userId}", WorkflowActionsTO.class,
-                newUserTO.getId());
-        assertTrue(workflowActions.getActions().equals(
-                Collections.singleton(Constants.ACTION_ACTIVATE)));
-
-        // 2. activate user
-        newUserTO = restTemplate.postForObject(BASE_URL + "user/activate",
-                newUserTO, UserTO.class);
-        assertEquals("active",
-                restTemplate.getForObject(BASE_URL + "user/status/"
-                + newUserTO.getId(), String.class));
-
-        // 3. check for virtual attribute value
+        // 2. check for virtual attribute value
         newUserTO = restTemplate.getForObject(
                 BASE_URL + "user/read/{userId}.json",
                 UserTO.class,
@@ -447,8 +432,6 @@ public class UserTestITCase extends AbstractTest {
 
         userTO = restTemplate.postForObject(BASE_URL + "user/create",
                 userTO, UserTO.class);
-        userTO = restTemplate.postForObject(BASE_URL + "user/activate",
-                userTO, UserTO.class);
 
         restTemplate.delete(BASE_URL + "user/delete/{userId}", userTO.getId());
         try {
@@ -529,26 +512,6 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(userTO);
         assertNotNull(userTO.getAttributes());
         assertFalse(userTO.getAttributes().isEmpty());
-    }
-
-    @Test
-    public final void token() {
-        UserTO userTO = getSampleTO("d.e@f.com");
-
-        userTO = restTemplate.postForObject(BASE_URL + "user/create",
-                userTO, UserTO.class);
-        userTO = restTemplate.postForObject(BASE_URL + "user/activate",
-                userTO, UserTO.class);
-        assertNull(userTO.getToken());
-
-        userTO = restTemplate.getForObject(
-                BASE_URL + "user/generateToken/{userId}",
-                UserTO.class, userTO.getId());
-        assertNotNull(userTO.getToken());
-
-        userTO = restTemplate.postForObject(BASE_URL + "user/verifyToken",
-                userTO, UserTO.class);
-        assertNull(userTO.getToken());
     }
 
     @Test
@@ -684,11 +647,6 @@ public class UserTestITCase extends AbstractTest {
 
         assertNotNull(userTO);
 
-        userTO = restTemplate.postForObject(BASE_URL + "user/activate",
-                userTO, UserTO.class);
-
-        assertNotNull(userTO);
-
         UserMod userMod = new UserMod();
         userMod.setId(userTO.getId());
         userMod.addDerivedAttributeToBeRemoved("cn");
@@ -708,12 +666,6 @@ public class UserTestITCase extends AbstractTest {
 
         userTO = restTemplate.postForObject(
                 BASE_URL + "user/create", userTO, UserTO.class);
-
-        assertNotNull(userTO);
-
-        userTO = restTemplate.postForObject(BASE_URL + "user/activate",
-                userTO, UserTO.class);
-
         assertNotNull(userTO);
 
         UserMod userMod = new UserMod();
@@ -731,12 +683,6 @@ public class UserTestITCase extends AbstractTest {
 
         userTO = restTemplate.postForObject(
                 BASE_URL + "user/create", userTO, UserTO.class);
-
-        assertNotNull(userTO);
-
-        userTO = restTemplate.postForObject(BASE_URL + "user/activate",
-                userTO, UserTO.class);
-
         assertNotNull(userTO);
 
         UserMod userMod = new UserMod();
@@ -760,8 +706,6 @@ public class UserTestITCase extends AbstractTest {
         userTO.addMembership(membershipTO);
 
         userTO = restTemplate.postForObject(BASE_URL + "user/create",
-                userTO, UserTO.class);
-        userTO = restTemplate.postForObject(BASE_URL + "user/activate",
                 userTO, UserTO.class);
 
         assertFalse(userTO.getDerivedAttributes().isEmpty());
@@ -846,8 +790,6 @@ public class UserTestITCase extends AbstractTest {
 
         userTO = restTemplate.postForObject(BASE_URL + "user/create",
                 userTO, UserTO.class);
-        userTO = restTemplate.postForObject(BASE_URL + "user/activate",
-                userTO, UserTO.class);
 
         UserMod userMod = new UserMod();
         userMod.setId(userTO.getId());
@@ -902,21 +844,7 @@ public class UserTestITCase extends AbstractTest {
         userTO = restTemplate.postForObject(
                 BASE_URL + "user/create?mandatoryRoles=8",
                 userTO, UserTO.class);
-
         assertNotNull(userTO);
-
-        WorkflowActionsTO workflowActions = restTemplate.getForObject(
-                BASE_URL + "user/actions/{userId}", WorkflowActionsTO.class,
-                userTO.getId());
-        assertTrue(workflowActions.getActions().equals(
-                Collections.singleton(Constants.ACTION_ACTIVATE)));
-
-        // 2. activate user
-        userTO = restTemplate.postForObject(BASE_URL + "user/activate",
-                userTO, UserTO.class);
-        assertEquals("active",
-                restTemplate.getForObject(BASE_URL + "user/status/"
-                + userTO.getId(), String.class));
 
         // get the new task list
         tasks = Arrays.asList(

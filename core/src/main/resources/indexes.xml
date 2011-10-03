@@ -63,6 +63,4 @@
     <entry key="UAttrValue_booleanvalueIndex">CREATE INDEX UAttrValue_booleanvalueIndex ON UAttrValue(booleanvalue)</entry>
     <entry key="UDerAttr_derivedSchema_nameIndex">CREATE INDEX UDerAttr_derivedSchema_naIndex ON UDerAttr(derivedSchema_name)</entry>
     <entry key="UDerAttr_owner_idIndex">CREATE INDEX UDerAttr_owner_idIndex ON UDerAttr(owner_id)</entry>
-    <entry key="os_currentstep_workflowEntry_idIndex">CREATE INDEX os_currentstep_workflowEnIndex ON os_currentstep(workflowEntry_id)</entry>
-    <entry key="os_historystep_workflowEntry_idIndex">CREATE INDEX os_historystep_workflowEnIndex ON os_historystep(workflowEntry_id)</entry>
 </properties>

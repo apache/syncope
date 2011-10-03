@@ -20,8 +20,6 @@ import java.security.NoSuchAlgorithmException;
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
-import static javax.persistence.EnumType.STRING;
-
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -37,6 +35,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.Lob;
@@ -44,9 +43,9 @@ import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.Valid;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.RandomStringUtils;
 import org.hibernate.annotations.Type;
+import org.springframework.security.core.codec.Base64;
 import org.syncope.core.persistence.beans.AbstractAttributable;
 import org.syncope.core.persistence.beans.AbstractAttr;
 import org.syncope.core.persistence.beans.AbstractDerAttr;
@@ -96,8 +95,10 @@ public class SyncopeUser extends AbstractAttributable {
     @Valid
     private List<UVirAttr> virtualAttributes;
 
+    private String workflowId;
+
     @Column(nullable = true)
-    private Long workflowId;
+    private String status;
 
     @Lob
     @Type(type = "org.hibernate.type.StringClobType")
@@ -107,7 +108,7 @@ public class SyncopeUser extends AbstractAttributable {
     private Date tokenExpireTime;
 
     @Column(nullable = true)
-    @Enumerated(STRING)
+    @Enumerated(EnumType.STRING)
     private CipherAlgorithm cipherAlgorithm;
 
     @ElementCollection
@@ -289,12 +290,20 @@ public class SyncopeUser extends AbstractAttributable {
         this.virtualAttributes = (List<UVirAttr>) virtualAttributes;
     }
 
-    public Long getWorkflowId() {
+    public String getWorkflowId() {
         return workflowId;
     }
 
-    public void setWorkflowId(Long workflowEntryId) {
-        this.workflowId = workflowEntryId;
+    public void setWorkflowId(String workflowId) {
+        this.workflowId = workflowId;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public void generateToken(
@@ -370,8 +379,7 @@ public class SyncopeUser extends AbstractAttributable {
 
                 byte[] encoded = cipher.doFinal(cleartext);
 
-                encodedPassword = new String(
-                        Base64.encodeBase64(encoded));
+                encodedPassword = new String(Base64.encode(encoded));
 
             } else {
 

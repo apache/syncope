@@ -29,7 +29,7 @@
     <bean id="adminUser" class="java.lang.String">
         <constructor-arg value="${adminUser}"/>
     </bean>
-
+    
     <bean id="jacksonObjectMapper" class="org.syncope.core.rest.jackson.UnwrappedObjectMapper"/>
     
     <bean id="mappingJacksonHttpMessageConverter"
@@ -83,27 +83,6 @@
         </property>
         <property name="defaultContentType" ref="jsonMediaType"/>
         <property name="ignoreAcceptHeader" value="false"/>
-    </bean>
-
-    <bean id="httpClientParams" class="org.apache.commons.httpclient.params.HttpClientParams">
-        <property name="authenticationPreemptive" value="true"/>
-        <property name="connectionManagerClass"
-                  value="org.apache.commons.httpclient.MultiThreadedHttpConnectionManager"/>
-    </bean>
-    <bean id="httpClient" class="org.apache.commons.httpclient.HttpClient">
-        <constructor-arg ref="httpClientParams"/>
-    </bean>
-    <bean id="httpClientFactory" class="org.springframework.http.client.CommonsClientHttpRequestFactory">
-        <constructor-arg ref="httpClient"/>
-    </bean>
-    <bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
-        <constructor-arg ref="httpClientFactory"/>
-
-        <property name="messageConverters" ref="mappingJacksonHttpMessageConverter"/>
-        <property name="errorHandler">
-            <bean id="syncopeClientErrorHandler"
-            class="org.syncope.client.validation.SyncopeClientErrorHandler"/>
-        </property>
     </bean>
 
 </beans>

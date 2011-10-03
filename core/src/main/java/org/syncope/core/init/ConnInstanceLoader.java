@@ -17,9 +17,7 @@ import org.syncope.core.util.ConnBundleManager;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
-
 import javassist.NotFoundException;
-
 import org.identityconnectors.common.l10n.CurrentLocale;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,9 +55,9 @@ public class ConnInstanceLoader extends AbstractLoader {
      * Get a live connector bean that is registered with the given resource.
      * 
      * @param resource the resource.
-     * 
+     * @return live connector bran for given resource
      * @throws BeansException in case the connector is not registered in the
-     * context.
+     * context
      */
     public ConnectorFacadeProxy getConnector(final TargetResource resource)
             throws BeansException {
@@ -69,7 +67,8 @@ public class ConnInstanceLoader extends AbstractLoader {
     }
 
     public ConnectorFacadeProxy createConnectorBean(
-            final TargetResource resource) throws NotFoundException {
+            final TargetResource resource)
+            throws NotFoundException {
 
         final ConnInstance connInstanceClone =
                 new ConnInstance(resource.getConnector());
@@ -142,8 +141,7 @@ public class ConnInstanceLoader extends AbstractLoader {
             }
         }
 
-        LOG.debug("Done loading {} connectors.",
-                getBeanFactory().getBeansOfType(
+        LOG.info("Done loading {} connectors.", getBeanFactory().getBeansOfType(
                 ConnectorFacadeProxy.class).size());
     }
 }

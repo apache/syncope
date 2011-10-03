@@ -15,7 +15,7 @@
 package org.syncope.client.to;
 
 import org.syncope.types.PropagationMode;
-import org.syncope.types.ResourceOperationType;
+import org.syncope.types.PropagationOperation;
 
 public class PropagationTaskTO extends TaskTO {
 
@@ -23,7 +23,7 @@ public class PropagationTaskTO extends TaskTO {
 
     private PropagationMode propagationMode;
 
-    private ResourceOperationType resourceOperationType;
+    private PropagationOperation propagationOperation;
 
     private String accountId;
 
@@ -65,14 +65,14 @@ public class PropagationTaskTO extends TaskTO {
         this.resource = resource;
     }
 
-    public ResourceOperationType getResourceOperationType() {
-        return resourceOperationType;
+    public PropagationOperation getPropagationOperation() {
+        return propagationOperation;
     }
 
-    public void setResourceOperationType(
-            ResourceOperationType resourceOperationType) {
+    public void setPropagationOperation(
+            PropagationOperation resourceOperationType) {
 
-        this.resourceOperationType = resourceOperationType;
+        this.propagationOperation = resourceOperationType;
     }
 
     public String getXmlAttributes() {

@@ -76,30 +76,21 @@
         </dependency>
 
         <dependency>
-            <groupId>commons-httpclient</groupId>
-            <artifactId>commons-httpclient</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>opensymphony</groupId>
-            <artifactId>osworkflow</artifactId>
+            <groupId>org.activiti</groupId>
+            <artifactId>activiti-engine</artifactId>
         </dependency>
         <dependency>
-            <groupId>opensymphony</groupId>
-            <artifactId>propertyset</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>opensymphony</groupId>
-            <artifactId>oscore</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.beanshell</groupId>
-            <artifactId>bsh</artifactId>
+            <groupId>org.activiti</groupId>
+            <artifactId>activiti-spring</artifactId>            
         </dependency>
 
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -133,35 +124,10 @@
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-config</artifactId>
         </dependency>
-        <dependency>
-            <groupId>javax.inject</groupId>
-            <artifactId>inject-api</artifactId>
-            <version>1.0.0-PRD</version>
-            <scope>compile</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>cglib</groupId>
-            <artifactId>cglib-nodep</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-mapper-lgpl</artifactId>
-        </dependency>
 
         <dependency>
             <groupId>com.thoughtworks.xstream</groupId>
             <artifactId>xstream</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.aspectj</groupId>
-            <artifactId>aspectjrt</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.aspectj</groupId>
-            <artifactId>aspectjweaver</artifactId>
         </dependency>
 
         <dependency>
@@ -232,18 +198,6 @@
             <artifactId>framework-internal</artifactId>
         </dependency>
 
-        <!-- CXF: needed by soap connector -->
-        <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-frontend-jaxws</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-transports-http</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-
         <!-- TEST -->
         <dependency>
             <groupId>org.connid.bundles.soap</groupId>
@@ -277,6 +231,11 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>commons-httpclient</groupId>
+            <artifactId>commons-httpclient</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
             <scope>test</scope>
@@ -292,10 +251,6 @@
                     <artifactId>slf4j-log4j12</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
-        <dependency>
-        	<groupId>org.mockito</groupId>
-        	<artifactId>mockito-core</artifactId>
         </dependency>
         <!-- /TEST -->
     </dependencies>
@@ -353,9 +308,6 @@
                         </goals>
                         <configuration>
                             <skip>false</skip>
-                            <includes>
-                                <include>**/dao/*Test.java</include>
-                            </includes>
                             <excludes>
                                 <exclude>**/relationships/**Test.java</exclude>
                             </excludes>
@@ -456,7 +408,7 @@
                 <executions>
                     <execution>
                         <id>set-bundles</id>
-                        <phase>pre-integration-test</phase>
+                        <phase>process-test-resources</phase>
                         <goals>
                             <goal>copy</goal>
                         </goals>

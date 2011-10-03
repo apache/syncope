@@ -59,7 +59,7 @@ import org.syncope.core.persistence.dao.TaskDAO;
 import org.syncope.core.persistence.dao.TaskExecDAO;
 import org.syncope.core.util.JexlUtil;
 import org.syncope.types.PropagationMode;
-import org.syncope.types.ResourceOperationType;
+import org.syncope.types.PropagationOperation;
 import org.syncope.types.SourceMappingType;
 import org.syncope.types.SchemaType;
 import org.syncope.types.PropagationTaskExecStatus;
@@ -136,10 +136,10 @@ public class PropagationManager {
             final String password, final Set<String> mandResNames)
             throws PropagationException {
 
-        final ResourceOperations resOps = new ResourceOperations();
-        resOps.set(ResourceOperationType.CREATE, user.getTargetResources());
+        final PropagationByResource propByRes = new PropagationByResource();
+        propByRes.set(PropagationOperation.CREATE, user.getTargetResources());
 
-        provision(user, password, resOps,
+        provision(user, password, propByRes,
                 mandResNames == null ? Collections.EMPTY_SET : mandResNames);
     }
 
@@ -152,17 +152,17 @@ public class PropagationManager {
      *
      * @param user to be updated.
      * @param password to be updated.
-     * @param resOps operations to perform on each resource.
+     * @param propByRes operations to perform on each resource.
      * @param mandResNames to ask for mandatory or optional update.
      * @throws PropagationException if anything goes wrong
      */
     public void update(final SyncopeUser user,
             final String password,
-            final ResourceOperations resOps,
+            final PropagationByResource propByRes,
             final Set<String> mandResNames)
             throws PropagationException {
 
-        provision(user, password, resOps,
+        provision(user, password, propByRes,
                 mandResNames == null ? Collections.EMPTY_SET : mandResNames);
     }
 
@@ -181,11 +181,11 @@ public class PropagationManager {
             final Set<String> mandResNames)
             throws PropagationException {
 
-        final ResourceOperations resOps = new ResourceOperations();
-        resOps.set(ResourceOperationType.DELETE,
+        final PropagationByResource propByRes = new PropagationByResource();
+        propByRes.set(PropagationOperation.DELETE,
                 user.getTargetResources());
 
-        provision(user, null, resOps,
+        provision(user, null, propByRes,
                 mandResNames == null ? Collections.EMPTY_SET : mandResNames);
     }
 
@@ -194,28 +194,28 @@ public class PropagationManager {
      *
      * @param user user to be provisioned
      * @param password cleartext password to be provisioned
-     * @param resOps operation to be performed per resource
+     * @param propByRes operation to be performed per resource
      * @param mandResNames resources for mandatory propagation
      * @throws PropagationException if anything goes wrong
      */
     protected void provision(
             final SyncopeUser user,
             final String password,
-            final ResourceOperations resOps,
+            final PropagationByResource propByRes,
             final Set<String> mandResNames)
             throws PropagationException {
 
-        LOG.debug("Provisioning with user {}:\n{}", user, resOps);
+        LOG.debug("Provisioning with user {}:\n{}", user, propByRes);
 
         // Avoid duplicates - see javadoc
-        resOps.purge();
-        LOG.debug("After purge: {}", resOps);
+        propByRes.purge();
+        LOG.debug("After purge: {}", propByRes);
 
         Map.Entry<String, Set<Attribute>> preparedAttrs;
         PropagationTask task;
         TaskExec execution;
-        for (ResourceOperationType type : ResourceOperationType.values()) {
-            for (TargetResource resource : resOps.get(type)) {
+        for (PropagationOperation type : PropagationOperation.values()) {
+            for (TargetResource resource : propByRes.get(type)) {
 
                 preparedAttrs = prepareAttributes(user, password, resource);
 
@@ -228,7 +228,7 @@ public class PropagationManager {
                         : resource.getOptionalPropagationMode());
                 task.setAccountId(preparedAttrs.getKey());
                 task.setOldAccountId(
-                        resOps.getOldAccountId(resource.getName()));
+                        propByRes.getOldAccountId(resource.getName()));
                 task.setAttributes(preparedAttrs.getValue());
 
                 LOG.debug("Execution started for {}", task);

@@ -25,7 +25,7 @@ import org.syncope.client.validation.SyncopeClientException;
 import org.syncope.core.persistence.beans.Entitlement;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.dao.EntitlementDAO;
-import org.syncope.core.persistence.propagation.ResourceOperations;
+import org.syncope.core.persistence.propagation.PropagationByResource;
 import org.syncope.types.SyncopeClientExceptionType;
 
 @Component
@@ -105,7 +105,7 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
         return role;
     }
 
-    public ResourceOperations update(SyncopeRole role, RoleMod roleMod)
+    public PropagationByResource update(SyncopeRole role, RoleMod roleMod)
             throws SyncopeClientCompositeErrorException {
 
         SyncopeClientCompositeErrorException scce =
