@@ -22,10 +22,11 @@ import java.util.Iterator;
 import java.util.List;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
+import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
@@ -106,7 +107,6 @@ public class TaskModalPage extends BaseModalPage {
         form.add(executions);
 
         final Label idLabel = new Label("idLabel", new ResourceModel("id"));
-//        idLabel.setVisible(actual.getId() != 0);
         profile.add(idLabel);
 
         final AjaxTextFieldPanel id = new AjaxTextFieldPanel(
@@ -114,7 +114,6 @@ public class TaskModalPage extends BaseModalPage {
                 new PropertyModel<String>(taskTO, "id"), false);
 
         id.setEnabled(false);
-//        id.setVisible(actual.getId() != 0);
         profile.add(id);
 
         final List<IColumn> columns = new ArrayList<IColumn>();
@@ -150,10 +149,9 @@ public class TaskModalPage extends BaseModalPage {
                         dialogContent.setDefaultModelObject(
                                 model.getObject().getMessage());
 
-                        target.addComponent(dialogContent);
-
-                        target.appendJavascript("jQuery('#dialog')"
-                                + ".dialog('open')");
+                        target.add(dialogContent);
+                        target.appendJavaScript(
+                                "jQuery('#dialog').dialog('open')");
                     }
                 };
 
@@ -203,8 +201,8 @@ public class TaskModalPage extends BaseModalPage {
                             error(scce.getMessage());
                         }
 
-                        target.addComponent(feedbackPanel);
-                        target.addComponent(executions);
+                        target.add(feedbackPanel);
+                        target.add(executions);
                     }
                 };
 
@@ -237,7 +235,7 @@ public class TaskModalPage extends BaseModalPage {
         public TaskExecutionsProvider(TaskTO taskTO) {
             //Default sorting
             this.taskTO = taskTO;
-            setSort("startDate", true);
+            setSort("startDate", SortOrder.ASCENDING);
             comparator =
                     new SortableDataProviderComparator<TaskExecTO>(this);
         }

@@ -20,18 +20,18 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.wicket.Page;
-import org.apache.wicket.PageParameters;
 import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
-import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
+import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
@@ -55,6 +55,7 @@ import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.search.AttributeCond;
 import org.syncope.client.search.MembershipCond;
@@ -111,11 +112,11 @@ public class Users extends BasePage {
     private PreferenceManager prefMan;
 
     final private int paginatorRows = prefMan.getPaginatorRows(
-            getWebRequestCycle().getWebRequest(),
+            getRequest(),
             Constants.PREF_USERS_PAGINATOR_ROWS);
 
     final private int searchPaginatorRows = prefMan.getPaginatorRows(
-            getWebRequestCycle().getWebRequest(),
+            getRequest(),
             Constants.PREF_USERS_SEARCH_PAGINATOR_ROWS);
 
     protected boolean modalResult = false;
@@ -249,7 +250,6 @@ public class Users extends BasePage {
         editModalWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         editModalWin.setInitialHeight(EDIT_MODAL_WIN_HEIGHT);
         editModalWin.setInitialWidth(EDIT_MODAL_WIN_WIDTH);
-        editModalWin.setPageMapName("user-edit-modal");
         editModalWin.setCookieName("user-edit-modal");
         add(editModalWin);
 
@@ -259,7 +259,6 @@ public class Users extends BasePage {
         displayAttrsModalWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         displayAttrsModalWin.setInitialHeight(DISPLAYATTRS_MODAL_WIN_HEIGHT);
         displayAttrsModalWin.setInitialWidth(DISPLAYATTRS_MODAL_WIN_WIDTH);
-        displayAttrsModalWin.setPageMapName("user-displayAttrs-modal");
         displayAttrsModalWin.setCookieName("user-displayAttrs-modal");
         add(displayAttrsModalWin);
 
@@ -269,7 +268,6 @@ public class Users extends BasePage {
         searchEditModalWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         searchEditModalWin.setInitialHeight(EDIT_MODAL_WIN_HEIGHT);
         searchEditModalWin.setInitialWidth(EDIT_MODAL_WIN_WIDTH);
-        searchEditModalWin.setPageMapName("user-search-edit-modal");
         searchEditModalWin.setCookieName("user-search-edit-modal");
         add(searchEditModalWin);
 
@@ -287,12 +285,12 @@ public class Users extends BasePage {
                 new AjaxFallbackDefaultDataTable<UserTO>("listTable",
                 getColumns(editModalWin), new UserDataProvider(),
                 paginatorRows);
-        if (parameters.getAsBoolean(Constants.PAGEPARAM_CREATE, false)) {
+        if (parameters.get(Constants.PAGEPARAM_CREATE).toBoolean(false)) {
             listTable.setCurrentPage(listTable.getPageCount() - 1);
             parameters.remove(Constants.PAGEPARAM_CREATE);
         } else {
-            listTable.setCurrentPage(parameters.getAsInteger(
-                    listTable.getId() + Constants.PAGEPARAM_CURRENT_PAGE, 0));
+            listTable.setCurrentPage(parameters.get(listTable.getId()
+                    + Constants.PAGEPARAM_CURRENT_PAGE).toInt(0));
         }
         listContainer.add(listTable);
         setWindowClosedReloadCallback(editModalWin, listTable);
@@ -313,7 +311,8 @@ public class Users extends BasePage {
                     @Override
                     public Page createPage() {
                         return new UserModalPage(
-                                Users.this, editModalWin, new UserTO());
+                                Users.this.getPageReference(),
+                                editModalWin, new UserTO());
                     }
                 });
 
@@ -341,7 +340,7 @@ public class Users extends BasePage {
                             @Override
                             public Page createPage() {
                                 return new DisplayAttributesModalPage(
-                                        Users.this,
+                                        Users.this.getPageReference(),
                                         choosableSchemaNames,
                                         displayAttrsModalWin);
                             }
@@ -368,15 +367,15 @@ public class Users extends BasePage {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                prefMan.set(getWebRequestCycle().getWebRequest(),
-                        getWebRequestCycle().getWebResponse(),
+                prefMan.set(getRequest(),
+                        getResponse(),
                         Constants.PREF_USERS_PAGINATOR_ROWS,
                         String.valueOf(rowsChooser.getInput()));
 
-                listTable.setRowsPerPage(
+                listTable.setItemsPerPage(
                         Integer.parseInt(rowsChooser.getInput()));
 
-                target.addComponent(listContainer);
+                target.add(listContainer);
             }
         });
         paginatorForm.add(rowsChooser);
@@ -428,13 +427,18 @@ public class Users extends BasePage {
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target,
-                    final Form form) {
+                    final Form<?> form) {
 
                 SearchConditionWrapper conditionWrapper =
                         new SearchConditionWrapper();
                 conditionWrapper.setOperationType(OperationType.AND);
                 searchConditionList.add(conditionWrapper);
-                target.addComponent(searchFormContainer);
+                target.add(searchFormContainer);
+            }
+
+            @Override
+            protected void onError(AjaxRequestTarget target, Form<?> form) {
+                target.add(searchFormContainer);
             }
         };
         addAndButton.setDefaultFormProcessing(false);
@@ -447,13 +451,18 @@ public class Users extends BasePage {
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target,
-                    final Form form) {
+                    final Form<?> form) {
 
                 SearchConditionWrapper conditionWrapper =
                         new SearchConditionWrapper();
                 conditionWrapper.setOperationType(OperationType.OR);
                 searchConditionList.add(conditionWrapper);
-                target.addComponent(searchFormContainer);
+                target.add(searchFormContainer);
+            }
+
+            @Override
+            protected void onError(AjaxRequestTarget target, Form<?> form) {
+                target.add(searchFormContainer);
             }
         };
         addOrButton.setDefaultFormProcessing(false);
@@ -470,9 +479,9 @@ public class Users extends BasePage {
 
         searchResultTable.setOutputMarkupId(true);
 
-        searchResultTable.setCurrentPage(parameters.getAsInteger(
+        searchResultTable.setCurrentPage(parameters.get(
                 searchResultTable.getId()
-                + Constants.PAGEPARAM_CURRENT_PAGE, 0));
+                + Constants.PAGEPARAM_CURRENT_PAGE).toInt(0));
 
         searchResultContainer.add(searchResultTable);
 
@@ -490,14 +499,14 @@ public class Users extends BasePage {
                         if (modalResult) {
                             info(getString("operation_succeded"));
 
-                            getPage().getPageParameters().put(
+                            getPage().getPageParameters().set(
                                     searchResultTable.getId()
                                     + Constants.PAGEPARAM_CURRENT_PAGE,
                                     searchResultTable.getCurrentPage());
                             setResponsePage(Users.class,
                                     getPage().getPageParameters());
 
-                            target.addComponent(feedbackPanel);
+                            target.add(feedbackPanel);
 
                             modalResult = false;
                         }
@@ -517,14 +526,14 @@ public class Users extends BasePage {
                         searchResultTable);
 
                 Session.get().getFeedbackMessages().clear();
-                target.addComponent(searchFeedback);
+                target.add(searchFeedback);
             }
 
             @Override
             protected void onError(final AjaxRequestTarget target,
                     final Form form) {
 
-                target.addComponent(searchFeedback);
+                target.add(searchFeedback);
             }
         });
 
@@ -541,14 +550,14 @@ public class Users extends BasePage {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                prefMan.set(getWebRequestCycle().getWebRequest(),
-                        getWebRequestCycle().getWebResponse(),
+                prefMan.set(getRequest(),
+                        getResponse(),
                         Constants.PREF_USERS_SEARCH_PAGINATOR_ROWS,
                         String.valueOf(searchPaginatorRows));
 
-                searchResultTable.setRowsPerPage(searchPaginatorRows);
+                searchResultTable.setItemsPerPage(searchPaginatorRows);
 
-                target.addComponent(searchResultContainer);
+                target.add(searchResultContainer);
             }
         });
         searchPaginatorForm.add(searchRowsChooser);
@@ -566,13 +575,13 @@ public class Users extends BasePage {
                 if (modalResult) {
                     getSession().info(getString("operation_succeded"));
 
-                    getPage().getPageParameters().put(table.getId()
+                    getPage().getPageParameters().set(table.getId()
                             + Constants.PAGEPARAM_CURRENT_PAGE,
                             table.getCurrentPage());
                     setResponsePage(Users.class,
                             getPage().getPageParameters());
 
-                    target.addComponent(feedbackPanel);
+                    target.add(feedbackPanel);
 
                     modalResult = false;
                 }
@@ -587,8 +596,8 @@ public class Users extends BasePage {
                 new ResourceModel("status"), "status", "status"));
         columns.add(new TokenColumn(new ResourceModel("token"), "token"));
 
-        for (String schemaName : prefMan.getList(getWebRequestCycle().
-                getWebRequest(), Constants.PREF_USERS_ATTRIBUTES_VIEW)) {
+        for (String schemaName : prefMan.getList(getRequest(),
+                Constants.PREF_USERS_ATTRIBUTES_VIEW)) {
 
             columns.add(new UserAttrColumn(
                     new Model<String>(schemaName), schemaName));
@@ -624,7 +633,8 @@ public class Users extends BasePage {
                                     @Override
                                     public Page createPage() {
                                         return new UserModalPage(
-                                                Users.this, editModalWin,
+                                                Users.this.getPageReference(),
+                                                editModalWin,
                                                 model.getObject());
                                     }
                                 });
@@ -662,9 +672,9 @@ public class Users extends BasePage {
                         } catch (SyncopeClientCompositeErrorException scce) {
                             error(scce.getMessage());
                         }
-                        target.addComponent(feedbackPanel);
-                        target.addComponent(listContainer);
-                        target.addComponent(searchResultContainer);
+                        target.add(feedbackPanel);
+                        target.add(listContainer);
+                        target.add(searchResultContainer);
                     }
                 });
                 cellItem.add(panel);
@@ -688,7 +698,7 @@ public class Users extends BasePage {
         }
         searchDataProvider.setSearchCond(searchCond);
 
-        target.addComponent(searchResultTable);
+        target.add(searchResultTable);
     }
 
     public void setModalResult(final boolean modalResult) {
@@ -788,7 +798,7 @@ public class Users extends BasePage {
         public UserDataProvider() {
             super();
             //Default sorting
-            setSort("id", true);
+            setSort("id", SortOrder.ASCENDING);
             comparator = new SortableUserProviderComparator(this);
         }
 
@@ -822,7 +832,7 @@ public class Users extends BasePage {
         public UserSearchDataProvider() {
             super();
             //Default sorting
-            setSort("id", true);
+            setSort("id", SortOrder.ASCENDING);
             comparator = new SortableUserProviderComparator(this);
         }
 
@@ -1092,8 +1102,8 @@ public class Users extends BasePage {
                                     searchCondition.getFilterType()
                                     == FilterType.ATTRIBUTE
                                     ? schemaNames : roleNames);
-                            target.addComponent(filterNameChooser);
-                            target.addComponent(searchFormContainer);
+                            target.add(filterNameChooser);
+                            target.add(searchFormContainer);
                         }
                     });
 
@@ -1108,13 +1118,18 @@ public class Users extends BasePage {
                         -4804368561204623354L;
 
                 @Override
-                protected void onSubmit(
-                        final AjaxRequestTarget target,
-                        final Form form) {
+                protected void onSubmit(final AjaxRequestTarget target,
+                        final Form<?> form) {
 
                     getList().remove(
                             Integer.valueOf(getParent().getId()).intValue());
-                    target.addComponent(searchFormContainer);
+                    target.add(searchFormContainer);
+                }
+
+                @Override
+                protected void onError(AjaxRequestTarget target,
+                        final Form<?> form) {
+                    target.add(searchFormContainer);
                 }
             };
 

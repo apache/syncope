@@ -74,10 +74,10 @@ public class UserTestITCase extends AbstractTest {
 
         assertEquals("testUsername",
                 selenium.getAttribute(
-                "//form/div[2]/div/div/span/div[2]/div[2]/span/input@value"));
+                "//form/div[2]/div/div/span/div[3]/div[2]/span/input@value"));
         assertEquals("Doe",
                 selenium.getAttribute(
-                "//form/div[2]/div/div/span/div[6]/div[2]/span/input@value"));
+                "//form/div[2]/div/div/span/div[7]/div[2]/span/input@value"));
         selenium.click("//div[@id='tabs']/ul/li[2]/a/span");
         selenium.click("//div[@id='tabs']/ul/li[3]/a/span");
         selenium.click("//div[@id='tabs']/ul/li[4]/a/span");
@@ -109,11 +109,10 @@ public class UserTestITCase extends AbstractTest {
         assertTrue(selenium.getConfirmation().matches(
                 "^Do you really want to delete the selected item[\\s\\S]$"));
         try {
-            Thread.sleep(1000);
+            Thread.sleep(2000);
         } catch (InterruptedException e) {
         }
-        assertTrue(
-                selenium.isTextPresent("NotFound [Workflow action 'delete']]"));
-
+        assertTrue(selenium.isTextPresent(
+                "Propagation [ws-target-resource-delete]"));
     }
 }

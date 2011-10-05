@@ -15,42 +15,29 @@
 package org.syncope.console;
 
 import org.apache.wicket.Page;
-import org.apache.wicket.PageParameters;
-import org.apache.wicket.Response;
 import org.apache.wicket.authorization.UnauthorizedInstantiationException;
 import org.apache.wicket.markup.html.pages.ExceptionErrorPage;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.protocol.http.PageExpiredException;
-import org.apache.wicket.protocol.http.WebApplication;
-import org.apache.wicket.protocol.http.WebRequest;
-import org.apache.wicket.protocol.http.WebRequestCycle;
+import org.apache.wicket.request.IRequestHandler;
+import org.apache.wicket.request.cycle.AbstractRequestCycleListener;
+import org.apache.wicket.request.cycle.RequestCycle;
+import org.apache.wicket.request.handler.ComponentRenderingRequestHandler;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.syncope.console.pages.ErrorPage;
 
-/**
- * SyncopeRequestCycle.
- */
-public class SyncopeRequestCycle extends WebRequestCycle {
+public class SyncopeRequestCycleListener extends AbstractRequestCycleListener {
 
     /**
-     * SyncopeRequestCycle constructor.
-     *
-     * @param application the web application
-     * @param request the web request
-     * @param response the web response
+     * {@inheritDoc}
      */
-    public SyncopeRequestCycle(final WebApplication application,
-            final WebRequest request, final Response response) {
-
-        super(application, request, response);
-    }
-
     @Override
-    public final Page onRuntimeException(final Page cause,
-            final RuntimeException e) {
+    public IRequestHandler onException(final RequestCycle cycle,
+            final Exception e) {
 
-        Page errorPage;
+        final Page errorPage;
         PageParameters errorParameters = new PageParameters();
         errorParameters.add("errorTitle",
                 new StringResourceModel("alert", null).getString());
@@ -67,7 +54,7 @@ public class SyncopeRequestCycle extends WebRequestCycle {
 
             errorPage = new ErrorPage(errorParameters);
         } else if (e instanceof PageExpiredException
-                || !((SyncopeSession) getSession()).isAuthenticated()) {
+                || !(SyncopeSession.get()).isAuthenticated()) {
 
             errorParameters.add("errorMessage",
                     new StringResourceModel("pageExpiredException", null).
@@ -84,9 +71,9 @@ public class SyncopeRequestCycle extends WebRequestCycle {
             errorPage = new ErrorPage(errorParameters);
         } else {
             // redirect to default Wicket error page
-            errorPage = new ExceptionErrorPage(e, cause);
+            errorPage = new ExceptionErrorPage(e, null);
         }
 
-        return errorPage;
+        return new ComponentRenderingRequestHandler(errorPage);
     }
 }

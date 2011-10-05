@@ -16,7 +16,6 @@
  */
 package org.syncope.console.pages;
 
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.TextField;
 import org.syncope.client.to.TaskTO;
 
@@ -25,18 +24,7 @@ import org.syncope.client.to.TaskTO;
  */
 public class PTaskModalPage extends TaskModalPage {
 
-    /**
-     *
-     * @param basePage base
-     * @param modalWindow modal window
-     * @param connectorTO
-     * @param create : set to true only if a CREATE operation is required
-     */
-    public PTaskModalPage(
-            final BasePage basePage,
-            final ModalWindow window,
-            final TaskTO taskTO) {
-
+    public PTaskModalPage(final TaskTO taskTO) {
         super(taskTO);
 
         final TextField accountId = new TextField("accountId");

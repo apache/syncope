@@ -18,15 +18,17 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
+import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
@@ -41,7 +43,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.protocol.http.WebResponse;
+import org.apache.wicket.request.http.WebResponse;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +54,6 @@ import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.PreferenceManager;
 import org.syncope.console.commons.SortableDataProviderComparator;
 import org.syncope.console.commons.XMLRolesReader;
-import org.syncope.console.pages.BasePage;
 import org.syncope.console.pages.PTaskModalPage;
 import org.syncope.console.rest.TaskRestClient;
 import org.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
@@ -123,8 +124,8 @@ public class PropagationTasks extends Panel {
                 "propagationMode", "propagationMode"));
 
         columns.add(new PropertyColumn(
-                new ResourceModel("resourceOperationType"),
-                "resourceOperationType", "resourceOperationType"));
+                new ResourceModel("propagationOperation"),
+                "propagationOperation", "propagationOperation"));
 
         columns.add(new AbstractColumn<TaskTO>(new ResourceModel("detail")) {
 
@@ -150,8 +151,7 @@ public class PropagationTasks extends Panel {
 
                             @Override
                             public Page createPage() {
-                                return new PTaskModalPage(
-                                        (BasePage) getPage(), window, taskTO);
+                                return new PTaskModalPage(taskTO);
                             }
                         });
 
@@ -195,8 +195,8 @@ public class PropagationTasks extends Panel {
                             error(scce.getMessage());
                         }
 
-                        target.addComponent(getPage().get("feedback"));
-                        target.addComponent(container);
+                        target.add(getPage().get("feedback"));
+                        target.add(container);
                     }
                 };
 
@@ -238,8 +238,8 @@ public class PropagationTasks extends Panel {
                         } catch (SyncopeClientCompositeErrorException scce) {
                             error(scce.getMessage());
                         }
-                        target.addComponent(container);
-                        target.addComponent(getPage().get("feedback"));
+                        target.add(container);
+                        target.add(getPage().get("feedback"));
                     }
                 };
 
@@ -271,10 +271,10 @@ public class PropagationTasks extends Panel {
 
                     @Override
                     public void onClose(final AjaxRequestTarget target) {
-                        target.addComponent(container);
+                        target.add(container);
                         if (operationResult) {
                             info(getString("operation_succeded"));
-                            target.addComponent(getPage().get("feedback"));
+                            target.add(getPage().get("feedback"));
                             operationResult = false;
                         }
                     }
@@ -283,7 +283,6 @@ public class PropagationTasks extends Panel {
         window.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         window.setInitialHeight(WIN_HEIGHT);
         window.setInitialWidth(WIN_WIDTH);
-        window.setPageMapName("view-task-win");
         window.setCookieName("view-task-win");
 
         Form paginatorForm = new Form("PaginatorForm");
@@ -302,9 +301,9 @@ public class PropagationTasks extends Panel {
                         Constants.PREF_TASKS_PAGINATOR_ROWS,
                         String.valueOf(paginatorRows));
 
-                table.setRowsPerPage(paginatorRows);
+                table.setItemsPerPage(paginatorRows);
 
-                target.addComponent(container);
+                target.add(container);
             }
         });
 
@@ -321,7 +320,7 @@ public class PropagationTasks extends Panel {
         public TasksProvider() {
             super();
             //Default sorting
-            setSort("id", true);
+            setSort("id", SortOrder.ASCENDING);
             comparator = new SortableDataProviderComparator<TaskTO>(this);
         }
 

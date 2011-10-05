@@ -56,7 +56,6 @@ public class RolesPanel extends Panel {
 
         final ModalWindow membershipWin = new ModalWindow("membershipWin");
         membershipWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
-        membershipWin.setPageMapName("create-membership-modal");
         membershipWin.setCookieName("create-membership-modal");
         add(membershipWin);
 
@@ -84,7 +83,7 @@ public class RolesPanel extends Panel {
                         membershipTO = new MembershipTO();
                         membershipTO.setRoleId(roleTO.getId());
 
-                        return new MembershipModalPage(getPage(),
+                        return new MembershipModalPage(
                                 membershipWin, membershipTO, userTO);
                     }
                 });
@@ -122,7 +121,7 @@ public class RolesPanel extends Panel {
                                     public Page createPage() {
                                         MembershipModalPage window =
                                                 new MembershipModalPage(
-                                                getPage(), membershipWin,
+                                                membershipWin,
                                                 membershipTO,
                                                 userTO);
 
@@ -141,7 +140,7 @@ public class RolesPanel extends Panel {
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
                         userTO.removeMembership(membershipTO);
-                        target.addComponent(membershipsContainer);
+                        target.add(membershipsContainer);
                     }
                 };
                 item.add(deleteLink);
@@ -180,7 +179,7 @@ public class RolesPanel extends Panel {
 
                     @Override
                     public void onClose(final AjaxRequestTarget target) {
-                        target.addComponent(container);
+                        target.add(container);
                     }
                 });
     }

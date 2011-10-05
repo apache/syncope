@@ -18,15 +18,17 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
+import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
@@ -40,7 +42,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.protocol.http.WebResponse;
+import org.apache.wicket.request.http.WebResponse;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,12 +51,12 @@ import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.PreferenceManager;
 import org.syncope.console.commons.SortableDataProviderComparator;
+import org.syncope.console.commons.XMLRolesReader;
+import org.syncope.console.pages.PasswordPolicyModalPage;
 import org.syncope.console.rest.PolicyRestClient;
 import org.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
 import org.syncope.console.wicket.markup.html.form.DeleteLinkPanel;
 import org.syncope.console.wicket.markup.html.form.EditLinkPanel;
-import org.syncope.console.commons.XMLRolesReader;
-import org.syncope.console.pages.PasswordPolicyModalPage;
 
 public class PasswordPoliciesPanel extends Panel {
 
@@ -93,7 +95,6 @@ public class PasswordPoliciesPanel extends Panel {
         mwindow.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         mwindow.setInitialHeight(MODAL_WIN_HEIGHT);
         mwindow.setInitialWidth(MODAL_WIN_WIDTH);
-        mwindow.setPageMapName("policy-modal");
         mwindow.setCookieName("policy-modal");
         add(mwindow);
 
@@ -145,9 +146,7 @@ public class PasswordPoliciesPanel extends Panel {
                             public Page createPage() {
                                 final PasswordPolicyModalPage page =
                                         new PasswordPolicyModalPage(
-                                        PasswordPoliciesPanel.this,
-                                        mwindow,
-                                        passwordPolicyTO);
+                                        mwindow, passwordPolicyTO);
                                 return page;
                             }
                         });
@@ -203,8 +202,8 @@ public class PasswordPoliciesPanel extends Panel {
                                     e);
                         }
 
-                        target.addComponent(container);
-                        target.addComponent(getPage().get("feedback"));
+                        target.add(container);
+                        target.add(getPage().get("feedback"));
                     }
                 };
 
@@ -233,7 +232,7 @@ public class PasswordPoliciesPanel extends Panel {
                             -7978723352517770644L;
 
                     @Override
-                    public void onClick(AjaxRequestTarget target) {
+                    public void onClick(final AjaxRequestTarget target) {
 
                         mwindow.setPageCreator(new ModalWindow.PageCreator() {
 
@@ -244,9 +243,7 @@ public class PasswordPoliciesPanel extends Panel {
                             public Page createPage() {
                                 final PasswordPolicyModalPage page =
                                         new PasswordPolicyModalPage(
-                                        PasswordPoliciesPanel.this,
-                                        mwindow,
-                                        new PasswordPolicyTO());
+                                        mwindow, new PasswordPolicyTO());
                                 return page;
                             }
                         });
@@ -276,9 +273,9 @@ public class PasswordPoliciesPanel extends Panel {
                 prefMan.set(getWebRequest(), (WebResponse) getResponse(),
                         Constants.PREF_POLICY_PAGINATOR_ROWS,
                         String.valueOf(paginatorRows));
-                table.setRowsPerPage(paginatorRows);
+                table.setItemsPerPage(paginatorRows);
 
-                target.addComponent(container);
+                target.add(container);
             }
         });
 
@@ -303,7 +300,7 @@ public class PasswordPoliciesPanel extends Panel {
 
                     @Override
                     public void onClose(AjaxRequestTarget target) {
-                        target.addComponent(container);
+                        target.add(container);
                     }
                 });
     }
@@ -319,7 +316,7 @@ public class PasswordPoliciesPanel extends Panel {
             super();
 
             //Default sorting
-            setSort("description", true);
+            setSort("description", SortOrder.ASCENDING);
 
             comparator =
                     new SortableDataProviderComparator<PasswordPolicyTO>(this);

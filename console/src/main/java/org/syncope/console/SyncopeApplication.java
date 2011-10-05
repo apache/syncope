@@ -16,22 +16,19 @@ package org.syncope.console;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
-import org.apache.wicket.Request;
-import org.apache.wicket.RequestCycle;
-import org.apache.wicket.Response;
 import org.apache.wicket.RestartResponseAtInterceptPageException;
 import org.apache.wicket.Session;
 import org.apache.wicket.authorization.IUnauthorizedComponentInstantiationListener;
 import org.apache.wicket.authorization.UnauthorizedInstantiationException;
-import org.apache.wicket.authorization.strategies.role.IRoleCheckingStrategy;
-import org.apache.wicket.authorization.strategies.role.RoleAuthorizationStrategy;
-import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.authroles.authorization.strategies.role.IRoleCheckingStrategy;
+import org.apache.wicket.authroles.authorization.strategies.role.RoleAuthorizationStrategy;
+import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.protocol.http.WebApplication;
-import org.apache.wicket.protocol.http.WebRequest;
-import org.apache.wicket.protocol.http.WebResponse;
+import org.apache.wicket.request.Request;
+import org.apache.wicket.request.Response;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
 import org.syncope.console.commons.XMLRolesReader;
 import org.syncope.console.pages.Configuration;
@@ -55,7 +52,9 @@ public class SyncopeApplication extends WebApplication
 
     @Override
     protected void init() {
-        addComponentInstantiationListener(new SpringComponentInjector(this));
+        getComponentInstantiationListeners().add(
+                new SpringComponentInjector(this));
+
         getResourceSettings().setThrowExceptionOnMissingResource(true);
 
         getSecuritySettings().
@@ -82,6 +81,8 @@ public class SyncopeApplication extends WebApplication
                 "TASK_LIST");
         MetaDataRoleAuthorizationStrategy.authorize(Configuration.class,
                 "CONFIGURATION_LIST");
+
+        getRequestCycleListeners().add(new SyncopeRequestCycleListener());
     }
 
     public void setupNavigationPane(final WebPage page,
@@ -170,14 +171,6 @@ public class SyncopeApplication extends WebApplication
     }
 
     @Override
-    public final RequestCycle newRequestCycle(final Request request,
-            final Response response) {
-
-        return new SyncopeRequestCycle(this, (WebRequest) request,
-                (WebResponse) response);
-    }
-
-    @Override
     public void onUnauthorizedInstantiation(final Component component) {
         SyncopeSession.get().invalidate();
 
@@ -190,7 +183,7 @@ public class SyncopeApplication extends WebApplication
 
     @Override
     public boolean hasAnyRole(
-            org.apache.wicket.authorization.strategies.role.Roles roles) {
+            final org.apache.wicket.authroles.authorization.strategies.role.Roles roles) {
 
         return SyncopeSession.get().hasAnyRole(roles);
     }

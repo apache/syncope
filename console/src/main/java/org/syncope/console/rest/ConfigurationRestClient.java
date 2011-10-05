@@ -74,7 +74,7 @@ public class ConfigurationRestClient extends AbstractBaseRestClient {
                 + "configuration/create",
                 configurationTO, ConfigurationTO.class);
 
-        return (configurationTO.equals(newConfigurationTO)) ? true : false;
+        return configurationTO.equals(newConfigurationTO);
     }
 
     /**

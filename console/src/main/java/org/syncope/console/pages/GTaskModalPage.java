@@ -32,24 +32,17 @@ public class GTaskModalPage extends SchedTaskModalPage {
 
     private static final long serialVersionUID = -2501860242590060867L;
 
-    /**
-     *
-     * @param basePage base
-     * @param modalWindow modal window
-     * @param connectorTO
-     * @param create : set to true only if a CREATE operation is required
-     */
     public GTaskModalPage(
-            final BasePage basePage,
             final ModalWindow window,
             final SchedTaskTO taskTO) {
 
-        super(basePage, window, taskTO);
+        super(window, taskTO);
 
         final IModel<List<String>> classNames =
                 new LoadableDetachableModel<List<String>>() {
 
-                    private static final long serialVersionUID = 5275935387613157437L;
+                    private static final long serialVersionUID =
+                            5275935387613157437L;
 
                     @Override
                     protected List<String> load() {

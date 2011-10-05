@@ -245,7 +245,7 @@ public class PolicyBeanPanel extends Panel {
                     panel.setEnabled(false);
                 }
 
-                target.addComponent(panel);
+                target.add(panel);
             }
         });
 

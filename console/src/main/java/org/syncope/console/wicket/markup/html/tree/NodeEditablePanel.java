@@ -15,9 +15,10 @@
 package org.syncope.console.wicket.markup.html.tree;
 
 import org.apache.wicket.Page;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.panel.Fragment;
@@ -29,7 +30,6 @@ import org.slf4j.LoggerFactory;
 import org.syncope.client.to.RoleTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.commons.XMLRolesReader;
-import org.syncope.console.pages.BasePage;
 import org.syncope.console.pages.RoleModalPage;
 import org.syncope.console.pages.Roles;
 import org.syncope.console.rest.RoleRestClient;
@@ -46,6 +46,8 @@ public class NodeEditablePanel extends Panel {
     private static final Logger LOG = LoggerFactory.getLogger(
             NodeEditablePanel.class);
 
+    private static final long serialVersionUID = -7292448006463567909L;
+
     @SpringBean
     private RoleRestClient restClient;
 
@@ -55,7 +57,7 @@ public class NodeEditablePanel extends Panel {
     private Fragment fragment;
 
     public NodeEditablePanel(String id, final Long idRole, IModel inputModel,
-            final ModalWindow window, final BasePage basePage) {
+            final ModalWindow window, final PageReference callerPageRef) {
 
         super(id);
 
@@ -64,15 +66,20 @@ public class NodeEditablePanel extends Panel {
 
         AjaxLink createRoleLink = new IndicatingAjaxLink("createRoleLink") {
 
+            private static final long serialVersionUID = -7978723352517770644L;
+
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 window.setPageCreator(new ModalWindow.PageCreator() {
+
+                    private static final long serialVersionUID =
+                            -7834632442532690940L;
 
                     @Override
                     public Page createPage() {
                         RoleTO roleTO = new RoleTO();
                         roleTO.setParent(idRole);
-                        RoleModalPage form = new RoleModalPage(basePage,
+                        RoleModalPage form = new RoleModalPage(callerPageRef,
                                 window, roleTO, true);
                         return form;
                     }
@@ -93,14 +100,18 @@ public class NodeEditablePanel extends Panel {
             AjaxLink updateRoleLink = new IndicatingAjaxLink("updateRoleLink") {
 
                 @Override
-                public void onClick(AjaxRequestTarget target) {
+                public void onClick(final AjaxRequestTarget target) {
                     window.setPageCreator(new ModalWindow.PageCreator() {
 
+                        private static final long serialVersionUID =
+                                -7834632442532690940L;
+
+                        @Override
                         public Page createPage() {
                             RoleTO roleTO = restClient.readRole(idRole);
                             RoleModalPage form =
-                                    new RoleModalPage(basePage, window, roleTO,
-                                    false);
+                                    new RoleModalPage(callerPageRef, window,
+                                    roleTO, false);
                             return form;
                         }
                     });

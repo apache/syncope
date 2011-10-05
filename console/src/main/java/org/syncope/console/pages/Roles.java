@@ -14,21 +14,21 @@
  */
 package org.syncope.console.pages;
 
-import org.syncope.console.wicket.markup.html.tree.PropertyEditableColumn;
-import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.markup.html.tree.table.ColumnLocation;
+import org.apache.wicket.extensions.markup.html.tree.table.ColumnLocation.Alignment;
+import org.apache.wicket.extensions.markup.html.tree.table.ColumnLocation.Unit;
 import org.apache.wicket.extensions.markup.html.tree.table.IColumn;
 import org.apache.wicket.extensions.markup.html.tree.table.PropertyTreeColumn;
 import org.apache.wicket.extensions.markup.html.tree.table.TreeTable;
-import org.apache.wicket.extensions.markup.html.tree.table.ColumnLocation.Alignment;
-import org.apache.wicket.extensions.markup.html.tree.table.ColumnLocation.Unit;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.tree.AbstractTree;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.console.commons.RoleTreeBuilder;
+import org.syncope.console.wicket.markup.html.tree.PropertyEditableColumn;
 
 /**
  * Roles WebPage.
@@ -61,7 +61,6 @@ public class Roles extends BasePage {
         createRoleWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         createRoleWin.setInitialHeight(WIN_HEIGHT);
         createRoleWin.setInitialWidth(WIN_WIDTH);
-        createRoleWin.setPageMapName("create-role-modal");
         createRoleWin.setCookieName("create-role-modal");
 
         container = new WebMarkupContainer("container");
@@ -76,7 +75,7 @@ public class Roles extends BasePage {
             getString("column2"),
             "userObject.empty",
             createRoleWin,
-            Roles.this)};
+            Roles.this.getPageReference())};
 
         Form form = new Form("form");
         add(form);
@@ -85,7 +84,9 @@ public class Roles extends BasePage {
 
         form.add(tree);
         tree.getTreeState().expandAll();
-        tree.updateTree();
+        if (AjaxRequestTarget.get() != null) {
+            tree.updateTree();
+        }
 
         container.add(tree);
         container.setOutputMarkupId(true);
@@ -97,7 +98,7 @@ public class Roles extends BasePage {
 
                     @Override
                     public void onClose(final AjaxRequestTarget target) {
-                        target.addComponent(container);
+                        target.add(container);
 
                         if (operationResult) {
                             getSession().info(getString("operation_succeded"));

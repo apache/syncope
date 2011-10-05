@@ -20,7 +20,7 @@ import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
@@ -37,7 +37,7 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.protocol.http.WebResponse;
+import org.apache.wicket.request.http.WebResponse;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +46,6 @@ import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.PreferenceManager;
 import org.syncope.console.commons.XMLRolesReader;
-import org.syncope.console.pages.BasePage;
 import org.syncope.console.pages.STaskModalPage;
 import org.syncope.console.pages.Tasks.DatePropertyColumn;
 import org.syncope.console.pages.Tasks.TasksProvider;
@@ -146,8 +145,7 @@ public class SyncTasks extends Panel {
 
                             @Override
                             public Page createPage() {
-                                return new STaskModalPage(
-                                        (BasePage) getPage(), window, taskTO);
+                                return new STaskModalPage(window, taskTO);
                             }
                         });
 
@@ -192,8 +190,8 @@ public class SyncTasks extends Panel {
                             error(scce.getMessage());
                         }
 
-                        target.addComponent(container);
-                        target.addComponent(getPage().get("feedback"));
+                        target.add(container);
+                        target.add(getPage().get("feedback"));
                     }
                 };
 
@@ -236,8 +234,8 @@ public class SyncTasks extends Panel {
                         } catch (SyncopeClientCompositeErrorException scce) {
                             error(scce.getMessage());
                         }
-                        target.addComponent(container);
-                        target.addComponent(getPage().get("feedback"));
+                        target.add(container);
+                        target.add(getPage().get("feedback"));
                     }
                 };
 
@@ -271,10 +269,10 @@ public class SyncTasks extends Panel {
 
                     @Override
                     public void onClose(final AjaxRequestTarget target) {
-                        target.addComponent(container);
+                        target.add(container);
                         if (operationResult) {
                             info(getString("operation_succeded"));
-                            target.addComponent(getPage().get("feedback"));
+                            target.add(getPage().get("feedback"));
                             operationResult = false;
                         }
                     }
@@ -283,7 +281,6 @@ public class SyncTasks extends Panel {
         window.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         window.setInitialHeight(WIN_HEIGHT);
         window.setInitialWidth(WIN_WIDTH);
-        window.setPageMapName("view-task-win");
         window.setCookieName("view-task-win");
 
         Form paginatorForm = new Form("PaginatorForm");
@@ -302,9 +299,9 @@ public class SyncTasks extends Panel {
                         Constants.PREF_TASKS_PAGINATOR_ROWS,
                         String.valueOf(paginatorRows));
 
-                table.setRowsPerPage(paginatorRows);
+                table.setItemsPerPage(paginatorRows);
 
-                target.addComponent(container);
+                target.add(container);
             }
         });
 
@@ -325,8 +322,7 @@ public class SyncTasks extends Panel {
 
                     @Override
                     public Page createPage() {
-                        return new STaskModalPage((BasePage) getPage(), window,
-                                new SyncTaskTO());
+                        return new STaskModalPage(window, new SyncTaskTO());
                     }
                 });
 

@@ -26,6 +26,8 @@ import org.apache.wicket.model.IModel;
  */
 public abstract class AjaxDecoratedCheckbox extends AjaxCheckBox {
 
+    private static final long serialVersionUID = 7345848589265633002L;
+
     public AjaxDecoratedCheckbox(final String id) {
         this(id, null);
     }
@@ -35,6 +37,7 @@ public abstract class AjaxDecoratedCheckbox extends AjaxCheckBox {
 
         add(new AjaxEventBehavior("onclick") {
 
+            @Override
             protected void onEvent(final AjaxRequestTarget target) {
                 onUpdate(target);
             }

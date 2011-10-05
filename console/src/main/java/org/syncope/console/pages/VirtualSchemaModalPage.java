@@ -16,11 +16,12 @@
  */
 package org.syncope.console.pages;
 
+import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
-import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
@@ -41,7 +42,7 @@ public class VirtualSchemaModalPage extends AbstractSchemaModalPage {
 
     @Override
     public void setSchemaModalPage(
-            final BasePage basePage,
+            final PageReference callerPageRef,
             final ModalWindow window,
             AbstractBaseBean schema,
             final boolean createFlag) {
@@ -77,7 +78,7 @@ public class VirtualSchemaModalPage extends AbstractSchemaModalPage {
                             (VirtualSchemaTO) form.getDefaultModelObject());
                 }
 
-                Schema callerPage = (Schema) basePage;
+                Schema callerPage = (Schema) callerPageRef.getPage();
                 callerPage.setOperationResult(true);
 
                 window.close(target);
@@ -87,7 +88,7 @@ public class VirtualSchemaModalPage extends AbstractSchemaModalPage {
             protected void onError(final AjaxRequestTarget target,
                     final Form form) {
 
-                target.addComponent(feedbackPanel);
+                target.add(feedbackPanel);
             }
         };
 

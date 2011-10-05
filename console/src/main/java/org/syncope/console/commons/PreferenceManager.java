@@ -23,8 +23,10 @@ import java.util.List;
 import java.util.Map;
 import javax.servlet.http.Cookie;
 import org.apache.commons.lang.StringUtils;
-import org.apache.wicket.protocol.http.WebRequest;
-import org.apache.wicket.protocol.http.WebResponse;
+import org.apache.wicket.request.Request;
+import org.apache.wicket.request.Response;
+import org.apache.wicket.request.http.WebRequest;
+import org.apache.wicket.request.http.WebResponse;
 import org.apache.wicket.util.crypt.Base64;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
@@ -71,10 +73,11 @@ public class PreferenceManager {
         return writer.toString();
     }
 
-    public String get(final WebRequest request, final String key) {
+    public String get(final Request request, final String key) {
         String result = null;
 
-        Cookie prefCookie = request.getCookie(Constants.PREFS_COOKIE_NAME);
+        Cookie prefCookie = ((WebRequest) request).getCookie(
+                Constants.PREFS_COOKIE_NAME);
         if (prefCookie != null) {
             Map<String, String> prefs;
             try {
@@ -94,7 +97,7 @@ public class PreferenceManager {
         return result;
     }
 
-    public Integer getPaginatorRows(final WebRequest request,
+    public Integer getPaginatorRows(final Request request,
             final String key) {
 
         Integer result = getPaginatorChoices().get(0);
@@ -111,7 +114,7 @@ public class PreferenceManager {
         return result;
     }
 
-    public List<String> getList(final WebRequest request,
+    public List<String> getList(final Request request,
             final String key) {
 
         List<String> result = new ArrayList<String>();
@@ -129,10 +132,11 @@ public class PreferenceManager {
         return result;
     }
 
-    public void set(final WebRequest request, final WebResponse response,
+    public void set(final Request request, final Response response,
             final String key, final String value) {
 
-        Cookie prefCookie = request.getCookie(Constants.PREFS_COOKIE_NAME);
+        Cookie prefCookie = ((WebRequest) request).getCookie(
+                Constants.PREFS_COOKIE_NAME);
         if (prefCookie == null) {
             prefCookie = new Cookie(Constants.PREFS_COOKIE_NAME, "");
         }
@@ -157,10 +161,10 @@ public class PreferenceManager {
         }
 
         prefCookie.setMaxAge(ONE_YEAR_TIME);
-        response.addCookie(prefCookie);
+        ((WebResponse) response).addCookie(prefCookie);
     }
 
-    public void setList(final WebRequest request, final WebResponse response,
+    public void setList(final Request request, final Response response,
             final String key, final List<String> values) {
 
         set(request, response, key,

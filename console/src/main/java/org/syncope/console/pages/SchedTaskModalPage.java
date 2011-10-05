@@ -19,7 +19,7 @@ package org.syncope.console.pages;
 import java.util.Arrays;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
-import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -45,15 +45,7 @@ public class SchedTaskModalPage extends TaskModalPage {
 
     protected WebMarkupContainer crontab;
 
-    /**
-     *
-     * @param basePage base
-     * @param modalWindow modal window
-     * @param connectorTO
-     * @param create : set to true only if a CREATE operation is required
-     */
     public SchedTaskModalPage(
-            final BasePage basePage,
             final ModalWindow window,
             final SchedTaskTO taskTO) {
 
@@ -84,7 +76,7 @@ public class SchedTaskModalPage extends TaskModalPage {
             private static final long serialVersionUID = -5843424545478691442L;
 
             @Override
-            protected CharSequence getDefaultChoice(Object selected) {
+            protected CharSequence getDefaultChoice(String selected) {
                 return "<option value=\"\">"
                         + getString("chooseForTemplate")
                         + "</option>";
@@ -141,7 +133,7 @@ public class SchedTaskModalPage extends TaskModalPage {
                                 getCronField(cronTemplateChooser, 4));
                         daysOfWeek.setModelObject(
                                 getCronField(cronTemplateChooser, 5));
-                        target.addComponent(crontab);
+                        target.add(crontab);
                     }
                 });
 
@@ -194,7 +186,7 @@ public class SchedTaskModalPage extends TaskModalPage {
 
             @Override
             protected void onError(AjaxRequestTarget target, Form form) {
-                target.addComponent(feedbackPanel);
+                target.add(feedbackPanel);
             }
         };
 

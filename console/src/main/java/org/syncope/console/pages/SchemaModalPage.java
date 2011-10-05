@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -31,7 +32,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.util.string.Strings;
 import org.syncope.client.to.SchemaTO;
-import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.model.ResourceModel;
 import org.syncope.client.AbstractBaseBean;
@@ -53,7 +54,7 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
 
     @Override
     public void setSchemaModalPage(
-            final BasePage basePage,
+            final PageReference callerPageRef,
             final ModalWindow window,
             AbstractBaseBean schemaTO,
             final boolean createFlag) {
@@ -92,7 +93,7 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
                 new AjaxDropDownChoicePanel<SchemaType>(
                 "type", getString("type"),
                 new PropertyModel(schema, "type"), false);
-        type.setChoices(Arrays.asList(SchemaType.Enum.values()));
+        type.setChoices(Arrays.asList(SchemaType.values()));
         type.addRequiredLabel();
 
         final AjaxTextFieldPanel enumerationValues = new AjaxTextFieldPanel(
@@ -126,7 +127,7 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
                     enumerationValues.setModelObject(null);
                 }
 
-                target.addComponent(schemaForm);
+                target.add(schemaForm);
             }
         });
 
@@ -185,7 +186,8 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(AjaxRequestTarget target, Form form) {
+            protected void onSubmit(final AjaxRequestTarget target,
+                    final Form form) {
 
                 SchemaTO schemaTO = (SchemaTO) form.getDefaultModelObject();
 
@@ -194,23 +196,23 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
                     return;
                 }
 
-                LOG.error("aaaaaaaaaaa {}", schemaTO);
-
                 if (createFlag) {
                     restClient.createSchema(kind, schemaTO);
                 } else {
                     restClient.updateSchema(kind, schemaTO);
                 }
 
-                Schema callerPage = (Schema) basePage;
+                Schema callerPage = (Schema) callerPageRef.getPage();
                 callerPage.setOperationResult(true);
 
                 window.close(target);
             }
 
             @Override
-            protected void onError(AjaxRequestTarget target, Form form) {
-                target.addComponent(feedbackPanel);
+            protected void onError(final AjaxRequestTarget target,
+                    final Form form) {
+
+                target.add(feedbackPanel);
             }
         };
 

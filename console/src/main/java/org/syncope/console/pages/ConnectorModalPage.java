@@ -22,10 +22,11 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 
+import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
-import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -71,7 +72,7 @@ public class ConnectorModalPage extends BaseModalPage {
 
     private List<ConnectorCapability> selectedCapabilities;
 
-    public ConnectorModalPage(final Connectors basePage,
+    public ConnectorModalPage(final PageReference callerPageRef,
             final ModalWindow window,
             final ConnInstanceTO connectorTO,
             final boolean createFlag) {
@@ -201,9 +202,9 @@ public class ConnectorModalPage extends BaseModalPage {
                         connectorTO.setConfiguration(
                                 new HashSet<ConnConfProperty>());
 
-                        target.addComponent(propertiesContainer);
-                        target.addComponent(connectorName);
-                        target.addComponent(version);
+                        target.add(propertiesContainer);
+                        target.add(connectorName);
+                        target.add(version);
                     }
                 });
 
@@ -229,44 +230,49 @@ public class ConnectorModalPage extends BaseModalPage {
         bundle.addRequiredLabel();
         bundle.setEnabled(createFlag);
 
-        final ListView<ConnConfProperty> propView = new ListView<ConnConfProperty>(
+        final ListView<ConnConfProperty> propView =
+                new ListView<ConnConfProperty>(
                 "connectorProperties", selectedBundleProperties) {
 
-            private static final long serialVersionUID = 9101744072914090143L;
+                    private static final long serialVersionUID =
+                            9101744072914090143L;
 
-            @Override
-            protected void populateItem(final ListItem<ConnConfProperty> item) {
-                final ConnConfProperty property = item.getModelObject();
+                    @Override
+                    protected void populateItem(
+                            final ListItem<ConnConfProperty> item) {
+                        final ConnConfProperty property = item.getModelObject();
 
-                final Label label = new Label("connPropAttrSchema",
-                        property.getSchema().getDisplayName() == null
-                        || property.getSchema().getDisplayName().isEmpty()
-                        ? property.getSchema().getName()
-                        : property.getSchema().getDisplayName());
+                        final Label label = new Label("connPropAttrSchema",
+                                property.getSchema().getDisplayName() == null
+                                || property.getSchema().getDisplayName().isEmpty()
+                                ? property.getSchema().getName()
+                                : property.getSchema().getDisplayName());
 
-                item.add(label);
+                        item.add(label);
 
-                final FieldPanel field = new AjaxTextFieldPanel(
-                        "connPropAttrValue",
-                        label.getDefaultModelObjectAsString(),
-                        new PropertyModel<String>(property, "value"),
-                        true).setRequired(property.getSchema().isRequired()).
-                        setTitle(property.getSchema().getHelpMessage());
-                if (property.getSchema().isRequired()) {
-                    field.addRequiredLabel();
-                }
+                        final FieldPanel field = new AjaxTextFieldPanel(
+                                "connPropAttrValue",
+                                label.getDefaultModelObjectAsString(),
+                                new PropertyModel<String>(property, "value"),
+                                true).setRequired(property.getSchema().
+                                isRequired()).
+                                setTitle(property.getSchema().getHelpMessage());
+                        if (property.getSchema().isRequired()) {
+                            field.addRequiredLabel();
+                        }
 
-                item.add(field);
+                        item.add(field);
 
-                item.add(new AjaxCheckBoxPanel(
-                        "connPropAttrOverridable",
-                        "Overridable",
-                        new PropertyModel<Boolean>(property, "overridable"),
-                        true).setTitle("Overridable"));
+                        item.add(new AjaxCheckBoxPanel(
+                                "connPropAttrOverridable",
+                                "Overridable",
+                                new PropertyModel<Boolean>(property,
+                                "overridable"),
+                                true).setTitle("Overridable"));
 
-                connectorTO.getConfiguration().add(property);
-            }
-        };
+                        connectorTO.getConfiguration().add(property);
+                    }
+                };
 
         propertiesContainer = new WebMarkupContainer("container");
         propertiesContainer.setOutputMarkupId(true);
@@ -308,12 +314,13 @@ public class ConnectorModalPage extends BaseModalPage {
                         restClient.update(connector);
                     }
 
-                    basePage.setOperationResult(true);
+                    ((Connectors) callerPageRef.getPage()).setOperationResult(
+                            true);
                     window.close(target);
                 } catch (SyncopeClientCompositeErrorException e) {
                     error(getString("error") + ":" + e.getMessage());
-                    basePage.setOperationResult(false);
-
+                    ((Connectors) callerPageRef.getPage()).setOperationResult(
+                            false);
                     LOG.error("While creating or updating connector "
                             + connector);
                 }
@@ -323,7 +330,7 @@ public class ConnectorModalPage extends BaseModalPage {
             protected void onError(final AjaxRequestTarget target,
                     final Form form) {
 
-                target.addComponent(feedbackPanel);
+                target.add(feedbackPanel);
             }
         };
 

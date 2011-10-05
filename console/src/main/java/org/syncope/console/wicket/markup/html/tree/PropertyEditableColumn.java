@@ -19,27 +19,29 @@ import javax.swing.tree.TreeNode;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.markup.html.tree.table.ColumnLocation;
 import org.apache.wicket.extensions.markup.html.tree.table.IRenderable;
 import org.apache.wicket.extensions.markup.html.tree.table.PropertyRenderableColumn;
 import org.apache.wicket.model.PropertyModel;
 import org.syncope.client.to.RoleTO;
-import org.syncope.console.pages.BasePage;
 
 public class PropertyEditableColumn extends PropertyRenderableColumn {
 
+    private static final long serialVersionUID = -6279911884966836754L;
+
     private ModalWindow window = null;
 
-    private BasePage callerPage;
+    private PageReference callerPageRef;
 
     public PropertyEditableColumn(final ColumnLocation location,
             final String header, final String propertyExpression,
-            final ModalWindow window, final BasePage callerPage) {
+            final ModalWindow window, final PageReference callerPageRef) {
 
         super(location, header, propertyExpression);
 
-        this.callerPage = callerPage;
+        this.callerPageRef = callerPageRef;
         this.window = window;
     }
 
@@ -53,14 +55,13 @@ public class PropertyEditableColumn extends PropertyRenderableColumn {
         NodeEditablePanel editablePanel = new NodeEditablePanel(id,
                 roleTO.getId(),
                 new PropertyModel(node, getPropertyExpression()),
-                window,
-                callerPage);
+                window, callerPageRef);
 
         return editablePanel;
     }
 
     @Override
-    public IRenderable newCell(TreeNode node, int level) {
+    public IRenderable newCell(final TreeNode node, final int level) {
         return getTreeTable().getTreeState().isNodeSelected(node)
                 ? null : super.newCell(node, level);
     }

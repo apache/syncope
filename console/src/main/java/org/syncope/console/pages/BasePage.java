@@ -15,12 +15,12 @@
 package org.syncope.console.pages;
 
 import org.apache.wicket.Component;
-import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.IAjaxIndicatorAware;
-import org.apache.wicket.behavior.AbstractBehavior;
+import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +38,8 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
     protected static final Logger LOG = LoggerFactory.getLogger(
             BasePage.class);
 
+    private static final long serialVersionUID = 1571997737305598502L;
+
     @SpringBean
     protected XMLRolesReader xmlRolesReader;
 
@@ -54,7 +56,7 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
 
     /**
      * Constructor that is invoked when page is invoked without a
-     * sessadd(new BookmarkablePageLink("roles", Roles.class));ion.
+     * session.
      *
      * @param PageParameters parameters
      */
@@ -75,7 +77,7 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
         final String kind = getClass().getSimpleName().toLowerCase();
         final Component kindIcon = get(kind);
         if (kindIcon != null) {
-            kindIcon.add(new AbstractBehavior() {
+            kindIcon.add(new Behavior() {
 
                 @Override
                 public void onComponentTag(final Component component,

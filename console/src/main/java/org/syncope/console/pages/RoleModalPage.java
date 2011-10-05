@@ -19,9 +19,10 @@ package org.syncope.console.pages;
 import org.syncope.console.pages.panels.AttributesPanel;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
-import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.markup.html.form.palette.Palette;
@@ -68,13 +69,14 @@ public class RoleModalPage extends BaseModalPage {
     /**
      * Constructor.
      *
-     * @param basePage
+     * @param callerPageRef
      * @param window
      * @param roleTO
      * @param createFlag
      */
-    public RoleModalPage(final BasePage basePage, final ModalWindow window,
-            final RoleTO roleTO, final boolean createFlag) {
+    public RoleModalPage(final PageReference callerPageRef,
+            final ModalWindow window, final RoleTO roleTO,
+            final boolean createFlag) {
 
         super();
 
@@ -173,7 +175,7 @@ public class RoleModalPage extends BaseModalPage {
                             roleRestClient.updateRole(roleMod);
                         }
                     }
-                    ((Roles) basePage).setOperationResult(true);
+                    ((Roles) callerPageRef.getPage()).setOperationResult(true);
 
                     window.close(target);
                 } catch (Exception e) {
@@ -185,7 +187,7 @@ public class RoleModalPage extends BaseModalPage {
             protected void onError(final AjaxRequestTarget target,
                     final Form form) {
 
-                target.addComponent(feedbackPanel);
+                target.add(feedbackPanel);
             }
         };
 

@@ -15,10 +15,9 @@
 package org.syncope.console.pages;
 
 import org.syncope.console.pages.panels.AttributesPanel;
-import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
-import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -33,10 +32,11 @@ import org.syncope.console.pages.panels.VirtualAttributesPanel;
  */
 public class MembershipModalPage extends BaseModalPage {
 
+    private static final long serialVersionUID = -4360802478081432549L;
+
     private AjaxButton submit;
 
     public MembershipModalPage(
-            final Page basePage,
             final ModalWindow window,
             final MembershipTO membershipTO,
             final UserTO userTO) {
@@ -47,16 +47,22 @@ public class MembershipModalPage extends BaseModalPage {
 
         submit = new AjaxButton("submit", new ResourceModel("submit")) {
 
+            private static final long serialVersionUID = -958724007591692537L;
+
             @Override
-            protected void onSubmit(AjaxRequestTarget target, Form form) {
+            protected void onSubmit(final AjaxRequestTarget target,
+                    final Form form) {
+
                 userTO.removeMembership(membershipTO);
                 userTO.addMembership(membershipTO);
                 window.close(target);
             }
 
             @Override
-            protected void onError(AjaxRequestTarget target, Form form) {
-                target.addComponent(feedbackPanel);
+            protected void onError(final AjaxRequestTarget target,
+                    final Form form) {
+
+                target.add(feedbackPanel);
             }
         };
 

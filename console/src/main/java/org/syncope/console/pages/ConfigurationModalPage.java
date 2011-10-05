@@ -16,9 +16,10 @@
  */
 package org.syncope.console.pages;
 
+import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
-import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.Form;
@@ -45,12 +46,12 @@ public class ConfigurationModalPage extends BaseModalPage {
     /**
      * ConfigurationModalPage constructor.
      * 
-     * @param basePage base
-     * @param modalWindow modal-window
+     * @param callPageRef base
+     * @param window
      * @param configurationTO
      * @param createFlag true for CREATE and false for UPDATE operation
      */
-    public ConfigurationModalPage(final BasePage basePage,
+    public ConfigurationModalPage(final PageReference callPageRef,
             final ModalWindow window,
             final ConfigurationTO configurationTO,
             final boolean createFlag) {
@@ -78,7 +79,9 @@ public class ConfigurationModalPage extends BaseModalPage {
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(AjaxRequestTarget target, Form form) {
+            protected void onSubmit(final AjaxRequestTarget target,
+                    final Form form) {
+
                 boolean res = false;
 
                 if (createFlag) {
@@ -88,7 +91,6 @@ public class ConfigurationModalPage extends BaseModalPage {
                     if (!res) {
                         error(getString("error_insert"));
                     }
-
                 } else {
                     res = configurationsRestClient.updateConfiguration(
                             configurationTO);
@@ -96,11 +98,11 @@ public class ConfigurationModalPage extends BaseModalPage {
                     if (!res) {
                         error(getString("error_updating"));
                     }
-
                 }
 
                 if (res) {
-                    Configuration callerPage = (Configuration) basePage;
+                    Configuration callerPage =
+                            (Configuration) callPageRef.getPage();
                     callerPage.setOperationResult(true);
 
                     window.close(target);
@@ -108,8 +110,10 @@ public class ConfigurationModalPage extends BaseModalPage {
             }
 
             @Override
-            protected void onError(AjaxRequestTarget target, Form form) {
-                target.addComponent(feedbackPanel);
+            protected void onError(final AjaxRequestTarget target,
+                    final Form form) {
+
+                target.add(feedbackPanel);
             }
         };
 

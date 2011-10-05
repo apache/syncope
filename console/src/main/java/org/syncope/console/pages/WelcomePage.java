@@ -14,8 +14,8 @@
  */
 package org.syncope.console.pages;
 
-import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.WebPage;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.console.SyncopeApplication;
 import org.syncope.console.commons.XMLRolesReader;

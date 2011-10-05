@@ -50,19 +50,11 @@ public class STaskModalPage extends SchedTaskModalPage {
     @SpringBean
     private ResourceRestClient resourceRestClient;
 
-    /**
-     *
-     * @param basePage base
-     * @param modalWindow modal window
-     * @param connectorTO
-     * @param create : set to true only if a CREATE operation is required
-     */
     public STaskModalPage(
-            final BasePage basePage,
             final ModalWindow window,
             final SyncTaskTO taskTO) {
 
-        super(basePage, window, taskTO);
+        super(window, taskTO);
 
         final IModel<List<String>> allResources =
                 new LoadableDetachableModel<List<String>>() {

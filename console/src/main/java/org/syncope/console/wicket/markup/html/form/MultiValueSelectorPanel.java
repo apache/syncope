@@ -70,7 +70,7 @@ public class MultiValueSelectorPanel<E> extends AbstractFieldPanel {
                         //Drop current component
                         model.getObject().remove(item.getModelObject());
 
-                        target.addComponent(container);
+                        target.add(container);
                     }
                 };
 
@@ -96,7 +96,7 @@ public class MultiValueSelectorPanel<E> extends AbstractFieldPanel {
                             //Add current component
                             model.getObject().add(null);
 
-                            target.addComponent(container);
+                            target.add(container);
                         }
                     };
 

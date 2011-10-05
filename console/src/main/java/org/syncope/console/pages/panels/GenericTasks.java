@@ -16,11 +16,12 @@ package org.syncope.console.pages.panels;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
@@ -37,7 +38,7 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.protocol.http.WebResponse;
+import org.apache.wicket.request.http.WebResponse;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +47,6 @@ import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.PreferenceManager;
 import org.syncope.console.commons.XMLRolesReader;
-import org.syncope.console.pages.BasePage;
 import org.syncope.console.pages.GTaskModalPage;
 import org.syncope.console.pages.Tasks.DatePropertyColumn;
 import org.syncope.console.pages.Tasks.TasksProvider;
@@ -144,8 +144,7 @@ public class GenericTasks extends Panel {
 
                             @Override
                             public Page createPage() {
-                                return new GTaskModalPage(
-                                        (BasePage) getPage(), window, taskTO);
+                                return new GTaskModalPage(window, taskTO);
                             }
                         });
 
@@ -190,8 +189,8 @@ public class GenericTasks extends Panel {
                             error(scce.getMessage());
                         }
 
-                        target.addComponent(getPage().get("feedback"));
-                        target.addComponent(container);
+                        target.add(getPage().get("feedback"));
+                        target.add(container);
                     }
                 };
 
@@ -234,8 +233,8 @@ public class GenericTasks extends Panel {
                         } catch (SyncopeClientCompositeErrorException scce) {
                             error(scce.getMessage());
                         }
-                        target.addComponent(container);
-                        target.addComponent(getPage().get("feedback"));
+                        target.add(container);
+                        target.add(getPage().get("feedback"));
                     }
                 };
 
@@ -264,14 +263,15 @@ public class GenericTasks extends Panel {
         window.setWindowClosedCallback(
                 new ModalWindow.WindowClosedCallback() {
 
-                    private static final long serialVersionUID = 8804221891699487139L;
+                    private static final long serialVersionUID =
+                            8804221891699487139L;
 
                     @Override
                     public void onClose(final AjaxRequestTarget target) {
-                        target.addComponent(container);
+                        target.add(container);
                         if (operationResult) {
                             info(getString("operation_succeded"));
-                            target.addComponent(getPage().get("feedback"));
+                            target.add(getPage().get("feedback"));
                             operationResult = false;
                         }
                     }
@@ -280,7 +280,6 @@ public class GenericTasks extends Panel {
         window.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         window.setInitialHeight(WIN_HEIGHT);
         window.setInitialWidth(WIN_WIDTH);
-        window.setPageMapName("view-task-win");
         window.setCookieName("view-task-win");
 
         Form paginatorForm = new Form("PaginatorForm");
@@ -299,9 +298,9 @@ public class GenericTasks extends Panel {
                         Constants.PREF_TASKS_PAGINATOR_ROWS,
                         String.valueOf(paginatorRows));
 
-                table.setRowsPerPage(paginatorRows);
+                table.setItemsPerPage(paginatorRows);
 
-                target.addComponent(container);
+                target.add(container);
             }
         });
 
@@ -322,8 +321,7 @@ public class GenericTasks extends Panel {
 
                     @Override
                     public Page createPage() {
-                        return new GTaskModalPage((BasePage) getPage(), window,
-                                new SchedTaskTO());
+                        return new GTaskModalPage(window, new SchedTaskTO());
                     }
                 });
 

@@ -69,7 +69,8 @@ public class VirtualAttributesPanel extends Panel {
         final IModel<List<String>> virtualSchemaNames =
                 new LoadableDetachableModel<List<String>>() {
 
-                    private static final long serialVersionUID = 5275935387613157437L;
+                    private static final long serialVersionUID =
+                            5275935387613157437L;
 
                     @Override
                     protected List<String> load() {
@@ -99,10 +100,17 @@ public class VirtualAttributesPanel extends Panel {
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target,
-                    final Form form) {
+                    final Form<?> form) {
 
                 entityTO.addVirtualAttribute(new AttributeTO());
-                target.addComponent(attributesContainer);
+                target.add(attributesContainer);
+            }
+
+            @Override
+            protected void onError(final AjaxRequestTarget target,
+                    final Form<?> form) {
+
+                target.add(attributesContainer);
             }
         };
 
@@ -128,7 +136,7 @@ public class VirtualAttributesPanel extends Panel {
                     @Override
                     protected void onUpdate(final AjaxRequestTarget target) {
                         entityTO.removeVirtualAttribute(attributeTO);
-                        target.addComponent(attributesContainer);
+                        target.add(attributesContainer);
                     }
 
                     @Override

@@ -17,19 +17,19 @@
 package org.syncope.console.pages;
 
 import java.util.ArrayList;
-import org.syncope.console.pages.panels.AttributesPanel;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.apache.wicket.Component;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
-import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
-import org.apache.wicket.behavior.AbstractBehavior;
+import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.ComponentTag;
-import org.apache.wicket.markup.html.WebMarkupContainerWithAssociatedMarkup;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.PasswordTextField;
@@ -44,11 +44,12 @@ import org.syncope.client.to.MembershipTO;
 import org.syncope.client.to.UserTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.commons.Constants;
-import org.syncope.console.rest.UserRestClient;
+import org.syncope.console.pages.panels.AttributesPanel;
 import org.syncope.console.pages.panels.DerivedAttributesPanel;
 import org.syncope.console.pages.panels.ResourcesPanel;
 import org.syncope.console.pages.panels.RolesPanel;
 import org.syncope.console.pages.panels.VirtualAttributesPanel;
+import org.syncope.console.rest.UserRestClient;
 
 /**
  * Modal window with User form.
@@ -64,10 +65,8 @@ public class UserModalPage extends BaseModalPage {
 
     private UserMod userMod;
 
-    public UserModalPage(
-            final Users basePage,
-            final ModalWindow window,
-            final UserTO userTO) {
+    public UserModalPage(final PageReference callerPageRef,
+            final ModalWindow window, final UserTO userTO) {
 
         super();
 
@@ -91,9 +90,9 @@ public class UserModalPage extends BaseModalPage {
         password.setResetPassword(true);
         form.add(password);
 
-        final WebMarkupContainerWithAssociatedMarkup mandatoryPassword =
-                new WebMarkupContainerWithAssociatedMarkup("mandatory_pwd");
-        mandatoryPassword.add(new AbstractBehavior() {
+        final WebMarkupContainer mandatoryPassword =
+                new WebMarkupContainer("mandatory_pwd");
+        mandatoryPassword.add(new Behavior() {
 
             private static final long serialVersionUID = 1469628524240283489L;
 
@@ -158,8 +157,8 @@ public class UserModalPage extends BaseModalPage {
                         }
                     }
 
-                    basePage.setModalResult(true);
-                    basePage.getPageParameters().put(
+                    ((Users) callerPageRef.getPage()).setModalResult(true);
+                    ((Users) callerPageRef.getPage()).getPageParameters().set(
                             Constants.PAGEPARAM_CREATE, userTO.getId() == 0);
                     window.close(target);
                 } catch (SyncopeClientCompositeErrorException e) {
@@ -170,7 +169,7 @@ public class UserModalPage extends BaseModalPage {
 
             @Override
             protected void onError(AjaxRequestTarget target, Form form) {
-                target.addComponent(feedbackPanel);
+                target.add(feedbackPanel);
             }
         };
 
@@ -346,7 +345,8 @@ public class UserModalPage extends BaseModalPage {
         for (AttributeTO oldAttribute : oldUser.getAttributes()) {
             if (attributeTO.getSchema().equals(oldAttribute.getSchema())) {
 
-                if (!attributeTO.equals(oldAttribute) && !oldAttribute.isReadonly()) {
+                if (!attributeTO.equals(oldAttribute) && !oldAttribute.
+                        isReadonly()) {
 
                     if (attributeTO.getValues().size() > 1) {
                         attributeMod.setValuesToBeAdded(

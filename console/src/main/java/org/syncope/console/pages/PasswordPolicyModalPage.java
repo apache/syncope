@@ -19,7 +19,6 @@ package org.syncope.console.pages;
 import java.util.Arrays;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
-import org.syncope.console.pages.panels.PasswordPoliciesPanel;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.PropertyModel;
@@ -44,9 +43,7 @@ public class PasswordPolicyModalPage extends BaseModalPage {
     @SpringBean
     private PolicyRestClient policyRestClient;
 
-    public PasswordPolicyModalPage(
-            final PasswordPoliciesPanel basePage,
-            final ModalWindow window,
+    public PasswordPolicyModalPage(final ModalWindow window,
             final PasswordPolicyTO policyTO) {
 
         super();
@@ -117,13 +114,13 @@ public class PasswordPolicyModalPage extends BaseModalPage {
                     LOG.error("While creating policy", e);
 
                     error(getString("operation_error"));
-                    target.addComponent(getPage().get("feedback"));
+                    target.add(getPage().get("feedback"));
                 }
             }
 
             @Override
             protected void onError(AjaxRequestTarget target, Form form) {
-                target.addComponent(getPage().get("feedback"));
+                target.add(getPage().get("feedback"));
             }
         };
 

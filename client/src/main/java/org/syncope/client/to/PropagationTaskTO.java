@@ -70,9 +70,9 @@ public class PropagationTaskTO extends TaskTO {
     }
 
     public void setPropagationOperation(
-            PropagationOperation resourceOperationType) {
+            PropagationOperation propagationOperation) {
 
-        this.propagationOperation = resourceOperationType;
+        this.propagationOperation = propagationOperation;
     }
 
     public String getXmlAttributes() {

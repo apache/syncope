@@ -14,9 +14,6 @@
  */
 package org.syncope.console.pages;
 
-import org.syncope.console.pages.panels.PropagationTasks;
-import org.syncope.console.pages.panels.SyncTasks;
-import org.syncope.console.pages.panels.GenericTasks;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,8 +21,8 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.wicket.PageParameters;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
+import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.basic.Label;
@@ -33,14 +30,18 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.util.convert.converters.DateConverter;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.util.convert.converter.DateConverter;
 import org.syncope.client.to.SchedTaskTO;
 import org.syncope.client.to.TaskExecTO;
 import org.syncope.client.to.TaskTO;
 import org.syncope.console.SyncopeSession;
 import org.syncope.console.commons.Constants;
-import org.syncope.console.commons.SortableDataProviderComparator;
 import org.syncope.console.commons.SelectOption;
+import org.syncope.console.commons.SortableDataProviderComparator;
+import org.syncope.console.pages.panels.GenericTasks;
+import org.syncope.console.pages.panels.PropagationTasks;
+import org.syncope.console.pages.panels.SyncTasks;
 import org.syncope.console.rest.TaskRestClient;
 
 public class Tasks extends BasePage {
@@ -82,7 +83,7 @@ public class Tasks extends BasePage {
 
             //Default sorting
             this.taskTO = taskTO;
-            setSort("startDate", true);
+            setSort("startDate", SortOrder.ASCENDING);
             comparator = new SortableDataProviderComparator<TaskExecTO>(this);
         }
 
@@ -185,7 +186,7 @@ public class Tasks extends BasePage {
             super();
 
             //Default sorting
-            setSort("id", true);
+            setSort("id", SortOrder.ASCENDING);
             comparator = new SortableDataProviderComparator<T>(this);
             this.paginatorRows = paginatorRows;
             this.restClient = restClient;
@@ -234,8 +235,8 @@ public class Tasks extends BasePage {
         }
 
         @Override
-        public IModel<SchedTaskTO> model(final SchedTaskTO object) {
-            return new CompoundPropertyModel<SchedTaskTO>(object);
+        public IModel<T> model(final T object) {
+            return new CompoundPropertyModel<T>(object);
         }
     }
 }

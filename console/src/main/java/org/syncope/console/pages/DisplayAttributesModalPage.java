@@ -17,6 +17,7 @@
 package org.syncope.console.pages;
 
 import java.util.List;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
@@ -40,7 +41,7 @@ public class DisplayAttributesModalPage extends BaseModalPage {
 
     private final List<String> selectedSchemas;
 
-    public DisplayAttributesModalPage(final Users basePage,
+    public DisplayAttributesModalPage(final PageReference callerPageRef,
             final IModel<List<String>> schemaNames,
             final ModalWindow window) {
 
@@ -48,7 +49,7 @@ public class DisplayAttributesModalPage extends BaseModalPage {
 
         Form userAttributesForm = new Form("UserAttributesForm");
         userAttributesForm.setModel(new CompoundPropertyModel(this));
-        selectedSchemas = prefMan.getList(getWebRequestCycle().getWebRequest(),
+        selectedSchemas = prefMan.getList(getRequest(),
                 Constants.PREF_USERS_ATTRIBUTES_VIEW);
 
         userAttributesForm.add(new CheckBoxMultipleChoice("schemaNames",
@@ -61,13 +62,16 @@ public class DisplayAttributesModalPage extends BaseModalPage {
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target,
-                    final Form form) {
+                    final Form<?> form) {
 
-                prefMan.setList(getWebRequest(),
-                        getWebRequestCycle().getWebResponse(),
+                prefMan.setList(getRequest(), getResponse(),
                         Constants.PREF_USERS_ATTRIBUTES_VIEW, selectedSchemas);
-                basePage.setModalResult(true);
+                ((Users) callerPageRef.getPage()).setModalResult(true);
                 window.close(target);
+            }
+
+            @Override
+            protected void onError(AjaxRequestTarget target, Form<?> form) {
             }
         };
         userAttributesForm.add(submit);

@@ -19,15 +19,15 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.wicket.Page;
-import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
+import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
@@ -40,6 +40,7 @@ import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.to.ResourceTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
@@ -90,8 +91,7 @@ public class Resources extends BasePage {
 
         add(feedbackPanel);
 
-        paginatorRows = prefMan.getPaginatorRows(
-                getWebRequestCycle().getWebRequest(),
+        paginatorRows = prefMan.getPaginatorRows(getRequest(),
                 Constants.PREF_RESOURCES_PAGINATOR_ROWS);
 
         List<IColumn> columns = new ArrayList<IColumn>();
@@ -126,9 +126,8 @@ public class Resources extends BasePage {
                             @Override
                             public Page createPage() {
                                 ResourceModalPage form = new ResourceModalPage(
-                                        Resources.this,
-                                        mwindow,
-                                        resourceTO, false);
+                                        Resources.this.getPageReference(),
+                                        mwindow, resourceTO, false);
                                 return form;
                             }
                         });
@@ -180,8 +179,8 @@ public class Resources extends BasePage {
                                     + resourceTO.getName(), e);
                         }
 
-                        target.addComponent(feedbackPanel);
-                        target.addComponent(container);
+                        target.add(feedbackPanel);
+                        target.add(container);
                     }
                 };
 
@@ -214,13 +213,11 @@ public class Resources extends BasePage {
         createResourceWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         createResourceWin.setInitialHeight(WIN_HEIGHT);
         createResourceWin.setInitialWidth(WIN_WIDTH);
-        createResourceWin.setPageMapName("create-res-modal");
         createResourceWin.setCookieName("create-res-modal");
 
         mwindow.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         mwindow.setInitialHeight(WIN_HEIGHT);
         mwindow.setInitialWidth(WIN_WIDTH);
-        mwindow.setPageMapName("edit-res-modal");
         mwindow.setCookieName("edit-res-modal");
 
         add(new IndicatingAjaxLink("createResourceLink") {
@@ -238,7 +235,7 @@ public class Resources extends BasePage {
                     @Override
                     public Page createPage() {
                         final ResourceModalPage windows = new ResourceModalPage(
-                                Resources.this, mwindow,
+                                Resources.this.getPageReference(), mwindow,
                                 new ResourceTO(), true);
                         return windows;
                     }
@@ -260,13 +257,12 @@ public class Resources extends BasePage {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                prefMan.set(getWebRequestCycle().getWebRequest(),
-                        getWebRequestCycle().getWebResponse(),
+                prefMan.set(getRequest(), getResponse(),
                         Constants.PREF_RESOURCES_PAGINATOR_ROWS,
                         String.valueOf(paginatorRows));
 
-                table.setRowsPerPage(paginatorRows);
-                target.addComponent(container);
+                table.setItemsPerPage(paginatorRows);
+                target.add(container);
             }
         });
 
@@ -290,10 +286,10 @@ public class Resources extends BasePage {
 
                     @Override
                     public void onClose(AjaxRequestTarget target) {
-                        target.addComponent(container);
+                        target.add(container);
                         if (operationResult) {
                             info(getString("operation_succeded"));
-                            target.addComponent(feedbackPanel);
+                            target.add(feedbackPanel);
                             operationResult = false;
                         }
                     }
@@ -312,7 +308,7 @@ public class Resources extends BasePage {
 
         public ResourcesProvider() {
             //Default sorting
-            setSort("name", true);
+            setSort("name", SortOrder.ASCENDING);
             comparator =
                     new SortableDataProviderComparator<ResourceTO>(this);
         }

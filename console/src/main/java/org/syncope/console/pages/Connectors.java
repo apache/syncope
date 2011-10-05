@@ -19,15 +19,15 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.wicket.Page;
-import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
+import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
@@ -40,6 +40,7 @@ import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.to.ConnInstanceTO;
 import org.syncope.client.to.ResourceTO;
@@ -93,7 +94,7 @@ public class Connectors extends BasePage {
         add(editConnectorWin = new ModalWindow("editConnectorWin"));
 
         paginatorRows = prefMan.getPaginatorRows(
-                getWebRequestCycle().getWebRequest(),
+                getRequest(),
                 Constants.PREF_CONNECTORS_PAGINATOR_ROWS);
 
         List<IColumn> columns = new ArrayList<IColumn>();
@@ -143,7 +144,7 @@ public class Connectors extends BasePage {
                                     @Override
                                     public Page createPage() {
                                         return new ConnectorModalPage(
-                                                Connectors.this,
+                                                Connectors.this.getPageReference(),
                                                 editConnectorWin, connectorTO,
                                                 false);
                                     }
@@ -202,8 +203,8 @@ public class Connectors extends BasePage {
                                     + connectorTO.getId(), e);
                         }
 
-                        target.addComponent(container);
-                        target.addComponent(feedbackPanel);
+                        target.add(container);
+                        target.add(feedbackPanel);
                     }
                 };
 
@@ -235,13 +236,11 @@ public class Connectors extends BasePage {
         createConnectorWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         createConnectorWin.setInitialHeight(WIN_HEIGHT);
         createConnectorWin.setInitialWidth(WIN_WIDTH);
-        createConnectorWin.setPageMapName("create-conn-modal");
         createConnectorWin.setCookieName("create-conn-modal");
 
         editConnectorWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         editConnectorWin.setInitialHeight(WIN_HEIGHT);
         editConnectorWin.setInitialWidth(WIN_WIDTH);
-        editConnectorWin.setPageMapName("edit-conn-modal");
         editConnectorWin.setCookieName("edit-conn-modal");
 
         AjaxLink createConnectorLink = new IndicatingAjaxLink(
@@ -260,8 +259,8 @@ public class Connectors extends BasePage {
                     @Override
                     public Page createPage() {
                         ConnectorModalPage form = new ConnectorModalPage(
-                                Connectors.this, editConnectorWin,
-                                new ConnInstanceTO(), true);
+                                Connectors.this.getPageReference(),
+                                editConnectorWin, new ConnInstanceTO(), true);
                         return form;
                     }
                 });
@@ -289,13 +288,13 @@ public class Connectors extends BasePage {
 
             @Override
             protected void onUpdate(AjaxRequestTarget target) {
-                prefMan.set(getWebRequestCycle().getWebRequest(),
-                        getWebRequestCycle().getWebResponse(),
+                prefMan.set(getRequest(),
+                        getResponse(),
                         Constants.PREF_CONNECTORS_PAGINATOR_ROWS,
                         String.valueOf(paginatorRows));
-                table.setRowsPerPage(paginatorRows);
+                table.setItemsPerPage(paginatorRows);
 
-                target.addComponent(container);
+                target.add(container);
             }
         });
 
@@ -304,8 +303,9 @@ public class Connectors extends BasePage {
     }
 
     /**
-     * Check if the delete action is forbidden
-     * @param ConnectorInstanceTO object to check
+     * Check if the delete action is forbidden.
+     *
+     * @param connectorTO object to check
      * @return true if the action is forbidden, false otherwise
      */
     public boolean checkDeleteIsForbidden(ConnInstanceTO connectorTO) {
@@ -337,10 +337,10 @@ public class Connectors extends BasePage {
 
                     @Override
                     public void onClose(AjaxRequestTarget target) {
-                        target.addComponent(container);
+                        target.add(container);
                         if (operationResult) {
                             info(getString("operation_succeded"));
-                            target.addComponent(feedbackPanel);
+                            target.add(feedbackPanel);
                             operationResult = false;
                         }
                     }
@@ -363,7 +363,7 @@ public class Connectors extends BasePage {
 
         public ConnectorsProvider() {
             //Default sorting
-            setSort("id", true);
+            setSort("id", SortOrder.ASCENDING);
             comparator =
                     new SortableDataProviderComparator<ConnInstanceTO>(
                     this);

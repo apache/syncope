@@ -14,10 +14,10 @@
  */
 package org.syncope.console.pages;
 
-import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 
 /**
  * Error WebPage.
@@ -28,9 +28,9 @@ public class ErrorPage extends BasePage {
         super(parameters);
 
         add(new Label("errorTitle", new Model<String>(
-                parameters.getString("errorTitle"))));
+                parameters.get("errorTitle").toString())));
         add(new Label("errorMessage", new Model<String>(
-                parameters.getString("errorMessage"))));
+                parameters.get("errorMessage").toString())));
 
         add(new BookmarkablePageLink("home", getApplication().getHomePage()));
     }

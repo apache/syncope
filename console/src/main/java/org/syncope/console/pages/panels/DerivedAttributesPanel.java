@@ -96,10 +96,17 @@ public class DerivedAttributesPanel extends Panel {
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target,
-                    final Form form) {
+                    final Form<?> form) {
 
                 entityTO.getDerivedAttributes().add(new AttributeTO());
-                target.addComponent(attributesContainer);
+                target.add(attributesContainer);
+            }
+
+            @Override
+            protected void onError(final AjaxRequestTarget target,
+                    final Form<?> form) {
+
+                target.add(attributesContainer);
             }
         };
 
@@ -126,7 +133,7 @@ public class DerivedAttributesPanel extends Panel {
                     @Override
                     protected void onUpdate(final AjaxRequestTarget target) {
                         entityTO.getDerivedAttributes().remove(attributeTO);
-                        target.addComponent(attributesContainer);
+                        target.add(attributesContainer);
                     }
 
                     @Override
@@ -156,16 +163,20 @@ public class DerivedAttributesPanel extends Panel {
                         new PropertyModel<String>(attributeTO, "schema"),
                         derivedSchemaNames);
 
-                schemaChoice.add(new AjaxFormComponentUpdatingBehavior("onblur") {
+                schemaChoice.add(
+                        new AjaxFormComponentUpdatingBehavior("onblur") {
 
-                    private static final long serialVersionUID =
-                            -1107858522700306810L;
+                            private static final long serialVersionUID =
+                                    -1107858522700306810L;
 
-                    @Override
-                    protected void onUpdate(AjaxRequestTarget art) {
-                        attributeTO.setSchema(schemaChoice.getModelObject());
-                    }
-                });
+                            @Override
+                            protected void onUpdate(
+                                    final AjaxRequestTarget art) {
+
+                                attributeTO.setSchema(schemaChoice.
+                                        getModelObject());
+                            }
+                        });
 
                 item.add(schemaChoice.setRequired(true));
 
