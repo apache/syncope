@@ -392,13 +392,6 @@
             <testResource>
                 <directory>../core/src/test/resources</directory>
                 <filtering>true</filtering>
-                <excludes>
-                    <exclude>persistence.properties</exclude>
-                </excludes>
-            </testResource>
-            <testResource>
-                <directory>../core/src/test/resources/dev</directory>
-                <filtering>true</filtering>
             </testResource>
             <testResource>
                 <directory>src/test/resources</directory>

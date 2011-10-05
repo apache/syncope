@@ -620,7 +620,6 @@
                 <directory>src/test/resources</directory>
                 <filtering>true</filtering>
                 <excludes>
-                    <exclude>dev/**</exclude>
                     <exclude>oracle/**</exclude>
                     <exclude>postgres/**</exclude>
                 </excludes>
@@ -652,13 +651,6 @@
                 <testResources>
                     <testResource>
                         <directory>src/test/resources</directory>
-                        <filtering>true</filtering>
-                        <excludes>
-                            <exclude>persistence.properties</exclude>
-                        </excludes>
-                    </testResource>
-                    <testResource>
-                        <directory>src/test/resources/dev</directory>
                         <filtering>true</filtering>
                     </testResource>
                 </testResources>
