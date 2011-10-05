@@ -464,7 +464,7 @@
                 <executions>
                     <execution>
                         <id>startTestDb</id>
-                        <phase>process-test-resources</phase>
+                        <phase>pre-integration-test</phase>
                         <goals>
                             <goal>java</goal>
                         </goals>
@@ -479,6 +479,8 @@
                             <arguments>
                                 <argument>-tcp</argument>    
                                 <argument>-tcpDaemon</argument>
+                                <argument>-web</argument>    
+                                <argument>-webDaemon</argument>
                             </arguments>
                             <systemProperties>
                                 <systemProperty>
@@ -618,6 +620,7 @@
                 <directory>src/test/resources</directory>
                 <filtering>true</filtering>
                 <excludes>
+                    <exclude>dev/**</exclude>
                     <exclude>oracle/**</exclude>
                     <exclude>postgres/**</exclude>
                 </excludes>
@@ -645,6 +648,20 @@
                         </configuration>
                     </plugin>
                 </plugins>
+                
+                <testResources>
+                    <testResource>
+                        <directory>src/test/resources</directory>
+                        <filtering>true</filtering>
+                        <excludes>
+                            <exclude>persistence.properties</exclude>
+                        </excludes>
+                    </testResource>
+                    <testResource>
+                        <directory>src/test/resources/dev</directory>
+                        <filtering>true</filtering>
+                    </testResource>
+                </testResources>
             </build>
         </profile>
         
@@ -676,9 +693,6 @@
                                 <phase>process-test-resources</phase>
                                 <configuration>
                                     <target>
-                                        <copy todir="${project.build.directory}/test-classes" overwrite="true">
-                                            <fileset dir="${basedir}/src/test/resources/oracle"/>
-                                        </copy>
                                         <copy tofile="${project.build.directory}/classes/META-INF/orm.xml"
                                               file="${basedir}/src/main/resources/META-INF/orm.xml.oracle"
                                               overwrite="true"/>
@@ -691,6 +705,20 @@
                         </executions>
                     </plugin>
                 </plugins>
+                
+                <testResources>
+                    <testResource>
+                        <directory>src/test/resources</directory>
+                        <filtering>true</filtering>
+                        <excludes>
+                            <exclude>persistence.properties</exclude>
+                        </excludes>
+                    </testResource>
+                    <testResource>
+                        <directory>src/test/resources/oracle</directory>
+                        <filtering>true</filtering>
+                    </testResource>
+                </testResources>
             </build>
         </profile>
         
@@ -710,30 +738,20 @@
             </dependencies>
             <build>
                 <defaultGoal>clean verify</defaultGoal>
-        
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-antrun-plugin</artifactId>
-                        <inherited>true</inherited>
-                        <executions>
-                            <execution>
-                                <id>set-postgres</id>
-                                <phase>process-test-resources</phase>
-                                <configuration>
-                                    <target>
-                                        <copy todir="${project.build.directory}/test-classes" overwrite="true">
-                                            <fileset dir="${basedir}/src/test/resources/postgres"/>
-                                        </copy>
-                                    </target>
-                                </configuration>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
+
+                <testResources>
+                    <testResource>
+                        <directory>src/test/resources</directory>
+                        <filtering>true</filtering>
+                        <excludes>
+                            <exclude>persistence.properties</exclude>
+                        </excludes>
+                    </testResource>
+                    <testResource>
+                        <directory>src/test/resources/postgres</directory>
+                        <filtering>true</filtering>
+                    </testResource>
+                </testResources>
             </build>
         </profile>
         
@@ -753,30 +771,20 @@
             </dependencies>
             <build>
                 <defaultGoal>clean verify</defaultGoal>
-        
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-antrun-plugin</artifactId>
-                        <inherited>true</inherited>
-                        <executions>
-                            <execution>
-                                <id>set-mysql</id>
-                                <phase>process-test-resources</phase>
-                                <configuration>
-                                    <target>
-                                        <copy todir="${project.build.directory}/test-classes" overwrite="true">
-                                            <fileset dir="${basedir}/src/test/resources/mysql"/>
-                                        </copy>
-                                    </target>
-                                </configuration>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
+
+                <testResources>
+                    <testResource>
+                        <directory>src/test/resources</directory>
+                        <filtering>true</filtering>
+                        <excludes>
+                            <exclude>persistence.properties</exclude>
+                        </excludes>
+                    </testResource>
+                    <testResource>
+                        <directory>src/test/resources/mysql</directory>
+                        <filtering>true</filtering>
+                    </testResource>
+                </testResources>
             </build>
         </profile>
     </profiles>

@@ -218,7 +218,7 @@ public class TaskTestITCase extends AbstractTest {
                 BASE_URL + "user/count.json", Integer.class);
         assertNotNull(usersPost);
 
-        assertTrue("Expected " + usersPre + 10 + ", found " + usersPost,
+        assertTrue("Expected " + (usersPre + 10) + ", found " + usersPost,
                 usersPost == usersPre + 10);
     }
 }
