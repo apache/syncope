@@ -287,3 +287,44 @@ div#attributes-view input {
     padding: 0;
     margin: 0;
 }
+
+.feedbackPanelERROR {
+    color: black;
+    font-weight: bold;
+    margin: 0px;
+    list-style-type: none;
+    background:url("images/ui-bg_highlight-soft_75_cccccc_1x100_red.png") repeat-x scroll 50% 50% #CCCCCC;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border: 1px solid gray;
+    border-radius: 3px;
+    padding: 5px;
+}
+
+.feedbackPanelERROR span {
+    background: url("images/warning.png") no-repeat left;
+    border:0 none;
+    font-size:12px;
+    padding-left: 24px;
+}
+
+.selectedRow {
+    background-color: #eef1f1; /* alternative: LemonChiffon */
+}
+
+/* WICKET DATATABLE HEADERS */
+.headers {
+    border: 1px solid #aaaaaa;
+    background: #cccccc url(images/ui-bg_highlight-soft_75_cccccc_1x100.png)
+        50% 50% repeat-x;
+}
+
+em {
+    font-size: inherit;
+    color: gray;
+}
+
+em img {
+    opacity:0.4;
+    filter:alpha(opacity=40);
+}
