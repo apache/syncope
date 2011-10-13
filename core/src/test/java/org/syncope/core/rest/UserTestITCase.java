@@ -36,6 +36,8 @@ import org.syncope.client.search.AttributeCond;
 import org.syncope.client.to.MembershipTO;
 import org.syncope.client.search.NodeCond;
 import org.syncope.client.search.ResourceCond;
+import org.syncope.client.to.PasswordPolicyTO;
+import org.syncope.client.to.PolicyTO;
 import org.syncope.client.to.PropagationTaskTO;
 import org.syncope.client.to.UserTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
@@ -173,6 +175,55 @@ public class UserTestITCase extends AbstractTest {
 
         assertNotNull(taskTO);
         assertTrue(taskTO.getExecutions().isEmpty());
+    }
+
+    @Test
+    /* This test has been introduced to verify and solve the following issue:
+     * http://code.google.com/p/syncope/issues/detail?id=172.
+     * Creations of a new user without having a global password policy stored
+     * into the local repository used to fail with a null pointer exception.
+     * This bug has been fixed introducing a simple control.
+     */
+    public final void issue172() {
+        PolicyTO policyTO = restTemplate.getForObject(
+                BASE_URL + "policy/read/{id}", PasswordPolicyTO.class, 2L);
+
+        assertNotNull(policyTO);
+
+        restTemplate.delete(BASE_URL + "policy/delete/{id}", 2L);
+
+        UserTO userTO = new UserTO();
+
+        AttributeTO attributeTO = new AttributeTO();
+        attributeTO.setSchema("firstname");
+        attributeTO.addValue("ppp");
+        userTO.addAttribute(attributeTO);
+
+        attributeTO = new AttributeTO();
+        attributeTO.setSchema("surname");
+        attributeTO.addValue("ppp");
+        userTO.addAttribute(attributeTO);
+
+        attributeTO = new AttributeTO();
+        attributeTO.setSchema("userId");
+        attributeTO.addValue("ppp@ppp.ppp");
+        userTO.addAttribute(attributeTO);
+
+        attributeTO = new AttributeTO();
+        attributeTO.setSchema("username");
+        attributeTO.addValue("ppp");
+        userTO.addAttribute(attributeTO);
+
+        userTO.setPassword("password");
+
+        restTemplate.postForObject(
+                BASE_URL + "user/create", userTO, UserTO.class);
+
+        policyTO = restTemplate.postForObject(
+                BASE_URL + "policy/password/create",
+                policyTO, PasswordPolicyTO.class);
+
+        assertNotNull(policyTO);
     }
 
     @Test

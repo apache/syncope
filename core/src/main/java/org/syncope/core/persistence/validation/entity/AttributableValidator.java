@@ -58,24 +58,33 @@ public class AttributableValidator extends AbstractValidator
 
             final Policy policy = policyDAO.getGlobalPasswordPolicy();
 
-            // evaluate policy
-            PasswordPolicy passwordPolicy = evaluator.evaluate(policy, object);
+            if (policy != null) {
+                // evaluate policy
+                PasswordPolicy passwordPolicy =
+                        evaluator.evaluate(policy, object);
 
-            try {
-                final String password =
-                        ((SyncopeUser) object).getClearPassword();
+                try {
+                    // clear password will exist just during creation or
+                    // during password update
+                    final String password =
+                            ((SyncopeUser) object).getClearPassword();
 
-                if (password != null) {
-                    enforcer.enforce(passwordPolicy, policy.getType(), password);
+                    if (password != null) {
+                        // enforcement will be performed only during creation
+                        // or during password update
+                        enforcer.enforce(
+                                passwordPolicy, policy.getType(), password);
+                    }
+
+                } catch (Exception e) {
+                    LOG.debug("Invalid password");
+
+                    context.buildConstraintViolationWithTemplate(
+                            e.getMessage()).addNode(
+                            EntityViolationType.InvalidPassword.toString()).
+                            addConstraintViolation();
+                    isValid = false;
                 }
-
-            } catch (Exception e) {
-                LOG.debug("Invalid password");
-
-                context.buildConstraintViolationWithTemplate(e.getMessage()).
-                        addNode(EntityViolationType.InvalidPassword.toString()).
-                        addConstraintViolation();
-                isValid = false;
             }
             // ------------------------------
         }
