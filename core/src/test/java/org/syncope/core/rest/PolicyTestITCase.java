@@ -114,27 +114,42 @@ public class PolicyTestITCase extends AbstractTest {
 
     @Test
     public final void update() {
-
-        PolicyTO policyTO = restTemplate.getForObject(
+        // get global password
+        PasswordPolicyTO policyTO = restTemplate.getForObject(
                 BASE_URL + "policy/read/{id}", PasswordPolicyTO.class, 2L);
+
+        policyTO.setType(PolicyType.PASSWORD);
+        policyTO.setId(0);
+
+        // create a new password policy using global password as a template
+        policyTO = restTemplate.postForObject(
+                BASE_URL + "policy/password/create",
+                policyTO, PasswordPolicyTO.class);
+
+        // read new password policy
+        policyTO = restTemplate.getForObject(
+                BASE_URL + "policy/read/{id}",
+                PasswordPolicyTO.class, policyTO.getId());
 
         assertNotNull("find to update did not work", policyTO);
 
-        PasswordPolicy policy = ((PasswordPolicyTO) policyTO).getSpecification();
+        PasswordPolicy policy =
+                ((PasswordPolicyTO) policyTO).getSpecification();
         policy.setMaxLength(22);
 
         PasswordPolicyMod policyMod = new PasswordPolicyMod();
         policyMod.setId(policyTO.getId());
-        policyMod.setType(PolicyType.GLOBAL_PASSWORD);
+        policyMod.setType(PolicyType.PASSWORD);
         policyMod.setSpecification(policy);
         policyMod.setDescription(policyTO.getDescription());
 
+        // update new password policy
         policyTO = restTemplate.postForObject(
                 BASE_URL + "policy/password/update",
                 policyMod, PasswordPolicyTO.class);
 
         assertNotNull(policyTO);
-        assertEquals(PolicyType.GLOBAL_PASSWORD, policyTO.getType());
+        assertEquals(PolicyType.PASSWORD, policyTO.getType());
         assertEquals(22,
                 ((PasswordPolicyTO) policyTO).getSpecification().getMaxLength());
         assertEquals(8,

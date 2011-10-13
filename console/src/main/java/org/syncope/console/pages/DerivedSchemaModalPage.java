@@ -62,7 +62,7 @@ public class DerivedSchemaModalPage extends AbstractSchemaModalPage {
 
         final AjaxTextFieldPanel expression = new AjaxTextFieldPanel(
                 "expression", getString("expression"),
-                new PropertyModel<String>(schema, "name"), false);
+                new PropertyModel<String>(schema, "expression"), false);
         expression.addRequiredLabel();
 
         name.setEnabled(createFlag);
