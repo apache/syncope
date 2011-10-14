@@ -178,6 +178,7 @@
                                             <exclude name="**/content.xml" />
                                             <exclude name="**/ehcache.xml" />
                                             <exclude name="**/persistence.properties" />
+                                            <exclude name="**/security.properties" />
                                         </patternset>
                                     </unzip>
                                 </target>
@@ -293,6 +294,8 @@
                         <argument>-tcpDaemon</argument>
                         <argument>-web</argument>
                         <argument>-webDaemon</argument>
+                        <argument>-webPort</argument>
+                        <argument>9082</argument>
                     </arguments>
                     <systemProperties>
                         <systemProperty>
@@ -409,6 +412,7 @@
             </properties>
             <build>
                 <defaultGoal>clean verify cargo:run</defaultGoal>
+                
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>

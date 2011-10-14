@@ -25,10 +25,10 @@
         <property name="databaseSchemaUpdate" value="true" />
         
         <property name="jpaEntityManagerFactory" ref="entityManagerFactory" />
-        <property name="jpaHandleTransaction" value="false" />
+        <property name="jpaHandleTransaction" value="true" />
         <property name="jpaCloseEntityManager" value="false" />
         
-        <property name="jobExecutorActivate" value="false" />
+        <property name="jobExecutorActivate" value="${jobExecutorActivate}" />
     </bean>
   
     <bean id="processEngine" class="org.activiti.spring.ProcessEngineFactoryBean">
@@ -43,4 +43,12 @@
     <bean id="identityService" factory-bean="processEngine" factory-method="getIdentityService" />
     <bean id="formService" factory-bean="processEngine" factory-method="getFormService" />
 
+    <bean id="velocityEngine" class="org.springframework.ui.velocity.VelocityEngineFactoryBean">
+        <property name="velocityProperties">
+            <value>
+          resource.loader=class
+          class.resource.loader.class=org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
+            </value>
+        </property>
+    </bean>
 </beans>

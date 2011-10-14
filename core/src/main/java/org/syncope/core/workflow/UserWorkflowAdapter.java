@@ -39,6 +39,18 @@ public interface UserWorkflowAdapter {
             throws WorkflowException, PropagationException;
 
     /**
+     * Activate an user.
+     *
+     * @param user user to be activated
+     * @param token to be verified for activation
+     * @return user just updated
+     * @throws WorkflowException workflow exception
+     * @throws PropagationException propagation exception
+     */
+    SyncopeUser activate(SyncopeUser user, String token)
+            throws WorkflowException, PropagationException;
+
+    /**
      * Updated an user.
      *
      * @param user user to be updated
@@ -51,6 +63,28 @@ public interface UserWorkflowAdapter {
      */
     SyncopeUser update(SyncopeUser user, UserMod userMod,
             Set<Long> mandatoryRoles, Set<String> mandatoryResources)
+            throws WorkflowException, PropagationException;
+
+    /**
+     * Suspend an user.
+     *
+     * @param user user to be suspended
+     * @return user just suspended
+     * @throws WorkflowException workflow exception
+     * @throws PropagationException propagation exception
+     */
+    SyncopeUser suspend(SyncopeUser user)
+            throws WorkflowException, PropagationException;
+
+    /**
+     * Suspend an user.
+     *
+     * @param user user to be reactivated
+     * @return user just reactivated
+     * @throws WorkflowException workflow exception
+     * @throws PropagationException propagation exception
+     */
+    SyncopeUser reactivate(SyncopeUser user)
             throws WorkflowException, PropagationException;
 
     /**

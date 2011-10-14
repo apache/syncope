@@ -14,6 +14,7 @@
  */
 package org.syncope.core.persistence.propagation;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -26,7 +27,9 @@ import org.syncope.types.PropagationOperation;
  * Utility class for encapsulating operations to be performed on various
  * resources.
  */
-public class PropagationByResource {
+public class PropagationByResource implements Serializable {
+
+    private static final long serialVersionUID = -5699740428104336636L;
 
     /**
      * Resources for creation.

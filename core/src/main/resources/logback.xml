@@ -169,11 +169,6 @@
         <appender-ref ref="rest"/>
     </logger>
 
-    <logger name="org.apache.velocity" additivity="false">
-        <level value="INFO"/>
-        <appender-ref ref="rest"/>
-    </logger>
-
     <logger name="org.hibernate" additivity="false">
         <level value="INFO"/>
         <appender-ref ref="persistence"/>

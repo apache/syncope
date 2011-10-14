@@ -101,7 +101,7 @@ public class SchemaTestITCase extends AbstractTest {
                     + "schema/role/update", updatedTO, SchemaTO.class);
         } catch (SyncopeClientCompositeErrorException scce) {
             syncopeClientException = scce.getException(
-                    SyncopeClientExceptionType.InvalidUpdate);
+                    SyncopeClientExceptionType.InvalidSchema);
         }
         assertNotNull(syncopeClientException);
     }

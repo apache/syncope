@@ -20,8 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import java.util.Map;
-import java.util.Set;
 import javassist.NotFoundException;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
@@ -36,14 +34,10 @@ import org.syncope.client.to.PasswordPolicyTO;
 import org.syncope.client.to.PolicyTO;
 import org.syncope.client.to.SyncPolicyTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.syncope.client.validation.SyncopeClientException;
 import org.syncope.core.persistence.beans.Policy;
 import org.syncope.core.persistence.dao.PolicyDAO;
-import org.syncope.core.persistence.validation.entity.InvalidEntityException;
 import org.syncope.core.rest.data.PolicyDataBinder;
-import org.syncope.types.EntityViolationType;
 import org.syncope.types.PolicyType;
-import org.syncope.types.SyncopeClientExceptionType;
 
 @Controller
 @RequestMapping("/policy")
@@ -95,38 +89,17 @@ public class PolicyController extends AbstractController {
                 new SyncopeClientCompositeErrorException(
                 HttpStatus.BAD_REQUEST);
 
-        try {
+        Policy actual = policyDAO.save(policy);
+        policyTO.setId(actual.getId());
 
-            Policy actual = policyDAO.save(policy);
-            policyTO.setId(actual.getId());
-
-            return policyTO;
-
-        } catch (InvalidEntityException e) {
-            LOG.error("Policy {} cannot be crated", policy);
-
-            SyncopeClientException sce = new SyncopeClientException(
-                    SyncopeClientExceptionType.InvalidPolicy);
-
-            for (Map.Entry<Class, Set<EntityViolationType>> violation :
-                    e.getViolations().entrySet()) {
-
-                for (EntityViolationType violationType : violation.getValue()) {
-                    sce.addElement(violation.getClass().getSimpleName() + ": "
-                            + violationType);
-                }
-            }
-
-            scce.addException(sce);
-            throw scce;
-        }
+        return policyTO;
     }
 
     @PreAuthorize("hasRole('POLICY_UPDATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/password/update")
     public PasswordPolicyTO update(final HttpServletResponse response,
             final @RequestBody PasswordPolicyMod policyMod)
-            throws NotFoundException, SyncopeClientCompositeErrorException {
+            throws NotFoundException {
 
         LOG.debug("Updating policy " + policyMod);
 
@@ -165,7 +138,7 @@ public class PolicyController extends AbstractController {
     }
 
     private Policy update(final Policy policy)
-            throws NotFoundException, SyncopeClientCompositeErrorException {
+            throws NotFoundException {
 
         LOG.debug("Updating policy " + policy.getId());
 
@@ -173,32 +146,7 @@ public class PolicyController extends AbstractController {
             throw new NotFoundException("Policy with null id");
         }
 
-        SyncopeClientCompositeErrorException scce =
-                new SyncopeClientCompositeErrorException(
-                HttpStatus.BAD_REQUEST);
-
-        try {
-
-            return policyDAO.save(policy);
-
-        } catch (InvalidEntityException e) {
-            LOG.error("Policy {} cannot be crated", policy);
-
-            SyncopeClientException sce = new SyncopeClientException(
-                    SyncopeClientExceptionType.InvalidPolicy);
-
-            for (Map.Entry<Class, Set<EntityViolationType>> violation :
-                    e.getViolations().entrySet()) {
-
-                for (EntityViolationType violationType : violation.getValue()) {
-                    sce.addElement(violation.getClass().getSimpleName() + ": "
-                            + violationType);
-                }
-            }
-
-            scce.addException(sce);
-            throw scce;
-        }
+        return policyDAO.save(policy);
     }
 
     @PreAuthorize("hasRole('POLICY_LIST')")
@@ -223,7 +171,8 @@ public class PolicyController extends AbstractController {
     @PreAuthorize("hasRole('POLICY_READ')")
     @RequestMapping(method = RequestMethod.GET, value = "/password/global/read")
     public PasswordPolicyTO getGlobalPasswordPolicy(
-            final HttpServletResponse response) throws NotFoundException {
+            final HttpServletResponse response)
+            throws NotFoundException {
 
         LOG.debug("Reading password policy");
         Policy policy = policyDAO.getGlobalPasswordPolicy();
@@ -238,7 +187,8 @@ public class PolicyController extends AbstractController {
     @PreAuthorize("hasRole('POLICY_READ')")
     @RequestMapping(method = RequestMethod.GET, value = "/account/global/read")
     public AccountPolicyTO getGlobalAccountPolicy(
-            final HttpServletResponse response) throws NotFoundException {
+            final HttpServletResponse response)
+            throws NotFoundException {
 
         LOG.debug("Reading account policy");
         Policy policy = policyDAO.getGlobalAccountPolicy();

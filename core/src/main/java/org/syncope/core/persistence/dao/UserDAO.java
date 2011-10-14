@@ -25,7 +25,7 @@ public interface UserDAO extends DAO {
 
     SyncopeUser find(Long id);
 
-    SyncopeUser findByWorkflowId(Long workflowId);
+    SyncopeUser findByWorkflowId(String workflowId);
 
     List<SyncopeUser> findByDerAttrValue(String schemaName, String value)
             throws InvalidSearchConditionException;

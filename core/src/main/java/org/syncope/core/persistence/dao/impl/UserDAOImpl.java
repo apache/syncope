@@ -76,7 +76,7 @@ public class UserDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    public SyncopeUser findByWorkflowId(final Long workflowId) {
+    public SyncopeUser findByWorkflowId(final String workflowId) {
         Query query = entityManager.createQuery(
                 "SELECT e FROM " + SyncopeUser.class.getSimpleName() + " e "
                 + "WHERE e.workflowId = :workflowId");

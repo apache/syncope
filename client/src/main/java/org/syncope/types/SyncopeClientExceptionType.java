@@ -28,9 +28,6 @@ public enum SyncopeClientExceptionType {
     InvalidConnInstance(
     "Syncope.InvalidConnInstance",
     "Syncope.InvalidConnInstance.message"),
-    InvalidPassword(
-    "Syncope.InvalidPassword",
-    "Syncope.InvalidPassword.reason"),
     InvalidPolicy(
     "Syncope.InvalidPolicy",
     "Syncope.InvalidPolicy.reason"),
@@ -49,15 +46,21 @@ public enum SyncopeClientExceptionType {
     InvalidPropagationTaskExecReport(
     "Syncope.InvalidPropagationTaskExecReport",
     "Syncope.InvalidPropagationTaskExecReport.element"),
+    InvalidSchema(
+    "Syncope.InvalidUpdate",
+    "Syncope.InvalidUpdate.name"),
     InvalidSchemaMapping(
     "Syncope.InvalidSchemaMapping",
     ""),
+    InvalidSyncopeUser(
+    "Syncope.InvalidSyncopeUser",
+    "Syncope.InvalidSyncopeUser.element"),
+    InvalidTargetResource(
+    "Syncope.InvalidTargetResource",
+    "Syncope.InvalidTargetResource.element"),
     InvalidTask(
     "Syncope.InvalidTask",
     "Syncope.InvalidTask.element"),
-    InvalidUpdate(
-    "Syncope.InvalidUpdate",
-    "Syncope.InvalidUpdate.name"),
     InvalidValues(
     "Syncope.InvalidValues",
     "Syncope.InvalidValues.attributeName"),

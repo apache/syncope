@@ -129,7 +129,7 @@
             <groupId>com.thoughtworks.xstream</groupId>
             <artifactId>xstream</artifactId>
         </dependency>
-
+        
         <dependency>
             <groupId>org.apache.velocity</groupId>
             <artifactId>velocity</artifactId>
@@ -375,7 +375,6 @@
                                     <patternset>
                                         <exclude name="**/content.xml" />
                                         <exclude name="**/ehcache.xml" />
-                                        <exclude name="**/userWorkflow.xml" />
                                         <exclude name="**/persistence.properties" />
                                         <exclude name="**/security.properties" />
                                     </patternset>
@@ -482,6 +481,8 @@
                                 <argument>-tcpDaemon</argument>
                                 <argument>-web</argument>    
                                 <argument>-webDaemon</argument>
+                                <argument>-webPort</argument>
+                                <argument>9082</argument>
                             </arguments>
                             <systemProperties>
                                 <systemProperty>
@@ -635,10 +636,78 @@
             <properties>
                 <maven.test.skip>true</maven.test.skip>
             </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>com.h2database</groupId>
+                    <artifactId>h2</artifactId>
+                    <scope>compile</scope>
+                </dependency>    
+            </dependencies>
             <build>
                 <defaultGoal>clean verify</defaultGoal>
                 
                 <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>build-helper-maven-plugin</artifactId>
+                        <inherited>true</inherited>
+                        <executions>
+                            <execution>
+                                <id>add-dev-source</id>
+                                <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>add-source</goal>
+                                </goals>
+                                <configuration>
+                                    <sources>
+                                        <source>src/dev/java</source>
+                                    </sources>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin> 
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>xml-maven-plugin</artifactId>
+                        <inherited>true</inherited>
+                        <executions>
+                            <execution>
+                                <id>enableH2Console</id>
+                                <phase>process-test-resources</phase>
+                                <goals>
+                                    <goal>transform</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <transformationSets>
+                                <transformationSet>
+                                    <dir>src/main/webapp/WEB-INF</dir>
+                                    <includes>
+                                        <include>web.xml</include>    
+                                    </includes>
+                                    <stylesheet>src/test/resources/webxml4dev.xsl</stylesheet>
+                                </transformationSet>
+                            </transformationSets>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-war-plugin</artifactId>
+                        <inherited>true</inherited>
+                        <configuration>
+                            <webXml>${project.build.directory}/generated-resources/xml/xslt/web.xml</webXml>
+                            <webResources>
+                                <resource>
+                                    <directory>src/main/webapp</directory>
+                                    <includes>
+                                        <include>**/*.jsp</include>
+                                    </includes>
+                                    <filtering>true</filtering>
+                                </resource>
+                            </webResources>
+                        </configuration>
+                    </plugin>
                     <plugin>
                         <groupId>org.codehaus.cargo</groupId>
                         <artifactId>cargo-maven2-plugin</artifactId>

@@ -135,7 +135,7 @@ public class SchemaDataBinder {
 
         if (validationExceptionFound) {
             SyncopeClientException e = new SyncopeClientException(
-                    SyncopeClientExceptionType.InvalidUpdate);
+                    SyncopeClientExceptionType.InvalidSchema);
             e.addElement(schema.getName());
 
             scce.addException(e);

@@ -65,15 +65,6 @@
             <artifactId>commons-httpclient</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.aspectj</groupId>
-            <artifactId>aspectjweaver</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.aspectj</groupId>
-            <artifactId>aspectjrt</artifactId>
-        </dependency>
-
         <!-- TEST -->
         <dependency>
             <groupId>junit</groupId>
@@ -86,8 +77,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.hsqldb</groupId>
-            <artifactId>hsqldb</artifactId>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -160,7 +151,7 @@
                 <executions>
                     <execution>
                         <id>explodeSyncopeWAR</id>
-                        <phase>package</phase>
+                        <phase>pre-integration-test</phase>
                         <configuration>
                             <target>
                                 <unzip src="${project.build.directory}/${project.build.finalName}.war"
@@ -180,7 +171,7 @@
                     </execution>
                     <execution>
                         <id>setupTomcat</id>
-                        <phase>package</phase>
+                        <phase>pre-integration-test</phase>
                         <configuration>
                             <target>
                                 <get src="http://www.apache.org/dist/tomcat/tomcat-7/v${tomcat.version}/bin/apache-tomcat-${tomcat.version}.zip"
@@ -195,7 +186,7 @@
                     </execution>
                     <execution>
                         <id>setupCSV</id>
-                        <phase>package</phase>
+                        <phase>pre-integration-test</phase>
                         <configuration>
                             <target>
                                 <copy file="${project.build.directory}/test-classes/test.csv" todir="${java.io.tmpdir}" overwrite="true"/>
@@ -258,7 +249,8 @@
                         <output>${cargo.output}</output>
                         <dependencies>
                             <dependency>
-                                <location>${settings.localRepository}/org/hsqldb/hsqldb/${hsqldb.version}/hsqldb-${hsqldb.version}.jar</location>
+                                <groupId>com.h2database</groupId>
+                                <artifactId>h2</artifactId>
                             </dependency>
                             <dependency>
                                 <location>${project.build.directory}/test-classes/</location>
@@ -311,14 +303,13 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
-                <version>1.2</version>
                 <configuration>
                     <executable>java</executable>
                     <arguments>
                         <argument>-classpath</argument>
                         <classpath/>
                         <argument>org.syncope.core.persistence.util.SchemaExporter</argument>
-                        <argument>HSQL</argument>
+                        <argument>H2</argument>
                     </arguments>
                 </configuration>
             </plugin>

@@ -74,8 +74,11 @@ public class AttributableValidator extends AbstractValidator
                         // or during password update
                         enforcer.enforce(
                                 passwordPolicy, policy.getType(), password);
-                    }
 
+                        // password has been validated, let's remove its
+                        // clear version
+                        ((SyncopeUser) object).removeClearPassword();
+                    }
                 } catch (Exception e) {
                     LOG.debug("Invalid password");
 

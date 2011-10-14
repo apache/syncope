@@ -24,7 +24,6 @@ import org.syncope.client.mod.UserMod;
 import org.syncope.client.to.MembershipTO;
 import org.syncope.client.to.UserTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.syncope.client.validation.SyncopeClientException;
 import org.syncope.core.persistence.beans.AbstractAttr;
 import org.syncope.core.persistence.beans.AbstractDerAttr;
 import org.syncope.core.persistence.beans.AbstractVirAttr;
@@ -40,7 +39,6 @@ import org.syncope.core.persistence.propagation.PropagationByResource;
 import org.syncope.types.CipherAlgorithm;
 import org.syncope.types.PasswordPolicy;
 import org.syncope.types.PropagationOperation;
-import org.syncope.types.SyncopeClientExceptionType;
 
 @Component
 public class UserDataBinder extends AbstractAttributableDataBinder {
@@ -63,20 +61,11 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
             // ignore exceptions
         }
 
-        SyncopeClientException invalidPassword = new SyncopeClientException(
-                SyncopeClientExceptionType.InvalidPassword);
-
         if (userTO.getPassword() == null || userTO.getPassword().isEmpty()) {
             LOG.error("No password provided");
-
-            invalidPassword.addElement("Null password");
         } else {
             user.setPassword(userTO.getPassword(), getCipherAlgoritm(),
                     passwordHistorySize);
-        }
-
-        if (!invalidPassword.getElements().isEmpty()) {
-            scce.addException(invalidPassword);
         }
 
         // memberships

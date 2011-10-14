@@ -25,11 +25,102 @@
   
     <process id="userWorkflow" name="User Workflow">
   
-        <startEvent id="theStart" />
+        <startEvent id="theStart"/>
     
-        <sequenceFlow id="flow1" sourceRef="theStart" targetRef="theEnd" />
+        <!-- Create an user -->
+        <sequenceFlow id="flow1" sourceRef="theStart" targetRef="create"/>
       
-        <endEvent id="theEnd" />
+        <serviceTask id="create" name="Create" activiti:class="org.syncope.core.workflow.activiti.Create"/>
+
+        <sequenceFlow id="flow2" sourceRef="create" targetRef="active"/>
+        <!-- Uncomment the following lines and comment the above line in order to
+             enable opt-in.
+        <sequenceFlow id="flow2" sourceRef="create" targetRef="generateToken"/>
+        
+        <serviceTask id="generateToken" name="Generate token" activiti:class="org.syncope.core.workflow.activiti.GenerateToken"/>
+        
+        <sequenceFlow id="flow3" sourceRef="generateToken" targetRef="optinEmail"/>
+
+        <serviceTask id="optinEmail" name="Send opt-in e-mail" activiti:class="org.syncope.core.workflow.activiti.SendVelocityEmail"/>
+
+        <sequenceFlow id="flow4" sourceRef="optinEmail" targetRef="created"/>
+
+        <userTask id="created" name="Created"/>
+
+        <sequenceFlow id="flow5" sourceRef="created" targetRef="createdGw"/>
+
+        <exclusiveGateway id="createdGw"/>
+        <sequenceFlow id="created2Activate" sourceRef="createdGw" targetRef="activate">
+            <conditionExpression xsi:type="tFormalExpression">
+                <![CDATA[${action == 'activate' && syncopeUser.checkToken(token)}]]>
+            </conditionExpression>
+        </sequenceFlow>  
+        <sequenceFlow id="created2Created" sourceRef="createdGw" targetRef="created">
+            <conditionExpression xsi:type="tFormalExpression">
+                <![CDATA[${action == 'activate' && !syncopeUser.checkToken(token)}]]>
+            </conditionExpression>
+        </sequenceFlow>  
+        <sequenceFlow id="created2Delete" sourceRef="createdGw" targetRef="delete">
+            <conditionExpression xsi:type="tFormalExpression">${action == 'delete'}</conditionExpression>
+        </sequenceFlow>--> 
+        
+        <!-- Activate an user -->
+        <!--<scriptTask id="activate" name="Activate" scriptFormat="juel">
+            <script>
+            syncopeUser.removeToken()    
+            </script>
+        </scriptTask>
+
+        <sequenceFlow id="flow6" sourceRef="activate" targetRef="active"/>-->
+
+        <userTask id="active" name="Active"/>
+        
+        <sequenceFlow id="flow7" sourceRef="active" targetRef="activeGw"/>
+
+        <exclusiveGateway id="activeGw"/>
+        <sequenceFlow id="active2Update" sourceRef="activeGw" targetRef="update">
+            <conditionExpression xsi:type="tFormalExpression">${action == 'update'}</conditionExpression>
+        </sequenceFlow>  
+        <sequenceFlow id="active2Suspend" sourceRef="activeGw" targetRef="suspend">
+            <conditionExpression xsi:type="tFormalExpression">${action == 'suspend'}</conditionExpression>
+        </sequenceFlow> 
+        <sequenceFlow id="active2Delete" sourceRef="activeGw" targetRef="delete">
+            <conditionExpression xsi:type="tFormalExpression">${action == 'delete'}</conditionExpression>
+        </sequenceFlow>
+
+        <!-- Update an active user -->
+        <serviceTask id="update" name="Update" activiti:class="org.syncope.core.workflow.activiti.Update"/>
+
+        <sequenceFlow id="flow8" sourceRef="update" targetRef="active"/>
+
+        <!-- Suspend an active user -->
+        <serviceTask id="suspend" name="Suspend" activiti:class="org.syncope.core.workflow.activiti.Suspend"/>
+
+        <sequenceFlow id="flow9" sourceRef="suspend" targetRef="suspended"/>
+
+        <userTask id="suspended" name="Suspended"/>
+        
+        <sequenceFlow id="flow10" sourceRef="suspended" targetRef="suspendedGw"/>
+
+        <exclusiveGateway id="suspendedGw"/>
+        <sequenceFlow id="suspended2Reactivate" sourceRef="suspendedGw" targetRef="reactivate">
+            <conditionExpression xsi:type="tFormalExpression">${action == 'reactivate'}</conditionExpression>
+        </sequenceFlow>
+        <sequenceFlow id="suspended2Delete" sourceRef="suspendedGw" targetRef="delete">
+            <conditionExpression xsi:type="tFormalExpression">${action == 'delete'}</conditionExpression>
+        </sequenceFlow>
+
+        <!-- Reactivate a suspended user -->
+        <serviceTask id="reactivate" name ="Reactivate" activiti:class="org.syncope.core.workflow.activiti.Reactivate"/>
+
+        <sequenceFlow id="flow11" sourceRef="reactivate" targetRef="active"/>
+
+        <!-- Delete an user (created, active or suspended) -->
+        <serviceTask id="delete" name="Delete" activiti:class="org.syncope.core.workflow.activiti.Delete"/>
+
+        <sequenceFlow id="flow12" sourceRef="delete" targetRef="theEnd"/>
+
+        <endEvent id="theEnd"/>
       
     </process>
   

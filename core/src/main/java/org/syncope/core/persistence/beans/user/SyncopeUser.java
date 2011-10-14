@@ -43,6 +43,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import org.apache.commons.lang.RandomStringUtils;
 import org.hibernate.annotations.Type;
 import org.springframework.security.core.codec.Base64;
@@ -75,6 +76,7 @@ public class SyncopeUser extends AbstractAttributable {
     @Id
     private Long id;
 
+    @NotNull
     private String password;
 
     private transient String clearPassword;
@@ -196,6 +198,10 @@ public class SyncopeUser extends AbstractAttributable {
         return clearPassword;
     }
 
+    public void removeClearPassword() {
+        clearPassword = null;
+    }
+
     /**
      * @param password the password to be set
      */
@@ -208,10 +214,8 @@ public class SyncopeUser extends AbstractAttributable {
         clearPassword = password;
 
         try {
-
             this.password = encodePassword(password, cipherAlgoritm);
             this.cipherAlgorithm = cipherAlgoritm;
-
         } catch (Throwable t) {
             LOG.error("Could not encode password", t);
             this.password = null;
@@ -306,19 +310,8 @@ public class SyncopeUser extends AbstractAttributable {
         this.status = status;
     }
 
-    public void generateToken(
-            int tokenLength, int tokenExpireTime) {
-        generateToken(tokenLength, tokenExpireTime, null);
-    }
-
-    public void generateToken(
-            int tokenLength, int tokenExpireTime, String token) {
-
-        if (token == null) {
-            token = RandomStringUtils.randomAlphanumeric(tokenLength);
-        }
-
-        this.token = token;
+    public void generateToken(int tokenLength, int tokenExpireTime) {
+        this.token = RandomStringUtils.randomAlphanumeric(tokenLength);
 
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.MINUTE, tokenExpireTime);
@@ -326,8 +319,8 @@ public class SyncopeUser extends AbstractAttributable {
     }
 
     public void removeToken() {
-        token = null;
-        tokenExpireTime = null;
+        this.token = null;
+        this.tokenExpireTime = null;
     }
 
     public String getToken() {
@@ -339,8 +332,8 @@ public class SyncopeUser extends AbstractAttributable {
     }
 
     public boolean checkToken(final String token) {
-        return this.token != null && this.token.equals(token)
-                && tokenExpireTime.after(new Date());
+        return this.token == null || (this.token.equals(token)
+                && tokenExpireTime.after(new Date()));
     }
 
     public CipherAlgorithm getCipherAlgoritm() {

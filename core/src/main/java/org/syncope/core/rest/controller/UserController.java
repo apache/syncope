@@ -60,6 +60,23 @@ public class UserController extends AbstractController {
     @Autowired
     private UserWorkflowAdapter wfAdapter;
 
+    /**
+     * Check if roles are allowed to be administered by the caller.
+     *
+     * @param roleIds roles to be administered
+     * @throws UnauthorizedRoleException if permissions are not sufficient
+     */
+    private void checkPermissions(final Set<Long> roleIds)
+            throws UnauthorizedRoleException {
+
+        Set<Long> adminRoleIds = EntitlementUtil.getRoleIds(
+                EntitlementUtil.getOwnedEntitlementNames());
+        roleIds.removeAll(adminRoleIds);
+        if (!roleIds.isEmpty()) {
+            throw new UnauthorizedRoleException(roleIds);
+        }
+    }
+
     private SyncopeUser getUserFromId(final Long userId)
             throws NotFoundException, UnauthorizedRoleException {
 
@@ -68,19 +85,11 @@ public class UserController extends AbstractController {
             throw new NotFoundException("User " + userId);
         }
 
-        // Check if roles requested for this user are allowed to be
-        // administrated by the caller
-        Set<Long> roleIds =
-                new HashSet<Long>(user.getRoles().size());
+        Set<Long> roleIds = new HashSet<Long>(user.getRoles().size());
         for (SyncopeRole role : user.getRoles()) {
             roleIds.add(role.getId());
         }
-        Set<Long> adminRoleIds = EntitlementUtil.getRoleIds(
-                EntitlementUtil.getOwnedEntitlementNames());
-        roleIds.removeAll(adminRoleIds);
-        if (!roleIds.isEmpty()) {
-            throw new UnauthorizedRoleException(roleIds);
-        }
+        checkPermissions(roleIds);
 
         return user;
     }
@@ -247,19 +256,12 @@ public class UserController extends AbstractController {
         LOG.debug("User create called with parameters {}\n{}\n{}",
                 new Object[]{userTO, mandatoryRoles, mandatoryResources});
 
-        // Check if roles requested for this user are allowed to be
-        // administrated by the caller
         Set<Long> requestRoleIds =
                 new HashSet<Long>(userTO.getMemberships().size());
         for (MembershipTO membership : userTO.getMemberships()) {
             requestRoleIds.add(membership.getRoleId());
         }
-        Set<Long> adminRoleIds = EntitlementUtil.getRoleIds(
-                EntitlementUtil.getOwnedEntitlementNames());
-        requestRoleIds.removeAll(adminRoleIds);
-        if (!requestRoleIds.isEmpty()) {
-            throw new UnauthorizedRoleException(requestRoleIds);
-        }
+        checkPermissions(requestRoleIds);
 
         final UserTO savedTO = userDataBinder.getUserTO(
                 wfAdapter.create(userTO, mandatoryRoles, mandatoryResources));
@@ -267,6 +269,22 @@ public class UserController extends AbstractController {
         LOG.debug("About to return created user\n{}", savedTO);
 
         response.setStatus(HttpServletResponse.SC_CREATED);
+        return savedTO;
+    }
+
+    @PreAuthorize("hasRole('USER_UPDATE')")
+    @RequestMapping(method = RequestMethod.POST,
+    value = "/activate")
+    public UserTO activate(@RequestBody final UserTO userTO)
+            throws WorkflowException, NotFoundException,
+            UnauthorizedRoleException, PropagationException {
+
+        final UserTO savedTO = userDataBinder.getUserTO(
+                wfAdapter.activate(getUserFromId(userTO.getId()),
+                userTO.getToken()));
+
+        LOG.debug("About to return activated user\n{}", savedTO);
+
         return savedTO;
     }
 
@@ -291,6 +309,40 @@ public class UserController extends AbstractController {
         LOG.debug("About to return updated user\n{}", updatedTO);
 
         return updatedTO;
+    }
+
+    @PreAuthorize("hasRole('USER_UPDATE')")
+    @RequestMapping(method = RequestMethod.GET,
+    value = "/suspend/{userId}")
+    public UserTO suspend(@PathVariable("userId") final Long userId)
+            throws NotFoundException, WorkflowException,
+            UnauthorizedRoleException, PropagationException {
+
+        LOG.debug("About to suspend " + userId);
+
+        final UserTO savedTO = userDataBinder.getUserTO(
+                wfAdapter.suspend(getUserFromId(userId)));
+
+        LOG.debug("About to return suspended user\n{}", savedTO);
+
+        return savedTO;
+    }
+
+    @PreAuthorize("hasRole('USER_UPDATE')")
+    @RequestMapping(method = RequestMethod.GET,
+    value = "/reactivate/{userId}")
+    public UserTO reactivate(final @PathVariable("userId") Long userId)
+            throws NotFoundException, WorkflowException,
+            UnauthorizedRoleException, PropagationException {
+
+        LOG.debug("About to reactivate " + userId);
+
+        final UserTO savedTO = userDataBinder.getUserTO(
+                wfAdapter.reactivate(getUserFromId(userId)));
+
+        LOG.debug("About to return suspended user\n{}", savedTO);
+
+        return savedTO;
     }
 
     @PreAuthorize("hasRole('USER_DELETE')")

@@ -13,8 +13,20 @@
  */
 package org.syncope.core.workflow;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javassist.NotFoundException;
+import org.activiti.engine.ActivitiException;
+import org.activiti.engine.IdentityService;
+import org.activiti.engine.RuntimeService;
+import org.activiti.engine.TaskService;
+import org.activiti.engine.identity.User;
+import org.activiti.engine.runtime.ProcessInstance;
+import org.activiti.engine.task.Task;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,18 +41,41 @@ import org.syncope.core.persistence.propagation.PropagationManager;
 import org.syncope.types.PropagationOperation;
 
 /**
- * Simple implementation basically not involving any workflow engine.
+ * Activiti (http://www.activiti.org/) based implementation.
  */
 @Transactional(rollbackFor = {
     Throwable.class
 })
-public class NoOpUserWorkflowAdapter implements UserWorkflowAdapter {
+public class ActivitiUserWorkflowAdapter implements UserWorkflowAdapter {
 
     /**
      * Logger.
      */
     private static final Logger LOG =
-            LoggerFactory.getLogger(NoOpUserWorkflowAdapter.class);
+            LoggerFactory.getLogger(ActivitiUserWorkflowAdapter.class);
+
+    public static final String SYNCOPE_USER = "syncopeUser";
+
+    public static final String USER_TO = "userTO";
+
+    public static final String USER_MOD = "userMod";
+
+    public static final String EMAIL_KIND = "emailKind";
+
+    public static final String ACTION = "action";
+
+    public static final String TOKEN = "token";
+
+    public static String PROP_BY_RESOURCE = "propByResource";
+
+    @Autowired
+    private RuntimeService runtimeService;
+
+    @Autowired
+    private TaskService taskService;
+
+    @Autowired
+    private IdentityService identityService;
 
     @Autowired
     private UserService userService;
@@ -51,15 +86,45 @@ public class NoOpUserWorkflowAdapter implements UserWorkflowAdapter {
     @Autowired
     private PropagationManager propagationManager;
 
+    private void setStatus(final String processInstanceId,
+            final SyncopeUser user) {
+
+        List<Task> tasks = taskService.createTaskQuery().processInstanceId(
+                processInstanceId).list();
+        if (tasks.isEmpty() || tasks.size() > 1) {
+            LOG.warn("While setting user status: unexpected task number ({})",
+                    tasks.size());
+        } else {
+            user.setStatus(tasks.get(0).getTaskDefinitionKey());
+        }
+    }
+
     @Override
     public SyncopeUser create(final UserTO userTO,
             final Set<Long> mandatoryRoles,
             final Set<String> mandatoryResources)
             throws WorkflowException, PropagationException {
 
-        SyncopeUser user = userService.create(userTO);
-        user.setStatus("created");
+        final Map<String, Object> variables = new HashMap<String, Object>();
+        variables.put(USER_TO, userTO);
+
+        final ProcessInstance processInstance;
+        try {
+            processInstance = runtimeService.startProcessInstanceByKey(
+                    "userWorkflow", variables);
+        } catch (ActivitiException e) {
+            throw new WorkflowException(e);
+        }
+
+        SyncopeUser user = (SyncopeUser) runtimeService.getVariable(
+                processInstance.getProcessInstanceId(), SYNCOPE_USER);
+        setStatus(processInstance.getProcessInstanceId(), user);
         user = userDAO.save(user);
+
+        // create and save Activiti user
+        User activitiUser = identityService.newUser(user.getId().toString());
+        activitiUser.setPassword(userTO.getPassword());
+        identityService.saveUser(activitiUser);
 
         // Now that user is created locally, let's propagate
         Set<String> mandatoryResourceNames =
@@ -76,17 +141,43 @@ public class NoOpUserWorkflowAdapter implements UserWorkflowAdapter {
         return user;
     }
 
+    private void doExecuteAction(final SyncopeUser user,
+            final String action, final Map<String, Object> moreVariables)
+            throws WorkflowException {
+
+        final Map<String, Object> variables = new HashMap<String, Object>();
+        variables.put(SYNCOPE_USER, user);
+        variables.put(ACTION, action);
+        if (moreVariables != null && !moreVariables.isEmpty()) {
+            variables.putAll(moreVariables);
+        }
+
+        if (StringUtils.isBlank(user.getWorkflowId())) {
+            throw new WorkflowException(
+                    new NotFoundException("Empty workflow id"));
+        }
+
+        List<Task> tasks = taskService.createTaskQuery().processInstanceId(
+                user.getWorkflowId()).list();
+        if (tasks.isEmpty() || tasks.size() > 1) {
+            throw new WorkflowException(new RuntimeException(
+                    "Expected a single task, found " + tasks.size()));
+        }
+
+        try {
+            taskService.complete(tasks.get(0).getId(), variables);
+        } catch (ActivitiException e) {
+            throw new WorkflowException(e);
+        }
+    }
+
     @Override
     public SyncopeUser activate(final SyncopeUser user, final String token)
             throws WorkflowException, PropagationException {
 
-        if (!user.checkToken(token)) {
-            throw new WorkflowException(
-                    new RuntimeException("Wrong token: " + token));
-        }
-
-        user.removeToken();
-        user.setStatus("active");
+        doExecuteAction(user, "activate",
+                Collections.singletonMap(TOKEN, (Object) token));
+        setStatus(user.getWorkflowId(), user);
         SyncopeUser updated = userDAO.save(user);
 
         PropagationByResource propByRes = new PropagationByResource();
@@ -103,8 +194,14 @@ public class NoOpUserWorkflowAdapter implements UserWorkflowAdapter {
             final Set<String> mandatoryResources)
             throws WorkflowException, PropagationException {
 
-        Map.Entry<SyncopeUser, PropagationByResource> updated =
-                userService.update(user, userMod);
+        doExecuteAction(user, "update",
+                Collections.singletonMap(USER_MOD, (Object) userMod));
+        setStatus(user.getWorkflowId(), user);
+        SyncopeUser updated = userDAO.save(user);
+
+        PropagationByResource propByRes =
+                (PropagationByResource) runtimeService.getVariable(
+                user.getWorkflowId(), PROP_BY_RESOURCE);
 
         // Now that user is updated locally, let's propagate
         Set<String> mandatoryResourceNames =
@@ -115,17 +212,18 @@ public class NoOpUserWorkflowAdapter implements UserWorkflowAdapter {
                     mandatoryResourceNames);
         }
 
-        propagationManager.update(user, userMod.getPassword(),
-                updated.getValue(), mandatoryResourceNames);
+        propagationManager.update(updated, userMod.getPassword(),
+                propByRes, mandatoryResourceNames);
 
-        return updated.getKey();
+        return updated;
     }
 
     @Override
     public SyncopeUser suspend(final SyncopeUser user)
             throws WorkflowException, PropagationException {
 
-        user.setStatus("suspended");
+        doExecuteAction(user, "suspend", null);
+        setStatus(user.getWorkflowId(), user);
         SyncopeUser updated = userDAO.save(user);
 
         PropagationByResource propByRes = new PropagationByResource();
@@ -140,7 +238,8 @@ public class NoOpUserWorkflowAdapter implements UserWorkflowAdapter {
     public SyncopeUser reactivate(final SyncopeUser user)
             throws WorkflowException, PropagationException {
 
-        user.setStatus("active");
+        doExecuteAction(user, "reactivate", null);
+        setStatus(user.getWorkflowId(), user);
         SyncopeUser updated = userDAO.save(user);
 
         PropagationByResource propByRes = new PropagationByResource();
@@ -168,6 +267,8 @@ public class NoOpUserWorkflowAdapter implements UserWorkflowAdapter {
 
         propagationManager.delete(user, mandatoryResourceNames);
 
-        userService.delete(user);
+        doExecuteAction(user, "delete", null);
+
+        identityService.deleteUser(user.getId().toString());
     }
 }

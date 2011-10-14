@@ -28,14 +28,26 @@ public class ConfDAOImpl extends AbstractDAOImpl implements ConfDAO {
     public SyncopeConf find(final String name)
             throws MissingConfKeyException {
 
-        SyncopeConf syncopeConfiguration =
-                entityManager.find(SyncopeConf.class, name);
-
-        if (syncopeConfiguration == null) {
+        SyncopeConf result = find(name, null);
+        if (result == null) {
             throw new MissingConfKeyException(name);
         }
 
-        return syncopeConfiguration;
+        return result;
+    }
+
+    @Override
+    public SyncopeConf find(final String name, final String defaultValue) {
+        SyncopeConf syncopeConf =
+                entityManager.find(SyncopeConf.class, name);
+
+        if (syncopeConf == null && defaultValue != null) {
+            syncopeConf = new SyncopeConf();
+            syncopeConf.setKey(name);
+            syncopeConf.setValue(defaultValue);
+        }
+
+        return syncopeConf;
     }
 
     @Override

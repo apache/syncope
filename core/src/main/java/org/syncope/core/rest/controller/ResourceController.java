@@ -37,7 +37,6 @@ import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.dao.RoleDAO;
-import org.syncope.core.persistence.validation.entity.InvalidEntityException;
 import org.syncope.core.rest.data.ResourceDataBinder;
 import org.syncope.types.SyncopeClientExceptionType;
 
@@ -97,14 +96,7 @@ public class ResourceController extends AbstractController {
             throw scce;
         }
 
-        try {
-            resource = resourceDAO.save(resource);
-        } catch (InvalidEntityException e) {
-            SyncopeClientException ex = new SyncopeClientException(
-                    SyncopeClientExceptionType.InvalidSchemaMapping);
-            scce.addException(ex);
-            throw scce;
-        }
+        resource = resourceDAO.save(resource);
 
         response.setStatus(HttpServletResponse.SC_CREATED);
         return binder.getResourceTO(resource);
@@ -147,14 +139,7 @@ public class ResourceController extends AbstractController {
             throw scce;
         }
 
-        try {
-            resource = resourceDAO.save(resource);
-        } catch (InvalidEntityException e) {
-            SyncopeClientException ex = new SyncopeClientException(
-                    SyncopeClientExceptionType.InvalidSchemaMapping);
-            scce.addException(ex);
-            throw scce;
-        }
+        resource = resourceDAO.save(resource);
 
         return binder.getResourceTO(resource);
     }

@@ -11,38 +11,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.syncope.core.rest.controller;
+package org.syncope.core.workflow;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.collections.keyvalue.DefaultMapEntry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.syncope.client.mod.UserMod;
 import org.syncope.client.to.UserTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.syncope.client.validation.SyncopeClientException;
 import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.UserDAO;
 import org.syncope.core.persistence.propagation.PropagationByResource;
-import org.syncope.core.persistence.validation.entity.InvalidEntityException;
 import org.syncope.core.rest.data.UserDataBinder;
-import org.syncope.types.EntityViolationType;
-import org.syncope.types.SyncopeClientExceptionType;
 
-public class UserManager {
-
-    /**
-     * Logger.
-     */
-    protected static final Logger LOG =
-            LoggerFactory.getLogger(UserManager.class);
+@Transactional(rollbackFor = {
+    Throwable.class
+})
+public class UserService {
 
     @Autowired
     private UserDataBinder userDataBinder;
@@ -84,29 +75,7 @@ public class UserManager {
         SyncopeUser user = new SyncopeUser();
         userDataBinder.create(user, userTO);
 
-        try {
-            user = userDAO.save(user);
-        } catch (InvalidEntityException e) {
-            SyncopeClientCompositeErrorException scce =
-                    new SyncopeClientCompositeErrorException(
-                    HttpStatus.BAD_REQUEST);
-
-            SyncopeClientException sce = new SyncopeClientException(
-                    SyncopeClientExceptionType.InvalidPassword);
-
-            for (Map.Entry<Class, Set<EntityViolationType>> violation :
-                    e.getViolations().entrySet()) {
-
-                for (EntityViolationType violationType : violation.getValue()) {
-                    sce.addElement(violationType.toString());
-                }
-            }
-
-            scce.addException(sce);
-            throw scce;
-        }
-
-        return user;
+        return userDAO.save(user);
     }
 
     public Map.Entry<SyncopeUser, PropagationByResource> update(
@@ -114,30 +83,7 @@ public class UserManager {
 
         PropagationByResource propByRes = userDataBinder.update(user, userMod);
 
-        SyncopeUser updated;
-        try {
-            updated = userDAO.save(user);
-        } catch (InvalidEntityException e) {
-            SyncopeClientCompositeErrorException scce =
-                    new SyncopeClientCompositeErrorException(
-                    HttpStatus.BAD_REQUEST);
-
-            SyncopeClientException sce = new SyncopeClientException(
-                    SyncopeClientExceptionType.InvalidPassword);
-
-            for (Map.Entry<Class, Set<EntityViolationType>> violation :
-                    e.getViolations().entrySet()) {
-
-                for (EntityViolationType violationType : violation.getValue()) {
-                    sce.addElement(violationType.toString());
-                }
-            }
-
-            scce.addException(sce);
-            throw scce;
-        }
-
-        return new DefaultMapEntry(updated, propByRes);
+        return new DefaultMapEntry(userDAO.save(user), propByRes);
     }
 
     public void delete(final SyncopeUser user) {
