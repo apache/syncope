@@ -594,8 +594,8 @@ public abstract class AbstractAttributableDataBinder {
 
             if (virtualSchema != null) {
                 for (SchemaMapping mapping : resourceDAO.findAllMappings()) {
-                    if (mapping.getSourceAttrName().equals(
-                            virtualSchema.getName())
+                    if (virtualSchema.getName().equals(
+                            mapping.getSourceAttrName())
                             && mapping.getSourceMappingType()
                             == attributableUtil.virtualSourceMappingType()
                             && mapping.getResource() != null

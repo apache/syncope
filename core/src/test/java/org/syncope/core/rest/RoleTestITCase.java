@@ -214,4 +214,33 @@ public class RoleTestITCase extends AbstractTest {
         assertNotNull(roleTO);
         assertTrue(roleTO.getDerivedAttributes().isEmpty());
     }
+
+    /**
+     * Role rename used to fail in case of parent null.
+     *
+     * http://code.google.com/p/syncope/issues/detail?id=178
+     */
+    @Test
+    public void issue178() {
+        RoleTO roleTO = new RoleTO();
+        roleTO.setName("torename");
+
+        RoleTO actual = restTemplate.postForObject(
+                BASE_URL + "role/create", roleTO, RoleTO.class);
+
+        assertNotNull(actual);
+        assertEquals("torename", actual.getName());
+        assertEquals(0L, actual.getParent());
+
+        RoleMod roleMod = new RoleMod();
+        roleMod.setId(actual.getId());
+        roleMod.setName("renamed");
+
+        actual = restTemplate.postForObject(
+                BASE_URL + "role/update", roleMod, RoleTO.class);
+
+        assertNotNull(actual);
+        assertEquals("renamed", actual.getName());
+        assertEquals(0L, actual.getParent());
+    }
 }

@@ -117,7 +117,8 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
                 SyncopeClientExceptionType.InvalidRoles);
         if (roleMod.getName() != null) {
             SyncopeRole otherRole = roleDAO.find(
-                    roleMod.getName(), role.getParent().getId());
+                    roleMod.getName(),
+                    role.getParent() != null ? role.getParent().getId() : 0L);
 
             if (otherRole != null) {
                 LOG.error("Another role exists with the same name "
