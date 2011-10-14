@@ -89,6 +89,8 @@ public class RoleTreeBuilder {
 
     private static class FakerootTO extends RoleTO {
 
+        private static final long serialVersionUID = 4839183625773925488L;
+
         public FakerootTO() {
             super();
 

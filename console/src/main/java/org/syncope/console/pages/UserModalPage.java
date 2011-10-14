@@ -70,6 +70,8 @@ public class UserModalPage extends BaseModalPage {
 
         super();
 
+        setBean(userTO);
+
         if (userTO.getId() > 0) {
             cloneOldUserTO(userTO);
         }

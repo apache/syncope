@@ -19,6 +19,7 @@ import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.syncope.client.AbstractBaseBean;
 import org.syncope.console.commons.XMLRolesReader;
 
 /**
@@ -39,9 +40,19 @@ public class BaseModalPage extends WebPage {
 
     protected FeedbackPanel feedbackPanel;
 
+    private AbstractBaseBean bean;
+
     public BaseModalPage() {
         feedbackPanel = new FeedbackPanel("feedback");
         feedbackPanel.setOutputMarkupId(true);
         add(feedbackPanel);
+    }
+
+    public AbstractBaseBean getBean() {
+        return bean;
+    }
+
+    public void setBean(final AbstractBaseBean bean) {
+        this.bean = bean;
     }
 }

@@ -53,6 +53,8 @@ public class DerivedAttributesPanel extends Panel {
     protected static final Logger LOG =
             LoggerFactory.getLogger(DerivedAttributesPanel.class);
 
+    private static final long serialVersionUID = -5387344116983102292L;
+
     @SpringBean
     private SchemaRestClient schemaRestClient;
 

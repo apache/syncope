@@ -207,17 +207,17 @@ public class Schema extends BasePage {
         add(createRoleSchemaWin = new ModalWindow("createRoleSchemaWin"));
         add(editRoleSchemaWin = new ModalWindow("editRoleSchemaWin"));
 
-        add(createRoleDerivedSchemaWin = new ModalWindow(
-                "createRoleDerivedSchemaWin"));
+        add(createRoleDerivedSchemaWin =
+                new ModalWindow("createRoleDerivedSchemaWin"));
 
-        add(createRoleVirtualSchemaWin = new ModalWindow(
-                "createRoleVirtualSchemaWin"));
+        add(createRoleVirtualSchemaWin =
+                new ModalWindow("createRoleVirtualSchemaWin"));
 
-        add(editRoleDerivedSchemaWin = new ModalWindow(
-                "editRoleDerivedSchemaWin"));
+        add(editRoleDerivedSchemaWin =
+                new ModalWindow("editRoleDerivedSchemaWin"));
 
-        add(editRoleVirtualSchemaWin = new ModalWindow(
-                "editRoleVirtualSchemaWin"));
+        add(editRoleVirtualSchemaWin =
+                new ModalWindow("editRoleVirtualSchemaWin"));
 
         add(createUserSchemaWin = new ModalWindow("createUserSchemaWin"));
 

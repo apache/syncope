@@ -14,6 +14,7 @@
  */
 package org.syncope.console.pages;
 
+import org.apache.wicket.PageReference;
 import org.syncope.console.pages.panels.AttributesPanel;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -22,6 +23,7 @@ import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.ResourceModel;
+import org.syncope.client.AbstractBaseBean;
 import org.syncope.client.to.MembershipTO;
 import org.syncope.client.to.UserTO;
 import org.syncope.console.pages.panels.DerivedAttributesPanel;
@@ -37,11 +39,14 @@ public class MembershipModalPage extends BaseModalPage {
     private AjaxButton submit;
 
     public MembershipModalPage(
+            final PageReference pageRef,
             final ModalWindow window,
-            final MembershipTO membershipTO,
-            final UserTO userTO) {
+            final MembershipTO membershipTO) {
 
         final Form form = new Form("MembershipForm");
+
+        final AbstractBaseBean bean =
+                ((BaseModalPage) pageRef.getPage()).getBean();
 
         form.setModel(new CompoundPropertyModel(membershipTO));
 
@@ -50,17 +55,20 @@ public class MembershipModalPage extends BaseModalPage {
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target,
-                    final Form form) {
+            protected void onSubmit(
+                    final AjaxRequestTarget target, final Form form) {
 
-                userTO.removeMembership(membershipTO);
-                userTO.addMembership(membershipTO);
+                ((UserTO) bean).removeMembership(membershipTO);
+                ((UserTO) bean).addMembership(membershipTO);
+
+                ((BaseModalPage) pageRef.getPage()).setBean(bean);
+
                 window.close(target);
             }
 
             @Override
-            protected void onError(final AjaxRequestTarget target,
-                    final Form form) {
+            protected void onError(
+                    final AjaxRequestTarget target, final Form form) {
 
                 target.add(feedbackPanel);
             }
@@ -68,7 +76,7 @@ public class MembershipModalPage extends BaseModalPage {
 
         String allowedRoles = null;
 
-        if (userTO.getId() == 0) {
+        if (((UserTO) bean).getId() == 0) {
             allowedRoles = xmlRolesReader.getAllAllowedRoles("Users", "create");
         } else {
             allowedRoles = xmlRolesReader.getAllAllowedRoles("Users", "update");

@@ -13,7 +13,6 @@
  */
 package org.syncope.console;
 
-import com.thoughtworks.selenium.DefaultSelenium;
 import com.thoughtworks.selenium.SeleneseTestCase;
 import org.junit.After;
 import org.junit.Before;

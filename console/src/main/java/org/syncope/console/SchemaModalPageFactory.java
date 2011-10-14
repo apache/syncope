@@ -29,6 +29,8 @@ import org.syncope.console.rest.SchemaRestClient;
  */
 abstract public class SchemaModalPageFactory extends BaseModalPage {
 
+    private static final long serialVersionUID = -3533177688264693505L;
+
     @SpringBean
     protected SchemaRestClient restClient;
 

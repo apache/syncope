@@ -275,9 +275,6 @@ public class RoleModalPage extends BaseModalPage {
     private void setupRoleMod(final RoleTO roleTO) {
         roleMod = new RoleMod();
 
-        LOG.error("AAAAAAAAA1 {}", roleTO);
-        LOG.error("AAAAAAAAA2 {}", oldRole);
-
         //1.Check if the role's name has been changed
         if (!oldRole.getName().equals(roleTO.getName())) {
             roleMod.setName(roleTO.getName());
@@ -316,8 +313,6 @@ public class RoleModalPage extends BaseModalPage {
             roleMod.addVirtualAttributeToBeAdded(
                     newVirtualAttribute.getSchema());
         }
-
-        LOG.error("AAAAAAAAA2 {}", roleMod);
 
         //4.Search and update role's attributes
         for (AttributeTO attributeTO : roleTO.getAttributes()) {
