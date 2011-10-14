@@ -159,15 +159,14 @@ public class ActivitiUserWorkflowAdapter implements UserWorkflowAdapter {
 
         List<Task> tasks = taskService.createTaskQuery().processInstanceId(
                 user.getWorkflowId()).list();
-        if (tasks.isEmpty() || tasks.size() > 1) {
-            throw new WorkflowException(new RuntimeException(
-                    "Expected a single task, found " + tasks.size()));
-        }
-
-        try {
-            taskService.complete(tasks.get(0).getId(), variables);
-        } catch (ActivitiException e) {
-            throw new WorkflowException(e);
+        if (tasks.size() != 1) {
+            LOG.warn("Expected a single task, found {}", tasks.size());
+        } else {
+            try {
+                taskService.complete(tasks.get(0).getId(), variables);
+            } catch (ActivitiException e) {
+                throw new WorkflowException(e);
+            }
         }
     }
 
