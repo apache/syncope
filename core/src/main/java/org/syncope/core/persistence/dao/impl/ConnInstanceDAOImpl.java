@@ -15,11 +15,13 @@
 package org.syncope.core.persistence.dao.impl;
 
 import java.util.List;
+import javassist.NotFoundException;
 import javax.persistence.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.syncope.core.init.ConnInstanceLoader;
 import org.syncope.core.persistence.beans.ConnInstance;
+import org.syncope.core.persistence.beans.TargetResource;
 import org.syncope.core.persistence.dao.ConnInstanceDAO;
 
 @Repository
@@ -41,8 +43,31 @@ public class ConnInstanceDAOImpl extends AbstractDAOImpl
     }
 
     @Override
+    public List<TargetResource> findTargetResources(
+            final ConnInstance connector) {
+        final Query query = entityManager.createQuery(
+                "SELECT e FROM TargetResource e WHERE connector=:connector");
+
+        query.setParameter("connector", connector);
+
+        return query.getResultList();
+    }
+
+    @Override
     public ConnInstance save(final ConnInstance connector) {
-        return entityManager.merge(connector);
+        final ConnInstance merged = entityManager.merge(connector);
+
+        final List<TargetResource> resources = findTargetResources(merged);
+
+        for (TargetResource resource : resources) {
+            try {
+                connInstanceLoader.registerConnector(resource);
+            } catch (NotFoundException e) {
+                LOG.error("While registering connector for resource", e);
+            }
+        }
+
+        return merged;
     }
 
     @Override
