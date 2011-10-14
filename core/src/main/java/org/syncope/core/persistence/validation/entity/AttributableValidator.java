@@ -14,11 +14,15 @@
  */
 package org.syncope.core.persistence.validation.entity;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.syncope.core.persistence.beans.AbstractAttributable;
 import org.syncope.core.persistence.beans.Policy;
+import org.syncope.core.persistence.beans.TargetResource;
+import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.PolicyDAO;
 import org.syncope.core.policy.PasswordPolicyEnforcer;
@@ -56,44 +60,73 @@ public class AttributableValidator extends AbstractValidator
             // ------------------------------
             LOG.debug("Password Policy enforcement");
 
-            final Policy policy = policyDAO.getGlobalPasswordPolicy();
+            LOG.error("AAAA");
+            final List<Policy> policies =
+                    getPasswordPolicies((SyncopeUser) object);
 
-            if (policy != null) {
-                // evaluate policy
-                PasswordPolicy passwordPolicy =
-                        evaluator.evaluate(policy, object);
-
-                try {
-                    // clear password will exist just during creation or
-                    // during password update
+            try {
+                for (Policy policy : policies) {
+                    // clearPassword must exist during creation/password update
                     final String password =
                             ((SyncopeUser) object).getClearPassword();
 
+                    // evaluate/enforce only during creation or password update
                     if (password != null) {
-                        // enforcement will be performed only during creation
-                        // or during password update
+                        // evaluate policy
+                        final PasswordPolicy passwordPolicy =
+                                evaluator.evaluate(policy, object);
+
+                        // enforce policy
                         enforcer.enforce(
                                 passwordPolicy, policy.getType(), password);
-
-                        // password has been validated, let's remove its
-                        // clear version
-                        ((SyncopeUser) object).removeClearPassword();
                     }
-                } catch (Exception e) {
-                    LOG.debug("Invalid password");
-
-                    context.buildConstraintViolationWithTemplate(
-                            e.getMessage()).addNode(
-                            EntityViolationType.InvalidPassword.toString()).
-                            addConstraintViolation();
-                    isValid = false;
                 }
+            } catch (Exception e) {
+                LOG.debug("Invalid password");
+
+                context.buildConstraintViolationWithTemplate(
+                        e.getMessage()).addNode(
+                        EntityViolationType.InvalidPassword.toString()).
+                        addConstraintViolation();
+                isValid = false;
+            } finally {
+                // password has been validated, let's remove its
+                // clear version
+                ((SyncopeUser) object).removeClearPassword();
             }
             // ------------------------------
         }
 
         // Let's verify other policies ....
-
         return isValid;
+    }
+
+    private List<Policy> getPasswordPolicies(final SyncopeUser user) {
+        final List<Policy> policies = new ArrayList<Policy>();
+
+        // Add global policy
+        Policy policy = policyDAO.getGlobalPasswordPolicy();
+
+        if (policy != null) {
+            policies.add(policy);
+        }
+
+        // add resource policies
+        for (TargetResource resource : user.getTargetResources()) {
+            policy = resource.getPasswordPolicy();
+            if (policy != null) {
+                policies.add(policy);
+            }
+        }
+
+        // add role policies
+        for (SyncopeRole role : user.getRoles()) {
+            policy = role.getPasswordPolicy();
+            if (policy != null) {
+                policies.add(policy);
+            }
+        }
+
+        return policies;
     }
 }

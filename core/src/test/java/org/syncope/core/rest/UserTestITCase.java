@@ -50,7 +50,7 @@ public class UserTestITCase extends AbstractTest {
 
     public static UserTO getSampleTO(final String email) {
         UserTO userTO = new UserTO();
-        userTO.setPassword("password");
+        userTO.setPassword("password123");
 
         AttributeTO usernameTO = new AttributeTO();
         usernameTO.setSchema("username");
@@ -143,7 +143,7 @@ public class UserTestITCase extends AbstractTest {
         attributeTO.addValue("xxx");
         userTO.addAttribute(attributeTO);
 
-        userTO.setPassword("password");
+        userTO.setPassword("password123");
         userTO.addResource("ws-target-resource-nopropagation");
 
         restTemplate.postForObject(BASE_URL + "user/create"
@@ -270,6 +270,38 @@ public class UserTestITCase extends AbstractTest {
 
     @Test
     @ExpectedException(value = SyncopeClientCompositeErrorException.class)
+    public final void createWithInvalidPasswordByRes() {
+        UserTO userTO = getSampleTO("invalidPwdByRes@passwd.com");
+
+        // configured to be minLength=16
+        userTO.setPassword("password1");
+
+        userTO.setResources(
+                Collections.singleton("ws-target-resource-nopropagation"));
+
+        restTemplate.postForObject(
+                BASE_URL + "user/create", userTO, UserTO.class);
+    }
+
+    @Test
+    @ExpectedException(value = SyncopeClientCompositeErrorException.class)
+    public final void createWithInvalidPasswordByRol() {
+        UserTO userTO = getSampleTO("invalidPwdByRol@passwd.com");
+
+        // configured to be minLength=16
+        userTO.setPassword("password1");
+
+        final MembershipTO membership = new MembershipTO();
+        membership.setRoleId(8L);
+
+        userTO.addMembership(membership);
+
+        restTemplate.postForObject(
+                BASE_URL + "user/create", userTO, UserTO.class);
+    }
+
+    @Test
+    @ExpectedException(value = SyncopeClientCompositeErrorException.class)
     public final void createWithException() {
         AttributeTO attributeTO = new AttributeTO();
         attributeTO.setSchema("userId");
@@ -385,7 +417,7 @@ public class UserTestITCase extends AbstractTest {
 
         // 3. verify password
         Boolean verify = restTemplate.getForObject(
-                BASE_URL + "user/verifyPassword/{userId}?password=password",
+                BASE_URL + "user/verifyPassword/{userId}?password=password123",
                 Boolean.class, newUserTO.getId());
         assertTrue(verify);
         verify = restTemplate.getForObject(
@@ -738,7 +770,7 @@ public class UserTestITCase extends AbstractTest {
 
         UserMod userMod = new UserMod();
         userMod.setId(userTO.getId());
-        userMod.setPassword("password");
+        userMod.setPassword("password123");
 
         restTemplate.postForObject(
                 BASE_URL + "user/update", userMod, UserTO.class);
