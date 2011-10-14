@@ -164,6 +164,7 @@ public class UserModalPage extends BaseModalPage {
                 } catch (SyncopeClientCompositeErrorException e) {
                     LOG.error("While creating or updating user", e);
                     error(getString("error") + ":" + e.getMessage());
+                    target.add(feedbackPanel);
                 }
             }
 
@@ -345,8 +346,7 @@ public class UserModalPage extends BaseModalPage {
         for (AttributeTO oldAttribute : oldUser.getAttributes()) {
             if (attributeTO.getSchema().equals(oldAttribute.getSchema())) {
 
-                if (!attributeTO.equals(oldAttribute) && !oldAttribute.
-                        isReadonly()) {
+                if (!attributeTO.equals(oldAttribute) && !oldAttribute.isReadonly()) {
 
                     if (attributeTO.getValues().size() > 1) {
                         attributeMod.setValuesToBeAdded(

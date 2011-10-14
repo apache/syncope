@@ -180,6 +180,7 @@ public class RoleModalPage extends BaseModalPage {
                     window.close(target);
                 } catch (Exception e) {
                     error(getString("error") + ":" + e.getMessage());
+                    target.add(feedbackPanel);
                 }
             }
 
