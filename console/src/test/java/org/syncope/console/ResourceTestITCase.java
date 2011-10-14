@@ -18,6 +18,7 @@ import org.junit.Test;
 public class ResourceTestITCase extends AbstractTest {
 
     @Test
+    @SuppressWarnings("SleepWhileHoldingLock")
     public void browseCreateModal() {
         selenium.setSpeed("1000");
 
@@ -45,6 +46,7 @@ public class ResourceTestITCase extends AbstractTest {
     }
 
     @Test
+    @SuppressWarnings("SleepWhileHoldingLock")
     public void browseEditModal() {
         selenium.setSpeed("1000");
 
@@ -88,7 +90,6 @@ public class ResourceTestITCase extends AbstractTest {
         assertTrue(selenium.getConfirmation().matches(
                 "^Do you really want to delete the selected item[\\s\\S]$"));
         selenium.click("name=apply");
-
     }
 
     @Test

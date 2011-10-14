@@ -18,6 +18,7 @@ import org.junit.Test;
 public class UserTestITCase extends AbstractTest {
 
     @Test
+    @SuppressWarnings("SleepWhileHoldingLock")
     public void browseCreateModal() {
         selenium.setSpeed("1000");
 
@@ -49,12 +50,14 @@ public class UserTestITCase extends AbstractTest {
     }
 
     @Test
+    @SuppressWarnings("SleepWhileHoldingLock")
     public void browseEditModal() {
         selenium.setSpeed("1000");
 
         selenium.click("css=img[alt=\"Users\"]");
         selenium.waitForPageToLoad("30000");
         selenium.click("//tr[3]/td[4]/span/a");
+
         for (int second = 0;; second++) {
             if (second >= 60) {
                 fail("timeout");
@@ -105,14 +108,17 @@ public class UserTestITCase extends AbstractTest {
     public void delete() {
         selenium.click("css=img[alt=\"Users\"]");
         selenium.waitForPageToLoad("30000");
-        selenium.click("//tr[3]/td[5]/span/a");
+        selenium.click("//tr[4]/td[5]/span/a");
         assertTrue(selenium.getConfirmation().matches(
                 "^Do you really want to delete the selected item[\\s\\S]$"));
         try {
             Thread.sleep(2000);
         } catch (InterruptedException e) {
         }
-        assertTrue(selenium.isTextPresent(
-                "Propagation [ws-target-resource-delete]"));
+
+        // it depends on the execution order of tests: resources
+        // 'ws-target-resource-delete' could have been deleted from
+        // ResourceTestITCase#delete
+        assertTrue(selenium.isTextPresent("Operation executed successfully"));
     }
 }
