@@ -132,21 +132,18 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
         }
 
         // inherited attributes
-        if (roleMod.isChangeInheritAttributes()) {
-            role.setInheritAttributes(
-                    !role.isInheritAttributes());
+        if (roleMod.getInheritAttributes() != null) {
+            role.setInheritAttributes(roleMod.getInheritAttributes());
         }
 
         // inherited derived attributes
-        if (roleMod.isChangeInheritDerivedAttributes()) {
-            role.setInheritDerivedAttributes(
-                    !role.isInheritDerivedAttributes());
+        if (roleMod.getInheritDerivedAttributes() != null) {
+            role.setInheritDerivedAttributes(roleMod.getInheritDerivedAttributes());
         }
 
         // inherited virtual attributes
-        if (roleMod.isChangeInheritVirtualAttributes()) {
-            role.setInheritVirtualAttributes(
-                    !role.isInheritVirtualAttributes());
+        if (roleMod.getInheritVirtualAttributes() != null) {
+            role.setInheritVirtualAttributes(roleMod.getInheritVirtualAttributes());
         }
 
         // entitlements

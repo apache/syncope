@@ -27,7 +27,6 @@ import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.markup.html.form.palette.Palette;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.PropertyModel;
@@ -102,10 +101,12 @@ public class RoleModalPage extends BaseModalPage {
 
         form.add(new AttributesPanel("attributes", roleTO, form));
 
-        final AjaxCheckBoxPanel inheritAttributes = new AjaxCheckBoxPanel(
-                "inheritAttributes", getString("inheritAttributes"),
-                new PropertyModel<Boolean>(roleTO, "inheritAttributes"), false);
-        form.add(inheritAttributes);
+        final AjaxCheckBoxPanel inhAttributes = new AjaxCheckBoxPanel(
+                "inheritAttributes",
+                getString("inheritAttributes"),
+                new PropertyModel<Boolean>(roleTO, "inheritAttributes"),
+                false);
+        form.add(inhAttributes);
         //--------------------------------
 
         //--------------------------------
@@ -113,10 +114,13 @@ public class RoleModalPage extends BaseModalPage {
         //--------------------------------
         form.add(new DerivedAttributesPanel("derivedAttributes", roleTO));
 
-        final CheckBox inheritDerivedAttributes =
-                new CheckBox("inheritDerivedAttributes");
-        inheritDerivedAttributes.setOutputMarkupId(true);
-        form.add(inheritDerivedAttributes);
+        final AjaxCheckBoxPanel inhDerivedAttributes = new AjaxCheckBoxPanel(
+                "inheritDerivedAttributes",
+                getString("inheritDerivedAttributes"),
+                new PropertyModel<Boolean>(roleTO, "inheritDerivedAttributes"),
+                false);
+        inhDerivedAttributes.setOutputMarkupId(true);
+        form.add(inhDerivedAttributes);
         //--------------------------------
 
         //--------------------------------
@@ -124,10 +128,13 @@ public class RoleModalPage extends BaseModalPage {
         //--------------------------------
         form.add(new VirtualAttributesPanel("virtualAttributes", roleTO));
 
-        final CheckBox inheritVirtualAttributes =
-                new CheckBox("inheritVirtualAttributes");
-        inheritVirtualAttributes.setOutputMarkupId(true);
-        form.add(inheritVirtualAttributes);
+        final AjaxCheckBoxPanel inhVirtualAttributes = new AjaxCheckBoxPanel(
+                "inheritVirtualAttributes",
+                getString("inheritVirtualAttributes"),
+                new PropertyModel<Boolean>(roleTO, "inheritVirtualAttributes"),
+                false);
+        inhVirtualAttributes.setOutputMarkupId(true);
+        form.add(inhVirtualAttributes);
         //--------------------------------
 
         form.add(new ResourcesPanel("resources", roleTO));
@@ -274,6 +281,15 @@ public class RoleModalPage extends BaseModalPage {
 
     private void setupRoleMod(final RoleTO roleTO) {
         roleMod = new RoleMod();
+
+        roleMod.setInheritAttributes(
+                roleTO.isInheritAttributes());
+
+        roleMod.setInheritDerivedAttributes(
+                roleTO.isInheritDerivedAttributes());
+
+        roleMod.setInheritVirtualAttributes(
+                roleTO.isInheritVirtualAttributes());
 
         //1.Check if the role's name has been changed
         if (!oldRole.getName().equals(roleTO.getName())) {

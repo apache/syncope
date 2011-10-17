@@ -24,11 +24,11 @@ public class RoleMod extends AbstractAttributableMod {
 
     private String name;
 
-    private boolean changeInheritAttributes;
+    private Boolean inheritAttributes;
 
-    private boolean changeInheritDerivedAttributes;
+    private Boolean inheritDerivedAttributes;
 
-    private boolean changeInheritVirtualAttributes;
+    private Boolean inheritVirtualAttributes;
 
     private List<String> entitlements;
 
@@ -40,32 +40,31 @@ public class RoleMod extends AbstractAttributableMod {
         entitlements = new ArrayList<String>();
     }
 
-    public boolean isChangeInheritAttributes() {
-        return changeInheritAttributes;
+    public Boolean getInheritAttributes() {
+        return inheritAttributes;
     }
 
-    public void setChangeInheritAttributes(boolean changeInheritAttributes) {
-        this.changeInheritAttributes = changeInheritAttributes;
+    public void setInheritAttributes(
+            final Boolean inheritAttributes) {
+        this.inheritAttributes = inheritAttributes;
     }
 
-    public boolean isChangeInheritDerivedAttributes() {
-        return changeInheritDerivedAttributes;
+    public Boolean getInheritDerivedAttributes() {
+        return inheritDerivedAttributes;
     }
 
-    public void setChangeInheritDerivedAttributes(
-            boolean changeInheritDerivedAttributes) {
-
-        this.changeInheritDerivedAttributes = changeInheritDerivedAttributes;
+    public void setInheritDerivedAttributes(
+            final Boolean inheritDerivedAttributes) {
+        this.inheritDerivedAttributes = inheritDerivedAttributes;
     }
 
-    public boolean isChangeInheritVirtualAttributes() {
-        return changeInheritVirtualAttributes;
+    public Boolean getInheritVirtualAttributes() {
+        return inheritVirtualAttributes;
     }
 
-    public void setChangeInheritVirtualAttributes(
-            boolean changeInheritVirtualAttributes) {
-
-        this.changeInheritVirtualAttributes = changeInheritVirtualAttributes;
+    public void setInheritVirtualAttributes(
+            final Boolean inheritVirtualAttributes) {
+        this.inheritVirtualAttributes = inheritVirtualAttributes;
     }
 
     public String getName() {
