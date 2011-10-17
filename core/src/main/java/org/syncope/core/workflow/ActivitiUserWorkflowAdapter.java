@@ -181,7 +181,7 @@ public class ActivitiUserWorkflowAdapter implements UserWorkflowAdapter {
 
         PropagationByResource propByRes = new PropagationByResource();
         propByRes.addAll(
-                PropagationOperation.UPDATE, user.getTargetResources());
+                PropagationOperation.UPDATE, user.getExternalResources());
         propagationManager.update(user, null, propByRes, null);
 
         return updated;
@@ -227,7 +227,7 @@ public class ActivitiUserWorkflowAdapter implements UserWorkflowAdapter {
 
         PropagationByResource propByRes = new PropagationByResource();
         propByRes.addAll(
-                PropagationOperation.UPDATE, user.getTargetResources());
+                PropagationOperation.UPDATE, user.getExternalResources());
         propagationManager.update(user, null, propByRes, null);
 
         return updated;
@@ -243,7 +243,7 @@ public class ActivitiUserWorkflowAdapter implements UserWorkflowAdapter {
 
         PropagationByResource propByRes = new PropagationByResource();
         propByRes.addAll(
-                PropagationOperation.UPDATE, user.getTargetResources());
+                PropagationOperation.UPDATE, user.getExternalResources());
         propagationManager.update(user, null, propByRes, null);
 
         return updated;

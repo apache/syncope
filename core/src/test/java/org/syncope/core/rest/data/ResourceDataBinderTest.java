@@ -22,7 +22,7 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.syncope.client.to.ResourceTO;
-import org.syncope.core.persistence.beans.TargetResource;
+import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.types.ConnConfProperty;
 
 public class ResourceDataBinderTest {
@@ -31,13 +31,13 @@ public class ResourceDataBinderTest {
 
     private ResourceTO resourceTO;
 
-    private TargetResource resource;
+    private ExternalResource resource;
 
     @Before
     public void before() {
         rdb = new ResourceDataBinder();
         resourceTO = new ResourceTO();
-        resource = new TargetResource();
+        resource = new ExternalResource();
     }
 
     @Test
@@ -45,7 +45,7 @@ public class ResourceDataBinderTest {
         Set<ConnConfProperty> props = new HashSet<ConnConfProperty>();
         resourceTO.setConnectorConfigurationProperties(props);
 
-        TargetResource res = rdb.getResource(resourceTO);
+        ExternalResource res = rdb.getResource(resourceTO);
 
         assertEquals("configuration properties should be filled",
                 props, res.getConfiguration());

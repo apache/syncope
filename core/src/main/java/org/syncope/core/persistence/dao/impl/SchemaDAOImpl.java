@@ -94,7 +94,7 @@ public class SchemaDAOImpl extends AbstractDAOImpl
             attributeDAO.delete(attributeId, attributableUtil.attributeClass());
         }
 
-        resourceDAO.deleteMappings(name, attributableUtil.sourceMappingType());
+        resourceDAO.deleteMappings(name, attributableUtil.intMappingType());
 
         entityManager.remove(schema);
     }

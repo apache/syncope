@@ -21,7 +21,7 @@ import javax.validation.ConstraintValidatorContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.syncope.core.persistence.beans.AbstractAttributable;
 import org.syncope.core.persistence.beans.Policy;
-import org.syncope.core.persistence.beans.TargetResource;
+import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.PolicyDAO;
@@ -111,7 +111,7 @@ public class AttributableValidator extends AbstractValidator
         }
 
         // add resource policies
-        for (TargetResource resource : user.getTargetResources()) {
+        for (ExternalResource resource : user.getExternalResources()) {
             policy = resource.getPasswordPolicy();
             if (policy != null) {
                 policies.add(policy);

@@ -21,7 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.syncope.core.init.ConnInstanceLoader;
 import org.syncope.core.persistence.beans.ConnInstance;
-import org.syncope.core.persistence.beans.TargetResource;
+import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.core.persistence.dao.ConnInstanceDAO;
 
 @Repository
@@ -38,15 +38,18 @@ public class ConnInstanceDAOImpl extends AbstractDAOImpl
 
     @Override
     public List<ConnInstance> findAll() {
-        Query query = entityManager.createQuery("SELECT e FROM ConnInstance e");
+        Query query = entityManager.createQuery("SELECT e "
+                + "FROM " + ConnInstance.class.getSimpleName() + " e");
         return query.getResultList();
     }
 
     @Override
-    public List<TargetResource> findTargetResources(
+    public List<ExternalResource> findExternalResources(
             final ConnInstance connector) {
-        final Query query = entityManager.createQuery(
-                "SELECT e FROM TargetResource e WHERE connector=:connector");
+
+        final Query query = entityManager.createQuery("SELECT e "
+                + "FROM " + ExternalResource.class.getSimpleName() + " e "
+                + "WHERE connector=:connector");
 
         query.setParameter("connector", connector);
 
@@ -57,9 +60,9 @@ public class ConnInstanceDAOImpl extends AbstractDAOImpl
     public ConnInstance save(final ConnInstance connector) {
         final ConnInstance merged = entityManager.merge(connector);
 
-        final List<TargetResource> resources = findTargetResources(merged);
+        final List<ExternalResource> resources = findExternalResources(merged);
 
-        for (TargetResource resource : resources) {
+        for (ExternalResource resource : resources) {
             try {
                 connInstanceLoader.registerConnector(resource);
             } catch (NotFoundException e) {

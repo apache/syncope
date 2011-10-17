@@ -23,11 +23,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.ExpectedException;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.ConnInstance;
-import org.syncope.core.persistence.beans.TargetResource;
+import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.AbstractTest;
 import org.syncope.core.persistence.validation.entity.InvalidEntityException;
-import org.syncope.types.SourceMappingType;
+import org.syncope.types.IntMappingType;
 
 @Transactional
 public class ResourceTest extends AbstractTest {
@@ -37,7 +37,7 @@ public class ResourceTest extends AbstractTest {
 
     @Test
     public final void findById() {
-        TargetResource resource =
+        ExternalResource resource =
                 resourceDAO.find("ws-target-resource-1");
 
         assertNotNull("findById did not work", resource);
@@ -75,20 +75,20 @@ public class ResourceTest extends AbstractTest {
     public final void getAccountId() {
         SchemaMapping mapping = resourceDAO.getMappingForAccountId(
                 "ws-target-resource-2");
-        assertEquals("username", mapping.getSourceAttrName());
+        assertEquals("username", mapping.getIntAttrName());
     }
 
     @Test
     public final void save() {
-        TargetResource resource = new TargetResource();
+        ExternalResource resource = new ExternalResource();
         resource.setName("ws-target-resource-basic-save");
 
         SchemaMapping accountId = new SchemaMapping();
         accountId.setResource(resource);
         accountId.setAccountid(true);
-        accountId.setDestAttrName("username");
-        accountId.setSourceAttrName("username");
-        accountId.setSourceMappingType(SourceMappingType.SyncopeUserId);
+        accountId.setExtAttrName("username");
+        accountId.setIntAttrName("username");
+        accountId.setIntMappingType(IntMappingType.SyncopeUserId);
 
         resource.addMapping(accountId);
 
@@ -98,7 +98,7 @@ public class ResourceTest extends AbstractTest {
         resource.setConnector(connector);
 
         // save the resource
-        TargetResource actual = resourceDAO.save(resource);
+        ExternalResource actual = resourceDAO.save(resource);
 
         assertNotNull(actual);
         assertNotNull(actual.getConnector());
@@ -106,60 +106,60 @@ public class ResourceTest extends AbstractTest {
 
     @Test
     @ExpectedException(value = InvalidEntityException.class)
-    public final void saveInvalidMappingSourceAttr() {
+    public final void saveInvalidMappingIntAttr() {
 
-        TargetResource resource = new TargetResource();
+        ExternalResource resource = new ExternalResource();
         resource.setName("ws-target-resource-basic-save-invalid");
 
         SchemaMapping accountId = new SchemaMapping();
         accountId.setResource(resource);
         accountId.setAccountid(true);
-        accountId.setSourceMappingType(SourceMappingType.UserSchema);
+        accountId.setIntMappingType(IntMappingType.UserSchema);
 
         resource.addMapping(accountId);
 
         // save the resource
-        TargetResource actual = resourceDAO.save(resource);
+        ExternalResource actual = resourceDAO.save(resource);
 
         assertNotNull(actual);
     }
 
     @Test
     @ExpectedException(value = InvalidEntityException.class)
-    public final void saveInvalidMappingDestAttr() {
+    public final void saveInvalidMappingExtAttr() {
 
-        TargetResource resource = new TargetResource();
+        ExternalResource resource = new ExternalResource();
         resource.setName("ws-target-resource-basic-save-invalid");
 
         SchemaMapping mapping = new SchemaMapping();
         mapping.setResource(resource);
         mapping.setAccountid(true);
-        mapping.setSourceAttrName("username");
-        mapping.setSourceMappingType(SourceMappingType.UserSchema);
+        mapping.setIntAttrName("username");
+        mapping.setIntMappingType(IntMappingType.UserSchema);
 
         resource.addMapping(mapping);
 
         mapping = new SchemaMapping();
         mapping.setResource(resource);
-        mapping.setSourceAttrName("username");
-        mapping.setSourceMappingType(SourceMappingType.UserSchema);
+        mapping.setIntAttrName("username");
+        mapping.setIntMappingType(IntMappingType.UserSchema);
 
         resource.addMapping(mapping);
 
         // save the resource
-        TargetResource actual = resourceDAO.save(resource);
+        ExternalResource actual = resourceDAO.save(resource);
 
         assertNotNull(actual);
     }
 
     @Test
     public final void delete() {
-        TargetResource resource = resourceDAO.find("ws-target-resource-2");
+        ExternalResource resource = resourceDAO.find("ws-target-resource-2");
         assertNotNull(resource);
 
         resourceDAO.delete(resource.getName());
 
-        TargetResource actual = resourceDAO.find("ws-target-resource-2");
+        ExternalResource actual = resourceDAO.find("ws-target-resource-2");
         assertNull(actual);
     }
 }

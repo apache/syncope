@@ -32,13 +32,13 @@ public class SyncTask extends SchedTask {
     private static final long serialVersionUID = -4141057723006682562L;
 
     /**
-     * TargetResource to which the sync happens.
+     * ExternalResource to which the sync happens.
      */
     @ManyToOne
-    private TargetResource resource;
+    private ExternalResource resource;
 
     @OneToMany
-    private List<TargetResource> defaultResources;
+    private List<ExternalResource> defaultResources;
 
     @OneToMany
     private List<SyncopeRole> defaultRoles;
@@ -54,7 +54,7 @@ public class SyncTask extends SchedTask {
     public SyncTask() {
         super();
 
-        defaultResources = new ArrayList<TargetResource>();
+        defaultResources = new ArrayList<ExternalResource>();
         defaultRoles = new ArrayList<SyncopeRole>();
         super.setJobClassName(SyncJob.class.getName());
     }
@@ -63,28 +63,28 @@ public class SyncTask extends SchedTask {
     public void setJobClassName(String jobClassName) {
     }
 
-    public TargetResource getResource() {
+    public ExternalResource getResource() {
         return resource;
     }
 
-    public void setResource(TargetResource resource) {
+    public void setResource(ExternalResource resource) {
         this.resource = resource;
     }
 
-    public boolean addDefaultResource(TargetResource resource) {
+    public boolean addDefaultResource(ExternalResource resource) {
         return resource != null && !defaultResources.contains(resource)
                 && defaultResources.add(resource);
     }
 
-    public boolean removeDefaultResource(TargetResource resource) {
+    public boolean removeDefaultResource(ExternalResource resource) {
         return resource != null && defaultResources.remove(resource);
     }
 
-    public List<TargetResource> getDefaultResources() {
+    public List<ExternalResource> getDefaultResources() {
         return defaultResources;
     }
 
-    public void setDefaultResources(List<TargetResource> defaultResources) {
+    public void setDefaultResources(List<ExternalResource> defaultResources) {
         this.defaultResources.clear();
         if (defaultResources != null && !defaultResources.isEmpty()) {
             this.defaultResources.addAll(defaultResources);

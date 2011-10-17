@@ -22,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.SchedTask;
 import org.syncope.core.persistence.beans.SyncTask;
 import org.syncope.core.persistence.beans.Task;
-import org.syncope.core.persistence.beans.TargetResource;
+import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.core.persistence.dao.TaskDAO;
 
 @Repository
@@ -51,7 +51,7 @@ public class TaskDAOImpl extends AbstractDAOImpl
 
     @Override
     public <T extends Task> List<T> findAll(
-            final TargetResource resource, final Class<T> reference) {
+            final ExternalResource resource, final Class<T> reference) {
 
         StringBuilder queryString = buildfindAllQuery(reference);
         if (SchedTask.class.equals(reference)) {
@@ -120,7 +120,7 @@ public class TaskDAOImpl extends AbstractDAOImpl
 
     @Override
     public <T extends Task> void deleteAll(
-            final TargetResource resource, final Class<T> reference) {
+            final ExternalResource resource, final Class<T> reference) {
 
         List<T> tasks = findAll(resource, reference);
         if (tasks != null) {

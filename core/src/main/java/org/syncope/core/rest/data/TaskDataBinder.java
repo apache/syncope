@@ -36,7 +36,7 @@ import org.syncope.core.init.JobInstanceLoader;
 import org.syncope.core.persistence.beans.PropagationTask;
 import org.syncope.core.persistence.beans.SchedTask;
 import org.syncope.core.persistence.beans.SyncTask;
-import org.syncope.core.persistence.beans.TargetResource;
+import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.core.persistence.beans.Task;
 import org.syncope.core.persistence.beans.TaskExec;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
@@ -72,7 +72,7 @@ public class TaskDataBinder {
     private void fill(final SyncTask task, final List<String> resources,
             final List<Long> roles, boolean updateIndentities) {
 
-        TargetResource resource;
+        ExternalResource resource;
         for (String resourceName : resources) {
             resource = resourceDAO.find(resourceName);
             if (resource == null) {
@@ -110,7 +110,7 @@ public class TaskDataBinder {
             case SYNC:
                 SyncTaskTO syncTaskTO = (SyncTaskTO) taskTO;
 
-                TargetResource resource = resourceDAO.find(syncTaskTO.
+                ExternalResource resource = resourceDAO.find(syncTaskTO.
                         getResource());
                 if (resource == null) {
                     throw new NotFoundException("Resource "
@@ -198,7 +198,7 @@ public class TaskDataBinder {
 
                 ((SyncTaskTO) taskTO).setResource(
                         ((SyncTask) task).getResource().getName());
-                for (TargetResource resource :
+                for (ExternalResource resource :
                         ((SyncTask) task).getDefaultResources()) {
 
                     ((SyncTaskTO) taskTO).addDefaultResource(resource.getName());

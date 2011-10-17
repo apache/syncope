@@ -54,12 +54,12 @@ public class PropagationTask extends Task {
     private PropagationOperation resourceOperationType;
 
     /**
-     * The accountId on the target resource.
+     * The accountId on the external resource.
      */
     private String accountId;
 
     /**
-     * The (optional) former accountId on the target resource.
+     * The (optional) former accountId on the external resource.
      */
     private String oldAccountId;
 
@@ -71,10 +71,10 @@ public class PropagationTask extends Task {
     private String xmlAttributes;
 
     /**
-     * TargetResource to which the propagation happens.
+     * ExternalResource to which the propagation happens.
      */
     @ManyToOne
-    private TargetResource resource;
+    private ExternalResource resource;
 
     public String getAccountId() {
         return accountId;
@@ -138,11 +138,11 @@ public class PropagationTask extends Task {
         this.resourceOperationType = resourceOperationType;
     }
 
-    public TargetResource getResource() {
+    public ExternalResource getResource() {
         return resource;
     }
 
-    public void setResource(TargetResource resource) {
+    public void setResource(ExternalResource resource) {
         this.resource = resource;
     }
 }

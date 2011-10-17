@@ -59,7 +59,7 @@ import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.syncope.console.wicket.markup.html.form.FieldPanel;
 import org.syncope.types.ConnConfProperty;
 import org.syncope.types.PropagationMode;
-import org.syncope.types.SourceMappingType;
+import org.syncope.types.IntMappingType;
 import org.syncope.types.TraceLevel;
 
 /**
@@ -68,20 +68,31 @@ import org.syncope.types.TraceLevel;
 public class ResourceModalPage extends BaseModalPage {
 
     private static final long serialVersionUID = 1734415311027284221L;
+
     private static final String GUARDED_STRING =
             "org.identityconnectors.common.security.GuardedString";
+
     @SpringBean
     private SchemaRestClient schemaRestClient;
+
     @SpringBean
     private ConnectorRestClient connectorRestClient;
+
     @SpringBean
     private ResourceRestClient restClient;
+
     private List<String> uSchemaAttrNames;
+
     private List<String> uDerSchemaAttrNames;
+
     private List<String> uVirSchemaAttrNames;
+
     private WebMarkupContainer mappingContainer;
+
     private WebMarkupContainer connectorPropertiesContainer;
+
     private Set<ConnConfProperty> overridableConnectorProperties;
+
     private List<String> resourceSchemaNames;
 
     public ResourceModalPage(final PageReference callPageRef,
@@ -109,15 +120,15 @@ public class ResourceModalPage extends BaseModalPage {
                     }
                 };
 
-        final IModel<List<SourceMappingType>> sourceMappingTypes =
-                new LoadableDetachableModel<List<SourceMappingType>>() {
+        final IModel<List<IntMappingType>> intMappingTypes =
+                new LoadableDetachableModel<List<IntMappingType>>() {
 
                     private static final long serialVersionUID =
                             5275935387613157437L;
 
                     @Override
-                    protected List<SourceMappingType> load() {
-                        return Arrays.asList(SourceMappingType.values());
+                    protected List<IntMappingType> load() {
+                        return Arrays.asList(IntMappingType.values());
                     }
                 };
         final IModel<List<ConnConfProperty>> connectorPropertiesModel =
@@ -306,88 +317,89 @@ public class ResourceModalPage extends BaseModalPage {
                             }
                         });
 
-                        final AjaxDropDownChoicePanel sourceAttrNames =
+                        final AjaxDropDownChoicePanel intAttrNames =
                                 new AjaxDropDownChoicePanel<String>(
-                                "sourceAttrNames",
-                                getString("sourceAttrNames"),
-                                new PropertyModel(mappingTO, "sourceAttrName"),
+                                "intAttrNames",
+                                getString("intAttrNames"),
+                                new PropertyModel(mappingTO, "intAttrName"),
                                 true);
-                        sourceAttrNames.setChoices(resourceSchemaNames);
-                        sourceAttrNames.setRequired(true);
-                        sourceAttrNames.setStyleShet(
+                        intAttrNames.setChoices(resourceSchemaNames);
+                        intAttrNames.setRequired(true);
+                        intAttrNames.setStyleShet(
                                 "ui-widget-content ui-corner-all short_fixedsize");
 
-                        if (mappingTO.getSourceMappingType() == null) {
-                            sourceAttrNames.setChoices(Collections.EMPTY_LIST);
+                        if (mappingTO.getIntMappingType() == null) {
+                            intAttrNames.setChoices(Collections.EMPTY_LIST);
                         } else {
-                            switch (mappingTO.getSourceMappingType()) {
+                            switch (mappingTO.getIntMappingType()) {
                                 case UserSchema:
-                                    sourceAttrNames.setChoices(uSchemaAttrNames);
+                                    intAttrNames.setChoices(uSchemaAttrNames);
                                     break;
 
                                 case UserDerivedSchema:
-                                    sourceAttrNames.setChoices(
+                                    intAttrNames.setChoices(
                                             uDerSchemaAttrNames);
                                     break;
 
                                 case UserVirtualSchema:
-                                    sourceAttrNames.setChoices(
+                                    intAttrNames.setChoices(
                                             uVirSchemaAttrNames);
                                     break;
 
                                 case SyncopeUserId:
-                                    sourceAttrNames.setEnabled(false);
-                                    sourceAttrNames.setRequired(false);
-                                    sourceAttrNames.setChoices(
+                                    intAttrNames.setEnabled(false);
+                                    intAttrNames.setRequired(false);
+                                    intAttrNames.setChoices(
                                             Collections.EMPTY_LIST);
-                                    mappingTO.setSourceAttrName("SyncopeUserId");
+                                    mappingTO.setIntAttrName("SyncopeUserId");
                                     break;
 
                                 case Password:
-                                    sourceAttrNames.setEnabled(false);
-                                    sourceAttrNames.setRequired(false);
-                                    sourceAttrNames.setChoices(
+                                    intAttrNames.setEnabled(false);
+                                    intAttrNames.setRequired(false);
+                                    intAttrNames.setChoices(
                                             Collections.EMPTY_LIST);
-                                    mappingTO.setSourceAttrName("Password");
+                                    mappingTO.setIntAttrName("Password");
                                     break;
 
                                 default:
-                                    sourceAttrNames.setChoices(
+                                    intAttrNames.setChoices(
                                             Collections.EMPTY_LIST);
                             }
                         }
-                        item.add(sourceAttrNames);
+                        item.add(intAttrNames);
 
-                        final SourceMappingTypesDropDownChoice mappingTypesPanel =
-                                new SourceMappingTypesDropDownChoice(
-                                "sourceMappingTypes",
-                                getString("sourceMappingTypes"),
-                                new PropertyModel<SourceMappingType>(
-                                mappingTO, "sourceMappingType"),
-                                sourceAttrNames);
+                        final IntMappingTypesDropDownChoice mappingTypesPanel =
+                                new IntMappingTypesDropDownChoice(
+                                "intMappingTypes",
+                                getString("intMappingTypes"),
+                                new PropertyModel<IntMappingType>(
+                                mappingTO, "intMappingType"),
+                                intAttrNames);
 
                         mappingTypesPanel.setRequired(true);
-                        mappingTypesPanel.setChoices(sourceMappingTypes.getObject());
+                        mappingTypesPanel.setChoices(intMappingTypes.
+                                getObject());
                         mappingTypesPanel.setStyleShet(
                                 "ui-widget-content ui-corner-all short_fixedsize");
                         item.add(mappingTypesPanel);
 
-                        final FieldPanel destAttrName;
+                        final FieldPanel extAttrName;
 
                         if (resourceSchemaNames.isEmpty()) {
-                            destAttrName = new AjaxTextFieldPanel(
-                                    "destAttrName", getString("destAttrNames"),
+                            extAttrName = new AjaxTextFieldPanel(
+                                    "extAttrName", getString("extAttrNames"),
                                     new PropertyModel<String>(mappingTO,
-                                    "destAttrName"),
+                                    "extAttrName"),
                                     true);
 
                         } else {
-                            destAttrName =
+                            extAttrName =
                                     new AjaxDropDownChoicePanel<String>(
-                                    "destAttrName", getString("destAttrNames"),
-                                    new PropertyModel(mappingTO, "destAttrName"),
+                                    "extAttrName", getString("extAttrNames"),
+                                    new PropertyModel(mappingTO, "extAttrName"),
                                     true);
-                            ((AjaxDropDownChoicePanel) destAttrName).setChoices(
+                            ((AjaxDropDownChoicePanel) extAttrName).setChoices(
                                     resourceSchemaNames);
 
                         }
@@ -396,12 +408,12 @@ public class ResourceModalPage extends BaseModalPage {
                                 && !mappingTO.isAccountid()
                                 && !mappingTO.isPassword();
 
-                        destAttrName.setRequired(required);
-                        destAttrName.setEnabled(required);
+                        extAttrName.setRequired(required);
+                        extAttrName.setEnabled(required);
 
-                        destAttrName.setStyleShet(
+                        extAttrName.setStyleShet(
                                 "ui-widget-content ui-corner-all short_fixedsize");
-                        item.add(destAttrName);
+                        item.add(extAttrName);
 
                         final AjaxTextFieldPanel mandatoryCondition =
                                 new AjaxTextFieldPanel(
@@ -433,13 +445,13 @@ public class ResourceModalPage extends BaseModalPage {
                                     @Override
                                     protected void onUpdate(
                                             AjaxRequestTarget target) {
-                                        destAttrName.setEnabled(
+                                        extAttrName.setEnabled(
                                                 !accountId.getModelObject()
                                                 && !mappingTO.isPassword());
-                                        destAttrName.setModelObject(null);
-                                        destAttrName.setRequired(
+                                        extAttrName.setModelObject(null);
+                                        extAttrName.setRequired(
                                                 !accountId.getModelObject());
-                                        target.add(destAttrName);
+                                        target.add(extAttrName);
                                     }
                                 });
 
@@ -459,13 +471,13 @@ public class ResourceModalPage extends BaseModalPage {
                                     @Override
                                     protected void onUpdate(
                                             AjaxRequestTarget target) {
-                                        destAttrName.setEnabled(
+                                        extAttrName.setEnabled(
                                                 !mappingTO.isAccountid()
                                                 && !password.getModelObject());
-                                        destAttrName.setModelObject(null);
-                                        destAttrName.setRequired(
+                                        extAttrName.setModelObject(null);
+                                        extAttrName.setRequired(
                                                 !password.getModelObject());
-                                        target.add(destAttrName);
+                                        target.add(extAttrName);
                                     }
                                 });
 
@@ -656,15 +668,15 @@ public class ResourceModalPage extends BaseModalPage {
      * It's purposed for storing values in the
      * corresponding property model after pressing 'Add' button.
      */
-    private class SourceMappingTypesDropDownChoice
+    private class IntMappingTypesDropDownChoice
             extends AjaxDropDownChoicePanel {
 
         private static final long serialVersionUID = -2855668124505116627L;
 
-        public SourceMappingTypesDropDownChoice(
+        public IntMappingTypesDropDownChoice(
                 final String id,
                 final String name,
-                final PropertyModel<SourceMappingType> model,
+                final PropertyModel<IntMappingType> model,
                 final AjaxDropDownChoicePanel<String> chooserToPopulate) {
 
             super(id, name, model, false);

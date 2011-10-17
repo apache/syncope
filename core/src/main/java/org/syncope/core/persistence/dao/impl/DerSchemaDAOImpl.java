@@ -87,7 +87,7 @@ public class DerSchemaDAOImpl extends AbstractDAOImpl implements DerSchemaDAO {
         }
 
         resourceDAO.deleteMappings(
-                name, attributableUtil.derivedSourceMappingType());
+                name, attributableUtil.derivedIntMappingType());
 
         entityManager.remove(derivedSchema);
     }

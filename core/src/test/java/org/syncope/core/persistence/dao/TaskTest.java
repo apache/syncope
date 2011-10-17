@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.AbstractTest;
-import org.syncope.core.persistence.beans.TargetResource;
+import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.core.persistence.beans.PropagationTask;
 import org.syncope.core.persistence.beans.SchedTask;
 import org.syncope.core.persistence.beans.SyncTask;
@@ -56,7 +56,7 @@ public class TaskTest extends AbstractTest {
 
     @Test
     public final void savePropagationTask() {
-        TargetResource resource = resourceDAO.find("ws-target-resource-1");
+        ExternalResource resource = resourceDAO.find("ws-target-resource-1");
         assertNotNull(resource);
 
         PropagationTask task = new PropagationTask();
@@ -81,7 +81,7 @@ public class TaskTest extends AbstractTest {
 
     @Test
     public final void saveSyncTask() {
-        TargetResource resource = resourceDAO.find("ws-target-resource-1");
+        ExternalResource resource = resourceDAO.find("ws-target-resource-1");
         assertNotNull(resource);
 
         SyncTask task = new SyncTask();
@@ -121,7 +121,7 @@ public class TaskTest extends AbstractTest {
         PropagationTask task = taskDAO.find(1L);
         assertNotNull(task);
 
-        TargetResource resource = task.getResource();
+        ExternalResource resource = task.getResource();
         assertNotNull(resource);
 
         taskDAO.delete(task);

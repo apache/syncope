@@ -102,7 +102,7 @@ public class ConnInstance extends AbstractBaseBean {
      */
     @OneToMany(cascade = {CascadeType.REFRESH, CascadeType.MERGE},
     mappedBy = "connector")
-    private List<TargetResource> resources;
+    private List<ExternalResource> resources;
 
     public ConnInstance() {
         super();
@@ -124,7 +124,7 @@ public class ConnInstance extends AbstractBaseBean {
         this.displayName = that.displayName;
         this.id = that.id;
 
-        this.resources = new ArrayList<TargetResource>();
+        this.resources = new ArrayList<ExternalResource>();
         if (that.resources != null) {
             this.resources.addAll(that.resources);
         }
@@ -185,25 +185,25 @@ public class ConnInstance extends AbstractBaseBean {
         this.displayName = displayName;
     }
 
-    public List<TargetResource> getResources() {
+    public List<ExternalResource> getResources() {
         if (this.resources == null) {
-            this.resources = new ArrayList<TargetResource>();
+            this.resources = new ArrayList<ExternalResource>();
         }
         return this.resources;
     }
 
-    public void setResources(List<TargetResource> resources) {
+    public void setResources(List<ExternalResource> resources) {
         this.resources = resources;
     }
 
-    public boolean addResource(TargetResource resource) {
+    public boolean addResource(ExternalResource resource) {
         if (this.resources == null) {
-            this.resources = new ArrayList<TargetResource>();
+            this.resources = new ArrayList<ExternalResource>();
         }
         return this.resources.add(resource);
     }
 
-    public boolean removeResource(TargetResource resource) {
+    public boolean removeResource(ExternalResource resource) {
         if (this.resources == null) {
             return true;
         }

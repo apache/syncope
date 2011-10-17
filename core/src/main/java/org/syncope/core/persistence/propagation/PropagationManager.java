@@ -42,7 +42,7 @@ import org.syncope.core.init.ConnInstanceLoader;
 import org.syncope.core.persistence.beans.AbstractAttrValue;
 import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.beans.ConnInstance;
-import org.syncope.core.persistence.beans.TargetResource;
+import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.beans.PropagationTask;
 import org.syncope.core.persistence.beans.TaskExec;
@@ -61,7 +61,7 @@ import org.syncope.core.persistence.dao.TaskExecDAO;
 import org.syncope.core.util.JexlUtil;
 import org.syncope.types.PropagationMode;
 import org.syncope.types.PropagationOperation;
-import org.syncope.types.SourceMappingType;
+import org.syncope.types.IntMappingType;
 import org.syncope.types.SchemaType;
 import org.syncope.types.PropagationTaskExecStatus;
 import org.syncope.types.TraceLevel;
@@ -144,7 +144,7 @@ public class PropagationManager {
             throws PropagationException {
 
         final PropagationByResource propByRes = new PropagationByResource();
-        propByRes.set(PropagationOperation.CREATE, user.getTargetResources());
+        propByRes.set(PropagationOperation.CREATE, user.getExternalResources());
 
         provision(user, password, propByRes,
                 mandResNames == null ? Collections.EMPTY_SET : mandResNames);
@@ -190,7 +190,7 @@ public class PropagationManager {
 
         final PropagationByResource propByRes = new PropagationByResource();
         propByRes.set(PropagationOperation.DELETE,
-                user.getTargetResources());
+                user.getExternalResources());
 
         provision(user, null, propByRes,
                 mandResNames == null ? Collections.EMPTY_SET : mandResNames);
@@ -218,7 +218,7 @@ public class PropagationManager {
         propByRes.purge();
         LOG.debug("After purge: {}", propByRes);
 
-        TargetResource resource;
+        ExternalResource resource;
         Map.Entry<String, Set<Attribute>> preparedAttrs;
         PropagationTask task;
         TaskExec execution;
@@ -261,15 +261,15 @@ public class PropagationManager {
     /**
      * For given source mapping type, return the corresponding Class object.
      *
-     * @param sourceMappingType source mapping type
+     * @param intMappingType source mapping type
      * @return corresponding Class object, if any (can be null)
      */
-    private Class getSourceMappingTypeClass(
-            final SourceMappingType sourceMappingType) {
+    private Class getIntMappingTypeClass(
+            final IntMappingType intMappingType) {
 
         Class result;
 
-        switch (sourceMappingType) {
+        switch (intMappingType) {
             case UserSchema:
                 result = USchema.class;
                 break;
@@ -308,14 +308,14 @@ public class PropagationManager {
         SchemaType schemaType = null;
         List<AbstractAttrValue> values = null;
         AbstractAttrValue attrValue;
-        switch (mapping.getSourceMappingType()) {
+        switch (mapping.getIntMappingType()) {
             case UserSchema:
-                schema = schemaDAO.find(mapping.getSourceAttrName(),
-                        getSourceMappingTypeClass(
-                        mapping.getSourceMappingType()));
+                schema = schemaDAO.find(mapping.getIntAttrName(),
+                        getIntMappingTypeClass(
+                        mapping.getIntMappingType()));
                 schemaType = schema.getType();
 
-                UAttr attr = user.getAttribute(mapping.getSourceAttrName());
+                UAttr attr = user.getAttribute(mapping.getIntAttrName());
                 values = attr != null
                         ? (schema.isUniqueConstraint()
                         ? Collections.singletonList(attr.getUniqueValue())
@@ -323,18 +323,18 @@ public class PropagationManager {
                         : Collections.EMPTY_LIST;
 
                 LOG.debug("Retrieved attribute {}", attr
-                        + "\n* SourceAttrName {}"
-                        + "\n* SourceMappingType {}"
+                        + "\n* IntAttrName {}"
+                        + "\n* IntMappingType {}"
                         + "\n* Attribute values {}",
-                        new Object[]{mapping.getSourceAttrName(),
-                            mapping.getSourceMappingType(), values});
+                        new Object[]{mapping.getIntAttrName(),
+                            mapping.getIntMappingType(), values});
                 break;
 
             case UserVirtualSchema:
                 schemaType = SchemaType.String;
 
                 UVirAttr virAttr = user.getVirtualAttribute(
-                        mapping.getSourceAttrName());
+                        mapping.getIntAttrName());
 
                 values = new ArrayList<AbstractAttrValue>();
                 if (virAttr != null && virAttr.getValues() != null) {
@@ -346,18 +346,18 @@ public class PropagationManager {
                 }
 
                 LOG.debug("Retrieved virtual attribute {}", virAttr
-                        + "\n* SourceAttrName {}"
-                        + "\n* SourceMappingType {}"
+                        + "\n* IntAttrName {}"
+                        + "\n* IntMappingType {}"
                         + "\n* Attribute values {}",
-                        new Object[]{mapping.getSourceAttrName(),
-                            mapping.getSourceMappingType(), values});
+                        new Object[]{mapping.getIntAttrName(),
+                            mapping.getIntMappingType(), values});
                 break;
 
             case UserDerivedSchema:
                 schemaType = SchemaType.String;
 
                 UDerAttr derAttr = user.getDerivedAttribute(
-                        mapping.getSourceAttrName());
+                        mapping.getIntAttrName());
                 attrValue = new UAttrValue();
                 if (derAttr != null) {
                     attrValue.setStringValue(
@@ -369,11 +369,11 @@ public class PropagationManager {
                 }
 
                 LOG.debug("Retrieved attribute {}", derAttr
-                        + "\n* SourceAttrName {}"
-                        + "\n* SourceMappingType {}"
+                        + "\n* IntAttrName {}"
+                        + "\n* IntMappingType {}"
                         + "\n* Attribute values {}",
-                        new Object[]{mapping.getSourceAttrName(),
-                            mapping.getSourceMappingType(), values});
+                        new Object[]{mapping.getIntAttrName(),
+                            mapping.getIntMappingType(), values});
                 break;
 
             case SyncopeUserId:
@@ -382,13 +382,13 @@ public class PropagationManager {
                 schemaType = SchemaType.String;
 
                 attrValue = new UAttrValue();
-                if (SourceMappingType.SyncopeUserId
-                        == mapping.getSourceMappingType()) {
+                if (IntMappingType.SyncopeUserId
+                        == mapping.getIntMappingType()) {
 
                     attrValue.setStringValue(user.getId().toString());
                 }
-                if (SourceMappingType.Password
-                        == mapping.getSourceMappingType() && password != null) {
+                if (IntMappingType.Password
+                        == mapping.getIntMappingType() && password != null) {
 
                     attrValue.setStringValue(password);
                 }
@@ -401,16 +401,16 @@ public class PropagationManager {
 
         if (LOG.isDebugEnabled()) {
             LOG.debug("Define mapping for: "
-                    + "\n* DestAttrName " + mapping.getDestAttrName()
+                    + "\n* ExtAttrName " + mapping.getExtAttrName()
                     + "\n* is accountId " + mapping.isAccountid()
                     + "\n* is password " + (mapping.isPassword()
-                    || mapping.getSourceMappingType().equals(
-                    SourceMappingType.Password))
+                    || mapping.getIntMappingType().equals(
+                    IntMappingType.Password))
                     + "\n* mandatory condition "
                     + mapping.getMandatoryCondition()
-                    + "\n* Schema " + mapping.getSourceAttrName()
-                    + "\n* SourceMappingType "
-                    + mapping.getSourceMappingType().toString()
+                    + "\n* Schema " + mapping.getIntAttrName()
+                    + "\n* IntMappingType "
+                    + mapping.getIntMappingType().toString()
                     + "\n* ClassType " + schemaType.getClassName()
                     + "\n* Values " + values);
         }
@@ -439,12 +439,12 @@ public class PropagationManager {
 
         if (!mapping.isPassword() && !mapping.isAccountid()) {
             if (schema != null && schema.isMultivalue()) {
-                attribute = AttributeBuilder.build(mapping.getDestAttrName(),
+                attribute = AttributeBuilder.build(mapping.getExtAttrName(),
                         objValues);
             } else {
                 attribute = objValues.isEmpty()
-                        ? AttributeBuilder.build(mapping.getDestAttrName())
-                        : AttributeBuilder.build(mapping.getDestAttrName(),
+                        ? AttributeBuilder.build(mapping.getExtAttrName())
+                        : AttributeBuilder.build(mapping.getExtAttrName(),
                         objValues.iterator().next());
             }
         }
@@ -463,7 +463,7 @@ public class PropagationManager {
      */
     private Map.Entry<String, Set<Attribute>> prepareAttributes(
             final SyncopeUser user, final String password,
-            final TargetResource resource)
+            final ExternalResource resource)
             throws PropagationException {
 
         LOG.debug("Preparing resource attributes for {}"
@@ -476,7 +476,7 @@ public class PropagationManager {
 
         Map.Entry<String, Attribute> preparedAttribute;
         for (SchemaMapping mapping : resource.getMappings()) {
-            LOG.debug("Processing schema {}", mapping.getSourceAttrName());
+            LOG.debug("Processing schema {}", mapping.getIntAttrName());
 
             try {
                 preparedAttribute = prepareAttribute(mapping, user, password);
@@ -488,7 +488,7 @@ public class PropagationManager {
                 }
             } catch (Throwable t) {
                 LOG.debug("Attribute '{}' processing failed",
-                        mapping.getSourceAttrName(), t);
+                        mapping.getIntAttrName(), t);
             }
         }
 

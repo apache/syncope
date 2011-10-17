@@ -36,7 +36,7 @@ import org.syncope.client.to.UserTO;
 import org.syncope.core.init.ConnInstanceLoader;
 import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.beans.SyncTask;
-import org.syncope.core.persistence.beans.TargetResource;
+import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.beans.user.UAttrValue;
@@ -161,10 +161,10 @@ public class SyncJob extends AbstractJob {
         List<Object> values;
         AttributeTO attributeTO;
         for (SchemaMapping mapping : mappings) {
-            attribute = obj.getAttributeByName(mapping.getDestAttrName());
+            attribute = obj.getAttributeByName(mapping.getExtAttrName());
             values = attribute == null
                     ? Collections.EMPTY_LIST : attribute.getValue();
-            switch (mapping.getSourceMappingType()) {
+            switch (mapping.getIntMappingType()) {
                 case SyncopeUserId:
                     break;
 
@@ -176,7 +176,7 @@ public class SyncJob extends AbstractJob {
 
                 case UserSchema:
                     attributeTO = new AttributeTO();
-                    attributeTO.setSchema(mapping.getSourceAttrName());
+                    attributeTO.setSchema(mapping.getIntAttrName());
                     for (Object value : values) {
                         attributeTO.addValue(value.toString());
                     }
@@ -185,13 +185,13 @@ public class SyncJob extends AbstractJob {
 
                 case UserDerivedSchema:
                     attributeTO = new AttributeTO();
-                    attributeTO.setSchema(mapping.getSourceAttrName());
+                    attributeTO.setSchema(mapping.getIntAttrName());
                     userTO.addDerivedAttribute(attributeTO);
                     break;
 
                 case UserVirtualSchema:
                     attributeTO = new AttributeTO();
-                    attributeTO.setSchema(mapping.getSourceAttrName());
+                    attributeTO.setSchema(mapping.getIntAttrName());
                     userTO.addVirtualAttribute(attributeTO);
                     break;
 
@@ -230,10 +230,10 @@ public class SyncJob extends AbstractJob {
         List<Object> values;
         AttributeMod attributeMod;
         for (SchemaMapping mapping : mappings) {
-            attribute = obj.getAttributeByName(mapping.getDestAttrName());
+            attribute = obj.getAttributeByName(mapping.getExtAttrName());
             values = attribute == null
                     ? Collections.EMPTY_LIST : attribute.getValue();
-            switch (mapping.getSourceMappingType()) {
+            switch (mapping.getIntMappingType()) {
                 case SyncopeUserId:
                     break;
 
@@ -245,10 +245,10 @@ public class SyncJob extends AbstractJob {
 
                 case UserSchema:
                     userMod.addAttributeToBeRemoved(
-                            mapping.getSourceAttrName());
+                            mapping.getIntAttrName());
 
                     attributeMod = new AttributeMod();
-                    attributeMod.setSchema(mapping.getSourceAttrName());
+                    attributeMod.setSchema(mapping.getIntAttrName());
                     for (Object value : values) {
                         attributeMod.addValueToBeAdded(value.toString());
                     }
@@ -257,12 +257,12 @@ public class SyncJob extends AbstractJob {
 
                 case UserDerivedSchema:
                     userMod.addDerivedAttributeToBeAdded(
-                            mapping.getSourceAttrName());
+                            mapping.getIntAttrName());
                     break;
 
                 case UserVirtualSchema:
                     userMod.addVirtualAttributeToBeAdded(
-                            mapping.getSourceAttrName());
+                            mapping.getIntAttrName());
                     break;
 
                 default:
@@ -353,7 +353,7 @@ public class SyncJob extends AbstractJob {
 
         Set<String> defaultResources = new HashSet<String>(
                 syncTask.getDefaultResources().size());
-        for (TargetResource resource : syncTask.getDefaultResources()) {
+        for (ExternalResource resource : syncTask.getDefaultResources()) {
             defaultResources.add(resource.getName());
         }
         Set<Long> defaultRoles = new HashSet<Long>(
@@ -374,7 +374,7 @@ public class SyncJob extends AbstractJob {
         List<Long> userIds;
         SyncopeUser userToUpdate;
         for (SyncDelta delta : deltas) {
-            users = findExistingUsers(accountIdMap.getSourceAttrName(),
+            users = findExistingUsers(accountIdMap.getIntAttrName(),
                     delta.getUid().getUidValue(),
                     delta.getPreviousUid() == null
                     ? null : delta.getPreviousUid().getUidValue());

@@ -31,7 +31,7 @@ import org.syncope.core.init.ConnInstanceLoader;
 import org.syncope.core.persistence.propagation.ConnectorFacadeProxy;
 import org.syncope.core.util.ApplicationContextManager;
 import org.syncope.core.util.JexlUtil;
-import org.syncope.types.SourceMappingType;
+import org.syncope.types.IntMappingType;
 
 @MappedSuperclass
 public abstract class AbstractVirAttr extends AbstractBaseBean {
@@ -55,7 +55,7 @@ public abstract class AbstractVirAttr extends AbstractBaseBean {
 
     protected <T extends AbstractAttributable> List<Object> retrieveValues(
             final T attributable, final String attributeName,
-            final SourceMappingType sourceMappingType) {
+            final IntMappingType intMappingType) {
 
         LOG.debug("{}: retrieving external values for {}",
                 new Object[]{attributable, attributeName});
@@ -81,7 +81,7 @@ public abstract class AbstractVirAttr extends AbstractBaseBean {
         Set<Attribute> attributes;
         String accountLink;
         String accountId = null;
-        for (TargetResource resource : attributable.getTargetResources()) {
+        for (ExternalResource resource : attributable.getExternalResources()) {
             LOG.debug("Retrieving attribute mapped on {}", resource);
 
             attributeNames = new HashSet<String>();
@@ -92,25 +92,25 @@ public abstract class AbstractVirAttr extends AbstractBaseBean {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Processing mapping."
                             + "\n\tID: " + mapping.getId()
-                            + "\n\tSource: " + mapping.getSourceAttrName()
-                            + "\n\tDestination: " + mapping.getDestAttrName()
-                            + "\n\tType: " + mapping.getSourceMappingType()
+                            + "\n\tSource: " + mapping.getIntAttrName()
+                            + "\n\tDestination: " + mapping.getExtAttrName()
+                            + "\n\tType: " + mapping.getIntMappingType()
                             + "\n\tMandatory condition: "
                             + mapping.getMandatoryCondition()
                             + "\n\tAccountId: " + mapping.isAccountid()
                             + "\n\tPassword: " + mapping.isPassword());
                 }
 
-                if (attributeName.equals(mapping.getSourceAttrName())
-                        && mapping.getSourceMappingType() == sourceMappingType) {
+                if (attributeName.equals(mapping.getIntAttrName())
+                        && mapping.getIntMappingType() == intMappingType) {
 
-                    attributeNames.add(mapping.getDestAttrName());
+                    attributeNames.add(mapping.getExtAttrName());
                 }
 
                 if (mapping.isAccountid()) {
                     try {
                         accountId = attributable.getAttribute(
-                                mapping.getSourceAttrName()).
+                                mapping.getIntAttrName()).
                                 getValuesAsStrings().get(0);
                     } catch (NullPointerException e) {
                         // ignore exception

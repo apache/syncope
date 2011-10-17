@@ -36,7 +36,7 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
      * Provisioning target resources.
      */
     @ManyToMany(fetch = FetchType.EAGER)
-    protected Set<TargetResource> targetResources;
+    protected Set<ExternalResource> externalResources;
 
     public <T extends AbstractAttr> T getAttribute(final String schemaName) {
         T result = null;
@@ -98,27 +98,33 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
         return result;
     }
 
-    public boolean addTargetResource(final TargetResource targetResource) {
-        if (targetResources == null) {
-            targetResources = new HashSet<TargetResource>();
+    public boolean addExternalResource(
+            final ExternalResource externalResource) {
+
+        if (externalResources == null) {
+            externalResources = new HashSet<ExternalResource>();
         }
-        return targetResources.add(targetResource);
+        return externalResources.add(externalResource);
     }
 
-    public boolean removeTargetResource(final TargetResource targetResource) {
-        return targetResources == null
+    public boolean removeExternalResource(
+            final ExternalResource externalResource) {
+
+        return externalResources == null
                 ? true
-                : targetResources.remove(targetResource);
+                : externalResources.remove(externalResource);
     }
 
-    public Set<TargetResource> getTargetResources() {
-        return targetResources == null
+    public Set<ExternalResource> getExternalResources() {
+        return externalResources == null
                 ? Collections.EMPTY_SET
-                : targetResources;
+                : externalResources;
     }
 
-    public void setResources(Set<TargetResource> resources) {
-        this.targetResources = resources;
+    public void setExternalResources(
+            final Set<ExternalResource> externalResources) {
+
+        this.externalResources = externalResources;
     }
 
     protected Map<AbstractSchema, AbstractAttr> getAttributesMap() {

@@ -30,8 +30,8 @@
     <entry key="MDerAttr_owner_idIndex">CREATE INDEX MDerAttr_owner_idIndex ON MDerAttr(owner_id)</entry>
     <entry key="Membership_syncopeUser_idIndex">CREATE INDEX Membership_syncopeUser_idIndex ON Membership(syncopeUser_id)</entry>
     <entry key="Membership_syncopeRole_idIndex">CREATE INDEX Membership_syncopeRole_idIndex ON Membership(syncopeRole_id)</entry>
-    <entry key="Membership_TargetResource_Membership_idIndex">CREATE INDEX Membership_TargetResourc1Index ON Membership_TargetResource(Membership_id)</entry>
-    <entry key="Membership_TargetResource_targetResources_nameIndex">CREATE INDEX Membership_TargetResourc2Index ON Membership_TargetResource(targetResources_name)</entry>
+    <entry key="Membership_ExternalResource_Membership_idIndex">CREATE INDEX Membership_TargetResourc1Index ON Membership_ExternalResource(Membership_id)</entry>
+    <entry key="Membership_ExternalResource_externalResources_nameIndex">CREATE INDEX Membership_TargetResourc2Index ON Membership_ExternalResource(externalResources_name)</entry>
     <entry key="RAttr_schema_nameIndex">CREATE INDEX RAttr_schema_nameIndex ON RAttr(schema_name)</entry>
     <entry key="RAttr_owner_idIndex">CREATE INDEX RAttr_owner_idIndex ON RAttr(owner_id)</entry>
     <entry key="RAttrValue_attribute_idIndex">CREATE INDEX RAttrValue_attribute_idIndex ON RAttrValue(attribute_id)</entry>
@@ -46,11 +46,11 @@
     <entry key="SyncopeRole_parent_idIndex">CREATE INDEX SyncopeRole_parent_idIndeIndex ON SyncopeRole(parent_id)</entry>
     <entry key="SyncopeRole_Entitlement_entitlements_nameIndex">CREATE INDEX SyncopeRole_Entitlement_eIndex ON SyncopeRole_Entitlement(entitlements_name)</entry>
     <entry key="SyncopeRole_Entitlement_roles_idIndex">CREATE INDEX SyncopeRole_Entitlement_rIndex ON SyncopeRole_Entitlement(roles_id)</entry>
-    <entry key="SyncopeRole_TargetResource_roles_idIndex">CREATE INDEX SyncopeRole_TargetResour1Index ON SyncopeRole_TargetResource(roles_id)</entry>
-    <entry key="SyncopeRole_TargetResource_targetResources_nameIndex">CREATE INDEX SyncopeRole_TargetResour2Index ON SyncopeRole_TargetResource(targetResources_name)</entry>
-    <entry key="SyncopeUser_TargetResource_users_idIndex">CREATE INDEX SyncopeUser_TargetResour1Index ON SyncopeUser_TargetResource(users_id)</entry>
-    <entry key="SyncopeUser_TargetResource_targetResources_nameIndex">CREATE INDEX SyncopeUser_TargetResour2Index ON SyncopeUser_TargetResource(targetResources_name)</entry>
-    <entry key="TargetResource_connector_idIndex">CREATE INDEX TargetResource_connector_Index ON TargetResource(connector_id)</entry>
+    <entry key="SyncopeRole_ExternalResource_roles_idIndex">CREATE INDEX SyncopeRole_TargetResour1Index ON SyncopeRole_ExternalResource(roles_id)</entry>
+    <entry key="SyncopeRole_ExternalResource_externalResources_nameIndex">CREATE INDEX SyncopeRole_TargetResour2Index ON SyncopeRole_ExternalResource(externalResources_name)</entry>
+    <entry key="SyncopeUser_ExternalResource_users_idIndex">CREATE INDEX SyncopeUser_TargetResour1Index ON SyncopeUser_ExternalResource(users_id)</entry>
+    <entry key="SyncopeUser_ExternalResource_externalResources_nameIndex">CREATE INDEX SyncopeUser_TargetResour2Index ON SyncopeUser_ExternalResource(externalResources_name)</entry>
+    <entry key="ExternalResource_connector_idIndex">CREATE INDEX ExternalResource_connector_Index ON ExternalResource(connector_id)</entry>
     <entry key="Task_resource_nameIndex">CREATE INDEX Task_resource_nameIndex ON Task(resource_name)</entry>
     <entry key="TaskExec_task_idIndex">CREATE INDEX TaskExec_task_idIndeIndex ON TaskExec(task_id)</entry>
     <entry key="UAttr_schema_nameIndex">CREATE INDEX UAttr_schema_nameIndex ON UAttr(schema_name)</entry>

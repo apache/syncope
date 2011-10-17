@@ -17,18 +17,18 @@ package org.syncope.core.persistence.validation.entity;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import org.syncope.core.persistence.beans.SchemaMapping;
-import org.syncope.core.persistence.beans.TargetResource;
+import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.types.EntityViolationType;
 
-public class TargetResourceValidator extends AbstractValidator
-        implements ConstraintValidator<TargetResourceCheck, TargetResource> {
+public class ExternalResourceValidator extends AbstractValidator
+        implements ConstraintValidator<ExternalResourceCheck, ExternalResource> {
 
     @Override
-    public void initialize(final TargetResourceCheck constraintAnnotation) {
+    public void initialize(final ExternalResourceCheck constraintAnnotation) {
     }
 
     @Override
-    public boolean isValid(final TargetResource object,
+    public boolean isValid(final ExternalResource object,
             final ConstraintValidatorContext context) {
 
         boolean isValid;

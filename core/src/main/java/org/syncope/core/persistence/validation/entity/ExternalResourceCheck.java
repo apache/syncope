@@ -26,11 +26,11 @@ import javax.validation.Payload;
     ElementType.TYPE
 })
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = TargetResourceValidator.class)
+@Constraint(validatedBy = ExternalResourceValidator.class)
 @Documented
-public @interface TargetResourceCheck {
+public @interface ExternalResourceCheck {
 
-    String message() default "{org.syncope.core.validation.targetresource}";
+    String message() default "{org.syncope.core.validation.externalresource}";
 
     Class<?>[] groups() default {};
 

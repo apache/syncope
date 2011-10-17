@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import org.syncope.core.persistence.beans.TargetResource;
+import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.types.PropagationOperation;
 
 /**
@@ -85,7 +85,7 @@ public class PropagationByResource implements Serializable {
      * @return wether the operation was succeful or not
      */
     public final boolean add(final PropagationOperation type,
-            final TargetResource resource) {
+            final ExternalResource resource) {
 
         boolean result = false;
 
@@ -109,10 +109,10 @@ public class PropagationByResource implements Serializable {
     }
 
     private boolean addAll(final Set<String> set,
-            final Set<TargetResource> resources) {
+            final Set<ExternalResource> resources) {
 
         boolean result = true;
-        for (TargetResource resource : resources) {
+        for (ExternalResource resource : resources) {
             result &= set.add(resource.getName());
         }
 
@@ -127,7 +127,7 @@ public class PropagationByResource implements Serializable {
      * @return wether the operation was succeful or not
      */
     public boolean addAll(final PropagationOperation type,
-            final Set<TargetResource> resources) {
+            final Set<ExternalResource> resources) {
 
         boolean result = false;
 
@@ -158,7 +158,7 @@ public class PropagationByResource implements Serializable {
      * @return wether the operation was succeful or not
      */
     public final boolean remove(final PropagationOperation type,
-            final TargetResource resource) {
+            final ExternalResource resource) {
 
         boolean result = false;
 
@@ -216,7 +216,7 @@ public class PropagationByResource implements Serializable {
      * @param resources to be set
      */
     public final void set(final PropagationOperation type,
-            final Set<TargetResource> resources) {
+            final Set<ExternalResource> resources) {
 
         switch (type) {
 

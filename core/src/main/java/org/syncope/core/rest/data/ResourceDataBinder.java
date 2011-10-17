@@ -31,12 +31,12 @@ import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
 import org.syncope.core.persistence.beans.ConnInstance;
 import org.syncope.core.persistence.beans.SchemaMapping;
-import org.syncope.core.persistence.beans.TargetResource;
+import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.core.persistence.dao.ConnInstanceDAO;
 import org.syncope.core.persistence.dao.PolicyDAO;
 import org.syncope.core.util.JexlUtil;
 import org.syncope.types.ConnConfProperty;
-import org.syncope.types.SourceMappingType;
+import org.syncope.types.IntMappingType;
 import org.syncope.types.SyncopeClientExceptionType;
 
 @Component
@@ -63,13 +63,13 @@ public class ResourceDataBinder {
     @Autowired
     private PolicyDAO policyDAO;
 
-    public TargetResource getResource(final ResourceTO resourceTO)
+    public ExternalResource getResource(final ResourceTO resourceTO)
             throws SyncopeClientCompositeErrorException {
 
-        return getResource(new TargetResource(), resourceTO);
+        return getResource(new ExternalResource(), resourceTO);
     }
 
-    public TargetResource getResource(final TargetResource resource,
+    public ExternalResource getResource(final ExternalResource resource,
             final ResourceTO resourceTO)
             throws SyncopeClientCompositeErrorException {
 
@@ -114,21 +114,21 @@ public class ResourceDataBinder {
     }
 
     public List<ResourceTO> getResourceTOs(
-            Collection<TargetResource> resources) {
+            Collection<ExternalResource> resources) {
 
         if (resources == null) {
             return null;
         }
 
         List<ResourceTO> resourceTOs = new ArrayList<ResourceTO>();
-        for (TargetResource resource : resources) {
+        for (ExternalResource resource : resources) {
             resourceTOs.add(getResourceTO(resource));
         }
 
         return resourceTOs;
     }
 
-    public ResourceTO getResourceTO(TargetResource resource) {
+    public ResourceTO getResourceTO(ExternalResource resource) {
 
         if (resource == null) {
             return null;
@@ -168,7 +168,7 @@ public class ResourceDataBinder {
     }
 
     private List<SchemaMapping> getSchemaMappings(
-            TargetResource resource, List<SchemaMappingTO> mappings) {
+            ExternalResource resource, List<SchemaMappingTO> mappings) {
 
         if (mappings == null) {
             return null;
@@ -188,7 +188,7 @@ public class ResourceDataBinder {
         return schemaMappings;
     }
 
-    private SchemaMapping getSchemaMapping(TargetResource resource,
+    private SchemaMapping getSchemaMapping(ExternalResource resource,
             SchemaMappingTO mappingTO)
             throws SyncopeClientCompositeErrorException {
 
@@ -202,25 +202,25 @@ public class ResourceDataBinder {
 
         // this control needs to be free to get schema names
         // without a complete/good resourceTO object
-        if (mappingTO == null || mappingTO.getSourceMappingType() == null) {
+        if (mappingTO == null || mappingTO.getIntMappingType() == null) {
             LOG.error("Null mappingTO provided");
             return null;
         }
 
-        if (mappingTO.getSourceAttrName() == null) {
-            switch (mappingTO.getSourceMappingType()) {
+        if (mappingTO.getIntAttrName() == null) {
+            switch (mappingTO.getIntMappingType()) {
                 case SyncopeUserId:
-                    mappingTO.setSourceAttrName(
-                            SourceMappingType.SyncopeUserId.toString());
+                    mappingTO.setIntAttrName(
+                            IntMappingType.SyncopeUserId.toString());
                     break;
 
                 case Password:
-                    mappingTO.setSourceAttrName(
-                            SourceMappingType.Password.toString());
+                    mappingTO.setIntAttrName(
+                            IntMappingType.Password.toString());
                     break;
 
                 default:
-                    requiredValuesMissing.addElement("sourceAttrName");
+                    requiredValuesMissing.addElement("intAttrName");
             }
         }
 

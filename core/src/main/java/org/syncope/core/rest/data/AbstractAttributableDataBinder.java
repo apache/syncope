@@ -41,7 +41,7 @@ import org.syncope.core.persistence.beans.AbstractDerSchema;
 import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.beans.AbstractVirAttr;
 import org.syncope.core.persistence.beans.AbstractVirSchema;
-import org.syncope.core.persistence.beans.TargetResource;
+import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
@@ -155,8 +155,8 @@ public abstract class AbstractAttributableDataBinder {
         return virtualSchema;
     }
 
-    private TargetResource getResource(final String resourceName) {
-        TargetResource resource = resourceDAO.find(resourceName);
+    private ExternalResource getResource(final String resourceName) {
+        ExternalResource resource = resourceDAO.find(resourceName);
 
         if (resource == null) {
             LOG.debug("Ignoring invalid resource {} ", resourceName);
@@ -210,13 +210,13 @@ public abstract class AbstractAttributableDataBinder {
     }
 
     private boolean evaluateMandatoryCondition(
-            final TargetResource resource,
+            final ExternalResource resource,
             final List<? extends AbstractAttr> attributes,
-            final String sourceAttrName,
+            final String intAttrName,
             final AttributableUtil attributableUtil) {
 
-        List<SchemaMapping> mappings = resource.getMappings(sourceAttrName,
-                attributableUtil.sourceMappingType());
+        List<SchemaMapping> mappings = resource.getMappings(intAttrName,
+                attributableUtil.intMappingType());
 
         boolean result = false;
 
@@ -234,21 +234,21 @@ public abstract class AbstractAttributableDataBinder {
     }
 
     private boolean evaluateMandatoryCondition(
-            final Set<TargetResource> resources,
+            final Set<ExternalResource> resources,
             final List<? extends AbstractAttr> attributes,
-            final String sourceAttrName,
+            final String intAttrName,
             final AttributableUtil attributableUtil) {
 
         boolean result = false;
 
-        TargetResource resource;
-        for (Iterator<TargetResource> itor = resources.iterator();
+        ExternalResource resource;
+        for (Iterator<ExternalResource> itor = resources.iterator();
                 itor.hasNext() && !result;) {
 
             resource = itor.next();
             if (resource.isForceMandatoryConstraint()) {
                 result |= evaluateMandatoryCondition(resource,
-                        attributes, sourceAttrName, attributableUtil);
+                        attributes, intAttrName, attributableUtil);
             }
         }
 
@@ -264,7 +264,7 @@ public abstract class AbstractAttributableDataBinder {
                 SyncopeClientExceptionType.RequiredValuesMissing);
 
         LOG.debug("Check mandatory constraint among resources {}",
-                attributable.getTargetResources());
+                attributable.getExternalResources());
         // Check if there is some mandatory schema defined for which no value
         // has been provided
         List<AbstractSchema> allSchemas =
@@ -277,7 +277,7 @@ public abstract class AbstractAttributableDataBinder {
                     schema.getMandatoryCondition(),
                     attributable.getAttributes())
                     || evaluateMandatoryCondition(
-                    attributable.getTargetResources(),
+                    attributable.getExternalResources(),
                     attributable.getAttributes(),
                     schema.getName(),
                     attributableUtil))) {
@@ -305,7 +305,7 @@ public abstract class AbstractAttributableDataBinder {
                 SyncopeClientExceptionType.InvalidValues);
 
         // 1. resources to be removed
-        TargetResource resource;
+        ExternalResource resource;
         for (String resourceToBeRemoved :
                 attributableMod.getResourcesToBeRemoved()) {
 
@@ -314,7 +314,7 @@ public abstract class AbstractAttributableDataBinder {
             if (resource != null) {
                 propByRes.add(PropagationOperation.DELETE, resource);
 
-                attributable.removeTargetResource(resource);
+                attributable.removeExternalResource(resource);
 
                 if (attributableUtil == attributableUtil.USER) {
                     resource.removeUser((SyncopeUser) attributable);
@@ -336,7 +336,7 @@ public abstract class AbstractAttributableDataBinder {
             if (resource != null) {
                 propByRes.add(PropagationOperation.CREATE, resource);
 
-                attributable.addTargetResource(resource);
+                attributable.addExternalResource(resource);
 
                 if (attributableUtil == attributableUtil.USER) {
                     resource.addUser((SyncopeUser) attributable);
@@ -389,11 +389,11 @@ public abstract class AbstractAttributableDataBinder {
                 }
 
                 for (SchemaMapping mapping : resourceDAO.findAllMappings()) {
-                    if (schema.getName().equals(mapping.getSourceAttrName())
-                            && mapping.getSourceMappingType()
-                            == attributableUtil.sourceMappingType()
+                    if (schema.getName().equals(mapping.getIntAttrName())
+                            && mapping.getIntMappingType()
+                            == attributableUtil.intMappingType()
                             && mapping.getResource() != null
-                            && attributable.getTargetResources().
+                            && attributable.getExternalResources().
                             contains(mapping.getResource())) {
 
                         propByRes.add(PropagationOperation.UPDATE,
@@ -425,11 +425,11 @@ public abstract class AbstractAttributableDataBinder {
 
             if (schema != null) {
                 for (SchemaMapping mapping : resourceDAO.findAllMappings()) {
-                    if (schema.getName().equals(mapping.getSourceAttrName())
-                            && mapping.getSourceMappingType()
-                            == attributableUtil.sourceMappingType()
+                    if (schema.getName().equals(mapping.getIntAttrName())
+                            && mapping.getIntMappingType()
+                            == attributableUtil.intMappingType()
                             && mapping.getResource() != null
-                            && attributable.getTargetResources().
+                            && attributable.getExternalResources().
                             contains(mapping.getResource())) {
 
                         propByRes.add(PropagationOperation.UPDATE,
@@ -520,11 +520,11 @@ public abstract class AbstractAttributableDataBinder {
 
                 for (SchemaMapping mapping : resourceDAO.findAllMappings()) {
                     if (derivedSchema.getName().equals(
-                            mapping.getSourceAttrName())
-                            && mapping.getSourceMappingType()
-                            == attributableUtil.derivedSourceMappingType()
+                            mapping.getIntAttrName())
+                            && mapping.getIntMappingType()
+                            == attributableUtil.derivedIntMappingType()
                             && mapping.getResource() != null
-                            && attributable.getTargetResources().
+                            && attributable.getExternalResources().
                             contains(mapping.getResource())) {
 
                         propByRes.add(PropagationOperation.UPDATE,
@@ -568,11 +568,11 @@ public abstract class AbstractAttributableDataBinder {
 
                 for (SchemaMapping mapping : resourceDAO.findAllMappings()) {
                     if (virtualSchema.getName().equals(
-                            mapping.getSourceAttrName())
-                            && mapping.getSourceMappingType()
-                            == attributableUtil.virtualSourceMappingType()
+                            mapping.getIntAttrName())
+                            && mapping.getIntMappingType()
+                            == attributableUtil.virtualIntMappingType()
                             && mapping.getResource() != null
-                            && attributable.getTargetResources().
+                            && attributable.getExternalResources().
                             contains(mapping.getResource())) {
 
                         propByRes.add(PropagationOperation.UPDATE,
@@ -603,11 +603,11 @@ public abstract class AbstractAttributableDataBinder {
             if (derivedSchema != null) {
                 for (SchemaMapping mapping : resourceDAO.findAllMappings()) {
                     if (derivedSchema.getName().equals(
-                            mapping.getSourceAttrName())
-                            && mapping.getSourceMappingType()
-                            == attributableUtil.derivedSourceMappingType()
+                            mapping.getIntAttrName())
+                            && mapping.getIntMappingType()
+                            == attributableUtil.derivedIntMappingType()
                             && mapping.getResource() != null
-                            && attributable.getTargetResources().
+                            && attributable.getExternalResources().
                             contains(mapping.getResource())) {
 
                         propByRes.add(PropagationOperation.UPDATE,
@@ -635,11 +635,11 @@ public abstract class AbstractAttributableDataBinder {
             if (virtualSchema != null) {
                 for (SchemaMapping mapping : resourceDAO.findAllMappings()) {
                     if (virtualSchema.getName().equals(
-                            mapping.getSourceAttrName())
-                            && mapping.getSourceMappingType()
-                            == attributableUtil.virtualSourceMappingType()
+                            mapping.getIntAttrName())
+                            && mapping.getIntMappingType()
+                            == attributableUtil.virtualIntMappingType()
                             && mapping.getResource() != null
-                            && attributable.getTargetResources().
+                            && attributable.getExternalResources().
                             contains(mapping.getResource())) {
 
                         propByRes.add(PropagationOperation.UPDATE,
@@ -759,12 +759,12 @@ public abstract class AbstractAttributableDataBinder {
         }
 
         // 3. resources
-        TargetResource resource;
+        ExternalResource resource;
         for (String resourceName : attributableTO.getResources()) {
             resource = getResource(resourceName);
 
             if (resource != null) {
-                attributable.addTargetResource(resource);
+                attributable.addExternalResource(resource);
 
                 if (attributableUtil == attributableUtil.USER) {
                     resource.addUser((SyncopeUser) attributable);
@@ -787,7 +787,7 @@ public abstract class AbstractAttributableDataBinder {
             Collection<? extends AbstractAttr> attributes,
             Collection<? extends AbstractDerAttr> derivedAttributes,
             Collection<? extends AbstractVirAttr> virtualAttributes,
-            Collection<TargetResource> resources) {
+            Collection<ExternalResource> resources) {
 
         AttributeTO attributeTO;
         for (AbstractAttr attribute : attributes) {
@@ -820,7 +820,7 @@ public abstract class AbstractAttributableDataBinder {
             abstractAttributableTO.addVirtualAttribute(attributeTO);
         }
 
-        for (TargetResource resource : resources) {
+        for (ExternalResource resource : resources) {
             abstractAttributableTO.addResource(resource.getName());
         }
     }

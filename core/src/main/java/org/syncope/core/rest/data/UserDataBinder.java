@@ -28,7 +28,7 @@ import org.syncope.core.persistence.beans.AbstractAttr;
 import org.syncope.core.persistence.beans.AbstractDerAttr;
 import org.syncope.core.persistence.beans.AbstractVirAttr;
 import org.syncope.core.persistence.beans.Policy;
-import org.syncope.core.persistence.beans.TargetResource;
+import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.core.persistence.beans.membership.Membership;
 import org.syncope.core.persistence.beans.membership.MAttr;
 import org.syncope.core.persistence.beans.membership.MDerAttr;
@@ -126,7 +126,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
             user.setPassword(userMod.getPassword(), getCipherAlgoritm(),
                     passwordHistorySize);
             propByRes.addAll(PropagationOperation.UPDATE,
-                    user.getTargetResources());
+                    user.getExternalResources());
         }
 
         // attributes, derived attributes, virtual attributes and resources
@@ -152,8 +152,8 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
                 LOG.debug("Invalid membership id specified to be removed: {}",
                         membershipId);
             } else {
-                for (TargetResource resource :
-                        membership.getSyncopeRole().getTargetResources()) {
+                for (ExternalResource resource :
+                        membership.getSyncopeRole().getExternalResources()) {
 
                     if (!membershipToBeAddedRoleIds.contains(
                             membership.getSyncopeRole().getId())) {
@@ -231,7 +231,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
                     user.addMembership(membership);
 
                     propByRes.addAll(PropagationOperation.UPDATE,
-                            role.getTargetResources());
+                            role.getExternalResources());
                 }
 
                 propByRes.merge(fill(membership, membershipMod,
@@ -254,7 +254,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
                 user.getAttributes(),
                 user.getDerivedAttributes(),
                 user.getVirtualAttributes(),
-                user.getTargetResources());
+                user.getExternalResources());
 
         MembershipTO membershipTO;
         for (Membership membership : user.getMemberships()) {
@@ -267,7 +267,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
                     membership.getAttributes(),
                     membership.getDerivedAttributes(),
                     membership.getVirtualAttributes(),
-                    membership.getTargetResources());
+                    membership.getExternalResources());
 
             userTO.addMembership(membershipTO);
         }

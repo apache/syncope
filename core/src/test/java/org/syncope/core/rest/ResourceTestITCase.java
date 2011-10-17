@@ -31,7 +31,7 @@ import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
 import org.syncope.types.ConnConfPropSchema;
 import org.syncope.types.ConnConfProperty;
-import org.syncope.types.SourceMappingType;
+import org.syncope.types.IntMappingType;
 import org.syncope.types.SyncopeClientExceptionType;
 
 public class ResourceTestITCase extends AbstractTest {
@@ -58,22 +58,22 @@ public class ResourceTestITCase extends AbstractTest {
         resourceTO.setConnectorId(102L);
 
         SchemaMappingTO schemaMappingTO = new SchemaMappingTO();
-        schemaMappingTO.setDestAttrName("uid");
-        schemaMappingTO.setSourceAttrName("userId");
-        schemaMappingTO.setSourceMappingType(SourceMappingType.UserSchema);
+        schemaMappingTO.setExtAttrName("uid");
+        schemaMappingTO.setIntAttrName("userId");
+        schemaMappingTO.setIntMappingType(IntMappingType.UserSchema);
         resourceTO.addMapping(schemaMappingTO);
 
         schemaMappingTO = new SchemaMappingTO();
-        schemaMappingTO.setDestAttrName("username");
-        schemaMappingTO.setSourceAttrName("username");
-        schemaMappingTO.setSourceMappingType(SourceMappingType.SyncopeUserId);
+        schemaMappingTO.setExtAttrName("username");
+        schemaMappingTO.setIntAttrName("username");
+        schemaMappingTO.setIntMappingType(IntMappingType.SyncopeUserId);
         schemaMappingTO.setAccountid(true);
         resourceTO.addMapping(schemaMappingTO);
 
         schemaMappingTO = new SchemaMappingTO();
-        schemaMappingTO.setDestAttrName("fullname");
-        schemaMappingTO.setSourceAttrName("cn");
-        schemaMappingTO.setSourceMappingType(SourceMappingType.UserSchema);
+        schemaMappingTO.setExtAttrName("fullname");
+        schemaMappingTO.setIntAttrName("cn");
+        schemaMappingTO.setIntMappingType(IntMappingType.UserSchema);
         schemaMappingTO.setAccountid(false);
         resourceTO.addMapping(schemaMappingTO);
 
@@ -99,22 +99,22 @@ public class ResourceTestITCase extends AbstractTest {
         ResourceTO resourceTO = new ResourceTO();
 
         SchemaMappingTO schemaMappingTO = new SchemaMappingTO();
-        schemaMappingTO.setDestAttrName("uid");
-        schemaMappingTO.setSourceAttrName("userId");
-        schemaMappingTO.setSourceMappingType(SourceMappingType.UserSchema);
+        schemaMappingTO.setExtAttrName("uid");
+        schemaMappingTO.setIntAttrName("userId");
+        schemaMappingTO.setIntMappingType(IntMappingType.UserSchema);
         resourceTO.addMapping(schemaMappingTO);
 
         schemaMappingTO = new SchemaMappingTO();
-        schemaMappingTO.setDestAttrName("username");
-        schemaMappingTO.setSourceAttrName("username");
-        schemaMappingTO.setSourceMappingType(SourceMappingType.SyncopeUserId);
+        schemaMappingTO.setExtAttrName("username");
+        schemaMappingTO.setIntAttrName("username");
+        schemaMappingTO.setIntMappingType(IntMappingType.SyncopeUserId);
         schemaMappingTO.setAccountid(true);
         resourceTO.addMapping(schemaMappingTO);
 
         schemaMappingTO = new SchemaMappingTO();
-        schemaMappingTO.setDestAttrName("fullname");
-        schemaMappingTO.setSourceAttrName("cn");
-        schemaMappingTO.setSourceMappingType(SourceMappingType.UserSchema);
+        schemaMappingTO.setExtAttrName("fullname");
+        schemaMappingTO.setIntAttrName("cn");
+        schemaMappingTO.setIntMappingType(IntMappingType.UserSchema);
         schemaMappingTO.setAccountid(false);
         resourceTO.addMapping(schemaMappingTO);
 
@@ -158,7 +158,7 @@ public class ResourceTestITCase extends AbstractTest {
         resourceTO.setConnectorId(102L);
 
         SchemaMappingTO schemaMappingTO = new SchemaMappingTO();
-        schemaMappingTO.setSourceMappingType(SourceMappingType.SyncopeUserId);
+        schemaMappingTO.setIntMappingType(IntMappingType.SyncopeUserId);
         schemaMappingTO.setAccountid(true);
         resourceTO.addMapping(schemaMappingTO);
 
@@ -178,14 +178,14 @@ public class ResourceTestITCase extends AbstractTest {
         resourceTO.setConnectorId(102L);
 
         SchemaMappingTO schemaMappingTO = new SchemaMappingTO();
-        schemaMappingTO.setSourceMappingType(SourceMappingType.SyncopeUserId);
+        schemaMappingTO.setIntMappingType(IntMappingType.SyncopeUserId);
         schemaMappingTO.setAccountid(true);
         resourceTO.addMapping(schemaMappingTO);
 
         schemaMappingTO = new SchemaMappingTO();
-        schemaMappingTO.setSourceMappingType(SourceMappingType.UserSchema);
-        schemaMappingTO.setDestAttrName("email");
-        // missing sourceAttrName ...
+        schemaMappingTO.setIntMappingType(IntMappingType.UserSchema);
+        schemaMappingTO.setExtAttrName("email");
+        // missing intAttrName ...
         resourceTO.addMapping(schemaMappingTO);
 
 
@@ -205,7 +205,7 @@ public class ResourceTestITCase extends AbstractTest {
             assertNotNull(requiredValueMissing);
             assertNotNull(requiredValueMissing.getElements());
             assertEquals(1, requiredValueMissing.getElements().size());
-            assertEquals("sourceAttrName",
+            assertEquals("intAttrName",
                     requiredValueMissing.getElements().iterator().next());
         }
         assertNotNull(t);
@@ -213,7 +213,7 @@ public class ResourceTestITCase extends AbstractTest {
 
     @Test
     @ExpectedException(value = SyncopeClientCompositeErrorException.class)
-    public final void createWithoutDestAttr() {
+    public final void createWithoutExtAttr() {
         String resourceName = "ws-target-resource-create-wrong";
         ResourceTO resourceTO = new ResourceTO();
 
@@ -221,14 +221,14 @@ public class ResourceTestITCase extends AbstractTest {
         resourceTO.setConnectorId(102L);
 
         SchemaMappingTO schemaMappingTO = new SchemaMappingTO();
-        schemaMappingTO.setSourceMappingType(SourceMappingType.SyncopeUserId);
+        schemaMappingTO.setIntMappingType(IntMappingType.SyncopeUserId);
         schemaMappingTO.setAccountid(true);
         resourceTO.addMapping(schemaMappingTO);
 
         schemaMappingTO = new SchemaMappingTO();
-        schemaMappingTO.setSourceMappingType(SourceMappingType.UserSchema);
-        schemaMappingTO.setSourceAttrName("usernane");
-        // missing destAttrName ...
+        schemaMappingTO.setIntMappingType(IntMappingType.UserSchema);
+        schemaMappingTO.setIntAttrName("usernane");
+        // missing extAttrName ...
         resourceTO.addMapping(schemaMappingTO);
 
         restTemplate.postForObject(
@@ -246,9 +246,9 @@ public class ResourceTestITCase extends AbstractTest {
         resourceTO.setPasswordPolicy(4L);
 
         SchemaMappingTO schemaMappingTO = new SchemaMappingTO();
-        schemaMappingTO.setDestAttrName("uid");
-        schemaMappingTO.setSourceAttrName("userId");
-        schemaMappingTO.setSourceMappingType(SourceMappingType.UserSchema);
+        schemaMappingTO.setExtAttrName("uid");
+        schemaMappingTO.setIntAttrName("userId");
+        schemaMappingTO.setIntMappingType(IntMappingType.UserSchema);
         schemaMappingTO.setAccountid(true);
         resourceTO.addMapping(schemaMappingTO);
 
@@ -298,23 +298,23 @@ public class ResourceTestITCase extends AbstractTest {
         // Update with an existing and already assigned mapping
         SchemaMappingTO schemaMappingTO = new SchemaMappingTO();
         schemaMappingTO.setId(112L);
-        schemaMappingTO.setDestAttrName("test3");
-        schemaMappingTO.setSourceAttrName("username");
-        schemaMappingTO.setSourceMappingType(SourceMappingType.UserSchema);
+        schemaMappingTO.setExtAttrName("test3");
+        schemaMappingTO.setIntAttrName("username");
+        schemaMappingTO.setIntMappingType(IntMappingType.UserSchema);
         schemaMappingTOs.add(schemaMappingTO);
 
         // Update defining new mappings
         for (int i = 4; i < 6; i++) {
             schemaMappingTO = new SchemaMappingTO();
-            schemaMappingTO.setDestAttrName("test" + i);
-            schemaMappingTO.setSourceAttrName("username");
-            schemaMappingTO.setSourceMappingType(SourceMappingType.UserSchema);
+            schemaMappingTO.setExtAttrName("test" + i);
+            schemaMappingTO.setIntAttrName("username");
+            schemaMappingTO.setIntMappingType(IntMappingType.UserSchema);
             schemaMappingTOs.add(schemaMappingTO);
         }
         schemaMappingTO = new SchemaMappingTO();
-        schemaMappingTO.setDestAttrName("username");
-        schemaMappingTO.setSourceAttrName("username");
-        schemaMappingTO.setSourceMappingType(SourceMappingType.SyncopeUserId);
+        schemaMappingTO.setExtAttrName("username");
+        schemaMappingTO.setIntAttrName("username");
+        schemaMappingTO.setIntMappingType(IntMappingType.SyncopeUserId);
         schemaMappingTO.setAccountid(true);
         schemaMappingTOs.add(schemaMappingTO);
 

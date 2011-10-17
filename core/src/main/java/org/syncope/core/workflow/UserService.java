@@ -23,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.syncope.client.mod.UserMod;
 import org.syncope.client.to.UserTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.syncope.core.persistence.beans.TargetResource;
+import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.UserDAO;
@@ -53,14 +53,14 @@ public class UserService {
 
         Set<String> mandatoryResourceNames = new HashSet<String>();
 
-        for (TargetResource resource : user.getTargetResources()) {
+        for (ExternalResource resource : user.getExternalResources()) {
             if (mandatoryResources.contains(resource.getName())) {
                 mandatoryResourceNames.add(resource.getName());
             }
         }
         for (SyncopeRole role : user.getRoles()) {
             if (mandatoryRoles.contains(role.getId())) {
-                for (TargetResource resource : role.getTargetResources()) {
+                for (ExternalResource resource : role.getExternalResources()) {
                     mandatoryResourceNames.add(resource.getName());
                 }
             }

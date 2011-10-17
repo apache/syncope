@@ -44,7 +44,7 @@ import org.syncope.client.validation.SyncopeClientException;
 import org.syncope.core.init.ConnInstanceLoader;
 import org.syncope.core.util.ConnBundleManager;
 import org.syncope.core.persistence.beans.ConnInstance;
-import org.syncope.core.persistence.beans.TargetResource;
+import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.core.persistence.dao.ConnInstanceDAO;
 import org.syncope.core.persistence.dao.MissingConfKeyException;
 import org.syncope.core.persistence.dao.ResourceDAO;
@@ -196,7 +196,7 @@ public class ConnInstanceController extends AbstractController {
     public ModelAndView check(@PathVariable("resourceName") String resourceName)
             throws NotFoundException {
 
-        final TargetResource resource = respourceDAO.find(resourceName);
+        final ExternalResource resource = respourceDAO.find(resourceName);
 
         if (resource == null) {
             LOG.error("Missing resource: {}", resourceName);
@@ -355,7 +355,7 @@ public class ConnInstanceController extends AbstractController {
     }
 
     private List<String> getSchemaNames(
-            final TargetResource resource, final boolean showall)
+            final ExternalResource resource, final boolean showall)
             throws NotFoundException {
 
         // We cannot use bean because this method could be used in phase of

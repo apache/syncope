@@ -14,11 +14,12 @@ package org.syncope.types;
  *  limitations under the License.
  *  under the License.
  */
-public enum SourceMappingType {
+public enum IntMappingType {
 
     UserSchema,
     UserDerivedSchema,
     UserVirtualSchema,
     SyncopeUserId,
     Password;
+
 }

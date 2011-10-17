@@ -42,10 +42,10 @@ import org.hibernate.annotations.Type;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.util.XmlConfiguration;
-import org.syncope.core.persistence.validation.entity.TargetResourceCheck;
+import org.syncope.core.persistence.validation.entity.ExternalResourceCheck;
 import org.syncope.types.ConnConfProperty;
 import org.syncope.types.PropagationMode;
-import org.syncope.types.SourceMappingType;
+import org.syncope.types.IntMappingType;
 import org.syncope.types.TraceLevel;
 
 /**
@@ -53,8 +53,8 @@ import org.syncope.types.TraceLevel;
  */
 @Entity
 @Cacheable
-@TargetResourceCheck
-public class TargetResource extends AbstractBaseBean {
+@ExternalResourceCheck
+public class ExternalResource extends AbstractBaseBean {
 
     private static final long serialVersionUID = -6937712883512073278L;
 
@@ -82,13 +82,13 @@ public class TargetResource extends AbstractBaseBean {
     /**
      * Users associated to this resource.
      */
-    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "targetResources")
+    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "externalResources")
     private Set<SyncopeUser> users;
 
     /**
      * Roles associated to this resource.
      */
-    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "targetResources")
+    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "externalResources")
     private Set<SyncopeRole> roles;
 
     /**
@@ -134,7 +134,7 @@ public class TargetResource extends AbstractBaseBean {
     /**
      * Default constructor.
      */
-    public TargetResource() {
+    public ExternalResource() {
         super();
 
         forceMandatoryConstraint = getBooleanAsInteger(false);
@@ -179,13 +179,13 @@ public class TargetResource extends AbstractBaseBean {
         return mappings;
     }
 
-    public List<SchemaMapping> getMappings(final String sourceAttrName,
-            final SourceMappingType sourceMappingType) {
+    public List<SchemaMapping> getMappings(final String intAttrName,
+            final IntMappingType intMappingType) {
 
         List<SchemaMapping> result = new ArrayList<SchemaMapping>();
         for (SchemaMapping mapping : mappings) {
-            if (sourceAttrName.equals(mapping.getSourceAttrName())
-                    && mapping.getSourceMappingType() == sourceMappingType) {
+            if (intAttrName.equals(mapping.getIntAttrName())
+                    && mapping.getIntMappingType() == intMappingType) {
 
                 result.add(mapping);
             }

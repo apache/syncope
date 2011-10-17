@@ -18,7 +18,7 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.types.EntityViolationType;
-import org.syncope.types.SourceMappingType;
+import org.syncope.types.IntMappingType;
 
 public class SchemaMappingValidator extends AbstractValidator
         implements ConstraintValidator<SchemaMappingCheck, SchemaMapping> {
@@ -34,7 +34,7 @@ public class SchemaMappingValidator extends AbstractValidator
 
         context.disableDefaultConstraintViolation();
 
-        if (object.getDestAttrName() == null
+        if (object.getExtAttrName() == null
                 && !object.isAccountid()
                 && !object.isPassword()) {
             context.buildConstraintViolationWithTemplate(
@@ -45,11 +45,11 @@ public class SchemaMappingValidator extends AbstractValidator
             return false;
         }
 
-        if (object.getSourceAttrName() == null
-                && SourceMappingType.SyncopeUserId
-                != object.getSourceMappingType()
-                && SourceMappingType.Password
-                != object.getSourceMappingType()) {
+        if (object.getIntAttrName() == null
+                && IntMappingType.SyncopeUserId
+                != object.getIntMappingType()
+                && IntMappingType.Password
+                != object.getIntMappingType()) {
             context.buildConstraintViolationWithTemplate(
                     "Missing source attribute name").addNode(
                     EntityViolationType.InvalidSchemaMapping.toString()).

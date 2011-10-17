@@ -26,7 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.ConnInstance;
-import org.syncope.core.persistence.beans.TargetResource;
+import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.propagation.ConnectorFacadeProxy;
 import org.syncope.types.ConnConfProperty;
@@ -46,7 +46,7 @@ public class ConnInstanceLoader extends AbstractLoader {
     @Autowired
     private ConnBundleManager connBundleManager;
 
-    private String getBeanName(final TargetResource resource) {
+    private String getBeanName(final ExternalResource resource) {
         return String.format("connInstance-%d-%s",
                 resource.getConnector().getId(), resource.getName());
     }
@@ -59,7 +59,7 @@ public class ConnInstanceLoader extends AbstractLoader {
      * @throws BeansException in case the connector is not registered in the
      * context
      */
-    public ConnectorFacadeProxy getConnector(final TargetResource resource)
+    public ConnectorFacadeProxy getConnector(final ExternalResource resource)
             throws BeansException {
 
         return (ConnectorFacadeProxy) getBeanFactory().getBean(
@@ -67,7 +67,7 @@ public class ConnInstanceLoader extends AbstractLoader {
     }
 
     public ConnectorFacadeProxy createConnectorBean(
-            final TargetResource resource)
+            final ExternalResource resource)
             throws NotFoundException {
 
         final ConnInstance connInstanceClone =
@@ -97,7 +97,7 @@ public class ConnInstanceLoader extends AbstractLoader {
         return new ConnectorFacadeProxy(connInstanceClone, connBundleManager);
     }
 
-    public void registerConnector(final TargetResource resource)
+    public void registerConnector(final ExternalResource resource)
             throws NotFoundException {
 
         final ConnectorFacadeProxy connector = createConnectorBean(resource);
@@ -125,7 +125,7 @@ public class ConnInstanceLoader extends AbstractLoader {
         CurrentLocale.set(Locale.ENGLISH);
 
         // Next load all resource-specific connectors.
-        for (TargetResource resource : resourceDAO.findAll()) {
+        for (ExternalResource resource : resourceDAO.findAll()) {
             try {
                 LOG.info("Registering resource-connector pair {}-{}",
                         resource, resource.getConnector());

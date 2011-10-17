@@ -51,7 +51,7 @@ import org.syncope.core.persistence.beans.AbstractAttributable;
 import org.syncope.core.persistence.beans.AbstractAttr;
 import org.syncope.core.persistence.beans.AbstractDerAttr;
 import org.syncope.core.persistence.beans.AbstractVirAttr;
-import org.syncope.core.persistence.beans.TargetResource;
+import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.core.persistence.beans.membership.Membership;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.types.CipherAlgorithm;
@@ -180,11 +180,11 @@ public class SyncopeUser extends AbstractAttributable {
     }
 
     @Override
-    public Set<TargetResource> getTargetResources() {
-        Set<TargetResource> result = new HashSet<TargetResource>();
-        result.addAll(super.getTargetResources());
+    public Set<ExternalResource> getExternalResources() {
+        Set<ExternalResource> result = new HashSet<ExternalResource>();
+        result.addAll(super.getExternalResources());
         for (SyncopeRole role : getRoles()) {
-            result.addAll(role.getTargetResources());
+            result.addAll(role.getExternalResources());
         }
 
         return result;

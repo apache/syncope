@@ -45,7 +45,7 @@ import org.syncope.core.persistence.beans.user.UDerSchema;
 import org.syncope.core.persistence.beans.user.USchema;
 import org.syncope.core.persistence.beans.user.UVirAttr;
 import org.syncope.core.persistence.beans.user.UVirSchema;
-import org.syncope.types.SourceMappingType;
+import org.syncope.types.IntMappingType;
 
 public enum AttributableUtil {
 
@@ -53,34 +53,34 @@ public enum AttributableUtil {
     ROLE,
     MEMBERSHIP;
 
-    public SourceMappingType sourceMappingType() {
-        SourceMappingType result = null;
+    public IntMappingType intMappingType() {
+        IntMappingType result = null;
 
         switch (this) {
             default:
-                result = SourceMappingType.UserSchema;
+                result = IntMappingType.UserSchema;
         }
 
         return result;
     }
 
-    public SourceMappingType derivedSourceMappingType() {
-        SourceMappingType result = null;
+    public IntMappingType derivedIntMappingType() {
+        IntMappingType result = null;
 
         switch (this) {
             default:
-                result = SourceMappingType.UserDerivedSchema;
+                result = IntMappingType.UserDerivedSchema;
         }
 
         return result;
     }
 
-    public SourceMappingType virtualSourceMappingType() {
-        SourceMappingType result = null;
+    public IntMappingType virtualIntMappingType() {
+        IntMappingType result = null;
 
         switch (this) {
             default:
-                result = SourceMappingType.UserVirtualSchema;
+                result = IntMappingType.UserVirtualSchema;
         }
 
         return result;

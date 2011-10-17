@@ -33,7 +33,7 @@ import org.syncope.client.to.SchemaMappingTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
 import org.syncope.core.persistence.beans.SchemaMapping;
-import org.syncope.core.persistence.beans.TargetResource;
+import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.dao.RoleDAO;
@@ -84,7 +84,7 @@ public class ResourceController extends AbstractController {
             throw scce;
         }
 
-        TargetResource resource = binder.getResource(resourceTO);
+        ExternalResource resource = binder.getResource(resourceTO);
         if (resource == null) {
             LOG.error("Resource creation failed");
 
@@ -111,7 +111,7 @@ public class ResourceController extends AbstractController {
 
         LOG.debug("Role update request: {}", resourceTO);
 
-        TargetResource resource = null;
+        ExternalResource resource = null;
         if (resourceTO != null && resourceTO.getName() != null) {
             resource = resourceDAO.find(resourceTO.getName());
         }
@@ -151,7 +151,7 @@ public class ResourceController extends AbstractController {
             final @PathVariable("resourceName") String resourceName)
             throws NotFoundException {
 
-        TargetResource resource = resourceDAO.find(resourceName);
+        ExternalResource resource = resourceDAO.find(resourceName);
 
         if (resource == null) {
             LOG.error("Could not find resource '" + resourceName + "'");
@@ -169,7 +169,7 @@ public class ResourceController extends AbstractController {
             final @PathVariable("resourceName") String resourceName)
             throws NotFoundException {
 
-        TargetResource resource = resourceDAO.find(resourceName);
+        ExternalResource resource = resourceDAO.find(resourceName);
         if (resource == null) {
             LOG.error("Could not find resource '" + resourceName + "'");
             throw new NotFoundException("Resource '" + resourceName + "'");
@@ -185,7 +185,7 @@ public class ResourceController extends AbstractController {
     public List<ResourceTO> list(HttpServletResponse response)
             throws NotFoundException {
 
-        List<TargetResource> resources = resourceDAO.findAll();
+        List<ExternalResource> resources = resourceDAO.findAll();
         if (resources == null) {
             LOG.error("No resources found");
             throw new NotFoundException("No resources found");
@@ -226,10 +226,10 @@ public class ResourceController extends AbstractController {
 
         List<SchemaMappingTO> roleMappings = new ArrayList<SchemaMappingTO>();
 
-        Set<TargetResource> resources = role.getTargetResources();
+        Set<ExternalResource> resources = role.getExternalResources();
 
         List<SchemaMappingTO> resourceMappings;
-        for (TargetResource resource : resources) {
+        for (ExternalResource resource : resources) {
             LOG.debug("Ask for the mappings of {}", resource);
 
             List<SchemaMapping> schemaMappings = resource.getMappings();

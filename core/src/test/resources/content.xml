@@ -227,150 +227,150 @@
                   xmlConfiguration="%3C%3Fxml+version%3D%221.0%22+encoding%3D%22UTF-8%22%3F%3E+%0A%3Cjava+version%3D%221.6.0_26%22+class%3D%22java.beans.XMLDecoder%22%3E+%0A+%3Cobject+class%3D%22java.util.HashSet%22%3E+%0A++%3Cvoid+method%3D%22add%22%3E+%0A+++%3Cobject+class%3D%22org.syncope.types.ConnConfProperty%22%3E+%0A++++%3Cvoid+property%3D%22schema%22%3E+%0A+++++%3Cobject+class%3D%22org.syncope.types.ConnConfPropSchema%22%3E+%0A++++++%3Cvoid+property%3D%22displayName%22%3E+%0A+++++++%3Cstring%3EfieldDelimiter%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A++++++%3Cvoid+property%3D%22helpMessage%22%3E+%0A+++++++%3Cstring%3EfieldDelimiter%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A++++++%3Cvoid+property%3D%22name%22%3E+%0A+++++++%3Cstring%3EfieldDelimiter%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A++++++%3Cvoid+property%3D%22required%22%3E+%0A+++++++%3Cboolean%3Etrue%3C%2Fboolean%3E+%0A++++++%3C%2Fvoid%3E+%0A++++++%3Cvoid+property%3D%22type%22%3E+%0A+++++++%3Cstring%3Echar%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A+++++%3C%2Fobject%3E+%0A++++%3C%2Fvoid%3E+%0A++++%3Cvoid+property%3D%22value%22%3E+%0A+++++%3Cstring%3E%2C%3C%2Fstring%3E+%0A++++%3C%2Fvoid%3E+%0A+++%3C%2Fobject%3E+%0A++%3C%2Fvoid%3E+%0A++%3Cvoid+method%3D%22add%22%3E+%0A+++%3Cobject+class%3D%22org.syncope.types.ConnConfProperty%22%3E+%0A++++%3Cvoid+property%3D%22schema%22%3E+%0A+++++%3Cobject+class%3D%22org.syncope.types.ConnConfPropSchema%22%3E+%0A++++++%3Cvoid+property%3D%22displayName%22%3E+%0A+++++++%3Cstring%3ESource+path%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A++++++%3Cvoid+property%3D%22helpMessage%22%3E+%0A+++++++%3Cstring%3EAbsolute+path+of+a+directory+where+are+located+CSV+files+to+be+processed%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A++++++%3Cvoid+property%3D%22name%22%3E+%0A+++++++%3Cstring%3EsourcePath%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A++++++%3Cvoid+property%3D%22required%22%3E+%0A+++++++%3Cboolean%3Etrue%3C%2Fboolean%3E+%0A++++++%3C%2Fvoid%3E+%0A++++++%3Cvoid+property%3D%22type%22%3E+%0A+++++++%3Cstring%3Ejava.lang.String%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A+++++%3C%2Fobject%3E+%0A++++%3C%2Fvoid%3E+%0A++++%3Cvoid+property%3D%22value%22%3E+%0A+++++%3Cstring%3E%2F${urlencoded.java.io.tmpdir}%3C%2Fstring%3E+%0A++++%3C%2Fvoid%3E+%0A+++%3C%2Fobject%3E+%0A++%3C%2Fvoid%3E+%0A++%3Cvoid+method%3D%22add%22%3E+%0A+++%3Cobject+class%3D%22org.syncope.types.ConnConfProperty%22%3E+%0A++++%3Cvoid+property%3D%22schema%22%3E+%0A+++++%3Cobject+class%3D%22org.syncope.types.ConnConfPropSchema%22%3E+%0A++++++%3Cvoid+property%3D%22displayName%22%3E+%0A+++++++%3Cstring%3EIgnore+header%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A++++++%3Cvoid+property%3D%22helpMessage%22%3E+%0A+++++++%3Cstring%3ESpecify+it+first+line+file+must+be+ignored%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A++++++%3Cvoid+property%3D%22name%22%3E+%0A+++++++%3Cstring%3EignoreHeader%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A++++++%3Cvoid+property%3D%22required%22%3E+%0A+++++++%3Cboolean%3Etrue%3C%2Fboolean%3E+%0A++++++%3C%2Fvoid%3E+%0A++++++%3Cvoid+property%3D%22type%22%3E+%0A+++++++%3Cstring%3Ejava.lang.Boolean%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A+++++%3C%2Fobject%3E+%0A++++%3C%2Fvoid%3E+%0A++++%3Cvoid+property%3D%22value%22%3E+%0A+++++%3Cstring%3Efalse%3C%2Fstring%3E+%0A++++%3C%2Fvoid%3E+%0A+++%3C%2Fobject%3E+%0A++%3C%2Fvoid%3E+%0A++%3Cvoid+method%3D%22add%22%3E+%0A+++%3Cobject+class%3D%22org.syncope.types.ConnConfProperty%22%3E+%0A++++%3Cvoid+property%3D%22schema%22%3E+%0A+++++%3Cobject+class%3D%22org.syncope.types.ConnConfPropSchema%22%3E+%0A++++++%3Cvoid+property%3D%22displayName%22%3E+%0A+++++++%3Cstring%3EFile+encoding%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A++++++%3Cvoid+property%3D%22helpMessage%22%3E+%0A+++++++%3Cstring%3EBasic+encoding+of+the+file%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A++++++%3Cvoid+property%3D%22name%22%3E+%0A+++++++%3Cstring%3Eencoding%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A++++++%3Cvoid+property%3D%22type%22%3E+%0A+++++++%3Cstring%3Ejava.lang.String%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A+++++%3C%2Fobject%3E+%0A++++%3C%2Fvoid%3E+%0A+++%3C%2Fobject%3E+%0A++%3C%2Fvoid%3E+%0A++%3Cvoid+method%3D%22add%22%3E+%0A+++%3Cobject+class%3D%22org.syncope.types.ConnConfProperty%22%3E+%0A++++%3Cvoid+property%3D%22schema%22%3E+%0A+++++%3Cobject+class%3D%22org.syncope.types.ConnConfPropSchema%22%3E+%0A++++++%3Cvoid+property%3D%22displayName%22%3E+%0A+++++++%3Cstring%3Efields%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A++++++%3Cvoid+property%3D%22helpMessage%22%3E+%0A+++++++%3Cstring%3EColumn+names+separated+by+comma%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A++++++%3Cvoid+property%3D%22name%22%3E+%0A+++++++%3Cstring%3Efields%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A++++++%3Cvoid+property%3D%22required%22%3E+%0A+++++++%3Cboolean%3Etrue%3C%2Fboolean%3E+%0A++++++%3C%2Fvoid%3E+%0A++++++%3Cvoid+property%3D%22type%22%3E+%0A+++++++%3Cstring%3E%5BLjava.lang.String%3B%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A+++++%3C%2Fobject%3E+%0A++++%3C%2Fvoid%3E+%0A++++%3Cvoid+property%3D%22value%22%3E+%0A+++++%3Cstring%3Eid+name+surname+email+password+deleted%3C%2Fstring%3E+%0A++++%3C%2Fvoid%3E+%0A+++%3C%2Fobject%3E+%0A++%3C%2Fvoid%3E+%0A++%3Cvoid+method%3D%22add%22%3E+%0A+++%3Cobject+class%3D%22org.syncope.types.ConnConfProperty%22%3E+%0A++++%3Cvoid+property%3D%22schema%22%3E+%0A+++++%3Cobject+class%3D%22org.syncope.types.ConnConfPropSchema%22%3E+%0A++++++%3Cvoid+property%3D%22displayName%22%3E+%0A+++++++%3Cstring%3EDelete+column+name%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A++++++%3Cvoid+property%3D%22helpMessage%22%3E+%0A+++++++%3Cstring%3EName+of+the+column+used+to+specify+users+to+be+deleted%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A++++++%3Cvoid+property%3D%22name%22%3E+%0A+++++++%3Cstring%3EdeleteColumnName%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A++++++%3Cvoid+property%3D%22type%22%3E+%0A+++++++%3Cstring%3Ejava.lang.String%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A+++++%3C%2Fobject%3E+%0A++++%3C%2Fvoid%3E+%0A++++%3Cvoid+property%3D%22value%22%3E+%0A+++++%3Cstring%3Edeleted%3C%2Fstring%3E+%0A++++%3C%2Fvoid%3E+%0A+++%3C%2Fobject%3E+%0A++%3C%2Fvoid%3E+%0A++%3Cvoid+method%3D%22add%22%3E+%0A+++%3Cobject+class%3D%22org.syncope.types.ConnConfProperty%22%3E+%0A++++%3Cvoid+property%3D%22schema%22%3E+%0A+++++%3Cobject+class%3D%22org.syncope.types.ConnConfPropSchema%22%3E+%0A++++++%3Cvoid+property%3D%22displayName%22%3E+%0A+++++++%3Cstring%3EKey+separator%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A++++++%3Cvoid+property%3D%22helpMessage%22%3E+%0A+++++++%3Cstring%3ECharacter+used+to+separate+keys+in+a+multi-key+scenario%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A++++++%3Cvoid+property%3D%22name%22%3E+%0A+++++++%3Cstring%3Ekeyseparator%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A++++++%3Cvoid+property%3D%22required%22%3E+%0A+++++++%3Cboolean%3Etrue%3C%2Fboolean%3E+%0A++++++%3C%2Fvoid%3E+%0A++++++%3Cvoid+property%3D%22type%22%3E+%0A+++++++%3Cstring%3Ejava.lang.String%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A+++++%3C%2Fobject%3E+%0A++++%3C%2Fvoid%3E+%0A++++%3Cvoid+property%3D%22value%22%3E+%0A+++++%3Cstring%3E%2C%3C%2Fstring%3E+%0A++++%3C%2Fvoid%3E+%0A+++%3C%2Fobject%3E+%0A++%3C%2Fvoid%3E+%0A++%3Cvoid+method%3D%22add%22%3E+%0A+++%3Cobject+class%3D%22org.syncope.types.ConnConfProperty%22%3E+%0A++++%3Cvoid+property%3D%22schema%22%3E+%0A+++++%3Cobject+class%3D%22org.syncope.types.ConnConfPropSchema%22%3E+%0A++++++%3Cvoid+property%3D%22displayName%22%3E+%0A+++++++%3Cstring%3EKey+column+name%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A++++++%3Cvoid+property%3D%22helpMessage%22%3E+%0A+++++++%3Cstring%3EName+of+the+column+used+to+identify+user+uniquely%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A++++++%3Cvoid+property%3D%22name%22%3E+%0A+++++++%3Cstring%3EkeyColumnNames%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A++++++%3Cvoid+property%3D%22required%22%3E+%0A+++++++%3Cboolean%3Etrue%3C%2Fboolean%3E+%0A++++++%3C%2Fvoid%3E+%0A++++++%3Cvoid+property%3D%22type%22%3E+%0A+++++++%3Cstring%3E%5BLjava.lang.String%3B%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A+++++%3C%2Fobject%3E+%0A++++%3C%2Fvoid%3E+%0A++++%3Cvoid+property%3D%22value%22%3E+%0A+++++%3Cstring%3Ename+surname%3C%2Fstring%3E+%0A++++%3C%2Fvoid%3E+%0A+++%3C%2Fobject%3E+%0A++%3C%2Fvoid%3E+%0A++%3Cvoid+method%3D%22add%22%3E+%0A+++%3Cobject+class%3D%22org.syncope.types.ConnConfProperty%22%3E+%0A++++%3Cvoid+property%3D%22schema%22%3E+%0A+++++%3Cobject+class%3D%22org.syncope.types.ConnConfPropSchema%22%3E+%0A++++++%3Cvoid+property%3D%22displayName%22%3E+%0A+++++++%3Cstring%3EText+qualifier%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A++++++%3Cvoid+property%3D%22helpMessage%22%3E+%0A+++++++%3Cstring%3EDelimiter+to+determine+begin+and+end+of+text+in+value%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A++++++%3Cvoid+property%3D%22name%22%3E+%0A+++++++%3Cstring%3EtextQualifier%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A++++++%3Cvoid+property%3D%22type%22%3E+%0A+++++++%3Cstring%3Echar%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A+++++%3C%2Fobject%3E+%0A++++%3C%2Fvoid%3E+%0A+++%3C%2Fobject%3E+%0A++%3C%2Fvoid%3E+%0A++%3Cvoid+method%3D%22add%22%3E+%0A+++%3Cobject+class%3D%22org.syncope.types.ConnConfProperty%22%3E+%0A++++%3Cvoid+property%3D%22schema%22%3E+%0A+++++%3Cobject+class%3D%22org.syncope.types.ConnConfPropSchema%22%3E+%0A++++++%3Cvoid+property%3D%22displayName%22%3E+%0A+++++++%3Cstring%3EPassword+column+name%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A++++++%3Cvoid+property%3D%22helpMessage%22%3E+%0A+++++++%3Cstring%3EName+of+the+column+used+to+specify+user+password%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A++++++%3Cvoid+property%3D%22name%22%3E+%0A+++++++%3Cstring%3EpasswordColumnName%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A++++++%3Cvoid+property%3D%22type%22%3E+%0A+++++++%3Cstring%3Ejava.lang.String%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A+++++%3C%2Fobject%3E+%0A++++%3C%2Fvoid%3E+%0A++++%3Cvoid+property%3D%22value%22%3E+%0A+++++%3Cstring%3Epassword%3C%2Fstring%3E+%0A++++%3C%2Fvoid%3E+%0A+++%3C%2Fobject%3E+%0A++%3C%2Fvoid%3E+%0A++%3Cvoid+method%3D%22add%22%3E+%0A+++%3Cobject+class%3D%22org.syncope.types.ConnConfProperty%22%3E+%0A++++%3Cvoid+property%3D%22schema%22%3E+%0A+++++%3Cobject+class%3D%22org.syncope.types.ConnConfPropSchema%22%3E+%0A++++++%3Cvoid+property%3D%22displayName%22%3E+%0A+++++++%3Cstring%3EFile+mask%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A++++++%3Cvoid+property%3D%22helpMessage%22%3E+%0A+++++++%3Cstring%3ERegular+expression+describing+files+to+be+processed%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A++++++%3Cvoid+property%3D%22name%22%3E+%0A+++++++%3Cstring%3EfileMask%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A++++++%3Cvoid+property%3D%22required%22%3E+%0A+++++++%3Cboolean%3Etrue%3C%2Fboolean%3E+%0A++++++%3C%2Fvoid%3E+%0A++++++%3Cvoid+property%3D%22type%22%3E+%0A+++++++%3Cstring%3Ejava.lang.String%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A+++++%3C%2Fobject%3E+%0A++++%3C%2Fvoid%3E+%0A++++%3Cvoid+property%3D%22value%22%3E+%0A+++++%3Cstring%3E.*%5C.csv%3C%2Fstring%3E+%0A++++%3C%2Fvoid%3E+%0A+++%3C%2Fobject%3E+%0A++%3C%2Fvoid%3E+%0A++%3Cvoid+method%3D%22add%22%3E+%0A+++%3Cobject+class%3D%22org.syncope.types.ConnConfProperty%22%3E+%0A++++%3Cvoid+property%3D%22schema%22%3E+%0A+++++%3Cobject+class%3D%22org.syncope.types.ConnConfPropSchema%22%3E+%0A++++++%3Cvoid+property%3D%22displayName%22%3E+%0A+++++++%3Cstring%3EValue+quotation+required%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A++++++%3Cvoid+property%3D%22helpMessage%22%3E+%0A+++++++%3Cstring%3ESpecify+if+value+quotation+is+required%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A++++++%3Cvoid+property%3D%22name%22%3E+%0A+++++++%3Cstring%3EquotationRequired%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A++++++%3Cvoid+property%3D%22required%22%3E+%0A+++++++%3Cboolean%3Etrue%3C%2Fboolean%3E+%0A++++++%3C%2Fvoid%3E+%0A++++++%3Cvoid+property%3D%22type%22%3E+%0A+++++++%3Cstring%3Ejava.lang.Boolean%3C%2Fstring%3E+%0A++++++%3C%2Fvoid%3E+%0A+++++%3C%2Fobject%3E+%0A++++%3C%2Fvoid%3E+%0A++++%3Cvoid+property%3D%22value%22%3E+%0A+++++%3Cstring%3Efalse%3C%2Fstring%3E+%0A++++%3C%2Fvoid%3E+%0A+++%3C%2Fobject%3E+%0A++%3C%2Fvoid%3E+%0A+%3C%2Fobject%3E+%0A%3C%2Fjava%3E+%0A"/>
     <ConnInstance_capabilities ConnInstance_id="104" capabilities="SYNC"/>
     
-    <TargetResource name="ws-target-resource-1" connector_id="100" forceMandatoryConstraint="0" optionalPropagationMode="ASYNC"
+    <ExternalResource name="ws-target-resource-1" connector_id="100" forceMandatoryConstraint="0" optionalPropagationMode="ASYNC"
                     createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL"/>
-    <TargetResource name="ws-target-resource-2" connector_id="100" forceMandatoryConstraint="1" optionalPropagationMode="ASYNC"
+    <ExternalResource name="ws-target-resource-2" connector_id="100" forceMandatoryConstraint="1" optionalPropagationMode="ASYNC"
                     createTraceLevel="FAILURES" deleteTraceLevel="NONE" updateTraceLevel="ALL"/>
-    <TargetResource name="ws-target-resource-list-mappings-1" connector_id="100" forceMandatoryConstraint="0" optionalPropagationMode="ASYNC"
+    <ExternalResource name="ws-target-resource-list-mappings-1" connector_id="100" forceMandatoryConstraint="0" optionalPropagationMode="ASYNC"
                     createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL"/>
-    <TargetResource name="ws-target-resource-list-mappings-2" connector_id="100" forceMandatoryConstraint="1" optionalPropagationMode="ASYNC"
+    <ExternalResource name="ws-target-resource-list-mappings-2" connector_id="100" forceMandatoryConstraint="1" optionalPropagationMode="ASYNC"
                     createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL"/>
-    <TargetResource name="ws-target-resource-delete" connector_id="102" forceMandatoryConstraint="0" optionalPropagationMode="ASYNC"
+    <ExternalResource name="ws-target-resource-delete" connector_id="102" forceMandatoryConstraint="0" optionalPropagationMode="ASYNC"
                     createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL"/>
-    <TargetResource name="ws-target-resource-update" connector_id="100" forceMandatoryConstraint="1" optionalPropagationMode="ASYNC"
+    <ExternalResource name="ws-target-resource-update" connector_id="100" forceMandatoryConstraint="1" optionalPropagationMode="ASYNC"
                     createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL"/>
-    <TargetResource name="ws-target-resource-nopropagation" connector_id="103" forceMandatoryConstraint="1" optionalPropagationMode="ASYNC"
+    <ExternalResource name="ws-target-resource-nopropagation" connector_id="103" forceMandatoryConstraint="1" optionalPropagationMode="ASYNC"
                     createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" passwordPolicy_id="4"/>
-    <TargetResource name="ws-target-resource-testdb" connector_id="101" forceMandatoryConstraint="1" optionalPropagationMode="SYNC"
+    <ExternalResource name="ws-target-resource-testdb" connector_id="101" forceMandatoryConstraint="1" optionalPropagationMode="SYNC"
                     createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL"/>
-    <TargetResource name="resource-csv" connector_id="104" forceMandatoryConstraint="0" optionalPropagationMode="ASYNC"
+    <ExternalResource name="resource-csv" connector_id="104" forceMandatoryConstraint="0" optionalPropagationMode="ASYNC"
                     createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL"/>
                     
-    <SyncopeUser_TargetResource users_id="3" targetResources_name="ws-target-resource-delete" />
-    <SyncopeRole_TargetResource roles_id="3" targetResources_name="ws-target-resource-list-mappings-1" />
-    <SyncopeUser_TargetResource users_id="3" targetResources_name="ws-target-resource-2" />
-    <SyncopeRole_TargetResource roles_id="8" targetResources_name="ws-target-resource-2" />
-    <SyncopeRole_TargetResource roles_id="3" targetResources_name="ws-target-resource-list-mappings-2" />
-    <SyncopeUser_TargetResource users_id="3" targetResources_name="ws-target-resource-1" />
+    <SyncopeUser_ExternalResource users_id="3" externalResources_name="ws-target-resource-delete" />
+    <SyncopeRole_ExternalResource roles_id="3" externalResources_name="ws-target-resource-list-mappings-1" />
+    <SyncopeUser_ExternalResource users_id="3" externalResources_name="ws-target-resource-2" />
+    <SyncopeRole_ExternalResource roles_id="8" externalResources_name="ws-target-resource-2" />
+    <SyncopeRole_ExternalResource roles_id="3" externalResources_name="ws-target-resource-list-mappings-2" />
+    <SyncopeUser_ExternalResource users_id="3" externalResources_name="ws-target-resource-1" />
 
-    <SchemaMapping id="99" destAttrName="userid"
+    <SchemaMapping id="99" extAttrName="userid"
                    resource_name="ws-target-resource-1"
-                   sourceMappingType="SyncopeUserId" mandatoryCondition="true"
+                   intMappingType="SyncopeUserId" mandatoryCondition="true"
                    accountid="1" password="0"/>
 
-    <SchemaMapping id="100" destAttrName="email"
+    <SchemaMapping id="100" extAttrName="email"
                    resource_name="ws-target-resource-1"
-                   sourceAttrName="email" sourceMappingType="UserSchema" mandatoryCondition="true"
+                   intAttrName="email" intMappingType="UserSchema" mandatoryCondition="true"
                    accountid="0" password="0"/>
 
-    <SchemaMapping id="101" destAttrName="userId"
+    <SchemaMapping id="101" extAttrName="userId"
                    resource_name="ws-target-resource-2"
-                   sourceAttrName="username" sourceMappingType="UserSchema" mandatoryCondition="true"
+                   intAttrName="username" intMappingType="UserSchema" mandatoryCondition="true"
                    accountid="1" password="0"/>
 
-    <SchemaMapping id="102" destAttrName="email"
+    <SchemaMapping id="102" extAttrName="email"
                    resource_name="ws-target-resource-list-mappings-1"
-                   sourceAttrName="email" sourceMappingType="UserSchema" mandatoryCondition="true"
+                   intAttrName="email" intMappingType="UserSchema" mandatoryCondition="true"
                    accountid="1" password="0"/>
 
-    <SchemaMapping id="103" destAttrName="surname"
+    <SchemaMapping id="103" extAttrName="surname"
                    resource_name="ws-target-resource-list-mappings-1"
-                   sourceAttrName="surname" sourceMappingType="UserSchema" mandatoryCondition="true"
+                   intAttrName="surname" intMappingType="UserSchema" mandatoryCondition="true"
                    accountid="0" password="0"/>
 
-    <SchemaMapping id="104" destAttrName="userid"
+    <SchemaMapping id="104" extAttrName="userid"
                    resource_name="ws-target-resource-list-mappings-2"
-                   sourceAttrName="userId" sourceMappingType="UserSchema" mandatoryCondition="true"
+                   intAttrName="userId" intMappingType="UserSchema" mandatoryCondition="true"
                    accountid="1" password="0"/>
 
-    <SchemaMapping id="105" destAttrName="surname"
+    <SchemaMapping id="105" extAttrName="surname"
                    resource_name="ws-target-resource-1"
-                   sourceAttrName="surname" sourceMappingType="UserSchema" mandatoryCondition="true"
+                   intAttrName="surname" intMappingType="UserSchema" mandatoryCondition="true"
                    accountid="0" password="0"/>
 
-    <SchemaMapping id="106" destAttrName="password"
+    <SchemaMapping id="106" extAttrName="password"
                    resource_name="ws-target-resource-1"
-                   sourceMappingType="Password" mandatoryCondition="true"
+                   intMappingType="Password" mandatoryCondition="true"
                    accountid="0" password="1"/>
 
-    <SchemaMapping id="107" destAttrName="password"
+    <SchemaMapping id="107" extAttrName="password"
                    resource_name="ws-target-resource-2"
-                   sourceMappingType="Password" mandatoryCondition="true"
+                   intMappingType="Password" mandatoryCondition="true"
                    accountid="0" password="1"/>
 
-    <SchemaMapping id="108" destAttrName="type"
+    <SchemaMapping id="108" extAttrName="type"
                    resource_name="ws-target-resource-2"
-                   sourceAttrName="type" sourceMappingType="UserSchema" mandatoryCondition="true"
+                   intAttrName="type" intMappingType="UserSchema" mandatoryCondition="true"
                    accountid="0" password="0"/>
 
-    <SchemaMapping id="109" destAttrName="surname"
+    <SchemaMapping id="109" extAttrName="surname"
                    resource_name="ws-target-resource-2"
-                   sourceAttrName="surname" sourceMappingType="UserSchema" mandatoryCondition="type == 'F'"
+                   intAttrName="surname" intMappingType="UserSchema" mandatoryCondition="type == 'F'"
                    accountid="0" password="0"/>
 
-    <SchemaMapping id="110" destAttrName="email"
+    <SchemaMapping id="110" extAttrName="email"
                    resource_name="ws-target-resource-update"
-                   sourceAttrName="email" sourceMappingType="UserSchema" mandatoryCondition="false"
+                   intAttrName="email" intMappingType="UserSchema" mandatoryCondition="false"
                    accountid="0" password="0"/>
 
-    <SchemaMapping id="111" destAttrName="userId"
+    <SchemaMapping id="111" extAttrName="userId"
                    resource_name="ws-target-resource-update"
-                   sourceAttrName="userId" sourceMappingType="UserSchema" mandatoryCondition="false"
+                   intAttrName="userId" intMappingType="UserSchema" mandatoryCondition="false"
                    accountid="0" password="0"/>
     
-    <SchemaMapping id="112" destAttrName="test3"
+    <SchemaMapping id="112" extAttrName="test3"
                    resource_name="ws-target-resource-update"
-                   sourceAttrName="username" sourceMappingType="UserSchema" mandatoryCondition="false"
+                   intAttrName="username" intMappingType="UserSchema" mandatoryCondition="false"
                    accountid="0" password="0"/>
 
-    <SchemaMapping id="113" destAttrName="name"
+    <SchemaMapping id="113" extAttrName="name"
                    resource_name="ws-target-resource-2"
-                   sourceAttrName="virtualdata" sourceMappingType="UserVirtualSchema" mandatoryCondition="type == 'F'"
+                   intAttrName="virtualdata" intMappingType="UserVirtualSchema" mandatoryCondition="type == 'F'"
                    accountid="0" password="0"/>
 
-    <SchemaMapping id="114" destAttrName="fullname"
+    <SchemaMapping id="114" extAttrName="fullname"
                    resource_name="ws-target-resource-2"
-                   sourceAttrName="cn" sourceMappingType="UserDerivedSchema" mandatoryCondition="true"
+                   intAttrName="cn" intMappingType="UserDerivedSchema" mandatoryCondition="true"
                    accountid="0" password="0"/>
 
-    <SchemaMapping id="115" destAttrName="name"
+    <SchemaMapping id="115" extAttrName="name"
                    resource_name="ws-target-resource-nopropagation"
-                   sourceAttrName="username" sourceMappingType="UserSchema" mandatoryCondition="true"
+                   intAttrName="username" intMappingType="UserSchema" mandatoryCondition="true"
                    accountid="1" password="0"/>
                    
-    <SchemaMapping id="116" destAttrName="id"
+    <SchemaMapping id="116" extAttrName="id"
                    resource_name="ws-target-resource-testdb"
-                   sourceMappingType="SyncopeUserId" mandatoryCondition="true"
+                   intMappingType="SyncopeUserId" mandatoryCondition="true"
                    accountid="1" password="0"/>
                    
-    <SchemaMapping id="117" destAttrName="password"
+    <SchemaMapping id="117" extAttrName="password"
                    resource_name="ws-target-resource-testdb"
-                   sourceMappingType="Password" mandatoryCondition="true"
+                   intMappingType="Password" mandatoryCondition="true"
                    accountid="0" password="1"/>
 
-    <SchemaMapping id="200" destAttrName="id"
+    <SchemaMapping id="200" extAttrName="id"
                    resource_name="resource-csv"
-                   sourceAttrName="username" sourceMappingType="UserSchema" mandatoryCondition="true"
+                   intAttrName="username" intMappingType="UserSchema" mandatoryCondition="true"
                    accountid="0" password="0"/>
-    <SchemaMapping id="201" destAttrName="password"
+    <SchemaMapping id="201" extAttrName="password"
                    resource_name="resource-csv"
-                   sourceMappingType="Password" mandatoryCondition="true"
+                   intMappingType="Password" mandatoryCondition="true"
                    accountid="0" password="1"/>
-    <SchemaMapping id="202" destAttrName="name"
+    <SchemaMapping id="202" extAttrName="name"
                    resource_name="resource-csv"
-                   sourceAttrName="firstname" sourceMappingType="UserSchema" mandatoryCondition="false"
+                   intAttrName="firstname" intMappingType="UserSchema" mandatoryCondition="false"
                    accountid="0" password="0"/>
-    <SchemaMapping id="203" destAttrName="surname"
+    <SchemaMapping id="203" extAttrName="surname"
                    resource_name="resource-csv"
-                   sourceAttrName="surname" sourceMappingType="UserSchema" mandatoryCondition="false"
+                   intAttrName="surname" intMappingType="UserSchema" mandatoryCondition="false"
                    accountid="0" password="0"/>
-    <SchemaMapping id="204" destAttrName="email"
+    <SchemaMapping id="204" extAttrName="email"
                    resource_name="resource-csv"
-                   sourceAttrName="userId" sourceMappingType="UserSchema" mandatoryCondition="true"
+                   intAttrName="userId" intMappingType="UserSchema" mandatoryCondition="true"
                    accountid="0" password="0"/>
-    <SchemaMapping id="205" destAttrName="IGNORE"
+    <SchemaMapping id="205" extAttrName="IGNORE"
                    resource_name="resource-csv"
-                   sourceAttrName="csvuserid" sourceMappingType="UserDerivedSchema" mandatoryCondition="true"
+                   intAttrName="csvuserid" intMappingType="UserDerivedSchema" mandatoryCondition="true"
                    accountid="1" password="0"/>
                    
     <Task DTYPE="PropagationTask" id="1" propagationMode="ASYNC" resourceOperationType="UPDATE"

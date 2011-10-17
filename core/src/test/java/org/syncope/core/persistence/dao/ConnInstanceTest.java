@@ -25,7 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.syncope.types.ConnConfProperty;
 import org.syncope.core.persistence.beans.ConnInstance;
 import org.syncope.core.AbstractTest;
-import org.syncope.core.persistence.beans.TargetResource;
+import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.types.ConnConfPropSchema;
 import org.syncope.types.ConnectorCapability;
 
@@ -152,8 +152,8 @@ public class ConnInstanceTest extends AbstractTest {
         assertNotNull(connectorInstance);
         assertTrue(connectorInstance.getCapabilities().isEmpty());
 
-        List<TargetResource> resources =
-                connInstanceDAO.findTargetResources(connectorInstance);
+        List<ExternalResource> resources =
+                connInstanceDAO.findExternalResources(connectorInstance);
 
         assertNotNull(resources);
         assertEquals(1, resources.size());
@@ -166,7 +166,7 @@ public class ConnInstanceTest extends AbstractTest {
         assertNotNull(connectorInstance);
         assertFalse(connectorInstance.getCapabilities().isEmpty());
 
-        resources = connInstanceDAO.findTargetResources(connectorInstance);
+        resources = connInstanceDAO.findExternalResources(connectorInstance);
         assertNotNull(resources);
         assertEquals(1, resources.size());
         assertEquals(

@@ -55,9 +55,9 @@ public enum SyncopeClientExceptionType {
     InvalidSyncopeUser(
     "Syncope.InvalidSyncopeUser",
     "Syncope.InvalidSyncopeUser.element"),
-    InvalidTargetResource(
-    "Syncope.InvalidTargetResource",
-    "Syncope.InvalidTargetResource.element"),
+    InvalidExternalResource(
+    "Syncope.InvalidExternalResource",
+    "Syncope.InvalidExternalResource.element"),
     InvalidTask(
     "Syncope.InvalidTask",
     "Syncope.InvalidTask.element"),

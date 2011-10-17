@@ -31,7 +31,7 @@ import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.UserDAO;
 import org.syncope.core.AbstractTest;
 import org.syncope.core.util.AttributableUtil;
-import org.syncope.types.SourceMappingType;
+import org.syncope.types.IntMappingType;
 
 @Transactional
 public class SchemaTest extends AbstractTest {
@@ -61,9 +61,9 @@ public class SchemaTest extends AbstractTest {
         // check for associated mappings
         Set<SchemaMapping> mappings = new HashSet<SchemaMapping>();
         for (SchemaMapping mapping : resourceDAO.findAllMappings()) {
-            if (schema.getName().equals(mapping.getSourceAttrName())
-                    && mapping.getSourceMappingType()
-                    == SourceMappingType.UserSchema) {
+            if (schema.getName().equals(mapping.getIntAttrName())
+                    && mapping.getIntMappingType()
+                    == IntMappingType.UserSchema) {
 
                 mappings.add(mapping);
             }
@@ -83,9 +83,9 @@ public class SchemaTest extends AbstractTest {
         // check for mappings deletion
         mappings = new HashSet<SchemaMapping>();
         for (SchemaMapping mapping : resourceDAO.findAllMappings()) {
-            if ("username".equals(mapping.getSourceAttrName())
-                    && mapping.getSourceMappingType()
-                    == SourceMappingType.UserSchema) {
+            if ("username".equals(mapping.getIntAttrName())
+                    && mapping.getIntMappingType()
+                    == IntMappingType.UserSchema) {
 
                 mappings.add(mapping);
             }
@@ -109,9 +109,9 @@ public class SchemaTest extends AbstractTest {
         // check for associated mappings
         Set<SchemaMapping> mappings = new HashSet<SchemaMapping>();
         for (SchemaMapping mapping : resourceDAO.findAllMappings()) {
-            if (schema.getName().equals(mapping.getSourceAttrName())
-                    && mapping.getSourceMappingType()
-                    == SourceMappingType.UserSchema) {
+            if (schema.getName().equals(mapping.getIntAttrName())
+                    && mapping.getIntMappingType()
+                    == IntMappingType.UserSchema) {
 
                 mappings.add(mapping);
             }

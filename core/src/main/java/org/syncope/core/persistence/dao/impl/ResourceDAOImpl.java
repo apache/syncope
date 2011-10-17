@@ -25,14 +25,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.syncope.core.init.ConnInstanceLoader;
 import org.syncope.core.persistence.beans.PropagationTask;
-import org.syncope.core.persistence.beans.TargetResource;
+import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.beans.SyncTask;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.dao.TaskDAO;
-import org.syncope.types.SourceMappingType;
+import org.syncope.types.IntMappingType;
 
 @Repository
 public class ResourceDAOImpl extends AbstractDAOImpl
@@ -45,30 +45,31 @@ public class ResourceDAOImpl extends AbstractDAOImpl
     private ConnInstanceLoader connInstanceLoader;
 
     @Override
-    public TargetResource find(final String name) {
-        Query query = entityManager.createQuery(
-                "SELECT e FROM TargetResource e WHERE e.name = :name");
+    public ExternalResource find(final String name) {
+        Query query = entityManager.createQuery("SELECT e "
+                + "FROM " + ExternalResource.class.getSimpleName() + " e "
+                + "WHERE e.name = :name");
         query.setHint("javax.persistence.cache.retrieveMode",
                 CacheRetrieveMode.USE);
         query.setParameter("name", name);
 
         try {
-            return (TargetResource) query.getSingleResult();
+            return (ExternalResource) query.getSingleResult();
         } catch (NoResultException e) {
             return null;
         }
     }
 
     @Override
-    public List<TargetResource> findAll() {
-        Query query = entityManager.createQuery(
-                "SELECT e FROM TargetResource e");
+    public List<ExternalResource> findAll() {
+        Query query = entityManager.createQuery("SELECT e "
+                + "FROM  " + ExternalResource.class.getSimpleName() + " e");
         return query.getResultList();
     }
 
     @Override
-    public TargetResource save(final TargetResource resource) {
-        TargetResource merged = entityManager.merge(resource);
+    public ExternalResource save(final ExternalResource resource) {
+        ExternalResource merged = entityManager.merge(resource);
         try {
             connInstanceLoader.registerConnector(merged);
         } catch (NotFoundException e) {
@@ -79,8 +80,8 @@ public class ResourceDAOImpl extends AbstractDAOImpl
 
     @Override
     public List<SchemaMapping> findAllMappings() {
-        Query query = entityManager.createQuery(
-                "SELECT e FROM SchemaMapping e");
+        Query query = entityManager.createQuery("SELECT e FROM "
+                + SchemaMapping.class.getSimpleName() + " e");
         query.setHint("javax.persistence.cache.retrieveMode",
                 CacheRetrieveMode.USE);
 
@@ -91,8 +92,8 @@ public class ResourceDAOImpl extends AbstractDAOImpl
     public SchemaMapping getMappingForAccountId(
             final String resourceName) {
 
-        Query query = entityManager.createQuery(
-                "SELECT m FROM SchemaMapping m "
+        Query query = entityManager.createQuery("SELECT m FROM "
+                + SchemaMapping.class.getSimpleName() + " m "
                 + "WHERE m.resource.name=:resourceName "
                 + "AND m.accountid = 1");
         query.setParameter("resourceName", resourceName);
@@ -101,21 +102,21 @@ public class ResourceDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    public void deleteMappings(final String sourceAttrName,
-            final SourceMappingType sourceMappingType) {
+    public void deleteMappings(final String intAttrName,
+            final IntMappingType intMappingType) {
 
-        if (sourceMappingType == SourceMappingType.SyncopeUserId
-                || sourceMappingType == SourceMappingType.Password) {
+        if (intMappingType == IntMappingType.SyncopeUserId
+                || intMappingType == IntMappingType.Password) {
 
             return;
         }
 
         Query query = entityManager.createQuery("DELETE FROM "
                 + SchemaMapping.class.getSimpleName()
-                + " m WHERE m.sourceAttrName=:sourceAttrName "
-                + "AND m.sourceMappingType=:sourceMappingType");
-        query.setParameter("sourceAttrName", sourceAttrName);
-        query.setParameter("sourceMappingType", sourceMappingType);
+                + " m WHERE m.intAttrName=:intAttrName "
+                + "AND m.intMappingType=:intMappingType");
+        query.setParameter("intAttrName", intAttrName);
+        query.setParameter("intMappingType", intMappingType);
 
         int items = query.executeUpdate();
         LOG.debug("Removed {} schema mappings", items);
@@ -126,7 +127,7 @@ public class ResourceDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    public void deleteAllMappings(final TargetResource resource) {
+    public void deleteAllMappings(final ExternalResource resource) {
         Query query = entityManager.createQuery("DELETE FROM "
                 + SchemaMapping.class.getSimpleName()
                 + " m WHERE m.resource=:resource");
@@ -144,7 +145,7 @@ public class ResourceDAOImpl extends AbstractDAOImpl
 
     @Override
     public void delete(final String name) {
-        TargetResource resource = find(name);
+        ExternalResource resource = find(name);
         if (resource == null) {
             return;
         }
@@ -155,12 +156,12 @@ public class ResourceDAOImpl extends AbstractDAOImpl
         taskDAO.deleteAll(resource, SyncTask.class);
 
         for (SyncopeUser user : resource.getUsers()) {
-            user.removeTargetResource(resource);
+            user.removeExternalResource(resource);
         }
         resource.getUsers().clear();
 
         for (SyncopeRole role : resource.getRoles()) {
-            role.removeTargetResource(resource);
+            role.removeExternalResource(resource);
         }
         resource.getRoles().clear();
 
