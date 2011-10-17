@@ -75,7 +75,9 @@ public class UVirAttr extends AbstractVirAttr {
 
         List<String> stringValues = new ArrayList<String>();
         for (Object value : retrievedValues) {
-            stringValues.add(value.toString());
+            if (value != null) {
+                stringValues.add(value.toString());
+            }
         }
 
         return stringValues;

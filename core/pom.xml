@@ -377,6 +377,7 @@
                                         <exclude name="**/ehcache.xml" />
                                         <exclude name="**/persistence.properties" />
                                         <exclude name="**/security.properties" />
+                                        <exclude name="**/workflow.properties" />
                                     </patternset>
                                 </unzip>
                             </target>

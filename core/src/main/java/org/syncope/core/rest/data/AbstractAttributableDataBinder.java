@@ -304,6 +304,51 @@ public abstract class AbstractAttributableDataBinder {
         SyncopeClientException invalidValues = new SyncopeClientException(
                 SyncopeClientExceptionType.InvalidValues);
 
+        // 1. resources to be removed
+        TargetResource resource;
+        for (String resourceToBeRemoved :
+                attributableMod.getResourcesToBeRemoved()) {
+
+            resource = getResource(resourceToBeRemoved);
+
+            if (resource != null) {
+                propByRes.add(PropagationOperation.DELETE, resource);
+
+                attributable.removeTargetResource(resource);
+
+                if (attributableUtil == attributableUtil.USER) {
+                    resource.removeUser((SyncopeUser) attributable);
+                }
+                if (attributableUtil == attributableUtil.ROLE) {
+                    resource.removeRole((SyncopeRole) attributable);
+                }
+            }
+        }
+
+        LOG.debug("Resources to be removed:\n{}", propByRes);
+
+        // 2. resources to be added
+        for (String resourceToBeAdded :
+                attributableMod.getResourcesToBeAdded()) {
+
+            resource = getResource(resourceToBeAdded);
+
+            if (resource != null) {
+                propByRes.add(PropagationOperation.CREATE, resource);
+
+                attributable.addTargetResource(resource);
+
+                if (attributableUtil == attributableUtil.USER) {
+                    resource.addUser((SyncopeUser) attributable);
+                }
+                if (attributableUtil == attributableUtil.ROLE) {
+                    resource.addRole((SyncopeRole) attributable);
+                }
+            }
+        }
+
+        LOG.debug("Resources to be added:\n{}", propByRes);
+
         AbstractSchema schema;
         AbstractAttr attribute;
         AbstractDerSchema derivedSchema;
@@ -311,7 +356,7 @@ public abstract class AbstractAttributableDataBinder {
         AbstractVirSchema virtualSchema;
         AbstractVirAttr virtualAttribute;
 
-        // 1. attributes to be removed
+        // 3. attributes to be removed
         for (String attributeToBeRemoved :
                 attributableMod.getAttributesToBeRemoved()) {
 
@@ -324,7 +369,8 @@ public abstract class AbstractAttributableDataBinder {
                     LOG.debug("No attribute found for schema {}", schema);
                 } else {
                     String newValue = null;
-                    for (AttributeMod mod : attributableMod.getAttributesToBeUpdated()) {
+                    for (AttributeMod mod : attributableMod.
+                            getAttributesToBeUpdated()) {
 
                         if (schema.getName().equals(mod.getSchema())) {
                             newValue = mod.getValuesToBeAdded().
@@ -366,9 +412,9 @@ public abstract class AbstractAttributableDataBinder {
             }
         }
 
-        LOG.debug("About attributes to be removed:\n{}", propByRes);
+        LOG.debug("Attributes to be removed:\n{}", propByRes);
 
-        // 2. attributes to be updated
+        // 4. attributes to be updated
         Set<Long> valuesToBeRemoved;
         List<String> valuesToBeAdded;
         for (AttributeMod attributeMod :
@@ -451,15 +497,9 @@ public abstract class AbstractAttributableDataBinder {
             compositeErrorException.addException(invalidValues);
         }
 
-        SyncopeClientException requiredValuesMissing =
-                checkMandatory(attributableUtil, attributable);
-        if (!requiredValuesMissing.getElements().isEmpty()) {
-            compositeErrorException.addException(requiredValuesMissing);
-        }
+        LOG.debug("Attributes to be updated:\n{}", propByRes);
 
-        LOG.debug("About attributes to be updated:\n{}", propByRes);
-
-        // 3. derived attributes to be removed
+        // 5. derived attributes to be removed
         for (String derivedAttributeToBeRemoved :
                 attributableMod.getDerivedAttributesToBeRemoved()) {
 
@@ -504,10 +544,10 @@ public abstract class AbstractAttributableDataBinder {
             }
         }
 
-        LOG.debug("About derived attributes to be removed:\n{}",
+        LOG.debug("Derived attributes to be removed:\n{}",
                 propByRes);
 
-        // 4. virtual attributes to be removed
+        // 6. virtual attributes to be removed
         for (String virtualAttributeToBeRemoved :
                 attributableMod.getVirtualAttributesToBeRemoved()) {
 
@@ -550,10 +590,10 @@ public abstract class AbstractAttributableDataBinder {
             }
         }
 
-        LOG.debug("About virtual attributes to be removed:\n{}",
+        LOG.debug("Virtual attributes to be removed:\n{}",
                 propByRes);
 
-        // 5. derived attributes to be added
+        // 7. derived attributes to be added
         for (String derivedAttributeToBeAdded :
                 attributableMod.getDerivedAttributesToBeAdded()) {
 
@@ -582,10 +622,10 @@ public abstract class AbstractAttributableDataBinder {
             }
         }
 
-        LOG.debug("About derived attributes to be added:\n{}",
+        LOG.debug("Derived attributes to be added:\n{}",
                 propByRes);
 
-        // 6. virtual attributes to be added
+        // 8. virtual attributes to be added
         for (String virtualAttributeToBeAdded :
                 attributableMod.getVirtualAttributesToBeAdded()) {
 
@@ -614,53 +654,15 @@ public abstract class AbstractAttributableDataBinder {
             }
         }
 
-        LOG.debug("About virtual attributes to be added:\n{}",
+        LOG.debug("Virtual attributes to be added:\n{}",
                 propByRes);
 
-        // 7. resources to be removed
-        TargetResource resource;
-        for (String resourceToBeRemoved :
-                attributableMod.getResourcesToBeRemoved()) {
-
-            resource = getResource(resourceToBeRemoved);
-
-            if (resource != null) {
-                propByRes.add(PropagationOperation.DELETE, resource);
-
-                attributable.removeTargetResource(resource);
-
-                if (attributableUtil == attributableUtil.USER) {
-                    resource.removeUser((SyncopeUser) attributable);
-                }
-                if (attributableUtil == attributableUtil.ROLE) {
-                    resource.removeRole((SyncopeRole) attributable);
-                }
-            }
+        // Finally, check if mandatory values are missing
+        SyncopeClientException requiredValuesMissing =
+                checkMandatory(attributableUtil, attributable);
+        if (!requiredValuesMissing.getElements().isEmpty()) {
+            compositeErrorException.addException(requiredValuesMissing);
         }
-
-        LOG.debug("About resources to be removed:\n{}", propByRes);
-
-        // 6. resources to be added
-        for (String resourceToBeAdded :
-                attributableMod.getResourcesToBeAdded()) {
-
-            resource = getResource(resourceToBeAdded);
-
-            if (resource != null) {
-                propByRes.add(PropagationOperation.CREATE, resource);
-
-                attributable.addTargetResource(resource);
-
-                if (attributableUtil == attributableUtil.USER) {
-                    resource.addUser((SyncopeUser) attributable);
-                }
-                if (attributableUtil == attributableUtil.ROLE) {
-                    resource.addRole((SyncopeRole) attributable);
-                }
-            }
-        }
-
-        LOG.debug("About resources to be added:\n{}", propByRes);
 
         // Throw composite exception if there is at least one element set
         // in the composing exceptions

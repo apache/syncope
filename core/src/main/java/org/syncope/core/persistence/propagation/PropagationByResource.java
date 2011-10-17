@@ -34,17 +34,17 @@ public class PropagationByResource implements Serializable {
     /**
      * Resources for creation.
      */
-    private Set<TargetResource> toBeCreated;
+    private Set<String> toBeCreated;
 
     /**
      * Resources for update.
      */
-    private Set<TargetResource> toBeUpdated;
+    private Set<String> toBeUpdated;
 
     /**
      * Resources for deletion.
      */
-    private Set<TargetResource> toBeDeleted;
+    private Set<String> toBeDeleted;
 
     /**
      * Mapping target resource names to old account ids (when applicable).
@@ -55,9 +55,9 @@ public class PropagationByResource implements Serializable {
      * Default constructor.
      */
     public PropagationByResource() {
-        toBeCreated = new HashSet<TargetResource>();
-        toBeUpdated = new HashSet<TargetResource>();
-        toBeDeleted = new HashSet<TargetResource>();
+        toBeCreated = new HashSet<String>();
+        toBeUpdated = new HashSet<String>();
+        toBeDeleted = new HashSet<String>();
 
         oldAccountIds = new HashMap<String, String>();
     }
@@ -68,11 +68,11 @@ public class PropagationByResource implements Serializable {
      * on any resource for which an update is requested.
      */
     public final void purge() {
-        for (TargetResource resource : toBeDeleted) {
+        for (String resource : toBeDeleted) {
             toBeCreated.remove(resource);
             toBeUpdated.remove(resource);
         }
-        for (TargetResource resource : toBeUpdated) {
+        for (String resource : toBeUpdated) {
             toBeCreated.remove(resource);
         }
     }
@@ -91,18 +91,29 @@ public class PropagationByResource implements Serializable {
 
         switch (type) {
             case CREATE:
-                result = toBeCreated.add(resource);
+                result = toBeCreated.add(resource.getName());
                 break;
 
             case UPDATE:
-                result = toBeUpdated.add(resource);
+                result = toBeUpdated.add(resource.getName());
                 break;
 
             case DELETE:
-                result = toBeDeleted.add(resource);
+                result = toBeDeleted.add(resource.getName());
                 break;
 
             default:
+        }
+
+        return result;
+    }
+
+    private boolean addAll(final Set<String> set,
+            final Set<TargetResource> resources) {
+
+        boolean result = true;
+        for (TargetResource resource : resources) {
+            result &= set.add(resource.getName());
         }
 
         return result;
@@ -122,15 +133,15 @@ public class PropagationByResource implements Serializable {
 
         switch (type) {
             case CREATE:
-                result = toBeCreated.addAll(resources);
+                result = addAll(toBeCreated, resources);
                 break;
 
             case UPDATE:
-                result = toBeUpdated.addAll(resources);
+                result = addAll(toBeUpdated, resources);
                 break;
 
             case DELETE:
-                result = toBeDeleted.addAll(resources);
+                result = addAll(toBeDeleted, resources);
                 break;
 
             default:
@@ -176,8 +187,8 @@ public class PropagationByResource implements Serializable {
      * @param type resource operation type
      * @return resource matching the given type
      */
-    public final Set<TargetResource> get(final PropagationOperation type) {
-        Set<TargetResource> result = Collections.EMPTY_SET;
+    public final Set<String> get(final PropagationOperation type) {
+        Set<String> result = Collections.EMPTY_SET;
 
         switch (type) {
             case CREATE:
@@ -211,17 +222,17 @@ public class PropagationByResource implements Serializable {
 
             case CREATE:
                 toBeCreated.clear();
-                toBeCreated.addAll(resources);
+                addAll(toBeCreated, resources);
                 break;
 
             case UPDATE:
                 toBeUpdated.clear();
-                toBeUpdated.addAll(resources);
+                addAll(toBeUpdated, resources);
                 break;
 
             case DELETE:
                 toBeDeleted.clear();
-                toBeDeleted.addAll(resources);
+                addAll(toBeDeleted, resources);
                 break;
 
             default:

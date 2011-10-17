@@ -102,7 +102,8 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         fill(user, userTO, AttributableUtil.USER, scce);
     }
 
-    public PropagationByResource update(SyncopeUser user, UserMod userMod)
+    public PropagationByResource update(final SyncopeUser user,
+            final UserMod userMod)
             throws SyncopeClientCompositeErrorException {
 
         PropagationByResource propByRes = new PropagationByResource();

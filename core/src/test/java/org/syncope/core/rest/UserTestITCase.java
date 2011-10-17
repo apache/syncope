@@ -227,6 +227,79 @@ public class UserTestITCase extends AbstractTest {
     }
 
     @Test
+    public final void issue186() {
+        // 1. create an user with strict mandatory attributes only
+        UserTO userTO = new UserTO();
+        userTO.setPassword("password");
+
+        AttributeTO attributeTO = new AttributeTO();
+        attributeTO.setSchema("userId");
+        attributeTO.addValue("issue186@syncope-idm.org");
+        userTO.addAttribute(attributeTO);
+
+        attributeTO = new AttributeTO();
+        attributeTO.setSchema("username");
+        attributeTO.addValue("issue186");
+        userTO.addAttribute(attributeTO);
+
+        attributeTO = new AttributeTO();
+        attributeTO.setSchema("surname");
+        attributeTO.addValue("issue186");
+        userTO.addAttribute(attributeTO);
+
+        userTO = restTemplate.postForObject(BASE_URL + "user/create",
+                userTO, UserTO.class);
+        assertNotNull(userTO);
+        assertTrue(userTO.getResources().isEmpty());
+
+        // 2. update assignign a resource forcing mandatory constraints: must
+        // fail with RequiredValuesMissing
+        UserMod userMod = new UserMod();
+        userMod.setId(userTO.getId());
+        userMod.setPassword("newPassword");
+        userMod.addResourceToBeAdded("ws-target-resource-2");
+
+        SyncopeClientException sce = null;
+        try {
+            userTO = restTemplate.postForObject(
+                    BASE_URL + "user/update", userMod, UserTO.class);
+        } catch (SyncopeClientCompositeErrorException scce) {
+            sce = scce.getException(
+                    SyncopeClientExceptionType.RequiredValuesMissing);
+        }
+        assertNotNull(sce);
+
+        // 3. update assignign a resource NOT forcing mandatory constraints:
+        // must fail with PropagationException when called with 
+        // mandatoryResources
+        userMod = new UserMod();
+        userMod.setId(userTO.getId());
+        userMod.setPassword("newPassword");
+        userMod.addResourceToBeAdded("ws-target-resource-1");
+
+        sce = null;
+        try {
+            userTO = restTemplate.postForObject(BASE_URL
+                    + "user/update?mandatoryResources=ws-target-resource-1",
+                    userMod, UserTO.class);
+        } catch (SyncopeClientCompositeErrorException scce) {
+            sce = scce.getException(SyncopeClientExceptionType.Propagation);
+        }
+        assertNotNull(sce);
+
+        // 4. update assignign a resource NOT forcing mandatory constraints:
+        // must succeed
+        sce = null;
+        try {
+            userTO = restTemplate.postForObject(
+                    BASE_URL + "user/update", userMod, UserTO.class);
+        } catch (SyncopeClientCompositeErrorException scce) {
+            sce = scce.getException(SyncopeClientExceptionType.Propagation);
+        }
+        assertNull(sce);
+    }
+
+    @Test
     public final void createUserWithDbPropagation() {
         UserTO userTO = new UserTO();
 

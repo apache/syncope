@@ -54,6 +54,7 @@ import org.syncope.core.persistence.beans.user.UDerSchema;
 import org.syncope.core.persistence.beans.user.USchema;
 import org.syncope.core.persistence.beans.user.UVirAttr;
 import org.syncope.core.persistence.beans.user.UVirSchema;
+import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.TaskDAO;
 import org.syncope.core.persistence.dao.TaskExecDAO;
@@ -81,6 +82,12 @@ public class PropagationManager {
      */
     @Autowired
     private ConnInstanceLoader connLoader;
+
+    /**
+     * Resource DAO.
+     */
+    @Autowired
+    private ResourceDAO resourceDAO;
 
     /**
      * Schema DAO.
@@ -211,12 +218,13 @@ public class PropagationManager {
         propByRes.purge();
         LOG.debug("After purge: {}", propByRes);
 
+        TargetResource resource;
         Map.Entry<String, Set<Attribute>> preparedAttrs;
         PropagationTask task;
         TaskExec execution;
         for (PropagationOperation type : PropagationOperation.values()) {
-            for (TargetResource resource : propByRes.get(type)) {
-
+            for (String resourceName : propByRes.get(type)) {
+                resource = resourceDAO.find(resourceName);
                 preparedAttrs = prepareAttributes(user, password, resource);
 
                 task = new PropagationTask();

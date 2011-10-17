@@ -60,7 +60,6 @@ public class AttributableValidator extends AbstractValidator
             // ------------------------------
             LOG.debug("Password Policy enforcement");
 
-            LOG.error("AAAA");
             final List<Policy> policies =
                     getPasswordPolicies((SyncopeUser) object);
 
