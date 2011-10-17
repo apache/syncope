@@ -14,6 +14,7 @@
  */
 package org.syncope.core.rest.data;
 
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.syncope.core.util.AttributableUtil;
 import org.springframework.http.HttpStatus;
@@ -23,6 +24,9 @@ import org.syncope.client.to.RoleTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
 import org.syncope.core.persistence.beans.Entitlement;
+import org.syncope.core.persistence.beans.role.RAttr;
+import org.syncope.core.persistence.beans.role.RDerAttr;
+import org.syncope.core.persistence.beans.role.RVirAttr;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.dao.EntitlementDAO;
 import org.syncope.core.persistence.propagation.PropagationByResource;
@@ -133,17 +137,20 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
 
         // inherited attributes
         if (roleMod.getInheritAttributes() != null) {
-            role.setInheritAttributes(roleMod.getInheritAttributes());
+            role.setInheritAttributes(
+                    roleMod.getInheritAttributes());
         }
 
         // inherited derived attributes
         if (roleMod.getInheritDerivedAttributes() != null) {
-            role.setInheritDerivedAttributes(roleMod.getInheritDerivedAttributes());
+            role.setInheritDerivedAttributes(
+                    roleMod.getInheritDerivedAttributes());
         }
 
         // inherited virtual attributes
         if (roleMod.getInheritVirtualAttributes() != null) {
-            role.setInheritVirtualAttributes(roleMod.getInheritVirtualAttributes());
+            role.setInheritVirtualAttributes(
+                    roleMod.getInheritVirtualAttributes());
         }
 
         // entitlements
@@ -177,10 +184,25 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
             roleTO.setParent(role.getParent().getId());
         }
 
+        // -------------------------
+        // Retrieve all [derived/virtual] attributes (inherited and not)
+        // -------------------------
+        final List<RAttr> allAttributes = role.findInheritedAttributes();
+        allAttributes.addAll((List<RAttr>) role.getAttributes());
+
+        final List<RDerAttr> allDerAttributes =
+                role.findInheritedDerivedAttributes();
+        allDerAttributes.addAll((List<RDerAttr>) role.getDerivedAttributes());
+
+        final List<RVirAttr> allVirAttributes =
+                role.findInheritedVirtualAttributes();
+        allVirAttributes.addAll((List<RVirAttr>) role.getVirtualAttributes());
+        // -------------------------
+
         fillTO(roleTO,
-                role.findInheritedAttributes(),
-                role.findInheritedDerivedAttributes(),
-                role.findInheritedVirtualAttributes(),
+                allAttributes,
+                allDerAttributes,
+                allVirAttributes,
                 role.getTargetResources());
 
         for (Entitlement entitlement : role.getEntitlements()) {

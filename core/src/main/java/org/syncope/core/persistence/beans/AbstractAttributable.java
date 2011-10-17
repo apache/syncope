@@ -15,9 +15,11 @@
 package org.syncope.core.persistence.beans;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToMany;
@@ -117,6 +119,39 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
 
     public void setResources(Set<TargetResource> resources) {
         this.targetResources = resources;
+    }
+
+    protected Map<AbstractSchema, AbstractAttr> getAttributesMap() {
+        final Map<AbstractSchema, AbstractAttr> map =
+                new HashMap<AbstractSchema, AbstractAttr>();
+
+        for (AbstractAttr attr : getAttributes()) {
+            map.put((AbstractSchema) attr.getSchema(), attr);
+        }
+
+        return map;
+    }
+
+    protected Map<AbstractDerSchema, AbstractDerAttr> getDerivedAttributesMap() {
+        final Map<AbstractDerSchema, AbstractDerAttr> map =
+                new HashMap<AbstractDerSchema, AbstractDerAttr>();
+
+        for (AbstractDerAttr attr : getDerivedAttributes()) {
+            map.put((AbstractDerSchema) attr.getDerivedSchema(), attr);
+        }
+
+        return map;
+    }
+
+    protected Map<AbstractVirSchema, AbstractVirAttr> getVirtualAttributesMap() {
+        final Map<AbstractVirSchema, AbstractVirAttr> map =
+                new HashMap<AbstractVirSchema, AbstractVirAttr>();
+
+        for (AbstractVirAttr attr : getVirtualAttributes()) {
+            map.put((AbstractVirSchema) attr.getVirtualSchema(), attr);
+        }
+
+        return map;
     }
 
     public abstract Long getId();

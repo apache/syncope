@@ -52,7 +52,7 @@ public class RoleTest extends AbstractTest {
     public final void inheritedAttributes() {
         SyncopeRole director = roleDAO.find(7L);
 
-        assertEquals(2, director.findInheritedAttributes().size());
+        assertEquals(1, director.findInheritedAttributes().size());
     }
 
     @Test
