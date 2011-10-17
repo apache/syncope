@@ -48,6 +48,7 @@ import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.rest.ConnectorRestClient;
 import org.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
+import org.syncope.console.wicket.markup.html.form.AjaxPasswordFieldPanel;
 import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.syncope.console.wicket.markup.html.form.FieldPanel;
 import org.syncope.types.ConnConfPropSchema;
@@ -60,6 +61,9 @@ import org.syncope.types.ConnectorCapability;
 public class ConnectorModalPage extends BaseModalPage {
 
     private static final long serialVersionUID = -2025535531121434050L;
+
+    private static final String GUARDED_STRING =
+            "org.identityconnectors.common.security.GuardedString";
 
     @SpringBean
     private ConnectorRestClient restClient;
@@ -244,21 +248,39 @@ public class ConnectorModalPage extends BaseModalPage {
 
                         final Label label = new Label("connPropAttrSchema",
                                 property.getSchema().getDisplayName() == null
-                                || property.getSchema().getDisplayName().isEmpty()
+                                || property.getSchema().getDisplayName().
+                                isEmpty()
                                 ? property.getSchema().getName()
                                 : property.getSchema().getDisplayName());
 
                         item.add(label);
 
-                        final FieldPanel field = new AjaxTextFieldPanel(
-                                "connPropAttrValue",
-                                label.getDefaultModelObjectAsString(),
-                                new PropertyModel<String>(property, "value"),
-                                true).setRequired(property.getSchema().
-                                isRequired()).
-                                setTitle(property.getSchema().getHelpMessage());
-                        if (property.getSchema().isRequired()) {
-                            field.addRequiredLabel();
+                        final FieldPanel field;
+
+                        if (GUARDED_STRING.equals(
+                                property.getSchema().getType())) {
+
+                            field = new AjaxPasswordFieldPanel(
+                                    "connPropAttrValue",
+                                    label.getDefaultModelObjectAsString(),
+                                    new PropertyModel<String>(property,
+                                    "value"), true).setRequired(
+                                    property.getSchema().
+                                    isRequired()).setTitle(property.getSchema().
+                                    getHelpMessage());
+                        } else {
+
+                            field = new AjaxTextFieldPanel(
+                                    "connPropAttrValue",
+                                    label.getDefaultModelObjectAsString(),
+                                    new PropertyModel<String>(property,
+                                    "value"), true).setRequired(
+                                    property.getSchema().
+                                    isRequired()).setTitle(property.getSchema().
+                                    getHelpMessage());
+                            if (property.getSchema().isRequired()) {
+                                field.addRequiredLabel();
+                            }
                         }
 
                         item.add(field);

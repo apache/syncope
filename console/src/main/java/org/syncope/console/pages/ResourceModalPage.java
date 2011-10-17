@@ -374,8 +374,7 @@ public class ResourceModalPage extends BaseModalPage {
                                 sourceAttrNames);
 
                         mappingTypesPanel.setRequired(true);
-                        mappingTypesPanel.setChoices(sourceMappingTypes.
-                                getObject());
+                        mappingTypesPanel.setChoices(sourceMappingTypes.getObject());
                         mappingTypesPanel.setStyleShet(
                                 "ui-widget-content ui-corner-all short_fixedsize");
                         item.add(mappingTypesPanel);
@@ -703,12 +702,16 @@ public class ResourceModalPage extends BaseModalPage {
     }
 
     public final void updateResourceSchemaNames(final ResourceTO resourceTO) {
-        if (resourceTO != null && resourceTO.getConnectorId() != null) {
+        try {
+
             resourceSchemaNames =
-                    connectorRestClient.getSchemaNames(resourceTO);
-        } else {
-            resourceSchemaNames =
-                    Collections.EMPTY_LIST;
+                    (resourceTO != null && resourceTO.getConnectorId() != null)
+                    ? connectorRestClient.getSchemaNames(resourceTO)
+                    : Collections.EMPTY_LIST;
+
+        } catch (Exception e) {
+            LOG.warn("Error retrieving resource schema names", e);
+            resourceSchemaNames = Collections.EMPTY_LIST;
         }
     }
 
