@@ -23,6 +23,8 @@ import org.identityconnectors.common.security.GuardedByteArray;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
+import org.identityconnectors.framework.common.objects.Name;
+import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.BeansException;
@@ -160,16 +162,25 @@ public class SyncJob extends AbstractJob {
         Attribute attribute;
         List<Object> values;
         AttributeTO attributeTO;
+        
         for (SchemaMapping mapping : mappings) {
-            attribute = obj.getAttributeByName(mapping.getExtAttrName());
+            if (mapping.isAccountid()) {
+                attribute = obj.getAttributeByName(Name.NAME);
+            } else if (mapping.isPassword()) {
+                attribute = obj.getAttributeByName(
+                        OperationalAttributes.PASSWORD_NAME);
+            } else {
+                attribute = obj.getAttributeByName(mapping.getExtAttrName());
+            }
+
             values = attribute == null
                     ? Collections.EMPTY_LIST : attribute.getValue();
+
             switch (mapping.getIntMappingType()) {
                 case SyncopeUserId:
                     break;
 
                 case Password:
-                    attribute = obj.getAttributeByName("__PASSWORD__");
                     userTO.setPassword(getPassword(attribute == null
                             ? Collections.EMPTY_LIST : attribute.getValue()));
                     break;
