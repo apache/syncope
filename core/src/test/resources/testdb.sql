@@ -3,6 +3,7 @@ ALTER USER sa SET PASSWORD 'sa';
 DROP TABLE test IF EXISTS;
 CREATE TABLE test (
 id INTEGER PRIMARY KEY,
-password VARCHAR(255) NOT NULL);
+password VARCHAR(255) NOT NULL,
+__ENABLE__ VARCHAR(5));
 
-INSERT INTO test VALUES (1, 'password');
+INSERT INTO test VALUES (1, 'password', 'false');

@@ -32,9 +32,16 @@
       
         <serviceTask id="create" name="Create" activiti:class="org.syncope.core.workflow.activiti.Create"/>
 
-        <sequenceFlow id="flow2" sourceRef="create" targetRef="active"/>
-        <!-- Uncomment the following lines and comment the above line in order to
-             enable opt-in.
+        <sequenceFlow id="flow2" sourceRef="create" targetRef="activate"/>
+        
+        <!-- Comment the following lines and uncomment the lines below in order
+             to enable opt-in. -->
+        <serviceTask id="activate" name="Activate" activiti:class="org.syncope.core.workflow.activiti.AutoActivate"/>
+
+        <sequenceFlow id="flow3" sourceRef="activate" targetRef="active"/>
+
+        <!-- Uncomment the following lines and comment the above line in order
+             to enable opt-in.
         <sequenceFlow id="flow2" sourceRef="create" targetRef="generateToken"/>
         
         <serviceTask id="generateToken" name="Generate token" activiti:class="org.syncope.core.workflow.activiti.GenerateToken"/>

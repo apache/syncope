@@ -71,7 +71,7 @@ public class NoOpUserWorkflowAdapter implements UserWorkflowAdapter {
         }
 
         propagationManager.create(
-                user, userTO.getPassword(), mandatoryResourceNames);
+                user, userTO.getPassword(), false, mandatoryResourceNames);
 
         return user;
     }
@@ -92,7 +92,7 @@ public class NoOpUserWorkflowAdapter implements UserWorkflowAdapter {
         PropagationByResource propByRes = new PropagationByResource();
         propByRes.addAll(
                 PropagationOperation.UPDATE, user.getExternalResources());
-        propagationManager.update(user, null, propByRes, null);
+        propagationManager.update(user, null, true, propByRes, null);
 
         return updated;
     }
@@ -115,7 +115,7 @@ public class NoOpUserWorkflowAdapter implements UserWorkflowAdapter {
                     mandatoryResourceNames);
         }
 
-        propagationManager.update(user, userMod.getPassword(),
+        propagationManager.update(user, userMod.getPassword(), null,
                 updated.getValue(), mandatoryResourceNames);
 
         return updated.getKey();
@@ -131,7 +131,7 @@ public class NoOpUserWorkflowAdapter implements UserWorkflowAdapter {
         PropagationByResource propByRes = new PropagationByResource();
         propByRes.addAll(
                 PropagationOperation.UPDATE, user.getExternalResources());
-        propagationManager.update(user, null, propByRes, null);
+        propagationManager.update(user, null, false, propByRes, null);
 
         return updated;
     }
@@ -146,7 +146,7 @@ public class NoOpUserWorkflowAdapter implements UserWorkflowAdapter {
         PropagationByResource propByRes = new PropagationByResource();
         propByRes.addAll(
                 PropagationOperation.UPDATE, user.getExternalResources());
-        propagationManager.update(user, null, propByRes, null);
+        propagationManager.update(user, null, true, propByRes, null);
 
         return updated;
     }

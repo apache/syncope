@@ -311,7 +311,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
                 resourceTO, String[].class));
 
         assertNotNull(schemaNames);
-        assertTrue(schemaNames.isEmpty());
+        assertTrue(schemaNames.size() == 1);
 
         resourceTO = restTemplate.getForObject(
                 BASE_URL + "/resource/read/{resourceName}.json",

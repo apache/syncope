@@ -66,7 +66,9 @@ public class ActivitiUserWorkflowAdapter implements UserWorkflowAdapter {
 
     public static final String TOKEN = "token";
 
-    public static String PROP_BY_RESOURCE = "propByResource";
+    public static final String PROP_BY_RESOURCE = "propByResource";
+
+    public static final String PROPAGATE_ENABLE = "propagateEnable";
 
     @Autowired
     private RuntimeService runtimeService;
@@ -123,7 +125,6 @@ public class ActivitiUserWorkflowAdapter implements UserWorkflowAdapter {
 
         // create and save Activiti user
         User activitiUser = identityService.newUser(user.getId().toString());
-        activitiUser.setPassword(userTO.getPassword());
         identityService.saveUser(activitiUser);
 
         // Now that user is created locally, let's propagate
@@ -135,8 +136,10 @@ public class ActivitiUserWorkflowAdapter implements UserWorkflowAdapter {
                     mandatoryResourceNames);
         }
 
+        Boolean enable = (Boolean) runtimeService.getVariable(
+                processInstance.getProcessInstanceId(), PROPAGATE_ENABLE);
         propagationManager.create(
-                user, userTO.getPassword(), mandatoryResourceNames);
+                user, userTO.getPassword(), enable, mandatoryResourceNames);
 
         return user;
     }
@@ -182,7 +185,7 @@ public class ActivitiUserWorkflowAdapter implements UserWorkflowAdapter {
         PropagationByResource propByRes = new PropagationByResource();
         propByRes.addAll(
                 PropagationOperation.UPDATE, user.getExternalResources());
-        propagationManager.update(user, null, propByRes, null);
+        propagationManager.update(user, null, true, propByRes, null);
 
         return updated;
     }
@@ -211,7 +214,7 @@ public class ActivitiUserWorkflowAdapter implements UserWorkflowAdapter {
                     mandatoryResourceNames);
         }
 
-        propagationManager.update(updated, userMod.getPassword(),
+        propagationManager.update(updated, userMod.getPassword(), null,
                 propByRes, mandatoryResourceNames);
 
         return updated;
@@ -228,7 +231,7 @@ public class ActivitiUserWorkflowAdapter implements UserWorkflowAdapter {
         PropagationByResource propByRes = new PropagationByResource();
         propByRes.addAll(
                 PropagationOperation.UPDATE, user.getExternalResources());
-        propagationManager.update(user, null, propByRes, null);
+        propagationManager.update(user, null, false, propByRes, null);
 
         return updated;
     }
@@ -244,7 +247,7 @@ public class ActivitiUserWorkflowAdapter implements UserWorkflowAdapter {
         PropagationByResource propByRes = new PropagationByResource();
         propByRes.addAll(
                 PropagationOperation.UPDATE, user.getExternalResources());
-        propagationManager.update(user, null, propByRes, null);
+        propagationManager.update(user, null, true, propByRes, null);
 
         return updated;
     }

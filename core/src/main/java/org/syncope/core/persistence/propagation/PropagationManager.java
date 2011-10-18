@@ -115,38 +115,28 @@ public class PropagationManager {
 
     /**
      * Create the user on every associated resource.
-     * Exceptions will be ignored.
-     * @param user to be created.
-     * @param password to be set.
-     * @throws PropagationException when anything goes wrong.
-     */
-    public void create(final SyncopeUser user, final String password)
-            throws PropagationException {
-
-        create(user, password, Collections.EMPTY_SET);
-    }
-
-    /**
-     * Create the user on every associated resource.
      * It is possible to ask for a mandatory provisioning for some resources
      * specifying a set of resource names.
      * Exceptions won't be ignored and the process will be stopped if the
      * creation fails onto a mandatory resource.
      *
-     * @param user to be created.
-     * @param password to be set.
+     * @param user to be created
+     * @param password to be set
+     * @param enable wether user must be enabled or not
      * @param mandResNames to ask for mandatory or optional
-     * provisioning.
+     * provisioning
      * @throws PropagationException when anything goes wrong
      */
     public void create(final SyncopeUser user,
-            final String password, final Set<String> mandResNames)
+            final String password,
+            final Boolean enable,
+            final Set<String> mandResNames)
             throws PropagationException {
 
         final PropagationByResource propByRes = new PropagationByResource();
         propByRes.set(PropagationOperation.CREATE, user.getExternalResources());
 
-        provision(user, password, propByRes,
+        provision(user, password, enable, propByRes,
                 mandResNames == null ? Collections.EMPTY_SET : mandResNames);
     }
 
@@ -159,17 +149,19 @@ public class PropagationManager {
      *
      * @param user to be updated.
      * @param password to be updated.
+     * @param enable wether user must be enabled or not
      * @param propByRes operations to perform on each resource.
      * @param mandResNames to ask for mandatory or optional update.
      * @throws PropagationException if anything goes wrong
      */
     public void update(final SyncopeUser user,
             final String password,
+            final Boolean enable,
             final PropagationByResource propByRes,
             final Set<String> mandResNames)
             throws PropagationException {
 
-        provision(user, password, propByRes,
+        provision(user, password, enable, propByRes,
                 mandResNames == null ? Collections.EMPTY_SET : mandResNames);
     }
 
@@ -192,7 +184,7 @@ public class PropagationManager {
         propByRes.set(PropagationOperation.DELETE,
                 user.getExternalResources());
 
-        provision(user, null, propByRes,
+        provision(user, null, false, propByRes,
                 mandResNames == null ? Collections.EMPTY_SET : mandResNames);
     }
 
@@ -201,6 +193,7 @@ public class PropagationManager {
      *
      * @param user user to be provisioned
      * @param password cleartext password to be provisioned
+     * @param enable wether user must be enabled or not
      * @param propByRes operation to be performed per resource
      * @param mandResNames resources for mandatory propagation
      * @throws PropagationException if anything goes wrong
@@ -208,6 +201,7 @@ public class PropagationManager {
     protected void provision(
             final SyncopeUser user,
             final String password,
+            final Boolean enable,
             final PropagationByResource propByRes,
             final Set<String> mandResNames)
             throws PropagationException {
@@ -225,7 +219,8 @@ public class PropagationManager {
         for (PropagationOperation type : PropagationOperation.values()) {
             for (String resourceName : propByRes.get(type)) {
                 resource = resourceDAO.find(resourceName);
-                preparedAttrs = prepareAttributes(user, password, resource);
+                preparedAttrs = prepareAttributes(
+                        user, password, enable, resource);
 
                 task = new PropagationTask();
                 task.setResource(resource);
@@ -457,13 +452,14 @@ public class PropagationManager {
      *
      * @param user given user
      * @param password clear-text password
+     * @param enable wether user must be enabled or not
      * @param resource target resource
      * @return account link + prepared attributes
      * @throws PropagationException if anything goes wrong
      */
     private Map.Entry<String, Set<Attribute>> prepareAttributes(
             final SyncopeUser user, final String password,
-            final ExternalResource resource)
+            final Boolean enable, final ExternalResource resource)
             throws PropagationException {
 
         LOG.debug("Preparing resource attributes for {}"
@@ -514,6 +510,10 @@ public class PropagationManager {
             // AccountId not propagated: 
             // it will be used to set the value for __UID__ attribute
             LOG.debug("AccountId will be used just as __UID__ attribute");
+        }
+
+        if (enable != null) {
+            attributes.add(AttributeBuilder.buildEnabled(enable));
         }
 
         return new DefaultMapEntry(accountId, attributes);
