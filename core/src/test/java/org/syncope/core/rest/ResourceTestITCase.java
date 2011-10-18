@@ -380,7 +380,7 @@ public class ResourceTestITCase extends AbstractTest {
     public void read() {
         ResourceTO actual = restTemplate.getForObject(
                 BASE_URL + "/resource/read/{resourceName}.json",
-                ResourceTO.class, "ws-target-resource-testdb");
+                ResourceTO.class, "resource-testdb");
 
         assertNotNull(actual);
     }

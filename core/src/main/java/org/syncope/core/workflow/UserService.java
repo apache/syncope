@@ -53,9 +53,9 @@ public class UserService {
 
         Set<String> mandatoryResourceNames = new HashSet<String>();
 
-        for (ExternalResource resource : user.getExternalResources()) {
-            if (mandatoryResources.contains(resource.getName())) {
-                mandatoryResourceNames.add(resource.getName());
+        for (String resource : user.getExternalResourceNames()) {
+            if (mandatoryResources.contains(resource)) {
+                mandatoryResourceNames.add(resource);
             }
         }
         for (SyncopeRole role : user.getRoles()) {

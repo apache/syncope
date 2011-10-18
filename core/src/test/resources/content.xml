@@ -241,7 +241,7 @@
                     createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL"/>
     <ExternalResource name="ws-target-resource-nopropagation" connector_id="103" forceMandatoryConstraint="1" optionalPropagationMode="ASYNC"
                     createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" passwordPolicy_id="4"/>
-    <ExternalResource name="ws-target-resource-testdb" connector_id="101" forceMandatoryConstraint="1" optionalPropagationMode="SYNC"
+    <ExternalResource name="resource-testdb" connector_id="101" forceMandatoryConstraint="1" optionalPropagationMode="SYNC"
                     createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL"/>
     <ExternalResource name="resource-csv" connector_id="104" forceMandatoryConstraint="0" optionalPropagationMode="ASYNC"
                     createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL"/>
@@ -339,12 +339,12 @@
                    accountid="1" password="0"/>
                    
     <SchemaMapping id="116" extAttrName="id"
-                   resource_name="ws-target-resource-testdb"
+                   resource_name="resource-testdb"
                    intMappingType="SyncopeUserId" mandatoryCondition="true"
                    accountid="1" password="0"/>
                    
     <SchemaMapping id="117" extAttrName="password"
-                   resource_name="ws-target-resource-testdb"
+                   resource_name="resource-testdb"
                    intMappingType="Password" mandatoryCondition="true"
                    accountid="0" password="1"/>
 

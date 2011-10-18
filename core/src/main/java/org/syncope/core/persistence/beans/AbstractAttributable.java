@@ -121,6 +121,21 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
                 : externalResources;
     }
 
+    public Set<String> getExternalResourceNames() {
+        Set<String> resourceNames;
+
+        if (externalResources == null) {
+            resourceNames = Collections.EMPTY_SET;
+        } else {
+            resourceNames = new HashSet<String>(externalResources.size());
+            for (ExternalResource resource : externalResources) {
+                resourceNames.add(resource.getName());
+            }
+        }
+
+        return resourceNames;
+    }
+
     public void setExternalResources(
             final Set<ExternalResource> externalResources) {
 

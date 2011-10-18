@@ -190,6 +190,18 @@ public class SyncopeUser extends AbstractAttributable {
         return result;
     }
 
+    @Override
+    public Set<String> getExternalResourceNames() {
+        Set<ExternalResource> resources = getExternalResources();
+
+        Set<String> result = new HashSet<String>(resources.size());
+        for (ExternalResource resource : resources) {
+            result.add(resource.getName());
+        }
+
+        return result;
+    }
+
     public String getPassword() {
         return password;
     }

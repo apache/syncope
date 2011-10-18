@@ -186,6 +186,11 @@ public class Membership extends AbstractAttributable {
     }
 
     @Override
+    public Set<String> getExternalResourceNames() {
+        return Collections.EMPTY_SET;
+    }
+
+    @Override
     public void setExternalResources(Set<ExternalResource> resources) {
     }
 

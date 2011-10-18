@@ -17,6 +17,7 @@ package org.syncope.core.rest.data;
 import org.syncope.core.util.AttributableUtil;
 import java.util.HashSet;
 import java.util.Set;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.syncope.client.mod.MembershipMod;
@@ -24,6 +25,7 @@ import org.syncope.client.mod.UserMod;
 import org.syncope.client.to.MembershipTO;
 import org.syncope.client.to.UserTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.syncope.client.validation.SyncopeClientException;
 import org.syncope.core.persistence.beans.AbstractAttr;
 import org.syncope.core.persistence.beans.AbstractDerAttr;
 import org.syncope.core.persistence.beans.AbstractVirAttr;
@@ -39,6 +41,7 @@ import org.syncope.core.persistence.propagation.PropagationByResource;
 import org.syncope.types.CipherAlgorithm;
 import org.syncope.types.PasswordPolicy;
 import org.syncope.types.PropagationOperation;
+import org.syncope.types.SyncopeClientExceptionType;
 
 @Component
 public class UserDataBinder extends AbstractAttributableDataBinder {
@@ -102,6 +105,15 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         fill(user, userTO, AttributableUtil.USER, scce);
     }
 
+    /**
+     * Update user, given UserMod.
+     *
+     * @param user to be updated
+     * @param userMod bean containing update request
+     * @return updated user + propagation by resource
+     * @throws SyncopeClientCompositeErrorException if anything goes wrong
+     * @see PropagationByResource
+     */
     public PropagationByResource update(final SyncopeUser user,
             final UserMod userMod)
             throws SyncopeClientCompositeErrorException {
@@ -111,6 +123,11 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         SyncopeClientCompositeErrorException scce =
                 new SyncopeClientCompositeErrorException(
                 HttpStatus.BAD_REQUEST);
+
+        // when requesting to add user to new resources, either directly or 
+        // through role subscription, password is mandatory (issue 147)
+        // first, let's take current resources into account
+        Set<String> currentResources = user.getExternalResourceNames();
 
         // password
         if (userMod.getPassword() != null) {
@@ -142,9 +159,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
         // memberships to be removed
         Membership membership = null;
-        for (Long membershipId :
-                userMod.getMembershipsToBeRemoved()) {
-
+        for (Long membershipId : userMod.getMembershipsToBeRemoved()) {
             LOG.debug("Membership to be removed: {}", membershipId);
 
             membership = membershipDAO.find(membershipId);
@@ -212,9 +227,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
         // memberships to be added
         SyncopeRole role = null;
-        for (MembershipMod membershipMod :
-                userMod.getMembershipsToBeAdded()) {
-
+        for (MembershipMod membershipMod : userMod.getMembershipsToBeAdded()) {
             LOG.debug("Membership to be added: role({})",
                     membershipMod.getRole());
 
@@ -239,9 +252,31 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
             }
         }
 
+        // now, let's see if there are new resource subscriptions without
+        // providing password
+        Set<String> updatedResources = user.getExternalResourceNames();
+        updatedResources.removeAll(currentResources);
+        if (!updatedResources.isEmpty()
+                && StringUtils.isBlank(userMod.getPassword())) {
+
+            SyncopeClientException sce = new SyncopeClientException(
+                    SyncopeClientExceptionType.RequiredValuesMissing);
+            sce.addElement("password cannot be empty "
+                    + "when subscribing to new resources");
+            scce.addException(sce);
+
+            throw scce;
+        }
+
         return propByRes;
     }
 
+    /**
+     * Generate a transfer object for the given JPA entity.
+     *
+     * @param user as JPA entity
+     * @return transfer object
+     */
     public UserTO getUserTO(final SyncopeUser user) {
         UserTO userTO = new UserTO();
         userTO.setId(user.getId());

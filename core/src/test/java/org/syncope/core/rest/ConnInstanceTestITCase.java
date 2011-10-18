@@ -303,7 +303,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
 
         resourceTO = restTemplate.getForObject(
                 BASE_URL + "/resource/read/{resourceName}.json",
-                ResourceTO.class, "ws-target-resource-testdb");
+                ResourceTO.class, "resource-testdb");
         assertNotNull(resourceTO);
 
         schemaNames = Arrays.asList(restTemplate.postForObject(
@@ -311,7 +311,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
                 resourceTO, String[].class));
 
         assertNotNull(schemaNames);
-        assertTrue(schemaNames.size() == 1);
+        assertEquals(1, schemaNames.size());
 
         resourceTO = restTemplate.getForObject(
                 BASE_URL + "/resource/read/{resourceName}.json",

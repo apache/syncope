@@ -300,6 +300,39 @@ public class UserTestITCase extends AbstractTest {
     }
 
     @Test
+    public final void issue147() {
+        // 1. create an user wihtout role nor resources
+        UserTO userTO = getSampleTO("issue147@syncope-idm.org");
+
+        userTO = restTemplate.postForObject(BASE_URL + "user/create",
+                userTO, UserTO.class);
+        assertNotNull(userTO);
+        assertTrue(userTO.getResources().isEmpty());
+
+        // 2. try to update by adding a resource, but no password: must fail
+        UserMod userMod = new UserMod();
+        userMod.setId(userTO.getId());
+        userMod.addResourceToBeAdded("ws-target-resource-1");
+
+        SyncopeClientException sce = null;
+        try {
+            userTO = restTemplate.postForObject(
+                    BASE_URL + "user/update", userMod, UserTO.class);
+        } catch (SyncopeClientCompositeErrorException scce) {
+            sce = scce.getException(
+                    SyncopeClientExceptionType.RequiredValuesMissing);
+        }
+        assertNotNull(sce);
+
+        // 3. provide password: now update must work
+        userMod.setPassword("newPassword");
+        userTO = restTemplate.postForObject(
+                BASE_URL + "user/update", userMod, UserTO.class);
+        assertNotNull(userTO);
+        assertEquals(1, userTO.getResources().size());
+    }
+
+    @Test
     public final void createUserWithDbPropagation() {
         UserTO userTO = new UserTO();
 
@@ -324,10 +357,10 @@ public class UserTestITCase extends AbstractTest {
         userTO.addAttribute(attributeTO);
 
         userTO.setPassword("password");
-        userTO.addResource("ws-target-resource-testdb");
+        userTO.addResource("resource-testdb");
 
         restTemplate.postForObject(BASE_URL + "user/create"
-                + "?mandatoryResources=ws-target-resource-testdb",
+                + "?mandatoryResources=resource-testdb",
                 userTO, UserTO.class);
     }
 
@@ -358,8 +391,8 @@ public class UserTestITCase extends AbstractTest {
 
     @Test
     @ExpectedException(value = SyncopeClientCompositeErrorException.class)
-    public final void createWithInvalidPasswordByRol() {
-        UserTO userTO = getSampleTO("invalidPwdByRol@passwd.com");
+    public final void createWithInvalidPasswordByRole() {
+        UserTO userTO = getSampleTO("invalidPwdByRole@passwd.com");
 
         // configured to be minLength=16
         userTO.setPassword("password1");
