@@ -14,24 +14,24 @@
  */
 package org.syncope.client.to;
 
-import org.syncope.types.AccountPolicy;
+import org.syncope.types.AccountPolicySpec;
 import org.syncope.types.PolicyType;
 
 public class AccountPolicyTO extends PolicyTO {
 
     private static final long serialVersionUID = -1557150042828800134L;
 
-    private AccountPolicy specification;
+    private AccountPolicySpec specification;
 
     public AccountPolicyTO() {
         setType(PolicyType.ACCOUNT);
     }
 
-    public void setSpecification(final AccountPolicy specification) {
+    public void setSpecification(final AccountPolicySpec specification) {
         this.specification = specification;
     }
 
-    public AccountPolicy getSpecification() {
+    public AccountPolicySpec getSpecification() {
         return specification;
     }
 }

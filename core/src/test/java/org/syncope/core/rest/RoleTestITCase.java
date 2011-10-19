@@ -50,15 +50,33 @@ public class RoleTestITCase extends AbstractTest {
         roleTO.setName("lastRole");
         roleTO.setParent(8L);
 
+        // verify inheritance password and account policies
+        roleTO.setInheritAccountPolicy(false);
+        // not inherited so setter execution shouldn't be ignored
+        roleTO.setAccountPolicy(6L);
+
+        roleTO.setInheritPasswordPolicy(true);
+        // inherited so setter execution should be ignored
+        roleTO.setPasswordPolicy(2L);
+
         AttributeTO icon = new AttributeTO();
         icon.setSchema("icon");
         icon.addValue("anIcon");
 
-        RoleTO newRoleTO = restTemplate.postForObject(BASE_URL + "role/create",
+        RoleTO actual = restTemplate.postForObject(BASE_URL + "role/create",
                 roleTO, RoleTO.class);
 
-        roleTO.setId(newRoleTO.getId());
-        assertEquals(roleTO, newRoleTO);
+        roleTO.setId(actual.getId());
+
+        roleTO.setPasswordPolicy(4L);
+
+        assertEquals(roleTO, actual);
+
+        assertNotNull(actual.getAccountPolicy());
+        assertEquals(6L, (long) actual.getAccountPolicy());
+
+        assertNotNull(actual.getPasswordPolicy());
+        assertEquals(4L, (long) actual.getPasswordPolicy());
     }
 
     @Test
@@ -135,6 +153,15 @@ public class RoleTestITCase extends AbstractTest {
         roleTO.setName("latestRole");
         roleTO.setParent(8L);
 
+        // verify inheritance password and account policies
+        roleTO.setInheritAccountPolicy(false);
+        // not inherited so setter execution shouldn't be ignored
+        roleTO.setAccountPolicy(6L);
+
+        roleTO.setInheritPasswordPolicy(true);
+        // inherited so setter execution should be ignored
+        roleTO.setPasswordPolicy(2L);
+
         AttributeTO icon = new AttributeTO();
         icon.setSchema("icon");
         icon.addValue("anIcon");
@@ -145,6 +172,12 @@ public class RoleTestITCase extends AbstractTest {
 
         assertEquals(1, roleTO.getAttributes().size());
 
+        assertNotNull(roleTO.getAccountPolicy());
+        assertEquals(6L, (long) roleTO.getAccountPolicy());
+
+        assertNotNull(roleTO.getPasswordPolicy());
+        assertEquals(4L, (long) roleTO.getPasswordPolicy());
+
         AttributeMod attributeMod = new AttributeMod();
         attributeMod.setSchema("show");
         attributeMod.addValueToBeAdded("FALSE");
@@ -154,11 +187,21 @@ public class RoleTestITCase extends AbstractTest {
         roleMod.setName("finalRole");
         roleMod.addAttributeToBeUpdated(attributeMod);
 
+        // change password policy inheritance
+        roleMod.setInheritPasswordPolicy(Boolean.FALSE);
+
         roleTO = restTemplate.postForObject(BASE_URL + "role/update",
                 roleMod, RoleTO.class);
 
         assertEquals("finalRole", roleTO.getName());
         assertEquals(2, roleTO.getAttributes().size());
+
+        // changes ignored because not requested (null ReferenceMod)
+        assertNotNull(roleTO.getAccountPolicy());
+        assertEquals(6L, (long) roleTO.getAccountPolicy());
+
+        // password policy null because not inherited
+        assertNull(roleTO.getPasswordPolicy());
     }
 
     @Test

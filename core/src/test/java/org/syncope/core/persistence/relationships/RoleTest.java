@@ -29,7 +29,7 @@ import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.RoleDAO;
 import org.syncope.core.persistence.dao.UserDAO;
 import org.syncope.core.AbstractTest;
-import org.syncope.core.persistence.beans.Policy;
+import org.syncope.core.persistence.beans.PasswordPolicy;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.dao.PolicyDAO;
 
@@ -60,7 +60,7 @@ public class RoleTest extends AbstractTest {
     public final void createWithPasswordPolicy() {
         final String ROLE_NAME = "roleWithPasswordPolicy";
 
-        Policy policy = policyDAO.find(4L);
+        PasswordPolicy policy = (PasswordPolicy) policyDAO.find(4L);
         SyncopeRole role = new SyncopeRole();
         role.setName(ROLE_NAME);
         role.setPasswordPolicy(policy);

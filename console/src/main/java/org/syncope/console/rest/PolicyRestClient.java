@@ -75,6 +75,43 @@ public class PolicyRestClient extends AbstractBaseRestClient {
         return policies;
     }
 
+    public List<AccountPolicyTO> getAccountPolicies() {
+        final List<AccountPolicyTO> policies =
+                new ArrayList<AccountPolicyTO>();
+
+        AccountPolicyTO[] accountPolicies = null;
+
+        try {
+
+            accountPolicies = restTemplate.getForObject(
+                    baseURL + "policy/account/list",
+                    AccountPolicyTO[].class);
+        } catch (Exception ignore) {
+            LOG.debug("No password policy found", ignore);
+        }
+
+        if (accountPolicies != null) {
+            policies.addAll(Arrays.asList(accountPolicies));
+        }
+
+        AccountPolicyTO globalAccountPolicy = null;
+
+        try {
+            globalAccountPolicy =
+                    restTemplate.getForObject(
+                    baseURL + "policy/account/global/read",
+                    AccountPolicyTO.class);
+        } catch (Exception ignore) {
+            LOG.debug("No global password policy found", ignore);
+        }
+
+        if (globalAccountPolicy != null) {
+            policies.add(0, globalAccountPolicy);
+        }
+
+        return policies;
+    }
+
     public AccountPolicyTO getGlobalAccountPolicy() {
         try {
             return restTemplate.getForObject(

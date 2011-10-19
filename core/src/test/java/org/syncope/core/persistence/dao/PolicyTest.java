@@ -24,8 +24,8 @@ import org.syncope.core.AbstractTest;
 import org.syncope.core.persistence.beans.Policy;
 import org.syncope.core.persistence.validation.entity.InvalidEntityException;
 import org.syncope.types.PolicyType;
-import org.syncope.types.PasswordPolicy;
-import org.syncope.types.SyncPolicy;
+import org.syncope.types.PasswordPolicySpec;
+import org.syncope.types.SyncPolicySpec;
 
 @Transactional
 public class PolicyTest extends AbstractTest {
@@ -61,14 +61,14 @@ public class PolicyTest extends AbstractTest {
         assertEquals(PolicyType.GLOBAL_PASSWORD, policy.getType());
 
         assertEquals("invalid policy values",
-                8, ((PasswordPolicy) policy.getSpecification()).getMinLength());
+                8, ((PasswordPolicySpec) policy.getSpecification()).getMinLength());
     }
 
     @Test
     @ExpectedException(value = InvalidEntityException.class)
     public final void saveInvalidPolicy() {
 
-        PasswordPolicy passwordPolicy = new PasswordPolicy();
+        PasswordPolicySpec passwordPolicy = new PasswordPolicySpec();
         passwordPolicy.setMaxLength(8);
         passwordPolicy.setMinLength(6);
 
@@ -84,7 +84,7 @@ public class PolicyTest extends AbstractTest {
     @ExpectedException(value = InvalidEntityException.class)
     public final void saveSecondPasswordPolicy() {
 
-        PasswordPolicy passwordPolicy = new PasswordPolicy();
+        PasswordPolicySpec passwordPolicy = new PasswordPolicySpec();
         passwordPolicy.setMaxLength(8);
         passwordPolicy.setMinLength(6);
 
@@ -100,7 +100,7 @@ public class PolicyTest extends AbstractTest {
     public final void create() {
         Policy policy = new Policy();
         policy.setType(PolicyType.SYNC);
-        policy.setSpecification(new SyncPolicy());
+        policy.setSpecification(new SyncPolicySpec());
         policy.setDescription("Sync policy");
 
         policy = policyDAO.save(policy);
@@ -111,7 +111,7 @@ public class PolicyTest extends AbstractTest {
 
     @Test
     public final void update() {
-        PasswordPolicy specification = new PasswordPolicy();
+        PasswordPolicySpec specification = new PasswordPolicySpec();
         specification.setMaxLength(8);
         specification.setMinLength(6);
 
@@ -124,9 +124,9 @@ public class PolicyTest extends AbstractTest {
         assertNotNull(policy);
         assertEquals(PolicyType.GLOBAL_PASSWORD, policy.getType());
         assertEquals(
-                ((PasswordPolicy) policy.getSpecification()).getMaxLength(), 8);
+                ((PasswordPolicySpec) policy.getSpecification()).getMaxLength(), 8);
         assertEquals(
-                ((PasswordPolicy) policy.getSpecification()).getMinLength(), 6);
+                ((PasswordPolicySpec) policy.getSpecification()).getMinLength(), 6);
     }
 
     @Test

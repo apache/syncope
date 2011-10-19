@@ -122,7 +122,10 @@ public class ExternalResource extends AbstractBaseBean {
     private TraceLevel updateTraceLevel;
 
     @ManyToOne(fetch = FetchType.EAGER, optional = true)
-    private Policy passwordPolicy;
+    private PasswordPolicy passwordPolicy;
+
+    @ManyToOne(fetch = FetchType.EAGER, optional = true)
+    private AccountPolicy accountPolicy;
 
     /**
      * Configuration properties that are overridden from the connector instance.
@@ -299,11 +302,19 @@ public class ExternalResource extends AbstractBaseBean {
         this.updateTraceLevel = updateTraceLevel;
     }
 
+    public Policy getAccountPolicy() {
+        return accountPolicy;
+    }
+
+    public void setAccountPolicy(AccountPolicy accountPolicy) {
+        this.accountPolicy = accountPolicy;
+    }
+
     public Policy getPasswordPolicy() {
         return passwordPolicy;
     }
 
-    public void setPasswordPolicy(Policy passwordPolicy) {
+    public void setPasswordPolicy(PasswordPolicy passwordPolicy) {
         this.passwordPolicy = passwordPolicy;
     }
 
@@ -320,8 +331,7 @@ public class ExternalResource extends AbstractBaseBean {
 
         Set<ConnConfProperty> deserializedSet;
         if (StringUtils.isNotBlank(xmlConfiguration)) {
-            deserializedSet = XmlConfiguration.<HashSet<ConnConfProperty>>
-                    deserialize(xmlConfiguration);
+            deserializedSet = XmlConfiguration.<HashSet<ConnConfProperty>>deserialize(xmlConfiguration);
             if (deserializedSet != null) {
                 result = deserializedSet;
             }

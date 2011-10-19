@@ -37,7 +37,7 @@ import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.UserDAO;
 import org.syncope.core.rest.data.ResourceDataBinder;
 import org.syncope.core.AbstractTest;
-import org.syncope.core.persistence.beans.Policy;
+import org.syncope.core.persistence.beans.PasswordPolicy;
 import org.syncope.core.persistence.beans.PropagationTask;
 import org.syncope.core.persistence.beans.user.UDerSchema;
 import org.syncope.core.persistence.dao.DerSchemaDAO;
@@ -76,7 +76,7 @@ public class ResourceTest extends AbstractTest {
     public final void createWithPasswordPolicy() {
         final String RESOURCE_NAME = "resourceWithPasswordPolicy";
 
-        Policy policy = policyDAO.find(4L);
+        PasswordPolicy policy = (PasswordPolicy)policyDAO.find(4L);
         ExternalResource resource = new ExternalResource();
         resource.setName(RESOURCE_NAME);
         resource.setPasswordPolicy(policy);

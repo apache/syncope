@@ -25,10 +25,13 @@ import org.syncope.client.to.AccountPolicyTO;
 import org.syncope.client.to.PasswordPolicyTO;
 import org.syncope.client.to.PolicyTO;
 import org.syncope.client.to.SyncPolicyTO;
+import org.syncope.core.persistence.beans.AccountPolicy;
+import org.syncope.core.persistence.beans.PasswordPolicy;
 import org.syncope.core.persistence.beans.Policy;
-import org.syncope.types.AccountPolicy;
-import org.syncope.types.PasswordPolicy;
-import org.syncope.types.SyncPolicy;
+import org.syncope.core.persistence.beans.SyncPolicy;
+import org.syncope.types.AccountPolicySpec;
+import org.syncope.types.PasswordPolicySpec;
+import org.syncope.types.SyncPolicySpec;
 
 @Component
 public class PolicyDataBinder {
@@ -54,18 +57,18 @@ public class PolicyDataBinder {
                 case PASSWORD:
                     policyTO = new PasswordPolicyTO();
                     ((PasswordPolicyTO) policyTO).setSpecification(
-                            (PasswordPolicy) policy.getSpecification());
+                            (PasswordPolicySpec) policy.getSpecification());
                     break;
                 case GLOBAL_ACCOUNT:
                 case ACCOUNT:
                     policyTO = new AccountPolicyTO();
                     ((AccountPolicyTO) policyTO).setSpecification(
-                            (AccountPolicy) policy.getSpecification());
+                            (AccountPolicySpec) policy.getSpecification());
                     break;
                 default:
                     policyTO = new SyncPolicyTO();
                     ((SyncPolicyTO) policyTO).setSpecification(
-                            (SyncPolicy) policy.getSpecification());
+                            (SyncPolicySpec) policy.getSpecification());
 
             }
 
@@ -89,27 +92,28 @@ public class PolicyDataBinder {
         final Policy policy;
 
         if (policyTO != null) {
-            policy = new Policy();
-            policy.setId(policyTO.getId());
-            policy.setType(policyTO.getType());
-            policy.setDescription(policyTO.getDescription());
-
-            switch (policy.getType()) {
+            switch (policyTO.getType()) {
                 case GLOBAL_PASSWORD:
                 case PASSWORD:
+                    policy = new PasswordPolicy();
                     policy.setSpecification(
                             ((PasswordPolicyTO) policyTO).getSpecification());
                     break;
                 case GLOBAL_ACCOUNT:
                 case ACCOUNT:
+                    policy = new AccountPolicy();
                     policy.setSpecification(
                             ((AccountPolicyTO) policyTO).getSpecification());
                     break;
                 default:
+                    policy = new SyncPolicy();
                     policy.setSpecification(
                             ((SyncPolicyTO) policyTO).getSpecification());
-
             }
+
+            policy.setId(policyTO.getId());
+            policy.setType(policyTO.getType());
+            policy.setDescription(policyTO.getDescription());
         } else {
             policy = null;
         }
@@ -127,26 +131,28 @@ public class PolicyDataBinder {
         final Policy policy;
 
         if (policyMod != null) {
-            policy = new Policy();
-            policy.setId(policyMod.getId());
-            policy.setType(policyMod.getType());
-            policy.setDescription(policyMod.getDescription());
-
-            switch (policy.getType()) {
+            switch (policyMod.getType()) {
                 case GLOBAL_PASSWORD:
                 case PASSWORD:
+                    policy = new PasswordPolicy();
                     policy.setSpecification(
                             ((PasswordPolicyMod) policyMod).getSpecification());
                     break;
                 case GLOBAL_ACCOUNT:
                 case ACCOUNT:
+                    policy = new AccountPolicy();
                     policy.setSpecification(
                             ((AccountPolicyMod) policyMod).getSpecification());
                     break;
                 default:
+                    policy = new SyncPolicy();
                     policy.setSpecification(
                             ((SyncPolicyMod) policyMod).getSpecification());
             }
+
+            policy.setId(policyMod.getId());
+            policy.setType(policyMod.getType());
+            policy.setDescription(policyMod.getDescription());
         } else {
             policy = null;
         }

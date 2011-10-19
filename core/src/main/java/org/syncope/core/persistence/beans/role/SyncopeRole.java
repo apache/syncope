@@ -43,7 +43,9 @@ import org.syncope.core.persistence.beans.AbstractDerSchema;
 import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.beans.AbstractVirAttr;
 import org.syncope.core.persistence.beans.AbstractVirSchema;
+import org.syncope.core.persistence.beans.AccountPolicy;
 import org.syncope.core.persistence.beans.Entitlement;
+import org.syncope.core.persistence.beans.PasswordPolicy;
 import org.syncope.core.persistence.beans.Policy;
 
 @Entity
@@ -81,23 +83,36 @@ public class SyncopeRole extends AbstractAttributable {
     @Valid
     private List<RVirAttr> virtualAttributes;
 
-    @Basic
+    @Basic(optional = true)
     @Min(0)
     @Max(1)
     private Integer inheritAttributes;
 
-    @Basic
+    @Basic(optional = true)
     @Min(0)
     @Max(1)
     private Integer inheritDerivedAttributes;
 
-    @Basic
+    @Basic(optional = true)
     @Min(0)
     @Max(1)
     private Integer inheritVirtualAttributes;
 
+    @Basic(optional = true)
+    @Min(0)
+    @Max(1)
+    private Integer inheritPasswordPolicy;
+
+    @Basic(optional = true)
+    @Min(0)
+    @Max(1)
+    private Integer inheritAccountPolicy;
+
     @ManyToOne(fetch = FetchType.EAGER, optional = true)
-    private Policy passwordPolicy;
+    private PasswordPolicy passwordPolicy;
+
+    @ManyToOne(fetch = FetchType.EAGER, optional = true)
+    private AccountPolicy accountPolicy;
 
     public SyncopeRole() {
         super();
@@ -109,6 +124,8 @@ public class SyncopeRole extends AbstractAttributable {
         inheritAttributes = getBooleanAsInteger(false);
         inheritDerivedAttributes = getBooleanAsInteger(false);
         inheritVirtualAttributes = getBooleanAsInteger(false);
+        inheritPasswordPolicy = getBooleanAsInteger(false);
+        inheritAccountPolicy = getBooleanAsInteger(false);
     }
 
     @Override
@@ -344,11 +361,47 @@ public class SyncopeRole extends AbstractAttributable {
         return new ArrayList<RVirAttr>(result.values());
     }
 
+    /**
+     * Get first valid password policy.
+     * @return parent password policy if isInheritPasswordPolicy is 'true' and
+     * parent is not null. Return local passowrd policy otherwise.
+     */
     public Policy getPasswordPolicy() {
-        return passwordPolicy;
+        return isInheritPasswordPolicy() && getParent() != null
+                ? getParent().getPasswordPolicy() : passwordPolicy;
     }
 
-    public void setPasswordPolicy(Policy passwordPolicy) {
+    public void setPasswordPolicy(PasswordPolicy passwordPolicy) {
         this.passwordPolicy = passwordPolicy;
+    }
+
+    public boolean isInheritPasswordPolicy() {
+        return isBooleanAsInteger(inheritPasswordPolicy);
+    }
+
+    public void setInheritPasswordPolicy(boolean inheritPasswordPolicy) {
+        this.inheritPasswordPolicy = getBooleanAsInteger(inheritPasswordPolicy);
+    }
+
+    /**
+     * Get first valid account policy.
+     * @return parent account policy if isInheritAccountPolicy is 'true' and 
+     * parent is not null. Return local account policy otherwise.
+     */
+    public Policy getAccountPolicy() {
+        return isInheritAccountPolicy() && getParent() != null
+                ? getParent().getAccountPolicy() : accountPolicy;
+    }
+
+    public void setAccountPolicy(AccountPolicy accountPolicy) {
+        this.accountPolicy = accountPolicy;
+    }
+
+    public boolean isInheritAccountPolicy() {
+        return isBooleanAsInteger(inheritAccountPolicy);
+    }
+
+    public void setInheritAccountPolicy(boolean inheritAccountPolicy) {
+        this.inheritAccountPolicy = getBooleanAsInteger(inheritAccountPolicy);
     }
 }

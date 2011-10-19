@@ -29,9 +29,11 @@ import org.syncope.client.to.ResourceTO;
 import org.syncope.client.to.SchemaMappingTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
+import org.syncope.core.persistence.beans.AccountPolicy;
 import org.syncope.core.persistence.beans.ConnInstance;
 import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.beans.ExternalResource;
+import org.syncope.core.persistence.beans.PasswordPolicy;
 import org.syncope.core.persistence.dao.ConnInstanceDAO;
 import org.syncope.core.persistence.dao.PolicyDAO;
 import org.syncope.core.util.JexlUtil;
@@ -106,7 +108,13 @@ public class ResourceDataBinder {
         resource.setDeleteTraceLevel(resourceTO.getDeleteTraceLevel());
 
         resource.setPasswordPolicy(resourceTO.getPasswordPolicy() != null
-                ? policyDAO.find(resourceTO.getPasswordPolicy()) : null);
+                ? (PasswordPolicy) policyDAO.find(resourceTO.getPasswordPolicy())
+                : null);
+
+        resource.setAccountPolicy(resourceTO.getAccountPolicy() != null
+                ? (AccountPolicy) policyDAO.find(resourceTO.getAccountPolicy())
+                : null);
+
         resource.setConnectorConfigurationProperties(
                 new HashSet<ConnConfProperty>(
                 resourceTO.getConnectorConfigurationProperties()));
@@ -162,6 +170,10 @@ public class ResourceDataBinder {
 
         resourceTO.setPasswordPolicy(resource.getPasswordPolicy() != null
                 ? resource.getPasswordPolicy().getId() : null);
+
+        resourceTO.setAccountPolicy(resource.getAccountPolicy() != null
+                ? resource.getAccountPolicy().getId() : null);
+
         resourceTO.setConnectorConfigurationProperties(
                 resource.getConfiguration());
         return resourceTO;

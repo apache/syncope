@@ -14,22 +14,22 @@
  */
 package org.syncope.client.mod;
 
-import org.syncope.types.SyncPolicy;
+import org.syncope.types.SyncPolicySpec;
 
 public class SyncPolicyMod extends PolicyMod {
 
     private static final long serialVersionUID = 7438813240484903242L;
 
-    private SyncPolicy specification;
+    private SyncPolicySpec specification;
 
     public SyncPolicyMod() {
     }
 
-    public void setSpecification(SyncPolicy specification) {
+    public void setSpecification(SyncPolicySpec specification) {
         this.specification = specification;
     }
 
-    public SyncPolicy getSpecification() {
+    public SyncPolicySpec getSpecification() {
         return specification;
     }
 }

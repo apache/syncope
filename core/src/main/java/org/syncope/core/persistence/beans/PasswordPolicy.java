@@ -2,9 +2,9 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -12,15 +12,12 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.policy;
+package org.syncope.core.persistence.beans;
 
-import java.io.InvalidObjectException;
-import org.syncope.types.AbstractPolicySpec;
-import org.syncope.types.PolicyType;
+import javax.persistence.Entity;
 
-public interface PolicyEnforcer<T extends AbstractPolicySpec, E> {
+@Entity
+public class PasswordPolicy extends Policy {
 
-    public void enforce(
-            final T policy, final PolicyType type, final E object)
-            throws InvalidObjectException, Exception;
+    private static final long serialVersionUID = 9138550910385232849L;
 }

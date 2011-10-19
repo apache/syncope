@@ -14,22 +14,22 @@
  */
 package org.syncope.client.mod;
 
-import org.syncope.types.PasswordPolicy;
+import org.syncope.types.PasswordPolicySpec;
 
 public class PasswordPolicyMod extends PolicyMod {
 
     private static final long serialVersionUID = -7948423277026280828L;
 
-    private PasswordPolicy specification;
+    private PasswordPolicySpec specification;
 
     public PasswordPolicyMod() {
     }
 
-    public void setSpecification(PasswordPolicy specification) {
+    public void setSpecification(PasswordPolicySpec specification) {
         this.specification = specification;
     }
 
-    public PasswordPolicy getSpecification() {
+    public PasswordPolicySpec getSpecification() {
         return specification;
     }
 }

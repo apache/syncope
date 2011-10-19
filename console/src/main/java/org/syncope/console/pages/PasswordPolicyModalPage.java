@@ -30,7 +30,7 @@ import org.syncope.console.pages.panels.PolicyBeanPanel;
 import org.syncope.console.rest.PolicyRestClient;
 import org.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
-import org.syncope.types.PasswordPolicy;
+import org.syncope.types.PasswordPolicySpec;
 import org.syncope.types.PolicyType;
 
 /**
@@ -78,8 +78,8 @@ public class PasswordPolicyModalPage extends BaseModalPage {
         type.addRequiredLabel();
         form.add(type);
 
-        final PasswordPolicy policy = policyTO.getSpecification() != null
-                ? policyTO.getSpecification() : new PasswordPolicy();
+        final PasswordPolicySpec policy = policyTO.getSpecification() != null
+                ? policyTO.getSpecification() : new PasswordPolicySpec();
 
         form.add(new PolicyBeanPanel("panel", policy));
 

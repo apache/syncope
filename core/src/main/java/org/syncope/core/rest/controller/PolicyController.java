@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import javassist.NotFoundException;
 import javax.servlet.http.HttpServletResponse;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -34,7 +33,10 @@ import org.syncope.client.to.PasswordPolicyTO;
 import org.syncope.client.to.PolicyTO;
 import org.syncope.client.to.SyncPolicyTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.syncope.core.persistence.beans.AccountPolicy;
+import org.syncope.core.persistence.beans.PasswordPolicy;
 import org.syncope.core.persistence.beans.Policy;
+import org.syncope.core.persistence.beans.SyncPolicy;
 import org.syncope.core.persistence.dao.PolicyDAO;
 import org.syncope.core.rest.data.PolicyDataBinder;
 import org.syncope.types.PolicyType;
@@ -55,7 +57,9 @@ public class PolicyController extends AbstractController {
             final @RequestBody PasswordPolicyTO policyTO)
             throws SyncopeClientCompositeErrorException {
 
-        final Policy policy = policyDataBinder.getPolicy(policyTO);
+        final PasswordPolicy policy =
+                (PasswordPolicy) policyDataBinder.getPolicy(policyTO);
+
         return (PasswordPolicyTO) create(policy, policyTO);
     }
 
@@ -65,7 +69,9 @@ public class PolicyController extends AbstractController {
             final @RequestBody AccountPolicyTO policyTO)
             throws SyncopeClientCompositeErrorException {
 
-        final Policy policy = policyDataBinder.getPolicy(policyTO);
+        final AccountPolicy policy =
+                (AccountPolicy) policyDataBinder.getPolicy(policyTO);
+
         return (AccountPolicyTO) create(policy, policyTO);
     }
 
@@ -75,9 +81,10 @@ public class PolicyController extends AbstractController {
             final @RequestBody SyncPolicyTO policyTO)
             throws SyncopeClientCompositeErrorException {
 
-        final Policy policy = policyDataBinder.getPolicy(policyTO);
-        return (SyncPolicyTO) create(policy, policyTO);
+        final SyncPolicy policy =
+                (SyncPolicy) policyDataBinder.getPolicy(policyTO);
 
+        return (SyncPolicyTO) create(policy, policyTO);
     }
 
     private PolicyTO create(final Policy policy, final PolicyTO policyTO)
@@ -85,12 +92,9 @@ public class PolicyController extends AbstractController {
 
         LOG.debug("Creating policy " + policyTO);
 
-        SyncopeClientCompositeErrorException scce =
-                new SyncopeClientCompositeErrorException(
-                HttpStatus.BAD_REQUEST);
-
         Policy actual = policyDAO.save(policy);
         policyTO.setId(actual.getId());
+
 
         return policyTO;
     }
@@ -103,9 +107,10 @@ public class PolicyController extends AbstractController {
 
         LOG.debug("Updating policy " + policyMod);
 
-        final Policy policy = policyDataBinder.getPolicy(policyMod);
-        final Policy actual = update(policy);
+        final PasswordPolicy policy =
+                (PasswordPolicy) policyDataBinder.getPolicy(policyMod);
 
+        final Policy actual = update(policy);
         return (PasswordPolicyTO) policyDataBinder.getPolicyTO(actual);
     }
 
@@ -117,9 +122,10 @@ public class PolicyController extends AbstractController {
 
         LOG.debug("Updating policy " + policyMod);
 
-        final Policy policy = policyDataBinder.getPolicy(policyMod);
-        final Policy actual = update(policy);
+        final AccountPolicy policy =
+                (AccountPolicy) policyDataBinder.getPolicy(policyMod);
 
+        final Policy actual = update(policy);
         return (AccountPolicyTO) policyDataBinder.getPolicyTO(actual);
     }
 
@@ -131,9 +137,10 @@ public class PolicyController extends AbstractController {
 
         LOG.debug("Updating policy " + policyMod);
 
-        final Policy policy = policyDataBinder.getPolicy(policyMod);
-        final Policy actual = update(policy);
+        final SyncPolicy policy =
+                (SyncPolicy) policyDataBinder.getPolicy(policyMod);
 
+        final Policy actual = update(policy);
         return (SyncPolicyTO) policyDataBinder.getPolicyTO(actual);
     }
 

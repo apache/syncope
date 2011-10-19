@@ -43,7 +43,7 @@ public class AuthenticationTestITCase extends AbstractTest {
 
     private UserTO getSampleTO(final String email) {
         UserTO userTO = new UserTO();
-        userTO.setPassword("password");
+        userTO.setPassword("password123");
 
         AttributeTO usernameTO = new AttributeTO();
         usernameTO.setSchema("username");
@@ -168,7 +168,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         // 4. read the schema created above (as user) - success
         ((CommonsClientHttpRequestFactory) restTemplate.getRequestFactory()).getHttpClient().getState().setCredentials(AuthScope.ANY,
                 new UsernamePasswordCredentials(
-                String.valueOf(userTO.getId()), "password"));
+                String.valueOf(userTO.getId()), "password123"));
 
         schemaTO = restTemplate.getForObject(BASE_URL
                 + "schema/user/read/authTestSchema.json", SchemaTO.class);
@@ -207,7 +207,7 @@ public class AuthenticationTestITCase extends AbstractTest {
 
         ((CommonsClientHttpRequestFactory) restTemplate.getRequestFactory()).getHttpClient().getState().setCredentials(AuthScope.ANY,
                 new UsernamePasswordCredentials(
-                Long.valueOf(userTO.getId()).toString(), "password"));
+                Long.valueOf(userTO.getId()).toString(), "password123"));
 
         UserTO readUserTO = restTemplate.getForObject(
                 BASE_URL + "user/read/{userId}.json", UserTO.class, 1);
@@ -248,7 +248,7 @@ public class AuthenticationTestITCase extends AbstractTest {
 
         ((CommonsClientHttpRequestFactory) restTemplate.getRequestFactory()).getHttpClient().getState().setCredentials(AuthScope.ANY,
                 new UsernamePasswordCredentials(
-                Long.valueOf(userTO.getId()).toString(), "password"));
+                Long.valueOf(userTO.getId()).toString(), "password123"));
 
         AttributeCond isNullCond = new AttributeCond(
                 AttributeCond.Type.ISNOTNULL);

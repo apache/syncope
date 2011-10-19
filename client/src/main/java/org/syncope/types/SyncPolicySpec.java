@@ -14,11 +14,11 @@
  */
 package org.syncope.types;
 
-public class AccountPolicy extends AbstractPolicy {
+public class SyncPolicySpec extends AbstractPolicySpec {
 
-    private static final long serialVersionUID = -6325902340423910118L;
+    private static final long serialVersionUID = -3144027171719498127L;
+
     // TODO: To be defined
-
     private String fake;
 
     public String getFake() {

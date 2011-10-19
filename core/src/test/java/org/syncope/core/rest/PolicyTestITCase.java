@@ -26,9 +26,9 @@ import org.syncope.client.to.PasswordPolicyTO;
 import org.syncope.client.to.PolicyTO;
 import org.syncope.client.to.SyncPolicyTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.syncope.types.PasswordPolicy;
+import org.syncope.types.PasswordPolicySpec;
 import org.syncope.types.PolicyType;
-import org.syncope.types.SyncPolicy;
+import org.syncope.types.SyncPolicySpec;
 
 public class PolicyTestITCase extends AbstractTest {
 
@@ -58,16 +58,15 @@ public class PolicyTestITCase extends AbstractTest {
         assertNotNull(policyTO);
         assertEquals(PolicyType.GLOBAL_PASSWORD, policyTO.getType());
         assertEquals(8,
-                ((PasswordPolicy) policyTO.getSpecification()).getMinLength());
+                ((PasswordPolicySpec) policyTO.getSpecification()).getMinLength());
     }
 
     @Test
-    @ExpectedException(value = SyncopeClientCompositeErrorException.class)
     public final void getGlobalAccountPolicy() {
         AccountPolicyTO policyTO = restTemplate.getForObject(
                 BASE_URL + "policy/account/global/read", AccountPolicyTO.class);
 
-        assertNull(policyTO);
+        assertNotNull(policyTO);
         assertEquals(PolicyType.GLOBAL_ACCOUNT, policyTO.getType());
     }
 
@@ -76,7 +75,7 @@ public class PolicyTestITCase extends AbstractTest {
     public final void createWithException() {
 
         PasswordPolicyTO policy = new PasswordPolicyTO();
-        policy.setSpecification(new PasswordPolicy());
+        policy.setSpecification(new PasswordPolicySpec());
         policy.setType(PolicyType.GLOBAL_PASSWORD);
         policy.setDescription("global password policy");
 
@@ -90,7 +89,7 @@ public class PolicyTestITCase extends AbstractTest {
     public final void createMissingDescription() {
 
         SyncPolicyTO policy = new SyncPolicyTO();
-        policy.setSpecification(new SyncPolicy());
+        policy.setSpecification(new SyncPolicySpec());
         policy.setType(PolicyType.SYNC);
 
         restTemplate.postForObject(
@@ -101,7 +100,7 @@ public class PolicyTestITCase extends AbstractTest {
     @Test
     public final void create() {
         SyncPolicyTO policy = new SyncPolicyTO();
-        policy.setSpecification(new SyncPolicy());
+        policy.setSpecification(new SyncPolicySpec());
         policy.setType(PolicyType.SYNC);
         policy.setDescription("Sync policy");
 
@@ -133,7 +132,7 @@ public class PolicyTestITCase extends AbstractTest {
 
         assertNotNull("find to update did not work", policyTO);
 
-        PasswordPolicy policy =
+        PasswordPolicySpec policy =
                 ((PasswordPolicyTO) policyTO).getSpecification();
         policy.setMaxLength(22);
 

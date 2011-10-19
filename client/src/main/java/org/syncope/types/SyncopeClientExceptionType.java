@@ -28,7 +28,13 @@ public enum SyncopeClientExceptionType {
     InvalidConnInstance(
     "Syncope.InvalidConnInstance",
     "Syncope.InvalidConnInstance.message"),
-    InvalidPolicy(
+    InvalidPasswordPolicy(
+    "Syncope.InvalidPolicy",
+    "Syncope.InvalidPolicy.reason"),
+    InvalidAccountPolicy(
+    "Syncope.InvalidPolicy",
+    "Syncope.InvalidPolicy.reason"),
+    InvalidSyncPolicy(
     "Syncope.InvalidPolicy",
     "Syncope.InvalidPolicy.reason"),
     IncompletePropagationTaskExec(

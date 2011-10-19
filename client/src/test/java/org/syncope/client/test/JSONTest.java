@@ -30,7 +30,7 @@ import org.syncope.client.search.NodeCond;
 import org.syncope.client.to.SchemaTO;
 import org.syncope.client.to.SyncPolicyTO;
 import org.syncope.types.PolicyType;
-import org.syncope.types.SyncPolicy;
+import org.syncope.types.SyncPolicySpec;
 
 public class JSONTest {
 

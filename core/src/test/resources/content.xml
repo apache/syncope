@@ -23,10 +23,12 @@
     <SyncopeConf confKey="password.cipher.algorithm" confValue="MD5"/>
 
     <!-- sample policies -->
-    <Policy id="1" description="sync policy 1" type="SYNC" specification="%3C%3Fxml+version%3D%221.0%22+encoding%3D%22UTF-8%22%3F%3E+%0A%3Cjava+version%3D%221.6.0_26%22+class%3D%22java.beans.XMLDecoder%22%3E+%0A+%3Cobject+class%3D%22org.syncope.types.SyncPolicy%22/%3E%0A%3C/java%3E+%0A"/>
-    <Policy id="2" description="global password policy" type="GLOBAL_PASSWORD" specification="%3C%3Fxml+version%3D%221.0%22+encoding%3D%22UTF-8%22%3F%3E+%0A%3Cjava+version%3D%221.6.0_26%22+class%3D%22java.beans.XMLDecoder%22%3E+%0A+%3Cobject+class%3D%22org.syncope.types.PasswordPolicy%22%3E+%0A++%3Cvoid+property%3D%22historyLength%22%3E+%0A+++%3Cint%3E1%3C/int%3E+%0A++%3C/void%3E+%0A++%3Cvoid+property%3D%22minLength%22%3E+%0A+++%3Cint%3E8%3C/int%3E+%0A++%3C/void%3E+%0A++%3Cvoid+property%3D%22prefixesNotPermitted%22%3E+%0A+++%3Cvoid+method%3D%22add%22%3E+%0A++++%3Cstring%3Enotpermitted1%3C/string%3E+%0A+++%3C/void%3E+%0A+++%3Cvoid+method%3D%22add%22%3E+%0A++++%3Cstring%3Enotpermitted2%3C/string%3E+%0A+++%3C/void%3E+%0A++%3C/void%3E+%0A+%3C/object%3E+%0A%3C/java%3E+"/>
-    <Policy id="3" description="sync policy 2" type="SYNC" specification="%3C%3Fxml+version%3D%221.0%22+encoding%3D%22UTF-8%22%3F%3E+%0A%3Cjava+version%3D%221.6.0_26%22+class%3D%22java.beans.XMLDecoder%22%3E+%0A+%3Cobject+class%3D%22org.syncope.types.SyncPolicy%22/%3E%0A%3C/java%3E+%0A"/>
-    <Policy id="4" description="sample password policy" type="PASSWORD" specification="%3C%3Fxml+version%3D%221.0%22+encoding%3D%22UTF-8%22%3F%3E+%0A%3Cjava+version%3D%221.6.0_26%22+class%3D%22java.beans.XMLDecoder%22%3E+%0A+%3Cobject+class%3D%22org.syncope.types.PasswordPolicy%22%3E+%0A++%3Cvoid+property%3D%22historyLength%22%3E+%0A+++%3Cint%3E0%3C/int%3E+%0A++%3C/void%3E+%0A++%3Cvoid+property%3D%22minLength%22%3E+%0A+++%3Cint%3E10%3C/int%3E+%0A++%3C/void%3E+%0A++%3Cvoid+property%3D%22prefixesNotPermitted%22%3E+%0A+++%3Cvoid+method%3D%22add%22%3E+%0A++++%3Cstring%3Enotpermitted1%3C/string%3E+%0A+++%3C/void%3E+%0A+++%3Cvoid+method%3D%22add%22%3E+%0A++++%3Cstring%3Enotpermitted2%3C/string%3E+%0A+++%3C/void%3E+%0A++%3C/void%3E+%0A+%3C/object%3E+%0A%3C/java%3E+"/>
+    <Policy DTYPE="SyncPolicy" id="1" description="sync policy 1" type="SYNC" specification="%3C%3Fxml+version%3D%221.0%22+encoding%3D%22UTF-8%22%3F%3E+%0A%3Cjava+version%3D%221.6.0_26%22+class%3D%22java.beans.XMLDecoder%22%3E+%0A+%3Cobject+class%3D%22org.syncope.types.SyncPolicySpec%22/%3E%0A%3C/java%3E+%0A"/>
+    <Policy DTYPE="PasswordPolicy" id="2" description="global password policy" type="GLOBAL_PASSWORD" specification="%3C%3Fxml+version%3D%221.0%22+encoding%3D%22UTF-8%22%3F%3E+%0A%3Cjava+version%3D%221.6.0_26%22+class%3D%22java.beans.XMLDecoder%22%3E+%0A+%3Cobject+class%3D%22org.syncope.types.PasswordPolicySpec%22%3E+%0A++%3Cvoid+property%3D%22historyLength%22%3E+%0A+++%3Cint%3E1%3C/int%3E+%0A++%3C/void%3E+%0A++%3Cvoid+property%3D%22minLength%22%3E+%0A+++%3Cint%3E8%3C/int%3E+%0A++%3C/void%3E+%0A++%3Cvoid+property%3D%22prefixesNotPermitted%22%3E+%0A+++%3Cvoid+method%3D%22add%22%3E+%0A++++%3Cstring%3Enotpermitted1%3C/string%3E+%0A+++%3C/void%3E+%0A+++%3Cvoid+method%3D%22add%22%3E+%0A++++%3Cstring%3Enotpermitted2%3C/string%3E+%0A+++%3C/void%3E+%0A++%3C/void%3E+%0A+%3C/object%3E+%0A%3C/java%3E+"/>
+    <Policy DTYPE="SyncPolicy" id="3" description="sync policy 2" type="SYNC" specification="%3C%3Fxml+version%3D%221.0%22+encoding%3D%22UTF-8%22%3F%3E+%0A%3Cjava+version%3D%221.6.0_26%22+class%3D%22java.beans.XMLDecoder%22%3E+%0A+%3Cobject+class%3D%22org.syncope.types.SyncPolicySpec%22/%3E%0A%3C/java%3E+%0A"/>
+    <Policy DTYPE="PasswordPolicy" id="4" description="sample password policy" type="PASSWORD" specification="%3C%3Fxml+version%3D%221.0%22+encoding%3D%22UTF-8%22%3F%3E+%0A%3Cjava+version%3D%221.6.0_26%22+class%3D%22java.beans.XMLDecoder%22%3E+%0A+%3Cobject+class%3D%22org.syncope.types.PasswordPolicySpec%22%3E+%0A++%3Cvoid+property%3D%22historyLength%22%3E+%0A+++%3Cint%3E0%3C/int%3E+%0A++%3C/void%3E+%0A++%3Cvoid+property%3D%22minLength%22%3E+%0A+++%3Cint%3E10%3C/int%3E+%0A++%3C/void%3E+%0A++%3Cvoid+property%3D%22prefixesNotPermitted%22%3E+%0A+++%3Cvoid+method%3D%22add%22%3E+%0A++++%3Cstring%3Enotpermitted1%3C/string%3E+%0A+++%3C/void%3E+%0A+++%3Cvoid+method%3D%22add%22%3E+%0A++++%3Cstring%3Enotpermitted2%3C/string%3E+%0A+++%3C/void%3E+%0A++%3C/void%3E+%0A+%3C/object%3E+%0A%3C/java%3E+"/>
+    <Policy DTYPE="AccountPolicy" id="5" description="global account policy" type="GLOBAL_ACCOUNT" specification="%3C%3Fxml+version%3D%221.0%22+encoding%3D%22UTF-8%22%3F%3E+%0A%3Cjava+version%3D%221.6.0_26%22+class%3D%22java.beans.XMLDecoder%22%3E+%0A+%3Cobject+class%3D%22org.syncope.types.AccountPolicySpec%22%3E%0A+%3C/object%3E+%0A%3C/java%3E+"/>
+    <Policy DTYPE="AccountPolicy" id="6" description="sample account policy" type="ACCOUNT" specification="%3C%3Fxml+version%3D%221.0%22+encoding%3D%22UTF-8%22%3F%3E+%0A%3Cjava+version%3D%221.6.0_26%22+class%3D%22java.beans.XMLDecoder%22%3E+%0A+%3Cobject+class%3D%22org.syncope.types.AccountPolicySpec%22%3E%0A+%3C/object%3E+%0A%3C/java%3E+"/>
 
                           
     <SyncopeUser id="1" workflowId="0" status="active" password="5f4dcc3b5aa765d61d8327deb882cf99" cipherAlgorithm="MD5"/>
@@ -34,14 +36,27 @@
     <SyncopeUser id="3" workflowId="0" status="active" password="5f4dcc3b5aa765d61d8327deb882cf99" cipherAlgorithm="MD5"/>
     <SyncopeUser id="4" workflowId="0" status="active" password="5f4dcc3b5aa765d61d8327deb882cf99" cipherAlgorithm="MD5"/>
 
-    <SyncopeRole id="1" name="root" inheritAttributes="0" inheritDerivedAttributes="0" inheritVirtualAttributes="0"/>
-    <SyncopeRole id="2" name="child" parent_id="1" inheritAttributes="0" inheritDerivedAttributes="0" inheritVirtualAttributes="0"/>
-    <SyncopeRole id="3" name="citizen" inheritAttributes="0" inheritDerivedAttributes="0" inheritVirtualAttributes="0"/>
-    <SyncopeRole id="4" name="employee" parent_id="3" inheritAttributes="0" inheritDerivedAttributes="0" inheritVirtualAttributes="0"/>
-    <SyncopeRole id="5" name="secretary" parent_id="4" inheritAttributes="0" inheritDerivedAttributes="0" inheritVirtualAttributes="0"/>
-    <SyncopeRole id="6" name="director" parent_id="4" inheritAttributes="1" inheritDerivedAttributes="1" inheritVirtualAttributes="1"/>
-    <SyncopeRole id="7" name="managingDirector" parent_id="6" inheritAttributes="1" inheritDerivedAttributes="1" inheritVirtualAttributes="1"/>
-    <SyncopeRole id="8" name="otherchild" parent_id="1" inheritAttributes="0" inheritDerivedAttributes="0" inheritVirtualAttributes="1" passwordPolicy_id="4"/>
+    <SyncopeRole id="1" name="root"/>
+    <SyncopeRole id="2" name="child" parent_id="1"/>
+    <SyncopeRole id="3" name="citizen"/>
+    <SyncopeRole id="4" name="employee" parent_id="3"/>
+    <SyncopeRole id="5" name="secretary" parent_id="4"/>
+
+    <SyncopeRole id="6"
+                 name="director" parent_id="4"
+                 inheritAttributes="1" inheritDerivedAttributes="1" inheritVirtualAttributes="1"
+                 inheritPasswordPolicy="0" inheritAccountPolicy="0"
+                 passwordPolicy_id="4"/>
+
+    <SyncopeRole id="7"
+                 name="managingDirector" parent_id="6"
+                 inheritAttributes="1" inheritDerivedAttributes="1" inheritVirtualAttributes="1"
+                 inheritPasswordPolicy="1" inheritAccountPolicy="1"/>
+
+    <SyncopeRole id="8"
+                 name="otherchild" parent_id="1"
+                 inheritVirtualAttributes="1"
+                 passwordPolicy_id="4"/>
 
     <Membership id="1" syncopeUser_id="1" syncopeRole_id="1"/>
     <Membership id="2" syncopeUser_id="2" syncopeRole_id="1"/>

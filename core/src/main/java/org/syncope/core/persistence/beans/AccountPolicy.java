@@ -12,14 +12,12 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.types;
+package org.syncope.core.persistence.beans;
 
-import org.syncope.client.AbstractBaseBean;
+import javax.persistence.Entity;
 
-public class AbstractPolicy extends AbstractBaseBean {
+@Entity
+public class AccountPolicy extends Policy {
 
-    private static final long serialVersionUID = 2740439904103716653L;
-
-    public AbstractPolicy() {
-    }
+    private static final long serialVersionUID = 9138550910385232849L;
 }

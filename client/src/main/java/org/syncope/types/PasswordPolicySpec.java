@@ -17,7 +17,7 @@ package org.syncope.types;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PasswordPolicy extends AbstractPolicy {
+public class PasswordPolicySpec extends AbstractPolicySpec {
 
     private static final long serialVersionUID = -7988778083915548547L;
 

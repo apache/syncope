@@ -16,12 +16,12 @@ package org.syncope.core.policy;
 
 import java.util.regex.Pattern;
 import org.springframework.stereotype.Component;
-import org.syncope.types.PasswordPolicy;
+import org.syncope.types.PasswordPolicySpec;
 import org.syncope.types.PolicyType;
 
 @Component
 public class PasswordPolicyEnforcer
-        implements PolicyEnforcer<PasswordPolicy, String> {
+        implements PolicyEnforcer<PasswordPolicySpec, String> {
 
     private static final Pattern DIGIT = Pattern.compile(".*\\d+.*");
 
@@ -47,7 +47,7 @@ public class PasswordPolicyEnforcer
 
     @Override
     public void enforce(
-            final PasswordPolicy policy,
+            final PasswordPolicySpec policy,
             final PolicyType type,
             final String password)
             throws PasswordPolicyException, PolicyEnforceException {

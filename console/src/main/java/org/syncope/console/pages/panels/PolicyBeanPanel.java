@@ -45,7 +45,7 @@ import org.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.syncope.console.wicket.markup.html.form.AjaxPalettePanel;
 import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.syncope.console.wicket.markup.html.form.FieldPanel;
-import org.syncope.types.AbstractPolicy;
+import org.syncope.types.AbstractPolicySpec;
 
 public class PolicyBeanPanel extends Panel {
 
@@ -85,7 +85,7 @@ public class PolicyBeanPanel extends Panel {
     protected XMLRolesReader xmlRolesReader;
 
     public PolicyBeanPanel(
-            final String id, final AbstractPolicy policy) {
+            final String id, final AbstractPolicySpec policy) {
         super(id);
 
         FieldWrapper fieldWrapper = null;

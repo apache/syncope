@@ -14,24 +14,24 @@
  */
 package org.syncope.client.to;
 
-import org.syncope.types.PasswordPolicy;
+import org.syncope.types.PasswordPolicySpec;
 import org.syncope.types.PolicyType;
 
 public class PasswordPolicyTO extends PolicyTO {
 
     private static final long serialVersionUID = -5606086441294799690L;
 
-    private PasswordPolicy specification;
+    private PasswordPolicySpec specification;
 
     public PasswordPolicyTO() {
         setType(PolicyType.PASSWORD);
     }
 
-    public void setSpecification(final PasswordPolicy specification) {
+    public void setSpecification(final PasswordPolicySpec specification) {
         this.specification = specification;
     }
 
-    public PasswordPolicy getSpecification() {
+    public PasswordPolicySpec getSpecification() {
         return specification;
     }
 }

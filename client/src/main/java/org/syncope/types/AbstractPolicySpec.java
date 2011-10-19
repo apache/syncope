@@ -14,18 +14,12 @@
  */
 package org.syncope.types;
 
-public class SyncPolicy extends AbstractPolicy {
+import org.syncope.client.AbstractBaseBean;
 
-    private static final long serialVersionUID = -3144027171719498127L;
+public class AbstractPolicySpec extends AbstractBaseBean {
 
-    // TODO: To be defined
-    private String fake;
+    private static final long serialVersionUID = 2740439904103716653L;
 
-    public String getFake() {
-        return fake;
-    }
-
-    public void setFake(String fake) {
-        this.fake = fake;
+    public AbstractPolicySpec() {
     }
 }

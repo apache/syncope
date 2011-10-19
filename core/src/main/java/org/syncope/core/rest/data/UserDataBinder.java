@@ -39,7 +39,7 @@ import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.propagation.PropagationByResource;
 import org.syncope.types.CipherAlgorithm;
-import org.syncope.types.PasswordPolicy;
+import org.syncope.types.PasswordPolicySpec;
 import org.syncope.types.PropagationOperation;
 import org.syncope.types.SyncopeClientExceptionType;
 
@@ -58,7 +58,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
         try {
             Policy policy = policyDAO.getGlobalPasswordPolicy();
-            PasswordPolicy passwordPolicy = policy.getSpecification();
+            PasswordPolicySpec passwordPolicy = policy.getSpecification();
             passwordHistorySize = passwordPolicy.getHistoryLength();
         } catch (Throwable ignore) {
             // ignore exceptions
@@ -134,7 +134,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
             int passwordHistorySize = 0;
             try {
                 Policy policy = policyDAO.getGlobalPasswordPolicy();
-                PasswordPolicy passwordPolicy = policy.getSpecification();
+                PasswordPolicySpec passwordPolicy = policy.getSpecification();
                 passwordHistorySize = passwordPolicy.getHistoryLength();
             } catch (Throwable ignore) {
                 // ignore exceptions

@@ -15,23 +15,23 @@
 package org.syncope.client.to;
 
 import org.syncope.types.PolicyType;
-import org.syncope.types.SyncPolicy;
+import org.syncope.types.SyncPolicySpec;
 
 public class SyncPolicyTO extends PolicyTO {
 
     private static final long serialVersionUID = 993024634238024242L;
 
-    private SyncPolicy specification;
+    private SyncPolicySpec specification;
 
     public SyncPolicyTO() {
         setType(PolicyType.SYNC);
     }
 
-    public void setSpecification(final SyncPolicy specification) {
+    public void setSpecification(final SyncPolicySpec specification) {
         this.specification = specification;
     }
 
-    public SyncPolicy getSpecification() {
+    public SyncPolicySpec getSpecification() {
         return specification;
     }
 }

@@ -28,7 +28,7 @@ import org.syncope.core.persistence.dao.PolicyDAO;
 import org.syncope.core.policy.PasswordPolicyEnforcer;
 import org.syncope.core.policy.PolicyEvaluator;
 import org.syncope.types.EntityViolationType;
-import org.syncope.types.PasswordPolicy;
+import org.syncope.types.PasswordPolicySpec;
 
 public class AttributableValidator extends AbstractValidator
         implements ConstraintValidator<AttributableCheck, AbstractAttributable> {
@@ -72,7 +72,7 @@ public class AttributableValidator extends AbstractValidator
                     // evaluate/enforce only during creation or password update
                     if (password != null) {
                         // evaluate policy
-                        final PasswordPolicy passwordPolicy =
+                        final PasswordPolicySpec passwordPolicy =
                                 evaluator.evaluate(policy, object);
 
                         // enforce policy

@@ -23,8 +23,8 @@ import org.syncope.core.persistence.beans.AbstractAttr;
 import org.syncope.core.persistence.beans.AbstractAttributable;
 import org.syncope.core.persistence.beans.Policy;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
-import org.syncope.types.AbstractPolicy;
-import org.syncope.types.PasswordPolicy;
+import org.syncope.types.AbstractPolicySpec;
+import org.syncope.types.PasswordPolicySpec;
 
 @Component
 public class PolicyEvaluator {
@@ -35,7 +35,7 @@ public class PolicyEvaluator {
     protected static final Logger LOG = LoggerFactory.getLogger(
             PolicyEvaluator.class);
 
-    public <T extends AbstractPolicy> T evaluate(
+    public <T extends AbstractPolicySpec> T evaluate(
             final Policy policy, final AbstractAttributable attributable) {
 
         T result = null;
@@ -44,8 +44,8 @@ public class PolicyEvaluator {
             switch (policy.getType()) {
                 case PASSWORD:
                 case GLOBAL_PASSWORD:
-                    final PasswordPolicy spec = policy.getSpecification();
-                    final PasswordPolicy passwordPolicy = new PasswordPolicy();
+                    final PasswordPolicySpec spec = policy.getSpecification();
+                    final PasswordPolicySpec passwordPolicy = new PasswordPolicySpec();
 
                     BeanUtils.copyProperties(
                             spec,

@@ -26,6 +26,9 @@
         #tabs-5 table{
             font-size: 1.1em;
         }
+        #tabs-6 table{
+            font-size: 1.1em;
+        }
     </style>
 </wicket:head>
 
@@ -42,6 +45,7 @@
                     <li><a href="#tabs-3"><span><wicket:message key="tab3"/></span></a></li>
                     <li><a href="#tabs-4"><span><wicket:message key="tab4"/></span></a></li>
                     <li><a href="#tabs-5"><span><wicket:message key="tab5"/></span></a></li>
+                    <li><a href="#tabs-6"><span><wicket:message key="tab6"/></span></a></li>
                 </ul>
                 <div id="tabs-1">
                     <div id="formtable">
@@ -65,12 +69,6 @@
                             </div>
                         </div>
                     </div>
-
-                    <script type="text/javascript">
-                        $(function() {
-                            $('#formtable div.tablerow:even').addClass("alt");
-                        });
-                    </script>
                 </div>
 
                 <div id="tabs-2">
@@ -99,9 +97,19 @@
                     <span wicket:id="resources">[resources]</span>
                 </div>
                 <div id="tabs-5">
-                    <span wicket:id="entitlementsPalette"/>
+                    <span wicket:id="entitlementsPalette">[entitlements]</span>
+                </div>
+                <div id="tabs-6">
+                    <span wicket:id="security">[security]</span>
                 </div>
             </div>
+
+            <script type="text/javascript">
+                $(function() {
+                    $('#formtable div.tablerow:even').addClass("alt");
+                });
+            </script>
+
             <div>
                 &nbsp;
             </div>

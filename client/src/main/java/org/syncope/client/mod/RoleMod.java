@@ -16,7 +16,6 @@ package org.syncope.client.mod;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.syncope.client.to.PasswordPolicyTO;
 
 public class RoleMod extends AbstractAttributableMod {
 
@@ -30,9 +29,15 @@ public class RoleMod extends AbstractAttributableMod {
 
     private Boolean inheritVirtualAttributes;
 
+    private Boolean inheritAccountPolicy;
+
+    private Boolean inheritPasswordPolicy;
+
     private List<String> entitlements;
 
-    private PasswordPolicyTO passwordPolicy;
+    private ReferenceMod passwordPolicy;
+
+    private ReferenceMod accountPolicy;
 
     public RoleMod() {
         super();
@@ -71,15 +76,15 @@ public class RoleMod extends AbstractAttributableMod {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 
-    public boolean addEntitlement(String entitlement) {
+    public boolean addEntitlement(final String entitlement) {
         return entitlements.add(entitlement);
     }
 
-    public boolean removeEntitlement(String entitlement) {
+    public boolean removeEntitlement(final String entitlement) {
         return entitlements.remove(entitlement);
     }
 
@@ -87,18 +92,42 @@ public class RoleMod extends AbstractAttributableMod {
         return entitlements;
     }
 
-    public void setEntitlements(List<String> entitlements) {
+    public void setEntitlements(final List<String> entitlements) {
         this.entitlements.clear();
         if (entitlements != null && !entitlements.isEmpty()) {
             this.entitlements.addAll(entitlements);
         }
     }
 
-    public PasswordPolicyTO getPasswordPolicy() {
+    public ReferenceMod getPasswordPolicy() {
         return passwordPolicy;
     }
 
-    public void setPasswordPolicy(PasswordPolicyTO passwordPolicy) {
+    public void setPasswordPolicy(final ReferenceMod passwordPolicy) {
         this.passwordPolicy = passwordPolicy;
+    }
+
+    public Boolean getInheritPasswordPolicy() {
+        return inheritPasswordPolicy;
+    }
+
+    public void setInheritPasswordPolicy(final Boolean inheritPasswordPolicy) {
+        this.inheritPasswordPolicy = inheritPasswordPolicy;
+    }
+
+    public ReferenceMod getAccountPolicy() {
+        return accountPolicy;
+    }
+
+    public void setAccountPolicy(final ReferenceMod accountPolicy) {
+        this.accountPolicy = accountPolicy;
+    }
+
+    public Boolean getInheritAccountPolicy() {
+        return inheritAccountPolicy;
+    }
+
+    public void setInheritAccountPolicy(final Boolean inheritAccountPolicy) {
+        this.inheritAccountPolicy = inheritAccountPolicy;
     }
 }

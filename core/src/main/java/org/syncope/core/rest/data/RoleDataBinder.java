@@ -23,7 +23,9 @@ import org.syncope.client.mod.RoleMod;
 import org.syncope.client.to.RoleTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
+import org.syncope.core.persistence.beans.AccountPolicy;
 import org.syncope.core.persistence.beans.Entitlement;
+import org.syncope.core.persistence.beans.PasswordPolicy;
 import org.syncope.core.persistence.beans.role.RAttr;
 import org.syncope.core.persistence.beans.role.RDerAttr;
 import org.syncope.core.persistence.beans.role.RVirAttr;
@@ -38,9 +40,6 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
     @Autowired
     private EntitlementDAO entitlementDAO;
 
-    @Autowired
-    private PolicyDataBinder policyDataBinder;
-
     public SyncopeRole create(final RoleTO roleTO)
             throws SyncopeClientCompositeErrorException {
 
@@ -50,6 +49,9 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
                 roleTO.isInheritDerivedAttributes());
         role.setInheritVirtualAttributes(
                 roleTO.isInheritVirtualAttributes());
+
+        role.setInheritPasswordPolicy(roleTO.isInheritPasswordPolicy());
+        role.setInheritAccountPolicy(roleTO.isInheritAccountPolicy());
 
         SyncopeClientCompositeErrorException scce =
                 new SyncopeClientCompositeErrorException(
@@ -104,7 +106,12 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
         }
 
         role.setPasswordPolicy(roleTO.getPasswordPolicy() != null
-                ? policyDAO.find(roleTO.getPasswordPolicy()) : null);
+                ? (PasswordPolicy) policyDAO.find(roleTO.getPasswordPolicy())
+                : null);
+
+        role.setAccountPolicy(roleTO.getAccountPolicy() != null
+                ? (AccountPolicy) policyDAO.find(roleTO.getAccountPolicy())
+                : null);
 
         return role;
     }
@@ -153,6 +160,16 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
                     roleMod.getInheritVirtualAttributes());
         }
 
+        // inherited password Policy
+        if (roleMod.getInheritPasswordPolicy() != null) {
+            role.setInheritPasswordPolicy(roleMod.getInheritPasswordPolicy());
+        }
+
+        // inherited account Policy
+        if (roleMod.getInheritAccountPolicy() != null) {
+            role.setInheritAccountPolicy(roleMod.getInheritAccountPolicy());
+        }
+
         // entitlements
         role.getEntitlements().clear();
         Entitlement entitlement;
@@ -165,8 +182,17 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
             }
         }
 
-        role.setPasswordPolicy(
-                policyDataBinder.getPolicy(roleMod.getPasswordPolicy()));
+        if (roleMod.getPasswordPolicy() != null
+                && roleMod.getPasswordPolicy().getId() != null) {
+            role.setPasswordPolicy((PasswordPolicy) policyDAO.find(
+                    roleMod.getPasswordPolicy().getId()));
+        }
+
+        if (roleMod.getAccountPolicy() != null
+                && roleMod.getAccountPolicy().getId() != null) {
+            role.setAccountPolicy((AccountPolicy) policyDAO.find(
+                    roleMod.getAccountPolicy().getId()));
+        }
 
         // attributes, derived attributes, virtual attributes and resources
         return fill(role, roleMod, AttributableUtil.ROLE, scce);
@@ -179,6 +205,8 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
         roleTO.setInheritAttributes(role.isInheritAttributes());
         roleTO.setInheritDerivedAttributes(role.isInheritDerivedAttributes());
         roleTO.setInheritVirtualAttributes(role.isInheritVirtualAttributes());
+        roleTO.setInheritPasswordPolicy(role.isInheritPasswordPolicy());
+        roleTO.setInheritAccountPolicy(role.isInheritAccountPolicy());
 
         if (role.getParent() != null) {
             roleTO.setParent(role.getParent().getId());
@@ -211,6 +239,9 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
 
         roleTO.setPasswordPolicy(role.getPasswordPolicy() != null
                 ? role.getPasswordPolicy().getId() : null);
+
+        roleTO.setAccountPolicy(role.getAccountPolicy() != null
+                ? role.getAccountPolicy().getId() : null);
 
         return roleTO;
     }

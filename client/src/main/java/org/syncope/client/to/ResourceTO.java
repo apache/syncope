@@ -63,6 +63,8 @@ public class ResourceTO extends AbstractBaseBean {
 
     private Long passwordPolicy;
 
+    private Long accountPolicy;
+
     private Set<ConnConfProperty> connectorConfigurationProperties;
 
     public ResourceTO() {
@@ -162,6 +164,14 @@ public class ResourceTO extends AbstractBaseBean {
 
     public void setPasswordPolicy(Long passwordPolicy) {
         this.passwordPolicy = passwordPolicy;
+    }
+
+    public Long getAccountPolicy() {
+        return accountPolicy;
+    }
+
+    public void setAccountPolicy(Long accountPolicy) {
+        this.accountPolicy = accountPolicy;
     }
 
     public Set<ConnConfProperty> getConnectorConfigurationProperties() {

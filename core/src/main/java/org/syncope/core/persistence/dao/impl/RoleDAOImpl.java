@@ -44,8 +44,7 @@ public class RoleDAOImpl extends AbstractDAOImpl implements RoleDAO {
 
         try {
             return (SyncopeRole) query.getSingleResult();
-        }
-        catch (NoResultException e) {
+        } catch (NoResultException e) {
             return null;
         }
     }
@@ -107,6 +106,16 @@ public class RoleDAOImpl extends AbstractDAOImpl implements RoleDAO {
 
     @Override
     public SyncopeRole save(final SyncopeRole role) {
+        // reset account policy in case of inheritance
+        if (role.isInheritAccountPolicy()) {
+            role.setAccountPolicy(null);
+        }
+
+        // reset password policy in case of inheritance
+        if (role.isInheritPasswordPolicy()) {
+            role.setPasswordPolicy(null);
+        }
+
         final SyncopeRole savedRole = entityManager.merge(role);
         entitlementDAO.save(savedRole);
 
