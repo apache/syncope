@@ -33,6 +33,7 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.CheckBoxMultipleChoice;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
+import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
@@ -194,6 +195,9 @@ public class ConnectorModalPage extends BaseModalPage {
             }
         });
 
+        ((DropDownChoice) bundle.getField()).setNullValid(true);
+        bundle.setRequired(true);
+
         bundle.getField().add(
                 new AjaxFormComponentUpdatingBehavior("onchange") {
 
@@ -205,7 +209,8 @@ public class ConnectorModalPage extends BaseModalPage {
                         //reset all informations stored in connectorTO
                         connectorTO.setConfiguration(
                                 new HashSet<ConnConfProperty>());
-
+                        ((DropDownChoice) bundle.getField()).setNullValid(false);
+                        target.add(bundle.getField());
                         target.add(propertiesContainer);
                         target.add(connectorName);
                         target.add(version);
