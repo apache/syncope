@@ -17,7 +17,6 @@ package org.syncope.console.rest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 import org.springframework.stereotype.Component;
 import org.syncope.client.to.DerivedSchemaTO;
 import org.syncope.client.to.SchemaTO;
@@ -327,13 +326,13 @@ public class SchemaRestClient extends AbstractBaseRestClient {
     /**
      * Populator for Validator Schema DropDown components.
      */
-    public Set<String> getAllValidatorClasses() {
-        Set<String> validators = null;
+    public List<String> getAllValidatorClasses() {
+        List<String> validators = null;
 
         try {
-            validators = restTemplate.getForObject(
+            validators = Arrays.asList(restTemplate.getForObject(
                     baseURL + "configuration/validators.json",
-                    Set.class);
+                    String[].class));
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While getting all validators", e);
         }

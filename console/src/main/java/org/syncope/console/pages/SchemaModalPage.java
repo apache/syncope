@@ -17,10 +17,10 @@
 package org.syncope.console.pages;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Arrays;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -34,6 +34,9 @@ import org.apache.wicket.util.string.Strings;
 import org.syncope.client.to.SchemaTO;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
+import org.apache.wicket.markup.html.form.DropDownChoice;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.ResourceModel;
 import org.syncope.client.AbstractBaseBean;
 import org.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
@@ -77,17 +80,25 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
                 "conversionPattern", getString("conversionPattern"),
                 new PropertyModel<String>(schema, "conversionPattern"), true);
 
-        final ArrayList<String> validatorsList = new ArrayList<String>();
-        validatorsList.add("org.syncope.core.persistence.validation"
-                + ".AlwaysTrueValidator");
-        validatorsList.add("org.syncope.core.persistence.validation"
-                + ".EmailAddressValidator");
+        final IModel<List<String>> validatorsList =
+                new LoadableDetachableModel<List<String>>() {
+
+                    private static final long serialVersionUID =
+                            5275935387613157437L;
+
+                    @Override
+                    protected List<String> load() {
+                        return restClient.getAllValidatorClasses();
+                    }
+                };
 
         final AjaxDropDownChoicePanel<String> validatorClass =
                 new AjaxDropDownChoicePanel<String>(
                 "validatorClass", getString("validatorClass"),
                 new PropertyModel(schema, "validatorClass"), true);
-        validatorClass.setChoices(validatorsList);
+
+        ((DropDownChoice) validatorClass.getField()).setNullValid(true);
+        validatorClass.setChoices(validatorsList.getObject());
 
         final AjaxDropDownChoicePanel<SchemaType> type =
                 new AjaxDropDownChoicePanel<SchemaType>(
