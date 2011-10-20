@@ -30,7 +30,9 @@ import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 import org.dbunit.database.DatabaseConfig;
 import org.dbunit.database.DatabaseConnection;
+import org.dbunit.database.DatabaseSequenceFilter;
 import org.dbunit.database.IDatabaseConnection;
+import org.dbunit.dataset.FilteredDataSet;
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.datatype.DefaultDataTypeFactory;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
@@ -219,7 +221,9 @@ public class ConfigurationController extends AbstractController {
             config.setProperty(DatabaseConfig.PROPERTY_DATATYPE_FACTORY,
                     dbUnitDataTypeFactory);
 
-            IDataSet fullDataSet = dbUnitConn.createDataSet();
+            IDataSet fullDataSet = new FilteredDataSet(
+                    new DatabaseSequenceFilter(dbUnitConn),
+                    dbUnitConn.createDataSet());
             FlatXmlDataSet.write(fullDataSet, export);
 
             LOG.debug("Default content successfully exported");
