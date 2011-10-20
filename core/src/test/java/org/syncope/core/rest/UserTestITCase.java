@@ -146,8 +146,7 @@ public class UserTestITCase extends AbstractTest {
         userTO.setPassword("password123");
         userTO.addResource("ws-target-resource-nopropagation");
 
-        restTemplate.postForObject(BASE_URL + "user/create"
-                + "?mandatoryResources=ws-target-resource-nopropagation",
+        restTemplate.postForObject(BASE_URL + "user/create",
                 userTO, UserTO.class);
 
         // get the new task list
@@ -269,9 +268,8 @@ public class UserTestITCase extends AbstractTest {
         }
         assertNotNull(sce);
 
-        // 3. update assignign a resource NOT forcing mandatory constraints:
-        // must fail with PropagationException when called with 
-        // mandatoryResources
+        // 3. update assignign a resource NOT forcing mandatory constraints
+        // AND primary: must fail with PropagationException
         userMod = new UserMod();
         userMod.setId(userTO.getId());
         userMod.setPassword("newPassword");
@@ -279,16 +277,20 @@ public class UserTestITCase extends AbstractTest {
 
         sce = null;
         try {
-            userTO = restTemplate.postForObject(BASE_URL
-                    + "user/update?mandatoryResources=ws-target-resource-1",
+            userTO = restTemplate.postForObject(BASE_URL + "user/update",
                     userMod, UserTO.class);
         } catch (SyncopeClientCompositeErrorException scce) {
             sce = scce.getException(SyncopeClientExceptionType.Propagation);
         }
         assertNotNull(sce);
 
-        // 4. update assignign a resource NOT forcing mandatory constraints:
-        // must succeed
+        // 4. update assignign a resource NOT forcing mandatory constraints
+        // BUT not primary: must succeed
+        userMod = new UserMod();
+        userMod.setId(userTO.getId());
+        userMod.setPassword("newPassword");
+        userMod.addResourceToBeAdded("resource-db");
+
         sce = null;
         try {
             userTO = restTemplate.postForObject(
@@ -312,7 +314,7 @@ public class UserTestITCase extends AbstractTest {
         // 2. try to update by adding a resource, but no password: must fail
         UserMod userMod = new UserMod();
         userMod.setId(userTO.getId());
-        userMod.addResourceToBeAdded("ws-target-resource-1");
+        userMod.addResourceToBeAdded("ws-target-resource-2");
 
         SyncopeClientException sce = null;
         try {
@@ -359,8 +361,7 @@ public class UserTestITCase extends AbstractTest {
         userTO.setPassword("password");
         userTO.addResource("resource-testdb");
 
-        restTemplate.postForObject(BASE_URL + "user/create"
-                + "?mandatoryResources=resource-testdb",
+        restTemplate.postForObject(BASE_URL + "user/create",
                 userTO, UserTO.class);
     }
 
@@ -469,8 +470,7 @@ public class UserTestITCase extends AbstractTest {
         userTO.addAttribute(nullValueAttributeTO);
 
         // 1. create user
-        UserTO newUserTO = restTemplate.postForObject(
-                BASE_URL + "user/create?mandatoryRoles=8",
+        UserTO newUserTO = restTemplate.postForObject(BASE_URL + "user/create",
                 userTO, UserTO.class);
 
         assertNotNull(newUserTO);
@@ -572,8 +572,7 @@ public class UserTestITCase extends AbstractTest {
         SyncopeClientCompositeErrorException ex = null;
         try {
             // 1. create user without type (mandatory by UserSchema)
-            restTemplate.postForObject(
-                    BASE_URL + "user/create?mandatoryRoles=8",
+            restTemplate.postForObject(BASE_URL + "user/create",
                     userTO, UserTO.class);
         } catch (SyncopeClientCompositeErrorException e) {
             ex = e;
@@ -598,8 +597,7 @@ public class UserTestITCase extends AbstractTest {
         // 2. create user without surname (mandatory when type == 'F')
         ex = null;
         try {
-            restTemplate.postForObject(
-                    BASE_URL + "user/create?mandatoryRoles=8",
+            restTemplate.postForObject(BASE_URL + "user/create",
                     userTO, UserTO.class);
         } catch (SyncopeClientCompositeErrorException e) {
             ex = e;
@@ -614,7 +612,7 @@ public class UserTestITCase extends AbstractTest {
         try {
             restTemplate.delete(BASE_URL + "user/delete/{userId}", 0);
         } catch (HttpStatusCodeException e) {
-            assertEquals(e.getStatusCode(), HttpStatus.NOT_FOUND);
+            assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
         }
 
         UserTO userTO = getSampleTO("qqgf.z@nn.com");
@@ -627,7 +625,7 @@ public class UserTestITCase extends AbstractTest {
             restTemplate.getForObject(BASE_URL + "user/read/{userId}.json",
                     UserTO.class, userTO.getId());
         } catch (HttpStatusCodeException e) {
-            assertEquals(e.getStatusCode(), HttpStatus.NOT_FOUND);
+            assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
         }
     }
 
@@ -1030,8 +1028,7 @@ public class UserTestITCase extends AbstractTest {
         userTO.addMembership(membershipTO);
 
         // 1. create user
-        userTO = restTemplate.postForObject(
-                BASE_URL + "user/create?mandatoryRoles=8",
+        userTO = restTemplate.postForObject(BASE_URL + "user/create",
                 userTO, UserTO.class);
         assertNotNull(userTO);
 

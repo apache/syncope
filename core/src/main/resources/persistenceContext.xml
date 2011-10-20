@@ -113,6 +113,4 @@
 
     <bean id="validator"
           class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean"/>
-          
-    <bean class="org.syncope.core.workflow.UserService"/>
 </beans>

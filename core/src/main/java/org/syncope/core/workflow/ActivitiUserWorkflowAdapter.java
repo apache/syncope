@@ -17,7 +17,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import javassist.NotFoundException;
 import org.activiti.engine.ActivitiException;
 import org.activiti.engine.IdentityService;
@@ -26,27 +25,20 @@ import org.activiti.engine.TaskService;
 import org.activiti.engine.identity.User;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Task;
+import org.apache.commons.collections.keyvalue.DefaultMapEntry;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 import org.syncope.client.mod.UserMod;
 import org.syncope.client.to.UserTO;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
-import org.syncope.core.persistence.dao.UserDAO;
 import org.syncope.core.persistence.propagation.PropagationByResource;
-import org.syncope.core.persistence.propagation.PropagationException;
-import org.syncope.core.persistence.propagation.PropagationManager;
-import org.syncope.types.PropagationOperation;
 
 /**
  * Activiti (http://www.activiti.org/) based implementation.
  */
-@Transactional(rollbackFor = {
-    Throwable.class
-})
-public class ActivitiUserWorkflowAdapter implements UserWorkflowAdapter {
+public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
     /**
      * Logger.
@@ -79,15 +71,6 @@ public class ActivitiUserWorkflowAdapter implements UserWorkflowAdapter {
     @Autowired
     private IdentityService identityService;
 
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private UserDAO userDAO;
-
-    @Autowired
-    private PropagationManager propagationManager;
-
     private void setStatus(final String processInstanceId,
             final SyncopeUser user) {
 
@@ -102,10 +85,8 @@ public class ActivitiUserWorkflowAdapter implements UserWorkflowAdapter {
     }
 
     @Override
-    public SyncopeUser create(final UserTO userTO,
-            final Set<Long> mandatoryRoles,
-            final Set<String> mandatoryResources)
-            throws WorkflowException, PropagationException {
+    public Map.Entry<Long, Boolean> create(final UserTO userTO)
+            throws WorkflowException {
 
         final Map<String, Object> variables = new HashMap<String, Object>();
         variables.put(USER_TO, userTO);
@@ -127,21 +108,10 @@ public class ActivitiUserWorkflowAdapter implements UserWorkflowAdapter {
         User activitiUser = identityService.newUser(user.getId().toString());
         identityService.saveUser(activitiUser);
 
-        // Now that user is created locally, let's propagate
-        Set<String> mandatoryResourceNames =
-                userService.getMandatoryResourceNames(user,
-                mandatoryRoles, mandatoryResources);
-        if (!mandatoryResourceNames.isEmpty()) {
-            LOG.debug("About to propagate onto these mandatory resources {}",
-                    mandatoryResourceNames);
-        }
-
         Boolean enable = (Boolean) runtimeService.getVariable(
                 processInstance.getProcessInstanceId(), PROPAGATE_ENABLE);
-        propagationManager.create(
-                user, userTO.getPassword(), enable, mandatoryResourceNames);
 
-        return user;
+        return new DefaultMapEntry(user.getId(), enable);
     }
 
     private void doExecuteAction(final SyncopeUser user,
@@ -174,27 +144,21 @@ public class ActivitiUserWorkflowAdapter implements UserWorkflowAdapter {
     }
 
     @Override
-    public SyncopeUser activate(final SyncopeUser user, final String token)
-            throws WorkflowException, PropagationException {
+    protected Long doActivate(final SyncopeUser user, final String token)
+            throws WorkflowException {
 
         doExecuteAction(user, "activate",
                 Collections.singletonMap(TOKEN, (Object) token));
         setStatus(user.getWorkflowId(), user);
         SyncopeUser updated = userDAO.save(user);
 
-        PropagationByResource propByRes = new PropagationByResource();
-        propByRes.addAll(
-                PropagationOperation.UPDATE, user.getExternalResources());
-        propagationManager.update(user, null, true, propByRes, null);
-
-        return updated;
+        return updated.getId();
     }
 
     @Override
-    public SyncopeUser update(final SyncopeUser user, final UserMod userMod,
-            final Set<Long> mandatoryRoles,
-            final Set<String> mandatoryResources)
-            throws WorkflowException, PropagationException {
+    protected Map.Entry<Long, PropagationByResource> doUpdate(
+            final SyncopeUser user, final UserMod userMod)
+            throws WorkflowException {
 
         doExecuteAction(user, "update",
                 Collections.singletonMap(USER_MOD, (Object) userMod));
@@ -205,71 +169,37 @@ public class ActivitiUserWorkflowAdapter implements UserWorkflowAdapter {
                 (PropagationByResource) runtimeService.getVariable(
                 user.getWorkflowId(), PROP_BY_RESOURCE);
 
-        // Now that user is updated locally, let's propagate
-        Set<String> mandatoryResourceNames =
-                userService.getMandatoryResourceNames(user,
-                mandatoryRoles, mandatoryResources);
-        if (!mandatoryResourceNames.isEmpty()) {
-            LOG.debug("About to propagate onto these mandatory resources {}",
-                    mandatoryResourceNames);
-        }
-
-        propagationManager.update(updated, userMod.getPassword(), null,
-                propByRes, mandatoryResourceNames);
-
-        return updated;
+        return new DefaultMapEntry(updated.getId(), propByRes);
     }
 
     @Override
-    public SyncopeUser suspend(final SyncopeUser user)
-            throws WorkflowException, PropagationException {
+    protected Long doSuspend(final SyncopeUser user)
+            throws WorkflowException {
 
         doExecuteAction(user, "suspend", null);
         setStatus(user.getWorkflowId(), user);
         SyncopeUser updated = userDAO.save(user);
 
-        PropagationByResource propByRes = new PropagationByResource();
-        propByRes.addAll(
-                PropagationOperation.UPDATE, user.getExternalResources());
-        propagationManager.update(user, null, false, propByRes, null);
-
-        return updated;
+        return updated.getId();
     }
 
     @Override
-    public SyncopeUser reactivate(final SyncopeUser user)
-            throws WorkflowException, PropagationException {
+    protected Long doReactivate(final SyncopeUser user)
+            throws WorkflowException {
 
         doExecuteAction(user, "reactivate", null);
         setStatus(user.getWorkflowId(), user);
         SyncopeUser updated = userDAO.save(user);
 
-        PropagationByResource propByRes = new PropagationByResource();
-        propByRes.addAll(
-                PropagationOperation.UPDATE, user.getExternalResources());
-        propagationManager.update(user, null, true, propByRes, null);
-
-        return updated;
+        return updated.getId();
     }
 
     @Override
-    public void delete(final SyncopeUser user,
-            final Set<Long> mandatoryRoles,
-            final Set<String> mandatoryResources)
-            throws WorkflowException, PropagationException {
-
-        // Propagate delete
-        Set<String> mandatoryResourceNames =
-                userService.getMandatoryResourceNames(user,
-                mandatoryRoles, mandatoryResources);
-        if (!mandatoryResourceNames.isEmpty()) {
-            LOG.debug("About to propagate onto these mandatory resources {}",
-                    mandatoryResourceNames);
-        }
-
-        propagationManager.delete(user, mandatoryResourceNames);
+    protected void doDelete(final SyncopeUser user)
+            throws WorkflowException {
 
         doExecuteAction(user, "delete", null);
+        userDAO.delete(user);
 
         identityService.deleteUser(user.getId().toString());
     }

@@ -13,7 +13,6 @@
  */
 package org.syncope.core.workflow.activiti;
 
-import java.util.Map;
 import org.activiti.engine.delegate.DelegateExecution;
 import org.syncope.client.mod.UserMod;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
@@ -32,13 +31,12 @@ public class Update extends AbstractActivitiDelegate {
                 ActivitiUserWorkflowAdapter.USER_MOD);
 
         // update SyncopeUser
-        Map.Entry<SyncopeUser, PropagationByResource> updated =
-                userService.update(user, userMod);
+        PropagationByResource propByRes = dataBinder.update(user, userMod);
 
         // report updated user and propagation by resource as result
         execution.setVariable(ActivitiUserWorkflowAdapter.SYNCOPE_USER,
-                updated.getKey());
+                user);
         execution.setVariable(ActivitiUserWorkflowAdapter.PROP_BY_RESOURCE,
-                updated.getValue());
+                propByRes);
     }
 }

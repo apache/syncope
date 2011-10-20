@@ -42,6 +42,7 @@ import javax.persistence.Lob;
 import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import org.apache.commons.lang.RandomStringUtils;
@@ -79,7 +80,8 @@ public class SyncopeUser extends AbstractAttributable {
     @NotNull
     private String password;
 
-    private transient String clearPassword;
+    @Transient
+    private String clearPassword;
 
     @OneToMany(cascade = CascadeType.MERGE, mappedBy = "syncopeUser")
     @Valid
@@ -174,6 +176,17 @@ public class SyncopeUser extends AbstractAttributable {
             if (membership.getSyncopeRole() != null) {
                 result.add(membership.getSyncopeRole());
             }
+        }
+
+        return result;
+    }
+
+    public Set<Long> getRoleIds() {
+        Set<SyncopeRole> roles = getRoles();
+
+        Set<Long> result = new HashSet<Long>(roles.size());
+        for (SyncopeRole role : roles) {
+            result.add(role.getId());
         }
 
         return result;

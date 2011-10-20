@@ -26,6 +26,8 @@ public interface ResourceDAO extends DAO {
 
     List<ExternalResource> findAll();
 
+    List<ExternalResource> findAllByPriority();
+
     ExternalResource save(ExternalResource resource)
             throws InvalidEntityException;
 

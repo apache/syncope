@@ -41,7 +41,7 @@ import org.apache.commons.lang.StringUtils;
 import org.hibernate.annotations.Type;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
-import org.syncope.core.persistence.util.XmlConfiguration;
+import org.syncope.core.persistence.util.XmlSerializer;
 import org.syncope.core.persistence.validation.entity.ExternalResourceCheck;
 import org.syncope.types.ConnConfProperty;
 import org.syncope.types.PropagationMode;
@@ -105,9 +105,24 @@ public class ExternalResource extends AbstractBaseBean {
      */
     private String accountLink;
 
+    /**
+     * Is this resource primary, for propagations?
+     */
+    @Column(nullable = false)
+    @Basic
+    @Min(0)
+    @Max(1)
+    private Integer propagationPrimary;
+
+    /**
+     * Priority index for propagation ordering.
+     */
+    @Column(nullable = false)
+    private Integer propagationPriority;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private PropagationMode optionalPropagationMode;
+    private PropagationMode propagationMode;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -115,11 +130,11 @@ public class ExternalResource extends AbstractBaseBean {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private TraceLevel deleteTraceLevel;
+    private TraceLevel updateTraceLevel;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private TraceLevel updateTraceLevel;
+    private TraceLevel deleteTraceLevel;
 
     @ManyToOne(fetch = FetchType.EAGER, optional = true)
     private PasswordPolicy passwordPolicy;
@@ -144,11 +159,13 @@ public class ExternalResource extends AbstractBaseBean {
         users = new HashSet<SyncopeUser>();
         roles = new HashSet<SyncopeRole>();
         mappings = new ArrayList<SchemaMapping>();
-        optionalPropagationMode = PropagationMode.ASYNC;
+        propagationPrimary = 0;
+        propagationPriority = 0;
+        propagationMode = PropagationMode.ASYNC;
 
         createTraceLevel = TraceLevel.FAILURES;
-        deleteTraceLevel = TraceLevel.FAILURES;
         updateTraceLevel = TraceLevel.FAILURES;
+        deleteTraceLevel = TraceLevel.FAILURES;
     }
 
     public boolean isForceMandatoryConstraint() {
@@ -168,14 +185,30 @@ public class ExternalResource extends AbstractBaseBean {
         this.connector = connector;
     }
 
-    public PropagationMode getOptionalPropagationMode() {
-        return optionalPropagationMode;
+    public boolean isPropagationPrimary() {
+        return isBooleanAsInteger(propagationPrimary);
     }
 
-    public void setOptionalPropagationMode(
-            PropagationMode optionalPropagationMode) {
+    public void setPropagationPrimary(boolean propagationPrimary) {
+        this.propagationPrimary = getBooleanAsInteger(propagationPrimary);
+    }
 
-        this.optionalPropagationMode = optionalPropagationMode;
+    public Integer getPropagationPriority() {
+        return propagationPriority;
+    }
+
+    public void setPropagationPriority(Integer propagationPriority) {
+        if (propagationPriority != null) {
+            this.propagationPriority = propagationPriority;
+        }
+    }
+
+    public PropagationMode getPropagationMode() {
+        return propagationMode;
+    }
+
+    public void setPropagationMode(PropagationMode propagationMode) {
+        this.propagationMode = propagationMode;
     }
 
     public List<SchemaMapping> getMappings() {
@@ -322,7 +355,7 @@ public class ExternalResource extends AbstractBaseBean {
             final Set<ConnConfProperty> properties) {
 
         // create new set to make sure it's a serializable set implementation.
-        xmlConfiguration = XmlConfiguration.serialize(
+        xmlConfiguration = XmlSerializer.serialize(
                 new HashSet<ConnConfProperty>(properties));
     }
 
@@ -331,7 +364,7 @@ public class ExternalResource extends AbstractBaseBean {
 
         Set<ConnConfProperty> deserializedSet;
         if (StringUtils.isNotBlank(xmlConfiguration)) {
-            deserializedSet = XmlConfiguration.<HashSet<ConnConfProperty>>deserialize(xmlConfiguration);
+            deserializedSet = XmlSerializer.<HashSet<ConnConfProperty>>deserialize(xmlConfiguration);
             if (deserializedSet != null) {
                 result = deserializedSet;
             }

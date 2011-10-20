@@ -17,9 +17,11 @@ package org.syncope.core.rest.data;
 import org.syncope.core.util.AttributableUtil;
 import java.util.HashSet;
 import java.util.Set;
+import javassist.NotFoundException;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.syncope.client.mod.MembershipMod;
 import org.syncope.client.mod.UserMod;
 import org.syncope.client.to.MembershipTO;
@@ -38,13 +40,38 @@ import org.syncope.core.persistence.beans.membership.MVirAttr;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.propagation.PropagationByResource;
+import org.syncope.core.rest.controller.UnauthorizedRoleException;
+import org.syncope.core.util.EntitlementUtil;
 import org.syncope.types.CipherAlgorithm;
 import org.syncope.types.PasswordPolicySpec;
 import org.syncope.types.PropagationOperation;
 import org.syncope.types.SyncopeClientExceptionType;
 
 @Component
+@Transactional(rollbackFor = {
+    Throwable.class
+})
 public class UserDataBinder extends AbstractAttributableDataBinder {
+
+    @Transactional(readOnly = true)
+    public SyncopeUser getUserFromId(final Long userId)
+            throws NotFoundException, UnauthorizedRoleException {
+
+        SyncopeUser user = userDAO.find(userId);
+        if (user == null) {
+            throw new NotFoundException("User " + userId);
+        }
+
+        Set<Long> roleIds = user.getRoleIds();
+        Set<Long> adminRoleIds = EntitlementUtil.getRoleIds(
+                EntitlementUtil.getOwnedEntitlementNames());
+        roleIds.removeAll(adminRoleIds);
+        if (!roleIds.isEmpty()) {
+            throw new UnauthorizedRoleException(roleIds);
+        }
+
+        return user;
+    }
 
     public void create(final SyncopeUser user, final UserTO userTO)
             throws SyncopeClientCompositeErrorException {
@@ -274,10 +301,13 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
     /**
      * Generate a transfer object for the given JPA entity.
      *
-     * @param user as JPA entity
+     * @param userId user id
      * @return transfer object
      */
-    public UserTO getUserTO(final SyncopeUser user) {
+    @Transactional(readOnly = true)
+    public UserTO getUserTO(final Long userId) {
+        SyncopeUser user = userDAO.find(userId);
+
         UserTO userTO = new UserTO();
         userTO.setId(user.getId());
         userTO.setToken(user.getToken());

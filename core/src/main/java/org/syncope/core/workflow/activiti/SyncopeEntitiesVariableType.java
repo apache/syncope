@@ -13,22 +13,18 @@
  */
 package org.syncope.core.workflow.activiti;
 
-import org.activiti.engine.delegate.DelegateExecution;
-import org.syncope.core.persistence.beans.user.SyncopeUser;
-import org.syncope.core.workflow.ActivitiUserWorkflowAdapter;
+import org.activiti.engine.impl.variable.SerializableType;
+import org.syncope.core.persistence.beans.AbstractBaseBean;
 
-public class Delete extends AbstractActivitiDelegate {
+/**
+ * Activiti variable type for handling Syncope entities as Activiti variables.
+ * Main purpose: avoid Activiti to handle Syncope entities as JPA entities,
+ * since this can cause troubles with transactions.
+ */
+public class SyncopeEntitiesVariableType extends SerializableType {
 
     @Override
-    protected void doExecute(final DelegateExecution execution)
-            throws Exception {
-
-        SyncopeUser user = (SyncopeUser) execution.getVariable(
-                ActivitiUserWorkflowAdapter.SYNCOPE_USER);
-
-        // do something with SyncopeUser...
-
-        // remove SyncopeUser variable
-        execution.removeVariable(ActivitiUserWorkflowAdapter.SYNCOPE_USER);
+    public boolean isAbleToStore(final Object value) {
+        return value instanceof AbstractBaseBean;
     }
 }

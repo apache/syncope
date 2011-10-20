@@ -72,6 +72,13 @@ public class ResourceTest extends AbstractTest {
     }
 
     @Test
+    public final void findAllByPriority() {
+        List<ExternalResource> resources = resourceDAO.findAllByPriority();
+        assertNotNull(resources);
+        assertFalse(resources.isEmpty());
+    }
+
+    @Test
     public final void getAccountId() {
         SchemaMapping mapping = resourceDAO.getMappingForAccountId(
                 "ws-target-resource-2");
@@ -82,6 +89,8 @@ public class ResourceTest extends AbstractTest {
     public final void save() {
         ExternalResource resource = new ExternalResource();
         resource.setName("ws-target-resource-basic-save");
+        resource.setPropagationPriority(2);
+        resource.setPropagationPrimary(true);
 
         SchemaMapping accountId = new SchemaMapping();
         accountId.setResource(resource);
@@ -102,6 +111,8 @@ public class ResourceTest extends AbstractTest {
 
         assertNotNull(actual);
         assertNotNull(actual.getConnector());
+        assertEquals(Integer.valueOf(2), actual.getPropagationPriority());
+        assertTrue(actual.isPropagationPrimary());
     }
 
     @Test

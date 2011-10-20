@@ -22,7 +22,7 @@ import javax.persistence.Id;
 import javax.persistence.Lob;
 
 import org.hibernate.annotations.Type;
-import org.syncope.core.persistence.util.XmlConfiguration;
+import org.syncope.core.persistence.util.XmlSerializer;
 import org.syncope.core.persistence.validation.entity.PolicyCheck;
 import org.syncope.types.AbstractPolicySpec;
 import org.syncope.types.PolicyType;
@@ -72,11 +72,11 @@ public class Policy extends AbstractBaseBean {
     }
 
     public <T extends AbstractPolicySpec> T getSpecification() {
-        T result = XmlConfiguration.<T>deserialize(specification);
+        T result = XmlSerializer.<T>deserialize(specification);
         return result;
     }
 
     public <T extends AbstractPolicySpec> void setSpecification(final T policy) {
-        specification = XmlConfiguration.serialize(policy);
+        specification = XmlSerializer.serialize(policy);
     }
 }

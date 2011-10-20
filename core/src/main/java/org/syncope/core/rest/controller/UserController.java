@@ -28,9 +28,12 @@ import org.syncope.core.rest.data.UserDataBinder;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javassist.NotFoundException;
 import javax.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.ModelAndView;
@@ -38,61 +41,44 @@ import org.syncope.client.mod.UserMod;
 import org.syncope.client.search.NodeCond;
 import org.syncope.client.to.MembershipTO;
 import org.syncope.client.to.UserTO;
-import org.syncope.core.persistence.beans.role.SyncopeRole;
+import org.syncope.core.persistence.beans.PropagationTask;
 import org.syncope.core.persistence.dao.UserSearchDAO;
+import org.syncope.core.persistence.propagation.PropagationByResource;
+import org.syncope.core.persistence.propagation.PropagationManager;
 import org.syncope.core.util.EntitlementUtil;
 import org.syncope.core.workflow.UserWorkflowAdapter;
 import org.syncope.core.workflow.WorkflowException;
 
+/**
+ * Note that this controller does not extend AbstractController, hence does not 
+ * provide any Spring's @Transactional logic at class level.
+ *
+ * @see AbstractController
+ */
 @Controller
 @RequestMapping("/user")
-public class UserController extends AbstractController {
+public class UserController {
+
+    /**
+     * Logger.
+     */
+    private static final Logger LOG =
+            LoggerFactory.getLogger(UserController.class);
 
     @Autowired
     private UserDAO userDAO;
 
     @Autowired
-    private UserSearchDAO userSearchDAO;
+    private UserSearchDAO searchDAO;
 
     @Autowired
-    private UserDataBinder userDataBinder;
+    private UserDataBinder dataBinder;
 
     @Autowired
     private UserWorkflowAdapter wfAdapter;
 
-    /**
-     * Check if roles are allowed to be administered by the caller.
-     *
-     * @param roleIds roles to be administered
-     * @throws UnauthorizedRoleException if permissions are not sufficient
-     */
-    private void checkPermissions(final Set<Long> roleIds)
-            throws UnauthorizedRoleException {
-
-        Set<Long> adminRoleIds = EntitlementUtil.getRoleIds(
-                EntitlementUtil.getOwnedEntitlementNames());
-        roleIds.removeAll(adminRoleIds);
-        if (!roleIds.isEmpty()) {
-            throw new UnauthorizedRoleException(roleIds);
-        }
-    }
-
-    private SyncopeUser getUserFromId(final Long userId)
-            throws NotFoundException, UnauthorizedRoleException {
-
-        SyncopeUser user = userDAO.find(userId);
-        if (user == null) {
-            throw new NotFoundException("User " + userId);
-        }
-
-        Set<Long> roleIds = new HashSet<Long>(user.getRoles().size());
-        for (SyncopeRole role : user.getRoles()) {
-            roleIds.add(role.getId());
-        }
-        checkPermissions(roleIds);
-
-        return user;
-    }
+    @Autowired
+    private PropagationManager propagationManager;
 
     @PreAuthorize("hasRole('USER_READ')")
     @RequestMapping(method = RequestMethod.GET,
@@ -102,7 +88,7 @@ public class UserController extends AbstractController {
             @RequestParam("password") final String password)
             throws NotFoundException, UnauthorizedRoleException {
 
-        SyncopeUser user = getUserFromId(userId);
+        SyncopeUser user = dataBinder.getUserFromId(userId);
 
         SyncopeUser passwordUser = new SyncopeUser();
         passwordUser.setPassword(password, user.getCipherAlgoritm(), 0);
@@ -114,7 +100,9 @@ public class UserController extends AbstractController {
     @PreAuthorize("hasRole('TASK_LIST')")
     @RequestMapping(method = RequestMethod.GET,
     value = "/count")
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, rollbackFor = {
+        Throwable.class
+    })
     public ModelAndView count() {
         Set<Long> adminRoleIds = EntitlementUtil.getRoleIds(
                 EntitlementUtil.getOwnedEntitlementNames());
@@ -125,7 +113,9 @@ public class UserController extends AbstractController {
     @PreAuthorize("hasRole('USER_READ')")
     @RequestMapping(method = RequestMethod.POST,
     value = "/search/count")
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, rollbackFor = {
+        Throwable.class
+    })
     public ModelAndView searchCount(@RequestBody final NodeCond searchCondition)
             throws InvalidSearchConditionException {
 
@@ -138,19 +128,21 @@ public class UserController extends AbstractController {
                 EntitlementUtil.getOwnedEntitlementNames());
 
         return new ModelAndView().addObject(
-                userSearchDAO.count(adminRoleIds, searchCondition));
+                searchDAO.count(adminRoleIds, searchCondition));
     }
 
     @PreAuthorize("hasRole('USER_LIST')")
     @RequestMapping(method = RequestMethod.GET,
     value = "/list")
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, rollbackFor = {
+        Throwable.class
+    })
     public List<UserTO> list() {
         List<SyncopeUser> users = userDAO.findAll(EntitlementUtil.getRoleIds(
                 EntitlementUtil.getOwnedEntitlementNames()));
         List<UserTO> userTOs = new ArrayList<UserTO>(users.size());
         for (SyncopeUser user : users) {
-            userTOs.add(userDataBinder.getUserTO(user));
+            userTOs.add(dataBinder.getUserTO(user.getId()));
         }
 
         return userTOs;
@@ -159,7 +151,9 @@ public class UserController extends AbstractController {
     @PreAuthorize("hasRole('USER_LIST')")
     @RequestMapping(method = RequestMethod.GET,
     value = "/list/{page}/{size}")
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, rollbackFor = {
+        Throwable.class
+    })
     public List<UserTO> list(
             @PathVariable("page") final int page,
             @PathVariable("size") final int size) {
@@ -170,7 +164,7 @@ public class UserController extends AbstractController {
         List<SyncopeUser> users = userDAO.findAll(adminRoleIds, page, size);
         List<UserTO> userTOs = new ArrayList<UserTO>(users.size());
         for (SyncopeUser user : users) {
-            userTOs.add(userDataBinder.getUserTO(user));
+            userTOs.add(dataBinder.getUserTO(user.getId()));
         }
 
         return userTOs;
@@ -179,17 +173,23 @@ public class UserController extends AbstractController {
     @PreAuthorize("hasRole('USER_READ')")
     @RequestMapping(method = RequestMethod.GET,
     value = "/read/{userId}")
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, rollbackFor = {
+        Throwable.class
+    })
     public UserTO read(@PathVariable("userId") final Long userId)
             throws NotFoundException, UnauthorizedRoleException {
 
-        return userDataBinder.getUserTO(getUserFromId(userId));
+        SyncopeUser user = dataBinder.getUserFromId(userId);
+
+        return dataBinder.getUserTO(user.getId());
     }
 
     @PreAuthorize("hasRole('USER_READ')")
     @RequestMapping(method = RequestMethod.POST,
     value = "/search")
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, rollbackFor = {
+        Throwable.class
+    })
     public List<UserTO> search(@RequestBody final NodeCond searchCondition)
             throws InvalidSearchConditionException {
 
@@ -200,12 +200,12 @@ public class UserController extends AbstractController {
             throw new InvalidSearchConditionException();
         }
 
-        List<SyncopeUser> matchingUsers = userSearchDAO.search(
+        List<SyncopeUser> matchingUsers = searchDAO.search(
                 EntitlementUtil.getRoleIds(EntitlementUtil.
                 getOwnedEntitlementNames()), searchCondition);
         List<UserTO> result = new ArrayList<UserTO>(matchingUsers.size());
         for (SyncopeUser user : matchingUsers) {
-            result.add(userDataBinder.getUserTO(user));
+            result.add(dataBinder.getUserTO(user.getId()));
         }
 
         return result;
@@ -214,7 +214,9 @@ public class UserController extends AbstractController {
     @PreAuthorize("hasRole('USER_READ')")
     @RequestMapping(method = RequestMethod.POST,
     value = "/search/{page}/{size}")
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, rollbackFor = {
+        Throwable.class
+    })
     public List<UserTO> search(
             @RequestBody final NodeCond searchCondition,
             @PathVariable("page") final int page,
@@ -228,14 +230,14 @@ public class UserController extends AbstractController {
             throw new InvalidSearchConditionException();
         }
 
-        final List<SyncopeUser> matchingUsers = userSearchDAO.search(
+        final List<SyncopeUser> matchingUsers = searchDAO.search(
                 EntitlementUtil.getRoleIds(
                 EntitlementUtil.getOwnedEntitlementNames()),
                 searchCondition, page, size);
 
         final List<UserTO> result = new ArrayList<UserTO>(matchingUsers.size());
         for (SyncopeUser user : matchingUsers) {
-            result.add(userDataBinder.getUserTO(user));
+            result.add(dataBinder.getUserTO(user.getId()));
         }
 
         return result;
@@ -245,26 +247,32 @@ public class UserController extends AbstractController {
     @RequestMapping(method = RequestMethod.POST,
     value = "/create")
     public UserTO create(final HttpServletResponse response,
-            @RequestBody final UserTO userTO,
-            @RequestParam(value = "mandatoryRoles",
-            required = false) final Set<Long> mandatoryRoles,
-            @RequestParam(value = "mandatoryResources",
-            required = false) final Set<String> mandatoryResources)
+            @RequestBody final UserTO userTO)
             throws PropagationException, UnauthorizedRoleException,
-            WorkflowException {
+            WorkflowException, NotFoundException {
 
-        LOG.debug("User create called with parameters {}\n{}\n{}",
-                new Object[]{userTO, mandatoryRoles, mandatoryResources});
+        LOG.debug("User create called with {}", userTO);
 
         Set<Long> requestRoleIds =
                 new HashSet<Long>(userTO.getMemberships().size());
         for (MembershipTO membership : userTO.getMemberships()) {
             requestRoleIds.add(membership.getRoleId());
         }
-        checkPermissions(requestRoleIds);
+        Set<Long> adminRoleIds = EntitlementUtil.getRoleIds(
+                EntitlementUtil.getOwnedEntitlementNames());
+        requestRoleIds.removeAll(adminRoleIds);
+        if (!requestRoleIds.isEmpty()) {
+            throw new UnauthorizedRoleException(requestRoleIds);
+        }
 
-        final UserTO savedTO = userDataBinder.getUserTO(
-                wfAdapter.create(userTO, mandatoryRoles, mandatoryResources));
+        Map.Entry<Long, Boolean> created = wfAdapter.create(userTO);
+
+        List<PropagationTask> tasks = propagationManager.getCreateTaskIds(
+                created.getKey(), userTO.getPassword(),
+                userTO.getVirtualAttributes(), created.getValue());
+        propagationManager.execute(tasks);
+
+        final UserTO savedTO = dataBinder.getUserTO(created.getKey());
 
         LOG.debug("About to return created user\n{}", savedTO);
 
@@ -279,9 +287,13 @@ public class UserController extends AbstractController {
             throws WorkflowException, NotFoundException,
             UnauthorizedRoleException, PropagationException {
 
-        final UserTO savedTO = userDataBinder.getUserTO(
-                wfAdapter.activate(getUserFromId(userTO.getId()),
-                userTO.getToken()));
+        Long updatedId = wfAdapter.activate(userTO.getId(), userTO.getToken());
+
+        List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(
+                updatedId, null, null, null, Boolean.TRUE, null);
+        propagationManager.execute(tasks);
+
+        final UserTO savedTO = dataBinder.getUserTO(updatedId);
 
         LOG.debug("About to return activated user\n{}", savedTO);
 
@@ -291,20 +303,23 @@ public class UserController extends AbstractController {
     @PreAuthorize("hasRole('USER_UPDATE')")
     @RequestMapping(method = RequestMethod.POST,
     value = "/update")
-    public UserTO update(@RequestBody final UserMod userMod,
-            @RequestParam(value = "mandatoryRoles",
-            required = false) final Set<Long> mandatoryRoles,
-            @RequestParam(value = "mandatoryResources",
-            required = false) final Set<String> mandatoryResources)
+    public UserTO update(@RequestBody final UserMod userMod)
             throws NotFoundException, PropagationException,
             UnauthorizedRoleException, WorkflowException {
 
-        LOG.debug("User update called with parameters {}\n{}\n{}",
-                new Object[]{userMod, mandatoryRoles, mandatoryResources});
+        LOG.debug("User update called with {}", userMod);
 
-        final UserTO updatedTO = userDataBinder.getUserTO(
-                wfAdapter.update(getUserFromId(userMod.getId()), userMod,
-                mandatoryRoles, mandatoryResources));
+        Map.Entry<Long, PropagationByResource> updated =
+                wfAdapter.update(userMod);
+
+        List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(
+                updated.getKey(), userMod.getPassword(),
+                userMod.getVirtualAttributesToBeRemoved(),
+                userMod.getVirtualAttributesToBeAdded(),
+                null, updated.getValue());
+        propagationManager.execute(tasks);
+
+        final UserTO updatedTO = dataBinder.getUserTO(updated.getKey());
 
         LOG.debug("About to return updated user\n{}", updatedTO);
 
@@ -320,8 +335,13 @@ public class UserController extends AbstractController {
 
         LOG.debug("About to suspend " + userId);
 
-        final UserTO savedTO = userDataBinder.getUserTO(
-                wfAdapter.suspend(getUserFromId(userId)));
+        Long updatedId = wfAdapter.suspend(userId);
+
+        List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(
+                updatedId, null, null, null, Boolean.FALSE, null);
+        propagationManager.execute(tasks);
+
+        final UserTO savedTO = dataBinder.getUserTO(updatedId);
 
         LOG.debug("About to return suspended user\n{}", savedTO);
 
@@ -337,8 +357,13 @@ public class UserController extends AbstractController {
 
         LOG.debug("About to reactivate " + userId);
 
-        final UserTO savedTO = userDataBinder.getUserTO(
-                wfAdapter.reactivate(getUserFromId(userId)));
+        Long updatedId = wfAdapter.reactivate(userId);
+
+        List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(
+                updatedId, null, null, null, Boolean.TRUE, null);
+        propagationManager.execute(tasks);
+
+        final UserTO savedTO = dataBinder.getUserTO(updatedId);
 
         LOG.debug("About to return suspended user\n{}", savedTO);
 
@@ -348,19 +373,17 @@ public class UserController extends AbstractController {
     @PreAuthorize("hasRole('USER_DELETE')")
     @RequestMapping(method = RequestMethod.DELETE,
     value = "/delete/{userId}")
-    public void delete(@PathVariable("userId") final Long userId,
-            @RequestParam(value = "mandatoryRoles",
-            required = false) final Set<Long> mandatoryRoles,
-            @RequestParam(value = "mandatoryResources",
-            required = false) final Set<String> mandatoryResources)
+    public void delete(@PathVariable("userId") final Long userId)
             throws NotFoundException, WorkflowException, PropagationException,
             UnauthorizedRoleException {
 
-        LOG.debug("User delete called with parameters {}\n{}\n{}",
-                new Object[]{userId, mandatoryRoles, mandatoryResources});
+        LOG.debug("User delete called with {}", userId);
 
-        wfAdapter.delete(getUserFromId(userId),
-                mandatoryRoles, mandatoryResources);
+        List<PropagationTask> tasks =
+                propagationManager.getDeleteTaskIds(userId);
+        propagationManager.execute(tasks);
+
+        wfAdapter.delete(userId);
 
         LOG.debug("User successfully deleted: {}", userId);
     }

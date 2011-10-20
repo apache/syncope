@@ -60,9 +60,6 @@ public class ResourceDataBinder {
     private JexlUtil jexlUtil;
 
     @Autowired
-    private PolicyDataBinder policyDataBinder;
-
-    @Autowired
     private PolicyDAO policyDAO;
 
     public ExternalResource getResource(final ResourceTO resourceTO)
@@ -95,8 +92,12 @@ public class ResourceDataBinder {
         resource.setForceMandatoryConstraint(
                 resourceTO.isForceMandatoryConstraint());
 
-        resource.setOptionalPropagationMode(
-                resourceTO.getOptionalPropagationMode());
+        resource.setPropagationPrimary(resourceTO.isPropagationPrimary());
+
+        resource.setPropagationPriority(resourceTO.getPropagationPriority());
+
+        resource.setPropagationMode(
+                resourceTO.getPropagationMode());
 
         resource.setMappings(
                 getSchemaMappings(resource, resourceTO.getMappings()));
@@ -161,8 +162,12 @@ public class ResourceDataBinder {
         resourceTO.setForceMandatoryConstraint(
                 resource.isForceMandatoryConstraint());
 
-        resourceTO.setOptionalPropagationMode(
-                resource.getOptionalPropagationMode());
+        resourceTO.setPropagationPrimary(resource.isPropagationPrimary());
+
+        resourceTO.setPropagationPriority(resource.getPropagationPriority());
+
+        resourceTO.setPropagationMode(
+                resource.getPropagationMode());
 
         resourceTO.setCreateTraceLevel(resource.getCreateTraceLevel());
         resourceTO.setUpdateTraceLevel(resource.getUpdateTraceLevel());

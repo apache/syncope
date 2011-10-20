@@ -342,7 +342,7 @@ public class TaskController extends AbstractController {
         LOG.debug("Execution started for {}", task);
         switch (getTaskUtil(task)) {
             case PROPAGATION:
-                final TaskExec execution = propagationManager.propagate(
+                final TaskExec execution = propagationManager.execute(
                         (PropagationTask) task, new Date());
                 result = binder.getTaskExecutionTO(execution);
                 break;

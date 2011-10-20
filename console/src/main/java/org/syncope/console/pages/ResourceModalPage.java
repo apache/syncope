@@ -54,6 +54,7 @@ import org.syncope.console.rest.SchemaRestClient;
 import org.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.syncope.console.wicket.markup.html.form.AjaxDecoratedCheckbox;
 import org.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
+import org.syncope.console.wicket.markup.html.form.AjaxIntFieldPanel;
 import org.syncope.console.wicket.markup.html.form.AjaxPasswordFieldPanel;
 import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.syncope.console.wicket.markup.html.form.FieldPanel;
@@ -181,15 +182,30 @@ public class ResourceModalPage extends BaseModalPage {
                 false);
         form.add(forceMandatoryConstraint);
 
-        final AjaxDropDownChoicePanel<PropagationMode> optionalPropagationMode =
-                new AjaxDropDownChoicePanel<PropagationMode>(
-                "optionalPropagationMode",
-                getString("optionalPropagationMode"),
-                new PropertyModel(resourceTO, "optionalPropagationMode"),
+        final AjaxCheckBoxPanel propagationPrimary =
+                new AjaxCheckBoxPanel(
+                "propagationPrimary",
+                getString("propagationPrimary"),
+                new PropertyModel<Boolean>(resourceTO,
+                "propagationPrimary"),
                 false);
-        optionalPropagationMode.setChoices(
+        form.add(propagationPrimary);
+
+        final AjaxIntFieldPanel propagationPriority = new AjaxIntFieldPanel(
+                "propagationPriority", getString("propagationPriority"),
+                new PropertyModel<Integer>(resourceTO, "propagationPriority"),
+                false);
+        form.add(propagationPriority);
+
+        final AjaxDropDownChoicePanel<PropagationMode> propagationMode =
+                new AjaxDropDownChoicePanel<PropagationMode>(
+                "propagationMode",
+                getString("propagationMode"),
+                new PropertyModel(resourceTO, "propagationMode"),
+                false);
+        propagationMode.setChoices(
                 Arrays.asList(PropagationMode.values()));
-        form.add(optionalPropagationMode);
+        form.add(propagationMode);
 
         final AjaxDropDownChoicePanel<TraceLevel> createTraceLevel =
                 new AjaxDropDownChoicePanel<TraceLevel>("createTraceLevel",
@@ -378,8 +394,7 @@ public class ResourceModalPage extends BaseModalPage {
                                 intAttrNames);
 
                         mappingTypesPanel.setRequired(true);
-                        mappingTypesPanel.setChoices(intMappingTypes.
-                                getObject());
+                        mappingTypesPanel.setChoices(intMappingTypes.getObject());
                         mappingTypesPanel.setStyleShet(
                                 "ui-widget-content ui-corner-all short_fixedsize");
                         item.add(mappingTypesPanel);
@@ -623,8 +638,7 @@ public class ResourceModalPage extends BaseModalPage {
                 }
                 if (accountIdCount == 0 || accountIdCount > 1) {
                     error(getString("accountIdValidation"));
-                    ((Resources) callPageRef.getPage()).setOperationResult(
-                            false);
+                    target.add(feedbackPanel);
                 } else {
                     try {
                         if (createFlag) {
@@ -637,12 +651,10 @@ public class ResourceModalPage extends BaseModalPage {
                                 true);
                         window.close(target);
                     } catch (SyncopeClientCompositeErrorException e) {
-                        error(getString("error") + ":" + e.getMessage());
-                        ((Resources) callPageRef.getPage()).setOperationResult(
-                                false);
-
                         LOG.error("While creating/updating resource {}",
                                 resourceTO);
+                        error(getString("error") + ":" + e.getMessage());
+                        target.add(feedbackPanel);
                     }
                 }
             }

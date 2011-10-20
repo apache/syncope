@@ -45,10 +45,11 @@ public class ResourceTO extends AbstractBaseBean {
 
     private String accountLink;
 
-    /**
-     * Propagation mode to be used when not mandatory in propagation.
-     */
-    private PropagationMode optionalPropagationMode;
+    private boolean propagationPrimary;
+
+    private int propagationPriority;
+
+    private PropagationMode propagationMode;
 
     /**
      * Force mandatory constraint.
@@ -57,9 +58,9 @@ public class ResourceTO extends AbstractBaseBean {
 
     private TraceLevel createTraceLevel;
 
-    private TraceLevel deleteTraceLevel;
-
     private TraceLevel updateTraceLevel;
+
+    private TraceLevel deleteTraceLevel;
 
     private Long passwordPolicy;
 
@@ -70,10 +71,12 @@ public class ResourceTO extends AbstractBaseBean {
     public ResourceTO() {
         mappings = new ArrayList<SchemaMappingTO>();
         connectorConfigurationProperties = new HashSet<ConnConfProperty>();
-        optionalPropagationMode = PropagationMode.ASYNC;
+        propagationMode = PropagationMode.ASYNC;
+        propagationPriority = 0;
+
         createTraceLevel = TraceLevel.ALL;
-        deleteTraceLevel = TraceLevel.ALL;
         updateTraceLevel = TraceLevel.ALL;
+        deleteTraceLevel = TraceLevel.ALL;
     }
 
     public boolean isForceMandatoryConstraint() {
@@ -124,14 +127,28 @@ public class ResourceTO extends AbstractBaseBean {
         this.name = name;
     }
 
-    public PropagationMode getOptionalPropagationMode() {
-        return optionalPropagationMode;
+    public boolean isPropagationPrimary() {
+        return propagationPrimary;
     }
 
-    public void setOptionalPropagationMode(
-            PropagationMode optionalPropagationMode) {
+    public void setPropagationPrimary(boolean propagationPrimary) {
+        this.propagationPrimary = propagationPrimary;
+    }
 
-        this.optionalPropagationMode = optionalPropagationMode;
+    public int getPropagationPriority() {
+        return propagationPriority;
+    }
+
+    public void setPropagationPriority(int propagationPriority) {
+        this.propagationPriority = propagationPriority;
+    }
+
+    public PropagationMode getPropagationMode() {
+        return propagationMode;
+    }
+
+    public void setPropagationMode(PropagationMode propagationMode) {
+        this.propagationMode = propagationMode;
     }
 
     public TraceLevel getCreateTraceLevel() {

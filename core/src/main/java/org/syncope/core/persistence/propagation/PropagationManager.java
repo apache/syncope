@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javassist.NotFoundException;
 import org.apache.commons.collections.keyvalue.DefaultMapEntry;
 import org.identityconnectors.framework.common.FrameworkUtil;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
@@ -37,7 +38,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.syncope.client.to.AttributeTO;
 import org.syncope.core.init.ConnInstanceLoader;
 import org.syncope.core.persistence.beans.AbstractAttrValue;
 import org.syncope.core.persistence.beans.AbstractSchema;
@@ -58,6 +61,9 @@ import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.TaskDAO;
 import org.syncope.core.persistence.dao.TaskExecDAO;
+import org.syncope.core.persistence.dao.UserDAO;
+import org.syncope.core.rest.data.UserDataBinder;
+import org.syncope.core.util.AttributableUtil;
 import org.syncope.core.util.JexlUtil;
 import org.syncope.types.PropagationMode;
 import org.syncope.types.PropagationOperation;
@@ -69,6 +75,9 @@ import org.syncope.types.TraceLevel;
 /**
  * Manage the data propagation to target resources.
  */
+@Transactional(rollbackFor = {
+    Throwable.class
+})
 public class PropagationManager {
 
     /**
@@ -82,6 +91,18 @@ public class PropagationManager {
      */
     @Autowired
     private ConnInstanceLoader connLoader;
+
+    /**
+     * User DataBinder.
+     */
+    @Autowired
+    private UserDataBinder userDataBinder;
+
+    /**
+     * User DAO.
+     */
+    @Autowired
+    private UserDAO userDAO;
 
     /**
      * Resource DAO.
@@ -113,56 +134,82 @@ public class PropagationManager {
     @Autowired
     private JexlUtil jexlUtil;
 
+    @Transactional(readOnly = true)
+    private SyncopeUser getSyncopeUser(final Long userId)
+            throws NotFoundException {
+
+        SyncopeUser user = userDAO.find(userId);
+        if (user == null) {
+            throw new NotFoundException("User " + userId);
+        }
+
+        return user;
+    }
+
     /**
      * Create the user on every associated resource.
-     * It is possible to ask for a mandatory provisioning for some resources
-     * specifying a set of resource names.
-     * Exceptions won't be ignored and the process will be stopped if the
-     * creation fails onto a mandatory resource.
      *
-     * @param user to be created
+     * @param userId to be created
      * @param password to be set
+     * @param vAttrs virtual attributes to be set
      * @param enable wether user must be enabled or not
-     * @param mandResNames to ask for mandatory or optional
-     * provisioning
-     * @throws PropagationException when anything goes wrong
+     * @return list of propagation tasks
+     * @throws NotFoundException if userId is not found
      */
-    public void create(final SyncopeUser user,
-            final String password,
-            final Boolean enable,
-            final Set<String> mandResNames)
-            throws PropagationException {
+    public List<PropagationTask> getCreateTaskIds(final Long userId,
+            final String password, final List<AttributeTO> vAttrs,
+            final Boolean enable)
+            throws NotFoundException {
+
+        SyncopeUser user = getSyncopeUser(userId);
+        if (vAttrs != null && !vAttrs.isEmpty()) {
+            userDataBinder.fillVirtual(user, vAttrs, AttributableUtil.USER);
+            user = userDAO.save(user);
+        }
 
         final PropagationByResource propByRes = new PropagationByResource();
         propByRes.set(PropagationOperation.CREATE, user.getExternalResources());
 
-        provision(user, password, enable, propByRes,
-                mandResNames == null ? Collections.EMPTY_SET : mandResNames);
+        return provision(user, password, enable, propByRes);
     }
 
     /**
      * Performs update on each resource associated to the user.
-     * It is possible to ask for a mandatory provisioning for some resources
-     * specifying a set of resource names.
-     * Exceptions won't be ignored and the process will be stopped if the
-     * creation fails onto a mandatory resource.
      *
-     * @param user to be updated.
-     * @param password to be updated.
+     * @param userId to be updated
+     * @param password to be updated
+     * @param vAttrsToBeRemoved virtual attributes to be removed
+     * @param vAttrsToBeAdded virtual attributes to be added
      * @param enable wether user must be enabled or not
-     * @param propByRes operations to perform on each resource.
-     * @param mandResNames to ask for mandatory or optional update.
-     * @throws PropagationException if anything goes wrong
+     * @param propByRes operations to perform on each resource
+     * @return list of propagation tasks
+     * @throws NotFoundException if userId is not found
      */
-    public void update(final SyncopeUser user,
-            final String password,
-            final Boolean enable,
-            final PropagationByResource propByRes,
-            final Set<String> mandResNames)
-            throws PropagationException {
+    public List<PropagationTask> getUpdateTaskIds(final Long userId,
+            final String password, final Set<String> vAttrsToBeRemoved,
+            final Set<String> vAttrsToBeAdded, final Boolean enable,
+            final PropagationByResource propByRes)
+            throws NotFoundException {
 
-        provision(user, password, enable, propByRes,
-                mandResNames == null ? Collections.EMPTY_SET : mandResNames);
+        SyncopeUser user = getSyncopeUser(userId);
+        Set<String> vAttrsToRemove = vAttrsToBeRemoved == null
+                ? Collections.EMPTY_SET : vAttrsToBeRemoved;
+        Set<String> vAttrsToAdd = vAttrsToBeAdded == null
+                ? Collections.EMPTY_SET : vAttrsToBeAdded;
+        PropagationByResource vPropByRes = userDataBinder.fillVirtual(user,
+                vAttrsToRemove, vAttrsToAdd, AttributableUtil.USER);
+        propByRes.merge(vPropByRes);
+
+        PropagationByResource localPropByRes;
+        if (propByRes == null || propByRes.isEmpty()) {
+            localPropByRes = new PropagationByResource();
+            localPropByRes.addAll(PropagationOperation.UPDATE,
+                    user.getExternalResources());
+        } else {
+            localPropByRes = propByRes;
+        }
+
+        return provision(user, password, enable, localPropByRes);
     }
 
     /**
@@ -172,85 +219,20 @@ public class PropagationManager {
      * Exceptions won't be ignored and the process will be stopped if the
      * creation fails onto a mandatory resource.
      *
-     * @param user to be deleted
-     * @param mandResNames to ask for mandatory or optyional delete
-     * @throws PropagationException if anything goes wrong
+     * @param userId to be deleted
+     * @return list of propagation tasks
+     * @throws NotFoundException if user is not found
      */
-    public void delete(final SyncopeUser user,
-            final Set<String> mandResNames)
-            throws PropagationException {
+    public List<PropagationTask> getDeleteTaskIds(final Long userId)
+            throws NotFoundException {
+
+        SyncopeUser user = getSyncopeUser(userId);
 
         final PropagationByResource propByRes = new PropagationByResource();
         propByRes.set(PropagationOperation.DELETE,
                 user.getExternalResources());
 
-        provision(user, null, false, propByRes,
-                mandResNames == null ? Collections.EMPTY_SET : mandResNames);
-    }
-
-    /**
-     * Implementation of the provisioning feature.
-     *
-     * @param user user to be provisioned
-     * @param password cleartext password to be provisioned
-     * @param enable wether user must be enabled or not
-     * @param propByRes operation to be performed per resource
-     * @param mandResNames resources for mandatory propagation
-     * @throws PropagationException if anything goes wrong
-     */
-    protected void provision(
-            final SyncopeUser user,
-            final String password,
-            final Boolean enable,
-            final PropagationByResource propByRes,
-            final Set<String> mandResNames)
-            throws PropagationException {
-
-        LOG.debug("Provisioning with user {}:\n{}", user, propByRes);
-
-        // Avoid duplicates - see javadoc
-        propByRes.purge();
-        LOG.debug("After purge: {}", propByRes);
-
-        ExternalResource resource;
-        Map.Entry<String, Set<Attribute>> preparedAttrs;
-        PropagationTask task;
-        TaskExec execution;
-        for (PropagationOperation type : PropagationOperation.values()) {
-            for (String resourceName : propByRes.get(type)) {
-                resource = resourceDAO.find(resourceName);
-                preparedAttrs = prepareAttributes(
-                        user, password, enable, resource);
-
-                task = new PropagationTask();
-                task.setResource(resource);
-                task.setResourceOperationType(type);
-                task.setPropagationMode(
-                        mandResNames.contains(resource.getName())
-                        ? PropagationMode.SYNC
-                        : resource.getOptionalPropagationMode());
-                task.setAccountId(preparedAttrs.getKey());
-                task.setOldAccountId(
-                        propByRes.getOldAccountId(resource.getName()));
-                task.setAttributes(preparedAttrs.getValue());
-
-                LOG.debug("Execution started for {}", task);
-
-                execution = propagate(task, new Date());
-
-                LOG.debug("Execution finished for {}, {}", task, execution);
-
-                // Propagation is interrupted as soon as the result of the
-                // communication with a mandatory resource is in error
-                if (mandResNames.contains(resource.getName())
-                        && !PropagationTaskExecStatus.SUCCESS.toString().
-                        equals(execution.getStatus())) {
-
-                    throw new PropagationException(resource.getName(),
-                            execution.getMessage());
-                }
-            }
-        }
+        return provision(user, null, false, propByRes);
     }
 
     /**
@@ -459,8 +441,7 @@ public class PropagationManager {
      */
     private Map.Entry<String, Set<Attribute>> prepareAttributes(
             final SyncopeUser user, final String password,
-            final Boolean enable, final ExternalResource resource)
-            throws PropagationException {
+            final Boolean enable, final ExternalResource resource) {
 
         LOG.debug("Preparing resource attributes for {}"
                 + " on resource {}"
@@ -489,8 +470,9 @@ public class PropagationManager {
         }
 
         if (!StringUtils.hasText(accountId)) {
-            throw new PropagationException(resource.getName(),
-                    "Missing accountId specification");
+            throw new IllegalArgumentException(
+                    "Missing accountId specification for "
+                    + resource.getName());
         }
 
         // Evaluate AccountLink expression
@@ -517,6 +499,102 @@ public class PropagationManager {
         }
 
         return new DefaultMapEntry(accountId, attributes);
+    }
+
+    /**
+     * Implementation of the provisioning feature.
+     *
+     * @param user user to be provisioned
+     * @param password cleartext password to be provisioned
+     * @param enable wether user must be enabled or not
+     * @param propByRes operation to be performed per resource
+     * @return list of propagation tasks created
+     * @throws PropagationException if anything goes wrong
+     */
+    protected List<PropagationTask> provision(final SyncopeUser user,
+            final String password, final Boolean enable,
+            final PropagationByResource propByRes)
+            throws NotFoundException {
+
+        LOG.debug("Provisioning with user {}:\n{}", user, propByRes);
+
+        // Avoid duplicates - see javadoc
+        propByRes.purge();
+        LOG.debug("After purge: {}", propByRes);
+
+        List<PropagationTask> tasks = new ArrayList<PropagationTask>();
+
+        List<ExternalResource> resources = resourceDAO.findAllByPriority();
+        List<ExternalResource> resourcesByPriority;
+        Map.Entry<String, Set<Attribute>> preparedAttrs;
+        PropagationTask task;
+        for (PropagationOperation type : PropagationOperation.values()) {
+            resourcesByPriority = new ArrayList<ExternalResource>();
+            for (ExternalResource resource : resources) {
+                if (propByRes.get(type).contains(resource.getName())) {
+                    resourcesByPriority.add(resource);
+                }
+            }
+
+            for (ExternalResource resource : resourcesByPriority) {
+                preparedAttrs = prepareAttributes(
+                        user, password, enable, resource);
+
+                task = new PropagationTask();
+                task.setResource(resource);
+                task.setResourceOperationType(type);
+                task.setPropagationMode(resource.getPropagationMode());
+                task.setAccountId(preparedAttrs.getKey());
+                task.setOldAccountId(
+                        propByRes.getOldAccountId(resource.getName()));
+                task.setAttributes(preparedAttrs.getValue());
+
+                tasks.add(task);
+
+                LOG.debug("Execution started for {}", task);
+            }
+        }
+
+        return tasks;
+    }
+
+    /**
+     * Execute a list of PropagationTask, in given order.
+     *
+     * @param tasks to be execute, in given order
+     * @throws PropagationException if propagation goes wrong: propagation is
+     * interrupted as soon as the result of the communication with a primary
+     * resource is in error
+     */
+    public void execute(final List<PropagationTask> tasks)
+            throws PropagationException {
+
+        TaskExec execution;
+        PropagationTaskExecStatus execStatus;
+        for (PropagationTask task : tasks) {
+            LOG.debug("Execution started for {}", task);
+
+            execution = execute(task, new Date());
+
+            LOG.debug("Execution finished for {}, {}", task, execution);
+
+            // Propagation is interrupted as soon as the result of the
+            // communication with a primary resource is in error
+            try {
+                execStatus = PropagationTaskExecStatus.valueOf(
+                        execution.getStatus());
+            } catch (IllegalArgumentException e) {
+                LOG.error("Unexpected execution status found {}",
+                        execution.getStatus());
+                execStatus = PropagationTaskExecStatus.FAILURE;
+            }
+            if (task.getResource().isPropagationPrimary()
+                    && !execStatus.isSuccessful()) {
+
+                throw new PropagationException(task.getResource().getName(),
+                        execution.getMessage());
+            }
+        }
     }
 
     /**
@@ -574,7 +652,7 @@ public class PropagationManager {
      * @param startDate timestamp for beginning task excecution
      * @return TaskExecution
      */
-    public TaskExec propagate(final PropagationTask task,
+    public TaskExec execute(final PropagationTask task,
             final Date startDate) {
 
         TaskExec execution = new TaskExec();

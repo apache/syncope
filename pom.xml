@@ -108,7 +108,7 @@
         <reflections.version>0.9.5-RC2</reflections.version>
 
         <logback.version>0.9.29</logback.version>
-        <slf4j.version>1.6.2</slf4j.version>
+        <slf4j.version>1.6.3</slf4j.version>
 
         <junit.version>4.9</junit.version>
         <selenium-java-client-driver.version>1.0.2</selenium-java-client-driver.version>

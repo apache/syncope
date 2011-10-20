@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.identityconnectors.common.security.GuardedByteArray;
@@ -39,6 +40,7 @@ import org.syncope.core.init.ConnInstanceLoader;
 import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.beans.SyncTask;
 import org.syncope.core.persistence.beans.ExternalResource;
+import org.syncope.core.persistence.beans.PropagationTask;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.beans.user.UAttrValue;
@@ -49,6 +51,9 @@ import org.syncope.core.persistence.dao.DerSchemaDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.UserDAO;
 import org.syncope.core.persistence.propagation.ConnectorFacadeProxy;
+import org.syncope.core.persistence.propagation.PropagationByResource;
+import org.syncope.core.persistence.propagation.PropagationException;
+import org.syncope.core.persistence.propagation.PropagationManager;
 import org.syncope.core.rest.controller.InvalidSearchConditionException;
 import org.syncope.core.workflow.UserWorkflowAdapter;
 
@@ -94,6 +99,12 @@ public class SyncJob extends AbstractJob {
      */
     @Autowired
     private UserWorkflowAdapter wfAdapter;
+
+    /**
+     * Propagation Manager.
+     */
+    @Autowired
+    private PropagationManager propagationManager;
 
     /**
      * Extract password value from passed values (if instance of GuardedString
@@ -162,7 +173,7 @@ public class SyncJob extends AbstractJob {
         Attribute attribute;
         List<Object> values;
         AttributeTO attributeTO;
-        
+
         for (SchemaMapping mapping : mappings) {
             if (mapping.isAccountid()) {
                 attribute = obj.getAttributeByName(Name.NAME);
@@ -374,12 +385,12 @@ public class SyncJob extends AbstractJob {
         }
 
         // counters
-        int created = 0;
-        int updated = 0;
-        int deleted = 0;
-        int failCreated = 0;
-        int failUpdated = 0;
-        int failDeleted = 0;
+        int createdCounter = 0;
+        int updatedCounter = 0;
+        int deletedCounter = 0;
+        int failCreatedCounter = 0;
+        int failUpdatedCounter = 0;
+        int failDeletedCounter = 0;
 
         List<SyncopeUser> users;
         List<Long> userIds;
@@ -394,13 +405,23 @@ public class SyncJob extends AbstractJob {
                 case CREATE_OR_UPDATE:
                     if (users.isEmpty()) {
                         try {
-                            wfAdapter.create(getUserTO(delta.getObject(),
+                            UserTO userTO = getUserTO(delta.getObject(),
                                     syncTask.getResource().getMappings(),
-                                    defaultRoles, defaultResources),
-                                    null, null);
-                            created++;
+                                    defaultRoles, defaultResources);
+                            Map.Entry<Long, Boolean> created =
+                                    wfAdapter.create(userTO);
+                            createdCounter++;
+
+                            List<PropagationTask> tasks =
+                                    propagationManager.getCreateTaskIds(
+                                    created.getKey(), userTO.getPassword(),
+                                    null, created.getValue());
+                            propagationManager.execute(tasks);
+                        } catch (PropagationException e) {
+                            LOG.error("Could not propagate user "
+                                    + delta.getUid().getUidValue(), e);
                         } catch (Throwable t) {
-                            failCreated++;
+                            failCreatedCounter++;
                             LOG.error("Could not create user "
                                     + delta.getUid().getUidValue(), t);
                         }
@@ -408,15 +429,25 @@ public class SyncJob extends AbstractJob {
                         if (syncTask.isUpdateIdentities()) {
                             userToUpdate = users.iterator().next();
                             try {
-                                wfAdapter.update(userToUpdate,
-                                        getUserMod(userToUpdate.getId(),
-                                        delta.getObject(),
+                                UserMod userMod = getUserMod(
+                                        userToUpdate.getId(), delta.getObject(),
                                         syncTask.getResource().getMappings(),
-                                        defaultRoles, defaultResources),
-                                        null, null);
-                                updated++;
+                                        defaultRoles, defaultResources);
+
+                                Map.Entry<Long, PropagationByResource> updated =
+                                        wfAdapter.update(userMod);
+                                updatedCounter++;
+
+                                List<PropagationTask> tasks =
+                                        propagationManager.getUpdateTaskIds(
+                                        updated.getKey(), userMod.getPassword(),
+                                        null, null, null, updated.getValue());
+                                propagationManager.execute(tasks);
+                            } catch (PropagationException e) {
+                                LOG.error("Could not propagate user "
+                                        + delta.getUid().getUidValue(), e);
                             } catch (Throwable t) {
-                                failUpdated++;
+                                failUpdatedCounter++;
                                 LOG.error("Could not update user "
                                         + delta.getUid().getUidValue(), t);
                             }
@@ -435,11 +466,18 @@ public class SyncJob extends AbstractJob {
                     }
                     for (Long userId : userIds) {
                         try {
-                            wfAdapter.delete(userDAO.find(userId),
-                                    null, null);
-                            deleted++;
+                            List<PropagationTask> tasks =
+                                    propagationManager.getDeleteTaskIds(userId);
+                            propagationManager.execute(tasks);
+                        } catch (Exception e) {
+                            LOG.error("Could not propagate user " + userId, e);
+                        }
+
+                        try {
+                            wfAdapter.delete(userId);
+                            deletedCounter++;
                         } catch (Throwable t) {
-                            failDeleted++;
+                            failDeletedCounter++;
                             LOG.error("Could not delete user " + userId, t);
                         }
                     }
@@ -450,12 +488,14 @@ public class SyncJob extends AbstractJob {
         }
 
         StringBuilder result = new StringBuilder();
-        result.append("Users [created/failures]: ").append(created).append('/').
-                append(failCreated).append(' ').
-                append("[updated/failures]: ").append(updated).append('/').
-                append(failUpdated).append(' ').
-                append("[deleted/ failures]: ").append(deleted).append('/').
-                append(failDeleted);
+        result.append("Users [created/failures]: ").append(createdCounter).
+                append('/').
+                append(failCreatedCounter).append(' ').
+                append("[updated/failures]: ").append(updatedCounter).append('/').
+                append(failUpdatedCounter).append(' ').
+                append("[deleted/ failures]: ").append(deletedCounter).append(
+                '/').
+                append(failDeletedCounter);
         LOG.debug("Sync result: {}", result);
 
         try {

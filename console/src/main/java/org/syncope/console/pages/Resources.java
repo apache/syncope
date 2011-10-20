@@ -98,6 +98,12 @@ public class Resources extends BasePage {
 
         columns.add(new PropertyColumn(
                 new ResourceModel("name"), "name", "name"));
+        columns.add(new PropertyColumn(
+                new ResourceModel("propagationPrimary"),
+                "propagationPrimary", "propagationPrimary"));
+        columns.add(new PropertyColumn(
+                new ResourceModel("propagationPriority"),
+                "propagationPriority", "propagationPriority"));
 
         columns.add(new AbstractColumn<ResourceTO>(new ResourceModel("edit")) {
 

@@ -37,7 +37,7 @@ import javax.persistence.OneToMany;
 import org.hibernate.annotations.Type;
 import org.identityconnectors.framework.common.objects.SyncToken;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.syncope.core.persistence.util.XmlConfiguration;
+import org.syncope.core.persistence.util.XmlSerializer;
 import org.syncope.core.util.ApplicationContextManager;
 import org.syncope.types.ConnConfProperty;
 import org.syncope.types.ConnectorCapability;
@@ -160,7 +160,7 @@ public class ConnInstance extends AbstractBaseBean {
 
     public Set<ConnConfProperty> getConfiguration() {
         Set<ConnConfProperty> result =
-                XmlConfiguration.<HashSet<ConnConfProperty>>deserialize(
+                XmlSerializer.<HashSet<ConnConfProperty>>deserialize(
                 xmlConfiguration);
         if (result == null) {
             result = Collections.emptySet();
@@ -169,7 +169,7 @@ public class ConnInstance extends AbstractBaseBean {
     }
 
     public void setConfiguration(final Set<ConnConfProperty> configuration) {
-        xmlConfiguration = XmlConfiguration.serialize(
+        xmlConfiguration = XmlSerializer.serialize(
                 new HashSet<ConnConfProperty>(configuration));
     }
 

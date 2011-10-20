@@ -13,11 +13,12 @@
  */
 package org.syncope.core.workflow;
 
-import java.util.Set;
+import java.util.Map;
+import javassist.NotFoundException;
 import org.syncope.client.mod.UserMod;
 import org.syncope.client.to.UserTO;
-import org.syncope.core.persistence.beans.user.SyncopeUser;
-import org.syncope.core.persistence.propagation.PropagationException;
+import org.syncope.core.persistence.propagation.PropagationByResource;
+import org.syncope.core.rest.controller.UnauthorizedRoleException;
 
 /**
  * Interface for calling underlying workflow implementations.
@@ -27,76 +28,76 @@ public interface UserWorkflowAdapter {
     /**
      * Create an user.
      *
-     * @param userTO user to be created
-     * @param mandatoryRoles roles for mandatory propagation
-     * @param mandatoryResources resources for mandatory propagation
+     * @param userTO user to be created and wether to propagate it as active
      * @return user just created
+     * @throws UnauthorizedRoleException authorization exception
      * @throws WorkflowException workflow exception
-     * @throws PropagationException propagation exception
      */
-    SyncopeUser create(UserTO userTO,
-            Set<Long> mandatoryRoles, Set<String> mandatoryResources)
-            throws WorkflowException, PropagationException;
+    Map.Entry<Long, Boolean> create(UserTO userTO)
+            throws UnauthorizedRoleException, WorkflowException;
 
     /**
      * Activate an user.
      *
-     * @param user user to be activated
+     * @param userId user to be activated
      * @param token to be verified for activation
      * @return user just updated
+     * @throws UnauthorizedRoleException authorization exception
+     * @throws NotFoundException user not found exception
      * @throws WorkflowException workflow exception
-     * @throws PropagationException propagation exception
      */
-    SyncopeUser activate(SyncopeUser user, String token)
-            throws WorkflowException, PropagationException;
+    Long activate(Long userId, String token)
+            throws UnauthorizedRoleException, NotFoundException,
+            WorkflowException;
 
     /**
      * Updated an user.
      *
-     * @param user user to be updated
      * @param userMod modification set to be performed
-     * @param mandatoryRoles roles for mandatory propagation
-     * @param mandatoryResources resources for mandatory propagation
-     * @return user just updated
+     * @return user just updated and propagations to be performed
+     * @throws UnauthorizedRoleException authorization exception
+     * @throws NotFoundException user not found exception
      * @throws WorkflowException workflow exception
-     * @throws PropagationException propagation exception
      */
-    SyncopeUser update(SyncopeUser user, UserMod userMod,
-            Set<Long> mandatoryRoles, Set<String> mandatoryResources)
-            throws WorkflowException, PropagationException;
+    Map.Entry<Long, PropagationByResource> update(UserMod userMod)
+            throws UnauthorizedRoleException, NotFoundException,
+            WorkflowException;
 
     /**
      * Suspend an user.
      *
-     * @param user user to be suspended
+     * @param userId user to be suspended
      * @return user just suspended
+     * @throws UnauthorizedRoleException authorization exception
+     * @throws NotFoundException user not found exception
      * @throws WorkflowException workflow exception
-     * @throws PropagationException propagation exception
      */
-    SyncopeUser suspend(SyncopeUser user)
-            throws WorkflowException, PropagationException;
+    Long suspend(Long userId)
+            throws UnauthorizedRoleException, NotFoundException,
+            WorkflowException;
 
     /**
      * Suspend an user.
      *
-     * @param user user to be reactivated
+     * @param userId user to be reactivated
      * @return user just reactivated
+     * @throws UnauthorizedRoleException authorization exception
+     * @throws NotFoundException user not found exception
      * @throws WorkflowException workflow exception
-     * @throws PropagationException propagation exception
      */
-    SyncopeUser reactivate(SyncopeUser user)
-            throws WorkflowException, PropagationException;
+    Long reactivate(Long userId)
+            throws UnauthorizedRoleException, NotFoundException,
+            WorkflowException;
 
     /**
      * Delete an user.
      *
-     * @param user user to be deleted
-     * @param mandatoryRoles roles for mandatory propagation
-     * @param mandatoryResources resources for mandatory propagation
+     * @param userId user to be deleted
+     * @throws UnauthorizedRoleException authorization exception
+     * @throws NotFoundException user not found exception
      * @throws WorkflowException workflow exception
-     * @throws PropagationException propagation exception
      */
-    void delete(SyncopeUser user,
-            Set<Long> mandatoryRoles, Set<String> mandatoryResources)
-            throws WorkflowException, PropagationException;
+    void delete(Long userId)
+            throws UnauthorizedRoleException, NotFoundException,
+            WorkflowException;
 }

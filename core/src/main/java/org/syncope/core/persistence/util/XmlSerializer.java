@@ -32,10 +32,10 @@ import org.slf4j.LoggerFactory;
  * It uses the JDK XMLEncoder and XMLDecoder.
  * 
  */
-public class XmlConfiguration {
+public class XmlSerializer {
 
     private static final Logger LOG =
-            LoggerFactory.getLogger(XmlConfiguration.class);
+            LoggerFactory.getLogger(XmlSerializer.class);
 
     public static String serialize(final Serializable object) {
         try {

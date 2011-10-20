@@ -27,8 +27,9 @@ public class Create extends AbstractActivitiDelegate {
         UserTO userTO = (UserTO) execution.getVariable(
                 ActivitiUserWorkflowAdapter.USER_TO);
 
-        // create, set workflow id and save SyncopeUser
-        SyncopeUser user = userService.create(userTO);
+        // create and set workflow id
+        SyncopeUser user = new SyncopeUser();
+        dataBinder.create(user, userTO);
         user.setWorkflowId(execution.getProcessInstanceId());
 
         // report SyncopeUser as result

@@ -20,7 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.syncope.core.persistence.dao.ConfDAO;
-import org.syncope.core.workflow.UserService;
+import org.syncope.core.rest.data.UserDataBinder;
 import org.syncope.core.util.ApplicationContextManager;
 
 /**
@@ -39,7 +39,7 @@ public abstract class AbstractActivitiDelegate implements JavaDelegate {
 
     protected TaskService taskService;
 
-    protected UserService userService;
+    protected UserDataBinder dataBinder;
 
     protected ConfDAO confDAO;
 
@@ -49,7 +49,7 @@ public abstract class AbstractActivitiDelegate implements JavaDelegate {
 
         taskService = CONTEXT.getBean(TaskService.class);
 
-        userService = CONTEXT.getBean(UserService.class);
+        dataBinder = CONTEXT.getBean(UserDataBinder.class);
         confDAO = CONTEXT.getBean(ConfDAO.class);
 
         doExecute(execution);

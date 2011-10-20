@@ -68,6 +68,14 @@ public class ResourceDAOImpl extends AbstractDAOImpl
     }
 
     @Override
+    public List<ExternalResource> findAllByPriority() {
+        Query query = entityManager.createQuery("SELECT e "
+                + "FROM  " + ExternalResource.class.getSimpleName() + " e "
+                + "ORDER BY e.propagationPriority");
+        return query.getResultList();
+    }
+
+    @Override
     public ExternalResource save(final ExternalResource resource) {
         ExternalResource merged = entityManager.merge(resource);
         try {
