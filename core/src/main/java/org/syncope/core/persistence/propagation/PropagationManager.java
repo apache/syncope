@@ -857,12 +857,12 @@ public class PropagationManager {
             if (hasToBeregistered(task, execution)) {
                 PropagationTask savedTask = taskDAO.save(task);
 
-                if (!propagationAttempted.isEmpty()) {
-                    execution.setStartDate(startDate);
-                    execution.setMessage(taskExecutionMessage);
-                    execution.setEndDate(new Date());
+                execution.setStartDate(startDate);
+                execution.setMessage(taskExecutionMessage);
+                execution.setEndDate(new Date());
+                execution.setTask(savedTask);
 
-                    execution.setTask(savedTask);
+                if (!propagationAttempted.isEmpty()) {
                     execution = taskExecDAO.save(execution);
 
                     LOG.debug("Execution finished: {}", execution);

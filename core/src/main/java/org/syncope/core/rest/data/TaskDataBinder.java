@@ -50,7 +50,7 @@ public class TaskDataBinder {
     /**
      * Logger.
      */
-    protected static final Logger LOG = LoggerFactory.getLogger(
+    private static final Logger LOG = LoggerFactory.getLogger(
             TaskDataBinder.class);
 
     private static final String[] IGNORE_TASK_PROPERTIES = {
@@ -58,7 +58,7 @@ public class TaskDataBinder {
         "updateIdentities"};
 
     private static final String[] IGNORE_TASK_EXECUTION_PROPERTIES = {
-        "task"};
+        "id", "task"};
 
     @Autowired
     private ResourceDAO resourceDAO;
@@ -150,6 +150,9 @@ public class TaskDataBinder {
         TaskExecTO executionTO = new TaskExecTO();
         BeanUtils.copyProperties(execution, executionTO,
                 IGNORE_TASK_EXECUTION_PROPERTIES);
+        if (execution.getId() != null) {
+            executionTO.setId(execution.getId());
+        }
         executionTO.setTask(execution.getTask().getId());
 
         return executionTO;

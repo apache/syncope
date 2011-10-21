@@ -221,4 +221,14 @@ public class TaskTestITCase extends AbstractTest {
         assertTrue("Expected " + (usersPre + 10) + ", found " + usersPost,
                 usersPost == usersPre + 10);
     }
+
+    @Test
+    public void issue196() {
+        TaskExecTO execution = restTemplate.getForObject(
+                BASE_URL + "task/execute/{taskId}",
+                TaskExecTO.class, 6);
+        assertNotNull(execution);
+        assertEquals(0, execution.getId());
+        assertNotNull(execution.getTask());
+    }
 }

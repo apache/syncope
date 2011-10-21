@@ -14,9 +14,9 @@
  */
 package org.syncope.core.persistence.dao;
 
-import java.util.HashSet;
 import static org.junit.Assert.*;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.identityconnectors.framework.common.objects.Attribute;
@@ -45,7 +45,7 @@ public class TaskTest extends AbstractTest {
     @Test
     public final void findAll() {
         List<PropagationTask> plist = taskDAO.findAll(PropagationTask.class);
-        assertEquals(3, plist.size());
+        assertEquals(4, plist.size());
 
         List<SchedTask> sclist = taskDAO.findAll(SchedTask.class);
         assertEquals(1, sclist.size());
