@@ -415,7 +415,8 @@ public class SyncJob extends AbstractJob {
                             List<PropagationTask> tasks =
                                     propagationManager.getCreateTaskIds(
                                     created.getKey(), userTO.getPassword(),
-                                    null, created.getValue());
+                                    null, created.getValue(),
+                                    syncTask.getResource().getName());
                             propagationManager.execute(tasks);
                         } catch (PropagationException e) {
                             LOG.error("Could not propagate user "
@@ -441,7 +442,8 @@ public class SyncJob extends AbstractJob {
                                 List<PropagationTask> tasks =
                                         propagationManager.getUpdateTaskIds(
                                         updated.getKey(), userMod.getPassword(),
-                                        null, null, null, updated.getValue());
+                                        null, null, null, updated.getValue(),
+                                        syncTask.getResource().getName());
                                 propagationManager.execute(tasks);
                             } catch (PropagationException e) {
                                 LOG.error("Could not propagate user "
@@ -467,7 +469,8 @@ public class SyncJob extends AbstractJob {
                     for (Long userId : userIds) {
                         try {
                             List<PropagationTask> tasks =
-                                    propagationManager.getDeleteTaskIds(userId);
+                                    propagationManager.getDeleteTaskIds(userId,
+                                    syncTask.getResource().getName());
                             propagationManager.execute(tasks);
                         } catch (Exception e) {
                             LOG.error("Could not propagate user " + userId, e);

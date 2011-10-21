@@ -161,6 +161,26 @@ public class PropagationManager {
             final Boolean enable)
             throws NotFoundException {
 
+        return getCreateTaskIds(userId, password, vAttrs, enable, null);
+    }
+
+    /**
+     * Create the user on every associated resource.
+     *
+     * @param userId to be created
+     * @param password to be set
+     * @param vAttrs virtual attributes to be set
+     * @param enable wether user must be enabled or not
+     * @param syncResourceName name of external resource performing sync, hence
+     * not to be considered for propagation
+     * @return list of propagation tasks
+     * @throws NotFoundException if userId is not found
+     */
+    public List<PropagationTask> getCreateTaskIds(final Long userId,
+            final String password, final List<AttributeTO> vAttrs,
+            final Boolean enable, final String syncResourceName)
+            throws NotFoundException {
+
         SyncopeUser user = getSyncopeUser(userId);
         if (vAttrs != null && !vAttrs.isEmpty()) {
             userDataBinder.fillVirtual(user, vAttrs, AttributableUtil.USER);
@@ -169,6 +189,9 @@ public class PropagationManager {
 
         final PropagationByResource propByRes = new PropagationByResource();
         propByRes.set(PropagationOperation.CREATE, user.getExternalResources());
+        if (syncResourceName != null) {
+            propByRes.get(PropagationOperation.CREATE).remove(syncResourceName);
+        }
 
         return provision(user, password, enable, propByRes);
     }
@@ -191,22 +214,50 @@ public class PropagationManager {
             final PropagationByResource propByRes)
             throws NotFoundException {
 
+        return getUpdateTaskIds(userId, password, vAttrsToBeRemoved,
+                vAttrsToBeAdded, enable, propByRes, null);
+    }
+
+    /**
+     * Performs update on each resource associated to the user.
+     *
+     * @param userId to be updated
+     * @param password to be updated
+     * @param vAttrsToBeRemoved virtual attributes to be removed
+     * @param vAttrsToBeAdded virtual attributes to be added
+     * @param enable wether user must be enabled or not
+     * @param propByRes operations to perform on each resource
+     * @param syncResourceName name of external resource performing sync, hence
+     * not to be considered for propagation
+     * @return list of propagation tasks
+     * @throws NotFoundException if userId is not found
+     */
+    public List<PropagationTask> getUpdateTaskIds(final Long userId,
+            final String password, final Set<String> vAttrsToBeRemoved,
+            final Set<String> vAttrsToBeAdded, final Boolean enable,
+            final PropagationByResource propByRes,
+            final String syncResourceName)
+            throws NotFoundException {
+
         SyncopeUser user = getSyncopeUser(userId);
+
         Set<String> vAttrsToRemove = vAttrsToBeRemoved == null
                 ? Collections.EMPTY_SET : vAttrsToBeRemoved;
         Set<String> vAttrsToAdd = vAttrsToBeAdded == null
                 ? Collections.EMPTY_SET : vAttrsToBeAdded;
-        PropagationByResource vPropByRes = userDataBinder.fillVirtual(user,
+        PropagationByResource localPropByRes = userDataBinder.fillVirtual(user,
                 vAttrsToRemove, vAttrsToAdd, AttributableUtil.USER);
-        propByRes.merge(vPropByRes);
 
-        PropagationByResource localPropByRes;
-        if (propByRes == null || propByRes.isEmpty()) {
-            localPropByRes = new PropagationByResource();
+        if (propByRes != null && !propByRes.isEmpty()) {
+            localPropByRes.merge(propByRes);
+        } else {
             localPropByRes.addAll(PropagationOperation.UPDATE,
                     user.getExternalResources());
-        } else {
-            localPropByRes = propByRes;
+        }
+        if (syncResourceName != null) {
+            propByRes.get(PropagationOperation.CREATE).remove(syncResourceName);
+            propByRes.get(PropagationOperation.UPDATE).remove(syncResourceName);
+            propByRes.get(PropagationOperation.DELETE).remove(syncResourceName);
         }
 
         return provision(user, password, enable, localPropByRes);
@@ -226,11 +277,34 @@ public class PropagationManager {
     public List<PropagationTask> getDeleteTaskIds(final Long userId)
             throws NotFoundException {
 
+        return getDeleteTaskIds(userId, null);
+    }
+
+    /**
+     * Perform delete on each resource associated to the user.
+     * It is possible to ask for a mandatory provisioning for some resources
+     * specifying a set of resource names.
+     * Exceptions won't be ignored and the process will be stopped if the
+     * creation fails onto a mandatory resource.
+     *
+     * @param userId to be deleted
+     * @param syncResourceName name of external resource performing sync, hence
+     * not to be considered for propagation
+     * @return list of propagation tasks
+     * @throws NotFoundException if user is not found
+     */
+    public List<PropagationTask> getDeleteTaskIds(final Long userId,
+            final String syncResourceName)
+            throws NotFoundException {
+
         SyncopeUser user = getSyncopeUser(userId);
 
         final PropagationByResource propByRes = new PropagationByResource();
         propByRes.set(PropagationOperation.DELETE,
                 user.getExternalResources());
+        if (syncResourceName != null) {
+            propByRes.get(PropagationOperation.DELETE).remove(syncResourceName);
+        }
 
         return provision(user, null, false, propByRes);
     }
