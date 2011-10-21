@@ -49,6 +49,8 @@ public class SchemaMappingValidator extends AbstractValidator
                 && IntMappingType.SyncopeUserId
                 != object.getIntMappingType()
                 && IntMappingType.Password
+                != object.getIntMappingType()
+                && IntMappingType.Username
                 != object.getIntMappingType()) {
             context.buildConstraintViolationWithTemplate(
                     "Missing source attribute name").addNode(

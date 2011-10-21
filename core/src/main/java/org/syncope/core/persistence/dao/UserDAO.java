@@ -25,6 +25,8 @@ public interface UserDAO extends DAO {
 
     SyncopeUser find(Long id);
 
+    SyncopeUser find(String username);
+
     SyncopeUser findByWorkflowId(String workflowId);
 
     List<SyncopeUser> findByDerAttrValue(String schemaName, String value)

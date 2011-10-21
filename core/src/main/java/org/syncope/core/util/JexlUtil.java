@@ -29,6 +29,7 @@ import org.syncope.core.persistence.beans.AbstractAttr;
 import org.syncope.core.persistence.beans.AbstractAttributable;
 import org.syncope.core.persistence.beans.AbstractDerAttr;
 import org.syncope.core.persistence.beans.AbstractVirAttr;
+import org.syncope.core.persistence.beans.user.SyncopeUser;
 
 /**
  * @see http://commons.apache.org/jexl/reference/index.html
@@ -85,6 +86,30 @@ public class JexlUtil {
             final AbstractAttributable attributable) {
 
         final JexlContext jexlContext = new MapContext();
+
+        if (attributable instanceof SyncopeUser) {
+            jexlContext.set("username",
+                    ((SyncopeUser) attributable).getUsername() != null
+                    ? ((SyncopeUser) attributable).getUsername() : "");
+            jexlContext.set("creationDate",
+                    ((SyncopeUser) attributable).getCreationDate() != null
+                    ? ((SyncopeUser) attributable).getDateFormatter().
+                    format(((SyncopeUser) attributable).getCreationDate())
+                    : "");
+            jexlContext.set("lastLoginDate",
+                    ((SyncopeUser) attributable).getLastLoginDate() != null
+                    ? ((SyncopeUser) attributable).getDateFormatter().
+                    format(((SyncopeUser) attributable).getLastLoginDate())
+                    : "");
+            jexlContext.set("failedLogins",
+                    ((SyncopeUser) attributable).getFailedLogins() != null
+                    ? ((SyncopeUser) attributable).getFailedLogins() : "");
+            jexlContext.set("changePwdDate",
+                    ((SyncopeUser) attributable).getChangePwdDate() != null
+                    ? ((SyncopeUser) attributable).getDateFormatter().
+                    format(((SyncopeUser) attributable).getChangePwdDate())
+                    : "");
+        }
 
         addAttributesToContext(
                 attributable.getAttributes(),

@@ -21,6 +21,7 @@ import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import org.apache.commons.jexl2.JexlContext;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.util.ApplicationContextManager;
 import org.syncope.core.util.JexlUtil;
 
@@ -28,6 +29,7 @@ import org.syncope.core.util.JexlUtil;
 public abstract class AbstractDerAttr extends AbstractBaseBean {
 
     private static final long serialVersionUID = 4740924251090424771L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     protected Long id;
@@ -45,13 +47,35 @@ public abstract class AbstractDerAttr extends AbstractBaseBean {
     public String getValue(
             final Collection<? extends AbstractAttr> attributes) {
 
-        ConfigurableApplicationContext context =
+        final ConfigurableApplicationContext context =
                 ApplicationContextManager.getApplicationContext();
-        JexlUtil jexlUtil = context.getBean(JexlUtil.class);
+        final JexlUtil jexlUtil = context.getBean(JexlUtil.class);
 
         // Prepare context using user attributes
-        JexlContext jexlContext = jexlUtil.addAttributesToContext(
+        final JexlContext jexlContext = jexlUtil.addAttributesToContext(
                 attributes, null);
+
+        final AbstractAttributable owner = getOwner();
+        if (owner instanceof SyncopeUser) {
+            jexlContext.set("username",
+                    ((SyncopeUser) owner).getUsername() != null
+                    ? ((SyncopeUser) owner).getUsername() : "");
+            jexlContext.set("creationDate",
+                    ((SyncopeUser) owner).getCreationDate() != null
+                    ? ((SyncopeUser) owner).getDateFormatter().
+                    format(((SyncopeUser) owner).getCreationDate()) : "");
+            jexlContext.set("lastLoginDate",
+                    ((SyncopeUser) owner).getLastLoginDate() != null
+                    ? ((SyncopeUser) owner).getDateFormatter().
+                    format(((SyncopeUser) owner).getLastLoginDate()) : "");
+            jexlContext.set("failedLogins",
+                    ((SyncopeUser) owner).getFailedLogins() != null
+                    ? ((SyncopeUser) owner).getFailedLogins() : "");
+            jexlContext.set("changePwdDate",
+                    ((SyncopeUser) owner).getChangePwdDate() != null
+                    ? ((SyncopeUser) owner).getDateFormatter().
+                    format(((SyncopeUser) owner).getChangePwdDate()) : "");
+        }
 
         // Evaluate expression using the context prepared before
         return jexlUtil.evaluate(

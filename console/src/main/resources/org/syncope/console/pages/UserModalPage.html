@@ -70,14 +70,19 @@
 
                         <div class="tablerow">
                             <div class="tablecolumn_label short_dynamicsize">
+                                <wicket:message key="username"/>
+                            </div>
+                            <div class="tablecolumn_field medium_dynamicsize">
+                                <span wicket:id="username" />
+                            </div>
+                        </div>
+
+                        <div class="tablerow">
+                            <div class="tablecolumn_label short_dynamicsize">
                                 <wicket:message key="password"/>
                             </div>
                             <div class="tablecolumn_field medium_dynamicsize">
-                                <input type="password"
-                                       class="ui-widget-content ui-corner-all"
-                                       size="40px"
-                                       wicket:id="password"/>
-
+                                <span wicket:id="password" />
                                 <span wicket:id="mandatory_pwd">*</span>
                             </div>
                         </div>

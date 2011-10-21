@@ -104,7 +104,7 @@ public class RoleTestITCase extends AbstractTest {
 
         selenium.click("css=img[alt=\"Roles\"]");
         selenium.waitForPageToLoad("30000");
-        selenium.click("//div[9]/span/span/span/a[2]/span[2]");
+        selenium.click("//div[5]/span/span/span/a[2]/span[2]");
         selenium.click("//span[2]/span/span/span/a[2]");
 
         for (int second = 0;; second++) {
@@ -131,13 +131,14 @@ public class RoleTestITCase extends AbstractTest {
         } catch (InterruptedException e) {
         }
 
-        assertTrue(selenium.isElementPresent("//div[@id='formtable']"));
+        assertTrue(selenium.isElementPresent("//label[@for='passwordPolicy']"));
 
         selenium.click("//div[@id='tabs']/ul/li[1]/a/span");
         selenium.click("//div[@id='tabs']/ul/li[2]/a/span");
         selenium.click("//div[@id='tabs']/ul/li[3]/a/span");
         selenium.click("//div[@id='tabs']/ul/li[4]/a/span");
         selenium.click("//div[@id='tabs']/ul/li[5]/a/span");
+
         selenium.click("css=a.w_close");
         selenium.waitForPageToLoad("30000");
     }

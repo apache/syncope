@@ -36,12 +36,15 @@ import org.syncope.console.commons.PreferenceManager;
  */
 public class DisplayAttributesModalPage extends BaseModalPage {
 
+    private static final long serialVersionUID = -4274117450918385110L;
+
     @SpringBean
     private PreferenceManager prefMan;
 
     private final List<String> selectedSchemas;
 
-    public DisplayAttributesModalPage(final PageReference callerPageRef,
+    public DisplayAttributesModalPage(
+            final PageReference callerPageRef,
             final IModel<List<String>> schemaNames,
             final ModalWindow window) {
 

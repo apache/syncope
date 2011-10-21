@@ -23,6 +23,7 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
+import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
@@ -38,13 +39,13 @@ import org.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.syncope.types.PolicyType;
 
-public class SecurityPanel extends Panel {
+public class RoleSecurityPanel extends Panel {
 
     /**
      * Logger.
      */
     protected static final Logger LOG =
-            LoggerFactory.getLogger(SecurityPanel.class);
+            LoggerFactory.getLogger(RoleSecurityPanel.class);
 
     private static final long serialVersionUID = -7982691107029848579L;
 
@@ -55,7 +56,7 @@ public class SecurityPanel extends Panel {
 
     IModel<Map<Long, String>> accountPolicies = null;
 
-    public <T extends AbstractAttributableTO> SecurityPanel(
+    public <T extends AbstractAttributableTO> RoleSecurityPanel(
             final String id, final T entityTO) {
 
         super(id);
@@ -114,6 +115,8 @@ public class SecurityPanel extends Panel {
         passwordPolicy.setChoices(
                 new ArrayList<Long>(passwordPolicies.getObject().keySet()));
 
+        ((DropDownChoice) passwordPolicy.getField()).setNullValid(true);
+
         securityContainer.add(passwordPolicy);
 
         final AjaxCheckBoxPanel inhPasswordPolicy = new AjaxCheckBoxPanel(
@@ -157,6 +160,8 @@ public class SecurityPanel extends Panel {
 
         accountPolicy.setChoices(
                 new ArrayList<Long>(accountPolicies.getObject().keySet()));
+
+        ((DropDownChoice) accountPolicy.getField()).setNullValid(true);
 
         securityContainer.add(accountPolicy);
 

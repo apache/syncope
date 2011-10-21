@@ -53,8 +53,8 @@ public class SchemaTest extends AbstractTest {
 
     @Test
     public final void test1() {
-        // search for user schema username
-        USchema schema = schemaDAO.find("username", USchema.class);
+        // search for user schema fullname
+        USchema schema = schemaDAO.find("fullname", USchema.class);
 
         assertNotNull(schema);
 
@@ -70,20 +70,20 @@ public class SchemaTest extends AbstractTest {
         }
         assertFalse(mappings.isEmpty());
 
-        // delete user schema username
-        schemaDAO.delete("username", AttributableUtil.USER);
+        // delete user schema fullname
+        schemaDAO.delete("fullname", AttributableUtil.USER);
 
         schemaDAO.flush();
 
         // check for schema deletion
-        schema = schemaDAO.find("username", USchema.class);
+        schema = schemaDAO.find("fullname", USchema.class);
 
         assertNull(schema);
 
         // check for mappings deletion
         mappings = new HashSet<SchemaMapping>();
         for (SchemaMapping mapping : resourceDAO.findAllMappings()) {
-            if ("username".equals(mapping.getIntAttrName())
+            if ("fullname".equals(mapping.getIntAttrName())
                     && mapping.getIntMappingType()
                     == IntMappingType.UserSchema) {
 
@@ -94,14 +94,14 @@ public class SchemaTest extends AbstractTest {
 
         assertNull(attrDAO.find(100L, UAttr.class));
         assertNull(attrDAO.find(300L, UAttr.class));
-        assertNull(userDAO.find(1L).getAttribute("username"));
-        assertNull(userDAO.find(3L).getAttribute("username"));
+        assertNull(userDAO.find(1L).getAttribute("fullname"));
+        assertNull(userDAO.find(3L).getAttribute("fullname"));
     }
 
     @Test
     public void test2() {
 
-        // search for user schema username
+        // search for user schema fullname
         USchema schema = schemaDAO.find("surname", USchema.class);
 
         assertNotNull(schema);
@@ -118,7 +118,7 @@ public class SchemaTest extends AbstractTest {
         }
         assertFalse(mappings.isEmpty());
 
-        // delete user schema username
+        // delete user schema fullname
         schemaDAO.delete("surname", AttributableUtil.USER);
 
         schemaDAO.flush();

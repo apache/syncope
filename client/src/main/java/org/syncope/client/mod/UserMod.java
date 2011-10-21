@@ -23,6 +23,8 @@ public class UserMod extends AbstractAttributableMod {
 
     private String password;
 
+    private String username;
+
     private Set<MembershipMod> membershipsToBeAddeded;
 
     private Set<Long> membershipsToBeRemoved;
@@ -48,6 +50,14 @@ public class UserMod extends AbstractAttributableMod {
 
     public void setMembershipsToBeAdded(Set<MembershipMod> membershipMods) {
         this.membershipsToBeAddeded = membershipMods;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getPassword() {

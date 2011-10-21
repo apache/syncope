@@ -54,7 +54,6 @@ public class SchemaDataBinder {
     private <T extends AbstractDerSchema> AbstractSchema populate(
             final AbstractSchema schema,
             final SchemaTO schemaTO,
-            final Class<T> derivedReference,
             final SyncopeClientCompositeErrorException scce)
             throws SyncopeClientCompositeErrorException {
 
@@ -88,11 +87,10 @@ public class SchemaDataBinder {
 
     public <T extends AbstractDerSchema> AbstractSchema create(
             final SchemaTO schemaTO,
-            AbstractSchema schema,
-            final Class<T> derivedReference)
+            AbstractSchema schema)
             throws SyncopeClientCompositeErrorException {
 
-        return populate(schema, schemaTO, derivedReference,
+        return populate(schema, schemaTO,
                 new SyncopeClientCompositeErrorException(
                 HttpStatus.BAD_REQUEST));
     }
@@ -107,8 +105,7 @@ public class SchemaDataBinder {
                 new SyncopeClientCompositeErrorException(
                 HttpStatus.BAD_REQUEST);
 
-        schema = populate(schema, schemaTO,
-                attributableUtil.derivedSchemaClass(), scce);
+        schema = populate(schema, schemaTO, scce);
 
         boolean validationExceptionFound = false;
         AbstractAttr attribute;
@@ -135,7 +132,8 @@ public class SchemaDataBinder {
 
         if (validationExceptionFound) {
             SyncopeClientException e = new SyncopeClientException(
-                    SyncopeClientExceptionType.InvalidSchema);
+                    SyncopeClientExceptionType.valueOf(
+                    "Invalid" + schema.getClass().getSimpleName()));
             e.addElement(schema.getName());
 
             scce.addException(e);

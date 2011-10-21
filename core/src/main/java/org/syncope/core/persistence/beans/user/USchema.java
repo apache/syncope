@@ -17,8 +17,12 @@ package org.syncope.core.persistence.beans.user;
 import javax.persistence.Cacheable;
 import javax.persistence.Entity;
 import org.syncope.core.persistence.beans.AbstractSchema;
+import org.syncope.core.persistence.validation.entity.USchemaCheck;
 
 @Entity
 @Cacheable
+@USchemaCheck
 public class USchema extends AbstractSchema {
+
+    private static final long serialVersionUID = -2776513645999914610L;
 }

@@ -50,9 +50,8 @@ public class SchemaController extends AbstractController {
             @PathVariable("kind") final String kind)
             throws SyncopeClientCompositeErrorException {
 
-        AbstractSchema schema = schemaDataBinder.create(schemaTO,
-                getAttributableUtil(kind).newSchema(),
-                getAttributableUtil(kind).derivedSchemaClass());
+        AbstractSchema schema = schemaDataBinder.create(
+                schemaTO, getAttributableUtil(kind).newSchema());
 
         schema = schemaDAO.save(schema);
 

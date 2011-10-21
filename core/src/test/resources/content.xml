@@ -29,11 +29,14 @@
     <Policy DTYPE="PasswordPolicy" id="4" description="sample password policy" type="PASSWORD" specification="%3C%3Fxml+version%3D%221.0%22+encoding%3D%22UTF-8%22%3F%3E+%0A%3Cjava+version%3D%221.6.0_26%22+class%3D%22java.beans.XMLDecoder%22%3E+%0A+%3Cobject+class%3D%22org.syncope.types.PasswordPolicySpec%22%3E+%0A++%3Cvoid+property%3D%22historyLength%22%3E+%0A+++%3Cint%3E0%3C/int%3E+%0A++%3C/void%3E+%0A++%3Cvoid+property%3D%22minLength%22%3E+%0A+++%3Cint%3E10%3C/int%3E+%0A++%3C/void%3E+%0A++%3Cvoid+property%3D%22prefixesNotPermitted%22%3E+%0A+++%3Cvoid+method%3D%22add%22%3E+%0A++++%3Cstring%3Enotpermitted1%3C/string%3E+%0A+++%3C/void%3E+%0A+++%3Cvoid+method%3D%22add%22%3E+%0A++++%3Cstring%3Enotpermitted2%3C/string%3E+%0A+++%3C/void%3E+%0A++%3C/void%3E+%0A+%3C/object%3E+%0A%3C/java%3E+"/>
     <Policy DTYPE="AccountPolicy" id="5" description="global account policy" type="GLOBAL_ACCOUNT" specification="%3C%3Fxml+version%3D%221.0%22+encoding%3D%22UTF-8%22%3F%3E+%0A%3Cjava+version%3D%221.6.0_26%22+class%3D%22java.beans.XMLDecoder%22%3E+%0A+%3Cobject+class%3D%22org.syncope.types.AccountPolicySpec%22%3E%0A+%3C/object%3E+%0A%3C/java%3E+"/>
     <Policy DTYPE="AccountPolicy" id="6" description="sample account policy" type="ACCOUNT" specification="%3C%3Fxml+version%3D%221.0%22+encoding%3D%22UTF-8%22%3F%3E+%0A%3Cjava+version%3D%221.6.0_26%22+class%3D%22java.beans.XMLDecoder%22%3E+%0A+%3Cobject+class%3D%22org.syncope.types.AccountPolicySpec%22%3E%0A+%3C/object%3E+%0A%3C/java%3E+"/>
-                          
-    <SyncopeUser id="1" workflowId="0" status="active" password="5f4dcc3b5aa765d61d8327deb882cf99" cipherAlgorithm="MD5"/>
-    <SyncopeUser id="2" workflowId="0" status="active" password="5f4dcc3b5aa765d61d8327deb882cf99" cipherAlgorithm="MD5"/>
-    <SyncopeUser id="3" workflowId="0" status="active" password="5f4dcc3b5aa765d61d8327deb882cf99" cipherAlgorithm="MD5"/>
-    <SyncopeUser id="4" workflowId="0" status="active" password="5f4dcc3b5aa765d61d8327deb882cf99" cipherAlgorithm="MD5"/>
+    <SyncopeUser id="1" workflowId="0" status="active" password="5f4dcc3b5aa765d61d8327deb882cf99" cipherAlgorithm="MD5"
+                 username="user1" creationDate="2010-10-20 11:00:00"/>
+    <SyncopeUser id="2" workflowId="0" status="active" password="5f4dcc3b5aa765d61d8327deb882cf99" cipherAlgorithm="MD5"
+                 username="user2" creationDate="2010-10-20 11:00:00"/>
+    <SyncopeUser id="3" workflowId="0" status="active" password="5f4dcc3b5aa765d61d8327deb882cf99" cipherAlgorithm="MD5"
+                 username="user3" creationDate="2010-10-20 11:00:00"/>
+    <SyncopeUser id="4" workflowId="0" status="active" password="5f4dcc3b5aa765d61d8327deb882cf99" cipherAlgorithm="MD5"
+                 username="user4" creationDate="2010-10-20 11:00:00"/>
 
     <SyncopeRole id="1" name="root"/>
     <SyncopeRole id="2" name="child" parent_id="1"/>
@@ -64,7 +67,7 @@
     <Membership id="5" syncopeUser_id="1" syncopeRole_id="8"/>
     <Membership id="6" syncopeUser_id="2" syncopeRole_id="3"/>
 
-    <USchema name="username" type="String"
+    <USchema name="fullname" type="String"
                 mandatoryCondition="true" multivalue="0" uniqueConstraint="1" readonly="0"/>
     <USchema name="userId" type="String"
                 mandatoryCondition="true" multivalue="0" uniqueConstraint="1" readonly="0"
@@ -116,21 +119,21 @@
     <MSchema name="mderived_dx" type="String"
                       mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
 
-    <UAttr id="100" owner_id="1" schema_name="username"/>
-    <UAttrUniqueValue id="10" attribute_id="100" schema_name="username" stringValue="chicchiricco"/>
+    <UAttr id="100" owner_id="1" schema_name="fullname"/>
+    <UAttrUniqueValue id="10" attribute_id="100" schema_name="fullname" stringValue="chicchiricco"/>
     <UAttr id="200" owner_id="1" schema_name="loginDate"/>
     <UAttrValue attribute_id="200" id="20" dateValue="2009-05-26"/>
     <UAttrValue attribute_id="200" id="21" dateValue="2010-05-26 15:40:04"/>
 
-    <UAttr id="300" owner_id="2" schema_name="username"/>
-    <UAttrUniqueValue id="11" attribute_id="300" schema_name="username" stringValue="fabio.martelli"/>
+    <UAttr id="300" owner_id="2" schema_name="fullname"/>
+    <UAttrUniqueValue id="11" attribute_id="300" schema_name="fullname" stringValue="fabio.martelli"/>
 
     <UAttr id="400" owner_id="3" schema_name="firstname"/>
     <UAttrValue attribute_id="400" id="30" stringValue="John"/>
     <UAttr id="500" owner_id="3" schema_name="surname"/>
     <UAttrValue attribute_id="500" id="31" stringValue="Doe"/>
-    <UAttr id="540" owner_id="3" schema_name="username"/>
-    <UAttrUniqueValue id="12" attribute_id="540" schema_name="username" stringValue="testUsername"/>
+    <UAttr id="540" owner_id="3" schema_name="fullname"/>
+    <UAttrUniqueValue id="12" attribute_id="540" schema_name="fullname" stringValue="testUsername"/>
 
     <UAttr id="550" owner_id="4" schema_name="loginDate"/>
     <UAttrValue attribute_id="550" id="22" dateValue="2009-06-24"/>
@@ -279,7 +282,7 @@
 
     <SchemaMapping id="101" extAttrName="userId"
                    resource_name="ws-target-resource-2"
-                   intAttrName="username" intMappingType="UserSchema" mandatoryCondition="true"
+                   intAttrName="fullname" intMappingType="UserSchema" mandatoryCondition="true"
                    accountid="1" password="0"/>
 
     <SchemaMapping id="102" extAttrName="email"
@@ -334,7 +337,7 @@
     
     <SchemaMapping id="112" extAttrName="test3"
                    resource_name="ws-target-resource-update"
-                   intAttrName="username" intMappingType="UserSchema" mandatoryCondition="false"
+                   intAttrName="fullname" intMappingType="UserSchema" mandatoryCondition="false"
                    accountid="0" password="0"/>
 
     <SchemaMapping id="113" extAttrName="name"
@@ -349,7 +352,7 @@
 
     <SchemaMapping id="115" extAttrName="name"
                    resource_name="ws-target-resource-nopropagation"
-                   intAttrName="username" intMappingType="UserSchema" mandatoryCondition="true"
+                   intAttrName="fullname" intMappingType="UserSchema" mandatoryCondition="true"
                    accountid="1" password="0"/>
                    
     <SchemaMapping id="116" extAttrName="id"
@@ -364,25 +367,29 @@
 
     <SchemaMapping id="200" extAttrName="id"
                    resource_name="resource-csv"
-                   intAttrName="username" intMappingType="UserSchema" mandatoryCondition="true"
+                   intMappingType="Username" mandatoryCondition="true"
                    accountid="0" password="0"/>
-    <SchemaMapping id="201" extAttrName="password"
+    <SchemaMapping id="201" extAttrName="id"
+                   resource_name="resource-csv"
+                   intAttrName="fullname" intMappingType="UserSchema" mandatoryCondition="true"
+                   accountid="0" password="0"/>
+    <SchemaMapping id="202" extAttrName="password"
                    resource_name="resource-csv"
                    intMappingType="Password" mandatoryCondition="true"
                    accountid="0" password="1"/>
-    <SchemaMapping id="202" extAttrName="name"
+    <SchemaMapping id="203" extAttrName="name"
                    resource_name="resource-csv"
                    intAttrName="firstname" intMappingType="UserSchema" mandatoryCondition="false"
                    accountid="0" password="0"/>
-    <SchemaMapping id="203" extAttrName="surname"
+    <SchemaMapping id="204" extAttrName="surname"
                    resource_name="resource-csv"
                    intAttrName="surname" intMappingType="UserSchema" mandatoryCondition="false"
                    accountid="0" password="0"/>
-    <SchemaMapping id="204" extAttrName="email"
+    <SchemaMapping id="205" extAttrName="email"
                    resource_name="resource-csv"
                    intAttrName="userId" intMappingType="UserSchema" mandatoryCondition="true"
                    accountid="0" password="0"/>
-    <SchemaMapping id="205" extAttrName="IGNORE"
+    <SchemaMapping id="206" extAttrName="IGNORE"
                    resource_name="resource-csv"
                    intAttrName="csvuserid" intMappingType="UserDerivedSchema" mandatoryCondition="true"
                    accountid="1" password="0"/>
@@ -475,5 +482,6 @@
     <SyncopeRole_Entitlement entitlements_name="USER_READ" roles_id="7"/>
     <SyncopeRole_Entitlement entitlements_name="USER_LIST" roles_id="7"/>
     <SyncopeRole_Entitlement entitlements_name="ROLE_8" roles_id="7"/>
+    <SyncopeRole_Entitlement entitlements_name="ROLE_7" roles_id="7"/>
     <SyncopeRole_Entitlement entitlements_name="ROLE_1" roles_id="7"/>
 </dataset>

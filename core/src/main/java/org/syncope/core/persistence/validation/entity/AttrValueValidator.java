@@ -79,7 +79,8 @@ public class AttrValueValidator extends AbstractValidator
 
                     context.disableDefaultConstraintViolation();
                     context.buildConstraintViolationWithTemplate(
-                            EntityViolationType.InvalidSchema.toString()).
+                            EntityViolationType.valueOf("Invalid"
+                            + attrSchema.getClass().getSimpleName()).toString()).
                             addNode(object.getClass().getSimpleName()
                             + "[" + object.getId() + "].schema="
                             + uniqueValueSchema

@@ -14,11 +14,13 @@
  */
 package org.syncope.core.rest.data;
 
+import java.util.Date;
 import org.syncope.core.util.AttributableUtil;
 import java.util.HashSet;
 import java.util.Set;
 import javassist.NotFoundException;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,6 +55,13 @@ import org.syncope.types.SyncopeClientExceptionType;
 })
 public class UserDataBinder extends AbstractAttributableDataBinder {
 
+    private static final String[] IGNORE_USER_PROPERTIES = {
+        "memberships",
+        "attributes",
+        "derivedAttributes",
+        "virtualAttributes",
+        "resources"};
+
     @Transactional(readOnly = true)
     public SyncopeUser getUserFromId(final Long userId)
             throws NotFoundException, UnauthorizedRoleException {
@@ -79,24 +88,6 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         SyncopeClientCompositeErrorException scce =
                 new SyncopeClientCompositeErrorException(
                 HttpStatus.BAD_REQUEST);
-
-        // password
-        int passwordHistorySize = 0;
-
-        try {
-            Policy policy = policyDAO.getGlobalPasswordPolicy();
-            PasswordPolicySpec passwordPolicy = policy.getSpecification();
-            passwordHistorySize = passwordPolicy.getHistoryLength();
-        } catch (Throwable ignore) {
-            // ignore exceptions
-        }
-
-        if (userTO.getPassword() == null || userTO.getPassword().isEmpty()) {
-            LOG.error("No password provided");
-        } else {
-            user.setPassword(userTO.getPassword(), getCipherAlgoritm(),
-                    passwordHistorySize);
-        }
 
         // memberships
         SyncopeRole role;
@@ -130,6 +121,30 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
         // attributes, derived attributes, virtual attributes and resources
         fill(user, userTO, AttributableUtil.USER, scce);
+
+        // set password
+        int passwordHistorySize = 0;
+
+        try {
+            Policy policy = policyDAO.getGlobalPasswordPolicy();
+            PasswordPolicySpec passwordPolicy = policy.getSpecification();
+            passwordHistorySize = passwordPolicy.getHistoryLength();
+        } catch (Throwable ignore) {
+            // ignore exceptions
+        }
+
+        if (userTO.getPassword() == null || userTO.getPassword().isEmpty()) {
+            LOG.error("No password provided");
+        } else {
+            user.setPassword(userTO.getPassword(), getCipherAlgoritm(),
+                    passwordHistorySize);
+        }
+
+        // set username
+        user.setUsername(userTO.getUsername());
+
+        // set creation date (at execution time)
+        user.setCreationDate(new Date());
     }
 
     /**
@@ -169,8 +184,18 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
             user.setPassword(userMod.getPassword(), getCipherAlgoritm(),
                     passwordHistorySize);
-            propByRes.addAll(PropagationOperation.UPDATE,
-                    user.getExternalResources());
+
+            user.setChangePwdDate(new Date());
+
+            propByRes.addAll(
+                    PropagationOperation.UPDATE, user.getExternalResources());
+        }
+
+        // username
+        if (userMod.getUsername() != null) {
+            user.setUsername(userMod.getUsername());
+            propByRes.addAll(
+                    PropagationOperation.UPDATE, user.getExternalResources());
         }
 
         // attributes, derived attributes, virtual attributes and resources
@@ -309,11 +334,8 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         SyncopeUser user = userDAO.find(userId);
 
         UserTO userTO = new UserTO();
-        userTO.setId(user.getId());
-        userTO.setToken(user.getToken());
-        userTO.setTokenExpireTime(user.getTokenExpireTime());
-        userTO.setPassword(user.getPassword());
-        userTO.setStatus(user.getStatus());
+
+        BeanUtils.copyProperties(user, userTO, IGNORE_USER_PROPERTIES);
 
         fillTO(userTO,
                 user.getAttributes(),

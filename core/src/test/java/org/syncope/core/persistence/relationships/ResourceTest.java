@@ -76,7 +76,7 @@ public class ResourceTest extends AbstractTest {
     public final void createWithPasswordPolicy() {
         final String RESOURCE_NAME = "resourceWithPasswordPolicy";
 
-        PasswordPolicy policy = (PasswordPolicy)policyDAO.find(4L);
+        PasswordPolicy policy = (PasswordPolicy) policyDAO.find(4L);
         ExternalResource resource = new ExternalResource();
         resource.setName(RESOURCE_NAME);
         resource.setPasswordPolicy(policy);
@@ -168,8 +168,7 @@ public class ResourceTest extends AbstractTest {
         connector.addResource(resource);
 
         // search for the user schema
-        USchema userSchema =
-                schemaDAO.find("username", USchema.class);
+        final USchema userSchema = schemaDAO.find("fullname", USchema.class);
 
         SchemaMapping mapping = null;
 

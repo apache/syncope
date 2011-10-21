@@ -196,6 +196,12 @@ public class SyncJob extends AbstractJob {
                             ? Collections.EMPTY_LIST : attribute.getValue()));
                     break;
 
+                case Username:
+                    userTO.setUsername(
+                            attribute == null || attribute.getValue().isEmpty()
+                            ? null : attribute.getValue().get(0).toString());
+                    break;
+
                 case UserSchema:
                     attributeTO = new AttributeTO();
                     attributeTO.setSchema(mapping.getIntAttrName());
@@ -263,6 +269,12 @@ public class SyncJob extends AbstractJob {
                     attribute = obj.getAttributeByName("__PASSWORD__");
                     userMod.setPassword(getPassword(attribute == null
                             ? Collections.EMPTY_LIST : attribute.getValue()));
+                    break;
+
+                case Username:
+                    if (values != null && !values.isEmpty()) {
+                        userMod.setUsername(values.get(0).toString());
+                    }
                     break;
 
                 case UserSchema:

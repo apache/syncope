@@ -114,7 +114,8 @@ public class ResourceDAOImpl extends AbstractDAOImpl
             final IntMappingType intMappingType) {
 
         if (intMappingType == IntMappingType.SyncopeUserId
-                || intMappingType == IntMappingType.Password) {
+                || intMappingType == IntMappingType.Password
+                || intMappingType == IntMappingType.Username) {
 
             return;
         }

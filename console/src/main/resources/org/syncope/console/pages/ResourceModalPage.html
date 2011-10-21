@@ -47,6 +47,7 @@
                     <li  class="tabs-selected"><a href="#resource"><span><wicket:message key="resource"/></span></a></li>
                     <li><a href="#mappings"><span><wicket:message key="mappings"/></span></a></li>
                     <li><a href="#connectorProperties"><span><wicket:message key="connectorProperties"/></span></a></li>
+                    <li><a href="#security"><span><wicket:message key="security"/></span></a></li>
                 </ul>
                 <div id="resource">
                     <div id="formtable">
@@ -201,12 +202,14 @@
                             </div>
                         </div>
                     </div>
+
                     <script type="text/javascript">
                         $(function() {
                             $('div#mappings div#formtable div.tablerow:even').addClass("alt");
                         });
                     </script>
                 </div>
+
                 <div id="connectorProperties">
                     <span wicket:id="connectorPropertiesContainer">
                         <div id="formtable">
@@ -227,7 +230,18 @@
                         </script>
                     </span>
                 </div>
+
+                <div id="security">
+                    <span wicket:id="security">[security]</span>
+                </div>
+
+                <script type="text/javascript">
+                    $(function() {
+                        $('div#security div#formtable div.tablerow:even').addClass("alt");
+                    });
+                </script>
             </div>
+
             <div style="margin: 20px 10px 0">
                 <input type="submit"
                        class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"

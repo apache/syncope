@@ -160,16 +160,16 @@ public class AttrTest extends AbstractTest {
                 userSchemaDAO.find("email", USchema.class);
         assertNotNull(emailSchema);
 
-        final USchema usernameSchema =
-                userSchemaDAO.find("username", USchema.class);
-        assertNotNull(usernameSchema);
+        final USchema fullnameSchema =
+                userSchemaDAO.find("fullname", USchema.class);
+        assertNotNull(fullnameSchema);
 
         UAttr attribute = new UAttr();
         attribute.setSchema(emailSchema);
 
         UAttrUniqueValue uauv = new UAttrUniqueValue();
         uauv.setAttribute(attribute);
-        uauv.setSchema(usernameSchema);
+        uauv.setSchema(fullnameSchema);
         uauv.setStringValue("a value");
 
         attribute.setUniqueValue(uauv);
@@ -184,7 +184,7 @@ public class AttrTest extends AbstractTest {
         // for attribute
         assertTrue(iee.hasViolation(EntityViolationType.InvalidValueList));
         // for uauv
-        assertTrue(iee.hasViolation(EntityViolationType.InvalidSchema));
+        assertTrue(iee.hasViolation(EntityViolationType.InvalidUSchema));
     }
 
     @Test

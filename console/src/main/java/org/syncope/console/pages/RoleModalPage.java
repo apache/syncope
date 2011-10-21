@@ -43,7 +43,7 @@ import org.syncope.console.rest.EntitlementRestClient;
 import org.syncope.console.rest.RoleRestClient;
 import org.syncope.console.pages.panels.DerivedAttributesPanel;
 import org.syncope.console.pages.panels.ResourcesPanel;
-import org.syncope.console.pages.panels.SecurityPanel;
+import org.syncope.console.pages.panels.RoleSecurityPanel;
 import org.syncope.console.pages.panels.VirtualAttributesPanel;
 import org.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
@@ -142,7 +142,7 @@ public class RoleModalPage extends BaseModalPage {
         //--------------------------------
         // Security container
         //--------------------------------
-        form.add(new SecurityPanel("security", roleTO));
+        form.add(new RoleSecurityPanel("security", roleTO));
         //--------------------------------
 
         form.add(new ResourcesPanel("resources", roleTO));

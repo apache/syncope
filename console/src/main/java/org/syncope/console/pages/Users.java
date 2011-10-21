@@ -591,7 +591,10 @@ public class Users extends BasePage {
 
     private List<IColumn<UserTO>> getColumns(final ModalWindow editModalWin) {
         List<IColumn<UserTO>> columns = new ArrayList<IColumn<UserTO>>();
-        columns.add(new PropertyColumn(new ResourceModel("id"), "id", "id"));
+        columns.add(new PropertyColumn(
+                new ResourceModel("id"), "id", "id"));
+        columns.add(new PropertyColumn(
+                new ResourceModel("username"), "username", "username"));
         columns.add(new PropertyColumn(
                 new ResourceModel("status"), "status", "status"));
         columns.add(new TokenColumn(new ResourceModel("token"), "token"));
@@ -898,8 +901,8 @@ public class Users extends BasePage {
 
         private final String schemaName;
 
-        public UserAttrColumn(final IModel<String> displayModel,
-                final String schemaName) {
+        public UserAttrColumn(
+                final IModel<String> displayModel, final String schemaName) {
 
             super(displayModel,
                     schemaName.startsWith(DERIVED_ATTRIBUTE_PREFIX)
@@ -976,8 +979,7 @@ public class Users extends BasePage {
             }
 
             final CheckBox notOperator = new CheckBox("notOperator",
-                    new PropertyModel(searchCondition,
-                    "notOperator"));
+                    new PropertyModel(searchCondition,"notOperator"));
             notOperator.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
                 private static final long serialVersionUID =

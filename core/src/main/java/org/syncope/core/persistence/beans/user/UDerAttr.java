@@ -24,6 +24,8 @@ import org.syncope.core.persistence.beans.AbstractDerSchema;
 @Entity
 public class UDerAttr extends AbstractDerAttr {
 
+    private static final long serialVersionUID = 4723044452807292060L;
+
     @ManyToOne
     private SyncopeUser owner;
 

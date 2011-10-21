@@ -24,10 +24,9 @@ import java.util.Set;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToMany;
 import javax.persistence.MappedSuperclass;
-import org.syncope.core.persistence.validation.entity.AttributableCheck;
+import org.syncope.core.persistence.validation.entity.SyncopeUserCheck;
 
 @MappedSuperclass
-@AttributableCheck
 public abstract class AbstractAttributable extends AbstractBaseBean {
 
     private static final long serialVersionUID = -4801685541488201119L;

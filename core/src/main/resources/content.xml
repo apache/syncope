@@ -30,7 +30,7 @@
                 mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"
                 validatorClass="org.syncope.core.persistence.validation.attrvalue.EmailAddressValidator"/>
                
-    <UDerSchema name="username" expression="firstname + '.' + surname"/>
+    <UDerSchema name="fullname" expression="firstname + '.' + surname"/>
 
     <SyncopeRole id="0" name="/" inheritAttributes="0" inheritDerivedAttributes="0" inheritVirtualAttributes="0"/>
 

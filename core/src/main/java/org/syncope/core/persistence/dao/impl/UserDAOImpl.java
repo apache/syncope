@@ -76,6 +76,22 @@ public class UserDAOImpl extends AbstractDAOImpl
     }
 
     @Override
+    public SyncopeUser find(final String username) {
+        Query query = entityManager.createQuery(
+                "SELECT e FROM " + SyncopeUser.class.getSimpleName() + " e "
+                + "WHERE e.username = :username");
+        query.setHint("javax.persistence.cache.retrieveMode",
+                CacheRetrieveMode.USE);
+        query.setParameter("username", username);
+
+        try {
+            return (SyncopeUser) query.getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
+    @Override
     public SyncopeUser findByWorkflowId(final String workflowId) {
         Query query = entityManager.createQuery(
                 "SELECT e FROM " + SyncopeUser.class.getSimpleName() + " e "

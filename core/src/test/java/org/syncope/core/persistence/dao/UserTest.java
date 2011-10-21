@@ -14,6 +14,7 @@
  */
 package org.syncope.core.persistence.dao;
 
+import java.util.Date;
 import static org.junit.Assert.*;
 
 import java.util.List;
@@ -100,11 +101,11 @@ public class UserTest extends AbstractTest {
 
     @Test
     public final void findByAttributeValue() {
-        final UAttrValue usernameValue = new UAttrValue();
-        usernameValue.setStringValue("chicchiricco");
+        final UAttrValue fullnameValue = new UAttrValue();
+        fullnameValue.setStringValue("chicchiricco");
 
         final List<SyncopeUser> list = userDAO.findByAttrValue(
-                "username", usernameValue);
+                "fullname", fullnameValue);
         assertEquals("did not get expected number of users ", 1, list.size());
     }
 
@@ -129,8 +130,20 @@ public class UserTest extends AbstractTest {
     }
 
     @Test
+    public final void findByUsername() {
+        SyncopeUser user = userDAO.find("user1");
+        assertNotNull("did not find expected user", user);
+        user = userDAO.find("user3");
+        assertNotNull("did not find expected user", user);
+        user = userDAO.find("user5");
+        assertNull("found user but did not expect it", user);
+    }
+
+    @Test
     public final void save() {
         SyncopeUser user = new SyncopeUser();
+        user.setUsername("username");
+        user.setCreationDate(new Date());
 
         user.setPassword("pass", CipherAlgorithm.SHA256, 0);
 

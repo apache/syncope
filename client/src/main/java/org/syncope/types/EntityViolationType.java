@@ -23,8 +23,24 @@ public enum EntityViolationType {
     "org.syncope.core.validation.externalresource.invalidAccountIdCount"),
     MoreThanOneNonNull(
     "org.syncope.core.validation.attrvalue.moreThanOneNonNull"),
-    InvalidSchema(
-    "org.syncope.core.validation.attrvalue.invalidSchema"),
+    InvalidUSchema(
+    "org.syncope.core.validation.attrvalue.invalidUSchema"),
+    InvalidUDerSchema(
+    "org.syncope.core.validation.attrvalue.invalidUDerSchema"),
+    InvalidUVirSchema(
+    "org.syncope.core.validation.attrvalue.invalidUVirSchema"),
+    InvalidRSchema(
+    "org.syncope.core.validation.attrvalue.invalidRSchema"),
+    InvalidRDerSchema(
+    "org.syncope.core.validation.attrvalue.invalidRDerSchema"),
+    InvalidRVirSchema(
+    "org.syncope.core.validation.attrvalue.invalidRVirSchema"),
+    InvalidMSchema(
+    "org.syncope.core.validation.attrvalue.invalidMSchema"),
+    InvalidMDerSchema(
+    "org.syncope.core.validation.attrvalue.invalidMDerSchema"),
+    InvalidMVirSchema(
+    "org.syncope.core.validation.attrvalue.invalidMVirSchema"),
     InvalidSchemaTypeSpecification(
     "org.syncope.core.validation.attrvalue.invalidSchemaTypeSpecification"),
     InvalidValueList(

@@ -14,6 +14,7 @@
  */
 package org.syncope.core.security;
 
+import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.UserDAO;
 import org.syncope.types.CipherAlgorithm;
@@ -72,11 +74,13 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
     }
 
     @Override
+    @Transactional(rollbackFor = {Throwable.class})
     public Authentication authenticate(final Authentication authentication)
             throws AuthenticationException {
 
         boolean authenticated;
         SyncopeUser passwordUser = new SyncopeUser();
+        SyncopeUser user = null;
 
         if (adminUser.equals(authentication.getPrincipal())) {
             passwordUser.setPassword(
@@ -86,18 +90,19 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
             authenticated = adminMD5Password.equalsIgnoreCase(
                     passwordUser.getPassword());
         } else {
-            Long id;
+            String username;
             try {
-                id = Long.valueOf(authentication.getPrincipal().toString());
+                username = authentication.getPrincipal().toString();
             } catch (NumberFormatException e) {
                 throw new UsernameNotFoundException(
-                        "Invalid user id: " + authentication.getName(), e);
+                        "Invalid username: " + authentication.getName(), e);
             }
 
-            SyncopeUser user = userDAO.find(id);
+            user = userDAO.find(username);
+
             if (user == null) {
                 throw new UsernameNotFoundException(
-                        "Could not find any user with id " + id);
+                        "Could not find user " + username);
             }
 
             passwordUser.setPassword(
@@ -122,8 +127,20 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
 
             LOG.debug("User {} authenticated with roles {}",
                     authentication.getPrincipal(), token.getAuthorities());
+
+            if (user != null) {
+                user.setLastLoginDate(new Date());
+                user.setFailedLogins(0);
+                userDAO.save(user);
+            }
+
         } else {
             result = authentication;
+
+            if (user != null) {
+                user.setFailedLogins(user.getFailedLogins() + 1);
+                userDAO.save(user);
+            }
 
             LOG.debug("User {} not authenticated",
                     authentication.getPrincipal());

@@ -48,7 +48,7 @@ public class SchemaTest extends AbstractTest {
     @Test
     public final void findByName() {
         USchema attributeSchema =
-                schemaDAO.find("username", USchema.class);
+                schemaDAO.find("fullname", USchema.class);
         assertNotNull("did not find expected attribute schema",
                 attributeSchema);
     }
@@ -123,12 +123,20 @@ public class SchemaTest extends AbstractTest {
     }
 
     @Test
+    @ExpectedException(value = InvalidEntityException.class)
+    public final void saveInvalidSchema() {
+        USchema schema = new USchema();
+        schema.setName("username");
+        schemaDAO.save(schema);
+    }
+
+    @Test
     public final void delete() {
-        USchema schema = schemaDAO.find("username", USchema.class);
+        USchema schema = schemaDAO.find("fullname", USchema.class);
 
         schemaDAO.delete(schema.getName(), AttributableUtil.USER);
 
-        USchema actual = schemaDAO.find("username", USchema.class);
+        USchema actual = schemaDAO.find("fullname", USchema.class);
         assertNull("delete did not work", actual);
     }
 }

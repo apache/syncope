@@ -65,7 +65,7 @@ public class ResourceTestITCase extends AbstractTest {
 
         schemaMappingTO = new SchemaMappingTO();
         schemaMappingTO.setExtAttrName("username");
-        schemaMappingTO.setIntAttrName("username");
+        schemaMappingTO.setIntAttrName("fullname");
         schemaMappingTO.setIntMappingType(IntMappingType.SyncopeUserId);
         schemaMappingTO.setAccountid(true);
         resourceTO.addMapping(schemaMappingTO);
@@ -106,7 +106,7 @@ public class ResourceTestITCase extends AbstractTest {
 
         schemaMappingTO = new SchemaMappingTO();
         schemaMappingTO.setExtAttrName("username");
-        schemaMappingTO.setIntAttrName("username");
+        schemaMappingTO.setIntAttrName("fullname");
         schemaMappingTO.setIntMappingType(IntMappingType.SyncopeUserId);
         schemaMappingTO.setAccountid(true);
         resourceTO.addMapping(schemaMappingTO);
@@ -299,7 +299,7 @@ public class ResourceTestITCase extends AbstractTest {
         SchemaMappingTO schemaMappingTO = new SchemaMappingTO();
         schemaMappingTO.setId(112L);
         schemaMappingTO.setExtAttrName("test3");
-        schemaMappingTO.setIntAttrName("username");
+        schemaMappingTO.setIntAttrName("fullname");
         schemaMappingTO.setIntMappingType(IntMappingType.UserSchema);
         schemaMappingTOs.add(schemaMappingTO);
 
@@ -307,13 +307,13 @@ public class ResourceTestITCase extends AbstractTest {
         for (int i = 4; i < 6; i++) {
             schemaMappingTO = new SchemaMappingTO();
             schemaMappingTO.setExtAttrName("test" + i);
-            schemaMappingTO.setIntAttrName("username");
+            schemaMappingTO.setIntAttrName("fullname");
             schemaMappingTO.setIntMappingType(IntMappingType.UserSchema);
             schemaMappingTOs.add(schemaMappingTO);
         }
         schemaMappingTO = new SchemaMappingTO();
         schemaMappingTO.setExtAttrName("username");
-        schemaMappingTO.setIntAttrName("username");
+        schemaMappingTO.setIntAttrName("fullname");
         schemaMappingTO.setIntMappingType(IntMappingType.SyncopeUserId);
         schemaMappingTO.setAccountid(true);
         schemaMappingTOs.add(schemaMappingTO);

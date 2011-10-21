@@ -35,6 +35,16 @@ public class UserTO extends AbstractAttributableTO {
 
     private Date tokenExpireTime;
 
+    private String username;
+
+    private Date lastLoginDate;
+
+    private Date creationDate;
+
+    private Date changePwdDate;
+
+    private Integer failedLogins;
+
     public UserTO() {
         super();
 
@@ -90,6 +100,46 @@ public class UserTO extends AbstractAttributableTO {
         if (tokenExpireTime != null) {
             this.tokenExpireTime = new Date(tokenExpireTime.getTime());
         }
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public Date getChangePwdDate() {
+        return changePwdDate;
+    }
+
+    public Date getCreationDate() {
+        return creationDate;
+    }
+
+    public Integer getFailedLogins() {
+        return failedLogins;
+    }
+
+    public Date getLastLoginDate() {
+        return lastLoginDate;
+    }
+
+    public void setChangePwdDate(Date changePwdDate) {
+        this.changePwdDate = changePwdDate;
+    }
+
+    public void setCreationDate(Date creationDate) {
+        this.creationDate = creationDate;
+    }
+
+    public void setFailedLogins(Integer failedLogins) {
+        this.failedLogins = failedLogins;
+    }
+
+    public void setLastLoginDate(Date lastLoginDate) {
+        this.lastLoginDate = lastLoginDate;
     }
 
     @Override

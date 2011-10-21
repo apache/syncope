@@ -50,10 +50,10 @@ public class UserSearchTest {
 
     @Test
     public final void searchWithLikeCondition() {
-        AttributeCond usernameLeafCond =
+        AttributeCond fullnameLeafCond =
                 new AttributeCond(AttributeCond.Type.LIKE);
-        usernameLeafCond.setSchema("username");
-        usernameLeafCond.setExpression("%o%");
+        fullnameLeafCond.setSchema("fullname");
+        fullnameLeafCond.setExpression("%o%");
 
         MembershipCond membershipCond = new MembershipCond();
         membershipCond.setRoleId(1L);
@@ -63,7 +63,7 @@ public class UserSearchTest {
         loginDateCond.setExpression("2009-05-26");
 
         NodeCond subCond = NodeCond.getAndCond(
-                NodeCond.getLeafCond(usernameLeafCond),
+                NodeCond.getLeafCond(fullnameLeafCond),
                 NodeCond.getLeafCond(membershipCond));
 
         assertTrue(subCond.checkValidity());
@@ -81,12 +81,12 @@ public class UserSearchTest {
 
     @Test
     public final void searchWithNotCondition() {
-        final AttributeCond usernameLeafCond =
+        final AttributeCond fullnameLeafCond =
                 new AttributeCond(AttributeCond.Type.EQ);
-        usernameLeafCond.setSchema("username");
-        usernameLeafCond.setExpression("fabio.martelli");
+        fullnameLeafCond.setSchema("fullname");
+        fullnameLeafCond.setExpression("fabio.martelli");
 
-        final NodeCond cond = NodeCond.getNotLeafCond(usernameLeafCond);
+        final NodeCond cond = NodeCond.getNotLeafCond(fullnameLeafCond);
         assertTrue(cond.checkValidity());
 
         final List<SyncopeUser> users = searchDAO.search(
@@ -121,10 +121,10 @@ public class UserSearchTest {
 
     @Test
     public final void searchByPageAndSize() {
-        AttributeCond usernameLeafCond =
+        AttributeCond fullnameLeafCond =
                 new AttributeCond(AttributeCond.Type.LIKE);
-        usernameLeafCond.setSchema("username");
-        usernameLeafCond.setExpression("%o%");
+        fullnameLeafCond.setSchema("fullname");
+        fullnameLeafCond.setExpression("%o%");
 
         MembershipCond membershipCond = new MembershipCond();
         membershipCond.setRoleId(1L);
@@ -134,7 +134,7 @@ public class UserSearchTest {
         loginDateCond.setExpression("2009-05-26");
 
         NodeCond subCond = NodeCond.getAndCond(
-                NodeCond.getLeafCond(usernameLeafCond),
+                NodeCond.getLeafCond(fullnameLeafCond),
                 NodeCond.getLeafCond(membershipCond));
 
         assertTrue(subCond.checkValidity());

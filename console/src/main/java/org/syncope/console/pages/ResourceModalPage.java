@@ -48,6 +48,7 @@ import org.syncope.client.to.ConnInstanceTO;
 import org.syncope.client.to.ResourceTO;
 import org.syncope.client.to.SchemaMappingTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.syncope.console.pages.panels.ResourceSecurityPanel;
 import org.syncope.console.rest.ConnectorRestClient;
 import org.syncope.console.rest.ResourceRestClient;
 import org.syncope.console.rest.SchemaRestClient;
@@ -378,6 +379,14 @@ public class ResourceModalPage extends BaseModalPage {
                                     mappingTO.setIntAttrName("Password");
                                     break;
 
+                                case Username:
+                                    intAttrNames.setEnabled(false);
+                                    intAttrNames.setRequired(false);
+                                    intAttrNames.setChoices(
+                                            Collections.EMPTY_LIST);
+                                    mappingTO.setIntAttrName("Username");
+                                    break;
+
                                 default:
                                     intAttrNames.setChoices(
                                             Collections.EMPTY_LIST);
@@ -618,6 +627,12 @@ public class ResourceModalPage extends BaseModalPage {
                     }
                 });
 
+        //--------------------------------
+        // Security container
+        //--------------------------------
+        form.add(new ResourceSecurityPanel("security", resourceTO));
+        //--------------------------------
+
         AjaxButton submit = new IndicatingAjaxButton(
                 "apply", new ResourceModel("submit")) {
 
@@ -721,6 +736,7 @@ public class ResourceModalPage extends BaseModalPage {
 
                         case SyncopeUserId:
                         case Password:
+                        case Username:
                         default:
                             chooserToPopulate.setRequired(false);
                             chooserToPopulate.setEnabled(false);

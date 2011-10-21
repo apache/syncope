@@ -427,20 +427,31 @@ public class PropagationManager {
                             mapping.getIntMappingType(), values});
                 break;
 
-            case SyncopeUserId:
-            case Password:
+
+            case Username:
                 schema = null;
                 schemaType = SchemaType.String;
 
                 attrValue = new UAttrValue();
-                if (IntMappingType.SyncopeUserId
-                        == mapping.getIntMappingType()) {
+                attrValue.setStringValue(user.getUsername());
 
-                    attrValue.setStringValue(user.getId().toString());
-                }
-                if (IntMappingType.Password
-                        == mapping.getIntMappingType() && password != null) {
+                values = Collections.singletonList(attrValue);
+                break;
 
+            case SyncopeUserId:
+                schema = null;
+                schemaType = SchemaType.String;
+                attrValue = new UAttrValue();
+                attrValue.setStringValue(user.getId().toString());
+                values = Collections.singletonList(attrValue);
+                break;
+
+            case Password:
+                schema = null;
+                schemaType = SchemaType.String;
+                attrValue = new UAttrValue();
+
+                if (password != null) {
                     attrValue.setStringValue(password);
                 }
 

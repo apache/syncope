@@ -52,9 +52,33 @@ public enum SyncopeClientExceptionType {
     InvalidPropagationTaskExecReport(
     "Syncope.InvalidPropagationTaskExecReport",
     "Syncope.InvalidPropagationTaskExecReport.element"),
-    InvalidSchema(
-    "Syncope.InvalidUpdate",
-    "Syncope.InvalidUpdate.name"),
+    InvalidUSchema(
+    "Syncope.InvalidUSchemaUpdate",
+    "Syncope.InvalidUSchemaUpdate.name"),
+    InvalidUDerSchema(
+    "Syncope.InvalidUDerSchemaUpdate",
+    "Syncope.InvalidUDerSchemaUpdate.name"),
+    InvalidUVirSchema(
+    "Syncope.InvalidUVirSchemaUpdate",
+    "Syncope.InvalidUVirSchemaUpdate.name"),
+    InvalidRSchema(
+    "Syncope.InvalidRSchemaUpdate",
+    "Syncope.InvalidRSchemaUpdate.name"),
+    InvalidRDerSchema(
+    "Syncope.InvalidRDerSchemaUpdate",
+    "Syncope.InvalidRDerSchemaUpdate.name"),
+    InvalidRVirSchema(
+    "Syncope.InvalidRVirSchemaUpdate",
+    "Syncope.InvalidRVirSchemaUpdate.name"),
+    InvalidMSchema(
+    "Syncope.InvalidMSchemaUpdate",
+    "Syncope.InvalidMSchemaUpdate.name"),
+    InvalidMDerSchema(
+    "Syncope.InvalidMDerSchemaUpdate",
+    "Syncope.InvalidMDerSchemaUpdate.name"),
+    InvalidMVirSchema(
+    "Syncope.InvalidMVirSchemaUpdate",
+    "Syncope.InvalidMVirSchemaUpdate.name"),
     InvalidSchemaMapping(
     "Syncope.InvalidSchemaMapping",
     ""),

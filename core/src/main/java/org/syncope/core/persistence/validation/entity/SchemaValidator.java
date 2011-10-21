@@ -38,7 +38,8 @@ public class SchemaValidator extends AbstractValidator
             if (object == null) {
                 isValid = true;
             } else {
-                isValid = !object.getType().equals(SchemaType.Enum)
+                isValid = object.getType() == null
+                        || !object.getType().equals(SchemaType.Enum)
                         || object.getEnumerationValues() != null;
 
                 if (!isValid) {
@@ -64,7 +65,7 @@ public class SchemaValidator extends AbstractValidator
 
             return isValid;
         } catch (Exception e) {
-            LOG.error(e.getMessage());
+            LOG.error("Error saving schema", e);
 
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate(

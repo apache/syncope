@@ -51,11 +51,12 @@ public class UserTestITCase extends AbstractTest {
     public static UserTO getSampleTO(final String email) {
         UserTO userTO = new UserTO();
         userTO.setPassword("password123");
+        userTO.setUsername(email);
 
-        AttributeTO usernameTO = new AttributeTO();
-        usernameTO.setSchema("username");
-        usernameTO.addValue(email);
-        userTO.addAttribute(usernameTO);
+        AttributeTO fullnameTO = new AttributeTO();
+        fullnameTO.setSchema("fullname");
+        fullnameTO.addValue(email);
+        userTO.addAttribute(fullnameTO);
 
         AttributeTO firstnameTO = new AttributeTO();
         firstnameTO.setSchema("firstname");
@@ -122,6 +123,7 @@ public class UserTestITCase extends AbstractTest {
 
         // create a new user
         UserTO userTO = new UserTO();
+        userTO.setUsername("xxx@xxx.xxx");
 
         AttributeTO attributeTO = new AttributeTO();
         attributeTO.setSchema("firstname");
@@ -139,7 +141,7 @@ public class UserTestITCase extends AbstractTest {
         userTO.addAttribute(attributeTO);
 
         attributeTO = new AttributeTO();
-        attributeTO.setSchema("username");
+        attributeTO.setSchema("fullname");
         attributeTO.addValue("xxx");
         userTO.addAttribute(attributeTO);
 
@@ -192,28 +194,28 @@ public class UserTestITCase extends AbstractTest {
         restTemplate.delete(BASE_URL + "policy/delete/{id}", 2L);
 
         UserTO userTO = new UserTO();
+        userTO.setUsername("issue172@syncope-idm.org");
+        userTO.setPassword("password");
 
         AttributeTO attributeTO = new AttributeTO();
         attributeTO.setSchema("firstname");
-        attributeTO.addValue("ppp");
+        attributeTO.addValue("issue172");
         userTO.addAttribute(attributeTO);
 
         attributeTO = new AttributeTO();
         attributeTO.setSchema("surname");
-        attributeTO.addValue("ppp");
+        attributeTO.addValue("issue172");
         userTO.addAttribute(attributeTO);
 
         attributeTO = new AttributeTO();
         attributeTO.setSchema("userId");
-        attributeTO.addValue("ppp@ppp.ppp");
+        attributeTO.addValue("issue172@syncope-idm.org");
         userTO.addAttribute(attributeTO);
 
         attributeTO = new AttributeTO();
-        attributeTO.setSchema("username");
-        attributeTO.addValue("ppp");
+        attributeTO.setSchema("fullname");
+        attributeTO.addValue("issue172");
         userTO.addAttribute(attributeTO);
-
-        userTO.setPassword("password");
 
         restTemplate.postForObject(
                 BASE_URL + "user/create", userTO, UserTO.class);
@@ -229,6 +231,7 @@ public class UserTestITCase extends AbstractTest {
     public final void issue186() {
         // 1. create an user with strict mandatory attributes only
         UserTO userTO = new UserTO();
+        userTO.setUsername("issue186@syncope-idm.org");
         userTO.setPassword("password");
 
         AttributeTO attributeTO = new AttributeTO();
@@ -237,7 +240,7 @@ public class UserTestITCase extends AbstractTest {
         userTO.addAttribute(attributeTO);
 
         attributeTO = new AttributeTO();
-        attributeTO.setSchema("username");
+        attributeTO.setSchema("fullname");
         attributeTO.addValue("issue186");
         userTO.addAttribute(attributeTO);
 
@@ -337,6 +340,8 @@ public class UserTestITCase extends AbstractTest {
     @Test
     public final void createUserWithDbPropagation() {
         UserTO userTO = new UserTO();
+        userTO.setPassword("password");
+        userTO.setUsername("yyy@yyy.yyy");
 
         AttributeTO attributeTO = new AttributeTO();
         attributeTO.setSchema("firstname");
@@ -354,11 +359,10 @@ public class UserTestITCase extends AbstractTest {
         userTO.addAttribute(attributeTO);
 
         attributeTO = new AttributeTO();
-        attributeTO.setSchema("username");
+        attributeTO.setSchema("fullname");
         attributeTO.addValue("yyy");
         userTO.addAttribute(attributeTO);
 
-        userTO.setPassword("password");
         userTO.addResource("resource-testdb");
 
         restTemplate.postForObject(BASE_URL + "user/create",
@@ -470,12 +474,15 @@ public class UserTestITCase extends AbstractTest {
         userTO.addAttribute(nullValueAttributeTO);
 
         // 1. create user
-        UserTO newUserTO = restTemplate.postForObject(BASE_URL + "user/create",
-                userTO, UserTO.class);
+        UserTO newUserTO = restTemplate.postForObject(
+                BASE_URL + "user/create", userTO, UserTO.class);
 
         assertNotNull(newUserTO);
         assertFalse(newUserTO.getAttributes().contains(
                 attrWithInvalidSchemaTO));
+
+        // check for changePwdDate
+        assertNotNull(newUserTO.getCreationDate());
 
         // 2. check for virtual attribute value
         newUserTO = restTemplate.getForObject(
@@ -704,19 +711,19 @@ public class UserTestITCase extends AbstractTest {
     @Test
     public final void search() {
         // LIKE
-        AttributeCond usernameLeafCond1 =
+        AttributeCond fullnameLeafCond1 =
                 new AttributeCond(AttributeCond.Type.LIKE);
-        usernameLeafCond1.setSchema("username");
-        usernameLeafCond1.setExpression("%o%");
+        fullnameLeafCond1.setSchema("fullname");
+        fullnameLeafCond1.setExpression("%o%");
 
-        AttributeCond usernameLeafCond2 =
+        AttributeCond fullnameLeafCond2 =
                 new AttributeCond(AttributeCond.Type.LIKE);
-        usernameLeafCond2.setSchema("username");
-        usernameLeafCond2.setExpression("%i%");
+        fullnameLeafCond2.setSchema("fullname");
+        fullnameLeafCond2.setExpression("%i%");
 
         NodeCond searchCondition = NodeCond.getAndCond(
-                NodeCond.getLeafCond(usernameLeafCond1),
-                NodeCond.getLeafCond(usernameLeafCond2));
+                NodeCond.getLeafCond(fullnameLeafCond1),
+                NodeCond.getLeafCond(fullnameLeafCond2));
 
         assertTrue(searchCondition.checkValidity());
 
@@ -781,19 +788,19 @@ public class UserTestITCase extends AbstractTest {
     @Test
     public final void paginatedSearch() {
         // LIKE
-        AttributeCond usernameLeafCond1 =
+        AttributeCond fullnameLeafCond1 =
                 new AttributeCond(AttributeCond.Type.LIKE);
-        usernameLeafCond1.setSchema("username");
-        usernameLeafCond1.setExpression("%o%");
+        fullnameLeafCond1.setSchema("fullname");
+        fullnameLeafCond1.setExpression("%o%");
 
-        AttributeCond usernameLeafCond2 =
+        AttributeCond fullnameLeafCond2 =
                 new AttributeCond(AttributeCond.Type.LIKE);
-        usernameLeafCond2.setSchema("username");
-        usernameLeafCond2.setExpression("%i%");
+        fullnameLeafCond2.setSchema("fullname");
+        fullnameLeafCond2.setExpression("%i%");
 
         NodeCond searchCondition = NodeCond.getAndCond(
-                NodeCond.getLeafCond(usernameLeafCond1),
-                NodeCond.getLeafCond(usernameLeafCond2));
+                NodeCond.getLeafCond(fullnameLeafCond1),
+                NodeCond.getLeafCond(fullnameLeafCond2));
 
         assertTrue(searchCondition.checkValidity());
 
@@ -916,9 +923,9 @@ public class UserTestITCase extends AbstractTest {
         attributeMod.addValueToBeAdded("t.w@spre.net");
         userMod.addAttributeToBeUpdated(attributeMod);
 
-        userMod.addAttributeToBeRemoved("username");
+        userMod.addAttributeToBeRemoved("fullname");
         attributeMod = new AttributeMod();
-        attributeMod.setSchema("username");
+        attributeMod.setSchema("fullname");
         attributeMod.addValueToBeAdded("g.h@t.com");
         userMod.addAttributeToBeUpdated(attributeMod);
 
@@ -939,7 +946,7 @@ public class UserTestITCase extends AbstractTest {
                 getAttributes().size());
         assertFalse(userTO.getDerivedAttributes().isEmpty());
         boolean userIdFound = false;
-        boolean usernameFound = false;
+        boolean fullnameFound = false;
         for (AttributeTO attributeTO : userTO.getAttributes()) {
             if ("userId".equals(attributeTO.getSchema())) {
                 userIdFound = true;
@@ -947,15 +954,15 @@ public class UserTestITCase extends AbstractTest {
                 assertEquals(Collections.singletonList("t.w@spre.net"),
                         attributeTO.getValues());
             }
-            if ("username".equals(attributeTO.getSchema())) {
-                usernameFound = true;
+            if ("fullname".equals(attributeTO.getSchema())) {
+                fullnameFound = true;
 
                 assertEquals(Collections.singletonList("g.h@t.com"),
                         attributeTO.getValues());
             }
         }
         assertTrue(userIdFound);
-        assertTrue(usernameFound);
+        assertTrue(fullnameFound);
     }
 
     @Test
@@ -984,6 +991,9 @@ public class UserTestITCase extends AbstractTest {
 
         userTO = restTemplate.postForObject(BASE_URL + "user/update",
                 userMod, UserTO.class);
+
+        // check for changePwdDate
+        assertNotNull(userTO.getChangePwdDate());
 
         SyncopeUser passwordTestUser = new SyncopeUser();
         passwordTestUser.setPassword("newPassword", CipherAlgorithm.MD5, 0);

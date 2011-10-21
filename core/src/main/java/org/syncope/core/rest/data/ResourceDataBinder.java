@@ -236,6 +236,11 @@ public class ResourceDataBinder {
                             IntMappingType.Password.toString());
                     break;
 
+                case Username:
+                    mappingTO.setIntAttrName(
+                            IntMappingType.Username.toString());
+                    break;
+
                 default:
                     requiredValuesMissing.addElement("intAttrName");
             }

@@ -34,6 +34,7 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.PasswordTextField;
 import org.apache.wicket.model.CompoundPropertyModel;
+import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.mod.AttributeMod;
@@ -50,6 +51,8 @@ import org.syncope.console.pages.panels.ResourcesPanel;
 import org.syncope.console.pages.panels.RolesPanel;
 import org.syncope.console.pages.panels.VirtualAttributesPanel;
 import org.syncope.console.rest.UserRestClient;
+import org.syncope.console.wicket.markup.html.form.AjaxPasswordFieldPanel;
+import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 
 /**
  * Modal window with User form.
@@ -87,9 +90,20 @@ public class UserModalPage extends BaseModalPage {
         //--------------------------------
         form.add(new AttributesPanel("attributes", userTO, form));
 
-        final PasswordTextField password = new PasswordTextField("password");
+        final AjaxTextFieldPanel username = new AjaxTextFieldPanel("username",
+                "username", new PropertyModel<String>(userTO, "username"), true);
+
+        username.addRequiredLabel();
+        form.add(username);
+
+        final AjaxPasswordFieldPanel password = new AjaxPasswordFieldPanel(
+                "password",
+                "password",
+                new PropertyModel<String>(userTO, "password"),
+                true);
+
         password.setRequired(userTO.getId() == 0);
-        password.setResetPassword(true);
+        ((PasswordTextField) password.getField()).setResetPassword(true);
         form.add(password);
 
         final WebMarkupContainer mandatoryPassword =
@@ -99,8 +113,8 @@ public class UserModalPage extends BaseModalPage {
             private static final long serialVersionUID = 1469628524240283489L;
 
             @Override
-            public void onComponentTag(final Component component,
-                    final ComponentTag tag) {
+            public void onComponentTag(
+                    final Component component, final ComponentTag tag) {
 
                 if (userTO.getId() > 0) {
                     tag.put("style", "display:none;");
@@ -348,7 +362,8 @@ public class UserModalPage extends BaseModalPage {
         for (AttributeTO oldAttribute : oldUser.getAttributes()) {
             if (attributeTO.getSchema().equals(oldAttribute.getSchema())) {
 
-                if (!attributeTO.equals(oldAttribute) && !oldAttribute.isReadonly()) {
+                if (!attributeTO.equals(oldAttribute) && !oldAttribute.
+                        isReadonly()) {
 
                     if (attributeTO.getValues().size() > 1) {
                         attributeMod.setValuesToBeAdded(

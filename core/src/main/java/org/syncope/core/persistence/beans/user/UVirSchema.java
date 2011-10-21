@@ -18,8 +18,12 @@ import javax.persistence.Entity;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.syncope.core.persistence.beans.AbstractVirSchema;
+import org.syncope.core.persistence.validation.entity.USchemaCheck;
 
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@USchemaCheck
 public class UVirSchema extends AbstractVirSchema {
+
+    private static final long serialVersionUID = 1089308700791426201L;
 }

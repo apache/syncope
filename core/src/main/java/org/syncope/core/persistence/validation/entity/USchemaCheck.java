@@ -26,11 +26,11 @@ import javax.validation.Payload;
     ElementType.TYPE
 })
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = AttributableValidator.class)
+@Constraint(validatedBy = USchemaValidator.class)
 @Documented
-public @interface AttributableCheck {
+public @interface USchemaCheck {
 
-    String message() default "{org.syncope.core.validation.attributable}";
+    String message() default "{org.syncope.core.validation.schema}";
 
     Class<?>[] groups() default {};
 

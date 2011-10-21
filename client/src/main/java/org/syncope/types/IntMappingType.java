@@ -20,6 +20,6 @@ public enum IntMappingType {
     UserDerivedSchema,
     UserVirtualSchema,
     SyncopeUserId,
-    Password;
-
+    Password,
+    Username;
 }

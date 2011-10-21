@@ -14,6 +14,7 @@
  */
 package org.syncope.core.rest;
 
+import org.syncope.types.EntityViolationType;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
@@ -42,6 +43,81 @@ public class SchemaTestITCase extends AbstractTest {
         newSchemaTO = restTemplate.postForObject(BASE_URL
                 + "schema/membership/create", schemaTO, SchemaTO.class);
         assertEquals(schemaTO, newSchemaTO);
+    }
+
+    @Test
+    public final void createWithNotPermittedName() {
+        SchemaTO schemaTO = new SchemaTO();
+        schemaTO.setName("failedLogins");
+        schemaTO.setType(SchemaType.String);
+
+        SyncopeClientException syncopeClientException = null;
+
+        try {
+            restTemplate.postForObject(BASE_URL
+                    + "schema/user/create", schemaTO, SchemaTO.class);
+        } catch (SyncopeClientCompositeErrorException scce) {
+            syncopeClientException = scce.getException(
+                    SyncopeClientExceptionType.InvalidUSchema);
+
+            assertNotNull(syncopeClientException.getElements());
+            assertEquals(1, syncopeClientException.getElements().size());
+            assertTrue(syncopeClientException.getElements().iterator().next().
+                    contains(
+                    EntityViolationType.InvalidUSchema.toString()));
+        }
+
+        assertNotNull(syncopeClientException);
+    }
+
+    @Test
+    public final void createREnumWithoutEnumeration() {
+        SchemaTO schemaTO = new SchemaTO();
+        schemaTO.setName("enumcheck");
+        schemaTO.setType(SchemaType.Enum);
+
+        SyncopeClientException syncopeClientException = null;
+
+        try {
+            restTemplate.postForObject(BASE_URL
+                    + "schema/role/create", schemaTO, SchemaTO.class);
+        } catch (SyncopeClientCompositeErrorException scce) {
+            syncopeClientException = scce.getException(
+                    SyncopeClientExceptionType.InvalidRSchema);
+
+            assertNotNull(syncopeClientException.getElements());
+            assertEquals(1, syncopeClientException.getElements().size());
+            assertTrue(syncopeClientException.getElements().iterator().next().
+                    contains(
+                    EntityViolationType.InvalidSchemaTypeSpecification.toString()));
+        }
+
+        assertNotNull(syncopeClientException);
+    }
+
+    @Test
+    public final void createUEnumWithoutEnumeration() {
+        SchemaTO schemaTO = new SchemaTO();
+        schemaTO.setName("enumcheck");
+        schemaTO.setType(SchemaType.Enum);
+
+        SyncopeClientException syncopeClientException = null;
+
+        try {
+            restTemplate.postForObject(BASE_URL
+                    + "schema/user/create", schemaTO, SchemaTO.class);
+        } catch (SyncopeClientCompositeErrorException scce) {
+            syncopeClientException = scce.getException(
+                    SyncopeClientExceptionType.InvalidUSchema);
+
+            assertNotNull(syncopeClientException.getElements());
+            assertEquals(1, syncopeClientException.getElements().size());
+            assertTrue(syncopeClientException.getElements().iterator().next().
+                    contains(
+                    EntityViolationType.InvalidSchemaTypeSpecification.toString()));
+        }
+
+        assertNotNull(syncopeClientException);
     }
 
     @Test
@@ -96,13 +172,15 @@ public class SchemaTestITCase extends AbstractTest {
 
         updatedTO.setType(SchemaType.Date);
         SyncopeClientException syncopeClientException = null;
+
         try {
             restTemplate.postForObject(BASE_URL
                     + "schema/role/update", updatedTO, SchemaTO.class);
         } catch (SyncopeClientCompositeErrorException scce) {
             syncopeClientException = scce.getException(
-                    SyncopeClientExceptionType.InvalidSchema);
+                    SyncopeClientExceptionType.InvalidRSchema);
         }
+
         assertNotNull(syncopeClientException);
     }
 }

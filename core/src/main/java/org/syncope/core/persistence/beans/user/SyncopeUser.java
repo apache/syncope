@@ -21,6 +21,8 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import java.security.MessageDigest;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -28,6 +30,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.TimeZone;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import javax.persistence.Cacheable;
@@ -55,15 +58,20 @@ import org.syncope.core.persistence.beans.AbstractVirAttr;
 import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.core.persistence.beans.membership.Membership;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
+import org.syncope.core.persistence.validation.entity.SyncopeUserCheck;
 import org.syncope.types.CipherAlgorithm;
 
 @Entity
 @Cacheable
+@SyncopeUserCheck
 public class SyncopeUser extends AbstractAttributable {
 
     private static final long serialVersionUID = -3905046855521446823L;
 
     private static SecretKeySpec keySpec;
+
+    @Transient
+    public static String FORMAT_DATE_ISO = "yyyy-MM-dd'T'HH:mm:ssZ";
 
     static {
         try {
@@ -117,6 +125,40 @@ public class SyncopeUser extends AbstractAttributable {
 
     @ElementCollection
     private List<String> passwordHistory;
+
+    /**
+     * Subsequent failed logins.
+     */
+    @Column(nullable = true)
+    private Integer failedLogins;
+
+    /**
+     * Username/Login.
+     */
+    @Column(unique = true)
+    @NotNull
+    private String username;
+
+    /**
+     * Last successful login date.
+     */
+    @Column(nullable = true)
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date lastLoginDate;
+
+    /**
+     * Creation date.
+     */
+    @NotNull
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date creationDate;
+
+    /**
+     * Change password date.
+     */
+    @Column(nullable = true)
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date changePwdDate;
 
     public SyncopeUser() {
         super();
@@ -365,12 +407,52 @@ public class SyncopeUser extends AbstractAttributable {
         return cipherAlgorithm;
     }
 
-    public void setCipherAlgoritm(CipherAlgorithm cipherAlgoritm) {
+    public void setCipherAlgoritm(final CipherAlgorithm cipherAlgoritm) {
         this.cipherAlgorithm = cipherAlgoritm;
     }
 
     public List<String> getPasswordHistory() {
         return passwordHistory;
+    }
+
+    public Date getChangePwdDate() {
+        return changePwdDate;
+    }
+
+    public void setChangePwdDate(final Date changePwdDate) {
+        this.changePwdDate = changePwdDate;
+    }
+
+    public Date getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(final Date creationDate) {
+        this.creationDate = creationDate;
+    }
+
+    public Integer getFailedLogins() {
+        return failedLogins;
+    }
+
+    public void setFailedLogins(final Integer failedLogins) {
+        this.failedLogins = failedLogins;
+    }
+
+    public Date getLastLoginDate() {
+        return lastLoginDate;
+    }
+
+    public void setLastLoginDate(final Date lastLoginDate) {
+        this.lastLoginDate = lastLoginDate;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(final String username) {
+        this.username = username;
     }
 
     private String encodePassword(
@@ -440,5 +522,11 @@ public class SyncopeUser extends AbstractAttributable {
             LOG.error("Error evaluating password history", t);
             return false;
         }
+    }
+
+    public DateFormat getDateFormatter() {
+        final DateFormat format = new SimpleDateFormat(FORMAT_DATE_ISO);
+        format.setTimeZone(TimeZone.getDefault());
+        return format;
     }
 }

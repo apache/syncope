@@ -82,7 +82,7 @@ public class ResourceTest extends AbstractTest {
     public final void getAccountId() {
         SchemaMapping mapping = resourceDAO.getMappingForAccountId(
                 "ws-target-resource-2");
-        assertEquals("username", mapping.getIntAttrName());
+        assertEquals("fullname", mapping.getIntAttrName());
     }
 
     @Test
@@ -96,7 +96,7 @@ public class ResourceTest extends AbstractTest {
         accountId.setResource(resource);
         accountId.setAccountid(true);
         accountId.setExtAttrName("username");
-        accountId.setIntAttrName("username");
+        accountId.setIntAttrName("fullname");
         accountId.setIntMappingType(IntMappingType.SyncopeUserId);
 
         resource.addMapping(accountId);
@@ -145,14 +145,14 @@ public class ResourceTest extends AbstractTest {
         SchemaMapping mapping = new SchemaMapping();
         mapping.setResource(resource);
         mapping.setAccountid(true);
-        mapping.setIntAttrName("username");
+        mapping.setIntAttrName("fullname");
         mapping.setIntMappingType(IntMappingType.UserSchema);
 
         resource.addMapping(mapping);
 
         mapping = new SchemaMapping();
         mapping.setResource(resource);
-        mapping.setIntAttrName("username");
+        mapping.setIntAttrName("fullname");
         mapping.setIntMappingType(IntMappingType.UserSchema);
 
         resource.addMapping(mapping);

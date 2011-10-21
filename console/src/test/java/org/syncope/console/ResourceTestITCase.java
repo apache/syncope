@@ -52,7 +52,7 @@ public class ResourceTestITCase extends AbstractTest {
 
         selenium.click("css=img[alt=\"Resources\"]");
         selenium.waitForPageToLoad("30000");
-        selenium.click("//td[2]/span/a");
+        selenium.click("//td[4]/span/a");
         for (int second = 0;; second++) {
             if (second >= 60) {
                 fail("timeout");
@@ -98,8 +98,44 @@ public class ResourceTestITCase extends AbstractTest {
 
         selenium.click("css=img[alt=\"Resources\"]");
         selenium.waitForPageToLoad("30000");
-        selenium.click("//tr[4]/td[3]/span/a");
+        selenium.click("//tr[3]/td[5]/span/a");
         assertTrue(selenium.getConfirmation().matches(
                 "^Do you really want to delete the selected item[\\s\\S]$"));
+    }
+
+    @Test
+    @SuppressWarnings("SleepWhileHoldingLock")
+    public void checkSecurityTab() {
+        selenium.setSpeed("1000");
+
+        selenium.click("css=img[alt=\"Resources\"]");
+        selenium.waitForPageToLoad("30000");
+        selenium.click("//td[4]/span/a");
+        for (int second = 0;; second++) {
+            if (second >= 60) {
+                fail("timeout");
+            }
+            try {
+                if (selenium.isElementPresent(
+                        "//form/div[2]/div/div/div/div/label[text()='Name']")) {
+                    break;
+                }
+            } catch (Exception e) {
+            }
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
+        }
+
+        selenium.click("//li[4]/a");
+
+        assertTrue(selenium.isElementPresent("//label[@for='passwordPolicy']"));
+
+        selenium.click("//li[1]/a");
+        selenium.click("//li[2]/a");
+        selenium.click("//li[3]/a");
+        
+        selenium.click("css=a.w_close");
     }
 }
