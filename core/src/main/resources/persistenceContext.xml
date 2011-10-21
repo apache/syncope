@@ -90,16 +90,14 @@
         </property>
     </bean>
 
-    <bean id="entityManager"
-          class="org.springframework.orm.jpa.support.SharedEntityManagerBean">
+    <bean id="entityManager" class="org.springframework.orm.jpa.support.SharedEntityManagerBean">
         <property name="entityManagerFactory" ref="entityManagerFactory"/>
     </bean>
 
-    <tx:annotation-driven/>
-    <bean id="transactionManager"
-          class="org.springframework.orm.jpa.JpaTransactionManager">
+    <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
         <property name="entityManagerFactory" ref="entityManagerFactory"/>
     </bean>
+    <tx:annotation-driven/>
 
     <bean id="jexlEngine" class="org.apache.commons.jexl2.JexlEngine">
         <property name="cache" value="512"/>

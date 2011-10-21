@@ -16,10 +16,7 @@ package org.syncope.core.rest;
 
 import static org.junit.Assert.*;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -41,57 +38,10 @@ import org.syncope.types.SchemaType;
 
 public class AuthenticationTestITCase extends AbstractTest {
 
-    private UserTO getSampleTO(final String email) {
-        UserTO userTO = new UserTO();
-        userTO.setPassword("password123");
-
-        AttributeTO usernameTO = new AttributeTO();
-        usernameTO.setSchema("username");
-        usernameTO.addValue(email);
-        userTO.addAttribute(usernameTO);
-
-        AttributeTO firstnameTO = new AttributeTO();
-        firstnameTO.setSchema("firstname");
-        firstnameTO.addValue(email);
-        userTO.addAttribute(firstnameTO);
-
-        AttributeTO surnameTO = new AttributeTO();
-        surnameTO.setSchema("surname");
-        surnameTO.addValue("Surname");
-        userTO.addAttribute(surnameTO);
-
-        AttributeTO typeTO = new AttributeTO();
-        typeTO.setSchema("type");
-        typeTO.addValue("a type");
-        userTO.addAttribute(typeTO);
-
-        AttributeTO userIdTO = new AttributeTO();
-        userIdTO.setSchema("userId");
-        userIdTO.addValue(email);
-        userTO.addAttribute(userIdTO);
-
-        AttributeTO emailTO = new AttributeTO();
-        emailTO.setSchema("email");
-        emailTO.addValue(email);
-        userTO.addAttribute(emailTO);
-
-        AttributeTO loginDateTO = new AttributeTO();
-        loginDateTO.setSchema("loginDate");
-        DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        loginDateTO.addValue(sdf.format(new Date()));
-        userTO.addAttribute(loginDateTO);
-
-        AttributeTO testAttributeTO = new AttributeTO();
-        testAttributeTO.setSchema("testAttribute");
-        testAttributeTO.addValue("a value");
-        userTO.addAttribute(testAttributeTO);
-
-        return userTO;
-    }
-
     @Test
     public void testEntitlements() {
-        ((CommonsClientHttpRequestFactory) restTemplate.getRequestFactory()).getHttpClient().getState().setCredentials(AuthScope.ANY,
+        ((CommonsClientHttpRequestFactory) restTemplate.getRequestFactory()).
+                getHttpClient().getState().setCredentials(AuthScope.ANY,
                 new UsernamePasswordCredentials("1", "password"));
 
         String[] entsArray = restTemplate.getForObject(BASE_URL
@@ -146,7 +96,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         assertEquals(schemaTO, newSchemaTO);
 
         // 2. create an user with the role created above (as admin)
-        UserTO userTO = getSampleTO("auth@test.org");
+        UserTO userTO = UserTestITCase.getSampleTO("auth@test.org");
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(authRoleTO.getId());
         AttributeTO testAttributeTO = new AttributeTO();
@@ -166,7 +116,8 @@ public class AuthenticationTestITCase extends AbstractTest {
         assertNotNull(schemaTO);
 
         // 4. read the schema created above (as user) - success
-        ((CommonsClientHttpRequestFactory) restTemplate.getRequestFactory()).getHttpClient().getState().setCredentials(AuthScope.ANY,
+        ((CommonsClientHttpRequestFactory) restTemplate.getRequestFactory()).
+                getHttpClient().getState().setCredentials(AuthScope.ANY,
                 new UsernamePasswordCredentials(
                 String.valueOf(userTO.getId()), "password123"));
 
@@ -191,7 +142,7 @@ public class AuthenticationTestITCase extends AbstractTest {
 
     @Test
     public void testUserRead() {
-        UserTO userTO = getSampleTO("testuserread@test.org");
+        UserTO userTO = UserTestITCase.getSampleTO("testuserread@test.org");
 
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(7L);
@@ -205,7 +156,8 @@ public class AuthenticationTestITCase extends AbstractTest {
                 userTO, UserTO.class);
         assertNotNull(userTO);
 
-        ((CommonsClientHttpRequestFactory) restTemplate.getRequestFactory()).getHttpClient().getState().setCredentials(AuthScope.ANY,
+        ((CommonsClientHttpRequestFactory) restTemplate.getRequestFactory()).
+                getHttpClient().getState().setCredentials(AuthScope.ANY,
                 new UsernamePasswordCredentials(
                 Long.valueOf(userTO.getId()).toString(), "password123"));
 
@@ -213,7 +165,8 @@ public class AuthenticationTestITCase extends AbstractTest {
                 BASE_URL + "user/read/{userId}.json", UserTO.class, 1);
         assertNotNull(readUserTO);
 
-        ((CommonsClientHttpRequestFactory) restTemplate.getRequestFactory()).getHttpClient().getState().setCredentials(AuthScope.ANY,
+        ((CommonsClientHttpRequestFactory) restTemplate.getRequestFactory()).
+                getHttpClient().getState().setCredentials(AuthScope.ANY,
                 new UsernamePasswordCredentials("2", "password"));
 
         HttpClientErrorException exception = null;
@@ -232,7 +185,7 @@ public class AuthenticationTestITCase extends AbstractTest {
 
     @Test
     public void testUserSearch() {
-        UserTO userTO = getSampleTO("testusersearch@test.org");
+        UserTO userTO = UserTestITCase.getSampleTO("testusersearch@test.org");
 
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(7L);
@@ -246,7 +199,8 @@ public class AuthenticationTestITCase extends AbstractTest {
                 userTO, UserTO.class);
         assertNotNull(userTO);
 
-        ((CommonsClientHttpRequestFactory) restTemplate.getRequestFactory()).getHttpClient().getState().setCredentials(AuthScope.ANY,
+        ((CommonsClientHttpRequestFactory) restTemplate.getRequestFactory()).
+                getHttpClient().getState().setCredentials(AuthScope.ANY,
                 new UsernamePasswordCredentials(
                 Long.valueOf(userTO.getId()).toString(), "password123"));
 
@@ -266,7 +220,8 @@ public class AuthenticationTestITCase extends AbstractTest {
         }
         assertTrue(userIds.contains(1L));
 
-        ((CommonsClientHttpRequestFactory) restTemplate.getRequestFactory()).getHttpClient().getState().setCredentials(AuthScope.ANY,
+        ((CommonsClientHttpRequestFactory) restTemplate.getRequestFactory()).
+                getHttpClient().getState().setCredentials(AuthScope.ANY,
                 new UsernamePasswordCredentials("2", "password"));
 
         matchedUsers = Arrays.asList(

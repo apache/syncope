@@ -28,10 +28,6 @@ import org.springframework.web.client.RestTemplate;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
-    "classpath:syncopeContext.xml",
-    "classpath:persistenceContext.xml",
-    "classpath:workflowContext.xml",
-    "classpath:schedulingContext.xml",
     "classpath:restClientContext.xml"
 })
 public abstract class AbstractTest {
