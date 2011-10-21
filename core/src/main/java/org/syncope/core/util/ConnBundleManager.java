@@ -22,8 +22,12 @@ import java.util.List;
 import javassist.NotFoundException;
 
 import org.identityconnectors.common.IOUtil;
+import org.identityconnectors.framework.api.APIConfiguration;
+import org.identityconnectors.framework.api.ConfigurationProperties;
+import org.identityconnectors.framework.api.ConnectorInfo;
 import org.identityconnectors.framework.api.ConnectorInfoManager;
 import org.identityconnectors.framework.api.ConnectorInfoManagerFactory;
+import org.identityconnectors.framework.api.ConnectorKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,17 +40,18 @@ import org.syncope.core.persistence.dao.MissingConfKeyException;
 public class ConnBundleManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(
-                    ConnBundleManager.class);
+            ConnBundleManager.class);
+
     @Autowired
     private ConfDAO confDAO;
 
     public ConnectorInfoManager getConnectorManager()
             throws NotFoundException, MissingConfKeyException {
-    
+
         // 1. Bundles directory
         SyncopeConf connectorBundleDir =
                 confDAO.find("connid.bundles.directory");
-    
+
         // 2. Find bundles inside that directory
         File bundleDirectory = new File(connectorBundleDir.getValue());
         String[] bundleFiles = bundleDirectory.list();
@@ -54,7 +59,7 @@ public class ConnBundleManager {
             throw new NotFoundException("Bundles from dir "
                     + connectorBundleDir.getValue());
         }
-    
+
         List<URL> bundleFileURLs = new ArrayList<URL>();
         for (String file : bundleFiles) {
             try {
@@ -72,7 +77,7 @@ public class ConnBundleManager {
                     + connectorBundleDir.getValue());
         }
         LOG.debug("Bundle file URLs: {}", bundleFileURLs);
-    
+
         // 3. Get connector info manager
         ConnectorInfoManager manager =
                 ConnectorInfoManagerFactory.getInstance().getLocalManager(
@@ -80,8 +85,77 @@ public class ConnBundleManager {
         if (manager == null) {
             throw new NotFoundException("Connector Info Manager");
         }
-    
+
         return manager;
     }
 
+    public ConfigurationProperties getConfigurationProperties(
+            final String bundleName,
+            final String version,
+            final String connectorName)
+            throws NotFoundException {
+
+        //Create key for search all properties
+        final ConnectorKey key =
+                new ConnectorKey(bundleName, version, connectorName);
+
+        if (key == null) {
+            throw new NotFoundException("Connector Key");
+        }
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("\nBundle name: " + key.getBundleName()
+                    + "\nBundle version: " + key.getBundleVersion()
+                    + "\nBundle class: " + key.getConnectorName());
+        }
+
+        //get the specified connector.
+        ConnectorInfo info;
+        try {
+            info = getConnectorManager().findConnectorInfo(key);
+            if (info == null) {
+                throw new NotFoundException("Connector Info for key " + key);
+            }
+        } catch (MissingConfKeyException e) {
+            throw new NotFoundException("Connector Info for key " + key, e);
+        }
+
+        return getConfigurationProperties(info);
+    }
+
+    public ConfigurationProperties getConfigurationProperties(
+            final ConnectorInfo info)
+            throws NotFoundException {
+
+        if (info == null) {
+            throw new NotFoundException("Invalid connector info " + info);
+        }
+
+        // create default configuration
+        APIConfiguration apiConfig = info.createDefaultAPIConfiguration();
+
+        if (apiConfig == null) {
+            throw new NotFoundException("Default API configuration");
+        }
+
+        // retrieve the ConfigurationProperties.
+        ConfigurationProperties properties =
+                apiConfig.getConfigurationProperties();
+
+        if (properties == null) {
+            throw new NotFoundException("Configuration properties");
+        }
+
+        // Print out what the properties are (not necessary)
+        if (LOG.isDebugEnabled()) {
+            for (String propName : properties.getPropertyNames()) {
+                LOG.debug("\nProperty Name: "
+                        + properties.getProperty(propName).getName()
+                        + "\nProperty Type: "
+                        + properties.getProperty(propName).getType());
+            }
+        }
+
+        return properties;
+    }
 }

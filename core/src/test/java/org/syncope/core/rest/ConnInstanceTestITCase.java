@@ -81,7 +81,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         connectorTO.setVersion(connidSoapVersion);
 
         // set connector name
-        connectorTO.setConnectorName(WebServiceConnector.class.getSimpleName());
+        connectorTO.setConnectorName(WebServiceConnector.class.getName());
 
         // set bundle name
         connectorTO.setBundleName("org.connid.bundles.soap");
@@ -333,5 +333,21 @@ public class ConnInstanceTestITCase extends AbstractTest {
                 ConnConfProperty[].class, 104));
         assertNotNull(props);
         assertFalse(props.isEmpty());
+    }
+
+    @Test
+    public void checkHiddenProperty() {
+        ConnInstanceTO connInstanceTO = restTemplate.getForObject(
+                BASE_URL + "connector/read/{connectorId}.json",
+                ConnInstanceTO.class, "100");
+
+        boolean check = false;
+
+        for (ConnConfProperty prop : connInstanceTO.getConfiguration()) {
+            if ("receiveTimeout".equals(prop.getSchema().getName())) {
+                check = true;
+            }
+        }
+        assertTrue(check);
     }
 }

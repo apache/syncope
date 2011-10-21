@@ -134,4 +134,14 @@ public class ConnInstanceTO extends AbstractBaseBean {
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
     }
+
+    public boolean isPropertyPresent(final String propName) {
+
+        for (ConnConfProperty props : this.getConfiguration()) {
+            if (propName.equals(props.getSchema().getName())) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

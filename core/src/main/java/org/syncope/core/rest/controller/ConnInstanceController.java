@@ -160,7 +160,8 @@ public class ConnInstanceController extends AbstractController {
     @PreAuthorize("hasRole('CONNECTOR_LIST')")
     @RequestMapping(method = RequestMethod.GET,
     value = "/list")
-    public List<ConnInstanceTO> list() {
+    public List<ConnInstanceTO> list()
+            throws NotFoundException {
         List<ConnInstance> connInstances = connInstanceDAO.findAll();
 
         List<ConnInstanceTO> connInstanceTOs =
@@ -273,8 +274,8 @@ public class ConnInstanceController extends AbstractController {
                 connectorBundleTO.setConnectorName(key.getConnectorName());
                 connectorBundleTO.setVersion(key.getBundleVersion());
 
-                properties = bundle.createDefaultAPIConfiguration().
-                        getConfigurationProperties();
+                properties =
+                        connBundleManager.getConfigurationProperties(bundle);
 
                 ConnConfPropSchema connConfPropSchema;
                 ConfigurationProperty configurationProperty;

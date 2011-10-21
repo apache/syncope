@@ -14,6 +14,11 @@
  */
 package org.syncope.core.rest.data;
 
+import javassist.NotFoundException;
+import org.identityconnectors.framework.api.ConfigurationProperties;
+import org.identityconnectors.framework.api.ConfigurationProperty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,16 +28,28 @@ import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
 import org.syncope.core.persistence.beans.ConnInstance;
 import org.syncope.core.persistence.dao.ConnInstanceDAO;
+import org.syncope.core.util.ConnBundleManager;
+import org.syncope.types.ConnConfPropSchema;
+import org.syncope.types.ConnConfProperty;
 import org.syncope.types.SyncopeClientExceptionType;
 
 @Component
 public class ConnInstanceDataBinder {
+
+    /**
+     * Logger.
+     */
+    private static final Logger LOG = LoggerFactory.getLogger(
+            ConnInstanceDataBinder.class);
 
     private static final String[] ignoreProperties = {
         "id", "resources", "syncToken"};
 
     @Autowired
     private ConnInstanceDAO connectorInstanceDAO;
+
+    @Autowired
+    private ConnBundleManager connBundleManager;
 
     public ConnInstance getConnInstance(
             final ConnInstanceTO connectorInstanceTO)
@@ -148,9 +165,17 @@ public class ConnInstanceDataBinder {
         return connInstance;
     }
 
-    public ConnInstanceTO getConnInstanceTO(ConnInstance connInstance) {
+    public ConnInstanceTO getConnInstanceTO(final ConnInstance connInstance)
+            throws NotFoundException {
         ConnInstanceTO connInstanceTO = new ConnInstanceTO();
         connInstanceTO.setId(connInstance.getId());
+
+        // retrieve the ConfigurationProperties.
+        ConfigurationProperties properties =
+                connBundleManager.getConfigurationProperties(
+                connInstance.getBundleName(),
+                connInstance.getVersion(),
+                connInstance.getConnectorName());
 
         BeanUtils.copyProperties(
                 connInstance, connInstanceTO, ignoreProperties);
@@ -158,6 +183,31 @@ public class ConnInstanceDataBinder {
         connInstanceTO.setSyncToken(
                 connInstance.getSerializedSyncToken());
 
+        ConnConfPropSchema connConfPropSchema;
+        ConfigurationProperty configurationProperty;
+
+        for (String propName : properties.getPropertyNames()) {
+
+            if (!connInstanceTO.isPropertyPresent(propName)) {
+
+                connConfPropSchema = new ConnConfPropSchema();
+                configurationProperty = properties.getProperty(propName);
+                connConfPropSchema.setName(
+                        configurationProperty.getName());
+                connConfPropSchema.setDisplayName(
+                        configurationProperty.getDisplayName(propName));
+                connConfPropSchema.setHelpMessage(
+                        configurationProperty.getHelpMessage(propName));
+                connConfPropSchema.setRequired(
+                        configurationProperty.isRequired());
+                connConfPropSchema.setType(
+                        configurationProperty.getType().getName());
+
+                ConnConfProperty property = new ConnConfProperty();
+                property.setSchema(connConfPropSchema);
+                connInstanceTO.addConfiguration(property);
+            }
+        }
         return connInstanceTO;
     }
 }
