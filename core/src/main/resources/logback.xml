@@ -95,7 +95,11 @@
         <level value="INFO"/>
         <appender-ref ref="persistence"/>
     </logger>
-
+    <logger name="org.syncope.core.persistence.propagation.ConnectorFacadeProxy" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="persistence"/>
+    </logger>
+    
     <logger name="org.syncope.core.security" additivity="false">
         <level value="INFO"/>
         <appender-ref ref="main"/>

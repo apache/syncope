@@ -21,9 +21,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import javassist.NotFoundException;
-
 import org.identityconnectors.common.security.GuardedByteArray;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.api.APIConfiguration;
@@ -241,6 +239,10 @@ public class ConnectorFacadeProxy {
         if (capabitilies.contains(ConnectorCapability.RESOLVE)) {
             result = connector.resolveUsername(
                     objectClass, username, options);
+        } else {
+            LOG.info("Resolve for {} was attempted, although the "
+                    + "connector only has these capabilities: {}. No action.",
+                    username, capabitilies);
         }
 
         return result;
@@ -275,6 +277,10 @@ public class ConnectorFacadeProxy {
             propagationAttempted.add("create");
 
             result = connector.create(objectClass, attrs, options);
+        } else {
+            LOG.info("Create was attempted, although the "
+                    + "connector only has these capabilities: {}. No action.",
+                    capabitilies);
         }
 
         return result;
@@ -311,6 +317,10 @@ public class ConnectorFacadeProxy {
 
             result = connector.update(
                     objectClass, uid, attrs, options);
+        } else {
+            LOG.info("Update for {} was attempted, although the "
+                    + "connector only has these capabilities: {}. No action.",
+                    uid.getUidValue(), capabitilies);
         }
 
         return result;
@@ -341,6 +351,10 @@ public class ConnectorFacadeProxy {
             propagationAttempted.add("delete");
 
             connector.delete(objectClass, uid, options);
+        } else {
+            LOG.info("Delete for {} was attempted, although the "
+                    + "connector only has these capabilities: {}. No action.",
+                    uid.getUidValue(), capabitilies);
         }
     }
 
@@ -362,6 +376,10 @@ public class ConnectorFacadeProxy {
                             return result.add(delta);
                         }
                     }, null);
+        } else {
+            LOG.info("Sync was attempted, although the "
+                    + "connector only has these capabilities: {}. No action.",
+                    capabitilies);
         }
 
         return result;
@@ -377,6 +395,10 @@ public class ConnectorFacadeProxy {
 
         if (capabitilies.contains(ConnectorCapability.SYNC)) {
             result = connector.getLatestSyncToken(ObjectClass.ACCOUNT);
+        } else {
+            LOG.info("getLatestSyncToken was attempted, although the "
+                    + "connector only has these capabilities: {}. No action.",
+                    capabitilies);
         }
 
         return result;
@@ -451,6 +473,10 @@ public class ConnectorFacadeProxy {
                         result = connector.getObject(objectClass, uid, options);
                 }
             }
+        } else {
+            LOG.info("Search was attempted, although the "
+                    + "connector only has these capabilities: {}. No action.",
+                    capabitilies);
         }
 
         return result;
