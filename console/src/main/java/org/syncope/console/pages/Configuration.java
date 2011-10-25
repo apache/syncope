@@ -60,10 +60,13 @@ import org.syncope.console.rest.ConfigurationRestClient;
 import org.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
 import org.syncope.console.wicket.markup.html.form.DeleteLinkPanel;
 import org.syncope.console.wicket.markup.html.form.EditLinkPanel;
-
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
+import org.apache.wicket.markup.html.link.Link;
+import org.apache.wicket.request.handler.resource.ResourceStreamRequestHandler;
+import org.apache.wicket.request.resource.ContentDisposition;
+import org.apache.wicket.util.resource.StringResourceStream;
 
 /**
  * Configurations WebPage.
@@ -259,12 +262,31 @@ public class Configuration extends BasePage {
             }
         };
 
-        String allowedRoles = xmlRolesReader.getAllAllowedRoles(
-                "Configuration", "create");
-        MetaDataRoleAuthorizationStrategy.authorize(createConfigurationLink,
-                ENABLE, allowedRoles);
-
+        MetaDataRoleAuthorizationStrategy.authorize(
+                createConfigurationLink, ENABLE,
+                xmlRolesReader.getAllAllowedRoles("Configuration", "create"));
         add(createConfigurationLink);
+
+        Link dbExportLink = new Link<Void>("dbExportLink") {
+
+            private static final long serialVersionUID = -4331619903296515985L;
+
+            @Override
+            public void onClick() {
+                StringResourceStream stream =
+                        new StringResourceStream(restClient.dbContentAsXml(),
+                        "text/xml");
+                getRequestCycle().scheduleRequestHandlerAfterCurrent(
+                        new ResourceStreamRequestHandler(stream).setFileName(
+                        "content.xml").setContentDisposition(
+                        ContentDisposition.ATTACHMENT));
+            }
+        };
+
+        MetaDataRoleAuthorizationStrategy.authorize(
+                dbExportLink, ENABLE,
+                xmlRolesReader.getAllAllowedRoles("Configuration", "read"));
+        add(dbExportLink);
 
         Form paginatorForm = new Form("PaginatorForm");
 

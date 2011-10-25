@@ -29,6 +29,13 @@ import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 @Component
 public class ConfigurationRestClient extends AbstractBaseRestClient {
 
+    public String dbContentAsXml()
+            throws SyncopeClientCompositeErrorException {
+
+        return restTemplate.getForObject(baseURL
+                + "configuration/dbexport.json", String.class);
+    }
+
     /**
      * Get all stored configurations.
      * @return ConfigurationTOs
