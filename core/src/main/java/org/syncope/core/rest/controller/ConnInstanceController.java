@@ -16,11 +16,11 @@ package org.syncope.core.rest.controller;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.Locale;
 import javassist.NotFoundException;
-
 import javax.servlet.http.HttpServletResponse;
-
+import org.apache.commons.lang.StringUtils;
+import org.identityconnectors.common.l10n.CurrentLocale;
 import org.identityconnectors.framework.api.ConfigurationProperties;
 import org.identityconnectors.framework.api.ConfigurationProperty;
 import org.identityconnectors.framework.api.ConnectorInfo;
@@ -35,6 +35,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.syncope.client.to.ConnBundleTO;
 import org.syncope.client.to.ConnInstanceTO;
@@ -160,8 +161,16 @@ public class ConnInstanceController extends AbstractController {
     @PreAuthorize("hasRole('CONNECTOR_LIST')")
     @RequestMapping(method = RequestMethod.GET,
     value = "/list")
-    public List<ConnInstanceTO> list()
+    public List<ConnInstanceTO> list(
+            @RequestParam(value = "lang", required = false) final String lang)
             throws NotFoundException {
+
+        if (StringUtils.isBlank(lang)) {
+            CurrentLocale.set(Locale.ENGLISH);
+        } else {
+            CurrentLocale.set(new Locale(lang));
+        }
+
         List<ConnInstance> connInstances = connInstanceDAO.findAll();
 
         List<ConnInstanceTO> connInstanceTOs =
@@ -233,8 +242,15 @@ public class ConnInstanceController extends AbstractController {
     @PreAuthorize("hasRole('CONNECTOR_READ')")
     @RequestMapping(method = RequestMethod.GET,
     value = "/bundle/list")
-    public List<ConnBundleTO> getBundles()
+    public List<ConnBundleTO> getBundles(
+            @RequestParam(value = "lang", required = false) final String lang)
             throws NotFoundException, MissingConfKeyException {
+
+        if (StringUtils.isBlank(lang)) {
+            CurrentLocale.set(Locale.ENGLISH);
+        } else {
+            CurrentLocale.set(new Locale(lang));
+        }
 
         ConnectorInfoManager manager =
                 connBundleManager.getConnectorManager();

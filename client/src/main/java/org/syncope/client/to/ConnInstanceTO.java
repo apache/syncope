@@ -16,8 +16,11 @@ package org.syncope.client.to;
 
 import org.syncope.types.ConnConfProperty;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.syncope.client.AbstractBaseBean;
 import org.syncope.types.ConnectorCapability;
 
@@ -74,6 +77,17 @@ public class ConnInstanceTO extends AbstractBaseBean {
 
     public Set<ConnConfProperty> getConfiguration() {
         return this.configuration;
+    }
+
+    @JsonIgnore
+    public Map<String, ConnConfProperty> getConfigurationMap() {
+        Map<String, ConnConfProperty> result =
+                new HashMap<String, ConnConfProperty>();
+        for (ConnConfProperty prop : getConfiguration()) {
+            result.put(prop.getSchema().getName(), prop);
+        }
+
+        return result;
     }
 
     public boolean addConfiguration(ConnConfProperty property) {
@@ -133,15 +147,5 @@ public class ConnInstanceTO extends AbstractBaseBean {
 
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
-    }
-
-    public boolean isPropertyPresent(final String propName) {
-
-        for (ConnConfProperty props : this.getConfiguration()) {
-            if (propName.equals(props.getSchema().getName())) {
-                return true;
-            }
-        }
-        return false;
     }
 }

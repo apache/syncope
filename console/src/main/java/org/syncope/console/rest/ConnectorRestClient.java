@@ -21,6 +21,7 @@ import org.syncope.client.to.ConnBundleTO;
 import org.syncope.client.to.ConnInstanceTO;
 import org.syncope.client.to.ResourceTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.syncope.console.SyncopeSession;
 import org.syncope.types.ConnConfProperty;
 
 /**
@@ -35,8 +36,8 @@ public class ConnectorRestClient extends AbstractBaseRestClient {
      */
     public List<ConnInstanceTO> getAllConnectors() {
         return Arrays.asList(restTemplate.getForObject(
-                baseURL + "connector/list.json",
-                ConnInstanceTO[].class));
+                baseURL + "connector/list.json?lang=" + SyncopeSession.get().
+                getLocale(), ConnInstanceTO[].class));
     }
 
     /**
@@ -45,8 +46,7 @@ public class ConnectorRestClient extends AbstractBaseRestClient {
      */
     public void create(ConnInstanceTO connectorTO) {
         restTemplate.postForObject(baseURL
-                + "connector/create.json", connectorTO,
-                ConnInstanceTO.class);
+                + "connector/create.json", connectorTO, ConnInstanceTO.class);
     }
 
     /**
@@ -68,22 +68,11 @@ public class ConnectorRestClient extends AbstractBaseRestClient {
         return connectorTO;
     }
 
-    /**
-     * Update an already existent connector.
-     * @param schemaTO updated
-     */
     public void update(ConnInstanceTO connectorTO) {
-        restTemplate.postForObject(
-                baseURL + "connector/update.json",
-                connectorTO,
-                ConnInstanceTO.class);
+        restTemplate.postForObject(baseURL + "connector/update.json",
+                connectorTO, ConnInstanceTO.class);
     }
 
-    /**
-     * Delete an already existent connector by its name.
-     * @param name (e.g.:surname)
-     * @return schemaTO
-     */
     public void delete(Long id) {
         restTemplate.delete(baseURL
                 + "connector/delete/{connectorId}.json", id.toString());
@@ -94,7 +83,8 @@ public class ConnectorRestClient extends AbstractBaseRestClient {
 
         try {
             bundles = Arrays.asList(restTemplate.getForObject(
-                    baseURL + "connector/bundle/list",
+                    baseURL + "connector/bundle/list?lang="
+                    + SyncopeSession.get().getLocale(),
                     ConnBundleTO[].class));
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While getting connector bundles", e);

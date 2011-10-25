@@ -14,6 +14,7 @@
  */
 package org.syncope.core.rest.data;
 
+import java.util.Map;
 import javassist.NotFoundException;
 import org.identityconnectors.framework.api.ConfigurationProperties;
 import org.identityconnectors.framework.api.ConfigurationProperty;
@@ -100,8 +101,8 @@ public class ConnInstanceDataBinder {
     }
 
     public ConnInstance updateConnInstance(
-            Long connectorInstanceId,
-            ConnInstanceTO connInstanceTO)
+            final Long connectorInstanceId,
+            final ConnInstanceTO connInstanceTO)
             throws SyncopeClientCompositeErrorException {
 
         SyncopeClientCompositeErrorException compositeErrorException =
@@ -167,6 +168,7 @@ public class ConnInstanceDataBinder {
 
     public ConnInstanceTO getConnInstanceTO(final ConnInstance connInstance)
             throws NotFoundException {
+
         ConnInstanceTO connInstanceTO = new ConnInstanceTO();
         connInstanceTO.setId(connInstance.getId());
 
@@ -186,12 +188,13 @@ public class ConnInstanceDataBinder {
         ConnConfPropSchema connConfPropSchema;
         ConfigurationProperty configurationProperty;
 
+        Map<String, ConnConfProperty> connInstanceToConfMap =
+                connInstanceTO.getConfigurationMap();
         for (String propName : properties.getPropertyNames()) {
+            configurationProperty = properties.getProperty(propName);
 
-            if (!connInstanceTO.isPropertyPresent(propName)) {
-
+            if (!connInstanceToConfMap.containsKey(propName)) {
                 connConfPropSchema = new ConnConfPropSchema();
-                configurationProperty = properties.getProperty(propName);
                 connConfPropSchema.setName(
                         configurationProperty.getName());
                 connConfPropSchema.setDisplayName(
@@ -206,6 +209,10 @@ public class ConnInstanceDataBinder {
                 ConnConfProperty property = new ConnConfProperty();
                 property.setSchema(connConfPropSchema);
                 connInstanceTO.addConfiguration(property);
+            } else {
+                connInstanceToConfMap.get(propName).getSchema().
+                        setDisplayName(
+                        configurationProperty.getDisplayName(propName));
             }
         }
         return connInstanceTO;

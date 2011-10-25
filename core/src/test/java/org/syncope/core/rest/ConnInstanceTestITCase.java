@@ -14,6 +14,7 @@
  */
 package org.syncope.core.rest;
 
+import java.io.IOException;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -24,11 +25,11 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-
 import org.connid.bundles.soap.WebServiceConnector;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.annotation.ExpectedException;
@@ -47,18 +48,26 @@ public class ConnInstanceTestITCase extends AbstractTest {
 
     private static String bundlesDirectory;
 
-    @Before
-    public void init() {
-        Properties props = new java.util.Properties();
+    @BeforeClass
+    public static void init() {
+        Properties props = new Properties();
+        InputStream propStream = null;
         try {
-            InputStream propStream =
-                    getClass().getResourceAsStream(
+            propStream = ConnInstanceTestITCase.class.getResourceAsStream(
                     "/bundles.properties");
             props.load(propStream);
             connidSoapVersion = props.getProperty("connid.soap.version");
             bundlesDirectory = props.getProperty("bundles.directory");
         } catch (Throwable t) {
             LOG.error("Could not load bundles.properties", t);
+        } finally {
+            if (propStream != null) {
+                try {
+                    propStream.close();
+                } catch (IOException e) {
+                    LOG.error("While reading bundles.properties", e);
+                }
+            }
         }
         assertNotNull(connidSoapVersion);
         assertNotNull(bundlesDirectory);
@@ -349,5 +358,41 @@ public class ConnInstanceTestITCase extends AbstractTest {
             }
         }
         assertTrue(check);
+    }
+
+    @Test
+    public void checkSelectedLanguage() {
+        // 1. Check Italian
+        List<ConnInstanceTO> connectorInstanceTOs =
+                Arrays.asList(restTemplate.getForObject(
+                BASE_URL + "connector/list.json?lang=it",
+                ConnInstanceTO[].class));
+
+        Map<String, ConnConfProperty> instanceConfMap;
+        for (ConnInstanceTO instance : connectorInstanceTOs) {
+            if ("org.connid.bundles.db.table".equals(
+                    instance.getBundleName())) {
+
+                instanceConfMap = instance.getConfigurationMap();
+                assertEquals("Utente", instanceConfMap.get("user").
+                        getSchema().getDisplayName());
+            }
+        }
+
+        // 2. Check English (default)
+        connectorInstanceTOs =
+                Arrays.asList(restTemplate.getForObject(
+                BASE_URL + "connector/list.json",
+                ConnInstanceTO[].class));
+
+        for (ConnInstanceTO instance : connectorInstanceTOs) {
+            if ("org.connid.bundles.db.table".equals(
+                    instance.getBundleName())) {
+
+                instanceConfMap = instance.getConfigurationMap();
+                assertEquals("User", instanceConfMap.get("user").
+                        getSchema().getDisplayName());
+            }
+        }
     }
 }
