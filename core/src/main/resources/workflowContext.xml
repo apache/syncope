@@ -17,6 +17,10 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans   
                            http://www.springframework.org/schema/beans/spring-beans.xsd">
     
+    <bean id="adminUser" class="java.lang.String">
+        <constructor-arg value="${adminUser}"/>
+    </bean>
+    
     <bean id="wfAdapter" class="${wfAdapter}"/>
 
     <bean id="processEngineConfiguration" class="org.activiti.spring.SpringProcessEngineConfiguration">

@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
@@ -40,6 +41,8 @@ import org.syncope.client.to.PasswordPolicyTO;
 import org.syncope.client.to.PolicyTO;
 import org.syncope.client.to.PropagationTaskTO;
 import org.syncope.client.to.UserTO;
+import org.syncope.client.to.WorkflowFormPropertyTO;
+import org.syncope.client.to.WorkflowFormTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
@@ -612,6 +615,50 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(ex);
         assertNotNull(ex.getException(
                 SyncopeClientExceptionType.RequiredValuesMissing));
+    }
+
+    @Test
+    public final void createWithApproval() {
+        UserTO userTO = getSampleTO("createWithApproval@syncope-idm.org");
+
+        // User with role 9 are defined in workflow as subject to approval
+        MembershipTO membershipTO = new MembershipTO();
+        membershipTO.setRoleId(9);
+        userTO.addMembership(membershipTO);
+
+        // 1. create user with role 9
+        userTO = restTemplate.postForObject(BASE_URL + "user/create",
+                userTO, UserTO.class);
+        assertNotNull(userTO);
+        assertEquals(1, userTO.getMemberships().size());
+        assertEquals(9, userTO.getMemberships().get(0).getRoleId());
+        assertEquals("createApproval", userTO.getStatus());
+
+        // 2. request if there is any pending task for user just created
+        WorkflowFormTO form = restTemplate.getForObject(
+                BASE_URL + "user/workflow/form/{userId}",
+                WorkflowFormTO.class, userTO.getId());
+        assertNotNull(form);
+        assertNotNull(form.getTaskId());
+        assertNull(form.getOwner());
+
+        // 3. claim task for currently authenticated user (admin)
+        form = restTemplate.getForObject(
+                BASE_URL + "user/workflow/form/claim/{taskId}",
+                WorkflowFormTO.class, form.getTaskId());
+        assertNotNull(form);
+        assertNotNull(form.getTaskId());
+        assertNotNull(form.getOwner());
+
+        // 4. reject user
+        Map<String, WorkflowFormPropertyTO> props = form.getPropertiesAsMap();
+        props.get("approve").setValue(Boolean.FALSE.toString());
+        props.get("rejectReason").setValue("I don't like him.");
+        userTO = restTemplate.postForObject(
+                BASE_URL + "user/workflow/form/submit",
+                form, UserTO.class);
+        assertNotNull(userTO);
+        assertEquals("rejected", userTO.getStatus());
     }
 
     @Test

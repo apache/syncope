@@ -99,7 +99,6 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
             }
 
             user = userDAO.find(username);
-
             if (user == null) {
                 throw new UsernameNotFoundException(
                         "Could not find user " + username);

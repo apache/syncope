@@ -66,6 +66,9 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
     public SyncopeUser getUserFromId(final Long userId)
             throws NotFoundException, UnauthorizedRoleException {
 
+        if (userId == null)
+            throw new NotFoundException("Null user id");            
+        
         SyncopeUser user = userDAO.find(userId);
         if (user == null) {
             throw new NotFoundException("User " + userId);

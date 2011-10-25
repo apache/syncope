@@ -29,8 +29,6 @@ import org.springframework.web.context.ServletContextAware;
 public class SpringContextInitializer implements ServletContextAware,
         BeanFactoryAware, InitializingBean {
 
-    private static Boolean DONE = false;
-
     @Autowired
     private ConnInstanceLoader connInstanceLoader;
 
@@ -55,14 +53,6 @@ public class SpringContextInitializer implements ServletContextAware,
     @Override
     public void afterPropertiesSet()
             throws Exception {
-
-        synchronized (SpringContextInitializer.class) {
-            if (!DONE) {
-                DONE = true;
-            } else {
-                return;
-            }
-        }
 
         contentLoader.load();
         connInstanceLoader.load();

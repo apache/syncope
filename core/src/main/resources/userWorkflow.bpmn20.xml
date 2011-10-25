@@ -32,13 +32,39 @@
       
         <serviceTask id="create" name="Create" activiti:class="org.syncope.core.workflow.activiti.Create"/>
 
-        <sequenceFlow id="flow2" sourceRef="create" targetRef="activate"/>
+        <sequenceFlow id="flow2" sourceRef="create" targetRef="createGW"/>
+        
+        <exclusiveGateway id="createGW"/>
+        <sequenceFlow id="create2Activate" sourceRef="createGW" targetRef="activate">
+            <conditionExpression xsi:type="tFormalExpression">${!syncopeUser.getRoleIds().contains(9)}</conditionExpression>
+        </sequenceFlow>
+        <sequenceFlow id="create2CreateApproval" sourceRef="createGW" targetRef="createApproval">
+            <conditionExpression xsi:type="tFormalExpression">${syncopeUser.getRoleIds().contains(9)}</conditionExpression>
+        </sequenceFlow>
+        
+        <userTask id="createApproval" activiti:formKey="createApproval" name="Create approval">
+            <extensionElements>
+                <activiti:formProperty id="username" name="Username" type="string" writable="false" expression="${syncopeUser.username}"/>
+                <activiti:formProperty id="approve" variable="approve" name="Approve?" type="boolean" required="true"/>
+                <activiti:formProperty id="rejectReason" variable="rejectReason" name="Reason for rejecting" type="string"/>
+            </extensionElements>
+        </userTask>
+
+        <sequenceFlow id="flow3" sourceRef="createApproval" targetRef="createApprovalGW"/>
+        
+        <exclusiveGateway id="createApprovalGW"/>
+        <sequenceFlow id="createApproval2Activate" sourceRef="createApprovalGW" targetRef="activate">
+            <conditionExpression xsi:type="tFormalExpression">${approve}</conditionExpression>
+        </sequenceFlow>
+        <sequenceFlow id="createApproval2Reject" sourceRef="createApprovalGW" targetRef="reject">
+            <conditionExpression xsi:type="tFormalExpression">${!approve}</conditionExpression>
+        </sequenceFlow>
         
         <!-- Comment the following lines and uncomment the lines below in order
              to enable opt-in. -->
         <serviceTask id="activate" name="Activate" activiti:class="org.syncope.core.workflow.activiti.AutoActivate"/>
 
-        <sequenceFlow id="flow3" sourceRef="activate" targetRef="active"/>
+        <sequenceFlow id="flow4" sourceRef="activate" targetRef="active"/>
 
         <!-- Uncomment the following lines and comment the above line in order
              to enable opt-in.
@@ -121,11 +147,25 @@
         <serviceTask id="reactivate" name ="Reactivate" activiti:class="org.syncope.core.workflow.activiti.Reactivate"/>
 
         <sequenceFlow id="flow11" sourceRef="reactivate" targetRef="active"/>
+        
+        <!-- Reject an user -->
+        <scriptTask id="reject" name="Reject" scriptFormat="groovy">
+            <!-- Do something with rejectReason -->
+            <script>
+                def scriptVar = rejectReason
+            </script>
+        </scriptTask>
+        
+        <sequenceFlow id="flow12" sourceRef="reject" targetRef="rejected"/>
+
+        <userTask id="rejected" name="Rejected"/>
+        
+        <sequenceFlow id="flow13" sourceRef="rejected" targetRef="delete"/>
 
         <!-- Delete an user (created, active or suspended) -->
         <serviceTask id="delete" name="Delete" activiti:class="org.syncope.core.workflow.activiti.Delete"/>
 
-        <sequenceFlow id="flow12" sourceRef="delete" targetRef="theEnd"/>
+        <sequenceFlow id="flow99" sourceRef="delete" targetRef="theEnd"/>
 
         <endEvent id="theEnd"/>
       

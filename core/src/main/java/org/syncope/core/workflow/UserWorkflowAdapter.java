@@ -13,10 +13,13 @@
  */
 package org.syncope.core.workflow;
 
+import java.util.List;
 import java.util.Map;
 import javassist.NotFoundException;
 import org.syncope.client.mod.UserMod;
 import org.syncope.client.to.UserTO;
+import org.syncope.client.to.WorkflowDefinitionTO;
+import org.syncope.client.to.WorkflowFormTO;
 import org.syncope.core.persistence.propagation.PropagationByResource;
 import org.syncope.core.rest.controller.UnauthorizedRoleException;
 
@@ -35,6 +38,20 @@ public interface UserWorkflowAdapter {
      */
     Map.Entry<Long, Boolean> create(UserTO userTO)
             throws UnauthorizedRoleException, WorkflowException;
+
+    /**
+     * Execute a task on an user.
+     *
+     * @param userTO user to be subject to action
+     * @param actionId to be verified for activation
+     * @return user just updated
+     * @throws UnauthorizedRoleException authorization exception
+     * @throws NotFoundException user not found exception
+     * @throws WorkflowException workflow exception
+     */
+    Long execute(UserTO userTO, String actionId)
+            throws UnauthorizedRoleException, NotFoundException,
+            WorkflowException;
 
     /**
      * Activate an user.
@@ -100,4 +117,65 @@ public interface UserWorkflowAdapter {
     void delete(Long userId)
             throws UnauthorizedRoleException, NotFoundException,
             WorkflowException;
+
+    /**
+     * Get workflow definition.
+     *
+     * @return workflow definition as XML
+     * @throws WorkflowException workflow exception
+     */
+    WorkflowDefinitionTO getDefinition()
+            throws WorkflowException;
+
+    /**
+     * Update workflow definition.
+     *
+     * @param definition definition as XML
+     * @throws NotFoundException definition not found exception
+     * @throws WorkflowException workflow exception
+     */
+    void updateDefinition(WorkflowDefinitionTO definition)
+            throws NotFoundException, WorkflowException;
+
+    /**
+     * Get all defined forms for current workflow process instances.
+     *
+     * @return list of defined forms 
+     */
+    List<WorkflowFormTO> getForms();
+
+    /**
+     * Get form for given workflowId (if present).
+     *
+     * @param workflowId workflow id
+     * @return form (if present), otherwise null
+     * @throws NotFoundException definition not found exception
+     * @throws WorkflowException workflow exception
+     */
+    WorkflowFormTO getForm(String workflowId)
+            throws NotFoundException, WorkflowException;
+
+    /**
+     * Claim a form for a given user.
+     *
+     * @param taskId Workflow task to which the form is associated
+     * @param userName claiming username
+     * @return updated form
+     * @throws NotFoundException not found exception
+     * @throws WorkflowException workflow exception
+     */
+    WorkflowFormTO claimForm(String taskId, String userName)
+            throws NotFoundException, WorkflowException;
+
+    /**
+     * Submit a form.
+     *
+     * @param form to be submitted
+     * @param userName submitting username
+     * @return user updated by this form submit
+     * @throws NotFoundException not found exception
+     * @throws WorkflowException workflow exception
+     */
+    Long submitForm(WorkflowFormTO form, String userName)
+            throws NotFoundException, WorkflowException;
 }

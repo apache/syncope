@@ -84,5 +84,11 @@
     <Entitlement name="POLICY_READ"/>
     <Entitlement name="POLICY_UPDATE"/>
     <Entitlement name="POLICY_DELETE"/>
+    <Entitlement name="WORKFLOW_DEF_READ"/>
+    <Entitlement name="WORKFLOW_DEF_UPDATE"/>
+    <Entitlement name="WORKFLOW_FORM_LIST"/>
+    <Entitlement name="WORKFLOW_FORM_READ"/>
+    <Entitlement name="WORKFLOW_FORM_CLAIM"/>
+    <Entitlement name="WORKFLOW_FORM_SUBMIT"/>
 
 </dataset>

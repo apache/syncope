@@ -158,6 +158,11 @@
         </dependency>
 
         <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-all</artifactId>
+        </dependency>
+            
+        <dependency>
             <groupId>org.dbunit</groupId>
             <artifactId>dbunit</artifactId>
         </dependency>
@@ -635,9 +640,8 @@
         <profile>
             <id>dev</id>
             <properties>
-                <maven.test.skip>false</maven.test.skip>
                 <waitForCheck>true</waitForCheck>
-                <sureExcludes>nothingToExclude</sureExcludes>
+                <sureExcludes>**</sureExcludes>
             </properties>
             <dependencies>
                 <dependency>

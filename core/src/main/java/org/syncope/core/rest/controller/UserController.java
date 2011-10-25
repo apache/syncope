@@ -35,12 +35,15 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.ModelAndView;
 import org.syncope.client.mod.UserMod;
 import org.syncope.client.search.NodeCond;
 import org.syncope.client.to.MembershipTO;
 import org.syncope.client.to.UserTO;
+import org.syncope.client.to.WorkflowDefinitionTO;
+import org.syncope.client.to.WorkflowFormTO;
 import org.syncope.core.persistence.beans.PropagationTask;
 import org.syncope.core.persistence.dao.UserSearchDAO;
 import org.syncope.core.persistence.propagation.PropagationByResource;
@@ -100,9 +103,7 @@ public class UserController {
     @PreAuthorize("hasRole('TASK_LIST')")
     @RequestMapping(method = RequestMethod.GET,
     value = "/count")
-    @Transactional(readOnly = true, rollbackFor = {
-        Throwable.class
-    })
+    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
     public ModelAndView count() {
         Set<Long> adminRoleIds = EntitlementUtil.getRoleIds(
                 EntitlementUtil.getOwnedEntitlementNames());
@@ -113,9 +114,7 @@ public class UserController {
     @PreAuthorize("hasRole('USER_READ')")
     @RequestMapping(method = RequestMethod.POST,
     value = "/search/count")
-    @Transactional(readOnly = true, rollbackFor = {
-        Throwable.class
-    })
+    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
     public ModelAndView searchCount(@RequestBody final NodeCond searchCondition)
             throws InvalidSearchConditionException {
 
@@ -134,9 +133,7 @@ public class UserController {
     @PreAuthorize("hasRole('USER_LIST')")
     @RequestMapping(method = RequestMethod.GET,
     value = "/list")
-    @Transactional(readOnly = true, rollbackFor = {
-        Throwable.class
-    })
+    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
     public List<UserTO> list() {
         List<SyncopeUser> users = userDAO.findAll(EntitlementUtil.getRoleIds(
                 EntitlementUtil.getOwnedEntitlementNames()));
@@ -151,9 +148,7 @@ public class UserController {
     @PreAuthorize("hasRole('USER_LIST')")
     @RequestMapping(method = RequestMethod.GET,
     value = "/list/{page}/{size}")
-    @Transactional(readOnly = true, rollbackFor = {
-        Throwable.class
-    })
+    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
     public List<UserTO> list(
             @PathVariable("page") final int page,
             @PathVariable("size") final int size) {
@@ -173,9 +168,7 @@ public class UserController {
     @PreAuthorize("hasRole('USER_READ')")
     @RequestMapping(method = RequestMethod.GET,
     value = "/read/{userId}")
-    @Transactional(readOnly = true, rollbackFor = {
-        Throwable.class
-    })
+    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
     public UserTO read(@PathVariable("userId") final Long userId)
             throws NotFoundException, UnauthorizedRoleException {
 
@@ -187,9 +180,7 @@ public class UserController {
     @PreAuthorize("hasRole('USER_READ')")
     @RequestMapping(method = RequestMethod.POST,
     value = "/search")
-    @Transactional(readOnly = true, rollbackFor = {
-        Throwable.class
-    })
+    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
     public List<UserTO> search(@RequestBody final NodeCond searchCondition)
             throws InvalidSearchConditionException {
 
@@ -214,9 +205,7 @@ public class UserController {
     @PreAuthorize("hasRole('USER_READ')")
     @RequestMapping(method = RequestMethod.POST,
     value = "/search/{page}/{size}")
-    @Transactional(readOnly = true, rollbackFor = {
-        Throwable.class
-    })
+    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
     public List<UserTO> search(
             @RequestBody final NodeCond searchCondition,
             @PathVariable("page") final int page,
@@ -386,5 +375,106 @@ public class UserController {
         wfAdapter.delete(userId);
 
         LOG.debug("User successfully deleted: {}", userId);
+    }
+
+    @PreAuthorize("hasRole('USER_UPDATE')")
+    @RequestMapping(method = RequestMethod.POST,
+    value = "/execute/workflow/{taskId}")
+    public UserTO executeWorkflow(@RequestBody final UserTO userTO,
+            @PathVariable("taskId") final String taskId)
+            throws WorkflowException, NotFoundException,
+            UnauthorizedRoleException, PropagationException {
+
+        LOG.debug("About to execute {} on {}", taskId, userTO.getId());
+
+        Long updatedId = wfAdapter.execute(userTO, taskId);
+
+        List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(
+                updatedId, null, null, null, null, null);
+        propagationManager.execute(tasks);
+
+        final UserTO savedTO = dataBinder.getUserTO(updatedId);
+
+        LOG.debug("About to return updated user\n{}", savedTO);
+
+        return savedTO;
+    }
+
+    @PreAuthorize("hasRole('WORKFLOW_DEF_READ')")
+    @RequestMapping(method = RequestMethod.GET,
+    value = "/workflow/definition")
+    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
+    public WorkflowDefinitionTO getDefinition()
+            throws WorkflowException {
+
+        return wfAdapter.getDefinition();
+    }
+
+    @PreAuthorize("hasRole('WORKFLOW_DEF_UPDATE')")
+    @RequestMapping(method = RequestMethod.POST,
+    value = "/workflow/definition")
+    @Transactional(rollbackFor = {Throwable.class})
+    public void updateDefinition(
+            @RequestBody final WorkflowDefinitionTO definition)
+            throws NotFoundException, WorkflowException {
+
+        wfAdapter.updateDefinition(definition);
+    }
+
+    @PreAuthorize("hasRole('WORKFLOW_FORM_LIST')")
+    @RequestMapping(method = RequestMethod.GET,
+    value = "/workflow/form/list")
+    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
+    public List<WorkflowFormTO> getForms() {
+        return wfAdapter.getForms();
+    }
+
+    @PreAuthorize("hasRole('WORKFLOW_FORM_READ') and hasRole('USER_READ')")
+    @RequestMapping(method = RequestMethod.GET,
+    value = "/workflow/form/{userId}")
+    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
+    public WorkflowFormTO getFormForUser(
+            @PathVariable("userId") final Long userId)
+            throws UnauthorizedRoleException, NotFoundException,
+            WorkflowException {
+
+        SyncopeUser user = dataBinder.getUserFromId(userId);
+        return wfAdapter.getForm(user.getWorkflowId());
+    }
+
+    @PreAuthorize("hasRole('WORKFLOW_FORM_CLAIM')")
+    @RequestMapping(method = RequestMethod.GET,
+    value = "/workflow/form/claim/{taskId}")
+    @Transactional(rollbackFor = {Throwable.class})
+    public WorkflowFormTO claimForm(@PathVariable("taskId") final String taskId)
+            throws NotFoundException, WorkflowException {
+
+        return wfAdapter.claimForm(taskId,
+                SecurityContextHolder.getContext().
+                getAuthentication().getName());
+    }
+
+    @PreAuthorize("hasRole('WORKFLOW_FORM_SUBMIT')")
+    @RequestMapping(method = RequestMethod.POST,
+    value = "/workflow/form/submit")
+    @Transactional(rollbackFor = {Throwable.class})
+    public UserTO submitForm(@RequestBody final WorkflowFormTO form)
+            throws NotFoundException, WorkflowException, PropagationException {
+
+        LOG.debug("About to process form {}", form);
+
+        Long updatedId = wfAdapter.submitForm(form,
+                SecurityContextHolder.getContext().
+                getAuthentication().getName());
+
+        List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(
+                updatedId, null, null, null, Boolean.TRUE, null);
+        propagationManager.execute(tasks);
+
+        final UserTO savedTO = dataBinder.getUserTO(updatedId);
+
+        LOG.debug("About to return user after form processing\n{}", savedTO);
+
+        return savedTO;
     }
 }

@@ -13,13 +13,19 @@
  */
 package org.syncope.core.workflow;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import javassist.NotFoundException;
 import org.apache.commons.collections.keyvalue.DefaultMapEntry;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.client.mod.UserMod;
 import org.syncope.client.to.UserTO;
+import org.syncope.client.to.WorkflowDefinitionTO;
+import org.syncope.client.to.WorkflowFormTO;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.propagation.PropagationByResource;
+import org.syncope.core.rest.controller.UnauthorizedRoleException;
 
 /**
  * Simple implementation basically not involving any workflow engine.
@@ -94,5 +100,57 @@ public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
             throws WorkflowException {
 
         userDAO.delete(user);
+    }
+
+    @Override
+    public Long execute(final UserTO userTO, final String actionId)
+            throws UnauthorizedRoleException, NotFoundException,
+            WorkflowException {
+
+        throw new WorkflowException(
+                new UnsupportedOperationException("Not supported."));
+    }
+
+    @Override
+    public WorkflowDefinitionTO getDefinition()
+            throws WorkflowException {
+
+        return new WorkflowDefinitionTO();
+    }
+
+    @Override
+    public void updateDefinition(WorkflowDefinitionTO definition)
+            throws NotFoundException, WorkflowException {
+
+        throw new WorkflowException(
+                new UnsupportedOperationException("Not supported."));
+    }
+
+    @Override
+    public List<WorkflowFormTO> getForms() {
+        return Collections.EMPTY_LIST;
+    }
+
+    @Override
+    public WorkflowFormTO getForm(String workflowId)
+            throws NotFoundException, WorkflowException {
+
+        return null;
+    }
+
+    @Override
+    public WorkflowFormTO claimForm(String taskId, String userName)
+            throws NotFoundException, WorkflowException {
+
+        throw new WorkflowException(
+                new UnsupportedOperationException("Not supported."));
+    }
+
+    @Override
+    public Long submitForm(WorkflowFormTO form, String userName)
+            throws NotFoundException, WorkflowException {
+
+        throw new WorkflowException(
+                new UnsupportedOperationException("Not supported."));
     }
 }

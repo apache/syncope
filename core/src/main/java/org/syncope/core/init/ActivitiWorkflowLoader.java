@@ -15,11 +15,14 @@ package org.syncope.core.init;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import org.activiti.engine.RepositoryService;
+import org.activiti.engine.repository.ProcessDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.syncope.core.workflow.ActivitiUserWorkflowAdapter;
 
 @Component
 public class ActivitiWorkflowLoader {
@@ -27,27 +30,35 @@ public class ActivitiWorkflowLoader {
     private static final Logger LOG = LoggerFactory.getLogger(
             ActivitiWorkflowLoader.class);
 
-    private static final String WF_DEF_NAME = "userWorkflow.bpmn20.xml";
-
     @Autowired
     private RepositoryService repositoryService;
 
     public void load() {
-        InputStream wfDefinitionStream = null;
-        try {
-            wfDefinitionStream = getClass().getResourceAsStream("/"
-                    + WF_DEF_NAME);
+        List<ProcessDefinition> processes = repositoryService.
+                createProcessDefinitionQuery().processDefinitionKey(
+                ActivitiUserWorkflowAdapter.WF_PROCESS_ID).list();
+        LOG.debug(ActivitiUserWorkflowAdapter.WF_PROCESS_ID
+                + " Activiti processes in repository: {}", processes);
 
-            repositoryService.createDeployment().
-                    addInputStream(WF_DEF_NAME, wfDefinitionStream).deploy();
-        } finally {
+        // Only loads process definition from file if not found in repository
+        if (processes.isEmpty()) {
+            InputStream wfDefinitionStream = null;
             try {
-                if (wfDefinitionStream != null) {
-                    wfDefinitionStream.close();
+                wfDefinitionStream = getClass().getResourceAsStream("/"
+                        + ActivitiUserWorkflowAdapter.WF_PROCESS_RESOURCE);
+
+                repositoryService.createDeployment().addInputStream(
+                        ActivitiUserWorkflowAdapter.WF_PROCESS_RESOURCE,
+                        wfDefinitionStream).deploy();
+            } finally {
+                try {
+                    if (wfDefinitionStream != null) {
+                        wfDefinitionStream.close();
+                    }
+                } catch (IOException e) {
+                    LOG.error("While closing input stream for {}",
+                            ActivitiUserWorkflowAdapter.WF_PROCESS_RESOURCE, e);
                 }
-            } catch (IOException e) {
-                LOG.error("While closing input stream for "
-                        + "user workflow definition", e);
             }
         }
     }
