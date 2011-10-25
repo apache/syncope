@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Context>
+    <!-- Disable session persistence across Tomcat restarts -->
+    <Manager pathname="" />
+
+    <Loader className="org.apache.catalina.loader.VirtualWebappLoader"
+            virtualClasspath="${project.build.directory}/classes:${project.build.directory}/syncope-console/WEB-INF/lib/*.jar"
+            searchVirtualFirst="true"/>
+</Context>
