@@ -15,9 +15,9 @@
 <dataset>
     <SyncopeConf confKey="token.length" confValue="256"/>
     <SyncopeConf confKey="token.expireTime" confValue="60"/>
-    <SyncopeConf confKey="smtp.host" confValue="${smtp.host}"/>
-    <SyncopeConf confKey="smtp.port" confValue="${smtp.port}"/>
-    <SyncopeConf confKey="optin.email.from" confValue="syncope@googlecode.com"/>
+    <SyncopeConf confKey="smtp.host" confValue="smtp.ngi.it"/>
+    <SyncopeConf confKey="smtp.port" confValue="25"/>
+    <SyncopeConf confKey="optin.email.from" confValue="syncope@syncope-idm.org"/>
     <SyncopeConf confKey="optin.email.subject" confValue="Welcome to Syncope!"/>
     <SyncopeConf confKey="connid.bundles.directory" confValue="${bundles.directory}"/>
     <SyncopeConf confKey="password.cipher.algorithm" confValue="MD5"/>

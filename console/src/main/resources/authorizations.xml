@@ -162,6 +162,14 @@ page@id= Schema|Users|Roles|Resources|Connectors|Report|Configuration|Task
         <action id="delete">
             <entitlement>CONFIGURATION_DELETE</entitlement>
         </action>
+
+        <action id="workflowDefRead">
+            <entitlement>WORKFLOW_DEF_READ</entitlement>
+        </action>
+        
+        <action id="workflowDefUpdate">
+            <entitlement>WORKFLOW_DEF_UPDATE</entitlement>
+        </action>
     </page>
 
     <page id="Tasks">

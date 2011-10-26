@@ -15,7 +15,6 @@
 package org.syncope.console.pages;
 
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -63,10 +62,16 @@ import org.syncope.console.wicket.markup.html.form.EditLinkPanel;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
+import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.markup.html.link.Link;
+import org.apache.wicket.model.CompoundPropertyModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.request.handler.resource.ResourceStreamRequestHandler;
 import org.apache.wicket.request.resource.ContentDisposition;
 import org.apache.wicket.util.resource.StringResourceStream;
+import org.syncope.client.to.WorkflowDefinitionTO;
+import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 
 /**
  * Configurations WebPage.
@@ -191,7 +196,7 @@ public class Configuration extends BasePage {
                         try {
                             restClient.deleteConfiguration(configurationTO.
                                     getKey());
-                        } catch (UnsupportedEncodingException e) {
+                        } catch (SyncopeClientCompositeErrorException e) {
                             LOG.error("While deleting a conf key", e);
                             error(e.getMessage());
                             return;
@@ -241,6 +246,8 @@ public class Configuration extends BasePage {
 
         AjaxLink createConfigurationLink = new AjaxLink(
                 "createConfigurationLink") {
+
+            private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
@@ -317,6 +324,58 @@ public class Configuration extends BasePage {
 
         add(new PasswordPoliciesPanel("passwordPoliciesPanel"));
 
+        // Workflow definition stuff
+        final WorkflowDefinitionTO workflowDef =
+                restClient.getWorkflowDefinition();
+
+        WebMarkupContainer workflowDefContainer =
+                new WebMarkupContainer("workflowDefContainer");
+
+        Form wfForm = new Form("workflowDefForm",
+                new CompoundPropertyModel(workflowDef));
+
+        TextArea<WorkflowDefinitionTO> workflowDefArea =
+                new TextArea<WorkflowDefinitionTO>("workflowDefArea",
+                new PropertyModel<WorkflowDefinitionTO>(
+                workflowDef, "xmlDefinition"));
+        wfForm.add(workflowDefArea);
+
+        IndicatingAjaxButton submit = new IndicatingAjaxButton(
+                "apply", new Model<String>(getString("submit"))) {
+
+            private static final long serialVersionUID = -958724007591692537L;
+
+            @Override
+            protected void onSubmit(final AjaxRequestTarget target,
+                    final Form form) {
+
+                try {
+                    restClient.updateWorkflowDefinition(workflowDef);
+                } catch (SyncopeClientCompositeErrorException scee) {
+                    error(getString("error") + ":" + scee.getMessage());
+                }
+            }
+
+            @Override
+            protected void onError(final AjaxRequestTarget target,
+                    final Form form) {
+
+                target.add(feedbackPanel);
+            }
+        };
+
+        MetaDataRoleAuthorizationStrategy.authorize(
+                submit, ENABLE, xmlRolesReader.getAllAllowedRoles(
+                "Configuration", "workflowDefUpdate"));
+        wfForm.add(submit);
+
+        workflowDefContainer.add(wfForm);
+
+        MetaDataRoleAuthorizationStrategy.authorize(
+                workflowDefContainer, ENABLE, xmlRolesReader.getAllAllowedRoles(
+                "Configuration", "workflowDefRead"));
+        add(workflowDefContainer);
+
         // Logger stuff
         PropertyListView coreLoggerList =
                 new LoggerPropertyList(null,
@@ -327,7 +386,6 @@ public class Configuration extends BasePage {
         coreLoggerContainer.add(coreLoggerList);
         coreLoggerContainer.setOutputMarkupId(true);
         add(coreLoggerContainer);
-
 
         ConsoleLoggerController consoleLoggerController =
                 new ConsoleLoggerController();

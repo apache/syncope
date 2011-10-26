@@ -61,6 +61,16 @@ public class ConfigurationTestITCase extends AbstractTest {
     }
 
     @Test
+    public void browseWorkflowDef() {
+        selenium.setSpeed("1000");
+
+        selenium.click("css=img[alt=\"Configuration\"]");
+        selenium.waitForPageToLoad("30000");
+        selenium.click("//div[@id='tabs']/ul/li[3]/a/span");
+        assertTrue(selenium.isElementPresent("//*[@id=\"workflowDefArea\"]"));
+    }
+
+    @Test
     public void delete() {
         selenium.click("css=img[alt=\"Configuration\"]");
         selenium.waitForPageToLoad("30000");
@@ -80,8 +90,8 @@ public class ConfigurationTestITCase extends AbstractTest {
 
         selenium.click("css=img[alt=\"Configuration\"]");
         selenium.waitForPageToLoad("30000");
-        selenium.click("//div[@id='tabs']/ul/li[3]/a/span");
-        selenium.select("//div[3]/div/span/table/tbody/tr/td[2]/select",
+        selenium.click("//div[@id='tabs']/ul/li[4]/a/span");
+        selenium.select("//div[4]/div/span/table/tbody/tr/td[2]/select",
                 "label=ERROR");
         assertTrue(selenium.isTextPresent("Operation executed successfully"));
     }

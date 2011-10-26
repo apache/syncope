@@ -194,7 +194,7 @@ public class ConfigurationController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('WORKFLOW_DEF_UPDATE')")
-    @RequestMapping(method = RequestMethod.POST,
+    @RequestMapping(method = RequestMethod.PUT,
     value = "/workflow/definition")
     @Transactional(rollbackFor = {Throwable.class})
     public void updateDefinition(

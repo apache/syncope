@@ -12,6 +12,19 @@
  limitations under the License.
  under the License.
 -->
+<wicket:head>
+    <link rel="stylesheet" type="text/css" href="css/codemirror.css" />
+    <link rel="stylesheet" type="text/css" href="css/codemirror_default_theme.css" />
+
+    <script type="text/javascript" src="scripts/codemirror.js"></script>
+    <script type="text/javascript" src="scripts/xmlpure.js"></script>
+    <script type="text/javascript">
+        function updateTextArea(editor) {
+            document.getElementById("workflowDefArea").value = editor.getValue();
+        }
+    </script>
+</wicket:head>
+
 <wicket:extend>
 
     <div id="tabs">
@@ -22,6 +35,7 @@
             <li><a href="#tabs-2"><span><wicket:message key="tab2"/></span></a></li>
             <li><a href="#tabs-3"><span><wicket:message key="tab3"/></span></a></li>
             <li><a href="#tabs-4"><span><wicket:message key="tab4"/></span></a></li>
+            <li><a href="#tabs-5"><span><wicket:message key="tab5"/></span></a></li>
         </ul>
         <div id="tabs-1">
 
@@ -49,9 +63,29 @@
             </a>
         </div>
         <div id="tabs-2">
-            <span wicket:id="passwordPoliciesPanel">[synchronization tasks]</span>
+            <span wicket:id="passwordPoliciesPanel">[passwordPolicies]</span>
         </div>
         <div id="tabs-3">
+
+            <div id="users-contain" class="ui-widget" style="width:inherit">
+                <span wicket:id="workflowDefContainer">
+                    <form wicket:id="workflowDefForm">
+                        <textarea wicket:id="workflowDefArea" id="workflowDefArea" style="width:100%;height:350px;">
+                        </textarea>
+                        <div style="margin: 10px 0px 0">
+                            <input type="submit"
+                                   class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+                                   wicket:id="apply"/>
+                        </div>
+                    </form>
+                    <script>
+                        var editor = CodeMirror.fromTextArea(document.getElementById("workflowDefArea"), 
+                        {mode: {name: "xmlpure"}, lineNumbers: true, onChange: updateTextArea});
+                    </script>
+                </span>
+            </div>
+        </div>
+        <div id="tabs-4">
 
             <div id="users-contain" class="ui-widget" style="width:inherit">
                 <span wicket:id="coreLoggerContainer">
@@ -72,7 +106,7 @@
                 </span>
             </div>
         </div>
-        <div id="tabs-4">
+        <div id="tabs-5">
 
             <div id="users-contain" class="ui-widget" style="width:inherit">
                 <span wicket:id="consoleLoggerContainer">
