@@ -4,6 +4,6 @@
     <Manager pathname="" />
 
     <Loader className="org.apache.catalina.loader.VirtualWebappLoader"
-            virtualClasspath="${project.build.directory}/classes:${project.build.directory}/syncope-console/WEB-INF/lib/*.jar"
+            virtualClasspath="${project.build.directory}/classes:${project.build.directory}/${project.build.finalName}/WEB-INF/lib/*.jar"
             searchVirtualFirst="true"/>
 </Context>

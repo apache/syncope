@@ -488,7 +488,7 @@
                     <plugin>
                         <groupId>org.zeroturnaround</groupId>
                         <artifactId>jrebel-maven-plugin</artifactId>
-                        <version>1.0.8</version>
+                        <inherited>true</inherited>
                         <executions>
                             <execution>
                                 <id>generate-rebel-xml</id>

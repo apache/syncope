@@ -36,6 +36,7 @@
         <cargo.run.dir>${project.build.directory}/syncope-core-test</cargo.run.dir>
         <cargo.log>${log.directory}/core-cargo.log</cargo.log>
         <cargo.output>${log.directory}/core-cargo-output.log</cargo.output>
+        <javaagent></javaagent>
     </properties>
 
     <dependencies>
@@ -579,7 +580,15 @@
                             <cargo.rmi.port>8805</cargo.rmi.port>
 
 <!--                            <cargo.jvmargs>-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n</cargo.jvmargs>-->
+                            <cargo.jvmargs>-noverify ${javaagent} -Drebel.spring_plugin=false</cargo.jvmargs>
                         </properties>
+                        <configfiles>
+                            <configfile>
+                                <file>${project.build.directory}/test-classes/context.xml</file>
+                                <todir>conf/</todir>
+                                <tofile>context.xml</tofile>
+                            </configfile>
+                        </configfiles>
                         <deployables>
                             <deployable>
                                 <location>${cargo.run.dir}</location>
@@ -630,6 +639,7 @@
                 <excludes>
                     <exclude>oracle/**</exclude>
                     <exclude>postgres/**</exclude>
+                    <exclude>mysql/**</exclude>
                 </excludes>
             </testResource>
         </testResources>
@@ -642,6 +652,7 @@
             <properties>
                 <waitForCheck>true</waitForCheck>
                 <sureExcludes>**</sureExcludes>
+                <javaagent></javaagent>
             </properties>
             <dependencies>
                 <dependency>
@@ -769,13 +780,126 @@
                         </configuration>
                     </plugin>
                 </plugins>
+            </build>
+        </profile>
+        
+        <profile>
+            <id>jrebel</id>
+            <properties>
+                <maven.test.skip>true</maven.test.skip>
+                <javaagent>-javaagent:${env.REBEL_HOME}/jrebel.jar</javaagent>
+                <waitForCheck>true</waitForCheck>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>com.h2database</groupId>
+                    <artifactId>h2</artifactId>
+                    <scope>compile</scope>
+                </dependency>
+            </dependencies>
+            <build>
+                <defaultGoal>clean verify</defaultGoal>
                 
-                <testResources>
-                    <testResource>
-                        <directory>src/test/resources</directory>
-                        <filtering>true</filtering>
-                    </testResource>
-                </testResources>
+                <plugins>
+                    <plugin>
+                        <groupId>org.zeroturnaround</groupId>
+                        <artifactId>jrebel-maven-plugin</artifactId>
+                        <inherited>true</inherited>
+                        <configuration>
+                            <classpath>
+                                <resources>
+                                    <resource>
+                                        <excludes>
+                                            <exclude>content.xml</exclude>
+                                            <exclude>ehcache.xml</exclude>
+                                            <exclude>persistence.properties</exclude>
+                                            <exclude>security.properties</exclude>
+                                            <exclude>workflow.properties</exclude>
+                                        </excludes>
+                                    </resource>
+                                </resources>    
+                            </classpath>    
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>generate-rebel-xml</id>
+                                <phase>process-resources</phase>
+                                <goals>
+                                    <goal>generate</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>build-helper-maven-plugin</artifactId>
+                        <inherited>true</inherited>
+                        <executions>
+                            <execution>
+                                <id>add-dev-source</id>
+                                <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>add-source</goal>
+                                </goals>
+                                <configuration>
+                                    <sources>
+                                        <source>src/dev/java</source>
+                                    </sources>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>xml-maven-plugin</artifactId>
+                        <inherited>true</inherited>
+                        <executions>
+                            <execution>
+                                <id>enableH2Console</id>
+                                <phase>process-test-resources</phase>
+                                <goals>
+                                    <goal>transform</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <transformationSets>
+                                <transformationSet>
+                                    <dir>src/main/webapp/WEB-INF</dir>
+                                    <includes>
+                                        <include>web.xml</include>
+                                    </includes>
+                                    <stylesheet>src/test/resources/webxml4dev.xsl</stylesheet>
+                                </transformationSet>
+                            </transformationSets>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-war-plugin</artifactId>
+                        <inherited>true</inherited>
+                        <configuration>
+                            <webXml>${project.build.directory}/generated-resources/xml/xslt/web.xml</webXml>
+                            <webResources>
+                                <resource>
+                                    <directory>src/main/webapp</directory>
+                                    <includes>
+                                        <include>**/*.jsp</include>
+                                    </includes>
+                                    <filtering>true</filtering>
+                                </resource>
+                            </webResources>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.cargo</groupId>
+                        <artifactId>cargo-maven2-plugin</artifactId>
+                        <inherited>true</inherited>
+                        <configuration>
+                            <wait>${waitForCheck}</wait>
+                        </configuration>
+                    </plugin>
+                </plugins>
             </build>
         </profile>
         
@@ -784,6 +908,7 @@
             <properties>
                 <jdbcdriver.groupId>com.oracle</jdbcdriver.groupId>
                 <jdbcdriver.artifactId>ojdbc6</jdbcdriver.artifactId>
+                <javaagent></javaagent>
             </properties>
             <dependencies>
                 <dependency>
@@ -841,6 +966,7 @@
             <properties>
                 <jdbcdriver.groupId>postgresql</jdbcdriver.groupId>
                 <jdbcdriver.artifactId>postgresql</jdbcdriver.artifactId>
+                <javaagent></javaagent>
             </properties>
             <dependencies>
                 <dependency>
@@ -874,6 +1000,7 @@
             <properties>
                 <jdbcdriver.groupId>mysql</jdbcdriver.groupId>
                 <jdbcdriver.artifactId>mysql-connector-java</jdbcdriver.artifactId>
+                <javaagent></javaagent>
             </properties>
             <dependencies>
                 <dependency>

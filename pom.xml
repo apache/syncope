@@ -92,7 +92,7 @@
         <activiti.version>5.8</activiti.version>
 
         <spring.version>3.0.6.RELEASE</spring.version>
-        <jackson.version>1.8.5</jackson.version>
+        <jackson.version>1.9.1</jackson.version>
         <xstream.version>1.4.1</xstream.version>
         <velocity.version>1.7</velocity.version>
         <quartz.version>1.8.5</quartz.version>
@@ -107,9 +107,9 @@
 
         <h2.version>1.3.160</h2.version>
 
-        <reflections.version>0.9.5-RC2</reflections.version>
+        <reflections.version>0.9.5</reflections.version>
 
-        <logback.version>0.9.29</logback.version>
+        <logback.version>0.9.30</logback.version>
         <slf4j.version>1.6.3</slf4j.version>
 
         <junit.version>4.9</junit.version>
@@ -474,12 +474,6 @@
             <url>http://maven.alfresco.com/nexus/content/repositories/activiti</url>
         </repository>
 
-        <repository>
-            <id>reflections-repo</id>
-            <name>Reflections Maven2 Repository</name>
-            <url>http://reflections.googlecode.com/svn/repo</url>
-        </repository>
-
     </repositories>
     
     <pluginRepositories>
@@ -588,6 +582,11 @@
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>build-helper-maven-plugin</artifactId>
                     <version>1.7</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.zeroturnaround</groupId>
+                    <artifactId>jrebel-maven-plugin</artifactId>
+                    <version>1.0.8</version>
                 </plugin>
             </plugins>
         </pluginManagement>
