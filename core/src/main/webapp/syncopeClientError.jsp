@@ -62,7 +62,10 @@
 
         statusCode = HttpServletResponse.SC_NOT_FOUND;
     } else if (ex instanceof WorkflowException) {
-        if (ex.getCause().getCause().getCause() instanceof ConstraintViolationException) {
+        if (ex.getCause().getCause() != null
+                && ex.getCause().getCause().getCause() != null
+                && ex.getCause().getCause().getCause() instanceof ConstraintViolationException) {
+
             response.setHeader(
                     SyncopeClientErrorHandler.EXCEPTION_TYPE_HEADER,
                     SyncopeClientExceptionType.DuplicateUniqueValue.

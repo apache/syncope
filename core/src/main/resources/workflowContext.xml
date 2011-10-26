@@ -23,6 +23,9 @@
     
     <bean id="wfAdapter" class="${wfAdapter}"/>
 
+    <bean id="syncopeActivitiUserManager" class="org.syncope.core.workflow.activiti.SyncopeUserManager"/>
+    <bean id="syncopeActivitiGroupManager" class="org.syncope.core.workflow.activiti.SyncopeGroupManager"/>
+                
     <bean id="processEngineConfiguration" class="org.activiti.spring.SpringProcessEngineConfiguration">
         <property name="dataSource" ref="dataSource" />
         <property name="transactionManager" ref="transactionManager" />
@@ -34,6 +37,16 @@
         
         <property name="jobExecutorActivate" value="${jobExecutorActivate}" />
         
+        <property name="customSessionFactories">
+            <list>          
+                <bean class="org.syncope.core.workflow.activiti.SyncopeSessionFactory">
+                    <property name="syncopeSession" ref="syncopeActivitiUserManager"/>
+                </bean>
+                <bean class="org.syncope.core.workflow.activiti.SyncopeSessionFactory">
+                    <property name="syncopeSession" ref="syncopeActivitiGroupManager"/>
+                </bean>
+            </list>
+        </property>
         <property name="customPreVariableTypes">
             <list>
                 <bean class="org.syncope.core.workflow.activiti.SyncopeEntitiesVariableType"/>

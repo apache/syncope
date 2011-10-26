@@ -95,7 +95,7 @@ public class RoleDAOImpl extends AbstractDAOImpl implements RoleDAO {
     }
 
     @Override
-    public List<Membership> getMemberships(final SyncopeRole role) {
+    public List<Membership> findMemberships(final SyncopeRole role) {
         Query query = entityManager.createQuery(
                 "SELECT e FROM " + Membership.class.getSimpleName() + " e"
                 + " WHERE e.syncopeRole=:role");
@@ -138,7 +138,7 @@ public class RoleDAOImpl extends AbstractDAOImpl implements RoleDAO {
             delete(child.getId());
         }
 
-        for (Membership membership : getMemberships(role)) {
+        for (Membership membership : findMemberships(role)) {
             membership.setSyncopeRole(null);
             membership.getSyncopeUser().removeMembership(membership);
             membership.setSyncopeUser(null);

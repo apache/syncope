@@ -42,7 +42,6 @@ import org.syncope.client.mod.UserMod;
 import org.syncope.client.search.NodeCond;
 import org.syncope.client.to.MembershipTO;
 import org.syncope.client.to.UserTO;
-import org.syncope.client.to.WorkflowDefinitionTO;
 import org.syncope.client.to.WorkflowFormTO;
 import org.syncope.core.persistence.beans.PropagationTask;
 import org.syncope.core.persistence.dao.UserSearchDAO;
@@ -398,27 +397,6 @@ public class UserController {
         LOG.debug("About to return updated user\n{}", savedTO);
 
         return savedTO;
-    }
-
-    @PreAuthorize("hasRole('WORKFLOW_DEF_READ')")
-    @RequestMapping(method = RequestMethod.GET,
-    value = "/workflow/definition")
-    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
-    public WorkflowDefinitionTO getDefinition()
-            throws WorkflowException {
-
-        return wfAdapter.getDefinition();
-    }
-
-    @PreAuthorize("hasRole('WORKFLOW_DEF_UPDATE')")
-    @RequestMapping(method = RequestMethod.POST,
-    value = "/workflow/definition")
-    @Transactional(rollbackFor = {Throwable.class})
-    public void updateDefinition(
-            @RequestBody final WorkflowDefinitionTO definition)
-            throws NotFoundException, WorkflowException {
-
-        wfAdapter.updateDefinition(definition);
     }
 
     @PreAuthorize("hasRole('WORKFLOW_FORM_LIST')")

@@ -31,7 +31,7 @@ public interface RoleDAO extends DAO {
 
     List<SyncopeRole> findAll();
 
-    List<Membership> getMemberships(SyncopeRole role);
+    List<Membership> findMemberships(SyncopeRole role);
 
     SyncopeRole save(SyncopeRole syncopeRole)
             throws InvalidEntityException;

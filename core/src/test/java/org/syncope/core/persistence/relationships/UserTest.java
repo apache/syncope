@@ -61,7 +61,7 @@ public class UserTest extends AbstractTest {
         assertNotNull(schemaDAO.find("loginDate", USchema.class));
 
         List<Membership> memberships =
-                roleDAO.getMemberships(roleDAO.find(7L));
+                roleDAO.findMemberships(roleDAO.find(7L));
         assertTrue(memberships.isEmpty());
     }
 }

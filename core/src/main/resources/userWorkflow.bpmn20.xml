@@ -42,7 +42,7 @@
             <conditionExpression xsi:type="tFormalExpression">${syncopeUser.getRoleIds().contains(9)}</conditionExpression>
         </sequenceFlow>
         
-        <userTask id="createApproval" activiti:formKey="createApproval" name="Create approval">
+        <userTask id="createApproval" activiti:formKey="createApproval" name="Create approval" activiti:candidateGroups="7">
             <extensionElements>
                 <activiti:formProperty id="username" name="Username" type="string" writable="false" expression="${syncopeUser.username}"/>
                 <activiti:formProperty id="approve" variable="approve" name="Approve?" type="boolean" required="true"/>

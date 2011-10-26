@@ -30,14 +30,12 @@ import javassist.NotFoundException;
 import javax.annotation.Resource;
 import org.activiti.engine.ActivitiException;
 import org.activiti.engine.FormService;
-import org.activiti.engine.IdentityService;
 import org.activiti.engine.RepositoryService;
 import org.activiti.engine.RuntimeService;
 import org.activiti.engine.TaskService;
 import org.activiti.engine.form.FormProperty;
 import org.activiti.engine.form.FormType;
 import org.activiti.engine.form.TaskFormData;
-import org.activiti.engine.identity.User;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Task;
@@ -100,9 +98,6 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     private TaskService taskService;
 
     @Autowired
-    private IdentityService identityService;
-
-    @Autowired
     private FormService formService;
 
     @Autowired
@@ -138,10 +133,6 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
                 processInstance.getProcessInstanceId(), SYNCOPE_USER);
         updateStatus(user);
         user = userDAO.save(user);
-
-        // create and save Activiti user
-        User activitiUser = identityService.newUser(user.getUsername());
-        identityService.saveUser(activitiUser);
 
         Boolean enable = (Boolean) runtimeService.getVariable(
                 processInstance.getProcessInstanceId(), PROPAGATE_ENABLE);
@@ -235,8 +226,6 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
         doExecuteAction(user, "delete", null);
         userDAO.delete(user);
-
-        identityService.deleteUser(user.getUsername());
     }
 
     @Override
@@ -390,6 +379,34 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         return forms;
     }
 
+    @Override
+    public WorkflowFormTO getForm(final String workflowId)
+            throws NotFoundException, WorkflowException {
+
+        Task task;
+        try {
+            task = taskService.createTaskQuery().processInstanceId(workflowId).
+                    singleResult();
+        } catch (ActivitiException e) {
+            throw new WorkflowException(e);
+        }
+
+        TaskFormData formData;
+        try {
+            formData = formService.getTaskFormData(task.getId());
+        } catch (ActivitiException e) {
+            LOG.debug("No form found for task {}", task.getId(), e);
+            formData = null;
+        }
+
+        WorkflowFormTO result = null;
+        if (formData != null && !formData.getFormProperties().isEmpty()) {
+            result = getFormTO(task, formData);
+        }
+
+        return result;
+    }
+
     private Map.Entry<Task, TaskFormData> checkTask(final String taskId,
             final String userName)
             throws NotFoundException {
@@ -419,39 +436,21 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    public WorkflowFormTO getForm(final String workflowId)
-            throws NotFoundException, WorkflowException {
-
-        Task task;
-        try {
-            task = taskService.createTaskQuery().processInstanceId(workflowId).
-                    singleResult();
-        } catch (ActivitiException e) {
-            throw new WorkflowException(e);
-        }
-
-        TaskFormData formData;
-        try {
-            formData = formService.getTaskFormData(task.getId());
-        } catch (ActivitiException e) {
-            LOG.debug("No form found for task {}", task.getId(), e);
-            formData = null;
-        }
-
-        WorkflowFormTO result = null;
-        if (formData != null && !formData.getFormProperties().isEmpty()) {
-            result = getFormTO(task, formData);
-        }
-
-        return result;
-    }
-
-    @Override
     public WorkflowFormTO claimForm(final String taskId,
             final String userName)
             throws NotFoundException, WorkflowException {
 
         Map.Entry<Task, TaskFormData> checked = checkTask(taskId, userName);
+
+        if (!adminUser.equals(userName)) {
+            List<Task> tasksForUser = taskService.createTaskQuery().taskId(
+                    taskId).taskCandidateUser(userName).list();
+            if (tasksForUser.isEmpty()) {
+                throw new WorkflowException(new RuntimeException(
+                        userName + " is not candidate for task " + taskId));
+            }
+        }
+
         Task task;
         try {
             taskService.setOwner(taskId, userName);
@@ -473,7 +472,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         if (!checked.getKey().getOwner().equals(userName)) {
             throw new WorkflowException(new RuntimeException(
                     "Task " + form.getTaskId() + " assigned to "
-                    + checked.getKey().getOwner() + " but summited by "
+                    + checked.getKey().getOwner() + " but submited by "
                     + userName));
         }
 

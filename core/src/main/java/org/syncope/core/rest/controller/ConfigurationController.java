@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import javassist.NotFoundException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
@@ -48,11 +49,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.syncope.client.to.ConfigurationTO;
+import org.syncope.client.to.WorkflowDefinitionTO;
 import org.syncope.core.persistence.beans.SyncopeConf;
 import org.syncope.core.persistence.dao.MissingConfKeyException;
 import org.syncope.core.persistence.dao.ConfDAO;
 import org.syncope.core.persistence.validation.attrvalue.Validator;
 import org.syncope.core.rest.data.ConfigurationDataBinder;
+import org.syncope.core.workflow.UserWorkflowAdapter;
+import org.syncope.core.workflow.WorkflowException;
 
 @Controller
 @RequestMapping("/configuration")
@@ -63,6 +67,9 @@ public class ConfigurationController extends AbstractController {
 
     @Autowired
     private ConfigurationDataBinder configurationDataBinder;
+
+    @Autowired
+    private UserWorkflowAdapter wfAdapter;
 
     @Autowired
     private DataSource dataSource;
@@ -174,6 +181,27 @@ public class ConfigurationController extends AbstractController {
         ModelAndView result = new ModelAndView();
         result.addObject(validators);
         return result;
+    }
+
+    @PreAuthorize("hasRole('WORKFLOW_DEF_READ')")
+    @RequestMapping(method = RequestMethod.GET,
+    value = "/workflow/definition")
+    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
+    public WorkflowDefinitionTO getDefinition()
+            throws WorkflowException {
+
+        return wfAdapter.getDefinition();
+    }
+
+    @PreAuthorize("hasRole('WORKFLOW_DEF_UPDATE')")
+    @RequestMapping(method = RequestMethod.POST,
+    value = "/workflow/definition")
+    @Transactional(rollbackFor = {Throwable.class})
+    public void updateDefinition(
+            @RequestBody final WorkflowDefinitionTO definition)
+            throws NotFoundException, WorkflowException {
+
+        wfAdapter.updateDefinition(definition);
     }
 
     @PreAuthorize("hasRole('CONFIGURATION_READ')")

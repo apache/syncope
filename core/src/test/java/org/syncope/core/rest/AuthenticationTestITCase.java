@@ -65,6 +65,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         dbEnts.add("USER_READ");
         dbEnts.add("USER_LIST");
         dbEnts.add("ROLE_LIST");
+        dbEnts.add("WORKFLOW_FORM_CLAIM");
         for (RoleTO roleTO : roleTOs) {
             dbEnts.add(EntitlementUtil.getEntitlementName(roleTO.getId()));
         }

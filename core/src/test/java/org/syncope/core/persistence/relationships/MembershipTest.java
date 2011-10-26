@@ -48,7 +48,7 @@ public class MembershipTest extends AbstractTest {
         for (Membership m : user.getMemberships()) {
             assertTrue(m.getId() != 4L);
         }
-        for (Membership m : syncopeRoleDAO.getMemberships(role)) {
+        for (Membership m : syncopeRoleDAO.findMemberships(role)) {
             assertTrue(m.getId() != 4L);
         }
     }

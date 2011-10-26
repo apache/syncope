@@ -25,8 +25,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.commons.httpclient.auth.AuthScope;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.client.CommonsClientHttpRequestFactory;
 import org.springframework.test.annotation.ExpectedException;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.syncope.client.mod.AttributeMod;
@@ -642,7 +645,29 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(form.getTaskId());
         assertNull(form.getOwner());
 
-        // 3. claim task for currently authenticated user (admin)
+        // 3. claim task from user1, not in role 7 (designated for 
+        // approval in workflow definition): fail
+        ((CommonsClientHttpRequestFactory) restTemplate.getRequestFactory()).
+                getHttpClient().getState().setCredentials(AuthScope.ANY,
+                new UsernamePasswordCredentials(
+                "user1", "password"));
+
+        SyncopeClientException sce = null;
+        try {
+            restTemplate.getForObject(
+                    BASE_URL + "user/workflow/form/claim/{taskId}",
+                    WorkflowFormTO.class, form.getTaskId());
+        } catch (SyncopeClientCompositeErrorException scce) {
+            sce = scce.getException(SyncopeClientExceptionType.Workflow);
+        }
+        assertNotNull(sce);
+
+        // 4. claim task from user4, in to role 7
+        ((CommonsClientHttpRequestFactory) restTemplate.getRequestFactory()).
+                getHttpClient().getState().setCredentials(AuthScope.ANY,
+                new UsernamePasswordCredentials(
+                "user4", "password"));
+
         form = restTemplate.getForObject(
                 BASE_URL + "user/workflow/form/claim/{taskId}",
                 WorkflowFormTO.class, form.getTaskId());
@@ -650,7 +675,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(form.getTaskId());
         assertNotNull(form.getOwner());
 
-        // 4. reject user
+        // 5. reject user
         Map<String, WorkflowFormPropertyTO> props = form.getPropertiesAsMap();
         props.get("approve").setValue(Boolean.FALSE.toString());
         props.get("rejectReason").setValue("I don't like him.");
@@ -659,6 +684,9 @@ public class UserTestITCase extends AbstractTest {
                 form, UserTO.class);
         assertNotNull(userTO);
         assertEquals("rejected", userTO.getStatus());
+
+        // reset admin credentials for restTemplate
+        super.setupRestTemplate();
     }
 
     @Test
