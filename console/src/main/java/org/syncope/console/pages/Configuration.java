@@ -54,7 +54,6 @@ import org.syncope.client.to.LoggerTO;
 import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.PreferenceManager;
 import org.syncope.console.commons.SortableDataProviderComparator;
-import org.syncope.console.pages.panels.PasswordPoliciesPanel;
 import org.syncope.console.rest.ConfigurationRestClient;
 import org.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
 import org.syncope.console.wicket.markup.html.form.DeleteLinkPanel;
@@ -62,6 +61,8 @@ import org.syncope.console.wicket.markup.html.form.EditLinkPanel;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
+import org.syncope.console.pages.panels.PoliciesPanel;
+import org.syncope.types.PolicyType;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.markup.html.link.Link;
@@ -320,7 +321,11 @@ public class Configuration extends BasePage {
         paginatorForm.add(rowsChooser);
         add(paginatorForm);
 
-        add(new PasswordPoliciesPanel("passwordPoliciesPanel"));
+        add(new PoliciesPanel("passwordPoliciesPanel", PolicyType.PASSWORD));
+
+        add(new PoliciesPanel("accountPoliciesPanel", PolicyType.ACCOUNT));
+
+        add(new PoliciesPanel("syncPoliciesPanel", PolicyType.SYNC));
 
         // Workflow definition stuff
         final WorkflowDefinitionTO workflowDef =
@@ -502,7 +507,6 @@ public class Configuration extends BasePage {
         DEBUG,
         TRACE,
         ALL
-
     }
 
     private class LoggerPropertyList extends PropertyListView<LoggerTO> {

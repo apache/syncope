@@ -45,6 +45,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.syncope.client.mod.UserMod;
 import org.syncope.client.to.UserTO;
 import org.syncope.client.to.WorkflowDefinitionTO;
@@ -199,6 +200,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
+    @Transactional(rollbackFor = {Throwable.class})
     protected Long doSuspend(final SyncopeUser user)
             throws WorkflowException {
 
@@ -215,6 +217,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
         doExecuteAction(user, "reactivate", null);
         updateStatus(user);
+
         SyncopeUser updated = userDAO.save(user);
 
         return updated.getId();

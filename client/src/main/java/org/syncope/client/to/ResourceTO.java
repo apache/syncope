@@ -66,6 +66,8 @@ public class ResourceTO extends AbstractBaseBean {
 
     private Long accountPolicy;
 
+    private Long syncPolicy;
+
     private Set<ConnConfProperty> connectorConfigurationProperties;
 
     public ResourceTO() {
@@ -189,6 +191,14 @@ public class ResourceTO extends AbstractBaseBean {
 
     public void setAccountPolicy(Long accountPolicy) {
         this.accountPolicy = accountPolicy;
+    }
+
+    public Long getSyncPolicy() {
+        return syncPolicy;
+    }
+
+    public void setSyncPolicy(Long syncPolicy) {
+        this.syncPolicy = syncPolicy;
     }
 
     public Set<ConnConfProperty> getConnectorConfigurationProperties() {

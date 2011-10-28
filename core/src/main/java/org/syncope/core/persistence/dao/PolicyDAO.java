@@ -28,6 +28,8 @@ public interface PolicyDAO extends DAO {
 
     Policy getGlobalAccountPolicy();
 
+    Policy getGlobalSyncPolicy();
+
     List<Policy> findAll();
 
     Policy save(Policy policy);

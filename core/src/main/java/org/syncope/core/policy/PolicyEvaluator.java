@@ -24,6 +24,7 @@ import org.syncope.core.persistence.beans.AbstractAttributable;
 import org.syncope.core.persistence.beans.Policy;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.types.AbstractPolicySpec;
+import org.syncope.types.AccountPolicySpec;
 import org.syncope.types.PasswordPolicySpec;
 
 @Component
@@ -41,20 +42,21 @@ public class PolicyEvaluator {
         T result = null;
 
         if (policy != null) {
+            AbstractAttr attribute;
+            List<String> values;
+
             switch (policy.getType()) {
                 case PASSWORD:
                 case GLOBAL_PASSWORD:
-                    final PasswordPolicySpec spec = policy.getSpecification();
+                    final PasswordPolicySpec pspec = policy.getSpecification();
                     final PasswordPolicySpec passwordPolicy = new PasswordPolicySpec();
 
                     BeanUtils.copyProperties(
-                            spec,
+                            pspec,
                             passwordPolicy,
                             new String[]{"schemasNotPermitted"});
 
-                    AbstractAttr attribute;
-                    List<String> values;
-                    for (String schema : spec.getSchemasNotPermitted()) {
+                    for (String schema : pspec.getSchemasNotPermitted()) {
                         attribute = attributable.getAttribute(schema);
                         if (attribute != null) {
                             values = attribute.getValuesAsStrings();
@@ -74,18 +76,18 @@ public class PolicyEvaluator {
 
                     if (((SyncopeUser) attributable).verifyPasswordHistory(
                             ((SyncopeUser) attributable).getClearPassword(),
-                            spec.getHistoryLength())) {
+                            pspec.getHistoryLength())) {
                         passwordPolicy.getWordsNotPermitted().add(
                                 ((SyncopeUser) attributable).getClearPassword());
                     } else {
 
-                        if (spec.getHistoryLength() > 0 && password != null) {
+                        if (pspec.getHistoryLength() > 0 && password != null) {
                             passwordHistory.add(password);
                         }
 
-                        if (spec.getHistoryLength() < passwordHistory.size()) {
+                        if (pspec.getHistoryLength() < passwordHistory.size()) {
                             for (int i = 0; i < passwordHistory.size()
-                                    - spec.getHistoryLength(); i++) {
+                                    - pspec.getHistoryLength(); i++) {
                                 passwordHistory.remove(i);
                             }
                         }
@@ -95,9 +97,30 @@ public class PolicyEvaluator {
                     break;
                 case ACCOUNT:
                 case GLOBAL_ACCOUNT:
-                    result = null;
+                    final AccountPolicySpec spec = policy.getSpecification();
+                    final AccountPolicySpec accountPolicy = new AccountPolicySpec();
+
+                    BeanUtils.copyProperties(
+                            spec,
+                            accountPolicy,
+                            new String[]{"schemasNotPermitted"});
+
+                    for (String schema : spec.getSchemasNotPermitted()) {
+                        attribute = attributable.getAttribute(schema);
+                        if (attribute != null) {
+                            values = attribute.getValuesAsStrings();
+                            if (values != null && !values.isEmpty()) {
+                                accountPolicy.getWordsNotPermitted().add(
+                                        values.get(0));
+                            }
+                        }
+                    }
+
+                    result = (T) accountPolicy;
                     break;
                 case SYNC:
+                case GLOBAL_SYNC:
+                    result = null;
                     break;
                 default:
                     result = null;

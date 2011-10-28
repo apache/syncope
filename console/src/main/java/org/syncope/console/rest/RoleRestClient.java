@@ -65,8 +65,7 @@ public class RoleRestClient extends AbstractBaseRestClient {
 
         try {
             roleTO = restTemplate.getForObject(
-                    baseURL + "role/read/{roleId}.json",
-                    RoleTO.class, id);
+                    baseURL + "role/read/{roleId}.json", RoleTO.class, id);
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While reading a role", e);
         }
@@ -80,8 +79,7 @@ public class RoleRestClient extends AbstractBaseRestClient {
      */
     public void updateRole(RoleMod roleMod) {
         restTemplate.postForObject(
-                baseURL + "role/update", roleMod,
-                RoleTO.class);
+                baseURL + "role/update", roleMod, RoleTO.class);
     }
 
     /**
@@ -90,7 +88,6 @@ public class RoleRestClient extends AbstractBaseRestClient {
      * @return schemaTO
      */
     public void deleteRole(Long id) {
-        restTemplate.delete(baseURL
-                + "role/delete/{roleId}.json", id);
+        restTemplate.delete(baseURL + "role/delete/{roleId}.json", id);
     }
 }

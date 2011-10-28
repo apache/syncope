@@ -18,14 +18,13 @@ public class SyncPolicySpec extends AbstractPolicySpec {
 
     private static final long serialVersionUID = -3144027171719498127L;
 
-    // TODO: To be defined
-    private String fake;
+    private boolean fake;
 
-    public String getFake() {
+    public boolean isFake() {
         return fake;
     }
 
-    public void setFake(String fake) {
+    public void setFake(boolean fake) {
         this.fake = fake;
     }
 }

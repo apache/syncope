@@ -71,6 +71,16 @@ public abstract class AbstractUserWorkflowAdapter
         return doSuspend(dataBinder.getUserFromId(userId));
     }
 
+    @Override
+    public Long suspend(final SyncopeUser user)
+            throws UnauthorizedRoleException, WorkflowException {
+
+        // set suspended flag
+        user.setSuspended(Boolean.TRUE);
+
+        return doSuspend(user);
+    }
+
     protected abstract Long doReactivate(SyncopeUser user)
             throws WorkflowException;
 
@@ -79,7 +89,15 @@ public abstract class AbstractUserWorkflowAdapter
             throws UnauthorizedRoleException, NotFoundException,
             WorkflowException {
 
-        return doReactivate(dataBinder.getUserFromId(userId));
+        final SyncopeUser user = dataBinder.getUserFromId(userId);
+
+        // reset failed logins
+        user.setFailedLogins(0);
+
+        // reset suspended flag
+        user.setSuspended(Boolean.FALSE);
+
+        return doReactivate(user);
     }
 
     protected abstract void doDelete(SyncopeUser user)

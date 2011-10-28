@@ -21,7 +21,7 @@ import org.syncope.types.PolicyType;
 
 @Component
 public class PasswordPolicyEnforcer
-        implements PolicyEnforcer<PasswordPolicySpec, String> {
+        extends PolicyEnforcer<PasswordPolicySpec, String> {
 
     private static final Pattern DIGIT = Pattern.compile(".*\\d+.*");
 
@@ -53,7 +53,7 @@ public class PasswordPolicyEnforcer
             throws PasswordPolicyException, PolicyEnforceException {
 
         if (password == null) {
-            throw new PolicyEnforceException("Invalid passwordì");
+            throw new PolicyEnforceException("Invalid password");
         }
 
         if (policy == null) {

@@ -41,14 +41,14 @@ public class UserTest extends AbstractTest {
     private EntitlementDAO entitlementDAO;
 
     @Test
-    public final void findAll() {
+    public void findAll() {
         List<SyncopeUser> list = userDAO.findAll(
                 EntitlementUtil.getRoleIds(entitlementDAO.findAll()));
         assertEquals("did not get expected number of users ", 4, list.size());
     }
 
     @Test
-    public final void count() {
+    public void count() {
         Integer count = userDAO.count(
                 EntitlementUtil.getRoleIds(entitlementDAO.findAll()));
         assertNotNull(count);
@@ -56,7 +56,7 @@ public class UserTest extends AbstractTest {
     }
 
     @Test
-    public final void findAllByPageAndSize() {
+    public void findAllByPageAndSize() {
         Set<Long> allRoleIds =
                 EntitlementUtil.getRoleIds(entitlementDAO.findAll());
 
@@ -78,7 +78,7 @@ public class UserTest extends AbstractTest {
     }
 
     @Test
-    public final void findByDerAttributeValue()
+    public void findByDerAttributeValue()
             throws InvalidSearchConditionException {
         final List<SyncopeUser> list = userDAO.findByDerAttrValue(
                 "cn", "Doe, John");
@@ -87,20 +87,20 @@ public class UserTest extends AbstractTest {
 
     @Test
     @ExpectedException(value = InvalidSearchConditionException.class)
-    public final void findByInvalidDerAttrValue()
+    public void findByInvalidDerAttrValue()
             throws InvalidSearchConditionException {
         userDAO.findByDerAttrValue("cn", "Antonio, Maria, Rossi");
     }
 
     @Test
     @ExpectedException(value = InvalidSearchConditionException.class)
-    public final void findByInvalidDerAttrExpression()
+    public void findByInvalidDerAttrExpression()
             throws InvalidSearchConditionException {
         userDAO.findByDerAttrValue("noschema", "Antonio, Maria");
     }
 
     @Test
-    public final void findByAttributeValue() {
+    public void findByAttributeValue() {
         final UAttrValue fullnameValue = new UAttrValue();
         fullnameValue.setStringValue("chicchiricco");
 
@@ -110,7 +110,7 @@ public class UserTest extends AbstractTest {
     }
 
     @Test
-    public final void findByAttributeBooleanValue() {
+    public void findByAttributeBooleanValue() {
         final UAttrValue coolValue = new UAttrValue();
         coolValue.setBooleanValue(true);
 
@@ -120,7 +120,7 @@ public class UserTest extends AbstractTest {
     }
 
     @Test
-    public final void findById() {
+    public void findById() {
         SyncopeUser user = userDAO.find(1L);
         assertNotNull("did not find expected user", user);
         user = userDAO.find(3L);
@@ -130,7 +130,7 @@ public class UserTest extends AbstractTest {
     }
 
     @Test
-    public final void findByUsername() {
+    public void findByUsername() {
         SyncopeUser user = userDAO.find("user1");
         assertNotNull("did not find expected user", user);
         user = userDAO.find("user3");
@@ -140,7 +140,7 @@ public class UserTest extends AbstractTest {
     }
 
     @Test
-    public final void save() {
+    public void save() {
         SyncopeUser user = new SyncopeUser();
         user.setUsername("username");
         user.setCreationDate(new Date());
@@ -153,10 +153,21 @@ public class UserTest extends AbstractTest {
         } catch (InvalidEntityException e) {
             t = e;
         }
-
         assertNotNull(t);
 
         user.setPassword("password", CipherAlgorithm.SHA256, 1);
+
+        user.setUsername("username!");
+
+        t = null;
+        try {
+            userDAO.save(user);
+        } catch (InvalidEntityException e) {
+            t = e;
+        }
+        assertNotNull(t);
+
+        user.setUsername("username");
 
         SyncopeUser actual = userDAO.save(user);
         assertNotNull("expected save to work", actual);
@@ -164,7 +175,7 @@ public class UserTest extends AbstractTest {
     }
 
     @Test
-    public final void delete() {
+    public void delete() {
         SyncopeUser user = userDAO.find(3L);
 
         userDAO.delete(user.getId());

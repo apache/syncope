@@ -27,8 +27,10 @@ import org.syncope.core.persistence.beans.PasswordPolicy;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.PolicyDAO;
+import org.syncope.core.policy.AccountPolicyEnforcer;
 import org.syncope.core.policy.PasswordPolicyEnforcer;
 import org.syncope.core.policy.PolicyEvaluator;
+import org.syncope.types.AccountPolicySpec;
 import org.syncope.types.EntityViolationType;
 import org.syncope.types.PasswordPolicySpec;
 
@@ -42,7 +44,10 @@ public class SyncopeUserValidator extends AbstractValidator
     private PolicyEvaluator evaluator;
 
     @Autowired
-    private PasswordPolicyEnforcer enforcer;
+    private PasswordPolicyEnforcer ppEnforcer;
+
+    @Autowired
+    private AccountPolicyEnforcer apEnforcer;
 
     @Override
     public void initialize(final SyncopeUserCheck constraintAnnotation) {
@@ -54,6 +59,7 @@ public class SyncopeUserValidator extends AbstractValidator
             final ConstraintValidatorContext context) {
 
         context.disableDefaultConstraintViolation();
+
         // ------------------------------
         // Verify password policies
         // ------------------------------
@@ -75,7 +81,7 @@ public class SyncopeUserValidator extends AbstractValidator
                             evaluator.evaluate(policy, object);
 
                     // enforce policy
-                    enforcer.enforce(
+                    ppEnforcer.enforce(
                             passwordPolicy, policy.getType(), password);
                 }
             }
@@ -98,39 +104,35 @@ public class SyncopeUserValidator extends AbstractValidator
         // ------------------------------
         // Verify account policies
         // ------------------------------
-        LOG.debug("Password Policy enforcement");
+        LOG.debug("Account Policy enforcement");
 
         final List<AccountPolicy> accountPolicies =
                 getAccountPolicies((SyncopeUser) object);
 
         try {
             // username missed
-//                for (Policy policy : accountPolicies) {
-//                        // evaluate policy
-//                        final PasswordPolicySpec passwordPolicy =
-//                                evaluator.evaluate(policy, object);
-//
-//                        // enforce policy
-//                        enforcer.enforce(
-//                                passwordPolicy, policy.getType(), password);
-//                }
+            for (Policy policy : accountPolicies) {
+
+                // evaluate policy
+                final AccountPolicySpec accountPolicy =
+                        evaluator.evaluate(policy, object);
+
+                // enforce policy
+                apEnforcer.enforce(
+                        accountPolicy, policy.getType(), (SyncopeUser) object);
+            }
         } catch (Exception e) {
             LOG.debug("Invalid username");
 
             context.buildConstraintViolationWithTemplate(
                     e.getMessage()).addNode(
-                    EntityViolationType.InvalidPassword.toString()).
+                    EntityViolationType.InvalidUsername.toString()).
                     addConstraintViolation();
 
             return false;
-        } finally {
-            // password has been validated, let's remove its
-            // clear version
-            ((SyncopeUser) object).removeClearPassword();
         }
         // ------------------------------
 
-        // Let's verify other policies ....
         return true;
     }
 

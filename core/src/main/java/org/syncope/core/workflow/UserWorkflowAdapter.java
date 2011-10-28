@@ -18,6 +18,7 @@ import java.util.Map;
 import javassist.NotFoundException;
 import org.syncope.client.mod.UserMod;
 import org.syncope.client.to.UserTO;
+import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.client.to.WorkflowDefinitionTO;
 import org.syncope.client.to.WorkflowFormTO;
 import org.syncope.core.persistence.propagation.PropagationByResource;
@@ -95,6 +96,17 @@ public interface UserWorkflowAdapter {
 
     /**
      * Suspend an user.
+     *
+     * @param user to be suspended
+     * @return user just suspended
+     * @throws UnauthorizedRoleException authorization exception
+     * @throws WorkflowException workflow exception
+     */
+    Long suspend(SyncopeUser user)
+            throws UnauthorizedRoleException, WorkflowException;
+
+    /**
+     * Reactivate an user.
      *
      * @param userId user to be reactivated
      * @return user just reactivated

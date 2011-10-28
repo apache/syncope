@@ -18,121 +18,178 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.springframework.stereotype.Component;
-import org.syncope.client.mod.PasswordPolicyMod;
+import org.syncope.client.mod.PolicyMod;
 import org.syncope.client.to.AccountPolicyTO;
 import org.syncope.client.to.PasswordPolicyTO;
+import org.syncope.client.to.PolicyTO;
+import org.syncope.client.to.SyncPolicyTO;
+import org.syncope.types.PolicyType;
 
 /**
  * Console client for invoking Rest Policy services.
  */
-@Component
+ @Component
 public class PolicyRestClient extends AbstractBaseRestClient {
 
-    public PasswordPolicyTO getGlobalPasswordPolicy() {
-        try {
-            return restTemplate.getForObject(
-                    baseURL + "policy/password/global/read", PasswordPolicyTO.class);
-        } catch (Exception e) {
-            LOG.debug("No password policy found", e);
-            return new PasswordPolicyTO();
-        }
-    }
+    public <T extends PolicyTO> T getGlobalPolicy(final PolicyType type) {
 
-    public List<PasswordPolicyTO> getPasswordPolicies() {
-        final List<PasswordPolicyTO> policies =
-                new ArrayList<PasswordPolicyTO>();
-
-        PasswordPolicyTO[] passwordPolicies = null;
+        T policy = null;
 
         try {
 
-            passwordPolicies = restTemplate.getForObject(
-                    baseURL + "policy/password/list",
-                    PasswordPolicyTO[].class);
+            switch (type) {
+                case GLOBAL_ACCOUNT:
+                    try {
+                        policy = (T) restTemplate.getForObject(
+                                baseURL + "policy/account/global/read",
+                                AccountPolicyTO.class);
+                    } catch (Exception e) {
+                        LOG.debug("No account policy found", e);
+                        policy = (T) new AccountPolicyTO();
+                    }
+                    break;
+                case GLOBAL_PASSWORD:
+                    try {
+                        policy = (T) restTemplate.getForObject(
+                                baseURL + "policy/password/global/read",
+                                PasswordPolicyTO.class);
+                    } catch (Exception e) {
+                        LOG.debug("No password policy found", e);
+                        policy = (T) new PasswordPolicyTO();
+                    }
+                    break;
+                case GLOBAL_SYNC:
+                    try {
+                        policy = (T) restTemplate.getForObject(
+                                baseURL + "policy/sync/global/read",
+                                SyncPolicyTO.class);
+                    } catch (Exception e) {
+                        LOG.debug("No password policy found", e);
+                        policy = (T) new SyncPolicyTO();
+                    }
+                    break;
+                default:
+                    throw new Exception("Invalid policy type");
+            }
+
         } catch (Exception ignore) {
-            LOG.debug("No password policy found", ignore);
+            LOG.error("Invalid policy type", ignore);
         }
 
-        if (passwordPolicies != null) {
-            policies.addAll(Arrays.asList(passwordPolicies));
-        }
+        return policy;
+    }
 
-        PasswordPolicyTO globalPasswordPolicy = null;
+    public <T extends PolicyTO> List<T> getPolicies(final PolicyType type) {
+        final List<T> res = new ArrayList<T>();
+
+        T[] policies = null;
+
+        final Class reference;
+        final Class globalReference;
+        final String policy;
 
         try {
-            globalPasswordPolicy =
-                    restTemplate.getForObject(
-                    baseURL + "policy/password/global/read",
-                    PasswordPolicyTO.class);
+
+            switch (type) {
+                case ACCOUNT:
+                    reference = AccountPolicyTO[].class;
+                    globalReference = AccountPolicyTO.class;
+                    policy = "account";
+                    break;
+                case PASSWORD:
+                    reference = PasswordPolicyTO[].class;
+                    globalReference = PasswordPolicyTO.class;
+                    policy = "password";
+                    break;
+                case SYNC:
+                    reference = SyncPolicyTO[].class;
+                    globalReference = SyncPolicyTO.class;
+                    policy = "sync";
+                    break;
+                default:
+                    throw new Exception("Invalid policy type");
+            }
+
+            try {
+                policies = (T[]) restTemplate.getForObject(
+                        baseURL + "policy/" + policy + "/list",
+                        reference);
+            } catch (Exception ignore) {
+                LOG.debug("No policy found", ignore);
+            }
+
+            if (policies != null) {
+                res.addAll(Arrays.asList(policies));
+            }
+
+            PolicyTO globalPolicy = null;
+
+            try {
+                globalPolicy = (T) restTemplate.getForObject(
+                        baseURL + "policy/" + policy + "/global/read",
+                        globalReference);
+            } catch (Exception ignore) {
+                LOG.warn("No global policy found", ignore);
+            }
+
+            if (globalPolicy != null) {
+                res.add(0, (T) globalPolicy);
+            }
+
         } catch (Exception ignore) {
-            LOG.debug("No global password policy found", ignore);
+            LOG.error("No policy found", ignore);
         }
 
-        if (globalPasswordPolicy != null) {
-            policies.add(0, globalPasswordPolicy);
-        }
-
-        return policies;
+        return res;
     }
 
-    public List<AccountPolicyTO> getAccountPolicies() {
-        final List<AccountPolicyTO> policies =
-                new ArrayList<AccountPolicyTO>();
+    public <T extends PolicyTO> T createPolicy(final T policy)
+            throws InvalidPolicyType {
 
-        AccountPolicyTO[] accountPolicies = null;
-
-        try {
-
-            accountPolicies = restTemplate.getForObject(
-                    baseURL + "policy/account/list",
-                    AccountPolicyTO[].class);
-        } catch (Exception ignore) {
-            LOG.debug("No password policy found", ignore);
-        }
-
-        if (accountPolicies != null) {
-            policies.addAll(Arrays.asList(accountPolicies));
-        }
-
-        AccountPolicyTO globalAccountPolicy = null;
-
-        try {
-            globalAccountPolicy =
-                    restTemplate.getForObject(
-                    baseURL + "policy/account/global/read",
-                    AccountPolicyTO.class);
-        } catch (Exception ignore) {
-            LOG.debug("No global password policy found", ignore);
-        }
-
-        if (globalAccountPolicy != null) {
-            policies.add(0, globalAccountPolicy);
-        }
-
-        return policies;
-    }
-
-    public AccountPolicyTO getGlobalAccountPolicy() {
-        try {
-            return restTemplate.getForObject(
-                    baseURL + "policy/acount/global/read", AccountPolicyTO.class);
-        } catch (Exception e) {
-            LOG.debug("No account policy found", e);
-            return new AccountPolicyTO();
+        switch (policy.getType()) {
+            case GLOBAL_ACCOUNT:
+            case ACCOUNT:
+                return (T) restTemplate.postForObject(
+                        baseURL + "policy/account/create",
+                        policy, AccountPolicyTO.class);
+            case GLOBAL_PASSWORD:
+            case PASSWORD:
+                return (T) restTemplate.postForObject(
+                        baseURL + "policy/password/create",
+                        policy, PasswordPolicyTO.class);
+            case GLOBAL_SYNC:
+            case SYNC:
+                return (T) restTemplate.postForObject(
+                        baseURL + "policy/sync/create",
+                        policy, SyncPolicyTO.class);
+            default:
+                throw new InvalidPolicyType("Invalid type " + policy.getType());
         }
     }
 
-    public PasswordPolicyTO createPasswordPolicy(
-            final PasswordPolicyTO policy) {
-        return restTemplate.postForObject(baseURL + "policy/password/create",
-                policy, PasswordPolicyTO.class);
-    }
+    public <T extends PolicyMod, E extends PolicyTO> E updatePolicy(
+            final T policy)
+            throws InvalidPolicyType {
 
-    public PasswordPolicyTO updatePasswordPolicy(
-            final PasswordPolicyMod policy) {
-
-        return restTemplate.postForObject(baseURL + "policy/password/update",
-                policy, PasswordPolicyTO.class);
+        switch (policy.getType()) {
+            case GLOBAL_ACCOUNT:
+            case ACCOUNT:
+                return (E) restTemplate.postForObject(
+                        baseURL + "policy/account/update",
+                        policy, AccountPolicyTO.class);
+            case GLOBAL_PASSWORD:
+            case PASSWORD:
+                return (E) restTemplate.postForObject(
+                        baseURL + "policy/password/update",
+                        policy, PasswordPolicyTO.class);
+            case GLOBAL_SYNC:
+            case SYNC:
+                return (E) restTemplate.postForObject(
+                        baseURL + "policy/sync/update",
+                        policy, SyncPolicyTO.class);
+            default:
+                throw new InvalidPolicyType("Invalid type " + policy.getType());
+        }
     }
 
     public void delete(final Long id) {

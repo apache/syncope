@@ -33,6 +33,7 @@ import java.util.Set;
 import java.util.TimeZone;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
+import javax.persistence.Basic;
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -47,6 +48,8 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import org.apache.commons.lang.RandomStringUtils;
 import org.hibernate.annotations.Type;
@@ -160,6 +163,11 @@ public class SyncopeUser extends AbstractAttributable {
     @Temporal(TemporalType.TIMESTAMP)
     private Date changePwdDate;
 
+    @Basic
+    @Min(0)
+    @Max(1)
+    private Integer suspended;
+
     public SyncopeUser() {
         super();
 
@@ -168,6 +176,8 @@ public class SyncopeUser extends AbstractAttributable {
         derivedAttributes = new ArrayList<UDerAttr>();
         virtualAttributes = new ArrayList<UVirAttr>();
         passwordHistory = new ArrayList<String>();
+        failedLogins = 0;
+        suspended = 0;
     }
 
     @Override
@@ -432,7 +442,7 @@ public class SyncopeUser extends AbstractAttributable {
     }
 
     public Integer getFailedLogins() {
-        return failedLogins;
+        return failedLogins != null ? failedLogins : 0;
     }
 
     public void setFailedLogins(final Integer failedLogins) {
@@ -453,6 +463,14 @@ public class SyncopeUser extends AbstractAttributable {
 
     public void setUsername(final String username) {
         this.username = username;
+    }
+
+    public void setSuspended(final Boolean suspended) {
+        this.suspended = getBooleanAsInteger(suspended);
+    }
+
+    public Boolean getSuspended() {
+        return isBooleanAsInteger(suspended);
     }
 
     private String encodePassword(

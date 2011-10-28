@@ -208,6 +208,22 @@ public class PolicyController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('POLICY_READ')")
+    @RequestMapping(method = RequestMethod.GET, value = "/sync/global/read")
+    public SyncPolicyTO getGlobalSyncPolicy(
+            final HttpServletResponse response)
+            throws NotFoundException {
+
+        LOG.debug("Reading sync policy");
+        Policy policy = policyDAO.getGlobalSyncPolicy();
+
+        if (policy == null) {
+            throw new NotFoundException("No sync policy found");
+        }
+
+        return (SyncPolicyTO) policyDataBinder.getPolicyTO(policy);
+    }
+
+    @PreAuthorize("hasRole('POLICY_READ')")
     @RequestMapping(method = RequestMethod.GET, value = "/read/{id}")
     public PolicyTO read(
             final HttpServletResponse response,

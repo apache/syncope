@@ -182,16 +182,18 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
             }
         }
 
-        if (roleMod.getPasswordPolicy() != null
-                && roleMod.getPasswordPolicy().getId() != null) {
-            role.setPasswordPolicy((PasswordPolicy) policyDAO.find(
-                    roleMod.getPasswordPolicy().getId()));
+        if (roleMod.getPasswordPolicy() != null) {
+            role.setPasswordPolicy(
+                    roleMod.getPasswordPolicy().getId() != null
+                    ? (PasswordPolicy) policyDAO.find(
+                    roleMod.getPasswordPolicy().getId()) : null);
         }
 
-        if (roleMod.getAccountPolicy() != null
-                && roleMod.getAccountPolicy().getId() != null) {
-            role.setAccountPolicy((AccountPolicy) policyDAO.find(
-                    roleMod.getAccountPolicy().getId()));
+        if (roleMod.getAccountPolicy() != null) {
+            role.setAccountPolicy(
+                    roleMod.getAccountPolicy().getId() != null
+                    ? (AccountPolicy) policyDAO.find(
+                    roleMod.getAccountPolicy().getId()) : null);
         }
 
         // attributes, derived attributes, virtual attributes and resources

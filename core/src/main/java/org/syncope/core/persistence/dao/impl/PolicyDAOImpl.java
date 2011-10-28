@@ -63,6 +63,17 @@ public class PolicyDAOImpl extends AbstractDAOImpl
     }
 
     @Override
+    public Policy getGlobalSyncPolicy() {
+        List<Policy> policies = find(PolicyType.GLOBAL_SYNC);
+        if (policies != null && !policies.isEmpty()) {
+            return policies.get(0);
+        } else {
+            return null;
+        }
+
+    }
+
+    @Override
     public List<Policy> findAll() {
         Query query = entityManager.createQuery("SELECT e FROM Policy e");
         return query.getResultList();

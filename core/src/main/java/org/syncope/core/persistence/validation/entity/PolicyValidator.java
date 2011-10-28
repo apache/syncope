@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.syncope.core.persistence.beans.AccountPolicy;
 import org.syncope.core.persistence.beans.PasswordPolicy;
 import org.syncope.core.persistence.beans.Policy;
+import org.syncope.core.persistence.beans.SyncPolicy;
 import org.syncope.core.persistence.dao.PolicyDAO;
 import org.syncope.types.AccountPolicySpec;
 import org.syncope.types.EntityViolationType;
@@ -51,7 +52,8 @@ public class PolicyValidator extends AbstractValidator
                 || ((object.getType() == PolicyType.ACCOUNT
                 || object.getType() == PolicyType.GLOBAL_ACCOUNT)
                 && !(object.getSpecification() instanceof AccountPolicySpec))
-                || (object.getType() == PolicyType.SYNC
+                || ((object.getType() == PolicyType.SYNC
+                || object.getType() == PolicyType.GLOBAL_SYNC)
                 && !(object.getSpecification() instanceof SyncPolicySpec)))) {
 
             context.buildConstraintViolationWithTemplate(
@@ -86,7 +88,7 @@ public class PolicyValidator extends AbstractValidator
 
             case GLOBAL_ACCOUNT:
 
-                // just one policy with type ACCOUNT
+                // just one GLOBAL_ACCOUNT policy
                 final AccountPolicy accountPolicy =
                         (AccountPolicy) policyDAO.getGlobalAccountPolicy();
 
@@ -94,7 +96,7 @@ public class PolicyValidator extends AbstractValidator
                         && !accountPolicy.getId().equals(object.getId())) {
 
                     context.buildConstraintViolationWithTemplate(
-                            "Account policy already exists").addNode(
+                            "Global Account policy already exists").addNode(
                             EntityViolationType.InvalidAccountPolicy.toString()).
                             addConstraintViolation();
 
@@ -103,6 +105,24 @@ public class PolicyValidator extends AbstractValidator
                 break;
 
             case ACCOUNT:
+                break;
+
+            case GLOBAL_SYNC:
+
+                // just one GLOBAL_SYNC policy
+                final SyncPolicy syncPolicy =
+                        (SyncPolicy) policyDAO.getGlobalSyncPolicy();
+
+                if (syncPolicy != null
+                        && !syncPolicy.getId().equals(object.getId())) {
+
+                    context.buildConstraintViolationWithTemplate(
+                            "Global Sync policy already exists").addNode(
+                            EntityViolationType.InvalidSyncPolicy.toString()).
+                            addConstraintViolation();
+
+                    return false;
+                }
                 break;
 
             case SYNC:

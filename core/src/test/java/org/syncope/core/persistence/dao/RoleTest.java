@@ -80,7 +80,7 @@ public class RoleTest extends AbstractTest {
 
         assertNotNull(role);
 
-        assertNull(role.getAccountPolicy());
+        assertNotNull(role.getAccountPolicy());
         assertNotNull(role.getPasswordPolicy());
 
         assertEquals(4L, (long) role.getPasswordPolicy().getId());

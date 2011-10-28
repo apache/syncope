@@ -142,6 +142,9 @@ public class ExternalResource extends AbstractBaseBean {
     @ManyToOne(fetch = FetchType.EAGER, optional = true)
     private AccountPolicy accountPolicy;
 
+    @ManyToOne(fetch = FetchType.EAGER, optional = true)
+    private SyncPolicy syncPolicy;
+
     /**
      * Configuration properties that are overridden from the connector instance.
      */
@@ -351,6 +354,14 @@ public class ExternalResource extends AbstractBaseBean {
         this.passwordPolicy = passwordPolicy;
     }
 
+    public SyncPolicy getSyncPolicy() {
+        return syncPolicy;
+    }
+
+    public void setSyncPolicy(SyncPolicy syncPolicy) {
+        this.syncPolicy = syncPolicy;
+    }
+
     public void setConnectorConfigurationProperties(
             final Set<ConnConfProperty> properties) {
 
@@ -364,7 +375,8 @@ public class ExternalResource extends AbstractBaseBean {
 
         Set<ConnConfProperty> deserializedSet;
         if (StringUtils.isNotBlank(xmlConfiguration)) {
-            deserializedSet = XmlSerializer.<HashSet<ConnConfProperty>>deserialize(xmlConfiguration);
+            deserializedSet = XmlSerializer.<HashSet<ConnConfProperty>>
+                    deserialize(xmlConfiguration);
             if (deserializedSet != null) {
                 result = deserializedSet;
             }

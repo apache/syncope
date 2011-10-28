@@ -30,7 +30,8 @@ public enum PolicyType {
     /**
      * SYNC policy regarding account conflicts resolution.
      */
-    SYNC("Synchronization Policy");
+    SYNC("Synchronization Policy"),
+    GLOBAL_SYNC("Synchronization Global Policy");
 
     private String description;
 

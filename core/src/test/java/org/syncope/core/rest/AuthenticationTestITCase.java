@@ -247,7 +247,8 @@ public class AuthenticationTestITCase extends AbstractTest {
 
     @Test
     public void checkFailedLogins() {
-        UserTO userTO = UserTestITCase.getSampleTO("checkFailedLogin@test.org");
+        UserTO userTO =
+                UserTestITCase.getSampleTO("checkFailedLogin@syncope-idm.org");
 
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(7L);
@@ -295,11 +296,6 @@ public class AuthenticationTestITCase extends AbstractTest {
         assertNotNull(t);
         t = null;
 
-        ((CommonsClientHttpRequestFactory) restTemplate.getRequestFactory()).
-                getHttpClient().getState().setCredentials(AuthScope.ANY,
-                new UsernamePasswordCredentials(
-                userTO.getUsername(), "wrongpwd2"));
-
         try {
             restTemplate.getForObject(
                     BASE_URL + "user/read/{userId}.json",
@@ -330,5 +326,158 @@ public class AuthenticationTestITCase extends AbstractTest {
         assertNotNull(readUserTO);
         assertNotNull(readUserTO.getFailedLogins());
         assertEquals(new Integer(0), readUserTO.getFailedLogins());
+    }
+
+    @Test
+    public void checkUserSuspension() {
+        UserTO userTO =
+                UserTestITCase.getSampleTO("checkSuspension@syncope-idm.org");
+
+        MembershipTO membershipTO = new MembershipTO();
+        membershipTO.setRoleId(7L);
+        AttributeTO testAttributeTO = new AttributeTO();
+        testAttributeTO.setSchema("testAttribute");
+        testAttributeTO.addValue("a value");
+        membershipTO.addAttribute(testAttributeTO);
+        userTO.addMembership(membershipTO);
+
+        userTO = restTemplate.postForObject(
+                BASE_URL + "user/create", userTO, UserTO.class);
+        assertNotNull(userTO);
+
+        ((CommonsClientHttpRequestFactory) restTemplate.getRequestFactory()).
+                getHttpClient().getState().setCredentials(AuthScope.ANY,
+                new UsernamePasswordCredentials(
+                userTO.getUsername(), "password123"));
+
+        userTO = restTemplate.getForObject(
+                BASE_URL + "user/read/{userId}.json",
+                UserTO.class, userTO.getId());
+
+        assertNotNull(userTO);
+        assertNotNull(userTO.getFailedLogins());
+        assertEquals(new Integer(0), userTO.getFailedLogins());
+
+        // authentications failed ...
+
+        ((CommonsClientHttpRequestFactory) restTemplate.getRequestFactory()).
+                getHttpClient().getState().setCredentials(AuthScope.ANY,
+                new UsernamePasswordCredentials(
+                userTO.getUsername(), "wrongpwd1"));
+
+        Throwable t = null;
+
+        try {
+            restTemplate.getForObject(
+                    BASE_URL + "user/read/{userId}.json",
+                    UserTO.class, userTO.getId());
+        } catch (Exception e) {
+            t = e;
+        }
+
+        assertNotNull(t);
+        t = null;
+
+        try {
+            restTemplate.getForObject(
+                    BASE_URL + "user/read/{userId}.json",
+                    UserTO.class, userTO.getId());
+        } catch (Exception e) {
+            t = e;
+        }
+
+        assertNotNull(t);
+        t = null;
+
+        try {
+            restTemplate.getForObject(
+                    BASE_URL + "user/read/{userId}.json",
+                    UserTO.class, userTO.getId());
+        } catch (Exception e) {
+            t = e;
+        }
+
+        assertNotNull(t);
+        t = null;
+
+        // reset admin credentials for restTemplate
+        super.setupRestTemplate();
+
+        userTO = restTemplate.getForObject(
+                BASE_URL + "user/read/{userId}.json",
+                UserTO.class, userTO.getId());
+
+        assertNotNull(userTO);
+        assertNotNull(userTO.getFailedLogins());
+        assertEquals(new Integer(3), userTO.getFailedLogins());
+
+        // last authentication before suspension
+        ((CommonsClientHttpRequestFactory) restTemplate.getRequestFactory()).
+                getHttpClient().getState().setCredentials(AuthScope.ANY,
+                new UsernamePasswordCredentials(
+                userTO.getUsername(), "wrongpwd1"));
+
+        try {
+            restTemplate.getForObject(
+                    BASE_URL + "user/read/{userId}.json",
+                    UserTO.class, userTO.getId());
+        } catch (Exception e) {
+            t = e;
+        }
+
+        assertNotNull(t);
+        t = null;
+
+        // reset admin credentials for restTemplate
+        super.setupRestTemplate();
+
+        userTO = restTemplate.getForObject(
+                BASE_URL + "user/read/{userId}.json",
+                UserTO.class, userTO.getId());
+
+        assertNotNull(userTO);
+        assertNotNull(userTO.getFailedLogins());
+        assertEquals(new Integer(3), userTO.getFailedLogins());
+        assertEquals("suspended", userTO.getStatus());
+
+        // check for authentication
+
+        ((CommonsClientHttpRequestFactory) restTemplate.getRequestFactory()).
+                getHttpClient().getState().setCredentials(AuthScope.ANY,
+                new UsernamePasswordCredentials(
+                userTO.getUsername(), "password123"));
+
+        try {
+            restTemplate.getForObject(
+                    BASE_URL + "user/read/{userId}.json",
+                    UserTO.class, userTO.getId());
+            assertNotNull(userTO);
+        } catch (Exception e) {
+            t = e;
+        }
+
+        assertNotNull(t);
+        t = null;
+
+        // reset admin credentials for restTemplate
+        super.setupRestTemplate();
+
+        userTO = restTemplate.getForObject(
+                BASE_URL + "user/reactivate/" + userTO.getId(), UserTO.class);
+
+        assertNotNull(userTO);
+        assertEquals("active", userTO.getStatus());
+
+        ((CommonsClientHttpRequestFactory) restTemplate.getRequestFactory()).
+                getHttpClient().getState().setCredentials(AuthScope.ANY,
+                new UsernamePasswordCredentials(
+                userTO.getUsername(), "password123"));
+
+        userTO = restTemplate.getForObject(
+                BASE_URL + "user/read/{userId}.json",
+                UserTO.class, userTO.getId());
+
+        assertNotNull(userTO);
+        assertEquals(new Integer(0), userTO.getFailedLogins());
     }
 }

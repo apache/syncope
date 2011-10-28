@@ -34,6 +34,7 @@ import org.syncope.core.persistence.beans.ConnInstance;
 import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.core.persistence.beans.PasswordPolicy;
+import org.syncope.core.persistence.beans.SyncPolicy;
 import org.syncope.core.persistence.dao.ConnInstanceDAO;
 import org.syncope.core.persistence.dao.PolicyDAO;
 import org.syncope.core.util.JexlUtil;
@@ -116,6 +117,10 @@ public class ResourceDataBinder {
                 ? (AccountPolicy) policyDAO.find(resourceTO.getAccountPolicy())
                 : null);
 
+        resource.setSyncPolicy(resourceTO.getSyncPolicy() != null
+                ? (SyncPolicy) policyDAO.find(resourceTO.getSyncPolicy())
+                : null);
+
         resource.setConnectorConfigurationProperties(
                 new HashSet<ConnConfProperty>(
                 resourceTO.getConnectorConfigurationProperties()));
@@ -178,6 +183,9 @@ public class ResourceDataBinder {
 
         resourceTO.setAccountPolicy(resource.getAccountPolicy() != null
                 ? resource.getAccountPolicy().getId() : null);
+
+        resourceTO.setSyncPolicy(resource.getSyncPolicy() != null
+                ? resource.getSyncPolicy().getId() : null);
 
         resourceTO.setConnectorConfigurationProperties(
                 resource.getConfiguration());

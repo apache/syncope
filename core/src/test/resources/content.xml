@@ -28,7 +28,8 @@
     <Policy DTYPE="SyncPolicy" id="3" description="sync policy 2" type="SYNC" specification="%3C%3Fxml+version%3D%221.0%22+encoding%3D%22UTF-8%22%3F%3E+%0A%3Cjava+version%3D%221.6.0_26%22+class%3D%22java.beans.XMLDecoder%22%3E+%0A+%3Cobject+class%3D%22org.syncope.types.SyncPolicySpec%22/%3E%0A%3C/java%3E+%0A"/>
     <Policy DTYPE="PasswordPolicy" id="4" description="sample password policy" type="PASSWORD" specification="%3C%3Fxml+version%3D%221.0%22+encoding%3D%22UTF-8%22%3F%3E+%0A%3Cjava+version%3D%221.6.0_26%22+class%3D%22java.beans.XMLDecoder%22%3E+%0A+%3Cobject+class%3D%22org.syncope.types.PasswordPolicySpec%22%3E+%0A++%3Cvoid+property%3D%22historyLength%22%3E+%0A+++%3Cint%3E0%3C/int%3E+%0A++%3C/void%3E+%0A++%3Cvoid+property%3D%22minLength%22%3E+%0A+++%3Cint%3E10%3C/int%3E+%0A++%3C/void%3E+%0A++%3Cvoid+property%3D%22prefixesNotPermitted%22%3E+%0A+++%3Cvoid+method%3D%22add%22%3E+%0A++++%3Cstring%3Enotpermitted1%3C/string%3E+%0A+++%3C/void%3E+%0A+++%3Cvoid+method%3D%22add%22%3E+%0A++++%3Cstring%3Enotpermitted2%3C/string%3E+%0A+++%3C/void%3E+%0A++%3C/void%3E+%0A+%3C/object%3E+%0A%3C/java%3E+"/>
     <Policy DTYPE="AccountPolicy" id="5" description="global account policy" type="GLOBAL_ACCOUNT" specification="%3C%3Fxml+version%3D%221.0%22+encoding%3D%22UTF-8%22%3F%3E+%0A%3Cjava+version%3D%221.6.0_26%22+class%3D%22java.beans.XMLDecoder%22%3E+%0A+%3Cobject+class%3D%22org.syncope.types.AccountPolicySpec%22%3E%0A+%3C/object%3E+%0A%3C/java%3E+"/>
-    <Policy DTYPE="AccountPolicy" id="6" description="sample account policy" type="ACCOUNT" specification="%3C%3Fxml+version%3D%221.0%22+encoding%3D%22UTF-8%22%3F%3E+%0A%3Cjava+version%3D%221.6.0_26%22+class%3D%22java.beans.XMLDecoder%22%3E+%0A+%3Cobject+class%3D%22org.syncope.types.AccountPolicySpec%22%3E%0A+%3C/object%3E+%0A%3C/java%3E+"/>
+    <Policy DTYPE="AccountPolicy" id="6" description="sample account policy" type="ACCOUNT" specification="%3C%3Fxml+version%3D%221.0%22+encoding%3D%22UTF-8%22%3F%3E+%0A%3Cjava+version%3D%221.6.0_26%22+class%3D%22java.beans.XMLDecoder%22%3E+%0A+%3Cobject+class%3D%22org.syncope.types.AccountPolicySpec%22%3E+%0A++%3Cvoid+property%3D%22minLength%22%3E+%0A+++%3Cint%3E4%3C/int%3E+%0A++%3C/void%3E%0A++%3Cvoid+property%3D%22permittedLoginRetries%22%3E+%0A+++%3Cint%3E3%3C/int%3E+%0A++%3C/void%3E+%0A++%3Cvoid+property%3D%22prefixesNotPermitted%22%3E+%0A+++%3Cvoid+method%3D%22add%22%3E+%0A++++%3Cstring%3Enotpermitted1%3C/string%3E+%0A+++%3C/void%3E+%0A+++%3Cvoid+method%3D%22add%22%3E+%0A++++%3Cstring%3Enotpermitted2%3C/string%3E+%0A+++%3C/void%3E+%0A++%3C/void%3E+%0A+%3C/object%3E+%0A%3C/java%3E+"/>
+
     <SyncopeUser id="1" workflowId="0" status="active" password="5f4dcc3b5aa765d61d8327deb882cf99" cipherAlgorithm="MD5"
                  username="user1" creationDate="2010-10-20 11:00:00"/>
     <SyncopeUser id="2" workflowId="0" status="active" password="5f4dcc3b5aa765d61d8327deb882cf99" cipherAlgorithm="MD5"
@@ -47,7 +48,8 @@
                  name="director" parent_id="4"
                  inheritAttributes="1" inheritDerivedAttributes="1" inheritVirtualAttributes="1"
                  inheritPasswordPolicy="0" inheritAccountPolicy="0"
-                 passwordPolicy_id="4"/>
+                 passwordPolicy_id="4"
+                 accountPolicy_id="6"/>
     <SyncopeRole id="7"
                  name="managingDirector" parent_id="6"
                  inheritAttributes="1" inheritDerivedAttributes="1" inheritVirtualAttributes="1"

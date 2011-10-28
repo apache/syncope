@@ -49,7 +49,7 @@ public abstract class AbstractBaseBean implements Serializable {
      * @return the integer corresponding to the property param
      */
     public final Integer getBooleanAsInteger(final Boolean value) {
-        return value.equals(Boolean.TRUE) ? 1 : 0;
+        return Boolean.TRUE.equals(value) ? 1 : 0;
     }
 
     /**

@@ -378,8 +378,23 @@ public class UserTestITCase extends AbstractTest {
     @Test
     @ExpectedException(value = SyncopeClientCompositeErrorException.class)
     public final void createWithInvalidPassword() {
-        UserTO userTO = getSampleTO("invalidpasswd@passwd.com");
+        UserTO userTO = getSampleTO("invalidpasswd@syncope-idm.org");
         userTO.setPassword("pass");
+
+        restTemplate.postForObject(
+                BASE_URL + "user/create", userTO, UserTO.class);
+    }
+
+    @Test
+    @ExpectedException(value = SyncopeClientCompositeErrorException.class)
+    public final void createWithInvalidUsername() {
+        UserTO userTO = getSampleTO("invalidusername@syncope-idm.org");
+        userTO.setUsername("us");
+
+        MembershipTO membershipTO = new MembershipTO();
+        membershipTO.setRoleId(7L);
+
+        userTO.addMembership(membershipTO);
 
         restTemplate.postForObject(
                 BASE_URL + "user/create", userTO, UserTO.class);
@@ -1196,5 +1211,32 @@ public class UserTestITCase extends AbstractTest {
         //             no delete executions have to be registered
         // --> no more tasks/executions should be added
         assertEquals(newMaxId, maxId);
+    }
+
+    @Test
+    public final void suspendReactivate() {
+        UserTO userTO = getSampleTO("suspendReactivate@syncope-idm.org");
+
+        MembershipTO membershipTO = new MembershipTO();
+        membershipTO.setRoleId(7L);
+        userTO.addMembership(membershipTO);
+
+        userTO = restTemplate.postForObject(BASE_URL + "user/create",
+                userTO, UserTO.class);
+
+        assertNotNull(userTO);
+        assertEquals("active", userTO.getStatus());
+
+        userTO = restTemplate.getForObject(
+                BASE_URL + "user/suspend/" + userTO.getId(), UserTO.class);
+
+        assertNotNull(userTO);
+        assertEquals("suspended", userTO.getStatus());
+
+        userTO = restTemplate.getForObject(
+                BASE_URL + "user/reactivate/" + userTO.getId(), UserTO.class);
+
+        assertNotNull(userTO);
+        assertEquals("active", userTO.getStatus());
     }
 }

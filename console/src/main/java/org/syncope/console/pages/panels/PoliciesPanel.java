@@ -46,25 +46,29 @@ import org.apache.wicket.request.http.WebResponse;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.syncope.client.to.AccountPolicyTO;
 import org.syncope.client.to.PasswordPolicyTO;
+import org.syncope.client.to.PolicyTO;
+import org.syncope.client.to.SyncPolicyTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.PreferenceManager;
 import org.syncope.console.commons.SortableDataProviderComparator;
 import org.syncope.console.commons.XMLRolesReader;
-import org.syncope.console.pages.PasswordPolicyModalPage;
+import org.syncope.console.pages.PolicyModalPage;
 import org.syncope.console.rest.PolicyRestClient;
 import org.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
 import org.syncope.console.wicket.markup.html.form.DeleteLinkPanel;
 import org.syncope.console.wicket.markup.html.form.EditLinkPanel;
+import org.syncope.types.PolicyType;
 
-public class PasswordPoliciesPanel extends Panel {
+public class PoliciesPanel extends Panel {
 
     /**
      * Logger.
      */
     protected static final Logger LOG = LoggerFactory.getLogger(
-            PasswordPoliciesPanel.class);
+            PoliciesPanel.class);
 
     private final static int MODAL_WIN_HEIGHT = 400;
 
@@ -86,8 +90,12 @@ public class PasswordPoliciesPanel extends Panel {
 
     protected boolean modalResult = false;
 
-    public PasswordPoliciesPanel(final String id) {
+    private PolicyType policyType;
+
+    public PoliciesPanel(final String id, final PolicyType policyType) {
         super(id);
+
+        this.policyType = policyType;
 
         // Modal window for editing user attributes
         final ModalWindow mwindow =
@@ -116,18 +124,18 @@ public class PasswordPoliciesPanel extends Panel {
         columns.add(new PropertyColumn(
                 new ResourceModel("type"), "type", "type"));
 
-        columns.add(new AbstractColumn<PasswordPolicyTO>(
+        columns.add(new AbstractColumn<PolicyTO>(
                 new ResourceModel("edit")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 
             @Override
             public void populateItem(
-                    final Item<ICellPopulator<PasswordPolicyTO>> cellItem,
+                    final Item<ICellPopulator<PolicyTO>> cellItem,
                     final String componentId,
-                    final IModel<PasswordPolicyTO> model) {
+                    final IModel<PolicyTO> model) {
 
-                final PasswordPolicyTO passwordPolicyTO = model.getObject();
+                final PolicyTO accountPolicyTO = model.getObject();
 
                 AjaxLink editLink = new IndicatingAjaxLink("editLink") {
 
@@ -144,9 +152,9 @@ public class PasswordPoliciesPanel extends Panel {
 
                             @Override
                             public Page createPage() {
-                                final PasswordPolicyModalPage page =
-                                        new PasswordPolicyModalPage(
-                                        mwindow, passwordPolicyTO);
+                                final PolicyModalPage page =
+                                        new PolicyModalPage(
+                                        mwindow, accountPolicyTO);
                                 return page;
                             }
                         });
@@ -167,17 +175,17 @@ public class PasswordPoliciesPanel extends Panel {
             }
         });
 
-        columns.add(new AbstractColumn<PasswordPolicyTO>(
+        columns.add(new AbstractColumn<PolicyTO>(
                 new ResourceModel("delete")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 
             @Override
             public void populateItem(
-                    final Item<ICellPopulator<PasswordPolicyTO>> cellItem,
+                    final Item<ICellPopulator<PolicyTO>> cellItem,
                     final String componentId,
-                    final IModel<PasswordPolicyTO> model) {
-                final PasswordPolicyTO passwordPolicyTO = model.getObject();
+                    final IModel<PolicyTO> model) {
+                final PolicyTO accountPolicyTO = model.getObject();
 
                 AjaxLink deleteLink = new IndicatingDeleteOnConfirmAjaxLink(
                         "deleteLink") {
@@ -189,7 +197,7 @@ public class PasswordPoliciesPanel extends Panel {
                     public void onClick(final AjaxRequestTarget target) {
                         try {
 
-                            policyRestClient.delete(passwordPolicyTO.getId());
+                            policyRestClient.delete(accountPolicyTO.getId());
                             info(getString("operation_succeded"));
 
                         } catch (SyncopeClientCompositeErrorException e) {
@@ -197,8 +205,8 @@ public class PasswordPoliciesPanel extends Panel {
 
                             LOG.error("While deleting resource {}({})",
                                     new Object[]{
-                                        passwordPolicyTO.getId(),
-                                        passwordPolicyTO.getDescription()},
+                                        accountPolicyTO.getId(),
+                                        accountPolicyTO.getDescription()},
                                     e);
                         }
 
@@ -241,9 +249,10 @@ public class PasswordPoliciesPanel extends Panel {
 
                             @Override
                             public Page createPage() {
-                                final PasswordPolicyModalPage page =
-                                        new PasswordPolicyModalPage(
-                                        mwindow, new PasswordPolicyTO());
+                                final PolicyModalPage page =
+                                        new PolicyModalPage(
+                                        mwindow,
+                                        getPolicyTOInstance(policyType));
                                 return page;
                             }
                         });
@@ -306,7 +315,7 @@ public class PasswordPoliciesPanel extends Panel {
     }
 
     private class PolicyDataProvider
-            extends SortableDataProvider<PasswordPolicyTO> {
+            extends SortableDataProvider<PolicyTO> {
 
         private static final long serialVersionUID = -6976327453925166730L;
 
@@ -318,21 +327,20 @@ public class PasswordPoliciesPanel extends Panel {
             //Default sorting
             setSort("description", SortOrder.ASCENDING);
 
-            comparator =
-                    new SortableDataProviderComparator<PasswordPolicyTO>(this);
+            comparator = new SortableDataProviderComparator<PolicyTO>(this);
         }
 
         @Override
         public int size() {
-            return policyRestClient.getPasswordPolicies().size();
+            return policyRestClient.getPolicies(policyType).size();
         }
 
         @Override
-        public Iterator<PasswordPolicyTO> iterator(
+        public Iterator<PolicyTO> iterator(
                 final int first, final int count) {
 
-            final List<PasswordPolicyTO> policies =
-                    policyRestClient.getPasswordPolicies();
+            final List<PolicyTO> policies =
+                    policyRestClient.getPolicies(policyType);
 
             Collections.sort(policies, comparator);
 
@@ -340,8 +348,30 @@ public class PasswordPoliciesPanel extends Panel {
         }
 
         @Override
-        public IModel<PasswordPolicyTO> model(final PasswordPolicyTO object) {
-            return new CompoundPropertyModel<PasswordPolicyTO>(object);
+        public IModel<PolicyTO> model(final PolicyTO object) {
+            return new CompoundPropertyModel<PolicyTO>(object);
         }
+    }
+
+    private PolicyTO getPolicyTOInstance(final PolicyType policyType) {
+        PolicyTO policyTO = null;
+        switch (policyType) {
+            case ACCOUNT:
+            case GLOBAL_ACCOUNT:
+                policyTO = new AccountPolicyTO();
+                policyTO.setType(policyType);
+                break;
+            case PASSWORD:
+            case GLOBAL_PASSWORD:
+                policyTO = new PasswordPolicyTO();
+                policyTO.setType(policyType);
+                break;
+            case GLOBAL_SYNC:
+            case SYNC:
+                policyTO = new SyncPolicyTO();
+                policyTO.setType(policyType);
+        }
+
+        return policyTO;
     }
 }

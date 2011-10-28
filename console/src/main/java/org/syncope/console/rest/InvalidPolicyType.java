@@ -12,23 +12,16 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.policy;
+package org.syncope.console.rest;
 
-import java.io.InvalidObjectException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.syncope.types.AbstractPolicySpec;
-import org.syncope.types.PolicyType;
+public class InvalidPolicyType extends Exception {
 
-public abstract class PolicyEnforcer<T extends AbstractPolicySpec, E> {
+    private static final long serialVersionUID = -1230154509336169378L;
 
-    /**
-     * Logger.
-     */
-    protected static final Logger LOG =
-            LoggerFactory.getLogger(PolicyEnforcer.class);
+    public InvalidPolicyType() {
+    }
 
-    public abstract void enforce(
-            final T policy, final PolicyType type, final E object)
-            throws InvalidObjectException, Exception;
+    public InvalidPolicyType(String msg) {
+        super(msg);
+    }
 }

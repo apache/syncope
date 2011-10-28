@@ -62,6 +62,12 @@ public class AccountPolicySpec extends AbstractPolicySpec {
     private boolean allLowerCase;
 
     /**
+     * Specify if it must be propagate suspension in case of maximum subsequent
+     * failed logins reached.
+     */
+    private boolean propagateSuspension;
+
+    /**
      * Number of permitted login retries.
      * 0 disabled; >0 enabled.
      * If the number of subsequent failed logins will be greater then this value
@@ -143,6 +149,14 @@ public class AccountPolicySpec extends AbstractPolicySpec {
 
     public void setWordsNotPermitted(List<String> wordsNotPermitted) {
         this.wordsNotPermitted = wordsNotPermitted;
+    }
+
+    public boolean isPropagateSuspension() {
+        return propagateSuspension;
+    }
+
+    public void setPropagateSuspension(boolean propagateSuspension) {
+        this.propagateSuspension = propagateSuspension;
     }
 
     public int getPermittedLoginRetries() {

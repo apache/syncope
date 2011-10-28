@@ -32,8 +32,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.syncope.client.to.AbstractAttributableTO;
-import org.syncope.client.to.AccountPolicyTO;
-import org.syncope.client.to.PasswordPolicyTO;
+import org.syncope.client.to.PolicyTO;
 import org.syncope.console.rest.PolicyRestClient;
 import org.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
@@ -70,8 +69,8 @@ public class RoleSecurityPanel extends Panel {
             @Override
             protected Map<Long, String> load() {
                 Map<Long, String> res = new HashMap<Long, String>();
-                for (PasswordPolicyTO policyTO :
-                        policyRestClient.getPasswordPolicies()) {
+                for (PolicyTO policyTO :
+                        policyRestClient.getPolicies(PolicyType.PASSWORD)) {
                     res.put(policyTO.getId(), policyTO.getDescription());
                 }
                 return res;
@@ -85,8 +84,8 @@ public class RoleSecurityPanel extends Panel {
             @Override
             protected Map<Long, String> load() {
                 Map<Long, String> res = new HashMap<Long, String>();
-                for (AccountPolicyTO policyTO :
-                        policyRestClient.getAccountPolicies()) {
+                for (PolicyTO policyTO :
+                        policyRestClient.getPolicies(PolicyType.ACCOUNT)) {
                     res.put(policyTO.getId(), policyTO.getDescription());
                 }
                 return res;

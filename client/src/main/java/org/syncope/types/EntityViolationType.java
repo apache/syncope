@@ -55,6 +55,8 @@ public enum EntityViolationType {
     "org.syncope.core.validation.synctask.invalid"),
     InvalidPassword(
     "org.syncope.core.validation.password.invalid"),
+    InvalidUsername(
+    "org.syncope.core.validation.username.invalid"),
     InvalidPolicy(// not throwable using rest interface because the TO is typed
     "org.syncope.core.validation.policy.invalid"),
     InvalidPasswordPolicy(

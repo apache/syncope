@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -74,7 +75,7 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
     }
 
     @Override
-    @Transactional(rollbackFor = {Throwable.class})
+    @Transactional(noRollbackFor= {BadCredentialsException.class})
     public Authentication authenticate(final Authentication authentication)
             throws AuthenticationException {
 
@@ -113,7 +114,8 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
         }
 
         Authentication result;
-        if (authenticated) {
+
+        if ((user == null || !user.getSuspended()) && authenticated) {
             UsernamePasswordAuthenticationToken token =
                     new UsernamePasswordAuthenticationToken(
                     authentication.getPrincipal(),
@@ -136,13 +138,16 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
         } else {
             result = authentication;
 
-            if (user != null) {
+            if (user != null && !user.getSuspended()) {
                 user.setFailedLogins(user.getFailedLogins() + 1);
                 userDAO.save(user);
             }
 
             LOG.debug("User {} not authenticated",
                     authentication.getPrincipal());
+
+            throw new BadCredentialsException("User "
+                    + authentication.getPrincipal() + " not authenticated");
         }
 
         return result;

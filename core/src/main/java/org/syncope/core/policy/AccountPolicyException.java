@@ -14,21 +14,14 @@
  */
 package org.syncope.core.policy;
 
-import java.io.InvalidObjectException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.syncope.types.AbstractPolicySpec;
-import org.syncope.types.PolicyType;
+public class AccountPolicyException extends Exception {
 
-public abstract class PolicyEnforcer<T extends AbstractPolicySpec, E> {
+    private static final long serialVersionUID = 2779416455067691813L;
 
-    /**
-     * Logger.
-     */
-    protected static final Logger LOG =
-            LoggerFactory.getLogger(PolicyEnforcer.class);
+    public AccountPolicyException() {
+    }
 
-    public abstract void enforce(
-            final T policy, final PolicyType type, final E object)
-            throws InvalidObjectException, Exception;
+    public AccountPolicyException(String msg) {
+        super(msg);
+    }
 }

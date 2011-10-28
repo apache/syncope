@@ -61,12 +61,27 @@ public class ConfigurationTestITCase extends AbstractTest {
     }
 
     @Test
+    public void browseAccountPolicy() {
+        selenium.setSpeed("1000");
+
+        selenium.click("css=img[alt=\"Configuration\"]");
+        selenium.waitForPageToLoad("30000");
+        selenium.click("//div[3]/ul/li[3]/a");
+        selenium.click("//div[3]/div[3]/span/div/a");
+
+        assertTrue(selenium.isElementPresent("//input[@name='id:textField']"));
+        selenium.type("name=description:textField", "new description");
+        selenium.click("//div[2]/form/div[3]/input");
+        assertTrue(selenium.isTextPresent("new description"));
+    }
+
+    @Test
     public void browseWorkflowDef() {
         selenium.setSpeed("1000");
 
         selenium.click("css=img[alt=\"Configuration\"]");
         selenium.waitForPageToLoad("30000");
-        selenium.click("//div[@id='tabs']/ul/li[3]/a/span");
+        selenium.click("//div[@id='tabs']/ul/li[5]/a/span");
         assertTrue(selenium.isElementPresent("//*[@id=\"workflowDefArea\"]"));
     }
 
@@ -90,9 +105,9 @@ public class ConfigurationTestITCase extends AbstractTest {
 
         selenium.click("css=img[alt=\"Configuration\"]");
         selenium.waitForPageToLoad("30000");
-        selenium.click("//div[@id='tabs']/ul/li[4]/a/span");
-        selenium.select("//div[4]/div/span/table/tbody/tr/td[2]/select",
-                "label=ERROR");
+        selenium.click("//div[@id='tabs']/ul/li[6]/a/span");
+        selenium.select(
+                "//div[6]/div/span/table/tbody/tr/td[2]/select", "label=ERROR");
         assertTrue(selenium.isTextPresent("Operation executed successfully"));
     }
 }
