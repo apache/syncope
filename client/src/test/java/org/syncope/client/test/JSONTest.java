@@ -23,14 +23,11 @@ import java.util.Arrays;
 import java.util.List;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.syncope.client.search.AttributeCond;
 import org.syncope.client.search.MembershipCond;
 import org.syncope.client.search.NodeCond;
 import org.syncope.client.to.SchemaTO;
-import org.syncope.client.to.SyncPolicyTO;
-import org.syncope.types.PolicyType;
-import org.syncope.types.SyncPolicySpec;
+import org.syncope.client.to.WorkflowFormPropertyTO;
 
 public class JSONTest {
 
@@ -83,5 +80,23 @@ public class JSONTest {
         for (SchemaTO unserializedSchema : unserializedSchemas) {
             assertNotNull(unserializedSchema);
         }
+    }
+
+    @Test
+    public void testMap()
+            throws IOException {
+
+        WorkflowFormPropertyTO prop = new WorkflowFormPropertyTO();
+        prop.putEnumValue("key1", "value1");
+        prop.putEnumValue("key2", "value2");
+
+        ObjectMapper mapper = new ObjectMapper();
+
+        StringWriter writer = new StringWriter();
+        mapper.writeValue(writer, prop);
+
+        WorkflowFormPropertyTO unserializedProp = mapper.readValue(
+                writer.toString(), WorkflowFormPropertyTO.class);
+        assertEquals(prop, unserializedProp);
     }
 }

@@ -12,24 +12,24 @@
  limitations under the License.
  under the License.
 -->
-
 <wicket:extend>
+
 
     <div id="tabs">
         <ul>
             <li class="tabs-selected">
-                <a href="#tabs-1"><span><wicket:message key="tab1"/></span></a>
+                <a href="#tabs-1"><span><wicket:message key="todo"/></span></a>
             </li>
         </ul>
         <div id="tabs-1">
-            <div id="users-contain" class="ui-widget" style="width:inherit">
-                <span wicket:id="container">
-                    <table class="ui-widget ui-widget-content table-hover"
-                           wicket:id="datatable"/>
-                </span>
 
+            <div id="users-contain" class="ui-widget" style="width:inherit;">
+                <span wicket:id="todoContainer">
+                    <table class="ui-widget ui-widget-content table-hover"
+                           wicket:id="todoTable"/>
+                </span>
                 <span style="float:right">
-                    <form wicket:id="PaginatorForm" style="display:inline">
+                    <form wicket:id="paginatorForm" style="display:inline">
                         <label><wicket:message key="displayRows"/></label>
                         <select class="text ui-widget-content ui-corner-all"
                                 wicket:id="rowsChooser"/>
@@ -37,13 +37,7 @@
                 </span>
             </div>
 
-            <div wicket:id="createConnectorWin">[Show modal window for creating connector]</div>
-            <div wicket:id="editConnectorWin">[Show modal window for editing connector]</div>
-
-            <a class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" wicket:id="createConnectorLink">
-                <wicket:message key="create-link"/>
-            </a>
+            <div wicket:id="editTodoWin">[Show modal window for editing Todo]</div>
         </div>
     </div>
-
 </wicket:extend>

@@ -24,7 +24,8 @@ import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
-public class AjaxDropDownChoicePanel<T> extends FieldPanel {
+public class AjaxDropDownChoicePanel<T>
+        extends FieldPanel implements Cloneable {
 
     private static final long serialVersionUID = -4716376580659196095L;
 
@@ -55,12 +56,21 @@ public class AjaxDropDownChoicePanel<T> extends FieldPanel {
         }
     }
 
-    public FieldPanel setChoiceRenderer(final IChoiceRenderer renderer) {
+    public AjaxDropDownChoicePanel<T> setChoiceRenderer(
+            final IChoiceRenderer renderer) {
+
         ((DropDownChoice) field).setChoiceRenderer(renderer);
         return this;
     }
 
-    public FieldPanel setChoices(final List<T> choices) {
+    public AjaxDropDownChoicePanel<T> setChoices(final List<T> choices) {
+        ((DropDownChoice) field).setChoices(choices);
+        return this;
+    }
+
+    public AjaxDropDownChoicePanel<T> setChoices(
+            final IModel<? extends List<? extends T>> choices) {
+
         ((DropDownChoice) field).setChoices(choices);
         return this;
     }
@@ -71,8 +81,8 @@ public class AjaxDropDownChoicePanel<T> extends FieldPanel {
         AjaxDropDownChoicePanel<T> panel =
                 (AjaxDropDownChoicePanel<T>) super.clone();
 
-        setChoices(((DropDownChoice) field).getChoices());
         setChoiceRenderer(((DropDownChoice) field).getChoiceRenderer());
+        setChoices(((DropDownChoice) field).getChoices());
 
         return panel;
     }

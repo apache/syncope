@@ -118,7 +118,8 @@ public class ConnectorModalPage extends BaseModalPage {
                         } else {
                             selectedBundleTO.setBundleName(
                                     connectorTO.getBundleName());
-                            selectedBundleTO.setVersion(connectorTO.getVersion());
+                            selectedBundleTO.setVersion(
+                                    connectorTO.getVersion());
                             result = new ArrayList<ConnConfProperty>(
                                     connectorTO.getConfiguration());
                         }
@@ -341,12 +342,12 @@ public class ConnectorModalPage extends BaseModalPage {
                         restClient.update(connector);
                     }
 
-                    ((Connectors) callerPageRef.getPage()).setOperationResult(
+                    ((Resources) callerPageRef.getPage()).setOperationResult(
                             true);
                     window.close(target);
                 } catch (SyncopeClientCompositeErrorException e) {
                     error(getString("error") + ":" + e.getMessage());
-                    ((Connectors) callerPageRef.getPage()).setOperationResult(
+                    ((Resources) callerPageRef.getPage()).setOperationResult(
                             false);
                     LOG.error("While creating or updating connector "
                             + connector);

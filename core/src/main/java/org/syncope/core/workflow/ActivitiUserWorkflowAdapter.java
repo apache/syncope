@@ -352,6 +352,16 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
                     PROPERTY_IGNORE_PROPS);
             propertyTO.setType(fromActivitiFormType(fProp.getType()));
 
+            if (propertyTO.getType() == WorkflowFormPropertyType.Date) {
+                propertyTO.setDatePattern(
+                        (String) fProp.getType().getInformation("datePattern"));
+            }
+            if (propertyTO.getType() == WorkflowFormPropertyType.Enum) {
+                propertyTO.setEnumValues(
+                        (Map<String, String>) fProp.getType().
+                        getInformation("values"));
+            }
+
             formTO.addProperty(propertyTO);
         }
 

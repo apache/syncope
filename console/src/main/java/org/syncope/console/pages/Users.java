@@ -979,7 +979,7 @@ public class Users extends BasePage {
             }
 
             final CheckBox notOperator = new CheckBox("notOperator",
-                    new PropertyModel(searchCondition,"notOperator"));
+                    new PropertyModel(searchCondition, "notOperator"));
             notOperator.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
                 private static final long serialVersionUID =

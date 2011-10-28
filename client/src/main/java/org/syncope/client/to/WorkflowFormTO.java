@@ -35,8 +35,6 @@ public class WorkflowFormTO extends AbstractBaseBean {
 
     private Date dueDate;
 
-    private String assignee;
-
     private String owner;
 
     private List<WorkflowFormPropertyTO> properties;
@@ -59,14 +57,6 @@ public class WorkflowFormTO extends AbstractBaseBean {
 
     public void setKey(String key) {
         this.key = key;
-    }
-
-    public String getAssignee() {
-        return assignee;
-    }
-
-    public void setAssignee(String assignee) {
-        this.assignee = assignee;
     }
 
     public Date getCreateTime() {

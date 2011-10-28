@@ -56,7 +56,7 @@ public class ConfigurationTestITCase extends AbstractTest {
 
         assertTrue(selenium.isElementPresent("//input[@name='id:textField']"));
         selenium.type("name=description:textField", "new description");
-        selenium.click("name=apply");
+        selenium.click("//div[2]/form/div[3]/input");
         assertTrue(selenium.isTextPresent("new description"));
     }
 

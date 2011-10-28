@@ -238,7 +238,7 @@ public class Configuration extends BasePage {
 
         editConfigWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         editConfigWin.setInitialHeight(WIN_HEIGHT);
-        editConfigWin.setInitialWidth(WIN_HEIGHT);
+        editConfigWin.setInitialWidth(WIN_WIDTH);
         editConfigWin.setCookieName("edit-configuration-modal");
 
         setWindowClosedCallback(createConfigWin, confContainer);
@@ -320,8 +320,6 @@ public class Configuration extends BasePage {
         paginatorForm.add(rowsChooser);
         add(paginatorForm);
 
-        add(paginatorForm);
-
         add(new PasswordPoliciesPanel("passwordPoliciesPanel"));
 
         // Workflow definition stuff
@@ -351,9 +349,11 @@ public class Configuration extends BasePage {
 
                 try {
                     restClient.updateWorkflowDefinition(workflowDef);
+                    info(getString("operation_succeded"));
                 } catch (SyncopeClientCompositeErrorException scee) {
                     error(getString("error") + ":" + scee.getMessage());
                 }
+                target.add(feedbackPanel);
             }
 
             @Override

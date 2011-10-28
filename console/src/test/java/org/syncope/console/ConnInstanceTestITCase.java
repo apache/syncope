@@ -21,9 +21,9 @@ public class ConnInstanceTestITCase extends AbstractTest {
     public void browseCreateModal() {
         selenium.setSpeed("1000");
 
-        selenium.click("css=img[alt=\"Connectors\"]");
+        selenium.click("css=img[alt=\"Resources\"]");
         selenium.waitForPageToLoad("30000");
-        selenium.click("//div[3]/div/a");
+        selenium.click("//div[3]/div[2]/a");
         for (int second = 0;; second++) {
             if (second >= 60) {
                 fail("timeout");
@@ -54,7 +54,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
     public void browseEditModal() {
         selenium.setSpeed("1000");
 
-        selenium.click("css=img[alt=\"Connectors\"]");
+        selenium.click("css=img[alt=\"Resources\"]");
         selenium.waitForPageToLoad("30000");
         selenium.click("//tr[4]/td[6]/span/a");
         for (int second = 0;; second++) {
@@ -76,14 +76,15 @@ public class ConnInstanceTestITCase extends AbstractTest {
 
         assertEquals("ConnInstance103", selenium.getAttribute(
                 "//input[@name='displayName:textField']/@value"));
-        assertEquals("org.connid.bundles.soap#1.1", selenium.getSelectedValue("//select[@name='bundle:dropDownChoiceField']"));
+        assertEquals("org.connid.bundles.soap#1.1", selenium.getSelectedValue(
+                "//select[@name='bundle:dropDownChoiceField']"));
         selenium.click("//div[@id='tabs']/ul/li[2]/a/span");
         selenium.click("css=a.w_close");
     }
 
     @Test
     public void delete() {
-        selenium.click("css=img[alt=\"Connectors\"]");
+        selenium.click("css=img[alt=\"Resources\"]");
         selenium.waitForPageToLoad("30000");
         selenium.click("//tr[4]/td[7]/span/a");
         assertTrue(selenium.getConfirmation().matches(

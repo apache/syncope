@@ -55,7 +55,7 @@ import org.syncope.console.rest.SchemaRestClient;
 import org.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.syncope.console.wicket.markup.html.form.AjaxDecoratedCheckbox;
 import org.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
-import org.syncope.console.wicket.markup.html.form.AjaxIntFieldPanel;
+import org.syncope.console.wicket.markup.html.form.AjaxNumberFieldPanel;
 import org.syncope.console.wicket.markup.html.form.AjaxPasswordFieldPanel;
 import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.syncope.console.wicket.markup.html.form.FieldPanel;
@@ -192,9 +192,10 @@ public class ResourceModalPage extends BaseModalPage {
                 false);
         form.add(propagationPrimary);
 
-        final AjaxIntFieldPanel propagationPriority = new AjaxIntFieldPanel(
+        final AjaxNumberFieldPanel propagationPriority =
+                new AjaxNumberFieldPanel(
                 "propagationPriority", getString("propagationPriority"),
-                new PropertyModel<Integer>(resourceTO, "propagationPriority"),
+                new PropertyModel<Number>(resourceTO, "propagationPriority"),
                 false);
         form.add(propagationPriority);
 

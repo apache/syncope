@@ -32,7 +32,6 @@ import org.apache.wicket.request.Response;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
 import org.syncope.console.commons.XMLRolesReader;
 import org.syncope.console.pages.Configuration;
-import org.syncope.console.pages.Connectors;
 import org.syncope.console.pages.Login;
 import org.syncope.console.pages.Logout;
 import org.syncope.console.pages.Report;
@@ -40,6 +39,7 @@ import org.syncope.console.pages.Resources;
 import org.syncope.console.pages.Roles;
 import org.syncope.console.pages.Schema;
 import org.syncope.console.pages.Tasks;
+import org.syncope.console.pages.Todo;
 import org.syncope.console.pages.Users;
 import org.syncope.console.pages.WelcomePage;
 
@@ -69,7 +69,7 @@ public class SyncopeApplication extends WebApplication
                 "SCHEMA_LIST");
         MetaDataRoleAuthorizationStrategy.authorize(Roles.class,
                 "ROLE_LIST");
-        MetaDataRoleAuthorizationStrategy.authorize(Connectors.class,
+        MetaDataRoleAuthorizationStrategy.authorize(Resources.class,
                 "CONNECTOR_LIST");
         MetaDataRoleAuthorizationStrategy.authorize(Resources.class,
                 "RESOURCE_LIST");
@@ -81,6 +81,8 @@ public class SyncopeApplication extends WebApplication
                 "TASK_LIST");
         MetaDataRoleAuthorizationStrategy.authorize(Configuration.class,
                 "CONFIGURATION_LIST");
+        MetaDataRoleAuthorizationStrategy.authorize(Todo.class,
+                "WORKFLOW_FORM_LIST");
 
         getRequestCycleListeners().add(new SyncopeRequestCycleListener());
     }
@@ -123,13 +125,13 @@ public class SyncopeApplication extends WebApplication
                 resourcesLink, WebPage.ENABLE, allowedResourcesRoles);
         page.add(resourcesLink);
 
-        BookmarkablePageLink connectorsLink =
-                new BookmarkablePageLink("connectors", Connectors.class);
-        String allowedConnectorsRoles =
-                xmlRolesReader.getAllAllowedRoles("Connectors", "list");
+        BookmarkablePageLink todoLink =
+                new BookmarkablePageLink("todo", Todo.class);
+        String allowedTodoRoles =
+                xmlRolesReader.getAllAllowedRoles("Todo", "list");
         MetaDataRoleAuthorizationStrategy.authorize(
-                connectorsLink, WebPage.ENABLE, allowedConnectorsRoles);
-        page.add(connectorsLink);
+                todoLink, WebPage.ENABLE, allowedTodoRoles);
+        page.add(todoLink);
 
         BookmarkablePageLink reportLink =
                 new BookmarkablePageLink("report", Report.class);

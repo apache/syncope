@@ -66,6 +66,9 @@ public final class Constants {
     public static final String PREF_TASKS_PAGINATOR_ROWS =
             "tasks.paginator.rows";
 
+    public static final String PREF_TODO_PAGINATOR_ROWS =
+            "todo.paginator.rows";
+
     public static final String PAGEPARAM_CREATE = "CREATE";
 
     public static final String PAGEPARAM_CURRENT_PAGE = "_current_page";

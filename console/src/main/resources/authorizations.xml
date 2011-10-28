@@ -142,6 +142,21 @@ page@id= Schema|Users|Roles|Resources|Connectors|Report|Configuration|Task
 
     </page>
 
+    <page id="Todo">
+        <action id="list">
+            <entitlement>WORKFLOW_FORM_LIST</entitlement>
+        </action>
+        <action id="read">
+            <entitlement>WORKFLOW_FORM_READ</entitlement>
+        </action>
+        <action id="claim">
+            <entitlement>WORKFLOW_FORM_CLAIM</entitlement>
+        </action>
+        <action id="submit">
+            <entitlement>WORKFLOW_FORM_SUBMIT</entitlement>
+        </action>
+    </page>
+    
     <page id="Configuration">
         <action id="list">
             <entitlement>CONFIGURATION_LIST</entitlement>

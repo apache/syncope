@@ -42,11 +42,13 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.syncope.client.to.ConnInstanceTO;
 import org.syncope.client.to.ResourceTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.PreferenceManager;
 import org.syncope.console.commons.SortableDataProviderComparator;
+import org.syncope.console.rest.ConnectorRestClient;
 import org.syncope.console.rest.ResourceRestClient;
 import org.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
 import org.syncope.console.wicket.markup.html.form.DeleteLinkPanel;
@@ -60,20 +62,29 @@ public class Resources extends BasePage {
     private static final long serialVersionUID = -3789252860990261728L;
 
     @SpringBean
-    private ResourceRestClient restClient;
+    private ResourceRestClient resourceRestClient;
+
+    @SpringBean
+    private ConnectorRestClient connectorRestClient;
 
     @SpringBean
     private PreferenceManager prefMan;
 
     private final ModalWindow createResourceWin;
 
-    private final ModalWindow mwindow;
+    private final ModalWindow editResourceWin;
+
+    private final ModalWindow createConnectorWin;
+
+    private final ModalWindow editConnectorWin;
 
     private static final int WIN_HEIGHT = 500;
 
     private static final int WIN_WIDTH = 900;
 
-    private WebMarkupContainer container;
+    private WebMarkupContainer resourceContainer;
+
+    private WebMarkupContainer connectorContainer;
 
     /*
     Response flag set by the Modal Window after the operation is completed:
@@ -81,19 +92,31 @@ public class Resources extends BasePage {
      */
     private boolean operationResult = false;
 
-    private int paginatorRows;
+    private int resourcePaginatorRows;
 
-    public Resources(PageParameters parameters) {
+    private int connectorPaginatorRows;
+
+    public Resources(final PageParameters parameters) {
         super(parameters);
 
         add(createResourceWin = new ModalWindow("createResourceWin"));
-        add(mwindow = new ModalWindow("editResourceWin"));
+        add(editResourceWin = new ModalWindow("editResourceWin"));
+        add(createConnectorWin = new ModalWindow("createConnectorWin"));
+        add(editConnectorWin = new ModalWindow("editConnectorWin"));
 
         add(feedbackPanel);
 
-        paginatorRows = prefMan.getPaginatorRows(getRequest(),
+        resourcePaginatorRows = prefMan.getPaginatorRows(getRequest(),
                 Constants.PREF_RESOURCES_PAGINATOR_ROWS);
+        connectorPaginatorRows = prefMan.getPaginatorRows(
+                getRequest(),
+                Constants.PREF_CONNECTORS_PAGINATOR_ROWS);
 
+        setupResources();
+        setupConnectors();
+    }
+
+    private final void setupResources() {
         List<IColumn> columns = new ArrayList<IColumn>();
 
         columns.add(new PropertyColumn(
@@ -122,9 +145,9 @@ public class Resources extends BasePage {
                             -7978723352517770644L;
 
                     @Override
-                    public void onClick(AjaxRequestTarget target) {
+                    public void onClick(final AjaxRequestTarget target) {
 
-                        mwindow.setPageCreator(new ModalWindow.PageCreator() {
+                        editResourceWin.setPageCreator(new ModalWindow.PageCreator() {
 
                             private static final long serialVersionUID =
                                     -7834632442532690940L;
@@ -133,12 +156,12 @@ public class Resources extends BasePage {
                             public Page createPage() {
                                 ResourceModalPage form = new ResourceModalPage(
                                         Resources.this.getPageReference(),
-                                        mwindow, resourceTO, false);
+                                        editResourceWin, resourceTO, false);
                                 return form;
                             }
                         });
 
-                        mwindow.show(target);
+                        editResourceWin.show(target);
                     }
                 };
 
@@ -175,7 +198,7 @@ public class Resources extends BasePage {
                     public void onClick(final AjaxRequestTarget target) {
                         try {
 
-                            restClient.delete(resourceTO.getName());
+                            resourceRestClient.delete(resourceTO.getName());
                             info(getString("operation_succeded"));
 
                         } catch (SyncopeClientCompositeErrorException e) {
@@ -186,7 +209,7 @@ public class Resources extends BasePage {
                         }
 
                         target.add(feedbackPanel);
-                        target.add(container);
+                        target.add(resourceContainer);
                     }
                 };
 
@@ -204,27 +227,27 @@ public class Resources extends BasePage {
 
 
         final AjaxFallbackDefaultDataTable table =
-                new AjaxFallbackDefaultDataTable("datatable", columns,
-                new ResourcesProvider(), paginatorRows);
+                new AjaxFallbackDefaultDataTable("resourceDatatable", columns,
+                new ResourcesProvider(), resourcePaginatorRows);
 
-        container = new WebMarkupContainer("container");
-        container.add(table);
-        container.setOutputMarkupId(true);
+        resourceContainer = new WebMarkupContainer("resourceContainer");
+        resourceContainer.add(table);
+        resourceContainer.setOutputMarkupId(true);
 
-        add(container);
+        add(resourceContainer);
 
-        setWindowClosedCallback(createResourceWin, container);
-        setWindowClosedCallback(mwindow, container);
+        setWindowClosedCallback(createResourceWin, resourceContainer);
+        setWindowClosedCallback(editResourceWin, resourceContainer);
 
         createResourceWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         createResourceWin.setInitialHeight(WIN_HEIGHT);
         createResourceWin.setInitialWidth(WIN_WIDTH);
         createResourceWin.setCookieName("create-res-modal");
 
-        mwindow.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
-        mwindow.setInitialHeight(WIN_HEIGHT);
-        mwindow.setInitialWidth(WIN_WIDTH);
-        mwindow.setCookieName("edit-res-modal");
+        editResourceWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+        editResourceWin.setInitialHeight(WIN_HEIGHT);
+        editResourceWin.setInitialWidth(WIN_WIDTH);
+        editResourceWin.setCookieName("edit-res-modal");
 
         add(new IndicatingAjaxLink("createResourceLink") {
 
@@ -241,7 +264,8 @@ public class Resources extends BasePage {
                     @Override
                     public Page createPage() {
                         final ResourceModalPage windows = new ResourceModalPage(
-                                Resources.this.getPageReference(), mwindow,
+                                Resources.this.getPageReference(),
+                                editResourceWin,
                                 new ResourceTO(), true);
                         return windows;
                     }
@@ -251,10 +275,10 @@ public class Resources extends BasePage {
             }
         });
 
-        final Form paginatorForm = new Form("PaginatorForm");
+        final Form paginatorForm = new Form("resourcePaginatorForm");
 
         final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser",
-                new PropertyModel(this, "paginatorRows"),
+                new PropertyModel(this, "resourcePaginatorRows"),
                 prefMan.getPaginatorChoices());
 
         rowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
@@ -265,10 +289,215 @@ public class Resources extends BasePage {
             protected void onUpdate(final AjaxRequestTarget target) {
                 prefMan.set(getRequest(), getResponse(),
                         Constants.PREF_RESOURCES_PAGINATOR_ROWS,
-                        String.valueOf(paginatorRows));
+                        String.valueOf(resourcePaginatorRows));
 
-                table.setItemsPerPage(paginatorRows);
-                target.add(container);
+                table.setItemsPerPage(resourcePaginatorRows);
+                target.add(resourceContainer);
+            }
+        });
+
+        paginatorForm.add(rowsChooser);
+        add(paginatorForm);
+    }
+
+    private void setupConnectors() {
+        List<IColumn> columns = new ArrayList<IColumn>();
+
+        columns.add(new PropertyColumn(new ResourceModel("id"),
+                "id", "id"));
+
+        columns.add(new PropertyColumn(new ResourceModel("name"),
+                "connectorName", "connectorName"));
+
+        columns.add(new PropertyColumn(new ResourceModel("displayName"),
+                "displayName", "displayName"));
+
+        columns.add(new PropertyColumn(new ResourceModel("version"),
+                "version", "version"));
+
+        columns.add(new PropertyColumn(new ResourceModel("bundleName"),
+                "bundleName", "bundleName"));
+
+        columns.add(new AbstractColumn<ConnInstanceTO>(
+                new ResourceModel("edit")) {
+
+            private static final long serialVersionUID = 2054811145491901166L;
+
+            @Override
+            public void populateItem(
+                    final Item<ICellPopulator<ConnInstanceTO>> cellItem,
+                    final String componentId,
+                    final IModel<ConnInstanceTO> model) {
+
+                final ConnInstanceTO connectorTO = model.getObject();
+
+                final AjaxLink editLink = new IndicatingAjaxLink("editLink") {
+
+                    private static final long serialVersionUID =
+                            -7978723352517770644L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
+
+                        editConnectorWin.setPageCreator(
+                                new ModalWindow.PageCreator() {
+
+                                    private static final long serialVersionUID =
+                                            -7834632442532690940L;
+
+                                    @Override
+                                    public Page createPage() {
+                                        return new ConnectorModalPage(
+                                                Resources.this.getPageReference(),
+                                                editConnectorWin, connectorTO,
+                                                false);
+                                    }
+                                });
+
+                        editConnectorWin.show(target);
+                    }
+                };
+
+                EditLinkPanel panel = new EditLinkPanel(componentId, model);
+                panel.add(editLink);
+
+                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
+                        xmlRolesReader.getAllAllowedRoles(
+                        "Connectors", "read"));
+
+                cellItem.add(panel);
+            }
+        });
+
+        columns.add(new AbstractColumn<ConnInstanceTO>(
+                new ResourceModel("delete")) {
+
+            private static final long serialVersionUID = 2054811145491901166L;
+
+            @Override
+            public void populateItem(
+                    final Item<ICellPopulator<ConnInstanceTO>> cellItem,
+                    final String componentId,
+                    final IModel<ConnInstanceTO> model) {
+
+                final ConnInstanceTO connectorTO = model.getObject();
+
+                AjaxLink deleteLink = new IndicatingDeleteOnConfirmAjaxLink(
+                        "deleteLink") {
+
+                    private static final long serialVersionUID =
+                            -7978723352517770644L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
+
+                        try {
+
+                            if (!checkDeleteIsForbidden(connectorTO)) {
+                                connectorRestClient.delete(connectorTO.getId());
+                                info(getString("operation_succeded"));
+                            } else {
+                                error(getString("delete_error"));
+                            }
+
+                        } catch (SyncopeClientCompositeErrorException e) {
+                            error(getString("operation_error"));
+
+                            LOG.error("While deleting connector "
+                                    + connectorTO.getId(), e);
+                        }
+
+                        target.add(connectorContainer);
+                        target.add(feedbackPanel);
+                    }
+                };
+
+                DeleteLinkPanel panel = new DeleteLinkPanel(componentId, model);
+                panel.add(deleteLink);
+
+                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
+                        xmlRolesReader.getAllAllowedRoles(
+                        "Connectors", "delete"));
+
+                cellItem.add(panel);
+            }
+        });
+
+        final AjaxFallbackDefaultDataTable table =
+                new AjaxFallbackDefaultDataTable("connectorDatatable", columns,
+                new ConnectorsProvider(), connectorPaginatorRows);
+
+        connectorContainer = new WebMarkupContainer("connectorContainer");
+        connectorContainer.add(table);
+        connectorContainer.setOutputMarkupId(true);
+
+        add(connectorContainer);
+
+        setWindowClosedCallback(createConnectorWin, connectorContainer);
+        setWindowClosedCallback(editConnectorWin, connectorContainer);
+
+        createConnectorWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+        createConnectorWin.setInitialHeight(WIN_HEIGHT);
+        createConnectorWin.setInitialWidth(WIN_WIDTH);
+        createConnectorWin.setCookieName("create-conn-modal");
+
+        editConnectorWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+        editConnectorWin.setInitialHeight(WIN_HEIGHT);
+        editConnectorWin.setInitialWidth(WIN_WIDTH);
+        editConnectorWin.setCookieName("edit-conn-modal");
+
+        AjaxLink createConnectorLink = new IndicatingAjaxLink(
+                "createConnectorLink") {
+
+            private static final long serialVersionUID = -7978723352517770644L;
+
+            @Override
+            public void onClick(AjaxRequestTarget target) {
+
+                createConnectorWin.setPageCreator(new ModalWindow.PageCreator() {
+
+                    private static final long serialVersionUID =
+                            -7834632442532690940L;
+
+                    @Override
+                    public Page createPage() {
+                        ConnectorModalPage form = new ConnectorModalPage(
+                                Resources.this.getPageReference(),
+                                editConnectorWin, new ConnInstanceTO(), true);
+                        return form;
+                    }
+                });
+
+                createConnectorWin.show(target);
+            }
+        };
+
+        String allowedRoles = xmlRolesReader.getAllAllowedRoles(
+                "Connectors", "create");
+        MetaDataRoleAuthorizationStrategy.authorize(createConnectorLink, ENABLE,
+                allowedRoles);
+
+        add(createConnectorLink);
+
+        Form paginatorForm = new Form("connectorPaginatorForm");
+
+        final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser",
+                new PropertyModel(this, "connectorPaginatorRows"),
+                prefMan.getPaginatorChoices());
+
+        rowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+
+            private static final long serialVersionUID = -1107858522700306810L;
+
+            @Override
+            protected void onUpdate(AjaxRequestTarget target) {
+                prefMan.set(getRequest(),
+                        getResponse(),
+                        Constants.PREF_CONNECTORS_PAGINATOR_ROWS,
+                        String.valueOf(connectorPaginatorRows));
+                table.setItemsPerPage(connectorPaginatorRows);
+
+                target.add(connectorContainer);
             }
         });
 
@@ -304,6 +533,24 @@ public class Resources extends BasePage {
 
     public void setOperationResult(boolean result) {
         operationResult = result;
+    }
+
+    /**
+     * Check if the delete action is forbidden.
+     *
+     * @param connectorTO object to check
+     * @return true if the action is forbidden, false otherwise
+     */
+    public boolean checkDeleteIsForbidden(ConnInstanceTO connectorTO) {
+        boolean forbidden = false;
+
+        for (ResourceTO resourceTO : resourceRestClient.getAllResources()) {
+            if (resourceTO.getConnectorId().equals(connectorTO.getId())) {
+                forbidden = true;
+            }
+        }
+
+        return forbidden;
     }
 
     class ResourcesProvider extends SortableDataProvider<ResourceTO> {
@@ -345,7 +592,56 @@ public class Resources extends BasePage {
         }
 
         public List<ResourceTO> getResourcesListDB() {
-            return restClient.getAllResources();
+            return resourceRestClient.getAllResources();
+        }
+    }
+
+    class ConnectorsProvider extends SortableDataProvider<ConnInstanceTO> {
+
+        private static final long serialVersionUID = 4445909568349448518L;
+
+        private SortableDataProviderComparator<ConnInstanceTO> comparator;
+
+        public ConnectorsProvider() {
+            //Default sorting
+            setSort("id", SortOrder.ASCENDING);
+            comparator =
+                    new SortableDataProviderComparator<ConnInstanceTO>(
+                    this);
+        }
+
+        @Override
+        public Iterator<ConnInstanceTO> iterator(int first, int count) {
+            List<ConnInstanceTO> list = getConnectorsListDB();
+
+            Collections.sort(list, comparator);
+
+            return list.subList(first, first + count).iterator();
+        }
+
+        @Override
+        public int size() {
+            return getConnectorsListDB().size();
+        }
+
+        @Override
+        public IModel<ConnInstanceTO> model(
+                final ConnInstanceTO connector) {
+
+            return new AbstractReadOnlyModel<ConnInstanceTO>() {
+
+                private static final long serialVersionUID =
+                        -6033068018293569398L;
+
+                @Override
+                public ConnInstanceTO getObject() {
+                    return connector;
+                }
+            };
+        }
+
+        public List<ConnInstanceTO> getConnectorsListDB() {
+            return connectorRestClient.getAllConnectors();
         }
     }
 }

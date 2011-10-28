@@ -20,16 +20,17 @@
             <li class="tabs-selected">
                 <a href="#tabs-1"><span><wicket:message key="tab1"/></span></a>
             </li>
+            <li><a href="#tabs-2"><span><wicket:message key="tab2"/></span></a></li>
         </ul>
         <div id="tabs-1">
             <div id="users-contain" class="ui-widget" style="width:inherit">
-                <span wicket:id="container">
+                <span wicket:id="resourceContainer">
                     <table class="ui-widget ui-widget-content table-hover"
-                           wicket:id="datatable"/>
+                           wicket:id="resourceDatatable"/>
                 </span>
 
                 <span style="float:right">
-                    <form wicket:id="PaginatorForm" style="display:inline">
+                    <form wicket:id="resourcePaginatorForm" style="display:inline">
                         <label><wicket:message key="displayRows"/></label>
                         <select class="text ui-widget-content ui-corner-all"
                                 wicket:id="rowsChooser"/>
@@ -41,7 +42,30 @@
             <div wicket:id="editResourceWin">[Show modal window for editing resource]</div>
 
             <a class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" wicket:id="createResourceLink">
-                <wicket:message key="create-link"/>
+                <wicket:message key="create-resource"/>
+            </a>
+        </div>
+        <div id="tabs-2">
+            <div id="users-contain" class="ui-widget" style="width:inherit">
+                <span wicket:id="connectorContainer">
+                    <table class="ui-widget ui-widget-content table-hover"
+                           wicket:id="connectorDatatable"/>
+                </span>
+
+                <span style="float:right">
+                    <form wicket:id="connectorPaginatorForm" style="display:inline">
+                        <label><wicket:message key="displayRows"/></label>
+                        <select class="text ui-widget-content ui-corner-all"
+                                wicket:id="rowsChooser"/>
+                    </form>
+                </span>
+            </div>
+
+            <div wicket:id="createConnectorWin">[Show modal window for creating connector]</div>
+            <div wicket:id="editConnectorWin">[Show modal window for editing connector]</div>
+
+            <a class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" wicket:id="createConnectorLink">
+                <wicket:message key="create-connector"/>
             </a>
         </div>
     </div>

@@ -40,10 +40,8 @@ public class TaskRestClient extends AbstractBaseRestClient {
         Set<String> validators = null;
 
         try {
-
             validators = restTemplate.getForObject(
                     baseURL + "task/jobClasses.json", Set.class);
-
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While getting all job classes", e);
         }

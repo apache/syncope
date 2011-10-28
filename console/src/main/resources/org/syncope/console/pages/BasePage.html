@@ -30,7 +30,7 @@
         <link rel="stylesheet" type="text/css" href="css/jquery.ui.tabs.css" />
         <link rel="stylesheet" type="text/css" href="css/jquery.ui.theme.css" />
 
-        <link rel="stylesheet" type="text/css" href="css/stile_sy.css" media="all"/>
+        <link rel="stylesheet" type="text/css" href="css/style.css" media="all"/>
         <link rel="stylesheet" type="text/css" href="css/fieldstyle.css" />
 
         <script type="text/javascript" src="scripts/jquery-1.4.2.min.js"></script>
@@ -67,6 +67,12 @@
                     </span>
                 </li>
                 <li><span>
+                        <a href="#" wicket:id="todo"><img src="img/menu/notsel/todo.png" alt="TODO" width="80" height="80" /><br />
+                            <wicket:message key="todo"/>
+                        </a>
+                    </span>
+                </li>
+                <li><span>
                         <a href="#" wicket:id="schema"><img src="img/menu/notsel/schema.png" alt="Schema" width="80" height="80" /><br />
                             <wicket:message key="schema"/>
                         </a>
@@ -91,8 +97,8 @@
                     </span>
                 </li>
                 <li><span>
-                        <a href="#" wicket:id="connectors"><img src="img/menu/notsel/connectors.png" alt="Connectors" width="80" height="80" /><br />
-                            <wicket:message key="connectors"/>
+                        <a href="#" wicket:id="tasks"><img src="img/menu/notsel/task.png" alt="Tasks" width="80" height="80" /><br />
+                            <wicket:message key="tasks"/>
                         </a>
                     </span>
                 </li>
@@ -106,12 +112,6 @@
                         <a href="#" wicket:id="configuration"><img src="img/menu/notsel/configuration.png" alt="Configuration" width="80" height="80" /><br />
                             <wicket:message key="configuration"/>
                         </a></span>
-                </li>
-                <li><span>
-                        <a href="#" wicket:id="tasks"><img src="img/menu/notsel/task.png" alt="Tasks" width="80" height="80" /><br />
-                            <wicket:message key="tasks"/>
-                        </a>
-                    </span>
                 </li>
                 <li style="float:right">
                     <a href="#" wicket:id="logout"><img src="img/menu/notsel/logout.png" alt="Logout" width="80" height="80" /><br />

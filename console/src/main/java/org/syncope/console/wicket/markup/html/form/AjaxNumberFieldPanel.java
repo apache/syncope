@@ -22,21 +22,21 @@ import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
-public class AjaxIntFieldPanel extends FieldPanel<Integer> {
+public class AjaxNumberFieldPanel extends FieldPanel<Number> {
 
     private static final long serialVersionUID = 238940918106696068L;
 
     private List<String> choices = Collections.EMPTY_LIST;
 
-    public AjaxIntFieldPanel(
+    public AjaxNumberFieldPanel(
             final String id,
             final String name,
-            final IModel<Integer> model,
+            final IModel<Number> model,
             final boolean active) {
 
         super(id, name, model, active);
 
-        field = new TextField<Integer>("intField", model);
+        field = new TextField<Number>("numberField", model);
 
         add(field.setLabel(new Model(name)).setOutputMarkupId(true));
 

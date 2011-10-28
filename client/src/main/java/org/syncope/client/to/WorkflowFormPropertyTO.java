@@ -13,6 +13,8 @@
  */
 package org.syncope.client.to;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.syncope.client.AbstractBaseBean;
 import org.syncope.types.WorkflowFormPropertyType;
 
@@ -33,6 +35,14 @@ public class WorkflowFormPropertyTO extends AbstractBaseBean {
     private boolean writable;
 
     private boolean required;
+
+    private String datePattern;
+
+    private Map<String, String> enumValues;
+
+    public WorkflowFormPropertyTO() {
+        enumValues = new HashMap<String, String>();
+    }
 
     public String getId() {
         return id;
@@ -88,5 +98,31 @@ public class WorkflowFormPropertyTO extends AbstractBaseBean {
 
     public void setWritable(boolean writable) {
         this.writable = writable;
+    }
+
+    public String getDatePattern() {
+        return datePattern;
+    }
+
+    public void setDatePattern(String datePattern) {
+        this.datePattern = datePattern;
+    }
+
+    public Map<String, String> getEnumValues() {
+        return enumValues;
+    }
+
+    public void putEnumValue(String key, String value) {
+        this.enumValues.put(key, value);
+    }
+
+    public void removeEnumValue(String key) {
+        this.enumValues.remove(key);
+    }
+
+    public void setEnumValues(Map<String, String> enumValues) {
+        if (enumValues != null) {
+            this.enumValues = enumValues;
+        }
     }
 }
