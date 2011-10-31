@@ -20,21 +20,15 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
-import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.markup.ComponentTag;
-import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.form.PasswordTextField;
 import org.apache.wicket.model.CompoundPropertyModel;
-import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.mod.AttributeMod;
@@ -49,10 +43,9 @@ import org.syncope.console.pages.panels.AttributesPanel;
 import org.syncope.console.pages.panels.DerivedAttributesPanel;
 import org.syncope.console.pages.panels.ResourcesPanel;
 import org.syncope.console.pages.panels.RolesPanel;
+import org.syncope.console.pages.panels.UserDetailsPanel;
 import org.syncope.console.pages.panels.VirtualAttributesPanel;
 import org.syncope.console.rest.UserRestClient;
-import org.syncope.console.wicket.markup.html.form.AjaxPasswordFieldPanel;
-import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 
 /**
  * Modal window with User form.
@@ -86,43 +79,15 @@ public class UserModalPage extends BaseModalPage {
         form.setModel(new CompoundPropertyModel(userTO));
 
         //--------------------------------
+        // User details
+        //--------------------------------
+        form.add(new UserDetailsPanel("details", userTO, form));
+        //--------------------------------
+
+        //--------------------------------
         // Attributes panel
         //--------------------------------
         form.add(new AttributesPanel("attributes", userTO, form));
-
-        final AjaxTextFieldPanel username = new AjaxTextFieldPanel("username",
-                "username", new PropertyModel<String>(userTO, "username"), true);
-
-        username.addRequiredLabel();
-        form.add(username);
-
-        final AjaxPasswordFieldPanel password = new AjaxPasswordFieldPanel(
-                "password",
-                "password",
-                new PropertyModel<String>(userTO, "password"),
-                true);
-
-        password.setRequired(userTO.getId() == 0);
-        ((PasswordTextField) password.getField()).setResetPassword(true);
-        form.add(password);
-
-        final WebMarkupContainer mandatoryPassword =
-                new WebMarkupContainer("mandatory_pwd");
-        mandatoryPassword.add(new Behavior() {
-
-            private static final long serialVersionUID = 1469628524240283489L;
-
-            @Override
-            public void onComponentTag(
-                    final Component component, final ComponentTag tag) {
-
-                if (userTO.getId() > 0) {
-                    tag.put("style", "display:none;");
-                }
-            }
-        });
-
-        form.add(mandatoryPassword);
         //--------------------------------
 
         //--------------------------------

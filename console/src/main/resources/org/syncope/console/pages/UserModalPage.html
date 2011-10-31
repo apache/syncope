@@ -46,6 +46,10 @@
         #tabs-5 table{
             font-size: 1.1em;
         }
+
+        #tabs-6 table{
+            font-size: 1.1em;
+        }
     </style>
 </wicket:head>
 
@@ -63,54 +67,40 @@
                     <li><a href="#tabs-3"><span><wicket:message key="tab3"/></span></a></li>
                     <li><a href="#tabs-4"><span><wicket:message key="tab4"/></span></a></li>
                     <li><a href="#tabs-5"><span><wicket:message key="tab5"/></span></a></li>
+                    <li><a href="#tabs-6"><span><wicket:message key="tab6"/></span></a></li>
                 </ul>
                 <div id="tabs-1">
+                    <span wicket:id="details">[user details]</span>
+                </div>
+                <div id="tabs-2">
                     <div id="formtable">
                         <span wicket:id="attributes">[user attributes]</span>
-
-                        <div class="tablerow">
-                            <div class="tablecolumn_label short_dynamicsize">
-                                <wicket:message key="username"/>
-                            </div>
-                            <div class="tablecolumn_field medium_dynamicsize">
-                                <span wicket:id="username" />
-                            </div>
-                        </div>
-
-                        <div class="tablerow">
-                            <div class="tablecolumn_label short_dynamicsize">
-                                <wicket:message key="password"/>
-                            </div>
-                            <div class="tablecolumn_field medium_dynamicsize">
-                                <span wicket:id="password" />
-                                <span wicket:id="mandatory_pwd">*</span>
-                            </div>
-                        </div>
                     </div>
-
-                    <script type="text/javascript">
-                        $(function() {
-                            $('#formtable div.tablerow:even').addClass("alt");
-                        });
-                    </script>
-                </div>
-
-                <div id="tabs-2">
-                    <span wicket:id="derivedAttributes">[user derived attributes]</span>
                 </div>
 
                 <div id="tabs-3">
-                    <span wicket:id="virtualAttributes">[user virtual attributes]</span>
+                    <span wicket:id="derivedAttributes">[user derived attributes]</span>
                 </div>
 
                 <div id="tabs-4">
-                    <span wicket:id="resources">[resources]</span>
+                    <span wicket:id="virtualAttributes">[user virtual attributes]</span>
                 </div>
 
                 <div id="tabs-5">
+                    <span wicket:id="resources">[resources]</span>
+                </div>
+
+                <div id="tabs-6">
                     <span wicket:id="roles">[roles]</span>
                 </div>
             </div>
+
+            <script type="text/javascript">
+                $(function() {
+                    $('#formtable div.tablerow:even').addClass("alt");
+                });
+            </script>
+
             <div style="margin: 20px 10px 0">
                 <input type="submit"
                        class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"

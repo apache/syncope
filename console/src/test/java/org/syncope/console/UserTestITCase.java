@@ -46,6 +46,7 @@ public class UserTestITCase extends AbstractTest {
         selenium.click("//div[@id='tabs']/ul/li[3]/a/span");
         selenium.click("//div[@id='tabs']/ul/li[4]/a/span");
         selenium.click("//div[@id='tabs']/ul/li[5]/a/span");
+        selenium.click("//div[@id='tabs']/ul/li[6]/a/span");
         selenium.click("css=a.w_close");
     }
 
@@ -82,6 +83,7 @@ public class UserTestITCase extends AbstractTest {
         selenium.click("//div[@id='tabs']/ul/li[3]/a/span");
         selenium.click("//div[@id='tabs']/ul/li[4]/a/span");
         selenium.click("//div[@id='tabs']/ul/li[5]/a/span");
+        selenium.click("//div[@id='tabs']/ul/li[6]/a/span");
         selenium.click("css=a.w_close");
     }
 
