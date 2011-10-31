@@ -18,8 +18,6 @@ import java.util.Map;
 import javassist.NotFoundException;
 import org.identityconnectors.framework.api.ConfigurationProperties;
 import org.identityconnectors.framework.api.ConfigurationProperty;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -37,13 +35,7 @@ import org.syncope.types.SyncopeClientExceptionType;
 @Component
 public class ConnInstanceDataBinder {
 
-    /**
-     * Logger.
-     */
-    private static final Logger LOG = LoggerFactory.getLogger(
-            ConnInstanceDataBinder.class);
-
-    private static final String[] ignoreProperties = {
+    private static final String[] IGNORE_PROPERTIES = {
         "id", "resources", "syncToken"};
 
     @Autowired
@@ -84,7 +76,7 @@ public class ConnInstanceDataBinder {
         ConnInstance connectorInstance = new ConnInstance();
 
         BeanUtils.copyProperties(
-                connectorInstanceTO, connectorInstance, ignoreProperties);
+                connectorInstanceTO, connectorInstance, IGNORE_PROPERTIES);
 
         // Throw composite exception if there is at least one element set
         // in the composing exceptions
@@ -180,7 +172,7 @@ public class ConnInstanceDataBinder {
                 connInstance.getConnectorName());
 
         BeanUtils.copyProperties(
-                connInstance, connInstanceTO, ignoreProperties);
+                connInstance, connInstanceTO, IGNORE_PROPERTIES);
 
         connInstanceTO.setSyncToken(
                 connInstance.getSerializedSyncToken());

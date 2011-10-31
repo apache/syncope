@@ -38,7 +38,7 @@ public class SchemaMappingValidator extends AbstractValidator
                 && !object.isAccountid()
                 && !object.isPassword()) {
             context.buildConstraintViolationWithTemplate(
-                    "Missing destination attribute name").addNode(
+                    "Missing external attribute name").addNode(
                     EntityViolationType.InvalidSchemaMapping.toString()).
                     addConstraintViolation();
 
@@ -53,7 +53,7 @@ public class SchemaMappingValidator extends AbstractValidator
                 && IntMappingType.Username
                 != object.getIntMappingType()) {
             context.buildConstraintViolationWithTemplate(
-                    "Missing source attribute name").addNode(
+                    "Missing internal attribute name").addNode(
                     EntityViolationType.InvalidSchemaMapping.toString()).
                     addConstraintViolation();
 

@@ -88,6 +88,9 @@ public enum SyncopeClientExceptionType {
     InvalidExternalResource(
     "Syncope.InvalidExternalResource",
     "Syncope.InvalidExternalResource.element"),
+    InvalidNotification(
+    "Syncope.InvalidNotification",
+    "Syncope.InvalidNotification.element"),
     InvalidTask(
     "Syncope.InvalidTask",
     "Syncope.InvalidTask.element"),

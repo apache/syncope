@@ -90,5 +90,10 @@
     <Entitlement name="WORKFLOW_FORM_READ"/>
     <Entitlement name="WORKFLOW_FORM_CLAIM"/>
     <Entitlement name="WORKFLOW_FORM_SUBMIT"/>
-
+    <Entitlement name="NOTIFICATION_LIST"/>
+    <Entitlement name="NOTIFICATION_CREATE"/>
+    <Entitlement name="NOTIFICATION_READ"/>
+    <Entitlement name="NOTIFICATION_UPDATE"/>
+    <Entitlement name="NOTIFICATION_DELETE"/>
+    
 </dataset>

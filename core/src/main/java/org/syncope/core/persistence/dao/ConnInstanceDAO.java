@@ -27,7 +27,8 @@ public interface ConnInstanceDAO extends DAO {
 
     List<ExternalResource> findExternalResources(ConnInstance connector);
 
-    ConnInstance save(ConnInstance connector) throws InvalidEntityException;
+    ConnInstance save(ConnInstance connector)
+            throws InvalidEntityException;
 
     void delete(Long id);
 }

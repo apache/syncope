@@ -127,8 +127,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         connectorTO.addCapability(ConnectorCapability.SYNC_CREATE);
         connectorTO.addCapability(ConnectorCapability.ASYNC_UPDATE);
 
-        ConnInstanceTO actual =
-                (ConnInstanceTO) restTemplate.postForObject(
+        ConnInstanceTO actual = restTemplate.postForObject(
                 BASE_URL + "connector/create.json",
                 connectorTO, ConnInstanceTO.class);
 
