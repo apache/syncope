@@ -70,6 +70,8 @@ public class ResourceTO extends AbstractBaseBean {
 
     private Set<ConnConfProperty> connectorConfigurationProperties;
 
+    private String syncToken;
+
     public ResourceTO() {
         mappings = new ArrayList<SchemaMappingTO>();
         connectorConfigurationProperties = new HashSet<ConnConfProperty>();
@@ -209,5 +211,13 @@ public class ResourceTO extends AbstractBaseBean {
             final Set<ConnConfProperty> connectorConfigurationProperties) {
         this.connectorConfigurationProperties =
                 connectorConfigurationProperties;
+    }
+
+    public String getSyncToken() {
+        return syncToken;
+    }
+
+    public void setSyncToken(String syncToken) {
+        this.syncToken = syncToken;
     }
 }

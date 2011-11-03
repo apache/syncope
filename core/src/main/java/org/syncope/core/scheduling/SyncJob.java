@@ -19,7 +19,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.identityconnectors.common.security.GuardedByteArray;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.objects.Attribute;
@@ -372,7 +371,7 @@ public class SyncJob extends AbstractJob {
         List<SyncDelta> deltas;
         try {
             deltas = connector.sync(
-                    syncTask.getResource().getConnector().getSyncToken());
+                    syncTask.getResource().getSyncToken());
         } catch (Throwable t) {
             throw new JobExecutionException("While syncing on connector", t);
         }
@@ -514,7 +513,7 @@ public class SyncJob extends AbstractJob {
         LOG.debug("Sync result: {}", result);
 
         try {
-            syncTask.getResource().getConnector().setSyncToken(
+            syncTask.getResource().setSyncToken(
                     connector.getLatestSyncToken());
             connInstanceDAO.save(syncTask.getResource().getConnector());
         } catch (Throwable t) {

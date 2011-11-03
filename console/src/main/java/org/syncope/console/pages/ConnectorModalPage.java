@@ -390,24 +390,6 @@ public class ConnectorModalPage extends BaseModalPage {
                 new PropertyModel(this, "selectedCapabilities"), capabilities);
         connectorForm.add(capabilitiesPalette);
 
-        final AjaxCheckBoxPanel resetToken = new AjaxCheckBoxPanel(
-                "resetToken", getString("resetToken"), new Model(null), false);
-
-        resetToken.getField().add(
-                new AjaxFormComponentUpdatingBehavior("onchange") {
-
-                    private static final long serialVersionUID =
-                            -1107858522700306810L;
-
-                    @Override
-                    protected void onUpdate(final AjaxRequestTarget art) {
-                        if (resetToken.getModelObject()) {
-                            connectorTO.setSyncToken(null);
-                        }
-                    }
-                });
-        connectorForm.add(resetToken);
-
         connectorForm.add(submit);
 
         add(connectorForm);

@@ -36,7 +36,7 @@ import org.syncope.types.SyncopeClientExceptionType;
 public class ConnInstanceDataBinder {
 
     private static final String[] IGNORE_PROPERTIES = {
-        "id", "resources", "syncToken"};
+        "id", "resources"};
 
     @Autowired
     private ConnInstanceDAO connectorInstanceDAO;
@@ -141,10 +141,6 @@ public class ConnInstanceDataBinder {
         connInstance.setCapabilities(
                 connInstanceTO.getCapabilities());
 
-        if (connInstanceTO.getSyncToken() == null) {
-            connInstance.setSerializedSyncToken(null);
-        }
-
         if (!requiredValuesMissing.getElements().isEmpty()) {
             compositeErrorException.addException(requiredValuesMissing);
         }
@@ -173,9 +169,6 @@ public class ConnInstanceDataBinder {
 
         BeanUtils.copyProperties(
                 connInstance, connInstanceTO, IGNORE_PROPERTIES);
-
-        connInstanceTO.setSyncToken(
-                connInstance.getSerializedSyncToken());
 
         ConnConfPropSchema connConfPropSchema;
         ConfigurationProperty configurationProperty;

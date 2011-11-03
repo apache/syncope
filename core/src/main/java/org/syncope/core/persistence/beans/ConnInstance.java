@@ -14,15 +14,12 @@
  */
 package org.syncope.core.persistence.beans;
 
-import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -33,16 +30,10 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.OneToMany;
-
 import org.hibernate.annotations.Type;
-import org.identityconnectors.framework.common.objects.SyncToken;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.syncope.core.persistence.util.XmlSerializer;
-import org.syncope.core.util.ApplicationContextManager;
 import org.syncope.types.ConnConfProperty;
 import org.syncope.types.ConnectorCapability;
-
-import com.thoughtworks.xstream.XStream;
 
 @Entity
 public class ConnInstance extends AbstractBaseBean {
@@ -92,10 +83,6 @@ public class ConnInstance extends AbstractBaseBean {
 
     private String displayName;
 
-    @Lob
-    @Type(type = "org.hibernate.type.StringClobType")
-    private String serializedSyncToken;
-
     /**
      * Provisioning target resources associated to the connector.
      * The connector can be considered the resource's type.
@@ -129,7 +116,6 @@ public class ConnInstance extends AbstractBaseBean {
             this.resources.addAll(that.resources);
         }
 
-        this.serializedSyncToken = that.serializedSyncToken;
         this.version = that.version;
         this.xmlConfiguration = that.xmlConfiguration;
     }
@@ -226,44 +212,6 @@ public class ConnInstance extends AbstractBaseBean {
         this.capabilities.clear();
         if (capabilities != null && !capabilities.isEmpty()) {
             this.capabilities.addAll(capabilities);
-        }
-    }
-
-    public String getSerializedSyncToken() {
-        return serializedSyncToken;
-    }
-
-    public void setSerializedSyncToken(final String serializedSyncToken) {
-        this.serializedSyncToken = serializedSyncToken;
-    }
-
-    public SyncToken getSyncToken() {
-        SyncToken result = null;
-
-        if (serializedSyncToken != null) {
-            ConfigurableApplicationContext context =
-                    ApplicationContextManager.getApplicationContext();
-            XStream xStream = context.getBean(XStream.class);
-            try {
-                result = (SyncToken) xStream.fromXML(
-                        URLDecoder.decode(serializedSyncToken, "UTF-8"));
-            } catch (Throwable t) {
-                LOG.error("During attribute deserialization", t);
-            }
-        }
-
-        return result;
-    }
-
-    public void setSyncToken(final SyncToken syncToken) {
-        ConfigurableApplicationContext context =
-                ApplicationContextManager.getApplicationContext();
-        XStream xStream = context.getBean(XStream.class);
-        try {
-            serializedSyncToken = URLEncoder.encode(
-                    xStream.toXML(syncToken), "UTF-8");
-        } catch (Throwable t) {
-            LOG.error("During attribute serialization", t);
         }
     }
 }

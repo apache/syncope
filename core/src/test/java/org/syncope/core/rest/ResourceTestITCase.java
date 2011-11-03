@@ -347,6 +347,25 @@ public class ResourceTestITCase extends AbstractTest {
     }
 
     @Test
+    public void updateResetSyncToken() {
+	// pre condition: sync token is set
+        String resourceName = "ws-target-resource-update-resetsynctoken";
+	ResourceTO pre = restTemplate.getForObject(
+                BASE_URL + "/resource/read/{resourceName}.json",
+                ResourceTO.class, resourceName);
+        assertNotNull(pre.getSyncToken());
+        
+        pre.setSyncToken(null);
+        
+        ResourceTO actual = restTemplate.postForObject(
+                BASE_URL + "resource/update.json",
+                pre, ResourceTO.class);
+
+        // check that the synctoken has been reset
+        assertNull(actual.getSyncToken());
+    }
+    
+    @Test
     public void delete() {
         final String resourceName = "ws-target-resource-delete";
 

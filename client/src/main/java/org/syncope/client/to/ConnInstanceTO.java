@@ -38,8 +38,6 @@ public class ConnInstanceTO extends AbstractBaseBean {
 
     private Set<ConnConfProperty> configuration;
 
-    private String syncToken;
-
     private Set<ConnectorCapability> capabilities;
 
     private String displayName;
@@ -104,14 +102,6 @@ public class ConnInstanceTO extends AbstractBaseBean {
         } else {
             this.configuration = configuration;
         }
-    }
-
-    public String getSyncToken() {
-        return syncToken;
-    }
-
-    public void setSyncToken(String syncToken) {
-        this.syncToken = syncToken;
     }
 
     public String getConnectorName() {

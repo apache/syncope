@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -52,7 +51,7 @@ public class ResourceDataBinder {
             ResourceDataBinder.class);
 
     private static final String[] MAPPING_IGNORE_PROPERTIES = {
-        "id", "resource"};
+        "id", "resource", "syncToken"};
 
     @Autowired
     private ConnInstanceDAO connectorInstanceDAO;
@@ -124,6 +123,10 @@ public class ResourceDataBinder {
         resource.setConnectorConfigurationProperties(
                 new HashSet<ConnConfProperty>(
                 resourceTO.getConnectorConfigurationProperties()));
+        
+        if (resourceTO.getSyncToken() == null) {
+            resource.setSerializedSyncToken(null);
+        }
         return resource;
     }
 
@@ -189,6 +192,8 @@ public class ResourceDataBinder {
 
         resourceTO.setConnectorConfigurationProperties(
                 resource.getConfiguration());
+        resourceTO.setSyncToken(resource.getSerializedSyncToken());
+        
         return resourceTO;
     }
 

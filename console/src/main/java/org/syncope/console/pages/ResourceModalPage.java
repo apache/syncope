@@ -231,8 +231,25 @@ public class ResourceModalPage extends BaseModalPage {
                 new PropertyModel(resourceTO, "deleteTraceLevel"),
                 false);
         deleteTraceLevel.setChoices(Arrays.asList(TraceLevel.values()));
-        form.add(deleteTraceLevel);
+        form.add(deleteTraceLevel);        
 
+        final AjaxCheckBoxPanel resetToken = new AjaxCheckBoxPanel(
+                "resetToken", getString("resetToken"), new Model(null), false);
+        resetToken.getField().add(
+                new AjaxFormComponentUpdatingBehavior("onchange") {
+
+                    private static final long serialVersionUID =
+                            -1107858522700306810L;
+
+                    @Override
+                    protected void onUpdate(final AjaxRequestTarget art) {
+                        if (resetToken.getModelObject()) {
+                            resourceTO.setSyncToken(null);
+                        }
+                    }
+                });
+        form.add(resetToken);
+        
         mappingContainer = new WebMarkupContainer("mappingContainer");
         mappingContainer.setOutputMarkupId(true);
         form.add(mappingContainer);
