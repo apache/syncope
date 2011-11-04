@@ -45,8 +45,6 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.http.WebResponse;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.syncope.client.to.PropagationTaskTO;
 import org.syncope.client.to.TaskTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
@@ -65,12 +63,6 @@ import org.syncope.console.wicket.markup.html.form.LinkPanel;
  * Tasks page.
  */
 public class PropagationTasks extends Panel {
-
-    /**
-     * Logger.
-     */
-    private static final Logger LOG = LoggerFactory.getLogger(
-            PropagationTasks.class);
 
     private static final int WIN_HEIGHT = 500;
 
@@ -189,7 +181,7 @@ public class PropagationTasks extends Panel {
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
                         try {
-                            restClient.startExecution(taskTO.getId());
+                            restClient.startExecution(taskTO.getId(), false);
                             getSession().info(getString("operation_succeded"));
                         } catch (SyncopeClientCompositeErrorException scce) {
                             error(scce.getMessage());

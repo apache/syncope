@@ -135,10 +135,10 @@ public class TaskRestClient extends AbstractBaseRestClient {
      * Start execution for the specified TaskTO.
      * @param taskId task id
      */
-    public void startExecution(final Long taskId) {
-        restTemplate.getForObject(
-                baseURL + "task/execute/{taskId}",
-                TaskExecTO.class, taskId);
+    public void startExecution(final Long taskId, boolean dryRun) {
+        restTemplate.postForObject(
+                baseURL + "task/execute/{taskId}?dryRun={dryRun}",
+                null, TaskExecTO.class, taskId, dryRun);
     }
 
     /**

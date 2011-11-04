@@ -164,8 +164,8 @@ public class TaskTestITCase extends AbstractTest {
             assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
         }
 
-        TaskExecTO execution = restTemplate.getForObject(
-                BASE_URL + "task/execute/{taskId}",
+        TaskExecTO execution = restTemplate.postForObject(
+                BASE_URL + "task/execute/{taskId}", null,
                 TaskExecTO.class, 1);
         assertEquals(PropagationTaskExecStatus.SUBMITTED.toString(),
                 execution.getStatus());
@@ -204,8 +204,8 @@ public class TaskTestITCase extends AbstractTest {
                 BASE_URL + "user/count.json", Integer.class);
         assertNotNull(usersPre);
 
-        TaskExecTO execution = restTemplate.getForObject(
-                BASE_URL + "task/execute/{taskId}",
+        TaskExecTO execution = restTemplate.postForObject(
+                BASE_URL + "task/execute/{taskId}", null,
                 TaskExecTO.class, 4);
         assertEquals("JOB_FIRED", execution.getStatus());
 
@@ -224,11 +224,20 @@ public class TaskTestITCase extends AbstractTest {
 
     @Test
     public void issue196() {
-        TaskExecTO execution = restTemplate.getForObject(
-                BASE_URL + "task/execute/{taskId}",
+        TaskExecTO execution = restTemplate.postForObject(
+                BASE_URL + "task/execute/{taskId}", null,
                 TaskExecTO.class, 6);
         assertNotNull(execution);
         assertEquals(0, execution.getId());
         assertNotNull(execution.getTask());
+    }
+
+    @Test
+    public void dryRun() {
+        TaskExecTO execution = restTemplate.postForObject(
+                BASE_URL + "task/execute/{taskId}?dryRun=true", null,
+                TaskExecTO.class, 4);
+        assertNotNull(execution);
+        assertEquals("JOB_FIRED", execution.getStatus());
     }
 }

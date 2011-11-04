@@ -140,6 +140,10 @@ public class ExternalResource extends AbstractBaseBean {
     @Column(nullable = false)
     private TraceLevel deleteTraceLevel;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TraceLevel syncTraceLevel;
+
     @ManyToOne(fetch = FetchType.EAGER, optional = true)
     private PasswordPolicy passwordPolicy;
 
@@ -180,6 +184,7 @@ public class ExternalResource extends AbstractBaseBean {
         createTraceLevel = TraceLevel.FAILURES;
         updateTraceLevel = TraceLevel.FAILURES;
         deleteTraceLevel = TraceLevel.FAILURES;
+        syncTraceLevel = TraceLevel.FAILURES;
     }
 
     public boolean isForceMandatoryConstraint() {
@@ -347,6 +352,14 @@ public class ExternalResource extends AbstractBaseBean {
 
     public void setUpdateTraceLevel(TraceLevel updateTraceLevel) {
         this.updateTraceLevel = updateTraceLevel;
+    }
+
+    public TraceLevel getSyncTraceLevel() {
+        return syncTraceLevel;
+    }
+
+    public void setSyncTraceLevel(TraceLevel syncTraceLevel) {
+        this.syncTraceLevel = syncTraceLevel;
     }
 
     public Policy getAccountPolicy() {

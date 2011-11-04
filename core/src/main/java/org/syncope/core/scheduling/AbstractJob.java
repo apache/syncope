@@ -16,6 +16,7 @@ package org.syncope.core.scheduling;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Date;
+import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,20 +34,20 @@ import org.syncope.core.persistence.dao.TaskExecDAO;
 public abstract class AbstractJob implements Job {
 
     /**
+     * Task execution status.
+     */
+    protected enum Status {
+
+        SUCCESS,
+        FAILURE
+
+    }
+
+    /**
      * Logger.
      */
     protected static final Logger LOG = LoggerFactory.getLogger(
             AbstractJob.class);
-
-    /**
-     * Success task execution status.
-     */
-    protected static final String SUCCESS = "SUCCESS";
-
-    /**
-     * Faliure task execution status.
-     */
-    protected static final String FAILURE = "FAILURE";
 
     /**
      * Task DAO.
@@ -80,7 +81,7 @@ public abstract class AbstractJob implements Job {
     }
 
     @Override
-    public final void execute()
+    public final void execute(final JobExecutionContext context)
             throws JobExecutionException {
 
         task = taskDAO.find(taskId);
@@ -93,9 +94,11 @@ public abstract class AbstractJob implements Job {
         execution.setTask(task);
 
         try {
-            execution.setMessage(doExecute());
+            execution.setMessage(doExecute(
+                    context.getMergedJobDataMap().
+                    getBoolean(Job.DRY_RUN_JOBDETAIL_KEY)));
 
-            execution.setStatus(SUCCESS);
+            execution.setStatus(Status.SUCCESS.name());
         } catch (JobExecutionException e) {
             LOG.error("While executing task " + taskId, e);
 
@@ -104,19 +107,31 @@ public abstract class AbstractJob implements Job {
             e.printStackTrace(new PrintWriter(exceptionWriter));
             execution.setMessage(exceptionWriter.toString());
 
-            execution.setStatus(FAILURE);
+            execution.setStatus(Status.FAILURE.name());
         }
         execution.setEndDate(new Date());
-
-        taskExecDAO.save(execution);
+        if (hasToBeRegistered(execution)) {
+            taskExecDAO.save(execution);
+        }
     }
 
     /**
      * The actual execution, delegated to child classes.
-     *
+     * 
+     * @param dryRun whether to actually touch the data
      * @return the task execution status to be set
-     * @throws JobExecutionException 
+     * @throws JobExecutionException if anything goes wrong
      */
-    protected abstract String doExecute()
+    protected abstract String doExecute(boolean dryRun)
             throws JobExecutionException;
+
+    /**
+     * Template method to determine whether this job's task execution has
+     * to be persisted or not.
+     * @param execution task execution
+     * @return wether to persist or not
+     */
+    protected boolean hasToBeRegistered(final TaskExec execution) {
+        return false;
+    }
 }

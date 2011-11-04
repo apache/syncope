@@ -15,12 +15,6 @@
 package org.syncope.core.rest.controller;
 
 import java.lang.reflect.Modifier;
-import org.quartz.SchedulerException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -29,13 +23,20 @@ import java.util.Map;
 import java.util.Set;
 import javassist.NotFoundException;
 import javax.servlet.http.HttpServletResponse;
+import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
 import org.reflections.Reflections;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.syncope.client.mod.SchedTaskMod;
@@ -327,10 +328,10 @@ public class TaskController extends AbstractController {
     }
 
     @PreAuthorize("hasRole('TASK_EXECUTE')")
-    @RequestMapping(method = RequestMethod.GET,
+    @RequestMapping(method = RequestMethod.POST,
     value = "/execute/{taskId}")
-    public TaskExecTO execute(
-            @PathVariable("taskId") final Long taskId)
+    public TaskExecTO execute(@PathVariable("taskId") final Long taskId,
+            @RequestParam(value = "dryRun", defaultValue = "false") final boolean dryRun)
             throws NotFoundException {
 
         Task task = taskDAO.find(taskId);
@@ -356,9 +357,11 @@ public class TaskController extends AbstractController {
                         JobInstanceLoader.getJobDetailName(task.getId()));
                 jobDetail.setGroup(Scheduler.DEFAULT_GROUP);
                 try {
+                    JobDataMap map = new JobDataMap();
+                    map.put(Job.DRY_RUN_JOBDETAIL_KEY, dryRun);
                     scheduler.getScheduler().triggerJob(
                             JobInstanceLoader.getJobDetailName(task.getId()),
-                            Scheduler.DEFAULT_GROUP);
+                            Scheduler.DEFAULT_GROUP, map);
                 } catch (SchedulerException e) {
                     LOG.error("While executing task {}", task, e);
 

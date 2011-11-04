@@ -36,17 +36,18 @@ import org.syncope.client.to.AttributeTO;
 import org.syncope.client.to.MembershipTO;
 import org.syncope.client.to.UserTO;
 import org.syncope.core.init.ConnInstanceLoader;
-import org.syncope.core.persistence.beans.SchemaMapping;
-import org.syncope.core.persistence.beans.SyncTask;
 import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.core.persistence.beans.PropagationTask;
+import org.syncope.core.persistence.beans.SchemaMapping;
+import org.syncope.core.persistence.beans.SyncTask;
+import org.syncope.core.persistence.beans.TaskExec;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.beans.user.UAttrValue;
 import org.syncope.core.persistence.beans.user.UDerSchema;
 import org.syncope.core.persistence.beans.user.USchema;
-import org.syncope.core.persistence.dao.ConnInstanceDAO;
 import org.syncope.core.persistence.dao.DerSchemaDAO;
+import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.UserDAO;
 import org.syncope.core.persistence.propagation.ConnectorFacadeProxy;
@@ -54,7 +55,9 @@ import org.syncope.core.persistence.propagation.PropagationByResource;
 import org.syncope.core.persistence.propagation.PropagationException;
 import org.syncope.core.persistence.propagation.PropagationManager;
 import org.syncope.core.rest.controller.InvalidSearchConditionException;
+import org.syncope.core.scheduling.SyncResult.Operation;
 import org.syncope.core.workflow.UserWorkflowAdapter;
+import org.syncope.types.TraceLevel;
 
 /**
  * Job for executing synchronization tasks.
@@ -70,10 +73,10 @@ public class SyncJob extends AbstractJob {
     private ConnInstanceLoader connInstanceLoader;
 
     /**
-     * Connector instance DAO.
+     * Resource DAO.
      */
     @Autowired
-    private ConnInstanceDAO connInstanceDAO;
+    private ResourceDAO resourceDAO;
 
     /**
      * Schema DAO.
@@ -345,14 +348,259 @@ public class SyncJob extends AbstractJob {
         return result;
     }
 
+    private SyncResult createUser(final SyncDelta delta,
+            final Set<String> defaultResources,
+            final Set<Long> defaultRoles, final boolean dryRun) {
+
+        SyncTask syncTask = (SyncTask) this.task;
+        SyncResult result = new SyncResult();
+        result.setOperation(Operation.CREATE);
+
+        UserTO userTO = getUserTO(delta.getObject(),
+                syncTask.getResource().getMappings(),
+                defaultRoles, defaultResources);
+
+        // shortcut in case of dry run.
+        if (dryRun) {
+            result.setUserId(0L);
+            result.setUsername(userTO.getUsername());
+            result.setStatus(SyncResult.Status.SUCCESS);
+            return result;
+        }
+
+        try {
+            Map.Entry<Long, Boolean> created =
+                    wfAdapter.create(userTO);
+            List<PropagationTask> tasks =
+                    propagationManager.getCreateTaskIds(
+                    created.getKey(), userTO.getPassword(),
+                    null, created.getValue(),
+                    syncTask.getResource().getName());
+            propagationManager.execute(tasks);
+            result.setUserId(created.getKey());
+            result.setUsername(userTO.getUsername());
+            result.setStatus(SyncResult.Status.SUCCESS);
+        } catch (PropagationException e) {
+            LOG.error("Could not propagate user "
+                    + delta.getUid().getUidValue(), e);
+        } catch (Throwable t) {
+            result.setStatus(SyncResult.Status.FAILURE);
+            result.setMessage(t.getMessage());
+            LOG.error("Could not create user "
+                    + delta.getUid().getUidValue(), t);
+        }
+        return result;
+    }
+
+    private SyncResult updateUser(final SyncDelta delta,
+            final SyncopeUser user, final Set<String> defaultResources,
+            final Set<Long> defaultRoles, final boolean dryRun) {
+
+        SyncTask syncTask = (SyncTask) this.task;
+
+        SyncResult result = new SyncResult();
+        result.setOperation(Operation.UPDATE);
+        try {
+            UserMod userMod = getUserMod(
+                    user.getId(), delta.getObject(),
+                    syncTask.getResource().getMappings(),
+                    defaultRoles, defaultResources);
+
+            result.setStatus(SyncResult.Status.SUCCESS);
+            result.setUserId(userMod.getId());
+            result.setUsername(userMod.getUsername());
+
+            if (!dryRun) {
+                Map.Entry<Long, PropagationByResource> updated =
+                        wfAdapter.update(userMod);
+                List<PropagationTask> tasks =
+                        propagationManager.getUpdateTaskIds(
+                        updated.getKey(), userMod.getPassword(),
+                        null, null, null, updated.getValue(),
+                        syncTask.getResource().getName());
+                propagationManager.execute(tasks);
+            }
+        } catch (PropagationException e) {
+            LOG.error("Could not propagate user "
+                    + delta.getUid().getUidValue(), e);
+        } catch (Throwable t) {
+            result.setStatus(SyncResult.Status.FAILURE);
+            result.setMessage(t.getMessage());
+            LOG.error("Could not update user "
+                    + delta.getUid().getUidValue(), t);
+        }
+        return result;
+    }
+
+    private List<SyncResult> deleteUsers(
+            final List<SyncopeUser> users, final boolean dryRun) {
+
+        LOG.debug("About to delete {}", users);
+        List<SyncResult> results =
+                new ArrayList<SyncResult>();
+
+        for (SyncopeUser user : users) {
+            Long userId = user.getId();
+
+            SyncResult result = new SyncResult();
+            result.setUserId(userId);
+            result.setUsername(user.getUsername());
+            result.setOperation(Operation.DELETE);
+            result.setStatus(SyncResult.Status.SUCCESS);
+
+            if (!dryRun) {
+                try {
+                    List<PropagationTask> tasks =
+                            propagationManager.getDeleteTaskIds(userId,
+                            ((SyncTask) this.task).getResource().getName());
+                    propagationManager.execute(tasks);
+                } catch (Exception e) {
+                    LOG.error("Could not propagate user " + userId, e);
+                }
+
+                try {
+                    wfAdapter.delete(userId);
+                } catch (Throwable t) {
+                    result.setStatus(SyncResult.Status.FAILURE);
+                    result.setMessage(t.getMessage());
+                    LOG.error("Could not delete user " + userId, t);
+                }
+            }
+            results.add(result);
+        }
+        return results;
+    }
+
+    /**
+     * Create a textual report of the synchronization, based on the trace level.
+     * @return report as string
+     */
+    private String createReport(final List<SyncResult> syncResults,
+            final TraceLevel syncTraceLevel, final boolean dryRun) {
+
+        if (syncTraceLevel == TraceLevel.NONE) {
+            return null;
+        }
+
+        StringBuilder report = new StringBuilder();
+
+        if (dryRun) {
+            report.append("==>Dry run only, no modifications were made<==\n\n");
+        }
+
+        List<SyncResult> created =
+                new ArrayList<SyncResult>();
+        List<SyncResult> createdFailed =
+                new ArrayList<SyncResult>();
+        List<SyncResult> updated =
+                new ArrayList<SyncResult>();
+        List<SyncResult> updatedFailed =
+                new ArrayList<SyncResult>();
+        List<SyncResult> deleted =
+                new ArrayList<SyncResult>();
+        List<SyncResult> deletedFailed =
+                new ArrayList<SyncResult>();
+
+        for (SyncResult syncResult : syncResults) {
+            switch (syncResult.getStatus()) {
+                case SUCCESS:
+                    switch (syncResult.getOperation()) {
+                        case CREATE:
+                            created.add(syncResult);
+                            break;
+
+                        case UPDATE:
+                            updated.add(syncResult);
+                            break;
+
+                        case DELETE:
+                            deleted.add(syncResult);
+                            break;
+
+                        default:
+                    }
+                    break;
+
+                case FAILURE:
+                    switch (syncResult.getOperation()) {
+                        case CREATE:
+                            createdFailed.add(syncResult);
+                            break;
+
+                        case UPDATE:
+                            updatedFailed.add(syncResult);
+                            break;
+
+                        case DELETE:
+                            deletedFailed.add(syncResult);
+                            break;
+
+                        default:
+                    }
+                    break;
+
+                default:
+            }
+        }
+
+        // Summary, also to be included for FAILURE and ALL, so create it
+        // anyway.
+        report.append("Users [created/failures]: ").
+                append(created.size()).append('/').append(createdFailed.size()).
+                append(' ').
+                append("[updated/failures]: ").
+                append(updated.size()).append('/').append(updatedFailed.size()).
+                append(' ').
+                append("[deleted/ failures]: ").
+                append(deleted.size()).append('/').append(deletedFailed.size());
+
+        // Failures
+        if (syncTraceLevel == TraceLevel.FAILURES
+                || syncTraceLevel == TraceLevel.ALL) {
+
+            if (!createdFailed.isEmpty()) {
+                report.append("\n\nFailed to create: ");
+                report.append(SyncResult.reportSetOfSynchronizationResult(
+                        createdFailed,
+                        syncTraceLevel));
+            }
+            if (!updatedFailed.isEmpty()) {
+                report.append("\nFailed to update: ");
+                report.append(SyncResult.reportSetOfSynchronizationResult(
+                        updatedFailed,
+                        syncTraceLevel));
+            }
+            if (!deletedFailed.isEmpty()) {
+                report.append("\nFailed to delete: ");
+                report.append(SyncResult.reportSetOfSynchronizationResult(
+                        deletedFailed,
+                        syncTraceLevel));
+            }
+        }
+
+        // Succeeded, only if on 'ALL' level
+        if (syncTraceLevel == TraceLevel.ALL) {
+            report.append("\n\nCreated:\n").
+                    append(SyncResult.reportSetOfSynchronizationResult(created,
+                    syncTraceLevel)).
+                    append("\nUpdated:\n").append(SyncResult.
+                    reportSetOfSynchronizationResult(updated, syncTraceLevel)).
+                    append("\nDeleted:\n").append(SyncResult.
+                    reportSetOfSynchronizationResult(deleted, syncTraceLevel));
+        }
+
+        return report.toString();
+    }
+
     @Override
-    protected String doExecute()
+    protected String doExecute(final boolean dryRun)
             throws JobExecutionException {
 
         if (!(task instanceof SyncTask)) {
             throw new JobExecutionException("Task " + taskId
                     + " isn't a SyncTask");
         }
+
         final SyncTask syncTask = (SyncTask) this.task;
 
         ConnectorFacadeProxy connector;
@@ -395,19 +643,11 @@ public class SyncJob extends AbstractJob {
             defaultRoles.add(role.getId());
         }
 
-        // counters
-        int createdCounter = 0;
-        int updatedCounter = 0;
-        int deletedCounter = 0;
-        int failCreatedCounter = 0;
-        int failUpdatedCounter = 0;
-        int failDeletedCounter = 0;
-
-        List<SyncopeUser> users;
-        List<Long> userIds;
-        SyncopeUser userToUpdate;
+        List<SyncResult> results =
+                new ArrayList<SyncResult>();
         for (SyncDelta delta : deltas) {
-            users = findExistingUsers(accountIdMap.getIntAttrName(),
+            List<SyncopeUser> users =
+                    findExistingUsers(accountIdMap.getIntAttrName(),
                     delta.getUid().getUidValue(),
                     delta.getPreviousUid() == null
                     ? null : delta.getPreviousUid().getUidValue());
@@ -415,55 +655,12 @@ public class SyncJob extends AbstractJob {
             switch (delta.getDeltaType()) {
                 case CREATE_OR_UPDATE:
                     if (users.isEmpty()) {
-                        try {
-                            UserTO userTO = getUserTO(delta.getObject(),
-                                    syncTask.getResource().getMappings(),
-                                    defaultRoles, defaultResources);
-                            Map.Entry<Long, Boolean> created =
-                                    wfAdapter.create(userTO);
-                            createdCounter++;
-
-                            List<PropagationTask> tasks =
-                                    propagationManager.getCreateTaskIds(
-                                    created.getKey(), userTO.getPassword(),
-                                    null, created.getValue(),
-                                    syncTask.getResource().getName());
-                            propagationManager.execute(tasks);
-                        } catch (PropagationException e) {
-                            LOG.error("Could not propagate user "
-                                    + delta.getUid().getUidValue(), e);
-                        } catch (Throwable t) {
-                            failCreatedCounter++;
-                            LOG.error("Could not create user "
-                                    + delta.getUid().getUidValue(), t);
-                        }
+                        results.add(createUser(delta, defaultResources,
+                                defaultRoles, dryRun));
                     } else if (users.size() == 1) {
                         if (syncTask.isUpdateIdentities()) {
-                            userToUpdate = users.iterator().next();
-                            try {
-                                UserMod userMod = getUserMod(
-                                        userToUpdate.getId(), delta.getObject(),
-                                        syncTask.getResource().getMappings(),
-                                        defaultRoles, defaultResources);
-
-                                Map.Entry<Long, PropagationByResource> updated =
-                                        wfAdapter.update(userMod);
-                                updatedCounter++;
-
-                                List<PropagationTask> tasks =
-                                        propagationManager.getUpdateTaskIds(
-                                        updated.getKey(), userMod.getPassword(),
-                                        null, null, null, updated.getValue(),
-                                        syncTask.getResource().getName());
-                                propagationManager.execute(tasks);
-                            } catch (PropagationException e) {
-                                LOG.error("Could not propagate user "
-                                        + delta.getUid().getUidValue(), e);
-                            } catch (Throwable t) {
-                                failUpdatedCounter++;
-                                LOG.error("Could not update user "
-                                        + delta.getUid().getUidValue(), t);
-                            }
+                            results.add(updateUser(delta, users.get(0),
+                                    defaultResources, defaultRoles, dryRun));
                         }
                     } else {
                         LOG.error("More than one user matching {}", users);
@@ -471,55 +668,43 @@ public class SyncJob extends AbstractJob {
                     break;
 
                 case DELETE:
-                    LOG.debug("About to delete {}", users);
-
-                    userIds = new ArrayList<Long>(users.size());
-                    for (SyncopeUser user : users) {
-                        userIds.add(user.getId());
-                    }
-                    for (Long userId : userIds) {
-                        try {
-                            List<PropagationTask> tasks =
-                                    propagationManager.getDeleteTaskIds(userId,
-                                    syncTask.getResource().getName());
-                            propagationManager.execute(tasks);
-                        } catch (Exception e) {
-                            LOG.error("Could not propagate user " + userId, e);
-                        }
-
-                        try {
-                            wfAdapter.delete(userId);
-                            deletedCounter++;
-                        } catch (Throwable t) {
-                            failDeletedCounter++;
-                            LOG.error("Could not delete user " + userId, t);
-                        }
-                    }
+                    results.addAll(deleteUsers(users, dryRun));
                     break;
 
                 default:
             }
         }
 
-        StringBuilder result = new StringBuilder();
-        result.append("Users [created/failures]: ").append(createdCounter).
-                append('/').
-                append(failCreatedCounter).append(' ').
-                append("[updated/failures]: ").append(updatedCounter).append('/').
-                append(failUpdatedCounter).append(' ').
-                append("[deleted/ failures]: ").append(deletedCounter).append(
-                '/').
-                append(failDeletedCounter);
+        String result = createReport(results, syncTask.getResource().
+                getSyncTraceLevel(), dryRun);
         LOG.debug("Sync result: {}", result);
 
-        try {
-            syncTask.getResource().setSyncToken(
-                    connector.getLatestSyncToken());
-            connInstanceDAO.save(syncTask.getResource().getConnector());
-        } catch (Throwable t) {
-            throw new JobExecutionException("While updating SyncToken", t);
+        if (!dryRun) {
+            try {
+                syncTask.getResource().setSyncToken(
+                        connector.getLatestSyncToken());
+                resourceDAO.save(syncTask.getResource());
+            } catch (Throwable t) {
+                throw new JobExecutionException("While updating SyncToken", t);
+            }
         }
-
         return result.toString();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected boolean hasToBeRegistered(final TaskExec execution) {
+        SyncTask syncTask = (SyncTask) task;
+
+        // True if either failed and failures have to be registered, or if ALL
+        // has to be registered.
+        return (Status.valueOf(execution.getStatus())
+                == Status.FAILURE
+                && syncTask.getResource().getSyncTraceLevel().
+                ordinal() >= TraceLevel.FAILURES.ordinal())
+                || syncTask.getResource().getSyncTraceLevel()
+                == TraceLevel.ALL;
     }
 }

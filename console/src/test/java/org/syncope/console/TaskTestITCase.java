@@ -23,18 +23,19 @@ public class TaskTestITCase extends AbstractTest {
 
         selenium.click("css=img[alt=\"Tasks\"]");
         selenium.waitForPageToLoad("30000");
-        selenium.click("//div[@id='tabs']/ul/li[3]/a/span");
-        selenium.click(
-                "//div[3]/div[3]/span/div/span/table/tbody/tr/td[6]/span/a/span");
+        selenium.click("//div[@id='tabs']/ul/li[3]/a");
+        selenium.click("//div[3]/div[3]/span/div/span/"
+                + "table/tbody/tr/td[6]/span/a");
         assertTrue(selenium.isTextPresent("Operation executed successfully"));
-        selenium.click("//div[3]/div[3]/span/div/span/table/tbody/tr/td[5]/span/a");
+        selenium.click("//div[3]/div[3]/span/div/span/"
+                + "table/tbody/tr/td[5]/span/a");
         for (int second = 0;; second++) {
             if (second >= 60) {
                 fail("timeout");
             }
             try {
-                if (selenium.isElementPresent(
-                        "//input[@name=\"profile:id:textField\"]")) {
+                if (selenium.isElementPresent("//form/div[2]/div/div/span/"
+                        + "div/div/div[2]/span/input")) {
 
                     break;
                 }
@@ -46,7 +47,6 @@ public class TaskTestITCase extends AbstractTest {
             }
         }
 
-        selenium.click("//div[@id='tabs']/ul/li[3]/a/span");
         assertTrue(selenium.isElementPresent(
                 "//form/div[2]/div[3]/span/table/tbody/tr/td"));
         selenium.click("css=a.w_close");
@@ -64,7 +64,8 @@ public class TaskTestITCase extends AbstractTest {
         selenium.click("css=img[alt=\"Tasks\"]");
         selenium.waitForPageToLoad("30000");
         selenium.click("//div[@id='tabs']/ul/li[2]/a/span");
-        selenium.click("//div[3]/div[2]/span/div/span/table/tbody/tr/td[7]/span/a");
+        selenium.click("//div[3]/div[2]/span/div/span/"
+                + "table/tbody/tr/td[8]/span/a");
         assertTrue(selenium.getConfirmation().matches(
                 "^Do you really want to delete the selected item[\\s\\S]$"));
         assertTrue(selenium.isTextPresent("Operation executed successfully"));

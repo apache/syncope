@@ -116,7 +116,7 @@ public class AppContextMethodInvokingJobDetailFactoryBean
      * by the JobListener implementation.</p>
      *
      * @param names to be set
-     * @see SchedulerFactoryBean#setJobListeners
+     * @see org.springframework.scheduling.quartz.SchedulerFactoryBean#setJobListeners
      * @see org.quartz.JobListener#getName
      */
     public void setJobListenerNames(final String[] names) {
@@ -236,6 +236,7 @@ public class AppContextMethodInvokingJobDetailFactoryBean
             MethodInvoker methodInvoker = new MethodInvoker();
             methodInvoker.setTargetObject(instance);
             methodInvoker.setTargetMethod(targetMethod);
+            methodInvoker.setArguments(new Object[]{context});
 
             try {
                 methodInvoker.prepare();

@@ -13,6 +13,7 @@
  */
 package org.syncope.core.scheduling;
 
+import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
 /**
@@ -21,11 +22,13 @@ import org.quartz.JobExecutionException;
  */
 public interface Job {
 
+    public static final String DRY_RUN_JOBDETAIL_KEY = "dryRun";
+
     /**
      * The actual execution.
-     *
+     * @param context job execution context
      * @throws JobExecutionException 
      */
-    void execute()
+    void execute(JobExecutionContext context)
             throws JobExecutionException;
 }

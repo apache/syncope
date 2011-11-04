@@ -62,6 +62,8 @@ public class ResourceTO extends AbstractBaseBean {
 
     private TraceLevel deleteTraceLevel;
 
+    private TraceLevel syncTraceLevel;
+
     private Long passwordPolicy;
 
     private Long accountPolicy;
@@ -81,6 +83,7 @@ public class ResourceTO extends AbstractBaseBean {
         createTraceLevel = TraceLevel.ALL;
         updateTraceLevel = TraceLevel.ALL;
         deleteTraceLevel = TraceLevel.ALL;
+        syncTraceLevel = TraceLevel.ALL;
     }
 
     public boolean isForceMandatoryConstraint() {
@@ -211,6 +214,14 @@ public class ResourceTO extends AbstractBaseBean {
             final Set<ConnConfProperty> connectorConfigurationProperties) {
         this.connectorConfigurationProperties =
                 connectorConfigurationProperties;
+    }
+
+    public TraceLevel getSyncTraceLevel() {
+        return syncTraceLevel;
+    }
+
+    public void setSyncTraceLevel(TraceLevel syncTraceLevel) {
+        this.syncTraceLevel = syncTraceLevel;
     }
 
     public String getSyncToken() {

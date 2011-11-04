@@ -40,8 +40,6 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.http.WebResponse;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.syncope.client.to.SchedTaskTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.commons.Constants;
@@ -57,12 +55,6 @@ import org.syncope.console.wicket.markup.html.form.EditLinkPanel;
 import org.syncope.console.wicket.markup.html.form.LinkPanel;
 
 public class GenericTasks extends Panel {
-
-    /**
-     * Logger.
-     */
-    protected static final Logger LOG = LoggerFactory.getLogger(
-            GenericTasks.class);
 
     private static final int WIN_HEIGHT = 500;
 
@@ -183,7 +175,7 @@ public class GenericTasks extends Panel {
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
                         try {
-                            restClient.startExecution(taskTO.getId());
+                            restClient.startExecution(taskTO.getId(), false);
                             getSession().info(getString("operation_succeded"));
                         } catch (SyncopeClientCompositeErrorException scce) {
                             error(scce.getMessage());
@@ -195,6 +187,51 @@ public class GenericTasks extends Panel {
                 };
 
                 executeLink.add(new Label("linkTitle", getString("execute")));
+
+                LinkPanel panel = new LinkPanel(componentId);
+                panel.add(executeLink);
+
+                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
+                        xmlRolesReader.getAllAllowedRoles("Tasks", "execute"));
+
+                cellItem.add(panel);
+            }
+        });
+
+        columns.add(new AbstractColumn<SchedTaskTO>(
+                new ResourceModel("executeDryRun")) {
+
+            private static final long serialVersionUID = 2054811145491901166L;
+
+            @Override
+            public void populateItem(
+                    final Item<ICellPopulator<SchedTaskTO>> cellItem,
+                    final String componentId,
+                    final IModel<SchedTaskTO> model) {
+
+                final SchedTaskTO taskTO = model.getObject();
+
+                AjaxLink executeLink = new IndicatingAjaxLink("link") {
+
+                    private static final long serialVersionUID =
+                            -7978723352517770644L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
+                        try {
+                            restClient.startExecution(taskTO.getId(), true);
+                            getSession().info(getString("operation_succeded"));
+                        } catch (SyncopeClientCompositeErrorException scce) {
+                            error(scce.getMessage());
+                        }
+
+                        target.add(getPage().get("feedback"));
+                        target.add(container);
+                    }
+                };
+
+                executeLink.add(new Label("linkTitle",
+                        getString("executeDryRun")));
 
                 LinkPanel panel = new LinkPanel(componentId);
                 panel.add(executeLink);

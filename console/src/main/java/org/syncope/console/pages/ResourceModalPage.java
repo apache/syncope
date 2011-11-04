@@ -233,6 +233,14 @@ public class ResourceModalPage extends BaseModalPage {
         deleteTraceLevel.setChoices(Arrays.asList(TraceLevel.values()));
         form.add(deleteTraceLevel);        
 
+        final AjaxDropDownChoicePanel<TraceLevel> syncTraceLevel =
+                new AjaxDropDownChoicePanel<TraceLevel>("syncTraceLevel",
+                getString("syncTraceLevel"),
+                new PropertyModel(resourceTO, "syncTraceLevel"),
+                false);
+        syncTraceLevel.setChoices(Arrays.asList(TraceLevel.values()));
+        form.add(syncTraceLevel);
+
         final AjaxCheckBoxPanel resetToken = new AjaxCheckBoxPanel(
                 "resetToken", getString("resetToken"), new Model(null), false);
         resetToken.getField().add(

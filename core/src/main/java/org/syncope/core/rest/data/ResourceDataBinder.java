@@ -107,6 +107,7 @@ public class ResourceDataBinder {
         resource.setCreateTraceLevel(resourceTO.getCreateTraceLevel());
         resource.setUpdateTraceLevel(resourceTO.getUpdateTraceLevel());
         resource.setDeleteTraceLevel(resourceTO.getDeleteTraceLevel());
+        resource.setSyncTraceLevel(resourceTO.getSyncTraceLevel());
 
         resource.setPasswordPolicy(resourceTO.getPasswordPolicy() != null
                 ? (PasswordPolicy) policyDAO.find(resourceTO.getPasswordPolicy())
@@ -180,6 +181,7 @@ public class ResourceDataBinder {
         resourceTO.setCreateTraceLevel(resource.getCreateTraceLevel());
         resourceTO.setUpdateTraceLevel(resource.getUpdateTraceLevel());
         resourceTO.setDeleteTraceLevel(resource.getDeleteTraceLevel());
+        resourceTO.setSyncTraceLevel(resource.getSyncTraceLevel());
 
         resourceTO.setPasswordPolicy(resource.getPasswordPolicy() != null
                 ? resource.getPasswordPolicy().getId() : null);
