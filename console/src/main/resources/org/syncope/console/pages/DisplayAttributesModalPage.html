@@ -12,6 +12,41 @@
  limitations under the License.
  under the License.
 -->
+<wicket:head>
+    <style>
+        div.group{
+            width:450px;
+        }
+
+        div.group div{
+            width:150;
+            height: 25px;
+            float:left;
+        }
+
+        div.group div input {
+            width: 30px;
+        }
+
+        div#attributes-view {
+            display:  block;
+            clear:  both;
+            float: none;
+            overflow: auto;
+            margin-top: 0px;
+            margin-bottom: 20px;
+            margin-left: 10px;
+            margin-right: 10px;
+        }
+
+        .submit{
+            display:  block;
+            clear:  both;
+            float: none;
+            margin-left: 10px;
+        }
+    </style>
+</wicket:head>
 <wicket:extend>
     <form wicket:id="UserAttributesForm">
         <div id="attributes-view">
@@ -19,9 +54,19 @@
             <wicket:message key="title"/>
             </p>
 
-            <span wicket:id="schemaNames"/>
+            <span class="group" wicket:id="checkgroup">
+                <div class="group">
+                    <div wicket:id="schemas">
+                        <input type="checkbox" wicket:id="check"/>
+                        <span wicket:id="name">[schema name]</span>
+                    </div>
+                </div>
+            </span>
 
         </div>
-        <input type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" wicket:id="submit"/>
+
+        <div class="submit">
+            <input type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" wicket:id="submit"/>
+        </div>
     </form>
 </wicket:extend>

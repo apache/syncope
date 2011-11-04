@@ -33,7 +33,6 @@
     </style>
 </wicket:head>
 <wicket:extend>
-
     <div id="tabs">
         <ul>
             <li class="tabs-selected">
@@ -49,40 +48,22 @@
                 </a>
             </li>
         </ul>
+
         <div id="tabs-1">
             <div id="users-contain" class="ui-widget" style="width:auto">
-                <span wicket:id="listContainer">
-                    <table class="ui-widget ui-widget-content table-hover"
-                           wicket:id="listTable"/>
-                </span>
-
-                <span style="float:right">
-                    <form wicket:id="paginator" style="display:inline">
-                        <label><wicket:message key="displayRows"/></label>
-                        <select class="text ui-widget-content ui-corner-all"
-                                wicket:id="rowsChooser"/>
-                    </form>
-                </span>
-            </div>
-
-            <div wicket:id="editModalWin">
-            </div>
-            <div wicket:id="displayAttrsModalWin">
+                <span wicket:id="listResult"> [search result] </span>
+                <div wicket:id="editModal" ></div>
             </div>
 
             <a class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
                wicket:id="createLink">
                 <wicket:message key="create_user"/>
             </a>
-            <a class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
-               wicket:id="displayAttrsLink">
-                <wicket:message key="change_attributes"/>
-            </a>
         </div>
 
         <div id="tabs-2">
             <form wicket:id="searchForm">
-                <div wicket:id="searchFeedback"/>
+                <div wicket:id="searchFeedback"></div>
                 <div id="searchBox">
                     <h1><wicket:message key="search_title"/></h1>
                     <table border="0">
@@ -147,24 +128,10 @@
             <div id="users-contain" class="ui-widget" style="width:auto">
                 <img src="img/search.png" alt="search"/>
                 <h1 style="display:inline"><wicket:message key="search_results_title"/></h1>
-                <span wicket:id="searchResultContainer">
-                    <table class="ui-widget ui-widget-content table-hover"
-                           wicket:id="searchResultTable"/>
-                </span>
-
-                <span style="float:right">
-                    <form wicket:id="searchPaginator" style="display:inline">
-                        <label><wicket:message key="displayRows"/></label>
-                        <select class="text ui-widget-content ui-corner-all"
-                                wicket:id="searchRowsChooser"/>
-                    </form>
-                </span>
-            </div>
-
-            <div wicket:id="searchEditModalWin">
+                <span wicket:id="searchResult"> [search result] </span>
             </div>
         </div>
     </div>
 
-<wicket:child/>
+    <wicket:child/>
 </wicket:extend>

@@ -26,6 +26,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.syncope.client.to.AbstractAttributableTO;
 import org.syncope.client.to.UserTO;
 import org.syncope.console.wicket.markup.html.form.AjaxNumberFieldPanel;
@@ -113,7 +114,7 @@ public class UserDetailsPanel extends Panel {
                 "creationDate",
                 new Model<Date>(userTO.getCreationDate()),
                 false,
-                UserTO.FORMAT_DATE_ISO);
+                DateTimeFormat.ISO.DATE_TIME.toString());
 
         creationDate.setReadOnly(true);
         add(creationDate);
@@ -127,7 +128,7 @@ public class UserDetailsPanel extends Panel {
                 "changePwdDate",
                 new Model<Date>(userTO.getChangePwdDate()),
                 false,
-                UserTO.FORMAT_DATE_ISO);
+                DateTimeFormat.ISO.DATE_TIME.toString());
 
         changePwdDate.setReadOnly(true);
         add(changePwdDate);
@@ -141,7 +142,7 @@ public class UserDetailsPanel extends Panel {
                 "lastLoginDate",
                 new Model<Date>(userTO.getLastLoginDate()),
                 false,
-                UserTO.FORMAT_DATE_ISO);
+                DateTimeFormat.ISO.DATE_TIME.toString());
 
         lastLoginDate.setReadOnly(true);
         add(lastLoginDate);
@@ -181,7 +182,7 @@ public class UserDetailsPanel extends Panel {
                 "tokenExpireTime",
                 new Model<Date>(userTO.getTokenExpireTime()),
                 false,
-                UserTO.FORMAT_DATE_ISO);
+                DateTimeFormat.ISO.DATE_TIME.toString());
 
         tokenExpireTime.setReadOnly(true);
         add(tokenExpireTime);

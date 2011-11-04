@@ -17,7 +17,6 @@ package org.syncope.console.pages;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import org.apache.wicket.Page;
 import org.apache.wicket.Session;
@@ -29,13 +28,6 @@ import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDa
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
-import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
-import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
-import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.feedback.FeedbackMessage;
 import org.apache.wicket.feedback.IFeedbackMessageFilter;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -47,12 +39,8 @@ import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
-import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.markup.repeater.Item;
-import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
@@ -64,40 +52,21 @@ import org.syncope.client.search.ResourceCond;
 import org.syncope.client.to.ResourceTO;
 import org.syncope.client.to.RoleTO;
 import org.syncope.client.to.UserTO;
-import org.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.syncope.console.commons.Constants;
-import org.syncope.console.commons.PreferenceManager;
 import org.syncope.console.commons.SearchConditionWrapper;
 import org.syncope.console.commons.SearchConditionWrapper.FilterType;
 import org.syncope.console.commons.SearchConditionWrapper.OperationType;
-import org.syncope.console.commons.SelectChoiceRenderer;
-import org.syncope.console.commons.SortableUserProviderComparator;
+import org.syncope.console.pages.panels.ResultSetPanel;
 import org.syncope.console.rest.ResourceRestClient;
 import org.syncope.console.rest.RoleRestClient;
 import org.syncope.console.rest.SchemaRestClient;
-import org.syncope.console.rest.UserRestClient;
-import org.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
-import org.syncope.console.wicket.markup.html.form.DeleteLinkPanel;
-import org.syncope.console.wicket.markup.html.form.EditLinkPanel;
 
 public class Users extends BasePage {
 
-    private final static int EDIT_MODAL_WIN_HEIGHT = 680;
+    private final static int EDIT_MODAL_WIN_HEIGHT = 550;
 
     private final static int EDIT_MODAL_WIN_WIDTH = 800;
 
-    private final static int DISPLAYATTRS_MODAL_WIN_HEIGHT = 500;
-
-    private final static int DISPLAYATTRS_MODAL_WIN_WIDTH = 600;
-
-    private final static String DERIVED_ATTRIBUTE_PREFIX = "[D] ";
-
-    private final static String VIRTUAL_ATTRIBUTE_PREFIX = "[V] ";
-
     private static final long serialVersionUID = 134681165644474568L;
-
-    @SpringBean
-    private UserRestClient userRestClient;
 
     @SpringBean
     private SchemaRestClient schemaRestClient;
@@ -107,17 +76,6 @@ public class Users extends BasePage {
 
     @SpringBean
     private ResourceRestClient resourceRestClient;
-
-    @SpringBean
-    private PreferenceManager prefMan;
-
-    final private int paginatorRows = prefMan.getPaginatorRows(
-            getRequest(),
-            Constants.PREF_USERS_PAGINATOR_ROWS);
-
-    final private int searchPaginatorRows = prefMan.getPaginatorRows(
-            getRequest(),
-            Constants.PREF_USERS_SEARCH_PAGINATOR_ROWS);
 
     protected boolean modalResult = false;
 
@@ -130,44 +88,6 @@ public class Users extends BasePage {
                 @Override
                 protected List<String> load() {
                     return schemaRestClient.getSchemaNames("user");
-                }
-            };
-
-    final private IModel<List<String>> choosableSchemaNames =
-            new LoadableDetachableModel<List<String>>() {
-
-                private static final long serialVersionUID =
-                        5275935387613157437L;
-
-                @Override
-                protected List<String> load() {
-
-                    List<String> schemas =
-                            schemaRestClient.getSchemaNames("user");
-
-                    if (schemas == null) {
-                        schemas = new ArrayList<String>();
-                    }
-
-                    List<String> derivedSchemas =
-                            schemaRestClient.getDerivedSchemaNames("user");
-
-                    if (derivedSchemas != null) {
-                        for (String schema : derivedSchemas) {
-                            schemas.add(DERIVED_ATTRIBUTE_PREFIX + schema);
-                        }
-                    }
-
-                    List<String> virtualSchemas =
-                            schemaRestClient.getVirtualSchemaNames("user");
-
-                    if (virtualSchemas != null) {
-                        for (String schema : virtualSchemas) {
-                            schemas.add(VIRTUAL_ATTRIBUTE_PREFIX + schema);
-                        }
-                    }
-
-                    return schemas;
                 }
             };
 
@@ -237,64 +157,25 @@ public class Users extends BasePage {
                 }
             };
 
-    final protected WebMarkupContainer listContainer;
-
-    final protected WebMarkupContainer searchResultContainer;
-
     public Users(final PageParameters parameters) {
         super(parameters);
 
         // Modal window for editing user attributes
         final ModalWindow editModalWin =
-                new ModalWindow("editModalWin");
+                new ModalWindow("editModal");
         editModalWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         editModalWin.setInitialHeight(EDIT_MODAL_WIN_HEIGHT);
         editModalWin.setInitialWidth(EDIT_MODAL_WIN_WIDTH);
-        editModalWin.setCookieName("user-edit-modal");
+        editModalWin.setCookieName("edit-modal");
         add(editModalWin);
 
-        // Modal window for choosing which attributes to display in tables
-        final ModalWindow displayAttrsModalWin =
-                new ModalWindow("displayAttrsModalWin");
-        displayAttrsModalWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
-        displayAttrsModalWin.setInitialHeight(DISPLAYATTRS_MODAL_WIN_HEIGHT);
-        displayAttrsModalWin.setInitialWidth(DISPLAYATTRS_MODAL_WIN_WIDTH);
-        displayAttrsModalWin.setCookieName("user-displayAttrs-modal");
-        add(displayAttrsModalWin);
+        final ResultSetPanel searchResult = new ResultSetPanel(
+                "searchResult", true, null, parameters, feedbackPanel);
+        add(searchResult);
 
-        // Modal window for editing user attributes (in search tab)
-        final ModalWindow searchEditModalWin =
-                new ModalWindow("searchEditModalWin");
-        searchEditModalWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
-        searchEditModalWin.setInitialHeight(EDIT_MODAL_WIN_HEIGHT);
-        searchEditModalWin.setInitialWidth(EDIT_MODAL_WIN_WIDTH);
-        searchEditModalWin.setCookieName("user-search-edit-modal");
-        add(searchEditModalWin);
-
-        // Container for user list
-        listContainer = new WebMarkupContainer("listContainer");
-        listContainer.setOutputMarkupId(true);
-        add(listContainer);
-
-        // Container for user search result
-        searchResultContainer = new WebMarkupContainer("searchResultContainer");
-        searchResultContainer.setOutputMarkupId(true);
-        add(searchResultContainer);
-
-        final AjaxFallbackDefaultDataTable<UserTO> listTable =
-                new AjaxFallbackDefaultDataTable<UserTO>("listTable",
-                getColumns(editModalWin), new UserDataProvider(),
-                paginatorRows);
-        if (parameters.get(Constants.PAGEPARAM_CREATE).toBoolean(false)) {
-            listTable.setCurrentPage(listTable.getPageCount() - 1);
-            parameters.remove(Constants.PAGEPARAM_CREATE);
-        } else {
-            listTable.setCurrentPage(parameters.get(listTable.getId()
-                    + Constants.PAGEPARAM_CURRENT_PAGE).toInt(0));
-        }
-        listContainer.add(listTable);
-        setWindowClosedReloadCallback(editModalWin, listTable);
-        setWindowClosedReloadCallback(displayAttrsModalWin, listTable);
+        final ResultSetPanel listResult = new ResultSetPanel(
+                "listResult", false, null, parameters, feedbackPanel);
+        add(listResult);
 
         // create new user
         final AjaxLink createLink = new IndicatingAjaxLink("createLink") {
@@ -323,62 +204,8 @@ public class Users extends BasePage {
                 xmlRolesReader.getAllAllowedRoles("Users", "create"));
         add(createLink);
 
-        // select attributes to be displayed
-        AjaxLink displayAttrsLink = new IndicatingAjaxLink("displayAttrsLink") {
-
-            private static final long serialVersionUID = -7978723352517770644L;
-
-            @Override
-            public void onClick(final AjaxRequestTarget target) {
-
-                displayAttrsModalWin.setPageCreator(
-                        new ModalWindow.PageCreator() {
-
-                            private static final long serialVersionUID =
-                                    -7834632442532690940L;
-
-                            @Override
-                            public Page createPage() {
-                                return new DisplayAttributesModalPage(
-                                        Users.this.getPageReference(),
-                                        choosableSchemaNames,
-                                        displayAttrsModalWin);
-                            }
-                        });
-
-                displayAttrsModalWin.show(target);
-            }
-        };
-        MetaDataRoleAuthorizationStrategy.authorize(displayAttrsLink, ENABLE,
-                xmlRolesReader.getAllAllowedRoles("Users", "changeView"));
-        add(displayAttrsLink);
-
-        // rows-per-page management
-        Form paginatorForm = new Form("paginator");
-        add(paginatorForm);
-        final DropDownChoice<Integer> rowsChooser =
-                new DropDownChoice<Integer>("rowsChooser",
-                new PropertyModel(this, "paginatorRows"),
-                prefMan.getPaginatorChoices(),
-                new SelectChoiceRenderer());
-        rowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
-
-            private static final long serialVersionUID = -1107858522700306810L;
-
-            @Override
-            protected void onUpdate(final AjaxRequestTarget target) {
-                prefMan.set(getRequest(),
-                        getResponse(),
-                        Constants.PREF_USERS_PAGINATOR_ROWS,
-                        String.valueOf(rowsChooser.getInput()));
-
-                listTable.setItemsPerPage(
-                        Integer.parseInt(rowsChooser.getInput()));
-
-                target.add(listContainer);
-            }
-        });
-        paginatorForm.add(rowsChooser);
+        setWindowClosedReloadCallback(
+                editModalWin, new ResultSetPanel[]{listResult, searchResult});
 
         // search form
         final Form searchForm = new Form("searchForm");
@@ -468,51 +295,6 @@ public class Users extends BasePage {
         addOrButton.setDefaultFormProcessing(false);
         searchFormContainer.add(addOrButton);
 
-        // search result
-        final UserSearchDataProvider searchDataProvider =
-                new UserSearchDataProvider();
-
-        final AjaxFallbackDefaultDataTable<UserTO> searchResultTable =
-                new AjaxFallbackDefaultDataTable<UserTO>("searchResultTable",
-                getColumns(searchEditModalWin), searchDataProvider,
-                searchPaginatorRows);
-
-        searchResultTable.setOutputMarkupId(true);
-
-        searchResultTable.setCurrentPage(parameters.get(
-                searchResultTable.getId()
-                + Constants.PAGEPARAM_CURRENT_PAGE).toInt(0));
-
-        searchResultContainer.add(searchResultTable);
-
-        searchEditModalWin.setWindowClosedCallback(
-                new ModalWindow.WindowClosedCallback() {
-
-                    private static final long serialVersionUID =
-                            8804221891699487139L;
-
-                    @Override
-                    public void onClose(final AjaxRequestTarget target) {
-                        doSearch(target, searchConditionList,
-                                searchDataProvider, searchResultTable);
-
-                        if (modalResult) {
-                            info(getString("operation_succeded"));
-
-                            getPage().getPageParameters().set(
-                                    searchResultTable.getId()
-                                    + Constants.PAGEPARAM_CURRENT_PAGE,
-                                    searchResultTable.getCurrentPage());
-                            setResponsePage(Users.class,
-                                    getPage().getPageParameters());
-
-                            target.add(feedbackPanel);
-
-                            modalResult = false;
-                        }
-                    }
-                });
-
         searchForm.add(new IndicatingAjaxButton(
                 "search", new ResourceModel("search")) {
 
@@ -522,8 +304,7 @@ public class Users extends BasePage {
             protected void onSubmit(final AjaxRequestTarget target,
                     final Form<?> form) {
 
-                doSearch(target, searchConditionList, searchDataProvider,
-                        searchResultTable);
+                doSearch(target, searchConditionList, searchResult);
 
                 Session.get().getFeedbackMessages().clear();
                 target.add(searchFeedback);
@@ -536,161 +317,11 @@ public class Users extends BasePage {
                 target.add(searchFeedback);
             }
         });
-
-        // search rows-per-page management
-        Form searchPaginatorForm = new Form("searchPaginator");
-        add(searchPaginatorForm);
-        final DropDownChoice<Integer> searchRowsChooser =
-                new DropDownChoice<Integer>("searchRowsChooser",
-                new PropertyModel(this, "searchPaginatorRows"),
-                prefMan.getPaginatorChoices());
-        searchRowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
-
-            private static final long serialVersionUID = -1107858522700306810L;
-
-            @Override
-            protected void onUpdate(final AjaxRequestTarget target) {
-                prefMan.set(getRequest(),
-                        getResponse(),
-                        Constants.PREF_USERS_SEARCH_PAGINATOR_ROWS,
-                        String.valueOf(searchPaginatorRows));
-
-                searchResultTable.setItemsPerPage(searchPaginatorRows);
-
-                target.add(searchResultContainer);
-            }
-        });
-        searchPaginatorForm.add(searchRowsChooser);
-    }
-
-    private void setWindowClosedReloadCallback(final ModalWindow window,
-            final AjaxFallbackDefaultDataTable<UserTO> table) {
-
-        window.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
-
-            private static final long serialVersionUID = 8804221891699487139L;
-
-            @Override
-            public void onClose(final AjaxRequestTarget target) {
-                if (modalResult) {
-                    getSession().info(getString("operation_succeded"));
-
-                    getPage().getPageParameters().set(table.getId()
-                            + Constants.PAGEPARAM_CURRENT_PAGE,
-                            table.getCurrentPage());
-                    setResponsePage(Users.class,
-                            getPage().getPageParameters());
-
-                    target.add(feedbackPanel);
-
-                    modalResult = false;
-                }
-            }
-        });
-    }
-
-    private List<IColumn<UserTO>> getColumns(final ModalWindow editModalWin) {
-        List<IColumn<UserTO>> columns = new ArrayList<IColumn<UserTO>>();
-        columns.add(new PropertyColumn(
-                new ResourceModel("id"), "id", "id"));
-        columns.add(new PropertyColumn(
-                new ResourceModel("username"), "username", "username"));
-        columns.add(new PropertyColumn(
-                new ResourceModel("status"), "status", "status"));
-        columns.add(new TokenColumn(new ResourceModel("token"), "token"));
-
-        for (String schemaName : prefMan.getList(getRequest(),
-                Constants.PREF_USERS_ATTRIBUTES_VIEW)) {
-
-            columns.add(new UserAttrColumn(
-                    new Model<String>(schemaName), schemaName));
-        }
-
-        columns.add(new AbstractColumn<UserTO>(new ResourceModel("edit")) {
-
-            private static final long serialVersionUID = 2054811145491901166L;
-
-            @Override
-            public void populateItem(
-                    final Item<ICellPopulator<UserTO>> cellItem,
-                    final String componentId,
-                    final IModel<UserTO> model) {
-
-                Panel panel = new EditLinkPanel(componentId, model);
-                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
-                        xmlRolesReader.getAllAllowedRoles("Users", "read"));
-
-                panel.add(new IndicatingAjaxLink("editLink") {
-
-                    private static final long serialVersionUID =
-                            -7978723352517770644L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target) {
-                        editModalWin.setPageCreator(
-                                new ModalWindow.PageCreator() {
-
-                                    private static final long serialVersionUID =
-                                            -7834632442532690940L;
-
-                                    @Override
-                                    public Page createPage() {
-                                        return new UserModalPage(
-                                                Users.this.getPageReference(),
-                                                editModalWin,
-                                                model.getObject());
-                                    }
-                                });
-
-                        editModalWin.show(target);
-                    }
-                });
-                cellItem.add(panel);
-            }
-        });
-        columns.add(new AbstractColumn<UserTO>(new ResourceModel("delete")) {
-
-            private static final long serialVersionUID = 2054811145491901166L;
-
-            @Override
-            public void populateItem(
-                    final Item<ICellPopulator<UserTO>> cellItem,
-                    final String componentId,
-                    final IModel<UserTO> model) {
-
-                Panel panel = new DeleteLinkPanel(componentId, model);
-                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
-                        xmlRolesReader.getAllAllowedRoles("Users", "delete"));
-
-                panel.add(new IndicatingDeleteOnConfirmAjaxLink("deleteLink") {
-
-                    private static final long serialVersionUID =
-                            -7978723352517770644L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target) {
-                        try {
-                            userRestClient.delete(model.getObject().getId());
-                            info(getString("operation_succeded"));
-                        } catch (SyncopeClientCompositeErrorException scce) {
-                            error(scce.getMessage());
-                        }
-                        target.add(feedbackPanel);
-                        target.add(listContainer);
-                        target.add(searchResultContainer);
-                    }
-                });
-                cellItem.add(panel);
-            }
-        });
-
-        return columns;
     }
 
     private void doSearch(final AjaxRequestTarget target,
             final List<SearchConditionWrapper> searchConditionList,
-            final UserSearchDataProvider searchDataProvider,
-            final AjaxFallbackDefaultDataTable<UserTO> searchResultTable) {
+            final ResultSetPanel resultsetPanel) {
 
         NodeCond searchCond = buildSearchCond(searchConditionList);
         LOG.debug("Node condition " + searchCond);
@@ -699,9 +330,8 @@ public class Users extends BasePage {
             error(getString("search_error"));
             return;
         }
-        searchDataProvider.setSearchCond(searchCond);
 
-        target.add(searchResultTable);
+        resultsetPanel.updateTableContent(searchCond, target);
     }
 
     public void setModalResult(final boolean modalResult) {
@@ -790,163 +420,6 @@ public class Users extends BasePage {
         }
 
         return nodeCond;
-    }
-
-    private class UserDataProvider extends SortableDataProvider<UserTO> {
-
-        private static final long serialVersionUID = -990501676569033716L;
-
-        private SortableUserProviderComparator comparator;
-
-        public UserDataProvider() {
-            super();
-            //Default sorting
-            setSort("id", SortOrder.ASCENDING);
-            comparator = new SortableUserProviderComparator(this);
-        }
-
-        @Override
-        public Iterator<UserTO> iterator(final int first, final int count) {
-            List<UserTO> users = userRestClient.list(
-                    (first / paginatorRows) + 1, paginatorRows);
-            Collections.sort(users, comparator);
-            return users.iterator();
-        }
-
-        @Override
-        public int size() {
-            return userRestClient.count();
-        }
-
-        @Override
-        public IModel<UserTO> model(final UserTO object) {
-            return new CompoundPropertyModel<UserTO>(object);
-        }
-    }
-
-    private class UserSearchDataProvider extends SortableDataProvider<UserTO> {
-
-        private static final long serialVersionUID = -691642206401562808L;
-
-        private SortableUserProviderComparator comparator;
-
-        private NodeCond searchCond = null;
-
-        public UserSearchDataProvider() {
-            super();
-            //Default sorting
-            setSort("id", SortOrder.ASCENDING);
-            comparator = new SortableUserProviderComparator(this);
-        }
-
-        public void setSearchCond(NodeCond searchCond) {
-            this.searchCond = searchCond;
-        }
-
-        @Override
-        public Iterator<UserTO> iterator(final int first, final int count) {
-            List<UserTO> users;
-            if (searchCond == null) {
-                users = Collections.EMPTY_LIST;
-            } else {
-                users = userRestClient.search(searchCond,
-                        (first / searchPaginatorRows) + 1, searchPaginatorRows);
-                Collections.sort(users, comparator);
-            }
-
-            return users.iterator();
-        }
-
-        @Override
-        public int size() {
-            return searchCond == null
-                    ? 0 : userRestClient.searchCount(searchCond);
-        }
-
-        @Override
-        public IModel<UserTO> model(final UserTO object) {
-            return new CompoundPropertyModel<UserTO>(object);
-        }
-    }
-
-    private class TokenColumn extends AbstractColumn<UserTO> {
-
-        private static final long serialVersionUID = 8077865338230121496L;
-
-        public TokenColumn(final IModel<String> displayModel,
-                final String sortProperty) {
-
-            super(displayModel, sortProperty);
-        }
-
-        @Override
-        public void populateItem(final Item<ICellPopulator<UserTO>> cellItem,
-                final String componentId,
-                final IModel<UserTO> rowModel) {
-
-            if (rowModel.getObject().getToken() != null
-                    && !rowModel.getObject().getToken().isEmpty()) {
-                cellItem.add(
-                        new Label(componentId, getString("tokenValued")));
-            } else {
-                cellItem.add(
-                        new Label(componentId, getString("tokenNotValued")));
-            }
-        }
-    }
-
-    private static class UserAttrColumn extends AbstractColumn<UserTO> {
-
-        private static final long serialVersionUID = 2624734332447371372L;
-
-        private final String schemaName;
-
-        public UserAttrColumn(
-                final IModel<String> displayModel, final String schemaName) {
-
-            super(displayModel,
-                    schemaName.startsWith(DERIVED_ATTRIBUTE_PREFIX)
-                    ? schemaName.substring(
-                    DERIVED_ATTRIBUTE_PREFIX.length(), schemaName.length())
-                    : schemaName.startsWith(VIRTUAL_ATTRIBUTE_PREFIX)
-                    ? schemaName.substring(
-                    VIRTUAL_ATTRIBUTE_PREFIX.length(), schemaName.length())
-                    : schemaName);
-
-            this.schemaName = schemaName;
-        }
-
-        @Override
-        public void populateItem(
-                final Item<ICellPopulator<UserTO>> cellItem,
-                final String componentId,
-                final IModel<UserTO> rowModel) {
-
-            Label label;
-
-            List<String> values =
-                    schemaName.startsWith(DERIVED_ATTRIBUTE_PREFIX)
-                    ? rowModel.getObject().getDerivedAttributeMap().get(
-                    schemaName.substring(
-                    DERIVED_ATTRIBUTE_PREFIX.length(), schemaName.length()))
-                    : schemaName.startsWith(VIRTUAL_ATTRIBUTE_PREFIX)
-                    ? rowModel.getObject().getVirtualAttributeMap().get(
-                    schemaName.substring(
-                    VIRTUAL_ATTRIBUTE_PREFIX.length(), schemaName.length()))
-                    : rowModel.getObject().getAttributeMap().get(schemaName);
-
-            if (values == null || values.isEmpty()) {
-                label = new Label(componentId, "");
-            } else {
-                if (values.size() == 1) {
-                    label = new Label(componentId, values.iterator().next());
-                } else {
-                    label = new Label(componentId, values.toString());
-                }
-            }
-
-            cellItem.add(label);
-        }
     }
 
     private class SearchView extends ListView<SearchConditionWrapper> {
@@ -1143,5 +616,23 @@ public class Users extends BasePage {
 
             item.add(dropButton);
         }
+    }
+
+    private void setWindowClosedReloadCallback(
+            final ModalWindow window,
+            final ResultSetPanel[] panels) {
+
+        window.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+
+            private static final long serialVersionUID = 8804221891699487139L;
+
+            @Override
+            public void onClose(final AjaxRequestTarget target) {
+                for (ResultSetPanel panel : panels) {
+                    target.add(panel);
+                }
+                target.add(feedbackPanel);
+            }
+        });
     }
 }

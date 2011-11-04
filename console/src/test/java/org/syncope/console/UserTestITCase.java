@@ -100,7 +100,7 @@ public class UserTestITCase extends AbstractTest {
         selenium.select("//td[4]/select", "label=8 otherchild");
         selenium.click("name=search");
         assertEquals("1", selenium.getText(
-                "//div[@id=\"users-contain\"]/span/table/tbody/tr/td/span"));
+                "//div[@id=\"users-contain\"]/span/div/table/tbody/tr/td/span"));
     }
 
     @Test
