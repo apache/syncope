@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -46,7 +47,6 @@ import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,6 +60,7 @@ import org.syncope.console.commons.UserDataProvider;
 import org.syncope.console.commons.XMLRolesReader;
 import org.syncope.console.pages.DisplayAttributesModalPage;
 import org.syncope.console.pages.UserModalPage;
+import org.syncope.console.pages.Users;
 import org.syncope.console.rest.SchemaRestClient;
 import org.syncope.console.rest.UserRestClient;
 import org.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
@@ -74,50 +75,107 @@ public class ResultSetPanel extends Panel implements IEventSource {
     protected static final Logger LOG =
             LoggerFactory.getLogger(ResultSetPanel.class);
 
+    /**
+     * Edit modal window height.
+     */
     private final static int EDIT_MODAL_WIN_HEIGHT = 550;
 
+    /**
+     * Edit modal window width.
+     */
     private final static int EDIT_MODAL_WIN_WIDTH = 800;
 
+    /**
+     * Schemas to be shown modal window height.
+     */
     private final static int DISPLAYATTRS_MODAL_WIN_HEIGHT = 350;
 
+    /**
+     * Schemas to be shown modal window width.
+     */
     private final static int DISPLAYATTRS_MODAL_WIN_WIDTH = 550;
 
+    /**
+     * Prefix used to dintinguish between derived and not derived schemas.
+     */
     private final static String DERIVED_ATTRIBUTE_PREFIX = "[D] ";
 
+    /**
+     * Prefix used to dintinguish between virtual and not virtual schemas.
+     */
     private final static String VIRTUAL_ATTRIBUTE_PREFIX = "[V] ";
 
+    /**
+     * User rest client.
+     */
     @SpringBean
-    private UserRestClient restClient;
+    private UserRestClient userRestClient;
 
+    /**
+     * Schema rest client.
+     */
     @SpringBean
     private SchemaRestClient schemaRestClient;
 
+    /**
+     * Application preferences.
+     */
     @SpringBean
     private PreferenceManager preferences;
 
+    /**
+     * Role reader for authorizations management.
+     */
     @SpringBean
     protected XMLRolesReader xmlRolesReader;
 
-    private int rows = preferences.getPaginatorRows(
-            getRequest(), Constants.PREF_USERS_PAGINATOR_ROWS);
+    /**
+     * Number of rows per page.
+     */
+    private int rows;
 
+    /**
+     * Container used to refresh table.
+     */
     final protected WebMarkupContainer container;
 
+    /**
+     * Feedback panel specified by the caller.
+     */
     final private FeedbackPanel feedbackPanel;
 
+    /**
+     * Specify if results are about a filtered search or not.
+     * Using this attribute it is possible to use this panel to show results
+     * about user list and user search.
+     */
     private boolean filtered;
 
+    /**
+     * Filter used in case of filtered search.
+     */
     private NodeCond filter;
 
+    /**
+     * Result table.
+     */
     private AjaxFallbackDefaultDataTable<UserTO> resultTable;
 
+    /**
+     * Data provider used to search for users.
+     */
     private UserDataProvider dataProvider;
 
-    // Modal window for editing user attributes (in search tab)
+    /**
+     * Modal window used for user profile editing.
+     * Global visibility is required ...
+     */
     private final ModalWindow editmodal = new ModalWindow("editModal");
 
-    // Modal window for choosing which attributes to display in tables
-    private final ModalWindow displaymodal = new ModalWindow("displayModal");
+    /**
+     * Owner page.
+     */
+    private final Users page;
 
     final private IModel<List<String>> choosableSchemaNames =
             new LoadableDetachableModel<List<String>>() {
@@ -162,15 +220,16 @@ public class ResultSetPanel extends Panel implements IEventSource {
             final String id,
             final boolean filtered,
             final NodeCond searchCond,
-            final PageParameters parameters,
-            final FeedbackPanel feedbackPanel) {
+            final PageReference callerRef) {
         super(id);
 
         setOutputMarkupId(true);
 
+        page = (Users) callerRef.getPage();
+
         this.filtered = filtered;
         this.filter = searchCond;
-        this.feedbackPanel = feedbackPanel;
+        this.feedbackPanel = page.getFeedbackPanel();
 
         editmodal.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         editmodal.setInitialHeight(EDIT_MODAL_WIN_HEIGHT);
@@ -178,6 +237,8 @@ public class ResultSetPanel extends Panel implements IEventSource {
         editmodal.setCookieName("edit-modal");
         add(editmodal);
 
+        // Modal window for choosing which attributes to display in tables
+        final ModalWindow displaymodal = new ModalWindow("displayModal");
         displaymodal.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         displaymodal.setInitialHeight(DISPLAYATTRS_MODAL_WIN_HEIGHT);
         displaymodal.setInitialWidth(DISPLAYATTRS_MODAL_WIN_WIDTH);
@@ -189,30 +250,16 @@ public class ResultSetPanel extends Panel implements IEventSource {
         container.setOutputMarkupId(true);
         add(container);
 
-        // search result
-        dataProvider = new UserDataProvider(restClient, rows, filtered);
-        dataProvider.setSearchCond(filter);
+        // ---------------------------
+        // Result table initialization
+        // ---------------------------
+        // preferences and container must be not null to use it ...
+        updateResultTable(false);
+        // ---------------------------
 
-        resultTable = new AjaxFallbackDefaultDataTable<UserTO>(
-                "resultTable", getColumns(), dataProvider, rows);
-
-        if (parameters.get(Constants.PAGEPARAM_CREATE).toBoolean(false)) {
-            resultTable.setCurrentPage(resultTable.getPageCount() - 1);
-            parameters.remove(Constants.PAGEPARAM_CREATE);
-        } else {
-            resultTable.setCurrentPage(parameters.get(resultTable.getId()
-                    + Constants.PAGEPARAM_CURRENT_PAGE).toInt(0));
-        }
-
-        resultTable.setOutputMarkupId(true);
-
-        resultTable.setCurrentPage(parameters.get(
-                resultTable.getId()
-                + Constants.PAGEPARAM_CURRENT_PAGE).toInt(0));
-
-        container.add(resultTable);
-
-        // select attributes to be displayed
+        // ---------------------------
+        // Link to select schemas/columns to be shown
+        // ---------------------------
         AjaxLink displayAttrsLink = new IndicatingAjaxLink("displayAttrsLink") {
 
             private static final long serialVersionUID = -7978723352517770644L;
@@ -229,7 +276,7 @@ public class ResultSetPanel extends Panel implements IEventSource {
                             @Override
                             public Page createPage() {
                                 return new DisplayAttributesModalPage(
-                                        getWebPage().getPageReference(),
+                                        page.getPageReference(),
                                         choosableSchemaNames,
                                         displaymodal);
                             }
@@ -239,6 +286,8 @@ public class ResultSetPanel extends Panel implements IEventSource {
             }
         };
 
+        // Add class to specify relative position of the link.
+        // Position depends on result pages number.
         displayAttrsLink.add(new Behavior() {
 
             @Override
@@ -255,14 +304,15 @@ public class ResultSetPanel extends Panel implements IEventSource {
             }
         });
 
-        setWindowClosedReloadCallback(editmodal, resultTable);
-        setWindowClosedReloadCallback(displaymodal, resultTable);
-
         MetaDataRoleAuthorizationStrategy.authorize(displayAttrsLink, ENABLE,
                 xmlRolesReader.getAllAllowedRoles("Users", "changeView"));
-        container.add(displayAttrsLink);
 
-        // search rows-per-page management
+        container.add(displayAttrsLink);
+        // ---------------------------
+
+        // ---------------------------
+        // Rows-per-page selector
+        // ---------------------------
         final Form paginatorForm = new Form("paginator");
         container.add(paginatorForm);
 
@@ -283,23 +333,50 @@ public class ResultSetPanel extends Panel implements IEventSource {
                         Constants.PREF_USERS_PAGINATOR_ROWS,
                         String.valueOf(rows));
 
-                resultTable.setItemsPerPage(rows);
-
                 final EventDataWrapper data = new EventDataWrapper();
-                data.setTable(resultTable);
+//                data.setTable(resultTable);
                 data.setTarget(target);
 
                 send(getParent(), Broadcast.BREADTH, data);
             }
         });
         paginatorForm.add(rowsChooser);
+        // ---------------------------
+
+        setWindowClosedReloadCallback(editmodal);
+        setWindowClosedReloadCallback(displaymodal);
     }
 
-    public void updateTableContent(
+    public void search(
             final NodeCond searchCond, final AjaxRequestTarget target) {
         this.filter = searchCond;
         dataProvider.setSearchCond(filter);
         target.add(container);
+    }
+
+    private void updateResultTable(final boolean create) {
+        // Requires preferences/container attributes not null ...
+
+        rows = preferences.getPaginatorRows(
+                getRequest(), Constants.PREF_USERS_PAGINATOR_ROWS);
+
+        dataProvider = new UserDataProvider(userRestClient, rows, filtered);
+        dataProvider.setSearchCond(filter);
+
+        final int page = resultTable != null
+                ? (create
+                ? resultTable.getPageCount() - 1
+                : resultTable.getCurrentPage())
+                : 0;
+
+        resultTable = new AjaxFallbackDefaultDataTable<UserTO>(
+                "resultTable", getColumns(), dataProvider, rows);
+
+        resultTable.setCurrentPage(page);
+
+        resultTable.setOutputMarkupId(true);
+
+        container.addOrReplace(resultTable);
     }
 
     private List<IColumn<UserTO>> getColumns() {
@@ -349,7 +426,7 @@ public class ResultSetPanel extends Panel implements IEventSource {
                                     @Override
                                     public Page createPage() {
                                         return new UserModalPage(
-                                                getWebPage().getPageReference(),
+                                                page.getPageReference(),
                                                 editmodal,
                                                 model.getObject());
                                     }
@@ -383,7 +460,7 @@ public class ResultSetPanel extends Panel implements IEventSource {
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
                         try {
-                            restClient.delete(model.getObject().getId());
+                            userRestClient.delete(model.getObject().getId());
                             info(getString("operation_succeded"));
                         } catch (SyncopeClientCompositeErrorException scce) {
                             error(scce.getMessage());
@@ -485,32 +562,14 @@ public class ResultSetPanel extends Panel implements IEventSource {
 
             final EventDataWrapper data = (EventDataWrapper) event.getPayload();
             final AjaxRequestTarget target = data.getTarget();
-            final AjaxFallbackDefaultDataTable<UserTO> table = data.getTable();
 
-            getPage().getPageParameters().set(
-                    table.getId() + Constants.PAGEPARAM_CURRENT_PAGE,
-                    table.getCurrentPage());
+            updateResultTable(data.isCreate());
 
-            rows = preferences.getPaginatorRows(
-                    getRequest(), Constants.PREF_USERS_PAGINATOR_ROWS);
-
-            dataProvider = new UserDataProvider(restClient, rows, filtered);
-            dataProvider.setSearchCond(filter);
-
-            resultTable = new AjaxFallbackDefaultDataTable<UserTO>(
-                    "resultTable",
-                    getColumns(),
-                    dataProvider,
-                    rows);
-
-            container.replace(resultTable);
             target.add(container);
         }
     }
 
-    private void setWindowClosedReloadCallback(
-            final ModalWindow window,
-            final AjaxFallbackDefaultDataTable<UserTO> table) {
+    private void setWindowClosedReloadCallback(final ModalWindow window) {
 
         window.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 
@@ -519,30 +578,27 @@ public class ResultSetPanel extends Panel implements IEventSource {
             @Override
             public void onClose(final AjaxRequestTarget target) {
                 final EventDataWrapper data = new EventDataWrapper();
-                data.setTable(table);
                 data.setTarget(target);
 
                 send(getParent(), Broadcast.BREADTH, data);
 
-                getSession().info(getString("operation_succeded"));
-                target.add(feedbackPanel);
+                if (page.isModalResult()) {
+                    // reset modal result
+                    page.setModalResult(false);
+                    // set operation succeded
+                    getSession().info(getString("operation_succeded"));
+                    // refresh feedback panel
+                    target.add(feedbackPanel);
+                }
             }
         });
     }
 
-    private class EventDataWrapper {
+    public static class EventDataWrapper {
 
         private AjaxRequestTarget target;
 
-        private AjaxFallbackDefaultDataTable<UserTO> table;
-
-        public AjaxFallbackDefaultDataTable getTable() {
-            return table;
-        }
-
-        public void setTable(final AjaxFallbackDefaultDataTable<UserTO> table) {
-            this.table = table;
-        }
+        private boolean create;
 
         public AjaxRequestTarget getTarget() {
             return target;
@@ -550,6 +606,14 @@ public class ResultSetPanel extends Panel implements IEventSource {
 
         public void setTarget(final AjaxRequestTarget target) {
             this.target = target;
+        }
+
+        public boolean isCreate() {
+            return create;
+        }
+
+        public void setCreate(boolean create) {
+            this.create = create;
         }
     }
 }

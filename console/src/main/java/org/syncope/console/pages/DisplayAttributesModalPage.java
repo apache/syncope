@@ -102,6 +102,7 @@ public class DisplayAttributesModalPage extends BaseModalPage {
                         Constants.PREF_USERS_ATTRIBUTES_VIEW,
                         selectedSchemas);
                 ((Users) callerPageRef.getPage()).setModalResult(true);
+
                 window.close(target);
             }
 

@@ -94,4 +94,8 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
     public String getAjaxIndicatorMarkupId() {
         return "veil";
     }
+
+    public FeedbackPanel getFeedbackPanel() {
+        return feedbackPanel;
+    }
 }

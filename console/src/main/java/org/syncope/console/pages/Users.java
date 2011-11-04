@@ -25,6 +25,7 @@ import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
@@ -56,6 +57,7 @@ import org.syncope.console.commons.SearchConditionWrapper;
 import org.syncope.console.commons.SearchConditionWrapper.FilterType;
 import org.syncope.console.commons.SearchConditionWrapper.OperationType;
 import org.syncope.console.pages.panels.ResultSetPanel;
+import org.syncope.console.pages.panels.ResultSetPanel.EventDataWrapper;
 import org.syncope.console.rest.ResourceRestClient;
 import org.syncope.console.rest.RoleRestClient;
 import org.syncope.console.rest.SchemaRestClient;
@@ -169,12 +171,13 @@ public class Users extends BasePage {
         editModalWin.setCookieName("edit-modal");
         add(editModalWin);
 
-        final ResultSetPanel searchResult = new ResultSetPanel(
-                "searchResult", true, null, parameters, feedbackPanel);
+        final ResultSetPanel searchResult =
+                new ResultSetPanel("searchResult", true, null,
+                getPageReference());
         add(searchResult);
 
-        final ResultSetPanel listResult = new ResultSetPanel(
-                "listResult", false, null, parameters, feedbackPanel);
+        final ResultSetPanel listResult =
+                new ResultSetPanel("listResult", false, null, getPageReference());
         add(listResult);
 
         // create new user
@@ -331,11 +334,15 @@ public class Users extends BasePage {
             return;
         }
 
-        resultsetPanel.updateTableContent(searchCond, target);
+        resultsetPanel.search(searchCond, target);
     }
 
     public void setModalResult(final boolean modalResult) {
         this.modalResult = modalResult;
+    }
+
+    public boolean isModalResult() {
+        return modalResult;
     }
 
     private NodeCond buildSearchCond(
@@ -628,10 +635,20 @@ public class Users extends BasePage {
 
             @Override
             public void onClose(final AjaxRequestTarget target) {
-                for (ResultSetPanel panel : panels) {
-                    target.add(panel);
+                final EventDataWrapper data = new EventDataWrapper();
+                data.setTarget(target);
+                data.setCreate(true);
+
+                send(getPage(), Broadcast.BREADTH, data);
+
+                if (isModalResult()) {
+                    // reset modal result
+                    setModalResult(false);
+                    // set operation succeded
+                    getSession().info(getString("operation_succeded"));
+                    // refresh feedback panel
+                    target.add(feedbackPanel);
                 }
-                target.add(feedbackPanel);
             }
         });
     }

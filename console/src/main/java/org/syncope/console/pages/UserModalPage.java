@@ -38,7 +38,6 @@ import org.syncope.client.to.AttributeTO;
 import org.syncope.client.to.MembershipTO;
 import org.syncope.client.to.UserTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
-import org.syncope.console.commons.Constants;
 import org.syncope.console.pages.panels.AttributesPanel;
 import org.syncope.console.pages.panels.DerivedAttributesPanel;
 import org.syncope.console.pages.panels.ResourcesPanel;
@@ -139,8 +138,7 @@ public class UserModalPage extends BaseModalPage {
                     }
 
                     ((Users) callerPageRef.getPage()).setModalResult(true);
-                    ((Users) callerPageRef.getPage()).getPageParameters().set(
-                            Constants.PAGEPARAM_CREATE, userTO.getId() == 0);
+
                     window.close(target);
                 } catch (SyncopeClientCompositeErrorException e) {
                     LOG.error("While creating or updating user", e);
