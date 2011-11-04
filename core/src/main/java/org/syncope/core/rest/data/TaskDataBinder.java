@@ -25,8 +25,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.stereotype.Component;
-import org.syncope.client.mod.SchedTaskMod;
-import org.syncope.client.mod.SyncTaskMod;
 import org.syncope.client.to.PropagationTaskTO;
 import org.syncope.client.to.SchedTaskTO;
 import org.syncope.client.to.SyncTaskTO;
@@ -69,30 +67,28 @@ public class TaskDataBinder {
     @Autowired
     private SchedulerFactoryBean scheduler;
 
-    private void fill(final SyncTask task, final List<String> resources,
-            final List<Long> roles, boolean updateIndentities) {
-
-        ExternalResource resource;
-        for (String resourceName : resources) {
-            resource = resourceDAO.find(resourceName);
+    private void fill(final SyncTask task, final SyncTaskTO taskTO) {
+        for (String resourceName : taskTO.getDefaultResources()) {
+            ExternalResource resource = resourceDAO.find(resourceName);
             if (resource == null) {
                 LOG.warn("Ignoring invalid resource " + resourceName);
             } else {
-                ((SyncTask) task).addDefaultResource(resource);
+                task.addDefaultResource(resource);
             }
         }
 
-        SyncopeRole role;
-        for (Long roleId : roles) {
-            role = roleDAO.find(roleId);
+        for (Long roleId : taskTO.getDefaultRoles()) {
+            SyncopeRole role = roleDAO.find(roleId);
             if (role == null) {
                 LOG.warn("Ignoring invalid role " + roleId);
             } else {
-                ((SyncTask) task).addDefaultRole(role);
+                task.addDefaultRole(role);
             }
         }
 
-        ((SyncTask) task).setUpdateIdentities(updateIndentities);
+        task.setPerformCreate(taskTO.isPerformCreate());
+        task.setPerformUpdate(taskTO.isPerformUpdate());
+        task.setPerformDelete(taskTO.isPerformDelete());
     }
 
     public SchedTask createSchedTask(final SchedTaskTO taskTO,
@@ -118,30 +114,25 @@ public class TaskDataBinder {
                 }
                 ((SyncTask) task).setResource(resource);
 
-                fill((SyncTask) task, syncTaskTO.getDefaultResources(),
-                        syncTaskTO.getDefaultRoles(),
-                        syncTaskTO.isUpdateIdentities());
+                fill((SyncTask) task, syncTaskTO);
                 break;
         }
 
         return task;
     }
 
-    public void updateSchedTask(final SchedTask task, final SchedTaskMod taskMod,
+    public void updateSchedTask(final SchedTask task, final SchedTaskTO taskTO,
             final TaskUtil taskUtil) {
 
         switch (taskUtil) {
             case SCHED:
-                task.setCronExpression(taskMod.getCronExpression());
+                task.setCronExpression(taskTO.getCronExpression());
                 break;
 
             case SYNC:
-                task.setCronExpression(taskMod.getCronExpression());
+                task.setCronExpression(taskTO.getCronExpression());
 
-                SyncTaskMod syncTaskMod = (SyncTaskMod) taskMod;
-                fill((SyncTask) task, syncTaskMod.getDefaultResources(),
-                        syncTaskMod.getDefaultRoles(),
-                        syncTaskMod.isUpdateIdentities());
+                fill((SyncTask) task, (SyncTaskTO) taskTO);
                 break;
         }
     }
@@ -204,15 +195,20 @@ public class TaskDataBinder {
                 for (ExternalResource resource :
                         ((SyncTask) task).getDefaultResources()) {
 
-                    ((SyncTaskTO) taskTO).addDefaultResource(resource.getName());
+                    ((SyncTaskTO) taskTO).addDefaultResource(
+                            resource.getName());
                 }
                 for (SyncopeRole role :
                         ((SyncTask) task).getDefaultRoles()) {
 
                     ((SyncTaskTO) taskTO).addDefaultRole(role.getId());
                 }
-                ((SyncTaskTO) taskTO).setUpdateIdentities(
-                        ((SyncTask) task).isUpdateIdentities());
+                ((SyncTaskTO) taskTO).setPerformCreate(
+                        ((SyncTask) task).isPerformCreate());
+                ((SyncTaskTO) taskTO).setPerformUpdate(
+                        ((SyncTask) task).isPerformUpdate());
+                ((SyncTaskTO) taskTO).setPerformDelete(
+                        ((SyncTask) task).isPerformDelete());
                 break;
         }
 

@@ -39,8 +39,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-import org.syncope.client.mod.SchedTaskMod;
-import org.syncope.client.mod.SyncTaskMod;
 import org.syncope.client.to.SchedTaskTO;
 import org.syncope.client.to.SyncTaskTO;
 import org.syncope.client.to.TaskExecTO;
@@ -153,24 +151,24 @@ public class TaskController extends AbstractController {
     @PreAuthorize("hasRole('TASK_UPDATE')")
     @RequestMapping(method = RequestMethod.POST,
     value = "/update/sync")
-    public TaskTO updateSync(@RequestBody SyncTaskMod taskMod)
+    public TaskTO updateSync(@RequestBody final SyncTaskTO taskTO)
             throws NotFoundException {
 
-        return updateSched(taskMod);
+        return updateSched(taskTO);
     }
 
     @PreAuthorize("hasRole('TASK_UPDATE')")
     @RequestMapping(method = RequestMethod.POST,
     value = "/update/sched")
-    public TaskTO updateSched(@RequestBody SchedTaskMod taskMod)
+    public TaskTO updateSched(@RequestBody final SchedTaskTO taskTO)
             throws NotFoundException {
 
-        LOG.debug("Task update called with parameter {}", taskMod);
+        LOG.debug("Task update called with parameter {}", taskTO);
 
-        SchedTask task = taskDAO.find(taskMod.getId());
+        SchedTask task = taskDAO.find(taskTO.getId());
         if (task == null) {
             throw new NotFoundException(
-                    "Task " + String.valueOf(taskMod.getId()));
+                    "Task " + String.valueOf(taskTO.getId()));
         }
 
         TaskUtil taskUtil = getTaskUtil(task);
@@ -179,7 +177,7 @@ public class TaskController extends AbstractController {
                 new SyncopeClientCompositeErrorException(
                 HttpStatus.BAD_REQUEST);
 
-        binder.updateSchedTask(task, taskMod, taskUtil);
+        binder.updateSchedTask(task, taskTO, taskUtil);
         try {
             task = taskDAO.save(task);
         } catch (InvalidEntityException e) {

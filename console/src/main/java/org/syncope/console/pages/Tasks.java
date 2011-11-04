@@ -39,7 +39,7 @@ import org.syncope.console.SyncopeSession;
 import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.SelectOption;
 import org.syncope.console.commons.SortableDataProviderComparator;
-import org.syncope.console.pages.panels.GenericTasks;
+import org.syncope.console.pages.panels.SchedTasks;
 import org.syncope.console.pages.panels.PropagationTasks;
 import org.syncope.console.pages.panels.SyncTasks;
 import org.syncope.console.rest.TaskRestClient;
@@ -67,7 +67,7 @@ public class Tasks extends BasePage {
         super();
 
         add(new PropagationTasks("propagation"));
-        add(new GenericTasks("sched"));
+        add(new SchedTasks("sched"));
         add(new SyncTasks("sync"));
     }
 

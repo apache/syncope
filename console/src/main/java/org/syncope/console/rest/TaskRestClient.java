@@ -18,8 +18,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import org.springframework.stereotype.Component;
-import org.syncope.client.mod.SchedTaskMod;
-import org.syncope.client.mod.SyncTaskMod;
 import org.syncope.client.to.TaskExecTO;
 import org.syncope.client.to.PropagationTaskTO;
 import org.syncope.client.to.SchedTaskTO;
@@ -161,23 +159,12 @@ public class TaskRestClient extends AbstractBaseRestClient {
     }
 
     public SchedTaskTO updateSchedTask(final SchedTaskTO taskTO) {
-        final SchedTaskMod taskMod = new SchedTaskMod();
-        taskMod.setId(taskTO.getId());
-        taskMod.setCronExpression(taskTO.getCronExpression());
-
         return restTemplate.postForObject(baseURL
-                + "task/update/sched", taskMod, SchedTaskTO.class);
+                + "task/update/sched", taskTO, SchedTaskTO.class);
     }
 
     public SyncTaskTO updateSyncTask(final SyncTaskTO taskTO) {
-        final SyncTaskMod taskMod = new SyncTaskMod();
-        taskMod.setId(taskTO.getId());
-        taskMod.setCronExpression(taskTO.getCronExpression());
-        taskMod.setDefaultResources(taskTO.getDefaultResources());
-        taskMod.setDefaultRoles(taskTO.getDefaultRoles());
-        taskMod.setUpdateIdentities(taskTO.isUpdateIdentities());
-
         return restTemplate.postForObject(baseURL
-                + "task/update/sync", taskMod, SyncTaskTO.class);
+                + "task/update/sync", taskTO, SyncTaskTO.class);
     }
 }

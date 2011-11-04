@@ -655,12 +655,18 @@ public class SyncJob extends AbstractJob {
             switch (delta.getDeltaType()) {
                 case CREATE_OR_UPDATE:
                     if (users.isEmpty()) {
-                        results.add(createUser(delta, defaultResources,
-                                defaultRoles, dryRun));
+                        if (syncTask.isPerformCreate()) {
+                            results.add(createUser(delta, defaultResources,
+                                    defaultRoles, dryRun));
+                        } else {
+                            LOG.debug("SyncTask not configured for create");
+                        }
                     } else if (users.size() == 1) {
-                        if (syncTask.isUpdateIdentities()) {
+                        if (syncTask.isPerformUpdate()) {
                             results.add(updateUser(delta, users.get(0),
                                     defaultResources, defaultRoles, dryRun));
+                        } else {
+                            LOG.debug("SyncTask not configured for update");
                         }
                     } else {
                         LOG.error("More than one user matching {}", users);
@@ -668,7 +674,11 @@ public class SyncJob extends AbstractJob {
                     break;
 
                 case DELETE:
-                    results.addAll(deleteUsers(users, dryRun));
+                    if (syncTask.isPerformDelete()) {
+                        results.addAll(deleteUsers(users, dryRun));
+                    } else {
+                        LOG.debug("SyncTask not configured for delete");
+                    }
                     break;
 
                 default:

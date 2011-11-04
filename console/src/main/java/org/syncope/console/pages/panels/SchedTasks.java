@@ -54,7 +54,7 @@ import org.syncope.console.wicket.markup.html.form.DeleteLinkPanel;
 import org.syncope.console.wicket.markup.html.form.EditLinkPanel;
 import org.syncope.console.wicket.markup.html.form.LinkPanel;
 
-public class GenericTasks extends Panel {
+public class SchedTasks extends Panel {
 
     private static final int WIN_HEIGHT = 500;
 
@@ -81,11 +81,11 @@ public class GenericTasks extends Panel {
     @SpringBean
     protected XMLRolesReader xmlRolesReader;
 
-    public GenericTasks(String id, IModel<?> model) {
+    public SchedTasks(String id, IModel<?> model) {
         super(id, model);
     }
 
-    public GenericTasks(String id) {
+    public SchedTasks(String id) {
         super(id);
         add(window = new ModalWindow("taskWin"));
 

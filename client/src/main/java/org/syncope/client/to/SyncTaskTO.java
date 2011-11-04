@@ -27,7 +27,11 @@ public class SyncTaskTO extends SchedTaskTO {
 
     private List<Long> defaultRoles;
 
-    private boolean updateIdentities;
+    private boolean performCreate;
+
+    private boolean performUpdate;
+
+    private boolean performDelete;
 
     public SyncTaskTO() {
         super();
@@ -78,11 +82,27 @@ public class SyncTaskTO extends SchedTaskTO {
         this.resource = resource;
     }
 
-    public boolean isUpdateIdentities() {
-        return updateIdentities;
+    public boolean isPerformCreate() {
+        return performCreate;
     }
 
-    public void setUpdateIdentities(boolean updateIdentities) {
-        this.updateIdentities = updateIdentities;
+    public void setPerformCreate(boolean performCreate) {
+        this.performCreate = performCreate;
+    }
+
+    public boolean isPerformUpdate() {
+        return performUpdate;
+    }
+
+    public void setPerformUpdate(boolean performUpdate) {
+        this.performUpdate = performUpdate;
+    }
+
+    public boolean isPerformDelete() {
+        return performDelete;
+    }
+
+    public void setPerformDelete(boolean performDelete) {
+        this.performDelete = performDelete;
     }
 }

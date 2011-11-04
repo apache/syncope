@@ -111,11 +111,20 @@ public class STaskModalPage extends SchedTaskModalPage {
 
         profile.add(resource);
 
-        final AjaxCheckBoxPanel updates = new AjaxCheckBoxPanel(
-                "updateIdentities", getString("updates"),
-                new PropertyModel<Boolean>(taskTO, "updateIdentities"), false);
+        final AjaxCheckBoxPanel creates = new AjaxCheckBoxPanel(
+                "performCreate", getString("creates"),
+                new PropertyModel<Boolean>(taskTO, "performCreate"), false);
+        profile.add(creates);
 
+        final AjaxCheckBoxPanel updates = new AjaxCheckBoxPanel(
+                "performUpdate", getString("updates"),
+                new PropertyModel<Boolean>(taskTO, "performUpdate"), false);
         profile.add(updates);
+
+        final AjaxCheckBoxPanel deletes = new AjaxCheckBoxPanel(
+                "performDelete", getString("updates"),
+                new PropertyModel<Boolean>(taskTO, "performDelete"), false);
+        profile.add(deletes);
 
         final AjaxPalettePanel defaultResources = new AjaxPalettePanel(
                 "defaultResources",

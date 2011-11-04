@@ -46,7 +46,17 @@ public class SyncTask extends SchedTask {
     @Basic
     @Min(0)
     @Max(1)
-    private Integer updateIdentities;
+    private Integer performCreate;
+
+    @Basic
+    @Min(0)
+    @Max(1)
+    private Integer performUpdate;
+
+    @Basic
+    @Min(0)
+    @Max(1)
+    private Integer performDelete;
 
     /**
      * Default constructor.
@@ -111,11 +121,27 @@ public class SyncTask extends SchedTask {
         }
     }
 
-    public boolean isUpdateIdentities() {
-        return isBooleanAsInteger(updateIdentities);
+    public boolean isPerformCreate() {
+        return isBooleanAsInteger(performCreate);
     }
 
-    public void setUpdateIdentities(boolean updateIdentities) {
-        this.updateIdentities = getBooleanAsInteger(updateIdentities);
+    public void setPerformCreate(final boolean performCreate) {
+        this.performCreate = getBooleanAsInteger(performCreate);
+    }
+
+    public boolean isPerformUpdate() {
+        return isBooleanAsInteger(performUpdate);
+    }
+
+    public void setPerformUpdate(final boolean performUpdate) {
+        this.performUpdate = getBooleanAsInteger(performUpdate);
+    }
+
+    public boolean isPerformDelete() {
+        return isBooleanAsInteger(performDelete);
+    }
+
+    public void setPerformDelete(boolean performDelete) {
+        this.performDelete = getBooleanAsInteger(performDelete);
     }
 }

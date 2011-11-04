@@ -21,7 +21,6 @@ import java.util.List;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpStatusCodeException;
-import org.syncope.client.mod.SchedTaskMod;
 import org.syncope.client.to.TaskExecTO;
 import org.syncope.client.to.PropagationTaskTO;
 import org.syncope.client.to.SchedTaskTO;
@@ -60,7 +59,7 @@ public class TaskTestITCase extends AbstractTest {
                 5);
         assertNotNull(task);
 
-        SchedTaskMod taskMod = new SchedTaskMod();
+        SchedTaskTO taskMod = new SchedTaskTO();
         taskMod.setId(5);
         taskMod.setCronExpression(null);
 
