@@ -52,9 +52,9 @@ import org.syncope.console.SyncopeSession;
 import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.PreferenceManager;
 import org.syncope.console.commons.SortableDataProviderComparator;
-import org.syncope.console.pages.Tasks.DatePropertyColumn;
 import org.syncope.console.rest.TodoRestClient;
 import org.syncope.console.wicket.markup.html.form.LinkPanel;
+import org.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 
 public class Todo extends BasePage {
 
@@ -100,9 +100,9 @@ public class Todo extends BasePage {
         columns.add(new PropertyColumn(new ResourceModel("description"),
                 "description", "description"));
         columns.add(new DatePropertyColumn(new ResourceModel("createTime"),
-                "createTime", "createTime", null));
+                "createTime", "createTime"));
         columns.add(new DatePropertyColumn(new ResourceModel("dueDate"),
-                "dueDate", "dueDate", null));
+                "dueDate", "dueDate"));
         columns.add(new PropertyColumn(new ResourceModel("owner"),
                 "owner", "owner"));
         columns.add(new AbstractColumn<WorkflowFormTO>(

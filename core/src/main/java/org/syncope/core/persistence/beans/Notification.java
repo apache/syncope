@@ -15,18 +15,25 @@ package org.syncope.core.persistence.beans;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.persistence.Basic;
+import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.Type;
 import org.syncope.client.search.NodeCond;
 import org.syncope.core.persistence.util.XmlSerializer;
 import org.syncope.core.persistence.validation.entity.NotificationCheck;
+import org.syncope.types.TraceLevel;
 
 @NotificationCheck
 @Entity
@@ -49,6 +56,12 @@ public class Notification extends AbstractBaseBean {
     @Type(type = "org.hibernate.type.StringClobType")
     private String xmlRecipients;
 
+    @Column(nullable = false)
+    @Basic
+    @Min(0)
+    @Max(1)
+    private Integer selfAsRecipient;
+
     @NotNull
     private String sender;
 
@@ -58,8 +71,14 @@ public class Notification extends AbstractBaseBean {
     @NotNull
     private String template;
 
+    @Enumerated(EnumType.STRING)
+    @NotNull
+    private TraceLevel traceLevel;
+
     public Notification() {
         events = new ArrayList<String>();
+        selfAsRecipient = getBooleanAsInteger(false);
+        traceLevel = TraceLevel.ALL;
     }
 
     public Long getId() {
@@ -117,6 +136,14 @@ public class Notification extends AbstractBaseBean {
         }
     }
 
+    public boolean isSelfAsRecipient() {
+        return isBooleanAsInteger(selfAsRecipient);
+    }
+
+    public void setSelfAsRecipient(final boolean selfAsRecipient) {
+        this.selfAsRecipient = getBooleanAsInteger(selfAsRecipient);
+    }
+
     public String getSender() {
         return sender;
     }
@@ -139,5 +166,13 @@ public class Notification extends AbstractBaseBean {
 
     public void setTemplate(String template) {
         this.template = template;
+    }
+
+    public TraceLevel getTraceLevel() {
+        return traceLevel;
+    }
+
+    public void setTraceLevel(TraceLevel traceLevel) {
+        this.traceLevel = traceLevel;
     }
 }

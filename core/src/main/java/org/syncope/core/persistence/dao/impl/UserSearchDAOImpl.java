@@ -128,6 +128,11 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
     }
 
     @Override
+    public List<SyncopeUser> search(final NodeCond searchCondition) {
+        return search(null, searchCondition, -1, -1);
+    }
+
+    @Override
     public List<SyncopeUser> search(final Set<Long> adminRoles,
             final NodeCond searchCondition) {
 
@@ -157,8 +162,34 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
         return result;
     }
 
-    private Integer setParameter(final Random random,
-            final Map<Integer, Object> parameters,
+    @Override
+    public boolean matches(final SyncopeUser user,
+            final NodeCond searchCondition) {
+
+        Map<Integer, Object> parameters = Collections.synchronizedMap(
+                new HashMap<Integer, Object>());
+
+        // 1. get the query string from the search condition
+        StringBuilder queryString = getQuery(searchCondition, parameters);
+
+        // 2. take into account the passed user
+        queryString.insert(0, "SELECT u.user_id FROM (");
+        queryString.append(") u WHERE user_id=:matchesUserId");
+
+        // 3. prepare the search query
+        Query query = entityManager.createNativeQuery(queryString.toString());
+
+        // 4. populate the search query with parameter values
+        fillWithParameters(query, parameters);
+        query.setParameter("matchesUserId", user.getId());
+
+        // 5. executes query
+        List<SyncopeUser> result = query.getResultList();
+
+        return !result.isEmpty();
+    }
+
+    private Integer setParameter(final Map<Integer, Object> parameters,
             final Object parameter) {
 
         Integer key;
@@ -317,10 +348,10 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
 
         if (cond.getRoleId() != null) {
             query.append("role_id=:param").append(
-                    setParameter(random, parameters, cond.getRoleId()));
+                    setParameter(parameters, cond.getRoleId()));
         } else if (cond.getRoleName() != null) {
             query.append("role_name=:param").append(
-                    setParameter(random, parameters, cond.getRoleName()));
+                    setParameter(parameters, cond.getRoleName()));
         }
 
         if (not) {
@@ -343,7 +374,7 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
         }
 
         query.append("resource_name=:param").append(
-                setParameter(random, parameters, cond.getResourceName()));
+                setParameter(parameters, cond.getResourceName()));
 
         if (not) {
             query.append(")");
@@ -472,8 +503,7 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
                 break;
 
             case EQ:
-                paramKey = setParameter(random, parameters,
-                        attrValue.getValue());
+                paramKey = setParameter(parameters, attrValue.getValue());
                 query.append("' AND ").append(getFieldName(schema.getType()));
                 if (not) {
                     query.append("<>");
@@ -484,29 +514,25 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
                 break;
 
             case GE:
-                paramKey = setParameter(random, parameters,
-                        attrValue.getValue());
+                paramKey = setParameter(parameters, attrValue.getValue());
                 query.append("' AND ").append(getFieldName(schema.getType())).
                         append(">=:param").append(paramKey);
                 break;
 
             case GT:
-                paramKey = setParameter(random, parameters,
-                        attrValue.getValue());
+                paramKey = setParameter(parameters, attrValue.getValue());
                 query.append("' AND ").append(getFieldName(schema.getType())).
                         append(">:param").append(paramKey);
                 break;
 
             case LE:
-                paramKey = setParameter(random, parameters,
-                        attrValue.getValue());
+                paramKey = setParameter(parameters, attrValue.getValue());
                 query.append("' AND ").append(getFieldName(schema.getType())).
                         append("<=:param").append(paramKey);
                 break;
 
             case LT:
-                paramKey = setParameter(random, parameters,
-                        attrValue.getValue());
+                paramKey = setParameter(parameters, attrValue.getValue());
                 query.append("' AND ").append(getFieldName(schema.getType())).
                         append("<:param").append(paramKey);
                 break;

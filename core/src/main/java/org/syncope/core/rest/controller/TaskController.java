@@ -46,16 +46,19 @@ import org.syncope.client.to.TaskTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
 import org.syncope.core.init.JobInstanceLoader;
+import org.syncope.core.notification.NotificationManager;
+import org.syncope.core.persistence.beans.NotificationTask;
 import org.syncope.core.persistence.beans.PropagationTask;
 import org.syncope.core.persistence.beans.SchedTask;
 import org.syncope.core.persistence.beans.Task;
 import org.syncope.core.persistence.beans.TaskExec;
 import org.syncope.core.persistence.dao.TaskDAO;
 import org.syncope.core.persistence.dao.TaskExecDAO;
-import org.syncope.core.persistence.propagation.PropagationManager;
+import org.syncope.core.propagation.PropagationManager;
 import org.syncope.core.persistence.validation.entity.InvalidEntityException;
 import org.syncope.core.rest.data.TaskDataBinder;
 import org.syncope.core.scheduling.Job;
+import org.syncope.core.scheduling.NotificationJob;
 import org.syncope.core.scheduling.SyncJob;
 import org.syncope.core.util.ApplicationContextManager;
 import org.syncope.core.util.TaskUtil;
@@ -79,6 +82,9 @@ public class TaskController extends AbstractController {
 
     @Autowired
     private PropagationManager propagationManager;
+
+    @Autowired
+    private NotificationManager notificationManager;
 
     @Autowired
     private JobInstanceLoader jobInstanceLoader;
@@ -285,7 +291,8 @@ public class TaskController extends AbstractController {
         Set<String> jobClasses = new HashSet<String>();
         for (Class jobClass : subTypes) {
             if (!Modifier.isAbstract(jobClass.getModifiers())
-                    && !jobClass.equals(SyncJob.class)) {
+                    && !jobClass.equals(SyncJob.class)
+                    && !jobClass.equals(NotificationJob.class)) {
 
                 jobClasses.add(jobClass.getName());
             }
@@ -341,9 +348,15 @@ public class TaskController extends AbstractController {
         LOG.debug("Execution started for {}", task);
         switch (getTaskUtil(task)) {
             case PROPAGATION:
-                final TaskExec execution = propagationManager.execute(
-                        (PropagationTask) task, new Date());
-                result = binder.getTaskExecutionTO(execution);
+                final TaskExec propExec = propagationManager.execute(
+                        (PropagationTask) task);
+                result = binder.getTaskExecutionTO(propExec);
+                break;
+
+            case NOTIFICATION:
+                final TaskExec notExec = notificationManager.execute(
+                        (NotificationTask) task);
+                result = binder.getTaskExecutionTO(notExec);
                 break;
 
             case SCHED:

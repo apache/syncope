@@ -15,4 +15,4 @@
 /**
  * Package for classes involved in propagation.
  */
-package org.syncope.core.persistence.propagation;
+package org.syncope.core.propagation;

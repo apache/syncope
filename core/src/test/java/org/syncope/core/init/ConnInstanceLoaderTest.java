@@ -26,7 +26,7 @@ import org.syncope.core.AbstractTest;
 import org.syncope.core.persistence.beans.ConnInstance;
 import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.core.persistence.dao.ResourceDAO;
-import org.syncope.core.persistence.propagation.ConnectorFacadeProxy;
+import org.syncope.core.propagation.ConnectorFacadeProxy;
 import org.syncope.core.util.ApplicationContextManager;
 import org.syncope.core.util.ConnBundleManager;
 

@@ -17,13 +17,12 @@ package org.syncope.console.wicket.markup.html.form;
 import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
-import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.FormComponent;
 import org.apache.wicket.model.IModel;
@@ -34,6 +33,7 @@ import org.apache.wicket.validation.ValidationError;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.model.Model;
 import org.springframework.util.StringUtils;
+import org.syncope.console.SyncopeSession;
 
 public class DateTimeFieldPanel extends FieldPanel<Date> {
 
@@ -41,18 +41,13 @@ public class DateTimeFieldPanel extends FieldPanel<Date> {
 
     private Form form = null;
 
-    final String datePattern;
-
     public DateTimeFieldPanel(
             final String id,
             final String name,
             final IModel<Date> model,
-            final boolean active,
-            final String datePattern) {
+            final boolean active) {
 
         super(id, name, model, active);
-
-        this.datePattern = datePattern;
 
         field = new DateTimeField("field", model);
 
@@ -190,7 +185,7 @@ public class DateTimeFieldPanel extends FieldPanel<Date> {
 
     @Override
     public FieldPanel setNewModel(final ListItem item, final Class reference) {
-        final DateFormat formatter = new SimpleDateFormat(datePattern);
+        final DateFormat formatter = SyncopeSession.get().getDateFormat();
 
         IModel<Date> model = new Model() {
 
@@ -254,7 +249,7 @@ public class DateTimeFieldPanel extends FieldPanel<Date> {
 
             private static final long serialVersionUID = 527651414610325237L;
 
-            final DateFormat formatter = new SimpleDateFormat(datePattern);
+            final DateFormat formatter = SyncopeSession.get().getDateFormat();
 
             @Override
             public Serializable getObject() {
@@ -287,16 +282,16 @@ public class DateTimeFieldPanel extends FieldPanel<Date> {
 
     @Override
     public FieldPanel setStyleShet(String classes) {
-        field.get("date").add(new SimpleAttributeModifier(
+        field.get("date").add(AttributeModifier.replace(
                 "class", (classes != null ? classes : "") + " date_size"));
 
-        field.get("hours").add(new SimpleAttributeModifier(
+        field.get("hours").add(AttributeModifier.replace(
                 "class", classes != null ? classes : ""));
 
-        field.get("minutes").add(new SimpleAttributeModifier(
+        field.get("minutes").add(AttributeModifier.replace(
                 "class", classes != null ? classes : ""));
 
-        field.get("amOrPmChoice").add(new SimpleAttributeModifier(
+        field.get("amOrPmChoice").add(AttributeModifier.replace(
                 "class", classes != null ? classes : ""));
 
         return this;
@@ -305,7 +300,7 @@ public class DateTimeFieldPanel extends FieldPanel<Date> {
     @Override
     public FieldPanel clone() {
         final FieldPanel panel = new DateTimeFieldPanel(
-                id, name, new Model(null), active, datePattern);
+                id, name, new Model(null), active);
 
         panel.setRequired(isRequired());
         panel.setReadOnly(isReadOnly());

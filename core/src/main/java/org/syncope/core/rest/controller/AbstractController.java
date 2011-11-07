@@ -24,6 +24,7 @@ import org.syncope.client.to.PropagationTaskTO;
 import org.syncope.client.to.SchedTaskTO;
 import org.syncope.client.to.SyncTaskTO;
 import org.syncope.client.to.TaskTO;
+import org.syncope.core.persistence.beans.NotificationTask;
 import org.syncope.core.persistence.beans.PropagationTask;
 import org.syncope.core.persistence.beans.SchedTask;
 import org.syncope.core.persistence.beans.SyncTask;
@@ -72,6 +73,8 @@ public abstract class AbstractController {
     protected TaskUtil getTaskUtil(final Task task) {
         TaskUtil result = (task instanceof PropagationTask)
                 ? TaskUtil.PROPAGATION
+                : (task instanceof NotificationTask)
+                ? TaskUtil.NOTIFICATION
                 : (task instanceof SyncTask)
                 ? TaskUtil.SYNC
                 : (task instanceof SchedTask)

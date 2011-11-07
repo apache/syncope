@@ -15,25 +15,33 @@
 package org.syncope.console.commons;
 
 import java.io.Serializable;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.syncope.client.search.AttributeCond;
 import org.syncope.client.search.AttributeCond.Type;
 
 /**
  * Generic search condition wrapper class.
  */
-public class SearchConditionWrapper implements Serializable {
+public class SearchCondWrapper implements Serializable {
+
+    private static final long serialVersionUID = -5828622221257732958L;
 
     public enum OperationType {
 
-        AND, OR
+        AND,
+        OR
 
     };
 
     public enum FilterType {
 
-        ATTRIBUTE, MEMBERSHIP, RESOURCE
+        ATTRIBUTE,
+        MEMBERSHIP,
+        RESOURCE
 
     };
+
     private boolean notOperator;
 
     private OperationType operationType = null;
@@ -92,5 +100,11 @@ public class SearchConditionWrapper implements Serializable {
 
     public void setFilterValue(String filterValue) {
         this.filterValue = filterValue;
+    }
+
+    @Override
+    public String toString() {
+        return ReflectionToStringBuilder.toString(this,
+                ToStringStyle.MULTI_LINE_STYLE);
     }
 }

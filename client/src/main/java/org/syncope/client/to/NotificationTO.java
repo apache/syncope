@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.syncope.client.AbstractBaseBean;
 import org.syncope.client.search.NodeCond;
+import org.syncope.types.TraceLevel;
 
 public class NotificationTO extends AbstractBaseBean {
 
@@ -28,11 +29,15 @@ public class NotificationTO extends AbstractBaseBean {
 
     private NodeCond recipients;
 
+    private boolean selfAsRecipient;
+
     private String sender;
 
     private String subject;
 
     private String template;
+
+    private TraceLevel traceLevel;
 
     public NotificationTO() {
         events = new ArrayList<String>();
@@ -78,6 +83,14 @@ public class NotificationTO extends AbstractBaseBean {
         this.recipients = recipients;
     }
 
+    public boolean isSelfAsRecipient() {
+        return selfAsRecipient;
+    }
+
+    public void setSelfAsRecipient(boolean selfAsRecipient) {
+        this.selfAsRecipient = selfAsRecipient;
+    }
+
     public String getSender() {
         return sender;
     }
@@ -100,5 +113,13 @@ public class NotificationTO extends AbstractBaseBean {
 
     public void setTemplate(String template) {
         this.template = template;
+    }
+
+    public TraceLevel getTraceLevel() {
+        return traceLevel;
+    }
+
+    public void setTraceLevel(TraceLevel traceLevel) {
+        this.traceLevel = traceLevel;
     }
 }

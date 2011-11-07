@@ -31,7 +31,7 @@ import org.syncope.core.persistence.beans.role.RDerAttr;
 import org.syncope.core.persistence.beans.role.RVirAttr;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.dao.EntitlementDAO;
-import org.syncope.core.persistence.propagation.PropagationByResource;
+import org.syncope.core.propagation.PropagationByResource;
 import org.syncope.types.SyncopeClientExceptionType;
 
 @Component

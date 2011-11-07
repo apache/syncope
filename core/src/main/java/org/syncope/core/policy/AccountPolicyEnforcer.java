@@ -21,9 +21,10 @@ import org.springframework.stereotype.Component;
 import org.syncope.client.to.UserTO;
 import org.syncope.core.persistence.beans.PropagationTask;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
-import org.syncope.core.persistence.propagation.PropagationManager;
+import org.syncope.core.propagation.PropagationManager;
 import org.syncope.core.rest.data.UserDataBinder;
 import org.syncope.core.workflow.UserWorkflowAdapter;
+import org.syncope.core.workflow.WorkflowResult;
 import org.syncope.types.AccountPolicySpec;
 import org.syncope.types.PolicyType;
 
@@ -116,19 +117,20 @@ public class AccountPolicyEnforcer
                 user.setFailedLogins(user.getFailedLogins() - 1);
 
                 // disable user
-                final Long updatedId = wfAdapter.suspend(user);
+                final WorkflowResult<Long> updated = wfAdapter.suspend(user);
 
                 // propagate suspension if and only if it is required by policy
                 if (policy.isPropagateSuspension()) {
                     final List<PropagationTask> tasks = propagationManager.
-                            getUpdateTaskIds(updatedId,
+                            getUpdateTaskIds(updated.getResult(),
                             null, null, null, Boolean.FALSE, null);
 
                     propagationManager.execute(tasks);
                 }
 
                 if (LOG.isDebugEnabled()) {
-                    final UserTO savedTO = userDataBinder.getUserTO(updatedId);
+                    final UserTO savedTO =
+                            userDataBinder.getUserTO(updated.getResult());
                     LOG.debug("About to return suspended user\n{}", savedTO);
                 }
             } catch (Exception e) {

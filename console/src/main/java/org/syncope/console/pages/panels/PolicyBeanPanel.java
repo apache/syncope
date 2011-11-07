@@ -101,7 +101,8 @@ public class PolicyBeanPanel extends Panel {
             }
         }
 
-        final ListView<FieldWrapper> policies = new ListView<FieldWrapper>("policies", items) {
+        final ListView<FieldWrapper> policies = new ListView<FieldWrapper>(
+                "policies", items) {
 
             private static final long serialVersionUID = 9101744072914090143L;
 

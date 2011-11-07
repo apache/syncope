@@ -25,6 +25,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.stereotype.Component;
+import org.syncope.client.to.NotificationTaskTO;
 import org.syncope.client.to.PropagationTaskTO;
 import org.syncope.client.to.SchedTaskTO;
 import org.syncope.client.to.SyncTaskTO;
@@ -35,6 +36,7 @@ import org.syncope.core.persistence.beans.PropagationTask;
 import org.syncope.core.persistence.beans.SchedTask;
 import org.syncope.core.persistence.beans.SyncTask;
 import org.syncope.core.persistence.beans.ExternalResource;
+import org.syncope.core.persistence.beans.NotificationTask;
 import org.syncope.core.persistence.beans.Task;
 import org.syncope.core.persistence.beans.TaskExec;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
@@ -209,6 +211,11 @@ public class TaskDataBinder {
                         ((SyncTask) task).isPerformUpdate());
                 ((SyncTaskTO) taskTO).setPerformDelete(
                         ((SyncTask) task).isPerformDelete());
+                break;
+
+            case NOTIFICATION:
+                BeanUtils.copyProperties((NotificationTask) task,
+                        (NotificationTaskTO) taskTO, IGNORE_TASK_PROPERTIES);
                 break;
         }
 

@@ -14,10 +14,13 @@
  */
 package org.syncope.core.rest.controller;
 
+import com.google.common.io.PatternFilenameFilter;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.lang.reflect.Modifier;
+import java.net.URISyntaxException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -25,7 +28,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
-import javassist.NotFoundException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
@@ -49,14 +51,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.syncope.client.to.ConfigurationTO;
-import org.syncope.client.to.WorkflowDefinitionTO;
 import org.syncope.core.persistence.beans.SyncopeConf;
 import org.syncope.core.persistence.dao.MissingConfKeyException;
 import org.syncope.core.persistence.dao.ConfDAO;
 import org.syncope.core.persistence.validation.attrvalue.Validator;
 import org.syncope.core.rest.data.ConfigurationDataBinder;
-import org.syncope.core.workflow.UserWorkflowAdapter;
-import org.syncope.core.workflow.WorkflowException;
 
 @Controller
 @RequestMapping("/configuration")
@@ -67,9 +66,6 @@ public class ConfigurationController extends AbstractController {
 
     @Autowired
     private ConfigurationDataBinder configurationDataBinder;
-
-    @Autowired
-    private UserWorkflowAdapter wfAdapter;
 
     @Autowired
     private DataSource dataSource;
@@ -178,30 +174,39 @@ public class ConfigurationController extends AbstractController {
             }
         }
 
-        ModelAndView result = new ModelAndView();
-        result.addObject(validators);
-        return result;
+        return new ModelAndView().addObject(validators);
     }
 
-    @PreAuthorize("hasRole('WORKFLOW_DEF_READ')")
+    @PreAuthorize("hasRole('CONFIGURATION_LIST')")
     @RequestMapping(method = RequestMethod.GET,
-    value = "/workflow/definition")
-    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
-    public WorkflowDefinitionTO getDefinition()
-            throws WorkflowException {
+    value = "/mailTemplates")
+    public ModelAndView getMailTemplates()
+            throws URISyntaxException {
 
-        return wfAdapter.getDefinition();
-    }
+        String[] templatesFiles = new File(getClass().getResource(
+                "/mailTemplates").toURI()).list(
+                new PatternFilenameFilter(".*\\.vm"));
 
-    @PreAuthorize("hasRole('WORKFLOW_DEF_UPDATE')")
-    @RequestMapping(method = RequestMethod.PUT,
-    value = "/workflow/definition")
-    @Transactional(rollbackFor = {Throwable.class})
-    public void updateDefinition(
-            @RequestBody final WorkflowDefinitionTO definition)
-            throws NotFoundException, WorkflowException {
+        Set<String> htmlTemplates = new HashSet<String>();
+        Set<String> textTemplates = new HashSet<String>();
 
-        wfAdapter.updateDefinition(definition);
+        for (String templateFile : templatesFiles) {
+            if (templateFile.endsWith(".html.vm")) {
+                htmlTemplates.add(templateFile.substring(
+                        0, templateFile.indexOf(".html.vm")));
+            } else if (templateFile.endsWith(".txt.vm")) {
+                textTemplates.add(templateFile.substring(
+                        0, templateFile.indexOf(".txt.vm")));
+            } else {
+                LOG.warn("Unexpected file found: {}, ignoring...",
+                        templateFile);
+            }
+        }
+
+        // Only templates available both as HTML and TEXT are considered
+        htmlTemplates.retainAll(textTemplates);
+
+        return new ModelAndView().addObject(htmlTemplates);
     }
 
     @PreAuthorize("hasRole('CONFIGURATION_READ')")

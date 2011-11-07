@@ -21,7 +21,18 @@ import org.syncope.core.persistence.beans.user.SyncopeUser;
 
 public interface UserSearchDAO extends DAO {
 
+    /**
+     * @param adminRoles the set of admin roles owned by the caller
+     * @param searchCondition the search condition
+     * @return size of search result
+     */
     Integer count(Set<Long> adminRoles, NodeCond searchCondition);
+
+    /**
+     * @param searchCondition the search condition
+     * @return the list of users matchin the given search condition
+     */
+    List<SyncopeUser> search(NodeCond searchCondition);
 
     /**
      * @param adminRoles the set of admin roles owned by the caller
@@ -39,4 +50,12 @@ public interface UserSearchDAO extends DAO {
      */
     List<SyncopeUser> search(Set<Long> adminRoles,
             NodeCond searchCondition, int page, int itemsPerPage);
+
+    /**
+     * Verify if user matched the given search condition.
+     * @param user to be checked
+     * @param searchCondition to be verified
+     * @return true if user matched searchCondition
+     */
+    boolean matches(SyncopeUser user, NodeCond searchCondition);
 }

@@ -50,6 +50,14 @@ public class TaskDAOImpl extends AbstractDAOImpl
     }
 
     @Override
+    public <T extends Task> List<T> findWithoutExecs(final Class<T> reference) {
+        StringBuilder queryString = buildfindAllQuery(reference);
+        queryString.append("WHERE e.executions IS EMPTY");
+        final Query query = entityManager.createQuery(queryString.toString());
+        return query.getResultList();
+    }
+
+    @Override
     public <T extends Task> List<T> findAll(
             final ExternalResource resource, final Class<T> reference) {
 
@@ -98,6 +106,7 @@ public class TaskDAOImpl extends AbstractDAOImpl
         return ((Number) countQuery.getSingleResult()).intValue();
     }
 
+    @Transactional(rollbackFor = {Throwable.class})
     @Override
     public <T extends Task> T save(final T task) {
         return entityManager.merge(task);

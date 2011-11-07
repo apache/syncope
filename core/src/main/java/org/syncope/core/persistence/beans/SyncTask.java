@@ -14,7 +14,9 @@
 package org.syncope.core.persistence.beans;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import javax.persistence.Basic;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
@@ -90,6 +92,15 @@ public class SyncTask extends SchedTask {
         return resource != null && defaultResources.remove(resource);
     }
 
+    public Set<String> getDefaultResourceNames() {
+        Set<String> defaultResourceNames = new HashSet<String>(
+                getDefaultResources().size());
+        for (ExternalResource defaultResource : getDefaultResources()) {
+            defaultResourceNames.add(defaultResource.getName());
+        }
+        return defaultResourceNames;
+    }
+
     public List<ExternalResource> getDefaultResources() {
         return defaultResources;
     }
@@ -108,6 +119,15 @@ public class SyncTask extends SchedTask {
 
     public boolean removeDefaultRole(SyncopeRole role) {
         return role != null && defaultRoles.remove(role);
+    }
+
+    public Set<Long> getDefaultRoleIds() {
+        Set<Long> defaultRoleIds = new HashSet<Long>(
+                getDefaultRoles().size());
+        for (SyncopeRole defaultRole : getDefaultRoles()) {
+            defaultRoleIds.add(defaultRole.getId());
+        }
+        return defaultRoleIds;
     }
 
     public List<SyncopeRole> getDefaultRoles() {

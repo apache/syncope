@@ -36,6 +36,33 @@
         </property>
     </bean>
 
+    <bean id="jpaInterceptor" class="org.springframework.orm.jpa.JpaInterceptor">
+        <property name="entityManagerFactory" ref="entityManagerFactory"/>
+    </bean>
+
+    <bean id="notificationJob" class="org.syncope.core.scheduling.NotificationJob" scope="prototype"/>    
+    <bean id="notificationJobProxy" class="org.springframework.aop.framework.ProxyFactoryBean" scope="prototype">
+        <property name="target" ref="notificationJob"/>
+        <property name="proxyInterfaces">
+            <list>
+                <value>org.syncope.core.scheduling.Job</value>    
+            </list>    
+        </property>
+        <property name="interceptorNames">
+            <list>
+                <value>jpaInterceptor</value>    
+            </list>    
+        </property>
+    </bean> 
+    <bean id="notificationJobFactoryBean" class="org.syncope.core.scheduling.AppContextMethodInvokingJobDetailFactoryBean">
+        <property name="targetBeanName" value="notificationJobProxy"/>
+        <property name="targetMethod" value="execute"/>
+    </bean>
+    <bean id="notificationTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="notificationJobFactoryBean"/>
+        <property name="cronExpression" value="0 0/2 * * * ?"/>
+    </bean>
+    
     <bean id="scheduler"
 	  class="org.springframework.scheduling.quartz.SchedulerFactoryBean"
           lazy-init="false" depends-on="quartzDbInitializer">
@@ -59,10 +86,10 @@
                 <prop key="org.quartz.scheduler.jmx.export">true</prop>
             </props>
         </property>
+        <property name="triggers">
+            <list>
+                <ref bean="notificationTrigger"/>
+            </list>
+        </property>
     </bean>
-
-    <bean id="jpaInterceptor" class="org.springframework.orm.jpa.JpaInterceptor">
-        <property name="entityManagerFactory" ref="entityManagerFactory"/>
-    </bean>
-
 </beans>

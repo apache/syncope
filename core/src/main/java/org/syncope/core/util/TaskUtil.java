@@ -14,10 +14,12 @@
  */
 package org.syncope.core.util;
 
+import org.syncope.client.to.NotificationTaskTO;
 import org.syncope.client.to.PropagationTaskTO;
 import org.syncope.client.to.SchedTaskTO;
 import org.syncope.client.to.SyncTaskTO;
 import org.syncope.client.to.TaskTO;
+import org.syncope.core.persistence.beans.NotificationTask;
 import org.syncope.core.persistence.beans.PropagationTask;
 import org.syncope.core.persistence.beans.SchedTask;
 import org.syncope.core.persistence.beans.SyncTask;
@@ -27,7 +29,8 @@ public enum TaskUtil {
 
     PROPAGATION,
     SCHED,
-    SYNC;
+    SYNC,
+    NOTIFICATION;
 
     public <T extends Task> Class<T> taskClass() {
         Class result = null;
@@ -41,6 +44,9 @@ public enum TaskUtil {
                 break;
             case SYNC:
                 result = SyncTask.class;
+                break;
+            case NOTIFICATION:
+                result = NotificationTask.class;
                 break;
         }
 
@@ -60,6 +66,9 @@ public enum TaskUtil {
             case SYNC:
                 result = (T) new SyncTask();
                 break;
+            case NOTIFICATION:
+                result = (T) new NotificationTask();
+                break;
         }
 
         return result;
@@ -77,6 +86,9 @@ public enum TaskUtil {
                 break;
             case SYNC:
                 result = SyncTaskTO.class;
+                break;
+            case NOTIFICATION:
+                result = NotificationTaskTO.class;
                 break;
         }
 
@@ -96,6 +108,8 @@ public enum TaskUtil {
             case SYNC:
                 result = (T) new SyncTaskTO();
                 break;
+            case NOTIFICATION:
+                result = (T) new NotificationTaskTO();
         }
 
         return result;

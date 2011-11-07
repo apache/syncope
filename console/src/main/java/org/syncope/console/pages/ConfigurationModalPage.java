@@ -70,7 +70,6 @@ public class ConfigurationModalPage extends BaseModalPage {
                 "value", "value",
                 new PropertyModel(configurationTO, "value"), false);
         form.add(value);
-        value.setEnabled(createFlag);
         value.addRequiredLabel();
 
         submit = new IndicatingAjaxButton(
@@ -117,15 +116,9 @@ public class ConfigurationModalPage extends BaseModalPage {
             }
         };
 
-        String allowedRoles;
-
-        if (createFlag) {
-            allowedRoles = xmlRolesReader.getAllAllowedRoles("Configuration",
-                    "create");
-        } else {
-            allowedRoles = xmlRolesReader.getAllAllowedRoles("Configuration",
-                    "update");
-        }
+        String allowedRoles = createFlag
+                ? xmlRolesReader.getAllAllowedRoles("Configuration", "create")
+                : xmlRolesReader.getAllAllowedRoles("Configuration", "update");
 
         MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE,
                 allowedRoles);

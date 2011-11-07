@@ -63,63 +63,9 @@
 
         <div id="tabs-2">
             <form wicket:id="searchForm">
-                <div wicket:id="searchFeedback"></div>
-                <div id="searchBox">
-                    <h1><wicket:message key="search_title"/></h1>
-                    <table border="0">
-                        <thead>
-                            <tr>
-                                <th></th>
-                                <th><wicket:message key="search_not_value"/></th>
-                        <th><wicket:message key="search_filter_type"/></th>
-                        <th><wicket:message key="search_filter_name"/></th>
-                        <th><wicket:message key="search_type_cond"/></th>
-                        <th><wicket:message key="search_filter_value"/></th>
-                        <th></th>
-                        </tr>
-                        </thead>
-                        <tbody wicket:id="searchFormContainer">
-                            <tr wicket:id="searchView">
-                                <td>
-                                    <b><span wicket:id="operationType"/></b>
-                                </td>
-                                <td>
-                                    <input type="checkbox" wicket:id="notOperator"/>
-                                </td>
-                                <td>
-                                    <select class="text ui-widget-content ui-corner-all"
-                                            wicket:id="filterType"/>
-                                </td>
-                                <td>
-                                    <select class="text ui-widget-content ui-corner-all"
-                                            wicket:id="filterName"/>
-                                </td>
-                                <td>
-                                    <select class="text ui-widget-content ui-corner-all"
-                                            wicket:id="type"/>
-                                </td>
-                                <td>
-                                    <input type="text" class="text ui-widget-content ui-corner-all"
-                                           wicket:id="filterValue"/>
-                                </td>
-                                <td>
-                                    <input type="button" class="text ui-widget-content ui-corner-all"
-                                           wicket:id="dropButton"/>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <input type="button" class="text ui-widget-content ui-corner-all"
-                                           wicket:id="addAndButton"/>
-                                </td>
-                                <td>
-                                    <input type="submit" class="text ui-widget-content ui-corner-all"
-                                           wicket:id="addOrButton"/>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+                <h1><wicket:message key="search_title"/></h1>
+                
+                <span wicket:id="searchPanel">searchPanel</span>
 
                 <input type="button" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
                        wicket:id="search"/>

@@ -25,8 +25,6 @@ public class UserTO extends AbstractAttributableTO {
 
     private static final long serialVersionUID = 7791304495192615740L;
 
-    public static String FORMAT_DATE_ISO = "yyyy-MM-dd'T'HH:mm:ssZ";
-
     private String password;
 
     private List<MembershipTO> memberships;

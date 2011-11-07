@@ -22,9 +22,9 @@ public class SchedTask extends Task {
 
     private static final long serialVersionUID = -4141057723006682562L;
 
-    private String cronExpression;
+    protected String cronExpression;
 
-    private String jobClassName;
+    protected String jobClassName;
 
     public String getCronExpression() {
         return cronExpression;

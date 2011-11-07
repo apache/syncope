@@ -49,7 +49,7 @@ import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.core.persistence.dao.ConnInstanceDAO;
 import org.syncope.core.persistence.dao.MissingConfKeyException;
 import org.syncope.core.persistence.dao.ResourceDAO;
-import org.syncope.core.persistence.propagation.ConnectorFacadeProxy;
+import org.syncope.core.propagation.ConnectorFacadeProxy;
 import org.syncope.core.rest.data.ConnInstanceDataBinder;
 import org.syncope.core.rest.data.ResourceDataBinder;
 import org.syncope.types.ConnConfPropSchema;

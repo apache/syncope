@@ -207,8 +207,7 @@ public class AttributesPanel extends Panel {
                     }
                 } else {
                     panel = new DateTimeFieldPanel(
-                            "panel", schemaTO.getName(), new Model(), true,
-                            schemaTO.getConversionPattern());
+                            "panel", schemaTO.getName(), new Model(), true);
 
                     if (required) {
                         panel.addRequiredLabel();

@@ -14,18 +14,13 @@
  */
 package org.syncope.console.rest;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.List;
 import org.springframework.stereotype.Component;
 import org.syncope.client.to.ConfigurationTO;
 import org.syncope.client.to.LoggerTO;
-import org.syncope.client.to.WorkflowDefinitionTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 
-/**
- * Console client for invoking Rest Connectors services.
- */
 @Component
 public class ConfigurationRestClient extends AbstractBaseRestClient {
 
@@ -105,7 +100,6 @@ public class ConfigurationRestClient extends AbstractBaseRestClient {
 
     /**
      * Deelete a configuration by key.
-     * @throws UnsupportedEncodingException
      */
     public void deleteConfiguration(String key)
             throws SyncopeClientCompositeErrorException {
@@ -113,21 +107,6 @@ public class ConfigurationRestClient extends AbstractBaseRestClient {
         restTemplate.delete(baseURL
                 + "configuration/delete/{key}.json",
                 key);
-    }
-
-    public WorkflowDefinitionTO getWorkflowDefinition()
-            throws SyncopeClientCompositeErrorException {
-
-        return restTemplate.getForObject(baseURL
-                + "configuration/workflow/definition.json",
-                WorkflowDefinitionTO.class);
-    }
-
-    public void updateWorkflowDefinition(final WorkflowDefinitionTO workflowDef)
-            throws SyncopeClientCompositeErrorException {
-
-        restTemplate.put(baseURL
-                + "configuration/workflow/definition.json", workflowDef);
     }
 
     /**

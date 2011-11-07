@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.syncope.client.mod.UserMod;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.UserDAO;
-import org.syncope.core.persistence.propagation.PropagationByResource;
+import org.syncope.core.propagation.PropagationByResource;
 import org.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.syncope.core.rest.data.UserDataBinder;
 
@@ -36,23 +36,24 @@ public abstract class AbstractUserWorkflowAdapter
     @Autowired
     protected UserDAO userDAO;
 
-    protected abstract Long doActivate(SyncopeUser user, String token)
+    protected abstract WorkflowResult<Long> doActivate(
+            SyncopeUser user, String token)
             throws WorkflowException;
 
     @Override
-    public Long activate(final Long userId, final String token)
+    public WorkflowResult<Long> activate(final Long userId, final String token)
             throws UnauthorizedRoleException, NotFoundException,
             WorkflowException {
 
         return doActivate(dataBinder.getUserFromId(userId), token);
     }
 
-    protected abstract Map.Entry<Long, PropagationByResource> doUpdate(
+    protected abstract WorkflowResult<Map.Entry<Long, PropagationByResource>> doUpdate(
             SyncopeUser user, UserMod userMod)
             throws WorkflowException;
 
     @Override
-    public Map.Entry<Long, PropagationByResource> update(
+    public WorkflowResult<Map.Entry<Long, PropagationByResource>> update(
             final UserMod userMod)
             throws UnauthorizedRoleException, NotFoundException,
             WorkflowException {
@@ -60,11 +61,11 @@ public abstract class AbstractUserWorkflowAdapter
         return doUpdate(dataBinder.getUserFromId(userMod.getId()), userMod);
     }
 
-    protected abstract Long doSuspend(SyncopeUser user)
+    protected abstract WorkflowResult<Long> doSuspend(SyncopeUser user)
             throws WorkflowException;
 
     @Override
-    public Long suspend(final Long userId)
+    public WorkflowResult<Long> suspend(final Long userId)
             throws UnauthorizedRoleException, NotFoundException,
             WorkflowException {
 
@@ -72,7 +73,7 @@ public abstract class AbstractUserWorkflowAdapter
     }
 
     @Override
-    public Long suspend(final SyncopeUser user)
+    public WorkflowResult<Long> suspend(final SyncopeUser user)
             throws UnauthorizedRoleException, WorkflowException {
 
         // set suspended flag
@@ -81,11 +82,11 @@ public abstract class AbstractUserWorkflowAdapter
         return doSuspend(user);
     }
 
-    protected abstract Long doReactivate(SyncopeUser user)
+    protected abstract WorkflowResult<Long> doReactivate(SyncopeUser user)
             throws WorkflowException;
 
     @Override
-    public Long reactivate(final Long userId)
+    public WorkflowResult<Long> reactivate(final Long userId)
             throws UnauthorizedRoleException, NotFoundException,
             WorkflowException {
 

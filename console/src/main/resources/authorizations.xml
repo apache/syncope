@@ -186,6 +186,28 @@ page@id= Schema|Users|Roles|Resources|Connectors|Report|Configuration|Task
             <entitlement>WORKFLOW_DEF_UPDATE</entitlement>
         </action>
     </page>
+    
+    <page id="Notification">
+        <action id="list">
+            <entitlement>NOTIFICATION_LIST</entitlement>
+        </action>
+
+        <action id="create">
+            <entitlement>NOTIFICATION_CREATE</entitlement>
+        </action>
+
+        <action id="read">
+            <entitlement>NOTIFICATION_READ</entitlement>
+        </action>
+
+        <action id="update">
+            <entitlement>NOTIFICATION_UPDATE</entitlement>
+        </action>
+
+        <action id="delete">
+            <entitlement>NOTIFICATION_DELETE</entitlement>
+        </action>
+    </page>
 
     <page id="Tasks">
         <action id="list">

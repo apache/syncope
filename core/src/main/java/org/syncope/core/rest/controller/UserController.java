@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.UserDAO;
-import org.syncope.core.persistence.propagation.PropagationException;
+import org.syncope.core.propagation.PropagationException;
 import org.syncope.core.rest.data.UserDataBinder;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -43,13 +43,15 @@ import org.syncope.client.search.NodeCond;
 import org.syncope.client.to.MembershipTO;
 import org.syncope.client.to.UserTO;
 import org.syncope.client.to.WorkflowFormTO;
+import org.syncope.core.notification.NotificationManager;
 import org.syncope.core.persistence.beans.PropagationTask;
 import org.syncope.core.persistence.dao.UserSearchDAO;
-import org.syncope.core.persistence.propagation.PropagationByResource;
-import org.syncope.core.persistence.propagation.PropagationManager;
+import org.syncope.core.propagation.PropagationByResource;
+import org.syncope.core.propagation.PropagationManager;
 import org.syncope.core.util.EntitlementUtil;
 import org.syncope.core.workflow.UserWorkflowAdapter;
 import org.syncope.core.workflow.WorkflowException;
+import org.syncope.core.workflow.WorkflowResult;
 
 /**
  * Note that this controller does not extend AbstractController, hence does not 
@@ -81,6 +83,9 @@ public class UserController {
 
     @Autowired
     private PropagationManager propagationManager;
+
+    @Autowired
+    private NotificationManager notificationManager;
 
     @PreAuthorize("hasRole('USER_READ')")
     @RequestMapping(method = RequestMethod.GET,
@@ -253,14 +258,19 @@ public class UserController {
             throw new UnauthorizedRoleException(requestRoleIds);
         }
 
-        Map.Entry<Long, Boolean> created = wfAdapter.create(userTO);
+        WorkflowResult<Map.Entry<Long, Boolean>> created =
+                wfAdapter.create(userTO);
 
         List<PropagationTask> tasks = propagationManager.getCreateTaskIds(
-                created.getKey(), userTO.getPassword(),
-                userTO.getVirtualAttributes(), created.getValue());
+                created.getResult().getKey(), userTO.getPassword(),
+                userTO.getVirtualAttributes(), created.getResult().getValue());
         propagationManager.execute(tasks);
 
-        final UserTO savedTO = dataBinder.getUserTO(created.getKey());
+        notificationManager.createTasks(new WorkflowResult<Long>(
+                created.getResult().getKey(), created.getPerformedTasks()));
+
+        final UserTO savedTO = dataBinder.getUserTO(
+                created.getResult().getKey());
 
         LOG.debug("About to return created user\n{}", savedTO);
 
@@ -275,13 +285,16 @@ public class UserController {
             throws WorkflowException, NotFoundException,
             UnauthorizedRoleException, PropagationException {
 
-        Long updatedId = wfAdapter.activate(userTO.getId(), userTO.getToken());
+        WorkflowResult<Long> updated =
+                wfAdapter.activate(userTO.getId(), userTO.getToken());
 
         List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(
-                updatedId, null, null, null, Boolean.TRUE, null);
+                updated.getResult(), null, null, null, Boolean.TRUE, null);
         propagationManager.execute(tasks);
 
-        final UserTO savedTO = dataBinder.getUserTO(updatedId);
+        notificationManager.createTasks(updated);
+
+        final UserTO savedTO = dataBinder.getUserTO(updated.getResult());
 
         LOG.debug("About to return activated user\n{}", savedTO);
 
@@ -297,17 +310,21 @@ public class UserController {
 
         LOG.debug("User update called with {}", userMod);
 
-        Map.Entry<Long, PropagationByResource> updated =
+        WorkflowResult<Map.Entry<Long, PropagationByResource>> updated =
                 wfAdapter.update(userMod);
 
         List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(
-                updated.getKey(), userMod.getPassword(),
+                updated.getResult().getKey(), userMod.getPassword(),
                 userMod.getVirtualAttributesToBeRemoved(),
                 userMod.getVirtualAttributesToBeAdded(),
-                null, updated.getValue());
+                null, updated.getResult().getValue());
         propagationManager.execute(tasks);
 
-        final UserTO updatedTO = dataBinder.getUserTO(updated.getKey());
+        notificationManager.createTasks(new WorkflowResult<Long>(
+                updated.getResult().getKey(), updated.getPerformedTasks()));
+
+        final UserTO updatedTO =
+                dataBinder.getUserTO(updated.getResult().getKey());
 
         LOG.debug("About to return updated user\n{}", updatedTO);
 
@@ -323,13 +340,15 @@ public class UserController {
 
         LOG.debug("About to suspend " + userId);
 
-        Long updatedId = wfAdapter.suspend(userId);
+        WorkflowResult<Long> updated = wfAdapter.suspend(userId);
 
         List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(
-                updatedId, null, null, null, Boolean.FALSE, null);
+                updated.getResult(), null, null, null, Boolean.FALSE, null);
         propagationManager.execute(tasks);
 
-        final UserTO savedTO = dataBinder.getUserTO(updatedId);
+        notificationManager.createTasks(updated);
+
+        final UserTO savedTO = dataBinder.getUserTO(updated.getResult());
 
         LOG.debug("About to return suspended user\n{}", savedTO);
 
@@ -345,13 +364,15 @@ public class UserController {
 
         LOG.debug("About to reactivate " + userId);
 
-        Long updatedId = wfAdapter.reactivate(userId);
+        WorkflowResult<Long> updated = wfAdapter.reactivate(userId);
 
         List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(
-                updatedId, null, null, null, Boolean.TRUE, null);
+                updated.getResult(), null, null, null, Boolean.TRUE, null);
         propagationManager.execute(tasks);
 
-        final UserTO savedTO = dataBinder.getUserTO(updatedId);
+        notificationManager.createTasks(updated);
+
+        final UserTO savedTO = dataBinder.getUserTO(updated.getResult());
 
         LOG.debug("About to return suspended user\n{}", savedTO);
 
@@ -366,6 +387,14 @@ public class UserController {
             UnauthorizedRoleException {
 
         LOG.debug("User delete called with {}", userId);
+
+        // Note here that we can only notify about "delete", not any other
+        // task defined in workflow process definition: this because this
+        // information could only be available after wfAdapter.delete(), which
+        // will also effectively remove user from db, thus making virtually
+        // impossible by NotificationManager to fetch required user information
+        notificationManager.createTasks(
+                new WorkflowResult<Long>(userId, "delete"));
 
         List<PropagationTask> tasks =
                 propagationManager.getDeleteTaskIds(userId);
@@ -386,13 +415,15 @@ public class UserController {
 
         LOG.debug("About to execute {} on {}", taskId, userTO.getId());
 
-        Long updatedId = wfAdapter.execute(userTO, taskId);
+        WorkflowResult<Long> updated = wfAdapter.execute(userTO, taskId);
 
         List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(
-                updatedId, null, null, null, null, null);
+                updated.getResult(), null, null, null, null, null);
         propagationManager.execute(tasks);
 
-        final UserTO savedTO = dataBinder.getUserTO(updatedId);
+        notificationManager.createTasks(updated);
+
+        final UserTO savedTO = dataBinder.getUserTO(updated.getResult());
 
         LOG.debug("About to return updated user\n{}", savedTO);
 

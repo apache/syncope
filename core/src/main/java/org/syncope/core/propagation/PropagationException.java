@@ -12,7 +12,7 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.persistence.propagation;
+package org.syncope.core.propagation;
 
 /**
  * Bear stacktrace received during propagation towards a certain resource.

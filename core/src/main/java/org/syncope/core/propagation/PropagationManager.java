@@ -12,7 +12,7 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.persistence.propagation;
+package org.syncope.core.propagation;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -73,7 +73,7 @@ import org.syncope.types.PropagationTaskExecStatus;
 import org.syncope.types.TraceLevel;
 
 /**
- * Manage the data propagation to target resources.
+ * Manage the data propagation to external resources.
  */
 @Transactional(rollbackFor = {
     Throwable.class
@@ -134,7 +134,6 @@ public class PropagationManager {
     @Autowired
     private JexlUtil jexlUtil;
 
-    @Transactional(readOnly = true)
     private SyncopeUser getSyncopeUser(final Long userId)
             throws NotFoundException {
 
@@ -659,7 +658,7 @@ public class PropagationManager {
         for (PropagationTask task : tasks) {
             LOG.debug("Execution started for {}", task);
 
-            execution = execute(task, new Date());
+            execution = execute(task);
 
             LOG.debug("Execution finished for {}, {}", task, execution);
 
@@ -734,11 +733,10 @@ public class PropagationManager {
      * Execute a propagation task.
      *
      * @param task to execute
-     * @param startDate timestamp for beginning task excecution
      * @return TaskExecution
      */
-    public TaskExec execute(final PropagationTask task,
-            final Date startDate) {
+    public TaskExec execute(final PropagationTask task) {
+        final Date startDate = new Date();
 
         TaskExec execution = new TaskExec();
         execution.setStatus(PropagationTaskExecStatus.CREATED.toString());

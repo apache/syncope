@@ -81,7 +81,7 @@ public class ConfigurationTestITCase extends AbstractTest {
 
         selenium.click("css=img[alt=\"Configuration\"]");
         selenium.waitForPageToLoad("30000");
-        selenium.click("//div[@id='tabs']/ul/li[5]/a/span");
+        selenium.click("//div[@id='tabs']/ul/li[6]/a/span");
         assertTrue(selenium.isElementPresent("//*[@id=\"workflowDefArea\"]"));
     }
 
@@ -89,7 +89,7 @@ public class ConfigurationTestITCase extends AbstractTest {
     public void delete() {
         selenium.click("css=img[alt=\"Configuration\"]");
         selenium.waitForPageToLoad("30000");
-        selenium.click("//tr[8]/td[4]/span/a");
+        selenium.click("//tr[7]/td[4]/span/a");
         assertTrue(selenium.getConfirmation().matches(
                 "^Do you really want to delete the selected item[\\s\\S]$"));
         try {
@@ -105,9 +105,9 @@ public class ConfigurationTestITCase extends AbstractTest {
 
         selenium.click("css=img[alt=\"Configuration\"]");
         selenium.waitForPageToLoad("30000");
-        selenium.click("//div[@id='tabs']/ul/li[6]/a/span");
+        selenium.click("//div[@id='tabs']/ul/li[7]/a/span");
         selenium.select(
-                "//div[6]/div/span/table/tbody/tr/td[2]/select", "label=ERROR");
+                "//div[3]/div[7]/div/span/table/tbody/tr/td[2]/select", "label=ERROR");
         assertTrue(selenium.isTextPresent("Operation executed successfully"));
     }
 }

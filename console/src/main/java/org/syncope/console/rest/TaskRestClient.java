@@ -15,13 +15,16 @@
 package org.syncope.console.rest;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import org.springframework.stereotype.Component;
+import org.syncope.client.to.NotificationTaskTO;
 import org.syncope.client.to.TaskExecTO;
 import org.syncope.client.to.PropagationTaskTO;
 import org.syncope.client.to.SchedTaskTO;
 import org.syncope.client.to.SyncTaskTO;
+import org.syncope.client.to.TaskTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 
 /**
@@ -57,29 +60,47 @@ public class TaskRestClient extends AbstractBaseRestClient {
     }
 
     /**
-     * Return a paginated list of generic tasks.
+     * Return a paginated list of tasks.
      * @param page number.
      * @param size per page.
      * @return paginated list.
      */
-    public <T extends SchedTaskTO> List<T> listSchedTasks(
+    public <T extends TaskTO> List<T> listTasks(
             final Class<T> reference, final int page, final int size) {
 
-        if (SyncTaskTO.class.getName().equals(reference.getName())) {
-            return (List<T>) Arrays.asList(restTemplate.getForObject(
-                    baseURL + "task/sync/list/{page}/{size}.json",
-                    SyncTaskTO[].class, page, size));
-        } else {
-            return (List<T>) Arrays.asList(restTemplate.getForObject(
+        List<T> result = Collections.EMPTY_LIST;
+
+        if (PropagationTaskTO.class == reference) {
+            result = (List<T>) Arrays.asList(restTemplate.getForObject(
+                    baseURL + "task/propagation/list/{page}/{size}.json",
+                    PropagationTaskTO[].class, page, size));
+        } else if (NotificationTaskTO.class == reference) {
+            result = (List<T>) Arrays.asList(restTemplate.getForObject(
+                    baseURL + "task/notification/list/{page}/{size}.json",
+                    NotificationTaskTO[].class, page, size));
+        } else if (SchedTaskTO.class == reference) {
+            result = (List<T>) Arrays.asList(restTemplate.getForObject(
                     baseURL + "task/sched/list/{page}/{size}.json",
                     SchedTaskTO[].class, page, size));
+        } else if (SyncTaskTO.class == reference) {
+            result = (List<T>) Arrays.asList(restTemplate.getForObject(
+                    baseURL + "task/sync/list/{page}/{size}.json",
+                    SyncTaskTO[].class, page, size));
         }
+
+        return result;
     }
 
     public PropagationTaskTO readPropagationTask(final Long taskId) {
         return restTemplate.getForObject(
                 baseURL + "task/read/{taskId}",
                 PropagationTaskTO.class, taskId);
+    }
+
+    public NotificationTaskTO readNotificationTask(final Long taskId) {
+        return restTemplate.getForObject(
+                baseURL + "task/read/{taskId}",
+                NotificationTaskTO.class, taskId);
     }
 
     public <T extends SchedTaskTO> T readSchedTask(
@@ -94,19 +115,6 @@ public class TaskRestClient extends AbstractBaseRestClient {
                     baseURL + "task/read/{taskId}",
                     SchedTaskTO.class, taskId);
         }
-    }
-
-    /**
-     * Return a paginated list of propagation tasks.
-     * @param page number.
-     * @param size per page.
-     * @return paginated list.
-     */
-    public List<PropagationTaskTO> listPropagationTasks(
-            final int page, final int size) {
-        return Arrays.asList(restTemplate.getForObject(
-                baseURL + "task/propagation/list/{page}/{size}.json",
-                PropagationTaskTO[].class, page, size));
     }
 
     /**

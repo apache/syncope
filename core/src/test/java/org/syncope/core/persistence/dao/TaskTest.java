@@ -43,6 +43,14 @@ public class TaskTest extends AbstractTest {
     private ResourceDAO resourceDAO;
 
     @Test
+    public final void findWithoutExecs() {
+        List<PropagationTask> tasks =
+                taskDAO.findWithoutExecs(PropagationTask.class);
+        assertNotNull(tasks);
+        assertEquals(3, tasks.size());
+    }
+
+    @Test
     public final void findAll() {
         List<PropagationTask> plist = taskDAO.findAll(PropagationTask.class);
         assertEquals(4, plist.size());

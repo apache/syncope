@@ -23,6 +23,8 @@ public interface TaskDAO extends DAO {
 
      <T extends Task> T find(Long id);
 
+     <T extends Task> List<T> findWithoutExecs(Class<T> reference);
+
      <T extends Task> List<T> findAll(ExternalResource resource,
             Class<T> reference);
 

@@ -40,7 +40,7 @@ import org.syncope.console.wicket.markup.html.form.AjaxPalettePanel;
 /**
  * Modal window with Task form (to stop and start execution).
  */
-public class STaskModalPage extends SchedTaskModalPage {
+public class SyncTaskModalPage extends AbstractSchedTaskModalPage {
 
     private static final long serialVersionUID = 2148403203517274669L;
 
@@ -50,7 +50,7 @@ public class STaskModalPage extends SchedTaskModalPage {
     @SpringBean
     private ResourceRestClient resourceRestClient;
 
-    public STaskModalPage(
+    public SyncTaskModalPage(
             final ModalWindow window,
             final SyncTaskTO taskTO) {
 
@@ -143,12 +143,12 @@ public class STaskModalPage extends SchedTaskModalPage {
                             8463000788871139550L;
 
                     @Override
-                    public String getDisplayValue(Long id) {
+                    public String getDisplayValue(final Long id) {
                         return allRoles.getObject().get(id);
                     }
 
                     @Override
-                    public String getIdValue(Long id, int index) {
+                    public String getIdValue(final Long id, final int index) {
                         return id.toString();
                     }
                 });

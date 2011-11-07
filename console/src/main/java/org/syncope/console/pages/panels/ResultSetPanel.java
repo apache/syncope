@@ -72,7 +72,7 @@ public class ResultSetPanel extends Panel implements IEventSource {
     /**
      * Logger.
      */
-    protected static final Logger LOG =
+    private static final Logger LOG =
             LoggerFactory.getLogger(ResultSetPanel.class);
 
     /**

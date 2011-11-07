@@ -14,31 +14,22 @@
  */
 package org.syncope.console.pages;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
-import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.wicket.util.convert.converter.DateConverter;
 import org.syncope.client.to.SchedTaskTO;
 import org.syncope.client.to.TaskExecTO;
 import org.syncope.client.to.TaskTO;
-import org.syncope.console.SyncopeSession;
-import org.syncope.console.commons.Constants;
-import org.syncope.console.commons.SelectOption;
 import org.syncope.console.commons.SortableDataProviderComparator;
+import org.syncope.console.pages.panels.NotificationTasks;
 import org.syncope.console.pages.panels.SchedTasks;
 import org.syncope.console.pages.panels.PropagationTasks;
 import org.syncope.console.pages.panels.SyncTasks;
@@ -46,27 +37,13 @@ import org.syncope.console.rest.TaskRestClient;
 
 public class Tasks extends BasePage {
 
-    public static final SelectOption[] CRON_TEMPLATES = new SelectOption[]{
-        new SelectOption(
-        "Unschedule", "UNSCHEDULE"),
-        new SelectOption(
-        "Every 5 minutes", "0 0/5 * * * ?"),
-        new SelectOption(
-        "Fire at 12pm (noon) every day", "0 0 12 * * ?"),
-        new SelectOption(
-        "Fire at 12am (midnight) every first day of the month", "0 0 0 1 * ?"),
-        new SelectOption(
-        "Fire at 12am (midnight) every Last day of the month", "0 0 0 L * ?"),
-        new SelectOption(
-        "Fire at 12am (midnight) every Monday", "0 0 0 ? * 2")
-    };
-
     private static final long serialVersionUID = 5289215853622289061L;
 
     public Tasks(final PageParameters parameters) {
         super();
 
         add(new PropagationTasks("propagation"));
+        add(new NotificationTasks("notification"));
         add(new SchedTasks("sched"));
         add(new SyncTasks("sync"));
     }
@@ -121,50 +98,7 @@ public class Tasks extends BasePage {
         }
     }
 
-    /**
-     * Format column's value as date string.
-     */
-    public static class DatePropertyColumn<T> extends PropertyColumn<T> {
-
-        private SimpleDateFormat formatter;
-
-        public DatePropertyColumn(final IModel<String> displayModel,
-                final String sortProperty,
-                final String propertyExpression,
-                final DateConverter converter) {
-
-            super(displayModel, sortProperty, propertyExpression);
-
-            String language = "en";
-            if (SyncopeSession.get().getLocale() != null) {
-                language = SyncopeSession.get().getLocale().getLanguage();
-            }
-
-            if ("it".equals(language)) {
-                formatter = new SimpleDateFormat(Constants.ITALIAN_DATE_FORMAT);
-            } else {
-                formatter = new SimpleDateFormat(Constants.ENGLISH_DATE_FORMAT);
-            }
-        }
-
-        @Override
-        public void populateItem(final Item<ICellPopulator<T>> item,
-                final String componentId, final IModel<T> rowModel) {
-
-            IModel date = (IModel<Date>) createLabelModel(rowModel);
-
-            String convertedDate = "";
-
-            if (date.getObject() != null) {
-                convertedDate = formatter.format(date.getObject());
-                item.add(new Label(componentId, convertedDate));
-            } else {
-                item.add(new Label(componentId, convertedDate));
-            }
-        }
-    }
-
-    public static class TasksProvider<T extends SchedTaskTO>
+    public static class TasksProvider<T extends TaskTO>
             extends SortableDataProvider<T> {
 
         private SortableDataProviderComparator<T> comparator;
@@ -199,10 +133,11 @@ public class Tasks extends BasePage {
 
             final List<T> tasks = new ArrayList<T>();
 
-            for (T task : (List<T>) restClient.listSchedTasks(
+            for (T task : (List<T>) restClient.listTasks(
                     reference, (first / paginatorRows) + 1, count)) {
 
-                if (task.getLastExec() == null
+                if (task instanceof SchedTaskTO
+                        && ((SchedTaskTO) task).getLastExec() == null
                         && task.getExecutions() != null
                         && !task.getExecutions().isEmpty()) {
 
@@ -213,12 +148,13 @@ public class Tasks extends BasePage {
                                 public int compare(
                                         final TaskExecTO left,
                                         final TaskExecTO right) {
+
                                     return left.getStartDate().
                                             compareTo(right.getStartDate());
                                 }
                             });
 
-                    task.setLastExec(
+                    ((SchedTaskTO) task).setLastExec(
                             task.getExecutions().get(
                             task.getExecutions().size() - 1).getStartDate());
                 }

@@ -41,7 +41,7 @@ import org.syncope.core.persistence.beans.membership.MDerAttr;
 import org.syncope.core.persistence.beans.membership.MVirAttr;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
-import org.syncope.core.persistence.propagation.PropagationByResource;
+import org.syncope.core.propagation.PropagationByResource;
 import org.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.syncope.core.util.EntitlementUtil;
 import org.syncope.types.CipherAlgorithm;

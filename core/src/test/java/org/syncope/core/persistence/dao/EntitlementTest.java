@@ -36,7 +36,7 @@ public class EntitlementTest extends AbstractTest {
         List<Entitlement> list = entitlementDAO.findAll();
         // 53 real entitlements + 9 role entitlements
         assertEquals("did not get expected number of entitlements ",
-                67, list.size());
+                68, list.size());
     }
 
     @Test

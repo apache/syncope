@@ -21,7 +21,7 @@ import org.syncope.client.to.UserTO;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.client.to.WorkflowDefinitionTO;
 import org.syncope.client.to.WorkflowFormTO;
-import org.syncope.core.persistence.propagation.PropagationByResource;
+import org.syncope.core.propagation.PropagationByResource;
 import org.syncope.core.rest.controller.UnauthorizedRoleException;
 
 /**
@@ -37,20 +37,20 @@ public interface UserWorkflowAdapter {
      * @throws UnauthorizedRoleException authorization exception
      * @throws WorkflowException workflow exception
      */
-    Map.Entry<Long, Boolean> create(UserTO userTO)
+    WorkflowResult<Map.Entry<Long, Boolean>> create(UserTO userTO)
             throws UnauthorizedRoleException, WorkflowException;
 
     /**
      * Execute a task on an user.
      *
-     * @param userTO user to be subject to action
-     * @param actionId to be verified for activation
+     * @param userTO user to be subject to task
+     * @param taskId to be executed
      * @return user just updated
      * @throws UnauthorizedRoleException authorization exception
      * @throws NotFoundException user not found exception
      * @throws WorkflowException workflow exception
      */
-    Long execute(UserTO userTO, String actionId)
+    WorkflowResult<Long> execute(UserTO userTO, String taskId)
             throws UnauthorizedRoleException, NotFoundException,
             WorkflowException;
 
@@ -64,7 +64,7 @@ public interface UserWorkflowAdapter {
      * @throws NotFoundException user not found exception
      * @throws WorkflowException workflow exception
      */
-    Long activate(Long userId, String token)
+    WorkflowResult<Long> activate(Long userId, String token)
             throws UnauthorizedRoleException, NotFoundException,
             WorkflowException;
 
@@ -77,7 +77,8 @@ public interface UserWorkflowAdapter {
      * @throws NotFoundException user not found exception
      * @throws WorkflowException workflow exception
      */
-    Map.Entry<Long, PropagationByResource> update(UserMod userMod)
+    WorkflowResult<Map.Entry<Long, PropagationByResource>> update(
+            UserMod userMod)
             throws UnauthorizedRoleException, NotFoundException,
             WorkflowException;
 
@@ -90,7 +91,7 @@ public interface UserWorkflowAdapter {
      * @throws NotFoundException user not found exception
      * @throws WorkflowException workflow exception
      */
-    Long suspend(Long userId)
+    WorkflowResult<Long> suspend(Long userId)
             throws UnauthorizedRoleException, NotFoundException,
             WorkflowException;
 
@@ -102,7 +103,7 @@ public interface UserWorkflowAdapter {
      * @throws UnauthorizedRoleException authorization exception
      * @throws WorkflowException workflow exception
      */
-    Long suspend(SyncopeUser user)
+    WorkflowResult<Long> suspend(SyncopeUser user)
             throws UnauthorizedRoleException, WorkflowException;
 
     /**
@@ -114,7 +115,7 @@ public interface UserWorkflowAdapter {
      * @throws NotFoundException user not found exception
      * @throws WorkflowException workflow exception
      */
-    Long reactivate(Long userId)
+    WorkflowResult<Long> reactivate(Long userId)
             throws UnauthorizedRoleException, NotFoundException,
             WorkflowException;
 
@@ -148,6 +149,15 @@ public interface UserWorkflowAdapter {
      */
     void updateDefinition(WorkflowDefinitionTO definition)
             throws NotFoundException, WorkflowException;
+
+    /**
+     * Get list of defined tasks in workflow.
+     *
+     * @return list of defined tasks in workflow
+     * @throws WorkflowException workflow exception
+     */
+    List<String> getDefinedTasks()
+            throws WorkflowException;
 
     /**
      * Get all defined forms for current workflow process instances.

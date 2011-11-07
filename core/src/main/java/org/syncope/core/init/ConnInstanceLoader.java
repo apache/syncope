@@ -28,7 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.ConnInstance;
 import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.core.persistence.dao.ResourceDAO;
-import org.syncope.core.persistence.propagation.ConnectorFacadeProxy;
+import org.syncope.core.propagation.ConnectorFacadeProxy;
 import org.syncope.types.ConnConfProperty;
 
 /**

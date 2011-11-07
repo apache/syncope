@@ -15,8 +15,6 @@
 package org.syncope.console.pages.panels;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.wicket.Page;
@@ -28,18 +26,15 @@ import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
-import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
-import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
-import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
@@ -50,9 +45,9 @@ import org.syncope.client.to.TaskTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.PreferenceManager;
-import org.syncope.console.commons.SortableDataProviderComparator;
 import org.syncope.console.commons.XMLRolesReader;
-import org.syncope.console.pages.PTaskModalPage;
+import org.syncope.console.pages.PropagationTaskModalPage;
+import org.syncope.console.pages.Tasks.TasksProvider;
 import org.syncope.console.rest.TaskRestClient;
 import org.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
 import org.syncope.console.wicket.markup.html.form.DeleteLinkPanel;
@@ -80,10 +75,6 @@ public class PropagationTasks extends Panel {
 
     private WebMarkupContainer container;
 
-    /**
-     * Response flag set by the Modal Window after the operation is completed:
-     * TRUE if the operation succedes, FALSE otherwise
-     */
     private boolean operationResult = false;
 
     private ModalWindow window;
@@ -98,7 +89,7 @@ public class PropagationTasks extends Panel {
 
         paginatorRows = prefMan.getPaginatorRows(
                 getWebRequest(),
-                Constants.PREF_TASKS_PAGINATOR_ROWS);
+                Constants.PREF_PROPAGATION_TASKS_PAGINATOR_ROWS);
 
         List<IColumn<TaskTO>> columns = new ArrayList<IColumn<TaskTO>>();
 
@@ -133,6 +124,9 @@ public class PropagationTasks extends Panel {
 
                 AjaxLink viewLink = new IndicatingAjaxLink("editLink") {
 
+                    private static final long serialVersionUID =
+                            -7978723352517770644L;
+
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
 
@@ -143,7 +137,7 @@ public class PropagationTasks extends Panel {
 
                             @Override
                             public Page createPage() {
-                                return new PTaskModalPage(taskTO);
+                                return new PropagationTaskModalPage(taskTO);
                             }
                         });
 
@@ -247,7 +241,9 @@ public class PropagationTasks extends Panel {
 
         final AjaxFallbackDefaultDataTable<TaskTO> table =
                 new AjaxFallbackDefaultDataTable<TaskTO>(
-                "datatable", columns, new TasksProvider(), paginatorRows);
+                "datatable", columns, new TasksProvider(restClient,
+                paginatorRows, getId(), PropagationTaskTO.class),
+                paginatorRows);
 
         container = new WebMarkupContainer("container");
         container.add(table);
@@ -290,7 +286,7 @@ public class PropagationTasks extends Panel {
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
                 prefMan.set(getWebRequest(), (WebResponse) getResponse(),
-                        Constants.PREF_TASKS_PAGINATOR_ROWS,
+                        Constants.PREF_PROPAGATION_TASKS_PAGINATOR_ROWS,
                         String.valueOf(paginatorRows));
 
                 table.setItemsPerPage(paginatorRows);
@@ -301,38 +297,5 @@ public class PropagationTasks extends Panel {
 
         paginatorForm.add(rowsChooser);
         add(paginatorForm);
-    }
-
-    private class TasksProvider extends SortableDataProvider<TaskTO> {
-
-        private static final long serialVersionUID = 4086548740205316461L;
-
-        private SortableDataProviderComparator<TaskTO> comparator;
-
-        public TasksProvider() {
-            super();
-            //Default sorting
-            setSort("id", SortOrder.ASCENDING);
-            comparator = new SortableDataProviderComparator<TaskTO>(this);
-        }
-
-        @Override
-        public Iterator<PropagationTaskTO> iterator(int first, int count) {
-            final List<PropagationTaskTO> tasks =
-                    restClient.listPropagationTasks(
-                    (first / paginatorRows) + 1, count);
-            Collections.sort(tasks, comparator);
-            return tasks.iterator();
-        }
-
-        @Override
-        public int size() {
-            return restClient.count(getId());
-        }
-
-        @Override
-        public IModel<TaskTO> model(final TaskTO object) {
-            return new CompoundPropertyModel<TaskTO>(object);
-        }
     }
 }

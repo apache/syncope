@@ -60,8 +60,20 @@ public final class Constants {
     public static final String PREF_CONFIGURATION_PAGINATOR_ROWS =
             "configuration.paginator.rows";
 
-    public static final String PREF_TASKS_PAGINATOR_ROWS =
-            "tasks.paginator.rows";
+    public static final String PREF_NOTIFICATION_PAGINATOR_ROWS =
+            "notification.paginator.rows";
+
+    public static final String PREF_PROPAGATION_TASKS_PAGINATOR_ROWS =
+            "proagationtasks.paginator.rows";
+
+    public static final String PREF_NOTIFICATION_TASKS_PAGINATOR_ROWS =
+            "notificationtasks.paginator.rows";
+
+    public static final String PREF_SCHED_TASKS_PAGINATOR_ROWS =
+            "schedtasks.paginator.rows";
+
+    public static final String PREF_SYNC_TASKS_PAGINATOR_ROWS =
+            "synctasks.paginator.rows";
 
     public static final String PREF_TODO_PAGINATOR_ROWS =
             "todo.paginator.rows";

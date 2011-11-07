@@ -723,7 +723,7 @@
                                 </goals>
                                 <configuration>
                                     <sources>
-                                        <source>src/dev/java</source>
+                                        <source>src/test/dev/java</source>
                                     </sources>
                                 </configuration>
                             </execution>
@@ -843,7 +843,7 @@
                                 </goals>
                                 <configuration>
                                     <sources>
-                                        <source>src/dev/java</source>
+                                        <source>src/test/dev/java</source>
                                     </sources>
                                 </configuration>
                             </execution>
@@ -1023,6 +1023,100 @@
                     </testResource>
                     <testResource>
                         <directory>src/test/resources/mysql</directory>
+                        <filtering>true</filtering>
+                    </testResource>
+                </testResources>
+            </build>
+        </profile>
+        
+        <profile>
+            <id>notification-test</id>
+            
+            <properties>
+                <mail.password></mail.password>
+            </properties>
+                        
+            <build>
+                <defaultGoal>clean test</defaultGoal>
+
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <inherited>true</inherited>
+                        <configuration>
+                            <skip>true</skip>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>notification-test-phase-execution</id>
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>test</goal>
+                                </goals>
+                                <configuration>
+                                    <skip>false</skip>
+                                    <includes>
+                                        <include>**/notification/**Test.java</include>
+                                    </includes>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>test-phase-execution</id>
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>test</goal>
+                                </goals>
+                                <configuration>
+                                    <skip>true</skip>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>relationship-test-execution</id>
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>test</goal>
+                                </goals>
+                                <configuration>
+                                    <skip>true</skip>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>build-helper-maven-plugin</artifactId>
+                        <inherited>true</inherited>
+                        <executions>
+                            <execution>
+                                <id>add-notification-test-source</id>
+                                <phase>generate-test-sources</phase>
+                                <goals>
+                                    <goal>add-test-source</goal>
+                                </goals>
+                                <configuration>
+                                    <sources>
+                                        <source>src/test/notifications/java</source>
+                                    </sources>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>  
+                
+                <testResources>
+                    <testResource>
+                        <directory>src/test/resources</directory>
+                        <filtering>true</filtering>
+                        <excludes>
+                            <exclude>oracle/**</exclude>
+                            <exclude>postgres/**</exclude>
+                            <exclude>mysql/**</exclude>
+                        </excludes>
+                    </testResource>
+                    <testResource>
+                        <directory>src/test/notifications/resources</directory>
                         <filtering>true</filtering>
                     </testResource>
                 </testResources>

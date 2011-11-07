@@ -24,18 +24,27 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javassist.NotFoundException;
 import javax.annotation.Resource;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathFactory;
 import org.activiti.engine.ActivitiException;
 import org.activiti.engine.FormService;
+import org.activiti.engine.HistoryService;
 import org.activiti.engine.RepositoryService;
 import org.activiti.engine.RuntimeService;
 import org.activiti.engine.TaskService;
 import org.activiti.engine.form.FormProperty;
 import org.activiti.engine.form.FormType;
 import org.activiti.engine.form.TaskFormData;
+import org.activiti.engine.history.HistoricActivityInstance;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Task;
@@ -52,9 +61,11 @@ import org.syncope.client.to.WorkflowDefinitionTO;
 import org.syncope.client.to.WorkflowFormPropertyTO;
 import org.syncope.client.to.WorkflowFormTO;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
-import org.syncope.core.persistence.propagation.PropagationByResource;
+import org.syncope.core.propagation.PropagationByResource;
 import org.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.syncope.types.WorkflowFormPropertyType;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
 
 /**
  * Activiti (http://www.activiti.org/) based implementation.
@@ -81,7 +92,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
     public static final String EMAIL_KIND = "emailKind";
 
-    public static final String ACTION = "action";
+    public static final String TASK = "task";
 
     public static final String TOKEN = "token";
 
@@ -102,6 +113,9 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     private FormService formService;
 
     @Autowired
+    private HistoryService historyService;
+
+    @Autowired
     private RepositoryService repositoryService;
 
     private void updateStatus(final SyncopeUser user) {
@@ -115,8 +129,21 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         }
     }
 
+    private Set<String> getPerformedTasks(final SyncopeUser user) {
+        Set<String> result = new HashSet<String>();
+
+        List<HistoricActivityInstance> tasks =
+                historyService.createHistoricActivityInstanceQuery().
+                executionId(user.getWorkflowId()).list();
+        for (HistoricActivityInstance task : tasks) {
+            result.add(task.getActivityId());
+        }
+
+        return result;
+    }
+
     @Override
-    public Map.Entry<Long, Boolean> create(final UserTO userTO)
+    public WorkflowResult<Map.Entry<Long, Boolean>> create(final UserTO userTO)
             throws WorkflowException {
 
         final Map<String, Object> variables = new HashMap<String, Object>();
@@ -138,16 +165,20 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         Boolean enable = (Boolean) runtimeService.getVariable(
                 processInstance.getProcessInstanceId(), PROPAGATE_ENABLE);
 
-        return new DefaultMapEntry(user.getId(), enable);
+        return new WorkflowResult<Map.Entry<Long, Boolean>>(
+                new DefaultMapEntry(user.getId(), enable),
+                getPerformedTasks(user));
     }
 
-    private void doExecuteAction(final SyncopeUser user,
-            final String action, final Map<String, Object> moreVariables)
+    private Set<String> doExecuteTask(final SyncopeUser user,
+            final String task, final Map<String, Object> moreVariables)
             throws WorkflowException {
+
+        Set<String> preTasks = getPerformedTasks(user);
 
         final Map<String, Object> variables = new HashMap<String, Object>();
         variables.put(SYNCOPE_USER, user);
-        variables.put(ACTION, action);
+        variables.put(TASK, task);
         if (moreVariables != null && !moreVariables.isEmpty()) {
             variables.putAll(moreVariables);
         }
@@ -168,26 +199,32 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
                 throw new WorkflowException(e);
             }
         }
+
+        Set<String> postTasks = getPerformedTasks(user);
+        postTasks.removeAll(preTasks);
+        postTasks.add(task);
+        return postTasks;
     }
 
     @Override
-    protected Long doActivate(final SyncopeUser user, final String token)
+    protected WorkflowResult<Long> doActivate(final SyncopeUser user,
+            final String token)
             throws WorkflowException {
 
-        doExecuteAction(user, "activate",
+        Set<String> performedTasks = doExecuteTask(user, "activate",
                 Collections.singletonMap(TOKEN, (Object) token));
         updateStatus(user);
         SyncopeUser updated = userDAO.save(user);
 
-        return updated.getId();
+        return new WorkflowResult<Long>(updated.getId(), performedTasks);
     }
 
     @Override
-    protected Map.Entry<Long, PropagationByResource> doUpdate(
+    protected WorkflowResult<Map.Entry<Long, PropagationByResource>> doUpdate(
             final SyncopeUser user, final UserMod userMod)
             throws WorkflowException {
 
-        doExecuteAction(user, "update",
+        Set<String> performedTasks = doExecuteTask(user, "update",
                 Collections.singletonMap(USER_MOD, (Object) userMod));
         updateStatus(user);
         SyncopeUser updated = userDAO.save(user);
@@ -196,43 +233,46 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
                 (PropagationByResource) runtimeService.getVariable(
                 user.getWorkflowId(), PROP_BY_RESOURCE);
 
-        return new DefaultMapEntry(updated.getId(), propByRes);
+        return new WorkflowResult<Map.Entry<Long, PropagationByResource>>(
+                new DefaultMapEntry(updated.getId(), propByRes),
+                performedTasks);
     }
 
     @Override
     @Transactional(rollbackFor = {Throwable.class})
-    protected Long doSuspend(final SyncopeUser user)
+    protected WorkflowResult<Long> doSuspend(final SyncopeUser user)
             throws WorkflowException {
 
-        doExecuteAction(user, "suspend", null);
+        Set<String> performedTasks = doExecuteTask(user, "suspend", null);
         updateStatus(user);
         SyncopeUser updated = userDAO.save(user);
 
-        return updated.getId();
+        return new WorkflowResult<Long>(updated.getId(), performedTasks);
     }
 
     @Override
-    protected Long doReactivate(final SyncopeUser user)
+    protected WorkflowResult<Long> doReactivate(final SyncopeUser user)
             throws WorkflowException {
 
-        doExecuteAction(user, "reactivate", null);
+        Set<String> performedTasks = doExecuteTask(user, "reactivate", null);
         updateStatus(user);
 
         SyncopeUser updated = userDAO.save(user);
 
-        return updated.getId();
+        return new WorkflowResult<Long>(updated.getId(), performedTasks);
     }
 
     @Override
     protected void doDelete(final SyncopeUser user)
             throws WorkflowException {
 
-        doExecuteAction(user, "delete", null);
+        doExecuteTask(user, "delete", null);
         userDAO.delete(user);
     }
 
     @Override
-    public Long execute(final UserTO userTO, final String actionId)
+    public WorkflowResult<Long> execute(final UserTO userTO,
+            final String taskId)
             throws UnauthorizedRoleException, NotFoundException,
             WorkflowException {
 
@@ -241,11 +281,11 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         final Map<String, Object> variables = new HashMap<String, Object>();
         variables.put(USER_TO, userTO);
 
-        doExecuteAction(user, actionId, variables);
+        Set<String> performedTasks = doExecuteTask(user, taskId, variables);
         updateStatus(user);
         SyncopeUser updated = userDAO.save(user);
 
-        return updated.getId();
+        return new WorkflowResult<Long>(updated.getId(), performedTasks);
     }
 
     @Override
@@ -262,15 +302,16 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
             throw new WorkflowException(e);
         }
 
-        InputStream is = repositoryService.getResourceAsStream(
+        InputStream procDefIS = repositoryService.getResourceAsStream(
                 procDef.getDeploymentId(), WF_PROCESS_RESOURCE);
+        Reader reader =
+                new BufferedReader(new InputStreamReader(procDefIS));
 
         Writer writer = new StringWriter();
 
         char[] buffer = new char[1024];
+        int n;
         try {
-            Reader reader = new BufferedReader(new InputStreamReader(is));
-            int n;
             while ((n = reader.read(buffer)) != -1) {
                 writer.write(buffer, 0, n);
             }
@@ -279,7 +320,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
                     procDef.getKey(), e);
         } finally {
             try {
-                is.close();
+                procDefIS.close();
             } catch (IOException ioe) {
                 LOG.error("While closing input stream for {}",
                         procDef.getKey(), ioe);
@@ -313,6 +354,54 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         } catch (ActivitiException e) {
             throw new WorkflowException(e);
         }
+    }
+
+    @Override
+    public List<String> getDefinedTasks()
+            throws WorkflowException {
+
+        List<String> result = new ArrayList<String>();
+
+        ProcessDefinition procDef;
+        try {
+            procDef = repositoryService.createProcessDefinitionQuery().
+                    processDefinitionKey(
+                    ActivitiUserWorkflowAdapter.WF_PROCESS_ID).latestVersion().
+                    singleResult();
+        } catch (ActivitiException e) {
+            throw new WorkflowException(e);
+        }
+
+        InputStream procDefIS = repositoryService.getResourceAsStream(
+                procDef.getDeploymentId(), WF_PROCESS_RESOURCE);
+
+        DocumentBuilderFactory domFactory =
+                DocumentBuilderFactory.newInstance();
+        try {
+            DocumentBuilder builder = domFactory.newDocumentBuilder();
+            Document doc = builder.parse(procDefIS);
+
+            XPath xpath = XPathFactory.newInstance().newXPath();
+
+            NodeList nodeList = (NodeList) xpath.evaluate(
+                    "//userTask | //serviceTask | //scriptTask",
+                    doc, XPathConstants.NODESET);
+            for (int i = 0; i < nodeList.getLength(); i++) {
+                result.add(nodeList.item(i).getAttributes().
+                        getNamedItem("id").getNodeValue());
+            }
+        } catch (Exception e) {
+            throw new WorkflowException(e);
+        } finally {
+            try {
+                procDefIS.close();
+            } catch (IOException ioe) {
+                LOG.error("While closing input stream for {}",
+                        procDef.getKey(), ioe);
+            }
+        }
+
+        return result;
     }
 
     private WorkflowFormPropertyType fromActivitiFormType(

@@ -14,10 +14,13 @@
  */
 package org.syncope.console;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import org.apache.wicket.Session;
 import org.apache.wicket.authroles.authorization.strategies.role.Roles;
 import org.apache.wicket.protocol.http.WebSession;
 import org.apache.wicket.request.Request;
+import org.syncope.console.commons.Constants;
 
 /**
  * Custom Syncope Session class.
@@ -64,5 +67,21 @@ public class SyncopeSession extends WebSession {
 
     public boolean hasAnyRole(final Roles roles) {
         return this.roles.hasAnyRole(roles);
+    }
+
+    public DateFormat getDateFormat() {
+        String language = "en";
+        if (getLocale() != null) {
+            language = getLocale().getLanguage();
+        }
+
+        DateFormat formatter;
+        if ("it".equals(language)) {
+            formatter = new SimpleDateFormat(Constants.ITALIAN_DATE_FORMAT);
+        } else {
+            formatter = new SimpleDateFormat(Constants.ENGLISH_DATE_FORMAT);
+        }
+
+        return formatter;
     }
 }

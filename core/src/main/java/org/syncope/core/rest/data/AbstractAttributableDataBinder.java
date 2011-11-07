@@ -58,7 +58,7 @@ import org.syncope.core.persistence.dao.RoleDAO;
 import org.syncope.core.persistence.dao.UserDAO;
 import org.syncope.core.persistence.dao.VirAttrDAO;
 import org.syncope.core.persistence.dao.VirSchemaDAO;
-import org.syncope.core.persistence.propagation.PropagationByResource;
+import org.syncope.core.propagation.PropagationByResource;
 import org.syncope.core.util.JexlUtil;
 import org.syncope.types.PropagationOperation;
 import org.syncope.types.SyncopeClientExceptionType;

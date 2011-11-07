@@ -1,0 +1,102 @@
+<!--
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ under the License.
+-->
+<wicket:extend>
+    <div style="margin:10px">
+        <p class="ui-widget ui-corner-all ui-widget-header"><wicket:message key="title"/></p>
+        <form wicket:id="form">
+            <div id="tabs">
+                <ul>
+                    <li  class="tabs-selected"><a href="#notification"><span><wicket:message key="notification"/></span></a></li>
+                    <li><a href="#about"><span><wicket:message key="about"/></span></a></li>
+                    <li><a href="#events"><span><wicket:message key="events"/></span></a></li>
+                    <li><a href="#recipients"><span><wicket:message key="recipients"/></span></a></li>
+                </ul>
+
+                <div id="notification">
+                    <div id="formtable">
+                        <div class="tablerow">
+                            <div class="tablecolumn_label medium_fixedsize">
+                                <label for="sender"><wicket:message key="sender"/></label>
+                            </div>
+                            <div class="tablecolumn_field medium_dynamicsize">
+                                <span wicket:id="sender">[sender]</span>
+                            </div>
+                        </div>
+
+                        <div class="tablerow">
+                            <div class="tablecolumn_label medium_fixedsize">
+                                <label for="subject"><wicket:message key="subject"/></label>
+                            </div>
+                            <div class="tablecolumn_field medium_dynamicsize">
+                                <span wicket:id="subject">[subject]</span>
+                            </div>
+                        </div>
+
+                        <div class="tablerow">
+                            <div class="tablecolumn_label medium_fixedsize">
+                                <label for="template"><wicket:message key="template"/></label>
+                            </div>
+                            <div class="tablecolumn_field medium_dynamicsize">
+                                <span wicket:id="template">[template]</span>
+                            </div>
+                        </div>
+
+                        <div class="tablerow">
+                            <div class="tablecolumn_label medium_fixedsize">
+                                <label for="traceLevel"><wicket:message key="traceLevel"/></label>
+                            </div>
+                            <div class="tablecolumn_field medium_dynamicsize">
+                                <span wicket:id="traceLevel">[traceLevel]</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <script type="text/javascript">
+                        $(function() {
+                            $('div#notification div#formtable div.tablerow:even').addClass("alt");
+                        });
+                    </script>
+                </div>
+
+                <div id="about">
+                    <span wicket:id="about"/>
+                </div>
+
+                <div id="events">
+                    <span wicket:id="events"/>
+                </div>
+
+                <div id="recipients">
+                    <span wicket:id="recipients"/>
+
+                    <div class="tablerow">
+                        <div class="tablecolumn_label medium_fixedsize">
+                            <label for="selfAsRecipient"><wicket:message key="selfAsRecipient"/></label>
+                        </div>
+                        <div class="tablecolumn_field medium_dynamicsize">
+                            <span wicket:id="selfAsRecipient">[selfAsRecipient]</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin: 20px 10px 0">
+                <input type="submit"
+                       class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+                       wicket:id="apply"/>
+            </div>
+        </form>
+    </div>
+</wicket:extend>

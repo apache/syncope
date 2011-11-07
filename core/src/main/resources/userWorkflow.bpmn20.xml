@@ -60,51 +60,43 @@
             <conditionExpression xsi:type="tFormalExpression">${!approve}</conditionExpression>
         </sequenceFlow>
         
-        <!-- Comment the following lines and uncomment the lines below in order
-             to enable opt-in. -->
+        <!-- Comment the following two lines, uncomment the lines below and change
+             createApproval2Activate.targetRef to "generateToken" in order to enable opt-in. -->
         <serviceTask id="activate" name="Activate" activiti:class="org.syncope.core.workflow.activiti.AutoActivate"/>
 
         <sequenceFlow id="flow4" sourceRef="activate" targetRef="active"/>
 
-        <!-- Uncomment the following lines and comment the above line in order
-             to enable opt-in.
-        <sequenceFlow id="flow2" sourceRef="create" targetRef="generateToken"/>
-        
+        <!-- Uncomment the following lines and comment the above line in order to enable opt-in.        
         <serviceTask id="generateToken" name="Generate token" activiti:class="org.syncope.core.workflow.activiti.GenerateToken"/>
         
-        <sequenceFlow id="flow3" sourceRef="generateToken" targetRef="optinEmail"/>
-
-        <serviceTask id="optinEmail" name="Send opt-in e-mail" activiti:class="org.syncope.core.workflow.activiti.SendVelocityEmail"/>
-
-        <sequenceFlow id="flow4" sourceRef="optinEmail" targetRef="created"/>
+        <sequenceFlow id="flowN+1" sourceRef="generateToken" targetRef="Created"/>
 
         <userTask id="created" name="Created"/>
 
-        <sequenceFlow id="flow5" sourceRef="created" targetRef="createdGw"/>
+        <sequenceFlow id="flowN+2" sourceRef="created" targetRef="createdGw"/>
 
         <exclusiveGateway id="createdGw"/>
         <sequenceFlow id="created2Activate" sourceRef="createdGw" targetRef="activate">
             <conditionExpression xsi:type="tFormalExpression">
-                <![CDATA[${action == 'activate' && syncopeUser.checkToken(token)}]]>
+                <![CDATA[${task == 'activate' && syncopeUser.checkToken(token)}]]>
             </conditionExpression>
         </sequenceFlow>  
         <sequenceFlow id="created2Created" sourceRef="createdGw" targetRef="created">
             <conditionExpression xsi:type="tFormalExpression">
-                <![CDATA[${action == 'activate' && !syncopeUser.checkToken(token)}]]>
+                <![CDATA[${task == 'activate' && !syncopeUser.checkToken(token)}]]>
             </conditionExpression>
         </sequenceFlow>  
         <sequenceFlow id="created2Delete" sourceRef="createdGw" targetRef="delete">
-            <conditionExpression xsi:type="tFormalExpression">${action == 'delete'}</conditionExpression>
-        </sequenceFlow>--> 
+            <conditionExpression xsi:type="tFormalExpression">${task == 'delete'}</conditionExpression>
+        </sequenceFlow>
         
-        <!-- Activate an user -->
-        <!--<scriptTask id="activate" name="Activate" scriptFormat="juel">
+        <scriptTask id="activate" name="Activate" scriptFormat="juel">
             <script>
             syncopeUser.removeToken()    
             </script>
         </scriptTask>
 
-        <sequenceFlow id="flow6" sourceRef="activate" targetRef="active"/>-->
+        <sequenceFlow id="flowN+3" sourceRef="activate" targetRef="active"/>-->
 
         <userTask id="active" name="Active"/>
         
@@ -112,13 +104,13 @@
 
         <exclusiveGateway id="activeGw"/>
         <sequenceFlow id="active2Update" sourceRef="activeGw" targetRef="update">
-            <conditionExpression xsi:type="tFormalExpression">${action == 'update'}</conditionExpression>
+            <conditionExpression xsi:type="tFormalExpression">${task == 'update'}</conditionExpression>
         </sequenceFlow>  
         <sequenceFlow id="active2Suspend" sourceRef="activeGw" targetRef="suspend">
-            <conditionExpression xsi:type="tFormalExpression">${action == 'suspend'}</conditionExpression>
+            <conditionExpression xsi:type="tFormalExpression">${task == 'suspend'}</conditionExpression>
         </sequenceFlow> 
         <sequenceFlow id="active2Delete" sourceRef="activeGw" targetRef="delete">
-            <conditionExpression xsi:type="tFormalExpression">${action == 'delete'}</conditionExpression>
+            <conditionExpression xsi:type="tFormalExpression">${task == 'delete'}</conditionExpression>
         </sequenceFlow>
 
         <!-- Update an active user -->
@@ -137,10 +129,10 @@
 
         <exclusiveGateway id="suspendedGw"/>
         <sequenceFlow id="suspended2Reactivate" sourceRef="suspendedGw" targetRef="reactivate">
-            <conditionExpression xsi:type="tFormalExpression">${action == 'reactivate'}</conditionExpression>
+            <conditionExpression xsi:type="tFormalExpression">${task == 'reactivate'}</conditionExpression>
         </sequenceFlow>
         <sequenceFlow id="suspended2Delete" sourceRef="suspendedGw" targetRef="delete">
-            <conditionExpression xsi:type="tFormalExpression">${action == 'delete'}</conditionExpression>
+            <conditionExpression xsi:type="tFormalExpression">${task == 'delete'}</conditionExpression>
         </sequenceFlow>
 
         <!-- Reactivate a suspended user -->

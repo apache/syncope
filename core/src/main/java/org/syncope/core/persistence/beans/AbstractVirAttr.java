@@ -28,7 +28,7 @@ import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.syncope.core.init.ConnInstanceLoader;
-import org.syncope.core.persistence.propagation.ConnectorFacadeProxy;
+import org.syncope.core.propagation.ConnectorFacadeProxy;
 import org.syncope.core.util.ApplicationContextManager;
 import org.syncope.core.util.JexlUtil;
 import org.syncope.types.IntMappingType;

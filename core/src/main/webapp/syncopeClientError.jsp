@@ -12,7 +12,7 @@
 <%@page import="org.syncope.core.persistence.dao.MissingConfKeyException"%>
 <%@page import="org.syncope.client.validation.SyncopeClientException"%>
 <%@page import="org.syncope.client.validation.SyncopeClientCompositeErrorException"%>
-<%@page import="org.syncope.core.persistence.propagation.PropagationException"%>
+<%@page import="org.syncope.core.propagation.PropagationException"%>
 <%@page import="org.syncope.core.workflow.WorkflowException"%>
 <%@page import="org.syncope.types.SyncopeClientExceptionType"%>
 <%@page import="org.syncope.client.validation.SyncopeClientErrorHandler"%>

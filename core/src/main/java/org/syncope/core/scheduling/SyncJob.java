@@ -15,10 +15,8 @@ package org.syncope.core.scheduling;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import org.identityconnectors.common.security.GuardedByteArray;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.objects.Attribute;
@@ -36,12 +34,10 @@ import org.syncope.client.to.AttributeTO;
 import org.syncope.client.to.MembershipTO;
 import org.syncope.client.to.UserTO;
 import org.syncope.core.init.ConnInstanceLoader;
-import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.core.persistence.beans.PropagationTask;
 import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.beans.SyncTask;
 import org.syncope.core.persistence.beans.TaskExec;
-import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.beans.user.UAttrValue;
 import org.syncope.core.persistence.beans.user.UDerSchema;
@@ -50,13 +46,14 @@ import org.syncope.core.persistence.dao.DerSchemaDAO;
 import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.UserDAO;
-import org.syncope.core.persistence.propagation.ConnectorFacadeProxy;
-import org.syncope.core.persistence.propagation.PropagationByResource;
-import org.syncope.core.persistence.propagation.PropagationException;
-import org.syncope.core.persistence.propagation.PropagationManager;
+import org.syncope.core.propagation.ConnectorFacadeProxy;
+import org.syncope.core.propagation.PropagationByResource;
+import org.syncope.core.propagation.PropagationException;
+import org.syncope.core.propagation.PropagationManager;
 import org.syncope.core.rest.controller.InvalidSearchConditionException;
 import org.syncope.core.scheduling.SyncResult.Operation;
 import org.syncope.core.workflow.UserWorkflowAdapter;
+import org.syncope.core.workflow.WorkflowResult;
 import org.syncope.types.TraceLevel;
 
 /**
@@ -154,19 +151,15 @@ public class SyncJob extends AbstractJob {
      * Build an UserTO out of connector object attributes and schema mapping.
      *
      * @param obj connector object
-     * @param mappings schema mappings
-     * @param roles default roles to be assigned
-     * @param resources default resources to be assigned
      * @return UserTO for the user to be created
      */
-    private UserTO getUserTO(final ConnectorObject obj,
-            final List<SchemaMapping> mappings,
-            final Set<Long> roles, final Set<String> resources) {
+    private UserTO getUserTO(final ConnectorObject obj) {
+        final SyncTask syncTask = (SyncTask) this.task;
 
         final UserTO userTO = new UserTO();
-        userTO.setResources(resources);
+        userTO.setResources(syncTask.getDefaultResourceNames());
         MembershipTO membershipTO;
-        for (Long roleId : roles) {
+        for (Long roleId : syncTask.getDefaultRoleIds()) {
             membershipTO = new MembershipTO();
             membershipTO.setRoleId(roleId);
             userTO.addMembership(membershipTO);
@@ -176,7 +169,7 @@ public class SyncJob extends AbstractJob {
         List<Object> values;
         AttributeTO attributeTO;
 
-        for (SchemaMapping mapping : mappings) {
+        for (SchemaMapping mapping : syncTask.getResource().getMappings()) {
             if (mapping.isAccountid()) {
                 attribute = obj.getAttributeByName(Name.NAME);
             } else if (mapping.isPassword()) {
@@ -237,20 +230,16 @@ public class SyncJob extends AbstractJob {
      *
      * @param userId user to be updated
      * @param obj connector object
-     * @param mappings schema mappings
-     * @param roles default roles to be assigned
-     * @param resources default resources to be assigned
      * @return UserMod for the user to be updated
      */
-    private UserMod getUserMod(final Long userId, final ConnectorObject obj,
-            final List<SchemaMapping> mappings,
-            final Set<Long> roles, final Set<String> resources) {
+    private UserMod getUserMod(final Long userId, final ConnectorObject obj) {
+        final SyncTask syncTask = (SyncTask) this.task;
 
         final UserMod userMod = new UserMod();
         userMod.setId(userId);
-        userMod.setResourcesToBeAdded(resources);
+        userMod.setResourcesToBeAdded(syncTask.getDefaultResourceNames());
         MembershipMod membershipMod;
-        for (Long roleId : roles) {
+        for (Long roleId : syncTask.getDefaultRoleIds()) {
             membershipMod = new MembershipMod();
             membershipMod.setRole(roleId);
             userMod.addMembershipToBeAdded(membershipMod);
@@ -259,7 +248,7 @@ public class SyncJob extends AbstractJob {
         Attribute attribute;
         List<Object> values;
         AttributeMod attributeMod;
-        for (SchemaMapping mapping : mappings) {
+        for (SchemaMapping mapping : syncTask.getResource().getMappings()) {
             attribute = obj.getAttributeByName(mapping.getExtAttrName());
             values = attribute == null
                     ? Collections.EMPTY_LIST : attribute.getValue();
@@ -348,17 +337,11 @@ public class SyncJob extends AbstractJob {
         return result;
     }
 
-    private SyncResult createUser(final SyncDelta delta,
-            final Set<String> defaultResources,
-            final Set<Long> defaultRoles, final boolean dryRun) {
-
-        SyncTask syncTask = (SyncTask) this.task;
+    private SyncResult createUser(final SyncDelta delta, final boolean dryRun) {
         SyncResult result = new SyncResult();
         result.setOperation(Operation.CREATE);
 
-        UserTO userTO = getUserTO(delta.getObject(),
-                syncTask.getResource().getMappings(),
-                defaultRoles, defaultResources);
+        UserTO userTO = getUserTO(delta.getObject());
 
         // shortcut in case of dry run.
         if (dryRun) {
@@ -369,15 +352,15 @@ public class SyncJob extends AbstractJob {
         }
 
         try {
-            Map.Entry<Long, Boolean> created =
+            WorkflowResult<Map.Entry<Long, Boolean>> created =
                     wfAdapter.create(userTO);
             List<PropagationTask> tasks =
                     propagationManager.getCreateTaskIds(
-                    created.getKey(), userTO.getPassword(),
-                    null, created.getValue(),
-                    syncTask.getResource().getName());
+                    created.getResult().getKey(), userTO.getPassword(),
+                    null, created.getResult().getValue(),
+                    ((SyncTask) this.task).getResource().getName());
             propagationManager.execute(tasks);
-            result.setUserId(created.getKey());
+            result.setUserId(created.getResult().getKey());
             result.setUsername(userTO.getUsername());
             result.setStatus(SyncResult.Status.SUCCESS);
         } catch (PropagationException e) {
@@ -393,31 +376,26 @@ public class SyncJob extends AbstractJob {
     }
 
     private SyncResult updateUser(final SyncDelta delta,
-            final SyncopeUser user, final Set<String> defaultResources,
-            final Set<Long> defaultRoles, final boolean dryRun) {
-
-        SyncTask syncTask = (SyncTask) this.task;
+            final SyncopeUser user, final boolean dryRun) {
 
         SyncResult result = new SyncResult();
         result.setOperation(Operation.UPDATE);
         try {
             UserMod userMod = getUserMod(
-                    user.getId(), delta.getObject(),
-                    syncTask.getResource().getMappings(),
-                    defaultRoles, defaultResources);
+                    user.getId(), delta.getObject());
 
             result.setStatus(SyncResult.Status.SUCCESS);
             result.setUserId(userMod.getId());
             result.setUsername(userMod.getUsername());
 
             if (!dryRun) {
-                Map.Entry<Long, PropagationByResource> updated =
+                WorkflowResult<Map.Entry<Long, PropagationByResource>> updated =
                         wfAdapter.update(userMod);
                 List<PropagationTask> tasks =
                         propagationManager.getUpdateTaskIds(
-                        updated.getKey(), userMod.getPassword(),
-                        null, null, null, updated.getValue(),
-                        syncTask.getResource().getName());
+                        updated.getResult().getKey(), userMod.getPassword(),
+                        null, null, null, updated.getResult().getValue(),
+                        ((SyncTask) this.task).getResource().getName());
                 propagationManager.execute(tasks);
             }
         } catch (PropagationException e) {
@@ -473,6 +451,9 @@ public class SyncJob extends AbstractJob {
 
     /**
      * Create a textual report of the synchronization, based on the trace level.
+     * @param syncResults Sync results
+     * @param syncTraceLevel Sync trace level
+     * @param dryRun dry run?
      * @return report as string
      */
     private String createReport(final List<SyncResult> syncResults,
@@ -632,17 +613,6 @@ public class SyncJob extends AbstractJob {
                     + syncTask.getResource());
         }
 
-        Set<String> defaultResources = new HashSet<String>(
-                syncTask.getDefaultResources().size());
-        for (ExternalResource resource : syncTask.getDefaultResources()) {
-            defaultResources.add(resource.getName());
-        }
-        Set<Long> defaultRoles = new HashSet<Long>(
-                syncTask.getDefaultRoles().size());
-        for (SyncopeRole role : syncTask.getDefaultRoles()) {
-            defaultRoles.add(role.getId());
-        }
-
         List<SyncResult> results =
                 new ArrayList<SyncResult>();
         for (SyncDelta delta : deltas) {
@@ -656,15 +626,14 @@ public class SyncJob extends AbstractJob {
                 case CREATE_OR_UPDATE:
                     if (users.isEmpty()) {
                         if (syncTask.isPerformCreate()) {
-                            results.add(createUser(delta, defaultResources,
-                                    defaultRoles, dryRun));
+                            results.add(createUser(delta, dryRun));
                         } else {
                             LOG.debug("SyncTask not configured for create");
                         }
                     } else if (users.size() == 1) {
                         if (syncTask.isPerformUpdate()) {
-                            results.add(updateUser(delta, users.get(0),
-                                    defaultResources, defaultRoles, dryRun));
+                            results.add(
+                                    updateUser(delta, users.get(0), dryRun));
                         } else {
                             LOG.debug("SyncTask not configured for update");
                         }
@@ -710,11 +679,9 @@ public class SyncJob extends AbstractJob {
 
         // True if either failed and failures have to be registered, or if ALL
         // has to be registered.
-        return (Status.valueOf(execution.getStatus())
-                == Status.FAILURE
-                && syncTask.getResource().getSyncTraceLevel().
-                ordinal() >= TraceLevel.FAILURES.ordinal())
-                || syncTask.getResource().getSyncTraceLevel()
-                == TraceLevel.ALL;
+        return (Status.valueOf(execution.getStatus()) == Status.FAILURE
+                && syncTask.getResource().getSyncTraceLevel().ordinal()
+                >= TraceLevel.FAILURES.ordinal())
+                || syncTask.getResource().getSyncTraceLevel() == TraceLevel.ALL;
     }
 }

@@ -13,6 +13,7 @@
  */
 package org.syncope.core.workflow;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -24,7 +25,7 @@ import org.syncope.client.to.UserTO;
 import org.syncope.client.to.WorkflowDefinitionTO;
 import org.syncope.client.to.WorkflowFormTO;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
-import org.syncope.core.persistence.propagation.PropagationByResource;
+import org.syncope.core.propagation.PropagationByResource;
 import org.syncope.core.rest.controller.UnauthorizedRoleException;
 
 /**
@@ -35,8 +36,14 @@ import org.syncope.core.rest.controller.UnauthorizedRoleException;
 })
 public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
+    private static final List<String> TASKS =
+            Arrays.asList(
+            new String[]{
+                "create", "activate", "update",
+                "suspend", "reactivate", "delete"});
+
     @Override
-    public Map.Entry<Long, Boolean> create(final UserTO userTO)
+    public WorkflowResult<Map.Entry<Long, Boolean>> create(final UserTO userTO)
             throws WorkflowException {
 
         SyncopeUser user = new SyncopeUser();
@@ -44,11 +51,13 @@ public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         user.setStatus("created");
         user = userDAO.save(user);
 
-        return new DefaultMapEntry(user.getId(), Boolean.TRUE);
+        return new WorkflowResult<Map.Entry<Long, Boolean>>(
+                new DefaultMapEntry(user.getId(), Boolean.TRUE), "create");
     }
 
     @Override
-    protected Long doActivate(final SyncopeUser user, final String token)
+    protected WorkflowResult<Long> doActivate(final SyncopeUser user,
+            final String token)
             throws WorkflowException {
 
         if (!user.checkToken(token)) {
@@ -60,11 +69,11 @@ public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         user.setStatus("active");
         SyncopeUser updated = userDAO.save(user);
 
-        return updated.getId();
+        return new WorkflowResult<Long>(updated.getId(), "activate");
     }
 
     @Override
-    protected Map.Entry<Long, PropagationByResource> doUpdate(
+    protected WorkflowResult<Map.Entry<Long, PropagationByResource>> doUpdate(
             final SyncopeUser user, final UserMod userMod)
             throws WorkflowException {
 
@@ -72,27 +81,28 @@ public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
         SyncopeUser updated = userDAO.save(user);
 
-        return new DefaultMapEntry(updated.getId(), propByRes);
+        return new WorkflowResult<Map.Entry<Long, PropagationByResource>>(
+                new DefaultMapEntry(updated.getId(), propByRes), "update");
     }
 
     @Override
-    protected Long doSuspend(final SyncopeUser user)
+    protected WorkflowResult<Long> doSuspend(final SyncopeUser user)
             throws WorkflowException {
 
         user.setStatus("suspended");
         SyncopeUser updated = userDAO.save(user);
 
-        return updated.getId();
+        return new WorkflowResult<Long>(updated.getId(), "suspend");
     }
 
     @Override
-    protected Long doReactivate(final SyncopeUser user)
+    protected WorkflowResult<Long> doReactivate(final SyncopeUser user)
             throws WorkflowException {
 
         user.setStatus("active");
         SyncopeUser updated = userDAO.save(user);
 
-        return updated.getId();
+        return new WorkflowResult<Long>(updated.getId(), "suspend");
     }
 
     @Override
@@ -103,7 +113,8 @@ public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    public Long execute(final UserTO userTO, final String actionId)
+    public WorkflowResult<Long> execute(final UserTO userTO,
+            final String taskId)
             throws UnauthorizedRoleException, NotFoundException,
             WorkflowException {
 
@@ -119,11 +130,18 @@ public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    public void updateDefinition(WorkflowDefinitionTO definition)
+    public void updateDefinition(final WorkflowDefinitionTO definition)
             throws NotFoundException, WorkflowException {
 
         throw new WorkflowException(
                 new UnsupportedOperationException("Not supported."));
+    }
+
+    @Override
+    public List<String> getDefinedTasks()
+            throws WorkflowException {
+
+        return TASKS;
     }
 
     @Override
@@ -132,14 +150,14 @@ public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    public WorkflowFormTO getForm(String workflowId)
+    public WorkflowFormTO getForm(final String workflowId)
             throws NotFoundException, WorkflowException {
 
         return null;
     }
 
     @Override
-    public WorkflowFormTO claimForm(String taskId, String userName)
+    public WorkflowFormTO claimForm(final String taskId, final String userName)
             throws NotFoundException, WorkflowException {
 
         throw new WorkflowException(
@@ -147,7 +165,7 @@ public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    public Long submitForm(WorkflowFormTO form, String userName)
+    public Long submitForm(final WorkflowFormTO form, final String userName)
             throws NotFoundException, WorkflowException {
 
         throw new WorkflowException(

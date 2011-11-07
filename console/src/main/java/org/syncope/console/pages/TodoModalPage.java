@@ -118,8 +118,7 @@ public class TodoModalPage extends BaseModalPage {
 
                                 field = new DateTimeFieldPanel("value",
                                         label.getDefaultModelObjectAsString(),
-                                        new Model(parsedDate),
-                                        true, prop.getDatePattern());
+                                        new Model(parsedDate), true);
                                 break;
 
                             case Enum:

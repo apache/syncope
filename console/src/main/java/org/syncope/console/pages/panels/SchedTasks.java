@@ -45,14 +45,14 @@ import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.PreferenceManager;
 import org.syncope.console.commons.XMLRolesReader;
-import org.syncope.console.pages.GTaskModalPage;
-import org.syncope.console.pages.Tasks.DatePropertyColumn;
+import org.syncope.console.pages.SchedTaskModalPage;
 import org.syncope.console.pages.Tasks.TasksProvider;
 import org.syncope.console.rest.TaskRestClient;
 import org.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
 import org.syncope.console.wicket.markup.html.form.DeleteLinkPanel;
 import org.syncope.console.wicket.markup.html.form.EditLinkPanel;
 import org.syncope.console.wicket.markup.html.form.LinkPanel;
+import org.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 
 public class SchedTasks extends Panel {
 
@@ -70,10 +70,6 @@ public class SchedTasks extends Panel {
 
     private WebMarkupContainer container;
 
-    /**
-     * Response flag set by the Modal Window after the operation is completed:
-     * TRUE if the operation succedes, FALSE otherwise
-     */
     private boolean operationResult = false;
 
     private ModalWindow window;
@@ -91,7 +87,7 @@ public class SchedTasks extends Panel {
 
         paginatorRows = prefMan.getPaginatorRows(
                 getWebRequest(),
-                Constants.PREF_TASKS_PAGINATOR_ROWS);
+                Constants.PREF_SCHED_TASKS_PAGINATOR_ROWS);
 
         List<IColumn<SchedTaskTO>> columns =
                 new ArrayList<IColumn<SchedTaskTO>>();
@@ -103,10 +99,10 @@ public class SchedTasks extends Panel {
                 new ResourceModel("class"), "jobClassName", "jobClassName"));
 
         columns.add(new DatePropertyColumn(
-                new ResourceModel("lastExec"), "lastExec", "lastExec", null));
+                new ResourceModel("lastExec"), "lastExec", "lastExec"));
 
         columns.add(new DatePropertyColumn(
-                new ResourceModel("nextExec"), "nextExec", "nextExec", null));
+                new ResourceModel("nextExec"), "nextExec", "nextExec"));
 
         columns.add(new AbstractColumn<SchedTaskTO>(
                 new ResourceModel("detail")) {
@@ -136,7 +132,7 @@ public class SchedTasks extends Panel {
 
                             @Override
                             public Page createPage() {
-                                return new GTaskModalPage(window, taskTO);
+                                return new SchedTaskModalPage(window, taskTO);
                             }
                         });
 
@@ -332,7 +328,7 @@ public class SchedTasks extends Panel {
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
                 prefMan.set(getWebRequest(), (WebResponse) getResponse(),
-                        Constants.PREF_TASKS_PAGINATOR_ROWS,
+                        Constants.PREF_SCHED_TASKS_PAGINATOR_ROWS,
                         String.valueOf(paginatorRows));
 
                 table.setItemsPerPage(paginatorRows);
@@ -358,7 +354,7 @@ public class SchedTasks extends Panel {
 
                     @Override
                     public Page createPage() {
-                        return new GTaskModalPage(window, new SchedTaskTO());
+                        return new SchedTaskModalPage(window, new SchedTaskTO());
                     }
                 });
 

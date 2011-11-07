@@ -25,6 +25,7 @@ import org.syncope.client.to.NotificationTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
 import org.syncope.types.SyncopeClientExceptionType;
+import org.syncope.types.TraceLevel;
 
 public class NotificationTestITCase extends AbstractTest {
 
@@ -32,7 +33,7 @@ public class NotificationTestITCase extends AbstractTest {
     public void read() {
         NotificationTO notificationTO = restTemplate.getForObject(
                 BASE_URL + "notification/read/{notificationId}.json",
-                NotificationTO.class, "1");
+                NotificationTO.class, "100");
 
         assertNotNull(notificationTO);
     }
@@ -52,6 +53,7 @@ public class NotificationTestITCase extends AbstractTest {
     @Test
     public void create() {
         NotificationTO notificationTO = new NotificationTO();
+        notificationTO.setTraceLevel(TraceLevel.SUMMARY);
         notificationTO.addEvent("create");
 
         AttributeCond fullnameLeafCond1 =
@@ -91,7 +93,7 @@ public class NotificationTestITCase extends AbstractTest {
     public void update() {
         NotificationTO notificationTO = restTemplate.getForObject(
                 BASE_URL + "notification/read/{notificationId}.json",
-                NotificationTO.class, "1");
+                NotificationTO.class, "100");
         assertNotNull(notificationTO);
 
         notificationTO.setRecipients(
@@ -124,13 +126,13 @@ public class NotificationTestITCase extends AbstractTest {
     @Test
     public void delete() {
         restTemplate.delete(
-                BASE_URL + "notification/delete/{notificationId}.json", "2");
+                BASE_URL + "notification/delete/{notificationId}.json", "101");
 
         SyncopeClientException exception = null;
         try {
             restTemplate.getForObject(
                     BASE_URL + "notification/read/{notificationId}.json",
-                    NotificationTO.class, "2");
+                    NotificationTO.class, "101");
         } catch (SyncopeClientCompositeErrorException e) {
             exception = e.getException(SyncopeClientExceptionType.NotFound);
         }

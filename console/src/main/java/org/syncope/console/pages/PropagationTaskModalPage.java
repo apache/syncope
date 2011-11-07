@@ -16,25 +16,30 @@
  */
 package org.syncope.console.pages;
 
-import org.apache.wicket.markup.html.form.TextField;
+import org.apache.wicket.model.PropertyModel;
 import org.syncope.client.to.TaskTO;
+import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 
 /**
  * Modal window with Task form (to stop and start execution).
  */
-public class PTaskModalPage extends TaskModalPage {
+public class PropagationTaskModalPage extends TaskModalPage {
 
-    public PTaskModalPage(final TaskTO taskTO) {
+    private static final long serialVersionUID = 523379887023786151L;
+
+    public PropagationTaskModalPage(final TaskTO taskTO) {
         super(taskTO);
 
-        final TextField accountId = new TextField("accountId");
+        final AjaxTextFieldPanel accountId = new AjaxTextFieldPanel(
+                "accountId", getString("accountId"),
+                new PropertyModel<String>(taskTO, "accountId"), false);
         accountId.setEnabled(false);
-
         profile.add(accountId);
 
-        final TextField resource = new TextField("resource");
+        final AjaxTextFieldPanel resource = new AjaxTextFieldPanel(
+                "resource", getString("resource"),
+                new PropertyModel<String>(taskTO, "resource"), false);
         resource.setEnabled(false);
-
         profile.add(resource);
     }
 }

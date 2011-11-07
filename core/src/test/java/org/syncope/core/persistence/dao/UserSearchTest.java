@@ -43,10 +43,30 @@ import org.syncope.core.util.EntitlementUtil;
 public class UserSearchTest {
 
     @Autowired
+    private UserDAO userDAO;
+
+    @Autowired
     private UserSearchDAO searchDAO;
 
     @Autowired
     private EntitlementDAO entitlementDAO;
+
+    @Test
+    public final void matches() {
+        SyncopeUser user = userDAO.find(1L);
+        assertNotNull(user);
+
+        MembershipCond membershipCond = new MembershipCond();
+        membershipCond.setRoleId(5L);
+
+        assertFalse(searchDAO.matches(user,
+                NodeCond.getLeafCond(membershipCond)));
+
+        membershipCond.setRoleId(1L);
+
+        assertTrue(searchDAO.matches(user,
+                NodeCond.getLeafCond(membershipCond)));
+    }
 
     @Test
     public final void searchWithLikeCondition() {

@@ -44,14 +44,14 @@ import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.PreferenceManager;
 import org.syncope.console.commons.XMLRolesReader;
-import org.syncope.console.pages.STaskModalPage;
-import org.syncope.console.pages.Tasks.DatePropertyColumn;
+import org.syncope.console.pages.SyncTaskModalPage;
 import org.syncope.console.pages.Tasks.TasksProvider;
 import org.syncope.console.rest.TaskRestClient;
 import org.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
 import org.syncope.console.wicket.markup.html.form.DeleteLinkPanel;
 import org.syncope.console.wicket.markup.html.form.EditLinkPanel;
 import org.syncope.console.wicket.markup.html.form.LinkPanel;
+import org.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 
 public class SyncTasks extends Panel {
 
@@ -92,7 +92,7 @@ public class SyncTasks extends Panel {
 
         paginatorRows = prefMan.getPaginatorRows(
                 getWebRequest(),
-                Constants.PREF_TASKS_PAGINATOR_ROWS);
+                Constants.PREF_SYNC_TASKS_PAGINATOR_ROWS);
 
         List<IColumn<SyncTaskTO>> columns =
                 new ArrayList<IColumn<SyncTaskTO>>();
@@ -104,10 +104,10 @@ public class SyncTasks extends Panel {
                 new ResourceModel("resourceName"), "resource", "resource"));
 
         columns.add(new DatePropertyColumn(
-                new ResourceModel("lastExec"), "lastExec", "lastExec", null));
+                new ResourceModel("lastExec"), "lastExec", "lastExec"));
 
         columns.add(new DatePropertyColumn(
-                new ResourceModel("nextExec"), "nextExec", "nextExec", null));
+                new ResourceModel("nextExec"), "nextExec", "nextExec"));
 
         columns.add(new AbstractColumn<SyncTaskTO>(
                 new ResourceModel("detail")) {
@@ -137,7 +137,7 @@ public class SyncTasks extends Panel {
 
                             @Override
                             public Page createPage() {
-                                return new STaskModalPage(window, taskTO);
+                                return new SyncTaskModalPage(window, taskTO);
                             }
                         });
 
@@ -333,7 +333,7 @@ public class SyncTasks extends Panel {
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
                 prefMan.set(getWebRequest(), (WebResponse) getResponse(),
-                        Constants.PREF_TASKS_PAGINATOR_ROWS,
+                        Constants.PREF_SYNC_TASKS_PAGINATOR_ROWS,
                         String.valueOf(paginatorRows));
 
                 table.setItemsPerPage(paginatorRows);
@@ -359,7 +359,7 @@ public class SyncTasks extends Panel {
 
                     @Override
                     public Page createPage() {
-                        return new STaskModalPage(window, new SyncTaskTO());
+                        return new SyncTaskModalPage(window, new SyncTaskTO());
                     }
                 });
 

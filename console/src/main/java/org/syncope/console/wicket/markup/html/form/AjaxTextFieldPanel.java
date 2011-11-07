@@ -24,6 +24,7 @@ import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteTextField;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.validation.IValidator;
 
 public class AjaxTextFieldPanel extends FieldPanel<String> {
 
@@ -75,6 +76,10 @@ public class AjaxTextFieldPanel extends FieldPanel<String> {
                 }
             });
         }
+    }
+
+    public void addValidator(final IValidator validator) {
+        this.field.add(validator);
     }
 
     public void setChoices(final List<String> choices) {

@@ -43,16 +43,36 @@
                 <div id="profile">
                     <div id="users-contain" class="ui-widget">
                         <span wicket:id="profile">
-                            <fieldset>
-                                <span wicket:id="idLabel">[Id]</span>
-                                <input type="text" id="id" class="text ui-widget-content ui-corner-all" wicket:id="id" />
+                            <div id="formtable">
 
-                                <label for="accountId"><wicket:message key="accountId"/></label>
-                                <input type="text" id="accountId" class="text ui-widget-content ui-corner-all" wicket:id="accountId" />
+                                <div class="tablerow">
+                                    <div class="tablecolumn_label short_dynamicsize">
+                                        <span wicket:id="idLabel">[Id]</span>
+                                    </div>
+                                    <div class="tablecolumn_field medium_dynamicsize">
+                                        <span wicket:id="id">[id]</span>
+                                    </div>
+                                </div>
 
-                                <label for="resource"><wicket:message key="resource"/></label>
-                                <input type="text" id="resource" class="text ui-widget-content ui-corner-all" wicket:id="resource" />
-                            </fieldset>
+                                <div class="tablerow">
+                                    <div class="tablecolumn_label short_dynamicsize">
+                                        <label for="accountId"><wicket:message key="accountId"/></label>
+                                    </div>
+                                    <div class="tablecolumn_field medium_dynamicsize">
+                                        <span wicket:id="accountId">[accountId]</span>
+                                    </div>
+                                </div>
+
+                                <div class="tablerow">
+                                    <div class="tablecolumn_label short_dynamicsize">
+                                        <label for="resource"><wicket:message key="resource"/></label>
+                                    </div>
+                                    <div class="tablecolumn_field medium_dynamicsize">
+                                        <span wicket:id="resource">[resource]</span>
+                                    </div>
+                                </div>
+
+                            </div>
                         </span>
                     </div>
                 </div>

@@ -44,6 +44,7 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.springframework.util.StringUtils;
+import org.syncope.client.to.NotificationTaskTO;
 import org.syncope.client.to.PropagationTaskTO;
 import org.syncope.client.to.SchedTaskTO;
 import org.syncope.client.to.SyncTaskTO;
@@ -51,9 +52,9 @@ import org.syncope.client.to.TaskExecTO;
 import org.syncope.client.to.TaskTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.commons.SortableDataProviderComparator;
-import org.syncope.console.pages.Tasks.DatePropertyColumn;
 import org.syncope.console.rest.TaskRestClient;
 import org.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
+import org.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.syncope.console.wicket.markup.html.form.DeleteLinkPanel;
 import org.syncope.console.wicket.markup.html.form.LinkPanel;
@@ -80,6 +81,8 @@ public class TaskModalPage extends BaseModalPage {
                 ? taskTO
                 : taskTO instanceof PropagationTaskTO
                 ? taskRestClient.readPropagationTask(taskTO.getId())
+                : taskTO instanceof NotificationTaskTO
+                ? taskRestClient.readNotificationTask(taskTO.getId())
                 : taskTO instanceof SyncTaskTO
                 ? taskRestClient.readSchedTask(
                 SyncTaskTO.class, taskTO.getId())
@@ -120,10 +123,10 @@ public class TaskModalPage extends BaseModalPage {
         columns.add(new PropertyColumn(new ResourceModel("id"), "id", "id"));
 
         columns.add(new DatePropertyColumn(
-                new ResourceModel("startDate"), "startDate", "startDate", null));
+                new ResourceModel("startDate"), "startDate", "startDate"));
 
         columns.add(new DatePropertyColumn(
-                new ResourceModel("endDate"), "endDate", "endDate", null));
+                new ResourceModel("endDate"), "endDate", "endDate"));
 
         columns.add(new PropertyColumn(
                 new ResourceModel("status"), "status", "status"));

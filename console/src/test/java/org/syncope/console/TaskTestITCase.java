@@ -23,11 +23,15 @@ public class TaskTestITCase extends AbstractTest {
 
         selenium.click("css=img[alt=\"Tasks\"]");
         selenium.waitForPageToLoad("30000");
-        selenium.click("//div[@id='tabs']/ul/li[3]/a");
-        selenium.click("//div[3]/div[3]/span/div/span/"
+        selenium.click("//div[@id='tabs']/ul/li[4]/a");
+        selenium.click("//div[3]/div[4]/span/div/span/"
                 + "table/tbody/tr/td[6]/span/a");
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+        }
         assertTrue(selenium.isTextPresent("Operation executed successfully"));
-        selenium.click("//div[3]/div[3]/span/div/span/"
+        selenium.click("//div[3]/div[4]/span/div/span/"
                 + "table/tbody/tr/td[5]/span/a");
         for (int second = 0;; second++) {
             if (second >= 60) {
@@ -59,12 +63,7 @@ public class TaskTestITCase extends AbstractTest {
         selenium.click("css=img[alt=\"Tasks\"]");
         selenium.waitForPageToLoad("30000");
         selenium.click("//div[@id='tabs']/ul/li[3]/a/span");
-        selenium.click("css=img[alt=\"Configuration\"]");
-        selenium.waitForPageToLoad("30000");
-        selenium.click("css=img[alt=\"Tasks\"]");
-        selenium.waitForPageToLoad("30000");
-        selenium.click("//div[@id='tabs']/ul/li[2]/a/span");
-        selenium.click("//div[3]/div[2]/span/div/span/"
+        selenium.click("//div[3]/div[3]/span/div/span/"
                 + "table/tbody/tr/td[8]/span/a");
         assertTrue(selenium.getConfirmation().matches(
                 "^Do you really want to delete the selected item[\\s\\S]$"));
