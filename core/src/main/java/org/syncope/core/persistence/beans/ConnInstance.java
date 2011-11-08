@@ -31,7 +31,7 @@ import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.OneToMany;
 import org.hibernate.annotations.Type;
-import org.syncope.core.persistence.util.XmlSerializer;
+import org.syncope.core.util.XmlSerializer;
 import org.syncope.types.ConnConfProperty;
 import org.syncope.types.ConnectorCapability;
 

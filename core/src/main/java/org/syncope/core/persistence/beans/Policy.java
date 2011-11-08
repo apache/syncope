@@ -22,7 +22,7 @@ import javax.persistence.Id;
 import javax.persistence.Lob;
 
 import org.hibernate.annotations.Type;
-import org.syncope.core.persistence.util.XmlSerializer;
+import org.syncope.core.util.XmlSerializer;
 import org.syncope.core.persistence.validation.entity.PolicyCheck;
 import org.syncope.types.AbstractPolicySpec;
 import org.syncope.types.PolicyType;

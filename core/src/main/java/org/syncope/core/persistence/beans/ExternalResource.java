@@ -43,7 +43,7 @@ import org.identityconnectors.framework.common.objects.SyncToken;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
-import org.syncope.core.persistence.util.XmlSerializer;
+import org.syncope.core.util.XmlSerializer;
 import org.syncope.core.persistence.validation.entity.ExternalResourceCheck;
 import org.syncope.core.util.ApplicationContextManager;
 import org.syncope.types.ConnConfProperty;

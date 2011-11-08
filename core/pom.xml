@@ -509,7 +509,7 @@
                             <arguments>
                                 <argument>-classpath</argument>
                                 <classpath />
-                                <argument>org.syncope.core.persistence.util.SchemaExporter</argument>
+                                <argument>org.syncope.core.util.SchemaExporter</argument>
                                 <argument>H2</argument>
                             </arguments>
                         </configuration>

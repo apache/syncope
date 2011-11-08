@@ -31,8 +31,8 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.Type;
 import org.syncope.client.search.NodeCond;
-import org.syncope.core.persistence.util.XmlSerializer;
 import org.syncope.core.persistence.validation.entity.NotificationCheck;
+import org.syncope.core.util.XmlSerializer;
 import org.syncope.types.TraceLevel;
 
 @NotificationCheck
