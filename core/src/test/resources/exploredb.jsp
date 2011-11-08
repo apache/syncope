@@ -17,10 +17,16 @@
         try {
             stmt = conn.createStatement();
 
+            long size = 0;
+            rs = stmt.executeQuery("SELECT COUNT(*) FROM " + tableName);
+            if (rs.next())
+                size = rs.getLong(1);
+
             rs = stmt.executeQuery("SELECT * FROM " + tableName);
             ResultSetMetaData metaData = rs.getMetaData();
             out.println("<a name=\"" + tableName + "\"><strong>Table: "
                     + tableName + "</strong></a>");
+            out.println(" (" + size + ") ");
             out.println("<a href=\"#top\">Back</a>");
 
             out.println("<table border=\"1\">");

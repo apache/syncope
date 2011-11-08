@@ -97,7 +97,7 @@
         <velocity.version>1.7</velocity.version>
         <quartz.version>1.8.5</quartz.version>
 
-        <hibernate.version>3.6.7.Final</hibernate.version>
+        <hibernate.version>3.6.8.Final</hibernate.version>
         <hibernate-validator.version>4.2.0.Final</hibernate-validator.version>
         <ehcache.version>2.4.6</ehcache.version>
 
