@@ -739,7 +739,7 @@ public class PropagationManager {
         final Date startDate = new Date();
 
         TaskExec execution = new TaskExec();
-        execution.setStatus(PropagationTaskExecStatus.CREATED.toString());
+        execution.setStatus(PropagationTaskExecStatus.CREATED.name());
 
         String taskExecutionMessage = null;
 
@@ -831,8 +831,8 @@ public class PropagationManager {
 
             execution.setStatus(
                     task.getPropagationMode() == PropagationMode.SYNC
-                    ? PropagationTaskExecStatus.SUCCESS.toString()
-                    : PropagationTaskExecStatus.SUBMITTED.toString());
+                    ? PropagationTaskExecStatus.SUCCESS.name()
+                    : PropagationTaskExecStatus.SUBMITTED.name());
 
             LOG.debug("Successfully propagated to resource {}",
                     task.getResource());
@@ -852,8 +852,8 @@ public class PropagationManager {
             try {
                 execution.setStatus(
                         task.getPropagationMode() == PropagationMode.SYNC
-                        ? PropagationTaskExecStatus.FAILURE.toString()
-                        : PropagationTaskExecStatus.UNSUBMITTED.toString());
+                        ? PropagationTaskExecStatus.FAILURE.name()
+                        : PropagationTaskExecStatus.UNSUBMITTED.name());
             } catch (Throwable wft) {
                 LOG.error("While executing KO action on {}", execution, wft);
             }

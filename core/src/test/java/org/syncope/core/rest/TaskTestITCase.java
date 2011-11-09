@@ -26,9 +26,7 @@ import org.syncope.client.to.PropagationTaskTO;
 import org.syncope.client.to.SchedTaskTO;
 import org.syncope.client.to.SyncTaskTO;
 import org.syncope.client.to.TaskTO;
-import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.types.PropagationTaskExecStatus;
-import org.syncope.types.SyncopeClientExceptionType;
 
 public class TaskTestITCase extends AbstractTest {
 
@@ -166,24 +164,14 @@ public class TaskTestITCase extends AbstractTest {
         TaskExecTO execution = restTemplate.postForObject(
                 BASE_URL + "task/execute/{taskId}", null,
                 TaskExecTO.class, 1);
-        assertEquals(PropagationTaskExecStatus.SUBMITTED.toString(),
+        assertEquals(PropagationTaskExecStatus.SUBMITTED.name(),
                 execution.getStatus());
-
-        Exception exception = null;
-        try {
-            restTemplate.delete(BASE_URL + "task/delete/{taskId}", 1);
-        } catch (SyncopeClientCompositeErrorException scce) {
-            assertTrue(scce.hasException(
-                    SyncopeClientExceptionType.IncompletePropagationTaskExec));
-            exception = scce;
-        }
-        assertNotNull(exception);
 
         execution = restTemplate.getForObject(
                 BASE_URL + "task/execution/report/{executionId}"
                 + "?executionStatus=SUCCESS&message=OK",
                 TaskExecTO.class, execution.getId());
-        assertEquals(PropagationTaskExecStatus.SUCCESS.toString(),
+        assertEquals(PropagationTaskExecStatus.SUCCESS.name(),
                 execution.getStatus());
         assertEquals("OK", execution.getMessage());
 

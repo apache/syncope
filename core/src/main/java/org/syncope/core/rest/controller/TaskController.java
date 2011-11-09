@@ -485,24 +485,6 @@ public class TaskController extends AbstractController {
             throw new NotFoundException("Task execution " + executionId);
         }
 
-        if (PropagationTaskExecStatus.CREATED.toString().equals(
-                execution.getStatus())
-                || PropagationTaskExecStatus.SUBMITTED.toString().equals(
-                execution.getStatus())) {
-
-            SyncopeClientException incompleteTaskExecution =
-                    new SyncopeClientException(
-                    SyncopeClientExceptionType.IncompletePropagationTaskExec);
-            incompleteTaskExecution.addElement(
-                    execution.getId().toString());
-
-            SyncopeClientCompositeErrorException scce =
-                    new SyncopeClientCompositeErrorException(
-                    HttpStatus.BAD_REQUEST);
-            scce.addException(incompleteTaskExecution);
-            throw scce;
-        }
-
         taskExecDAO.delete(execution);
     }
 }

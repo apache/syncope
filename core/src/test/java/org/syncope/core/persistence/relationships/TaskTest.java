@@ -98,7 +98,7 @@ public class TaskTest extends AbstractTest {
 
         TaskExec execution = new TaskExec();
         execution.setTask(task);
-        execution.setStatus(PropagationTaskExecStatus.CREATED.toString());
+        execution.setStatus(PropagationTaskExecStatus.CREATED.name());
         task.addExec(execution);
         execution.setStartDate(new Date());
 

@@ -37,9 +37,6 @@ public enum SyncopeClientExceptionType {
     InvalidSyncPolicy(
     "Syncope.InvalidPolicy",
     "Syncope.InvalidPolicy.reason"),
-    IncompletePropagationTaskExec(
-    "Syncope.IncompletePropagationTaskExec",
-    "Syncope.IncompletePropagationTaskExec.id"),
     InvalidRoles(
     "Syncope.InvalidRoles",
     "Syncope.InvalidRoles.name"),
