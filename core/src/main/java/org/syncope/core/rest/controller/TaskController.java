@@ -138,7 +138,8 @@ public class TaskController extends AbstractController {
         }
 
         try {
-            jobInstanceLoader.registerJob(task);
+            jobInstanceLoader.registerJob(task.getId(), task.getJobClassName(),
+                    task.getCronExpression());
         } catch (Exception e) {
             LOG.error("While registering quartz job for task "
                     + task.getId(), e);
@@ -204,7 +205,8 @@ public class TaskController extends AbstractController {
         }
 
         try {
-            jobInstanceLoader.registerJob(task);
+            jobInstanceLoader.registerJob(task.getId(), task.getJobClassName(),
+                    task.getCronExpression());
         } catch (Exception e) {
             LOG.error("While registering quartz job for task "
                     + task.getId(), e);

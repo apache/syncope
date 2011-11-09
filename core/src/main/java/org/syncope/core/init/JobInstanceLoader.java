@@ -34,13 +34,14 @@ import org.syncope.core.persistence.beans.SyncTask;
 import org.syncope.core.persistence.dao.TaskDAO;
 import org.syncope.core.scheduling.AppContextMethodInvokingJobDetailFactoryBean;
 import org.syncope.core.scheduling.Job;
+import org.syncope.core.scheduling.NotificationJob;
 import org.syncope.core.util.ApplicationContextManager;
 
 @Component
 public class JobInstanceLoader extends AbstractLoader {
-    
+
     private static final Logger LOG = LoggerFactory.getLogger(
-                    JobInstanceLoader.class);
+            JobInstanceLoader.class);
 
     @Autowired
     private SchedulerFactoryBean scheduler;
@@ -64,53 +65,56 @@ public class JobInstanceLoader extends AbstractLoader {
         return "Trigger_" + getJobDetailName(taskId);
     }
 
-    public void registerJob(final SchedTask task)
+    public void registerJob(final Long taskId, final String jobClassName,
+            final String cronExpression)
             throws Exception {
 
-        unregisterJob(task.getId());
+        unregisterJob(taskId);
 
         ConfigurableApplicationContext ctx =
                 ApplicationContextManager.getApplicationContext();
 
         MutablePropertyValues mpv = new MutablePropertyValues();
-        mpv.add("taskId", task.getId());
+        if (!NotificationJob.class.getName().equals(jobClassName)) {
+            mpv.add("taskId", taskId);
+        }
         GenericBeanDefinition bd = new GenericBeanDefinition();
-        bd.setBeanClassName(task.getJobClassName());
+        bd.setBeanClassName(jobClassName);
         bd.setAutowireMode(AbstractBeanDefinition.AUTOWIRE_BY_TYPE);
         bd.setPropertyValues(mpv);
-        getBeanFactory().registerBeanDefinition(getJobName(task.getId()), bd);
+        getBeanFactory().registerBeanDefinition(getJobName(taskId), bd);
 
         mpv = new MutablePropertyValues();
-        mpv.add("target", ctx.getBean(getJobName(task.getId())));
+        mpv.add("target", ctx.getBean(getJobName(taskId)));
         mpv.add("proxyInterfaces", Job.class.getName());
         mpv.add("interceptorNames", "jpaInterceptor");
         bd = new GenericBeanDefinition();
         bd.setBeanClass(ProxyFactoryBean.class);
         bd.setPropertyValues(mpv);
         getBeanFactory().registerBeanDefinition(
-                getJobProxyName(task.getId()), bd);
+                getJobProxyName(taskId), bd);
 
         AppContextMethodInvokingJobDetailFactoryBean jobDetailFactory =
                 (AppContextMethodInvokingJobDetailFactoryBean) getBeanFactory().
                 autowire(AppContextMethodInvokingJobDetailFactoryBean.class,
                 AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true);
-        jobDetailFactory.setTargetBeanName(getJobProxyName(task.getId()));
+        jobDetailFactory.setTargetBeanName(getJobProxyName(taskId));
         jobDetailFactory.setTargetMethod("execute");
         jobDetailFactory.afterPropertiesSet();
-        getBeanFactory().registerSingleton(getJobDetailName(task.getId()),
+        getBeanFactory().registerSingleton(getJobDetailName(taskId),
                 jobDetailFactory);
 
         JobDetail jobDetail = (JobDetail) ctx.getBean(
-                getJobDetailName(task.getId()));
-        jobDetail.setName(getJobDetailName(task.getId()));
+                getJobDetailName(taskId));
+        jobDetail.setName(getJobDetailName(taskId));
         jobDetail.setGroup(Scheduler.DEFAULT_GROUP);
 
-        if (task.getCronExpression() == null) {
+        if (cronExpression == null) {
             scheduler.getScheduler().addJob(jobDetail, true);
         } else {
             CronTriggerBean cronTrigger = new CronTriggerBean();
-            cronTrigger.setName(getTriggerName(task.getId()));
-            cronTrigger.setCronExpression(task.getCronExpression());
+            cronTrigger.setName(getTriggerName(taskId));
+            cronTrigger.setCronExpression(cronExpression);
 
             scheduler.getScheduler().scheduleJob(jobDetail, cronTrigger);
         }
@@ -141,15 +145,25 @@ public class JobInstanceLoader extends AbstractLoader {
     @Override
     @Transactional(readOnly = true)
     public void load() {
+        // 1. jobs for SchedTasks
         List<SchedTask> tasks = taskDAO.findAll(SchedTask.class);
         tasks.addAll(taskDAO.findAll(SyncTask.class));
         for (SchedTask task : tasks) {
             try {
-                registerJob(task);
+                registerJob(task.getId(), task.getJobClassName(),
+                        task.getCronExpression());
             } catch (Exception e) {
                 LOG.error("While loading job instance for task "
                         + task.getId(), e);
             }
+        }
+
+        // 2.NotificationJob
+        try {
+            registerJob(-1L, NotificationJob.class.getName(),
+                    "0 0/2 * * * ?");
+        } catch (Exception e) {
+            LOG.error("While loading NotificationJob instance", e);
         }
     }
 }
