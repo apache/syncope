@@ -230,7 +230,7 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
                 new HashMap<Integer, Object>());
 
         // 1. get the query string from the search condition
-        StringBuilder queryString = getQuery(nodeCond, parameters);
+        final StringBuilder queryString = getQuery(nodeCond, parameters);
 
         // 2. take into account administrative roles
         queryString.insert(0, "SELECT u.user_id FROM (");
@@ -238,7 +238,8 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
         queryString.append(getAdminRolesFilter(adminRoles)).append(")");
 
         // 3. prepare the search query
-        Query query = entityManager.createNativeQuery(queryString.toString());
+        final Query query =
+                entityManager.createNativeQuery(queryString.toString());
 
         // page starts from 1, while setFirtResult() starts from 0
         query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
@@ -254,8 +255,8 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
                 queryString.toString(), parameters);
 
         // 5. Prepare the result (avoiding duplicates - set)
-        Set<Number> userIds = new HashSet<Number>();
-        List resultList = query.getResultList();
+        final Set<Number> userIds = new HashSet<Number>();
+        final List resultList = query.getResultList();
 
         //fix for HHH-5902 - bug hibernate
         if (resultList != null) {
@@ -268,7 +269,7 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
             }
         }
 
-        List<SyncopeUser> result =
+        final List<SyncopeUser> result =
                 new ArrayList<SyncopeUser>(userIds.size());
 
         SyncopeUser user;
@@ -345,13 +346,16 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
             final boolean not, final Map<Integer, Object> parameters) {
 
         StringBuilder query = new StringBuilder(
-                "SELECT DISTINCT user_id FROM user_search_membership WHERE ");
+                "SELECT DISTINCT user_id FROM user_search WHERE ");
 
         if (not) {
-            query.append("user_id NOT IN (").
-                    append("SELECT DISTINCT user_id ").
-                    append("FROM user_search_membership WHERE ");
+            query.append("user_id NOT IN (");
+        } else {
+            query.append("user_id IN (");
         }
+
+        query.append("SELECT DISTINCT user_id ").
+                append("FROM user_search_membership WHERE ");
 
         if (cond.getRoleId() != null) {
             query.append("role_id=:param").append(
@@ -361,9 +365,7 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
                     setParameter(parameters, cond.getRoleName()));
         }
 
-        if (not) {
-            query.append(")");
-        }
+        query.append(")");
 
         return query.toString();
     }
@@ -371,21 +373,23 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
     private String getQuery(final ResourceCond cond,
             final boolean not, final Map<Integer, Object> parameters) {
 
-        StringBuilder query = new StringBuilder(
-                "SELECT DISTINCT user_id FROM user_search_resource WHERE ");
+        final StringBuilder query = new StringBuilder(
+                "SELECT DISTINCT user_id FROM user_search WHERE ");
 
         if (not) {
-            query.append("user_id NOT IN (").
-                    append("SELECT DISTINCT user_id ").
-                    append("FROM user_search_resource WHERE ");
+            query.append("user_id NOT IN (");
+        } else {
+            query.append("user_id IN (");
         }
+
+        query.append("SELECT DISTINCT user_id ").
+                append("FROM user_search_resource WHERE ");
 
         query.append("resource_name=:param").append(
                 setParameter(parameters, cond.getResourceName()));
 
-        if (not) {
-            query.append(")");
-        }
+        query.append(")");
+
         return query.toString();
     }
 

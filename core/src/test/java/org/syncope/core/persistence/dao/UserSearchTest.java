@@ -197,7 +197,7 @@ public class UserSearchTest {
                 EntitlementUtil.getRoleIds(entitlementDAO.findAll()),
                 NodeCond.getNotLeafCond(membershipCond));
         assertNotNull(users);
-        assertEquals(3, users.size());
+        assertEquals(4, users.size());
     }
 
     @Test
@@ -226,7 +226,7 @@ public class UserSearchTest {
     @Test
     public void searchByResource() {
         ResourceCond ws2 = new ResourceCond();
-        ws2.setResourceName("ws-target-resource2");
+        ws2.setResourceName("ws-target-resource-2");
 
         ResourceCond ws1 = new ResourceCond();
         ws1.setResourceName("ws-target-resource-list-mappings-2");
@@ -325,5 +325,28 @@ public class UserSearchTest {
         assertNotNull(matchingUsers);
         assertEquals(1, matchingUsers.size());
         assertEquals(4L, matchingUsers.iterator().next().getId().longValue());
+    }
+
+    @Test
+    public final void issue202() {
+        final ResourceCond ws2 = new ResourceCond();
+        ws2.setResourceName("ws-target-resource-2");
+
+        final ResourceCond ws1 = new ResourceCond();
+        ws1.setResourceName("ws-target-resource-list-mappings-1");
+
+        final NodeCond searchCondition = NodeCond.getAndCond(
+                NodeCond.getNotLeafCond(ws2),
+                NodeCond.getNotLeafCond(ws1));
+
+        assertTrue(searchCondition.checkValidity());
+
+        final List<SyncopeUser> users = searchDAO.search(
+                EntitlementUtil.getRoleIds(entitlementDAO.findAll()),
+                searchCondition);
+
+        assertNotNull(users);
+        assertEquals(1, users.size());
+        assertEquals(4L, users.iterator().next().getId().longValue());
     }
 }
