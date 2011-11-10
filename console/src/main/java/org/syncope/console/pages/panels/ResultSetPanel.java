@@ -14,7 +14,9 @@
  */
 package org.syncope.console.pages.panels;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
@@ -36,15 +38,12 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.LoadableDetachableModel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
@@ -61,9 +60,11 @@ import org.syncope.console.commons.XMLRolesReader;
 import org.syncope.console.pages.DisplayAttributesModalPage;
 import org.syncope.console.pages.UserModalPage;
 import org.syncope.console.pages.Users;
-import org.syncope.console.rest.SchemaRestClient;
 import org.syncope.console.rest.UserRestClient;
 import org.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
+import org.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
+import org.syncope.console.wicket.extensions.markup.html.repeater.data.table.TokenColumn;
+import org.syncope.console.wicket.extensions.markup.html.repeater.data.table.UserAttrColumn;
 import org.syncope.console.wicket.markup.html.form.DeleteLinkPanel;
 import org.syncope.console.wicket.markup.html.form.EditLinkPanel;
 
@@ -88,7 +89,7 @@ public class ResultSetPanel extends Panel implements IEventSource {
     /**
      * Schemas to be shown modal window height.
      */
-    private final static int DISPLAYATTRS_MODAL_WIN_HEIGHT = 350;
+    private final static int DISPLAYATTRS_MODAL_WIN_HEIGHT = 550;
 
     /**
      * Schemas to be shown modal window width.
@@ -96,26 +97,10 @@ public class ResultSetPanel extends Panel implements IEventSource {
     private final static int DISPLAYATTRS_MODAL_WIN_WIDTH = 550;
 
     /**
-     * Prefix used to dintinguish between derived and not derived schemas.
-     */
-    private final static String DERIVED_ATTRIBUTE_PREFIX = "[D] ";
-
-    /**
-     * Prefix used to dintinguish between virtual and not virtual schemas.
-     */
-    private final static String VIRTUAL_ATTRIBUTE_PREFIX = "[V] ";
-
-    /**
      * User rest client.
      */
     @SpringBean
     private UserRestClient userRestClient;
-
-    /**
-     * Schema rest client.
-     */
-    @SpringBean
-    private SchemaRestClient schemaRestClient;
 
     /**
      * Application preferences.
@@ -176,45 +161,6 @@ public class ResultSetPanel extends Panel implements IEventSource {
      * Owner page.
      */
     private final Users page;
-
-    final private IModel<List<String>> choosableSchemaNames =
-            new LoadableDetachableModel<List<String>>() {
-
-                private static final long serialVersionUID =
-                        5275935387613157437L;
-
-                @Override
-                protected List<String> load() {
-
-                    List<String> schemas =
-                            schemaRestClient.getSchemaNames("user");
-
-                    if (schemas == null) {
-                        schemas = new ArrayList<String>();
-                    }
-
-                    List<String> derivedSchemas =
-                            schemaRestClient.getDerivedSchemaNames("user");
-
-                    if (derivedSchemas != null) {
-                        for (String schema : derivedSchemas) {
-                            schemas.add(
-                                    DERIVED_ATTRIBUTE_PREFIX + schema);
-                        }
-                    }
-
-                    List<String> virtualSchemas =
-                            schemaRestClient.getVirtualSchemaNames("user");
-
-                    if (virtualSchemas != null) {
-                        for (String schema : virtualSchemas) {
-                            schemas.add(VIRTUAL_ATTRIBUTE_PREFIX + schema);
-                        }
-                    }
-
-                    return schemas;
-                }
-            };
 
     public <T extends AbstractAttributableTO> ResultSetPanel(
             final String id,
@@ -277,7 +223,6 @@ public class ResultSetPanel extends Panel implements IEventSource {
                             public Page createPage() {
                                 return new DisplayAttributesModalPage(
                                         page.getPageReference(),
-                                        choosableSchemaNames,
                                         displaymodal);
                             }
                         });
@@ -327,14 +272,11 @@ public class ResultSetPanel extends Panel implements IEventSource {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                preferences.set(
-                        getRequest(),
-                        getResponse(),
+                preferences.set(getRequest(), getResponse(),
                         Constants.PREF_USERS_PAGINATOR_ROWS,
                         String.valueOf(rows));
 
                 final EventDataWrapper data = new EventDataWrapper();
-//                data.setTable(resultTable);
                 data.setTarget(target);
 
                 send(getParent(), Broadcast.BREADTH, data);
@@ -356,7 +298,6 @@ public class ResultSetPanel extends Panel implements IEventSource {
 
     private void updateResultTable(final boolean create) {
         // Requires preferences/container attributes not null ...
-
         rows = preferences.getPaginatorRows(
                 getRequest(), Constants.PREF_USERS_PAGINATOR_ROWS);
 
@@ -380,25 +321,73 @@ public class ResultSetPanel extends Panel implements IEventSource {
     }
 
     private List<IColumn<UserTO>> getColumns() {
-        List<IColumn<UserTO>> columns = new ArrayList<IColumn<UserTO>>();
-        columns.add(new PropertyColumn(
-                new ResourceModel("id"), "id", "id"));
-        columns.add(new PropertyColumn(
-                new ResourceModel("username"), "username", "username"));
-        columns.add(new PropertyColumn(
-                new ResourceModel("status"), "status", "status"));
-        columns.add(new TokenColumn(new ResourceModel("token"), "token"));
+        final List<IColumn<UserTO>> columns = new ArrayList<IColumn<UserTO>>();
 
-        for (String schemaName : preferences.getList(getRequest(),
+        for (String name : preferences.getList(getRequest(),
+                Constants.PREF_USERS_DETAILS_VIEW)) {
+
+            Field field = null;
+
+            try {
+                field = UserTO.class.getDeclaredField(name);
+            } catch (Exception ue) {
+                LOG.debug("Error retrieving UserTO field {}", name, ue);
+                try {
+                    field = AbstractAttributableTO.class.getDeclaredField(name);
+                } catch (Exception aae) {
+                    LOG.error("Error retrieving AbstractAttributableTO field {}",
+                            name, aae);
+                }
+            }
+
+            if ("token".equalsIgnoreCase(name)) {
+                columns.add(new TokenColumn("token"));
+            } else if (field != null && field.getType().equals(Date.class)) {
+                columns.add(new DatePropertyColumn<UserTO>(
+                        new ResourceModel(name, name), name, name));
+            } else {
+                columns.add(new PropertyColumn(
+                        new ResourceModel(name, name), name, name));
+            }
+        }
+
+        for (String name : preferences.getList(getRequest(),
                 Constants.PREF_USERS_ATTRIBUTES_VIEW)) {
-
             columns.add(new UserAttrColumn(
-                    new Model<String>(schemaName), schemaName));
+                    name, UserAttrColumn.SchemaType.schema));
+        }
+
+        for (String name : preferences.getList(getRequest(),
+                Constants.PREF_USERS_DERIVED_ATTRIBUTES_VIEW)) {
+            columns.add(new UserAttrColumn(
+                    name, UserAttrColumn.SchemaType.derivedSchema));
+        }
+
+        for (String name : preferences.getList(getRequest(),
+                Constants.PREF_USERS_VIRTUAL_ATTRIBUTES_VIEW)) {
+            columns.add(new UserAttrColumn(
+                    name, UserAttrColumn.SchemaType.virtualSchema));
+        }
+
+        // Add defaults in case of empty selections
+        if (columns.isEmpty()) {
+            columns.add(new PropertyColumn(
+                    new ResourceModel("id", "id"), "id", "id"));
+            columns.add(new PropertyColumn(
+                    new ResourceModel("username", "username"),
+                    "username", "username"));
+            columns.add(new PropertyColumn(
+                    new ResourceModel("status", "status"), "status", "status"));
         }
 
         columns.add(new AbstractColumn<UserTO>(new ResourceModel("edit")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
+
+            @Override
+            public String getCssClass() {
+                return "action";
+            }
 
             @Override
             public void populateItem(
@@ -443,6 +432,11 @@ public class ResultSetPanel extends Panel implements IEventSource {
             private static final long serialVersionUID = 2054811145491901166L;
 
             @Override
+            public String getCssClass() {
+                return "action";
+            }
+
+            @Override
             public void populateItem(
                     final Item<ICellPopulator<UserTO>> cellItem,
                     final String componentId,
@@ -466,7 +460,11 @@ public class ResultSetPanel extends Panel implements IEventSource {
                             error(scce.getMessage());
                         }
                         target.add(feedbackPanel);
-                        target.add(container);
+
+                        final EventDataWrapper data = new EventDataWrapper();
+                        data.setTarget(target);
+
+                        send(getParent(), Broadcast.BREADTH, data);
                     }
                 });
                 cellItem.add(panel);
@@ -474,86 +472,6 @@ public class ResultSetPanel extends Panel implements IEventSource {
         });
 
         return columns;
-    }
-
-    private class TokenColumn extends AbstractColumn<UserTO> {
-
-        private static final long serialVersionUID = 8077865338230121496L;
-
-        public TokenColumn(final IModel<String> displayModel,
-                final String sortProperty) {
-
-            super(displayModel, sortProperty);
-        }
-
-        @Override
-        public void populateItem(final Item<ICellPopulator<UserTO>> cellItem,
-                final String componentId,
-                final IModel<UserTO> rowModel) {
-
-            if (rowModel.getObject().getToken() != null
-                    && !rowModel.getObject().getToken().isEmpty()) {
-                cellItem.add(
-                        new Label(componentId, getString("tokenValued")));
-            } else {
-                cellItem.add(
-                        new Label(componentId, getString("tokenNotValued")));
-            }
-        }
-    }
-
-    private static class UserAttrColumn extends AbstractColumn<UserTO> {
-
-        private static final long serialVersionUID = 2624734332447371372L;
-
-        private final String schemaName;
-
-        public UserAttrColumn(
-                final IModel<String> displayModel, final String schemaName) {
-
-            super(displayModel,
-                    schemaName.startsWith(DERIVED_ATTRIBUTE_PREFIX)
-                    ? schemaName.substring(
-                    DERIVED_ATTRIBUTE_PREFIX.length(), schemaName.length())
-                    : schemaName.startsWith(VIRTUAL_ATTRIBUTE_PREFIX)
-                    ? schemaName.substring(
-                    VIRTUAL_ATTRIBUTE_PREFIX.length(), schemaName.length())
-                    : schemaName);
-
-            this.schemaName = schemaName;
-        }
-
-        @Override
-        public void populateItem(
-                final Item<ICellPopulator<UserTO>> cellItem,
-                final String componentId,
-                final IModel<UserTO> rowModel) {
-
-            Label label;
-
-            List<String> values =
-                    schemaName.startsWith(DERIVED_ATTRIBUTE_PREFIX)
-                    ? rowModel.getObject().getDerivedAttributeMap().get(
-                    schemaName.substring(
-                    DERIVED_ATTRIBUTE_PREFIX.length(), schemaName.length()))
-                    : schemaName.startsWith(VIRTUAL_ATTRIBUTE_PREFIX)
-                    ? rowModel.getObject().getVirtualAttributeMap().get(
-                    schemaName.substring(
-                    VIRTUAL_ATTRIBUTE_PREFIX.length(), schemaName.length()))
-                    : rowModel.getObject().getAttributeMap().get(schemaName);
-
-            if (values == null || values.isEmpty()) {
-                label = new Label(componentId, "");
-            } else {
-                if (values.size() == 1) {
-                    label = new Label(componentId, values.iterator().next());
-                } else {
-                    label = new Label(componentId, values.toString());
-                }
-            }
-
-            cellItem.add(label);
-        }
     }
 
     @Override

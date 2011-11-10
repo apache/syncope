@@ -14,6 +14,7 @@
  */
 package org.syncope.core.persistence.beans;
 
+import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -24,7 +25,6 @@ import java.util.Set;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToMany;
 import javax.persistence.MappedSuperclass;
-import org.syncope.core.persistence.validation.entity.SyncopeUserCheck;
 
 @MappedSuperclass
 public abstract class AbstractAttributable extends AbstractBaseBean {
@@ -208,4 +208,10 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
 
     public abstract void setVirtualAttributes(
             List<? extends AbstractVirAttr> virtualAttributes);
+
+    public final SimpleDateFormat getDateFormatter() {
+        final SimpleDateFormat dateFormatter = DATE_FORMAT.get();
+        dateFormatter.setLenient(false);
+        return dateFormatter;
+    }
 }

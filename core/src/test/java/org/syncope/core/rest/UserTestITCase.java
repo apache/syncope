@@ -37,6 +37,7 @@ import org.syncope.client.mod.MembershipMod;
 import org.syncope.client.mod.UserMod;
 import org.syncope.client.to.AttributeTO;
 import org.syncope.client.search.AttributeCond;
+import org.syncope.client.search.SyncopeUserCond;
 import org.syncope.client.to.MembershipTO;
 import org.syncope.client.search.NodeCond;
 import org.syncope.client.search.ResourceCond;
@@ -843,6 +844,35 @@ public class UserTestITCase extends AbstractTest {
         }
         assertTrue(userIds.contains(2L));
         assertTrue(userIds.contains(3L));
+    }
+
+    @Test
+    public final void searchByUsernameAndId() {
+        final SyncopeUserCond usernameLeafCond =
+                new SyncopeUserCond(SyncopeUserCond.Type.EQ);
+        usernameLeafCond.setSchema("username");
+        usernameLeafCond.setExpression("user1");
+
+        final SyncopeUserCond idRightCond =
+                new SyncopeUserCond(SyncopeUserCond.Type.LT);
+        idRightCond.setSchema("id");
+        idRightCond.setExpression("2");
+
+        final NodeCond searchCondition = NodeCond.getAndCond(
+                NodeCond.getLeafCond(usernameLeafCond),
+                NodeCond.getLeafCond(idRightCond));
+
+        assertTrue(searchCondition.checkValidity());
+
+        final List<UserTO> matchedUsers = Arrays.asList(
+                restTemplate.postForObject(
+                BASE_URL + "user/search",
+                searchCondition, UserTO[].class));
+
+        assertNotNull(matchedUsers);
+        assertEquals(1, matchedUsers.size());
+        assertEquals("user1", matchedUsers.iterator().next().getUsername());
+        assertEquals(1L, matchedUsers.iterator().next().getId());
     }
 
     @Test

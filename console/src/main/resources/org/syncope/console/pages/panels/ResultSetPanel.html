@@ -27,6 +27,10 @@
             left:97%;
             width:10px;
         }
+
+        .action{
+            width: 100px;
+        }
     </style>
 </wicket:head>
 <html>
@@ -37,14 +41,12 @@
                 <img src="img/settings-icon.png" alt="settings icon" class="drop_button" />
             </a>
 
-            <table class="ui-widget ui-widget-content table-hover"
-                   wicket:id="resultTable"/>
+            <table class="ui-widget ui-widget-content table-hover" wicket:id="resultTable"/>
 
             <span style="float:right">
                 <form wicket:id="paginator" style="display:inline">
                     <label><wicket:message key="displayRows"/></label>
-                    <select class="text ui-widget-content ui-corner-all"
-                            wicket:id="rowsChooser"/>
+                    <select class="text ui-widget-content ui-corner-all" wicket:id="rowsChooser"/>
                 </form>
             </span>
         </div>

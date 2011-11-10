@@ -13,6 +13,7 @@
  */
 package org.syncope.console.pages.panels;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -44,8 +45,10 @@ import org.syncope.client.search.AttributeCond;
 import org.syncope.client.search.MembershipCond;
 import org.syncope.client.search.NodeCond;
 import org.syncope.client.search.ResourceCond;
+import org.syncope.client.search.SyncopeUserCond;
 import org.syncope.client.to.ResourceTO;
 import org.syncope.client.to.RoleTO;
+import org.syncope.client.to.UserTO;
 import org.syncope.console.commons.SearchCondWrapper;
 import org.syncope.console.commons.SearchCondWrapper.FilterType;
 import org.syncope.console.commons.SearchCondWrapper.OperationType;
@@ -63,6 +66,10 @@ public class UserSearchPanel extends Panel {
     private static final Logger LOG =
             LoggerFactory.getLogger(UserSearchPanel.class);
 
+    private List<String> ATTRIBUTES_NOTINCLUDED = Arrays.asList(new String[]{
+                "attributes", "derivedAttributes", "virtualAttributes",
+                "serialVersionUID", "memberships", "resources", "password"});
+
     @SpringBean
     private SchemaRestClient schemaRestClient;
 
@@ -72,7 +79,32 @@ public class UserSearchPanel extends Panel {
     @SpringBean
     private ResourceRestClient resourceRestClient;
 
-    final private IModel<List<String>> schemaNames =
+    final private IModel<List<String>> dnames =
+            new LoadableDetachableModel<List<String>>() {
+
+                @Override
+                protected List<String> load() {
+
+                    final List<String> details = new ArrayList<String>();
+
+                    Class<?> clazz = UserTO.class;
+
+                    // loop on class and all superclasses searching for field
+                    while (clazz != null && clazz != Object.class) {
+                        for (Field field : clazz.getDeclaredFields()) {
+                            if (!ATTRIBUTES_NOTINCLUDED.contains(field.getName())) {
+                                details.add(field.getName());
+                            }
+                        }
+                        clazz = clazz.getSuperclass();
+                    }
+
+                    Collections.reverse(details);
+                    return details;
+                }
+            };
+
+    final private IModel<List<String>> unames =
             new LoadableDetachableModel<List<String>>() {
 
                 private static final long serialVersionUID =
@@ -84,7 +116,7 @@ public class UserSearchPanel extends Panel {
                 }
             };
 
-    final private IModel<List<String>> roleNames =
+    final private IModel<List<String>> ronames =
             new LoadableDetachableModel<List<String>>() {
 
                 private static final long serialVersionUID =
@@ -104,7 +136,7 @@ public class UserSearchPanel extends Panel {
                 }
             };
 
-    final private IModel<List<String>> resourceNames =
+    final private IModel<List<String>> renames =
             new LoadableDetachableModel<List<String>>() {
 
                 private static final long serialVersionUID =
@@ -260,7 +292,7 @@ public class UserSearchPanel extends Panel {
         return searchFeedback;
     }
 
-    private final List<SearchCondWrapper> getSearchCondWrappers(
+    private List<SearchCondWrapper> getSearchCondWrappers(
             final NodeCond searchCond) {
 
         LOG.debug("Search condition: {}", searchCond);
@@ -294,10 +326,20 @@ public class UserSearchPanel extends Panel {
         return wrappers;
     }
 
-    private final SearchCondWrapper getSearchCondWrapper(
+    private SearchCondWrapper getSearchCondWrapper(
             final NodeCond searchCond) {
 
         SearchCondWrapper wrapper = new SearchCondWrapper();
+
+        if (searchCond.getSyncopeUserCond() != null) {
+            wrapper.setFilterType(FilterType.ATTRIBUTE);
+            wrapper.setFilterName(
+                    searchCond.getSyncopeUserCond().getSchema());
+            wrapper.setType(
+                    searchCond.getSyncopeUserCond().getType());
+            wrapper.setFilterValue(
+                    searchCond.getSyncopeUserCond().getExpression());
+        }
         if (searchCond.getAttributeCond() != null) {
             wrapper.setFilterType(FilterType.ATTRIBUTE);
             wrapper.setFilterName(
@@ -352,17 +394,28 @@ public class UserSearchPanel extends Panel {
 
         switch (searchConditionWrapper.getFilterType()) {
             case ATTRIBUTE:
-                final AttributeCond attributeCond = new AttributeCond();
-                attributeCond.setSchema(searchConditionWrapper.getFilterName());
+                // AttributeCond or SyncopeUserCond
+                final String schema = searchConditionWrapper.getFilterName();
+
+                final AttributeCond attributeCond;
+                if (dnames.getObject().contains(schema)) {
+                    attributeCond = new SyncopeUserCond();
+                    nodeCond = searchConditionWrapper.isNotOperator()
+                            ? NodeCond.getNotLeafCond(
+                            (SyncopeUserCond) attributeCond)
+                            : NodeCond.getLeafCond(
+                            (SyncopeUserCond) attributeCond);
+                } else {
+                    attributeCond = new AttributeCond();
+                    nodeCond = searchConditionWrapper.isNotOperator()
+                            ? NodeCond.getNotLeafCond(attributeCond)
+                            : NodeCond.getLeafCond(attributeCond);
+                }
+                
+                attributeCond.setSchema(schema);
                 attributeCond.setType(searchConditionWrapper.getType());
                 attributeCond.setExpression(
                         searchConditionWrapper.getFilterValue());
-
-                if (searchConditionWrapper.isNotOperator()) {
-                    nodeCond = NodeCond.getNotLeafCond(attributeCond);
-                } else {
-                    nodeCond = NodeCond.getLeafCond(attributeCond);
-                }
 
                 break;
             case MEMBERSHIP:
@@ -430,19 +483,19 @@ public class UserSearchPanel extends Panel {
         protected void populateItem(
                 final ListItem<SearchCondWrapper> item) {
 
-            final SearchCondWrapper searchCondition =
-                    item.getModelObject();
+            final SearchCondWrapper searchCondition = item.getModelObject();
 
             if (item.getIndex() == 0) {
                 item.add(new Label("operationType", ""));
             } else {
                 item.add(new Label("operationType",
-                        searchCondition.getOperationType().
-                        toString()));
+                        searchCondition.getOperationType().toString()));
             }
 
-            final CheckBox notOperator = new CheckBox("notOperator",
+            final CheckBox notOperator = new CheckBox(
+                    "notOperator",
                     new PropertyModel(searchCondition, "notOperator"));
+
             notOperator.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
                 private static final long serialVersionUID =
@@ -456,9 +509,10 @@ public class UserSearchPanel extends Panel {
             item.add(notOperator);
 
             final DropDownChoice<String> filterNameChooser =
-                    new DropDownChoice<String>("filterName",
-                    new PropertyModel<String>(
+                    new DropDownChoice<String>(
+                    "filterName", new PropertyModel<String>(
                     searchCondition, "filterName"), (IModel) null);
+
             filterNameChooser.setOutputMarkupId(true);
             filterNameChooser.setRequired(true);
             item.add(filterNameChooser);
@@ -477,8 +531,8 @@ public class UserSearchPanel extends Panel {
             final DropDownChoice<AttributeCond.Type> type =
                     new DropDownChoice<AttributeCond.Type>(
                     "type", new PropertyModel<AttributeCond.Type>(
-                    searchCondition, "type"),
-                    attributeTypes);
+                    searchCondition, "type"), attributeTypes);
+
             type.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
                 private static final long serialVersionUID =
@@ -493,9 +547,9 @@ public class UserSearchPanel extends Panel {
 
             final TextField<String> filterValue =
                     new TextField<String>("filterValue",
-                    new PropertyModel<String>(searchCondition,
-                    "filterValue"));
+                    new PropertyModel<String>(searchCondition, "filterValue"));
             item.add(filterValue);
+
             filterValue.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
                 private static final long serialVersionUID =
@@ -505,46 +559,6 @@ public class UserSearchPanel extends Panel {
                 protected void onUpdate(final AjaxRequestTarget art) {
                 }
             });
-
-            try {
-                switch (searchCondition.getFilterType()) {
-                    case ATTRIBUTE:
-                        filterNameChooser.setChoices(schemaNames);
-                        if (!type.isEnabled()) {
-                            type.setEnabled(true);
-                            type.setRequired(true);
-                        }
-                        if (!filterValue.isEnabled()) {
-                            filterValue.setEnabled(true);
-                        }
-                        break;
-                    case MEMBERSHIP:
-                        filterNameChooser.setChoices(roleNames);
-                        type.setEnabled(false);
-                        type.setRequired(false);
-                        type.setModelObject(null);
-
-                        filterValue.setEnabled(false);
-                        filterValue.setModelObject("");
-
-                        break;
-                    case RESOURCE:
-                        filterNameChooser.setChoices(resourceNames);
-                        type.setEnabled(false);
-                        type.setRequired(false);
-                        type.setModelObject(null);
-
-                        filterValue.setEnabled(false);
-                        filterValue.setModelObject("");
-
-                        break;
-                    default:
-                        filterNameChooser.setChoices(Collections.EMPTY_LIST);
-                }
-            } catch (NullPointerException npe) {
-                // searchCondition null
-                filterNameChooser.setChoices(Collections.EMPTY_LIST);
-            }
 
             final DropDownChoice<FilterType> filterTypeChooser =
                     new DropDownChoice<FilterType>("filterType",
@@ -562,12 +576,6 @@ public class UserSearchPanel extends Panel {
                         @Override
                         protected void onUpdate(
                                 final AjaxRequestTarget target) {
-
-                            filterNameChooser.setChoices(
-                                    searchCondition.getFilterType()
-                                    == FilterType.ATTRIBUTE
-                                    ? schemaNames : roleNames);
-                            target.add(filterNameChooser);
                             target.add(searchFormContainer);
                         }
                     });
@@ -606,6 +614,55 @@ public class UserSearchPanel extends Panel {
             }
 
             item.add(dropButton);
+
+            try {
+                switch (searchCondition.getFilterType()) {
+                    case ATTRIBUTE:
+                        final List<String> names =
+                                new ArrayList<String>(dnames.getObject());
+
+                        if (unames.getObject() != null
+                                && !unames.getObject().isEmpty()) {
+                            names.addAll(unames.getObject());
+                        }
+
+                        filterNameChooser.setChoices(names);
+                        if (!type.isEnabled()) {
+                            type.setEnabled(true);
+                            type.setRequired(true);
+                        }
+                        if (!filterValue.isEnabled()) {
+                            filterValue.setEnabled(true);
+                        }
+
+                        break;
+                    case MEMBERSHIP:
+                        filterNameChooser.setChoices(ronames);
+                        type.setEnabled(false);
+                        type.setRequired(false);
+                        type.setModelObject(null);
+
+                        filterValue.setEnabled(false);
+                        filterValue.setModelObject("");
+
+                        break;
+                    case RESOURCE:
+                        filterNameChooser.setChoices(renames);
+                        type.setEnabled(false);
+                        type.setRequired(false);
+                        type.setModelObject(null);
+
+                        filterValue.setEnabled(false);
+                        filterValue.setModelObject("");
+
+                        break;
+                    default:
+                        filterNameChooser.setChoices(Collections.EMPTY_LIST);
+                }
+            } catch (NullPointerException npe) {
+                // searchCondition null
+                filterNameChooser.setChoices(Collections.EMPTY_LIST);
+            }
         }
     }
 }

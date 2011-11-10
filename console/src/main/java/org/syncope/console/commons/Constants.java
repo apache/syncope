@@ -16,9 +16,18 @@ package org.syncope.console.commons;
 
 public final class Constants {
 
+    public static final String PREF_USERS_DETAILS_VIEW =
+            "users.details.view";
+
     public static final String PREF_USERS_ATTRIBUTES_VIEW =
             "users.attributes.view";
-
+    
+    public static final String PREF_USERS_DERIVED_ATTRIBUTES_VIEW =
+            "users.derived.attributes.view";
+    
+    public static final String PREF_USERS_VIRTUAL_ATTRIBUTES_VIEW =
+            "users.virtual.attributes.view";
+    
     public static final String PREFS_COOKIE_NAME = "syncopeConsolePrefs";
 
     public static final String PREF_USER_SCHEMA_PAGINATOR_ROWS =

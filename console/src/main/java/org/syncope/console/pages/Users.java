@@ -93,8 +93,7 @@ public class Users extends BasePage {
         final Form searchForm = new Form("searchForm");
         add(searchForm);
 
-        final UserSearchPanel searchPanel =
-                new UserSearchPanel("searchPanel");
+        final UserSearchPanel searchPanel = new UserSearchPanel("searchPanel");
         searchForm.add(searchPanel);
 
         searchForm.add(new IndicatingAjaxButton(
@@ -106,7 +105,7 @@ public class Users extends BasePage {
             protected void onSubmit(final AjaxRequestTarget target,
                     final Form<?> form) {
 
-                final NodeCond searchCond = searchPanel.buildSearchCond();
+                    final NodeCond searchCond = searchPanel.buildSearchCond();
                 LOG.debug("Node condition " + searchCond);
 
                 doSearch(target, searchCond, searchResult);

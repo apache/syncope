@@ -21,8 +21,6 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import java.security.MessageDigest;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -30,7 +28,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.TimeZone;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import javax.persistence.Basic;
@@ -72,9 +69,6 @@ public class SyncopeUser extends AbstractAttributable {
     private static final long serialVersionUID = -3905046855521446823L;
 
     private static SecretKeySpec keySpec;
-
-    @Transient
-    public static String FORMAT_DATE_ISO = "yyyy-MM-dd'T'HH:mm:ssZ";
 
     static {
         try {
@@ -540,11 +534,5 @@ public class SyncopeUser extends AbstractAttributable {
             LOG.error("Error evaluating password history", t);
             return false;
         }
-    }
-
-    public DateFormat getDateFormatter() {
-        final DateFormat format = new SimpleDateFormat(FORMAT_DATE_ISO);
-        format.setTimeZone(TimeZone.getDefault());
-        return format;
     }
 }

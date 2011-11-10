@@ -45,25 +45,78 @@
             float: none;
             margin-left: 10px;
         }
+
+        span.grouplabel{
+            display:block;
+            clear: both;
+            margin-left: 10px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
     </style>
 </wicket:head>
 <wicket:extend>
-    <form wicket:id="UserAttributesForm">
+    <form wicket:id="form">
         <div id="attributes-view">
             <p class="ui-widget ui-corner-all ui-widget-header">
             <wicket:message key="title"/>
             </p>
 
-            <span class="group" wicket:id="checkgroup">
+            <span class="grouplabel"><wicket:message key="schemas"/></span>
+            <span wicket:id="dCheckGroup">
                 <div class="group">
-                    <div wicket:id="schemas">
-                        <input type="checkbox" wicket:id="check"/>
-                        <span wicket:id="name">[schema name]</span>
+                    <div wicket:id="details">
+                        <input type="checkbox" wicket:id="dcheck"/>
+                        <span wicket:id="dname">[schema name]</span>
                     </div>
                 </div>
             </span>
 
+            <span wicket:id="schemas">[schemas]</span>
+
+            <span wicket:id="dschemas">[derived schemas]</span>
+
+            <span wicket:id="vschemas">[virtual schemas]</span>
+
         </div>
+
+        <wicket:fragment wicket:id="sfragment">
+            <span wicket:id="sCheckGroup">
+                <div class="group">
+                    <div wicket:id="schemas">
+                        <input type="checkbox" wicket:id="scheck"/>
+                        <span wicket:id="sname">[schema name]</span>
+                    </div>
+                </div>
+            </span>
+        </wicket:fragment>
+
+        <wicket:fragment wicket:id="dsfragment">
+            <span class="grouplabel"><wicket:message key="derSchemas"/></span>
+            <span wicket:id="dsCheckGroup">
+                <div class="group">
+                    <div wicket:id="derSchemas">
+                        <input type="checkbox" wicket:id="dscheck"/>
+                        <span wicket:id="dsname">[schema name]</span>
+                    </div>
+                </div>
+            </span>
+        </wicket:fragment>
+
+        <wicket:fragment wicket:id="vsfragment">
+            <span class="grouplabel"><wicket:message key="virSchemas"/></span>
+            <span wicket:id="vsCheckGroup">
+                <div class="group">
+                    <div wicket:id="virSchemas">
+                        <input type="checkbox" wicket:id="vscheck"/>
+                        <span wicket:id="vsname">[schema name]</span>
+                    </div>
+                </div>
+            </span>
+        </wicket:fragment>
+
+        <wicket:fragment wicket:id="emptyFragment">
+        </wicket:fragment>
 
         <div class="submit">
             <input type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" wicket:id="submit"/>

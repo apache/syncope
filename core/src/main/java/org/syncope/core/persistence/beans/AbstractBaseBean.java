@@ -17,6 +17,8 @@ package org.syncope.core.persistence.beans;
 import java.beans.PropertyDescriptor;
 import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -33,6 +35,26 @@ public abstract class AbstractBaseBean implements Serializable {
      */
     protected static final Logger LOG = LoggerFactory.getLogger(
             AbstractBaseBean.class);
+
+    protected static final ThreadLocal<SimpleDateFormat> DATE_FORMAT =
+            new ThreadLocal<SimpleDateFormat>() {
+
+                private final static String PATTER = "yyyy-MM-dd'T'HH:mm:ssZ";
+
+                @Override
+                protected SimpleDateFormat initialValue() {
+                    return new SimpleDateFormat(PATTER);
+                }
+            };
+
+    protected static final ThreadLocal<DecimalFormat> DECIMAL_FORMAT =
+            new ThreadLocal<DecimalFormat>() {
+
+                @Override
+                protected DecimalFormat initialValue() {
+                    return new DecimalFormat();
+                }
+            };
 
     private static final long serialVersionUID = -9017214159540857901L;
 

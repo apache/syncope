@@ -57,7 +57,7 @@ public class UserTestITCase extends AbstractTest {
 
         selenium.click("css=img[alt=\"Users\"]");
         selenium.waitForPageToLoad("30000");
-        selenium.click("//tr[3]/td[5]/span/a");
+        selenium.click("//tr[3]/td[4]/span/a");
 
         for (int second = 0;; second++) {
             if (second >= 60) {
@@ -107,7 +107,7 @@ public class UserTestITCase extends AbstractTest {
     public void delete() {
         selenium.click("css=img[alt=\"Users\"]");
         selenium.waitForPageToLoad("30000");
-        selenium.click("//tr[4]/td[6]/span/a");
+        selenium.click("//tr[4]/td[5]/span/a");
         assertTrue(selenium.getConfirmation().matches(
                 "^Do you really want to delete the selected item[\\s\\S]$"));
         try {

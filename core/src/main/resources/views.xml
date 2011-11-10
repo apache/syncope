@@ -15,6 +15,11 @@
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
     <comment>Views</comment>
+    <entry key="user_search">
+ CREATE VIEW user_search AS
+ 
+ SELECT u.id as user_id, u.* FROM SyncopeUser u
+    </entry>
     <entry key="user_search_attr">
 CREATE VIEW user_search_attr AS
 

@@ -37,24 +37,6 @@ import org.syncope.types.SchemaType;
 @SchemaCheck
 public abstract class AbstractSchema extends AbstractBaseBean {
 
-    private static final ThreadLocal<SimpleDateFormat> DATE_FORMAT =
-            new ThreadLocal<SimpleDateFormat>() {
-
-                @Override
-                protected SimpleDateFormat initialValue() {
-                    return new SimpleDateFormat();
-                }
-            };
-
-    private static final ThreadLocal<DecimalFormat> DECIMAL_FORMAT =
-            new ThreadLocal<DecimalFormat>() {
-
-                @Override
-                protected DecimalFormat initialValue() {
-                    return new DecimalFormat();
-                }
-            };
-
     public static String enumValuesSeparator = ";";
 
     private static final long serialVersionUID = -8621028596062054739L;
