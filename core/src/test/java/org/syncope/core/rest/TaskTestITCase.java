@@ -26,7 +26,7 @@ import org.syncope.client.to.PropagationTaskTO;
 import org.syncope.client.to.SchedTaskTO;
 import org.syncope.client.to.SyncTaskTO;
 import org.syncope.client.to.TaskTO;
-import org.syncope.types.PropagationTaskExecStatus;
+import org.syncope.core.propagation.PropagationTaskExecStatus;
 
 public class TaskTestITCase extends AbstractTest {
 

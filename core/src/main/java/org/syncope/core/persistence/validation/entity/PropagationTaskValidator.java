@@ -20,7 +20,7 @@ import javax.validation.ConstraintValidatorContext;
 import org.syncope.core.persistence.beans.PropagationTask;
 import org.syncope.core.persistence.beans.TaskExec;
 import org.syncope.types.EntityViolationType;
-import org.syncope.types.PropagationTaskExecStatus;
+import org.syncope.core.propagation.PropagationTaskExecStatus;
 
 public class PropagationTaskValidator extends AbstractValidator
         implements ConstraintValidator<PropagationTaskCheck, PropagationTask> {

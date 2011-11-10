@@ -21,6 +21,8 @@ import org.syncope.types.TraceLevel;
 
 public class NotificationTO extends AbstractBaseBean {
 
+    private static final long serialVersionUID = -6145117115632592612L;
+
     private Long id;
 
     private List<String> events;

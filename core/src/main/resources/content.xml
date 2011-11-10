@@ -20,6 +20,7 @@
     <SyncopeConf confKey="email.schema" confValue="email"/>
     <SyncopeConf confKey="connid.bundles.directory" confValue="${bundles.directory}"/>
     <SyncopeConf confKey="password.cipher.algorithm" confValue="MD5"/>
+    <SyncopeConf confKey="createRequest.allowed" confValue="false"/>
 
     <USchema name="surname" type="String"
                 mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
@@ -95,5 +96,8 @@
     <Entitlement name="NOTIFICATION_READ"/>
     <Entitlement name="NOTIFICATION_UPDATE"/>
     <Entitlement name="NOTIFICATION_DELETE"/>
+    <Entitlement name="USER_REQUEST_LIST"/>
+    <Entitlement name="USER_REQUEST_READ"/>
+    <Entitlement name="USER_REQUEST_DELETE"/>
     
 </dataset>

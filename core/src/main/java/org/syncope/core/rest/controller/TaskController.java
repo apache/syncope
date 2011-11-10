@@ -64,7 +64,7 @@ import org.syncope.core.util.ApplicationContextManager;
 import org.syncope.core.util.TaskUtil;
 import org.syncope.types.EntityViolationType;
 import org.syncope.types.PropagationMode;
-import org.syncope.types.PropagationTaskExecStatus;
+import org.syncope.core.propagation.PropagationTaskExecStatus;
 import org.syncope.types.SyncopeClientExceptionType;
 
 @Controller

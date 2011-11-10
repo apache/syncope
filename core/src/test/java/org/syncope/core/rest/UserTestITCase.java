@@ -509,8 +509,7 @@ public class UserTestITCase extends AbstractTest {
         // 2. check for virtual attribute value
         newUserTO = restTemplate.getForObject(
                 BASE_URL + "user/read/{userId}.json",
-                UserTO.class,
-                newUserTO.getId());
+                UserTO.class, newUserTO.getId());
         assertNotNull(newUserTO);
 
         assertNotNull(newUserTO.getVirtualAttributeMap());
@@ -864,15 +863,15 @@ public class UserTestITCase extends AbstractTest {
 
         assertTrue(searchCondition.checkValidity());
 
-        final List<UserTO> matchedUsers = Arrays.asList(
+        final List<UserTO> matchingUsers = Arrays.asList(
                 restTemplate.postForObject(
                 BASE_URL + "user/search",
                 searchCondition, UserTO[].class));
 
-        assertNotNull(matchedUsers);
-        assertEquals(1, matchedUsers.size());
-        assertEquals("user1", matchedUsers.iterator().next().getUsername());
-        assertEquals(1L, matchedUsers.iterator().next().getId());
+        assertNotNull(matchingUsers);
+        assertEquals(1, matchingUsers.size());
+        assertEquals("user1", matchingUsers.iterator().next().getUsername());
+        assertEquals(1L, matchingUsers.iterator().next().getId());
     }
 
     @Test

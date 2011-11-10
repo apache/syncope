@@ -19,6 +19,8 @@ import java.util.Set;
 
 public class MembershipTO extends AbstractAttributableTO {
 
+    private static final long serialVersionUID = 5992828670273935861L;
+
     private Long roleId;
 
     private String roleName;

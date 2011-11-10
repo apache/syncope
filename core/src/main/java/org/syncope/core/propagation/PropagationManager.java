@@ -69,7 +69,6 @@ import org.syncope.types.PropagationMode;
 import org.syncope.types.PropagationOperation;
 import org.syncope.types.IntMappingType;
 import org.syncope.types.SchemaType;
-import org.syncope.types.PropagationTaskExecStatus;
 import org.syncope.types.TraceLevel;
 
 /**

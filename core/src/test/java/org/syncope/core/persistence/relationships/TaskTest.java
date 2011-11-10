@@ -33,7 +33,7 @@ import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.dao.TaskDAO;
 import org.syncope.core.persistence.dao.TaskExecDAO;
 import org.syncope.types.PropagationMode;
-import org.syncope.types.PropagationTaskExecStatus;
+import org.syncope.core.propagation.PropagationTaskExecStatus;
 import org.syncope.types.PropagationOperation;
 
 @Transactional

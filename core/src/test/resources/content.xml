@@ -20,6 +20,7 @@
     <SyncopeConf confKey="email.schema" confValue="email"/>
     <SyncopeConf confKey="connid.bundles.directory" confValue="${bundles.directory}"/>
     <SyncopeConf confKey="password.cipher.algorithm" confValue="MD5"/>
+    <SyncopeConf confKey="createRequest.allowed" confValue="true"/>
 
     <!-- sample policies -->
     <Policy DTYPE="SyncPolicy" id="1" description="sync policy 1" type="SYNC" specification="%3C%3Fxml+version%3D%221.0%22+encoding%3D%22UTF-8%22%3F%3E+%0A%3Cjava+version%3D%221.6.0_26%22+class%3D%22java.beans.XMLDecoder%22%3E+%0A+%3Cobject+class%3D%22org.syncope.types.SyncPolicySpec%22/%3E%0A%3C/java%3E+%0A"/>
@@ -487,6 +488,9 @@
     <Entitlement name="NOTIFICATION_READ"/>
     <Entitlement name="NOTIFICATION_UPDATE"/>
     <Entitlement name="NOTIFICATION_DELETE"/>
+    <Entitlement name="USER_REQUEST_LIST"/>
+    <Entitlement name="USER_REQUEST_READ"/>
+    <Entitlement name="USER_REQUEST_DELETE"/>
     <Entitlement name="ROLE_1"/>
     <Entitlement name="ROLE_2"/>
     <Entitlement name="ROLE_3"/>
