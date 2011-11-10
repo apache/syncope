@@ -13,11 +13,11 @@
  */
 package org.syncope.core.rest;
 
+import static org.junit.Assert.*;
+
 import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import static org.junit.Assert.*;
-
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
@@ -29,6 +29,9 @@ import org.syncope.client.search.NodeCond;
 import org.syncope.client.to.ConfigurationTO;
 import org.syncope.client.to.UserRequestTO;
 import org.syncope.client.to.UserTO;
+import org.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.syncope.client.validation.SyncopeClientException;
+import org.syncope.types.SyncopeClientExceptionType;
 
 public class UserRequestTestITCase extends AbstractTest {
 
@@ -104,7 +107,7 @@ public class UserRequestTestITCase extends AbstractTest {
 
         UserMod userMod = new UserMod();
         userMod.setId(userTO.getId());
-        userMod.setPassword("new" + initialPassword);
+        userMod.setPassword(initialPassword);
 
         // 2. try to request user update as admin: failure
         try {
@@ -120,28 +123,40 @@ public class UserRequestTestITCase extends AbstractTest {
                 new UsernamePasswordCredentials(userTO.getUsername(),
                 initialPassword));
 
-        // 4. now request user update works
+        // 4. update with same password: not matching password policy
+        SyncopeClientException exception = null;
+        try {
+            restTemplate.postForObject(BASE_URL + "user/request/update",
+                    userMod, UserRequestTO.class);
+        } catch (SyncopeClientCompositeErrorException scce) {
+            exception = scce.getException(
+                    SyncopeClientExceptionType.InvalidSyncopeUser);
+        }
+        assertNotNull(exception);
+
+        // 5. now request user update works
+        userMod.setPassword("new" + initialPassword);
         UserRequestTO request = restTemplate.postForObject(
                 BASE_URL + "user/request/update",
                 userMod, UserRequestTO.class);
         assertNotNull(request);
 
-        // 5. switch back to admin
+        // 6. switch back to admin
         super.setupRestTemplate();
 
-        // 6. user password has not changed yet
+        // 7. user password has not changed yet
         Boolean verify = restTemplate.getForObject(
                 BASE_URL + "user/verifyPassword/{userId}?password="
                 + userMod.getPassword(),
                 Boolean.class, userTO.getId());
         assertFalse(verify);
 
-        // 7. actually update user
+        // 8. actually update user
         userTO = restTemplate.postForObject(BASE_URL + "user/update",
                 userMod, UserTO.class);
         assertNotNull(userTO);
 
-        // 8. user password has now changed
+        // 9. user password has now changed
         verify = restTemplate.getForObject(
                 BASE_URL + "user/verifyPassword/{userId}?password="
                 + userMod.getPassword(),
