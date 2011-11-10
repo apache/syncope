@@ -464,7 +464,7 @@ public class ResultSetPanel extends Panel implements IEventSource {
                         final EventDataWrapper data = new EventDataWrapper();
                         data.setTarget(target);
 
-                        send(getParent(), Broadcast.BREADTH, data);
+                        send(getPage(), Broadcast.BREADTH, data);
                     }
                 });
                 cellItem.add(panel);
