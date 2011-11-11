@@ -37,16 +37,19 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
      */
     protected static final Logger LOG = LoggerFactory.getLogger(
             BasePage.class);
-
     private static final long serialVersionUID = 1571997737305598502L;
-
+    
     @SpringBean
     protected XMLRolesReader xmlRolesReader;
-
+    
     @SpringBean(name = "version")
     private String version;
-
+    
     protected FeedbackPanel feedbackPanel;
+    /**
+     * Response flag set by the Modal Window after the operation is completed.
+     */
+    protected boolean modalResult = false;
 
     public BasePage() {
         super();
@@ -97,5 +100,13 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
 
     public FeedbackPanel getFeedbackPanel() {
         return feedbackPanel;
+    }
+
+    public boolean isModalResult() {
+        return modalResult;
+    }
+
+    public void setModalResult(boolean modalResult) {
+        this.modalResult = modalResult;
     }
 }

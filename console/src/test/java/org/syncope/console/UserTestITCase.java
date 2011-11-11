@@ -57,7 +57,8 @@ public class UserTestITCase extends AbstractTest {
 
         selenium.click("css=img[alt=\"Users\"]");
         selenium.waitForPageToLoad("30000");
-        selenium.click("//tr[3]/td[4]/span/a");
+        //Edit user3
+        selenium.click("//*[@id=\"users-contain\"]//*[span=3]/../td[4]/span/a");
 
         for (int second = 0;; second++) {
             if (second >= 60) {
@@ -99,15 +100,16 @@ public class UserTestITCase extends AbstractTest {
         }
         selenium.select("//td[4]/select", "label=8 otherchild");
         selenium.click("name=search");
-        assertEquals("1", selenium.getText(
-                "//div[@id=\"users-contain\"]/span/div/table/tbody/tr/td/span"));
+        assertEquals("2", selenium.getText(
+                "//*[@id=\"users-contain\"]//*[span=2]"));
     }
+    
 
     @Test
     public void delete() {
         selenium.click("css=img[alt=\"Users\"]");
         selenium.waitForPageToLoad("30000");
-        selenium.click("//tr[4]/td[5]/span/a");
+        selenium.click("//*[@id=\"users-contain\"]//*[span=1]/../td[5]/span/a");
         assertTrue(selenium.getConfirmation().matches(
                 "^Do you really want to delete the selected item[\\s\\S]$"));
         try {

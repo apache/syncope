@@ -57,6 +57,7 @@ import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.PreferenceManager;
 import org.syncope.console.commons.UserDataProvider;
 import org.syncope.console.commons.XMLRolesReader;
+import org.syncope.console.pages.BasePage;
 import org.syncope.console.pages.DisplayAttributesModalPage;
 import org.syncope.console.pages.UserModalPage;
 import org.syncope.console.pages.Users;
@@ -70,6 +71,8 @@ import org.syncope.console.wicket.markup.html.form.EditLinkPanel;
 
 public class ResultSetPanel extends Panel implements IEventSource {
 
+    private static final long serialVersionUID = -9170191461250434024L;
+    
     /**
      * Logger.
      */
@@ -160,7 +163,7 @@ public class ResultSetPanel extends Panel implements IEventSource {
     /**
      * Owner page.
      */
-    private final Users page;
+    private final BasePage page;
 
     public <T extends AbstractAttributableTO> ResultSetPanel(
             final String id,
@@ -171,7 +174,7 @@ public class ResultSetPanel extends Panel implements IEventSource {
 
         setOutputMarkupId(true);
 
-        page = (Users) callerRef.getPage();
+        page = (BasePage) callerRef.getPage();
 
         this.filtered = filtered;
         this.filter = searchCond;

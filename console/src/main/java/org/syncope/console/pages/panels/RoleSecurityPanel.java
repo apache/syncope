@@ -45,14 +45,14 @@ public class RoleSecurityPanel extends Panel {
      */
     protected static final Logger LOG =
             LoggerFactory.getLogger(RoleSecurityPanel.class);
-
+    
     private static final long serialVersionUID = -7982691107029848579L;
-
+    
     @SpringBean
     private PolicyRestClient policyRestClient;
-
+    
     IModel<Map<Long, String>> passwordPolicies = null;
-
+    
     IModel<Map<Long, String>> accountPolicies = null;
 
     public <T extends AbstractAttributableTO> RoleSecurityPanel(
@@ -103,8 +103,7 @@ public class RoleSecurityPanel extends Panel {
         // -------------------------------
         final AjaxDropDownChoicePanel<Long> passwordPolicy =
                 new AjaxDropDownChoicePanel<Long>(
-                "passwordPolicy",
-                getString("passwordPolicy"),
+                "passwordPolicy", "passwordPolicy",
                 new PropertyModel(entityTO, "passwordPolicy"),
                 false);
 
@@ -119,8 +118,7 @@ public class RoleSecurityPanel extends Panel {
         securityContainer.add(passwordPolicy);
 
         final AjaxCheckBoxPanel inhPasswordPolicy = new AjaxCheckBoxPanel(
-                "inheritPasswordPolicy",
-                getString("inheritPasswordPolicy"),
+                "inheritPasswordPolicy", "inheritPasswordPolicy",
                 new PropertyModel<Boolean>(entityTO, "inheritPasswordPolicy"),
                 false);
 
@@ -150,7 +148,7 @@ public class RoleSecurityPanel extends Panel {
         final AjaxDropDownChoicePanel<Long> accountPolicy =
                 new AjaxDropDownChoicePanel<Long>(
                 "accountPolicy",
-                getString("accountPolicy"),
+                "accountPolicy",
                 new PropertyModel(entityTO, "accountPolicy"),
                 false);
 
@@ -166,7 +164,7 @@ public class RoleSecurityPanel extends Panel {
 
         final AjaxCheckBoxPanel inhAccountPolicy = new AjaxCheckBoxPanel(
                 "inheritAccountPolicy",
-                getString("inheritAccountPolicy"),
+                "inheritAccountPolicy",
                 new PropertyModel<Boolean>(entityTO, "inheritAccountPolicy"),
                 false);
 

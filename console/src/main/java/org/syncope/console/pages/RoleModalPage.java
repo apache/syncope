@@ -16,7 +16,6 @@
  */
 package org.syncope.console.pages;
 
-import org.syncope.console.pages.panels.AttributesPanel;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.wicket.PageReference;
@@ -25,28 +24,19 @@ import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.extensions.markup.html.form.palette.Palette;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
-import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.mod.AttributeMod;
 import org.syncope.client.mod.ReferenceMod;
 import org.syncope.client.mod.RoleMod;
 import org.syncope.client.to.AttributeTO;
 import org.syncope.client.to.RoleTO;
-import org.syncope.console.commons.SelectChoiceRenderer;
 import org.syncope.console.rest.EntitlementRestClient;
 import org.syncope.console.rest.RoleRestClient;
-import org.syncope.console.pages.panels.DerivedAttributesPanel;
-import org.syncope.console.pages.panels.ResourcesPanel;
-import org.syncope.console.pages.panels.RoleSecurityPanel;
-import org.syncope.console.pages.panels.VirtualAttributesPanel;
-import org.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
-import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.syncope.console.pages.panels.RoleAttributesPanel;
 
 /**
  * Modal window with Role form.
@@ -54,17 +44,15 @@ import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 public class RoleModalPage extends BaseModalPage {
 
     private static final long serialVersionUID = -1732493223434085205L;
-
+    
     @SpringBean
     private RoleRestClient roleRestClient;
-
+    
     @SpringBean
     private EntitlementRestClient entitlementRestClient;
-
-    private AjaxButton submit;
-
+    
     private RoleTO oldRole;
-
+    
     private RoleMod roleMod;
 
     /**
@@ -92,75 +80,12 @@ public class RoleModalPage extends BaseModalPage {
 
         form.setModel(new CompoundPropertyModel(roleTO));
 
-        //--------------------------------
-        // Attributes panel
-        //--------------------------------
-        final AjaxTextFieldPanel name = new AjaxTextFieldPanel(
-                "name", getString("name"),
-                new PropertyModel<String>(roleTO, "name"), false);
-        name.addRequiredLabel();
-        form.add(name);
+        final RoleAttributesPanel attributesPanel =
+                new RoleAttributesPanel("attributesPanel", form, roleTO);
 
-        form.add(new AttributesPanel("attributes", roleTO, form));
+        form.add(attributesPanel);
 
-        final AjaxCheckBoxPanel inhAttributes = new AjaxCheckBoxPanel(
-                "inheritAttributes",
-                getString("inheritAttributes"),
-                new PropertyModel<Boolean>(roleTO, "inheritAttributes"),
-                false);
-        form.add(inhAttributes);
-        //--------------------------------
-
-        //--------------------------------
-        // Derived attributes container
-        //--------------------------------
-        form.add(new DerivedAttributesPanel("derivedAttributes", roleTO));
-
-        final AjaxCheckBoxPanel inhDerivedAttributes = new AjaxCheckBoxPanel(
-                "inheritDerivedAttributes",
-                getString("inheritDerivedAttributes"),
-                new PropertyModel<Boolean>(roleTO, "inheritDerivedAttributes"),
-                false);
-        inhDerivedAttributes.setOutputMarkupId(true);
-        form.add(inhDerivedAttributes);
-        //--------------------------------
-
-        //--------------------------------
-        // Virtual attributes container
-        //--------------------------------
-        form.add(new VirtualAttributesPanel("virtualAttributes", roleTO));
-
-        final AjaxCheckBoxPanel inhVirtualAttributes = new AjaxCheckBoxPanel(
-                "inheritVirtualAttributes",
-                getString("inheritVirtualAttributes"),
-                new PropertyModel<Boolean>(roleTO, "inheritVirtualAttributes"),
-                false);
-        inhVirtualAttributes.setOutputMarkupId(true);
-        form.add(inhVirtualAttributes);
-        //--------------------------------
-
-        //--------------------------------
-        // Security container
-        //--------------------------------
-        form.add(new RoleSecurityPanel("security", roleTO));
-        //--------------------------------
-
-        form.add(new ResourcesPanel("resources", roleTO));
-
-        ListModel<String> selectedEntitlements =
-                new ListModel<String>(roleTO.getEntitlements());
-
-        ListModel<String> availableEntitlements =
-                new ListModel<String>(
-                entitlementRestClient.getAllEntitlements());
-
-        final Palette<String> entitlementsPalette = new Palette(
-                "entitlementsPalette", selectedEntitlements,
-                availableEntitlements, new SelectChoiceRenderer(), 20, false);
-
-        form.add(entitlementsPalette);
-
-        submit = new IndicatingAjaxButton(
+        final AjaxButton submit = new IndicatingAjaxButton(
                 "submit", new ResourceModel("submit")) {
 
             private static final long serialVersionUID = -958724007591692537L;
@@ -173,10 +98,13 @@ public class RoleModalPage extends BaseModalPage {
 
                 try {
 
-                    final List<String> entitlementList = new ArrayList<String>(
-                            entitlementsPalette.getModelCollection().size());
+                    final List<String> entitlementList =
+                            new ArrayList<String>(
+                            attributesPanel.getEntitlementsPalette().
+                            getModelCollection().size());
                     for (String entitlement :
-                            entitlementsPalette.getModelCollection()) {
+                            attributesPanel.getEntitlementsPalette().
+                            getModelCollection()) {
 
                         entitlementList.add(entitlement);
                     }
@@ -190,8 +118,7 @@ public class RoleModalPage extends BaseModalPage {
                             roleRestClient.updateRole(roleMod);
                         }
                     }
-                    ((Roles) callerPageRef.getPage()).setOperationResult(true);
-
+                    ((Roles) callerPageRef.getPage()).setModalResult(true);
                     window.close(target);
                 } catch (Exception e) {
                     error(getString("error") + ":" + e.getMessage());
@@ -428,7 +355,7 @@ public class RoleModalPage extends BaseModalPage {
 
         boolean found = false;
 
-        /* Check if the current resource was existent before the update 
+        /* Check if the current resource was existent before the update
         and in this case just ignore it */
         for (String newResource : roleTO.getResources()) {
             if (resource.equals(newResource)) {

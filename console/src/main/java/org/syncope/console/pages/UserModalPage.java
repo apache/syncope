@@ -137,7 +137,7 @@ public class UserModalPage extends BaseModalPage {
                         }
                     }
 
-                    ((Users) callerPageRef.getPage()).setModalResult(true);
+                    ((BasePage) callerPageRef.getPage()).setModalResult(true);
 
                     window.close(target);
                 } catch (SyncopeClientCompositeErrorException e) {

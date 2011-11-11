@@ -12,24 +12,33 @@
  limitations under the License.
  under the License.
 -->
+<wicket:head>
+    <style type="text/css">
+        .actionLink a{
+            text-decoration: none;
+            font-weight: normal;
+        }
+    </style>
+</wicket:head>
 <wicket:panel>
-    <span wicket:id="menuPanel"/>
+    
+    <span class="actionLink" style="float:right" wicket:id="menuPanel"/>
 
     <wicket:fragment wicket:id="roleFrag">
-        <a  wicket:id="createRoleLink">
-            <wicket:message key="create_role"/>&nbsp;
-        </a>
-        <a  wicket:id="updateRoleLink">
-            <wicket:message key="update_role"/>&nbsp;
-        </a>
-        <a  wicket:id="dropRoleLink">
-            <wicket:message key="drop_role"/>&nbsp;
+        <a wicket:id="createRoleLink">
+            <wicket:message key="create_role"/>
+        </a>|
+        <a wicket:id="updateRoleLink">
+            <wicket:message key="update_role"/>
+        </a>|
+        <a wicket:id="dropRoleLink">
+            <wicket:message key="drop_role"/>
         </a>
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fakerootFrag">
-        <a  wicket:id="createRoleLink">
-            <wicket:message key="create_role"/>&nbsp;
+        <a wicket:id="createRoleLink">
+            <wicket:message key="create_role"/>
         </a>
     </wicket:fragment>
 

@@ -38,13 +38,13 @@ import org.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjax
 /**
  * Panel for a node element form.
  */
-public class NodeEditablePanel extends Panel {
+public class TreeActionLinkPanel extends Panel {
 
     /**
      * Logger.
      */
     private static final Logger LOG = LoggerFactory.getLogger(
-            NodeEditablePanel.class);
+            TreeActionLinkPanel.class);
 
     private static final long serialVersionUID = -7292448006463567909L;
 
@@ -56,11 +56,11 @@ public class NodeEditablePanel extends Panel {
 
     private Fragment fragment;
 
-    public NodeEditablePanel(String id, final Long idRole, IModel inputModel,
+    public TreeActionLinkPanel(String id, final long idRole, IModel inputModel,
             final ModalWindow window, final PageReference callerPageRef) {
 
         super(id);
-
+        
         fragment = new Fragment("menuPanel",
                 idRole == 0 ? "fakerootFrag" : "roleFrag", this);
 

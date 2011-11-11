@@ -47,73 +47,9 @@
                     <li><a href="#tabs-5"><span><wicket:message key="tab5"/></span></a></li>
                     <li><a href="#tabs-6"><span><wicket:message key="tab6"/></span></a></li>
                 </ul>
-                <div id="tabs-1">
-                    <div id="formtable">
-                        <div class="tablerow">
-                            <div class="tablecolumn_label short_dynamicsize">
-                                <wicket:message key="name"/>
-                            </div>
-                            <div class="tablecolumn_field medium_dynamicsize">
-                                <span wicket:id="name">[name]</span>
-                            </div>
-                        </div>
-
-                        <span wicket:id="attributes">[role attributes]</span>
-
-                        <div class="tablerow">
-                            <div class="tablecolumn_label short_dynamicsize">
-                                <label for="inheritAttributes"><wicket:message key="inheritAttributes"/></label>
-                            </div>
-                            <div class="tablecolumn_field medium_dynamicsize">
-                                <span wicket:id="inheritAttributes">[inheritAttributes]</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="tabs-2">
-                    <span wicket:id="derivedAttributes">[role derived attributes]</span>
-
-                    <div>
-                        &nbsp;
-                    </div>
-
-                    <label for="inheritDerivedAttributes"><wicket:message key="inheritDerivedAttributes"/></label>
-                    <span wicket:id="inheritDerivedAttributes">[inheritDerivedAttributes]</span>
-                </div>
-
-                <div id="tabs-3">
-                    <span wicket:id="virtualAttributes">[role virtual attributes]</span>
-
-                    <div>
-                        &nbsp;
-                    </div>
-
-                    <label for="inheritVirtualAttributes"><wicket:message key="inheritVirtualAttributes"/></label>
-                    <span wicket:id="inheritVirtualAttributes">[inheritVirtualAttributes]</span>
-                </div>
-
-                <div id="tabs-4">
-                    <span wicket:id="resources">[resources]</span>
-                </div>
-                <div id="tabs-5">
-                    <span wicket:id="entitlementsPalette">[entitlements]</span>
-                </div>
-                <div id="tabs-6">
-                    <span wicket:id="security">[security]</span>
-                </div>
+                <div wicket:id="attributesPanel"></div>
             </div>
-
-            <script type="text/javascript">
-                $(function() {
-                    $('#formtable div.tablerow:even').addClass("alt");
-                });
-            </script>
-
-            <div>
-                &nbsp;
-            </div>
-            <div style="bottom:0">
+            <div style="bottom:0;margin:10px">
                 <input type="submit"
                        class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
                        wicket:id="submit"/>
