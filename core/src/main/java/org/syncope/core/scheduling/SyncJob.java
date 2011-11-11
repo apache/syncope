@@ -36,6 +36,7 @@ import org.syncope.client.to.UserTO;
 import org.syncope.core.init.ConnInstanceLoader;
 import org.syncope.core.persistence.beans.PropagationTask;
 import org.syncope.core.persistence.beans.SchemaMapping;
+import org.syncope.core.persistence.beans.SyncPolicy;
 import org.syncope.core.persistence.beans.SyncTask;
 import org.syncope.core.persistence.beans.TaskExec;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
@@ -308,6 +309,11 @@ public class SyncJob extends AbstractJob {
     private List<SyncopeUser> findExistingUsers(
             final String schemaName, final String uidValue,
             final String previousUidValue) {
+
+        final SyncPolicy policy =
+                ((SyncTask) this.task).getResource().getSyncPolicy();
+        
+        // .............
 
         final List<SyncopeUser> result = new ArrayList<SyncopeUser>();
 

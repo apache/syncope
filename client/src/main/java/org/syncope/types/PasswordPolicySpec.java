@@ -16,6 +16,7 @@ package org.syncope.types;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.syncope.client.SchemaList;
 
 public class PasswordPolicySpec extends AbstractPolicySpec {
 
@@ -44,6 +45,7 @@ public class PasswordPolicySpec extends AbstractPolicySpec {
     /**
      * User attribute values not permitted.
      */
+    @SchemaList
     private List<String> schemasNotPermitted;
 
     /**

@@ -18,6 +18,7 @@ import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -36,16 +37,19 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
+import org.syncope.client.SchemaList;
 import org.syncope.client.to.SchemaTO;
 import org.syncope.console.commons.XMLRolesReader;
 import org.syncope.console.rest.SchemaRestClient;
 import org.syncope.console.wicket.markup.html.form.AbstractFieldPanel;
 import org.syncope.console.wicket.markup.html.form.MultiValueSelectorPanel;
 import org.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
+import org.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.syncope.console.wicket.markup.html.form.AjaxPalettePanel;
 import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.syncope.console.wicket.markup.html.form.FieldPanel;
 import org.syncope.types.AbstractPolicySpec;
+import org.syncope.types.ConflictResolutionAction;
 
 public class PolicyBeanPanel extends Panel {
 
@@ -97,6 +101,10 @@ public class PolicyBeanPanel extends Panel {
                 fieldWrapper = new FieldWrapper();
                 fieldWrapper.setName(field.getName());
                 fieldWrapper.setType(field.getType());
+
+                fieldWrapper.setSchemaList(
+                        field.getAnnotation(SchemaList.class) != null);
+
                 items.add(fieldWrapper);
             }
         }
@@ -115,28 +123,52 @@ public class PolicyBeanPanel extends Panel {
                         "label", new ResourceModel(field.getName())));
 
                 final AbstractFieldPanel component;
-                Method method;
+                Method classMethod;
 
-                if (field.getType().equals(boolean.class)
-                        || field.getType().equals(Boolean.class)) {
-
-                    item.add(new AjaxCheckBoxPanel(
-                            "check",
-                            field.getName(),
-                            new PropertyModel(policy, field.getName()),
-                            false));
-
-                    item.add(new Label("field", new Model(null)));
-
-                } else if (field.getType().equals(List.class)
-                        || field.getType().equals(Set.class)) {
-                    try {
-
-                        method = policy.getClass().getMethod(
+                try {
+                    if (field.getType().equals(ConflictResolutionAction.class)) {
+                        classMethod = policy.getClass().getMethod(
                                 "get" + StringUtils.capitalize(field.getName()),
                                 new Class[]{});
 
-                        if ("schemasNotPermitted".equals(field.getName())) {
+                        component = new AjaxDropDownChoicePanel(
+                                "field",
+                                field.getName(),
+                                new PropertyModel(policy, field.getName()),
+                                false);
+
+                        ((AjaxDropDownChoicePanel) component).setChoices(
+                                Arrays.asList(ConflictResolutionAction.values()));
+
+                        item.add(component);
+
+                        item.add(getActivationControl(
+                                component,
+                                (Enum) classMethod.invoke(
+                                policy, new Object[]{}) != null,
+                                ConflictResolutionAction.IGNORE,
+                                ConflictResolutionAction.IGNORE));
+
+
+                    } else if (field.getType().equals(boolean.class)
+                            || field.getType().equals(Boolean.class)) {
+
+                        item.add(new AjaxCheckBoxPanel(
+                                "check",
+                                field.getName(),
+                                new PropertyModel(policy, field.getName()),
+                                false));
+
+                        item.add(new Label("field", new Model(null)));
+
+                    } else if (field.getType().equals(List.class)
+                            || field.getType().equals(Set.class)) {
+
+                        classMethod = policy.getClass().getMethod(
+                                "get" + StringUtils.capitalize(field.getName()),
+                                new Class[]{});
+
+                        if (field.isSchemaList()) {
                             component = new AjaxPalettePanel(
                                     "field",
                                     new PropertyModel(policy, field.getName()),
@@ -146,7 +178,7 @@ public class PolicyBeanPanel extends Panel {
 
                             item.add(getActivationControl(
                                     component,
-                                    !((List) method.invoke(
+                                    !((List) classMethod.invoke(
                                     policy, new Object[]{})).isEmpty(),
                                     new ArrayList<String>(),
                                     new ArrayList<String>()));
@@ -174,19 +206,15 @@ public class PolicyBeanPanel extends Panel {
 
                             item.add(getActivationControl(
                                     component,
-                                    !((List<String>) method.invoke(
+                                    !((List<String>) classMethod.invoke(
                                     policy, new Object[]{})).isEmpty(),
                                     (Serializable) new ArrayList<String>(),
                                     (Serializable) reinitializedValue));
                         }
-                    } catch (Exception e) {
-                        LOG.error("Error retrieving password policy fields", e);
-                    }
-                } else if (field.getType().equals(int.class)
-                        || field.getType().equals(Integer.class)) {
-                    try {
+                    } else if (field.getType().equals(int.class)
+                            || field.getType().equals(Integer.class)) {
 
-                        method = policy.getClass().getMethod(
+                        classMethod = policy.getClass().getMethod(
                                 "get" + StringUtils.capitalize(field.getName()),
                                 new Class[]{});
 
@@ -196,21 +224,21 @@ public class PolicyBeanPanel extends Panel {
                                 new PropertyModel(policy, field.getName()),
                                 false);
 
+                        item.add(component);
+
                         item.add(getActivationControl(
                                 component,
-                                (Integer) method.invoke(
+                                (Integer) classMethod.invoke(
                                 policy, new Object[]{}) > 0,
                                 0,
                                 0));
-
-                        item.add(component);
-                    } catch (Exception e) {
-                        LOG.error("Error retrieving password policy fields", e);
+                    } else {
+                        item.add(new AjaxCheckBoxPanel(
+                                "check", field.getName(), new Model(), false));
+                        item.add(new Label("field", new Model(null)));
                     }
-                } else {
-                    item.add(new AjaxCheckBoxPanel(
-                            "check", field.getName(), new Model(), false));
-                    item.add(new Label("field", new Model(null)));
+                } catch (Exception e) {
+                    LOG.error("Error retrieving policy fields", e);
                 }
             }
         };
@@ -261,11 +289,13 @@ public class PolicyBeanPanel extends Panel {
 
         private String name;
 
+        private boolean schemaList;
+
         public String getName() {
             return name;
         }
 
-        public void setName(String name) {
+        public void setName(final String name) {
             this.name = name;
         }
 
@@ -273,8 +303,16 @@ public class PolicyBeanPanel extends Panel {
             return type;
         }
 
-        public void setType(Class type) {
+        public void setType(final Class type) {
             this.type = type;
+        }
+
+        public boolean isSchemaList() {
+            return schemaList;
+        }
+
+        public void setSchemaList(boolean schemaList) {
+            this.schemaList = schemaList;
         }
     }
 }

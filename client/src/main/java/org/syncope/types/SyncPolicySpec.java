@@ -14,17 +14,41 @@
  */
 package org.syncope.types;
 
+import java.util.ArrayList;
+import java.util.List;
+import org.syncope.client.SchemaList;
+
 public class SyncPolicySpec extends AbstractPolicySpec {
 
     private static final long serialVersionUID = -3144027171719498127L;
 
-    private boolean fake;
+    /**
+     * SyncopeUsers attributes and user schemas used to disambiguate.
+     */
+    @SchemaList
+    private List<String> identityTemplate;
 
-    public boolean isFake() {
-        return fake;
+    /**
+     * Conflict resolution action.
+     */
+    private ConflictResolutionAction conflictResolutionAction;
+
+    public ConflictResolutionAction getConflictResolutionAction() {
+        return conflictResolutionAction;
     }
 
-    public void setFake(boolean fake) {
-        this.fake = fake;
+    public void setConflictResolutionAction(ConflictResolutionAction conflictResolutionAction) {
+        this.conflictResolutionAction = conflictResolutionAction;
+    }
+
+    public List<String> getIdentityTemplate() {
+        if (identityTemplate == null) {
+            identityTemplate = new ArrayList<String>();
+        }
+        return identityTemplate;
+    }
+
+    public void setIdentityTemplate(List<String> identityTemplate) {
+        this.identityTemplate = identityTemplate;
     }
 }
