@@ -14,7 +14,6 @@
 -->
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:p="http://www.springframework.org/schema/p"
        xmlns:context="http://www.springframework.org/schema/context"
        xmlns:oxm="http://www.springframework.org/schema/oxm"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
@@ -30,28 +29,31 @@
         <constructor-arg value="${adminUser}"/>
     </bean>
     
+    <!-- JSON (via Jackson) -->
     <bean id="jacksonObjectMapper" class="org.syncope.core.rest.jackson.UnwrappedObjectMapper"/>
-    
     <bean id="mappingJacksonHttpMessageConverter"
           class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter">
         <property name="objectMapper" ref="jacksonObjectMapper"/>
     </bean>
-
+    
+    <!-- XML (via XStream) -->
+    <bean id="xStreamXmlMarshaller" class="org.springframework.oxm.xstream.XStreamMarshaller">
+        <property name="autodetectAnnotations" value="true" />
+    </bean> 
+    <bean id="mappingXstreamHttpMessageConverter" class="org.springframework.http.converter.xml.MarshallingHttpMessageConverter">
+        <constructor-arg ref="xStreamXmlMarshaller" />
+    </bean>
+   
     <bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping"/>
     <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
         <property name="messageConverters">
             <list>
                 <ref bean="mappingJacksonHttpMessageConverter"/>
+                <ref bean="mappingXstreamHttpMessageConverter" />
             </list>
         </property>
     </bean>
-
-    <bean id="jsonMediaType" class="org.springframework.http.MediaType">
-        <constructor-arg value="application"/>
-        <constructor-arg value="json"/>
-        <constructor-arg value="UTF-8"/>
-    </bean>
-
+    
     <bean class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
         <property name="mediaTypes">
             <map>
@@ -74,14 +76,18 @@
                     <property name="objectMapper" ref="jacksonObjectMapper"/>
                 </bean>
                 <bean class="org.springframework.web.servlet.view.xml.MarshallingView">
-                    <constructor-arg>
-                        <bean class="org.springframework.oxm.xstream.XStreamMarshaller"
-                              p:autodetectAnnotations="false" p:encoding="UTF-8"/>
-                    </constructor-arg>
+                    <constructor-arg ref="xStreamXmlMarshaller"/>
                 </bean>
             </list>
         </property>
-        <property name="defaultContentType" ref="jsonMediaType"/>
+        <property name="defaultContentType">        
+            <bean id="jsonMediaType" class="org.springframework.http.MediaType">
+                <constructor-arg value="application"/>
+                <constructor-arg value="json"/>
+                <constructor-arg value="UTF-8"/>
+            </bean>
+        </property>
+        
         <property name="ignoreAcceptHeader" value="false"/>
     </bean>
 
