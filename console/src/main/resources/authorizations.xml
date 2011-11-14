@@ -19,10 +19,6 @@ page@id= Schema|Users|Roles|Resources|Connectors|Report|Configuration|Task
 -->
 <auth>
     <page id="Schema">
-        <action id="list">
-            <entitlement>SCHEMA_LIST</entitlement>
-        </action>
-
         <action id="create">
             <entitlement>SCHEMA_CREATE</entitlement>
         </action>
@@ -67,10 +63,6 @@ page@id= Schema|Users|Roles|Resources|Connectors|Report|Configuration|Task
     </page>
 
     <page id="Roles">
-        <action id="list">
-            <entitlement>ROLE_LIST</entitlement>
-        </action>
-
         <action id="create">
             <entitlement>ROLE_CREATE</entitlement>
         </action>
@@ -89,10 +81,6 @@ page@id= Schema|Users|Roles|Resources|Connectors|Report|Configuration|Task
     </page>
 
     <page id="Resources">
-        <action id="list">
-            <entitlement>RESOURCE_LIST</entitlement>
-        </action>
-
         <action id="create">
             <entitlement>RESOURCE_CREATE</entitlement>
         </action>
@@ -142,7 +130,7 @@ page@id= Schema|Users|Roles|Resources|Connectors|Report|Configuration|Task
 
     </page>
 
-    <page id="Todo">
+    <page id="Approval">
         <action id="list">
             <entitlement>WORKFLOW_FORM_LIST</entitlement>
         </action>
@@ -154,6 +142,18 @@ page@id= Schema|Users|Roles|Resources|Connectors|Report|Configuration|Task
         </action>
         <action id="submit">
             <entitlement>WORKFLOW_FORM_SUBMIT</entitlement>
+        </action>
+    </page>
+    
+    <page id="UserRequest">
+        <action id="list">
+            <entitlement>USER_REQUEST_LIST</entitlement>
+        </action>
+        <action id="read">
+            <entitlement>USER_REQUEST_READ</entitlement>
+        </action>
+        <action id="delete">
+            <entitlement>USER_REQUEST_DELETE</entitlement>
         </action>
     </page>
     

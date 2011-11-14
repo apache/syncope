@@ -31,6 +31,7 @@ public class UserAttrColumn extends AbstractColumn<UserTO> {
         schema,
         virtualSchema,
         derivedSchema;
+
     };
 
     private final String name;
@@ -57,15 +58,15 @@ public class UserAttrColumn extends AbstractColumn<UserTO> {
         switch (schemaType) {
             case schema:
                 values = rowModel.getObject().getAttributeMap().
-                        get(name);
+                        get(name).getValues();
                 break;
             case virtualSchema:
                 values = rowModel.getObject().getVirtualAttributeMap().
-                        get(name);
+                        get(name).getValues();
                 break;
             case derivedSchema:
                 values = rowModel.getObject().getDerivedAttributeMap().
-                        get(name);
+                        get(name).getValues();
                 break;
             default:
                 values = null;

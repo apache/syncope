@@ -21,13 +21,13 @@ public final class Constants {
 
     public static final String PREF_USERS_ATTRIBUTES_VIEW =
             "users.attributes.view";
-    
+
     public static final String PREF_USERS_DERIVED_ATTRIBUTES_VIEW =
             "users.derived.attributes.view";
-    
+
     public static final String PREF_USERS_VIRTUAL_ATTRIBUTES_VIEW =
             "users.virtual.attributes.view";
-    
+
     public static final String PREFS_COOKIE_NAME = "syncopeConsolePrefs";
 
     public static final String PREF_USER_SCHEMA_PAGINATOR_ROWS =
@@ -84,8 +84,11 @@ public final class Constants {
     public static final String PREF_SYNC_TASKS_PAGINATOR_ROWS =
             "synctasks.paginator.rows";
 
-    public static final String PREF_TODO_PAGINATOR_ROWS =
-            "todo.paginator.rows";
+    public static final String PREF_APPROVAL_PAGINATOR_ROWS =
+            "approval.paginator.rows";
+
+    public static final String PREF_USER_REQUEST_PAGINATOR_ROWS =
+            "userRequest.paginator.rows";
 
     public static final String PAGEPARAM_CREATE = "CREATE";
 

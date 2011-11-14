@@ -104,7 +104,7 @@ public class UserController {
                 equalsIgnoreCase(passwordUser.getPassword()));
     }
 
-    @PreAuthorize("hasRole('TASK_LIST')")
+    @PreAuthorize("hasRole('USER_LIST')")
     @RequestMapping(method = RequestMethod.GET,
     value = "/count")
     @Transactional(readOnly = true, rollbackFor = {Throwable.class})
@@ -316,7 +316,7 @@ public class UserController {
         List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(
                 updated.getResult().getKey(), userMod.getPassword(),
                 userMod.getVirtualAttributesToBeRemoved(),
-                userMod.getVirtualAttributesToBeAdded(),
+                userMod.getVirtualAttributesToBeUpdated(),
                 null, updated.getResult().getValue());
         propagationManager.execute(tasks);
 

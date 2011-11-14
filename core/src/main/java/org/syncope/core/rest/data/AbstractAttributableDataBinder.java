@@ -295,21 +295,19 @@ public abstract class AbstractAttributableDataBinder {
     public PropagationByResource fillVirtual(
             final AbstractAttributable attributable,
             final Set<String> vAttrsToBeRemoved,
-            final Set<String> vAttrsToBeAdded,
+            final Set<AttributeMod> vAttrsToBeUpdated,
             final AttributableUtil attributableUtil) {
 
         PropagationByResource propByRes = new PropagationByResource();
 
-        AbstractVirSchema virtualSchema;
-        AbstractVirAttr virtualAttribute;
-
         // 1. virtual attributes to be removed
         for (String vAttrToBeRemoved : vAttrsToBeRemoved) {
-            virtualSchema = getVirtualSchema(vAttrToBeRemoved,
-                    attributableUtil.virtualSchemaClass());
+            AbstractVirSchema virtualSchema = getVirtualSchema(
+                    vAttrToBeRemoved, attributableUtil.virtualSchemaClass());
 
             if (virtualSchema != null) {
-                virtualAttribute = attributable.getVirtualAttribute(
+                AbstractVirAttr virtualAttribute =
+                        attributable.getVirtualAttribute(
                         virtualSchema.getName());
 
                 if (virtualAttribute == null) {
@@ -345,9 +343,10 @@ public abstract class AbstractAttributableDataBinder {
 
         LOG.debug("Virtual attributes to be removed:\n{}", propByRes);
 
-        // 2. virtual attributes to be added
-        for (String vAttrToBeAdded : vAttrsToBeAdded) {
-            virtualSchema = getVirtualSchema(vAttrToBeAdded,
+        // 2. virtual attributes to be updated
+        for (AttributeMod vAttrToBeUpdated : vAttrsToBeUpdated) {
+            AbstractVirSchema virtualSchema = getVirtualSchema(
+                    vAttrToBeUpdated.getSchema(),
                     attributableUtil.virtualSchemaClass());
 
             if (virtualSchema != null) {
@@ -365,10 +364,21 @@ public abstract class AbstractAttributableDataBinder {
                     }
                 }
 
-                virtualAttribute = attributableUtil.newVirtualAttribute();
-                virtualAttribute.setVirtualSchema(virtualSchema);
-                virtualAttribute.setOwner(attributable);
-                attributable.addVirtualAttribute(virtualAttribute);
+                AbstractVirAttr virtualAttribute =
+                        attributable.getVirtualAttribute(
+                        virtualSchema.getName());
+                if (virtualAttribute == null) {
+                    virtualAttribute =
+                            attributableUtil.newVirtualAttribute();
+                    virtualAttribute.setVirtualSchema(virtualSchema);
+                    virtualAttribute.setOwner(attributable);
+
+                    attributable.addVirtualAttribute(virtualAttribute);
+                }
+                virtualAttribute.getValues().removeAll(
+                        vAttrToBeUpdated.getValuesToBeRemoved());
+                virtualAttribute.getValues().addAll(
+                        vAttrToBeUpdated.getValuesToBeAdded());
             }
         }
 
@@ -667,7 +677,7 @@ public abstract class AbstractAttributableDataBinder {
         if (AttributableUtil.USER != attributableUtil) {
             fillVirtual(attributable,
                     attributableMod.getVirtualAttributesToBeRemoved(),
-                    attributableMod.getVirtualAttributesToBeAdded(),
+                    attributableMod.getVirtualAttributesToBeUpdated(),
                     attributableUtil);
         }
 

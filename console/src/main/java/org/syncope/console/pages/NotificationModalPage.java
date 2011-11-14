@@ -126,7 +126,7 @@ class NotificationModalPage extends BaseModalPage {
 
                     Configuration callerPage =
                             (Configuration) callPageRef.getPage();
-                    callerPage.setOperationResult(true);
+                    callerPage.setModalResult(true);
 
                     window.close(target);
                 } catch (SyncopeClientCompositeErrorException scee) {

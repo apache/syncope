@@ -21,11 +21,7 @@ import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.syncope.client.to.RoleTO;
-import org.syncope.console.rest.UserRestClient;
 import org.syncope.console.wicket.markup.html.tree.TreeActionLinkPanel;
 
 public class RoleSummaryPanel extends Panel {
@@ -33,12 +29,6 @@ public class RoleSummaryPanel extends Panel {
     private static final long serialVersionUID = 643769814985593156L;
 
     private RoleTO selectedNode;
-
-    protected static final Logger LOG = LoggerFactory.getLogger(
-            RoleSummaryPanel.class);
-
-    @SpringBean
-    private UserRestClient userRestClient;
 
     private Fragment fragment;
 
@@ -132,14 +122,9 @@ public class RoleSummaryPanel extends Panel {
 
         private RoleTO selectedNode;
 
-        /**
-         * Constructor
-         *
-         * @param target
-         * @param selectedId
-         */
         public TreeNodeClickUpdate(final AjaxRequestTarget target,
                 final RoleTO selectedNode) {
+
             this.target = target;
             this.selectedNode = selectedNode;
         }

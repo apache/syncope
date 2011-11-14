@@ -310,8 +310,15 @@ public class SyncJob extends AbstractJob {
                     break;
 
                 case UserVirtualSchema:
-                    userMod.addVirtualAttributeToBeAdded(
+                    userMod.addVirtualAttributeToBeRemoved(
                             mapping.getIntAttrName());
+
+                    attributeMod = new AttributeMod();
+                    attributeMod.setSchema(mapping.getIntAttrName());
+                    for (Object value : values) {
+                        attributeMod.addValueToBeAdded(value.toString());
+                    }
+                    userMod.addVirtualAttributeToBeUpdated(attributeMod);
                     break;
 
                 default:

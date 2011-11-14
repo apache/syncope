@@ -36,6 +36,24 @@ import org.syncope.types.SyncopeClientExceptionType;
 public class UserRequestTestITCase extends AbstractTest {
 
     @Test
+    public void selfRead() {
+        ((CommonsClientHttpRequestFactory) restTemplate.getRequestFactory()).
+                getHttpClient().getState().setCredentials(AuthScope.ANY,
+                new UsernamePasswordCredentials("user1", "password"));
+
+        try {
+            restTemplate.getForObject(
+                    BASE_URL + "user/read/{userId}.json", UserTO.class, 1);
+        } catch (HttpStatusCodeException e) {
+            assertEquals(HttpStatus.UNAUTHORIZED, e.getStatusCode());
+        }
+
+        UserTO userTO = restTemplate.getForObject(
+                BASE_URL + "user/request/read/self", UserTO.class);
+        assertEquals("user1", userTO.getUsername());
+    }
+
+    @Test
     public void create() {
         // 1. set create request not allowed
         ConfigurationTO configurationTO = new ConfigurationTO();

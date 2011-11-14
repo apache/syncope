@@ -14,13 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.syncope.console;
+package org.syncope.console.commons;
 
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.console.pages.AbstractSchemaModalPage;
+import org.syncope.console.pages.AbstractSchemaModalPage;
+import org.syncope.console.pages.BaseModalPage;
 import org.syncope.console.pages.BaseModalPage;
 import org.syncope.console.pages.DerivedSchemaModalPage;
+import org.syncope.console.pages.DerivedSchemaModalPage;
 import org.syncope.console.pages.SchemaModalPage;
+import org.syncope.console.pages.SchemaModalPage;
+import org.syncope.console.pages.VirtualSchemaModalPage;
 import org.syncope.console.pages.VirtualSchemaModalPage;
 import org.syncope.console.rest.SchemaRestClient;
 

@@ -106,7 +106,7 @@ public class AttributesPanel extends Panel {
             private static final long serialVersionUID = 9101744072914090143L;
 
             @Override
-            protected void populateItem(ListItem item) {
+            protected void populateItem(final ListItem item) {
                 final AttributeTO attributeTO =
                         (AttributeTO) item.getDefaultModelObject();
 
@@ -144,20 +144,17 @@ public class AttributesPanel extends Panel {
 
         final List<AttributeTO> entityData = new ArrayList<AttributeTO>();
 
-        final Map<String, List<String>> attributeMap =
-                entityTO.getAttributeMap();
-
-        AttributeTO attributeTO;
-        List<String> values;
+        final Map<String, AttributeTO> attrMap = entityTO.getAttributeMap();
 
         for (SchemaTO schema : schemas) {
-            attributeTO = new AttributeTO();
+            AttributeTO attributeTO = new AttributeTO();
             attributeTO.setSchema(schema.getName());
 
-            if (attributeMap.get(schema.getName()) == null
-                    || attributeMap.get(schema.getName()).isEmpty()) {
+            if (attrMap.get(schema.getName()) == null
+                    || attrMap.get(schema.getName()).
+                    getValues().isEmpty()) {
 
-                values = new ArrayList<String>();
+                List<String> values = new ArrayList<String>();
                 values.add("");
                 attributeTO.setValues(values);
 
@@ -165,7 +162,8 @@ public class AttributesPanel extends Panel {
                 attributeTO.setReadonly(schema.isReadonly());
 
             } else {
-                attributeTO.setValues(attributeMap.get(schema.getName()));
+                attributeTO.setValues(
+                        attrMap.get(schema.getName()).getValues());
             }
             entityData.add(attributeTO);
         }

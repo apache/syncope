@@ -29,12 +29,9 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.syncope.client.mod.AttributeMod;
-import org.syncope.client.mod.ReferenceMod;
 import org.syncope.client.mod.RoleMod;
-import org.syncope.client.to.AttributeTO;
 import org.syncope.client.to.RoleTO;
-import org.syncope.console.rest.EntitlementRestClient;
+import org.syncope.client.util.AttributableOperations;
 import org.syncope.console.rest.RoleRestClient;
 import org.syncope.console.pages.panels.RoleAttributesPanel;
 
@@ -44,33 +41,20 @@ import org.syncope.console.pages.panels.RoleAttributesPanel;
 public class RoleModalPage extends BaseModalPage {
 
     private static final long serialVersionUID = -1732493223434085205L;
-    
+
     @SpringBean
     private RoleRestClient roleRestClient;
-    
-    @SpringBean
-    private EntitlementRestClient entitlementRestClient;
-    
-    private RoleTO oldRole;
-    
-    private RoleMod roleMod;
 
-    /**
-     * Constructor.
-     *
-     * @param callerPageRef
-     * @param window
-     * @param roleTO
-     * @param createFlag
-     */
+    private RoleTO originalRoleTO;
+
     public RoleModalPage(final PageReference callerPageRef,
-            final ModalWindow window, final RoleTO roleTO,
-            final boolean createFlag) {
+            final ModalWindow window, final RoleTO roleTO) {
 
         super();
 
+        final boolean createFlag = roleTO.getId() == 0;
         if (!createFlag) {
-            cloneOldRoleTO(roleTO);
+            originalRoleTO = AttributableOperations.clone(roleTO);
         }
 
         final Form form = new Form("RoleForm");
@@ -95,30 +79,26 @@ public class RoleModalPage extends BaseModalPage {
                     final Form form) {
 
                 final RoleTO roleTO = (RoleTO) form.getDefaultModelObject();
-
                 try {
-
                     final List<String> entitlementList =
                             new ArrayList<String>(
                             attributesPanel.getEntitlementsPalette().
-                            getModelCollection().size());
-                    for (String entitlement :
-                            attributesPanel.getEntitlementsPalette().
-                            getModelCollection()) {
-
-                        entitlementList.add(entitlement);
-                    }
+                            getModelCollection());
                     roleTO.setEntitlements(entitlementList);
 
                     if (createFlag) {
                         roleRestClient.createRole(roleTO);
                     } else {
-                        setupRoleMod(roleTO);
-                        if (roleMod != null) {
+                        RoleMod roleMod = AttributableOperations.diff(
+                                roleTO, originalRoleTO);
+
+                        // update role just if it is changed
+                        if (!roleMod.isEmpty()) {
                             roleRestClient.updateRole(roleMod);
                         }
                     }
                     ((Roles) callerPageRef.getPage()).setModalResult(true);
+
                     window.close(target);
                 } catch (Exception e) {
                     error(getString("error") + ":" + e.getMessage());
@@ -134,295 +114,14 @@ public class RoleModalPage extends BaseModalPage {
             }
         };
 
-        String allowedRoles;
-
-        if (createFlag) {
-            allowedRoles = xmlRolesReader.getAllAllowedRoles("Roles", "create");
-        } else {
-            allowedRoles = xmlRolesReader.getAllAllowedRoles("Roles", "update");
-        }
-
+        String allowedRoles = createFlag
+                ? xmlRolesReader.getAllAllowedRoles("Roles", "create")
+                : xmlRolesReader.getAllAllowedRoles("Roles", "update");
         MetaDataRoleAuthorizationStrategy.authorize(
                 submit, ENABLE, allowedRoles);
 
         form.add(submit);
 
         add(form);
-    }
-
-    /**
-     * Create a copy of old RoleTO
-     * @param roleTO
-     */
-    private void cloneOldRoleTO(RoleTO roleTO) {
-        oldRole = new RoleTO();
-
-        oldRole.setId(roleTO.getId());
-        oldRole.setName(roleTO.getName());
-        oldRole.setParent(roleTO.getParent());
-
-        List<AttributeTO> attributes = new ArrayList<AttributeTO>();
-
-        AttributeTO attributeTO;
-
-        for (AttributeTO attribute : roleTO.getAttributes()) {
-            attributeTO = new AttributeTO();
-            attributeTO.setReadonly(attribute.isReadonly());
-            attributeTO.setSchema(attribute.getSchema());
-
-            for (String value : attribute.getValues()) {
-                attributeTO.addValue(value);
-            }
-
-            attributes.add(attributeTO);
-        }
-
-        oldRole.setAttributes(attributes);
-
-        attributes = new ArrayList<AttributeTO>();
-
-        for (AttributeTO attribute : roleTO.getDerivedAttributes()) {
-            attributeTO = new AttributeTO();
-            attributeTO.setReadonly(attribute.isReadonly());
-            attributeTO.setSchema(attribute.getSchema());
-            attributes.add(attributeTO);
-        }
-
-        oldRole.setDerivedAttributes(attributes);
-
-        attributes = new ArrayList<AttributeTO>();
-
-        for (AttributeTO attribute : roleTO.getVirtualAttributes()) {
-            attributeTO = new AttributeTO();
-            attributeTO.setReadonly(attribute.isReadonly());
-            attributeTO.setSchema(attribute.getSchema());
-            attributes.add(attributeTO);
-        }
-
-        oldRole.setVirtualAttributes(attributes);
-
-        for (String resource : roleTO.getResources()) {
-            oldRole.addResource(resource);
-        }
-
-        List<String> entList = new ArrayList<String>();
-
-        for (String entitlement : roleTO.getEntitlements()) {
-            entList.add(entitlement);
-        }
-
-        oldRole.setEntitlements(entList);
-    }
-
-    private void setupRoleMod(final RoleTO roleTO) {
-        roleMod = new RoleMod();
-
-        roleMod.setInheritAttributes(
-                roleTO.isInheritAttributes());
-
-        roleMod.setInheritDerivedAttributes(
-                roleTO.isInheritDerivedAttributes());
-
-        roleMod.setInheritVirtualAttributes(
-                roleTO.isInheritVirtualAttributes());
-
-        roleMod.setInheritAccountPolicy(
-                roleTO.isInheritAccountPolicy());
-
-        final ReferenceMod refAccountPolicy = new ReferenceMod();
-        refAccountPolicy.setId(roleTO.getAccountPolicy());
-
-        roleMod.setAccountPolicy(refAccountPolicy);
-
-        roleMod.setInheritPasswordPolicy(
-                roleTO.isInheritPasswordPolicy());
-
-        final ReferenceMod refPasswordPolicy = new ReferenceMod();
-        refPasswordPolicy.setId(roleTO.getPasswordPolicy());
-
-        roleMod.setPasswordPolicy(refPasswordPolicy);
-
-        //1.Check if the role's name has been changed
-        if (!oldRole.getName().equals(roleTO.getName())) {
-            roleMod.setName(roleTO.getName());
-        }
-
-        //2.Update roles's schema derived attributes
-        final List<AttributeTO> newDerivedAttributes =
-                roleTO.getDerivedAttributes();
-
-        final List<AttributeTO> oldDerivedAttributes =
-                oldRole.getDerivedAttributes();
-
-        for (AttributeTO oldDerivedAttribute : oldDerivedAttributes) {
-            roleMod.addDerivedAttributeToBeRemoved(
-                    oldDerivedAttribute.getSchema());
-        }
-
-        for (AttributeTO newDerivedAttribute : newDerivedAttributes) {
-            roleMod.addDerivedAttributeToBeAdded(
-                    newDerivedAttribute.getSchema());
-        }
-
-        //4.Update roles's schema virtual attributes
-        final List<AttributeTO> newVirtualAttributes =
-                roleTO.getVirtualAttributes();
-
-        final List<AttributeTO> oldVirtualAttributes =
-                oldRole.getVirtualAttributes();
-
-        for (AttributeTO oldVirtualAttribute : oldVirtualAttributes) {
-            roleMod.addVirtualAttributeToBeRemoved(
-                    oldVirtualAttribute.getSchema());
-        }
-
-        for (AttributeTO newVirtualAttribute : newVirtualAttributes) {
-            roleMod.addVirtualAttributeToBeAdded(
-                    newVirtualAttribute.getSchema());
-        }
-
-        //4.Search and update role's attributes
-        for (AttributeTO attributeTO : roleTO.getAttributes()) {
-            searchAndUpdateAttribute(attributeTO);
-        }
-
-        //5.Search and update role's resources
-        for (String resource : roleTO.getResources()) {
-            searchAndAddResource(resource);
-        }
-
-        for (String resource : oldRole.getResources()) {
-            searchAndDropResource(resource, roleTO);
-        }
-
-        //6.Check if entitlements' list has been changed
-        if (!oldRole.getEntitlements().equals(roleTO.getEntitlements())) {
-            roleMod.setEntitlements(roleTO.getEntitlements());
-        }
-
-        if (roleMod != null) {
-            roleMod.setId(oldRole.getId());
-
-            if (!oldRole.getEntitlements().equals(roleTO.getEntitlements())) {
-
-                LOG.debug("OLD ROLE ENT LIST: {}", oldRole.getEntitlements());
-
-                LOG.debug("ROLE ENT LIST: {}", roleTO.getEntitlements());
-
-                roleMod.setEntitlements(roleTO.getEntitlements());
-            } else {
-                roleMod.setEntitlements(oldRole.getEntitlements());
-            }
-        }
-    }
-
-    /**
-     * Search for a resource and add that one to the RoleMod object if
-     * it doesn't exist.
-     * @param resource, new resource added
-     */
-    private void searchAndAddResource(String resource) {
-        boolean found = false;
-
-        /*
-        Check if the current resource was existent before the update and
-        in this case just ignore it
-         */
-        for (String oldResource : oldRole.getResources()) {
-            if (resource.equals(oldResource)) {
-                found = true;
-            }
-
-        }
-
-        if (!found) {
-            if (roleMod == null) {
-                roleMod = new RoleMod();
-            }
-
-            roleMod.addResourceToBeAdded(resource);
-        }
-    }
-
-    /**
-     * Search for a resource and drop that one from the RoleMod object if
-     * it doesn't exist anymore.
-     * @param resource
-     * @param roleTO
-     */
-    private void searchAndDropResource(final String resource,
-            final RoleTO roleTO) {
-
-        boolean found = false;
-
-        /* Check if the current resource was existent before the update
-        and in this case just ignore it */
-        for (String newResource : roleTO.getResources()) {
-            if (resource.equals(newResource)) {
-                found = true;
-            }
-        }
-
-        if (!found) {
-            if (roleMod == null) {
-                roleMod = new RoleMod();
-            }
-            roleMod.addResourceToBeRemoved(resource);
-        }
-    }
-
-    private void searchAndUpdateAttribute(AttributeTO attributeTO) {
-        boolean found = false;
-        boolean changed = false;
-
-        AttributeMod attributeMod = new AttributeMod();
-        attributeMod.setSchema(attributeTO.getSchema());
-
-        for (AttributeTO oldAttribute : oldRole.getAttributes()) {
-            if (attributeTO.getSchema().equals(oldAttribute.getSchema())) {
-
-                if (attributeTO.getSchema().equals(oldAttribute.getSchema())
-                        && !attributeTO.equals(oldAttribute)
-                        && !oldAttribute.isReadonly()) {
-
-                    if (attributeTO.getValues().size() > 1) {
-                        attributeMod.setValuesToBeAdded(
-                                attributeTO.getValues());
-                    } else {
-                        attributeMod.addValueToBeAdded(
-                                attributeTO.getValues().iterator().next());
-                    }
-
-                    if (roleMod == null) {
-                        roleMod = new RoleMod();
-                    }
-
-                    roleMod.addAttributeToBeRemoved(
-                            oldAttribute.getSchema());
-                    roleMod.addAttributeToBeUpdated(attributeMod);
-
-                    changed = true;
-                    break;
-                }
-                found = true;
-            }
-        }
-
-        if (!found && !changed && !attributeTO.isReadonly()
-                && attributeTO.getValues() != null) {
-
-            if (attributeTO.getValues() != null
-                    && !attributeTO.getValues().isEmpty()) {
-
-                attributeMod.setValuesToBeAdded(attributeTO.getValues());
-
-                if (roleMod == null) {
-                    roleMod = new RoleMod();
-                }
-                roleMod.addAttributeToBeUpdated(attributeMod);
-            } else {
-                attributeMod = null;
-            }
-        }
     }
 }

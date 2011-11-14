@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.ModelAndView;
 import org.syncope.client.mod.UserMod;
 import org.syncope.client.to.UserRequestTO;
 import org.syncope.client.to.UserTO;
@@ -43,7 +44,7 @@ public class UserRequestController {
     /**
      * Logger.
      */
-    protected static final Logger LOG =
+    private static final Logger LOG =
             LoggerFactory.getLogger(UserRequestController.class);
 
     @Autowired
@@ -55,14 +56,38 @@ public class UserRequestController {
     @Autowired
     private UserRequestDataBinder dataBinder;
 
+    @PreAuthorize("isAuthenticated()")
+    @RequestMapping(method = RequestMethod.GET,
+    value = "/read/self")
+    @Transactional(readOnly = true)
+    public UserTO read()
+            throws NotFoundException {
+
+        return dataBinder.getAuthUserTO();
+    }
+
+    private Boolean isCreateAllowedByConf() {
+        SyncopeConf createRequestAllowed =
+                confDAO.find("createRequest.allowed", "false");
+
+        return Boolean.valueOf(createRequestAllowed.getValue());
+    }
+
+    @RequestMapping(method = RequestMethod.GET,
+    value = "/create/allowed")
+    @Transactional(readOnly = true)
+    public ModelAndView isCreateAllowed() {
+
+        return new ModelAndView().addObject(
+                isCreateAllowedByConf());
+    }
+
     @RequestMapping(method = RequestMethod.POST,
     value = "/create")
     public UserRequestTO create(@RequestBody final UserTO userTO)
             throws UnauthorizedRoleException {
 
-        SyncopeConf createRequestAllowed =
-                confDAO.find("createRequest.allowed", "false");
-        if (!Boolean.valueOf(createRequestAllowed.getValue())) {
+        if (!isCreateAllowedByConf()) {
             LOG.error("Create requests are not allowed");
 
             throw new UnauthorizedRoleException(-1L);
@@ -82,6 +107,7 @@ public class UserRequestController {
         return dataBinder.getUserRequestTO(request);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @RequestMapping(method = RequestMethod.POST,
     value = "/update")
     public UserRequestTO update(@RequestBody final UserMod userMod)
@@ -101,6 +127,7 @@ public class UserRequestController {
         return dataBinder.getUserRequestTO(request);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @RequestMapping(method = RequestMethod.POST,
     value = "/delete")
     public UserRequestTO delete(@RequestBody final Long userId)

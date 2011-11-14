@@ -27,6 +27,8 @@ import org.syncope.console.commons.Constants;
  */
 public class SyncopeSession extends WebSession {
 
+    private static final long serialVersionUID = 7743446298924805872L;
+
     private String userId;
 
     private String coreVersion;
@@ -61,8 +63,12 @@ public class SyncopeSession extends WebSession {
         roles = new Roles(entitlements);
     }
 
+    public Roles getEntitlements() {
+        return roles;
+    }
+
     public boolean isAuthenticated() {
-        return !roles.isEmpty();
+        return getUserId() != null;
     }
 
     public boolean hasAnyRole(final Roles roles) {

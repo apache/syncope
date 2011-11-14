@@ -75,18 +75,13 @@ public abstract class AbstractVirAttr extends AbstractBaseBean {
 
         JexlUtil jexlUtil = context.getBean(JexlUtil.class);
 
-        Set<String> attributeNames;
-        ConnInstance connInstance;
-        ConnectorFacadeProxy connector;
-        Set<Attribute> attributes;
-        String accountLink;
-        String accountId = null;
         for (ExternalResource resource : attributable.getExternalResources()) {
             LOG.debug("Retrieving attribute mapped on {}", resource);
 
-            attributeNames = new HashSet<String>();
+            Set<String> attributeNames = new HashSet<String>();
 
-            accountLink = resource.getAccountLink();
+            String accountLink = resource.getAccountLink();
+            String accountId = null;
 
             for (SchemaMapping mapping : resource.getMappings()) {
                 if (LOG.isDebugEnabled()) {
@@ -126,12 +121,11 @@ public abstract class AbstractVirAttr extends AbstractBaseBean {
             if (attributeNames != null && accountId != null) {
                 LOG.debug("Get object attribute for entry {}", accountId);
 
-                connInstance = resource.getConnector();
-
-                connector = connInstanceLoader.getConnector(resource);
+                ConnectorFacadeProxy connector =
+                        connInstanceLoader.getConnector(resource);
 
                 try {
-                    attributes = connector.getObjectAttributes(
+                    Set<Attribute> attributes = connector.getObjectAttributes(
                             ObjectClass.ACCOUNT,
                             new Uid(accountId),
                             null,

@@ -16,6 +16,7 @@ package org.syncope.client.mod;
 
 import java.util.Collections;
 import java.util.Set;
+import org.codehaus.jackson.annotate.JsonIgnore;
 
 public class MembershipMod extends AbstractAttributableMod {
 
@@ -67,5 +68,12 @@ public class MembershipMod extends AbstractAttributableMod {
 
     @Override
     public void setResourcesToBeRemoved(Set<String> resourcesToBeRemoved) {
+    }
+
+    @JsonIgnore
+    @Override
+    public boolean isEmpty() {
+        return super.isEmpty()
+                && role == 0;
     }
 }

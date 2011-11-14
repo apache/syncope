@@ -178,7 +178,6 @@ public class ResourceController extends AbstractController {
         return binder.getResourceTO(resource);
     }
 
-    @PreAuthorize("hasRole('RESOURCE_LIST')")
     @Transactional(readOnly = true)
     @RequestMapping(method = RequestMethod.GET,
     value = "/list")

@@ -32,7 +32,7 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
 
     protected Set<String> derivedAttributesToBeRemoved;
 
-    protected Set<String> virtualAttributesToBeAdded;
+    protected Set<AttributeMod> virtualAttributesToBeUpdated;
 
     protected Set<String> virtualAttributesToBeRemoved;
 
@@ -47,10 +47,18 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
         attributesToBeRemoved = new HashSet<String>();
         derivedAttributesToBeAdded = new HashSet<String>();
         derivedAttributesToBeRemoved = new HashSet<String>();
-        virtualAttributesToBeAdded = new HashSet<String>();
+        virtualAttributesToBeUpdated = new HashSet<AttributeMod>();
         virtualAttributesToBeRemoved = new HashSet<String>();
         resourcesToBeAdded = new HashSet<String>();
         resourcesToBeRemoved = new HashSet<String>();
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public boolean addAttributeToBeRemoved(String attribute) {
@@ -91,10 +99,6 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
         return derivedAttributesToBeAdded.add(derivedAttribute);
     }
 
-    public boolean addVirtualAttributeToBeAdded(String virtualAttribute) {
-        return virtualAttributesToBeAdded.add(virtualAttribute);
-    }
-
     public boolean removeDerivedAttributeToBeAdded(String derivedAttribute) {
         return derivedAttributesToBeAdded.remove(derivedAttribute);
     }
@@ -113,10 +117,6 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
         return derivedAttributesToBeRemoved.add(derivedAttribute);
     }
 
-    public boolean addVirtualAttributeToBeRemoved(String virtualAttribute) {
-        return virtualAttributesToBeRemoved.add(virtualAttribute);
-    }
-
     public boolean removeDerivedAttributeToBeRemoved(String derivedAttribute) {
         return derivedAttributesToBeRemoved.remove(derivedAttribute);
     }
@@ -131,12 +131,48 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
         this.derivedAttributesToBeRemoved = derivedAttributesToBeRemoved;
     }
 
-    public long getId() {
-        return id;
+    public Set<String> getVirtualAttributesToBeRemoved() {
+        return virtualAttributesToBeRemoved;
     }
 
-    public void setId(long id) {
-        this.id = id;
+    public boolean addVirtualAttributeToBeRemoved(
+            String virtualAttributeToBeRemoved) {
+
+        return virtualAttributesToBeRemoved.add(virtualAttributeToBeRemoved);
+    }
+
+    public boolean removeVirtualAttributeToBeRemoved(
+            String virtualAttributeToBeRemoved) {
+
+        return virtualAttributesToBeRemoved.remove(virtualAttributeToBeRemoved);
+    }
+
+    public void setVirtualAttributesToBeRemoved(
+            Set<String> virtualAttributesToBeRemoved) {
+
+        this.virtualAttributesToBeRemoved = virtualAttributesToBeRemoved;
+    }
+
+    public boolean addVirtualAttributeToBeUpdated(
+            AttributeMod virtualAttributeToBeUpdated) {
+
+        return virtualAttributesToBeUpdated.add(virtualAttributeToBeUpdated);
+    }
+
+    public boolean removeVirtualAttributeToBeUpdated(
+            AttributeMod virtualAttributeToBeUpdated) {
+
+        return virtualAttributesToBeUpdated.remove(virtualAttributeToBeUpdated);
+    }
+
+    public Set<AttributeMod> getVirtualAttributesToBeUpdated() {
+        return virtualAttributesToBeUpdated;
+    }
+
+    public void setVirtualAttributesToBeUpdated(
+            Set<AttributeMod> virtualAttributesToBeUpdated) {
+
+        this.virtualAttributesToBeUpdated = virtualAttributesToBeUpdated;
     }
 
     public boolean addResourceToBeAdded(String resource) {
@@ -171,21 +207,14 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
         this.resourcesToBeRemoved = resourcesToBeRemoved;
     }
 
-    public Set<String> getVirtualAttributesToBeAdded() {
-        return virtualAttributesToBeAdded;
-    }
-
-    public void setVirtualAttributesToBeAdded(
-            Set<String> virtualAttributesToBeAdded) {
-        this.virtualAttributesToBeAdded = virtualAttributesToBeAdded;
-    }
-
-    public Set<String> getVirtualAttributesToBeRemoved() {
-        return virtualAttributesToBeRemoved;
-    }
-
-    public void setVirtualAttributesToBeRemoved(
-            Set<String> virtualAttributesToBeRemoved) {
-        this.virtualAttributesToBeRemoved = virtualAttributesToBeRemoved;
+    public boolean isEmpty() {
+        return attributesToBeUpdated.isEmpty()
+                && attributesToBeUpdated.isEmpty()
+                && derivedAttributesToBeAdded.isEmpty()
+                && derivedAttributesToBeRemoved.isEmpty()
+                && virtualAttributesToBeUpdated.isEmpty()
+                && virtualAttributesToBeRemoved.isEmpty()
+                && resourcesToBeAdded.isEmpty()
+                && resourcesToBeRemoved.isEmpty();
     }
 }

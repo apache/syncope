@@ -261,11 +261,11 @@ public class TaskTestITCase extends AbstractTest {
         assertNotNull(userTO);
         assertEquals("test9", userTO.getUsername());
         assertEquals("test9@syncope.org",
-                userTO.getAttributeMap().get("email").get(0));
+                userTO.getAttributeMap().get("email").getValues().get(0));
         assertEquals("test9@syncope.org",
-                userTO.getAttributeMap().get("userId").get(0));
+                userTO.getAttributeMap().get("userId").getValues().get(0));
         assertEquals("test9",
-                userTO.getAttributeMap().get("fullname").get(0));
+                userTO.getAttributeMap().get("fullname").getValues().get(0));
 
         Integer usersPost = restTemplate.getForObject(
                 BASE_URL + "user/count.json", Integer.class);

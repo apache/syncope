@@ -24,6 +24,8 @@ import org.apache.wicket.request.cycle.AbstractRequestCycleListener;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.handler.ComponentRenderingRequestHandler;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.syncope.console.pages.ErrorPage;
@@ -31,11 +33,19 @@ import org.syncope.console.pages.ErrorPage;
 public class SyncopeRequestCycleListener extends AbstractRequestCycleListener {
 
     /**
+     * Logger.
+     */
+    private static final Logger LOG = LoggerFactory.getLogger(
+            SyncopeRequestCycleListener.class);
+
+    /**
      * {@inheritDoc}
      */
     @Override
     public IRequestHandler onException(final RequestCycle cycle,
             final Exception e) {
+
+        LOG.error("Exception found", e);
 
         final Page errorPage;
         PageParameters errorParameters = new PageParameters();

@@ -24,8 +24,6 @@ import org.apache.wicket.markup.html.form.PasswordTextField;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.syncope.client.to.AbstractAttributableTO;
 import org.syncope.client.to.UserTO;
 import org.syncope.console.wicket.markup.html.form.AjaxNumberFieldPanel;
@@ -35,16 +33,14 @@ import org.syncope.console.wicket.markup.html.form.DateTimeFieldPanel;
 
 public class UserDetailsPanel extends Panel {
 
-    /**
-     * Logger.
-     */
-    protected static final Logger LOG =
-            LoggerFactory.getLogger(UserDetailsPanel.class);
+    private static final long serialVersionUID = 6592027822510220463L;
 
     public <T extends AbstractAttributableTO> UserDetailsPanel(
             final String id,
             final UserTO userTO,
-            final Form form) {
+            final Form form,
+            final boolean resetPassword) {
+
         super(id);
 
         // ------------------------
@@ -70,7 +66,8 @@ public class UserDetailsPanel extends Panel {
                 true);
 
         password.setRequired(userTO.getId() == 0);
-        ((PasswordTextField) password.getField()).setResetPassword(true);
+        ((PasswordTextField) password.getField()).setResetPassword(
+                resetPassword);
         add(password);
 
         final WebMarkupContainer mandatoryPassword =

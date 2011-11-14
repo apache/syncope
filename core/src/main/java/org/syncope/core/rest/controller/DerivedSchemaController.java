@@ -81,7 +81,6 @@ public class DerivedSchemaController extends AbstractController {
         }
     }
 
-    @PreAuthorize("hasRole('SCHEMA_LIST')")
     @RequestMapping(method = RequestMethod.GET,
     value = "/{kind}/list")
     public List<DerivedSchemaTO> list(@PathVariable("kind") final String kind) {

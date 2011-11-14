@@ -21,6 +21,8 @@ public class UserRequestTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = 1228351243795629329L;
 
+    private long id;
+
     private UserTO userTO;
 
     private UserMod userMod;
@@ -28,6 +30,14 @@ public class UserRequestTO extends AbstractBaseBean {
     private Long userId;
 
     private UserRequestType type;
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
 
     public UserRequestType getType() {
         return type;

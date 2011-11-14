@@ -17,19 +17,18 @@
 
     <div id="tabs">
         <ul>
-            <li class="tabs-selected">
-                <a href="#tabs-1"><span><wicket:message key="todo"/></span></a>
-            </li>
+            <li class="tabs-selected"><a href="#tabs-1"><span><wicket:message key="approvals"/></span></a></li>
+            <li><a href="#tabs-2"><span><wicket:message key="userRequests"/></span></a></li>
         </ul>
         <div id="tabs-1">
 
             <div id="users-contain" class="ui-widget" style="width:inherit;">
-                <span wicket:id="todoContainer">
+                <span wicket:id="approvalContainer">
                     <table class="ui-widget ui-widget-content table-hover"
-                           wicket:id="todoTable"/>
+                           wicket:id="approvalTable"/>
                 </span>
                 <span style="float:right">
-                    <form wicket:id="paginatorForm" style="display:inline">
+                    <form wicket:id="approvalPaginatorForm" style="display:inline">
                         <label><wicket:message key="displayRows"/></label>
                         <select class="text ui-widget-content ui-corner-all"
                                 wicket:id="rowsChooser"/>
@@ -37,7 +36,26 @@
                 </span>
             </div>
 
-            <div wicket:id="editTodoWin">[Show modal window for editing Todo]</div>
+            <div wicket:id="editApprovalWin">[Show modal window for editing approval]</div>
+        </div>
+
+        <div id="tabs-2">
+
+            <div id="users-contain" class="ui-widget">
+                <span wicket:id="userRequestContainer">
+                    <table class="ui-widget ui-widget-content table-hover"
+                           wicket:id="userRequestTable"/>
+                </span>
+                <span style="float:right">
+                    <form wicket:id="userRequestPaginatorForm" style="display:inline">
+                        <label><wicket:message key="displayRows"/></label>
+                        <select class="text ui-widget-content ui-corner-all"
+                                wicket:id="rowsChooser"/>
+                    </form>
+                </span>
+            </div>
+
+            <div wicket:id="editUserRequestWin">[Show modal window for editing user request]</div>
         </div>
     </div>
 </wicket:extend>

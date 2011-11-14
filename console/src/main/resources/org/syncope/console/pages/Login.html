@@ -30,7 +30,7 @@
             <!--h2><wicket:message key="title"/></h2-->
             <p>&nbsp;</p>
             <div id="feedbackDiv">
-            <span wicket:id="feedback">feedbackmessages will be put here</span>
+                <span wicket:id="feedback">feedbackmessages will be put here</span>
             </div>
             <form wicket:id="login">
                 <label for="userId">
@@ -48,6 +48,15 @@
                 <br />
                 <input type="submit" wicket:id="submit"/>
             </form>
+
+            <span wicket:id="selfRegistration"/>
+
+            <wicket:fragment wicket:id="selfRegNotAllowed"/>
+            <wicket:fragment wicket:id="selfRegAllowed">
+                <span wicket:id="selfRegistration"/>
+            </wicket:fragment>
+
+            <div wicket:id="selfRegModal"></div>
         </div>
     </body>
 </html>

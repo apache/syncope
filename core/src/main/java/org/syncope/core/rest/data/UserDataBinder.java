@@ -169,7 +169,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
                 new SyncopeClientCompositeErrorException(
                 HttpStatus.BAD_REQUEST);
 
-        // when requesting to add user to new resources, either directly or 
+        // when requesting to add user to new resources, either directly or
         // through role subscription, password is mandatory (issue 147)
         // first, let's take current resources into account
         Set<String> currentResources = user.getExternalResourceNames();

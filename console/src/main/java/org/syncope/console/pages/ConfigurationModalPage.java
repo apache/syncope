@@ -102,7 +102,7 @@ public class ConfigurationModalPage extends BaseModalPage {
                 if (res) {
                     Configuration callerPage =
                             (Configuration) callPageRef.getPage();
-                    callerPage.setOperationResult(true);
+                    callerPage.setModalResult(true);
 
                     window.close(target);
                 }

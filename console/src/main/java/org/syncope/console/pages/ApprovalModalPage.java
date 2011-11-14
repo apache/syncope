@@ -40,21 +40,21 @@ import org.syncope.client.to.WorkflowFormPropertyTO;
 import org.syncope.client.to.WorkflowFormTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.commons.MapChoiceRenderer;
-import org.syncope.console.rest.TodoRestClient;
+import org.syncope.console.rest.ApprovalRestClient;
 import org.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.syncope.console.wicket.markup.html.form.AjaxNumberFieldPanel;
 import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.syncope.console.wicket.markup.html.form.DateTimeFieldPanel;
 import org.syncope.console.wicket.markup.html.form.FieldPanel;
 
-public class TodoModalPage extends BaseModalPage {
+public class ApprovalModalPage extends BaseModalPage {
 
     private static final long serialVersionUID = -8847854414429745216L;
 
     @SpringBean
-    private TodoRestClient restClient;
+    private ApprovalRestClient restClient;
 
-    public TodoModalPage(final PageReference callerPageRef,
+    public ApprovalModalPage(final PageReference callerPageRef,
             final ModalWindow window, final WorkflowFormTO formTO) {
 
         super();
@@ -205,7 +205,7 @@ public class TodoModalPage extends BaseModalPage {
                 try {
                     restClient.submitForm(formTO);
 
-                    ((Todo) callerPageRef.getPage()).setOperationResult(true);
+                    ((Todo) callerPageRef.getPage()).setModalResult(true);
                     window.close(target);
                 } catch (SyncopeClientCompositeErrorException e) {
                     error(getString("error") + ":" + e.getMessage());
@@ -227,7 +227,7 @@ public class TodoModalPage extends BaseModalPage {
         form.add(submit);
 
         MetaDataRoleAuthorizationStrategy.authorize(form, ENABLE,
-                xmlRolesReader.getAllAllowedRoles("Todo", "submit"));
+                xmlRolesReader.getAllAllowedRoles("Approval", "submit"));
 
         add(form);
     }

@@ -24,6 +24,8 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
  */
 public class ErrorPage extends BasePage {
 
+    private static final long serialVersionUID = -390761262038796657L;
+
     public ErrorPage(final PageParameters parameters) {
         super(parameters);
 

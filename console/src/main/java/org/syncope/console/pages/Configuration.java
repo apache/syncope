@@ -115,12 +115,6 @@ public class Configuration extends BasePage {
 
     private WebMarkupContainer notificationContainer;
 
-    /**
-     * Response flag set by the Modal Window after the operation
-     * is completed.
-     */
-    private boolean operationResult = false;
-
     private int confPaginatorRows;
 
     private int notificationPaginatorRows;
@@ -624,40 +618,6 @@ public class Configuration extends BasePage {
 
         notificationPaginatorForm.add(rowsChooser);
         add(notificationPaginatorForm);
-    }
-
-    /**
-     * Set a WindowClosedCallback for a ModalWindow instance.
-     * @param window
-     * @param container
-     */
-    private void setWindowClosedCallback(final ModalWindow window,
-            final WebMarkupContainer container) {
-
-        window.setWindowClosedCallback(
-                new ModalWindow.WindowClosedCallback() {
-
-                    private static final long serialVersionUID =
-                            8804221891699487139L;
-
-                    @Override
-                    public void onClose(final AjaxRequestTarget target) {
-                        target.add(container);
-                        if (operationResult) {
-                            info(getString("operation_succeded"));
-                            target.add(feedbackPanel);
-                            operationResult = false;
-                        }
-                    }
-                });
-    }
-
-    public boolean isOperationResult() {
-        return operationResult;
-    }
-
-    public void setOperationResult(final boolean operationResult) {
-        this.operationResult = operationResult;
     }
 
     private class SyncopeConfProvider

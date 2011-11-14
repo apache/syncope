@@ -83,7 +83,7 @@ public class DerivedSchemaModalPage extends AbstractSchemaModalPage {
                 }
 
                 Schema callerPage = (Schema) callerPageRef.getPage();
-                callerPage.setOperationResult(true);
+                callerPage.setModalResult(true);
 
                 window.close(target);
             }

@@ -50,13 +50,25 @@ public class UserRequestDataBinder {
             throw new NotFoundException("User " + userId);
         }
 
-        if (!user.getUsername().equals(SecurityContextHolder.getContext().
-                getAuthentication().getName())) {
+        SyncopeUser authUser = userDAO.find(
+                SecurityContextHolder.getContext().
+                getAuthentication().getName());
 
+        if (authUser == null || !authUser.equals(user)) {
             throw new UnauthorizedRoleException(-1L);
         }
 
         return user;
+    }
+
+    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
+    public UserTO getAuthUserTO()
+            throws NotFoundException {
+
+        SyncopeUser authUser = userDAO.find(
+                SecurityContextHolder.getContext().
+                getAuthentication().getName());
+        return userDataBinder.getUserTO(authUser.getId());
     }
 
     public UserRequestTO getUserRequestTO(final UserRequest request) {

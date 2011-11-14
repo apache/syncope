@@ -23,7 +23,13 @@ import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.wicket.Page;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
+import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebPage;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
@@ -31,16 +37,21 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.PasswordTextField;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
+import org.apache.wicket.markup.html.panel.Fragment;
+import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.client.CommonsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
+import org.syncope.client.to.UserTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.SyncopeSession;
+import org.syncope.console.wicket.markup.html.form.LinkPanel;
 
 /**
  * Syncope Login page.
@@ -54,6 +65,10 @@ public class Login extends WebPage {
             Login.class);
 
     private static final long serialVersionUID = -3744389270366566218L;
+
+    private final static int SELF_REG_WIN_HEIGHT = 550;
+
+    private final static int SELF_REG_WIN_WIDTH = 800;
 
     @SpringBean
     private RestTemplate restTemplate;
@@ -93,25 +108,21 @@ public class Login extends WebPage {
         Button submitButton = new Button("submit", new Model(
                 getString("submit"))) {
 
+            private static final long serialVersionUID = 429178684321093953L;
+
             @Override
             public void onSubmit() {
                 String[] entitlements = authenticate(
                         userIdField.getRawInput(),
                         passwordField.getRawInput());
 
-                if (entitlements == null || entitlements.length == 0) {
-                    LOG.error("No entitlements found for "
-                            + userIdField.getRawInput());
-                    getSession().error(getString("login-error"));
-                } else {
-                    SyncopeSession.get().setUserId(
-                            userIdField.getRawInput());
-                    SyncopeSession.get().setEntitlements(
-                            entitlements);
-                    SyncopeSession.get().setCoreVersion(getCoreVersion());
+                SyncopeSession.get().setUserId(
+                        userIdField.getRawInput());
+                SyncopeSession.get().setEntitlements(
+                        entitlements);
+                SyncopeSession.get().setCoreVersion(getCoreVersion());
 
-                    setResponsePage(WelcomePage.class, parameters);
-                }
+                setResponsePage(WelcomePage.class, parameters);
             }
         };
 
@@ -120,6 +131,59 @@ public class Login extends WebPage {
 
         add(form);
         add(new FeedbackPanel("feedback"));
+
+        // Modal window for self registration
+        final ModalWindow editProfileModalWin =
+                new ModalWindow("selfRegModal");
+        editProfileModalWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+        editProfileModalWin.setInitialHeight(SELF_REG_WIN_HEIGHT);
+        editProfileModalWin.setInitialWidth(SELF_REG_WIN_WIDTH);
+        editProfileModalWin.setCookieName("self-reg-modal");
+        add(editProfileModalWin);
+
+        Fragment selfRegFrag;
+        if (restTemplate.getForObject(
+                baseURL + "user/request/create/allowed",
+                Boolean.class)) {
+
+            selfRegFrag =
+                    new Fragment("selfRegistration", "selfRegAllowed", this);
+
+            AjaxLink selfRegLink =
+                    new IndicatingAjaxLink("link") {
+
+                        private static final long serialVersionUID =
+                                -7978723352517770644L;
+
+                        @Override
+                        public void onClick(final AjaxRequestTarget target) {
+                            editProfileModalWin.setPageCreator(
+                                    new ModalWindow.PageCreator() {
+
+                                        @Override
+                                        public Page createPage() {
+                                            return new UserModalPage(
+                                                    Login.this.getPageReference(),
+                                                    editProfileModalWin,
+                                                    new UserTO(), true);
+                                        }
+                                    });
+
+                            editProfileModalWin.show(target);
+                        }
+                    };
+            selfRegLink.add(
+                    new Label("linkTitle", getString("selfRegistration")));
+
+            Panel panel = new LinkPanel("selfRegistration",
+                    new ResourceModel("selfRegistration"));
+            panel.add(selfRegLink);
+            selfRegFrag.add(panel);
+        } else {
+            selfRegFrag =
+                    new Fragment("selfRegistration", "selfRegNotAllowed", this);
+        }
+        add(selfRegFrag);
     }
 
     private String[] authenticate(final String userId, final String password) {
@@ -161,7 +225,11 @@ public class Login extends WebPage {
      */
     private class LocaleDropDown extends DropDownChoice<Locale> {
 
+        private static final long serialVersionUID = 2349382679992357202L;
+
         private class LocaleRenderer extends ChoiceRenderer<Locale> {
+
+            private static final long serialVersionUID = -3657529581555164741L;
 
             @Override
             public String getDisplayValue(final Locale locale) {
@@ -192,7 +260,7 @@ public class Login extends WebPage {
                 }
             });
 
-            //Set default value to English
+            // set default value to English
             getModel().setObject(Locale.ENGLISH);
         }
 

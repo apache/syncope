@@ -14,6 +14,7 @@
  */
 package org.syncope.console.pages;
 
+import org.syncope.console.commons.SchemaModalPageFactory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -46,7 +47,6 @@ import org.syncope.client.AbstractBaseBean;
 import org.syncope.client.to.DerivedSchemaTO;
 import org.syncope.client.to.SchemaTO;
 import org.syncope.client.to.VirtualSchemaTO;
-import org.syncope.console.SchemaModalPageFactory;
 import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.PreferenceManager;
 import org.syncope.console.commons.SelectChoiceRenderer;
@@ -735,34 +735,6 @@ public class Schema extends BasePage {
                 "createMembershipVirSchemaWinLink",
                 "createMembershipVirtualSchemaWin",
                 allowedCreateRoles));
-    }
-
-    /**
-     * Set a WindowClosedCallback for a ModalWindow instance.
-     * @param window
-     * @param container
-     */
-    private void setWindowClosedCallback(final ModalWindow window,
-            final WebMarkupContainer container) {
-
-        window.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
-
-            private static final long serialVersionUID = 8804221891699487139L;
-
-            @Override
-            public void onClose(final AjaxRequestTarget target) {
-                target.add(container);
-                if (operationResult) {
-                    info(getString("operation_succeded"));
-                    target.add(feedbackPanel);
-                    operationResult = false;
-                }
-            }
-        });
-    }
-
-    public void setOperationResult(boolean operationResult) {
-        this.operationResult = operationResult;
     }
 
     private class SchemaProvider extends SortableDataProvider<SchemaTO> {

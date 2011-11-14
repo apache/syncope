@@ -86,12 +86,6 @@ public class Resources extends BasePage {
 
     private WebMarkupContainer connectorContainer;
 
-    /*
-    Response flag set by the Modal Window after the operation is completed:
-    TRUE if the operation succedes, FALSE otherwise
-     */
-    private boolean operationResult = false;
-
     private int resourcePaginatorRows;
 
     private int connectorPaginatorRows;
@@ -503,36 +497,6 @@ public class Resources extends BasePage {
 
         paginatorForm.add(rowsChooser);
         add(paginatorForm);
-    }
-
-    /**
-     * Set a WindowClosedCallback for a ModalWindow instance.
-     * @param window
-     * @param container
-     */
-    private void setWindowClosedCallback(ModalWindow window,
-            final WebMarkupContainer container) {
-
-        window.setWindowClosedCallback(
-                new ModalWindow.WindowClosedCallback() {
-
-                    private static final long serialVersionUID =
-                            8804221891699487139L;
-
-                    @Override
-                    public void onClose(AjaxRequestTarget target) {
-                        target.add(container);
-                        if (operationResult) {
-                            info(getString("operation_succeded"));
-                            target.add(feedbackPanel);
-                            operationResult = false;
-                        }
-                    }
-                });
-    }
-
-    public void setOperationResult(boolean result) {
-        operationResult = result;
     }
 
     /**

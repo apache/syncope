@@ -26,11 +26,13 @@ import org.syncope.console.rest.UserRestClient;
 
 public class UserDataProvider extends SortableDataProvider<UserTO> {
 
+    private static final long serialVersionUID = 6267494272884913376L;
+
     private SortableUserProviderComparator comparator;
 
     private NodeCond filter = null;
 
-    final private int rows;
+    private final int rows;
 
     private boolean filtered = false;
 

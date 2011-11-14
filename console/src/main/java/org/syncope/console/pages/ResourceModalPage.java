@@ -688,7 +688,7 @@ public class ResourceModalPage extends BaseModalPage {
                             restClient.update(resourceTO);
                         }
 
-                        ((Resources) callPageRef.getPage()).setOperationResult(
+                        ((Resources) callPageRef.getPage()).setModalResult(
                                 true);
                         window.close(target);
                     } catch (SyncopeClientCompositeErrorException e) {

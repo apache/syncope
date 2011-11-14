@@ -342,12 +342,12 @@ public class ConnectorModalPage extends BaseModalPage {
                         restClient.update(connector);
                     }
 
-                    ((Resources) callerPageRef.getPage()).setOperationResult(
+                    ((Resources) callerPageRef.getPage()).setModalResult(
                             true);
                     window.close(target);
                 } catch (SyncopeClientCompositeErrorException e) {
                     error(getString("error") + ":" + e.getMessage());
-                    ((Resources) callerPageRef.getPage()).setOperationResult(
+                    ((Resources) callerPageRef.getPage()).setModalResult(
                             false);
                     LOG.error("While creating or updating connector "
                             + connector);

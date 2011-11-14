@@ -23,7 +23,7 @@ import org.syncope.client.to.WorkflowFormTO;
  * Console client for invoking Rest Todo services.
  */
 @Component
-public class TodoRestClient extends AbstractBaseRestClient {
+public class ApprovalRestClient extends AbstractBaseRestClient {
 
     public List<WorkflowFormTO> getForms() {
         return Arrays.asList(restTemplate.getForObject(

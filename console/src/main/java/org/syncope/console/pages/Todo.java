@@ -45,52 +45,73 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.springframework.web.client.RestClientException;
+import org.syncope.client.to.UserRequestTO;
 import org.syncope.client.to.WorkflowFormTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.SyncopeSession;
 import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.PreferenceManager;
 import org.syncope.console.commons.SortableDataProviderComparator;
-import org.syncope.console.rest.TodoRestClient;
+import org.syncope.console.rest.ApprovalRestClient;
+import org.syncope.console.rest.UserRequestRestClient;
+import org.syncope.console.rest.UserRestClient;
+import org.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
 import org.syncope.console.wicket.markup.html.form.LinkPanel;
 import org.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
+import org.syncope.console.wicket.markup.html.form.DeleteLinkPanel;
+import org.syncope.types.UserRequestType;
 
 public class Todo extends BasePage {
 
     private static final long serialVersionUID = -7122136682275797903L;
 
     @SpringBean
-    private TodoRestClient restClient;
+    private ApprovalRestClient approvalRestClient;
 
-    private final ModalWindow editTodoWin;
+    @SpringBean
+    private UserRestClient userRestClient;
 
-    private static final int WIN_HEIGHT = 400;
+    @SpringBean
+    private UserRequestRestClient userRequestRestClient;
 
-    private static final int WIN_WIDTH = 600;
+    private final ModalWindow editApprovalWin;
+
+    private final ModalWindow editUserRequestWin;
+
+    private static final int APPROVAL_WIN_HEIGHT = 400;
+
+    private static final int APPROVAL_WIN_WIDTH = 600;
+
+    private final static int USER_REQUEST_WIN_HEIGHT = 550;
+
+    private final static int USER_REQUESTL_WIN_WIDTH = 800;
 
     @SpringBean
     private PreferenceManager prefMan;
 
-    private WebMarkupContainer container;
+    private WebMarkupContainer approvalContainer;
 
-    /**
-     * Response flag set by the Modal Window after the operation
-     * is completed.
-     */
-    private boolean operationResult = false;
+    private WebMarkupContainer userRequestContainer;
 
-    private int paginatorRows;
+    private int approvalPaginatorRows;
+
+    private int userRequestPaginatorRows;
 
     public Todo(final PageParameters parameters) {
         super(parameters);
 
-        container = new WebMarkupContainer("todoContainer");
+        add(editApprovalWin = new ModalWindow("editApprovalWin"));
+        add(editUserRequestWin = new ModalWindow("editUserRequestWin"));
 
-        add(editTodoWin = new ModalWindow("editTodoWin"));
+        setupApproval();
+        setupUserRequest();
+    }
 
-        paginatorRows = prefMan.getPaginatorRows(getRequest(),
-                Constants.PREF_TODO_PAGINATOR_ROWS);
+    private void setupApproval() {
+        approvalContainer = new WebMarkupContainer("approvalContainer");
+
+        approvalPaginatorRows = prefMan.getPaginatorRows(getRequest(),
+                Constants.PREF_APPROVAL_PAGINATOR_ROWS);
 
         List<IColumn> columns = new ArrayList<IColumn>();
         columns.add(new PropertyColumn(new ResourceModel("taskId"),
@@ -125,13 +146,13 @@ public class Todo extends BasePage {
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
                         try {
-                            restClient.claimForm(formTO.getTaskId());
+                            approvalRestClient.claimForm(formTO.getTaskId());
                             info(getString("operation_succeded"));
                         } catch (SyncopeClientCompositeErrorException scee) {
                             error(getString("error") + ":" + scee.getMessage());
                         }
                         target.add(feedbackPanel);
-                        target.add(container);
+                        target.add(approvalContainer);
                     }
                 };
 
@@ -141,7 +162,7 @@ public class Todo extends BasePage {
                 panel.add(claimLink);
 
                 MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
-                        xmlRolesReader.getAllAllowedRoles("Todo", "claim"));
+                        xmlRolesReader.getAllAllowedRoles("Approval", "claim"));
 
                 cellItem.add(panel);
             }
@@ -169,18 +190,18 @@ public class Todo extends BasePage {
 
                         @Override
                         public void onClick(final AjaxRequestTarget target) {
-                            editTodoWin.setPageCreator(
+                            editApprovalWin.setPageCreator(
                                     new ModalWindow.PageCreator() {
 
                                         @Override
                                         public Page createPage() {
-                                            return new TodoModalPage(
+                                            return new ApprovalModalPage(
                                                     Todo.this.getPageReference(),
-                                                    editTodoWin, formTO);
+                                                    editApprovalWin, formTO);
                                         }
                                     });
 
-                            editTodoWin.show(target);
+                            editApprovalWin.show(target);
                         }
                     };
                     manageLink.add(new Label("linkTitle", getString("manage")));
@@ -189,7 +210,8 @@ public class Todo extends BasePage {
                     panel.add(manageLink);
 
                     MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
-                            xmlRolesReader.getAllAllowedRoles("Todo", "read"));
+                            xmlRolesReader.getAllAllowedRoles(
+                            "Approval", "read"));
 
                 } else {
                     panel = new EmptyPanel(componentId);
@@ -198,19 +220,19 @@ public class Todo extends BasePage {
             }
         });
 
-        final AjaxFallbackDefaultDataTable todoTable =
-                new AjaxFallbackDefaultDataTable("todoTable", columns,
-                new WorkflowFormProvider(), paginatorRows);
+        final AjaxFallbackDefaultDataTable approvalTable =
+                new AjaxFallbackDefaultDataTable("approvalTable", columns,
+                new ApprovalProvider(), approvalPaginatorRows);
 
-        container.add(todoTable);
-        container.setOutputMarkupId(true);
+        approvalContainer.add(approvalTable);
+        approvalContainer.setOutputMarkupId(true);
 
-        add(container);
+        add(approvalContainer);
 
-        Form paginatorForm = new Form("paginatorForm");
+        Form approvalPaginatorForm = new Form("approvalPaginatorForm");
 
         final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser",
-                new PropertyModel(this, "paginatorRows"),
+                new PropertyModel(this, "approvalPaginatorRows"),
                 prefMan.getPaginatorChoices());
 
         rowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
@@ -221,67 +243,210 @@ public class Todo extends BasePage {
             protected void onUpdate(final AjaxRequestTarget target) {
                 prefMan.set(getRequest(),
                         getResponse(),
-                        Constants.PREF_TODO_PAGINATOR_ROWS,
-                        String.valueOf(paginatorRows));
-                todoTable.setItemsPerPage(paginatorRows);
+                        Constants.PREF_APPROVAL_PAGINATOR_ROWS,
+                        String.valueOf(approvalPaginatorRows));
+                approvalTable.setItemsPerPage(approvalPaginatorRows);
 
-                target.add(container);
+                target.add(approvalContainer);
             }
         });
 
-        paginatorForm.add(rowsChooser);
-        add(paginatorForm);
+        approvalPaginatorForm.add(rowsChooser);
+        add(approvalPaginatorForm);
 
-        editTodoWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
-        editTodoWin.setInitialHeight(WIN_HEIGHT);
-        editTodoWin.setInitialWidth(WIN_WIDTH);
-        editTodoWin.setCookieName("edit-todo-modal");
+        editApprovalWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+        editApprovalWin.setInitialHeight(APPROVAL_WIN_HEIGHT);
+        editApprovalWin.setInitialWidth(APPROVAL_WIN_WIDTH);
+        editApprovalWin.setCookieName("edit-approval-modal");
 
-        setWindowClosedCallback(editTodoWin, container);
+        setWindowClosedCallback(editApprovalWin, approvalContainer);
     }
 
-    /**
-     * Set a WindowClosedCallback for a ModalWindow instance.
-     * @param window
-     * @param container
-     */
-    private void setWindowClosedCallback(final ModalWindow window,
-            final WebMarkupContainer container) {
+    private void setupUserRequest() {
+        userRequestContainer = new WebMarkupContainer("userRequestContainer");
 
-        window.setWindowClosedCallback(
-                new ModalWindow.WindowClosedCallback() {
+        userRequestPaginatorRows = prefMan.getPaginatorRows(getRequest(),
+                Constants.PREF_USER_REQUEST_PAGINATOR_ROWS);
+
+        List<IColumn> columns = new ArrayList<IColumn>();
+        columns.add(new PropertyColumn(new ResourceModel("id"),
+                "id", "id"));
+        columns.add(new PropertyColumn(new ResourceModel("type"),
+                "type", "type"));
+        columns.add(new UserRequestColumn("user"));
+        columns.add(new AbstractColumn<UserRequestTO>(
+                new ResourceModel("manage")) {
+
+            private static final long serialVersionUID = 2054811145491901166L;
+
+            @Override
+            public void populateItem(
+                    final Item<ICellPopulator<UserRequestTO>> cellItem,
+                    final String componentId,
+                    final IModel<UserRequestTO> model) {
+
+                AjaxLink manageLink = new IndicatingAjaxLink("link") {
 
                     private static final long serialVersionUID =
-                            8804221891699487139L;
+                            -7978723352517770644L;
 
                     @Override
-                    public void onClose(final AjaxRequestTarget target) {
-                        target.add(container);
-                        if (operationResult) {
-                            info(getString("operation_succeded"));
-                            target.add(feedbackPanel);
-                            operationResult = false;
-                        }
+                    public void onClick(final AjaxRequestTarget target) {
+                        editUserRequestWin.setPageCreator(
+                                new ModalWindow.PageCreator() {
+
+                                    @Override
+                                    public Page createPage() {
+                                        return new UserModalPage(
+                                                Todo.this.getPageReference(),
+                                                editUserRequestWin,
+                                                model.getObject());
+                                    }
+                                });
+
+                        editUserRequestWin.show(target);
                     }
-                });
+                };
+
+                AjaxLink deleteLink = new IndicatingDeleteOnConfirmAjaxLink(
+                        "link") {
+
+                    private static final long serialVersionUID =
+                            -7978723352517770644L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
+                        try {
+                            userRestClient.delete(
+                                    model.getObject().getUserId());
+                            userRequestRestClient.delete(
+                                    model.getObject().getId());
+                        } catch (SyncopeClientCompositeErrorException e) {
+                            LOG.error("While deleting an user", e);
+                            error(e.getMessage());
+                            return;
+                        }
+
+                        info(getString("operation_succeded"));
+                        target.add(feedbackPanel);
+
+                        target.add(userRequestContainer);
+                    }
+                };
+                MetaDataRoleAuthorizationStrategy.authorize(deleteLink, ENABLE,
+                        xmlRolesReader.getAllAllowedRoles("Users", "delete"));
+
+                AjaxLink link = model.getObject().getType()
+                        == UserRequestType.DELETE ? deleteLink : manageLink;
+                link.add(new Label("linkTitle", getString("manage")));
+
+                Panel panel = new LinkPanel(componentId);
+                panel.add(link);
+
+                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
+                        xmlRolesReader.getAllAllowedRoles(
+                        "UserRequest", "read"));
+
+                cellItem.add(panel);
+            }
+        });
+        columns.add(new AbstractColumn<UserRequestTO>(
+                new ResourceModel("delete")) {
+
+            private static final long serialVersionUID = 2054811145491901166L;
+
+            @Override
+            public void populateItem(
+                    final Item<ICellPopulator<UserRequestTO>> cellItem,
+                    final String componentId,
+                    final IModel<UserRequestTO> model) {
+
+                final UserRequestTO request = model.getObject();
+
+                AjaxLink deleteLink = new IndicatingDeleteOnConfirmAjaxLink(
+                        "deleteLink") {
+
+                    private static final long serialVersionUID =
+                            -7978723352517770644L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
+                        try {
+                            userRequestRestClient.delete(request.getId());
+                        } catch (SyncopeClientCompositeErrorException e) {
+                            LOG.error("While deleting an user request", e);
+                            error(e.getMessage());
+                            return;
+                        }
+
+                        info(getString("operation_succeded"));
+                        target.add(feedbackPanel);
+
+                        target.add(userRequestContainer);
+                    }
+                };
+
+                DeleteLinkPanel panel = new DeleteLinkPanel(componentId, model);
+                panel.add(deleteLink);
+
+                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
+                        xmlRolesReader.getAllAllowedRoles(
+                        "UserRequest", "delete"));
+
+                cellItem.add(panel);
+            }
+        });
+
+        final AjaxFallbackDefaultDataTable userRequestTable =
+                new AjaxFallbackDefaultDataTable("userRequestTable", columns,
+                new UserRequestProvider(), userRequestPaginatorRows);
+
+        userRequestContainer.add(userRequestTable);
+        userRequestContainer.setOutputMarkupId(true);
+
+        add(userRequestContainer);
+
+        Form userRequestPaginatorForm = new Form("userRequestPaginatorForm");
+
+        final DropDownChoice rowsChooser = new DropDownChoice("rowsChooser",
+                new PropertyModel(this, "userRequestPaginatorRows"),
+                prefMan.getPaginatorChoices());
+
+        rowsChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+
+            private static final long serialVersionUID = -1107858522700306810L;
+
+            @Override
+            protected void onUpdate(final AjaxRequestTarget target) {
+                prefMan.set(getRequest(),
+                        getResponse(),
+                        Constants.PREF_USER_REQUEST_PAGINATOR_ROWS,
+                        String.valueOf(userRequestPaginatorRows));
+                userRequestTable.setItemsPerPage(userRequestPaginatorRows);
+
+                target.add(userRequestContainer);
+            }
+        });
+
+        userRequestPaginatorForm.add(rowsChooser);
+        add(userRequestPaginatorForm);
+
+        editUserRequestWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+        editUserRequestWin.setInitialHeight(USER_REQUEST_WIN_HEIGHT);
+        editUserRequestWin.setInitialWidth(USER_REQUESTL_WIN_WIDTH);
+        editUserRequestWin.setCookieName("edit-userRequest-modal");
+
+        setWindowClosedCallback(editUserRequestWin, userRequestContainer);
     }
 
-    public boolean isOperationResult() {
-        return operationResult;
-    }
-
-    public void setOperationResult(final boolean operationResult) {
-        this.operationResult = operationResult;
-    }
-
-    private class WorkflowFormProvider
+    private class ApprovalProvider
             extends SortableDataProvider<WorkflowFormTO> {
 
         private static final long serialVersionUID = -2311716167583335852L;
 
         private SortableDataProviderComparator<WorkflowFormTO> comparator;
 
-        public WorkflowFormProvider() {
+        public ApprovalProvider() {
             //Default sorting
             setSort("key", SortOrder.ASCENDING);
             comparator =
@@ -292,7 +457,7 @@ public class Todo extends BasePage {
         public Iterator<WorkflowFormTO> iterator(final int first,
                 final int count) {
 
-            List<WorkflowFormTO> list = getAllForms();
+            List<WorkflowFormTO> list = approvalRestClient.getForms();
 
             Collections.sort(list, comparator);
 
@@ -301,7 +466,7 @@ public class Todo extends BasePage {
 
         @Override
         public int size() {
-            return getAllForms().size();
+            return approvalRestClient.getForms().size();
         }
 
         @Override
@@ -319,16 +484,90 @@ public class Todo extends BasePage {
                 }
             };
         }
+    }
 
-        private List<WorkflowFormTO> getAllForms() {
-            List<WorkflowFormTO> list = null;
+    private class UserRequestProvider
+            extends SortableDataProvider<UserRequestTO> {
 
-            try {
-                list = restClient.getForms();
-            } catch (RestClientException rce) {
-                throw rce;
+        private static final long serialVersionUID = -2311716167583335852L;
+
+        private SortableDataProviderComparator<UserRequestTO> comparator;
+
+        public UserRequestProvider() {
+            //Default sorting
+            setSort("id", SortOrder.ASCENDING);
+            comparator =
+                    new SortableDataProviderComparator<UserRequestTO>(this);
+        }
+
+        @Override
+        public Iterator<UserRequestTO> iterator(final int first,
+                final int count) {
+
+            List<UserRequestTO> list = userRequestRestClient.list();
+
+            Collections.sort(list, comparator);
+
+            return list.subList(first, first + count).iterator();
+        }
+
+        @Override
+        public int size() {
+            return userRequestRestClient.list().size();
+        }
+
+        @Override
+        public IModel<UserRequestTO> model(
+                final UserRequestTO userRequestTO) {
+
+            return new AbstractReadOnlyModel<UserRequestTO>() {
+
+                private static final long serialVersionUID =
+                        -2566070996511906708L;
+
+                @Override
+                public UserRequestTO getObject() {
+                    return userRequestTO;
+                }
+            };
+        }
+    }
+
+    private class UserRequestColumn extends AbstractColumn<UserRequestTO> {
+
+        private static final long serialVersionUID = 8077865338230121496L;
+
+        public UserRequestColumn(final String name) {
+            super(new ResourceModel(name, name), name);
+        }
+
+        @Override
+        public void populateItem(
+                final Item<ICellPopulator<UserRequestTO>> cellItem,
+                final String componentId, final IModel<UserRequestTO> rowModel) {
+
+            String label = "";
+            switch (rowModel.getObject().getType()) {
+                case CREATE:
+                    label = rowModel.getObject().getUserTO().getUsername();
+                    if (label == null) {
+                        label = getString("new_user");
+                    }
+                    break;
+
+                case UPDATE:
+                    label = String.valueOf(
+                            rowModel.getObject().getUserMod().getId());
+                    break;
+
+                case DELETE:
+                    label = String.valueOf(rowModel.getObject().getUserId());
+                    break;
+
+                default:
             }
-            return list;
+
+            cellItem.add(new Label(componentId, label));
         }
     }
 }

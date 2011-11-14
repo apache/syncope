@@ -33,7 +33,6 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.syncope.client.AbstractBaseBean;
 import org.syncope.client.to.MembershipTO;
 import org.syncope.client.to.RoleTO;
 import org.syncope.client.to.UserTO;
@@ -84,8 +83,8 @@ public class RolesPanel extends Panel {
             protected void onNodeLinkClicked(final Object node,
                     final BaseTree tree, final AjaxRequestTarget target) {
 
-                final RoleTO roleTO =
-                        (RoleTO) ((DefaultMutableTreeNode) node).getUserObject();
+                final RoleTO roleTO = (RoleTO) ((DefaultMutableTreeNode) node).
+                        getUserObject();
 
                 membershipWin.setPageCreator(new ModalWindow.PageCreator() {
 
@@ -136,7 +135,7 @@ public class RolesPanel extends Panel {
                             -7978723352517770644L;
 
                     @Override
-                    public void onClick(AjaxRequestTarget target) {
+                    public void onClick(final AjaxRequestTarget target) {
                         membershipWin.setPageCreator(
                                 new ModalWindow.PageCreator() {
 
@@ -206,11 +205,11 @@ public class RolesPanel extends Panel {
 
                     @Override
                     public void onClose(final AjaxRequestTarget target) {
+                        final UserTO userTO =
+                                ((UserModalPage) getPage()).getUserTO();
 
-                        final AbstractBaseBean bean =
-                                ((UserModalPage) getPage()).getBean();
-
-                        userTO.setMemberships(((UserTO) bean).getMemberships());
+                        RolesPanel.this.userTO.setMemberships(
+                                userTO.getMemberships());
                         target.add(container);
                     }
                 });

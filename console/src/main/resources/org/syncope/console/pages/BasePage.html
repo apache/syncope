@@ -43,7 +43,7 @@
                 $("#role").tabs();
                 $("#membership").tabs();
             });
-
+                
             /** Add rollover effect to tables supporting Ajax events (live)*/
             $('table.ui-widget.ui-widget-content.table-hover tbody tr')
             .live('mouseover mouseout', function(event) {
@@ -53,8 +53,14 @@
                     $(this).removeClass('selectedRow');
                 }
             });
+            
+            $(document).ready(function() {
+                $("#editProfile").hide();
+                $("#username").click(function() {
+                    $("#editProfile").toggle();
+                });
+            });
         </script>
-
     </head>
     <body>
         <div id="navigationPane">
@@ -113,12 +119,22 @@
                             <wicket:message key="configuration"/>
                         </a></span>
                 </li>
-                <li style="float:right">
-                    <a href="#" wicket:id="logout"><img src="img/menu/notsel/logout.png" alt="Logout" width="80" height="80" /><br />
-                        <wicket:message key="logout"/>
-                    </a>
+                <li style="float:right;width:auto;text-align:right;">
+                    <a href="#" wicket:id="logout"><img src="img/menu/notsel/logout.png" alt="Logout" width="80" height="80" /><br /></a>
+                    <div>
+                        <span id="username" wicket:id="username" style="padding-right: 9px;cursor: pointer;"/>
+                        <span wicket:id="editProfile"/>
+
+                        <wicket:fragment wicket:id="adminEmptyFrag"/>
+                        <wicket:fragment wicket:id="editProfileFrag">
+                            <br/>
+                            <span id="editProfile" wicket:id="editProfile" 
+                                  style="cursor: pointer;background-color: #446633;padding-left: 9px;padding-right: 9px;"/>
+                        </wicket:fragment>
+                    </div>
                 </li>
             </ul>
+            <div wicket:id="editProfileModal" ></div>
         </div>
 
         <div wicket:id="feedback"/>

@@ -513,12 +513,13 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(newUserTO);
 
         assertNotNull(newUserTO.getVirtualAttributeMap());
-        assertNotNull(newUserTO.getVirtualAttributeMap().get("virtualdata"));
+        assertNotNull(newUserTO.getVirtualAttributeMap().get("virtualdata").
+                getValues());
         assertFalse(newUserTO.getVirtualAttributeMap().get("virtualdata").
-                isEmpty());
-        assertEquals(
-                newUserTO.getVirtualAttributeMap().get("virtualdata").get(0),
-                "virtualvalue");
+                getValues().isEmpty());
+        assertEquals("virtualvalue",
+                newUserTO.getVirtualAttributeMap().get("virtualdata").
+                getValues().get(0));
 
         // get the new task list
         tasks = Arrays.asList(

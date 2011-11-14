@@ -18,19 +18,20 @@ import java.util.ArrayList;
 import java.util.List;
 import org.syncope.client.AbstractBaseBean;
 
-/**
- * Transfer Object for attributes.
- */
 public class AttributeTO extends AbstractBaseBean {
+
+    private static final long serialVersionUID = 4941691338796323623L;
 
     /**
      * Name of the schema that this attribute is referring to.
      */
     private String schema;
+
     /**
      * Set of (string) values of this attribute.
      */
     private List<String> values;
+
     /**
      * Wether this attribute is read-only or not.
      */

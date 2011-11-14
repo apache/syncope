@@ -40,6 +40,7 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.syncope.client.mod.AttributeMod;
 import org.syncope.client.to.AttributeTO;
 import org.syncope.core.init.ConnInstanceLoader;
 import org.syncope.core.persistence.beans.AbstractAttrValue;
@@ -200,7 +201,7 @@ public class PropagationManager {
      * @param userId to be updated
      * @param password to be updated
      * @param vAttrsToBeRemoved virtual attributes to be removed
-     * @param vAttrsToBeAdded virtual attributes to be added
+     * @param vAttrsToBeUpdated virtual attributes to be added
      * @param enable wether user must be enabled or not
      * @param propByRes operations to perform on each resource
      * @return list of propagation tasks
@@ -208,12 +209,12 @@ public class PropagationManager {
      */
     public List<PropagationTask> getUpdateTaskIds(final Long userId,
             final String password, final Set<String> vAttrsToBeRemoved,
-            final Set<String> vAttrsToBeAdded, final Boolean enable,
+            final Set<AttributeMod> vAttrsToBeUpdated, final Boolean enable,
             final PropagationByResource propByRes)
             throws NotFoundException {
 
         return getUpdateTaskIds(userId, password, vAttrsToBeRemoved,
-                vAttrsToBeAdded, enable, propByRes, null);
+                vAttrsToBeUpdated, enable, propByRes, null);
     }
 
     /**
@@ -222,7 +223,7 @@ public class PropagationManager {
      * @param userId to be updated
      * @param password to be updated
      * @param vAttrsToBeRemoved virtual attributes to be removed
-     * @param vAttrsToBeAdded virtual attributes to be added
+     * @param vAttrsToBeUpdated virtual attributes to be added
      * @param enable wether user must be enabled or not
      * @param propByRes operations to perform on each resource
      * @param syncResourceName name of external resource performing sync, hence
@@ -232,7 +233,7 @@ public class PropagationManager {
      */
     public List<PropagationTask> getUpdateTaskIds(final Long userId,
             final String password, final Set<String> vAttrsToBeRemoved,
-            final Set<String> vAttrsToBeAdded, final Boolean enable,
+            final Set<AttributeMod> vAttrsToBeUpdated, final Boolean enable,
             final PropagationByResource propByRes,
             final String syncResourceName)
             throws NotFoundException {
@@ -241,10 +242,10 @@ public class PropagationManager {
 
         Set<String> vAttrsToRemove = vAttrsToBeRemoved == null
                 ? Collections.EMPTY_SET : vAttrsToBeRemoved;
-        Set<String> vAttrsToAdd = vAttrsToBeAdded == null
-                ? Collections.EMPTY_SET : vAttrsToBeAdded;
+        Set<AttributeMod> vAttrsToUpdate = vAttrsToBeUpdated == null
+                ? Collections.EMPTY_SET : vAttrsToBeUpdated;
         PropagationByResource localPropByRes = userDataBinder.fillVirtual(user,
-                vAttrsToRemove, vAttrsToAdd, AttributableUtil.USER);
+                vAttrsToRemove, vAttrsToUpdate, AttributableUtil.USER);
 
         if (propByRes != null && !propByRes.isEmpty()) {
             localPropByRes.merge(propByRes);
@@ -350,7 +351,7 @@ public class PropagationManager {
      */
     private Map.Entry<String, Attribute> prepareAttribute(
             final SchemaMapping mapping,
-            final SyncopeUser user, 
+            final SyncopeUser user,
             final String password)
             throws ClassNotFoundException {
 

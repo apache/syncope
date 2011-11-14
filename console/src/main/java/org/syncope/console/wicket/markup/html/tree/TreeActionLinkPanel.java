@@ -56,11 +56,12 @@ public class TreeActionLinkPanel extends Panel {
 
     private Fragment fragment;
 
-    public TreeActionLinkPanel(String id, final long idRole, IModel inputModel,
-            final ModalWindow window, final PageReference callerPageRef) {
+    public TreeActionLinkPanel(final String id, final long idRole,
+            final IModel inputModel, final ModalWindow window,
+            final PageReference callerPageRef) {
 
         super(id);
-        
+
         fragment = new Fragment("menuPanel",
                 idRole == 0 ? "fakerootFrag" : "roleFrag", this);
 
@@ -80,7 +81,7 @@ public class TreeActionLinkPanel extends Panel {
                         RoleTO roleTO = new RoleTO();
                         roleTO.setParent(idRole);
                         RoleModalPage form = new RoleModalPage(callerPageRef,
-                                window, roleTO, true);
+                                window, roleTO);
                         return form;
                     }
                 });
@@ -111,7 +112,7 @@ public class TreeActionLinkPanel extends Panel {
                             RoleTO roleTO = restClient.readRole(idRole);
                             RoleModalPage form =
                                     new RoleModalPage(callerPageRef, window,
-                                    roleTO, false);
+                                    roleTO);
                             return form;
                         }
                     });

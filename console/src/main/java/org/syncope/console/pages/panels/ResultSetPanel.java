@@ -420,7 +420,8 @@ public class ResultSetPanel extends Panel implements IEventSource {
                                         return new UserModalPage(
                                                 page.getPageReference(),
                                                 editmodal,
-                                                model.getObject());
+                                                model.getObject(),
+                                                false);
                                     }
                                 });
 

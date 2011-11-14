@@ -73,7 +73,7 @@ public class UserRestClient extends AbstractBaseRestClient {
         restTemplate.delete(baseURL + "user/delete/{userId}", id);
     }
 
-    public UserTO read(String id) {
+    public UserTO read(Long id) {
         UserTO userTO = null;
         try {
             userTO = restTemplate.getForObject(

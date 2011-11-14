@@ -16,6 +16,7 @@ package org.syncope.client.mod;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.codehaus.jackson.annotate.JsonIgnore;
 
 public class RoleMod extends AbstractAttributableMod {
 
@@ -129,5 +130,20 @@ public class RoleMod extends AbstractAttributableMod {
 
     public void setInheritAccountPolicy(final Boolean inheritAccountPolicy) {
         this.inheritAccountPolicy = inheritAccountPolicy;
+    }
+
+    @JsonIgnore
+    @Override
+    public boolean isEmpty() {
+        return super.isEmpty()
+                && name == null
+                && inheritAccountPolicy == null
+                && inheritPasswordPolicy == null
+                && inheritAttributes == null
+                && inheritDerivedAttributes == null
+                && inheritVirtualAttributes == null
+                && accountPolicy == null
+                && passwordPolicy == null
+                && entitlements.isEmpty();
     }
 }

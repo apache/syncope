@@ -23,7 +23,6 @@ import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.ResourceModel;
-import org.syncope.client.AbstractBaseBean;
 import org.syncope.client.to.MembershipTO;
 import org.syncope.client.to.UserTO;
 import org.syncope.console.pages.panels.DerivedAttributesPanel;
@@ -45,8 +44,8 @@ public class MembershipModalPage extends BaseModalPage {
 
         final Form form = new Form("MembershipForm");
 
-        final AbstractBaseBean bean =
-                ((BaseModalPage) pageRef.getPage()).getBean();
+        final UserTO userTO =
+                ((UserModalPage) pageRef.getPage()).getUserTO();
 
         form.setModel(new CompoundPropertyModel(membershipTO));
 
@@ -58,10 +57,10 @@ public class MembershipModalPage extends BaseModalPage {
             protected void onSubmit(
                     final AjaxRequestTarget target, final Form form) {
 
-                ((UserTO) bean).removeMembership(membershipTO);
-                ((UserTO) bean).addMembership(membershipTO);
+                userTO.removeMembership(membershipTO);
+                userTO.addMembership(membershipTO);
 
-                ((BaseModalPage) pageRef.getPage()).setBean(bean);
+                ((UserModalPage) pageRef.getPage()).setUserTO(userTO);
 
                 window.close(target);
             }
@@ -76,7 +75,7 @@ public class MembershipModalPage extends BaseModalPage {
 
         String allowedRoles = null;
 
-        if (((UserTO) bean).getId() == 0) {
+        if (((UserTO) userTO).getId() == 0) {
             allowedRoles = xmlRolesReader.getAllAllowedRoles("Users", "create");
         } else {
             allowedRoles = xmlRolesReader.getAllAllowedRoles("Users", "update");

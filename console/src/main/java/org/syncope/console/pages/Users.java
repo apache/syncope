@@ -40,8 +40,6 @@ public class Users extends BasePage {
 
     private final static int EDIT_MODAL_WIN_WIDTH = 800;
 
-    protected boolean modalResult = false;
-
     public Users(final PageParameters parameters) {
         super(parameters);
 
@@ -77,7 +75,7 @@ public class Users extends BasePage {
                     public Page createPage() {
                         return new UserModalPage(
                                 Users.this.getPageReference(),
-                                editModalWin, new UserTO());
+                                editModalWin, new UserTO(), false);
                     }
                 });
 
@@ -105,7 +103,7 @@ public class Users extends BasePage {
             protected void onSubmit(final AjaxRequestTarget target,
                     final Form<?> form) {
 
-                    final NodeCond searchCond = searchPanel.buildSearchCond();
+                final NodeCond searchCond = searchPanel.buildSearchCond();
                 LOG.debug("Node condition " + searchCond);
 
                 doSearch(target, searchCond, searchResult);
@@ -133,14 +131,6 @@ public class Users extends BasePage {
         }
 
         resultsetPanel.search(searchCond, target);
-    }
-
-    public void setModalResult(final boolean modalResult) {
-        this.modalResult = modalResult;
-    }
-
-    public boolean isModalResult() {
-        return modalResult;
     }
 
     private void setWindowClosedReloadCallback(final ModalWindow window) {

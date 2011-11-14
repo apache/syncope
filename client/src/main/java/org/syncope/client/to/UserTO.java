@@ -17,9 +17,12 @@ package org.syncope.client.to;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.codehaus.jackson.annotate.JsonIgnore;
 
 public class UserTO extends AbstractAttributableTO {
 
@@ -73,6 +76,18 @@ public class UserTO extends AbstractAttributableTO {
 
     public void setMemberships(List<MembershipTO> memberships) {
         this.memberships = memberships;
+    }
+
+    @JsonIgnore
+    public Map<Long, MembershipTO> getMembershipMap() {
+        Map<Long, MembershipTO> result = new HashMap<Long, MembershipTO>(
+                getMemberships().size());
+
+        for (MembershipTO membership : getMemberships()) {
+            result.put(membership.getRoleId(), membership);
+        }
+
+        return result;
     }
 
     public String getStatus() {

@@ -34,8 +34,10 @@ import org.syncope.console.wicket.markup.html.tree.TreeActionLinkPanel;
 public class RoleTabPanel extends Panel {
 
     private static final long serialVersionUID = 859236186975983959L;
+
     @SpringBean
     protected XMLRolesReader xmlRolesReader;
+
     private RoleTO roleTO;
 
     public RoleTabPanel(final String id, final RoleTO roleTO,
@@ -62,7 +64,7 @@ public class RoleTabPanel extends Panel {
                 new RoleAttributesPanel("attributesPanel", form, roleTO);
 
         attributesPanel.setEnabled(false);
-        
+
         form.add(attributesPanel);
 
         final WebMarkupContainer userListContainer =

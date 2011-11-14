@@ -64,26 +64,6 @@ public class SyncopeApplication extends WebApplication
 
         getMarkupSettings().setStripWicketTags(true);
 
-        // setup authorizations
-        MetaDataRoleAuthorizationStrategy.authorize(Schema.class,
-                "SCHEMA_LIST");
-        MetaDataRoleAuthorizationStrategy.authorize(Roles.class,
-                "ROLE_LIST");
-        MetaDataRoleAuthorizationStrategy.authorize(Resources.class,
-                "CONNECTOR_LIST");
-        MetaDataRoleAuthorizationStrategy.authorize(Resources.class,
-                "RESOURCE_LIST");
-        MetaDataRoleAuthorizationStrategy.authorize(Users.class,
-                "USER_LIST");
-        MetaDataRoleAuthorizationStrategy.authorize(Report.class,
-                "REPORT_LIST");
-        MetaDataRoleAuthorizationStrategy.authorize(Tasks.class,
-                "TASK_LIST");
-        MetaDataRoleAuthorizationStrategy.authorize(Configuration.class,
-                "CONFIGURATION_LIST");
-        MetaDataRoleAuthorizationStrategy.authorize(Todo.class,
-                "WORKFLOW_FORM_LIST");
-
         getRequestCycleListeners().add(new SyncopeRequestCycleListener());
     }
 
@@ -95,10 +75,8 @@ public class SyncopeApplication extends WebApplication
 
         BookmarkablePageLink schemaLink =
                 new BookmarkablePageLink("schema", Schema.class);
-        String allowedSchemaRoles =
-                xmlRolesReader.getAllAllowedRoles("Schema", "list");
-        MetaDataRoleAuthorizationStrategy.authorize(
-                schemaLink, WebPage.ENABLE, allowedSchemaRoles);
+        MetaDataRoleAuthorizationStrategy.authorizeAll(
+                schemaLink, WebPage.ENABLE);
         page.add(schemaLink);
 
         BookmarkablePageLink usersLink =
@@ -111,26 +89,21 @@ public class SyncopeApplication extends WebApplication
 
         BookmarkablePageLink rolesLink =
                 new BookmarkablePageLink("roles", Roles.class);
-        String allowedRoleRoles =
-                xmlRolesReader.getAllAllowedRoles("Roles", "list");
-        MetaDataRoleAuthorizationStrategy.authorize(
-                rolesLink, WebPage.ENABLE, allowedRoleRoles);
+        MetaDataRoleAuthorizationStrategy.authorizeAll(
+                rolesLink, WebPage.ENABLE);
         page.add(rolesLink);
 
         BookmarkablePageLink resourcesLink =
                 new BookmarkablePageLink("resources", Resources.class);
-        String allowedResourcesRoles =
-                xmlRolesReader.getAllAllowedRoles("Resources", "list");
-        MetaDataRoleAuthorizationStrategy.authorize(
-                resourcesLink, WebPage.ENABLE, allowedResourcesRoles);
+        MetaDataRoleAuthorizationStrategy.authorizeAll(
+                resourcesLink, WebPage.ENABLE);
         page.add(resourcesLink);
 
         BookmarkablePageLink todoLink =
                 new BookmarkablePageLink("todo", Todo.class);
-        String allowedTodoRoles =
-                xmlRolesReader.getAllAllowedRoles("Todo", "list");
         MetaDataRoleAuthorizationStrategy.authorize(
-                todoLink, WebPage.ENABLE, allowedTodoRoles);
+                todoLink, WebPage.ENABLE,
+                xmlRolesReader.getAllAllowedRoles("Approval", "list"));
         page.add(todoLink);
 
         BookmarkablePageLink reportLink =

@@ -436,7 +436,6 @@
     <!-- Authentication and authorization -->
     <Entitlement name="base"/>
     <Entitlement name="advanced" description="Advanced entitlement"/>
-    <Entitlement name="SCHEMA_LIST"/>
     <Entitlement name="SCHEMA_CREATE"/>
     <Entitlement name="SCHEMA_READ"/>
     <Entitlement name="SCHEMA_UPDATE"/>
@@ -447,12 +446,10 @@
     <Entitlement name="USER_UPDATE"/>
     <Entitlement name="USER_DELETE"/>
     <Entitlement name="USER_VIEW"/>
-    <Entitlement name="ROLE_LIST"/>
     <Entitlement name="ROLE_CREATE"/>
     <Entitlement name="ROLE_READ"/>
     <Entitlement name="ROLE_UPDATE"/>
     <Entitlement name="ROLE_DELETE"/>
-    <Entitlement name="RESOURCE_LIST"/>
     <Entitlement name="RESOURCE_CREATE"/>
     <Entitlement name="RESOURCE_READ"/>
     <Entitlement name="RESOURCE_UPDATE"/>
@@ -519,7 +516,7 @@
     <SyncopeRole_Entitlement entitlements_name="WORKFLOW_FORM_CLAIM" roles_id="7"/>
     <SyncopeRole_Entitlement entitlements_name="WORKFLOW_FORM_SUBMIT" roles_id="7"/>
     <SyncopeRole_Entitlement entitlements_name="SCHEMA_READ" roles_id="8"/>
-    <SyncopeRole_Entitlement entitlements_name="ROLE_LIST" roles_id="8"/>
+    <SyncopeRole_Entitlement entitlements_name="ROLE_READ" roles_id="8"/>
     <SyncopeRole_Entitlement entitlements_name="WORKFLOW_FORM_CLAIM" roles_id="8"/>
     
     <Notification id="100" sender="test@syncope-idm.org" subject="Test subject" template="test" selfAsRecipient="0" traceLevel="ALL"
