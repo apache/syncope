@@ -21,5 +21,7 @@ public enum ConflictResolutionAction {
     // sync last match
     LASTMATCH,
     // ignore sync
-    IGNORE
+    IGNORE,
+    // sync all
+    ALL
 }

@@ -21,11 +21,13 @@ import java.util.List;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpStatusCodeException;
+import org.syncope.client.to.AttributeTO;
 import org.syncope.client.to.TaskExecTO;
 import org.syncope.client.to.PropagationTaskTO;
 import org.syncope.client.to.SchedTaskTO;
 import org.syncope.client.to.SyncTaskTO;
 import org.syncope.client.to.TaskTO;
+import org.syncope.client.to.UserTO;
 import org.syncope.core.propagation.PropagationTaskExecStatus;
 
 public class TaskTestITCase extends AbstractTest {
@@ -187,6 +189,56 @@ public class TaskTestITCase extends AbstractTest {
 
     @Test
     public void sync() {
+        //-----------------------------
+        // Create a new user ... it should be updated applying sync policy
+        //-----------------------------
+        UserTO userTO = new UserTO();
+        userTO.setPassword("password123");
+        userTO.setUsername("test9");
+
+        AttributeTO firstnameTO = new AttributeTO();
+        firstnameTO.setSchema("firstname");
+        firstnameTO.addValue("nome9");
+        userTO.addAttribute(firstnameTO);
+
+        AttributeTO surnameTO = new AttributeTO();
+        surnameTO.setSchema("surname");
+        surnameTO.addValue("cognome");
+        userTO.addAttribute(surnameTO);
+
+        AttributeTO typeTO = new AttributeTO();
+        typeTO.setSchema("type");
+        typeTO.addValue("a type");
+        userTO.addAttribute(typeTO);
+
+        AttributeTO fullnameTO = new AttributeTO();
+        fullnameTO.setSchema("fullname");
+        fullnameTO.addValue("nome cognome");
+        userTO.addAttribute(fullnameTO);
+
+        AttributeTO userIdTO = new AttributeTO();
+        userIdTO.setSchema("userId");
+        userIdTO.addValue("user5@syncope-idm.org");
+        userTO.addAttribute(userIdTO);
+
+        AttributeTO emailTO = new AttributeTO();
+        emailTO.setSchema("email");
+        emailTO.addValue("user5@syncope-idm.org");
+        userTO.addAttribute(emailTO);
+
+        // add a derived attribute (accountId for csvdir)
+        AttributeTO csvuseridTO = new AttributeTO();
+        csvuseridTO.setSchema("csvuserid");
+        userTO.addDerivedAttribute(csvuseridTO);
+
+        userTO.addResource("resource-csv");
+
+        userTO = restTemplate.postForObject(
+                BASE_URL + "user/create", userTO, UserTO.class);
+
+        assertNotNull(userTO);
+        //-----------------------------
+
         Integer usersPre = restTemplate.getForObject(
                 BASE_URL + "user/count.json", Integer.class);
         assertNotNull(usersPre);
@@ -201,12 +253,26 @@ public class TaskTestITCase extends AbstractTest {
         } catch (InterruptedException e) {
         }
 
+        // check for sync policy
+
+        userTO = restTemplate.getForObject(BASE_URL + "user/read/{userId}.json",
+                UserTO.class, userTO.getId());
+
+        assertNotNull(userTO);
+        assertEquals("test9", userTO.getUsername());
+        assertEquals("test9@syncope.org",
+                userTO.getAttributeMap().get("email").get(0));
+        assertEquals("test9@syncope.org",
+                userTO.getAttributeMap().get("userId").get(0));
+        assertEquals("test9",
+                userTO.getAttributeMap().get("fullname").get(0));
+
         Integer usersPost = restTemplate.getForObject(
                 BASE_URL + "user/count.json", Integer.class);
         assertNotNull(usersPost);
 
-        assertTrue("Expected " + (usersPre + 10) + ", found " + usersPost,
-                usersPost == usersPre + 10);
+        assertTrue("Expected " + (usersPre + 9) + ", found " + usersPost,
+                usersPost == usersPre + 9);
     }
 
     @Test

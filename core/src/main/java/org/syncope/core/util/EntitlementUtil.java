@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.syncope.core.persistence.beans.Entitlement;
 
@@ -28,14 +29,20 @@ public class EntitlementUtil {
             Pattern.compile("^ROLE_([\\d])+");
 
     public static Set<String> getOwnedEntitlementNames() {
-        Set<String> result = new HashSet<String>(
-                SecurityContextHolder.getContext().
-                getAuthentication().getAuthorities().size());
-        for (GrantedAuthority authority :
-                SecurityContextHolder.getContext().
-                getAuthentication().getAuthorities()) {
+        final Set<String> result = new HashSet<String>();
 
-            result.add(authority.getAuthority());
+        final SecurityContext ctx = SecurityContextHolder.getContext();
+
+        if (ctx != null
+                && ctx.getAuthentication() != null
+                && ctx.getAuthentication().getAuthorities() != null) {
+
+            for (GrantedAuthority authority :
+                    SecurityContextHolder.getContext().
+                    getAuthentication().getAuthorities()) {
+
+                result.add(authority.getAuthority());
+            }
         }
 
         return result;

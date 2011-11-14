@@ -350,7 +350,8 @@ public class PropagationManager {
      */
     private Map.Entry<String, Attribute> prepareAttribute(
             final SchemaMapping mapping,
-            final SyncopeUser user, final String password)
+            final SyncopeUser user, 
+            final String password)
             throws ClassNotFoundException {
 
         AbstractSchema schema = null;
@@ -554,8 +555,7 @@ public class PropagationManager {
 
         if (!StringUtils.hasText(accountId)) {
             throw new IllegalArgumentException(
-                    "Missing accountId specification for "
-                    + resource.getName());
+                    "Missing accountId specification for " + resource.getName());
         }
 
         // Evaluate AccountLink expression

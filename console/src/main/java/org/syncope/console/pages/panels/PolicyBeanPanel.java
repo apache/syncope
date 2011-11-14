@@ -102,8 +102,10 @@ public class PolicyBeanPanel extends Panel {
                 fieldWrapper.setName(field.getName());
                 fieldWrapper.setType(field.getType());
 
-                fieldWrapper.setSchemaList(
-                        field.getAnnotation(SchemaList.class) != null);
+                final SchemaList schemaList =
+                        field.getAnnotation(SchemaList.class);
+
+                fieldWrapper.setSchemaList(schemaList);
 
                 items.add(fieldWrapper);
             }
@@ -168,11 +170,19 @@ public class PolicyBeanPanel extends Panel {
                                 "get" + StringUtils.capitalize(field.getName()),
                                 new Class[]{});
 
-                        if (field.isSchemaList()) {
+                        if (field.getSchemaList() != null) {
+                            final List values = schemas.getObject();
+
+                            if (field.getSchemaList().extended()) {
+                                values.add("id");
+                                values.add("username");
+                            }
+
                             component = new AjaxPalettePanel(
                                     "field",
-                                    new PropertyModel(policy, field.getName()),
-                                    new ListModel<String>(schemas.getObject()));
+                                    new PropertyModel(policy,
+                                    field.getName()),
+                                    new ListModel<String>(values));
 
                             item.add(component);
 
@@ -289,7 +299,7 @@ public class PolicyBeanPanel extends Panel {
 
         private String name;
 
-        private boolean schemaList;
+        private SchemaList schemaList;
 
         public String getName() {
             return name;
@@ -307,11 +317,11 @@ public class PolicyBeanPanel extends Panel {
             this.type = type;
         }
 
-        public boolean isSchemaList() {
+        public SchemaList getSchemaList() {
             return schemaList;
         }
 
-        public void setSchemaList(boolean schemaList) {
+        public void setSchemaList(final SchemaList schemaList) {
             this.schemaList = schemaList;
         }
     }

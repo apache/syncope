@@ -122,11 +122,11 @@ public class SchemaTestITCase extends AbstractTest {
 
     @Test
     public void delete() {
-        restTemplate.delete(BASE_URL + "schema/user/delete/firstname.json");
+        restTemplate.delete(BASE_URL + "schema/user/delete/cool.json");
         SchemaTO firstname = null;
         try {
             firstname = restTemplate.getForObject(BASE_URL
-                    + "schema/user/read/firstname.json", SchemaTO.class);
+                    + "schema/user/read/cool.json", SchemaTO.class);
         } catch (HttpClientErrorException e) {
             assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
         }

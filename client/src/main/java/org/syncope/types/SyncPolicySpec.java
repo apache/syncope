@@ -25,8 +25,8 @@ public class SyncPolicySpec extends AbstractPolicySpec {
     /**
      * SyncopeUsers attributes and user schemas used to disambiguate.
      */
-    @SchemaList
-    private List<String> identityTemplate;
+    @SchemaList(extended = true)
+    private List<String> alternativeSearchAttrs;
 
     /**
      * Conflict resolution action.
@@ -34,21 +34,27 @@ public class SyncPolicySpec extends AbstractPolicySpec {
     private ConflictResolutionAction conflictResolutionAction;
 
     public ConflictResolutionAction getConflictResolutionAction() {
-        return conflictResolutionAction;
+        if (conflictResolutionAction == null) {
+            return conflictResolutionAction.IGNORE;
+        } else {
+            return conflictResolutionAction;
+        }
     }
 
-    public void setConflictResolutionAction(ConflictResolutionAction conflictResolutionAction) {
+    public void setConflictResolutionAction(
+            final ConflictResolutionAction conflictResolutionAction) {
         this.conflictResolutionAction = conflictResolutionAction;
     }
 
-    public List<String> getIdentityTemplate() {
-        if (identityTemplate == null) {
-            identityTemplate = new ArrayList<String>();
+    public List<String> getAlternativeSearchAttrs() {
+        if (alternativeSearchAttrs == null) {
+            alternativeSearchAttrs = new ArrayList<String>();
         }
-        return identityTemplate;
+        return alternativeSearchAttrs;
     }
 
-    public void setIdentityTemplate(List<String> identityTemplate) {
-        this.identityTemplate = identityTemplate;
+    public void setAlternativeSearchAttrs(
+            final List<String> alternativeSearchAttrs) {
+        this.alternativeSearchAttrs = alternativeSearchAttrs;
     }
 }

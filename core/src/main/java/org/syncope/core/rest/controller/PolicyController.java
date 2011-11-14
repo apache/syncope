@@ -95,7 +95,6 @@ public class PolicyController extends AbstractController {
         Policy actual = policyDAO.save(policy);
         policyTO.setId(actual.getId());
 
-
         return policyTO;
     }
 

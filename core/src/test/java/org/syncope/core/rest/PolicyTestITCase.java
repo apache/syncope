@@ -158,16 +158,16 @@ public class PolicyTestITCase extends AbstractTest {
     @Test
     public final void delete() {
         final PolicyTO policyTO = restTemplate.getForObject(
-                BASE_URL + "policy/read/{id}", SyncPolicyTO.class, 3L);
+                BASE_URL + "policy/read/{id}", SyncPolicyTO.class, 7L);
 
         assertNotNull("find to delete did not work", policyTO);
 
-        restTemplate.delete(BASE_URL + "policy/delete/{id}", 3L);
+        restTemplate.delete(BASE_URL + "policy/delete/{id}", 7L);
 
         Throwable t = null;
         try {
             restTemplate.getForObject(
-                    BASE_URL + "policy/read/{id}", SyncPolicyTO.class, 3L);
+                    BASE_URL + "policy/read/{id}", SyncPolicyTO.class, 7L);
         } catch (SyncopeClientCompositeErrorException e) {
             t = e;
         }

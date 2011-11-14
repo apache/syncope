@@ -25,11 +25,12 @@
     <!-- sample policies -->
     <Policy DTYPE="SyncPolicy" id="1" description="sync policy 1" type="SYNC" specification="%3C%3Fxml+version%3D%221.0%22+encoding%3D%22UTF-8%22%3F%3E+%0A%3Cjava+version%3D%221.6.0_26%22+class%3D%22java.beans.XMLDecoder%22%3E+%0A+%3Cobject+class%3D%22org.syncope.types.SyncPolicySpec%22/%3E%0A%3C/java%3E+%0A"/>
     <Policy DTYPE="PasswordPolicy" id="2" description="global password policy" type="GLOBAL_PASSWORD" specification="%3C%3Fxml+version%3D%221.0%22+encoding%3D%22UTF-8%22%3F%3E+%0A%3Cjava+version%3D%221.6.0_26%22+class%3D%22java.beans.XMLDecoder%22%3E+%0A+%3Cobject+class%3D%22org.syncope.types.PasswordPolicySpec%22%3E+%0A++%3Cvoid+property%3D%22historyLength%22%3E+%0A+++%3Cint%3E1%3C/int%3E+%0A++%3C/void%3E+%0A++%3Cvoid+property%3D%22minLength%22%3E+%0A+++%3Cint%3E8%3C/int%3E+%0A++%3C/void%3E+%0A++%3Cvoid+property%3D%22prefixesNotPermitted%22%3E+%0A+++%3Cvoid+method%3D%22add%22%3E+%0A++++%3Cstring%3Enotpermitted1%3C/string%3E+%0A+++%3C/void%3E+%0A+++%3Cvoid+method%3D%22add%22%3E+%0A++++%3Cstring%3Enotpermitted2%3C/string%3E+%0A+++%3C/void%3E+%0A++%3C/void%3E+%0A+%3C/object%3E+%0A%3C/java%3E+"/>
-    <Policy DTYPE="SyncPolicy" id="3" description="sync policy 2" type="SYNC" specification="%3C%3Fxml+version%3D%221.0%22+encoding%3D%22UTF-8%22%3F%3E+%0A%3Cjava+version%3D%221.6.0_26%22+class%3D%22java.beans.XMLDecoder%22%3E+%0A+%3Cobject+class%3D%22org.syncope.types.SyncPolicySpec%22/%3E%0A%3C/java%3E+%0A"/>
+    <Policy DTYPE="SyncPolicy" id="3" description="sync policy 2" type="SYNC" specification="%3C%3Fxml+version%3D%221.0%22+encoding%3D%22UTF-8%22%3F%3E+%0A%3Cjava+version%3D%221.6.0_29%22+class%3D%22java.beans.XMLDecoder%22%3E+%0A+%3Cobject+class%3D%22org.syncope.types.SyncPolicySpec%22%3E+%0A++%3Cvoid+property%3D%22conflictResolutionAction%22%3E+%0A+++%3Cobject+class%3D%22org.syncope.types.ConflictResolutionAction%22+method%3D%22valueOf%22%3E+%0A++++%3Cstring%3EALL%3C/string%3E+%0A+++%3C/object%3E+%0A++%3C/void%3E+%0A++%3Cvoid+property%3D%22alternativeSearchAttrs%22%3E%0A+++%3Cvoid+method%3D%22add%22%3E+%0A++++%3Cstring%3Eusername%3C/string%3E+%0A+++%3C/void%3E+%0A+++%3Cvoid+method%3D%22add%22%3E+%0A++++%3Cstring%3Efirstname%3C/string%3E+%0A+++%3C/void%3E+%0A++%3C/void%3E+%0A+%3C/object%3E+%0A%3C/java%3E+"/>
     <Policy DTYPE="PasswordPolicy" id="4" description="sample password policy" type="PASSWORD" specification="%3C%3Fxml+version%3D%221.0%22+encoding%3D%22UTF-8%22%3F%3E+%0A%3Cjava+version%3D%221.6.0_26%22+class%3D%22java.beans.XMLDecoder%22%3E+%0A+%3Cobject+class%3D%22org.syncope.types.PasswordPolicySpec%22%3E+%0A++%3Cvoid+property%3D%22historyLength%22%3E+%0A+++%3Cint%3E0%3C/int%3E+%0A++%3C/void%3E+%0A++%3Cvoid+property%3D%22minLength%22%3E+%0A+++%3Cint%3E10%3C/int%3E+%0A++%3C/void%3E+%0A++%3Cvoid+property%3D%22prefixesNotPermitted%22%3E+%0A+++%3Cvoid+method%3D%22add%22%3E+%0A++++%3Cstring%3Enotpermitted1%3C/string%3E+%0A+++%3C/void%3E+%0A+++%3Cvoid+method%3D%22add%22%3E+%0A++++%3Cstring%3Enotpermitted2%3C/string%3E+%0A+++%3C/void%3E+%0A++%3C/void%3E+%0A+%3C/object%3E+%0A%3C/java%3E+"/>
     <Policy DTYPE="AccountPolicy" id="5" description="global account policy" type="GLOBAL_ACCOUNT" specification="%3C%3Fxml+version%3D%221.0%22+encoding%3D%22UTF-8%22%3F%3E+%0A%3Cjava+version%3D%221.6.0_26%22+class%3D%22java.beans.XMLDecoder%22%3E+%0A+%3Cobject+class%3D%22org.syncope.types.AccountPolicySpec%22%3E%0A+%3C/object%3E+%0A%3C/java%3E+"/>
     <Policy DTYPE="AccountPolicy" id="6" description="sample account policy" type="ACCOUNT" specification="%3C%3Fxml+version%3D%221.0%22+encoding%3D%22UTF-8%22%3F%3E+%0A%3Cjava+version%3D%221.6.0_26%22+class%3D%22java.beans.XMLDecoder%22%3E+%0A+%3Cobject+class%3D%22org.syncope.types.AccountPolicySpec%22%3E+%0A++%3Cvoid+property%3D%22minLength%22%3E+%0A+++%3Cint%3E4%3C/int%3E+%0A++%3C/void%3E%0A++%3Cvoid+property%3D%22permittedLoginRetries%22%3E+%0A+++%3Cint%3E3%3C/int%3E+%0A++%3C/void%3E+%0A++%3Cvoid+property%3D%22prefixesNotPermitted%22%3E+%0A+++%3Cvoid+method%3D%22add%22%3E+%0A++++%3Cstring%3Enotpermitted1%3C/string%3E+%0A+++%3C/void%3E+%0A+++%3Cvoid+method%3D%22add%22%3E+%0A++++%3Cstring%3Enotpermitted2%3C/string%3E+%0A+++%3C/void%3E+%0A++%3C/void%3E+%0A+%3C/object%3E+%0A%3C/java%3E+"/>
-
+    <Policy DTYPE="SyncPolicy" id="7" description="sync policy 1" type="SYNC" specification="%3C%3Fxml+version%3D%221.0%22+encoding%3D%22UTF-8%22%3F%3E+%0A%3Cjava+version%3D%221.6.0_26%22+class%3D%22java.beans.XMLDecoder%22%3E+%0A+%3Cobject+class%3D%22org.syncope.types.SyncPolicySpec%22/%3E%0A%3C/java%3E+%0A"/>
+    
     <SyncopeUser id="1" workflowId="0" status="active" password="5f4dcc3b5aa765d61d8327deb882cf99" cipherAlgorithm="MD5"
                  username="user1" creationDate="2010-10-20 11:00:00"/>
     <SyncopeUser id="2" workflowId="0" status="active" password="5f4dcc3b5aa765d61d8327deb882cf99" cipherAlgorithm="MD5"
@@ -260,11 +261,11 @@
                       propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL" passwordPolicy_id="4"/>
     <ExternalResource name="resource-testdb" connector_id="101" forceMandatoryConstraint="1" propagationMode="SYNC"
                       propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"/>
-    <ExternalResource name="resource-csv" connector_id="104" forceMandatoryConstraint="0" propagationMode="ASYNC"
+    <ExternalResource name="resource-csv" connector_id="104" forceMandatoryConstraint="0" propagationMode="ASYNC" syncPolicy_id="3"
                       propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"/>
     <ExternalResource name="ws-target-resource-update-resetsynctoken" connector_id="100" forceMandatoryConstraint="1" propagationMode="ASYNC"
                       propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL" serializedSyncToken="%3C%3Fxml+version%3D%221.0%22+encoding%3D%22UTF-8%22%3F%3E%3Cjava+version%3D%221.6.0_24%22+class%3D%22java.beans.XMLDecoder%22%3E%3C%2Fjava%3E"/>
-                    
+                      
     <SyncopeUser_ExternalResource users_id="3" externalResources_name="ws-target-resource-delete" />
     <SyncopeRole_ExternalResource roles_id="3" externalResources_name="ws-target-resource-list-mappings-1" />
     <SyncopeUser_ExternalResource users_id="3" externalResources_name="ws-target-resource-2" />
@@ -366,7 +367,7 @@
                    resource_name="resource-testdb"
                    intMappingType="Password" mandatoryCondition="true"
                    accountid="0" password="1"/>
-
+                   
     <SchemaMapping id="200" extAttrName="id"
                    resource_name="resource-csv"
                    intMappingType="Username" mandatoryCondition="true"
@@ -391,7 +392,11 @@
                    resource_name="resource-csv"
                    intAttrName="userId" intMappingType="UserSchema" mandatoryCondition="true"
                    accountid="0" password="0"/>
-    <SchemaMapping id="206" extAttrName="IGNORE"
+    <SchemaMapping id="206" extAttrName="email"
+                   resource_name="resource-csv"
+                   intAttrName="email" intMappingType="UserSchema" mandatoryCondition="true"
+                   accountid="0" password="0"/>
+    <SchemaMapping id="207" extAttrName="IGNORE"
                    resource_name="resource-csv"
                    intAttrName="csvuserid" intMappingType="UserDerivedSchema" mandatoryCondition="true"
                    accountid="1" password="0"/>
@@ -404,7 +409,7 @@
                    resource_name="ws-target-resource-update-resetsynctoken"
                    intAttrName="fullname" intMappingType="UserSchema" mandatoryCondition="false"
                    accountid="0" password="1"/>
-
+                   
     <Task DTYPE="PropagationTask" id="1" propagationMode="ASYNC" resourceOperationType="UPDATE"
                  resource_name="ws-target-resource-2"
                  xmlAttributes="%3Cset%3E%0A++%3Corg.identityconnectors.framework.common.objects.Name%3E%0A++++%3Cname%3E__NAME__%3C%2Fname%3E%0A++++%3Cvalue+class%3D%22java.util.Collections%24UnmodifiableRandomAccessList%22+resolves-to%3D%22java.util.Collections%24UnmodifiableList%22%3E%0A++++++%3Cc+class%3D%22list%22%3E%0A++++++++%3Cstring%3EuserId%3C%2Fstring%3E%0A++++++%3C%2Fc%3E%0A++++++%3Clist+reference%3D%22..%2Fc%22%2F%3E%0A++++%3C%2Fvalue%3E%0A++%3C%2Forg.identityconnectors.framework.common.objects.Name%3E%0A++%3Corg.identityconnectors.framework.common.objects.Attribute%3E%0A++++%3Cname%3E__PASSWORD__%3C%2Fname%3E%0A++++%3Cvalue+class%3D%22java.util.Collections%24UnmodifiableRandomAccessList%22+resolves-to%3D%22java.util.Collections%24UnmodifiableList%22%3E%0A++++++%3Cc+class%3D%22list%22%3E%0A++++++++%3Corg.identityconnectors.common.security.GuardedString%3E%0A++++++++++%3C__readOnly%3Efalse%3C%2F__readOnly%3E%0A++++++++++%3C__disposed%3Efalse%3C%2F__disposed%3E%0A++++++++++%3C__encryptedBytes%3EQTOgwEhIHqtAI%2FYlgDhYc37esEF8VLDMU2IY1ciltrg%3D%3C%2F__encryptedBytes%3E%0A++++++++++%3C__base64SHA1Hash%3EW5%2FrwtdCnI8gAnIUhKcahMEnMMc%3D%3C%2F__base64SHA1Hash%3E%0A++++++++%3C%2Forg.identityconnectors.common.security.GuardedString%3E%0A++++++%3C%2Fc%3E%0A++++++%3Clist+reference%3D%22..%2Fc%22%2F%3E%0A++++%3C%2Fvalue%3E%0A++%3C%2Forg.identityconnectors.framework.common.objects.Attribute%3E%0A++%3Corg.identityconnectors.framework.common.objects.Attribute%3E%0A++++%3Cname%3Etype%3C%2Fname%3E%0A++++%3Cvalue+class%3D%22java.util.Collections%24UnmodifiableRandomAccessList%22+resolves-to%3D%22java.util.Collections%24UnmodifiableList%22%3E%0A++++++%3Cc+class%3D%22list%22%3E%0A++++++++%3Cstring%3Etype%3C%2Fstring%3E%0A++++++%3C%2Fc%3E%0A++++++%3Clist+reference%3D%22..%2Fc%22%2F%3E%0A++++%3C%2Fvalue%3E%0A++%3C%2Forg.identityconnectors.framework.common.objects.Attribute%3E%0A++%3Corg.identityconnectors.framework.common.objects.Attribute%3E%0A++++%3Cname%3Efullname%3C%2Fname%3E%0A++++%3Cvalue+class%3D%22java.util.Collections%24UnmodifiableRandomAccessList%22+resolves-to%3D%22java.util.Collections%24UnmodifiableList%22%3E%0A++++++%3Cc+class%3D%22list%22%3E%0A++++++++%3Cstring%3Efullname%3C%2Fstring%3E%0A++++++%3C%2Fc%3E%0A++++++%3Clist+reference%3D%22..%2Fc%22%2F%3E%0A++++%3C%2Fvalue%3E%0A++%3C%2Forg.identityconnectors.framework.common.objects.Attribute%3E%0A%3C%2Fset%3E%0A"/>
@@ -422,7 +427,7 @@
     <Task DTYPE="PropagationTask" id="6" propagationMode="ASYNC" resourceOperationType="UPDATE"
                  resource_name="ws-target-resource-nopropagation"
                  xmlAttributes="%3Cset%3E%0A++%3Corg.identityconnectors.framework.common.objects.Name%3E%0A++++%3Cname%3E__NAME__%3C%2Fname%3E%0A++++%3Cvalue+class%3D%22java.util.Collections%24UnmodifiableRandomAccessList%22+resolves-to%3D%22java.util.Collections%24UnmodifiableList%22%3E%0A++++++%3Cc+class%3D%22list%22%3E%0A++++++++%3Cstring%3EuserId%3C%2Fstring%3E%0A++++++%3C%2Fc%3E%0A++++++%3Clist+reference%3D%22..%2Fc%22%2F%3E%0A++++%3C%2Fvalue%3E%0A++%3C%2Forg.identityconnectors.framework.common.objects.Name%3E%0A++%3Corg.identityconnectors.framework.common.objects.Attribute%3E%0A++++%3Cname%3E__PASSWORD__%3C%2Fname%3E%0A++++%3Cvalue+class%3D%22java.util.Collections%24UnmodifiableRandomAccessList%22+resolves-to%3D%22java.util.Collections%24UnmodifiableList%22%3E%0A++++++%3Cc+class%3D%22list%22%3E%0A++++++++%3Corg.identityconnectors.common.security.GuardedString%3E%0A++++++++++%3C__readOnly%3Efalse%3C%2F__readOnly%3E%0A++++++++++%3C__disposed%3Efalse%3C%2F__disposed%3E%0A++++++++++%3C__encryptedBytes%3EQTOgwEhIHqtAI%2FYlgDhYc37esEF8VLDMU2IY1ciltrg%3D%3C%2F__encryptedBytes%3E%0A++++++++++%3C__base64SHA1Hash%3EW5%2FrwtdCnI8gAnIUhKcahMEnMMc%3D%3C%2F__base64SHA1Hash%3E%0A++++++++%3C%2Forg.identityconnectors.common.security.GuardedString%3E%0A++++++%3C%2Fc%3E%0A++++++%3Clist+reference%3D%22..%2Fc%22%2F%3E%0A++++%3C%2Fvalue%3E%0A++%3C%2Forg.identityconnectors.framework.common.objects.Attribute%3E%0A++%3Corg.identityconnectors.framework.common.objects.Attribute%3E%0A++++%3Cname%3Etype%3C%2Fname%3E%0A++++%3Cvalue+class%3D%22java.util.Collections%24UnmodifiableRandomAccessList%22+resolves-to%3D%22java.util.Collections%24UnmodifiableList%22%3E%0A++++++%3Cc+class%3D%22list%22%3E%0A++++++++%3Cstring%3Etype%3C%2Fstring%3E%0A++++++%3C%2Fc%3E%0A++++++%3Clist+reference%3D%22..%2Fc%22%2F%3E%0A++++%3C%2Fvalue%3E%0A++%3C%2Forg.identityconnectors.framework.common.objects.Attribute%3E%0A++%3Corg.identityconnectors.framework.common.objects.Attribute%3E%0A++++%3Cname%3Efullname%3C%2Fname%3E%0A++++%3Cvalue+class%3D%22java.util.Collections%24UnmodifiableRandomAccessList%22+resolves-to%3D%22java.util.Collections%24UnmodifiableList%22%3E%0A++++++%3Cc+class%3D%22list%22%3E%0A++++++++%3Cstring%3Efullname%3C%2Fstring%3E%0A++++++%3C%2Fc%3E%0A++++++%3Clist+reference%3D%22..%2Fc%22%2F%3E%0A++++%3C%2Fvalue%3E%0A++%3C%2Forg.identityconnectors.framework.common.objects.Attribute%3E%0A%3C%2Fset%3E%0A"/>
-
+          
     <RDerSchema name="displayProperty" expression="icon + ': ' + show"/>
 
     <RDerAttr id="1001" derivedSchema_name="displayProperty" owner_id="1"/>
