@@ -211,19 +211,21 @@ public class SyncopeUser extends AbstractAttributable {
                         Base64.encodeBase64(encoded));
 
             } else {
-
                 MessageDigest algorithm = MessageDigest.getInstance(
                         cipherAlgoritm.getAlgorithm());
 
                 algorithm.reset();
                 algorithm.update(password.getBytes());
 
-                byte messageDigest[] = algorithm.digest();
+                byte[] messageDigest = algorithm.digest();
 
                 StringBuilder hexString = new StringBuilder();
                 for (int i = 0; i < messageDigest.length; i++) {
-                    hexString.append(
-                            Integer.toHexString(0xFF & messageDigest[i]));
+                    String hex = Integer.toHexString(0xff & messageDigest[i]);
+                    if (hex.length() == 1) {
+                        hexString.append('0');
+                    }
+                    hexString.append(hex);
                 }
 
                 this.password = hexString.toString();
