@@ -47,13 +47,13 @@ import org.syncope.client.to.ConnBundleTO;
 import org.syncope.client.to.ConnInstanceTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.rest.ConnectorRestClient;
-import org.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.syncope.console.wicket.markup.html.form.AjaxPasswordFieldPanel;
 import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.syncope.console.wicket.markup.html.form.FieldPanel;
 import org.syncope.types.ConnConfPropSchema;
 import org.syncope.types.ConnConfProperty;
+import org.syncope.types.ConnParameterType;
 import org.syncope.types.ConnectorCapability;
 
 /**
@@ -291,13 +291,27 @@ public class ConnectorModalPage extends BaseModalPage {
 
                         item.add(field);
 
-                        item.add(new AjaxCheckBoxPanel(
+                        final AjaxDropDownChoicePanel<Boolean> overridable =
+                                new AjaxDropDownChoicePanel<Boolean>(
                                 "connPropAttrOverridable",
-                                "Overridable",
-                                new PropertyModel<Boolean>(property,
-                                "overridable"),
-                                true).setTitle("Overridable"));
+                                "connPropAttrOverridable",
+                                new PropertyModel(property, "overridable"),
+                                false);
 
+                        overridable.setChoiceRenderer(new OverridableRenderer());
+
+                        overridable.setChoices(
+                                Arrays.asList(
+                                new Boolean[]{
+                                    ConnParameterType.NOT_OVERRIDABLE.
+                                    getOverridable(),
+                                    ConnParameterType.OVERRIDABLE.getOverridable()}));
+
+                        overridable.setStyleShet(
+                                "ui-widget-content ui-corner-all long_dynamicsize");
+
+                        overridable.addRequiredLabel();
+                        item.add(overridable);
                         connectorTO.getConfiguration().add(property);
                     }
                 };
@@ -394,4 +408,22 @@ public class ConnectorModalPage extends BaseModalPage {
 
         add(connectorForm);
     }
+
+    private class OverridableRenderer extends ChoiceRenderer<Boolean> {
+
+        private static final long serialVersionUID = 6025866528093969273L;
+
+        @Override
+        public Object getDisplayValue(Boolean object) {
+
+            return object
+                    ? ConnParameterType.OVERRIDABLE.toString()
+                    : ConnParameterType.NOT_OVERRIDABLE.toString();
+        }
+
+        @Override
+        public String getIdValue(Boolean object, int index) {
+            return String.valueOf(object);
+        }
+    };
 }

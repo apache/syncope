@@ -18,6 +18,11 @@
             background:url("images/ui-bg_glass_75_e6e6e6_1x400.png")
                 repeat-x scroll 50% 50% #E6E6E6 !important;
         }
+
+        table.palette td.header {
+            background:url("images/ui-bg_glass_75_e6e6e6_1x400.png")
+                repeat-x scroll 50% 50% #E6E6E6 !important;
+        }
     </style>
 </wicket:head>
 <wicket:extend>
@@ -34,51 +39,50 @@
             <div id="tabs-1">
                 <div id="formtable">
                     <div class="tablerow">
-                        <div class="tablecolumn_label medium_dynamicsize">
+                        <div class="tablecolumn_label short_dynamicsize">
                             <label for="displayName"><wicket:message key="displayName"/></label>
                         </div>
-                        <div class="tablecolumn_field medium_dynamicsize">
+                        <div class="tablecolumn_field short_dynamicsize">
                             <span wicket:id="displayName">[displayName]</span>
                         </div>
                     </div>
 
                     <div class="tablerow">
-                        <div class="tablecolumn_label medium_dynamicsize">
+                        <div class="tablecolumn_label short_dynamicsize">
                             <label for="bundleName"><wicket:message key="bundleName"/></label>
                         </div>
-                        <div class="tablecolumn_field medium_dynamicsize">
+                        <div class="tablecolumn_field short_dynamicsize">
                             <span wicket:id="bundle">[bundle]</span>
                         </div>
                     </div>
 
                     <div class="tablerow">
-                        <div class="tablecolumn_label medium_dynamicsize">
+                        <div class="tablecolumn_label short_dynamicsize">
                             <label for="name"><wicket:message key="name"/></label>
                         </div>
-                        <div class="tablecolumn_field medium_dynamicsize">
+                        <div class="tablecolumn_field short_dynamicsize">
                             <span wicket:id="connectorName">[name]</span>
                         </div>
                     </div>
 
                     <div class="tablerow">
-                        <div class="tablecolumn_label medium_dynamicsize">
+                        <div class="tablecolumn_label short_dynamicsize">
                             <label for="version"><wicket:message key="version"/></label>
                         </div>
-                        <div class="tablecolumn_field medium_dynamicsize">
+                        <div class="tablecolumn_field short_dynamicsize">
                             <span wicket:id="version">[version]</span>
                         </div>
                     </div>
 
                     <span wicket:id="container">
                         <div class="tablerow" wicket:id="connectorProperties">
-                            <div class="tablecolumn_label medium_dynamicsize">
+                            <div class="tablecolumn_label short_dynamicsize">
                                 <span wicket:id="connPropAttrSchema">[connPropAttrSchema]</span>
                             </div>
-                            <div class="tablecolumn_field medium_dynamicsize">
+                            <div class="tablecolumn_field short_dynamicsize">
                                 <span wicket:id="connPropAttrValue">[connPropAttrValue]</span>
-
                             </div>
-                            <div>
+                            <div style="width:30%" class="tablecolumn_field">
                                 <span wicket:id="connPropAttrOverridable">[connPropAttrOverridable]</span>
                             </div>
                         </div>
