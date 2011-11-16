@@ -112,7 +112,7 @@ public class AttributesPanel extends Panel {
 
                 item.add(new Label("name", attributeTO.getSchema()));
 
-                final Panel panel = getFieldPanel(
+                final FieldPanel panel = getFieldPanel(
                         schemas.getObject().get(attributeTO.getSchema()),
                         form,
                         attributeTO);
@@ -125,7 +125,7 @@ public class AttributesPanel extends Panel {
                             "panel",
                             new PropertyModel(attributeTO, "values"),
                             String.class,
-                            (FieldPanel) panel);
+                            panel);
 
                     item.add(multiFieldPanel);
                 } else {
@@ -173,7 +173,7 @@ public class AttributesPanel extends Panel {
         return entityData;
     }
 
-    private Panel getFieldPanel(
+    private FieldPanel getFieldPanel(
             final SchemaTO schemaTO,
             final Form form,
             final AttributeTO attributeTO) {
@@ -238,7 +238,6 @@ public class AttributesPanel extends Panel {
                 if (required) {
                     panel.addRequiredLabel();
                 }
-
         }
 
         panel.setReadOnly(readOnly);

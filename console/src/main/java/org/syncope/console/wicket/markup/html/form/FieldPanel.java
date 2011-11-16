@@ -16,7 +16,7 @@ package org.syncope.console.wicket.markup.html.form;
 
 import java.io.Serializable;
 import java.util.List;
-import org.apache.wicket.behavior.SimpleAttributeModifier;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.FormComponent;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -66,14 +66,14 @@ public abstract class FieldPanel<T extends Serializable>
     }
 
     public FieldPanel setTitle(String title) {
-        field.add(new SimpleAttributeModifier(
+        field.add(AttributeModifier.replace(
                 "title", title != null ? title : ""));
 
         return this;
     }
 
     public FieldPanel setStyleShet(String classes) {
-        field.add(new SimpleAttributeModifier(
+        field.add(AttributeModifier.replace(
                 "class", classes != null ? classes : ""));
 
         return this;

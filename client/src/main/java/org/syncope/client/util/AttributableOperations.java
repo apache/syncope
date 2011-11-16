@@ -98,6 +98,19 @@ public final class AttributableOperations {
         originalAttrNames.removeAll(updatedAttrs.keySet());
         result.setAttributesToBeRemoved(originalAttrNames);
 
+        Set<String> emptyUpdatedAttrs = new HashSet<String>();
+        for (Map.Entry<String, AttributeTO> entry : updatedAttrs.entrySet()) {
+            if (entry.getValue().getValues() == null
+                    || entry.getValue().getValues().isEmpty()) {
+
+                emptyUpdatedAttrs.add(entry.getKey());
+            }
+        }
+        for (String emptyUpdatedAttr : emptyUpdatedAttrs) {
+            updatedAttrs.remove(emptyUpdatedAttr);
+            result.addAttributeToBeRemoved(emptyUpdatedAttr);
+        }
+
         populate(updatedAttrs, originalAttrs, result);
 
         // 3. derived attributes
