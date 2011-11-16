@@ -21,12 +21,17 @@ import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.to.RoleTO;
+import org.syncope.console.rest.RoleRestClient;
 import org.syncope.console.wicket.markup.html.tree.TreeActionLinkPanel;
 
 public class RoleSummaryPanel extends Panel {
 
     private static final long serialVersionUID = 643769814985593156L;
+
+    @SpringBean
+    private RoleRestClient restClient;
 
     private RoleTO selectedNode;
 
@@ -50,7 +55,7 @@ public class RoleSummaryPanel extends Panel {
 
         fragment = new Fragment("rolePanel",
                 this.selectedNode == null
-                ? "fakerootFrag" : (this.selectedNode.getId() == 0
+                ? "fakerootFrag" : (this.selectedNode.getId() != 0
                 ? "roleViewPanel" : "rootPanel"), this);
 
         if (this.selectedNode != null) {
@@ -73,8 +78,8 @@ public class RoleSummaryPanel extends Panel {
         add(fragment);
     }
 
-    private void setSelectedNode(final RoleTO selectedNode) {
-        this.selectedNode = selectedNode;
+    public RoleTO getSelectedNode() {
+        return selectedNode;
     }
 
     @Override
@@ -86,12 +91,15 @@ public class RoleSummaryPanel extends Panel {
             final TreeNodeClickUpdate update =
                     (TreeNodeClickUpdate) event.getPayload();
 
-            setSelectedNode(update.getSelectedNode());
+            this.selectedNode =
+                    restClient.readRole(update.getSelectedNodeId());
 
-            fragment = new Fragment("rolePanel", (this.selectedNode.getId() != 0
+            fragment = new Fragment("rolePanel", (update.getSelectedNodeId()
+                    != 0
                     ? "roleViewPanel" : "rootPanel"), this);
 
-            if (this.selectedNode.getId() != 0) {
+            if (update.getSelectedNodeId() != 0) {
+
                 roleTabPanel =
                         new RoleTabPanel("nodeViewPanel",
                         this.selectedNode, window, callerPageRef);
@@ -100,7 +108,7 @@ public class RoleSummaryPanel extends Panel {
             } else {
                 actionLink =
                         new TreeActionLinkPanel("actionLink",
-                        this.selectedNode.getId(),
+                        update.getSelectedNodeId(),
                         new CompoundPropertyModel(this.selectedNode),
                         window, callerPageRef);
                 actionLink.setOutputMarkupId(true);
@@ -112,21 +120,17 @@ public class RoleSummaryPanel extends Panel {
         }
     }
 
-    public RoleTO getSelectedNode() {
-        return selectedNode;
-    }
-
     public static class TreeNodeClickUpdate {
 
         private AjaxRequestTarget target;
 
-        private RoleTO selectedNode;
+        private Long selectedNodeId;
 
         public TreeNodeClickUpdate(final AjaxRequestTarget target,
-                final RoleTO selectedNode) {
+                final Long selectedNodeId) {
 
             this.target = target;
-            this.selectedNode = selectedNode;
+            this.selectedNodeId = selectedNodeId;
         }
 
         /** @return ajax request target */
@@ -134,12 +138,12 @@ public class RoleSummaryPanel extends Panel {
             return target;
         }
 
-        public RoleTO getSelectedNode() {
-            return selectedNode;
+        public Long getSelectedNodeId() {
+            return selectedNodeId;
         }
 
-        public void setSelectedNode(final RoleTO selectedNode) {
-            this.selectedNode = selectedNode;
+        public void setSelectedNodeId(final Long selectedNodeId) {
+            this.selectedNodeId = selectedNodeId;
         }
     }
 }

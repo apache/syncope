@@ -20,8 +20,6 @@ import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.markup.html.tree.table.TreeTable;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.syncope.console.commons.RoleTreeBuilder;
 import org.syncope.console.pages.panels.RoleSummaryPanel;
 import org.syncope.console.pages.panels.RoleSummaryPanel.TreeNodeClickUpdate;
 import org.syncope.console.wicket.markup.html.tree.TreeRolePanel;
@@ -30,9 +28,6 @@ import org.syncope.console.wicket.markup.html.tree.TreeRolePanel;
  * Roles WebPage.
  */
 public class Roles extends BasePage {
-
-    @SpringBean
-    private RoleTreeBuilder roleTreeBuilder;
 
     private TreeTable tree;
 
@@ -47,12 +42,12 @@ public class Roles extends BasePage {
     public Roles(final PageParameters parameters) {
         super(parameters);
 
-        add(createRoleWin = new ModalWindow("createRoleWin"));
-
+        createRoleWin = new ModalWindow("createRoleWin");
         createRoleWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
         createRoleWin.setInitialHeight(WIN_HEIGHT);
         createRoleWin.setInitialWidth(WIN_WIDTH);
         createRoleWin.setCookieName("create-role-modal");
+        add(createRoleWin);
 
         container = new WebMarkupContainer("container");
         container.setOutputMarkupId(true);
@@ -73,20 +68,19 @@ public class Roles extends BasePage {
         createRoleWin.setWindowClosedCallback(
                 new ModalWindow.WindowClosedCallback() {
 
-                    private static final long
-                            serialVersionUID = 8804221891699487139L;
+                    private static final long serialVersionUID =
+                            8804221891699487139L;
 
                     @Override
                     public void onClose(final AjaxRequestTarget target) {
 
                         final TreeNodeClickUpdate data =
                                 new TreeNodeClickUpdate(target,
-                                        nodePanel.getSelectedNode());
+                                nodePanel.getSelectedNode() != null
+                                ? nodePanel.getSelectedNode().getId() : 0);
 
                         send(getPage(), Broadcast.BREADTH, data);
-
                         target.add(container);
-
                         if (modalResult) {
                             getSession().info(getString("operation_succeded"));
                             target.add(feedbackPanel);

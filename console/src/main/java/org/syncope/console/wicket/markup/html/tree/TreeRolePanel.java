@@ -28,14 +28,10 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.to.RoleTO;
 import org.syncope.console.commons.RoleTreeBuilder;
 import org.syncope.console.pages.panels.RoleSummaryPanel.TreeNodeClickUpdate;
-import org.syncope.console.rest.RoleRestClient;
 
 public class TreeRolePanel extends Panel {
 
     private static final long serialVersionUID = 1762003213871836869L;
-
-    @SpringBean
-    private RoleRestClient roleRestClient;
 
     @SpringBean
     private RoleTreeBuilder roleTreeBuilder;
@@ -45,7 +41,6 @@ public class TreeRolePanel extends Panel {
     private BaseTree tree;
 
     public TreeRolePanel(final String id) {
-
         super(id);
 
         treeContainer = new WebMarkupContainer("treeContainer");
@@ -57,7 +52,7 @@ public class TreeRolePanel extends Panel {
         treeContainer.add(tree);
     }
 
-    private BaseTree updateTree() {
+    private void updateTree() {
 
         tree = new LinkTree("treeTable", roleTreeBuilder.build()) {
 
@@ -70,13 +65,13 @@ public class TreeRolePanel extends Panel {
 
             @Override
             protected void onNodeLinkClicked(final Object node,
-                    final BaseTree tree, final AjaxRequestTarget target) {
+                    final BaseTree baseTree, final AjaxRequestTarget target) {
 
                 DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) node;
                 RoleTO unitObject = (RoleTO) treeNode.getUserObject();
 
                 send(getPage(), Broadcast.BREADTH,
-                        new TreeNodeClickUpdate(target, unitObject));
+                        new TreeNodeClickUpdate(target, unitObject.getId()));
 
             }
         };
@@ -85,8 +80,6 @@ public class TreeRolePanel extends Panel {
         tree.getTreeState().expandAll();
 
         treeContainer.addOrReplace(tree);
-        return tree;
-
     }
 
     @Override
