@@ -21,7 +21,11 @@
     <SyncopeConf confKey="connid.bundles.directory" confValue="${bundles.directory}"/>
     <SyncopeConf confKey="password.cipher.algorithm" confValue="MD5"/>
     <SyncopeConf confKey="createRequest.allowed" confValue="false"/>
-
+    
+    <Policy DTYPE="SyncPolicy" id="1" description="Global Sync Policy" type="SYNC" specification="%3C%3Fxml+version%3D%221.0%22+encoding%3D%22UTF-8%22%3F%3E+%0A%3Cjava+version%3D%221.6.0_26%22+class%3D%22java.beans.XMLDecoder%22%3E+%0A+%3Cobject+class%3D%22org.syncope.types.SyncPolicySpec%22/%3E%0A%3C/java%3E+%0A"/>
+    <Policy DTYPE="PasswordPolicy" id="2" description="Global Password Policy" type="GLOBAL_PASSWORD" specification="%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22UTF-8%22%3F%3E%20%0A%3Cjava%20version%3D%221.6.0_26%22%20class%3D%22java.beans.XMLDecoder%22%3E%20%0A%20%3Cobject%20class%3D%22org.syncope.types.PasswordPolicySpec%22%3E%20%20%0A%20%3C%2Fobject%3E%20%0A%3C%2Fjava%3E%20"/>
+    <Policy DTYPE="AccountPolicy" id="3" description="Global Account Policy" type="GLOBAL_ACCOUNT" specification="%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22UTF-8%22%3F%3E%20%0A%3Cjava%20version%3D%221.6.0_26%22%20class%3D%22java.beans.XMLDecoder%22%3E%20%0A%20%3Cobject%20class%3D%22org.syncope.types.AccountPolicySpec%22%3E%0A%20%3C%2Fobject%3E%20%0A%3C%2Fjava%3E%20"/>
+    
     <USchema name="surname" type="String"
                 mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
     <USchema name="firstname" type="String"
