@@ -209,7 +209,7 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
 
     public boolean isEmpty() {
         return attributesToBeUpdated.isEmpty()
-                && attributesToBeUpdated.isEmpty()
+                && attributesToBeRemoved.isEmpty()
                 && derivedAttributesToBeAdded.isEmpty()
                 && derivedAttributesToBeRemoved.isEmpty()
                 && virtualAttributesToBeUpdated.isEmpty()

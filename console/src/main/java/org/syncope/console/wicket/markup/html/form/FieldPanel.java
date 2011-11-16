@@ -153,8 +153,8 @@ public abstract class FieldPanel<T extends Serializable>
 
             @Override
             public void setObject(Serializable object) {
+                list.clear();
                 if (object != null) {
-                    list.clear();
                     list.add(object.toString());
                 }
             }
