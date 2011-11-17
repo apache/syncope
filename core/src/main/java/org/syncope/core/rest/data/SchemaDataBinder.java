@@ -15,6 +15,7 @@
 package org.syncope.core.rest.data;
 
 import java.util.Iterator;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -57,23 +58,23 @@ public class SchemaDataBinder {
             final SyncopeClientCompositeErrorException scce)
             throws SyncopeClientCompositeErrorException {
 
-        if (schemaTO.getMandatoryCondition() == null) {
+        if (StringUtils.isBlank(schemaTO.getMandatoryCondition())) {
             SyncopeClientException requiredValuesMissing =
                     new SyncopeClientException(
                     SyncopeClientExceptionType.RequiredValuesMissing);
             requiredValuesMissing.addElement("mandatoryCondition");
 
             scce.addException(requiredValuesMissing);
-        }
+        } else {
+            if (!jexlUtil.isExpressionValid(schemaTO.getMandatoryCondition())) {
+                SyncopeClientException invalidMandatoryCondition =
+                        new SyncopeClientException(
+                        SyncopeClientExceptionType.InvalidValues);
+                invalidMandatoryCondition.addElement(
+                        schemaTO.getMandatoryCondition());
 
-        if (!jexlUtil.isExpressionValid(schemaTO.getMandatoryCondition())) {
-            SyncopeClientException invalidMandatoryCondition =
-                    new SyncopeClientException(
-                    SyncopeClientExceptionType.InvalidValues);
-            invalidMandatoryCondition.addElement(
-                    schemaTO.getMandatoryCondition());
-
-            scce.addException(invalidMandatoryCondition);
+                scce.addException(invalidMandatoryCondition);
+            }
         }
 
         if (scce.hasExceptions()) {

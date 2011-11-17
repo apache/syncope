@@ -39,6 +39,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.ResourceModel;
 import org.syncope.client.AbstractBaseBean;
+import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
@@ -207,16 +208,22 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
                     return;
                 }
 
-                if (createFlag) {
-                    restClient.createSchema(kind, schemaTO);
-                } else {
-                    restClient.updateSchema(kind, schemaTO);
+                try {
+                    if (createFlag) {
+                        restClient.createSchema(kind, schemaTO);
+                    } else {
+                        restClient.updateSchema(kind, schemaTO);
+                    }
+                    if (callerPageRef.getPage() instanceof BasePage) {
+                        ((BasePage) callerPageRef.getPage()).setModalResult(
+                                true);
+                    }
+
+                    window.close(target);
+                } catch (SyncopeClientCompositeErrorException e) {
+                    error(getString("error") + ":" + e.getMessage());
+                    target.add(feedbackPanel);
                 }
-
-                Schema callerPage = (Schema) callerPageRef.getPage();
-                callerPage.setModalResult(true);
-
-                window.close(target);
             }
 
             @Override

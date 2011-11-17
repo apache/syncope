@@ -27,6 +27,7 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.syncope.client.AbstractBaseBean;
 import org.syncope.client.to.VirtualSchemaTO;
+import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 
 /**
@@ -68,20 +69,28 @@ public class VirtualSchemaModalPage extends AbstractSchemaModalPage {
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmit(AjaxRequestTarget target, Form form) {
+            protected void onSubmit(final AjaxRequestTarget target,
+                    final Form form) {
 
-                if (createFlag) {
-                    restClient.createVirtualSchema(kind,
-                            (VirtualSchemaTO) form.getDefaultModelObject());
-                } else {
-                    restClient.updateVirtualSchema(kind,
-                            (VirtualSchemaTO) form.getDefaultModelObject());
+                VirtualSchemaTO schemaTO =
+                        (VirtualSchemaTO) form.getDefaultModelObject();
+
+                try {
+                    if (createFlag) {
+                        restClient.createVirtualSchema(kind, schemaTO);
+                    } else {
+                        restClient.updateVirtualSchema(kind, schemaTO);
+                    }
+                    if (callerPageRef.getPage() instanceof BasePage) {
+                        ((BasePage) callerPageRef.getPage()).setModalResult(
+                                true);
+                    }
+
+                    window.close(target);
+                } catch (SyncopeClientCompositeErrorException e) {
+                    error(getString("error") + ":" + e.getMessage());
+                    target.add(feedbackPanel);
                 }
-
-                Schema callerPage = (Schema) callerPageRef.getPage();
-                callerPage.setModalResult(true);
-
-                window.close(target);
             }
 
             @Override
