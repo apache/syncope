@@ -14,6 +14,7 @@
 package org.syncope.client.to;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -104,11 +105,12 @@ public class WorkflowFormTO extends AbstractBaseBean {
         return properties.remove(property);
     }
 
-    public void setProperties(final List<WorkflowFormPropertyTO> properties) {
-        if (properties == null) {
-            this.properties.clear();
-        } else {
-            this.properties = properties;
+    public void setProperties(
+            final Collection<WorkflowFormPropertyTO> properties) {
+
+        this.properties.clear();
+        if (properties != null) {
+            this.properties.addAll(properties);
         }
     }
 

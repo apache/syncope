@@ -14,10 +14,10 @@
  */
 package org.syncope.core.rest;
 
-import ch.qos.logback.classic.Level;
-import java.util.Arrays;
 import static org.junit.Assert.*;
 
+import ch.qos.logback.classic.Level;
+import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
 import org.syncope.client.to.LoggerTO;

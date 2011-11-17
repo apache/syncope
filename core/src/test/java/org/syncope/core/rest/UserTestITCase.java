@@ -637,8 +637,8 @@ public class UserTestITCase extends AbstractTest {
     }
 
     @Test
-    public final void createWithApproval() {
-        UserTO userTO = getSampleTO("createWithApproval@syncope-idm.org");
+    public final void createWithReject() {
+        UserTO userTO = getSampleTO("createWithReject@syncope-idm.org");
 
         // User with role 9 are defined in workflow as subject to approval
         MembershipTO membershipTO = new MembershipTO();
@@ -695,6 +695,7 @@ public class UserTestITCase extends AbstractTest {
         Map<String, WorkflowFormPropertyTO> props = form.getPropertiesAsMap();
         props.get("approve").setValue(Boolean.FALSE.toString());
         props.get("rejectReason").setValue("I don't like him.");
+        form.setProperties(props.values());
         userTO = restTemplate.postForObject(
                 BASE_URL + "user/workflow/form/submit",
                 form, UserTO.class);
@@ -703,6 +704,59 @@ public class UserTestITCase extends AbstractTest {
 
         // reset admin credentials for restTemplate
         super.setupRestTemplate();
+    }
+
+    @Test
+    public final void createWithApproval() {
+        UserTO userTO = getSampleTO("createWithApproval@syncope-idm.org");
+
+        // User with role 9 are defined in workflow as subject to approval
+        MembershipTO membershipTO = new MembershipTO();
+        membershipTO.setRoleId(9);
+        userTO.addMembership(membershipTO);
+
+        // 1. create user with role 9
+        userTO = restTemplate.postForObject(BASE_URL + "user/create",
+                userTO, UserTO.class);
+        assertNotNull(userTO);
+        assertEquals(1, userTO.getMemberships().size());
+        assertEquals(9, userTO.getMemberships().get(0).getRoleId());
+        assertEquals("createApproval", userTO.getStatus());
+
+        // 2. request if there is any pending task for user just created
+        WorkflowFormTO form = restTemplate.getForObject(
+                BASE_URL + "user/workflow/form/{userId}",
+                WorkflowFormTO.class, userTO.getId());
+        assertNotNull(form);
+        assertNotNull(form.getTaskId());
+        assertNull(form.getOwner());
+
+        // 4. claim task (from admin)
+        form = restTemplate.getForObject(
+                BASE_URL + "user/workflow/form/claim/{taskId}",
+                WorkflowFormTO.class, form.getTaskId());
+        assertNotNull(form);
+        assertNotNull(form.getTaskId());
+        assertNotNull(form.getOwner());
+
+        // 5. approve user
+        Map<String, WorkflowFormPropertyTO> props = form.getPropertiesAsMap();
+        props.get("approve").setValue(Boolean.TRUE.toString());
+        form.setProperties(props.values());
+        userTO = restTemplate.postForObject(
+                BASE_URL + "user/workflow/form/submit",
+                form, UserTO.class);
+        assertNotNull(userTO);
+        assertEquals("active", userTO.getStatus());
+
+        // 6. update user
+        UserMod userMod = new UserMod();
+        userMod.setId(userTO.getId());
+        userMod.setPassword("anotherPassword123");
+
+        userTO = restTemplate.postForObject(BASE_URL + "user/update",
+                userMod, UserTO.class);
+        assertNotNull(userTO);
     }
 
     @Test

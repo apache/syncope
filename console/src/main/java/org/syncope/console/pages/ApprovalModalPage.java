@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -179,29 +180,41 @@ public class ApprovalModalPage extends BaseModalPage {
             protected void onSubmit(final AjaxRequestTarget target,
                     final Form<?> form) {
 
-                ListItem<WorkflowFormPropertyTO> item;
-                String input;
+                Map<String, WorkflowFormPropertyTO> props =
+                        formTO.getPropertiesAsMap();
+
                 for (int i = 0; i < propView.size(); i++) {
-                    item = (ListItem<WorkflowFormPropertyTO>) propView.get(i);
-                    input = ((FieldPanel) item.get("value")).getField().
+                    ListItem<WorkflowFormPropertyTO> item =
+                            (ListItem<WorkflowFormPropertyTO>) propView.get(i);
+                    String input = ((FieldPanel) item.get("value")).getField().
                             getInput();
 
-                    switch (item.getModelObject().getType()) {
-                        case Boolean:
-                            item.getModelObject().setValue(
-                                    String.valueOf(input.equals("Yes")));
-                            break;
+                    if (!props.containsKey(item.getModelObject().getId())) {
+                        props.put(item.getModelObject().getId(),
+                                new WorkflowFormPropertyTO());
+                    }
 
-                        case Date:
-                        case Enum:
-                        case String:
-                        case Long:
-                        default:
-                            item.getModelObject().setValue(input);
-                            break;
+                    if (item.getModelObject().isWritable()) {
+                        switch (item.getModelObject().getType()) {
+                            case Boolean:
+                                props.get(item.getModelObject().getId()).
+                                        setValue(
+                                        String.valueOf(input.equals("0")));
+                                break;
+
+                            case Date:
+                            case Enum:
+                            case String:
+                            case Long:
+                            default:
+                                props.get(item.getModelObject().getId()).
+                                        setValue(input);
+                                break;
+                        }
                     }
                 }
 
+                formTO.setProperties(props.values());
                 try {
                     restClient.submitForm(formTO);
 

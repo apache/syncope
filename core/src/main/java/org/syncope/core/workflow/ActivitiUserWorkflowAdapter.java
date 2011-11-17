@@ -229,9 +229,13 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         updateStatus(user);
         SyncopeUser updated = userDAO.save(user);
 
-        PropagationByResource propByRes =
-                (PropagationByResource) runtimeService.getVariable(
-                user.getWorkflowId(), PROP_BY_RESOURCE);
+        PropagationByResource propByRes;
+        try {
+            propByRes = (PropagationByResource) runtimeService.getVariable(
+                    user.getWorkflowId(), PROP_BY_RESOURCE);
+        } catch (ActivitiException e) {
+            throw new WorkflowException(e);
+        }
 
         return new WorkflowResult<Map.Entry<Long, PropagationByResource>>(
                 new DefaultMapEntry(updated.getId(), propByRes),
