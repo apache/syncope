@@ -29,6 +29,8 @@ import org.syncope.console.wicket.markup.html.tree.TreeRolePanel;
  */
 public class Roles extends BasePage {
 
+    private static final long serialVersionUID = -2147758241610831969L;
+
     private TreeTable tree;
 
     private ModalWindow createRoleWin = null;

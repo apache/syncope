@@ -36,8 +36,6 @@
                
     <UDerSchema name="fullname" expression="firstname + '.' + surname"/>
 
-    <SyncopeRole id="0" name="/" inheritAttributes="0" inheritDerivedAttributes="0" inheritVirtualAttributes="0"/>
-
     <MSchema name="subscriptionDate" type="Date"
                       mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
                       conversionPattern="yyyy-MM-dd'T'HH:mm:ss.SSSZ"/>
