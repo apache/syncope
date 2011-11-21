@@ -29,6 +29,7 @@ import org.syncope.client.to.SyncTaskTO;
 import org.syncope.client.to.TaskTO;
 import org.syncope.client.to.UserTO;
 import org.syncope.core.propagation.PropagationTaskExecStatus;
+import org.syncope.core.scheduling.TestSyncJobActions;
 
 public class TaskTestITCase extends AbstractTest {
 
@@ -243,6 +244,22 @@ public class TaskTestITCase extends AbstractTest {
                 BASE_URL + "user/count.json", Integer.class);
         assertNotNull(usersPre);
 
+        // Update sync task by adding custom SyncJob actions
+        SyncTaskTO task = restTemplate.getForObject(
+                BASE_URL + "task/read/{taskId}", SyncTaskTO.class, 4);
+        assertNotNull(task);
+
+        task.setJobActionsClassName(TestSyncJobActions.class.getName());
+
+        SyncTaskTO actual = restTemplate.postForObject(
+                BASE_URL + "task/update/sync",
+                task, SyncTaskTO.class);
+        assertNotNull(actual);
+
+        assertEquals(task.getId(), actual.getId());
+        assertEquals(TestSyncJobActions.class.getName(),
+                actual.getJobActionsClassName());
+
         TaskExecTO execution = restTemplate.postForObject(
                 BASE_URL + "task/execute/{taskId}", null,
                 TaskExecTO.class, 4);
@@ -264,7 +281,7 @@ public class TaskTestITCase extends AbstractTest {
                 userTO.getAttributeMap().get("email").getValues().get(0));
         assertEquals("test9@syncope.org",
                 userTO.getAttributeMap().get("userId").getValues().get(0));
-        assertEquals("test9",
+        assertEquals("9",
                 userTO.getAttributeMap().get("fullname").getValues().get(0));
 
         Integer usersPost = restTemplate.getForObject(

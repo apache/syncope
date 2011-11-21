@@ -30,6 +30,7 @@ import org.syncope.core.persistence.beans.PropagationTask;
 import org.syncope.core.persistence.beans.SchedTask;
 import org.syncope.core.persistence.beans.SyncTask;
 import org.syncope.core.persistence.validation.entity.InvalidEntityException;
+import org.syncope.core.scheduling.TestSyncJobActions;
 import org.syncope.types.PropagationMode;
 import org.syncope.types.PropagationOperation;
 
@@ -116,6 +117,19 @@ public class TaskTest extends AbstractTest {
         assertNotNull(exception);
 
         task.setResource(resource);
+        task.setJobActionsClassName(getClass().getName());
+
+        // this save() fails because jobActionsClassName does not implement 
+        // the right interface
+        exception = null;
+        try {
+            taskDAO.save(task);
+        } catch (InvalidEntityException e) {
+            exception = e;
+        }
+        assertNotNull(exception);
+
+        task.setJobActionsClassName(TestSyncJobActions.class.getName());
         // this save() finally works
         task = taskDAO.save(task);
         assertNotNull(task);

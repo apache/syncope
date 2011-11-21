@@ -14,6 +14,7 @@
 package org.syncope.core.persistence.beans;
 
 import javax.persistence.Entity;
+import javax.validation.constraints.NotNull;
 import org.syncope.core.persistence.validation.entity.SchedTaskCheck;
 
 @Entity
@@ -24,6 +25,7 @@ public class SchedTask extends Task {
 
     protected String cronExpression;
 
+    @NotNull
     protected String jobClassName;
 
     public String getCronExpression() {

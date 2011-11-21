@@ -49,6 +49,18 @@ public class TaskRestClient extends AbstractBaseRestClient {
         return validators;
     }
 
+    public Set<String> getJobActionsClasses() {
+        Set<String> actions = null;
+
+        try {
+            actions = restTemplate.getForObject(
+                    baseURL + "task/jobActionsClasses.json", Set.class);
+        } catch (SyncopeClientCompositeErrorException e) {
+            LOG.error("While getting all job actions classes", e);
+        }
+        return actions;
+    }
+
     /**
      * Return the number of tasks.
      * @param kind of task (propagation, sched, sync).

@@ -20,7 +20,6 @@ import javax.validation.ConstraintValidatorContext;
 import org.quartz.CronExpression;
 import org.syncope.core.persistence.beans.SchedTask;
 import org.syncope.core.scheduling.AbstractJob;
-import org.syncope.core.scheduling.Job;
 import org.syncope.types.EntityViolationType;
 
 public class SchedTaskValidator extends AbstractValidator
@@ -34,64 +33,41 @@ public class SchedTaskValidator extends AbstractValidator
     public boolean isValid(final SchedTask object,
             final ConstraintValidatorContext context) {
 
-        boolean isValid;
+        boolean isValid = true;
 
-        if (object == null) {
-            isValid = true;
-        } else {
-            if (object.getJobClassName() == null) {
+        Class jobClass = null;
+        try {
+            jobClass = Class.forName(object.getJobClassName());
+            isValid = AbstractJob.class.isAssignableFrom(jobClass);
+        } catch (Throwable t) {
+            LOG.error("Invalid Job class specified", t);
+            isValid = false;
+        }
+        if (jobClass == null || !isValid) {
+            isValid = false;
+
+            context.disableDefaultConstraintViolation();
+            context.buildConstraintViolationWithTemplate(
+                    EntityViolationType.InvalidSchedTask.toString()).
+                    addNode(object
+                    + ".jobClassName is not valid").
+                    addConstraintViolation();
+        }
+
+        if (isValid && object.getCronExpression() != null) {
+            try {
+                new CronExpression(object.getCronExpression());
+            } catch (ParseException e) {
+                LOG.error("Invalid cron expression '"
+                        + object.getCronExpression() + "'", e);
                 isValid = false;
 
                 context.disableDefaultConstraintViolation();
                 context.buildConstraintViolationWithTemplate(
                         EntityViolationType.InvalidSchedTask.toString()).
-                        addNode(object + ".jobClassName is NULL").
+                        addNode(object + ".cronExpression=="
+                        + object.getCronExpression()).
                         addConstraintViolation();
-            } else {
-                try {
-                    Class jobClass = Class.forName(object.getJobClassName());
-                    isValid = AbstractJob.class.isAssignableFrom(jobClass);
-                } catch (ClassNotFoundException e) {
-                    LOG.error("Job class " + object.getJobClassName()
-                            + " not found", e);
-                    isValid = false;
-
-                    context.disableDefaultConstraintViolation();
-                    context.buildConstraintViolationWithTemplate(
-                            EntityViolationType.InvalidSchedTask.toString()).
-                            addNode(object + ".jobClassName=="
-                            + object.getJobClassName()).
-                            addConstraintViolation();
-                }
-                if (!isValid) {
-                    LOG.error("Job class " + object.getJobClassName()
-                            + "does not implement " + Job.class.getName());
-
-                    context.disableDefaultConstraintViolation();
-                    context.buildConstraintViolationWithTemplate(
-                            EntityViolationType.InvalidSchedTask.toString()).
-                            addNode(object + ".jobClassName does not implement "
-                            + Job.class.getName()).
-                            addConstraintViolation();
-                }
-
-                if (isValid && object.getCronExpression() != null) {
-                    try {
-                        new CronExpression(object.getCronExpression());
-                        isValid = true;
-                    } catch (ParseException e) {
-                        LOG.error("Invalid cron expression '" + object.
-                                getCronExpression() + "'", e);
-                        isValid = false;
-
-                        context.disableDefaultConstraintViolation();
-                        context.buildConstraintViolationWithTemplate(
-                                EntityViolationType.InvalidSchedTask.toString()).
-                                addNode(object + ".cronExpression=="
-                                + object.getCronExpression()).
-                                addConstraintViolation();
-                    }
-                }
             }
         }
 

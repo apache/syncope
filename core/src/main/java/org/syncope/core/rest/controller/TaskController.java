@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import javassist.NotFoundException;
 import javax.servlet.http.HttpServletResponse;
@@ -55,16 +54,15 @@ import org.syncope.core.persistence.beans.TaskExec;
 import org.syncope.core.persistence.dao.TaskDAO;
 import org.syncope.core.persistence.dao.TaskExecDAO;
 import org.syncope.core.propagation.PropagationManager;
-import org.syncope.core.persistence.validation.entity.InvalidEntityException;
 import org.syncope.core.rest.data.TaskDataBinder;
 import org.syncope.core.scheduling.Job;
 import org.syncope.core.scheduling.NotificationJob;
 import org.syncope.core.scheduling.SyncJob;
 import org.syncope.core.util.ApplicationContextManager;
 import org.syncope.core.util.TaskUtil;
-import org.syncope.types.EntityViolationType;
 import org.syncope.types.PropagationMode;
 import org.syncope.core.propagation.PropagationTaskExecStatus;
+import org.syncope.core.scheduling.SyncJobActions;
 import org.syncope.types.SyncopeClientExceptionType;
 
 @Controller
@@ -118,24 +116,7 @@ public class TaskController extends AbstractController {
         TaskUtil taskUtil = getTaskUtil(taskTO);
 
         SchedTask task = binder.createSchedTask(taskTO, taskUtil);
-        try {
-            task = taskDAO.save(task);
-        } catch (InvalidEntityException e) {
-            SyncopeClientException sce = new SyncopeClientException(
-                    SyncopeClientExceptionType.InvalidTask);
-
-            for (Map.Entry<Class, Set<EntityViolationType>> violation :
-                    e.getViolations().entrySet()) {
-
-                for (EntityViolationType violationType : violation.getValue()) {
-                    sce.addElement(violation.getClass().getSimpleName() + ": "
-                            + violationType);
-                }
-            }
-
-            scce.addException(sce);
-            throw scce;
-        }
+        task = taskDAO.save(task);
 
         try {
             jobInstanceLoader.registerJob(task.getId(), task.getJobClassName(),
@@ -185,24 +166,7 @@ public class TaskController extends AbstractController {
                 HttpStatus.BAD_REQUEST);
 
         binder.updateSchedTask(task, taskTO, taskUtil);
-        try {
-            task = taskDAO.save(task);
-        } catch (InvalidEntityException e) {
-            SyncopeClientException sce = new SyncopeClientException(
-                    SyncopeClientExceptionType.InvalidTask);
-
-            for (Map.Entry<Class, Set<EntityViolationType>> violation :
-                    e.getViolations().entrySet()) {
-
-                for (EntityViolationType violationType : violation.getValue()) {
-                    sce.addElement(violation.getClass().getSimpleName() + ": "
-                            + violationType);
-                }
-            }
-
-            scce.addException(sce);
-            throw scce;
-        }
+        task = taskDAO.save(task);
 
         try {
             jobInstanceLoader.registerJob(task.getId(), task.getJobClassName(),
@@ -284,8 +248,7 @@ public class TaskController extends AbstractController {
     @RequestMapping(method = RequestMethod.GET,
     value = "/jobClasses")
     public ModelAndView getJobClasses() {
-        Reflections reflections = new Reflections(
-                "org.syncope.core.scheduling");
+        Reflections reflections = new Reflections("");
 
         Set<Class<? extends Job>> subTypes =
                 reflections.getSubTypesOf(Job.class);
@@ -302,6 +265,27 @@ public class TaskController extends AbstractController {
 
         ModelAndView result = new ModelAndView();
         result.addObject(jobClasses);
+        return result;
+    }
+
+    @PreAuthorize("hasRole('TASK_LIST')")
+    @RequestMapping(method = RequestMethod.GET,
+    value = "/jobActionsClasses")
+    public ModelAndView getJobActionClasses() {
+        Reflections reflections = new Reflections("");
+
+        Set<Class<? extends SyncJobActions>> subTypes =
+                reflections.getSubTypesOf(SyncJobActions.class);
+
+        Set<String> jobActionsClasses = new HashSet<String>();
+        for (Class jobClass : subTypes) {
+            if (!Modifier.isAbstract(jobClass.getModifiers())) {
+                jobActionsClasses.add(jobClass.getName());
+            }
+        }
+
+        ModelAndView result = new ModelAndView();
+        result.addObject(jobActionsClasses);
         return result;
     }
 

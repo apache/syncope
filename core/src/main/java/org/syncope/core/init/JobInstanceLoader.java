@@ -14,6 +14,7 @@
 package org.syncope.core.init;
 
 import java.util.List;
+import org.apache.commons.lang.StringUtils;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
@@ -33,8 +34,10 @@ import org.syncope.core.persistence.beans.SchedTask;
 import org.syncope.core.persistence.beans.SyncTask;
 import org.syncope.core.persistence.dao.TaskDAO;
 import org.syncope.core.scheduling.AppContextMethodInvokingJobDetailFactoryBean;
+import org.syncope.core.scheduling.DefaultSyncJobActions;
 import org.syncope.core.scheduling.Job;
 import org.syncope.core.scheduling.NotificationJob;
+import org.syncope.core.scheduling.SyncJob;
 import org.syncope.core.util.ApplicationContextManager;
 
 @Component
@@ -77,6 +80,24 @@ public class JobInstanceLoader extends AbstractLoader {
         MutablePropertyValues mpv = new MutablePropertyValues();
         if (!NotificationJob.class.getName().equals(jobClassName)) {
             mpv.add("taskId", taskId);
+        }
+        if (SyncJob.class.getName().equals(jobClassName)) {
+            String jobActionsClassName =
+                    ((SyncTask) taskDAO.find(taskId)).getJobActionsClassName();
+            Class syncJobActionsClass = DefaultSyncJobActions.class;
+            if (StringUtils.isNotBlank(jobActionsClassName)) {
+                try {
+                    syncJobActionsClass = Class.forName(jobActionsClassName);
+                } catch (Throwable t) {
+                    LOG.error("Class {} not found, reverting to {}",
+                            new Object[]{jobActionsClassName,
+                                syncJobActionsClass.getName(), t});
+                }
+            }
+            Object syncJobActions = getBeanFactory().autowire(
+                    syncJobActionsClass,
+                    AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true);
+            mpv.add("actions", syncJobActions);
         }
         GenericBeanDefinition bd = new GenericBeanDefinition();
         bd.setBeanClassName(jobClassName);

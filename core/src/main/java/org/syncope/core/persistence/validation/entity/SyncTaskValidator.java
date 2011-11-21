@@ -16,7 +16,9 @@ package org.syncope.core.persistence.validation.entity;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import org.apache.commons.lang.StringUtils;
 import org.syncope.core.persistence.beans.SyncTask;
+import org.syncope.core.scheduling.SyncJobActions;
 import org.syncope.types.EntityViolationType;
 
 public class SyncTaskValidator extends AbstractValidator
@@ -56,6 +58,31 @@ public class SyncTaskValidator extends AbstractValidator
                             EntityViolationType.InvalidSyncTask.toString()).
                             addNode(object + ".resource is NULL").
                             addConstraintViolation();
+                }
+
+                if (StringUtils.isNotBlank(object.getJobActionsClassName())) {
+                    Class syncJobActionsClass = null;
+                    boolean isAssignable = false;
+                    try {
+                        syncJobActionsClass =
+                                Class.forName(object.getJobActionsClassName());
+                        isAssignable = SyncJobActions.class.isAssignableFrom(
+                                syncJobActionsClass);
+                    } catch (Throwable t) {
+                        LOG.error("Invalid SyncJobActions specified", t);
+                        isValid = false;
+                    }
+
+                    if (syncJobActionsClass == null || !isAssignable) {
+                        isValid = false;
+
+                        context.disableDefaultConstraintViolation();
+                        context.buildConstraintViolationWithTemplate(
+                                EntityViolationType.InvalidSyncTask.toString()).
+                                addNode(object
+                                + ".syncJobActionsClassName is not valid").
+                                addConstraintViolation();
+                    }
                 }
             }
         }

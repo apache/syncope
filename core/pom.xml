@@ -386,6 +386,12 @@
                                         <exclude name="**/workflow.properties" />
                                     </patternset>
                                 </unzip>
+                                <copy file="${project.build.directory}/test-classes/org/syncope/core/scheduling/TestSyncJobActions.class"
+                                      todir="${cargo.run.dir}/WEB-INF/classes/org/syncope/core/scheduling"/>
+                                <mkdir dir="${project.build.directory}/test-conf"/>
+                                <copy todir="${project.build.directory}/test-conf" includeEmptyDirs="false">
+                                    <fileset dir="${project.build.directory}/test-classes" excludes="**/*.class"/>
+                                </copy>
                             </target>
                         </configuration>
                         <goals>
@@ -560,7 +566,7 @@
                         <output>${cargo.output}</output>
                         <dependencies>
                             <dependency>
-                                <location>${project.build.directory}/test-classes/</location>
+                                <location>${project.build.directory}/test-conf</location>
                             </dependency>
                             <dependency>
                                 <groupId>com.h2database</groupId>

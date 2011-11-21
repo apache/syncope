@@ -33,6 +33,8 @@ public class SyncTaskTO extends SchedTaskTO {
 
     private boolean performDelete;
 
+    private String jobActionsClassName;
+
     public SyncTaskTO() {
         super();
 
@@ -104,5 +106,13 @@ public class SyncTaskTO extends SchedTaskTO {
 
     public void setPerformDelete(boolean performDelete) {
         this.performDelete = performDelete;
+    }
+
+    public String getJobActionsClassName() {
+        return jobActionsClassName;
+    }
+
+    public void setJobActionsClassName(String jobActionsClassName) {
+        this.jobActionsClassName = jobActionsClassName;
     }
 }

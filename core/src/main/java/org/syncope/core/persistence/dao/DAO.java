@@ -20,5 +20,7 @@ public interface DAO {
 
      <T extends AbstractBaseBean> T refresh(T entity);
 
+    void detach(Object object);
+
     void flush();
 }

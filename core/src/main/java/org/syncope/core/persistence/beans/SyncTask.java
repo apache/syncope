@@ -60,6 +60,8 @@ public class SyncTask extends SchedTask {
     @Max(1)
     private Integer performDelete;
 
+    private String jobActionsClassName;
+
     /**
      * Default constructor.
      */
@@ -163,5 +165,13 @@ public class SyncTask extends SchedTask {
 
     public void setPerformDelete(boolean performDelete) {
         this.performDelete = getBooleanAsInteger(performDelete);
+    }
+
+    public String getJobActionsClassName() {
+        return jobActionsClassName;
+    }
+
+    public void setJobActionsClassName(String jobActionsClassName) {
+        this.jobActionsClassName = jobActionsClassName;
     }
 }

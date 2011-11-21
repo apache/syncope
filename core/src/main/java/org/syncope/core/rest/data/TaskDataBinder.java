@@ -32,11 +32,11 @@ import org.syncope.client.to.SyncTaskTO;
 import org.syncope.client.to.TaskExecTO;
 import org.syncope.client.to.TaskTO;
 import org.syncope.core.init.JobInstanceLoader;
-import org.syncope.core.persistence.beans.PropagationTask;
 import org.syncope.core.persistence.beans.SchedTask;
 import org.syncope.core.persistence.beans.SyncTask;
 import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.core.persistence.beans.NotificationTask;
+import org.syncope.core.persistence.beans.PropagationTask;
 import org.syncope.core.persistence.beans.Task;
 import org.syncope.core.persistence.beans.TaskExec;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
@@ -91,6 +91,8 @@ public class TaskDataBinder {
         task.setPerformCreate(taskTO.isPerformCreate());
         task.setPerformUpdate(taskTO.isPerformUpdate());
         task.setPerformDelete(taskTO.isPerformDelete());
+
+        task.setJobActionsClassName(taskTO.getJobActionsClassName());
     }
 
     public SchedTask createSchedTask(final SchedTaskTO taskTO,
@@ -126,16 +128,10 @@ public class TaskDataBinder {
     public void updateSchedTask(final SchedTask task, final SchedTaskTO taskTO,
             final TaskUtil taskUtil) {
 
-        switch (taskUtil) {
-            case SCHED:
-                task.setCronExpression(taskTO.getCronExpression());
-                break;
+        task.setCronExpression(taskTO.getCronExpression());
 
-            case SYNC:
-                task.setCronExpression(taskTO.getCronExpression());
-
-                fill((SyncTask) task, (SyncTaskTO) taskTO);
-                break;
+        if (taskUtil == TaskUtil.SYNC) {
+            fill((SyncTask) task, (SyncTaskTO) taskTO);
         }
     }
 
@@ -211,6 +207,9 @@ public class TaskDataBinder {
                         ((SyncTask) task).isPerformUpdate());
                 ((SyncTaskTO) taskTO).setPerformDelete(
                         ((SyncTask) task).isPerformDelete());
+
+                ((SyncTaskTO) taskTO).setJobActionsClassName(
+                        ((SyncTask) task).getJobActionsClassName());
                 break;
 
             case NOTIFICATION:

@@ -88,9 +88,15 @@ public enum SyncopeClientExceptionType {
     InvalidNotification(
     "Syncope.InvalidNotification",
     "Syncope.InvalidNotification.element"),
-    InvalidTask(
-    "Syncope.InvalidTask",
-    "Syncope.InvalidTask.element"),
+    InvalidPropagationTask(
+    "Syncope.InvalidPropagationTask",
+    "Syncope.InvalidPropagationTask.element"),
+    InvalidSchedTask(
+    "Syncope.InvalidSchedTask",
+    "Syncope.InvalidSchedTask.element"),
+    InvalidSyncTask(
+    "Syncope.InvalidSyncTask",
+    "Syncope.InvalidSyncTask.element"),
     InvalidValues(
     "Syncope.InvalidValues",
     "Syncope.InvalidValues.attributeName"),

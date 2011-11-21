@@ -21,7 +21,7 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.syncope.types.TraceLevel;
 
-class SyncResult {
+public class SyncResult {
 
     static enum Operation {
 
@@ -111,7 +111,8 @@ class SyncResult {
                     operation, userId, username, message);
         } else {
             // All
-            return String.format("%s %s (id/ name): %d/ %s %s", operation, status,
+            return String.format("%s %s (id/ name): %d/ %s %s", operation,
+                    status,
                     userId, username,
                     StringUtils.isEmpty(message) ? "" : "with message: "
                     + message);
