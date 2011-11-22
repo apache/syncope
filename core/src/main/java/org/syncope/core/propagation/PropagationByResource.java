@@ -20,7 +20,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.types.PropagationOperation;
 
 /**
@@ -68,111 +67,93 @@ public class PropagationByResource implements Serializable {
      * on any resource for which an update is requested.
      */
     public final void purge() {
-        for (String resource : toBeDeleted) {
-            toBeCreated.remove(resource);
-            toBeUpdated.remove(resource);
-        }
-        for (String resource : toBeUpdated) {
-            toBeCreated.remove(resource);
-        }
+        toBeCreated.removeAll(toBeDeleted);
+        toBeCreated.removeAll(toBeUpdated);
+
+        toBeUpdated.removeAll(toBeDeleted);
     }
 
     /**
      * Add an element.
      *
      * @param type resource operation type
-     * @param resource target resource
+     * @param resourceName target resource
      * @return wether the operation was succeful or not
      */
     public final boolean add(final PropagationOperation type,
-            final ExternalResource resource) {
+            final String resourceName) {
 
-        boolean result = false;
-
+        Set<String> set;
         switch (type) {
             case CREATE:
-                result = toBeCreated.add(resource.getName());
+                set = toBeCreated;
                 break;
 
             case UPDATE:
-                result = toBeUpdated.add(resource.getName());
+                set = toBeUpdated;
                 break;
 
             case DELETE:
-                result = toBeDeleted.add(resource.getName());
-                break;
-
             default:
+                set = toBeDeleted;
+                break;
         }
 
-        return result;
-    }
-
-    private boolean addAll(final Set<String> set,
-            final Set<ExternalResource> resources) {
-
-        boolean result = true;
-        for (ExternalResource resource : resources) {
-            result &= set.add(resource.getName());
-        }
-
-        return result;
+        return set.add(resourceName);
     }
 
     /**
      * Add some elements.
      *
      * @param type resource operation type
-     * @param resources target resources
+     * @param resourceNames target resources
      * @return wether the operation was succeful or not
      */
     public boolean addAll(final PropagationOperation type,
-            final Set<ExternalResource> resources) {
+            final Set<String> resourceNames) {
 
-        boolean result = false;
-
+        Set<String> set;
         switch (type) {
             case CREATE:
-                result = addAll(toBeCreated, resources);
+                set = toBeCreated;
                 break;
 
             case UPDATE:
-                result = addAll(toBeUpdated, resources);
+                set = toBeUpdated;
                 break;
 
             case DELETE:
-                result = addAll(toBeDeleted, resources);
-                break;
-
             default:
+                set = toBeDeleted;
+                break;
         }
 
-        return result;
+        return set.addAll(resourceNames);
     }
 
     /**
      * Remove an element.
      *
      * @param type resource operation type
-     * @param resource target resource
+     * @param resourceName target resource
      * @return wether the operation was succeful or not
      */
     public final boolean remove(final PropagationOperation type,
-            final ExternalResource resource) {
+            final String resourceName) {
 
         boolean result = false;
 
         switch (type) {
             case CREATE:
-                result = toBeCreated.remove(resource);
+                result = toBeCreated.remove(resourceName);
                 break;
 
             case UPDATE:
-                result = toBeUpdated.remove(resource);
+                result = toBeUpdated.remove(resourceName);
                 break;
 
             case DELETE:
-                result = toBeDeleted.remove(resource);
+                result = toBeDeleted.remove(resourceName);
                 break;
 
             default:
@@ -213,26 +194,26 @@ public class PropagationByResource implements Serializable {
      * Set resources for a given resource operation type.
      *
      * @param type resource operation type
-     * @param resources to be set
+     * @param resourceNames to be set
      */
     public final void set(final PropagationOperation type,
-            final Set<ExternalResource> resources) {
+            final Set<String> resourceNames) {
 
         switch (type) {
 
             case CREATE:
                 toBeCreated.clear();
-                addAll(toBeCreated, resources);
+                toBeCreated.addAll(resourceNames);
                 break;
 
             case UPDATE:
                 toBeUpdated.clear();
-                addAll(toBeUpdated, resources);
+                toBeUpdated.addAll(resourceNames);
                 break;
 
             case DELETE:
                 toBeDeleted.clear();
-                addAll(toBeDeleted, resources);
+                toBeDeleted.addAll(resourceNames);
                 break;
 
             default:
@@ -242,15 +223,15 @@ public class PropagationByResource implements Serializable {
     /**
      * Merge another resource operation instance into this instance.
      *
-     * @param resourceOperations to be merged
+     * @param propByRes to be merged
      */
-    public final void merge(final PropagationByResource resourceOperations) {
+    public final void merge(final PropagationByResource propByRes) {
         toBeCreated.addAll(
-                resourceOperations.get(PropagationOperation.CREATE));
+                propByRes.get(PropagationOperation.CREATE));
         toBeUpdated.addAll(
-                resourceOperations.get(PropagationOperation.UPDATE));
+                propByRes.get(PropagationOperation.UPDATE));
         toBeDeleted.addAll(
-                resourceOperations.get(PropagationOperation.DELETE));
+                propByRes.get(PropagationOperation.DELETE));
     }
 
     /**
@@ -261,7 +242,7 @@ public class PropagationByResource implements Serializable {
     public final boolean isEmpty() {
         return toBeCreated.isEmpty()
                 && toBeUpdated.isEmpty()
-                && toBeUpdated.isEmpty();
+                && toBeDeleted.isEmpty();
     }
 
     /**

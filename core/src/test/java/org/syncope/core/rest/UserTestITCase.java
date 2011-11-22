@@ -28,8 +28,10 @@ import java.util.Set;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.junit.Test;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.client.CommonsClientHttpRequestFactory;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.ExpectedException;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.syncope.client.mod.AttributeMod;
@@ -1322,5 +1324,32 @@ public class UserTestITCase extends AbstractTest {
 
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());
+    }
+
+    @ExpectedException(EmptyResultDataAccessException.class)
+    @Test
+    public void issue213() {
+        UserTO userTO = getSampleTO("issue213@syncope-idm.org");
+        userTO.addResource("resource-testdb");
+
+        userTO = restTemplate.postForObject(
+                BASE_URL + "user/create", userTO, UserTO.class);
+        assertNotNull(userTO);
+
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
+        int id = jdbcTemplate.queryForInt(
+                "SELECT id FROM test WHERE id=?", userTO.getId());
+        assertEquals(userTO.getId(), id);
+
+        UserMod userMod = new UserMod();
+        userMod.setId(userTO.getId());
+        userMod.addResourceToBeRemoved("resource-testdb");
+
+        userTO = restTemplate.postForObject(BASE_URL + "user/update",
+                userMod, UserTO.class);
+        assertTrue(userTO.getResources().isEmpty());
+
+        jdbcTemplate.queryForInt(
+                "SELECT id FROM test WHERE id=?", userTO.getId());
     }
 }

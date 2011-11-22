@@ -187,7 +187,8 @@ public class PropagationManager {
         }
 
         final PropagationByResource propByRes = new PropagationByResource();
-        propByRes.set(PropagationOperation.CREATE, user.getExternalResources());
+        propByRes.set(PropagationOperation.CREATE,
+                user.getExternalResourceNames());
         if (syncResourceName != null) {
             propByRes.get(PropagationOperation.CREATE).remove(syncResourceName);
         }
@@ -251,12 +252,15 @@ public class PropagationManager {
             localPropByRes.merge(propByRes);
         } else {
             localPropByRes.addAll(PropagationOperation.UPDATE,
-                    user.getExternalResources());
+                    user.getExternalResourceNames());
         }
         if (syncResourceName != null) {
-            propByRes.get(PropagationOperation.CREATE).remove(syncResourceName);
-            propByRes.get(PropagationOperation.UPDATE).remove(syncResourceName);
-            propByRes.get(PropagationOperation.DELETE).remove(syncResourceName);
+            localPropByRes.get(PropagationOperation.CREATE).
+                    remove(syncResourceName);
+            localPropByRes.get(PropagationOperation.UPDATE).
+                    remove(syncResourceName);
+            localPropByRes.get(PropagationOperation.DELETE).
+                    remove(syncResourceName);
         }
 
         return provision(user, password, enable, localPropByRes);
@@ -300,7 +304,7 @@ public class PropagationManager {
 
         final PropagationByResource propByRes = new PropagationByResource();
         propByRes.set(PropagationOperation.DELETE,
-                user.getExternalResources());
+                user.getExternalResourceNames());
         if (syncResourceName != null) {
             propByRes.get(PropagationOperation.DELETE).remove(syncResourceName);
         }
@@ -762,24 +766,25 @@ public class PropagationManager {
                 throw new NoSuchBeanDefinitionException(msg);
             }
 
+            // Try to read user BEFORE any actual operation
+            ConnectorObject remoteObject = null;
+            try {
+                remoteObject = connector.getObject(
+                        task.getPropagationMode(),
+                        task.getResourceOperationType(),
+                        ObjectClass.ACCOUNT,
+                        new Uid(task.getOldAccountId() == null
+                        ? task.getAccountId()
+                        : task.getOldAccountId()),
+                        null);
+            } catch (RuntimeException ignore) {
+                LOG.debug("To be ignored, when resolving "
+                        + "username on connector", ignore);
+            }
+
             switch (task.getResourceOperationType()) {
                 case CREATE:
                 case UPDATE:
-                    ConnectorObject remoteObject = null;
-                    try {
-                        remoteObject = connector.getObject(
-                                task.getPropagationMode(),
-                                task.getResourceOperationType(),
-                                ObjectClass.ACCOUNT,
-                                new Uid(task.getOldAccountId() == null
-                                ? task.getAccountId()
-                                : task.getOldAccountId()),
-                                null);
-                    } catch (RuntimeException ignore) {
-                        LOG.debug("To be ignored, when resolving "
-                                + "username on connector", ignore);
-                    }
-
                     if (remoteObject != null) {
                         // 0. prepare new set of attributes
                         final Set<Attribute> attributes =
@@ -819,11 +824,16 @@ public class PropagationManager {
                     break;
 
                 case DELETE:
-                    connector.delete(task.getPropagationMode(),
-                            ObjectClass.ACCOUNT,
-                            new Uid(task.getAccountId()),
-                            null,
-                            propagationAttempted);
+                    if (remoteObject == null) {
+                        LOG.debug("{} not found on external resource:"
+                                + " ignoring delete", task.getAccountId());
+                    } else {
+                        connector.delete(task.getPropagationMode(),
+                                ObjectClass.ACCOUNT,
+                                remoteObject.getUid(),
+                                null,
+                                propagationAttempted);
+                    }
                     break;
 
                 default:

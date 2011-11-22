@@ -14,6 +14,7 @@
  */
 package org.syncope.core.rest;
 
+import javax.sql.DataSource;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.junit.Before;
@@ -28,7 +29,8 @@ import org.springframework.web.client.RestTemplate;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
-    "classpath:restClientContext.xml"
+    "classpath:restClientContext.xml",
+    "classpath:testJDBCContext.xml"
 })
 public abstract class AbstractTest {
 
@@ -43,6 +45,9 @@ public abstract class AbstractTest {
 
     @Autowired
     protected RestTemplate restTemplate;
+
+    @Autowired
+    protected DataSource testDataSource;
 
     @Before
     public void setupRestTemplate() {

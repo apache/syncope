@@ -66,9 +66,10 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
     public SyncopeUser getUserFromId(final Long userId)
             throws NotFoundException, UnauthorizedRoleException {
 
-        if (userId == null)
-            throw new NotFoundException("Null user id");            
-        
+        if (userId == null) {
+            throw new NotFoundException("Null user id");
+        }
+
         SyncopeUser user = userDAO.find(userId);
         if (user == null) {
             throw new NotFoundException("User " + userId);
@@ -190,15 +191,15 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
             user.setChangePwdDate(new Date());
 
-            propByRes.addAll(
-                    PropagationOperation.UPDATE, user.getExternalResources());
+            propByRes.addAll(PropagationOperation.UPDATE,
+                    user.getExternalResourceNames());
         }
 
         // username
         if (userMod.getUsername() != null) {
             user.setUsername(userMod.getUsername());
-            propByRes.addAll(
-                    PropagationOperation.UPDATE, user.getExternalResources());
+            propByRes.addAll(PropagationOperation.UPDATE,
+                    user.getExternalResourceNames());
         }
 
         // attributes, derived attributes, virtual attributes and resources
@@ -206,10 +207,8 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
         // store the role ids of membership required to be added
         Set<Long> membershipToBeAddedRoleIds = new HashSet<Long>();
-        for (MembershipMod membershipToBeAdded :
-                userMod.getMembershipsToBeAdded()) {
-
-            membershipToBeAddedRoleIds.add(membershipToBeAdded.getRole());
+        for (MembershipMod membToBeAdded : userMod.getMembershipsToBeAdded()) {
+            membershipToBeAddedRoleIds.add(membToBeAdded.getRole());
         }
 
         // memberships to be removed
@@ -228,7 +227,8 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
                     if (!membershipToBeAddedRoleIds.contains(
                             membership.getSyncopeRole().getId())) {
 
-                        propByRes.add(PropagationOperation.DELETE, resource);
+                        propByRes.add(PropagationOperation.DELETE,
+                                resource.getName());
                     }
                 }
 
@@ -299,7 +299,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
                     user.addMembership(membership);
 
                     propByRes.addAll(PropagationOperation.UPDATE,
-                            role.getExternalResources());
+                            role.getExternalResourceNames());
                 }
 
                 propByRes.merge(fill(membership, membershipMod,

@@ -327,7 +327,7 @@ public abstract class AbstractAttributableDataBinder {
                             contains(mapping.getResource())) {
 
                         propByRes.add(PropagationOperation.UPDATE,
-                                mapping.getResource());
+                                mapping.getResource().getName());
 
                         if (mapping.isAccountid() && virtualAttribute != null
                                 && !virtualAttribute.getValues().isEmpty()) {
@@ -360,7 +360,7 @@ public abstract class AbstractAttributableDataBinder {
                             contains(mapping.getResource())) {
 
                         propByRes.add(PropagationOperation.UPDATE,
-                                mapping.getResource());
+                                mapping.getResource().getName());
                     }
                 }
 
@@ -407,7 +407,7 @@ public abstract class AbstractAttributableDataBinder {
             resource = getResource(resourceToBeRemoved);
 
             if (resource != null) {
-                propByRes.add(PropagationOperation.DELETE, resource);
+                propByRes.add(PropagationOperation.DELETE, resource.getName());
 
                 attributable.removeExternalResource(resource);
 
@@ -429,7 +429,7 @@ public abstract class AbstractAttributableDataBinder {
             resource = getResource(resourceToBeAdded);
 
             if (resource != null) {
-                propByRes.add(PropagationOperation.CREATE, resource);
+                propByRes.add(PropagationOperation.CREATE, resource.getName());
 
                 attributable.addExternalResource(resource);
 
@@ -490,7 +490,7 @@ public abstract class AbstractAttributableDataBinder {
                             contains(mapping.getResource())) {
 
                         propByRes.add(PropagationOperation.UPDATE,
-                                mapping.getResource());
+                                mapping.getResource().getName());
 
                         if (mapping.isAccountid() && attribute != null
                                 && !attribute.getValuesAsStrings().isEmpty()) {
@@ -526,7 +526,7 @@ public abstract class AbstractAttributableDataBinder {
                             contains(mapping.getResource())) {
 
                         propByRes.add(PropagationOperation.UPDATE,
-                                mapping.getResource());
+                                mapping.getResource().getName());
                     }
                 }
 
@@ -621,7 +621,7 @@ public abstract class AbstractAttributableDataBinder {
                             contains(mapping.getResource())) {
 
                         propByRes.add(PropagationOperation.UPDATE,
-                                mapping.getResource());
+                                mapping.getResource().getName());
 
                         if (mapping.isAccountid() && derivedAttribute != null
                                 && !derivedAttribute.getValue(
@@ -658,7 +658,7 @@ public abstract class AbstractAttributableDataBinder {
                             contains(mapping.getResource())) {
 
                         propByRes.add(PropagationOperation.UPDATE,
-                                mapping.getResource());
+                                mapping.getResource().getName());
                     }
                 }
 
