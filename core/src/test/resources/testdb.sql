@@ -4,6 +4,6 @@ DROP TABLE test IF EXISTS;
 CREATE TABLE test (
 id INTEGER PRIMARY KEY,
 password VARCHAR(255) NOT NULL,
-__ENABLE__ VARCHAR(5));
+status VARCHAR(5));
 
 INSERT INTO test VALUES (1, 'password', 'false');
