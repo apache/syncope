@@ -24,10 +24,6 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.syncope.client.mod.AccountPolicyMod;
-import org.syncope.client.mod.PasswordPolicyMod;
-import org.syncope.client.mod.PolicyMod;
-import org.syncope.client.mod.SyncPolicyMod;
 import org.syncope.client.to.AccountPolicyTO;
 import org.syncope.client.to.PasswordPolicyTO;
 import org.syncope.client.to.PolicyTO;
@@ -120,14 +116,7 @@ public class PolicyModalPage<T extends PolicyTO> extends BaseModalPage {
 
                 try {
                     if (policyTO.getId() > 0) {
-                        final PolicyMod policyMod =
-                                getPolicyModInstance(policyTO.getType());
-                        policyMod.setId(policyTO.getId());
-                        policyMod.setType(policyTO.getType());
-                        setPolicySpecification(policyMod, policy);
-                        policyMod.setDescription(policyTO.getDescription());
-
-                        policyRestClient.updatePolicy(policyMod);
+                        policyRestClient.updatePolicy(policyTO);
                     } else {
                         policyRestClient.createPolicy(policyTO);
                     }
@@ -142,7 +131,9 @@ public class PolicyModalPage<T extends PolicyTO> extends BaseModalPage {
             }
 
             @Override
-            protected void onError(AjaxRequestTarget target, Form form) {
+            protected void onError(final AjaxRequestTarget target,
+                    final Form form) {
+
                 target.add(getPage().get("feedback"));
             }
         };
@@ -152,7 +143,7 @@ public class PolicyModalPage<T extends PolicyTO> extends BaseModalPage {
 
     private AbstractPolicySpec getPolicySpecification(final PolicyTO policyTO) {
 
-        AbstractPolicySpec spec = null;
+        AbstractPolicySpec spec;
 
         switch (policyTO.getType()) {
             case GLOBAL_ACCOUNT:
@@ -161,14 +152,17 @@ public class PolicyModalPage<T extends PolicyTO> extends BaseModalPage {
                         ? ((AccountPolicyTO) policyTO).getSpecification()
                         : new AccountPolicySpec();
                 break;
+
             case GLOBAL_PASSWORD:
             case PASSWORD:
                 spec = ((PasswordPolicyTO) policyTO).getSpecification() != null
                         ? ((PasswordPolicyTO) policyTO).getSpecification()
                         : new PasswordPolicySpec();
                 break;
+
             case GLOBAL_SYNC:
             case SYNC:
+            default:
                 spec = ((SyncPolicyTO) policyTO).getSpecification() != null
                         ? ((SyncPolicyTO) policyTO).getSpecification()
                         : new SyncPolicySpec();
@@ -180,68 +174,25 @@ public class PolicyModalPage<T extends PolicyTO> extends BaseModalPage {
     private void setPolicySpecification(
             final PolicyTO policyTO, final AbstractPolicySpec specification) {
 
-        AbstractPolicySpec spec = null;
-
         switch (policyTO.getType()) {
             case GLOBAL_ACCOUNT:
             case ACCOUNT:
                 ((AccountPolicyTO) policyTO).setSpecification(
                         (AccountPolicySpec) specification);
                 break;
+
             case GLOBAL_PASSWORD:
             case PASSWORD:
                 ((PasswordPolicyTO) policyTO).setSpecification(
                         (PasswordPolicySpec) specification);
                 break;
+
             case GLOBAL_SYNC:
             case SYNC:
                 ((SyncPolicyTO) policyTO).setSpecification(
                         (SyncPolicySpec) specification);
+
+            default:
         }
-    }
-
-    private void setPolicySpecification(
-            final PolicyMod policyMod, final AbstractPolicySpec specification) {
-
-        AbstractPolicySpec spec = null;
-
-        switch (policyMod.getType()) {
-            case GLOBAL_ACCOUNT:
-            case ACCOUNT:
-                ((AccountPolicyMod) policyMod).setSpecification(
-                        (AccountPolicySpec) specification);
-                break;
-            case GLOBAL_PASSWORD:
-            case PASSWORD:
-                ((PasswordPolicyMod) policyMod).setSpecification(
-                        (PasswordPolicySpec) specification);
-                break;
-            case GLOBAL_SYNC:
-            case SYNC:
-                ((SyncPolicyMod) policyMod).setSpecification(
-                        (SyncPolicySpec) specification);
-        }
-    }
-
-    private PolicyMod getPolicyModInstance(final PolicyType policyType) {
-        PolicyMod policyMod = null;
-        switch (policyType) {
-            case ACCOUNT:
-            case GLOBAL_ACCOUNT:
-                policyMod = new AccountPolicyMod();
-                policyMod.setType(policyType);
-                break;
-            case PASSWORD:
-            case GLOBAL_PASSWORD:
-                policyMod = new PasswordPolicyMod();
-                policyMod.setType(policyType);
-                break;
-            case GLOBAL_SYNC:
-            case SYNC:
-                policyMod = new SyncPolicyMod();
-                policyMod.setType(policyType);
-        }
-
-        return policyMod;
     }
 }

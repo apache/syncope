@@ -19,7 +19,6 @@ import java.util.List;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.syncope.core.persistence.beans.AbstractAttributable;
 import org.syncope.core.persistence.beans.AccountPolicy;
 import org.syncope.core.persistence.beans.Policy;
 import org.syncope.core.persistence.beans.ExternalResource;
@@ -35,7 +34,7 @@ import org.syncope.types.EntityViolationType;
 import org.syncope.types.PasswordPolicySpec;
 
 public class SyncopeUserValidator extends AbstractValidator
-        implements ConstraintValidator<SyncopeUserCheck, AbstractAttributable> {
+        implements ConstraintValidator<SyncopeUserCheck, SyncopeUser> {
 
     @Autowired
     private PolicyDAO policyDAO;
@@ -54,8 +53,7 @@ public class SyncopeUserValidator extends AbstractValidator
     }
 
     @Override
-    public boolean isValid(
-            final AbstractAttributable object,
+    public boolean isValid(final SyncopeUser object,
             final ConstraintValidatorContext context) {
 
         context.disableDefaultConstraintViolation();
@@ -65,14 +63,10 @@ public class SyncopeUserValidator extends AbstractValidator
         // ------------------------------
         LOG.debug("Password Policy enforcement");
 
-        final List<PasswordPolicy> passwordPolicies =
-                getPasswordPolicies((SyncopeUser) object);
-
         try {
-            for (Policy policy : passwordPolicies) {
+            for (Policy policy : getPasswordPolicies(object)) {
                 // clearPassword must exist during creation/password update
-                final String password =
-                        ((SyncopeUser) object).getClearPassword();
+                final String password = object.getClearPassword();
 
                 // evaluate/enforce only during creation or password update
                 if (password != null) {
@@ -97,7 +91,7 @@ public class SyncopeUserValidator extends AbstractValidator
         } finally {
             // password has been validated, let's remove its
             // clear version
-            ((SyncopeUser) object).removeClearPassword();
+            object.removeClearPassword();
         }
         // ------------------------------
 
@@ -106,20 +100,15 @@ public class SyncopeUserValidator extends AbstractValidator
         // ------------------------------
         LOG.debug("Account Policy enforcement");
 
-        final List<AccountPolicy> accountPolicies =
-                getAccountPolicies((SyncopeUser) object);
-
         try {
             // username missed
-            for (Policy policy : accountPolicies) {
-
+            for (Policy policy : getAccountPolicies(object)) {
                 // evaluate policy
                 final AccountPolicySpec accountPolicy =
                         evaluator.evaluate(policy, object);
 
                 // enforce policy
-                apEnforcer.enforce(
-                        accountPolicy, policy.getType(), (SyncopeUser) object);
+                apEnforcer.enforce(accountPolicy, policy.getType(), object);
             }
         } catch (Exception e) {
             LOG.debug("Invalid username");
@@ -140,16 +129,14 @@ public class SyncopeUserValidator extends AbstractValidator
         final List<PasswordPolicy> policies = new ArrayList<PasswordPolicy>();
 
         // Add global policy
-        PasswordPolicy policy =
-                (PasswordPolicy) policyDAO.getGlobalPasswordPolicy();
-
+        PasswordPolicy policy = policyDAO.getGlobalPasswordPolicy();
         if (policy != null) {
             policies.add(policy);
         }
 
         // add resource policies
         for (ExternalResource resource : user.getExternalResources()) {
-            policy = (PasswordPolicy) resource.getPasswordPolicy();
+            policy = resource.getPasswordPolicy();
             if (policy != null) {
                 policies.add(policy);
             }
@@ -157,7 +144,7 @@ public class SyncopeUserValidator extends AbstractValidator
 
         // add role policies
         for (SyncopeRole role : user.getRoles()) {
-            policy = (PasswordPolicy) role.getPasswordPolicy();
+            policy = role.getPasswordPolicy();
             if (policy != null) {
                 policies.add(policy);
             }
@@ -170,16 +157,14 @@ public class SyncopeUserValidator extends AbstractValidator
         final List<AccountPolicy> policies = new ArrayList<AccountPolicy>();
 
         // Add global policy
-        AccountPolicy policy =
-                (AccountPolicy) policyDAO.getGlobalAccountPolicy();
-
+        AccountPolicy policy = policyDAO.getGlobalAccountPolicy();
         if (policy != null) {
             policies.add(policy);
         }
 
         // add resource policies
         for (ExternalResource resource : user.getExternalResources()) {
-            policy = (AccountPolicy) resource.getAccountPolicy();
+            policy = resource.getAccountPolicy();
             if (policy != null) {
                 policies.add(policy);
             }
@@ -187,7 +172,7 @@ public class SyncopeUserValidator extends AbstractValidator
 
         // add role policies
         for (SyncopeRole role : user.getRoles()) {
-            policy = (AccountPolicy) role.getAccountPolicy();
+            policy = role.getAccountPolicy();
             if (policy != null) {
                 policies.add(policy);
             }

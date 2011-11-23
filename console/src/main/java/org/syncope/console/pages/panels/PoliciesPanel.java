@@ -354,22 +354,32 @@ public class PoliciesPanel extends Panel {
     }
 
     private PolicyTO getPolicyTOInstance(final PolicyType policyType) {
-        PolicyTO policyTO = null;
+        PolicyTO policyTO;
         switch (policyType) {
-            case ACCOUNT:
             case GLOBAL_ACCOUNT:
+                policyTO = new AccountPolicyTO(true);
+                break;
+
+            case ACCOUNT:
                 policyTO = new AccountPolicyTO();
-                policyTO.setType(policyType);
                 break;
-            case PASSWORD:
+
             case GLOBAL_PASSWORD:
-                policyTO = new PasswordPolicyTO();
-                policyTO.setType(policyType);
+                policyTO = new PasswordPolicyTO(true);
                 break;
+
+            case PASSWORD:
+                policyTO = new PasswordPolicyTO();
+                break;
+
+
             case GLOBAL_SYNC:
+                policyTO = new SyncPolicyTO(true);
+                break;
+
             case SYNC:
+            default:
                 policyTO = new SyncPolicyTO();
-                policyTO.setType(policyType);
         }
 
         return policyTO;

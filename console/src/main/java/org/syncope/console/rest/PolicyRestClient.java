@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.springframework.stereotype.Component;
-import org.syncope.client.mod.PolicyMod;
 import org.syncope.client.to.AccountPolicyTO;
 import org.syncope.client.to.PasswordPolicyTO;
 import org.syncope.client.to.PolicyTO;
@@ -28,7 +27,7 @@ import org.syncope.types.PolicyType;
 /**
  * Console client for invoking Rest Policy services.
  */
- @Component
+@Component
 public class PolicyRestClient extends AbstractBaseRestClient {
 
     public <T extends PolicyTO> T getGlobalPolicy(final PolicyType type) {
@@ -167,24 +166,23 @@ public class PolicyRestClient extends AbstractBaseRestClient {
         }
     }
 
-    public <T extends PolicyMod, E extends PolicyTO> E updatePolicy(
-            final T policy)
+    public <T extends PolicyTO> T updatePolicy(final T policy)
             throws InvalidPolicyType {
 
         switch (policy.getType()) {
             case GLOBAL_ACCOUNT:
             case ACCOUNT:
-                return (E) restTemplate.postForObject(
+                return (T) restTemplate.postForObject(
                         baseURL + "policy/account/update",
                         policy, AccountPolicyTO.class);
             case GLOBAL_PASSWORD:
             case PASSWORD:
-                return (E) restTemplate.postForObject(
+                return (T) restTemplate.postForObject(
                         baseURL + "policy/password/update",
                         policy, PasswordPolicyTO.class);
             case GLOBAL_SYNC:
             case SYNC:
-                return (E) restTemplate.postForObject(
+                return (T) restTemplate.postForObject(
                         baseURL + "policy/sync/update",
                         policy, SyncPolicyTO.class);
             default:

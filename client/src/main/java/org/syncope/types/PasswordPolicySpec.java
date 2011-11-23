@@ -23,7 +23,7 @@ public class PasswordPolicySpec extends AbstractPolicySpec {
     private static final long serialVersionUID = -7988778083915548547L;
 
     /**
-     * History length
+     * History length.
      */
     private int historyLength;
 

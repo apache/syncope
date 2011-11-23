@@ -15,9 +15,20 @@
 package org.syncope.core.persistence.beans;
 
 import javax.persistence.Entity;
+import org.syncope.types.PolicyType;
 
 @Entity
 public class PasswordPolicy extends Policy {
 
     private static final long serialVersionUID = 9138550910385232849L;
+
+    public PasswordPolicy() {
+        this(false);
+    }
+
+    public PasswordPolicy(boolean global) {
+        super();
+
+        this.type = global ? PolicyType.GLOBAL_PASSWORD : PolicyType.PASSWORD;
+    }
 }

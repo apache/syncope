@@ -25,9 +25,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.syncope.client.mod.AccountPolicyMod;
-import org.syncope.client.mod.PasswordPolicyMod;
-import org.syncope.client.mod.SyncPolicyMod;
 import org.syncope.client.to.AccountPolicyTO;
 import org.syncope.client.to.PasswordPolicyTO;
 import org.syncope.client.to.PolicyTO;
@@ -101,13 +98,13 @@ public class PolicyController extends AbstractController {
     @PreAuthorize("hasRole('POLICY_UPDATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/password/update")
     public PasswordPolicyTO update(final HttpServletResponse response,
-            final @RequestBody PasswordPolicyMod policyMod)
+            final @RequestBody PasswordPolicyTO policyTO)
             throws NotFoundException {
 
-        LOG.debug("Updating policy " + policyMod);
+        LOG.debug("Updating policy " + policyTO);
 
         final PasswordPolicy policy =
-                (PasswordPolicy) policyDataBinder.getPolicy(policyMod);
+                (PasswordPolicy) policyDataBinder.getPolicy(policyTO);
 
         final Policy actual = update(policy);
         return (PasswordPolicyTO) policyDataBinder.getPolicyTO(actual);
@@ -116,13 +113,13 @@ public class PolicyController extends AbstractController {
     @PreAuthorize("hasRole('POLICY_UPDATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/account/update")
     public AccountPolicyTO update(final HttpServletResponse response,
-            final @RequestBody AccountPolicyMod policyMod)
+            final @RequestBody AccountPolicyTO policyTO)
             throws NotFoundException, SyncopeClientCompositeErrorException {
 
-        LOG.debug("Updating policy " + policyMod);
+        LOG.debug("Updating policy " + policyTO);
 
         final AccountPolicy policy =
-                (AccountPolicy) policyDataBinder.getPolicy(policyMod);
+                (AccountPolicy) policyDataBinder.getPolicy(policyTO);
 
         final Policy actual = update(policy);
         return (AccountPolicyTO) policyDataBinder.getPolicyTO(actual);
@@ -131,13 +128,13 @@ public class PolicyController extends AbstractController {
     @PreAuthorize("hasRole('POLICY_UPDATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/sync/update")
     public SyncPolicyTO update(final HttpServletResponse response,
-            final @RequestBody SyncPolicyMod policyMod)
+            final @RequestBody SyncPolicyTO policyTO)
             throws NotFoundException, SyncopeClientCompositeErrorException {
 
-        LOG.debug("Updating policy " + policyMod);
+        LOG.debug("Updating policy " + policyTO);
 
         final SyncPolicy policy =
-                (SyncPolicy) policyDataBinder.getPolicy(policyMod);
+                (SyncPolicy) policyDataBinder.getPolicy(policyTO);
 
         final Policy actual = update(policy);
         return (SyncPolicyTO) policyDataBinder.getPolicyTO(actual);
@@ -162,7 +159,7 @@ public class PolicyController extends AbstractController {
             @PathVariable("kind") final String kind) {
 
         LOG.debug("Listing policies");
-        List<Policy> policies =
+        List<? extends Policy> policies =
                 policyDAO.find(PolicyType.valueOf(kind.toUpperCase()));
 
         final List<PolicyTO> policyTOs = new ArrayList<PolicyTO>();
@@ -181,8 +178,7 @@ public class PolicyController extends AbstractController {
             throws NotFoundException {
 
         LOG.debug("Reading password policy");
-        Policy policy = policyDAO.getGlobalPasswordPolicy();
-
+        PasswordPolicy policy = policyDAO.getGlobalPasswordPolicy();
         if (policy == null) {
             throw new NotFoundException("No password policy found");
         }
@@ -197,8 +193,7 @@ public class PolicyController extends AbstractController {
             throws NotFoundException {
 
         LOG.debug("Reading account policy");
-        Policy policy = policyDAO.getGlobalAccountPolicy();
-
+        AccountPolicy policy = policyDAO.getGlobalAccountPolicy();
         if (policy == null) {
             throw new NotFoundException("No account policy found");
         }
@@ -213,8 +208,7 @@ public class PolicyController extends AbstractController {
             throws NotFoundException {
 
         LOG.debug("Reading sync policy");
-        Policy policy = policyDAO.getGlobalSyncPolicy();
-
+        SyncPolicy policy = policyDAO.getGlobalSyncPolicy();
         if (policy == null) {
             throw new NotFoundException("No sync policy found");
         }

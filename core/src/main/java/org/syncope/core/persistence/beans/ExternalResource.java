@@ -362,7 +362,7 @@ public class ExternalResource extends AbstractBaseBean {
         this.syncTraceLevel = syncTraceLevel;
     }
 
-    public Policy getAccountPolicy() {
+    public AccountPolicy getAccountPolicy() {
         return accountPolicy;
     }
 
@@ -370,7 +370,7 @@ public class ExternalResource extends AbstractBaseBean {
         this.accountPolicy = accountPolicy;
     }
 
-    public Policy getPasswordPolicy() {
+    public PasswordPolicy getPasswordPolicy() {
         return passwordPolicy;
     }
 

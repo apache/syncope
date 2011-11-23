@@ -15,24 +15,27 @@
 package org.syncope.core.persistence.dao;
 
 import java.util.List;
+import org.syncope.core.persistence.beans.AccountPolicy;
+import org.syncope.core.persistence.beans.PasswordPolicy;
 import org.syncope.core.persistence.beans.Policy;
+import org.syncope.core.persistence.beans.SyncPolicy;
 import org.syncope.types.PolicyType;
 
 public interface PolicyDAO extends DAO {
 
     Policy find(Long id);
 
-    Policy getGlobalPasswordPolicy();
+    PasswordPolicy getGlobalPasswordPolicy();
 
-    List<Policy> find(PolicyType type);
+    List<? extends Policy> find(PolicyType type);
 
-    Policy getGlobalAccountPolicy();
+    AccountPolicy getGlobalAccountPolicy();
 
-    Policy getGlobalSyncPolicy();
+    SyncPolicy getGlobalSyncPolicy();
 
     List<Policy> findAll();
 
-    Policy save(Policy policy);
+     <T extends Policy> T save(T policy);
 
     void delete(Long id);
 }

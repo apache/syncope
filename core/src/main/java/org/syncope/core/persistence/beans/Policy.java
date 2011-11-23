@@ -29,7 +29,7 @@ import org.syncope.types.PolicyType;
 
 @Entity
 @PolicyCheck
-public class Policy extends AbstractBaseBean {
+public abstract class Policy extends AbstractBaseBean {
 
     private static final long serialVersionUID = -5844833125843247458L;
 
@@ -41,7 +41,7 @@ public class Policy extends AbstractBaseBean {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private PolicyType type;
+    protected PolicyType type;
 
     @Lob
     @Type(type = "org.hibernate.type.StringClobType")
@@ -67,16 +67,14 @@ public class Policy extends AbstractBaseBean {
         return type;
     }
 
-    public void setType(PolicyType type) {
-        this.type = type;
-    }
-
     public <T extends AbstractPolicySpec> T getSpecification() {
         T result = XmlSerializer.<T>deserialize(specification);
         return result;
     }
 
-    public <T extends AbstractPolicySpec> void setSpecification(final T policy) {
+    public <T extends AbstractPolicySpec> void setSpecification(
+            final T policy) {
+
         specification = XmlSerializer.serialize(policy);
     }
 }

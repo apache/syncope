@@ -30,7 +30,7 @@ import javax.validation.Payload;
 @Documented
 public @interface SyncopeUserCheck {
 
-    String message() default "{org.syncope.core.validation.attributable}";
+    String message() default "{org.syncope.core.validation.syncopeuser}";
 
     Class<?>[] groups() default {};
 

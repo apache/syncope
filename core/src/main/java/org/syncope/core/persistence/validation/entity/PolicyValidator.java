@@ -25,7 +25,6 @@ import org.syncope.core.persistence.dao.PolicyDAO;
 import org.syncope.types.AccountPolicySpec;
 import org.syncope.types.EntityViolationType;
 import org.syncope.types.PasswordPolicySpec;
-import org.syncope.types.PolicyType;
 import org.syncope.types.SyncPolicySpec;
 
 public class PolicyValidator extends AbstractValidator
@@ -46,21 +45,17 @@ public class PolicyValidator extends AbstractValidator
         context.disableDefaultConstraintViolation();
 
         if (object.getSpecification() != null
-                && (((object.getType() == PolicyType.PASSWORD
-                || object.getType() == PolicyType.GLOBAL_PASSWORD)
+                && ((object instanceof PasswordPolicy
                 && !(object.getSpecification() instanceof PasswordPolicySpec))
-                || ((object.getType() == PolicyType.ACCOUNT
-                || object.getType() == PolicyType.GLOBAL_ACCOUNT)
-                && !(object.getSpecification() instanceof AccountPolicySpec))
-                || ((object.getType() == PolicyType.SYNC
-                || object.getType() == PolicyType.GLOBAL_SYNC)
-                && !(object.getSpecification() instanceof SyncPolicySpec)))) {
+                || ((object instanceof AccountPolicy
+                && !(object.getSpecification() instanceof AccountPolicySpec)))
+                || ((object instanceof SyncPolicy
+                && !(object.getSpecification() instanceof SyncPolicySpec))))) {
 
             context.buildConstraintViolationWithTemplate(
-                    "Invalid password specification or password type").
-                    addNode(
-                    EntityViolationType.valueOf(
-                    "Invalid" + object.getClass().getSimpleName()).toString()).
+                    "Invalid policy specification").
+                    addNode(EntityViolationType.valueOf(
+                    "Invalid" + object.getClass().getSimpleName()).name()).
                     addConstraintViolation();
 
             return false;
@@ -70,19 +65,20 @@ public class PolicyValidator extends AbstractValidator
             case GLOBAL_PASSWORD:
                 // just one policy with type PASSWORD
                 final PasswordPolicy passwordPolicy =
-                        (PasswordPolicy) policyDAO.getGlobalPasswordPolicy();
+                        policyDAO.getGlobalPasswordPolicy();
 
                 if (passwordPolicy != null
                         && !passwordPolicy.getId().equals(object.getId())) {
 
                     context.buildConstraintViolationWithTemplate(
                             "Password policy already exists").addNode(
-                            EntityViolationType.InvalidPasswordPolicy.toString()).
+                            EntityViolationType.InvalidPasswordPolicy.name()).
                             addConstraintViolation();
 
                     return false;
                 }
                 break;
+
             case PASSWORD:
                 break;
 
@@ -90,14 +86,14 @@ public class PolicyValidator extends AbstractValidator
 
                 // just one GLOBAL_ACCOUNT policy
                 final AccountPolicy accountPolicy =
-                        (AccountPolicy) policyDAO.getGlobalAccountPolicy();
+                        policyDAO.getGlobalAccountPolicy();
 
                 if (accountPolicy != null
                         && !accountPolicy.getId().equals(object.getId())) {
 
                     context.buildConstraintViolationWithTemplate(
                             "Global Account policy already exists").addNode(
-                            EntityViolationType.InvalidAccountPolicy.toString()).
+                            EntityViolationType.InvalidAccountPolicy.name()).
                             addConstraintViolation();
 
                     return false;
@@ -111,14 +107,14 @@ public class PolicyValidator extends AbstractValidator
 
                 // just one GLOBAL_SYNC policy
                 final SyncPolicy syncPolicy =
-                        (SyncPolicy) policyDAO.getGlobalSyncPolicy();
+                        policyDAO.getGlobalSyncPolicy();
 
                 if (syncPolicy != null
                         && !syncPolicy.getId().equals(object.getId())) {
 
                     context.buildConstraintViolationWithTemplate(
                             "Global Sync policy already exists").addNode(
-                            EntityViolationType.InvalidSyncPolicy.toString()).
+                            EntityViolationType.InvalidSyncPolicy.name()).
                             addConstraintViolation();
 
                     return false;

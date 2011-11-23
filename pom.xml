@@ -101,7 +101,7 @@
         <hibernate-validator.version>4.2.0.Final</hibernate-validator.version>
         <ehcache.version>2.4.6</ehcache.version>
 
-        <wicket.version>1.5.2</wicket.version>
+        <wicket.version>1.5.3</wicket.version>
 
         <groovy.version>1.8.4</groovy.version>
 

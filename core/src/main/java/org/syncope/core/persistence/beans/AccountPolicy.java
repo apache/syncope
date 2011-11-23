@@ -15,9 +15,20 @@
 package org.syncope.core.persistence.beans;
 
 import javax.persistence.Entity;
+import org.syncope.types.PolicyType;
 
 @Entity
 public class AccountPolicy extends Policy {
 
-    private static final long serialVersionUID = 9138550910385232849L;
+    private static final long serialVersionUID = -2767606675667839060L;
+
+    public AccountPolicy() {
+        this(false);
+    }
+
+    public AccountPolicy(boolean global) {
+        super();
+
+        this.type = global ? PolicyType.GLOBAL_ACCOUNT : PolicyType.ACCOUNT;
+    }
 }

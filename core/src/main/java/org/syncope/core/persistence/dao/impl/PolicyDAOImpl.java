@@ -17,7 +17,10 @@ package org.syncope.core.persistence.dao.impl;
 import java.util.List;
 import javax.persistence.Query;
 import org.springframework.stereotype.Repository;
+import org.syncope.core.persistence.beans.AccountPolicy;
+import org.syncope.core.persistence.beans.PasswordPolicy;
 import org.syncope.core.persistence.beans.Policy;
+import org.syncope.core.persistence.beans.SyncPolicy;
 import org.syncope.core.persistence.dao.PolicyDAO;
 import org.syncope.types.PolicyType;
 
@@ -31,7 +34,7 @@ public class PolicyDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    public List<Policy> find(final PolicyType type) {
+    public List<? extends Policy> find(final PolicyType type) {
         final Query query = entityManager.createQuery(
                 "SELECT e FROM Policy e WHERE type=:type");
 
@@ -41,36 +44,24 @@ public class PolicyDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    public Policy getGlobalPasswordPolicy() {
-
-        List<Policy> policies = find(PolicyType.GLOBAL_PASSWORD);
-        if (policies != null && !policies.isEmpty()) {
-            return policies.get(0);
-        } else {
-            return null;
-        }
+    public PasswordPolicy getGlobalPasswordPolicy() {
+        List<? extends Policy> policies = find(PolicyType.GLOBAL_PASSWORD);
+        return policies == null || policies.isEmpty()
+                ? null : (PasswordPolicy) policies.get(0);
     }
 
     @Override
-    public Policy getGlobalAccountPolicy() {
-        List<Policy> policies = find(PolicyType.GLOBAL_ACCOUNT);
-        if (policies != null && !policies.isEmpty()) {
-            return policies.get(0);
-        } else {
-            return null;
-        }
-
+    public AccountPolicy getGlobalAccountPolicy() {
+        List<? extends Policy> policies = find(PolicyType.GLOBAL_ACCOUNT);
+        return policies == null || policies.isEmpty()
+                ? null : (AccountPolicy) policies.get(0);
     }
 
     @Override
-    public Policy getGlobalSyncPolicy() {
-        List<Policy> policies = find(PolicyType.GLOBAL_SYNC);
-        if (policies != null && !policies.isEmpty()) {
-            return policies.get(0);
-        } else {
-            return null;
-        }
-
+    public SyncPolicy getGlobalSyncPolicy() {
+        List<? extends Policy> policies = find(PolicyType.GLOBAL_SYNC);
+        return policies == null || policies.isEmpty()
+                ? null : (SyncPolicy) policies.get(0);
     }
 
     @Override

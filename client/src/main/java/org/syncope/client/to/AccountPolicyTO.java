@@ -24,7 +24,13 @@ public class AccountPolicyTO extends PolicyTO {
     private AccountPolicySpec specification;
 
     public AccountPolicyTO() {
-        setType(PolicyType.ACCOUNT);
+        this(false);
+    }
+
+    public AccountPolicyTO(boolean global) {
+        super();
+
+        this.type = global ? PolicyType.GLOBAL_ACCOUNT : PolicyType.ACCOUNT;
     }
 
     public void setSpecification(final AccountPolicySpec specification) {

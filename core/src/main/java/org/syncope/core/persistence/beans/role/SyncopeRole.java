@@ -46,7 +46,6 @@ import org.syncope.core.persistence.beans.AbstractVirSchema;
 import org.syncope.core.persistence.beans.AccountPolicy;
 import org.syncope.core.persistence.beans.Entitlement;
 import org.syncope.core.persistence.beans.PasswordPolicy;
-import org.syncope.core.persistence.beans.Policy;
 
 @Entity
 @Table(uniqueConstraints =
@@ -366,7 +365,7 @@ public class SyncopeRole extends AbstractAttributable {
      * @return parent password policy if isInheritPasswordPolicy is 'true' and
      * parent is not null. Return local passowrd policy otherwise.
      */
-    public Policy getPasswordPolicy() {
+    public PasswordPolicy getPasswordPolicy() {
         return isInheritPasswordPolicy() && getParent() != null
                 ? getParent().getPasswordPolicy() : passwordPolicy;
     }
@@ -388,7 +387,7 @@ public class SyncopeRole extends AbstractAttributable {
      * @return parent account policy if isInheritAccountPolicy is 'true' and 
      * parent is not null. Return local account policy otherwise.
      */
-    public Policy getAccountPolicy() {
+    public AccountPolicy getAccountPolicy() {
         return isInheritAccountPolicy() && getParent() != null
                 ? getParent().getAccountPolicy() : accountPolicy;
     }

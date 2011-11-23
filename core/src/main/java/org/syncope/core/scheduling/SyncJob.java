@@ -205,9 +205,6 @@ public class SyncJob extends AbstractJob {
                 attribute = obj.getAttributeByName(mapping.getExtAttrName());
             }
 
-            List<Object> values = attribute == null
-                    ? Collections.EMPTY_LIST : attribute.getValue();
-
             AttributeTO attributeTO;
             switch (mapping.getIntMappingType()) {
                 case SyncopeUserId:
@@ -227,7 +224,9 @@ public class SyncJob extends AbstractJob {
                 case UserSchema:
                     attributeTO = new AttributeTO();
                     attributeTO.setSchema(mapping.getIntAttrName());
-                    for (Object value : values) {
+                    for (Object value : attribute == null
+                            ? Collections.EMPTY_LIST : attribute.getValue()) {
+
                         attributeTO.addValue(value.toString());
                     }
                     userTO.addAttribute(attributeTO);
@@ -357,9 +356,6 @@ public class SyncJob extends AbstractJob {
                 ? delta.getUid().getUidValue()
                 : delta.getPreviousUid().getUidValue();
 
-        final SchemaMapping accountIdMap =
-                ((SyncTask) this.task).getResource().getAccountIdMapping();
-
         // ---------------------------------
         // Get sync policy specification
         // ---------------------------------
@@ -372,123 +368,132 @@ public class SyncJob extends AbstractJob {
 
         final List<SyncopeUser> result = new ArrayList<SyncopeUser>();
 
-        try {
-            if (policySpec != null
-                    && policySpec.getAlternativeSearchAttrs() != null
-                    && !policySpec.getAlternativeSearchAttrs().isEmpty()) {
+        if (policySpec != null
+                && !policySpec.getAlternativeSearchAttrs().isEmpty()) {
 
-                // search external attribute name/value 
-                // about each specified name
-                final ConnectorObject object = delta.getObject();
+            // search external attribute name/value 
+            // about each specified name
+            final ConnectorObject object = delta.getObject();
 
-                final Map<String, Attribute> extValues =
-                        new HashMap<String, Attribute>();
+            final Map<String, Attribute> extValues =
+                    new HashMap<String, Attribute>();
 
-                for (SchemaMapping mapping :
-                        ((SyncTask) this.task).getResource().getMappings()) {
+            for (SchemaMapping mapping :
+                    ((SyncTask) this.task).getResource().getMappings()) {
 
-                    String key;
-                    switch (mapping.getIntMappingType()) {
-                        case SyncopeUserId:
-                            key = "id";
-                            break;
-                        case Username:
-                            key = "username";
-                            break;
-                        case Password:
-                            key = "password";
-                            break;
-                        default:
-                            key = mapping.getIntAttrName();
-                    }
-
-                    extValues.put(key, object.getAttributeByName(
-                            mapping.getExtAttrName()));
-                }
-
-                // search user by attributes specified into the policy
-                NodeCond searchCondition = null;
-
-                for (String schema : policySpec.getAlternativeSearchAttrs()) {
-                    Attribute value = extValues.get(schema);
-
-                    AttributeCond.Type type;
-                    String expression = null;
-
-                    if (value == null
-                            || value.getValue() == null
-                            || value.getValue().isEmpty()) {
-                        type = AttributeCond.Type.ISNULL;
-                    } else {
-                        type = AttributeCond.Type.EQ;
-                        expression = value.getValue().size() > 1
-                                ? value.getValue().toString()
-                                : value.getValue().get(0).toString();
-                    }
-
-                    NodeCond nodeCond;
-
-                    // just Username or SyncopeUserId can be selected to be used
-                    if ("id".equalsIgnoreCase(schema)
-                            || "username".equalsIgnoreCase(schema)) {
-
-                        final SyncopeUserCond cond = new SyncopeUserCond();
-                        cond.setSchema(schema);
-                        cond.setType(type);
-                        cond.setExpression(expression);
-
-                        nodeCond = NodeCond.getLeafCond((SyncopeUserCond) cond);
-
-                    } else {
-                        final AttributeCond cond = new AttributeCond();
-                        cond.setSchema(schema);
-                        cond.setType(type);
-                        cond.setExpression(expression);
-
-                        nodeCond = NodeCond.getLeafCond(cond);
-                    }
-
-                    searchCondition = searchCondition != null
-                            ? NodeCond.getAndCond(searchCondition, nodeCond)
-                            : nodeCond;
-                }
-
-                result.addAll(userSearchDAO.search(
-                        EntitlementUtil.getRoleIds(entitlementDAO.findAll()),
-                        searchCondition));
-            } else {
-                final SyncopeUser user;
-
-                switch (accountIdMap.getIntMappingType()) {
-                    case Username:
-                        user = userDAO.find(uid);
-                        if (user != null) {
-                            result.add(user);
-                        }
-                        break;
+                String key;
+                switch (mapping.getIntMappingType()) {
                     case SyncopeUserId:
-                        user = userDAO.find(Long.parseLong(uid));
-                        if (user != null) {
-                            result.add(user);
-                        }
+                        key = "id";
                         break;
-                    case UserSchema:
-                        final UAttrValue value = new UAttrValue();
-                        value.setStringValue(uid);
-                        result.addAll(userDAO.findByAttrValue(
-                                accountIdMap.getIntAttrName(), value));
+
+                    case Username:
+                        key = "username";
                         break;
-                    case UserDerivedSchema:
+
+                    case Password:
+                        key = "password";
+                        break;
+
+                    default:
+                        key = mapping.getIntAttrName();
+                }
+
+                extValues.put(key, object.getAttributeByName(
+                        mapping.getExtAttrName()));
+            }
+
+            // search user by attributes specified into the policy
+            NodeCond searchCondition = null;
+
+            for (String schema : policySpec.getAlternativeSearchAttrs()) {
+                Attribute value = extValues.get(schema);
+
+                AttributeCond.Type type;
+                String expression = null;
+
+                if (value == null
+                        || value.getValue() == null
+                        || value.getValue().isEmpty()) {
+
+                    type = AttributeCond.Type.ISNULL;
+                } else {
+                    type = AttributeCond.Type.EQ;
+                    expression = value.getValue().size() > 1
+                            ? value.getValue().toString()
+                            : value.getValue().get(0).toString();
+                }
+
+                NodeCond nodeCond;
+
+                // just Username or SyncopeUserId can be selected to be used
+                if ("id".equalsIgnoreCase(schema)
+                        || "username".equalsIgnoreCase(schema)) {
+
+                    final SyncopeUserCond cond = new SyncopeUserCond();
+                    cond.setSchema(schema);
+                    cond.setType(type);
+                    cond.setExpression(expression);
+
+                    nodeCond = NodeCond.getLeafCond(cond);
+
+                } else {
+                    final AttributeCond cond = new AttributeCond();
+                    cond.setSchema(schema);
+                    cond.setType(type);
+                    cond.setExpression(expression);
+
+                    nodeCond = NodeCond.getLeafCond(cond);
+                }
+
+                searchCondition = searchCondition != null
+                        ? NodeCond.getAndCond(searchCondition, nodeCond)
+                        : nodeCond;
+            }
+
+            result.addAll(userSearchDAO.search(
+                    EntitlementUtil.getRoleIds(entitlementDAO.findAll()),
+                    searchCondition));
+        } else {
+            final SyncopeUser user;
+
+            final SchemaMapping accountIdMap = ((SyncTask) this.task).
+                    getResource().getAccountIdMapping();
+            switch (accountIdMap.getIntMappingType()) {
+                case Username:
+                    user = userDAO.find(uid);
+                    if (user != null) {
+                        result.add(user);
+                    }
+                    break;
+
+                case SyncopeUserId:
+                    user = userDAO.find(Long.parseLong(uid));
+                    if (user != null) {
+                        result.add(user);
+                    }
+                    break;
+
+                case UserSchema:
+                    final UAttrValue value = new UAttrValue();
+                    value.setStringValue(uid);
+                    result.addAll(userDAO.findByAttrValue(
+                            accountIdMap.getIntAttrName(), value));
+                    break;
+
+                case UserDerivedSchema:
+                    try {
                         result.addAll(userDAO.findByDerAttrValue(
                                 accountIdMap.getIntAttrName(), uid));
-                        break;
-                    default:
-                        LOG.error("Invalid accountId type '{}'",
-                                accountIdMap.getIntMappingType());
-                }
+                    } catch (InvalidSearchConditionException e) {
+                        LOG.error("Could not search for matching users", e);
+                    }
+                    break;
+
+                default:
+                    LOG.error("Invalid accountId type '{}'",
+                            accountIdMap.getIntMappingType());
             }
-        } catch (InvalidSearchConditionException e) {
-            LOG.error("Could not search for matching users", e);
         }
 
         return result;
