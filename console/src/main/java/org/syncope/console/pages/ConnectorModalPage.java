@@ -414,15 +414,15 @@ public class ConnectorModalPage extends BaseModalPage {
         private static final long serialVersionUID = 6025866528093969273L;
 
         @Override
-        public Object getDisplayValue(Boolean object) {
+        public Object getDisplayValue(final Boolean object) {
 
             return object
-                    ? ConnParameterType.OVERRIDABLE.toString()
-                    : ConnParameterType.NOT_OVERRIDABLE.toString();
+                    ? getString(ConnParameterType.OVERRIDABLE.name())
+                    : getString(ConnParameterType.NOT_OVERRIDABLE.name());
         }
 
         @Override
-        public String getIdValue(Boolean object, int index) {
+        public String getIdValue(final Boolean object, final int index) {
             return String.valueOf(object);
         }
     };

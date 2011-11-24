@@ -34,6 +34,7 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -121,8 +122,21 @@ public class PoliciesPanel extends Panel {
         columns.add(new PropertyColumn(
                 new ResourceModel("description"), "description", "description"));
 
-        columns.add(new PropertyColumn(
-                new ResourceModel("type"), "type", "type"));
+        columns.add(new AbstractColumn<PolicyTO>(
+                new ResourceModel("type")) {
+
+            private static final long serialVersionUID = 8263694778917279290L;
+
+            @Override
+            public void populateItem(
+                    final Item<ICellPopulator<PolicyTO>> cellItem,
+                    final String componentId,
+                    final IModel<PolicyTO> model) {
+
+                cellItem.add(new Label(componentId,
+                        getString(model.getObject().getType().name())));
+            }
+        });
 
         columns.add(new AbstractColumn<PolicyTO>(
                 new ResourceModel("edit")) {
@@ -143,7 +157,7 @@ public class PoliciesPanel extends Panel {
                             -7978723352517770644L;
 
                     @Override
-                    public void onClick(AjaxRequestTarget target) {
+                    public void onClick(final AjaxRequestTarget target) {
 
                         mwindow.setPageCreator(new ModalWindow.PageCreator() {
 
@@ -292,11 +306,6 @@ public class PoliciesPanel extends Panel {
         add(paginatorForm);
     }
 
-    /**
-     * Set a WindowClosedCallback for a ModalWindow instance.
-     * @param window
-     * @param container
-     */
     private void setWindowClosedCallback(
             final ModalWindow window,
             final WebMarkupContainer container) {
@@ -308,7 +317,7 @@ public class PoliciesPanel extends Panel {
                             8804221891699487139L;
 
                     @Override
-                    public void onClose(AjaxRequestTarget target) {
+                    public void onClose(final AjaxRequestTarget target) {
                         target.add(container);
                     }
                 });

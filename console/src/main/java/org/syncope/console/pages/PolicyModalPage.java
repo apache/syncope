@@ -20,6 +20,7 @@ import java.util.Arrays;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
@@ -84,16 +85,22 @@ public class PolicyModalPage<T extends PolicyTO> extends BaseModalPage {
                 type.setChoices(Arrays.asList(new PolicyType[]{
                             PolicyType.GLOBAL_ACCOUNT, PolicyType.ACCOUNT}));
                 break;
+
             case GLOBAL_PASSWORD:
             case PASSWORD:
                 type.setChoices(Arrays.asList(new PolicyType[]{
                             PolicyType.GLOBAL_PASSWORD, PolicyType.PASSWORD}));
                 break;
+
             case GLOBAL_SYNC:
             case SYNC:
                 type.setChoices(Arrays.asList(new PolicyType[]{
                             PolicyType.GLOBAL_SYNC, PolicyType.SYNC}));
+
+            default:
         }
+
+        type.setChoiceRenderer(new PolicyTypeRenderer());
 
         type.addRequiredLabel();
         form.add(type);
@@ -142,7 +149,6 @@ public class PolicyModalPage<T extends PolicyTO> extends BaseModalPage {
     }
 
     private AbstractPolicySpec getPolicySpecification(final PolicyTO policyTO) {
-
         AbstractPolicySpec spec;
 
         switch (policyTO.getType()) {
@@ -195,4 +201,14 @@ public class PolicyModalPage<T extends PolicyTO> extends BaseModalPage {
             default:
         }
     }
+
+    private class PolicyTypeRenderer extends ChoiceRenderer<PolicyType> {
+
+        private static final long serialVersionUID = -8993265421104002134L;
+
+        @Override
+        public Object getDisplayValue(final PolicyType object) {
+            return getString(object.name());
+        }
+    };
 }
