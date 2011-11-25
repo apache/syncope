@@ -24,7 +24,7 @@ import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.Type;
 import org.syncope.client.mod.UserMod;
 import org.syncope.client.to.UserTO;
-import org.syncope.core.util.XmlSerializer;
+import org.syncope.core.util.XMLSerializer;
 import org.syncope.types.UserRequestType;
 
 @Entity
@@ -56,23 +56,23 @@ public class UserRequest extends AbstractBaseBean {
     public UserTO getUserTO() {
         return type != UserRequestType.CREATE
                 ? null
-                : XmlSerializer.<UserTO>deserialize(payload);
+                : XMLSerializer.<UserTO>deserialize(payload);
     }
 
     public void setUserTO(final UserTO userTO) {
         type = UserRequestType.CREATE;
-        payload = XmlSerializer.serialize(userTO);
+        payload = XMLSerializer.serialize(userTO);
     }
 
     public UserMod getUserMod() {
         return type != UserRequestType.UPDATE
                 ? null
-                : XmlSerializer.<UserMod>deserialize(payload);
+                : XMLSerializer.<UserMod>deserialize(payload);
     }
 
     public void setUserMod(final UserMod userMod) {
         type = UserRequestType.UPDATE;
-        payload = XmlSerializer.serialize(userMod);
+        payload = XMLSerializer.serialize(userMod);
     }
 
     public Long getUserId() {

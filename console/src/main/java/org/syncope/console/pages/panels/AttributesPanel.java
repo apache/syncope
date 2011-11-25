@@ -31,8 +31,6 @@ import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.syncope.client.to.AbstractAttributableTO;
 import org.syncope.client.to.AttributeTO;
 import org.syncope.client.to.RoleTO;
@@ -46,25 +44,25 @@ import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.syncope.console.wicket.markup.html.form.DateTextFieldPanel;
 import org.syncope.console.wicket.markup.html.form.DateTimeFieldPanel;
 import org.syncope.console.wicket.markup.html.form.FieldPanel;
+import org.syncope.types.SchemaType;
 
 public class AttributesPanel extends Panel {
-
-    /**
-     * Logger.
-     */
-    protected static final Logger LOG =
-            LoggerFactory.getLogger(AttributesPanel.class);
 
     private static final long serialVersionUID = 552437609667518888L;
 
     @SpringBean
     private SchemaRestClient schemaRestClient;
 
+    private final boolean templateMode;
+
     public <T extends AbstractAttributableTO> AttributesPanel(
             final String id,
             final T entityTO,
-            final Form form) {
+            final Form form,
+            final boolean templateMode) {
+
         super(id);
+        this.templateMode = templateMode;
 
         final IModel<Map<String, SchemaTO>> schemas =
                 new LoadableDetachableModel<Map<String, SchemaTO>>() {
@@ -110,28 +108,25 @@ public class AttributesPanel extends Panel {
                 final AttributeTO attributeTO =
                         (AttributeTO) item.getDefaultModelObject();
 
-                item.add(new Label("name", attributeTO.getSchema()));
+                item.add(new Label("name", templateMode
+                        ? attributeTO.getSchema() + " (JEXL)"
+                        : attributeTO.getSchema()));
 
                 final FieldPanel panel = getFieldPanel(
                         schemas.getObject().get(attributeTO.getSchema()),
-                        form,
-                        attributeTO);
+                        form, attributeTO);
 
-                if (schemas.getObject().get(attributeTO.getSchema()).
+                if (templateMode
+                        || !schemas.getObject().get(attributeTO.getSchema()).
                         isMultivalue()) {
 
-                    final MultiValueSelectorPanel multiFieldPanel =
-                            new MultiValueSelectorPanel<String>(
+                    item.add(panel);
+                } else {
+                    item.add(new MultiValueSelectorPanel<String>(
                             "panel",
                             new PropertyModel(attributeTO, "values"),
-                            String.class,
-                            panel);
-
-                    item.add(multiFieldPanel);
-                } else {
-                    item.add(panel);
+                            String.class, panel));
                 }
-
             }
         };
 
@@ -180,18 +175,19 @@ public class AttributesPanel extends Panel {
 
         final FieldPanel panel;
 
-        final boolean required =
-                schemaTO.getMandatoryCondition().equalsIgnoreCase("true");
+        final boolean required = templateMode
+                ? false
+                : schemaTO.getMandatoryCondition().equalsIgnoreCase("true");
 
-        final boolean readOnly = schemaTO.isReadonly();
+        final boolean readOnly = templateMode ? false : schemaTO.isReadonly();
 
-        switch (schemaTO.getType()) {
+        final SchemaType type = templateMode
+                ? SchemaType.String : schemaTO.getType();
+        switch (type) {
             case Boolean:
                 panel = new AjaxCheckBoxPanel(
                         "panel", schemaTO.getName(), new Model(), true);
-
                 panel.setRequired(required);
-
                 break;
 
             case Date:
@@ -199,42 +195,34 @@ public class AttributesPanel extends Panel {
                     panel = new DateTextFieldPanel(
                             "panel", schemaTO.getName(), new Model(), true,
                             schemaTO.getConversionPattern());
-
                     if (required) {
                         panel.addRequiredLabel();
                     }
                 } else {
                     panel = new DateTimeFieldPanel(
                             "panel", schemaTO.getName(), new Model(), true);
-
                     if (required) {
                         panel.addRequiredLabel();
                         ((DateTimeFieldPanel) panel).setFormValidator(form);
                     }
-
                     panel.setStyleShet("ui-widget-content ui-corner-all");
                 }
-
                 break;
 
             case Enum:
                 panel = new AjaxDropDownChoicePanel<String>(
                         "panel", schemaTO.getName(), new Model(), true);
-
                 ((AjaxDropDownChoicePanel) panel).setChoices(
                         Arrays.asList(schemaTO.getEnumerationValues().
                         split(Schema.enumValuesSeparator)));
-
                 if (required) {
                     panel.addRequiredLabel();
                 }
-
                 break;
 
             default:
                 panel = new AjaxTextFieldPanel(
                         "panel", schemaTO.getName(), new Model(), true);
-
                 if (required) {
                     panel.addRequiredLabel();
                 }

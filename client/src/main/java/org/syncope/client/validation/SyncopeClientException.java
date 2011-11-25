@@ -21,7 +21,10 @@ import org.syncope.types.SyncopeClientExceptionType;
 
 public class SyncopeClientException extends Exception {
 
+    private static final long serialVersionUID = 3380920886511913475L;
+
     private SyncopeClientExceptionType type;
+
     private Set<String> elements;
 
     public SyncopeClientException() {
@@ -60,5 +63,9 @@ public class SyncopeClientException extends Exception {
 
     public void setElements(List<String> elements) {
         this.elements.addAll(elements);
+    }
+
+    public boolean isEmpty() {
+        return elements.isEmpty();
     }
 }

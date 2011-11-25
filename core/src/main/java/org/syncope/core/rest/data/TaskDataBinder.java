@@ -16,6 +16,7 @@ package org.syncope.core.rest.data;
 
 import java.util.List;
 import javassist.NotFoundException;
+import org.apache.commons.lang.StringUtils;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
@@ -23,26 +24,31 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.stereotype.Component;
-import org.syncope.client.to.NotificationTaskTO;
+import org.syncope.client.to.AbstractAttributableTO;
+import org.syncope.client.to.AttributeTO;
+import org.syncope.client.to.MembershipTO;
 import org.syncope.client.to.PropagationTaskTO;
 import org.syncope.client.to.SchedTaskTO;
 import org.syncope.client.to.SyncTaskTO;
 import org.syncope.client.to.TaskExecTO;
 import org.syncope.client.to.TaskTO;
+import org.syncope.client.to.UserTO;
+import org.syncope.client.validation.SyncopeClientCompositeErrorException;
+import org.syncope.client.validation.SyncopeClientException;
 import org.syncope.core.init.JobInstanceLoader;
 import org.syncope.core.persistence.beans.SchedTask;
 import org.syncope.core.persistence.beans.SyncTask;
 import org.syncope.core.persistence.beans.ExternalResource;
-import org.syncope.core.persistence.beans.NotificationTask;
 import org.syncope.core.persistence.beans.PropagationTask;
 import org.syncope.core.persistence.beans.Task;
 import org.syncope.core.persistence.beans.TaskExec;
-import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.dao.ResourceDAO;
-import org.syncope.core.persistence.dao.RoleDAO;
+import org.syncope.core.util.JexlUtil;
 import org.syncope.core.util.TaskUtil;
+import org.syncope.types.SyncopeClientExceptionType;
 
 @Component
 public class TaskDataBinder {
@@ -54,8 +60,7 @@ public class TaskDataBinder {
             TaskDataBinder.class);
 
     private static final String[] IGNORE_TASK_PROPERTIES = {
-        "executions", "resource", "defaultResources", "defaultRoles",
-        "updateIdentities"};
+        "executions", "resource"};
 
     private static final String[] IGNORE_TASK_EXECUTION_PROPERTIES = {
         "id", "task"};
@@ -64,29 +69,66 @@ public class TaskDataBinder {
     private ResourceDAO resourceDAO;
 
     @Autowired
-    private RoleDAO roleDAO;
-
-    @Autowired
     private SchedulerFactoryBean scheduler;
 
+    @Autowired
+    private JexlUtil jexlUtil;
+
+    private void checkJexl(final AbstractAttributableTO attributableTO,
+            final SyncopeClientException sce) {
+
+        for (AttributeTO attrTO : attributableTO.getAttributes()) {
+            if (!attrTO.getValues().isEmpty()
+                    && !jexlUtil.isExpressionValid(attrTO.getValues().get(0))) {
+
+                sce.addElement("Invalid JEXL: " + attrTO.getValues().get(0));
+            }
+        }
+        for (AttributeTO attrTO : attributableTO.getVirtualAttributes()) {
+            if (!attrTO.getValues().isEmpty()
+                    && !jexlUtil.isExpressionValid(attrTO.getValues().get(0))) {
+
+                sce.addElement("Invalid JEXL: " + attrTO.getValues().get(0));
+            }
+        }
+    }
+
     private void fill(final SyncTask task, final SyncTaskTO taskTO) {
-        for (String resourceName : taskTO.getDefaultResources()) {
-            ExternalResource resource = resourceDAO.find(resourceName);
-            if (resource == null) {
-                LOG.warn("Ignoring invalid resource " + resourceName);
-            } else {
-                task.addDefaultResource(resource);
+        if (taskTO.getUserTemplate() != null) {
+            UserTO template = taskTO.getUserTemplate();
+
+            // 1. validate JEXL expressions in user template
+            SyncopeClientException sce = new SyncopeClientException(
+                    SyncopeClientExceptionType.InvalidSyncTask);
+
+            if (StringUtils.isNotBlank(template.getUsername())
+                    && !jexlUtil.isExpressionValid(template.getUsername())) {
+
+                sce.addElement("Invalid JEXL: " + template.getUsername());
+            }
+            if (StringUtils.isNotBlank(template.getPassword())
+                    && !jexlUtil.isExpressionValid(template.getPassword())) {
+
+                sce.addElement("Invalid JEXL: " + template.getPassword());
+            }
+
+            checkJexl(template, sce);
+
+            for (MembershipTO memb : template.getMemberships()) {
+                checkJexl(memb, sce);
+            }
+
+            if (!sce.isEmpty()) {
+                SyncopeClientCompositeErrorException scce =
+                        new SyncopeClientCompositeErrorException(
+                        HttpStatus.BAD_REQUEST);
+                scce.addException(sce);
+                throw scce;
             }
         }
 
-        for (Long roleId : taskTO.getDefaultRoles()) {
-            SyncopeRole role = roleDAO.find(roleId);
-            if (role == null) {
-                LOG.warn("Ignoring invalid role " + roleId);
-            } else {
-                task.addDefaultRole(role);
-            }
-        }
+        // 2. all JEXL expressions are valid: accept user template
+        task.setUserTemplate(taskTO.getUserTemplate());
 
         task.setPerformCreate(taskTO.isPerformCreate());
         task.setPerformUpdate(taskTO.isPerformUpdate());
@@ -166,7 +208,6 @@ public class TaskDataBinder {
     }
 
     public TaskTO getTaskTO(final Task task, final TaskUtil taskUtil) {
-
         TaskTO taskTO = taskUtil.newTaskTO();
         BeanUtils.copyProperties(task, taskTO, IGNORE_TASK_PROPERTIES);
 
@@ -190,32 +231,12 @@ public class TaskDataBinder {
 
                 ((SyncTaskTO) taskTO).setResource(
                         ((SyncTask) task).getResource().getName());
-                for (ExternalResource resource :
-                        ((SyncTask) task).getDefaultResources()) {
-
-                    ((SyncTaskTO) taskTO).addDefaultResource(
-                            resource.getName());
-                }
-                for (SyncopeRole role :
-                        ((SyncTask) task).getDefaultRoles()) {
-
-                    ((SyncTaskTO) taskTO).addDefaultRole(role.getId());
-                }
-                ((SyncTaskTO) taskTO).setPerformCreate(
-                        ((SyncTask) task).isPerformCreate());
-                ((SyncTaskTO) taskTO).setPerformUpdate(
-                        ((SyncTask) task).isPerformUpdate());
-                ((SyncTaskTO) taskTO).setPerformDelete(
-                        ((SyncTask) task).isPerformDelete());
-
-                ((SyncTaskTO) taskTO).setJobActionsClassName(
-                        ((SyncTask) task).getJobActionsClassName());
                 break;
 
             case NOTIFICATION:
-                BeanUtils.copyProperties((NotificationTask) task,
-                        (NotificationTaskTO) taskTO, IGNORE_TASK_PROPERTIES);
                 break;
+
+            default:
         }
 
         return taskTO;

@@ -28,6 +28,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.mod.UserMod;
+import org.syncope.client.to.SyncTaskTO;
 import org.syncope.client.to.UserRequestTO;
 import org.syncope.client.to.UserTO;
 import org.syncope.client.util.AttributableOperations;
@@ -38,6 +39,7 @@ import org.syncope.console.pages.panels.ResourcesPanel;
 import org.syncope.console.pages.panels.RolesPanel;
 import org.syncope.console.pages.panels.UserDetailsPanel;
 import org.syncope.console.pages.panels.VirtualAttributesPanel;
+import org.syncope.console.rest.TaskRestClient;
 import org.syncope.console.rest.UserRequestRestClient;
 import org.syncope.console.rest.UserRestClient;
 
@@ -46,13 +48,24 @@ import org.syncope.console.rest.UserRestClient;
  */
 public class UserModalPage extends BaseModalPage {
 
+    public enum Mode {
+
+        ADMIN,
+        SELF,
+        TEMPLATE;
+
+    }
+
     private static final long serialVersionUID = 5002005009737457667L;
 
     @SpringBean
-    private UserRestClient restClient;
+    private UserRestClient userRestClient;
 
     @SpringBean
     private UserRequestRestClient requestRestClient;
+
+    @SpringBean
+    private TaskRestClient taskRestClient;
 
     private final PageReference callerPageRef;
 
@@ -62,7 +75,9 @@ public class UserModalPage extends BaseModalPage {
 
     private UserTO userTO;
 
-    private boolean self = false;
+    private SyncTaskTO syncTaskTO;
+
+    private Mode mode = Mode.ADMIN;
 
     private UserTO initialUserTO;
 
@@ -75,20 +90,35 @@ public class UserModalPage extends BaseModalPage {
         this.callerPageRef = callerPageRef;
         this.window = window;
         this.userRequestTO = userRequestTO;
+        this.mode = Mode.SELF;
+
+        setupModalPage();
+    }
+
+    public UserModalPage(final PageReference callerPageRef,
+            final ModalWindow window,
+            final SyncTaskTO syncTaskTO) {
+
+        super();
+
+        this.callerPageRef = callerPageRef;
+        this.window = window;
+        this.syncTaskTO = syncTaskTO;
+        this.mode = Mode.TEMPLATE;
 
         setupModalPage();
     }
 
     public UserModalPage(final PageReference callerPageRef,
             final ModalWindow window, final UserTO userTO,
-            final boolean self) {
+            final Mode mode) {
 
         super();
 
         this.callerPageRef = callerPageRef;
         this.window = window;
         this.userTO = userTO;
-        this.self = self;
+        this.mode = mode == null ? Mode.ADMIN : mode;
 
         setupModalPage();
     }
@@ -109,7 +139,7 @@ public class UserModalPage extends BaseModalPage {
                     break;
 
                 case UPDATE:
-                    initialUserTO = restClient.read(
+                    initialUserTO = userRestClient.read(
                             userRequestTO.getUserMod().getId());
                     userTO = AttributableOperations.apply(
                             initialUserTO, userRequestTO.getUserMod());
@@ -118,6 +148,9 @@ public class UserModalPage extends BaseModalPage {
                 case DELETE:
                 default:
             }
+        }
+        if (syncTaskTO != null) {
+            userTO = syncTaskTO.getUserTemplate();
         }
 
         if (initialUserTO == null && userTO.getId() > 0) {
@@ -130,20 +163,20 @@ public class UserModalPage extends BaseModalPage {
                 ? getString("new") : ""));
 
         final Form form = new Form("UserForm");
-
         form.setModel(new CompoundPropertyModel(userTO));
 
         //--------------------------------
         // User details
         //--------------------------------
         form.add(new UserDetailsPanel("details", userTO, form,
-                userRequestTO == null));
+                userRequestTO == null, mode == Mode.TEMPLATE));
         //--------------------------------
 
         //--------------------------------
         // Attributes panel
         //--------------------------------
-        form.add(new AttributesPanel("attributes", userTO, form));
+        form.add(new AttributesPanel("attributes", userTO, form,
+                mode == Mode.TEMPLATE));
         //--------------------------------
 
         //--------------------------------
@@ -155,7 +188,8 @@ public class UserModalPage extends BaseModalPage {
         //--------------------------------
         // Virtual attributes panel
         //--------------------------------
-        form.add(new VirtualAttributesPanel("virtualAttributes", userTO));
+        form.add(new VirtualAttributesPanel("virtualAttributes", userTO,
+                mode == Mode.TEMPLATE));
         //--------------------------------
 
         //--------------------------------
@@ -167,7 +201,7 @@ public class UserModalPage extends BaseModalPage {
         //--------------------------------
         // Roles panel
         //--------------------------------
-        form.add(new RolesPanel("roles", userTO));
+        form.add(new RolesPanel("roles", userTO, mode == Mode.TEMPLATE));
         //--------------------------------
 
         final AjaxButton submit = new IndicatingAjaxButton(
@@ -182,13 +216,25 @@ public class UserModalPage extends BaseModalPage {
                 final UserTO updatedUserTO = (UserTO) form.getModelObject();
                 try {
                     if (updatedUserTO.getId() == 0) {
-                        if (self) {
-                            requestRestClient.requestCreate(updatedUserTO);
-                        } else {
-                            restClient.create(updatedUserTO);
-                            if (userRequestTO != null) {
-                                requestRestClient.delete(userRequestTO.getId());
-                            }
+                        switch (mode) {
+                            case SELF:
+                                requestRestClient.requestCreate(updatedUserTO);
+                                break;
+
+                            case ADMIN:
+                            default:
+                                userRestClient.create(updatedUserTO);
+                                if (userRequestTO != null) {
+                                    requestRestClient.delete(
+                                            userRequestTO.getId());
+                                }
+                                break;
+
+                            case TEMPLATE:
+                                syncTaskTO.setUserTemplate(updatedUserTO);
+                                taskRestClient.updateSyncTask(syncTaskTO);
+                                break;
+
                         }
                     } else {
                         UserMod userMod = AttributableOperations.diff(
@@ -196,10 +242,10 @@ public class UserModalPage extends BaseModalPage {
 
                         // update user just if it is changed
                         if (!userMod.isEmpty()) {
-                            if (self) {
+                            if (mode == Mode.SELF) {
                                 requestRestClient.requestUpdate(userMod);
                             } else {
-                                restClient.update(userMod);
+                                userRestClient.update(userMod);
                                 if (userRequestTO != null) {
                                     requestRestClient.delete(
                                             userRequestTO.getId());
@@ -229,7 +275,7 @@ public class UserModalPage extends BaseModalPage {
             }
         };
 
-        if (!self) {
+        if (mode == Mode.ADMIN) {
             String allowedRoles = userTO.getId() == 0
                     ? xmlRolesReader.getAllAllowedRoles("Users", "create")
                     : xmlRolesReader.getAllAllowedRoles("Users", "update");

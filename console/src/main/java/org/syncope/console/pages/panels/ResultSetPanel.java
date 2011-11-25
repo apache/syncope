@@ -60,7 +60,6 @@ import org.syncope.console.commons.XMLRolesReader;
 import org.syncope.console.pages.BasePage;
 import org.syncope.console.pages.DisplayAttributesModalPage;
 import org.syncope.console.pages.UserModalPage;
-import org.syncope.console.pages.Users;
 import org.syncope.console.rest.UserRestClient;
 import org.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
 import org.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
@@ -72,7 +71,7 @@ import org.syncope.console.wicket.markup.html.form.EditLinkPanel;
 public class ResultSetPanel extends Panel implements IEventSource {
 
     private static final long serialVersionUID = -9170191461250434024L;
-    
+
     /**
      * Logger.
      */
@@ -421,7 +420,7 @@ public class ResultSetPanel extends Panel implements IEventSource {
                                                 page.getPageReference(),
                                                 editmodal,
                                                 model.getObject(),
-                                                false);
+                                                UserModalPage.Mode.ADMIN);
                                     }
                                 });
 

@@ -13,19 +13,17 @@
  */
 package org.syncope.core.persistence.beans;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 import javax.persistence.Basic;
 import javax.persistence.Entity;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-import org.syncope.core.persistence.beans.role.SyncopeRole;
+import org.hibernate.annotations.Type;
+import org.syncope.client.to.UserTO;
 import org.syncope.core.persistence.validation.entity.SyncTaskCheck;
 import org.syncope.core.scheduling.SyncJob;
+import org.syncope.core.util.XMLSerializer;
 
 @Entity
 @SyncTaskCheck
@@ -39,11 +37,9 @@ public class SyncTask extends SchedTask {
     @ManyToOne
     private ExternalResource resource;
 
-    @OneToMany
-    private List<ExternalResource> defaultResources;
-
-    @OneToMany
-    private List<SyncopeRole> defaultRoles;
+    @Lob
+    @Type(type = "org.hibernate.type.StringClobType")
+    private String userTemplate;
 
     @Basic
     @Min(0)
@@ -68,8 +64,6 @@ public class SyncTask extends SchedTask {
     public SyncTask() {
         super();
 
-        defaultResources = new ArrayList<ExternalResource>();
-        defaultRoles = new ArrayList<SyncopeRole>();
         super.setJobClassName(SyncJob.class.getName());
     }
 
@@ -85,62 +79,14 @@ public class SyncTask extends SchedTask {
         this.resource = resource;
     }
 
-    public boolean addDefaultResource(ExternalResource resource) {
-        return resource != null && !defaultResources.contains(resource)
-                && defaultResources.add(resource);
+    public UserTO getUserTemplate() {
+        return userTemplate == null
+                ? new UserTO()
+                : XMLSerializer.<UserTO>deserialize(userTemplate);
     }
 
-    public boolean removeDefaultResource(ExternalResource resource) {
-        return resource != null && defaultResources.remove(resource);
-    }
-
-    public Set<String> getDefaultResourceNames() {
-        Set<String> defaultResourceNames = new HashSet<String>(
-                getDefaultResources().size());
-        for (ExternalResource defaultResource : getDefaultResources()) {
-            defaultResourceNames.add(defaultResource.getName());
-        }
-        return defaultResourceNames;
-    }
-
-    public List<ExternalResource> getDefaultResources() {
-        return defaultResources;
-    }
-
-    public void setDefaultResources(List<ExternalResource> defaultResources) {
-        this.defaultResources.clear();
-        if (defaultResources != null && !defaultResources.isEmpty()) {
-            this.defaultResources.addAll(defaultResources);
-        }
-    }
-
-    public boolean addDefaultRole(SyncopeRole role) {
-        return role != null && !defaultRoles.contains(role)
-                && defaultRoles.add(role);
-    }
-
-    public boolean removeDefaultRole(SyncopeRole role) {
-        return role != null && defaultRoles.remove(role);
-    }
-
-    public Set<Long> getDefaultRoleIds() {
-        Set<Long> defaultRoleIds = new HashSet<Long>(
-                getDefaultRoles().size());
-        for (SyncopeRole defaultRole : getDefaultRoles()) {
-            defaultRoleIds.add(defaultRole.getId());
-        }
-        return defaultRoleIds;
-    }
-
-    public List<SyncopeRole> getDefaultRoles() {
-        return defaultRoles;
-    }
-
-    public void setDefaultRoles(List<SyncopeRole> defaultRoles) {
-        this.defaultRoles.clear();
-        if (defaultRoles != null && !defaultRoles.isEmpty()) {
-            this.defaultRoles.addAll(defaultRoles);
-        }
+    public void setUserTemplate(final UserTO userTemplate) {
+        this.userTemplate = XMLSerializer.serialize(userTemplate);
     }
 
     public boolean isPerformCreate() {

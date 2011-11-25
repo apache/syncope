@@ -86,6 +86,44 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         return user;
     }
 
+    @Transactional(readOnly = true)
+    public SyncopeUser getUserFromUsername(final String username)
+            throws NotFoundException, UnauthorizedRoleException {
+
+        if (username == null) {
+            throw new NotFoundException("Null username");
+        }
+
+        SyncopeUser user = userDAO.find(username);
+        if (user == null) {
+            throw new NotFoundException("User " + username);
+        }
+
+        Set<Long> roleIds = user.getRoleIds();
+        Set<Long> adminRoleIds = EntitlementUtil.getRoleIds(
+                EntitlementUtil.getOwnedEntitlementNames());
+        roleIds.removeAll(adminRoleIds);
+        if (!roleIds.isEmpty()) {
+            throw new UnauthorizedRoleException(roleIds);
+        }
+
+        return user;
+    }
+
+    private CipherAlgorithm getCipherAlgoritm() {
+        CipherAlgorithm cipherAlgoritm;
+
+        try {
+            cipherAlgoritm = CipherAlgorithm.valueOf(
+                    confDAO.find("password.cipher.algorithm").getValue());
+        } catch (Exception e) {
+            LOG.error("Cipher algorithm nof found. Let's use AES", e);
+            cipherAlgoritm = CipherAlgorithm.AES;
+        }
+
+        return cipherAlgoritm;
+    }
+
     public void create(final SyncopeUser user, final UserTO userTO)
             throws SyncopeClientCompositeErrorException {
 
@@ -326,16 +364,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         return propByRes;
     }
 
-    /**
-     * Generate a transfer object for the given JPA entity.
-     *
-     * @param userId user id
-     * @return transfer object
-     */
-    @Transactional(readOnly = true)
-    public UserTO getUserTO(final Long userId) {
-        SyncopeUser user = userDAO.find(userId);
-
+    public UserTO getUserTO(final SyncopeUser user) {
         UserTO userTO = new UserTO();
 
         BeanUtils.copyProperties(user, userTO, IGNORE_USER_PROPERTIES);
@@ -365,17 +394,17 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         return userTO;
     }
 
-    private CipherAlgorithm getCipherAlgoritm() {
-        CipherAlgorithm cipherAlgoritm;
+    @Transactional(readOnly = true)
+    public UserTO getUserTO(final String username)
+            throws NotFoundException, UnauthorizedRoleException {
 
-        try {
-            cipherAlgoritm = CipherAlgorithm.valueOf(
-                    confDAO.find("password.cipher.algorithm").getValue());
-        } catch (Exception e) {
-            LOG.error("Cipher algorithm nof found. Let's use AES", e);
-            cipherAlgoritm = CipherAlgorithm.AES;
-        }
+        return getUserTO(getUserFromUsername(username));
+    }
 
-        return cipherAlgoritm;
+    @Transactional(readOnly = true)
+    public UserTO getUserTO(final Long userId)
+            throws NotFoundException, UnauthorizedRoleException {
+
+        return getUserTO(getUserFromId(userId));
     }
 }

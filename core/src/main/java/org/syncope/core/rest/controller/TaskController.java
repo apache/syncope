@@ -378,6 +378,8 @@ public class TaskController extends AbstractController {
                 result.setStatus("JOB_FIRED");
                 result.setMessage("Job fired; waiting for results...");
                 break;
+
+            default:
         }
         LOG.debug("Execution finished for {}, {}", task, result);
 
@@ -429,7 +431,7 @@ public class TaskController extends AbstractController {
             default:
         }
 
-        if (!invalidReportException.getElements().isEmpty()) {
+        if (!invalidReportException.isEmpty()) {
             SyncopeClientCompositeErrorException scce =
                     new SyncopeClientCompositeErrorException(
                     HttpStatus.BAD_REQUEST);

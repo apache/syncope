@@ -158,7 +158,8 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
                                                     BasePage.this.
                                                     getPageReference(),
                                                     editProfileModalWin,
-                                                    userTO, true);
+                                                    userTO, 
+                                                    UserModalPage.Mode.SELF);
                                         }
                                     });
 

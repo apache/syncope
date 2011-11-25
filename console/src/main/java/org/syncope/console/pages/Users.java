@@ -75,7 +75,8 @@ public class Users extends BasePage {
                     public Page createPage() {
                         return new UserModalPage(
                                 Users.this.getPageReference(),
-                                editModalWin, new UserTO(), false);
+                                editModalWin, new UserTO(),
+                                UserModalPage.Mode.ADMIN);
                     }
                 });
 

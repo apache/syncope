@@ -263,7 +263,7 @@ public class ResourceDataBinder {
 
         // Throw composite exception if there is at least one element set
         // in the composing exceptions
-        if (!requiredValuesMissing.getElements().isEmpty()) {
+        if (!requiredValuesMissing.isEmpty()) {
             compositeErrorException.addException(requiredValuesMissing);
         }
 

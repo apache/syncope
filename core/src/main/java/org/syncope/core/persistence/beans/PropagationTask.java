@@ -14,10 +14,6 @@
  */
 package org.syncope.core.persistence.beans;
 
-import com.thoughtworks.xstream.XStream;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.util.Collections;
 import java.util.Set;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -26,9 +22,8 @@ import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import org.hibernate.annotations.Type;
 import org.identityconnectors.framework.common.objects.Attribute;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.syncope.core.persistence.validation.entity.PropagationTaskCheck;
-import org.syncope.core.util.ApplicationContextManager;
+import org.syncope.core.util.XMLSerializer;
 import org.syncope.types.PropagationMode;
 import org.syncope.types.PropagationOperation;
 
@@ -93,31 +88,11 @@ public class PropagationTask extends Task {
     }
 
     public Set<Attribute> getAttributes() {
-        Set<Attribute> result = Collections.EMPTY_SET;
-
-        ConfigurableApplicationContext context =
-                ApplicationContextManager.getApplicationContext();
-        XStream xStream = context.getBean(XStream.class);
-        try {
-            result = (Set<Attribute>) xStream.fromXML(
-                    URLDecoder.decode(xmlAttributes, "UTF-8"));
-        } catch (Throwable t) {
-            LOG.error("During attribute deserialization", t);
-        }
-
-        return result;
+        return XMLSerializer.<Set<Attribute>>deserialize(xmlAttributes);
     }
 
     public void setAttributes(final Set<Attribute> attributes) {
-        ConfigurableApplicationContext context =
-                ApplicationContextManager.getApplicationContext();
-        XStream xStream = context.getBean(XStream.class);
-        try {
-            xmlAttributes = URLEncoder.encode(
-                    xStream.toXML(attributes), "UTF-8");
-        } catch (Throwable t) {
-            LOG.error("During attribute serialization", t);
-        }
+        xmlAttributes = XMLSerializer.serialize(attributes);
     }
 
     public PropagationMode getPropagationMode() {

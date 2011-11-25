@@ -24,6 +24,7 @@ import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import org.syncope.client.to.UserTO;
 import org.syncope.core.AbstractTest;
 import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.core.persistence.beans.PropagationTask;
@@ -94,7 +95,7 @@ public class TaskTest extends AbstractTest {
         assertNotNull(resource);
 
         SyncTask task = new SyncTask();
-        task.addDefaultResource(resource);
+        task.setUserTemplate(new UserTO());
         task.setCronExpression("BLA BLA");
 
         // this save() fails because of an invalid Cron Expression

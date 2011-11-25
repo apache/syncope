@@ -43,11 +43,19 @@ public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
                 "suspend", "reactivate", "delete"});
 
     @Override
-    public WorkflowResult<Map.Entry<Long, Boolean>> create(final UserTO userTO)
+    public WorkflowResult<Map.Entry<Long, Boolean>> create(final UserTO userTO,
+            final boolean disablePwdPolicyCheck)
             throws WorkflowException {
 
         SyncopeUser user = new SyncopeUser();
         dataBinder.create(user, userTO);
+        
+        // this will make SyncopeUserValidator not to consider
+        // password policies at all
+        if (disablePwdPolicyCheck) {
+            user.removeClearPassword();
+        }
+        
         user.setStatus("created");
         user = userDAO.save(user);
 
@@ -157,7 +165,7 @@ public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    public WorkflowFormTO claimForm(final String taskId, final String userName)
+    public WorkflowFormTO claimForm(final String taskId, final String username)
             throws NotFoundException, WorkflowException {
 
         throw new WorkflowException(
@@ -165,7 +173,7 @@ public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    public Long submitForm(final WorkflowFormTO form, final String userName)
+    public Long submitForm(final WorkflowFormTO form, final String username)
             throws NotFoundException, WorkflowException {
 
         throw new WorkflowException(

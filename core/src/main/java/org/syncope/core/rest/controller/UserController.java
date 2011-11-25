@@ -143,7 +143,7 @@ public class UserController {
                 EntitlementUtil.getOwnedEntitlementNames()));
         List<UserTO> userTOs = new ArrayList<UserTO>(users.size());
         for (SyncopeUser user : users) {
-            userTOs.add(dataBinder.getUserTO(user.getId()));
+            userTOs.add(dataBinder.getUserTO(user));
         }
 
         return userTOs;
@@ -163,7 +163,7 @@ public class UserController {
         List<SyncopeUser> users = userDAO.findAll(adminRoleIds, page, size);
         List<UserTO> userTOs = new ArrayList<UserTO>(users.size());
         for (SyncopeUser user : users) {
-            userTOs.add(dataBinder.getUserTO(user.getId()));
+            userTOs.add(dataBinder.getUserTO(user));
         }
 
         return userTOs;
@@ -176,9 +176,17 @@ public class UserController {
     public UserTO read(@PathVariable("userId") final Long userId)
             throws NotFoundException, UnauthorizedRoleException {
 
-        SyncopeUser user = dataBinder.getUserFromId(userId);
+        return dataBinder.getUserTO(userId);
+    }
 
-        return dataBinder.getUserTO(user.getId());
+    @PreAuthorize("hasRole('USER_READ')")
+    @RequestMapping(method = RequestMethod.GET,
+    value = "/read")
+    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
+    public UserTO read(@RequestParam("username") final String username)
+            throws NotFoundException, UnauthorizedRoleException {
+
+        return dataBinder.getUserTO(username);
     }
 
     @PreAuthorize("hasRole('USER_READ')")
@@ -200,7 +208,7 @@ public class UserController {
                 getOwnedEntitlementNames()), searchCondition);
         List<UserTO> result = new ArrayList<UserTO>(matchingUsers.size());
         for (SyncopeUser user : matchingUsers) {
-            result.add(dataBinder.getUserTO(user.getId()));
+            result.add(dataBinder.getUserTO(user));
         }
 
         return result;
@@ -230,7 +238,7 @@ public class UserController {
 
         final List<UserTO> result = new ArrayList<UserTO>(matchingUsers.size());
         for (SyncopeUser user : matchingUsers) {
-            result.add(dataBinder.getUserTO(user.getId()));
+            result.add(dataBinder.getUserTO(user));
         }
 
         return result;
@@ -468,7 +476,8 @@ public class UserController {
     value = "/workflow/form/submit")
     @Transactional(rollbackFor = {Throwable.class})
     public UserTO submitForm(@RequestBody final WorkflowFormTO form)
-            throws NotFoundException, WorkflowException, PropagationException {
+            throws NotFoundException, WorkflowException, PropagationException,
+            UnauthorizedRoleException {
 
         LOG.debug("About to process form {}", form);
 

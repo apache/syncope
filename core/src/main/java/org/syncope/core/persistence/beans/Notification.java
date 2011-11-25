@@ -32,7 +32,7 @@ import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.Type;
 import org.syncope.client.search.NodeCond;
 import org.syncope.core.persistence.validation.entity.NotificationCheck;
-import org.syncope.core.util.XmlSerializer;
+import org.syncope.core.util.XMLSerializer;
 import org.syncope.types.TraceLevel;
 
 @NotificationCheck
@@ -86,7 +86,7 @@ public class Notification extends AbstractBaseBean {
     }
 
     public NodeCond getAbout() {
-        NodeCond result = XmlSerializer.<NodeCond>deserialize(xmlAbout);
+        NodeCond result = XMLSerializer.<NodeCond>deserialize(xmlAbout);
         if (result == null) {
             result = new NodeCond();
         }
@@ -98,11 +98,11 @@ public class Notification extends AbstractBaseBean {
             about = new NodeCond();
         }
 
-        xmlAbout = XmlSerializer.serialize(about);
+        xmlAbout = XMLSerializer.serialize(about);
     }
 
     public NodeCond getRecipients() {
-        NodeCond result = XmlSerializer.<NodeCond>deserialize(xmlRecipients);
+        NodeCond result = XMLSerializer.<NodeCond>deserialize(xmlRecipients);
         if (result == null) {
             result = new NodeCond();
         }
@@ -114,7 +114,7 @@ public class Notification extends AbstractBaseBean {
             recipients = new NodeCond();
         }
 
-        xmlRecipients = XmlSerializer.serialize(recipients);
+        xmlRecipients = XMLSerializer.serialize(recipients);
     }
 
     public List<String> getEvents() {

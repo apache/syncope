@@ -52,7 +52,7 @@ public abstract class AbstractDerAttr extends AbstractBaseBean {
         final JexlUtil jexlUtil = context.getBean(JexlUtil.class);
 
         // Prepare context using user attributes
-        final JexlContext jexlContext = jexlUtil.addAttributesToContext(
+        final JexlContext jexlContext = jexlUtil.addAttrsToContext(
                 attributes, null);
 
         final AbstractAttributable owner = getOwner();

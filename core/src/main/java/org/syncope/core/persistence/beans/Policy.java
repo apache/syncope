@@ -22,8 +22,8 @@ import javax.persistence.Id;
 import javax.persistence.Lob;
 
 import org.hibernate.annotations.Type;
-import org.syncope.core.util.XmlSerializer;
 import org.syncope.core.persistence.validation.entity.PolicyCheck;
+import org.syncope.core.util.XMLSerializer;
 import org.syncope.types.AbstractPolicySpec;
 import org.syncope.types.PolicyType;
 
@@ -68,13 +68,12 @@ public abstract class Policy extends AbstractBaseBean {
     }
 
     public <T extends AbstractPolicySpec> T getSpecification() {
-        T result = XmlSerializer.<T>deserialize(specification);
-        return result;
+        return XMLSerializer.<T>deserialize(specification);
     }
 
     public <T extends AbstractPolicySpec> void setSpecification(
             final T policy) {
 
-        specification = XmlSerializer.serialize(policy);
+        specification = XMLSerializer.serialize(policy);
     }
 }

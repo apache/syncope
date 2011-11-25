@@ -15,7 +15,6 @@
  */
 package org.syncope.console.pages.panels;
 
-import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.markup.html.form.palette.Palette;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -35,15 +34,12 @@ public class RoleAttributesPanel extends Panel {
     @SpringBean
     private EntitlementRestClient entitlementRestClient;
 
-    private AjaxButton submit;
-
     final Palette<String> entitlementsPalette;
 
     public RoleAttributesPanel(final String id,
             final Form form, final RoleTO roleTO) {
 
         super(id);
-
 
         //--------------------------------
         // Attributes panel
@@ -54,7 +50,7 @@ public class RoleAttributesPanel extends Panel {
         name.addRequiredLabel();
         this.add(name);
 
-        this.add(new AttributesPanel("attributes", roleTO, form));
+        this.add(new AttributesPanel("attributes", roleTO, form, false));
 
         final AjaxCheckBoxPanel inhAttributes = new AjaxCheckBoxPanel(
                 "inheritAttributes",
@@ -63,8 +59,6 @@ public class RoleAttributesPanel extends Panel {
                 false);
         this.add(inhAttributes);
         //--------------------------------
-
-
 
         //--------------------------------
         // Derived attributes container
@@ -80,12 +74,11 @@ public class RoleAttributesPanel extends Panel {
         this.add(inhDerivedAttributes);
         //--------------------------------
 
-
-
         //--------------------------------
         // Virtual attributes container
         //--------------------------------
-        this.add(new VirtualAttributesPanel("virtualAttributes", roleTO));
+        this.add(new VirtualAttributesPanel("virtualAttributes", roleTO,
+                false));
 
         final AjaxCheckBoxPanel inhVirtualAttributes = new AjaxCheckBoxPanel(
                 "inheritVirtualAttributes",
@@ -96,16 +89,12 @@ public class RoleAttributesPanel extends Panel {
         this.add(inhVirtualAttributes);
         //--------------------------------
 
-
-
         //--------------------------------
         // Security container
         //--------------------------------
 
         this.add(new RoleSecurityPanel("security", roleTO));
         //--------------------------------
-
-
 
         //--------------------------------
         // Resources container
@@ -126,7 +115,6 @@ public class RoleAttributesPanel extends Panel {
                 availableEntitlements, new SelectChoiceRenderer(), 20, false);
 
         this.add(entitlementsPalette);
-
     }
 
     public Palette<String> getEntitlementsPalette() {

@@ -18,6 +18,7 @@ package org.syncope.console.pages;
 
 import java.util.Arrays;
 import java.util.Date;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -66,7 +67,8 @@ public abstract class AbstractSchedTaskModalPage extends TaskModalPage {
 
     public AbstractSchedTaskModalPage(
             final ModalWindow window,
-            final SchedTaskTO taskTO) {
+            final SchedTaskTO taskTO,
+            final PageReference callerPageRef) {
 
         super(taskTO);
 
@@ -196,15 +198,22 @@ public abstract class AbstractSchedTaskModalPage extends TaskModalPage {
                             taskTO = taskRestClient.createSchedTask(taskTO);
                         }
                     }
+
+                    ((BasePage) callerPageRef.getPage()).setModalResult(
+                            true);
+
                     window.close(target);
                 } catch (SyncopeClientCompositeErrorException e) {
                     LOG.error("While creating or updating task", e);
                     error(getString("error") + ":" + e.getMessage());
+                    target.add(feedbackPanel);
                 }
             }
 
             @Override
-            protected void onError(AjaxRequestTarget target, Form form) {
+            protected void onError(final AjaxRequestTarget target,
+                    final Form form) {
+
                 target.add(feedbackPanel);
             }
         };

@@ -14,18 +14,13 @@
  */
 package org.syncope.client.to;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class SyncTaskTO extends SchedTaskTO {
 
     private static final long serialVersionUID = -2143537546915809016L;
 
     private String resource;
 
-    private List<String> defaultResources;
-
-    private List<Long> defaultRoles;
+    private UserTO userTemplate;
 
     private boolean performCreate;
 
@@ -35,45 +30,12 @@ public class SyncTaskTO extends SchedTaskTO {
 
     private String jobActionsClassName;
 
-    public SyncTaskTO() {
-        super();
-
-        defaultResources = new ArrayList<String>();
-        defaultRoles = new ArrayList<Long>();
+    public UserTO getUserTemplate() {
+        return userTemplate;
     }
 
-    public boolean addDefaultResource(String resource) {
-        return resource != null && !defaultResources.contains(resource)
-                && defaultResources.add(resource);
-    }
-
-    public boolean removeDefaultResource(String resource) {
-        return resource != null && defaultResources.remove(resource);
-    }
-
-    public List<String> getDefaultResources() {
-        return defaultResources;
-    }
-
-    public void setDefaultResources(List<String> defaultResources) {
-        this.defaultResources = defaultResources;
-    }
-
-    public boolean addDefaultRole(Long role) {
-        return role != null && !defaultRoles.contains(role)
-                && defaultRoles.add(role);
-    }
-
-    public boolean removeDefaultRole(Long role) {
-        return role != null && defaultRoles.remove(role);
-    }
-
-    public List<Long> getDefaultRoles() {
-        return defaultRoles;
-    }
-
-    public void setDefaultRoles(List<Long> defaultRoles) {
-        this.defaultRoles = defaultRoles;
+    public void setUserTemplate(UserTO userTemplate) {
+        this.userTemplate = userTemplate;
     }
 
     public String getResource() {

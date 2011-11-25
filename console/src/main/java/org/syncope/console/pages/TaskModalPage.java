@@ -62,7 +62,7 @@ import org.syncope.console.wicket.markup.html.form.LinkPanel;
 /**
  * Modal window with Task form (to stop and start execution).
  */
-public class TaskModalPage extends BaseModalPage {
+public abstract class TaskModalPage extends BaseModalPage {
 
     private static final long serialVersionUID = -4110576026663173545L;
 
@@ -76,7 +76,6 @@ public class TaskModalPage extends BaseModalPage {
     protected Form form;
 
     public TaskModalPage(final TaskTO taskTO) {
-
         final TaskTO actual = taskTO.getId() == 0
                 ? taskTO
                 : taskTO instanceof PropagationTaskTO

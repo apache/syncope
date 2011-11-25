@@ -18,6 +18,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.identityconnectors.common.security.GuardedByteArray;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.objects.Attribute;
@@ -35,11 +37,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.syncope.client.mod.AttributeMod;
-import org.syncope.client.mod.MembershipMod;
 import org.syncope.client.mod.UserMod;
 import org.syncope.client.search.AttributeCond;
 import org.syncope.client.search.NodeCond;
 import org.syncope.client.search.SyncopeUserCond;
+import org.syncope.client.to.AbstractAttributableTO;
 import org.syncope.client.to.AttributeTO;
 import org.syncope.client.to.MembershipTO;
 import org.syncope.client.to.UserTO;
@@ -64,6 +66,7 @@ import org.syncope.core.rest.controller.InvalidSearchConditionException;
 import org.syncope.core.rest.data.UserDataBinder;
 import org.syncope.core.scheduling.SyncResult.Operation;
 import org.syncope.core.util.EntitlementUtil;
+import org.syncope.core.util.JexlUtil;
 import org.syncope.core.workflow.UserWorkflowAdapter;
 import org.syncope.core.workflow.WorkflowResult;
 import org.syncope.types.ConflictResolutionAction;
@@ -130,26 +133,25 @@ public class SyncJob extends AbstractJob {
      */
     private SyncJobActions actions;
 
+    /**
+     * JEXL engine for evaluating connector's account link.
+     */
+    @Autowired
+    private JexlUtil jexlUtil;
+
     public void setActions(final SyncJobActions actions) {
         this.actions = actions;
     }
 
     /**
-     * Extract password value from passed values (if instance of GuardedString
+     * Extract password value from passed value (if instance of GuardedString
      * or GuardedByteArray).
      *
-     * @param values list of values received from the underlying connector.
+     * @param pwd received from the underlying connector
      * @return password value
      */
-    private String getPassword(final List<Object> values) {
+    private String getPassword(final Object pwd) {
         final StringBuilder result = new StringBuilder();
-
-        Object pwd;
-        if (values == null || values.isEmpty()) {
-            pwd = "password";
-        } else {
-            pwd = values.iterator().next();
-        }
 
         if (pwd instanceof GuardedString) {
             ((GuardedString) pwd).access(new GuardedString.Accessor() {
@@ -176,6 +178,53 @@ public class SyncJob extends AbstractJob {
         return result.toString();
     }
 
+    private AttributeTO evaluateAttrTemplate(
+            final AbstractAttributableTO attributableTO,
+            final AttributeTO template) {
+
+        AttributeTO result = new AttributeTO();
+        result.setSchema(template.getSchema());
+
+        if (template.getValues() != null && !template.getValues().isEmpty()) {
+            for (String value : template.getValues()) {
+                String evaluated = jexlUtil.evaluate(value, attributableTO);
+                if (StringUtils.isNotBlank(evaluated)) {
+                    result.addValue(evaluated);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    private void fillFromTemplate(final AbstractAttributableTO attributableTO,
+            final AbstractAttributableTO template) {
+
+        Map<String, AttributeTO> currentAttrMap =
+                attributableTO.getAttributeMap();
+        for (AttributeTO attrTO : template.getAttributes()) {
+            if (!currentAttrMap.containsKey(attrTO.getSchema())) {
+                attributableTO.addAttribute(
+                        evaluateAttrTemplate(attributableTO, attrTO));
+            }
+        }
+
+        currentAttrMap = attributableTO.getDerivedAttributeMap();
+        for (AttributeTO attrTO : template.getDerivedAttributes()) {
+            if (!currentAttrMap.containsKey(attrTO.getSchema())) {
+                attributableTO.addDerivedAttribute(attrTO);
+            }
+        }
+
+        currentAttrMap = attributableTO.getVirtualAttributeMap();
+        for (AttributeTO attrTO : template.getDerivedAttributes()) {
+            if (!currentAttrMap.containsKey(attrTO.getSchema())) {
+                attributableTO.addVirtualAttribute(
+                        evaluateAttrTemplate(attributableTO, attrTO));
+            }
+        }
+    }
+
     /**
      * Build an UserTO out of connector object attributes and schema mapping.
      *
@@ -186,14 +235,8 @@ public class SyncJob extends AbstractJob {
         final SyncTask syncTask = (SyncTask) this.task;
 
         final UserTO userTO = new UserTO();
-        userTO.setResources(syncTask.getDefaultResourceNames());
-        MembershipTO membershipTO;
-        for (Long roleId : syncTask.getDefaultRoleIds()) {
-            membershipTO = new MembershipTO();
-            membershipTO.setRoleId(roleId);
-            userTO.addMembership(membershipTO);
-        }
 
+        // 1. fill with data from connector object
         for (SchemaMapping mapping : syncTask.getResource().getMappings()) {
             Attribute attribute;
             if (mapping.isAccountid()) {
@@ -211,8 +254,12 @@ public class SyncJob extends AbstractJob {
                     break;
 
                 case Password:
-                    userTO.setPassword(getPassword(attribute == null
-                            ? Collections.EMPTY_LIST : attribute.getValue()));
+                    if (attribute != null && attribute.getValue() != null
+                            && !attribute.getValue().isEmpty()) {
+
+                        userTO.setPassword(
+                                getPassword(attribute.getValue().get(0)));
+                    }
                     break;
 
                 case Username:
@@ -248,6 +295,54 @@ public class SyncJob extends AbstractJob {
             }
         }
 
+        // 2. add data from defined template (if any)
+        UserTO template = syncTask.getUserTemplate();
+        if (template != null) {
+            if (StringUtils.isBlank(userTO.getUsername())
+                    && StringUtils.isNotBlank(template.getUsername())) {
+
+                String evaluated =
+                        jexlUtil.evaluate(template.getUsername(), userTO);
+                if (StringUtils.isNotBlank(evaluated)) {
+                    userTO.setUsername(template.getUsername());
+                }
+            }
+
+            if (StringUtils.isBlank(userTO.getPassword())
+                    && StringUtils.isNotBlank(template.getPassword())) {
+
+                String evaluated =
+                        jexlUtil.evaluate(template.getPassword(), userTO);
+                if (StringUtils.isNotBlank(evaluated)) {
+                    userTO.setPassword(template.getPassword());
+                }
+            }
+
+            fillFromTemplate(userTO, template);
+
+            for (String resource : template.getResources()) {
+                userTO.addResource(resource);
+            }
+
+            Map<Long, MembershipTO> currentMembs = userTO.getMembershipMap();
+            for (MembershipTO membTO : template.getMemberships()) {
+                MembershipTO membTBU;
+                if (currentMembs.containsKey(membTO.getRoleId())) {
+                    membTBU = currentMembs.get(membTO.getRoleId());
+                } else {
+                    membTBU = new MembershipTO();
+                    membTBU.setRoleId(membTO.getRoleId());
+                    userTO.addMembership(membTBU);
+                }
+                fillFromTemplate(membTBU, membTO);
+            }
+        }
+
+        // 3. if password was not set above, generate a random string
+        if (StringUtils.isBlank(userTO.getPassword())) {
+            userTO.setPassword(RandomStringUtils.randomAlphanumeric(16));
+        }
+
         return userTO;
     }
 
@@ -265,13 +360,6 @@ public class SyncJob extends AbstractJob {
 
         final UserMod userMod = new UserMod();
         userMod.setId(user.getId());
-        userMod.setResourcesToBeAdded(syncTask.getDefaultResourceNames());
-        MembershipMod membershipMod;
-        for (Long roleId : syncTask.getDefaultRoleIds()) {
-            membershipMod = new MembershipMod();
-            membershipMod.setRole(roleId);
-            userMod.addMembershipToBeAdded(membershipMod);
-        }
 
         for (SchemaMapping mapping : syncTask.getResource().getMappings()) {
             Attribute attribute = obj.getAttributeByName(
@@ -288,18 +376,22 @@ public class SyncJob extends AbstractJob {
                     attribute = obj.getAttributeByName(
                             OperationalAttributes.PASSWORD_NAME);
 
-                    final String password = getPassword(attribute == null
-                            ? Collections.EMPTY_LIST : attribute.getValue());
+                    if (attribute != null && attribute.getValue() != null
+                            && !attribute.getValue().isEmpty()) {
 
-                    final SyncopeUser passwordUser = new SyncopeUser();
-                    passwordUser.setPassword(
-                            password, user.getCipherAlgoritm(), 0);
+                        String password =
+                                getPassword(attribute.getValue().get(0));
+                        SyncopeUser passwordUser = new SyncopeUser();
+                        passwordUser.setPassword(
+                                password, user.getCipherAlgoritm(), 0);
 
-                    // update password if and only if password is really changed
-                    if (!user.getPassword().equals(
-                            passwordUser.getPassword())) {
+                        // update password if and only if password has really 
+                        // changed
+                        if (!user.getPassword().equals(
+                                passwordUser.getPassword())) {
 
-                        userMod.setPassword(password);
+                            userMod.setPassword(password);
+                        }
                     }
                     break;
 
@@ -352,6 +444,8 @@ public class SyncJob extends AbstractJob {
      * @return list of matching users
      */
     private List<SyncopeUser> findExistingUsers(final SyncDelta delta) {
+        final SyncTask syncTask = (SyncTask) this.task;
+
         final String uid = delta.getPreviousUid() == null
                 ? delta.getUid().getUidValue()
                 : delta.getPreviousUid().getUidValue();
@@ -359,8 +453,7 @@ public class SyncJob extends AbstractJob {
         // ---------------------------------
         // Get sync policy specification
         // ---------------------------------
-        final SyncPolicy policy =
-                ((SyncTask) this.task).getResource().getSyncPolicy();
+        final SyncPolicy policy = syncTask.getResource().getSyncPolicy();
 
         final SyncPolicySpec policySpec = policy != null
                 ? (SyncPolicySpec) policy.getSpecification() : null;
@@ -378,9 +471,7 @@ public class SyncJob extends AbstractJob {
             final Map<String, Attribute> extValues =
                     new HashMap<String, Attribute>();
 
-            for (SchemaMapping mapping :
-                    ((SyncTask) this.task).getResource().getMappings()) {
-
+            for (SchemaMapping mapping : syncTask.getResource().getMappings()) {
                 String key;
                 switch (mapping.getIntMappingType()) {
                     case SyncopeUserId:
@@ -457,8 +548,8 @@ public class SyncJob extends AbstractJob {
         } else {
             final SyncopeUser user;
 
-            final SchemaMapping accountIdMap = ((SyncTask) this.task).
-                    getResource().getAccountIdMapping();
+            final SchemaMapping accountIdMap =
+                    syncTask.getResource().getAccountIdMapping();
             switch (accountIdMap.getIntMappingType()) {
                 case Username:
                     user = userDAO.find(uid);
@@ -515,7 +606,7 @@ public class SyncJob extends AbstractJob {
         } else {
             try {
                 WorkflowResult<Map.Entry<Long, Boolean>> created =
-                        wfAdapter.create(userTO);
+                        wfAdapter.create(userTO, true);
                 List<PropagationTask> tasks =
                         propagationManager.getCreateTaskIds(
                         created.getResult().getKey(), userTO.getPassword(),
@@ -561,9 +652,7 @@ public class SyncJob extends AbstractJob {
             final SyncResult result = new SyncResult();
             result.setOperation(Operation.UPDATE);
 
-            UserTO userTO = userDataBinder.getUserTO(user.getId());
-
-
+            UserTO userTO = userDataBinder.getUserTO(user);
             try {
                 final UserMod userMod = getUserMod(user, delta.getObject());
                 actions.beforeUpdate(delta, userTO, userMod);
@@ -615,7 +704,7 @@ public class SyncJob extends AbstractJob {
         for (SyncopeUser user : users) {
             Long userId = user.getId();
 
-            UserTO userTO = userDataBinder.getUserTO(userId);
+            UserTO userTO = userDataBinder.getUserTO(user);
             actions.beforeDelete(delta, userTO);
 
             final SyncResult result = new SyncResult();

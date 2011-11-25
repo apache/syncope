@@ -17,25 +17,19 @@
 package org.syncope.console.pages;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.PropertyModel;
-import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.to.ResourceTO;
-import org.syncope.client.to.RoleTO;
 import org.syncope.client.to.SyncTaskTO;
 import org.syncope.console.commons.SelectChoiceRenderer;
 import org.syncope.console.rest.ResourceRestClient;
-import org.syncope.console.rest.RoleRestClient;
 import org.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
-import org.syncope.console.wicket.markup.html.form.AjaxPalettePanel;
 
 /**
  * Modal window with Task form (to stop and start execution).
@@ -45,16 +39,14 @@ public class SyncTaskModalPage extends AbstractSchedTaskModalPage {
     private static final long serialVersionUID = 2148403203517274669L;
 
     @SpringBean
-    private RoleRestClient roleRestClient;
-
-    @SpringBean
     private ResourceRestClient resourceRestClient;
 
     public SyncTaskModalPage(
             final ModalWindow window,
-            final SyncTaskTO taskTO) {
+            final SyncTaskTO taskTO,
+            final PageReference callerPageRef) {
 
-        super(window, taskTO);
+        super(window, taskTO, callerPageRef);
 
         final IModel<List<String>> allResources =
                 new LoadableDetachableModel<List<String>>() {
@@ -69,32 +61,10 @@ public class SyncTaskModalPage extends AbstractSchedTaskModalPage {
 
                         for (ResourceTO resourceTO :
                                 resourceRestClient.getAllResources()) {
+
                             resourceNames.add(resourceTO.getName());
                         }
                         return resourceNames;
-                    }
-                };
-
-        final IModel<Map<Long, String>> allRoles =
-                new LoadableDetachableModel<Map<Long, String>>() {
-
-                    private static final long serialVersionUID =
-                            -2012833443695917883L;
-
-                    @Override
-                    protected Map<Long, String> load() {
-                        final Map<Long, String> allRoles =
-                                new HashMap<Long, String>();
-
-                        List<RoleTO> roles = roleRestClient.getAllRoles();
-
-                        if (roles != null) {
-                            for (RoleTO role : roles) {
-                                allRoles.put(role.getId(), role.getName());
-                            }
-                        }
-
-                        return allRoles;
                     }
                 };
 
@@ -149,34 +119,5 @@ public class SyncTaskModalPage extends AbstractSchedTaskModalPage {
                 "performDelete", getString("updates"),
                 new PropertyModel<Boolean>(taskTO, "performDelete"), false);
         profile.add(deletes);
-
-        final AjaxPalettePanel defaultResources = new AjaxPalettePanel(
-                "defaultResources",
-                new PropertyModel(taskTO, "defaultResources"),
-                new ListModel<String>(allResources.getObject()));
-
-        form.add(defaultResources);
-
-        final AjaxPalettePanel<Long> defaultRoles = new AjaxPalettePanel<Long>(
-                "defaultRoles",
-                new PropertyModel(taskTO, "defaultRoles"), new ListModel<Long>(
-                new ArrayList<Long>(allRoles.getObject().keySet())),
-                new ChoiceRenderer<Long>() {
-
-                    private static final long serialVersionUID =
-                            8463000788871139550L;
-
-                    @Override
-                    public String getDisplayValue(final Long id) {
-                        return allRoles.getObject().get(id);
-                    }
-
-                    @Override
-                    public String getIdValue(final Long id, final int index) {
-                        return id.toString();
-                    }
-                });
-
-        form.add(defaultRoles);
     }
 }

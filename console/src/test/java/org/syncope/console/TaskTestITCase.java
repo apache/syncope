@@ -64,7 +64,7 @@ public class TaskTestITCase extends AbstractTest {
         selenium.waitForPageToLoad("30000");
         selenium.click("//div[@id='tabs']/ul/li[3]/a/span");
         selenium.click("//div[3]/div[3]/span/div/span/"
-                + "table/tbody/tr/td[8]/span/a");
+                + "table/tbody/tr/td[9]/span/a");
         assertTrue(selenium.getConfirmation().matches(
                 "^Do you really want to delete the selected item[\\s\\S]$"));
         assertTrue(selenium.isTextPresent("Operation executed successfully"));

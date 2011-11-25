@@ -39,6 +39,19 @@ public interface UserWorkflowAdapter {
      */
     WorkflowResult<Map.Entry<Long, Boolean>> create(UserTO userTO)
             throws UnauthorizedRoleException, WorkflowException;
+    
+    /**
+     * Create an user, optionally disabling password policy check.
+     *
+     * @param userTO user to be created and wether to propagate it as active
+     * @param disablePwdPolicyCheck disable password policy check?
+     * @return user just created
+     * @throws UnauthorizedRoleException authorization exception
+     * @throws WorkflowException workflow exception
+     */
+    WorkflowResult<Map.Entry<Long, Boolean>> create(UserTO userTO,
+            boolean disablePwdPolicyCheck)
+            throws UnauthorizedRoleException, WorkflowException;
 
     /**
      * Execute a task on an user.
@@ -181,23 +194,23 @@ public interface UserWorkflowAdapter {
      * Claim a form for a given user.
      *
      * @param taskId Workflow task to which the form is associated
-     * @param userName claiming username
+     * @param username claiming username
      * @return updated form
      * @throws NotFoundException not found exception
      * @throws WorkflowException workflow exception
      */
-    WorkflowFormTO claimForm(String taskId, String userName)
+    WorkflowFormTO claimForm(String taskId, String username)
             throws NotFoundException, WorkflowException;
 
     /**
      * Submit a form.
      *
      * @param form to be submitted
-     * @param userName submitting username
+     * @param username submitting username
      * @return user updated by this form submit
      * @throws NotFoundException not found exception
      * @throws WorkflowException workflow exception
      */
-    Long submitForm(WorkflowFormTO form, String userName)
+    Long submitForm(WorkflowFormTO form, String username)
             throws NotFoundException, WorkflowException;
 }

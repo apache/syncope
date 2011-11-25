@@ -81,7 +81,7 @@ public class ConnInstanceDataBinder {
         // Throw composite exception if there is at least one element set
         // in the composing exceptions
 
-        if (!requiredValuesMissing.getElements().isEmpty()) {
+        if (!requiredValuesMissing.isEmpty()) {
             compositeErrorException.addException(requiredValuesMissing);
         }
 
@@ -141,7 +141,7 @@ public class ConnInstanceDataBinder {
         connInstance.setCapabilities(
                 connInstanceTO.getCapabilities());
 
-        if (!requiredValuesMissing.getElements().isEmpty()) {
+        if (!requiredValuesMissing.isEmpty()) {
             compositeErrorException.addException(requiredValuesMissing);
         }
 

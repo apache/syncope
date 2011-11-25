@@ -14,7 +14,6 @@
  */
 package org.syncope.console.pages.panels;
 
-import java.util.Iterator;
 import java.util.List;
 import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.wicket.Page;
@@ -54,9 +53,10 @@ public class RolesPanel extends Panel {
 
     private UserTO userTO = null;
 
-    public RolesPanel(final String id, final UserTO userTO) {
-        super(id);
+    public RolesPanel(final String id, final UserTO userTO,
+            final boolean templateMode) {
 
+        super(id);
         this.userTO = userTO;
 
         final WebMarkupContainer membershipsContainer =
@@ -100,8 +100,7 @@ public class RolesPanel extends Panel {
 
                         return new MembershipModalPage(
                                 getPage().getPageReference(),
-                                membershipWin,
-                                membershipTO);
+                                membershipWin, membershipTO, templateMode);
                     }
                 });
                 membershipWin.show(target);
@@ -127,7 +126,7 @@ public class RolesPanel extends Panel {
                 item.add(new Label("roleId", new Model(
                         membershipTO.getRoleId())));
                 item.add(new Label("roleName", new Model(
-                        getRoleName(membershipTO.getRoleId(), roles))));
+                        membershipTO.getRoleName())));
 
                 AjaxLink editLink = new IndicatingAjaxLink("editLink") {
 
@@ -146,8 +145,8 @@ public class RolesPanel extends Panel {
                                     public Page createPage() {
                                         return new MembershipModalPage(
                                                 getPage().getPageReference(),
-                                                membershipWin,
-                                                membershipTO);
+                                                membershipWin, membershipTO,
+                                                templateMode);
 
                                     }
                                 });
@@ -175,22 +174,6 @@ public class RolesPanel extends Panel {
         membershipsContainer.add(membershipsView);
 
         setWindowClosedCallback(membershipWin, membershipsContainer);
-    }
-
-    private String getRoleName(long roleId, List<RoleTO> roles) {
-        boolean found = false;
-        RoleTO roleTO;
-        String result = null;
-        for (Iterator<RoleTO> itor = roles.iterator();
-                itor.hasNext() && !found;) {
-
-            roleTO = itor.next();
-            if (roleTO.getId() == roleId) {
-                result = roleTO.getName();
-            }
-        }
-
-        return result;
     }
 
     private void setWindowClosedCallback(

@@ -143,7 +143,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    public WorkflowResult<Map.Entry<Long, Boolean>> create(final UserTO userTO)
+    public WorkflowResult<Map.Entry<Long, Boolean>> create(final UserTO userTO,
+            final boolean disablePwdPolicyCheck)
             throws WorkflowException {
 
         final Map<String, Object> variables = new HashMap<String, Object>();
@@ -159,6 +160,13 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
         SyncopeUser user = (SyncopeUser) runtimeService.getVariable(
                 processInstance.getProcessInstanceId(), SYNCOPE_USER);
+
+        // this will make SyncopeUserValidator not to consider
+        // password policies at all
+        if (disablePwdPolicyCheck) {
+            user.removeClearPassword();
+        }
+
         updateStatus(user);
         user = userDAO.save(user);
 
@@ -514,7 +522,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     private Map.Entry<Task, TaskFormData> checkTask(final String taskId,
-            final String userName)
+            final String username)
             throws NotFoundException {
 
         Task task;
@@ -531,10 +539,10 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
             throw new NotFoundException("Form for Activiti Task " + taskId, e);
         }
 
-        if (!adminUser.equals(userName)) {
-            SyncopeUser user = userDAO.find(userName);
+        if (!adminUser.equals(username)) {
+            SyncopeUser user = userDAO.find(username);
             if (user == null) {
-                throw new NotFoundException("Syncope User " + userName);
+                throw new NotFoundException("Syncope User " + username);
             }
         }
 
@@ -543,23 +551,23 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
     @Override
     public WorkflowFormTO claimForm(final String taskId,
-            final String userName)
+            final String username)
             throws NotFoundException, WorkflowException {
 
-        Map.Entry<Task, TaskFormData> checked = checkTask(taskId, userName);
+        Map.Entry<Task, TaskFormData> checked = checkTask(taskId, username);
 
-        if (!adminUser.equals(userName)) {
+        if (!adminUser.equals(username)) {
             List<Task> tasksForUser = taskService.createTaskQuery().taskId(
-                    taskId).taskCandidateUser(userName).list();
+                    taskId).taskCandidateUser(username).list();
             if (tasksForUser.isEmpty()) {
                 throw new WorkflowException(new RuntimeException(
-                        userName + " is not candidate for task " + taskId));
+                        username + " is not candidate for task " + taskId));
             }
         }
 
         Task task;
         try {
-            taskService.setOwner(taskId, userName);
+            taskService.setOwner(taskId, username);
             task = taskService.createTaskQuery().taskId(taskId).singleResult();
         } catch (ActivitiException e) {
             throw new WorkflowException(e);
@@ -569,17 +577,17 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    public Long submitForm(final WorkflowFormTO form, final String userName)
+    public Long submitForm(final WorkflowFormTO form, final String username)
             throws NotFoundException, WorkflowException {
 
         Map.Entry<Task, TaskFormData> checked =
-                checkTask(form.getTaskId(), userName);
+                checkTask(form.getTaskId(), username);
 
-        if (!checked.getKey().getOwner().equals(userName)) {
+        if (!checked.getKey().getOwner().equals(username)) {
             throw new WorkflowException(new RuntimeException(
                     "Task " + form.getTaskId() + " assigned to "
                     + checked.getKey().getOwner() + " but submited by "
-                    + userName));
+                    + username));
         }
 
         try {

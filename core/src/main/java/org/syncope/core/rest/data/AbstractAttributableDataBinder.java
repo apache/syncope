@@ -202,7 +202,7 @@ public abstract class AbstractAttributableDataBinder {
             final List<? extends AbstractAttr> attributes) {
 
         JexlContext jexlContext = new MapContext();
-        jexlUtil.addAttributesToContext(attributes, jexlContext);
+        jexlUtil.addAttrsToContext(attributes, jexlContext);
 
         return Boolean.parseBoolean(
                 jexlUtil.evaluate(
@@ -586,7 +586,7 @@ public abstract class AbstractAttributableDataBinder {
             }
         }
 
-        if (!invalidValues.getElements().isEmpty()) {
+        if (!invalidValues.isEmpty()) {
             compositeErrorException.addException(invalidValues);
         }
 
@@ -684,7 +684,7 @@ public abstract class AbstractAttributableDataBinder {
         // Finally, check if mandatory values are missing
         SyncopeClientException requiredValuesMissing =
                 checkMandatory(attributableUtil, attributable);
-        if (!requiredValuesMissing.getElements().isEmpty()) {
+        if (!requiredValuesMissing.isEmpty()) {
             compositeErrorException.addException(requiredValuesMissing);
         }
 
@@ -759,13 +759,13 @@ public abstract class AbstractAttributableDataBinder {
             }
         }
 
-        if (!invalidValues.getElements().isEmpty()) {
+        if (!invalidValues.isEmpty()) {
             compositeErrorException.addException(invalidValues);
         }
 
         SyncopeClientException requiredValuesMissing =
                 checkMandatory(attributableUtil, attributable);
-        if (!requiredValuesMissing.getElements().isEmpty()) {
+        if (!requiredValuesMissing.isEmpty()) {
             compositeErrorException.addException(requiredValuesMissing);
         }
 

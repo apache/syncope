@@ -14,8 +14,6 @@
  */
 package org.syncope.core.persistence.beans;
 
-import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -40,17 +38,14 @@ import javax.validation.constraints.Min;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.annotations.Type;
 import org.identityconnectors.framework.common.objects.SyncToken;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
-import org.syncope.core.util.XmlSerializer;
 import org.syncope.core.persistence.validation.entity.ExternalResourceCheck;
-import org.syncope.core.util.ApplicationContextManager;
 import org.syncope.types.ConnConfProperty;
 import org.syncope.types.PropagationMode;
 import org.syncope.types.IntMappingType;
 import org.syncope.types.TraceLevel;
-import com.thoughtworks.xstream.XStream;
+import org.syncope.core.util.XMLSerializer;
 
 /**
  * A resource to which propagation occurs.
@@ -390,7 +385,7 @@ public class ExternalResource extends AbstractBaseBean {
             final Set<ConnConfProperty> properties) {
 
         // create new set to make sure it's a serializable set implementation.
-        xmlConfiguration = XmlSerializer.serialize(
+        xmlConfiguration = XMLSerializer.serialize(
                 new HashSet<ConnConfProperty>(properties));
     }
 
@@ -399,7 +394,7 @@ public class ExternalResource extends AbstractBaseBean {
 
         Set<ConnConfProperty> deserializedSet;
         if (StringUtils.isNotBlank(xmlConfiguration)) {
-            deserializedSet = XmlSerializer.<HashSet<ConnConfProperty>>
+            deserializedSet = XMLSerializer.<HashSet<ConnConfProperty>>
                     deserialize(xmlConfiguration);
             if (deserializedSet != null) {
                 result = deserializedSet;
@@ -414,21 +409,9 @@ public class ExternalResource extends AbstractBaseBean {
     }
 
     public SyncToken getSyncToken() {
-        SyncToken result = null;
-
-        if (serializedSyncToken != null) {
-            ConfigurableApplicationContext context =
-                    ApplicationContextManager.getApplicationContext();
-            XStream xStream = context.getBean(XStream.class);
-            try {
-                result = (SyncToken) xStream.fromXML(
-                        URLDecoder.decode(serializedSyncToken, "UTF-8"));
-            } catch (Throwable t) {
-                LOG.error("During attribute deserialization", t);
-            }
-        }
-
-        return result;
+        return serializedSyncToken == null
+                ? null
+                : XMLSerializer.<SyncToken>deserialize(serializedSyncToken);
     }
 
     public void setSerializedSyncToken(final String serializedSyncToken) {
@@ -436,14 +419,6 @@ public class ExternalResource extends AbstractBaseBean {
     }
 
     public void setSyncToken(final SyncToken syncToken) {
-        ConfigurableApplicationContext context =
-                ApplicationContextManager.getApplicationContext();
-        XStream xStream = context.getBean(XStream.class);
-        try {
-            serializedSyncToken = URLEncoder.encode(
-                    xStream.toXML(syncToken), "UTF-8");
-        } catch (Throwable t) {
-            LOG.error("During attribute serialization", t);
-        }
+        serializedSyncToken = XMLSerializer.serialize(syncToken);
     }
 }

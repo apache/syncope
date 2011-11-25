@@ -31,7 +31,7 @@ import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.OneToMany;
 import org.hibernate.annotations.Type;
-import org.syncope.core.util.XmlSerializer;
+import org.syncope.core.util.XMLSerializer;
 import org.syncope.types.ConnConfProperty;
 import org.syncope.types.ConnectorCapability;
 
@@ -146,7 +146,7 @@ public class ConnInstance extends AbstractBaseBean {
 
     public Set<ConnConfProperty> getConfiguration() {
         Set<ConnConfProperty> result =
-                XmlSerializer.<HashSet<ConnConfProperty>>deserialize(
+                XMLSerializer.<HashSet<ConnConfProperty>>deserialize(
                 xmlConfiguration);
         if (result == null) {
             result = Collections.emptySet();
@@ -155,7 +155,7 @@ public class ConnInstance extends AbstractBaseBean {
     }
 
     public void setConfiguration(final Set<ConnConfProperty> configuration) {
-        xmlConfiguration = XmlSerializer.serialize(
+        xmlConfiguration = XMLSerializer.serialize(
                 new HashSet<ConnConfProperty>(configuration));
     }
 

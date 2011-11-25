@@ -19,8 +19,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
@@ -44,12 +46,21 @@ public class Tasks extends BasePage {
 
         add(new PropagationTasks("propagation"));
         add(new NotificationTasks("notification"));
-        add(new SchedTasks("sched"));
-        add(new SyncTasks("sync"));
+        add(new SchedTasks("sched", getPageReference()));
+        add(new SyncTasks("sync", getPageReference()));
+    }
+
+    @Override
+    public void setWindowClosedCallback(final ModalWindow window,
+            final WebMarkupContainer container) {
+
+        super.setWindowClosedCallback(window, container);
     }
 
     public static class TaskExecutionsProvider
             extends SortableDataProvider<TaskExecTO> {
+
+        private static final long serialVersionUID = -5401263348984206145L;
 
         private SortableDataProviderComparator<TaskExecTO> comparator;
 

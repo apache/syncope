@@ -17,6 +17,7 @@ package org.syncope.console.pages.panels;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.wicket.Page;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -45,7 +46,9 @@ import org.syncope.console.commons.Constants;
 import org.syncope.console.commons.PreferenceManager;
 import org.syncope.console.commons.XMLRolesReader;
 import org.syncope.console.pages.SyncTaskModalPage;
+import org.syncope.console.pages.Tasks;
 import org.syncope.console.pages.Tasks.TasksProvider;
+import org.syncope.console.pages.UserModalPage;
 import org.syncope.console.rest.TaskRestClient;
 import org.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
 import org.syncope.console.wicket.markup.html.form.DeleteLinkPanel;
@@ -71,24 +74,27 @@ public class SyncTasks extends Panel {
 
     private WebMarkupContainer container;
 
-    /**
-     * Response flag set by the Modal Window after the operation is completed:
-     * TRUE if the operation succedes, FALSE otherwise.
-     */
-    private boolean operationResult = false;
-
     private ModalWindow window;
 
     @SpringBean
     protected XMLRolesReader xmlRolesReader;
 
-    public SyncTasks(String id, IModel<?> model) {
-        super(id, model);
-    }
-
-    public SyncTasks(String id) {
+    public SyncTasks(String id, final PageReference callerPageRef) {
         super(id);
-        add(window = new ModalWindow("taskWin"));
+
+        container = new WebMarkupContainer("container");
+        container.setOutputMarkupId(true);
+        add(container);
+
+        window = new ModalWindow("taskWin");
+        window.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+        window.setInitialHeight(WIN_HEIGHT);
+        window.setInitialWidth(WIN_WIDTH);
+        window.setCookieName("view-task-win");
+        add(window);
+
+        ((Tasks) callerPageRef.getPage()).setWindowClosedCallback(
+                window, container);
 
         paginatorRows = prefMan.getPaginatorRows(
                 getWebRequest(),
@@ -137,7 +143,55 @@ public class SyncTasks extends Panel {
 
                             @Override
                             public Page createPage() {
-                                return new SyncTaskModalPage(window, taskTO);
+                                return new SyncTaskModalPage(
+                                        window, taskTO, callerPageRef);
+                            }
+                        });
+
+                        window.show(target);
+                    }
+                };
+
+                EditLinkPanel panel = new EditLinkPanel(componentId, model);
+                panel.add(viewLink);
+
+                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE,
+                        xmlRolesReader.getAllAllowedRoles("Tasks", "read"));
+
+                cellItem.add(panel);
+            }
+        });
+
+        columns.add(new AbstractColumn<SyncTaskTO>(
+                new ResourceModel("userTemplate")) {
+
+            private static final long serialVersionUID = 2054811145491901166L;
+
+            @Override
+            public void populateItem(
+                    final Item<ICellPopulator<SyncTaskTO>> cellItem,
+                    final String componentId,
+                    final IModel<SyncTaskTO> model) {
+
+                final SyncTaskTO taskTO = model.getObject();
+
+                AjaxLink viewLink = new IndicatingAjaxLink("editLink") {
+
+                    private static final long serialVersionUID =
+                            -7978723352517770644L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
+
+                        window.setPageCreator(new ModalWindow.PageCreator() {
+
+                            private static final long serialVersionUID =
+                                    -7834632442532690940L;
+
+                            @Override
+                            public Page createPage() {
+                                return new UserModalPage(
+                                        callerPageRef, window, taskTO);
                             }
                         });
 
@@ -291,34 +345,7 @@ public class SyncTasks extends Panel {
                 "datatable", columns, new TasksProvider(
                 restClient, paginatorRows, id, SyncTaskTO.class),
                 paginatorRows);
-
-        container = new WebMarkupContainer("container");
         container.add(table);
-        container.setOutputMarkupId(true);
-
-        add(container);
-
-        window.setWindowClosedCallback(
-                new ModalWindow.WindowClosedCallback() {
-
-                    private static final long serialVersionUID =
-                            8804221891699487139L;
-
-                    @Override
-                    public void onClose(final AjaxRequestTarget target) {
-                        target.add(container);
-                        if (operationResult) {
-                            info(getString("operation_succeded"));
-                            target.add(getPage().get("feedback"));
-                            operationResult = false;
-                        }
-                    }
-                });
-
-        window.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
-        window.setInitialHeight(WIN_HEIGHT);
-        window.setInitialWidth(WIN_WIDTH);
-        window.setCookieName("view-task-win");
 
         Form paginatorForm = new Form("PaginatorForm");
 
@@ -359,7 +386,8 @@ public class SyncTasks extends Panel {
 
                     @Override
                     public Page createPage() {
-                        return new SyncTaskModalPage(window, new SyncTaskTO());
+                        return new SyncTaskModalPage(
+                                window, new SyncTaskTO(), callerPageRef);
                     }
                 });
 

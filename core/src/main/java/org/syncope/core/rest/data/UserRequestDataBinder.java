@@ -68,7 +68,7 @@ public class UserRequestDataBinder {
         SyncopeUser authUser = userDAO.find(
                 SecurityContextHolder.getContext().
                 getAuthentication().getName());
-        return userDataBinder.getUserTO(authUser.getId());
+        return userDataBinder.getUserTO(authUser);
     }
 
     public UserRequestTO getUserRequestTO(final UserRequest request) {

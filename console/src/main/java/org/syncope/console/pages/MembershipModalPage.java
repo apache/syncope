@@ -40,7 +40,8 @@ public class MembershipModalPage extends BaseModalPage {
     public MembershipModalPage(
             final PageReference pageRef,
             final ModalWindow window,
-            final MembershipTO membershipTO) {
+            final MembershipTO membershipTO,
+            final boolean templateMode) {
 
         final Form form = new Form("MembershipForm");
 
@@ -73,14 +74,9 @@ public class MembershipModalPage extends BaseModalPage {
             }
         };
 
-        String allowedRoles = null;
-
-        if (((UserTO) userTO).getId() == 0) {
-            allowedRoles = xmlRolesReader.getAllAllowedRoles("Users", "create");
-        } else {
-            allowedRoles = xmlRolesReader.getAllAllowedRoles("Users", "update");
-        }
-
+        String allowedRoles = userTO.getId() == 0
+                ? xmlRolesReader.getAllAllowedRoles("Users", "create")
+                : xmlRolesReader.getAllAllowedRoles("Users", "update");
         MetaDataRoleAuthorizationStrategy.authorize(submit, RENDER,
                 allowedRoles);
 
@@ -89,7 +85,8 @@ public class MembershipModalPage extends BaseModalPage {
         //--------------------------------
         // Attributes panel
         //--------------------------------
-        form.add(new AttributesPanel("attributes", membershipTO, form));
+        form.add(new AttributesPanel("attributes", membershipTO, form,
+                templateMode));
         //--------------------------------
 
         //--------------------------------
@@ -101,7 +98,8 @@ public class MembershipModalPage extends BaseModalPage {
         //--------------------------------
         // Virtual attributes container
         //--------------------------------
-        form.add(new VirtualAttributesPanel("virtualAttributes", membershipTO));
+        form.add(new VirtualAttributesPanel("virtualAttributes", membershipTO,
+                templateMode));
         //--------------------------------
 
         add(form);

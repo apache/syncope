@@ -24,7 +24,7 @@ import org.syncope.console.commons.XMLRolesReader;
 /**
  * Syncope Modal Window.
  */
-public class BaseModalPage extends WebPage {
+public abstract class BaseModalPage extends WebPage {
 
     /**
      * Logger.

@@ -24,6 +24,7 @@ import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -35,8 +36,6 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.syncope.client.to.AbstractAttributableTO;
 import org.syncope.client.to.AttributeTO;
 import org.syncope.client.to.RoleTO;
@@ -48,19 +47,13 @@ import org.syncope.console.wicket.markup.html.form.MultiValueSelectorPanel;
 
 public class VirtualAttributesPanel extends Panel {
 
-    /**
-     * Logger.
-     */
-    protected static final Logger LOG =
-            LoggerFactory.getLogger(VirtualAttributesPanel.class);
-
     private static final long serialVersionUID = -7982691107029848579L;
 
     @SpringBean
     private SchemaRestClient schemaRestClient;
 
     public <T extends AbstractAttributableTO> VirtualAttributesPanel(
-            final String id, final T entityTO) {
+            final String id, final T entityTO, final boolean templateMode) {
 
         super(id);
 
@@ -164,7 +157,19 @@ public class VirtualAttributesPanel extends Panel {
                         new DropDownChoice<String>(
                         "schema",
                         new PropertyModel<String>(attributeTO, "schema"),
-                        virtualSchemaNames);
+                        virtualSchemaNames,
+                        new ChoiceRenderer<String>() {
+
+                            private static final long serialVersionUID =
+                                    3109256773218160485L;
+
+                            @Override
+                            public Object getDisplayValue(final String object) {
+                                return templateMode
+                                        ? object + " (JEXL)"
+                                        : object;
+                            }
+                        });
 
                 schemaChoice.add(
                         new AjaxFormComponentUpdatingBehavior("onblur") {
@@ -173,7 +178,9 @@ public class VirtualAttributesPanel extends Panel {
                                     -1107858522700306810L;
 
                             @Override
-                            protected void onUpdate(AjaxRequestTarget art) {
+                            protected void onUpdate(
+                                    final AjaxRequestTarget art) {
+
                                 attributeTO.setSchema(
                                         schemaChoice.getModelObject());
                             }
@@ -187,16 +194,18 @@ public class VirtualAttributesPanel extends Panel {
                     attributeTO.addValue("");
                 }
 
-                final MultiValueSelectorPanel values =
-                        new MultiValueSelectorPanel(
-                        "values",
-                        new PropertyModel<List<String>>(
-                        attributeTO, "values"),
-                        String.class,
-                        new AjaxTextFieldPanel(
-                        "panel", "values", new Model(null), true));
-
-                item.add(values);
+                if (templateMode) {
+                    item.add(new AjaxTextFieldPanel(
+                            "values", "values", new Model(), true));
+                } else {
+                    item.add(new MultiValueSelectorPanel(
+                            "values",
+                            new PropertyModel<List<String>>(
+                            attributeTO, "values"),
+                            String.class,
+                            new AjaxTextFieldPanel(
+                            "panel", "values", new Model(null), true)));
+                }
             }
         };
 

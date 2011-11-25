@@ -30,6 +30,8 @@ import org.syncope.core.persistence.validation.entity.EntitlementCheck;
 @EntitlementCheck
 public class Entitlement extends AbstractBaseBean {
 
+    private static final long serialVersionUID = 8044745999246422483L;
+
     @Id
     private String name;
 

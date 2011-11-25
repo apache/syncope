@@ -18,6 +18,7 @@ package org.syncope.console.pages;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
@@ -34,9 +35,10 @@ public class SchedTaskModalPage extends AbstractSchedTaskModalPage {
 
     public SchedTaskModalPage(
             final ModalWindow window,
-            final SchedTaskTO taskTO) {
+            final SchedTaskTO taskTO,
+            final PageReference callerPageRef) {
 
-        super(window, taskTO);
+        super(window, taskTO, callerPageRef);
 
         final IModel<List<String>> classNames =
                 new LoadableDetachableModel<List<String>>() {

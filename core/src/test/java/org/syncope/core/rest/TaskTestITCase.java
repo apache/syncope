@@ -22,6 +22,7 @@ import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.syncope.client.to.AttributeTO;
+import org.syncope.client.to.MembershipTO;
 import org.syncope.client.to.TaskExecTO;
 import org.syncope.client.to.PropagationTaskTO;
 import org.syncope.client.to.SchedTaskTO;
@@ -37,8 +38,13 @@ public class TaskTestITCase extends AbstractTest {
     public final void create() {
         SyncTaskTO task = new SyncTaskTO();
         task.setResource("ws-target-resource-2");
-        task.addDefaultResource("ws-target-resource-2");
-        task.addDefaultRole(8L);
+
+        UserTO template = new UserTO();
+        template.addResource("ws-target-resource-2");
+        MembershipTO membershipTO = new MembershipTO();
+        membershipTO.setRoleId(8L);
+        template.addMembership(membershipTO);
+        task.setUserTemplate(template);
 
         SyncTaskTO actual = restTemplate.postForObject(
                 BASE_URL + "task/create/sync",
@@ -232,11 +238,8 @@ public class TaskTestITCase extends AbstractTest {
         csvuseridTO.setSchema("csvuserid");
         userTO.addDerivedAttribute(csvuseridTO);
 
-        userTO.addResource("resource-csv");
-
         userTO = restTemplate.postForObject(
                 BASE_URL + "user/create", userTO, UserTO.class);
-
         assertNotNull(userTO);
         //-----------------------------
 
@@ -244,18 +247,42 @@ public class TaskTestITCase extends AbstractTest {
                 BASE_URL + "user/count.json", Integer.class);
         assertNotNull(usersPre);
 
-        // Update sync task by adding custom SyncJob actions
+        // Update sync task
         SyncTaskTO task = restTemplate.getForObject(
                 BASE_URL + "task/read/{taskId}", SyncTaskTO.class, 4);
         assertNotNull(task);
 
+        //  add custom SyncJob actions
         task.setJobActionsClassName(TestSyncJobActions.class.getName());
+
+        //  add user template
+        UserTO template = new UserTO();
+
+        AttributeTO attrTO = new AttributeTO();
+        attrTO.setSchema("type");
+        attrTO.addValue("email == 'test8@syncope.org'? 'TYPE_8': 'TYPE_OTHER'");
+        template.addAttribute(attrTO);
+
+        attrTO = new AttributeTO();
+        attrTO.setSchema("cn");
+        template.addDerivedAttribute(attrTO);
+
+        template.addResource("resource-testdb");
+
+        MembershipTO membershipTO = new MembershipTO();
+        membershipTO.setRoleId(8L);
+        AttributeTO membershipAttr = new AttributeTO();
+        membershipAttr.setSchema("subscriptionDate");
+        membershipAttr.addValue("'2009-08-18T16:33:12.203+0200'");
+        membershipTO.addAttribute(membershipAttr);
+        template.addMembership(membershipTO);
+
+        task.setUserTemplate(template);
 
         SyncTaskTO actual = restTemplate.postForObject(
                 BASE_URL + "task/update/sync",
                 task, SyncTaskTO.class);
         assertNotNull(actual);
-
         assertEquals(task.getId(), actual.getId());
         assertEquals(TestSyncJobActions.class.getName(),
                 actual.getJobActionsClassName());
@@ -266,15 +293,13 @@ public class TaskTestITCase extends AbstractTest {
         assertEquals("JOB_FIRED", execution.getStatus());
 
         try {
-            Thread.sleep(5000);
+            Thread.sleep(10000);
         } catch (InterruptedException e) {
         }
 
         // check for sync policy
-
         userTO = restTemplate.getForObject(BASE_URL + "user/read/{userId}.json",
                 UserTO.class, userTO.getId());
-
         assertNotNull(userTO);
         assertEquals("test9", userTO.getUsername());
         assertEquals("test9@syncope.org",
@@ -284,10 +309,31 @@ public class TaskTestITCase extends AbstractTest {
         assertTrue(Integer.valueOf(userTO.getAttributeMap().
                 get("fullname").getValues().get(0)) <= 10);
 
+        // check for user template
+        userTO = restTemplate.getForObject(
+                BASE_URL + "user/read.json?username=test7",
+                UserTO.class);
+        assertNotNull(userTO);
+        assertEquals("TYPE_OTHER",
+                userTO.getAttributeMap().get("type").getValues().get(0));
+        assertEquals(2, userTO.getResources().size());
+        assertTrue(userTO.getResources().contains("resource-testdb"));
+        assertTrue(userTO.getResources().contains("ws-target-resource-2"));
+        assertEquals(1, userTO.getMemberships().size());
+        assertTrue(userTO.getMemberships().get(0).getAttributeMap().
+                containsKey("subscriptionDate"));
+
+        userTO = restTemplate.getForObject(
+                BASE_URL + "user/read.json?username=test8",
+                UserTO.class);
+        assertNotNull(userTO);
+        assertEquals("TYPE_8",
+                userTO.getAttributeMap().get("type").getValues().get(0));
+
+        // check for sync results
         Integer usersPost = restTemplate.getForObject(
                 BASE_URL + "user/count.json", Integer.class);
         assertNotNull(usersPost);
-
         assertTrue("Expected " + (usersPre + 9) + ", found " + usersPost,
                 usersPost == usersPre + 9);
     }

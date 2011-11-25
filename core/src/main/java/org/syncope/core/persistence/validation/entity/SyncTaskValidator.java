@@ -49,7 +49,6 @@ public class SyncTaskValidator extends AbstractValidator
 
             if (isValid) {
                 isValid = object.getResource() != null;
-
                 if (!isValid) {
                     LOG.error("Resource is null");
 

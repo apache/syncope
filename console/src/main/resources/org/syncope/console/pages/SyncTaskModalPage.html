@@ -20,13 +20,6 @@
             background: #cccccc url(css/images/ui-bg_highlight-soft_75_cccccc_1x100.png)
                 50% 50% repeat-x;
         }
-
-        #resources table{
-            font-size: 1.1em;
-        }
-        #roles table{
-            font-size: 1.1em;
-        }
     </style>
     <script type="text/javascript">
         jQuery(function() {
@@ -48,8 +41,6 @@
                 <ul>
                     <li class="tabs-selected"><a href="#profile"><span><wicket:message key="profile"/></span></a></li>
                     <li><a href="#crontab"><span><wicket:message key="crontab"/></span></a></li>
-                    <li><a href="#resources"><span><wicket:message key="resources"/></span></a></li>
-                    <li><a href="#roles"><span><wicket:message key="roles"/></span></a></li>
                     <li><a href="#executions"><span><wicket:message key="executions"/></span></a></li>
                 </ul>
                 <div id="profile">
@@ -158,12 +149,6 @@
                             </div>
                         </div>
                     </span>
-                </div>
-                <div id="resources">
-                    <span wicket:id="defaultResources"/>
-                </div>
-                <div id="roles">
-                    <span wicket:id="defaultRoles"/>
                 </div>
                 <div id="executions">
                     <span wicket:id="executions" style="width: 100%">

@@ -22,4 +22,7 @@ import org.syncope.core.persistence.beans.AbstractVirSchema;
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 public class RVirSchema extends AbstractVirSchema {
+
+    private static final long serialVersionUID = -8799489777077514655L;
+
 }

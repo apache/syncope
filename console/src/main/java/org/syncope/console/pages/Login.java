@@ -165,7 +165,8 @@ public class Login extends WebPage {
                                             return new UserModalPage(
                                                     Login.this.getPageReference(),
                                                     editProfileModalWin,
-                                                    new UserTO(), true);
+                                                    new UserTO(),
+                                                    UserModalPage.Mode.SELF);
                                         }
                                     });
 

@@ -30,6 +30,7 @@ import org.syncope.console.wicket.markup.html.form.AjaxNumberFieldPanel;
 import org.syncope.console.wicket.markup.html.form.AjaxPasswordFieldPanel;
 import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.syncope.console.wicket.markup.html.form.DateTimeFieldPanel;
+import org.syncope.console.wicket.markup.html.form.FieldPanel;
 
 public class UserDetailsPanel extends Panel {
 
@@ -39,42 +40,45 @@ public class UserDetailsPanel extends Panel {
             final String id,
             final UserTO userTO,
             final Form form,
-            final boolean resetPassword) {
+            final boolean resetPassword,
+            final boolean templateMode) {
 
         super(id);
 
         // ------------------------
         // Username
         // ------------------------
-        final AjaxTextFieldPanel username = new AjaxTextFieldPanel(
-                "username",
-                "username",
-                new PropertyModel<String>(userTO, "username"),
-                true);
-
-        username.addRequiredLabel();
+        final FieldPanel username = new AjaxTextFieldPanel(
+                "username", "username",
+                new PropertyModel<String>(userTO, "username"), true);
+        if (!templateMode) {
+            username.addRequiredLabel();
+        }
         add(username);
         // ------------------------
 
         // ------------------------
         // Password
         // ------------------------
-        final AjaxPasswordFieldPanel password = new AjaxPasswordFieldPanel(
-                "password",
-                "password",
-                new PropertyModel<String>(userTO, "password"),
-                true);
-
-        password.setRequired(userTO.getId() == 0);
-        ((PasswordTextField) password.getField()).setResetPassword(
-                resetPassword);
+        final FieldPanel password = templateMode
+                ? new AjaxTextFieldPanel("password", "password",
+                new PropertyModel<String>(userTO, "password"), true)
+                : new AjaxPasswordFieldPanel("password", "password",
+                new PropertyModel<String>(userTO, "password"), true);
         add(password);
+
+        if (!templateMode) {
+            password.setRequired(userTO.getId() == 0);
+            ((PasswordTextField) password.getField()).setResetPassword(
+                    resetPassword);
+        }
 
         final WebMarkupContainer mandatoryPassword =
                 new WebMarkupContainer("mandatory_pwd");
         mandatoryPassword.add(new Behavior() {
 
-            private static final long serialVersionUID = 1469628524240283489L;
+            private static final long serialVersionUID =
+                    1469628524240283489L;
 
             @Override
             public void onComponentTag(

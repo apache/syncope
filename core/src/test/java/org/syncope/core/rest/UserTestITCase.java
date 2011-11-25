@@ -106,7 +106,7 @@ public class UserTestITCase extends AbstractTest {
         // add a virtual attribute
         AttributeTO virtualdata = new AttributeTO();
         virtualdata.setSchema("virtualdata");
-        virtualdata.setValues(Collections.singletonList("virtualvalue"));
+        virtualdata.addValue("virtualvalue");
         userTO.addVirtualAttribute(virtualdata);
 
         return userTO;
@@ -644,7 +644,7 @@ public class UserTestITCase extends AbstractTest {
 
         // User with role 9 are defined in workflow as subject to approval
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRoleId(9);
+        membershipTO.setRoleId(9L);
         userTO.addMembership(membershipTO);
 
         // 1. create user with role 9
@@ -714,7 +714,7 @@ public class UserTestITCase extends AbstractTest {
 
         // User with role 9 are defined in workflow as subject to approval
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRoleId(9);
+        membershipTO.setRoleId(9L);
         userTO.addMembership(membershipTO);
 
         // 1. create user with role 9
