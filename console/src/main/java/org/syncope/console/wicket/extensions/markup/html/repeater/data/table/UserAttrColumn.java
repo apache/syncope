@@ -53,23 +53,35 @@ public class UserAttrColumn extends AbstractColumn<UserTO> {
             final String componentId,
             final IModel<UserTO> rowModel) {
 
-        final List<String> values;
+        List<String> values = null;
 
         switch (schemaType) {
             case schema:
-                values = rowModel.getObject().getAttributeMap().
-                        get(name).getValues();
+                if (rowModel.getObject().getAttributeMap().containsKey(name)) {
+                    values = rowModel.getObject().getAttributeMap().
+                            get(name).getValues();
+                }
                 break;
+
             case virtualSchema:
-                values = rowModel.getObject().getVirtualAttributeMap().
-                        get(name).getValues();
+                if (rowModel.getObject().getVirtualAttributeMap().
+                        containsKey(name)) {
+
+                    values = rowModel.getObject().getVirtualAttributeMap().
+                            get(name).getValues();
+                }
                 break;
+
             case derivedSchema:
-                values = rowModel.getObject().getDerivedAttributeMap().
-                        get(name).getValues();
+                if (rowModel.getObject().getDerivedAttributeMap().
+                        containsKey(name)) {
+
+                    values = rowModel.getObject().getDerivedAttributeMap().
+                            get(name).getValues();
+                }
                 break;
+
             default:
-                values = null;
         }
 
         if (values == null || values.isEmpty()) {
@@ -77,7 +89,7 @@ public class UserAttrColumn extends AbstractColumn<UserTO> {
         } else {
             if (values.size() == 1) {
                 cellItem.add(
-                        new Label(componentId, values.iterator().next()));
+                        new Label(componentId, values.get(0)));
             } else {
                 cellItem.add(
                         new Label(componentId, values.toString()));
