@@ -40,7 +40,7 @@
         <junit.version>4.9</junit.version>
 
         <cargo.version>1.1.2</cargo.version>
-        <tomcat.version>7.0.22</tomcat.version>
+        <tomcat.version>7.0.23</tomcat.version>
 
         <bundles.directory>${project.build.directory}/bundles</bundles.directory>
         <log.directory>${project.build.directory}/log</log.directory>
