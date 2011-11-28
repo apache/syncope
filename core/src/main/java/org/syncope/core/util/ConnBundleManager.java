@@ -132,14 +132,14 @@ public class ConnBundleManager {
         }
 
         // create default configuration
-        APIConfiguration apiConfig = info.createDefaultAPIConfiguration();
+        final APIConfiguration apiConfig = info.createDefaultAPIConfiguration();
 
         if (apiConfig == null) {
             throw new NotFoundException("Default API configuration");
         }
 
         // retrieve the ConfigurationProperties.
-        ConfigurationProperties properties =
+        final ConfigurationProperties properties =
                 apiConfig.getConfigurationProperties();
 
         if (properties == null) {

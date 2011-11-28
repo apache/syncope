@@ -16,7 +16,10 @@ package org.syncope.types;
 
 import org.syncope.client.AbstractBaseBean;
 
-public class ConnConfPropSchema extends AbstractBaseBean {
+public class ConnConfPropSchema extends AbstractBaseBean
+        implements Comparable<ConnConfPropSchema> {
+
+    private static final long serialVersionUID = -1976365781005801296L;
 
     private String name;
 
@@ -27,6 +30,8 @@ public class ConnConfPropSchema extends AbstractBaseBean {
     private String type;
 
     private boolean required;
+
+    private int order;
 
     public String getName() {
         return name;
@@ -66,5 +71,24 @@ public class ConnConfPropSchema extends AbstractBaseBean {
 
     public void setHelpMessage(String helpMessage) {
         this.helpMessage = helpMessage;
+    }
+
+    public int getOrder() {
+        return order;
+    }
+
+    public void setOrder(int order) {
+        this.order = order;
+    }
+
+    @Override
+    public int compareTo(final ConnConfPropSchema connConfPropSchema) {
+        if (this.getOrder() > connConfPropSchema.getOrder()) {
+            return 1;
+        } else if (this.getOrder() < connConfPropSchema.getOrder()) {
+            return -1;
+        } else {
+            return 0;
+        }
     }
 }

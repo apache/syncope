@@ -76,7 +76,7 @@ public class ConnInstanceController extends AbstractController {
     private ConnInstanceDataBinder binder;
 
     @Autowired
-    private ConnBundleManager connBundleManager;
+    private ConnBundleManager bundleManager;
 
     @PreAuthorize("hasRole('CONNECTOR_CREATE')")
     @RequestMapping(method = RequestMethod.POST,
@@ -253,7 +253,7 @@ public class ConnInstanceController extends AbstractController {
         }
 
         ConnectorInfoManager manager =
-                connBundleManager.getConnectorManager();
+                bundleManager.getConnectorManager();
 
         List<ConnectorInfo> bundles = manager.getConnectorInfos();
 
@@ -290,8 +290,7 @@ public class ConnInstanceController extends AbstractController {
                 connectorBundleTO.setConnectorName(key.getConnectorName());
                 connectorBundleTO.setVersion(key.getBundleVersion());
 
-                properties =
-                        connBundleManager.getConfigurationProperties(bundle);
+                properties = bundleManager.getConfigurationProperties(bundle);
 
                 ConnConfPropSchema connConfPropSchema;
                 ConfigurationProperty configurationProperty;
