@@ -93,8 +93,8 @@ public class ExternalResource extends AbstractBaseBean {
     /**
      * Attribute mappings.
      */
-    @OneToMany(cascade = CascadeType.MERGE, orphanRemoval = true,
-    mappedBy = "resource")
+    @OneToMany(cascade = {CascadeType.MERGE, CascadeType.REMOVE},
+    orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "resource")
     @Valid
     private List<SchemaMapping> mappings;
 

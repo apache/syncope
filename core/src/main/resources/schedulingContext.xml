@@ -35,12 +35,6 @@
             </bean>
         </property>
     </bean>
-
-    <bean id="jpaInterceptor" class="org.springframework.orm.jpa.JpaInterceptor">
-        <property name="entityManagerFactory" ref="entityManagerFactory"/>
-    </bean>
-
-    <bean id="notificationJob" class="org.syncope.core.scheduling.NotificationJob"/>
     
     <bean id="scheduler"
 	  class="org.springframework.scheduling.quartz.SchedulerFactoryBean"
@@ -51,6 +45,9 @@
         <property name="overwriteExistingJobs" value="true"/>
         <property name="dataSource" ref="dataSource"/>
         <property name="transactionManager" ref="transactionManager"/>
+        <property name="jobFactory">
+            <bean class="org.syncope.core.scheduling.SpringBeanJobFactory"/>
+        </property>
         <property name="quartzProperties">
             <props>
 		<!-- Job store -->
@@ -66,4 +63,6 @@
             </props>
         </property>
     </bean>
+    
+    <bean id="notificationJob" class="org.syncope.core.scheduling.NotificationJob"/>
 </beans>

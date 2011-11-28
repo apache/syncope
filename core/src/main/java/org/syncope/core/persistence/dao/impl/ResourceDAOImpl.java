@@ -136,30 +136,11 @@ public class ResourceDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    public void deleteAllMappings(final ExternalResource resource) {
-        Query query = entityManager.createQuery("DELETE FROM "
-                + SchemaMapping.class.getSimpleName()
-                + " m WHERE m.resource=:resource");
-        query.setParameter("resource", resource);
-
-        int items = query.executeUpdate();
-        LOG.debug("Removed {} schema mappings", items);
-
-        resource.getMappings().clear();
-
-        // Make empty SchemaMapping query cache
-        entityManager.getEntityManagerFactory().getCache().
-                evict(SchemaMapping.class);
-    }
-
-    @Override
     public void delete(final String name) {
         ExternalResource resource = find(name);
         if (resource == null) {
             return;
         }
-
-        deleteAllMappings(resource);
 
         taskDAO.deleteAll(resource, PropagationTask.class);
         taskDAO.deleteAll(resource, SyncTask.class);

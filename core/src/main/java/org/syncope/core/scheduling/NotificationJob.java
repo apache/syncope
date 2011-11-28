@@ -20,6 +20,7 @@ import javax.mail.internet.MimeMessage;
 import org.apache.commons.lang.StringUtils;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.quartz.StatefulJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +38,7 @@ import org.syncope.types.TraceLevel;
  *
  * @see NotificationTask
  */
-public class NotificationJob implements Job {
+public class NotificationJob implements StatefulJob {
 
     enum Status {
 

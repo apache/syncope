@@ -15,30 +15,27 @@ package org.syncope.core.init;
 
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
+import org.quartz.Job;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.aop.framework.ProxyFactoryBean;
-import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
-import org.springframework.beans.factory.support.GenericBeanDefinition;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.scheduling.quartz.CronTriggerBean;
+import org.springframework.scheduling.quartz.JobDetailBean;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.SchedTask;
 import org.syncope.core.persistence.beans.SyncTask;
 import org.syncope.core.persistence.dao.TaskDAO;
-import org.syncope.core.scheduling.AppContextMethodInvokingJobDetailFactoryBean;
+import org.syncope.core.scheduling.AbstractJob;
 import org.syncope.core.scheduling.DefaultSyncJobActions;
-import org.syncope.core.scheduling.Job;
 import org.syncope.core.scheduling.NotificationJob;
 import org.syncope.core.scheduling.SyncJob;
-import org.syncope.core.util.ApplicationContextManager;
+import org.syncope.core.scheduling.SyncJobActions;
 
 @Component
 public class JobInstanceLoader extends AbstractLoader {
@@ -56,32 +53,25 @@ public class JobInstanceLoader extends AbstractLoader {
         return "job" + taskId;
     }
 
-    public static String getJobProxyName(final Long taskId) {
-        return "jobProxy" + taskId;
-    }
-
-    public static String getJobDetailName(final Long taskId) {
-        return "jobDetail" + taskId;
-    }
-
     public static String getTriggerName(final Long taskId) {
-        return "Trigger_" + getJobDetailName(taskId);
+        return "Trigger_" + getJobName(taskId);
     }
 
     public void registerJob(final Long taskId, final String jobClassName,
             final String cronExpression)
             throws Exception {
 
+        // 0. unregister job
         unregisterJob(taskId);
 
-        ConfigurableApplicationContext ctx =
-                ApplicationContextManager.getApplicationContext();
-
-        MutablePropertyValues mpv = new MutablePropertyValues();
-        if (!NotificationJob.class.getName().equals(jobClassName)) {
-            mpv.add("taskId", taskId);
+        // 1. Job bean
+        Class jobClass = Class.forName(jobClassName);
+        Job jobInstance = (Job) getBeanFactory().autowire(jobClass,
+                AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
+        if (jobInstance instanceof AbstractJob) {
+            ((AbstractJob) jobInstance).setTaskId(taskId);
         }
-        if (SyncJob.class.getName().equals(jobClassName)) {
+        if (jobInstance instanceof SyncJob) {
             String jobActionsClassName =
                     ((SyncTask) taskDAO.find(taskId)).getJobActionsClassName();
             Class syncJobActionsClass = DefaultSyncJobActions.class;
@@ -94,42 +84,22 @@ public class JobInstanceLoader extends AbstractLoader {
                                 syncJobActionsClass.getName(), t});
                 }
             }
-            Object syncJobActions = getBeanFactory().autowire(
+            SyncJobActions syncJobActions =
+                    (SyncJobActions) getBeanFactory().autowire(
                     syncJobActionsClass,
                     AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true);
-            mpv.add("actions", syncJobActions);
+
+            ((SyncJob) jobInstance).setActions(syncJobActions);
         }
-        GenericBeanDefinition bd = new GenericBeanDefinition();
-        bd.setBeanClassName(jobClassName);
-        bd.setAutowireMode(AbstractBeanDefinition.AUTOWIRE_BY_TYPE);
-        bd.setPropertyValues(mpv);
-        getBeanFactory().registerBeanDefinition(getJobName(taskId), bd);
+        getBeanFactory().registerSingleton(getJobName(taskId), jobInstance);
 
-        mpv = new MutablePropertyValues();
-        mpv.add("target", ctx.getBean(getJobName(taskId)));
-        mpv.add("proxyInterfaces", Job.class.getName());
-        mpv.add("interceptorNames", "jpaInterceptor");
-        bd = new GenericBeanDefinition();
-        bd.setBeanClass(ProxyFactoryBean.class);
-        bd.setPropertyValues(mpv);
-        getBeanFactory().registerBeanDefinition(
-                getJobProxyName(taskId), bd);
-
-        AppContextMethodInvokingJobDetailFactoryBean jobDetailFactory =
-                (AppContextMethodInvokingJobDetailFactoryBean) getBeanFactory().
-                autowire(AppContextMethodInvokingJobDetailFactoryBean.class,
-                AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true);
-        jobDetailFactory.setTargetBeanName(getJobProxyName(taskId));
-        jobDetailFactory.setTargetMethod("execute");
-        jobDetailFactory.afterPropertiesSet();
-        getBeanFactory().registerSingleton(getJobDetailName(taskId),
-                jobDetailFactory);
-
-        JobDetail jobDetail = (JobDetail) ctx.getBean(
-                getJobDetailName(taskId));
-        jobDetail.setName(getJobDetailName(taskId));
+        // 2. JobDetail bean
+        JobDetail jobDetail = new JobDetailBean();
+        jobDetail.setName(getJobName(taskId));
         jobDetail.setGroup(Scheduler.DEFAULT_GROUP);
+        jobDetail.setJobClass(jobClass);
 
+        // 3. Trigger
         if (cronExpression == null) {
             scheduler.getScheduler().addJob(jobDetail, true);
         } else {
@@ -144,22 +114,15 @@ public class JobInstanceLoader extends AbstractLoader {
     public void unregisterJob(final Long taskId) {
         try {
             scheduler.getScheduler().unscheduleJob(
-                    getJobDetailName(taskId), Scheduler.DEFAULT_GROUP);
+                    getJobName(taskId), Scheduler.DEFAULT_GROUP);
             scheduler.getScheduler().deleteJob(
-                    getJobDetailName(taskId), Scheduler.DEFAULT_GROUP);
+                    getJobName(taskId), Scheduler.DEFAULT_GROUP);
         } catch (SchedulerException e) {
-            LOG.error("Could not remove job " + getJobDetailName(taskId), e);
+            LOG.error("Could not remove job " + getJobName(taskId), e);
         }
 
-        if (getBeanFactory().containsSingleton(getJobDetailName(taskId))) {
-            getBeanFactory().destroySingleton(getJobDetailName(taskId));
-        }
-        if (getBeanFactory().containsBeanDefinition(getJobProxyName(taskId))) {
-
-            getBeanFactory().removeBeanDefinition(getJobProxyName(taskId));
-        }
-        if (getBeanFactory().containsBeanDefinition(getJobName(taskId))) {
-            getBeanFactory().removeBeanDefinition(getJobName(taskId));
+        if (getBeanFactory().containsSingleton(getJobName(taskId))) {
+            getBeanFactory().destroySingleton(getJobName(taskId));
         }
     }
 

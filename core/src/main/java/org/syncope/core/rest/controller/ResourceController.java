@@ -127,7 +127,7 @@ public class ResourceController extends AbstractController {
 
         LOG.debug("Removing old mappings ..");
         // remove old mappings
-        resourceDAO.deleteAllMappings(resource);
+        resource.getMappings().clear();
 
         resource = binder.getResource(resource, resourceTO);
         if (resource == null) {

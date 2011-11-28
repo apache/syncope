@@ -18,6 +18,7 @@ import java.io.StringWriter;
 import java.util.Date;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.quartz.StatefulJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +32,9 @@ import org.syncope.core.persistence.dao.TaskExecDAO;
  * job execution and provides some background settings (like as the
  * corresponding Task, for example).
  */
-public abstract class AbstractJob implements Job {
+public abstract class AbstractJob implements StatefulJob {
+
+    public static final String DRY_RUN_JOBDETAIL_KEY = "dryRun";
 
     /**
      * Task execution status.
@@ -96,7 +99,7 @@ public abstract class AbstractJob implements Job {
         try {
             execution.setMessage(doExecute(
                     context.getMergedJobDataMap().
-                    getBoolean(Job.DRY_RUN_JOBDETAIL_KEY)));
+                    getBoolean(DRY_RUN_JOBDETAIL_KEY)));
 
             execution.setStatus(Status.SUCCESS.name());
         } catch (JobExecutionException e) {

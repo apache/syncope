@@ -95,13 +95,8 @@ public class UserController {
             @RequestParam("password") final String password)
             throws NotFoundException, UnauthorizedRoleException {
 
-        SyncopeUser user = dataBinder.getUserFromId(userId);
-
-        SyncopeUser passwordUser = new SyncopeUser();
-        passwordUser.setPassword(password, user.getCipherAlgoritm(), 0);
-
-        return new ModelAndView().addObject(user.getPassword().
-                equalsIgnoreCase(passwordUser.getPassword()));
+        return new ModelAndView().addObject(
+                dataBinder.verifyPassword(userId, password));
     }
 
     @PreAuthorize("hasRole('USER_LIST')")

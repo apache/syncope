@@ -22,10 +22,9 @@ import java.util.List;
 import java.util.Set;
 import javassist.NotFoundException;
 import javax.servlet.http.HttpServletResponse;
+import org.quartz.Job;
 import org.quartz.JobDataMap;
-import org.quartz.JobDetail;
 import org.quartz.Scheduler;
-import org.quartz.SchedulerException;
 import org.reflections.Reflections;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -55,13 +54,12 @@ import org.syncope.core.persistence.dao.TaskDAO;
 import org.syncope.core.persistence.dao.TaskExecDAO;
 import org.syncope.core.propagation.PropagationManager;
 import org.syncope.core.rest.data.TaskDataBinder;
-import org.syncope.core.scheduling.Job;
 import org.syncope.core.scheduling.NotificationJob;
 import org.syncope.core.scheduling.SyncJob;
-import org.syncope.core.util.ApplicationContextManager;
 import org.syncope.core.util.TaskUtil;
 import org.syncope.types.PropagationMode;
 import org.syncope.core.propagation.PropagationTaskExecStatus;
+import org.syncope.core.scheduling.AbstractJob;
 import org.syncope.core.scheduling.SyncJobActions;
 import org.syncope.types.SyncopeClientExceptionType;
 
@@ -347,19 +345,17 @@ public class TaskController extends AbstractController {
 
             case SCHED:
             case SYNC:
-                JobDetail jobDetail = (JobDetail) ApplicationContextManager.
-                        getApplicationContext().getBean(
-                        JobInstanceLoader.getJobDetailName(task.getId()));
-                jobDetail.setName(
-                        JobInstanceLoader.getJobDetailName(task.getId()));
-                jobDetail.setGroup(Scheduler.DEFAULT_GROUP);
                 try {
+                    jobInstanceLoader.registerJob(task.getId(),
+                            ((SchedTask) task).getJobClassName(),
+                            ((SchedTask) task).getCronExpression());
+
                     JobDataMap map = new JobDataMap();
-                    map.put(Job.DRY_RUN_JOBDETAIL_KEY, dryRun);
+                    map.put(AbstractJob.DRY_RUN_JOBDETAIL_KEY, dryRun);
                     scheduler.getScheduler().triggerJob(
-                            JobInstanceLoader.getJobDetailName(task.getId()),
+                            JobInstanceLoader.getJobName(task.getId()),
                             Scheduler.DEFAULT_GROUP, map);
-                } catch (SchedulerException e) {
+                } catch (Exception e) {
                     LOG.error("While executing task {}", task, e);
 
                     SyncopeClientCompositeErrorException scce =
@@ -455,6 +451,12 @@ public class TaskController extends AbstractController {
         Task task = taskDAO.find(taskId);
         if (task == null) {
             throw new NotFoundException("Task " + taskId);
+        }
+
+        if (TaskUtil.SCHED == getTaskUtil(task)
+                || TaskUtil.SYNC == getTaskUtil(task)) {
+
+            jobInstanceLoader.unregisterJob(taskId);
         }
 
         taskDAO.delete(task);
