@@ -116,7 +116,7 @@
         <selenium-java-client-driver.version>1.0.2</selenium-java-client-driver.version>
         <dbunit.version>2.4.8</dbunit.version>
 
-        <tomcat.version>7.0.22</tomcat.version>
+        <tomcat.version>7.0.23</tomcat.version>
 
         <bundles.directory>${project.build.directory}/bundles</bundles.directory>
         <log.directory>${project.build.directory}/log</log.directory>
