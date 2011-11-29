@@ -715,20 +715,34 @@ public class UserTestITCase extends AbstractTest {
 
     @Test
     public final void createWithApproval() {
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
+
         UserTO userTO = getSampleTO("createWithApproval@syncope-idm.org");
+        userTO.addResource("resource-testdb");
 
         // User with role 9 are defined in workflow as subject to approval
         MembershipTO membershipTO = new MembershipTO();
         membershipTO.setRoleId(9L);
         userTO.addMembership(membershipTO);
 
-        // 1. create user with role 9
+        // 1. create user with role 9 (and verify that no propagation occurred)
         userTO = restTemplate.postForObject(BASE_URL + "user/create",
                 userTO, UserTO.class);
         assertNotNull(userTO);
         assertEquals(1, userTO.getMemberships().size());
         assertEquals(9, userTO.getMemberships().get(0).getRoleId());
         assertEquals("createApproval", userTO.getStatus());
+        assertEquals(Collections.singleton("resource-testdb"),
+                userTO.getResources());
+        assertTrue(userTO.getPropagationStatusMap().isEmpty());
+        Exception exception = null;
+        try {
+            jdbcTemplate.queryForInt(
+                    "SELECT id FROM test WHERE id=?", userTO.getId());
+        } catch (EmptyResultDataAccessException e) {
+            exception = e;
+        }
+        assertNotNull(exception);
 
         // 2. request if there is any pending task for user just created
         WorkflowFormTO form = restTemplate.getForObject(
@@ -746,7 +760,7 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(form.getTaskId());
         assertNotNull(form.getOwner());
 
-        // 5. approve user
+        // 5. approve user (and verify that propagation occurred)
         Map<String, WorkflowFormPropertyTO> props = form.getPropertiesAsMap();
         props.get("approve").setValue(Boolean.TRUE.toString());
         form.setProperties(props.values());
@@ -755,6 +769,18 @@ public class UserTestITCase extends AbstractTest {
                 form, UserTO.class);
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());
+        assertEquals(Collections.singleton("resource-testdb"),
+                userTO.getResources());
+        assertFalse(userTO.getPropagationStatusMap().isEmpty());
+        exception = null;
+        try {
+            int id = jdbcTemplate.queryForInt(
+                    "SELECT id FROM test WHERE id=?", userTO.getId());
+            assertEquals(userTO.getId(), id);
+        } catch (EmptyResultDataAccessException e) {
+            exception = e;
+        }
+        assertNull(exception);
 
         // 6. update user
         UserMod userMod = new UserMod();

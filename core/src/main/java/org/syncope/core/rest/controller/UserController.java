@@ -46,7 +46,6 @@ import org.syncope.client.to.WorkflowFormTO;
 import org.syncope.core.notification.NotificationManager;
 import org.syncope.core.persistence.beans.PropagationTask;
 import org.syncope.core.persistence.dao.UserSearchDAO;
-import org.syncope.core.propagation.PropagationByResource;
 import org.syncope.core.propagation.PropagationManager;
 import org.syncope.core.util.EntitlementUtil;
 import org.syncope.core.workflow.UserWorkflowAdapter;
@@ -265,12 +264,13 @@ public class UserController {
                 wfAdapter.create(userTO);
 
         List<PropagationTask> tasks = propagationManager.getCreateTaskIds(
-                created.getResult().getKey(), userTO.getPassword(),
-                userTO.getVirtualAttributes(), created.getResult().getValue());
+                created, userTO.getPassword(), userTO.getVirtualAttributes());
         propagationManager.execute(tasks);
 
         notificationManager.createTasks(new WorkflowResult<Long>(
-                created.getResult().getKey(), created.getPerformedTasks()));
+                created.getResult().getKey(),
+                created.getPropByRes(),
+                created.getPerformedTasks()));
 
         final UserTO savedTO = dataBinder.getUserTO(
                 created.getResult().getKey());
@@ -292,7 +292,7 @@ public class UserController {
                 wfAdapter.activate(userTO.getId(), userTO.getToken());
 
         List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(
-                updated.getResult(), null, null, null, Boolean.TRUE, null);
+                updated, Boolean.TRUE);
         propagationManager.execute(tasks);
 
         notificationManager.createTasks(updated);
@@ -313,21 +313,18 @@ public class UserController {
 
         LOG.debug("User update called with {}", userMod);
 
-        WorkflowResult<Map.Entry<Long, PropagationByResource>> updated =
-                wfAdapter.update(userMod);
+        WorkflowResult<Long> updated = wfAdapter.update(userMod);
 
         List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(
-                updated.getResult().getKey(), userMod.getPassword(),
+                updated, userMod.getPassword(),
                 userMod.getVirtualAttributesToBeRemoved(),
-                userMod.getVirtualAttributesToBeUpdated(),
-                null, updated.getResult().getValue());
+                userMod.getVirtualAttributesToBeUpdated(), null);
         propagationManager.execute(tasks);
 
-        notificationManager.createTasks(new WorkflowResult<Long>(
-                updated.getResult().getKey(), updated.getPerformedTasks()));
+        notificationManager.createTasks(updated);
 
         final UserTO updatedTO =
-                dataBinder.getUserTO(updated.getResult().getKey());
+                dataBinder.getUserTO(updated.getResult());
 
         LOG.debug("About to return updated user\n{}", updatedTO);
 
@@ -346,7 +343,7 @@ public class UserController {
         WorkflowResult<Long> updated = wfAdapter.suspend(userId);
 
         List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(
-                updated.getResult(), null, null, null, Boolean.FALSE, null);
+                updated, Boolean.FALSE);
         propagationManager.execute(tasks);
 
         notificationManager.createTasks(updated);
@@ -370,7 +367,7 @@ public class UserController {
         WorkflowResult<Long> updated = wfAdapter.reactivate(userId);
 
         List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(
-                updated.getResult(), null, null, null, Boolean.TRUE, null);
+                updated, Boolean.TRUE);
         propagationManager.execute(tasks);
 
         notificationManager.createTasks(updated);
@@ -397,7 +394,7 @@ public class UserController {
         // will also effectively remove user from db, thus making virtually
         // impossible by NotificationManager to fetch required user information
         notificationManager.createTasks(
-                new WorkflowResult<Long>(userId, "delete"));
+                new WorkflowResult<Long>(userId, null, "delete"));
 
         List<PropagationTask> tasks =
                 propagationManager.getDeleteTaskIds(userId);
@@ -421,7 +418,7 @@ public class UserController {
         WorkflowResult<Long> updated = wfAdapter.execute(userTO, taskId);
 
         List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(
-                updated.getResult(), null, null, null, null, null);
+                updated, null);
         propagationManager.execute(tasks);
 
         notificationManager.createTasks(updated);
@@ -476,15 +473,18 @@ public class UserController {
 
         LOG.debug("About to process form {}", form);
 
-        Long updatedId = wfAdapter.submitForm(form,
-                SecurityContextHolder.getContext().
+        WorkflowResult<Map.Entry<Long, String>> updated =
+                wfAdapter.submitForm(form, SecurityContextHolder.getContext().
                 getAuthentication().getName());
 
         List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(
-                updatedId, null, null, null, Boolean.TRUE, null);
+                new WorkflowResult<Long>(updated.getResult().getKey(),
+                updated.getPropByRes(), updated.getPerformedTasks()),
+                updated.getResult().getValue(), null, null, Boolean.TRUE);
         propagationManager.execute(tasks);
 
-        final UserTO savedTO = dataBinder.getUserTO(updatedId);
+        final UserTO savedTO = dataBinder.getUserTO(
+                updated.getResult().getKey());
 
         LOG.debug("About to return user after form processing\n{}", savedTO);
 

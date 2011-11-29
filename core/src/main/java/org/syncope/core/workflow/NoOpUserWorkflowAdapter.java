@@ -27,6 +27,7 @@ import org.syncope.client.to.WorkflowFormTO;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.propagation.PropagationByResource;
 import org.syncope.core.rest.controller.UnauthorizedRoleException;
+import org.syncope.types.PropagationOperation;
 
 /**
  * Simple implementation basically not involving any workflow engine.
@@ -49,18 +50,22 @@ public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
         SyncopeUser user = new SyncopeUser();
         dataBinder.create(user, userTO);
-        
+
         // this will make SyncopeUserValidator not to consider
         // password policies at all
         if (disablePwdPolicyCheck) {
             user.removeClearPassword();
         }
-        
+
         user.setStatus("created");
         user = userDAO.save(user);
 
+        final PropagationByResource propByRes = new PropagationByResource();
+        propByRes.set(PropagationOperation.CREATE,
+                user.getExternalResourceNames());
         return new WorkflowResult<Map.Entry<Long, Boolean>>(
-                new DefaultMapEntry(user.getId(), Boolean.TRUE), "create");
+                new DefaultMapEntry(user.getId(), Boolean.TRUE),
+                propByRes, "create");
     }
 
     @Override
@@ -77,11 +82,11 @@ public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         user.setStatus("active");
         SyncopeUser updated = userDAO.save(user);
 
-        return new WorkflowResult<Long>(updated.getId(), "activate");
+        return new WorkflowResult<Long>(updated.getId(), null, "activate");
     }
 
     @Override
-    protected WorkflowResult<Map.Entry<Long, PropagationByResource>> doUpdate(
+    protected WorkflowResult<Long> doUpdate(
             final SyncopeUser user, final UserMod userMod)
             throws WorkflowException {
 
@@ -89,8 +94,8 @@ public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
         SyncopeUser updated = userDAO.save(user);
 
-        return new WorkflowResult<Map.Entry<Long, PropagationByResource>>(
-                new DefaultMapEntry(updated.getId(), propByRes), "update");
+        return new WorkflowResult<Long>(
+                updated.getId(), propByRes, "update");
     }
 
     @Override
@@ -100,7 +105,7 @@ public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         user.setStatus("suspended");
         SyncopeUser updated = userDAO.save(user);
 
-        return new WorkflowResult<Long>(updated.getId(), "suspend");
+        return new WorkflowResult<Long>(updated.getId(), null, "suspend");
     }
 
     @Override
@@ -110,7 +115,7 @@ public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         user.setStatus("active");
         SyncopeUser updated = userDAO.save(user);
 
-        return new WorkflowResult<Long>(updated.getId(), "suspend");
+        return new WorkflowResult<Long>(updated.getId(), null, "reactivate");
     }
 
     @Override
@@ -173,7 +178,8 @@ public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    public Long submitForm(final WorkflowFormTO form, final String username)
+    public WorkflowResult<Map.Entry<Long, String>> submitForm(
+            final WorkflowFormTO form, final String username)
             throws NotFoundException, WorkflowException {
 
         throw new WorkflowException(

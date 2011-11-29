@@ -21,7 +21,6 @@ import org.syncope.client.to.UserTO;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.client.to.WorkflowDefinitionTO;
 import org.syncope.client.to.WorkflowFormTO;
-import org.syncope.core.propagation.PropagationByResource;
 import org.syncope.core.rest.controller.UnauthorizedRoleException;
 
 /**
@@ -39,7 +38,7 @@ public interface UserWorkflowAdapter {
      */
     WorkflowResult<Map.Entry<Long, Boolean>> create(UserTO userTO)
             throws UnauthorizedRoleException, WorkflowException;
-    
+
     /**
      * Create an user, optionally disabling password policy check.
      *
@@ -90,8 +89,7 @@ public interface UserWorkflowAdapter {
      * @throws NotFoundException user not found exception
      * @throws WorkflowException workflow exception
      */
-    WorkflowResult<Map.Entry<Long, PropagationByResource>> update(
-            UserMod userMod)
+    WorkflowResult<Long> update(UserMod userMod)
             throws UnauthorizedRoleException, NotFoundException,
             WorkflowException;
 
@@ -211,6 +209,7 @@ public interface UserWorkflowAdapter {
      * @throws NotFoundException not found exception
      * @throws WorkflowException workflow exception
      */
-    Long submitForm(WorkflowFormTO form, String username)
+    WorkflowResult<Map.Entry<Long, String>> submitForm(
+            WorkflowFormTO form, String username)
             throws NotFoundException, WorkflowException;
 }

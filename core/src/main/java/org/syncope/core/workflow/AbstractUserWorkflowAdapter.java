@@ -13,7 +13,6 @@
  */
 package org.syncope.core.workflow;
 
-import java.util.Map;
 import java.util.Map.Entry;
 import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +21,6 @@ import org.syncope.client.mod.UserMod;
 import org.syncope.client.to.UserTO;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.UserDAO;
-import org.syncope.core.propagation.PropagationByResource;
 import org.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.syncope.core.rest.data.UserDataBinder;
 
@@ -57,13 +55,12 @@ public abstract class AbstractUserWorkflowAdapter
         return doActivate(dataBinder.getUserFromId(userId), token);
     }
 
-    protected abstract WorkflowResult<Map.Entry<Long, PropagationByResource>> doUpdate(
-            SyncopeUser user, UserMod userMod)
+    protected abstract WorkflowResult<Long> doUpdate(SyncopeUser user,
+            UserMod userMod)
             throws WorkflowException;
 
     @Override
-    public WorkflowResult<Map.Entry<Long, PropagationByResource>> update(
-            final UserMod userMod)
+    public WorkflowResult<Long> update(final UserMod userMod)
             throws UnauthorizedRoleException, NotFoundException,
             WorkflowException {
 

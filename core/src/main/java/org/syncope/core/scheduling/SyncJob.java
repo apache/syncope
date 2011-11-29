@@ -60,7 +60,6 @@ import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.dao.UserDAO;
 import org.syncope.core.persistence.dao.UserSearchDAO;
 import org.syncope.core.propagation.ConnectorFacadeProxy;
-import org.syncope.core.propagation.PropagationByResource;
 import org.syncope.core.propagation.PropagationException;
 import org.syncope.core.propagation.PropagationManager;
 import org.syncope.core.rest.controller.InvalidSearchConditionException;
@@ -623,8 +622,7 @@ public class SyncJob extends AbstractJob {
                         wfAdapter.create(userTO, true);
                 List<PropagationTask> tasks =
                         propagationManager.getCreateTaskIds(
-                        created.getResult().getKey(), userTO.getPassword(),
-                        null, created.getResult().getValue(),
+                        created, userTO.getPassword(), null,
                         ((SyncTask) this.task).getResource().getName());
                 propagationManager.execute(tasks);
 
@@ -678,19 +676,18 @@ public class SyncJob extends AbstractJob {
                     result.setUsername(userMod.getUsername());
 
                     if (!dryRun) {
-                        WorkflowResult<Map.Entry<Long, PropagationByResource>> updated =
+                        WorkflowResult<Long> updated =
                                 wfAdapter.update(userMod);
                         List<PropagationTask> tasks =
                                 propagationManager.getUpdateTaskIds(
-                                updated.getResult().getKey(),
+                                updated,
                                 userMod.getPassword(),
                                 null, null, null,
-                                updated.getResult().getValue(),
                                 ((SyncTask) this.task).getResource().getName());
                         propagationManager.execute(tasks);
 
                         userTO = userDataBinder.getUserTO(
-                                updated.getResult().getKey());
+                                updated.getResult());
                     }
                 } catch (PropagationException e) {
                     LOG.error("Could not propagate user "

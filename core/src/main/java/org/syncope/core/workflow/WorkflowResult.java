@@ -19,21 +19,39 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.syncope.core.propagation.PropagationByResource;
 
 public class WorkflowResult<T> {
 
     private T result;
 
+    private PropagationByResource propByRes;
+
     private Set<String> performedTasks;
 
-    public WorkflowResult(final T result, final String performedTask) {
+    public WorkflowResult(final T result,
+            final PropagationByResource propByRes, final String performedTask) {
+
         this.result = result;
+        this.propByRes = propByRes;
         this.performedTasks = Collections.singleton(performedTask);
     }
 
-    public WorkflowResult(final T result, final Set<String> performedTasks) {
+    public WorkflowResult(final T result,
+            final PropagationByResource propByRes,
+            final Set<String> performedTasks) {
+
         this.result = result;
+        this.propByRes = propByRes;
         this.performedTasks = performedTasks;
+    }
+
+    public T getResult() {
+        return result;
+    }
+
+    public void setResult(final T result) {
+        this.result = result;
     }
 
     public Set<String> getPerformedTasks() {
@@ -44,12 +62,12 @@ public class WorkflowResult<T> {
         this.performedTasks = performedTasks;
     }
 
-    public T getResult() {
-        return result;
+    public PropagationByResource getPropByRes() {
+        return propByRes;
     }
 
-    public void setResult(final T result) {
-        this.result = result;
+    public void setPropByRes(final PropagationByResource propByRes) {
+        this.propByRes = propByRes;
     }
 
     @Override

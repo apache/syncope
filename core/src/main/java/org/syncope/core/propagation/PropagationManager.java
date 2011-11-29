@@ -67,6 +67,7 @@ import org.syncope.core.persistence.dao.UserDAO;
 import org.syncope.core.rest.data.UserDataBinder;
 import org.syncope.core.util.AttributableUtil;
 import org.syncope.core.util.JexlUtil;
+import org.syncope.core.workflow.WorkflowResult;
 import org.syncope.types.PropagationMode;
 import org.syncope.types.PropagationOperation;
 import org.syncope.types.IntMappingType;
@@ -149,108 +150,130 @@ public class PropagationManager {
     /**
      * Create the user on every associated resource.
      *
-     * @param userId to be created
+     * @param wfResult user to be propagated (and info associated), as per
+     * result from workflow
      * @param password to be set
      * @param vAttrs virtual attributes to be set
-     * @param enable wether user must be enabled or not
      * @return list of propagation tasks
      * @throws NotFoundException if userId is not found
      */
-    public List<PropagationTask> getCreateTaskIds(final Long userId,
-            final String password, final List<AttributeTO> vAttrs,
-            final Boolean enable)
+    public List<PropagationTask> getCreateTaskIds(
+            final WorkflowResult<Map.Entry<Long, Boolean>> wfResult,
+            final String password, final List<AttributeTO> vAttrs)
             throws NotFoundException {
 
-        return getCreateTaskIds(userId, password, vAttrs, enable, null);
+        return getCreateTaskIds(wfResult, password, vAttrs, null);
     }
 
     /**
      * Create the user on every associated resource.
      *
-     * @param userId to be created
+     * @param wfResult user to be propagated (and info associated), as per
+     * result from workflow
      * @param password to be set
      * @param vAttrs virtual attributes to be set
-     * @param enable wether user must be enabled or not
      * @param syncResourceName name of external resource performing sync, hence
      * not to be considered for propagation
      * @return list of propagation tasks
      * @throws NotFoundException if userId is not found
      */
-    public List<PropagationTask> getCreateTaskIds(final Long userId,
+    public List<PropagationTask> getCreateTaskIds(
+            final WorkflowResult<Map.Entry<Long, Boolean>> wfResult,
             final String password, final List<AttributeTO> vAttrs,
-            final Boolean enable, final String syncResourceName)
+            final String syncResourceName)
             throws NotFoundException {
 
-        SyncopeUser user = getSyncopeUser(userId);
+        SyncopeUser user = getSyncopeUser(wfResult.getResult().getKey());
         if (vAttrs != null && !vAttrs.isEmpty()) {
             userDataBinder.fillVirtual(user, vAttrs, AttributableUtil.USER);
             user = userDAO.save(user);
         }
 
-        final PropagationByResource propByRes = new PropagationByResource();
-        propByRes.set(PropagationOperation.CREATE,
-                user.getExternalResourceNames());
+        final PropagationByResource propByRes = wfResult.getPropByRes();
+        if (propByRes == null || propByRes.isEmpty()) {
+            return Collections.EMPTY_LIST;
+        }
+
         if (syncResourceName != null) {
             propByRes.get(PropagationOperation.CREATE).remove(syncResourceName);
         }
 
-        return provision(user, password, enable, propByRes);
+        return provision(user, password,
+                wfResult.getResult().getValue(), propByRes);
     }
 
     /**
      * Performs update on each resource associated to the user.
      *
-     * @param userId to be updated
-     * @param password to be updated
-     * @param vAttrsToBeRemoved virtual attributes to be removed
-     * @param vAttrsToBeUpdated virtual attributes to be added
+     * @param wfResult user to be propagated (and info associated), as per
+     * result from workflow
      * @param enable wether user must be enabled or not
-     * @param propByRes operations to perform on each resource
      * @return list of propagation tasks
      * @throws NotFoundException if userId is not found
      */
-    public List<PropagationTask> getUpdateTaskIds(final Long userId,
-            final String password, final Set<String> vAttrsToBeRemoved,
-            final Set<AttributeMod> vAttrsToBeUpdated, final Boolean enable,
-            final PropagationByResource propByRes)
+    public List<PropagationTask> getUpdateTaskIds(
+            final WorkflowResult<Long> wfResult, final Boolean enable)
             throws NotFoundException {
 
-        return getUpdateTaskIds(userId, password, vAttrsToBeRemoved,
-                vAttrsToBeUpdated, enable, propByRes, null);
+        return getUpdateTaskIds(wfResult, null, null, null, enable, null);
     }
 
     /**
      * Performs update on each resource associated to the user.
      *
-     * @param userId to be updated
+     * @param wfResult user to be propagated (and info associated), as per
+     * result from workflow
      * @param password to be updated
      * @param vAttrsToBeRemoved virtual attributes to be removed
      * @param vAttrsToBeUpdated virtual attributes to be added
      * @param enable wether user must be enabled or not
-     * @param propByRes operations to perform on each resource
+     * @return list of propagation tasks
+     * @throws NotFoundException if userId is not found
+     */
+    public List<PropagationTask> getUpdateTaskIds(
+            final WorkflowResult<Long> wfResult,
+            final String password, final Set<String> vAttrsToBeRemoved,
+            final Set<AttributeMod> vAttrsToBeUpdated, final Boolean enable)
+            throws NotFoundException {
+
+        return getUpdateTaskIds(wfResult, password, vAttrsToBeRemoved,
+                vAttrsToBeUpdated, enable, null);
+    }
+
+    /**
+     * Performs update on each resource associated to the user.
+     *
+     * @param wfResult user to be propagated (and info associated), as per
+     * result from workflow
+     * @param password to be updated
+     * @param vAttrsToBeRemoved virtual attributes to be removed
+     * @param vAttrsToBeUpdated virtual attributes to be added
+     * @param enable wether user must be enabled or not
      * @param syncResourceName name of external resource performing sync, hence
      * not to be considered for propagation
      * @return list of propagation tasks
      * @throws NotFoundException if userId is not found
      */
-    public List<PropagationTask> getUpdateTaskIds(final Long userId,
+    public List<PropagationTask> getUpdateTaskIds(
+            final WorkflowResult<Long> wfResult,
             final String password, final Set<String> vAttrsToBeRemoved,
             final Set<AttributeMod> vAttrsToBeUpdated, final Boolean enable,
-            final PropagationByResource propByRes,
             final String syncResourceName)
             throws NotFoundException {
 
-        SyncopeUser user = getSyncopeUser(userId);
+        SyncopeUser user = getSyncopeUser(wfResult.getResult());
 
-        Set<String> vAttrsToRemove = vAttrsToBeRemoved == null
-                ? Collections.EMPTY_SET : vAttrsToBeRemoved;
-        Set<AttributeMod> vAttrsToUpdate = vAttrsToBeUpdated == null
-                ? Collections.EMPTY_SET : vAttrsToBeUpdated;
         PropagationByResource localPropByRes = userDataBinder.fillVirtual(user,
-                vAttrsToRemove, vAttrsToUpdate, AttributableUtil.USER);
+                vAttrsToBeRemoved == null
+                ? Collections.EMPTY_SET : vAttrsToBeRemoved,
+                vAttrsToBeUpdated == null
+                ? Collections.EMPTY_SET : vAttrsToBeUpdated,
+                AttributableUtil.USER);
 
-        if (propByRes != null && !propByRes.isEmpty()) {
-            localPropByRes.merge(propByRes);
+        if (wfResult.getPropByRes() != null
+                && !wfResult.getPropByRes().isEmpty()) {
+
+            localPropByRes.merge(wfResult.getPropByRes());
         } else {
             localPropByRes.addAll(PropagationOperation.UPDATE,
                     user.getExternalResourceNames());

@@ -122,8 +122,7 @@ public class AccountPolicyEnforcer
                 // propagate suspension if and only if it is required by policy
                 if (policy.isPropagateSuspension()) {
                     final List<PropagationTask> tasks = propagationManager.
-                            getUpdateTaskIds(updated.getResult(),
-                            null, null, null, Boolean.FALSE, null);
+                            getUpdateTaskIds(updated, Boolean.FALSE);
 
                     propagationManager.execute(tasks);
                 }

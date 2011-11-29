@@ -42,8 +42,10 @@ import org.syncope.core.workflow.WorkflowResult;
 /**
  * Create notification tasks that will be executed by NotificationJob.
  * @see NotificationTask
-F */
-@Transactional(rollbackFor = {Throwable.class})
+ */
+@Transactional(rollbackFor = {
+    Throwable.class
+})
 public class NotificationManager {
 
     /**
