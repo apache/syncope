@@ -60,7 +60,7 @@ public class TaskDataBinder {
             TaskDataBinder.class);
 
     private static final String[] IGNORE_TASK_PROPERTIES = {
-        "executions", "resource"};
+        "executions", "resource", "user"};
 
     private static final String[] IGNORE_TASK_EXECUTION_PROPERTIES = {
         "id", "task"};
@@ -220,6 +220,10 @@ public class TaskDataBinder {
             case PROPAGATION:
                 ((PropagationTaskTO) taskTO).setResource(
                         ((PropagationTask) task).getResource().getName());
+                if (((PropagationTask) task).getSyncopeUser() != null) {
+                    ((PropagationTaskTO) taskTO).setUser(
+                            ((PropagationTask) task).getSyncopeUser().getId());
+                }
                 break;
 
             case SCHED:

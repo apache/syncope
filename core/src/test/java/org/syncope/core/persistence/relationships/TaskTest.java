@@ -29,11 +29,13 @@ import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.core.persistence.beans.PropagationTask;
 import org.syncope.core.persistence.beans.TaskExec;
 import org.syncope.core.persistence.beans.SyncTask;
+import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.persistence.dao.TaskDAO;
 import org.syncope.core.persistence.dao.TaskExecDAO;
+import org.syncope.core.persistence.dao.UserDAO;
 import org.syncope.types.PropagationMode;
-import org.syncope.core.propagation.PropagationTaskExecStatus;
+import org.syncope.types.PropagationTaskExecStatus;
 import org.syncope.types.PropagationOperation;
 
 @Transactional
@@ -47,6 +49,9 @@ public class TaskTest extends AbstractTest {
 
     @Autowired
     private ResourceDAO resourceDAO;
+
+    @Autowired
+    private UserDAO userDAO;
 
     @Test
     public final void read() {
@@ -63,8 +68,12 @@ public class TaskTest extends AbstractTest {
         ExternalResource resource = resourceDAO.find("ws-target-resource-1");
         assertNotNull(resource);
 
+        SyncopeUser user = userDAO.find(2L);
+        assertNotNull(user);
+
         PropagationTask task = new PropagationTask();
         task.setResource(resource);
+        task.setSyncopeUser(user);
         task.setPropagationMode(PropagationMode.ASYNC);
         task.setResourceOperationType(PropagationOperation.CREATE);
         task.setAccountId("one@two.com");

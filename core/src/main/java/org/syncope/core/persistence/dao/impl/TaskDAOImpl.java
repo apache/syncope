@@ -23,6 +23,8 @@ import org.syncope.core.persistence.beans.SchedTask;
 import org.syncope.core.persistence.beans.SyncTask;
 import org.syncope.core.persistence.beans.Task;
 import org.syncope.core.persistence.beans.ExternalResource;
+import org.syncope.core.persistence.beans.PropagationTask;
+import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.TaskDAO;
 
 @Repository
@@ -92,6 +94,30 @@ public class TaskDAOImpl extends AbstractDAOImpl
         if (itemsPerPage > 0) {
             query.setMaxResults(itemsPerPage);
         }
+
+        return query.getResultList();
+    }
+
+    @Override
+    public List<PropagationTask> findAll(final SyncopeUser user) {
+        StringBuilder queryString = buildfindAllQuery(PropagationTask.class);
+        queryString.append("WHERE e.syncopeUser=:user");
+        final Query query = entityManager.createQuery(queryString.toString());
+        query.setParameter("user", user);
+
+        return query.getResultList();
+    }
+
+    @Override
+    public List<PropagationTask> findAll(final ExternalResource resource,
+            final SyncopeUser user) {
+
+        StringBuilder queryString = buildfindAllQuery(PropagationTask.class);
+        queryString.append("WHERE e.syncopeUser=:user ").
+                append("AND e.resource=:resource");
+        final Query query = entityManager.createQuery(queryString.toString());
+        query.setParameter("user", user);
+        query.setParameter("resource", resource);
 
         return query.getResultList();
     }

@@ -12,7 +12,7 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.core.propagation;
+package org.syncope.types;
 
 /**
  * Status of a TaskExecution.

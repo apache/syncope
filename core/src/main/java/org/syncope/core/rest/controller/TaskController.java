@@ -58,7 +58,7 @@ import org.syncope.core.scheduling.NotificationJob;
 import org.syncope.core.scheduling.SyncJob;
 import org.syncope.core.util.TaskUtil;
 import org.syncope.types.PropagationMode;
-import org.syncope.core.propagation.PropagationTaskExecStatus;
+import org.syncope.types.PropagationTaskExecStatus;
 import org.syncope.core.scheduling.AbstractJob;
 import org.syncope.core.scheduling.SyncJobActions;
 import org.syncope.types.SyncopeClientExceptionType;

@@ -821,7 +821,7 @@ public abstract class AbstractAttributableDataBinder {
         }
     }
 
-    public void fillTO(
+    protected void fillTO(
             final AbstractAttributableTO abstractAttributableTO,
             final Collection<? extends AbstractAttr> attributes,
             final Collection<? extends AbstractDerAttr> derivedAttributes,

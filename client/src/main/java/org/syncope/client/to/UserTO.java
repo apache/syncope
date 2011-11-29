@@ -23,6 +23,7 @@ import java.util.Map;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.codehaus.jackson.annotate.JsonIgnore;
+import org.syncope.types.PropagationTaskExecStatus;
 
 public class UserTO extends AbstractAttributableTO {
 
@@ -48,10 +49,13 @@ public class UserTO extends AbstractAttributableTO {
 
     private Integer failedLogins;
 
+    private Map<String, PropagationTaskExecStatus> propagationStatusMap;
+
     public UserTO() {
         super();
 
         memberships = new ArrayList<MembershipTO>();
+        propagationStatusMap = new HashMap<String, PropagationTaskExecStatus>();
     }
 
     public String getPassword() {
@@ -155,6 +159,30 @@ public class UserTO extends AbstractAttributableTO {
 
     public void setLastLoginDate(Date lastLoginDate) {
         this.lastLoginDate = lastLoginDate;
+    }
+
+    public void addPropagationStatus(String resource,
+            PropagationTaskExecStatus status) {
+
+        propagationStatusMap.put(resource, status);
+    }
+
+    public void removePropagationStatus(String resource) {
+
+        propagationStatusMap.remove(resource);
+    }
+
+    public Map<String, PropagationTaskExecStatus> getPropagationStatusMap() {
+        return propagationStatusMap;
+    }
+
+    public void setPropagationStatusMap(
+            Map<String, PropagationTaskExecStatus> propagationStatusMap) {
+
+        this.propagationStatusMap.clear();
+        if (propagationStatusMap != null && !propagationStatusMap.isEmpty()) {
+            this.propagationStatusMap.putAll(propagationStatusMap);
+        }
     }
 
     @Override

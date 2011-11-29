@@ -53,6 +53,7 @@ import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.types.CipherAlgorithm;
+import org.syncope.types.PropagationTaskExecStatus;
 import org.syncope.types.SyncopeClientExceptionType;
 
 public class UserTestITCase extends AbstractTest {
@@ -374,8 +375,12 @@ public class UserTestITCase extends AbstractTest {
 
         userTO.addResource("resource-testdb");
 
-        restTemplate.postForObject(BASE_URL + "user/create",
+        userTO = restTemplate.postForObject(BASE_URL + "user/create",
                 userTO, UserTO.class);
+        assertNotNull(userTO);
+        assertEquals(1, userTO.getPropagationStatusMap().size());
+        assertEquals(PropagationTaskExecStatus.SUCCESS,
+                userTO.getPropagationStatusMap().get("resource-testdb"));
     }
 
     @Test

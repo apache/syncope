@@ -22,6 +22,7 @@ import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import org.hibernate.annotations.Type;
 import org.identityconnectors.framework.common.objects.Attribute;
+import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.validation.entity.PropagationTaskCheck;
 import org.syncope.core.util.XMLSerializer;
 import org.syncope.types.PropagationMode;
@@ -64,6 +65,12 @@ public class PropagationTask extends Task {
     @Lob
     @Type(type = "org.hibernate.type.StringClobType")
     private String xmlAttributes;
+
+    /**
+     * User whose data are propagated.
+     */
+    @ManyToOne
+    private SyncopeUser syncopeUser;
 
     /**
      * ExternalResource to which the propagation happens.
@@ -119,5 +126,13 @@ public class PropagationTask extends Task {
 
     public void setResource(ExternalResource resource) {
         this.resource = resource;
+    }
+
+    public SyncopeUser getSyncopeUser() {
+        return syncopeUser;
+    }
+
+    public void setSyncopeUser(SyncopeUser syncopeUser) {
+        this.syncopeUser = syncopeUser;
     }
 }

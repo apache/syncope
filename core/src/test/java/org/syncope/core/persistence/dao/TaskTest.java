@@ -30,6 +30,7 @@ import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.core.persistence.beans.PropagationTask;
 import org.syncope.core.persistence.beans.SchedTask;
 import org.syncope.core.persistence.beans.SyncTask;
+import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.validation.entity.InvalidEntityException;
 import org.syncope.core.scheduling.TestSyncJobActions;
 import org.syncope.types.PropagationMode;
@@ -43,6 +44,9 @@ public class TaskTest extends AbstractTest {
 
     @Autowired
     private ResourceDAO resourceDAO;
+
+    @Autowired
+    private UserDAO userDAO;
 
     @Test
     public final void findWithoutExecs() {
@@ -62,6 +66,15 @@ public class TaskTest extends AbstractTest {
 
         List<SyncTask> sylist = taskDAO.findAll(SyncTask.class);
         assertEquals(1, sylist.size());
+
+        ExternalResource resource = resourceDAO.find("ws-target-resource-2");
+        assertNotNull(resource);
+
+        SyncopeUser user = userDAO.find(1L);
+        assertNotNull(user);
+
+        plist = taskDAO.findAll(resource, user);
+        assertEquals(3, plist.size());
     }
 
     @Test
@@ -69,8 +82,12 @@ public class TaskTest extends AbstractTest {
         ExternalResource resource = resourceDAO.find("ws-target-resource-1");
         assertNotNull(resource);
 
+        SyncopeUser user = userDAO.find(2L);
+        assertNotNull(user);
+
         PropagationTask task = new PropagationTask();
         task.setResource(resource);
+        task.setSyncopeUser(user);
         task.setPropagationMode(PropagationMode.ASYNC);
         task.setResourceOperationType(PropagationOperation.CREATE);
         task.setAccountId("one@two.com");

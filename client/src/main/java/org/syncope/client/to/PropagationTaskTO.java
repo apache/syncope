@@ -33,6 +33,8 @@ public class PropagationTaskTO extends TaskTO {
 
     private String resource;
 
+    private long user;
+
     public String getAccountId() {
         return accountId;
     }
@@ -81,5 +83,13 @@ public class PropagationTaskTO extends TaskTO {
 
     public void setXmlAttributes(String xmlAttributes) {
         this.xmlAttributes = xmlAttributes;
+    }
+
+    public long getUser() {
+        return user;
+    }
+
+    public void setUser(long user) {
+        this.user = user;
     }
 }

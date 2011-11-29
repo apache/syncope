@@ -34,6 +34,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 import org.syncope.core.persistence.beans.AbstractAttrValue;
 import org.syncope.core.persistence.beans.AbstractVirAttr;
+import org.syncope.core.persistence.beans.PropagationTask;
 import org.syncope.core.persistence.beans.membership.Membership;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.beans.user.UAttrUniqueValue;
@@ -43,6 +44,7 @@ import org.syncope.core.persistence.beans.user.USchema;
 import org.syncope.core.persistence.dao.DerSchemaDAO;
 import org.syncope.core.persistence.dao.SchemaDAO;
 import org.syncope.core.persistence.dao.RoleDAO;
+import org.syncope.core.persistence.dao.TaskDAO;
 import org.syncope.core.persistence.dao.UserDAO;
 import org.syncope.core.rest.controller.InvalidSearchConditionException;
 
@@ -58,6 +60,9 @@ public class UserDAOImpl extends AbstractDAOImpl
 
     @Autowired
     private RoleDAO roleDAO;
+
+    @Autowired
+    private TaskDAO taskDAO;
 
     @Override
     public SyncopeUser find(final Long id) {
@@ -367,6 +372,10 @@ public class UserDAOImpl extends AbstractDAOImpl
             entityManager.remove(membership);
         }
         user.getMemberships().clear();
+
+        for (PropagationTask task : taskDAO.findAll(user)) {
+            task.setSyncopeUser(null);
+        }
 
         entityManager.remove(user);
     }

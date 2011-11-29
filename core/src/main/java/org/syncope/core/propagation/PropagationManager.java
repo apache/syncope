@@ -14,6 +14,7 @@
  */
 package org.syncope.core.propagation;
 
+import org.syncope.types.PropagationTaskExecStatus;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -597,12 +598,10 @@ public class PropagationManager {
      * @param enable wether user must be enabled or not
      * @param propByRes operation to be performed per resource
      * @return list of propagation tasks created
-     * @throws PropagationException if anything goes wrong
      */
     protected List<PropagationTask> provision(final SyncopeUser user,
             final String password, final Boolean enable,
-            final PropagationByResource propByRes)
-            throws NotFoundException {
+            final PropagationByResource propByRes) {
 
         LOG.debug("Provisioning with user {}:\n{}", user, propByRes);
 
@@ -612,24 +611,22 @@ public class PropagationManager {
 
         List<PropagationTask> tasks = new ArrayList<PropagationTask>();
 
-        List<ExternalResource> resources = resourceDAO.findAllByPriority();
-        List<ExternalResource> resourcesByPriority;
-        Map.Entry<String, Set<Attribute>> preparedAttrs;
-        PropagationTask task;
         for (PropagationOperation type : PropagationOperation.values()) {
-            resourcesByPriority = new ArrayList<ExternalResource>();
-            for (ExternalResource resource : resources) {
+            List<ExternalResource> resourcesByPriority =
+                    new ArrayList<ExternalResource>();
+            for (ExternalResource resource : resourceDAO.findAllByPriority()) {
                 if (propByRes.get(type).contains(resource.getName())) {
                     resourcesByPriority.add(resource);
                 }
             }
 
             for (ExternalResource resource : resourcesByPriority) {
-                preparedAttrs = prepareAttributes(
-                        user, password, enable, resource);
+                Map.Entry<String, Set<Attribute>> preparedAttrs =
+                        prepareAttributes(user, password, enable, resource);
 
-                task = new PropagationTask();
+                PropagationTask task = new PropagationTask();
                 task.setResource(resource);
+                task.setSyncopeUser(user);
                 task.setResourceOperationType(type);
                 task.setPropagationMode(resource.getPropagationMode());
                 task.setAccountId(preparedAttrs.getKey());
@@ -657,17 +654,16 @@ public class PropagationManager {
     public void execute(final List<PropagationTask> tasks)
             throws PropagationException {
 
-        TaskExec execution;
-        PropagationTaskExecStatus execStatus;
         for (PropagationTask task : tasks) {
             LOG.debug("Execution started for {}", task);
 
-            execution = execute(task);
+            TaskExec execution = execute(task);
 
             LOG.debug("Execution finished for {}, {}", task, execution);
 
             // Propagation is interrupted as soon as the result of the
             // communication with a primary resource is in error
+            PropagationTaskExecStatus execStatus;
             try {
                 execStatus = PropagationTaskExecStatus.valueOf(
                         execution.getStatus());

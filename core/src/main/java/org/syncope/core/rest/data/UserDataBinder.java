@@ -21,6 +21,7 @@ import java.util.Set;
 import javassist.NotFoundException;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,18 +36,23 @@ import org.syncope.core.persistence.beans.AbstractDerAttr;
 import org.syncope.core.persistence.beans.AbstractVirAttr;
 import org.syncope.core.persistence.beans.Policy;
 import org.syncope.core.persistence.beans.ExternalResource;
+import org.syncope.core.persistence.beans.PropagationTask;
+import org.syncope.core.persistence.beans.TaskExec;
 import org.syncope.core.persistence.beans.membership.Membership;
 import org.syncope.core.persistence.beans.membership.MAttr;
 import org.syncope.core.persistence.beans.membership.MDerAttr;
 import org.syncope.core.persistence.beans.membership.MVirAttr;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
+import org.syncope.core.persistence.dao.TaskDAO;
+import org.syncope.core.persistence.dao.TaskExecDAO;
 import org.syncope.core.propagation.PropagationByResource;
 import org.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.syncope.core.util.EntitlementUtil;
 import org.syncope.types.CipherAlgorithm;
 import org.syncope.types.PasswordPolicySpec;
 import org.syncope.types.PropagationOperation;
+import org.syncope.types.PropagationTaskExecStatus;
 import org.syncope.types.SyncopeClientExceptionType;
 
 @Component
@@ -61,6 +67,12 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         "derivedAttributes",
         "virtualAttributes",
         "resources"};
+
+    @Autowired
+    private TaskDAO taskDAO;
+
+    @Autowired
+    private TaskExecDAO taskExecDAO;
 
     @Transactional(readOnly = true)
     public SyncopeUser getUserFromId(final Long userId)
@@ -377,6 +389,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         return propByRes;
     }
 
+    @Transactional(readOnly = true)
     public UserTO getUserTO(final SyncopeUser user) {
         UserTO userTO = new UserTO();
 
@@ -402,6 +415,15 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
                     membership.getExternalResources());
 
             userTO.addMembership(membershipTO);
+        }
+
+        for (ExternalResource resource : user.getExternalResources()) {
+            for (PropagationTask task : taskDAO.findAll(resource, user)) {
+                TaskExec exec = taskExecDAO.findLatestStarted(task);
+                userTO.addPropagationStatus(resource.getName(),
+                        exec == null ? null
+                        : PropagationTaskExecStatus.valueOf(exec.getStatus()));
+            }
         }
 
         return userTO;
