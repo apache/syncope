@@ -60,7 +60,13 @@ public class ConnInstanceLoader extends AbstractLoader {
      * context
      */
     public ConnectorFacadeProxy getConnector(final ExternalResource resource)
-            throws BeansException {
+            throws BeansException, NotFoundException {
+
+        // Try to re-create connector bean from underlying resource
+        // (useful for managing failover scenarios)
+        if (!getBeanFactory().containsBean(getBeanName(resource))) {
+            registerConnector(resource);
+        }
 
         return (ConnectorFacadeProxy) getBeanFactory().getBean(
                 getBeanName(resource));

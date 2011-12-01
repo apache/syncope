@@ -29,7 +29,6 @@ import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.quartz.JobExecutionException;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -918,7 +917,7 @@ public class SyncJob extends AbstractJob {
         ConnectorFacadeProxy connector;
         try {
             connector = connInstanceLoader.getConnector(syncTask.getResource());
-        } catch (BeansException e) {
+        } catch (Exception e) {
             final String msg = String.format(
                     "Connector instance bean for resource %s "
                     + "and connInstance %s not found",

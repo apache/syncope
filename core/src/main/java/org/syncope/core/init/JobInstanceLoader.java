@@ -14,6 +14,8 @@
 package org.syncope.core.init;
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 import org.quartz.Job;
 import org.quartz.JobDetail;
@@ -48,6 +50,21 @@ public class JobInstanceLoader extends AbstractLoader {
 
     @Autowired
     private TaskDAO taskDAO;
+
+    public static Long getTaskIdFromJobName(final String name) {
+        Long result = null;
+
+        Matcher jobMatcher = Pattern.compile("job[0-9]+").matcher(name);
+        if (jobMatcher.matches()) {
+            try {
+                result = Long.valueOf(name.substring(3));
+            } catch (NumberFormatException e) {
+                LOG.error("Unparsable task id: {}", name.substring(3), e);
+            }
+        }
+
+        return result;
+    }
 
     public static String getJobName(final Long taskId) {
         return "job" + taskId;

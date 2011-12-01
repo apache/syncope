@@ -20,6 +20,9 @@ import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.syncope.core.init.JobInstanceLoader;
+import org.syncope.core.persistence.beans.SchedTask;
+import org.syncope.core.persistence.dao.TaskDAO;
 
 public class SpringBeanJobFactory
         extends org.springframework.scheduling.quartz.SpringBeanJobFactory {
@@ -55,6 +58,23 @@ public class SpringBeanJobFactory
         final ApplicationContext ctx =
                 ((ConfigurableApplicationContext) schedulerContext.get(
                 "applicationContext"));
+
+        // Try to re-create job bean from underlying task (useful for managing
+        // failover scenarios)
+        if (!ctx.containsBean(bundle.getJobDetail().getName())) {
+            Long taskId = JobInstanceLoader.getTaskIdFromJobName(
+                    bundle.getJobDetail().getName());
+            if (taskId != null) {
+                TaskDAO taskDAO = ctx.getBean(TaskDAO.class);
+                SchedTask task = taskDAO.find(taskId);
+
+                JobInstanceLoader jobInstanceLoader =
+                        ctx.getBean(JobInstanceLoader.class);
+                jobInstanceLoader.registerJob(taskId,
+                        task.getJobClassName(), task.getCronExpression());
+            }
+        }
+
         final Object job = ctx.getBean(bundle.getJobDetail().getName());
         final BeanWrapper wrapper =
                 PropertyAccessorFactory.forBeanPropertyAccess(job);

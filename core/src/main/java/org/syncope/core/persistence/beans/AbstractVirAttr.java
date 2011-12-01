@@ -121,10 +121,9 @@ public abstract class AbstractVirAttr extends AbstractBaseBean {
             if (attributeNames != null && accountId != null) {
                 LOG.debug("Get object attribute for entry {}", accountId);
 
-                ConnectorFacadeProxy connector =
-                        connInstanceLoader.getConnector(resource);
-
                 try {
+                    ConnectorFacadeProxy connector =
+                            connInstanceLoader.getConnector(resource);
                     Set<Attribute> attributes = connector.getObjectAttributes(
                             ObjectClass.ACCOUNT,
                             new Uid(accountId),

@@ -18,13 +18,10 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.AbstractTest;
-import org.syncope.core.persistence.beans.ConnInstance;
-import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.core.persistence.dao.ResourceDAO;
 import org.syncope.core.propagation.ConnectorFacadeProxy;
 import org.syncope.core.util.ApplicationContextManager;
@@ -65,13 +62,5 @@ public class ConnInstanceLoaderTest extends AbstractTest {
         assertEquals(resourceDAO.findAll().size(),
                 ApplicationContextManager.getApplicationContext().
                 getBeanNamesForType(ConnectorFacadeProxy.class).length);
-    }
-
-    @Test(expected = NoSuchBeanDefinitionException.class)
-    public void getConnectorWhenEmpty() {
-        ConnInstance instance = new ConnInstance();
-        ExternalResource resource = new ExternalResource();
-        resource.setConnector(instance);
-        cil.getConnector(resource);
     }
 }

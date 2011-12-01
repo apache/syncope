@@ -15,6 +15,8 @@
 package org.syncope.core.rest.controller;
 
 import java.lang.reflect.Modifier;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -26,6 +28,8 @@ import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.Scheduler;
 import org.reflections.Reflections;
+import org.reflections.util.ClasspathHelper;
+import org.reflections.util.ConfigurationBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
@@ -245,8 +249,21 @@ public class TaskController extends AbstractController {
     @PreAuthorize("hasRole('TASK_LIST')")
     @RequestMapping(method = RequestMethod.GET,
     value = "/jobClasses")
-    public ModelAndView getJobClasses() {
-        Reflections reflections = new Reflections("");
+    public ModelAndView getJobClasses()
+            throws MalformedURLException {
+
+        // this is needed because Job interface is not in the same classloader
+        // as the current class
+        List<URL> urls = new ArrayList<URL>();
+        for (URL url : ClasspathHelper.forClassLoader()) {
+            if (!url.toExternalForm().endsWith(".jar")
+                    || url.toExternalForm().contains("quartz")) {
+
+                urls.add(url);
+            }
+        }
+        Reflections reflections = new Reflections(
+                new ConfigurationBuilder().setUrls(urls));
 
         Set<Class<? extends Job>> subTypes =
                 reflections.getSubTypesOf(Job.class);
