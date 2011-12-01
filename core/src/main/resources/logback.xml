@@ -18,7 +18,7 @@
         <file>${log.directory}/core.log</file>
         <append>true</append>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${logfile}.%d{yyyy-MM-dd}</fileNamePattern>
+            <fileNamePattern>${log.directory}/core.log.%d{yyyy-MM-dd}</fileNamePattern>
             <maxHistory>30</maxHistory>
         </rollingPolicy>
         <encoder>
@@ -30,7 +30,7 @@
         <file>${log.directory}/core-persistence.log</file>
         <append>true</append>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${logfile.persistence}.%d{yyyy-MM-dd}</fileNamePattern>
+            <fileNamePattern>${log.directory}/core-persistence.log.%d{yyyy-MM-dd}</fileNamePattern>
             <maxHistory>30</maxHistory>
         </rollingPolicy>
         <encoder>
@@ -42,7 +42,7 @@
         <file>${log.directory}/core-rest.log</file>
         <append>true</append>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${logfile.rest}.%d{yyyy-MM-dd}</fileNamePattern>
+            <fileNamePattern>${log.directory}/core-rest.log.%d{yyyy-MM-dd}</fileNamePattern>
             <maxHistory>30</maxHistory>
         </rollingPolicy>
         <encoder>
@@ -54,7 +54,7 @@
         <file>${log.directory}/core-connid.log</file>
         <append>true</append>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${logfile.connid}.%d{yyyy-MM-dd}</fileNamePattern>
+            <fileNamePattern>${log.directory}/core-connid.log.%d{yyyy-MM-dd}</fileNamePattern>
             <maxHistory>30</maxHistory>
         </rollingPolicy>
         <encoder>
@@ -66,7 +66,7 @@
         <file>${log.directory}/core-test.log</file>
         <append>true</append>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${logfile.test}.%d{yyyy-MM-dd}</fileNamePattern>
+            <fileNamePattern>${log.directory}/core-test.log.%d{yyyy-MM-dd}</fileNamePattern>
             <maxHistory>30</maxHistory>
         </rollingPolicy>
         <encoder>
@@ -78,7 +78,7 @@
         <file>${log.directory}/core-monitor.log</file>
         <append>true</append>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${logfile.monitor}.%d{yyyy-MM-dd}</fileNamePattern>
+            <fileNamePattern>${log.directory}/core-monitor.log.%d{yyyy-MM-dd}</fileNamePattern>
             <maxHistory>30</maxHistory>
         </rollingPolicy>
         <encoder>
