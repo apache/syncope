@@ -19,6 +19,7 @@ public class MissingConfKeyException extends Exception {
     private String confKey;
 
     public MissingConfKeyException(final String confKey) {
+        super();
         this.confKey = confKey;
     }
 

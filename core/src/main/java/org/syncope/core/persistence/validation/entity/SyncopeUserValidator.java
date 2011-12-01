@@ -101,7 +101,7 @@ public class SyncopeUserValidator extends AbstractValidator
         LOG.debug("Account Policy enforcement");
 
         try {
-            // username missed
+            // missing username
             for (Policy policy : getAccountPolicies(object)) {
                 // evaluate policy
                 final AccountPolicySpec accountPolicy =

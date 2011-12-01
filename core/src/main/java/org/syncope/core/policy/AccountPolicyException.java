@@ -19,9 +19,10 @@ public class AccountPolicyException extends Exception {
     private static final long serialVersionUID = 2779416455067691813L;
 
     public AccountPolicyException() {
+        super();
     }
 
-    public AccountPolicyException(String msg) {
-        super(msg);
+    public AccountPolicyException(final String message) {
+        super(message);
     }
 }

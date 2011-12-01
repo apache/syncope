@@ -19,8 +19,10 @@ class PolicyEnforceException extends Exception {
     private static final long serialVersionUID = 3247084727383061069L;
 
     public PolicyEnforceException() {
+        super();
     }
 
-    public PolicyEnforceException(String string) {
+    public PolicyEnforceException(final String message) {
+        super(message);
     }
 }

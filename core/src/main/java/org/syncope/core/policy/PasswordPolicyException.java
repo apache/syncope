@@ -19,9 +19,10 @@ public class PasswordPolicyException extends Exception {
     private static final long serialVersionUID = 8072104484395278469L;
 
     public PasswordPolicyException() {
+        super();
     }
 
-    public PasswordPolicyException(String msg) {
-        super(msg);
+    public PasswordPolicyException(final String message) {
+        super(message);
     }
 }
