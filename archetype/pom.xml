@@ -19,14 +19,14 @@
     <parent>
         <groupId>org.syncope</groupId>
         <artifactId>syncope</artifactId>
-        <version>0.6.2-SNAPSHOT</version>
+        <version>0.6.1-SNAPSHOT</version>
     </parent>
 
     <name>Syncope archetype</name>
     <description>Syncope archetype</description>
     <groupId>org.syncope</groupId>
     <artifactId>syncope-archetype</artifactId>
-    <version>0.6.6-SNAPSHOT</version>
+    <version>0.6.5-SNAPSHOT</version>
     <packaging>maven-archetype</packaging>
 
     <scm>
