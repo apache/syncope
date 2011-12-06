@@ -48,33 +48,28 @@ public abstract class AbstractAttrValue extends AbstractBaseBean {
     public abstract Long getId();
 
     public Boolean getBooleanValue() {
-        if (booleanValue == null) {
-            return null;
-        }
-        return isBooleanAsInteger(booleanValue);
+        return booleanValue == null ? null : isBooleanAsInteger(booleanValue);
     }
 
-    public void setBooleanValue(Boolean booleanValue) {
-        if (booleanValue == null) {
-            this.booleanValue = null;
-        } else {
-            this.booleanValue = getBooleanAsInteger(booleanValue);
-        }
+    public void setBooleanValue(final Boolean booleanValue) {
+        this.booleanValue = booleanValue == null
+                ? null : getBooleanAsInteger(booleanValue);
     }
 
     public Date getDateValue() {
-        return dateValue;
+        return dateValue == null ? null : new Date(dateValue.getTime());
     }
 
-    public void setDateValue(Date dateValue) {
-        this.dateValue = dateValue;
+    public void setDateValue(final Date dateValue) {
+        this.dateValue = dateValue == null
+                ? null : new Date(dateValue.getTime());
     }
 
     public Double getDoubleValue() {
         return doubleValue;
     }
 
-    public void setDoubleValue(Double doubleValue) {
+    public void setDoubleValue(final Double doubleValue) {
         this.doubleValue = doubleValue;
     }
 
@@ -82,7 +77,7 @@ public abstract class AbstractAttrValue extends AbstractBaseBean {
         return longValue;
     }
 
-    public void setLongValue(Long longValue) {
+    public void setLongValue(final Long longValue) {
         this.longValue = longValue;
     }
 
@@ -90,7 +85,7 @@ public abstract class AbstractAttrValue extends AbstractBaseBean {
         return stringValue;
     }
 
-    public void setStringValue(String stringValue) {
+    public void setStringValue(final String stringValue) {
         this.stringValue = stringValue;
     }
 

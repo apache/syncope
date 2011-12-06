@@ -48,6 +48,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.RandomStringUtils;
 import org.hibernate.annotations.Type;
 import org.springframework.security.core.codec.Base64;
@@ -72,8 +73,8 @@ public class SyncopeUser extends AbstractAttributable {
 
     static {
         try {
-            keySpec = new SecretKeySpec(
-                    "1abcdefghilmnopqrstuvz2!".getBytes("UTF8"), "AES");
+            keySpec = new SecretKeySpec(ArrayUtils.subarray(
+                    "1abcdefghilmnopqrstuvz2!".getBytes("UTF8"), 0, 16), "AES");
         } catch (Exception e) {
             LOG.error("Error during key specification", e);
         }
@@ -171,7 +172,7 @@ public class SyncopeUser extends AbstractAttributable {
         virtualAttributes = new ArrayList<UVirAttr>();
         passwordHistory = new ArrayList<String>();
         failedLogins = 0;
-        suspended = 0;
+        suspended = getBooleanAsInteger(Boolean.FALSE);
     }
 
     @Override
@@ -179,15 +180,15 @@ public class SyncopeUser extends AbstractAttributable {
         return id;
     }
 
-    public boolean addMembership(Membership membership) {
+    public boolean addMembership(final Membership membership) {
         return memberships.contains(membership) || memberships.add(membership);
     }
 
-    public boolean removeMembership(Membership membership) {
-        return memberships == null || memberships.remove(membership);
+    public boolean removeMembership(final Membership membership) {
+        return memberships.remove(membership);
     }
 
-    public Membership getMembership(Long syncopeRoleId) {
+    public Membership getMembership(final Long syncopeRoleId) {
         Membership result = null;
         Membership membership;
         for (Iterator<Membership> itor = getMemberships().iterator();
@@ -208,7 +209,7 @@ public class SyncopeUser extends AbstractAttributable {
         return memberships;
     }
 
-    public void setMemberships(List<Membership> memberships) {
+    public void setMemberships(final List<Membership> memberships) {
         this.memberships.clear();
         if (memberships != null && !memberships.isEmpty()) {
             this.memberships.addAll(memberships);
@@ -273,9 +274,6 @@ public class SyncopeUser extends AbstractAttributable {
         clearPassword = null;
     }
 
-    /**
-     * @param password the password to be set
-     */
     public void setPassword(
             final String password,
             final CipherAlgorithm cipherAlgoritm,
@@ -294,12 +292,12 @@ public class SyncopeUser extends AbstractAttributable {
     }
 
     @Override
-    public <T extends AbstractAttr> boolean addAttribute(T attribute) {
+    public <T extends AbstractAttr> boolean addAttribute(final T attribute) {
         return attributes.add((UAttr) attribute);
     }
 
     @Override
-    public <T extends AbstractAttr> boolean removeAttribute(T attribute) {
+    public <T extends AbstractAttr> boolean removeAttribute(final T attribute) {
         return attributes.remove((UAttr) attribute);
     }
 
@@ -309,13 +307,13 @@ public class SyncopeUser extends AbstractAttributable {
     }
 
     @Override
-    public void setAttributes(List<? extends AbstractAttr> attributes) {
+    public void setAttributes(final List<? extends AbstractAttr> attributes) {
         this.attributes = (List<UAttr>) attributes;
     }
 
     @Override
     public <T extends AbstractDerAttr> boolean addDerivedAttribute(
-            T derivedAttribute) {
+            final T derivedAttribute) {
 
         return derivedAttributes.add((UDerAttr) derivedAttribute);
     }
@@ -334,21 +332,21 @@ public class SyncopeUser extends AbstractAttributable {
 
     @Override
     public void setDerivedAttributes(
-            List<? extends AbstractDerAttr> derivedAttributes) {
+            final List<? extends AbstractDerAttr> derivedAttributes) {
 
         this.derivedAttributes = (List<UDerAttr>) derivedAttributes;
     }
 
     @Override
     public <T extends AbstractVirAttr> boolean addVirtualAttribute(
-            T virtualAttribute) {
+            final T virtualAttribute) {
 
         return virtualAttributes.add((UVirAttr) virtualAttribute);
     }
 
     @Override
     public <T extends AbstractVirAttr> boolean removeVirtualAttribute(
-            T virtualAttribute) {
+            final T virtualAttribute) {
 
         return virtualAttributes.remove((UVirAttr) virtualAttribute);
     }
@@ -360,7 +358,7 @@ public class SyncopeUser extends AbstractAttributable {
 
     @Override
     public void setVirtualAttributes(
-            List<? extends AbstractVirAttr> virtualAttributes) {
+            final List<? extends AbstractVirAttr> virtualAttributes) {
 
         this.virtualAttributes = (List<UVirAttr>) virtualAttributes;
     }
@@ -399,7 +397,8 @@ public class SyncopeUser extends AbstractAttributable {
     }
 
     public Date getTokenExpireTime() {
-        return tokenExpireTime;
+        return tokenExpireTime == null
+                ? null : new Date(tokenExpireTime.getTime());
     }
 
     public boolean checkToken(final String token) {
@@ -420,19 +419,21 @@ public class SyncopeUser extends AbstractAttributable {
     }
 
     public Date getChangePwdDate() {
-        return changePwdDate;
+        return changePwdDate == null ? null : new Date(changePwdDate.getTime());
     }
 
     public void setChangePwdDate(final Date changePwdDate) {
-        this.changePwdDate = changePwdDate;
+        this.changePwdDate = changePwdDate == null
+                ? null : new Date(changePwdDate.getTime());
     }
 
     public Date getCreationDate() {
-        return creationDate;
+        return creationDate == null ? null : new Date(creationDate.getTime());
     }
 
     public void setCreationDate(final Date creationDate) {
-        this.creationDate = creationDate;
+        this.creationDate = creationDate == null
+                ? null : new Date(creationDate.getTime());
     }
 
     public Integer getFailedLogins() {
@@ -444,11 +445,12 @@ public class SyncopeUser extends AbstractAttributable {
     }
 
     public Date getLastLoginDate() {
-        return lastLoginDate;
+        return lastLoginDate == null ? null : new Date(lastLoginDate.getTime());
     }
 
     public void setLastLoginDate(final Date lastLoginDate) {
-        this.lastLoginDate = lastLoginDate;
+        this.lastLoginDate = lastLoginDate == null
+                ? null : new Date(lastLoginDate.getTime());
     }
 
     public String getUsername() {
@@ -469,12 +471,9 @@ public class SyncopeUser extends AbstractAttributable {
 
     private String encodePassword(
             final String password, final CipherAlgorithm cipherAlgoritm)
-            throws NoSuchAlgorithmException,
-            IllegalBlockSizeException,
-            InvalidKeyException,
-            BadPaddingException,
-            NoSuchPaddingException,
-            UnsupportedEncodingException {
+            throws UnsupportedEncodingException, NoSuchAlgorithmException,
+            NoSuchPaddingException, InvalidKeyException,
+            IllegalBlockSizeException, BadPaddingException {
 
         String encodedPassword = null;
 
@@ -492,7 +491,6 @@ public class SyncopeUser extends AbstractAttributable {
                 byte[] encoded = cipher.doFinal(cleartext);
 
                 encodedPassword = new String(Base64.encode(encoded));
-
             } else {
                 MessageDigest algorithm = MessageDigest.getInstance(
                         cipherAlgoritm.getAlgorithm());
@@ -518,23 +516,23 @@ public class SyncopeUser extends AbstractAttributable {
         return encodedPassword;
     }
 
-    public boolean verifyPasswordHistory(final String password, final int size) {
-        try {
+    public boolean verifyPasswordHistory(final String password,
+            final int size) {
 
-            boolean res = false;
+        boolean res = false;
 
-            if (size != 0) {
-                res = passwordHistory.subList(size >= passwordHistory.size() ? 0
-                        : passwordHistory.size() - size, passwordHistory.size()).
-                        contains(cipherAlgorithm != null
+        if (size > 0) {
+            try {
+                res = passwordHistory.subList(
+                        size >= passwordHistory.size() ? 0
+                        : passwordHistory.size() - size,
+                        passwordHistory.size()).contains(cipherAlgorithm != null
                         ? encodePassword(password, cipherAlgorithm) : password);
+            } catch (Throwable t) {
+                LOG.error("Error evaluating password history", t);
             }
-
-            return res;
-
-        } catch (Throwable t) {
-            LOG.error("Error evaluating password history", t);
-            return false;
         }
+
+        return res;
     }
 }

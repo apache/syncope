@@ -183,4 +183,16 @@ public class UserTest extends AbstractTest {
         SyncopeUser actual = userDAO.find(3L);
         assertNull("delete did not work", actual);
     }
+
+    @Test
+    public void issue237() {
+        SyncopeUser user = new SyncopeUser();
+        user.setUsername("username");
+        user.setCreationDate(new Date());
+
+        user.setPassword("password", CipherAlgorithm.AES, 0);
+
+        SyncopeUser actual = userDAO.save(user);
+        assertNotNull(actual);
+    }
 }

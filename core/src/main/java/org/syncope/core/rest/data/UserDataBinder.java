@@ -136,17 +136,8 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
     }
 
     private CipherAlgorithm getCipherAlgoritm() {
-        CipherAlgorithm cipherAlgoritm;
-
-        try {
-            cipherAlgoritm = CipherAlgorithm.valueOf(
-                    confDAO.find("password.cipher.algorithm").getValue());
-        } catch (Exception e) {
-            LOG.error("Cipher algorithm nof found. Let's use AES", e);
-            cipherAlgoritm = CipherAlgorithm.AES;
-        }
-
-        return cipherAlgoritm;
+        return CipherAlgorithm.valueOf(
+                confDAO.find("password.cipher.algorithm", "AES").getValue());
     }
 
     public void create(final SyncopeUser user, final UserTO userTO)
