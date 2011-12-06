@@ -25,14 +25,14 @@ public class TaskTestITCase extends AbstractTest {
         selenium.waitForPageToLoad("30000");
         selenium.click("//div[@id='tabs']/ul/li[4]/a");
         selenium.click("//div[3]/div[4]/span/div/span/"
-                + "table/tbody/tr/td[6]/span/a");
+                + "table/tbody/tr/td[7]/span/a");
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {
         }
         assertTrue(selenium.isTextPresent("Operation executed successfully"));
         selenium.click("//div[3]/div[4]/span/div/span/"
-                + "table/tbody/tr/td[5]/span/a");
+                + "table/tbody/tr/td[6]/span/a");
         for (int second = 0;; second++) {
             if (second >= 60) {
                 fail("timeout");
@@ -64,7 +64,7 @@ public class TaskTestITCase extends AbstractTest {
         selenium.waitForPageToLoad("30000");
         selenium.click("//div[@id='tabs']/ul/li[3]/a/span");
         selenium.click("//div[3]/div[3]/span/div/span/"
-                + "table/tbody/tr/td[9]/span/a");
+                + "table/tbody/tr/td[10]/span/a");
         assertTrue(selenium.getConfirmation().matches(
                 "^Do you really want to delete the selected item[\\s\\S]$"));
         assertTrue(selenium.isTextPresent("Operation executed successfully"));

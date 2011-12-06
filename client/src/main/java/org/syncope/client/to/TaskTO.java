@@ -24,6 +24,8 @@ public class TaskTO extends AbstractBaseBean {
 
     private long id;
 
+    private String latestExecStatus;
+
     private List<TaskExecTO> executions;
 
     public TaskTO() {
@@ -38,6 +40,14 @@ public class TaskTO extends AbstractBaseBean {
 
     public void setId(long id) {
         this.id = id;
+    }
+
+    public String getLatestExecStatus() {
+        return latestExecStatus;
+    }
+
+    public void setLatestExecStatus(String latestExecStatus) {
+        this.latestExecStatus = latestExecStatus;
     }
 
     public boolean addExecution(TaskExecTO execution) {

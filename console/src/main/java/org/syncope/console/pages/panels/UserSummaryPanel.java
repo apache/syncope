@@ -31,9 +31,7 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.PageableListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.request.resource.ContextRelativeResource;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.syncope.client.to.UserTO;
-import org.syncope.console.commons.PreferenceManager;
 import org.syncope.types.PropagationTaskExecStatus;
 
 public class UserSummaryPanel extends Panel {
@@ -41,9 +39,6 @@ public class UserSummaryPanel extends Panel {
     private static final long serialVersionUID = 2646115294319713723L;
 
     private static final int PROPAGATION_RESULT_PAGINATOR_ROWS = 7;
-
-    @SpringBean
-    private PreferenceManager prefMan;
 
     private UserTO userTO;
 

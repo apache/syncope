@@ -44,10 +44,10 @@ public class PropagationTask extends Task {
     private PropagationMode propagationMode;
 
     /**
-     * @see ResourceOperationType
+     * @see PropagationOperation
      */
     @Enumerated(EnumType.STRING)
-    private PropagationOperation resourceOperationType;
+    private PropagationOperation propagationOperation;
 
     /**
      * The accountId on the external resource.
@@ -110,14 +110,14 @@ public class PropagationTask extends Task {
         this.propagationMode = propagationMode;
     }
 
-    public PropagationOperation getResourceOperationType() {
-        return resourceOperationType;
+    public PropagationOperation getPropagationOperation() {
+        return propagationOperation;
     }
 
-    public void setResourceOperationType(
-            final PropagationOperation resourceOperationType) {
+    public void setPropagationOperation(
+            PropagationOperation propagationOperation) {
 
-        this.resourceOperationType = resourceOperationType;
+        this.propagationOperation = propagationOperation;
     }
 
     public ExternalResource getResource() {

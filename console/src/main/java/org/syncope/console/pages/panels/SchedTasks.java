@@ -117,6 +117,10 @@ public class SchedTasks extends Panel {
         columns.add(new DatePropertyColumn(
                 new ResourceModel("nextExec"), "nextExec", "nextExec"));
 
+        columns.add(new PropertyColumn(
+                new ResourceModel("latestExecStatus"),
+                "latestExecStatus", "latestExecStatus"));
+
         columns.add(new AbstractColumn<SchedTaskTO>(
                 new ResourceModel("detail")) {
 

@@ -110,6 +110,10 @@ public class PropagationTasks extends Panel {
                 new ResourceModel("propagationOperation"),
                 "propagationOperation", "propagationOperation"));
 
+        columns.add(new PropertyColumn(
+                new ResourceModel("latestExecStatus"),
+                "latestExecStatus", "latestExecStatus"));
+
         columns.add(new AbstractColumn<TaskTO>(new ResourceModel("detail")) {
 
             private static final long serialVersionUID = 2054811145491901166L;

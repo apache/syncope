@@ -32,7 +32,7 @@ public class UserDataProvider extends SortableDataProvider<UserTO> {
 
     private NodeCond filter = null;
 
-    private final int rows;
+    private final int paginatorRows;
 
     private boolean filtered = false;
 
@@ -40,14 +40,14 @@ public class UserDataProvider extends SortableDataProvider<UserTO> {
 
     public UserDataProvider(
             final UserRestClient restClient,
-            final int rows,
+            final int paginatorRows,
             final boolean filtered) {
 
         super();
 
         this.restClient = restClient;
         this.filtered = filtered;
-        this.rows = rows;
+        this.paginatorRows = paginatorRows;
 
         //Default sorting
         setSort("id", SortOrder.ASCENDING);
@@ -66,11 +66,10 @@ public class UserDataProvider extends SortableDataProvider<UserTO> {
         if (filtered) {
             users = filter == null
                     ? Collections.EMPTY_LIST
-                    : restClient.search(
-                    filter, (first / rows) + 1, rows);
+                    : restClient.search(filter, (first / paginatorRows) + 1,
+                    paginatorRows);
         } else {
-            users = restClient.list(
-                    (first / rows) + 1, rows);
+            users = restClient.list((first / paginatorRows) + 1, paginatorRows);
         }
 
         Collections.sort(users, comparator);

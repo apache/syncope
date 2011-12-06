@@ -634,11 +634,11 @@ public class PropagationManager {
 
         List<PropagationTask> tasks = new ArrayList<PropagationTask>();
 
-        for (PropagationOperation type : PropagationOperation.values()) {
+        for (PropagationOperation operation : PropagationOperation.values()) {
             List<ExternalResource> resourcesByPriority =
                     new ArrayList<ExternalResource>();
             for (ExternalResource resource : resourceDAO.findAllByPriority()) {
-                if (propByRes.get(type).contains(resource.getName())) {
+                if (propByRes.get(operation).contains(resource.getName())) {
                     resourcesByPriority.add(resource);
                 }
             }
@@ -650,7 +650,7 @@ public class PropagationManager {
                 PropagationTask task = new PropagationTask();
                 task.setResource(resource);
                 task.setSyncopeUser(user);
-                task.setResourceOperationType(type);
+                task.setPropagationOperation(operation);
                 task.setPropagationMode(resource.getPropagationMode());
                 task.setAccountId(preparedAttrs.getKey());
                 task.setOldAccountId(
@@ -719,7 +719,7 @@ public class PropagationManager {
         final boolean failed = !PropagationTaskExecStatus.valueOf(
                 execution.getStatus()).isSuccessful();
 
-        switch (task.getResourceOperationType()) {
+        switch (task.getPropagationOperation()) {
 
             case CREATE:
                 result = (failed
@@ -790,7 +790,7 @@ public class PropagationManager {
             try {
                 remoteObject = connector.getObject(
                         task.getPropagationMode(),
-                        task.getResourceOperationType(),
+                        task.getPropagationOperation(),
                         ObjectClass.ACCOUNT,
                         new Uid(task.getOldAccountId() == null
                         ? task.getAccountId()
@@ -801,7 +801,7 @@ public class PropagationManager {
                         + "username on connector", ignore);
             }
 
-            switch (task.getResourceOperationType()) {
+            switch (task.getPropagationOperation()) {
                 case CREATE:
                 case UPDATE:
                     // set of attributes to be propagated
@@ -907,7 +907,7 @@ public class PropagationManager {
             }
 
             propagationAttempted.add(
-                    task.getResourceOperationType().toString().toLowerCase());
+                    task.getPropagationOperation().name().toLowerCase());
         } finally {
             LOG.debug("Update execution for {}", task);
 

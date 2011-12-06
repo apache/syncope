@@ -89,7 +89,7 @@ public class TaskTest extends AbstractTest {
         task.setResource(resource);
         task.setSyncopeUser(user);
         task.setPropagationMode(PropagationMode.ASYNC);
-        task.setResourceOperationType(PropagationOperation.CREATE);
+        task.setPropagationOperation(PropagationOperation.CREATE);
         task.setAccountId("one@two.com");
 
         Set<Attribute> attributes = new HashSet<Attribute>();

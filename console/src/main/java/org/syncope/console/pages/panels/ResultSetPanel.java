@@ -237,6 +237,8 @@ public class ResultSetPanel extends Panel implements IEventSource {
         // Position depends on result pages number.
         displayAttrsLink.add(new Behavior() {
 
+            private static final long serialVersionUID = 1469628524240283489L;
+
             @Override
             public void onComponentTag(
                     final Component component, final ComponentTag tag) {
@@ -293,6 +295,7 @@ public class ResultSetPanel extends Panel implements IEventSource {
 
     public void search(
             final NodeCond searchCond, final AjaxRequestTarget target) {
+
         this.filter = searchCond;
         dataProvider.setSearchCond(filter);
         target.add(container);
@@ -306,7 +309,7 @@ public class ResultSetPanel extends Panel implements IEventSource {
         dataProvider = new UserDataProvider(userRestClient, rows, filtered);
         dataProvider.setSearchCond(filter);
 
-        final int page = resultTable != null
+        final int currentPage = resultTable != null
                 ? (create
                 ? resultTable.getPageCount() - 1
                 : resultTable.getCurrentPage())
@@ -315,7 +318,7 @@ public class ResultSetPanel extends Panel implements IEventSource {
         resultTable = new AjaxFallbackDefaultDataTable<UserTO>(
                 "resultTable", getColumns(), dataProvider, rows);
 
-        resultTable.setCurrentPage(page);
+        resultTable.setCurrentPage(currentPage);
 
         resultTable.setOutputMarkupId(true);
 
@@ -478,7 +481,7 @@ public class ResultSetPanel extends Panel implements IEventSource {
     }
 
     @Override
-    public void onEvent(IEvent<?> event) {
+    public void onEvent(final IEvent<?> event) {
         if (event.getPayload() instanceof EventDataWrapper) {
 
             final EventDataWrapper data = (EventDataWrapper) event.getPayload();
@@ -491,7 +494,6 @@ public class ResultSetPanel extends Panel implements IEventSource {
     }
 
     private void setWindowClosedReloadCallback(final ModalWindow window) {
-
         window.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 
             private static final long serialVersionUID = 8804221891699487139L;

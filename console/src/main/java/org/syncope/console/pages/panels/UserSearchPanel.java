@@ -92,7 +92,9 @@ public class UserSearchPanel extends Panel {
                     // loop on class and all superclasses searching for field
                     while (clazz != null && clazz != Object.class) {
                         for (Field field : clazz.getDeclaredFields()) {
-                            if (!ATTRIBUTES_NOTINCLUDED.contains(field.getName())) {
+                            if (!ATTRIBUTES_NOTINCLUDED.contains(
+                                    field.getName())) {
+
                                 details.add(field.getName());
                             }
                         }
@@ -411,7 +413,7 @@ public class UserSearchPanel extends Panel {
                             ? NodeCond.getNotLeafCond(attributeCond)
                             : NodeCond.getLeafCond(attributeCond);
                 }
-                
+
                 attributeCond.setSchema(schema);
                 attributeCond.setType(searchConditionWrapper.getType());
                 attributeCond.setExpression(

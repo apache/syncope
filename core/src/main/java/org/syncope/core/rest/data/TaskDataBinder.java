@@ -46,6 +46,7 @@ import org.syncope.core.persistence.beans.PropagationTask;
 import org.syncope.core.persistence.beans.Task;
 import org.syncope.core.persistence.beans.TaskExec;
 import org.syncope.core.persistence.dao.ResourceDAO;
+import org.syncope.core.persistence.dao.TaskExecDAO;
 import org.syncope.core.util.JexlUtil;
 import org.syncope.core.util.TaskUtil;
 import org.syncope.types.SyncopeClientExceptionType;
@@ -60,10 +61,13 @@ public class TaskDataBinder {
             TaskDataBinder.class);
 
     private static final String[] IGNORE_TASK_PROPERTIES = {
-        "executions", "resource", "user"};
+        "latestExecStatus", "executions", "resource", "user"};
 
     private static final String[] IGNORE_TASK_EXECUTION_PROPERTIES = {
         "id", "task"};
+
+    @Autowired
+    private TaskExecDAO taskExecDAO;
 
     @Autowired
     private ResourceDAO resourceDAO;
@@ -210,6 +214,10 @@ public class TaskDataBinder {
     public TaskTO getTaskTO(final Task task, final TaskUtil taskUtil) {
         TaskTO taskTO = taskUtil.newTaskTO();
         BeanUtils.copyProperties(task, taskTO, IGNORE_TASK_PROPERTIES);
+
+        TaskExec latestExec = taskExecDAO.findLatestStarted(task);
+        taskTO.setLatestExecStatus(latestExec == null
+                ? "" : latestExec.getStatus());
 
         List<TaskExec> executions = task.getExecs();
         for (TaskExec execution : executions) {

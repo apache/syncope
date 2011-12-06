@@ -40,11 +40,11 @@ public class PropagationTaskValidator extends AbstractValidator
             isValid = true;
         } else {
             isValid = object.getPropagationMode() != null
-                    && object.getResourceOperationType() != null
+                    && object.getPropagationOperation() != null
                     && !object.getAttributes().isEmpty()
                     && object.getResource() != null
                     && (PropagationOperation.DELETE == object.
-                    getResourceOperationType()
+                    getPropagationOperation()
                     || object.getSyncopeUser() != null);
 
             if (isValid) {

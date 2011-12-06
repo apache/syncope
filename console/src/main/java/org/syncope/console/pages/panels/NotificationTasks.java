@@ -98,6 +98,9 @@ public class NotificationTasks extends Panel {
                 new ResourceModel("subject"), "subject", "subject"));
         columns.add(new PropertyColumn(
                 new ResourceModel("traceLevel"), "traceLevel", "traceLevel"));
+        columns.add(new PropertyColumn(
+                new ResourceModel("latestExecStatus"),
+                "latestExecStatus", "latestExecStatus"));
 
         columns.add(new AbstractColumn<TaskTO>(new ResourceModel("detail")) {
 
