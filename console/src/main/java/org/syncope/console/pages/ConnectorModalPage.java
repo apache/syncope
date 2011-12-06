@@ -210,7 +210,9 @@ public class ConnectorModalPage extends BaseModalPage {
                         //reset all informations stored in connectorTO
                         connectorTO.setConfiguration(
                                 new HashSet<ConnConfProperty>());
-                        ((DropDownChoice) bundle.getField()).setNullValid(false);
+                        DropDownChoice bundleChoice =
+                                (DropDownChoice) bundle.getField();
+                        bundleChoice.setNullValid(false);
                         target.add(bundle.getField());
                         target.add(propertiesContainer);
                         target.add(connectorName);
@@ -298,7 +300,8 @@ public class ConnectorModalPage extends BaseModalPage {
                                 new PropertyModel(property, "overridable"),
                                 false);
 
-                        overridable.setChoiceRenderer(new OverridableRenderer());
+                        overridable.setChoiceRenderer(
+                                new OverridableRenderer());
 
                         overridable.setChoices(
                                 Arrays.asList(
@@ -308,7 +311,8 @@ public class ConnectorModalPage extends BaseModalPage {
                                     ConnParameterType.OVERRIDABLE.getOverridable()}));
 
                         overridable.setStyleShet(
-                                "ui-widget-content ui-corner-all long_dynamicsize");
+                                "ui-widget-content ui-corner-all "
+                                + "long_dynamicsize");
 
                         overridable.addRequiredLabel();
                         item.add(overridable);
@@ -336,8 +340,8 @@ public class ConnectorModalPage extends BaseModalPage {
                 final ConnInstanceTO connector =
                         (ConnInstanceTO) form.getDefaultModelObject();
 
-                connector.setBundleName(
-                        ((ConnBundleTO) bundle.getModelObject()).getBundleName());
+                ConnBundleTO bundleTO = (ConnBundleTO) bundle.getModelObject();
+                connector.setBundleName(bundleTO.getBundleName());
 
                 // Set the model object's capabilites to
                 // capabilitiesPalette's converted Set
@@ -361,6 +365,7 @@ public class ConnectorModalPage extends BaseModalPage {
                     window.close(target);
                 } catch (SyncopeClientCompositeErrorException e) {
                     error(getString("error") + ":" + e.getMessage());
+                    target.add(feedbackPanel);
                     ((Resources) callerPageRef.getPage()).setModalResult(
                             false);
                     LOG.error("While creating or updating connector "
