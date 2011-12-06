@@ -24,6 +24,7 @@ import java.util.Set;
 import javax.validation.ValidationException;
 import org.apache.commons.jexl2.JexlContext;
 import org.apache.commons.jexl2.MapContext;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -116,16 +117,19 @@ public abstract class AbstractAttributableDataBinder {
     private <T extends AbstractSchema> T getSchema(
             final String schemaName, final Class<T> reference) {
 
-        T schema = schemaDAO.find(schemaName, reference);
+        T schema = null;
+        if (StringUtils.isNotBlank(schemaName)) {
+            schema = schemaDAO.find(schemaName, reference);
 
-        // safely ignore invalid schemas from AttributeTO
-        // see http://code.google.com/p/syncope/issues/detail?id=17
-        if (schema == null) {
-            LOG.debug("Ignoring invalid schema {}", schemaName);
-        } else if (schema.isReadonly()) {
-            schema = null;
+            // safely ignore invalid schemas from AttributeTO
+            // see http://code.google.com/p/syncope/issues/detail?id=17
+            if (schema == null) {
+                LOG.debug("Ignoring invalid schema {}", schemaName);
+            } else if (schema.isReadonly()) {
+                schema = null;
 
-            LOG.debug("Ignoring virtual or readonly schema {}", schemaName);
+                LOG.debug("Ignoring virtual or readonly schema {}", schemaName);
+            }
         }
 
         return schema;
@@ -134,10 +138,12 @@ public abstract class AbstractAttributableDataBinder {
     private <T extends AbstractDerSchema> T getDerivedSchema(
             final String derSchemaName, final Class<T> reference) {
 
-        T derivedSchema = derivedSchemaDAO.find(derSchemaName, reference);
-
-        if (derivedSchema == null) {
-            LOG.debug("Ignoring invalid derived schema {}", derSchemaName);
+        T derivedSchema = null;
+        if (StringUtils.isNotBlank(derSchemaName)) {
+            derivedSchema = derivedSchemaDAO.find(derSchemaName, reference);
+            if (derivedSchema == null) {
+                LOG.debug("Ignoring invalid derived schema {}", derSchemaName);
+            }
         }
 
         return derivedSchema;
@@ -146,10 +152,13 @@ public abstract class AbstractAttributableDataBinder {
     private <T extends AbstractVirSchema> T getVirtualSchema(
             final String virSchemaName, final Class<T> reference) {
 
-        T virtualSchema = virtualSchemaDAO.find(virSchemaName, reference);
+        T virtualSchema = null;
+        if (StringUtils.isNotBlank(virSchemaName)) {
+            virtualSchema = virtualSchemaDAO.find(virSchemaName, reference);
 
-        if (virtualSchema == null) {
-            LOG.debug("Ignoring invalid virtual schema {}", virSchemaName);
+            if (virtualSchema == null) {
+                LOG.debug("Ignoring invalid virtual schema {}", virSchemaName);
+            }
         }
 
         return virtualSchema;
@@ -545,7 +554,9 @@ public abstract class AbstractAttributableDataBinder {
                         attributeMod.getValuesToBeRemoved()) {
 
                     if (attribute.getSchema().isUniqueConstraint()) {
-                        if (valueToBeRemoved.equals(attribute.getUniqueValue().
+                        if (attribute.getUniqueValue() != null
+                                && valueToBeRemoved.equals(
+                                attribute.getUniqueValue().
                                 getValueAsString())) {
 
                             valuesToBeRemoved.add(
@@ -600,7 +611,6 @@ public abstract class AbstractAttributableDataBinder {
                     attributableUtil.derivedSchemaClass());
 
             if (derivedSchema != null) {
-
                 derivedAttribute = attributable.getDerivedAttribute(
                         derivedSchema.getName());
 

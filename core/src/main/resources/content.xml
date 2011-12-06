@@ -27,18 +27,18 @@
     <Policy DTYPE="AccountPolicy" id="3" description="Global Account Policy" type="GLOBAL_ACCOUNT" specification="%3Corg.syncope.types.AccountPolicySpec%3E%0A++%3CmaxLength%3E0%3C%2FmaxLength%3E%0A++%3CminLength%3E0%3C%2FminLength%3E%0A++%3CallUpperCase%3Efalse%3C%2FallUpperCase%3E%0A++%3CallLowerCase%3Efalse%3C%2FallLowerCase%3E%0A++%3CpropagateSuspension%3Efalse%3C%2FpropagateSuspension%3E%0A++%3CpermittedLoginRetries%3E0%3C%2FpermittedLoginRetries%3E%0A%3C%2Forg.syncope.types.AccountPolicySpec%3E"/>
     
     <USchema name="surname" type="String"
-                mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+             mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
     <USchema name="firstname" type="String"
-                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+             mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
     <USchema name="email" type="String"
-                mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"
-                validatorClass="org.syncope.core.persistence.validation.attrvalue.EmailAddressValidator"/>
+             mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"
+             validatorClass="org.syncope.core.persistence.validation.attrvalue.EmailAddressValidator"/>
                
     <UDerSchema name="fullname" expression="firstname + '.' + surname"/>
 
     <MSchema name="subscriptionDate" type="Date"
-                      mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
-                      conversionPattern="yyyy-MM-dd'T'HH:mm:ss.SSSZ"/>
+             mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
+             conversionPattern="yyyy-MM-dd'T'HH:mm:ss.SSSZ"/>
 
     <!-- Authentication and authorization -->
     <Entitlement name="SCHEMA_CREATE"/>

@@ -40,6 +40,9 @@ import org.syncope.client.to.UserTO;
  */
 public final class AttributableOperations {
 
+    private AttributableOperations() {
+    }
+
     public static <T extends AbstractAttributableTO> T clone(final T original) {
         return (T) SerializationUtils.clone(original);
     }
@@ -66,6 +69,9 @@ public final class AttributableOperations {
             if (!entry.getValue().isReadonly()) {
                 attrMod.setValuesToBeAdded(
                         new ArrayList<String>(updatedValues));
+                if (!attrMod.isEmpty()) {
+                    result.addAttributeToBeRemoved(attrMod.getSchema());
+                }
             }
 
             originalValues.removeAll(entry.getValue().getValues());
@@ -193,6 +199,7 @@ public final class AttributableOperations {
 
                     if (!attrMod.isEmpty()) {
                         membMod.addAttributeToBeUpdated(attrMod);
+                        result.addAttributeToBeRemoved(attrMod.getSchema());
                     }
                 }
                 for (AttributeTO attr :
@@ -209,6 +216,7 @@ public final class AttributableOperations {
 
                     if (!attrMod.isEmpty()) {
                         membMod.addVirtualAttributeToBeUpdated(attrMod);
+                        result.addAttributeToBeRemoved(attrMod.getSchema());
                     }
                 }
                 membMod.setResourcesToBeAdded(entry.getValue().getResources());

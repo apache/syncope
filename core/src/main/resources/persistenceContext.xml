@@ -72,6 +72,7 @@
         </property>
         <property name="jpaPropertyMap">
             <map>
+                <entry key="hibernate.order_inserts" value="true"/>
                 <entry key="hibernate.order_updates" value="true"/>
                 <entry key="hibernate.id.new_generator_mappings" value="true"/>
                 <entry key="hibernate.generate_statistics" value="true"/>
