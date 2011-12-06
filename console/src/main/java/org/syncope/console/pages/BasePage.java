@@ -26,6 +26,7 @@ import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -94,14 +95,28 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
 
     private void pageSetup() {
         ((SyncopeApplication) getApplication()).setupNavigationPane(
-                this, xmlRolesReader, version);
+                this, xmlRolesReader, true, version);
 
         feedbackPanel = new FeedbackPanel("feedback");
         feedbackPanel.setOutputMarkupId(true);
         add(feedbackPanel);
 
         final String kind = getClass().getSimpleName().toLowerCase();
-        final Component kindIcon = get(kind);
+        final BookmarkablePageLink kindLink = (BookmarkablePageLink) get(kind);
+        kindLink.add(new Behavior() {
+
+            private static final long serialVersionUID =
+                    1469628524240283489L;
+
+            @Override
+            public void onComponentTag(final Component component,
+                    final ComponentTag tag) {
+
+                tag.put("class", kind);
+            }
+        });
+
+        Component kindIcon = kindLink.get(0);
         if (kindIcon != null) {
             kindIcon.add(new Behavior() {
 
@@ -112,10 +127,10 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
                 public void onComponentTag(final Component component,
                         final ComponentTag tag) {
 
-                    tag.put("class", kind);
+                    tag.put("src", "../.." + SyncopeApplication.IMG_PREFIX
+                            + kind + SyncopeApplication.IMG_SUFFIX);
                 }
             });
-            add(kindIcon);
         }
 
         // Modal window for editing user profile
@@ -158,7 +173,7 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
                                                     BasePage.this.
                                                     getPageReference(),
                                                     editProfileModalWin,
-                                                    userTO, 
+                                                    userTO,
                                                     UserModalPage.Mode.SELF);
                                         }
                                     });

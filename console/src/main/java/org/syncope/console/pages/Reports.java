@@ -19,11 +19,11 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 /**
  * Report WebPage.
  */
-public class Report extends BasePage {
+public class Reports extends BasePage {
 
     private static final long serialVersionUID = -2071214196989178694L;
 
-    public Report(final PageParameters parameters) {
+    public Reports(final PageParameters parameters) {
         super(parameters);
     }
 }

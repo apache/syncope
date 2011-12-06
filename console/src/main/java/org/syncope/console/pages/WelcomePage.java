@@ -25,6 +25,8 @@ import org.syncope.console.commons.XMLRolesReader;
  */
 public class WelcomePage extends WebPage {
 
+    private static final long serialVersionUID = 8851399358753120581L;
+
     @SpringBean
     private XMLRolesReader xmlRolesReader;
 
@@ -35,6 +37,6 @@ public class WelcomePage extends WebPage {
         super(parameters);
 
         ((SyncopeApplication) getApplication()).setupNavigationPane(
-                this, xmlRolesReader, version);
+                this, xmlRolesReader, false, version);
     }
 }
