@@ -103,22 +103,8 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
 
         final String kind = getClass().getSimpleName().toLowerCase();
         final BookmarkablePageLink kindLink = (BookmarkablePageLink) get(kind);
-        kindLink.add(new Behavior() {
-
-            private static final long serialVersionUID =
-                    1469628524240283489L;
-
-            @Override
-            public void onComponentTag(final Component component,
-                    final ComponentTag tag) {
-
-                tag.put("class", kind);
-            }
-        });
-
-        Component kindIcon = kindLink.get(0);
-        if (kindIcon != null) {
-            kindIcon.add(new Behavior() {
+        if (kindLink != null) {
+            kindLink.add(new Behavior() {
 
                 private static final long serialVersionUID =
                         1469628524240283489L;
@@ -127,10 +113,26 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
                 public void onComponentTag(final Component component,
                         final ComponentTag tag) {
 
-                    tag.put("src", "../.." + SyncopeApplication.IMG_PREFIX
-                            + kind + SyncopeApplication.IMG_SUFFIX);
+                    tag.put("class", kind);
                 }
             });
+
+            Component kindIcon = kindLink.get(0);
+            if (kindIcon != null) {
+                kindIcon.add(new Behavior() {
+
+                    private static final long serialVersionUID =
+                            1469628524240283489L;
+
+                    @Override
+                    public void onComponentTag(final Component component,
+                            final ComponentTag tag) {
+
+                        tag.put("src", "../.." + SyncopeApplication.IMG_PREFIX
+                                + kind + SyncopeApplication.IMG_SUFFIX);
+                    }
+                });
+            }
         }
 
         // Modal window for editing user profile

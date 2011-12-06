@@ -19,8 +19,10 @@ import org.apache.wicket.Component;
 import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.PasswordTextField;
+import org.apache.wicket.markup.html.form.validation.EqualPasswordInputValidator;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
@@ -60,18 +62,42 @@ public class UserDetailsPanel extends Panel {
         // ------------------------
         // Password
         // ------------------------
-        final FieldPanel password = templateMode
-                ? new AjaxTextFieldPanel("password", "password",
-                new PropertyModel<String>(userTO, "password"), true)
-                : new AjaxPasswordFieldPanel("password", "password",
-                new PropertyModel<String>(userTO, "password"), true);
-        add(password);
+        final FieldPanel password;
+        final Label confirmPasswordLabel = new Label("confirmPasswordLabel",
+                getString("confirmPassword"));
+        final FieldPanel confirmPassword;
+        if (templateMode) {
+            password = new AjaxTextFieldPanel("password", "password",
+                    new PropertyModel<String>(userTO, "password"), true);
 
-        if (!templateMode) {
+            confirmPasswordLabel.setVisible(false);
+            confirmPassword = new AjaxTextFieldPanel("confirmPassword",
+                    "confirmPassword", new Model<String>(), false);
+            confirmPassword.setEnabled(false);
+            confirmPassword.setVisible(false);
+        } else {
+            password = new AjaxPasswordFieldPanel("password", "password",
+                    new PropertyModel<String>(userTO, "password"), true);
             password.setRequired(userTO.getId() == 0);
             ((PasswordTextField) password.getField()).setResetPassword(
                     resetPassword);
+
+            confirmPassword = new AjaxPasswordFieldPanel("confirmPassword",
+                    "confirmPassword", new Model<String>(), true);
+            if (!resetPassword) {
+                confirmPassword.getField().setModelObject(
+                        userTO.getPassword());
+            }
+            confirmPassword.setRequired(userTO.getId() == 0);
+            ((PasswordTextField) confirmPassword.getField()).setResetPassword(
+                    resetPassword);
+
+            form.add(new EqualPasswordInputValidator(
+                    password.getField(), confirmPassword.getField()));
         }
+        add(password);
+        add(confirmPasswordLabel);
+        add(confirmPassword);
 
         final WebMarkupContainer mandatoryPassword =
                 new WebMarkupContainer("mandatory_pwd");
