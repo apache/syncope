@@ -570,6 +570,7 @@ public class PropagationManager {
 
             try {
                 preparedAttribute = prepareAttribute(mapping, user, password);
+
                 if (preparedAttribute.getKey() != null) {
                     accountId = preparedAttribute.getKey();
                 }
@@ -836,14 +837,20 @@ public class PropagationManager {
                         // 1. get accountId
                         final String accountId = task.getAccountId();
 
-                        // 2. check if accountId is not blank
-                        if (StringUtils.hasText(accountId)) {
+                        // 2. get name
+                        final Name name = (Name) AttributeUtil.find(
+                                Name.NAME, attributes);
 
-                            // 2.a retrieve uid
+                        // 3. check if accountId is not blank and is not equals to Name
+                        if (StringUtils.hasText(accountId)
+                                && (name == null
+                                || !accountId.equals(name.getNameValue()))) {
+
+                            // 3.a retrieve uid
                             final Uid uid = (Uid) AttributeUtil.find(
                                     Uid.NAME, attributes);
 
-                            // 2.b add Uid if not provided
+                            // 3.b add Uid if not provided
                             if (uid == null) {
                                 attributes.add(AttributeBuilder.build(
                                         Uid.NAME,
@@ -851,7 +858,7 @@ public class PropagationManager {
                             }
                         }
 
-                        // 3. provision entry
+                        // 4. provision entry
                         connector.create(
                                 task.getPropagationMode(),
                                 ObjectClass.ACCOUNT,
