@@ -54,58 +54,69 @@
 </wicket:head>
 
 <wicket:extend>
-    <div style="margin:10px">
-        <p class="ui-widget ui-corner-all ui-widget-header">
-            <span wicket:id="new"/>&nbsp;<wicket:message key="title"/>&nbsp;<span wicket:id="id"/>
-        </p>
 
-        <form wicket:id="UserForm">
-            <div id="tabs">
-                <ul>
-                    <li  class="tabs-selected"><a href="#tabs-1"><span><wicket:message key="tab1"/></span></a></li>
-                    <li><a href="#tabs-2"><span><wicket:message key="tab2"/></span></a></li>
-                    <li><a href="#tabs-3"><span><wicket:message key="tab3"/></span></a></li>
-                    <li><a href="#tabs-4"><span><wicket:message key="tab4"/></span></a></li>
-                    <li><a href="#tabs-5"><span><wicket:message key="tab5"/></span></a></li>
-                    <li><a href="#tabs-6"><span><wicket:message key="tab6"/></span></a></li>
-                </ul>
-                <div id="tabs-1">
-                    <span wicket:id="details">[user details]</span>
-                </div>
-                <div id="tabs-2">
-                    <div id="formtable">
-                        <span wicket:id="attributes">[user attributes]</span>
+    <span wicket:id="userPanel"/>
+
+    <wicket:fragment wicket:id="editPanel">
+
+        <div style="margin:10px">
+            <p class="ui-widget ui-corner-all ui-widget-header">
+                <span wicket:id="new"/>&nbsp;<wicket:message key="title"/>&nbsp;<span wicket:id="id"/>
+            </p>
+
+            <form wicket:id="UserForm">
+                <div id="tabs">
+                    <ul>
+                        <li  class="tabs-selected"><a href="#tabs-1"><span><wicket:message key="tab1"/></span></a></li>
+                        <li><a href="#tabs-2"><span><wicket:message key="tab2"/></span></a></li>
+                        <li><a href="#tabs-3"><span><wicket:message key="tab3"/></span></a></li>
+                        <li><a href="#tabs-4"><span><wicket:message key="tab4"/></span></a></li>
+                        <li><a href="#tabs-5"><span><wicket:message key="tab5"/></span></a></li>
+                        <li><a href="#tabs-6"><span><wicket:message key="tab6"/></span></a></li>
+                    </ul>
+                    <div id="tabs-1">
+                        <span wicket:id="details">[user details]</span>
+                    </div>
+                    <div id="tabs-2">
+                        <div id="formtable">
+                            <span wicket:id="attributes">[user attributes]</span>
+                        </div>
+                    </div>
+
+                    <div id="tabs-3">
+                        <span wicket:id="derivedAttributes">[user derived attributes]</span>
+                    </div>
+
+                    <div id="tabs-4">
+                        <span wicket:id="virtualAttributes">[user virtual attributes]</span>
+                    </div>
+
+                    <div id="tabs-5">
+                        <span wicket:id="resources">[resources]</span>
+                    </div>
+
+                    <div id="tabs-6">
+                        <span wicket:id="roles">[roles]</span>
                     </div>
                 </div>
 
-                <div id="tabs-3">
-                    <span wicket:id="derivedAttributes">[user derived attributes]</span>
+                <script type="text/javascript">
+                    $(function() {
+                        $('#formtable div.tablerow:even').addClass("alt");
+                    });
+                </script>
+
+                <div style="margin: 20px 10px 0">
+                    <input type="submit"
+                           class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+                           wicket:id="apply"/>
                 </div>
+            </form>
+        </div>
+    </wicket:fragment>
 
-                <div id="tabs-4">
-                    <span wicket:id="virtualAttributes">[user virtual attributes]</span>
-                </div>
+    <wicket:fragment wicket:id="summaryPanel">
+        <span wicket:id="userSummaryPanel"/>
+    </wicket:fragment>
 
-                <div id="tabs-5">
-                    <span wicket:id="resources">[resources]</span>
-                </div>
-
-                <div id="tabs-6">
-                    <span wicket:id="roles">[roles]</span>
-                </div>
-            </div>
-
-            <script type="text/javascript">
-                $(function() {
-                    $('#formtable div.tablerow:even').addClass("alt");
-                });
-            </script>
-
-            <div style="margin: 20px 10px 0">
-                <input type="submit"
-                       class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
-                       wicket:id="apply"/>
-            </div>
-        </form>
-    </div>
 </wicket:extend>

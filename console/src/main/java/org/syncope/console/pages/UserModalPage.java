@@ -24,6 +24,7 @@ import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
@@ -38,6 +39,7 @@ import org.syncope.console.pages.panels.DerivedAttributesPanel;
 import org.syncope.console.pages.panels.ResourcesPanel;
 import org.syncope.console.pages.panels.RolesPanel;
 import org.syncope.console.pages.panels.UserDetailsPanel;
+import org.syncope.console.pages.panels.UserSummaryPanel;
 import org.syncope.console.pages.panels.VirtualAttributesPanel;
 import org.syncope.console.rest.TaskRestClient;
 import org.syncope.console.rest.UserRequestRestClient;
@@ -81,6 +83,12 @@ public class UserModalPage extends BaseModalPage {
 
     private UserTO initialUserTO;
 
+    private UserTO summaryUserTO;
+
+    private Fragment fragment;
+
+    private boolean submitted = false;
+
     public UserModalPage(final PageReference callerPageRef,
             final ModalWindow window,
             final UserRequestTO userRequestTO) {
@@ -123,6 +131,20 @@ public class UserModalPage extends BaseModalPage {
         setupModalPage();
     }
 
+    public UserModalPage(final PageReference callerPageRef,
+            final ModalWindow window,
+            final UserTO summaryUserTO, final boolean submitted) {
+
+        super();
+
+        this.callerPageRef = callerPageRef;
+        this.window = window;
+        this.summaryUserTO = summaryUserTO;
+        this.submitted = submitted;
+
+        setupModalPage();
+    }
+
     public UserTO getUserTO() {
         return userTO;
     }
@@ -132,159 +154,181 @@ public class UserModalPage extends BaseModalPage {
     }
 
     private void setupModalPage() {
-        if (userRequestTO != null) {
-            switch (userRequestTO.getType()) {
-                case CREATE:
-                    userTO = userRequestTO.getUserTO();
-                    break;
 
-                case UPDATE:
-                    initialUserTO = userRestClient.read(
-                            userRequestTO.getUserMod().getId());
-                    userTO = AttributableOperations.apply(
-                            initialUserTO, userRequestTO.getUserMod());
-                    break;
+        fragment = new Fragment("userPanel",
+                !submitted ? "editPanel" : "summaryPanel", this);
+        fragment.setOutputMarkupId(true);
 
-                case DELETE:
-                default:
+        if (!submitted) {
+
+            if (userRequestTO != null) {
+                switch (userRequestTO.getType()) {
+                    case CREATE:
+                        userTO = userRequestTO.getUserTO();
+                        break;
+
+                    case UPDATE:
+                        initialUserTO = userRestClient.read(
+                                userRequestTO.getUserMod().getId());
+                        userTO = AttributableOperations.apply(
+                                initialUserTO, userRequestTO.getUserMod());
+                        break;
+
+                    case DELETE:
+                    default:
+                }
             }
-        }
-        if (syncTaskTO != null) {
-            userTO = syncTaskTO.getUserTemplate();
-        }
+            if (syncTaskTO != null) {
+                userTO = syncTaskTO.getUserTemplate();
+            }
 
-        if (initialUserTO == null && userTO.getId() > 0) {
-            initialUserTO = AttributableOperations.clone(userTO);
-        }
+            if (initialUserTO == null && userTO.getId() > 0) {
+                initialUserTO = AttributableOperations.clone(userTO);
+            }
 
-        add(new Label("id", userTO.getId() == 0
-                ? "" : userTO.getUsername()));
-        add(new Label("new", userTO.getId() == 0
-                ? getString("new") : ""));
+            fragment.add(new Label("id", userTO.getId() == 0
+                    ? "" : userTO.getUsername()));
+            fragment.add(new Label("new", userTO.getId() == 0
+                    ? getString("new") : ""));
 
-        final Form form = new Form("UserForm");
-        form.setModel(new CompoundPropertyModel(userTO));
+            final Form form = new Form("UserForm");
+            form.setModel(new CompoundPropertyModel(userTO));
 
-        //--------------------------------
-        // User details
-        //--------------------------------
-        form.add(new UserDetailsPanel("details", userTO, form,
-                userRequestTO == null, mode == Mode.TEMPLATE));
-        //--------------------------------
+            //--------------------------------
+            // User details
+            //--------------------------------
+            form.add(new UserDetailsPanel("details", userTO, form,
+                    userRequestTO == null, mode == Mode.TEMPLATE));
+            //--------------------------------
 
-        //--------------------------------
-        // Attributes panel
-        //--------------------------------
-        form.add(new AttributesPanel("attributes", userTO, form,
-                mode == Mode.TEMPLATE));
-        //--------------------------------
+            //--------------------------------
+            // Attributes panel
+            //--------------------------------
+            form.add(new AttributesPanel("attributes", userTO, form,
+                    mode == Mode.TEMPLATE));
+            //--------------------------------
 
-        //--------------------------------
-        // Derived attributes panel
-        //--------------------------------
-        form.add(new DerivedAttributesPanel("derivedAttributes", userTO));
-        //--------------------------------
+            //--------------------------------
+            // Derived attributes panel
+            //--------------------------------
+            form.add(new DerivedAttributesPanel("derivedAttributes", userTO));
+            //--------------------------------
 
-        //--------------------------------
-        // Virtual attributes panel
-        //--------------------------------
-        form.add(new VirtualAttributesPanel("virtualAttributes", userTO,
-                mode == Mode.TEMPLATE));
-        //--------------------------------
+            //--------------------------------
+            // Virtual attributes panel
+            //--------------------------------
+            form.add(new VirtualAttributesPanel("virtualAttributes", userTO,
+                    mode == Mode.TEMPLATE));
+            //--------------------------------
 
-        //--------------------------------
-        // Resources panel
-        //--------------------------------
-        form.add(new ResourcesPanel("resources", userTO));
-        //--------------------------------
+            //--------------------------------
+            // Resources panel
+            //--------------------------------
+            form.add(new ResourcesPanel("resources", userTO));
+            //--------------------------------
 
-        //--------------------------------
-        // Roles panel
-        //--------------------------------
-        form.add(new RolesPanel("roles", userTO, mode == Mode.TEMPLATE));
-        //--------------------------------
+            //--------------------------------
+            // Roles panel
+            //--------------------------------
+            form.add(new RolesPanel("roles", userTO, mode == Mode.TEMPLATE));
+            //--------------------------------
 
-        final AjaxButton submit = new IndicatingAjaxButton(
-                "apply", new ResourceModel("submit")) {
+            final AjaxButton submit = new IndicatingAjaxButton(
+                    "apply", new ResourceModel("submit")) {
 
-            private static final long serialVersionUID = -958724007591692537L;
+                private static final long serialVersionUID =
+                        -958724007591692537L;
 
-            @Override
-            protected void onSubmit(final AjaxRequestTarget target,
-                    final Form form) {
+                @Override
+                protected void onSubmit(final AjaxRequestTarget target,
+                        final Form form) {
 
-                final UserTO updatedUserTO = (UserTO) form.getModelObject();
-                try {
-                    if (updatedUserTO.getId() == 0) {
-                        switch (mode) {
-                            case SELF:
-                                requestRestClient.requestCreate(updatedUserTO);
-                                break;
+                    final UserTO updatedUserTO = (UserTO) form.getModelObject();
+                    try {
+                        if (updatedUserTO.getId() == 0) {
+                            switch (mode) {
+                                case SELF:
+                                    requestRestClient.requestCreate(
+                                            updatedUserTO);
+                                    break;
 
-                            case ADMIN:
-                            default:
-                                userRestClient.create(updatedUserTO);
-                                if (userRequestTO != null) {
-                                    requestRestClient.delete(
-                                            userRequestTO.getId());
-                                }
-                                break;
+                                case ADMIN:
+                                default:
+                                    summaryUserTO = userRestClient.create(
+                                            updatedUserTO);
+                                    if (userRequestTO != null) {
+                                        requestRestClient.delete(
+                                                userRequestTO.getId());
+                                    }
+                                    break;
 
-                            case TEMPLATE:
-                                syncTaskTO.setUserTemplate(updatedUserTO);
-                                taskRestClient.updateSyncTask(syncTaskTO);
-                                break;
+                                case TEMPLATE:
+                                    syncTaskTO.setUserTemplate(updatedUserTO);
+                                    taskRestClient.updateSyncTask(syncTaskTO);
+                                    break;
 
-                        }
-                    } else {
-                        UserMod userMod = AttributableOperations.diff(
-                                updatedUserTO, initialUserTO);
+                            }
+                        } else {
+                            UserMod userMod = AttributableOperations.diff(
+                                    updatedUserTO, initialUserTO);
 
-                        // update user just if it is changed
-                        if (!userMod.isEmpty()) {
-                            if (mode == Mode.SELF) {
-                                requestRestClient.requestUpdate(userMod);
-                            } else {
-                                userRestClient.update(userMod);
-                                if (userRequestTO != null) {
-                                    requestRestClient.delete(
-                                            userRequestTO.getId());
+                            // update user just if it is changed
+                            if (!userMod.isEmpty()) {
+                                if (mode == Mode.SELF) {
+                                    requestRestClient.requestUpdate(userMod);
+                                } else {
+                                    summaryUserTO =
+                                            userRestClient.update(userMod);
+                                    if (userRequestTO != null) {
+                                        requestRestClient.delete(
+                                                userRequestTO.getId());
+                                    }
                                 }
                             }
                         }
-                    }
 
-                    if (callerPageRef.getPage() instanceof BasePage) {
-                        ((BasePage) callerPageRef.getPage()).setModalResult(
-                                true);
-                    }
+                        if (callerPageRef.getPage() instanceof BasePage) {
+                            ((BasePage) callerPageRef.getPage()).setModalResult(
+                                    true);
+                        }
 
-                    window.close(target);
-                } catch (SyncopeClientCompositeErrorException e) {
-                    LOG.error("While creating or updating user", e);
-                    error(getString("error") + ":" + e.getMessage());
+                        setResponsePage(new UserModalPage(callerPageRef,
+                                window, summaryUserTO, form.isSubmitted()));
+                    } catch (SyncopeClientCompositeErrorException e) {
+                        LOG.error("While creating or updating user", e);
+                        error(getString("error") + ":" + e.getMessage());
+                        target.add(feedbackPanel);
+                    }
+                }
+
+                @Override
+                protected void onError(final AjaxRequestTarget target,
+                        final Form form) {
+
                     target.add(feedbackPanel);
                 }
+            };
+
+            if (mode == Mode.ADMIN) {
+                String allowedRoles = userTO.getId() == 0
+                        ? xmlRolesReader.getAllAllowedRoles("Users", "create")
+                        : xmlRolesReader.getAllAllowedRoles("Users", "update");
+                MetaDataRoleAuthorizationStrategy.authorize(
+                        submit, RENDER, allowedRoles);
             }
 
-            @Override
-            protected void onError(final AjaxRequestTarget target,
-                    final Form form) {
+            fragment.add(form);
+            form.add(submit);
 
-                target.add(feedbackPanel);
-            }
-        };
+        } else {
+            final UserSummaryPanel userSummaryPanel =
+                    new UserSummaryPanel("userSummaryPanel",
+                    window, summaryUserTO);
 
-        if (mode == Mode.ADMIN) {
-            String allowedRoles = userTO.getId() == 0
-                    ? xmlRolesReader.getAllAllowedRoles("Users", "create")
-                    : xmlRolesReader.getAllAllowedRoles("Users", "update");
-            MetaDataRoleAuthorizationStrategy.authorize(
-                    submit, RENDER, allowedRoles);
+            userSummaryPanel.setOutputMarkupId(true);
+            fragment.add(userSummaryPanel);
         }
 
-        form.add(submit);
-
-        add(form);
+        add(fragment);
     }
 }

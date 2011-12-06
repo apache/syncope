@@ -50,10 +50,10 @@ public class UserRestClient extends AbstractBaseRestClient {
      * @param userTO instance
      * @throws SyncopeClientCompositeErrorException
      */
-    public void create(final UserTO userTO)
+    public UserTO create(final UserTO userTO)
             throws SyncopeClientCompositeErrorException {
 
-        restTemplate.postForObject(baseURL
+        return restTemplate.postForObject(baseURL
                 + "user/create", userTO, UserTO.class);
     }
 
@@ -62,15 +62,15 @@ public class UserRestClient extends AbstractBaseRestClient {
      * @param userTO
      * @return true is the opertion ends succesfully, false otherwise
      */
-    public void update(UserMod userModTO)
+    public UserTO update(UserMod userModTO)
             throws SyncopeClientCompositeErrorException {
 
-        restTemplate.postForObject(baseURL + "user/update",
+        return restTemplate.postForObject(baseURL + "user/update",
                 userModTO, UserTO.class);
     }
 
     public void delete(Long id) {
-        restTemplate.delete(baseURL + "user/delete/{userId}", id);
+         restTemplate.delete(baseURL + "user/delete/{userId}", id);
     }
 
     public UserTO read(Long id) {

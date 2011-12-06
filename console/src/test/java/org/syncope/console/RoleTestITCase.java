@@ -26,7 +26,7 @@ public class RoleTestITCase extends AbstractTest {
 
         selenium.click("//div[3]/span/div/div/table"
                 + "/tbody/tr/td[2]/table/tbody/tr/td/img");
-        
+
         selenium.click("//div[3]/span[2]/span/div/p/span/span/a");
         for (int second = 0;; second++) {
             if (second >= 60) {
@@ -57,7 +57,7 @@ public class RoleTestITCase extends AbstractTest {
         selenium.waitForPageToLoad("30000");
         selenium.click("//div[3]/span/div/div/table[3]/tbody/tr/td[4]/"
                 + "table/tbody/tr/td/a[1]");
-        
+
         selenium.click("//div[3]/span[2]/span/span/div/p/span/span/a[1]/");
         for (int second = 0;; second++) {
             if (second >= 60) {
@@ -94,7 +94,7 @@ public class RoleTestITCase extends AbstractTest {
         selenium.waitForPageToLoad("30000");
         selenium.click("//div[3]/span/div/div/table[3]/tbody/tr/td[4]/"
                 + "table/tbody/tr/td/a[1]");
-        
+
         selenium.click("//div[3]/span[2]/span/span/div/p/span[2]/span/a[2]");
         for (int second = 0;; second++) {
             if (second >= 60) {
@@ -131,7 +131,7 @@ public class RoleTestITCase extends AbstractTest {
         selenium.waitForPageToLoad("30000");
         selenium.click("//div[3]/span/div/div/table[3]/tbody/tr/"
                 + "td[4]/table/tbody/tr/td[2]/a");
-        
+
         selenium.click("//div[3]/span[2]/span/span/div/p/span[2]/span/a[2]");
 
         for (int second = 0;; second++) {
@@ -173,7 +173,7 @@ public class RoleTestITCase extends AbstractTest {
         selenium.waitForPageToLoad("30000");
         selenium.click("//div[3]/span/div/div/table[3]/tbody/tr/td[4]/"
                 + "table/tbody/tr/td/a[1]");
-        
+
         selenium.click("//div[3]/span[2]/span/span/div/p/span/span/a[1]/");
         for (int second = 0;; second++) {
             if (second >= 60) {
@@ -251,11 +251,17 @@ public class RoleTestITCase extends AbstractTest {
         selenium.setSpeed("1000");
 
         selenium.click("css=img[alt=\"Roles\"]");
-        selenium.waitForPageToLoad("30000");
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+        }
         //Prende Root
         selenium.click("//div[3]/span/div/div/table[2]/tbody/"
                 + "tr/td[3]/table/tbody/tr/td[2]/a/span");
-        
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+        }
         selenium.click("//div[3]/span[2]/span/"
                 + "span/div/form/div[2]/ul/li[7]/a/span");
 
@@ -269,16 +275,15 @@ public class RoleTestITCase extends AbstractTest {
             }
             try {
                 if (selenium.isElementPresent(
-                        "//div[2]/form/div[2]/div/"
-                        + "span/div/div/div[contains(text(),'Username')]")) {
+                        "//span/div/form/div[2]/div/span/div/div/"
+                        + "div[contains(text(),'Username')]")) {
                     break;
                 }
             } catch (Exception e) {
             }
-            
-            selenium.selectFrame("relative=up");
-            selenium.click("css=a.w_close");
         }
+        selenium.selectFrame("relative=up");
+        selenium.click("css=a.w_close");
     }
 
     @Test
@@ -290,7 +295,7 @@ public class RoleTestITCase extends AbstractTest {
         //Remove user4
         selenium.click("//div[3]/span/div/div/table[10]/tbody/"
                 + "tr/td[6]/table/tbody/tr/td[2]/a/span");
-        
+
         selenium.click("//div[3]/span[2]/span/"
                 + "span/div/form/div[2]/ul/li[7]/a/span");
 
@@ -308,11 +313,11 @@ public class RoleTestITCase extends AbstractTest {
         selenium.setSpeed("1000");
         selenium.click("css=img[alt=\"Roles\"]");
         selenium.waitForPageToLoad("30000");
-        
+
         //Remove managing director
         selenium.click("//div[3]/span/div/div/table[10]/tbody"
                 + "/tr/td[6]/table/tbody/tr/td[2]/a");
-        
+
         selenium.click("//div[3]/span[2]/span/span/div/p/span[2]/span/a[3]");
         assertTrue(selenium.getConfirmation().matches(
                 "^Do you really want to delete the selected item[\\s\\S]$"));
