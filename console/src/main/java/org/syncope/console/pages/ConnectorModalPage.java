@@ -18,6 +18,7 @@ package org.syncope.console.pages;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
@@ -123,6 +124,11 @@ public class ConnectorModalPage extends BaseModalPage {
                             result = new ArrayList<ConnConfProperty>(
                                     connectorTO.getConfiguration());
                         }
+
+                        if (result != null && !result.isEmpty()) {
+                            Collections.sort(result);
+                        }
+
                         return result;
                     }
                 };
@@ -314,7 +320,6 @@ public class ConnectorModalPage extends BaseModalPage {
                                 "ui-widget-content ui-corner-all "
                                 + "long_dynamicsize");
 
-                        overridable.addRequiredLabel();
                         item.add(overridable);
                         connectorTO.getConfiguration().add(property);
                     }

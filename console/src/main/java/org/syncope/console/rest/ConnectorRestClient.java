@@ -15,6 +15,7 @@
 package org.syncope.console.rest;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.springframework.stereotype.Component;
 import org.syncope.client.to.ConnBundleTO;
@@ -100,6 +101,9 @@ public class ConnectorRestClient extends AbstractBaseRestClient {
             schemaNames = Arrays.asList(restTemplate.postForObject(
                     baseURL + "connector/schema/list",
                     resourceTO, String[].class));
+
+            // re-order schema names list
+            Collections.sort(schemaNames);
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While getting resource schema names", e);
         }

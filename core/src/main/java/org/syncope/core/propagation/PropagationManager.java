@@ -804,11 +804,11 @@ public class PropagationManager {
             switch (task.getResourceOperationType()) {
                 case CREATE:
                 case UPDATE:
-                    if (remoteObject != null) {
-                        // 0. prepare new set of attributes
-                        final Set<Attribute> attributes =
-                                new HashSet<Attribute>(task.getAttributes());
+                    // set of attributes to be propagated
+                    final Set<Attribute> attributes =
+                            new HashSet<Attribute>(task.getAttributes());
 
+                    if (remoteObject != null) {
                         // 1. check if rename is really required
                         final Name newName = (Name) AttributeUtil.find(
                                 Name.NAME, attributes);
@@ -833,10 +833,29 @@ public class PropagationManager {
                                 null,
                                 propagationAttempted);
                     } else {
+                        // 1. get accountId
+                        final String accountId = task.getAccountId();
+
+                        // 2. check if accountId is not blank
+                        if (StringUtils.hasText(accountId)) {
+
+                            // 2.a retrieve uid
+                            final Uid uid = (Uid) AttributeUtil.find(
+                                    Uid.NAME, attributes);
+
+                            // 2.b add Uid if not provided
+                            if (uid == null) {
+                                attributes.add(AttributeBuilder.build(
+                                        Uid.NAME,
+                                        Collections.singleton(accountId)));
+                            }
+                        }
+
+                        // 3. provision entry
                         connector.create(
                                 task.getPropagationMode(),
                                 ObjectClass.ACCOUNT,
-                                task.getAttributes(),
+                                attributes,
                                 null,
                                 propagationAttempted);
                     }
