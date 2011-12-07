@@ -338,15 +338,30 @@ public class UserSearchTest {
         final NodeCond searchCondition = NodeCond.getAndCond(
                 NodeCond.getNotLeafCond(ws2),
                 NodeCond.getNotLeafCond(ws1));
-
         assertTrue(searchCondition.checkValidity());
 
         final List<SyncopeUser> users = searchDAO.search(
                 EntitlementUtil.getRoleIds(entitlementDAO.findAll()),
                 searchCondition);
-
         assertNotNull(users);
         assertEquals(1, users.size());
         assertEquals(4L, users.iterator().next().getId().longValue());
+    }
+
+    @Test
+    public final void issue242() {
+        final SyncopeUserCond cond =
+                new SyncopeUserCond(AttributeCond.Type.LIKE);
+        cond.setSchema("id");
+        cond.setExpression("test%");
+
+        final NodeCond searchCondition = NodeCond.getLeafCond(cond);
+        assertTrue(searchCondition.checkValidity());
+
+        final List<SyncopeUser> users = searchDAO.search(
+                EntitlementUtil.getRoleIds(entitlementDAO.findAll()),
+                searchCondition);
+        assertNotNull(users);
+        assertTrue(users.isEmpty());
     }
 }

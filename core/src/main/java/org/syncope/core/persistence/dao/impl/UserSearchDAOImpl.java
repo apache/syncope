@@ -477,7 +477,7 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
                     query.append(" LIKE '").append(cond.getExpression()).
                             append("'");
                 } else {
-                    query.append("' AND 1=1");
+                    query.append("' AND 1=2");
                     LOG.error("LIKE is only compatible with string schemas");
                 }
                 break;
@@ -549,11 +549,10 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
         final String schema = cond.getSchema();
 
         Field field = null;
+        // loop over class and all superclasses searching for field
+        for (Class<?> i = SyncopeUser.class;
+                field == null && i != Object.class;) {
 
-        Class<?> i = SyncopeUser.class;
-
-        // loop on class and all superclasses searching for field
-        while (field == null && i != Object.class) {
             try {
                 field = i.getDeclaredField(schema);
             } catch (Exception ignore) {
@@ -564,7 +563,6 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
                 i = i.getSuperclass();
             }
         }
-
         if (field == null) {
             LOG.warn("Ignoring invalid schema '{}'", cond.getSchema());
             return EMPTY_ATTR_QUERY;
@@ -594,7 +592,7 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
                     query.append(" LIKE '").append(cond.getExpression()).
                             append("'");
                 } else {
-                    query.append("' 1=1");
+                    query.append(" 1=2");
                     LOG.error("LIKE is only compatible with string schemas");
                 }
                 break;
