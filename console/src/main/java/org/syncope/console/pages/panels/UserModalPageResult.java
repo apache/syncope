@@ -48,19 +48,18 @@ public class UserModalPageResult extends Panel {
 
         super(id);
 
+        final WebMarkupContainer container =
+                new WebMarkupContainer("container");
+        container.setOutputMarkupId(true);
+        add(container);
+
         final Fragment fragment = new Fragment("userModalResultFrag",
                 mode == UserModalPage.Mode.SELF ? "userModalSelfResultFrag"
                 : "userModalPropagationResultFrag", this);
         fragment.setOutputMarkupId(true);
-        add(fragment);
+        container.add(fragment);
 
         if (mode == UserModalPage.Mode.ADMIN) {
-            final WebMarkupContainer container =
-                    new WebMarkupContainer("container");
-
-            container.setOutputMarkupId(true);
-            fragment.add(container);
-
             final Map<String, PropagationTaskExecStatus> propagationMap =
                     userTO.getPropagationStatusMap();
 
@@ -71,7 +70,7 @@ public class UserModalPageResult extends Panel {
             resourceListKey.add(0, "Syncope");
             propagationMap.put("Syncope", PropagationTaskExecStatus.SUCCESS);
 
-            container.add(new Label("userInfo", userTO.getUsername()));
+            fragment.add(new Label("userInfo", userTO.getUsername()));
 
             final PageableListView<String> propagationStatus =
                     new PageableListView<String>(
@@ -99,23 +98,21 @@ public class UserModalPageResult extends Panel {
                                     "img/warning.png")));
                         }
                     };
-
-            container.add(
+            fragment.add(propagationStatus);
+            fragment.add(
                     new AjaxPagingNavigator("navigator", propagationStatus));
-
-            final AjaxLink close = new IndicatingAjaxLink("close") {
-
-                private static final long serialVersionUID =
-                        -7978723352517770644L;
-
-                @Override
-                public void onClick(final AjaxRequestTarget target) {
-                    window.close(target);
-                }
-            };
-
-            container.add(close);
-            container.add(propagationStatus);
         }
+
+        final AjaxLink close = new IndicatingAjaxLink("close") {
+
+            private static final long serialVersionUID =
+                    -7978723352517770644L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+                window.close(target);
+            }
+        };
+        container.add(close);
     }
 }

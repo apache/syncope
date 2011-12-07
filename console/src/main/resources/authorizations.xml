@@ -126,10 +126,6 @@ page@id= Schema|Users|Roles|Resources|Connectors|Reports|Configuration|Task
         </action>
     </page>
 
-    <page id="Report">
-
-    </page>
-
     <page id="Approval">
         <action id="list">
             <entitlement>WORKFLOW_FORM_LIST</entitlement>

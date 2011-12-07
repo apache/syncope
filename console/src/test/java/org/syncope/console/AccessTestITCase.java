@@ -39,7 +39,7 @@ public class AccessTestITCase extends AbstractTest {
         selenium.waitForPageToLoad("30000");
         selenium.click("css=img[alt=\"TODO\"]");
         selenium.waitForPageToLoad("30000");
-        selenium.click("css=img[alt=\"Report\"]");
+        selenium.click("css=img[alt=\"Reports\"]");
         selenium.waitForPageToLoad("30000");
         selenium.click("css=img[alt=\"Configuration\"]");
         selenium.waitForPageToLoad("30000");

@@ -14,52 +14,52 @@
 -->
 <wicket:panel>
 
-    <span wicket:id="userModalResultFrag"/>
-
     <wicket:fragment wicket:id="userModalPropagationResultFrag">
-        <div wicket:id="container" id="users-contain" class="ui-widget" style="margin:30px; width:inherit">
+        <p class="ui-widget ui-corner-all ui-widget-header">
+        <wicket:message key="operationResult"/>&nbsp;<span wicket:id="userInfo"/>
+        </p>
 
-            <p class="ui-widget ui-corner-all ui-widget-header">
-            <wicket:message key="operationResult"/>&nbsp;<span wicket:id="userInfo"/>
-            </p>
-
-            <div>
-                <span class="text ui-corner-all"
-                      style="float:right" wicket:id="navigator">
-                </span>
-            </div>
-            <table class="ui-widget ui-widget-content table-hover"
-                   style="font-size:1.1em" cellpadding="5px" cellspacing="2px">
-                <thead>
-                    <tr class="ui-widget-header">
-                        <th><wicket:message key="resource"/></th>
-                <th><wicket:message key="propagation"/></th>
-                <th><wicket:message key="status"/></th>
-                </tr>
-                </thead>
-                <tbody>
-                    <tr wicket:id="propagationResults">
-                        <td>
-                            <span wicket:id="resourceName"/>
-                        </td>
-                        <td>
-                            <span wicket:id="propagation"/>
-                        </td>
-                        <td>
-                            <img wicket:id="status"/>
-                        </td>
-                    </tr>
-                </tbody>
-
-            </table>
-            <a class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
-               wicket:id="close">
-                <wicket:message key="close"/>
-            </a>
+        <div>
+            <span class="text ui-corner-all"
+                  style="float:right" wicket:id="navigator">
+            </span>
         </div>
+        <table class="ui-widget ui-widget-content table-hover"
+               style="font-size:1.1em" cellpadding="5px" cellspacing="2px">
+            <thead>
+                <tr class="ui-widget-header">
+                    <th><wicket:message key="resource"/></th>
+            <th><wicket:message key="propagation"/></th>
+            <th><wicket:message key="status"/></th>
+            </tr>
+            </thead>
+            <tbody>
+                <tr wicket:id="propagationResults">
+                    <td>
+                        <span wicket:id="resourceName"/>
+                    </td>
+                    <td>
+                        <span wicket:id="propagation"/>
+                    </td>
+                    <td>
+                        <img wicket:id="status"/>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
     </wicket:fragment>
 
     <wicket:fragment wicket:id="userModalSelfResultFrag">
-        <wicket:message key="selfResult"/>
+        <p><wicket:message key="selfResult"/></p>
     </wicket:fragment>
+
+    <div wicket:id="container" id="users-contain" class="ui-widget" style="margin:30px; width:inherit">
+
+        <span wicket:id="userModalResultFrag"/>
+
+        <a class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+           wicket:id="close">
+            <wicket:message key="close"/>
+        </a>
+    </div>
 </wicket:panel>
