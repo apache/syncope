@@ -18,8 +18,9 @@
         <connid.soap.version>1.1</connid.soap.version>
         <connid.db.table.version>2.0</connid.db.table.version>
         <connid.csvdir.version>0.1</connid.csvdir.version>
+        <connid.ldap.version>1.2</connid.ldap.version>
 
-        <h2.version>1.3.161</h2.version>
+        <h2.version>1.3.162</h2.version>
 
         <servlet-api.version>2.5</servlet-api.version>
         <jsp-api.version>2.1</jsp-api.version>
@@ -41,6 +42,11 @@
 
         <cargo.version>1.1.2</cargo.version>
         <tomcat.version>7.0.23</tomcat.version>
+
+        <cargo.servlet.port>9080</cargo.servlet.port>
+        <cargo.run.dir>${project.build.directory}/syncope-core-test</cargo.run.dir>
+        <cargo.log>${log.directory}/cargo.log</cargo.log>
+        <cargo.output>${log.directory}/cargo-output.log</cargo.output>
 
         <bundles.directory>${project.build.directory}/bundles</bundles.directory>
         <log.directory>${project.build.directory}/log</log.directory>
@@ -236,6 +242,20 @@
                 <version>${connid.csvdir.version}</version>
                 <scope>test</scope>
             </dependency>
+            <dependency>
+                <groupId>org.connid.bundles</groupId>
+                <artifactId>org.connid.bundles.ldap</artifactId>
+                <version>${connid.ldap.version}</version>
+                <scope>test</scope>
+            </dependency>
+            
+            <dependency>
+                <groupId>org.syncope</groupId>
+                <artifactId>syncope-build-tools</artifactId>
+                <version>${syncope.version}</version>
+                <type>war</type>
+                <scope>test</scope>
+            </dependency>
             
         </dependencies>
 
@@ -308,8 +328,41 @@
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>2.3</version>
+                    <configuration>
+                        <artifactItems>
+                            <artifactItem>
+                                <groupId>org.connid.bundles.soap</groupId>
+                                <artifactId>org.connid.bundles.soap</artifactId>
+                                <version>${connid.soap.version}</version>
+                                <outputDirectory>${bundles.directory}</outputDirectory>
+                            </artifactItem>
+                            <artifactItem>
+                                <groupId>org.connid.bundles.db</groupId>
+                                <artifactId>org.connid.bundles.db.table</artifactId>
+                                <version>${connid.db.table.version}</version>
+                                <outputDirectory>${bundles.directory}</outputDirectory>
+                            </artifactItem>
+                            <artifactItem>
+                                <groupId>org.connid.bundles</groupId>
+                                <artifactId>org.connid.bundles.csvdir</artifactId>
+                                <version>${connid.csvdir.version}</version>
+                                <outputDirectory>${bundles.directory}</outputDirectory>
+                            </artifactItem>
+                            <artifactItem>
+                                <groupId>org.connid.bundles</groupId>
+                                <artifactId>org.connid.bundles.ldap</artifactId>
+                                <version>${connid.ldap.version}</version>
+                                <outputDirectory>${bundles.directory}</outputDirectory>
+                            </artifactItem>
+                        </artifactItems>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-failsafe-plugin</artifactId>
-                    <version>2.10</version>
+                    <version>2.11</version>
                     <executions>
                         <execution>
                             <goals>
@@ -331,18 +384,13 @@
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>sql-maven-plugin</artifactId>
-                    <version>1.5</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
                     <artifactId>exec-maven-plugin</artifactId>
                     <version>1.2.1</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-antrun-plugin</artifactId>
-                    <version>1.6</version>
+                    <version>1.7</version>
                 </plugin>
             </plugins>
         </pluginManagement>
