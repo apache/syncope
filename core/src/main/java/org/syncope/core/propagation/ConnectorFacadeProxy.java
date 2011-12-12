@@ -151,7 +151,7 @@ public class ConnectorFacadeProxy {
         Class propertySchemaClass;
         Object propertyValue;
         for (ConnConfProperty property : connInstance.getConfiguration()) {
-            if (property.getValue() != null) {
+            if (property.getValues() != null && !property.getValues().isEmpty()) {
                 try {
                     propertySchemaClass = ClassUtils.forName(
                             property.getSchema().getType(),
@@ -159,44 +159,56 @@ public class ConnectorFacadeProxy {
 
                     if (GuardedString.class.equals(propertySchemaClass)) {
                         propertyValue = new GuardedString(
-                                property.getValue().toCharArray());
+                                ((String) property.getValues().iterator().next()).
+                                toCharArray());
                     } else if (GuardedByteArray.class.equals(
                             propertySchemaClass)) {
 
                         propertyValue = new GuardedByteArray(
-                                property.getValue().getBytes());
+                                (byte[]) property.getValues().iterator().next());
                     } else if (Character.class.equals(propertySchemaClass)
                             || char.class.equals(propertySchemaClass)) {
 
-                        propertyValue = property.getValue().toCharArray()[0];
+                        propertyValue =
+                                (Character) property.getValues().iterator().next();
                     } else if (Integer.class.equals(propertySchemaClass)
                             || int.class.equals(propertySchemaClass)) {
 
-                        propertyValue = Integer.valueOf(property.getValue());
+                        propertyValue =
+                                (Integer) property.getValues().iterator().next();
                     } else if (Long.class.equals(propertySchemaClass)
                             || long.class.equals(propertySchemaClass)) {
 
-                        propertyValue = Long.valueOf(property.getValue());
+                        propertyValue =
+                                (Long) property.getValues().iterator().next();
                     } else if (Float.class.equals(propertySchemaClass)
                             || float.class.equals(propertySchemaClass)) {
 
-                        propertyValue = Float.valueOf(property.getValue());
+                        propertyValue =
+                                (Float) property.getValues().iterator().next();
                     } else if (Double.class.equals(propertySchemaClass)
                             || double.class.equals(propertySchemaClass)) {
 
-                        propertyValue = Double.valueOf(property.getValue());
+                        propertyValue =
+                                (Double) property.getValues().iterator().next();
                     } else if (Boolean.class.equals(propertySchemaClass)
                             || boolean.class.equals(propertySchemaClass)) {
 
-                        propertyValue = Boolean.valueOf(property.getValue());
+                        propertyValue =
+                                (Boolean) property.getValues().iterator().next();
                     } else if (URI.class.equals(propertySchemaClass)) {
-                        propertyValue = URI.create(property.getValue());
+                        propertyValue = URI.create(
+                                (String) property.getValues().iterator().next());
                     } else if (File.class.equals(propertySchemaClass)) {
-                        propertyValue = new File(property.getValue());
+                        propertyValue = new File(
+                                (String) property.getValues().iterator().next());
                     } else if (String[].class.equals(propertySchemaClass)) {
-                        propertyValue = property.getValue().split(" ");
+                        propertyValue =
+                                ((List<String>) property.getValues()).toArray(
+                                new String[]{});
                     } else {
-                        propertyValue = property.getValue();
+                        propertyValue =
+                                (String) property.getValues().iterator().next();
                     }
 
                     properties.setPropertyValue(

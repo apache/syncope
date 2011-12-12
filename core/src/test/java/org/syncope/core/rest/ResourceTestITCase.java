@@ -16,6 +16,7 @@ package org.syncope.core.rest;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -127,7 +128,7 @@ public class ResourceTestITCase extends AbstractTest {
         schema.setName("endpoint");
         schema.setRequired(true);
         p.setSchema(schema);
-        p.setValue("http://invalidurl/");
+        p.setValues(Collections.singletonList("http://invalidurl/"));
 
         Set<ConnConfProperty> connectorConfigurationProperties =
                 new HashSet<ConnConfProperty>(Arrays.asList(p));
@@ -348,15 +349,15 @@ public class ResourceTestITCase extends AbstractTest {
 
     @Test
     public void updateResetSyncToken() {
-	// pre condition: sync token is set
+        // pre condition: sync token is set
         String resourceName = "ws-target-resource-update-resetsynctoken";
-	ResourceTO pre = restTemplate.getForObject(
+        ResourceTO pre = restTemplate.getForObject(
                 BASE_URL + "/resource/read/{resourceName}.json",
                 ResourceTO.class, resourceName);
         assertNotNull(pre.getSyncToken());
-        
+
         pre.setSyncToken(null);
-        
+
         ResourceTO actual = restTemplate.postForObject(
                 BASE_URL + "resource/update.json",
                 pre, ResourceTO.class);
@@ -364,7 +365,7 @@ public class ResourceTestITCase extends AbstractTest {
         // check that the synctoken has been reset
         assertNull(actual.getSyncToken());
     }
-    
+
     @Test
     public void delete() {
         final String resourceName = "ws-target-resource-delete";

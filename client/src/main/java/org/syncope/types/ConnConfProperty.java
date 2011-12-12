@@ -14,6 +14,8 @@
  */
 package org.syncope.types;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.syncope.client.AbstractBaseBean;
 
 public class ConnConfProperty extends AbstractBaseBean
@@ -23,7 +25,7 @@ public class ConnConfProperty extends AbstractBaseBean
 
     private ConnConfPropSchema schema;
 
-    private String value;
+    private List values;
 
     private boolean overridable;
 
@@ -35,12 +37,15 @@ public class ConnConfProperty extends AbstractBaseBean
         this.schema = schema;
     }
 
-    public String getValue() {
-        return value;
+    public List getValues() {
+        if (values == null) {
+            values = new ArrayList();
+        }
+        return values;
     }
 
-    public void setValue(String value) {
-        this.value = value;
+    public void setValues(List values) {
+        this.values = values;
     }
 
     public boolean isOverridable() {

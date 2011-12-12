@@ -23,6 +23,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -106,7 +107,8 @@ public class ConnInstanceTestITCase extends AbstractTest {
         endpointSchema.setRequired(true);
         ConnConfProperty endpoint = new ConnConfProperty();
         endpoint.setSchema(endpointSchema);
-        endpoint.setValue("http://localhost:8888/wssample/services");
+        endpoint.setValues(Collections.singletonList(
+                "http://localhost:8888/wssample/services"));
 
         ConnConfPropSchema servicenameSchema = new ConnConfPropSchema();
         servicenameSchema.setName("servicename");
@@ -114,7 +116,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         servicenameSchema.setRequired(true);
         ConnConfProperty servicename = new ConnConfProperty();
         servicename.setSchema(servicenameSchema);
-        servicename.setValue("Provisioning");
+        servicename.setValues(Collections.singletonList("Provisioning"));
 
         conf.add(endpoint);
         conf.add(servicename);
@@ -206,7 +208,9 @@ public class ConnInstanceTestITCase extends AbstractTest {
         endpointSchema.setRequired(true);
         ConnConfProperty endpoint = new ConnConfProperty();
         endpoint.setSchema(endpointSchema);
-        endpoint.setValue("http://localhost:8888/wssample/services");
+        endpoint.setValues(
+                Collections.singletonList(
+                "http://localhost:8888/wssample/services"));
 
         ConnConfPropSchema servicenameSchema = new ConnConfPropSchema();
         servicenameSchema.setName("servicename");
@@ -214,7 +218,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         servicenameSchema.setRequired(true);
         ConnConfProperty servicename = new ConnConfProperty();
         servicename.setSchema(servicenameSchema);
-        servicename.setValue("Provisioning");
+        servicename.setValues(Collections.singletonList("Provisioning"));
 
         conf.add(endpoint);
         conf.add(servicename);

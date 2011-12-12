@@ -31,10 +31,9 @@
     <form wicket:id="form">
         <div id="tabs">
             <ul>
-                <li class="tabs-selected">
-                    <a href="#tabs-1"><span><wicket:message key="tab1"/></span></a>
-                </li>
+                <li class="tabs-selected"><a href="#tabs-1"><span><wicket:message key="tab1"/></span></a></li>
                 <li><a href="#tabs-2"><span><wicket:message key="tab2"/></span></a></li>
+                <li><a href="#tabs-3"><span><wicket:message key="tab3"/></span></a></li>
             </ul>
             <div id="tabs-1">
                 <div id="formtable">
@@ -73,33 +72,47 @@
                             <span wicket:id="version">[version]</span>
                         </div>
                     </div>
-
+                </div>
+            </div>
+            <div id="tabs-2">
+                <div id="formtable">
                     <span wicket:id="container">
+                        <div style="border-bottom: 10px">
+                            <div style="width: 40px; text-align: center; font-size: 7px">
+                                <label for="version"><wicket:message key="overridable"/></label>
+                            </div>
+                        </div>
+
                         <div class="tablerow" wicket:id="connectorProperties">
+                            <div class="tablecolumn_check" style="width: 27px; text-align: center; margin-right: 10px">
+                                <span wicket:id="connPropAttrOverridable">[connPropAttrOverridable]</span>
+                            </div>
                             <div class="tablecolumn_label short_dynamicsize">
                                 <span wicket:id="connPropAttrSchema">[connPropAttrSchema]</span>
                             </div>
                             <div class="tablecolumn_field short_dynamicsize">
-                                <span wicket:id="connPropAttrValue">[connPropAttrValue]</span>
-                            </div>
-                            <div style="width:30%" class="tablecolumn_field">
-                                <span wicket:id="connPropAttrOverridable">[connPropAttrOverridable]</span>
+                                <span wicket:id="panel">[panel]</span>
                             </div>
                         </div>
-
-                        <!-- inside the container in order to re-process javascript -->
-                        <script type="text/javascript">
-                            $(function() {
-                                $('#formtable div.tablerow:even').addClass("alt");
-                            });
-                        </script>
                     </span>
                 </div>
             </div>
-            <div id="tabs-2">
+            <div id="tabs-3">
                 <span wicket:id="capabilitiesPalette"/>
             </div>
         </div>
+
+        <!-- inside the container in order to re-process javascript -->
+        <script type="text/javascript">
+            $(function() {
+                $('#tabs-1 #formtable div.tablerow:even').addClass("alt");
+            });
+            
+            $(function() {
+                $('#tabs-2 #formtable div.tablerow:even').addClass("alt");
+            });
+        </script>
+
         <div style="margin: 20px 10px 0">
             <input type="submit"
                    class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"

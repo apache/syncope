@@ -49,13 +49,14 @@ import org.syncope.client.to.ConnBundleTO;
 import org.syncope.client.to.ConnInstanceTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.rest.ConnectorRestClient;
+import org.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.syncope.console.wicket.markup.html.form.AjaxPasswordFieldPanel;
 import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.syncope.console.wicket.markup.html.form.FieldPanel;
+import org.syncope.console.wicket.markup.html.form.MultiValueSelectorPanel;
 import org.syncope.types.ConnConfPropSchema;
 import org.syncope.types.ConnConfProperty;
-import org.syncope.types.ConnParameterType;
 import org.syncope.types.ConnectorCapability;
 
 /**
@@ -67,6 +68,10 @@ public class ConnectorModalPage extends BaseModalPage {
 
     private static final String GUARDED_STRING =
             "org.identityconnectors.common.security.GuardedString";
+
+    private static final String STRING_ARRAY = "[Ljava.lang.String;";
+
+    private static final String BOOLEAN = "java.lang.Boolean";
 
     @SpringBean
     private ConnectorRestClient restClient;
@@ -198,8 +203,7 @@ public class ConnectorModalPage extends BaseModalPage {
 
                 // idValue must include version as well in order to cope
                 //with multiple version of the same bundle.
-                return object.getBundleName() + "#"
-                        + object.getVersion();
+                return object.getBundleName() + "#" + object.getVersion();
             }
         });
 
@@ -249,84 +253,95 @@ public class ConnectorModalPage extends BaseModalPage {
         bundle.addRequiredLabel();
         bundle.setEnabled(createFlag);
 
-        final ListView<ConnConfProperty> propView =
-                new ListView<ConnConfProperty>(
+        final ListView<ConnConfProperty> propView = new ListView<ConnConfProperty>(
                 "connectorProperties", selectedBundleProperties) {
 
-                    private static final long serialVersionUID =
-                            9101744072914090143L;
+            private static final long serialVersionUID =
+                    9101744072914090143L;
 
-                    @Override
-                    protected void populateItem(
-                            final ListItem<ConnConfProperty> item) {
-                        final ConnConfProperty property = item.getModelObject();
+            @Override
+            protected void populateItem(
+                    final ListItem<ConnConfProperty> item) {
+                final ConnConfProperty property = item.getModelObject();
 
-                        final Label label = new Label("connPropAttrSchema",
-                                property.getSchema().getDisplayName() == null
-                                || property.getSchema().getDisplayName().
-                                isEmpty()
-                                ? property.getSchema().getName()
-                                : property.getSchema().getDisplayName());
+                final Label label = new Label("connPropAttrSchema",
+                        property.getSchema().getDisplayName() == null
+                        || property.getSchema().getDisplayName().
+                        isEmpty()
+                        ? property.getSchema().getName()
+                        : property.getSchema().getDisplayName());
 
-                        item.add(label);
+                item.add(label);
 
-                        final FieldPanel field;
+                final FieldPanel field;
 
-                        if (GUARDED_STRING.equals(
-                                property.getSchema().getType())) {
+                boolean required = false;
 
-                            field = new AjaxPasswordFieldPanel(
-                                    "connPropAttrValue",
-                                    label.getDefaultModelObjectAsString(),
-                                    new PropertyModel<String>(property,
-                                    "value"), true).setRequired(
-                                    property.getSchema().isRequired()).
-                                    setTitle(property.getSchema().
-                                    getHelpMessage());
-                            ((PasswordTextField) field.getField()).
+                if (GUARDED_STRING.equalsIgnoreCase(
+                        property.getSchema().getType())) {
+
+                    field = new AjaxPasswordFieldPanel(
+                            "panel",
+                            label.getDefaultModelObjectAsString(),
+                            new Model(),
+                            true);
+
+                    ((PasswordTextField) field.getField()).
                                     setResetPassword(
                                     false);
-                        } else {
-                            field = new AjaxTextFieldPanel(
-                                    "connPropAttrValue",
-                                    label.getDefaultModelObjectAsString(),
-                                    new PropertyModel<String>(property,
-                                    "value"), true).setRequired(
-                                    property.getSchema().
-                                    isRequired()).setTitle(property.getSchema().
-                                    getHelpMessage());
-                            if (property.getSchema().isRequired()) {
-                                field.addRequiredLabel();
-                            }
-                        }
+                    
+                    required = property.getSchema().isRequired();
 
-                        item.add(field);
+                } else if (BOOLEAN.equalsIgnoreCase(
+                        property.getSchema().getType())) {
+                    field = new AjaxCheckBoxPanel(
+                            "panel",
+                            label.getDefaultModelObjectAsString(),
+                            new Model(),
+                            true);
 
-                        final AjaxDropDownChoicePanel<Boolean> overridable =
-                                new AjaxDropDownChoicePanel<Boolean>(
-                                "connPropAttrOverridable",
-                                "connPropAttrOverridable",
-                                new PropertyModel(property, "overridable"),
-                                false);
+                } else {
 
-                        overridable.setChoiceRenderer(
-                                new OverridableRenderer());
+                    field = new AjaxTextFieldPanel(
+                            "panel",
+                            label.getDefaultModelObjectAsString(),
+                            new Model(),
+                            true);
 
-                        overridable.setChoices(
-                                Arrays.asList(
-                                new Boolean[]{
-                                    ConnParameterType.NOT_OVERRIDABLE.
-                                    getOverridable(),
-                                    ConnParameterType.OVERRIDABLE.getOverridable()}));
+                    required = property.getSchema().isRequired();
+                }
 
-                        overridable.setStyleShet(
-                                "ui-widget-content ui-corner-all "
-                                + "long_dynamicsize");
+                field.setTitle(property.getSchema().getHelpMessage());
 
-                        item.add(overridable);
-                        connectorTO.getConfiguration().add(property);
-                    }
-                };
+                if (required) {
+                    field.addRequiredLabel();
+                }
+
+                if (STRING_ARRAY.equalsIgnoreCase(
+                        property.getSchema().getType())) {
+
+                    field.removeRequiredLabel();
+
+                    item.add(new MultiValueSelectorPanel<String>(
+                            "panel",
+                            new PropertyModel<List<String>>(property, "values"),
+                            String.class,
+                            field));
+                } else {
+                    field.setNewModel(property.getValues());
+                    item.add(field);
+                }
+
+                final AjaxCheckBoxPanel overridable = new AjaxCheckBoxPanel(
+                        "connPropAttrOverridable",
+                        "connPropAttrOverridable",
+                        new PropertyModel(property, "overridable"),
+                        true);
+
+                item.add(overridable);
+                connectorTO.getConfiguration().add(property);
+            }
+        };
 
         propertiesContainer = new WebMarkupContainer("container");
         propertiesContainer.setOutputMarkupId(true);
@@ -421,22 +436,4 @@ public class ConnectorModalPage extends BaseModalPage {
 
         add(connectorForm);
     }
-
-    private class OverridableRenderer extends ChoiceRenderer<Boolean> {
-
-        private static final long serialVersionUID = 6025866528093969273L;
-
-        @Override
-        public Object getDisplayValue(final Boolean object) {
-
-            return object
-                    ? getString(ConnParameterType.OVERRIDABLE.name())
-                    : getString(ConnParameterType.NOT_OVERRIDABLE.name());
-        }
-
-        @Override
-        public String getIdValue(final Boolean object, final int index) {
-            return String.valueOf(object);
-        }
-    };
 }

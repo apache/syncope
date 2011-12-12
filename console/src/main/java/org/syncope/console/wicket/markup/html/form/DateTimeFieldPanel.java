@@ -244,7 +244,7 @@ public class DateTimeFieldPanel extends FieldPanel<Date> {
     }
 
     @Override
-    public FieldPanel setNewModel(final List<String> list) {
+    public FieldPanel setNewModel(final List<Serializable> list) {
         setNewModel(new Model() {
 
             private static final long serialVersionUID = 527651414610325237L;
@@ -256,10 +256,10 @@ public class DateTimeFieldPanel extends FieldPanel<Date> {
                 Date date = null;
 
                 if (list != null && !list.isEmpty()
-                        && StringUtils.hasText(list.get(0))) {
+                        && StringUtils.hasText(list.get(0).toString())) {
                     try {
                         // Parse string using datePattern
-                        date = formatter.parse(list.get(0));
+                        date = formatter.parse(list.get(0).toString());
                     } catch (ParseException e) {
                         LOG.error("invalid parse exception", e);
                     }

@@ -86,6 +86,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
     public void delete() {
         selenium.click("css=img[alt=\"Resources\"]");
         selenium.waitForPageToLoad("30000");
+        selenium.click("//div[3]/ul/li[2]/a");
         selenium.click("//tr[4]/td[7]/span/a");
         assertTrue(selenium.getConfirmation().matches(
                 "^Do you really want to delete the selected item[\\s\\S]$"));
@@ -93,6 +94,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
         }
+        
         assertTrue(selenium.isTextPresent(
                 "Operation forbidden:the connector you're trying to delete is"
                 + " connected to a Resource"));

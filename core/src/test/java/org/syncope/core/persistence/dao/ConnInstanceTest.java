@@ -14,6 +14,7 @@
  */
 package org.syncope.core.persistence.dao;
 
+import java.util.Collections;
 import java.util.List;
 import static org.junit.Assert.*;
 import java.util.HashSet;
@@ -86,7 +87,7 @@ public class ConnInstanceTest extends AbstractTest {
         endpointSchema.setRequired(true);
         ConnConfProperty endpoint = new ConnConfProperty();
         endpoint.setSchema(endpointSchema);
-        endpoint.setValue("http://host.domain");
+        endpoint.setValues(Collections.singletonList("http://host.domain"));
 
         ConnConfPropSchema servicenameSchema = new ConnConfPropSchema();
         servicenameSchema.setName("servicename");
@@ -94,7 +95,7 @@ public class ConnInstanceTest extends AbstractTest {
         servicenameSchema.setRequired(true);
         ConnConfProperty servicename = new ConnConfProperty();
         servicename.setSchema(servicenameSchema);
-        servicename.setValue("Provisioning");
+        servicename.setValues(Collections.singletonList("Provisioning"));
 
         conf.add(endpoint);
         conf.add(servicename);
@@ -149,6 +150,7 @@ public class ConnInstanceTest extends AbstractTest {
     @Test
     public void issue176() {
         ConnInstance connectorInstance = connInstanceDAO.find(103L);
+
         assertNotNull(connectorInstance);
         assertTrue(connectorInstance.getCapabilities().isEmpty());
 

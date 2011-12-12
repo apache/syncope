@@ -57,6 +57,7 @@ public class MultiValueSelectorPanel<E> extends AbstractFieldPanel {
             protected void populateItem(final ListItem<E> item) {
 
                 final FieldPanel fieldPanel = panelTemplate.clone();
+
                 fieldPanel.setNewModel(item, reference);
                 item.add(fieldPanel);
 

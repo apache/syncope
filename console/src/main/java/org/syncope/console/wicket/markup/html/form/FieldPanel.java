@@ -140,7 +140,7 @@ public abstract class FieldPanel<T extends Serializable>
         return this;
     }
 
-    public FieldPanel setNewModel(final List<String> list) {
+    public FieldPanel setNewModel(final List<Serializable> list) {
 
         setNewModel(new Model() {
 
@@ -154,8 +154,9 @@ public abstract class FieldPanel<T extends Serializable>
             @Override
             public void setObject(Serializable object) {
                 list.clear();
+
                 if (object != null) {
-                    list.add(object.toString());
+                    list.add(object);
                 }
             }
         });
