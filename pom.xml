@@ -129,7 +129,7 @@
         <cargo.log>${log.directory}/cargo.log</cargo.log>
         <cargo.output>${log.directory}/cargo-output.log</cargo.output>
 
-        <testds.port>3389</testds.port>
+        <testds.port>1389</testds.port>
         <testdb.webport>9082</testdb.webport>
 
         <testdb.driver>org.h2.Driver</testdb.driver>
