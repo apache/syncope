@@ -232,19 +232,31 @@ public class PropagationByResource implements Serializable {
                 propByRes.get(PropagationOperation.UPDATE));
         toBeDeleted.addAll(
                 propByRes.get(PropagationOperation.DELETE));
+        oldAccountIds.putAll(propByRes.getOldAccountIds());
     }
 
     /**
      * Wether no operations are present.
      *
-     * @return true if no operations (create / update / delete) are present
+     * @return true if no operations (create / update / delete) and no
+     * old account ids are present
      */
     public final boolean isEmpty() {
         return toBeCreated.isEmpty()
                 && toBeUpdated.isEmpty()
-                && toBeDeleted.isEmpty();
+                && toBeDeleted.isEmpty()
+                && oldAccountIds.isEmpty();
     }
 
+    /**
+     * Fetch all old account ids.
+     *
+     * @return old account ids; can be empty
+     */
+    public Map<String, String> getOldAccountIds() {
+        return oldAccountIds;
+    }
+    
     /**
      * Fetch old account id for given resource name.
      *

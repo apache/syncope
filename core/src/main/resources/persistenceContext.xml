@@ -53,10 +53,10 @@
     </bean>
     <bean id="localDataSource"
           class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-        <property name="driverClassName" value="${hibernate.connection.driver_class}"/>
-        <property name="url" value="${hibernate.connection.url}"/>
-        <property name="username" value="${hibernate.connection.username}"/>
-        <property name="password" value="${hibernate.connection.password}"/>
+        <property name="driverClassName" value="${jpa.driverClassName}"/>
+        <property name="url" value="${jpa.url}"/>
+        <property name="username" value="${jpa.username}"/>
+        <property name="password" value="${jpa.password}"/>
     </bean>
 
     <bean id="entityManagerFactory"
@@ -67,7 +67,7 @@
             <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
                 <property name="showSql" value="false"/>
                 <property name="generateDdl" value="true"/>
-                <property name="databasePlatform" value="${hibernate.dialect}"/>
+                <property name="databasePlatform" value="${jpa.dialect}"/>
             </bean>
         </property>
         <property name="jpaPropertyMap">

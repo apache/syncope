@@ -550,7 +550,6 @@ public class PropagationManager {
      * @param enable wether user must be enabled or not
      * @param resource target resource
      * @return account link + prepared attributes
-     * @throws PropagationException if anything goes wrong
      */
     private Map.Entry<String, Set<Attribute>> prepareAttributes(
             final SyncopeUser user, final String password,
@@ -585,7 +584,8 @@ public class PropagationManager {
 
         if (!StringUtils.hasText(accountId)) {
             throw new IllegalArgumentException(
-                    "Missing accountId specification for " + resource.getName());
+                    "Missing accountId specification for "
+                    + resource.getName());
         }
 
         // Evaluate AccountLink expression
@@ -841,7 +841,8 @@ public class PropagationManager {
                         final Name name = (Name) AttributeUtil.find(
                                 Name.NAME, attributes);
 
-                        // 3. check if accountId is not blank and is not equals to Name
+                        // 3. check if accountId is not blank and is not equal
+                        // to Name
                         if (StringUtils.hasText(accountId)
                                 && (name == null
                                 || !accountId.equals(name.getNameValue()))) {

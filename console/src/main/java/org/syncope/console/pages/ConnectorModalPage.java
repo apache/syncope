@@ -36,6 +36,7 @@ import org.apache.wicket.markup.html.form.CheckBoxMultipleChoice;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.PasswordTextField;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -279,11 +280,13 @@ public class ConnectorModalPage extends BaseModalPage {
                                     label.getDefaultModelObjectAsString(),
                                     new PropertyModel<String>(property,
                                     "value"), true).setRequired(
-                                    property.getSchema().
-                                    isRequired()).setTitle(property.getSchema().
+                                    property.getSchema().isRequired()).
+                                    setTitle(property.getSchema().
                                     getHelpMessage());
+                            ((PasswordTextField) field.getField()).
+                                    setResetPassword(
+                                    false);
                         } else {
-
                             field = new AjaxTextFieldPanel(
                                     "connPropAttrValue",
                                     label.getDefaultModelObjectAsString(),

@@ -32,10 +32,6 @@
         <jdbcdriver.groupId>com.h2database</jdbcdriver.groupId>
         <jdbcdriver.artifactId>h2</jdbcdriver.artifactId>
         
-        <cargo.servlet.port>9080</cargo.servlet.port>
-        <cargo.run.dir>${project.build.directory}/syncope-core-test</cargo.run.dir>
-        <cargo.log>${log.directory}/core-cargo.log</cargo.log>
-        <cargo.output>${log.directory}/core-cargo-output.log</cargo.output>
         <javaagent></javaagent>
     </properties>
 
@@ -239,6 +235,11 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.connid.bundles</groupId>
+            <artifactId>org.connid.bundles.ldap</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
@@ -277,39 +278,41 @@
         <finalName>${project.parent.artifactId}</finalName>
 
         <plugins>
-                
+
             <plugin>
-                <groupId>org.syncope</groupId>
-                <artifactId>syncope-build-tools</artifactId>
+                <groupId>org.codehaus.groovy.maven</groupId>
+                <artifactId>gmaven-plugin</artifactId>
+                <inherited>true</inherited>
                 <executions>
                     <execution>
-                        <id>set-dynamic-properties</id>
-                        <phase>validate</phase>
+                        <phase>generate-resources</phase>
                         <goals>
-                            <goal>set-dynamic-properties</goal>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <source>
+                                project.properties['urlencoded.java.io.tmpdir'] = java.net.URLEncoder.encode(System.properties['java.io.tmpdir'])
+                            </source>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <inherited>true</inherited>
+                <executions>
+                    <execution>
+                        <id>set-bundles</id>
+                        <phase>process-test-resources</phase>
+                        <goals>
+                            <goal>copy</goal>
                         </goals>
                     </execution>
                 </executions>
             </plugin>
                 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <inherited>true</inherited>
-                <configuration>
-                    <attachClasses>true</attachClasses>
-                    <webResources>
-                        <resource>
-                            <directory>src/main/webapp</directory>
-                            <includes>
-                                <include>**/*.jsp</include>
-                            </includes>
-                            <filtering>true</filtering>
-                        </resource>
-                    </webResources>
-                </configuration>
-            </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -347,16 +350,10 @@
                 </executions>
             </plugin>
 
-            <!-- Integration test -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <inherited>true</inherited>
-                <configuration>
-                    <redirectTestOutputToFile>true</redirectTestOutputToFile>
-                    <encoding>utf-8</encoding>
-                    <runOrder>alphabetical</runOrder>
-                </configuration>
                 <executions>
                     <execution>
                         <id>verify</id>
@@ -425,86 +422,12 @@
                     </execution>
                 </executions>
             </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <inherited>true</inherited>
-                <executions>
-                    <execution>
-                        <id>set-bundles</id>
-                        <phase>process-test-resources</phase>
-                        <goals>
-                            <goal>copy</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>org.connid.bundles.soap</groupId>
-                                    <artifactId>org.connid.bundles.soap</artifactId>
-                                    <version>${connid.soap.version}</version>
-                                    <outputDirectory>${bundles.directory}</outputDirectory>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.connid.bundles.db</groupId>
-                                    <artifactId>org.connid.bundles.db.table</artifactId>
-                                    <version>${connid.db.table.version}</version>
-                                    <outputDirectory>${bundles.directory}</outputDirectory>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.connid.bundles</groupId>
-                                    <artifactId>org.connid.bundles.csvdir</artifactId>
-                                    <version>${connid.csvdir.version}</version>
-                                    <outputDirectory>${bundles.directory}</outputDirectory>
-                                </artifactItem>
-                            </artifactItems>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
             
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <inherited>true</inherited>
-                <dependencies>
-                    <dependency>
-                        <groupId>com.h2database</groupId>
-                        <artifactId>h2</artifactId>
-                        <version>${h2.version}</version>
-                    </dependency>
-                </dependencies>
                 <executions>
-                    <execution>
-                        <id>startTestDb</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>java</goal>
-                        </goals>
-                        <configuration>
-                            <includeProjectDependencies>false</includeProjectDependencies>
-                            <includePluginDependencies>true</includePluginDependencies>
-                            <executableDependency>
-                                <groupId>com.h2database</groupId>
-                                <artifactId>h2</artifactId>
-                            </executableDependency>
-                            <mainClass>org.h2.tools.Server</mainClass>
-                            <arguments>
-                                <argument>-tcp</argument>
-                                <argument>-tcpDaemon</argument>
-                                <argument>-web</argument>
-                                <argument>-webDaemon</argument>
-                                <argument>-webPort</argument>
-                                <argument>9082</argument>
-                            </arguments>
-                            <systemProperties>
-                                <systemProperty>
-                                    <key>h2.baseDir</key>
-                                    <value>${project.build.directory}/test-classes</value>
-                                </systemProperty>
-                            </systemProperties>
-                        </configuration>
-                    </execution>
                     <execution>
                         <id>default-cli</id>
                         <goals>
@@ -519,37 +442,6 @@
                                 <argument>H2</argument>
                             </arguments>
                         </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>sql-maven-plugin</artifactId>
-                <inherited>true</inherited>
-                <dependencies>
-                    <dependency>
-                        <groupId>com.h2database</groupId>
-                        <artifactId>h2</artifactId>
-                        <version>${h2.version}</version>
-                    </dependency>
-                </dependencies>
-                <configuration>
-                    <driver>${testDbResourceDriver}</driver>
-                    <url>${testDbResourceURL}</url>
-                    <username>${testDbResourceUsername}</username>
-                    <password/>
-                    <srcFiles>
-                        <srcFile>${project.build.directory}/test-classes/testdb.sql</srcFile>
-                    </srcFiles>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>loadTestDb</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>execute</goal>
-                        </goals>
                     </execution>
                 </executions>
             </plugin>
@@ -608,6 +500,12 @@
                                     <context>wssample</context>
                                 </properties>
                             </deployable>
+                            <deployable>
+                                <location>${basedir}/../build-tools/target/syncope-build-tools-${project.version}.war</location>
+                                <properties>
+                                    <context>syncope-build-tools</context>
+                                </properties>
+                            </deployable>
                         </deployables>
                     </configuration>
                 </configuration>
@@ -652,7 +550,7 @@
     </build>
     
     <profiles>
-        
+    
         <profile>
             <id>dev</id>
             <properties>
@@ -660,13 +558,6 @@
                 <sureExcludes>**</sureExcludes>
                 <javaagent></javaagent>
             </properties>
-            <dependencies>
-                <dependency>
-                    <groupId>com.h2database</groupId>
-                    <artifactId>h2</artifactId>
-                    <scope>compile</scope>
-                </dependency>
-            </dependencies>
             <build>
                 <defaultGoal>clean verify</defaultGoal>
                 
@@ -717,67 +608,6 @@
                     </plugin>
 
                     <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>build-helper-maven-plugin</artifactId>
-                        <inherited>true</inherited>
-                        <executions>
-                            <execution>
-                                <id>add-dev-source</id>
-                                <phase>generate-sources</phase>
-                                <goals>
-                                    <goal>add-source</goal>
-                                </goals>
-                                <configuration>
-                                    <sources>
-                                        <source>src/test/dev/java</source>
-                                    </sources>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>xml-maven-plugin</artifactId>
-                        <inherited>true</inherited>
-                        <executions>
-                            <execution>
-                                <id>enableH2Console</id>
-                                <phase>process-test-resources</phase>
-                                <goals>
-                                    <goal>transform</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <transformationSets>
-                                <transformationSet>
-                                    <dir>src/main/webapp/WEB-INF</dir>
-                                    <includes>
-                                        <include>web.xml</include>
-                                    </includes>
-                                    <stylesheet>src/test/resources/webxml4dev.xsl</stylesheet>
-                                </transformationSet>
-                            </transformationSets>
-                        </configuration>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-war-plugin</artifactId>
-                        <inherited>true</inherited>
-                        <configuration>
-                            <webXml>${project.build.directory}/generated-resources/xml/xslt/web.xml</webXml>
-                            <webResources>
-                                <resource>
-                                    <directory>src/main/webapp</directory>
-                                    <includes>
-                                        <include>**/*.jsp</include>
-                                    </includes>
-                                    <filtering>true</filtering>
-                                </resource>
-                            </webResources>
-                        </configuration>
-                    </plugin>
-                    <plugin>
                         <groupId>org.codehaus.cargo</groupId>
                         <artifactId>cargo-maven2-plugin</artifactId>
                         <inherited>true</inherited>
@@ -796,13 +626,6 @@
                 <javaagent>-javaagent:${env.REBEL_HOME}/jrebel.jar</javaagent>
                 <waitForCheck>true</waitForCheck>
             </properties>
-            <dependencies>
-                <dependency>
-                    <groupId>com.h2database</groupId>
-                    <artifactId>h2</artifactId>
-                    <scope>compile</scope>
-                </dependency>
-            </dependencies>
             <build>
                 <defaultGoal>clean verify</defaultGoal>
                 
@@ -836,67 +659,7 @@
                             </execution>
                         </executions>
                     </plugin>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>build-helper-maven-plugin</artifactId>
-                        <inherited>true</inherited>
-                        <executions>
-                            <execution>
-                                <id>add-dev-source</id>
-                                <phase>generate-sources</phase>
-                                <goals>
-                                    <goal>add-source</goal>
-                                </goals>
-                                <configuration>
-                                    <sources>
-                                        <source>src/test/dev/java</source>
-                                    </sources>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>xml-maven-plugin</artifactId>
-                        <inherited>true</inherited>
-                        <executions>
-                            <execution>
-                                <id>enableH2Console</id>
-                                <phase>process-test-resources</phase>
-                                <goals>
-                                    <goal>transform</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <transformationSets>
-                                <transformationSet>
-                                    <dir>src/main/webapp/WEB-INF</dir>
-                                    <includes>
-                                        <include>web.xml</include>
-                                    </includes>
-                                    <stylesheet>src/test/resources/webxml4dev.xsl</stylesheet>
-                                </transformationSet>
-                            </transformationSets>
-                        </configuration>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-war-plugin</artifactId>
-                        <inherited>true</inherited>
-                        <configuration>
-                            <webXml>${project.build.directory}/generated-resources/xml/xslt/web.xml</webXml>
-                            <webResources>
-                                <resource>
-                                    <directory>src/main/webapp</directory>
-                                    <includes>
-                                        <include>**/*.jsp</include>
-                                    </includes>
-                                    <filtering>true</filtering>
-                                </resource>
-                            </webResources>
-                        </configuration>
-                    </plugin>
+                    
                     <plugin>
                         <groupId>org.codehaus.cargo</groupId>
                         <artifactId>cargo-maven2-plugin</artifactId>

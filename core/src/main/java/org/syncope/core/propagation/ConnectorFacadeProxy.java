@@ -548,8 +548,8 @@ public class ConnectorFacadeProxy {
      * @param showall return __NAME__ and __PASSWORD__ attribute if true.
      * @return a list of schema names.
      */
-    public List<String> getSchema(final boolean showall) {
-        final List<String> resourceSchemaNames = new ArrayList<String>();
+    public Set<String> getSchema(final boolean showall) {
+        final Set<String> resourceSchemaNames = new HashSet<String>();
 
         final Schema schema = connector.schema();
 

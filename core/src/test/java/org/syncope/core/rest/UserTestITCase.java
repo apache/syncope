@@ -1383,4 +1383,23 @@ public class UserTestITCase extends AbstractTest {
         jdbcTemplate.queryForInt(
                 "SELECT id FROM test WHERE id=?", userTO.getId());
     }
+
+    @Test
+    public void issue234() {
+        UserTO userTO = getSampleTO("issue234@syncope-idm.org");
+        userTO.addResource("resource-ldap");
+
+        userTO = restTemplate.postForObject(
+                BASE_URL + "user/create", userTO, UserTO.class);
+        assertNotNull(userTO);
+
+        UserMod userMod = new UserMod();
+        userMod.setId(userTO.getId());
+        userMod.setUsername("1" + userTO.getUsername());
+
+        userTO = restTemplate.postForObject(BASE_URL + "user/update",
+                userMod, UserTO.class);
+        assertNotNull(userTO);
+        assertEquals("1issue234@syncope-idm.org", userTO.getUsername());
+    }
 }

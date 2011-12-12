@@ -80,7 +80,6 @@ public abstract class AbstractVirAttr extends AbstractBaseBean {
 
             Set<String> attributeNames = new HashSet<String>();
 
-            String accountLink = resource.getAccountLink();
             String accountId = null;
 
             for (SchemaMapping mapping : resource.getMappings()) {
@@ -112,10 +111,6 @@ public abstract class AbstractVirAttr extends AbstractBaseBean {
                         LOG.debug("Invalid accountId specified", e);
                     }
                 }
-            }
-
-            if (accountId == null && accountLink != null) {
-                accountId = jexlUtil.evaluate(accountLink, attributable);
             }
 
             if (attributeNames != null && accountId != null) {

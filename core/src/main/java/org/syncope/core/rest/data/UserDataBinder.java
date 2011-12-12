@@ -37,6 +37,7 @@ import org.syncope.core.persistence.beans.AbstractVirAttr;
 import org.syncope.core.persistence.beans.Policy;
 import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.core.persistence.beans.PropagationTask;
+import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.beans.TaskExec;
 import org.syncope.core.persistence.beans.membership.Membership;
 import org.syncope.core.persistence.beans.membership.MAttr;
@@ -50,6 +51,7 @@ import org.syncope.core.propagation.PropagationByResource;
 import org.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.syncope.core.util.EntitlementUtil;
 import org.syncope.types.CipherAlgorithm;
+import org.syncope.types.IntMappingType;
 import org.syncope.types.PasswordPolicySpec;
 import org.syncope.types.PropagationOperation;
 import org.syncope.types.PropagationTaskExecStatus;
@@ -250,10 +252,25 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         }
 
         // username
-        if (userMod.getUsername() != null) {
+        if (userMod.getUsername() != null
+                && !userMod.getUsername().equals(user.getUsername())) {
+
+            String oldUsername = user.getUsername();
+
             user.setUsername(userMod.getUsername());
             propByRes.addAll(PropagationOperation.UPDATE,
                     user.getExternalResourceNames());
+
+            for (ExternalResource resource : user.getExternalResources()) {
+                for (SchemaMapping mapping : resource.getMappings()) {
+                    if (mapping.isAccountid() && mapping.getIntMappingType()
+                            == IntMappingType.Username) {
+
+                        propByRes.addOldAccountId(
+                                resource.getName(), oldUsername);
+                    }
+                }
+            }
         }
 
         // attributes, derived attributes, virtual attributes and resources

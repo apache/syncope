@@ -79,6 +79,7 @@
         <connid.soap.version>1.1</connid.soap.version>
         <connid.db.table.version>2.0</connid.db.table.version>
         <connid.csvdir.version>0.1</connid.csvdir.version>
+        <connid.ldap.version>1.2</connid.ldap.version>
 
         <commons-jexl.version>2.0.1</commons-jexl.version>
         <commons-lang.version>2.6</commons-lang.version>
@@ -105,7 +106,7 @@
 
         <groovy.version>1.8.4</groovy.version>
 
-        <h2.version>1.3.161</h2.version>
+        <h2.version>1.3.162</h2.version>
 
         <reflections.version>0.9.5</reflections.version>
 
@@ -116,15 +117,25 @@
         <selenium-java-client-driver.version>1.0.2</selenium-java-client-driver.version>
         <dbunit.version>2.4.8</dbunit.version>
 
-        <tomcat.version>7.0.23</tomcat.version>
+        <apacheds.version>1.5.7</apacheds.version>
 
+        <tomcat.version>7.0.23</tomcat.version>
+ 
         <bundles.directory>${project.build.directory}/bundles</bundles.directory>
         <log.directory>${project.build.directory}/log</log.directory>
-        
-        <testDbResourceDriver>org.h2.Driver</testDbResourceDriver>
-        <testDbResourceURL>jdbc:h2:tcp://localhost:9092/testdb</testDbResourceURL>
-        <testDbResourceUsername>sa</testDbResourceUsername>
-        <testDbResourcePassword>sa</testDbResourcePassword>
+                
+        <cargo.servlet.port>9080</cargo.servlet.port>
+        <cargo.run.dir>${project.build.directory}/syncope-core-test</cargo.run.dir>
+        <cargo.log>${log.directory}/cargo.log</cargo.log>
+        <cargo.output>${log.directory}/cargo-output.log</cargo.output>
+
+        <testds.port>3389</testds.port>
+        <testdb.webport>9082</testdb.webport>
+
+        <testdb.driver>org.h2.Driver</testdb.driver>
+        <testdb.url>jdbc:h2:tcp://localhost:9092/testdb</testdb.url>
+        <testdb.username>sa</testdb.username>
+        <testdb.password>sa</testdb.password>
         
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
@@ -370,6 +381,20 @@
                 <artifactId>reflections</artifactId>
                 <version>${reflections.version}</version>
             </dependency>
+            
+            <dependency>
+                <groupId>org.apache.directory.server</groupId>
+                <artifactId>apacheds-all</artifactId>
+                <version>${apacheds.version}</version>
+                <exclusions>
+                    <!-- shared-ldap-schema module needs to be excluded to avoid
+                         multiple schema resources on the classpath-->
+                    <exclusion>
+                        <groupId>org.apache.directory.shared</groupId>
+                        <artifactId>shared-ldap-schema</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
 
             <dependency>
                 <groupId>org.slf4j</groupId>
@@ -456,6 +481,12 @@
                 <version>${connid.csvdir.version}</version>
                 <scope>test</scope>
             </dependency>
+            <dependency>
+                <groupId>org.connid.bundles</groupId>
+                <artifactId>org.connid.bundles.ldap</artifactId>
+                <version>${connid.ldap.version}</version>
+                <scope>test</scope>
+            </dependency>
             <!-- /TEST -->
 
         </dependencies>
@@ -513,9 +544,9 @@
                     </configuration>
                 </plugin>
                 <plugin>
-                    <groupId>org.syncope</groupId>
-                    <artifactId>syncope-build-tools</artifactId>
-                    <version>${project.version}</version>
+                    <groupId>org.codehaus.groovy.maven</groupId>
+                    <artifactId>gmaven-plugin</artifactId>
+                    <version>1.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -525,7 +556,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.10</version>
+                    <version>2.11</version>
                     <configuration>
                         <redirectTestOutputToFile>true</redirectTestOutputToFile>
                     </configuration>
@@ -534,11 +565,18 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-war-plugin</artifactId>
                     <version>2.1.1</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>sql-maven-plugin</artifactId>
-                    <version>1.5</version>
+                    <configuration>
+                        <attachClasses>true</attachClasses>
+                        <webResources>
+                            <resource>
+                                <directory>src/main/webapp</directory>
+                                <includes>
+                                    <include>**/*.jsp</include>
+                                </includes>
+                                <filtering>true</filtering>
+                            </resource>
+                        </webResources>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
@@ -553,7 +591,12 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-failsafe-plugin</artifactId>
-                    <version>2.10</version>
+                    <version>2.11</version>
+                    <configuration>
+                        <redirectTestOutputToFile>true</redirectTestOutputToFile>
+                        <encoding>utf-8</encoding>
+                        <runOrder>alphabetical</runOrder>
+                    </configuration>
                     <executions>
                         <execution>
                             <goals>
@@ -566,22 +609,45 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-antrun-plugin</artifactId>
-                    <version>1.6</version>
+                    <version>1.7</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-dependency-plugin</artifactId>
                     <version>2.3</version>
+                    <configuration>
+                        <artifactItems>
+                            <artifactItem>
+                                <groupId>org.connid.bundles.soap</groupId>
+                                <artifactId>org.connid.bundles.soap</artifactId>
+                                <version>${connid.soap.version}</version>
+                                <outputDirectory>${bundles.directory}</outputDirectory>
+                            </artifactItem>
+                            <artifactItem>
+                                <groupId>org.connid.bundles.db</groupId>
+                                <artifactId>org.connid.bundles.db.table</artifactId>
+                                <version>${connid.db.table.version}</version>
+                                <outputDirectory>${bundles.directory}</outputDirectory>
+                            </artifactItem>
+                            <artifactItem>
+                                <groupId>org.connid.bundles</groupId>
+                                <artifactId>org.connid.bundles.csvdir</artifactId>
+                                <version>${connid.csvdir.version}</version>
+                                <outputDirectory>${bundles.directory}</outputDirectory>
+                            </artifactItem>
+                            <artifactItem>
+                                <groupId>org.connid.bundles</groupId>
+                                <artifactId>org.connid.bundles.ldap</artifactId>
+                                <version>${connid.ldap.version}</version>
+                                <outputDirectory>${bundles.directory}</outputDirectory>
+                            </artifactItem>
+                        </artifactItems>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.cargo</groupId>
                     <artifactId>cargo-maven2-plugin</artifactId>
                     <version>1.1.2</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>xml-maven-plugin</artifactId>
-                    <version>1.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
@@ -591,7 +657,7 @@
                 <plugin>
                     <groupId>org.zeroturnaround</groupId>
                     <artifactId>jrebel-maven-plugin</artifactId>
-                    <version>1.1.0</version>
+                    <version>1.1.2</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -626,6 +692,7 @@
                         <groupId>org.syncope</groupId>
                         <artifactId>syncope-build-tools</artifactId>
                         <version>${project.version}</version>
+                        <classifier>classes</classifier>
                     </dependency>
                 </dependencies>
             </plugin>
@@ -638,6 +705,7 @@
                         <groupId>org.syncope</groupId>
                         <artifactId>syncope-build-tools</artifactId>
                         <version>${project.version}</version>
+                        <classifier>classes</classifier>
                     </dependency>
                 </dependencies>
             </plugin>

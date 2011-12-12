@@ -420,10 +420,10 @@ public abstract class AbstractAttributableDataBinder {
 
                 attributable.removeExternalResource(resource);
 
-                if (attributableUtil == attributableUtil.USER) {
+                if (attributableUtil == AttributableUtil.USER) {
                     resource.removeUser((SyncopeUser) attributable);
                 }
-                if (attributableUtil == attributableUtil.ROLE) {
+                if (attributableUtil == AttributableUtil.ROLE) {
                     resource.removeRole((SyncopeRole) attributable);
                 }
             }

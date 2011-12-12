@@ -1,4 +1,4 @@
-ALTER USER sa SET PASSWORD '${testDbResourcePassword}';
+ALTER USER sa SET PASSWORD '${testdb.password}';
 
 DROP TABLE test IF EXISTS;
 CREATE TABLE test (

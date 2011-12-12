@@ -15,6 +15,7 @@
 package org.syncope.core.rest.controller;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import javassist.NotFoundException;
@@ -333,6 +334,24 @@ public class ConnInstanceController extends AbstractController {
         return connectorBundleTOs;
     }
 
+    private List<String> getSchemaNames(
+            final ExternalResource resource, final boolean showall)
+            throws NotFoundException {
+
+        // We cannot use bean because this method could be used during
+        // resource definition or modification: bean couldn't exist or bean
+        // couldn't be updated.
+        // This is the reason why we should take a "not mature" connector
+        // facade proxy to ask for schema names.
+
+        List<String> result = new ArrayList<String>(
+                connInstanceLoader.createConnectorBean(resource).
+                getSchema(showall));
+        Collections.sort(result);
+
+        return result;
+    }
+
     @PreAuthorize("hasRole('CONNECTOR_READ')")
     @RequestMapping(method = RequestMethod.POST,
     value = "/schema/list")
@@ -368,19 +387,5 @@ public class ConnInstanceController extends AbstractController {
                     "Connector instance with id %d not found", connectorId));
         }
         return new ArrayList<ConnConfProperty>(connector.getConfiguration());
-    }
-
-    private List<String> getSchemaNames(
-            final ExternalResource resource, final boolean showall)
-            throws NotFoundException {
-
-        // We cannot use bean because this method could be used in phase of
-        // resource definition or modification: bean couldn't exist or bean
-        // couldn't be updated.
-        // This is the reason why we should take a "not mature" connector
-        // facade proxy to ask for schema names.
-
-        return connInstanceLoader.createConnectorBean(resource).
-                getSchema(showall);
     }
 }
