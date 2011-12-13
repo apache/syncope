@@ -81,7 +81,7 @@
         <connid.csvdir.version>0.1</connid.csvdir.version>
         <connid.ldap.version>1.2</connid.ldap.version>
 
-        <commons-jexl.version>2.0.1</commons-jexl.version>
+        <commons-jexl.version>2.1</commons-jexl.version>
         <commons-lang.version>2.6</commons-lang.version>
         <commons-httpclient.version>3.1</commons-httpclient.version>
 
