@@ -130,7 +130,7 @@ public class ResourceTest extends AbstractTest {
         resourceTO.setPropagationMode(PropagationMode.SYNC);
         resourceTO.setForceMandatoryConstraint(true);
 
-        ExternalResource resource = resourceDataBinder.getResource(resourceTO);
+        ExternalResource resource = resourceDataBinder.create(resourceTO);
         resource = resourceDAO.save(resource);
         resourceDAO.flush();
 
@@ -175,20 +175,20 @@ public class ResourceTest extends AbstractTest {
         for (int i = 0; i < 3; i++) {
             mapping = new SchemaMapping();
             mapping.setExtAttrName("test" + i);
-
             mapping.setIntAttrName(userSchema.getName());
             mapping.setIntMappingType(IntMappingType.UserSchema);
             mapping.setMandatoryCondition("false");
 
+            mapping.setResource(resource);
             resource.addMapping(mapping);
         }
         SchemaMapping accountId = new SchemaMapping();
-        accountId.setResource(resource);
         accountId.setAccountid(true);
         accountId.setExtAttrName("username");
         accountId.setIntAttrName(userSchema.getName());
         accountId.setIntMappingType(IntMappingType.SyncopeUserId);
 
+        accountId.setResource(resource);
         resource.addMapping(accountId);
 
         // search for the derived attribute schema
@@ -318,5 +318,34 @@ public class ResourceTest extends AbstractTest {
         for (PropagationTask task : propagationTasks) {
             assertNull(taskDAO.find(task.getId()));
         }
+    }
+
+    @Test
+    public void issue243() {
+        ExternalResource csv = resourceDAO.find("resource-csv");
+        assertNotNull(csv);
+        int origMappings = csv.getMappings().size();
+
+        SchemaMapping newMapping = new SchemaMapping();
+        newMapping.setIntMappingType(IntMappingType.Username);
+        newMapping.setExtAttrName("TEST");
+        newMapping.setResource(csv);
+        csv.addMapping(newMapping);
+
+        resourceDAO.save(csv);
+        resourceDAO.flush();
+
+        csv = resourceDAO.find("resource-csv");
+        assertNotNull(csv);
+        assertEquals(origMappings + 1, csv.getMappings().size());
+
+        int currentMappings = 0;
+        List<SchemaMapping> allMappings = resourceDAO.findAllMappings();
+        for (SchemaMapping mapping : allMappings) {
+            if ("resource-csv".equals(mapping.getResource().getName())) {
+                currentMappings++;
+            }
+        }
+        assertEquals(csv.getMappings().size(), currentMappings);
     }
 }

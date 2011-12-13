@@ -23,7 +23,7 @@
     <SyncopeConf confKey="createRequest.allowed" confValue="true"/>
 
     <!-- sample policies -->
-    <Policy DTYPE="SyncPolicy" id="1" description="sync policy 1" type="SYNC" specification="%3Corg.syncope.types.SyncPolicySpec%2F%3E"/>
+    <Policy DTYPE="SyncPolicy" id="1" description="sync policy 1" type="GLOBAL_SYNC" specification="%3Corg.syncope.types.SyncPolicySpec%2F%3E"/>
     <Policy DTYPE="PasswordPolicy" id="2" description="global password policy" type="GLOBAL_PASSWORD" specification="%3Corg.syncope.types.PasswordPolicySpec%3E%0A++%3ChistoryLength%3E1%3C%2FhistoryLength%3E%0A++%3CmaxLength%3E0%3C%2FmaxLength%3E%0A++%3CminLength%3E8%3C%2FminLength%3E%0A++%3CnonAlphanumericRequired%3Efalse%3C%2FnonAlphanumericRequired%3E%0A++%3CalphanumericRequired%3Efalse%3C%2FalphanumericRequired%3E%0A++%3CdigitRequired%3Efalse%3C%2FdigitRequired%3E%0A++%3ClowercaseRequired%3Efalse%3C%2FlowercaseRequired%3E%0A++%3CuppercaseRequired%3Efalse%3C%2FuppercaseRequired%3E%0A++%3CmustStartWithDigit%3Efalse%3C%2FmustStartWithDigit%3E%0A++%3CmustntStartWithDigit%3Efalse%3C%2FmustntStartWithDigit%3E%0A++%3CmustEndWithDigit%3Efalse%3C%2FmustEndWithDigit%3E%0A++%3CmustntEndWithDigit%3Efalse%3C%2FmustntEndWithDigit%3E%0A++%3CmustStartWithNonAlpha%3Efalse%3C%2FmustStartWithNonAlpha%3E%0A++%3CmustStartWithAlpha%3Efalse%3C%2FmustStartWithAlpha%3E%0A++%3CmustntStartWithNonAlpha%3Efalse%3C%2FmustntStartWithNonAlpha%3E%0A++%3CmustntStartWithAlpha%3Efalse%3C%2FmustntStartWithAlpha%3E%0A++%3CmustEndWithNonAlpha%3Efalse%3C%2FmustEndWithNonAlpha%3E%0A++%3CmustEndWithAlpha%3Efalse%3C%2FmustEndWithAlpha%3E%0A++%3CmustntEndWithNonAlpha%3Efalse%3C%2FmustntEndWithNonAlpha%3E%0A++%3CmustntEndWithAlpha%3Efalse%3C%2FmustntEndWithAlpha%3E%0A++%3CprefixesNotPermitted%3E%0A++++%3Cstring%3Enotpermitted1%3C%2Fstring%3E%0A++++%3Cstring%3Enotpermitted2%3C%2Fstring%3E%0A++%3C%2FprefixesNotPermitted%3E%0A%3C%2Forg.syncope.types.PasswordPolicySpec%3E"/>
     <Policy DTYPE="SyncPolicy" id="3" description="sync policy 2" type="SYNC" specification="%3Corg.syncope.types.SyncPolicySpec%3E%0A++%3CalternativeSearchAttrs%3E%0A++++%3Cstring%3Eusername%3C%2Fstring%3E%0A++++%3Cstring%3Efirstname%3C%2Fstring%3E%0A++%3C%2FalternativeSearchAttrs%3E%0A++%3CconflictResolutionAction%3EALL%3C%2FconflictResolutionAction%3E%0A%3C%2Forg.syncope.types.SyncPolicySpec%3E"/>
     <Policy DTYPE="PasswordPolicy" id="4" description="sample password policy" type="PASSWORD" specification="%3Corg.syncope.types.PasswordPolicySpec%3E%0A++%3ChistoryLength%3E0%3C%2FhistoryLength%3E%0A++%3CmaxLength%3E0%3C%2FmaxLength%3E%0A++%3CminLength%3E10%3C%2FminLength%3E%0A++%3CnonAlphanumericRequired%3Efalse%3C%2FnonAlphanumericRequired%3E%0A++%3CalphanumericRequired%3Efalse%3C%2FalphanumericRequired%3E%0A++%3CdigitRequired%3Efalse%3C%2FdigitRequired%3E%0A++%3ClowercaseRequired%3Efalse%3C%2FlowercaseRequired%3E%0A++%3CuppercaseRequired%3Efalse%3C%2FuppercaseRequired%3E%0A++%3CmustStartWithDigit%3Efalse%3C%2FmustStartWithDigit%3E%0A++%3CmustntStartWithDigit%3Efalse%3C%2FmustntStartWithDigit%3E%0A++%3CmustEndWithDigit%3Efalse%3C%2FmustEndWithDigit%3E%0A++%3CmustntEndWithDigit%3Efalse%3C%2FmustntEndWithDigit%3E%0A++%3CmustStartWithNonAlpha%3Efalse%3C%2FmustStartWithNonAlpha%3E%0A++%3CmustStartWithAlpha%3Efalse%3C%2FmustStartWithAlpha%3E%0A++%3CmustntStartWithNonAlpha%3Efalse%3C%2FmustntStartWithNonAlpha%3E%0A++%3CmustntStartWithAlpha%3Efalse%3C%2FmustntStartWithAlpha%3E%0A++%3CmustEndWithNonAlpha%3Efalse%3C%2FmustEndWithNonAlpha%3E%0A++%3CmustEndWithAlpha%3Efalse%3C%2FmustEndWithAlpha%3E%0A++%3CmustntEndWithNonAlpha%3Efalse%3C%2FmustntEndWithNonAlpha%3E%0A++%3CmustntEndWithAlpha%3Efalse%3C%2FmustntEndWithAlpha%3E%0A++%3CprefixesNotPermitted%3E%0A++++%3Cstring%3Enotpermitted1%3C%2Fstring%3E%0A++++%3Cstring%3Enotpermitted2%3C%2Fstring%3E%0A++%3C%2FprefixesNotPermitted%3E%0A%3C%2Forg.syncope.types.PasswordPolicySpec%3E"/>
@@ -374,41 +374,41 @@
                    intAttrName="fullname" intMappingType="UserSchema" mandatoryCondition="true"
                    accountid="1" password="0"/>
                    
-    <SchemaMapping id="116" extAttrName="id"
+    <SchemaMapping id="116" extAttrName="ID"
                    resource_name="resource-testdb"
                    intMappingType="SyncopeUserId" mandatoryCondition="true"
                    accountid="1" password="0"/>
                    
-    <SchemaMapping id="117" extAttrName="password"
+    <SchemaMapping id="117" extAttrName="PASSWORD"
                    resource_name="resource-testdb"
                    intMappingType="Password" mandatoryCondition="true"
                    accountid="0" password="1"/>
                    
-    <SchemaMapping id="200" extAttrName="id"
+    <SchemaMapping id="200" extAttrName="ID"
                    resource_name="resource-csv"
                    intMappingType="Username" mandatoryCondition="true"
                    accountid="0" password="0"/>
-    <SchemaMapping id="201" extAttrName="id"
+    <SchemaMapping id="201" extAttrName="ID"
                    resource_name="resource-csv"
                    intAttrName="fullname" intMappingType="UserSchema" mandatoryCondition="true"
                    accountid="0" password="0"/>
-    <SchemaMapping id="202" extAttrName="password"
+    <SchemaMapping id="202" extAttrName="PASSWORD"
                    resource_name="resource-csv"
                    intMappingType="Password" mandatoryCondition="true"
                    accountid="0" password="1"/>
-    <SchemaMapping id="203" extAttrName="name"
+    <SchemaMapping id="203" extAttrName="NAME"
                    resource_name="resource-csv"
                    intAttrName="firstname" intMappingType="UserSchema" mandatoryCondition="false"
                    accountid="0" password="0"/>
-    <SchemaMapping id="204" extAttrName="surname"
+    <SchemaMapping id="204" extAttrName="SURNAME"
                    resource_name="resource-csv"
                    intAttrName="surname" intMappingType="UserSchema" mandatoryCondition="false"
                    accountid="0" password="0"/>
-    <SchemaMapping id="205" extAttrName="email"
+    <SchemaMapping id="205" extAttrName="EMAIL"
                    resource_name="resource-csv"
                    intAttrName="userId" intMappingType="UserSchema" mandatoryCondition="true"
                    accountid="0" password="0"/>
-    <SchemaMapping id="206" extAttrName="email"
+    <SchemaMapping id="206" extAttrName="EMAIL"
                    resource_name="resource-csv"
                    intAttrName="email" intMappingType="UserSchema" mandatoryCondition="true"
                    accountid="0" password="0"/>

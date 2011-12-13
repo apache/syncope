@@ -257,7 +257,7 @@ public class ExternalResource extends AbstractBaseBean {
     }
 
     public boolean removeMapping(SchemaMapping mapping) {
-        return mappings == null || mappings.remove(mapping);
+        return mappings.remove(mapping);
     }
 
     public boolean addMapping(SchemaMapping mapping) {
@@ -265,7 +265,11 @@ public class ExternalResource extends AbstractBaseBean {
     }
 
     public void setMappings(List<SchemaMapping> mappings) {
+        for (SchemaMapping mapping : this.mappings) {
+            mapping.setResource(null);
+        }
         this.mappings.clear();
+
         if (mappings != null) {
             this.mappings.addAll(mappings);
         }

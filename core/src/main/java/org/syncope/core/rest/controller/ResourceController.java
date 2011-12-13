@@ -84,7 +84,7 @@ public class ResourceController extends AbstractController {
             throw scce;
         }
 
-        ExternalResource resource = binder.getResource(resourceTO);
+        ExternalResource resource = binder.create(resourceTO);
         if (resource == null) {
             LOG.error("Resource creation failed");
 
@@ -121,18 +121,13 @@ public class ResourceController extends AbstractController {
                     "Resource '" + resourceTO.getName() + "'");
         }
 
-        SyncopeClientCompositeErrorException scce =
-                new SyncopeClientCompositeErrorException(
-                HttpStatus.BAD_REQUEST);
-
-        LOG.debug("Removing old mappings ..");
-        // remove old mappings
-        resource.getMappings().clear();
-
-        resource = binder.getResource(resource, resourceTO);
+        resource = binder.update(resource, resourceTO);
         if (resource == null) {
             LOG.error("Resource update failed");
 
+            SyncopeClientCompositeErrorException scce =
+                    new SyncopeClientCompositeErrorException(
+                    HttpStatus.BAD_REQUEST);
             SyncopeClientException ex = new SyncopeClientException(
                     SyncopeClientExceptionType.Unknown);
             scce.addException(ex);

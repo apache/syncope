@@ -360,7 +360,7 @@ public class ConnInstanceController extends AbstractController {
             throws NotFoundException {
 
         return getSchemaNames(
-                resourceDataBinder.getResource(resourceTO), false);
+                resourceDataBinder.create(resourceTO), false);
     }
 
     @PreAuthorize("hasRole('CONNECTOR_READ')")
@@ -371,7 +371,7 @@ public class ConnInstanceController extends AbstractController {
             throws NotFoundException {
 
         return getSchemaNames(
-                resourceDataBinder.getResource(resourceTO), true);
+                resourceDataBinder.create(resourceTO), true);
     }
 
     @PreAuthorize("hasRole('CONNECTOR_READ')")

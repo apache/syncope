@@ -25,6 +25,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import org.syncope.core.persistence.validation.entity.SchemaMappingCheck;
 import org.syncope.types.IntMappingType;
 
@@ -46,9 +47,10 @@ public class SchemaMapping extends AbstractBaseBean {
     private IntMappingType intMappingType;
 
     /**
-     * Target resource that has fields to be mapped over user attribute schemas.
+     * Resource that has fields to be mapped over user attribute schemas.
      */
     @ManyToOne
+    @NotNull
     private ExternalResource resource;
 
     /**

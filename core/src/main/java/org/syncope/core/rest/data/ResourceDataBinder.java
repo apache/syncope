@@ -62,13 +62,13 @@ public class ResourceDataBinder {
     @Autowired
     private PolicyDAO policyDAO;
 
-    public ExternalResource getResource(final ResourceTO resourceTO)
+    public ExternalResource create(final ResourceTO resourceTO)
             throws SyncopeClientCompositeErrorException {
 
-        return getResource(new ExternalResource(), resourceTO);
+        return update(new ExternalResource(), resourceTO);
     }
 
-    public ExternalResource getResource(final ExternalResource resource,
+    public ExternalResource update(final ExternalResource resource,
             final ResourceTO resourceTO)
             throws SyncopeClientCompositeErrorException {
 
@@ -124,10 +124,11 @@ public class ResourceDataBinder {
         resource.setConnectorConfigurationProperties(
                 new HashSet<ConnConfProperty>(
                 resourceTO.getConnectorConfigurationProperties()));
-        
+
         if (resourceTO.getSyncToken() == null) {
             resource.setSerializedSyncToken(null);
         }
+
         return resource;
     }
 
@@ -195,7 +196,7 @@ public class ResourceDataBinder {
         resourceTO.setConnectorConfigurationProperties(
                 resource.getConfiguration());
         resourceTO.setSyncToken(resource.getSerializedSyncToken());
-        
+
         return resourceTO;
     }
 
@@ -271,6 +272,7 @@ public class ResourceDataBinder {
         if (!jexlUtil.isExpressionValid(
                 mappingTO.getMandatoryCondition() != null
                 ? mappingTO.getMandatoryCondition() : "false")) {
+
             SyncopeClientException invalidMandatoryCondition =
                     new SyncopeClientException(
                     SyncopeClientExceptionType.InvalidValues);
