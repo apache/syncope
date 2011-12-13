@@ -53,8 +53,7 @@ public class SchemaRestClient extends AbstractBaseRestClient {
      * @return List of schema names.
      */
     public List<String> getSchemaNames(final String kind) {
-
-        final List<String> schemasNames = new ArrayList<String>();
+        final List<String> schemaNames = new ArrayList<String>();
 
         try {
             final List<SchemaTO> userSchemas = Arrays.asList(
@@ -62,14 +61,13 @@ public class SchemaRestClient extends AbstractBaseRestClient {
                     + "schema/" + kind + "/list.json", SchemaTO[].class));
 
             for (SchemaTO schemaTO : userSchemas) {
-                schemasNames.add(schemaTO.getName());
+                schemaNames.add(schemaTO.getName());
             }
-
         } catch (SyncopeClientCompositeErrorException e) {
             LOG.error("While getting all user schema names", e);
         }
 
-        return schemasNames;
+        return schemaNames;
     }
 
     /**

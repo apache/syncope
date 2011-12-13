@@ -14,7 +14,6 @@
 package org.syncope.console.pages;
 
 import java.io.Serializable;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -102,7 +101,8 @@ public class ApprovalModalPage extends BaseModalPage {
                                 break;
 
                             case Date:
-                                DateFormat df = StringUtils.isNotBlank(prop.
+                                SimpleDateFormat df =
+                                        StringUtils.isNotBlank(prop.
                                         getDatePattern())
                                         ? new SimpleDateFormat(prop.
                                         getDatePattern())
@@ -119,7 +119,8 @@ public class ApprovalModalPage extends BaseModalPage {
 
                                 field = new DateTimeFieldPanel("value",
                                         label.getDefaultModelObjectAsString(),
-                                        new Model(parsedDate), true);
+                                        new Model(parsedDate), true,
+                                        df.toLocalizedPattern());
                                 break;
 
                             case Enum:

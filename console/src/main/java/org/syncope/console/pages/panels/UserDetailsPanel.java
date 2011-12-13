@@ -26,8 +26,10 @@ import org.apache.wicket.markup.html.form.validation.EqualPasswordInputValidator
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.ResourceModel;
 import org.syncope.client.to.AbstractAttributableTO;
 import org.syncope.client.to.UserTO;
+import org.syncope.console.SyncopeSession;
 import org.syncope.console.wicket.markup.html.form.AjaxNumberFieldPanel;
 import org.syncope.console.wicket.markup.html.form.AjaxPasswordFieldPanel;
 import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
@@ -64,7 +66,7 @@ public class UserDetailsPanel extends Panel {
         // ------------------------
         final FieldPanel password;
         final Label confirmPasswordLabel = new Label("confirmPasswordLabel",
-                getString("confirmPassword"));
+                new ResourceModel("confirmPassword"));
         final FieldPanel confirmPassword;
         if (templateMode) {
             password = new AjaxTextFieldPanel("password", "password",
@@ -139,7 +141,8 @@ public class UserDetailsPanel extends Panel {
                 "creationDate",
                 "creationDate",
                 new Model<Date>(userTO.getCreationDate()),
-                false);
+                false,
+                SyncopeSession.get().getDateFormat().toLocalizedPattern());
 
         creationDate.setReadOnly(true);
         add(creationDate);
@@ -152,7 +155,8 @@ public class UserDetailsPanel extends Panel {
                 "changePwdDate",
                 "changePwdDate",
                 new Model<Date>(userTO.getChangePwdDate()),
-                false);
+                false,
+                SyncopeSession.get().getDateFormat().toLocalizedPattern());
 
         changePwdDate.setReadOnly(true);
         add(changePwdDate);
@@ -165,7 +169,8 @@ public class UserDetailsPanel extends Panel {
                 "lastLoginDate",
                 "lastLoginDate",
                 new Model<Date>(userTO.getLastLoginDate()),
-                false);
+                false,
+                SyncopeSession.get().getDateFormat().toLocalizedPattern());
 
         lastLoginDate.setReadOnly(true);
         add(lastLoginDate);
@@ -204,7 +209,8 @@ public class UserDetailsPanel extends Panel {
                 "tokenExpireTime",
                 "tokenExpireTime",
                 new Model<Date>(userTO.getTokenExpireTime()),
-                false);
+                false,
+                SyncopeSession.get().getDateFormat().toLocalizedPattern());
 
         tokenExpireTime.setReadOnly(true);
         add(tokenExpireTime);

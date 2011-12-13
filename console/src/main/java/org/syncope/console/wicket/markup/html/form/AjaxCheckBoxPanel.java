@@ -14,11 +14,14 @@
  */
 package org.syncope.console.wicket.markup.html.form;
 
+import java.io.Serializable;
+import java.util.List;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.springframework.util.StringUtils;
 
 public class AjaxCheckBoxPanel extends FieldPanel<Boolean> {
 
@@ -42,7 +45,7 @@ public class AjaxCheckBoxPanel extends FieldPanel<Boolean> {
                         -1107858522700306810L;
 
                 @Override
-                protected void onUpdate(AjaxRequestTarget art) {
+                protected void onUpdate(final AjaxRequestTarget target) {
                     // nothing to do
                 }
             });
@@ -51,12 +54,42 @@ public class AjaxCheckBoxPanel extends FieldPanel<Boolean> {
 
     @Override
     public FieldPanel addRequiredLabel() {
-
         if (!isRequired()) {
             setRequired(true);
         }
 
         this.isRequiredLabelAdded = true;
+
+        return this;
+    }
+
+    @Override
+    public FieldPanel setNewModel(final List<Serializable> list) {
+        setNewModel(new Model() {
+
+            private static final long serialVersionUID = 527651414610325237L;
+
+            @Override
+            public Serializable getObject() {
+                Boolean value = null;
+
+                if (list != null && !list.isEmpty()
+                        && StringUtils.hasText(list.get(0).toString())) {
+
+                    value = "true".equalsIgnoreCase(list.get(0).toString());
+                }
+
+                return value;
+            }
+
+            @Override
+            public void setObject(final Serializable object) {
+                if (object != null) {
+                    list.clear();
+                    list.add(((Boolean) object).toString());
+                }
+            }
+        });
 
         return this;
     }

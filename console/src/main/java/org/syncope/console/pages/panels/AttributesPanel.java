@@ -155,7 +155,6 @@ public class AttributesPanel extends Panel {
 
                 // is important to set readonly only after valus setting
                 attributeTO.setReadonly(schema.isReadonly());
-
             } else {
                 attributeTO.setValues(
                         attrMap.get(schema.getName()).getValues());
@@ -200,7 +199,8 @@ public class AttributesPanel extends Panel {
                     }
                 } else {
                     panel = new DateTimeFieldPanel(
-                            "panel", schemaTO.getName(), new Model(), true);
+                            "panel", schemaTO.getName(), new Model(), true,
+                            schemaTO.getConversionPattern());
                     if (required) {
                         panel.addRequiredLabel();
                         ((DateTimeFieldPanel) panel).setFormValidator(form);

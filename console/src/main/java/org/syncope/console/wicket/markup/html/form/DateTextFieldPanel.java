@@ -33,7 +33,7 @@ public class DateTextFieldPanel extends FieldPanel<Date> {
 
     private static final long serialVersionUID = 1919852712185883648L;
 
-    final String datePattern;
+    private final String datePattern;
 
     public DateTextFieldPanel(
             final String id,
@@ -121,7 +121,7 @@ public class DateTextFieldPanel extends FieldPanel<Date> {
             }
 
             @Override
-            public void setObject(Serializable object) {
+            public void setObject(final Serializable object) {
                 if (object != null) {
                     if (reference.equals(String.class)) {
                         // Parse string using datePattern
@@ -129,12 +129,10 @@ public class DateTextFieldPanel extends FieldPanel<Date> {
                                 (String) formatter.format((Date) object));
                     } else if (reference.equals(Date.class)) {
                         // Don't parse anything
-                        item.setModelObject(
-                                (Date) object);
+                        item.setModelObject((Date) object);
                     } else {
                         // consider Long
-                        item.setModelObject(
-                                new Long(((Date) object).getTime()));
+                        item.setModelObject(((Date) object).getTime());
                     }
                 } else {
                     item.setModelObject(null);
@@ -152,7 +150,8 @@ public class DateTextFieldPanel extends FieldPanel<Date> {
 
             private static final long serialVersionUID = 527651414610325237L;
 
-            final DateFormat formatter = new SimpleDateFormat(datePattern);
+            private final DateFormat formatter =
+                    new SimpleDateFormat(datePattern);
 
             @Override
             public Serializable getObject() {
@@ -172,7 +171,7 @@ public class DateTextFieldPanel extends FieldPanel<Date> {
             }
 
             @Override
-            public void setObject(Serializable object) {
+            public void setObject(final Serializable object) {
                 if (object != null) {
                     list.clear();
                     list.add((String) formatter.format((Date) object));

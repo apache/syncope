@@ -68,7 +68,8 @@ public class UserSearchPanel extends Panel {
 
     private List<String> ATTRIBUTES_NOTINCLUDED = Arrays.asList(new String[]{
                 "attributes", "derivedAttributes", "virtualAttributes",
-                "serialVersionUID", "memberships", "resources", "password"});
+                "serialVersionUID", "memberships", "resources", "password",
+                "propagationStatusMap"});
 
     @SpringBean
     private SchemaRestClient schemaRestClient;
@@ -625,8 +626,10 @@ public class UserSearchPanel extends Panel {
 
                         if (unames.getObject() != null
                                 && !unames.getObject().isEmpty()) {
+
                             names.addAll(unames.getObject());
                         }
+                        Collections.sort(names);
 
                         filterNameChooser.setChoices(names);
                         if (!type.isEnabled()) {

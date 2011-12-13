@@ -17,6 +17,7 @@ package org.syncope.console.wicket.markup.html.form;
 import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -33,11 +34,12 @@ import org.apache.wicket.validation.ValidationError;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.model.Model;
 import org.springframework.util.StringUtils;
-import org.syncope.console.SyncopeSession;
 
 public class DateTimeFieldPanel extends FieldPanel<Date> {
 
     private static final long serialVersionUID = -428975732068281726L;
+
+    private final String datePattern;
 
     private Form form = null;
 
@@ -45,9 +47,12 @@ public class DateTimeFieldPanel extends FieldPanel<Date> {
             final String id,
             final String name,
             final IModel<Date> model,
-            final boolean active) {
+            final boolean active,
+            final String datePattern) {
 
         super(id, name, model, active);
+
+        this.datePattern = datePattern;
 
         field = new DateTimeField("field", model);
 
@@ -79,7 +84,7 @@ public class DateTimeFieldPanel extends FieldPanel<Date> {
                     -1107858522700306810L;
 
             @Override
-            protected void onUpdate(AjaxRequestTarget art) {
+            protected void onUpdate(final AjaxRequestTarget target) {
                 cal.set(Calendar.MINUTE, ((DateTimeField) field).getMinutes());
                 field.setModelObject(cal.getTime());
             }
@@ -92,7 +97,7 @@ public class DateTimeFieldPanel extends FieldPanel<Date> {
                     -1107858522700306810L;
 
             @Override
-            protected void onUpdate(AjaxRequestTarget art) {
+            protected void onUpdate(final AjaxRequestTarget target) {
                 cal.setTime(((DateTimeField) field).getDate());
 
                 if ("PM".equals("" + ((DateTimeField) field).getAmOrPm())) {
@@ -112,7 +117,7 @@ public class DateTimeFieldPanel extends FieldPanel<Date> {
                     -1107858522700306810L;
 
             @Override
-            protected void onUpdate(AjaxRequestTarget art) {
+            protected void onUpdate(final AjaxRequestTarget target) {
                 if ("PM".equals("" + ((DateTimeField) field).getAmOrPm())) {
                     cal.set(Calendar.AM_PM, Calendar.PM);
                 } else {
@@ -136,7 +141,7 @@ public class DateTimeFieldPanel extends FieldPanel<Date> {
 
         private FormComponent[] dateTimeComponents;
 
-        public DateTimeFormValidator(DateTimeField dateTimeComponent) {
+        public DateTimeFormValidator(final DateTimeField dateTimeComponent) {
             if (dateTimeComponent == null) {
                 throw new IllegalArgumentException(
                         "argument dateTimeComponent cannot be null");
@@ -155,7 +160,7 @@ public class DateTimeFieldPanel extends FieldPanel<Date> {
          * @param form
          */
         @Override
-        public void validate(Form form) {
+        public void validate(final Form form) {
             final DateTimeField dateTimeField =
                     (DateTimeField) dateTimeComponents[0];
 
@@ -185,7 +190,7 @@ public class DateTimeFieldPanel extends FieldPanel<Date> {
 
     @Override
     public FieldPanel setNewModel(final ListItem item, final Class reference) {
-        final DateFormat formatter = SyncopeSession.get().getDateFormat();
+        final DateFormat formatter = new SimpleDateFormat(datePattern);
 
         IModel<Date> model = new Model() {
 
@@ -218,7 +223,7 @@ public class DateTimeFieldPanel extends FieldPanel<Date> {
             }
 
             @Override
-            public void setObject(Serializable object) {
+            public void setObject(final Serializable object) {
                 if (object != null) {
                     if (reference.equals(String.class)) {
                         // Parse string using datePattern
@@ -230,8 +235,7 @@ public class DateTimeFieldPanel extends FieldPanel<Date> {
                                 (Date) object);
                     } else {
                         // consider Long
-                        item.setModelObject(
-                                new Long(((Date) object).getTime()));
+                        item.setModelObject(((Date) object).getTime());
                     }
                 } else {
                     item.setModelObject(null);
@@ -249,7 +253,8 @@ public class DateTimeFieldPanel extends FieldPanel<Date> {
 
             private static final long serialVersionUID = 527651414610325237L;
 
-            final DateFormat formatter = SyncopeSession.get().getDateFormat();
+            private final DateFormat formatter =
+                    new SimpleDateFormat(datePattern);
 
             @Override
             public Serializable getObject() {
@@ -269,7 +274,7 @@ public class DateTimeFieldPanel extends FieldPanel<Date> {
             }
 
             @Override
-            public void setObject(Serializable object) {
+            public void setObject(final Serializable object) {
                 if (object != null) {
                     list.clear();
                     list.add((String) formatter.format((Date) object));
@@ -300,7 +305,7 @@ public class DateTimeFieldPanel extends FieldPanel<Date> {
     @Override
     public FieldPanel clone() {
         final FieldPanel panel = new DateTimeFieldPanel(
-                id, name, new Model(null), active);
+                id, name, new Model(null), active, datePattern);
 
         panel.setRequired(isRequired());
         panel.setReadOnly(isReadOnly());

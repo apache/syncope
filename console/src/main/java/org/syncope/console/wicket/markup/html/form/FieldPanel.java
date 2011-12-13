@@ -72,7 +72,7 @@ public abstract class FieldPanel<T extends Serializable>
         return this;
     }
 
-    public FieldPanel setStyleShet(String classes) {
+    public FieldPanel setStyleShet(final String classes) {
         field.add(AttributeModifier.replace(
                 "class", classes != null ? classes : ""));
 
@@ -116,7 +116,6 @@ public abstract class FieldPanel<T extends Serializable>
 
     /**
      * Userd by MultiValueSelectorPanel to attach items.
-     * @param <E> type of list items.
      * @param item item to attach.
      * @return updated FieldPanel object.
      */
@@ -133,7 +132,7 @@ public abstract class FieldPanel<T extends Serializable>
             }
 
             @Override
-            public void setObject(Serializable object) {
+            public void setObject(final Serializable object) {
                 item.setModelObject((T) object);
             }
         });
@@ -141,7 +140,6 @@ public abstract class FieldPanel<T extends Serializable>
     }
 
     public FieldPanel setNewModel(final List<Serializable> list) {
-
         setNewModel(new Model() {
 
             private static final long serialVersionUID = 1088212074765051906L;
@@ -152,7 +150,7 @@ public abstract class FieldPanel<T extends Serializable>
             }
 
             @Override
-            public void setObject(Serializable object) {
+            public void setObject(final Serializable object) {
                 list.clear();
 
                 if (object != null) {
@@ -166,18 +164,14 @@ public abstract class FieldPanel<T extends Serializable>
 
     @Override
     public FieldPanel clone() {
-
         final FieldPanel panel;
-
         try {
-
             panel = this.getClass().getConstructor(new Class[]{
                         String.class,
                         String.class,
                         IModel.class,
                         boolean.class}).newInstance(
                     id, name, new Model(null), active);
-
         } catch (Exception e) {
             LOG.error("Error cloning field panel", e);
             return null;
@@ -195,7 +189,6 @@ public abstract class FieldPanel<T extends Serializable>
     }
 
     public FieldPanel addRequiredLabel() {
-
         if (!isRequired()) {
             setRequired(true);
         }
@@ -213,7 +206,6 @@ public abstract class FieldPanel<T extends Serializable>
     }
 
     public FieldPanel removeRequiredLabel() {
-
         if (isRequired()) {
             setRequired(false);
         }

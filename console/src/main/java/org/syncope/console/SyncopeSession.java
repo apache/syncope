@@ -14,7 +14,6 @@
  */
 package org.syncope.console;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import org.apache.wicket.Session;
 import org.apache.wicket.authroles.authorization.strategies.role.Roles;
@@ -75,13 +74,13 @@ public class SyncopeSession extends WebSession {
         return this.roles.hasAnyRole(roles);
     }
 
-    public DateFormat getDateFormat() {
+    public SimpleDateFormat getDateFormat() {
         String language = "en";
         if (getLocale() != null) {
             language = getLocale().getLanguage();
         }
 
-        DateFormat formatter;
+        SimpleDateFormat formatter;
         if ("it".equals(language)) {
             formatter = new SimpleDateFormat(Constants.ITALIAN_DATE_FORMAT);
         } else {
