@@ -88,7 +88,7 @@ public class TaskTest extends AbstractTest {
         PropagationTask task = new PropagationTask();
         task.setResource(resource);
         task.setSyncopeUser(user);
-        task.setPropagationMode(PropagationMode.ASYNC);
+        task.setPropagationMode(PropagationMode.TWO_PHASES);
         task.setPropagationOperation(PropagationOperation.CREATE);
         task.setAccountId("one@two.com");
 

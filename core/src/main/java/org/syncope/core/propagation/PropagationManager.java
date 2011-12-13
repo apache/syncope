@@ -886,7 +886,7 @@ public class PropagationManager {
             }
 
             execution.setStatus(
-                    task.getPropagationMode() == PropagationMode.SYNC
+                    task.getPropagationMode() == PropagationMode.ONE_PHASE
                     ? PropagationTaskExecStatus.SUCCESS.name()
                     : PropagationTaskExecStatus.SUBMITTED.name());
 
@@ -907,7 +907,7 @@ public class PropagationManager {
 
             try {
                 execution.setStatus(
-                        task.getPropagationMode() == PropagationMode.SYNC
+                        task.getPropagationMode() == PropagationMode.ONE_PHASE
                         ? PropagationTaskExecStatus.FAILURE.name()
                         : PropagationTaskExecStatus.UNSUBMITTED.name());
             } catch (Throwable wft) {

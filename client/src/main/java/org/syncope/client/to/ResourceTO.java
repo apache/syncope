@@ -77,7 +77,7 @@ public class ResourceTO extends AbstractBaseBean {
     public ResourceTO() {
         mappings = new ArrayList<SchemaMappingTO>();
         connectorConfigurationProperties = new HashSet<ConnConfProperty>();
-        propagationMode = PropagationMode.ASYNC;
+        propagationMode = PropagationMode.TWO_PHASES;
         propagationPriority = 0;
 
         createTraceLevel = TraceLevel.ALL;

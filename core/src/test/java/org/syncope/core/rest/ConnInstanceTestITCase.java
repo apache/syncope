@@ -125,9 +125,9 @@ public class ConnInstanceTestITCase extends AbstractTest {
         connectorTO.setConfiguration(conf);
 
         // set connector capabilities
-        connectorTO.addCapability(ConnectorCapability.ASYNC_CREATE);
-        connectorTO.addCapability(ConnectorCapability.SYNC_CREATE);
-        connectorTO.addCapability(ConnectorCapability.ASYNC_UPDATE);
+        connectorTO.addCapability(ConnectorCapability.TWO_PHASES_CREATE);
+        connectorTO.addCapability(ConnectorCapability.ONE_PHASE_CREATE);
+        connectorTO.addCapability(ConnectorCapability.TWO_PHASES_UPDATE);
 
         ConnInstanceTO actual = restTemplate.postForObject(
                 BASE_URL + "connector/create.json",
@@ -145,7 +145,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
 
         // check for the updating
         connectorTO.setId(actual.getId());
-        connectorTO.removeCapability(ConnectorCapability.ASYNC_UPDATE);
+        connectorTO.removeCapability(ConnectorCapability.TWO_PHASES_UPDATE);
         actual = null;
         try {
             actual = restTemplate.postForObject(

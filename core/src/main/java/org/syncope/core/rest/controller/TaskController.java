@@ -423,7 +423,7 @@ public class TaskController extends AbstractController {
             invalidReportException.addElement("Task type: " + taskUtil);
         } else {
             PropagationTask task = (PropagationTask) exec.getTask();
-            if (task.getPropagationMode() != PropagationMode.ASYNC) {
+            if (task.getPropagationMode() != PropagationMode.TWO_PHASES) {
                 invalidReportException.addElement(
                         "Propagation mode: " + task.getPropagationMode());
             }

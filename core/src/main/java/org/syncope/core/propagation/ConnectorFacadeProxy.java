@@ -263,7 +263,7 @@ public class ConnectorFacadeProxy {
     /**
      * Create user on a connector instance.
      *
-     * @param propagationMode propagation mode (SYNC / ASYNC)
+     * @param propagationMode propagation mode
      * @param objectClass ConnId's object class
      * @param attrs attributes for creation
      * @param options ConnId's OperationOptions
@@ -280,11 +280,11 @@ public class ConnectorFacadeProxy {
 
         Uid result = null;
 
-        if (propagationMode == PropagationMode.SYNC
+        if (propagationMode == PropagationMode.ONE_PHASE
                 ? capabitilies.contains(
-                ConnectorCapability.SYNC_CREATE)
+                ConnectorCapability.ONE_PHASE_CREATE)
                 : capabitilies.contains(
-                ConnectorCapability.ASYNC_CREATE)) {
+                ConnectorCapability.TWO_PHASES_CREATE)) {
 
             propagationAttempted.add("create");
 
@@ -301,7 +301,7 @@ public class ConnectorFacadeProxy {
     /**
      * Update user on a connector instance.
      *
-     * @param propagationMode propagation mode (SYNC / ASYNC)
+     * @param propagationMode propagation mode
      * @param objectClass ConnId's object class
      * @param uid user to be updated
      * @param attrs attributes for update
@@ -319,11 +319,11 @@ public class ConnectorFacadeProxy {
 
         Uid result = null;
 
-        if (propagationMode == PropagationMode.SYNC
+        if (propagationMode == PropagationMode.ONE_PHASE
                 ? capabitilies.contains(
-                ConnectorCapability.SYNC_UPDATE)
+                ConnectorCapability.ONE_PHASE_UPDATE)
                 : capabitilies.contains(
-                ConnectorCapability.ASYNC_UPDATE)) {
+                ConnectorCapability.TWO_PHASES_UPDATE)) {
 
             propagationAttempted.add("update");
 
@@ -341,7 +341,7 @@ public class ConnectorFacadeProxy {
     /**
      * Delete user on a connector instance.
      *
-     * @param propagationMode propagation mode (SYNC / ASYNC)
+     * @param propagationMode propagation mode
      * @param objectClass ConnId's object class
      * @param uid user to be deleted
      * @param options ConnId's OperationOptions
@@ -354,11 +354,11 @@ public class ConnectorFacadeProxy {
             final OperationOptions options,
             final Set<String> propagationAttempted) {
 
-        if (propagationMode == PropagationMode.SYNC
+        if (propagationMode == PropagationMode.ONE_PHASE
                 ? capabitilies.contains(
-                ConnectorCapability.SYNC_DELETE)
+                ConnectorCapability.ONE_PHASE_DELETE)
                 : capabitilies.contains(
-                ConnectorCapability.ASYNC_DELETE)) {
+                ConnectorCapability.TWO_PHASES_DELETE)) {
 
             propagationAttempted.add("delete");
 
@@ -436,7 +436,7 @@ public class ConnectorFacadeProxy {
      * Get remote object used by the propagation manager in order to choose
      * for a create (object doesn't exist) or an update (object exists).
      *
-     * @param propagationMode propagation mode (SYNC / ASYNC)
+     * @param propagationMode propagation mode
      * @param operationType resource operation type
      * @param objectClass ConnId's object class
      * @param uid ConnId's Uid
@@ -459,11 +459,11 @@ public class ConnectorFacadeProxy {
                 switch (operationType) {
                     case CREATE:
                         if (propagationMode == null
-                                || (propagationMode == PropagationMode.SYNC
+                                || (propagationMode == PropagationMode.ONE_PHASE
                                 ? capabitilies.contains(
-                                ConnectorCapability.SYNC_CREATE)
+                                ConnectorCapability.ONE_PHASE_CREATE)
                                 : capabitilies.contains(
-                                ConnectorCapability.ASYNC_CREATE))) {
+                                ConnectorCapability.TWO_PHASES_CREATE))) {
 
                             result = connector.getObject(
                                     objectClass, uid, options);
@@ -471,11 +471,11 @@ public class ConnectorFacadeProxy {
                         break;
                     case UPDATE:
                         if (propagationMode == null
-                                || (propagationMode == PropagationMode.SYNC
+                                || (propagationMode == PropagationMode.ONE_PHASE
                                 ? capabitilies.contains(
-                                ConnectorCapability.SYNC_UPDATE)
+                                ConnectorCapability.ONE_PHASE_UPDATE)
                                 : capabitilies.contains(
-                                ConnectorCapability.ASYNC_UPDATE))) {
+                                ConnectorCapability.TWO_PHASES_UPDATE))) {
 
                             result = connector.getObject(
                                     objectClass, uid, options);

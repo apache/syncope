@@ -16,5 +16,7 @@ package org.syncope.types;
 
 public enum PropagationMode {
 
-    SYNC, ASYNC
+    ONE_PHASE,
+    TWO_PHASES
+
 }

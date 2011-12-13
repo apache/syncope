@@ -12,21 +12,7 @@
  *  limitations under the License.
  *  under the License.
  */
-package org.syncope.types;
-
 /**
- * Enum of all possible capabilities that a connector instance can expose.
+ * Package for types.
  */
-public enum ConnectorCapability {
-
-    ONE_PHASE_CREATE,
-    TWO_PHASES_CREATE,
-    ONE_PHASE_UPDATE,
-    TWO_PHASES_UPDATE,
-    ONE_PHASE_DELETE,
-    TWO_PHASES_DELETE,
-    SEARCH,
-    RESOLVE,
-    SYNC
-
-}
+package org.syncope.types;

@@ -174,7 +174,7 @@ public class ExternalResource extends AbstractBaseBean {
         mappings = new ArrayList<SchemaMapping>();
         propagationPrimary = 0;
         propagationPriority = 0;
-        propagationMode = PropagationMode.ASYNC;
+        propagationMode = PropagationMode.TWO_PHASES;
 
         createTraceLevel = TraceLevel.FAILURES;
         updateTraceLevel = TraceLevel.FAILURES;
