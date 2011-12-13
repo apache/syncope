@@ -14,8 +14,6 @@
  */
 package org.syncope.console.wicket.markup.html.form;
 
-import java.util.Collections;
-import java.util.List;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.markup.html.form.TextField;
@@ -26,17 +24,16 @@ public class AjaxNumberFieldPanel extends FieldPanel<Number> {
 
     private static final long serialVersionUID = 238940918106696068L;
 
-    private List<String> choices = Collections.EMPTY_LIST;
-
     public AjaxNumberFieldPanel(
             final String id,
             final String name,
             final IModel<Number> model,
+            final Class reference,
             final boolean active) {
 
         super(id, name, model, active);
 
-        field = new TextField<Number>("numberField", model);
+        field = new TextField<Number>("numberField", model, reference);
 
         add(field.setLabel(new Model(name)).setOutputMarkupId(true));
 

@@ -63,7 +63,6 @@ public final class AttributableOperations {
                     originalAttrs.get(entry.getKey()).getValues())
                     : Collections.EMPTY_SET;
 
-            updatedValues.removeAll(originalValues);
             // avoid unwanted inputs
             updatedValues.remove("");
             if (!entry.getValue().isReadonly()) {
@@ -74,7 +73,6 @@ public final class AttributableOperations {
                 }
             }
 
-            originalValues.removeAll(entry.getValue().getValues());
             attrMod.setValuesToBeRemoved(new ArrayList<String>(originalValues));
 
             if (!attrMod.isEmpty()) {

@@ -34,6 +34,8 @@ public class AjaxPasswordFieldPanel extends FieldPanel<String> {
 
         field = new PasswordTextField("passwordField", model);
 
+        field.setRequired(false);
+
         add(field.setLabel(new Model(name)).setOutputMarkupId(true));
 
         if (active) {

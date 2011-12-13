@@ -133,7 +133,9 @@ public abstract class FieldPanel<T extends Serializable>
 
             @Override
             public void setObject(final Serializable object) {
-                item.setModelObject((T) object);
+                if (object != null && !object.toString().isEmpty()) {
+                    item.setModelObject((T) object);
+                }
             }
         });
         return this;

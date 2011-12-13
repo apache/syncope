@@ -55,7 +55,6 @@ public class UserModalPage extends BaseModalPage {
         ADMIN,
         SELF,
         TEMPLATE;
-
     }
 
     private static final long serialVersionUID = 5002005009737457667L;

@@ -73,6 +73,12 @@
                         </div>
                     </div>
                 </div>
+                <!-- inside the container in order to re-process javascript -->
+                <script type="text/javascript">
+                    $(function() {
+                        $('#tabs-1 #formtable div.tablerow:even').addClass("alt");
+                    });
+                </script>
             </div>
             <div id="tabs-2">
                 <div id="formtable">
@@ -94,6 +100,13 @@
                                 <span wicket:id="panel">[panel]</span>
                             </div>
                         </div>
+
+                        <!-- inside the container in order to re-process javascript -->
+                        <script type="text/javascript">
+                            $(function() {
+                                $('#tabs-2 #formtable div.tablerow:even').addClass("alt");
+                            });
+                        </script>
                     </span>
                 </div>
             </div>
@@ -101,17 +114,6 @@
                 <span wicket:id="capabilitiesPalette"/>
             </div>
         </div>
-
-        <!-- inside the container in order to re-process javascript -->
-        <script type="text/javascript">
-            $(function() {
-                $('#tabs-1 #formtable div.tablerow:even').addClass("alt");
-            });
-            
-            $(function() {
-                $('#tabs-2 #formtable div.tablerow:even').addClass("alt");
-            });
-        </script>
 
         <div style="margin: 20px 10px 0">
             <input type="submit"

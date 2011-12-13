@@ -196,6 +196,7 @@ public class ResourceModalPage extends BaseModalPage {
                 new AjaxNumberFieldPanel(
                 "propagationPriority", getString("propagationPriority"),
                 new PropertyModel<Number>(resourceTO, "propagationPriority"),
+                Integer.class,
                 false);
         form.add(propagationPriority);
 
@@ -231,7 +232,7 @@ public class ResourceModalPage extends BaseModalPage {
                 new PropertyModel(resourceTO, "deleteTraceLevel"),
                 false);
         deleteTraceLevel.setChoices(Arrays.asList(TraceLevel.values()));
-        form.add(deleteTraceLevel);        
+        form.add(deleteTraceLevel);
 
         final AjaxDropDownChoicePanel<TraceLevel> syncTraceLevel =
                 new AjaxDropDownChoicePanel<TraceLevel>("syncTraceLevel",
@@ -257,7 +258,7 @@ public class ResourceModalPage extends BaseModalPage {
                     }
                 });
         form.add(resetToken);
-        
+
         mappingContainer = new WebMarkupContainer("mappingContainer");
         mappingContainer.setOutputMarkupId(true);
         form.add(mappingContainer);

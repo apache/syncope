@@ -151,6 +151,7 @@ public class ApprovalModalPage extends BaseModalPage {
                                         label.getDefaultModelObjectAsString(),
                                         new Model(
                                         Long.valueOf(prop.getValue())),
+                                        Long.class,
                                         true);
                                 break;
 

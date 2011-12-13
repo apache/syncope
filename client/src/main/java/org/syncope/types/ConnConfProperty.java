@@ -44,7 +44,7 @@ public class ConnConfProperty extends AbstractBaseBean
         return values;
     }
 
-    public void setValues(List values) {
+    public void setValues(final List values) {
         this.values = values;
     }
 

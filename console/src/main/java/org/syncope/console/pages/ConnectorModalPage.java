@@ -45,12 +45,14 @@ import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.springframework.util.ClassUtils;
 import org.syncope.client.to.ConnBundleTO;
 import org.syncope.client.to.ConnInstanceTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.rest.ConnectorRestClient;
 import org.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
+import org.syncope.console.wicket.markup.html.form.AjaxNumberFieldPanel;
 import org.syncope.console.wicket.markup.html.form.AjaxPasswordFieldPanel;
 import org.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.syncope.console.wicket.markup.html.form.FieldPanel;
@@ -66,12 +68,24 @@ public class ConnectorModalPage extends BaseModalPage {
 
     private static final long serialVersionUID = -2025535531121434050L;
 
+    // GuardedString is not in classpath
     private static final String GUARDED_STRING =
             "org.identityconnectors.common.security.GuardedString";
 
-    private static final String STRING_ARRAY = "[Ljava.lang.String;";
+    // GuardedByteArray is not in classpath
+    private static final String GUARDED_BYTE_ARRAY =
+            "org.identityconnectors.common.security.GuardedByteArray";
 
-    private static final String BOOLEAN = "java.lang.Boolean";
+    private static final List<Class> NUMBER = Arrays.asList(new Class[]{
+                Integer.class,
+                Double.class,
+                Long.class,
+                Float.class,
+                Number.class,
+                Integer.TYPE,
+                Long.TYPE,
+                Double.TYPE,
+                Float.TYPE});
 
     @SpringBean
     private ConnectorRestClient restClient;
@@ -84,7 +98,8 @@ public class ConnectorModalPage extends BaseModalPage {
 
     private List<ConnectorCapability> selectedCapabilities;
 
-    public ConnectorModalPage(final PageReference callerPageRef,
+    public ConnectorModalPage(
+            final PageReference callerPageRef,
             final ModalWindow window,
             final ConnInstanceTO connectorTO,
             final boolean createFlag) {
@@ -277,7 +292,11 @@ public class ConnectorModalPage extends BaseModalPage {
 
                 boolean required = false;
 
+                boolean isArray = false;
+
                 if (GUARDED_STRING.equalsIgnoreCase(
+                        property.getSchema().getType())
+                        || GUARDED_BYTE_ARRAY.equalsIgnoreCase(
                         property.getSchema().getType())) {
 
                     field = new AjaxPasswordFieldPanel(
@@ -286,41 +305,65 @@ public class ConnectorModalPage extends BaseModalPage {
                             new Model(),
                             true);
 
-                    ((PasswordTextField) field.getField()).
-                                    setResetPassword(
-                                    false);
-                    
-                    required = property.getSchema().isRequired();
+                    ((PasswordTextField) field.getField()).setResetPassword(
+                            false);
 
-                } else if (BOOLEAN.equalsIgnoreCase(
-                        property.getSchema().getType())) {
-                    field = new AjaxCheckBoxPanel(
-                            "panel",
-                            label.getDefaultModelObjectAsString(),
-                            new Model(),
-                            true);
+                    required = property.getSchema().isRequired();
 
                 } else {
+                    Class propertySchemaClass;
 
-                    field = new AjaxTextFieldPanel(
-                            "panel",
-                            label.getDefaultModelObjectAsString(),
-                            new Model(),
-                            true);
+                    try {
+                        propertySchemaClass = ClassUtils.forName(
+                                property.getSchema().getType(),
+                                ClassUtils.getDefaultClassLoader());
+                    } catch (Exception e) {
+                        LOG.error("Error parsing attribute type", e);
+                        propertySchemaClass = String.class;
+                    }
 
-                    required = property.getSchema().isRequired();
+                    if (NUMBER.contains(propertySchemaClass)) {
+                        field = new AjaxNumberFieldPanel(
+                                "panel",
+                                label.getDefaultModelObjectAsString(),
+                                new Model(),
+                                ClassUtils.resolvePrimitiveIfNecessary(
+                                propertySchemaClass),
+                                true);
+
+                        required = property.getSchema().isRequired();
+                    } else if (Boolean.class.equals(propertySchemaClass)
+                            || boolean.class.equals(propertySchemaClass)) {
+                        field = new AjaxCheckBoxPanel(
+                                "panel",
+                                label.getDefaultModelObjectAsString(),
+                                new Model(),
+                                true);
+
+                    } else {
+
+                        field = new AjaxTextFieldPanel(
+                                "panel",
+                                label.getDefaultModelObjectAsString(),
+                                new Model(),
+                                true);
+
+                        required = property.getSchema().isRequired();
+                    }
+
+                    if (String[].class.equals(propertySchemaClass)) {
+                        isArray = true;
+                    }
                 }
 
                 field.setTitle(property.getSchema().getHelpMessage());
 
-                if (required) {
-                    field.addRequiredLabel();
-                }
-
-                if (STRING_ARRAY.equalsIgnoreCase(
-                        property.getSchema().getType())) {
-
+                if (isArray) {
                     field.removeRequiredLabel();
+
+                    if (property.getValues().isEmpty()) {
+                        property.getValues().add(null);
+                    }
 
                     item.add(new MultiValueSelectorPanel<String>(
                             "panel",
@@ -328,6 +371,10 @@ public class ConnectorModalPage extends BaseModalPage {
                             String.class,
                             field));
                 } else {
+                    if (required) {
+                        field.addRequiredLabel();
+                    }
+
                     field.setNewModel(property.getValues());
                     item.add(field);
                 }
@@ -383,8 +430,7 @@ public class ConnectorModalPage extends BaseModalPage {
                         restClient.update(connector);
                     }
 
-                    ((Resources) callerPageRef.getPage()).setModalResult(
-                            true);
+                    ((Resources) callerPageRef.getPage()).setModalResult(true);
                     window.close(target);
                 } catch (SyncopeClientCompositeErrorException e) {
                     error(getString("error") + ":" + e.getMessage());

@@ -14,9 +14,11 @@
  */
 package org.syncope.console.rest;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import org.springframework.stereotype.Component;
 import org.syncope.client.to.ConnBundleTO;
 import org.syncope.client.to.ConnInstanceTO;
@@ -46,6 +48,7 @@ public class ConnectorRestClient extends AbstractBaseRestClient {
      * @param schemaTO
      */
     public void create(ConnInstanceTO connectorTO) {
+        filterProperties(connectorTO.getConfiguration());
         restTemplate.postForObject(baseURL
                 + "connector/create.json", connectorTO, ConnInstanceTO.class);
     }
@@ -70,6 +73,7 @@ public class ConnectorRestClient extends AbstractBaseRestClient {
     }
 
     public void update(ConnInstanceTO connectorTO) {
+        filterProperties(connectorTO.getConfiguration());
         restTemplate.postForObject(baseURL + "connector/update.json",
                 connectorTO, ConnInstanceTO.class);
     }
@@ -128,5 +132,20 @@ public class ConnectorRestClient extends AbstractBaseRestClient {
         }
 
         return properties;
+    }
+
+    private void filterProperties(final Set<ConnConfProperty> properties) {
+
+        for (ConnConfProperty property : properties) {
+            final List parsed = new ArrayList();
+
+            for (Object obj : property.getValues()) {
+                if (obj != null && !obj.toString().isEmpty()) {
+                    parsed.add(obj);
+                }
+            }
+
+            property.setValues(parsed);
+        }
     }
 }

@@ -125,7 +125,8 @@ public class AttributesPanel extends Panel {
                     item.add(new MultiValueSelectorPanel<String>(
                             "panel",
                             new PropertyModel(attributeTO, "values"),
-                            String.class, panel));
+                            String.class,
+                            panel));
                 }
             }
         };

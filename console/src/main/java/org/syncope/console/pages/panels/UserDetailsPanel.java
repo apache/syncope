@@ -183,6 +183,7 @@ public class UserDetailsPanel extends Panel {
                 "failedLogins",
                 "failedLogins",
                 new Model<Number>(userTO.getFailedLogins()),
+                Integer.class,
                 false);
 
         failedLogins.setReadOnly(true);
