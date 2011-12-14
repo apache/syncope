@@ -17,6 +17,7 @@ package org.syncope.core.persistence.dao;
 import static org.junit.Assert.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import org.connid.bundles.soap.WebServiceConnector;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,7 +57,7 @@ public class ResourceTest extends AbstractTest {
         assertEquals("invalid bundle version",
                 connidSoapVersion, connector.getVersion());
 
-        List<SchemaMapping> mappings = resource.getMappings();
+        Set<SchemaMapping> mappings = resource.getMappings();
 
         assertNotNull("mappings not found", mappings);
 

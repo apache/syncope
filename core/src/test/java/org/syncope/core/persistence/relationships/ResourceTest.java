@@ -243,7 +243,7 @@ public class ResourceTest extends AbstractTest {
         assertTrue(resource.getConnector().equals(connector));
 
         // check mappings
-        List<SchemaMapping> schemaMappings = resource.getMappings();
+        Set<SchemaMapping> schemaMappings = resource.getMappings();
 
         assertNotNull(schemaMappings);
         assertEquals(5, schemaMappings.size());

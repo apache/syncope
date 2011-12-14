@@ -25,9 +25,9 @@ import org.identityconnectors.common.security.GuardedByteArray;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
-import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.identityconnectors.framework.common.objects.SyncDelta;
+import org.identityconnectors.framework.common.objects.Uid;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -47,6 +47,7 @@ import org.syncope.client.to.MembershipTO;
 import org.syncope.client.to.UserTO;
 import org.syncope.core.init.ConnInstanceLoader;
 import org.syncope.core.persistence.beans.Entitlement;
+import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.core.persistence.beans.PropagationTask;
 import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.beans.SyncPolicy;
@@ -240,7 +241,7 @@ public class SyncJob extends AbstractJob {
         for (SchemaMapping mapping : syncTask.getResource().getMappings()) {
             Attribute attribute;
             if (mapping.isAccountid()) {
-                attribute = obj.getAttributeByName(Name.NAME);
+                attribute = obj.getAttributeByName(Uid.NAME);
             } else if (mapping.isPassword()) {
                 attribute = obj.getAttributeByName(
                         OperationalAttributes.PASSWORD_NAME);
@@ -362,8 +363,17 @@ public class SyncJob extends AbstractJob {
         userMod.setId(userId);
 
         for (SchemaMapping mapping : syncTask.getResource().getMappings()) {
-            Attribute attribute = obj.getAttributeByName(
-                    mapping.getExtAttrName());
+            Attribute attribute;
+
+            if (mapping.isAccountid()) {
+                attribute = obj.getAttributeByName(Uid.NAME);
+            } else if (mapping.isPassword()) {
+                attribute = obj.getAttributeByName(
+                        OperationalAttributes.PASSWORD_NAME);
+            } else {
+                attribute = obj.getAttributeByName(mapping.getExtAttrName());
+            }
+
             List<Object> values = attribute == null
                     ? Collections.EMPTY_LIST : attribute.getValue();
 
@@ -666,6 +676,7 @@ public class SyncJob extends AbstractJob {
             try {
                 UserTO userTO = userDataBinder.getUserTO(userId);
                 try {
+
                     final UserMod userMod =
                             getUserMod(userId, delta.getObject());
                     actions.beforeUpdate(delta, userTO, userMod);
@@ -677,12 +688,14 @@ public class SyncJob extends AbstractJob {
                     if (!dryRun) {
                         WorkflowResult<Long> updated =
                                 wfAdapter.update(userMod);
+
                         List<PropagationTask> tasks =
                                 propagationManager.getUpdateTaskIds(
                                 updated,
                                 userMod.getPassword(),
                                 null, null, null,
                                 ((SyncTask) this.task).getResource().getName());
+
                         propagationManager.execute(tasks);
 
                         userTO = userDataBinder.getUserTO(
@@ -937,6 +950,7 @@ public class SyncJob extends AbstractJob {
 
         final SchemaMapping accountIdMap =
                 syncTask.getResource().getAccountIdMapping();
+
         if (accountIdMap == null) {
             throw new JobExecutionException(
                     "Invalid account id mapping for resource "
@@ -1031,15 +1045,19 @@ public class SyncJob extends AbstractJob {
 
         actions.afterAll(deltas, results);
 
-        final String result = createReport(results, syncTask.getResource().
-                getSyncTraceLevel(), dryRun);
+        final String result = createReport(
+                results, syncTask.getResource().getSyncTraceLevel(), dryRun);
+
         LOG.debug("Sync result: {}", result);
 
         if (!dryRun) {
             try {
-                syncTask.getResource().setSyncToken(
-                        connector.getLatestSyncToken());
-                resourceDAO.save(syncTask.getResource());
+                ExternalResource resource =
+                        resourceDAO.find(syncTask.getResource().getName());
+
+                resource.setSyncToken(connector.getLatestSyncToken());
+                resourceDAO.save(resource);
+
             } catch (Throwable t) {
                 throw new JobExecutionException("While updating SyncToken", t);
             }

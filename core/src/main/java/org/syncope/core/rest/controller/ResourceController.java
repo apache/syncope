@@ -226,7 +226,7 @@ public class ResourceController extends AbstractController {
         for (ExternalResource resource : resources) {
             LOG.debug("Ask for the mappings of {}", resource);
 
-            List<SchemaMapping> schemaMappings = resource.getMappings();
+            Set<SchemaMapping> schemaMappings = resource.getMappings();
             LOG.debug("The mappings of {} are {}",
                     resource, schemaMappings);
 

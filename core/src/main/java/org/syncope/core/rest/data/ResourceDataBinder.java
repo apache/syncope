@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -200,15 +201,14 @@ public class ResourceDataBinder {
         return resourceTO;
     }
 
-    private List<SchemaMapping> getSchemaMappings(
+    private Set<SchemaMapping> getSchemaMappings(
             ExternalResource resource, List<SchemaMappingTO> mappings) {
 
         if (mappings == null) {
             return null;
         }
 
-        final List<SchemaMapping> schemaMappings =
-                new ArrayList<SchemaMapping>();
+        final Set<SchemaMapping> schemaMappings = new HashSet<SchemaMapping>();
 
         SchemaMapping schemaMapping;
         for (SchemaMappingTO mapping : mappings) {

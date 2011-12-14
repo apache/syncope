@@ -23,6 +23,7 @@ import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.init.ConnInstanceLoader;
 import org.syncope.core.persistence.beans.PropagationTask;
 import org.syncope.core.persistence.beans.ExternalResource;
@@ -75,7 +76,17 @@ public class ResourceDAOImpl extends AbstractDAOImpl
         return query.getResultList();
     }
 
+    /**
+     * This method has an explicit @Transactional annotation because it is 
+     * called by SyncJob.
+     * 
+     * @see org.syncope.core.scheduling.SyncJob
+     * 
+     * @param execution entity to be merged
+     * @return the same entity, updated
+     */
     @Override
+    @Transactional(rollbackFor = {Throwable.class})
     public ExternalResource save(final ExternalResource resource) {
         ExternalResource merged = entityManager.merge(resource);
         try {

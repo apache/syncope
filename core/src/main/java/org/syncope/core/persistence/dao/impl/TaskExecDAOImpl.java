@@ -21,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.Task;
 import org.syncope.core.persistence.beans.TaskExec;
 import org.syncope.core.persistence.dao.TaskExecDAO;
-import org.syncope.core.scheduling.AbstractJob;
 
 @Repository
 public class TaskExecDAOImpl extends AbstractDAOImpl
@@ -69,10 +68,10 @@ public class TaskExecDAOImpl extends AbstractDAOImpl
     }
 
     /**
-     * This method has an explicit @Transactional annotation because it is called
-     * by AbstractJob.
+     * This method has an explicit @Transactional annotation because it is 
+     * called by AbstractJob.
      * 
-     * @see AbstractJob
+     * @see org.syncope.core.scheduling.AbstractJob
      * 
      * @param execution entity to be merged
      * @return the same entity, updated

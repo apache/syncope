@@ -224,7 +224,7 @@ public abstract class AbstractAttributableDataBinder {
             final String intAttrName,
             final AttributableUtil attributableUtil) {
 
-        List<SchemaMapping> mappings = resource.getMappings(intAttrName,
+        Set<SchemaMapping> mappings = resource.getMappings(intAttrName,
                 attributableUtil.intMappingType());
 
         boolean result = false;
