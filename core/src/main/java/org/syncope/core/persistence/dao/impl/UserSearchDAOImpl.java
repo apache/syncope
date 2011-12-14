@@ -233,8 +233,13 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
         final StringBuilder queryString = getQuery(nodeCond, parameters);
 
         // 2. take into account administrative roles
-        queryString.insert(0, "SELECT u.user_id FROM (");
-        queryString.append(") u WHERE user_id NOT IN (");
+        if (queryString.charAt(0) == '(') {
+            queryString.insert(0, "SELECT u.user_id FROM ");
+            queryString.append(" u WHERE user_id NOT IN (");
+        } else {
+            queryString.insert(0, "SELECT u.user_id FROM (");
+            queryString.append(") u WHERE user_id NOT IN (");
+        }
         queryString.append(getAdminRolesFilter(adminRoles)).append(")");
 
         // 3. prepare the search query
@@ -393,6 +398,106 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
         return query.toString();
     }
 
+    private void fillAttributeQuery(final StringBuilder query,
+            final UAttrValue attrValue, final USchema schema,
+            final AttributeCond cond, final boolean not,
+            final Map<Integer, Object> parameters) {
+
+        String column = (cond instanceof SyncopeUserCond)
+                ? cond.getSchema()
+                : "' AND " + getFieldName(schema.getType());
+
+        switch (cond.getType()) {
+
+            case ISNULL:
+                query.append(column).append(not ? " IS NOT NULL" : " IS NULL");
+                break;
+
+            case ISNOTNULL:
+                query.append(column).append(not ? " IS NULL" : " IS NOT NULL");
+                break;
+
+            case LIKE:
+                if (schema.getType() == SchemaType.String
+                        || schema.getType() == SchemaType.Enum) {
+
+                    query.append(column);
+                    if (not) {
+                        query.append(" NOT ");
+                    }
+                    query.append(" LIKE ");
+                    if (!(cond instanceof SyncopeUserCond)) {
+                        query.append('\'');
+                    }
+                    query.append(cond.getExpression()).append("'");
+                } else {
+                    if (!(cond instanceof SyncopeUserCond)) {
+                        query.append("' AND");
+                    }
+                    query.append(" 1=2");
+                    LOG.error("LIKE is only compatible with string schemas");
+                }
+                break;
+
+            case EQ:
+                query.append(column);
+                if (not) {
+                    query.append("<>");
+                } else {
+                    query.append("=");
+                }
+                query.append(":param").append(
+                        setParameter(parameters, attrValue.getValue()));
+                break;
+
+            case GE:
+                query.append(column);
+                if (not) {
+                    query.append("<");
+                } else {
+                    query.append(">=");
+                }
+                query.append(":param").append(
+                        setParameter(parameters, attrValue.getValue()));
+                break;
+
+            case GT:
+                query.append(column);
+                if (not) {
+                    query.append("<=");
+                } else {
+                    query.append(">");
+                }
+                query.append(":param").append(
+                        setParameter(parameters, attrValue.getValue()));
+                break;
+
+            case LE:
+                query.append(column);
+                if (not) {
+                    query.append(">");
+                } else {
+                    query.append("<=");
+                }
+                query.append(":param").append(
+                        setParameter(parameters, attrValue.getValue()));
+                break;
+
+            case LT:
+                query.append(column);
+                if (not) {
+                    query.append(">=");
+                } else {
+                    query.append("<");
+                }
+                query.append(":param").append(
+                        setParameter(parameters, attrValue.getValue()));
+                break;
+
+            default:
+        }
+    }
+
     private String getFieldName(final SchemaType type) {
         String result;
 
@@ -452,93 +557,7 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
         StringBuilder query = new StringBuilder(
                 "SELECT DISTINCT user_id FROM user_search_attr WHERE ").append(
                 "schema_name='").append(schema.getName());
-
-        Integer paramKey;
-        switch (cond.getType()) {
-
-            case ISNULL:
-                query.append("' AND ").append(getFieldName(schema.getType())).
-                        append(not ? " IS NOT NULL" : " IS NULL");
-                break;
-
-            case ISNOTNULL:
-                query.append("' AND ").append(getFieldName(schema.getType())).
-                        append(not ? " IS NULL" : " IS NOT NULL");
-                break;
-
-            case LIKE:
-                if (schema.getType() == SchemaType.String
-                        || schema.getType() == SchemaType.Enum) {
-                    query.append("' AND ").
-                            append(getFieldName(schema.getType()));
-                    if (not) {
-                        query.append(" NOT ");
-                    }
-                    query.append(" LIKE '").append(cond.getExpression()).
-                            append("'");
-                } else {
-                    query.append("' AND 1=2");
-                    LOG.error("LIKE is only compatible with string schemas");
-                }
-                break;
-
-            case EQ:
-                paramKey = setParameter(parameters, attrValue.getValue());
-                query.append("' AND ").append(getFieldName(schema.getType()));
-                if (not) {
-                    query.append("<>");
-                } else {
-                    query.append("=");
-                }
-                query.append(":param").append(paramKey);
-                break;
-
-            case GE:
-                paramKey = setParameter(parameters, attrValue.getValue());
-                query.append("' AND ").append(getFieldName(schema.getType()));
-                if (not) {
-                    query.append("<");
-                } else {
-                    query.append(">=");
-                }
-                query.append(":param").append(paramKey);
-                break;
-
-            case GT:
-                paramKey = setParameter(parameters, attrValue.getValue());
-                query.append("' AND ").append(getFieldName(schema.getType()));
-                if (not) {
-                    query.append("<=");
-                } else {
-                    query.append(">");
-                }
-                query.append(":param").append(paramKey);
-                break;
-
-            case LE:
-                paramKey = setParameter(parameters, attrValue.getValue());
-                query.append("' AND ").append(getFieldName(schema.getType()));
-                if (not) {
-                    query.append(">");
-                } else {
-                    query.append("<=");
-                }
-                query.append(":param").append(paramKey);
-                break;
-
-            case LT:
-                paramKey = setParameter(parameters, attrValue.getValue());
-                query.append("' AND ").append(getFieldName(schema.getType()));
-                if (not) {
-                    query.append(">=");
-                } else {
-                    query.append("<");
-                }
-                query.append(":param").append(paramKey);
-                break;
-
-            default:
-        }
+        fillAttributeQuery(query, attrValue, schema, cond, not, parameters);
 
         return query.toString();
     }
@@ -546,114 +565,56 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
     private String getQuery(final SyncopeUserCond cond,
             final boolean not, final Map<Integer, Object> parameters) {
 
-        final String schema = cond.getSchema();
-
-        Field field = null;
-        // loop over class and all superclasses searching for field
+        Field syncopeUserClassField = null;
+        // loop over SyncopeUser class and all superclasses searching for field
         for (Class<?> i = SyncopeUser.class;
-                field == null && i != Object.class;) {
+                syncopeUserClassField == null && i != Object.class;) {
 
             try {
-                field = i.getDeclaredField(schema);
+                syncopeUserClassField = i.getDeclaredField(cond.getSchema());
             } catch (Exception ignore) {
                 // ignore exception
                 LOG.debug("Field '{}' not found on class '{}'",
-                        new String[]{schema, i.getSimpleName()}, ignore);
+                        new String[]{cond.getSchema(), i.getSimpleName()},
+                        ignore);
             } finally {
                 i = i.getSuperclass();
             }
         }
-        if (field == null) {
+        if (syncopeUserClassField == null) {
             LOG.warn("Ignoring invalid schema '{}'", cond.getSchema());
+            return EMPTY_ATTR_QUERY;
+        }
+
+        USchema schema = new USchema();
+        schema.setName(syncopeUserClassField.getName());
+        for (SchemaType type : SchemaType.values()) {
+            if (syncopeUserClassField.getType().
+                    getName().equals(type.getClassName())) {
+
+                schema.setType(type);
+            }
+        }
+
+        UAttrValue attrValue = new UAttrValue();
+        try {
+            if (cond.getType() != AttributeCond.Type.LIKE
+                    && cond.getType() != AttributeCond.Type.ISNULL
+                    && cond.getType() != AttributeCond.Type.ISNOTNULL) {
+
+                attrValue = schema.getValidator().
+                        getValue(cond.getExpression(), attrValue);
+            }
+        } catch (ValidationException e) {
+            LOG.error("Could not validate expression '"
+                    + cond.getExpression() + "'", e);
             return EMPTY_ATTR_QUERY;
         }
 
         final StringBuilder query = new StringBuilder(
                 "SELECT DISTINCT user_id FROM user_search WHERE ");
 
-        Integer paramKey;
-        switch (cond.getType()) {
-
-            case ISNULL:
-                query.append(schema).append(not ? " IS NOT NULL" : " IS NULL");
-                break;
-
-            case ISNOTNULL:
-                query.append(schema).append(not ? " IS NULL" : " IS NOT NULL");
-                break;
-
-            case LIKE:
-                if (field.getType() == String.class
-                        || field.getType() == Enum.class) {
-                    query.append(schema);
-                    if (not) {
-                        query.append(" NOT ");
-                    }
-                    query.append(" LIKE '").append(cond.getExpression()).
-                            append("'");
-                } else {
-                    query.append(" 1=2");
-                    LOG.error("LIKE is only compatible with string schemas");
-                }
-                break;
-
-            case EQ:
-                paramKey = setParameter(parameters, cond.getExpression());
-                query.append(schema);
-                if (not) {
-                    query.append("<>");
-                } else {
-                    query.append("=");
-                }
-                query.append(":param").append(paramKey);
-                break;
-
-            case GE:
-                paramKey = setParameter(parameters, cond.getExpression());
-                query.append(schema);
-                if (not) {
-                    query.append("<");
-                } else {
-                    query.append(">=");
-                }
-                query.append(":param").append(paramKey);
-                break;
-
-            case GT:
-                paramKey = setParameter(parameters, cond.getExpression());
-                query.append(schema);
-                if (not) {
-                    query.append("<=");
-                } else {
-                    query.append(">");
-                }
-                query.append(":param").append(paramKey);
-                break;
-
-            case LE:
-                paramKey = setParameter(parameters, cond.getExpression());
-                query.append(schema);
-                if (not) {
-                    query.append(">");
-                } else {
-                    query.append("<=");
-                }
-                query.append(":param").append(paramKey);
-                break;
-
-            case LT:
-                paramKey = setParameter(parameters, cond.getExpression());
-                query.append(schema);
-                if (not) {
-                    query.append(">=");
-                } else {
-                    query.append("<");
-                }
-                query.append(":param").append(paramKey);
-                break;
-
-            default:
-        }
+        fillAttributeQuery(query, attrValue, schema, cond, not, parameters);
 
         return query.toString();
     }

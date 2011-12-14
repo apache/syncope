@@ -39,7 +39,7 @@ public abstract class AbstractJob implements StatefulJob {
     /**
      * Task execution status.
      */
-    protected enum Status {
+    public enum Status {
 
         SUCCESS,
         FAILURE

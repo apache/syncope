@@ -292,9 +292,20 @@ public class TaskTestITCase extends AbstractTest {
                 TaskExecTO.class, 4);
         assertEquals("JOB_FIRED", execution.getStatus());
 
-        try {
-            Thread.sleep(10000);
-        } catch (InterruptedException e) {
+        List<TaskExecTO> executions = Arrays.asList(
+                restTemplate.getForObject(
+                BASE_URL + "task/sync/execution/list",
+                TaskExecTO[].class));
+        assertNotNull(executions);
+        assertTrue(executions.isEmpty());
+        while (executions.isEmpty()) {
+            executions = Arrays.asList(restTemplate.getForObject(
+                    BASE_URL + "task/sync/execution/list",
+                    TaskExecTO[].class));
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+            }
         }
 
         // check for sync policy

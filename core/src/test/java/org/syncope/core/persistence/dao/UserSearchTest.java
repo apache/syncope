@@ -303,6 +303,7 @@ public class UserSearchTest {
         idLeafCond.setExpression("2");
 
         NodeCond searchCondition = NodeCond.getLeafCond(idLeafCond);
+        assertTrue(searchCondition.checkValidity());
 
         List<SyncopeUser> matchingUsers = searchDAO.search(
                 EntitlementUtil.getRoleIds(entitlementDAO.findAll()),
@@ -317,6 +318,7 @@ public class UserSearchTest {
         idLeafCond.setExpression("4");
 
         searchCondition = NodeCond.getNotLeafCond(idLeafCond);
+        assertTrue(searchCondition.checkValidity());
 
         matchingUsers = searchDAO.search(
                 EntitlementUtil.getRoleIds(entitlementDAO.findAll()),

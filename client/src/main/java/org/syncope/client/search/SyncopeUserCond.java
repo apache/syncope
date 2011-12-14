@@ -19,6 +19,8 @@ package org.syncope.client.search;
  */
 public class SyncopeUserCond extends AttributeCond {
 
+    private static final long serialVersionUID = -1880319220462653955L;
+
     public SyncopeUserCond() {
     }
 

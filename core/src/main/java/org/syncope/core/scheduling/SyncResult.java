@@ -19,6 +19,7 @@ import java.util.Collection;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.syncope.core.scheduling.AbstractJob.Status;
 import org.syncope.types.TraceLevel;
 
 public class SyncResult {
@@ -28,13 +29,6 @@ public class SyncResult {
         CREATE,
         UPDATE,
         DELETE
-
-    }
-
-    static enum Status {
-
-        SUCCESS,
-        FAILURE
 
     }
 

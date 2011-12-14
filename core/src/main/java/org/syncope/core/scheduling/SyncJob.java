@@ -614,7 +614,7 @@ public class SyncJob extends AbstractJob {
         if (dryRun) {
             result.setUserId(0L);
             result.setUsername(userTO.getUsername());
-            result.setStatus(SyncResult.Status.SUCCESS);
+            result.setStatus(Status.SUCCESS);
         } else {
             try {
                 WorkflowResult<Map.Entry<Long, Boolean>> created =
@@ -630,12 +630,12 @@ public class SyncJob extends AbstractJob {
 
                 result.setUserId(created.getResult().getKey());
                 result.setUsername(userTO.getUsername());
-                result.setStatus(SyncResult.Status.SUCCESS);
+                result.setStatus(Status.SUCCESS);
             } catch (PropagationException e) {
                 LOG.error("Could not propagate user "
                         + delta.getUid().getUidValue(), e);
             } catch (Throwable t) {
-                result.setStatus(SyncResult.Status.FAILURE);
+                result.setStatus(Status.FAILURE);
                 result.setMessage(t.getMessage());
                 LOG.error("Could not create user "
                         + delta.getUid().getUidValue(), t);
@@ -670,7 +670,7 @@ public class SyncJob extends AbstractJob {
                             getUserMod(userId, delta.getObject());
                     actions.beforeUpdate(delta, userTO, userMod);
 
-                    result.setStatus(SyncResult.Status.SUCCESS);
+                    result.setStatus(Status.SUCCESS);
                     result.setUserId(userMod.getId());
                     result.setUsername(userMod.getUsername());
 
@@ -692,7 +692,7 @@ public class SyncJob extends AbstractJob {
                     LOG.error("Could not propagate user "
                             + delta.getUid().getUidValue(), e);
                 } catch (Throwable t) {
-                    result.setStatus(SyncResult.Status.FAILURE);
+                    result.setStatus(Status.FAILURE);
                     result.setMessage(t.getMessage());
                     LOG.error("Could not update user "
                             + delta.getUid().getUidValue(), t);
@@ -729,7 +729,7 @@ public class SyncJob extends AbstractJob {
                 result.setUserId(userId);
                 result.setUsername(userTO.getUsername());
                 result.setOperation(Operation.DELETE);
-                result.setStatus(SyncResult.Status.SUCCESS);
+                result.setStatus(Status.SUCCESS);
 
                 if (!dryRun) {
                     try {
@@ -744,7 +744,7 @@ public class SyncJob extends AbstractJob {
                     try {
                         wfAdapter.delete(userId);
                     } catch (Throwable t) {
-                        result.setStatus(SyncResult.Status.FAILURE);
+                        result.setStatus(Status.FAILURE);
                         result.setMessage(t.getMessage());
                         LOG.error("Could not delete user " + userId, t);
                     }

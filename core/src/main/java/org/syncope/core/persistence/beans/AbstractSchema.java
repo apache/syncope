@@ -92,7 +92,7 @@ public abstract class AbstractSchema extends AbstractBaseBean {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 
@@ -108,7 +108,7 @@ public abstract class AbstractSchema extends AbstractBaseBean {
         return mandatoryCondition;
     }
 
-    public void setMandatoryCondition(String mandatoryCondition) {
+    public void setMandatoryCondition(final String mandatoryCondition) {
         this.mandatoryCondition = mandatoryCondition;
     }
 
@@ -124,7 +124,7 @@ public abstract class AbstractSchema extends AbstractBaseBean {
         return isBooleanAsInteger(uniqueConstraint);
     }
 
-    public void setUniqueConstraint(boolean uniquevalue) {
+    public void setUniqueConstraint(final boolean uniquevalue) {
         this.uniqueConstraint = getBooleanAsInteger(uniquevalue);
     }
 
@@ -132,7 +132,7 @@ public abstract class AbstractSchema extends AbstractBaseBean {
         return isBooleanAsInteger(readonly);
     }
 
-    public void setReadonly(boolean readonly) {
+    public void setReadonly(final boolean readonly) {
         this.readonly = getBooleanAsInteger(readonly);
     }
 
@@ -167,7 +167,7 @@ public abstract class AbstractSchema extends AbstractBaseBean {
         return validatorClass;
     }
 
-    public void setValidatorClass(String validatorClass) {
+    public void setValidatorClass(final String validatorClass) {
         this.validatorClass = validatorClass;
     }
 
@@ -175,7 +175,7 @@ public abstract class AbstractSchema extends AbstractBaseBean {
         return enumerationValues;
     }
 
-    public void setEnumerationValues(String enumerationValues) {
+    public void setEnumerationValues(final String enumerationValues) {
         this.enumerationValues = enumerationValues;
     }
 
@@ -188,7 +188,7 @@ public abstract class AbstractSchema extends AbstractBaseBean {
         return conversionPattern;
     }
 
-    public void setConversionPattern(String conversionPattern) {
+    public void setConversionPattern(final String conversionPattern) {
         if (!getType().isConversionPatternNeeded()) {
             LOG.warn("Conversion pattern will be ignored: "
                     + "this attribute type is " + getType());
@@ -200,30 +200,32 @@ public abstract class AbstractSchema extends AbstractBaseBean {
     public <T extends Format> T getFormatter() {
         T result = null;
 
-        switch (getType()) {
-            case Long:
-                DecimalFormat longFormatter = DECIMAL_FORMAT.get();
-                longFormatter.applyPattern(getConversionPattern());
+        if (getConversionPattern() != null) {
+            switch (getType()) {
+                case Long:
+                    DecimalFormat longFormatter = DECIMAL_FORMAT.get();
+                    longFormatter.applyPattern(getConversionPattern());
 
-                result = (T) longFormatter;
-                break;
+                    result = (T) longFormatter;
+                    break;
 
-            case Double:
-                DecimalFormat doubleFormatter = DECIMAL_FORMAT.get();
-                doubleFormatter.applyPattern(getConversionPattern());
+                case Double:
+                    DecimalFormat doubleFormatter = DECIMAL_FORMAT.get();
+                    doubleFormatter.applyPattern(getConversionPattern());
 
-                result = (T) doubleFormatter;
-                break;
+                    result = (T) doubleFormatter;
+                    break;
 
-            case Date:
-                SimpleDateFormat dateFormatter = DATE_FORMAT.get();
-                dateFormatter.applyPattern(getConversionPattern());
-                dateFormatter.setLenient(false);
+                case Date:
+                    SimpleDateFormat dateFormatter = DATE_FORMAT.get();
+                    dateFormatter.applyPattern(getConversionPattern());
+                    dateFormatter.setLenient(false);
 
-                result = (T) dateFormatter;
-                break;
+                    result = (T) dateFormatter;
+                    break;
 
-            default:
+                default:
+            }
         }
 
         return result;
