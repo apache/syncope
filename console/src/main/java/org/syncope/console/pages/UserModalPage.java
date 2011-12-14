@@ -55,6 +55,7 @@ public class UserModalPage extends BaseModalPage {
         ADMIN,
         SELF,
         TEMPLATE;
+
     }
 
     private static final long serialVersionUID = 5002005009737457667L;
@@ -177,6 +178,10 @@ public class UserModalPage extends BaseModalPage {
         }
         if (syncTaskTO != null) {
             userTO = syncTaskTO.getUserTemplate();
+            if (userTO == null) {
+                userTO = new UserTO();
+                syncTaskTO.setUserTemplate(userTO);
+            }
         }
 
         if (initialUserTO == null && userTO.getId() > 0) {
