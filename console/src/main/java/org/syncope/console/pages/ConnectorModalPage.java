@@ -339,7 +339,6 @@ public class ConnectorModalPage extends BaseModalPage {
                                 label.getDefaultModelObjectAsString(),
                                 new Model(),
                                 true);
-
                     } else {
 
                         field = new AjaxTextFieldPanel(
@@ -357,7 +356,7 @@ public class ConnectorModalPage extends BaseModalPage {
                 }
 
                 field.setTitle(property.getSchema().getHelpMessage());
-
+                
                 if (isArray) {
                     field.removeRequiredLabel();
 

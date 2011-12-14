@@ -41,10 +41,8 @@ public class ConnInstanceLoaderTest extends AbstractTest {
     @Before
     public void before() {
         cil = new ConnInstanceLoader();
-        ReflectionTestUtils.setField(cil,
-                "resourceDAO", resourceDAO);
-        ReflectionTestUtils.setField(cil,
-                "connBundleManager", connBundleManager);
+        ReflectionTestUtils.setField(cil, "resourceDAO", resourceDAO);
+        ReflectionTestUtils.setField(cil, "connBundleManager", connBundleManager);
 
         // Remove any other connector instance bean set up by
         // standard ConnInstanceLoader.load()

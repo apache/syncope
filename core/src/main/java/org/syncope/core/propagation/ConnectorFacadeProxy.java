@@ -174,28 +174,33 @@ public class ConnectorFacadeProxy {
                     } else if (Integer.class.equals(propertySchemaClass)
                             || int.class.equals(propertySchemaClass)) {
 
-                        propertyValue =
-                                (Integer) property.getValues().iterator().next();
+                        propertyValue = Integer.parseInt(
+                                property.getValues().iterator().next().toString());
+
                     } else if (Long.class.equals(propertySchemaClass)
                             || long.class.equals(propertySchemaClass)) {
 
-                        propertyValue =
-                                (Long) property.getValues().iterator().next();
+                        propertyValue = Long.parseLong(
+                                property.getValues().iterator().next().toString());
+
                     } else if (Float.class.equals(propertySchemaClass)
                             || float.class.equals(propertySchemaClass)) {
 
-                        propertyValue =
-                                (Float) property.getValues().iterator().next();
+                        propertyValue = Float.parseFloat(
+                                property.getValues().iterator().next().toString());
+
                     } else if (Double.class.equals(propertySchemaClass)
                             || double.class.equals(propertySchemaClass)) {
 
-                        propertyValue =
-                                (Double) property.getValues().iterator().next();
+                        propertyValue = Double.parseDouble(
+                                property.getValues().iterator().next().toString());
+
                     } else if (Boolean.class.equals(propertySchemaClass)
                             || boolean.class.equals(propertySchemaClass)) {
 
-                        propertyValue =
-                                (Boolean) property.getValues().iterator().next();
+                        propertyValue = Boolean.parseBoolean(
+                                property.getValues().iterator().next().toString());
+
                     } else if (URI.class.equals(propertySchemaClass)) {
                         propertyValue = URI.create(
                                 (String) property.getValues().iterator().next());
