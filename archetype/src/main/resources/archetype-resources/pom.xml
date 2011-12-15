@@ -13,7 +13,7 @@
     <packaging>pom</packaging>
 
     <properties>
-        <syncope.version>0.7-SNAPSHOT</syncope.version>
+        <syncope.version>0.8-SNAPSHOT</syncope.version>
 
         <connid.soap.version>1.1</connid.soap.version>
         <connid.db.table.version>2.0</connid.db.table.version>
