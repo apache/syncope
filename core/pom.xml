@@ -19,7 +19,7 @@
     <parent>
         <groupId>org.syncope</groupId>
         <artifactId>syncope</artifactId>
-        <version>0.7-SNAPSHOT</version>
+        <version>0.7RC1</version>
     </parent>
 
     <name>Syncope core</name>
@@ -32,7 +32,7 @@
         <jdbcdriver.groupId>com.h2database</jdbcdriver.groupId>
         <jdbcdriver.artifactId>h2</jdbcdriver.artifactId>
         
-        <javaagent></javaagent>
+        <javaagent />
     </properties>
 
     <dependencies>
@@ -383,11 +383,10 @@
                                         <exclude name="**/workflow.properties" />
                                     </patternset>
                                 </unzip>
-                                <copy file="${project.build.directory}/test-classes/org/syncope/core/scheduling/TestSyncJobActions.class"
-                                      todir="${cargo.run.dir}/WEB-INF/classes/org/syncope/core/scheduling"/>
-                                <mkdir dir="${project.build.directory}/test-conf"/>
+                                <copy file="${project.build.directory}/test-classes/org/syncope/core/scheduling/TestSyncJobActions.class" todir="${cargo.run.dir}/WEB-INF/classes/org/syncope/core/scheduling" />
+                                <mkdir dir="${project.build.directory}/test-conf" />
                                 <copy todir="${project.build.directory}/test-conf" includeEmptyDirs="false">
-                                    <fileset dir="${project.build.directory}/test-classes" excludes="**/*.class"/>
+                                    <fileset dir="${project.build.directory}/test-classes" excludes="**/*.class" />
                                 </copy>
                             </target>
                         </configuration>
@@ -413,7 +412,7 @@
                         <phase>pre-integration-test</phase>
                         <configuration>
                             <target>
-                                <copy file="${project.build.directory}/test-classes/test.csv" todir="${java.io.tmpdir}" overwrite="true"/>
+                                <copy file="${project.build.directory}/test-classes/test.csv" todir="${java.io.tmpdir}" overwrite="true" />
                             </target>
                         </configuration>
                         <goals>
@@ -556,7 +555,7 @@
             <properties>
                 <waitForCheck>true</waitForCheck>
                 <sureExcludes>**</sureExcludes>
-                <javaagent></javaagent>
+                <javaagent />
             </properties>
             <build>
                 <defaultGoal>clean verify</defaultGoal>
@@ -677,7 +676,7 @@
             <properties>
                 <jdbcdriver.groupId>com.oracle</jdbcdriver.groupId>
                 <jdbcdriver.artifactId>ojdbc6</jdbcdriver.artifactId>
-                <javaagent></javaagent>
+                <javaagent />
             </properties>
             <dependencies>
                 <dependency>
@@ -701,9 +700,7 @@
                                 <phase>process-test-resources</phase>
                                 <configuration>
                                     <target>
-                                        <copy tofile="${project.build.directory}/classes/META-INF/orm.xml"
-                                              file="${basedir}/src/main/resources/META-INF/orm.xml.oracle"
-                                              overwrite="true"/>
+                                        <copy tofile="${project.build.directory}/classes/META-INF/orm.xml" file="${basedir}/src/main/resources/META-INF/orm.xml.oracle" overwrite="true" />
                                     </target>
                                 </configuration>
                                 <goals>
@@ -735,7 +732,7 @@
             <properties>
                 <jdbcdriver.groupId>postgresql</jdbcdriver.groupId>
                 <jdbcdriver.artifactId>postgresql</jdbcdriver.artifactId>
-                <javaagent></javaagent>
+                <javaagent />
             </properties>
             <dependencies>
                 <dependency>
@@ -769,7 +766,7 @@
             <properties>
                 <jdbcdriver.groupId>mysql</jdbcdriver.groupId>
                 <jdbcdriver.artifactId>mysql-connector-java</jdbcdriver.artifactId>
-                <javaagent></javaagent>
+                <javaagent />
             </properties>
             <dependencies>
                 <dependency>
@@ -802,7 +799,7 @@
             <id>notification-test</id>
             
             <properties>
-                <mail.password></mail.password>
+                <mail.password />
             </properties>
                         
             <build>
