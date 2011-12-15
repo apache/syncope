@@ -43,13 +43,21 @@
         <cargo.version>1.1.2</cargo.version>
         <tomcat.version>7.0.23</tomcat.version>
 
+        <bundles.directory>${project.build.directory}/bundles</bundles.directory>
+        <log.directory>${project.build.directory}/log</log.directory>
+
         <cargo.servlet.port>9080</cargo.servlet.port>
         <cargo.run.dir>${project.build.directory}/syncope-core-test</cargo.run.dir>
         <cargo.log>${log.directory}/cargo.log</cargo.log>
         <cargo.output>${log.directory}/cargo-output.log</cargo.output>
 
-        <bundles.directory>${project.build.directory}/bundles</bundles.directory>
-        <log.directory>${project.build.directory}/log</log.directory>
+        <testds.port>1389</testds.port>
+        <testdb.webport>9082</testdb.webport>
+
+        <testdb.driver>org.h2.Driver</testdb.driver>
+        <testdb.url>jdbc:h2:tcp://localhost:9092/testdb</testdb.url>
+        <testdb.username>sa</testdb.username>
+        <testdb.password>sa</testdb.password>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
