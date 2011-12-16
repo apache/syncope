@@ -42,7 +42,7 @@
 
         <dependency>
             <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-mapper-lgpl</artifactId>
+            <artifactId>jackson-mapper-asl</artifactId>
         </dependency>
 
         <dependency>

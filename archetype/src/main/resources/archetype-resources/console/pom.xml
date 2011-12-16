@@ -203,6 +203,7 @@
                         </configfiles>
                         <properties>
                             <cargo.servlet.port>${cargo.servlet.port}</cargo.servlet.port>
+                            <cargo.jvmargs>-Xms512m -Xmx1024m -XX:PermSize=256m -XX:MaxPermSize=512m</cargo.jvmargs>
                         </properties>
                         <deployables>
                             <deployable>

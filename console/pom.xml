@@ -239,7 +239,7 @@
                         <phase>pre-integration-test</phase>
                         <configuration>
                             <target>
-                                <copy file="${project.build.directory}/test-classes/test.csv" todir="${java.io.tmpdir}" overwrite="true"/>
+                                <copy file="${project.build.directory}/test-classes/test.csv" todir="${java.io.tmpdir}" overwrite="true" />
                             </target>
                         </configuration>
                         <goals>
@@ -342,7 +342,7 @@
             <id>dev</id>
             <properties>
                 <maven.test.skip>true</maven.test.skip>
-                <javaagent></javaagent>
+                <javaagent />
             </properties>
             <build>
                 <defaultGoal>clean verify cargo:run</defaultGoal>
@@ -380,7 +380,7 @@
         <profile>
             <id>selenium</id>
             <properties>
-                <javaagent></javaagent>    
+                <javaagent />    
             </properties>
             <build>
                 <defaultGoal>clean verify</defaultGoal>

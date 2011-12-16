@@ -44,9 +44,9 @@
     </licenses>
 
     <scm>
-        <connection>scm:svn:http://syncope.googlecode.com/svn/trunk/</connection>
-        <developerConnection>scm:svn:https://syncope.googlecode.com/svn/trunk/</developerConnection>
-        <url>http://syncope.googlecode.com/svn/trunk/</url>
+        <connection>scm:svn:http://syncope.googlecode.com/svn/trunk</connection>
+        <developerConnection>scm:svn:https://syncope.googlecode.com/svn/trunk</developerConnection>
+        <url>http://syncope.googlecode.com/svn/trunk</url>
     </scm>
 
     <issueManagement>
@@ -314,7 +314,7 @@
 
             <dependency>
                 <groupId>org.codehaus.jackson</groupId>
-                <artifactId>jackson-mapper-lgpl</artifactId>
+                <artifactId>jackson-mapper-asl</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
 
