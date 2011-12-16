@@ -940,13 +940,32 @@ public class SyncJob extends AbstractJob {
             throw new JobExecutionException(msg, e);
         }
 
+        LOG.debug("Execute synchronization with token {}",
+                syncTask.getResource().getSyncToken() != null
+                ? syncTask.getResource().getSyncToken().getValue() : null);
+
         final List<SyncDelta> deltas;
         try {
-            deltas = connector.sync(
-                    syncTask.getResource().getSyncToken());
+            deltas = connector.sync(syncTask.getResource().getSyncToken());
+
+            if (!dryRun) {
+                try {
+                    ExternalResource resource =
+                            resourceDAO.find(syncTask.getResource().getName());
+
+                    resource.setSyncToken(connector.getLatestSyncToken());
+                    resourceDAO.save(resource);
+
+                } catch (Throwable t) {
+                    throw new JobExecutionException("While updating SyncToken",
+                            t);
+                }
+            }
         } catch (Throwable t) {
             throw new JobExecutionException("While syncing on connector", t);
         }
+
+        LOG.debug("Retrieved {} changes to synchronize", deltas.size());
 
         final SchemaMapping accountIdMap =
                 syncTask.getResource().getAccountIdMapping();
@@ -969,6 +988,9 @@ public class SyncJob extends AbstractJob {
         actions.beforeAll(deltas);
 
         for (SyncDelta delta : deltas) {
+            LOG.debug("Process '{}' for '{}'",
+                    delta.getDeltaType(), delta.getUid().getUidValue());
+
             List<Long> users = findExistingUsers(delta);
 
             switch (delta.getDeltaType()) {
@@ -1050,18 +1072,6 @@ public class SyncJob extends AbstractJob {
 
         LOG.debug("Sync result: {}", result);
 
-        if (!dryRun) {
-            try {
-                ExternalResource resource =
-                        resourceDAO.find(syncTask.getResource().getName());
-
-                resource.setSyncToken(connector.getLatestSyncToken());
-                resourceDAO.save(resource);
-
-            } catch (Throwable t) {
-                throw new JobExecutionException("While updating SyncToken", t);
-            }
-        }
         return result.toString();
     }
 
