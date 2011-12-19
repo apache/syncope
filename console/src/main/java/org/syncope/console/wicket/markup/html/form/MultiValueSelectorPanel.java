@@ -17,7 +17,9 @@ package org.syncope.console.wicket.markup.html.form;
 import java.io.Serializable;
 import java.util.List;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -29,17 +31,36 @@ public class MultiValueSelectorPanel<E> extends AbstractFieldPanel {
 
     private static final long serialVersionUID = -6322397761456513324L;
 
-    final ListView<E> view;
+    ListView<E> view;
 
-    final WebMarkupContainer container;
+    WebMarkupContainer container;
 
     public MultiValueSelectorPanel(
             final String id,
             final IModel<List<E>> model,
             final Class reference,
             final FieldPanel panelTemplate) {
-
         super(id, model);
+        init(id, model, reference, panelTemplate, false);
+
+    }
+
+    public MultiValueSelectorPanel(
+            final String id,
+            final IModel<List<E>> model,
+            final Class reference,
+            final FieldPanel panelTemplate,
+            final boolean eventTemplate) {
+        super(id, model);
+        init(id, model, reference, panelTemplate, eventTemplate);
+    }
+
+    private void init(
+            final String id,
+            final IModel<List<E>> model,
+            final Class reference,
+            final FieldPanel panelTemplate,
+            final boolean sendEvent) {
 
         // -----------------------
         // Object container definition
@@ -58,6 +79,23 @@ public class MultiValueSelectorPanel<E> extends AbstractFieldPanel {
 
                 final FieldPanel fieldPanel = panelTemplate.clone();
 
+                if (sendEvent) {
+                    fieldPanel.getField().add(
+                            new AjaxFormComponentUpdatingBehavior("onchange") {
+
+                                private static final long serialVersionUID =
+                                        -1107858522700306810L;
+
+                                @Override
+                                protected void onUpdate(
+                                        final AjaxRequestTarget target) {
+
+                                    send(getPage(), Broadcast.BREADTH,
+                                            new MultiValueSelectorEvent(target));
+                                }
+                            });
+                }
+
                 fieldPanel.setNewModel(item, reference);
                 item.add(fieldPanel);
 
@@ -70,8 +108,11 @@ public class MultiValueSelectorPanel<E> extends AbstractFieldPanel {
                     public void onClick(final AjaxRequestTarget target) {
                         //Drop current component
                         model.getObject().remove(item.getModelObject());
-
+                        fieldPanel.getField().clearInput();
                         target.add(container);
+
+                        send(getPage(), Broadcast.BREADTH,
+                                new MultiValueSelectorEvent(target));
                     }
                 };
 
@@ -93,10 +134,8 @@ public class MultiValueSelectorPanel<E> extends AbstractFieldPanel {
 
                         @Override
                         public void onClick(final AjaxRequestTarget target) {
-
                             //Add current component
                             model.getObject().add(null);
-
                             target.add(container);
                         }
                     };
@@ -130,5 +169,18 @@ public class MultiValueSelectorPanel<E> extends AbstractFieldPanel {
     public MultiValueSelectorPanel<E> setModelObject(Serializable object) {
         view.setModelObject((List<E>) object);
         return this;
+    }
+
+    public static class MultiValueSelectorEvent {
+
+        final AjaxRequestTarget target;
+
+        public MultiValueSelectorEvent(final AjaxRequestTarget target) {
+            this.target = target;
+        }
+
+        public AjaxRequestTarget getTarget() {
+            return target;
+        }
     }
 }
