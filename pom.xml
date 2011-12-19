@@ -84,6 +84,7 @@
 				      <copy file="${basedir}/../core/src/main/resources/logback.xml" todir="${basedir}/src/main/resources/archetype-resources/core/src/main/resources" overwrite="true" />
 				      <copy file="${basedir}/../core/src/main/webapp/WEB-INF/web.xml" todir="${basedir}/src/main/resources/archetype-resources/core/src/main/webapp/WEB-INF" overwrite="true" />
                                       
+				      <copy file="${basedir}/../console/src/main/resources/configuration.properties" todir="${basedir}/src/main/resources/archetype-resources/console/src/main/resources" overwrite="true" />
 				      <copy file="${basedir}/../console/src/main/resources/logback.xml" todir="${basedir}/src/main/resources/archetype-resources/console/src/main/resources" overwrite="true" />
                                     </then>
                                     <else>
