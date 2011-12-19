@@ -51,6 +51,8 @@ public class RolesPanel extends Panel {
     @SpringBean
     private RoleTreeBuilder roleTreeBuilder;
 
+    private ListView<MembershipTO> membershipsView;
+
     private UserTO userTO = null;
 
     public RolesPanel(final String id, final UserTO userTO,
@@ -83,8 +85,7 @@ public class RolesPanel extends Panel {
             protected void onNodeLinkClicked(final Object node,
                     final BaseTree tree, final AjaxRequestTarget target) {
 
-                final RoleTO roleTO = (RoleTO) ((DefaultMutableTreeNode) node).
-                        getUserObject();
+                final RoleTO roleTO = (RoleTO) ((DefaultMutableTreeNode) node).getUserObject();
 
                 membershipWin.setPageCreator(new ModalWindow.PageCreator() {
 
@@ -95,8 +96,17 @@ public class RolesPanel extends Panel {
 
                     @Override
                     public Page createPage() {
+                        
+                        for (MembershipTO memberTO : membershipsView.getList()) {
+                            if (memberTO.getRoleId() == roleTO.getId()) {
+                                return new MembershipModalPage(
+                                        getPage().getPageReference(),
+                                        membershipWin, memberTO, templateMode);
+                            }
+                        }
                         membershipTO = new MembershipTO();
                         membershipTO.setRoleId(roleTO.getId());
+                        membershipTO.setRoleName(roleTO.getName());
 
                         return new MembershipModalPage(
                                 getPage().getPageReference(),
@@ -107,12 +117,13 @@ public class RolesPanel extends Panel {
             }
         };
 
-        tree.setOutputMarkupId(true);
+        tree.setOutputMarkupId(
+                true);
         tree.getTreeState().expandAll();
 
         add(tree);
 
-        ListView<MembershipTO> membershipsView = new ListView<MembershipTO>(
+        membershipsView = new ListView<MembershipTO>(
                 "memberships", new PropertyModel<List<? extends MembershipTO>>(
                 userTO, "memberships")) {
 
