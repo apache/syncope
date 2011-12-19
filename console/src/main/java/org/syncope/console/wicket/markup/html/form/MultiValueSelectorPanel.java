@@ -111,8 +111,10 @@ public class MultiValueSelectorPanel<E> extends AbstractFieldPanel {
                         fieldPanel.getField().clearInput();
                         target.add(container);
 
-                        send(getPage(), Broadcast.BREADTH,
-                                new MultiValueSelectorEvent(target));
+                        if (sendEvent) {
+                            send(getPage(), Broadcast.BREADTH,
+                                    new MultiValueSelectorEvent(target));
+                        }
                     }
                 };
 
