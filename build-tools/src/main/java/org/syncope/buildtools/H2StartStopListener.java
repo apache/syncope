@@ -29,8 +29,7 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
- * Utility serlvet context listener managing H2 web console lifecycle
- * (to be used as internal datastore) and H2 test server instance
+ * Utility serlvet context listener managing H2 test server instance
  * (to be used as external resource).
  */
 public class H2StartStopListener implements ServletContextListener {
@@ -41,23 +40,11 @@ public class H2StartStopListener implements ServletContextListener {
     private static final Logger LOG =
             LoggerFactory.getLogger(H2StartStopListener.class);
 
-    private static final String H2_DATASTORE = "h2Datastore";
-
     private static final String H2_TESTDB = "h2TestDb";
 
     @Override
     public void contextInitialized(final ServletContextEvent sce) {
         ServletContext context = sce.getServletContext();
-
-        Server h2Datastore;
-        try {
-            h2Datastore = Server.createWebServer("");
-            h2Datastore.start();
-
-            context.setAttribute(H2_DATASTORE, h2Datastore);
-        } catch (SQLException e) {
-            LOG.error("Could not start H2 web console (datastore)", e);
-        }
 
         File workDir = (File) sce.getServletContext().getAttribute(
                 "javax.servlet.context.tempdir");
@@ -87,10 +74,6 @@ public class H2StartStopListener implements ServletContextListener {
     public void contextDestroyed(final ServletContextEvent sce) {
         ServletContext context = sce.getServletContext();
 
-        Server h2Datastore = (Server) context.getAttribute(H2_DATASTORE);
-        if (h2Datastore != null && h2Datastore.isRunning(true)) {
-            h2Datastore.stop();
-        }
         Server h2TestDb = (Server) context.getAttribute(H2_TESTDB);
         if (h2TestDb != null) {
             h2TestDb.shutdown();

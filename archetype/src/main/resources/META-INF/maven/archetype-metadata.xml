@@ -9,6 +9,9 @@
                     <directory>src/main/resources</directory>
                 </fileSet>
                 <fileSet filtered="true" encoding="UTF-8">
+                    <directory>src/main/webapp</directory>
+                </fileSet>
+                <fileSet filtered="true" encoding="UTF-8">
                     <directory>src/test/resources</directory>
                 </fileSet>
             </fileSets>
@@ -17,9 +20,6 @@
             <fileSets>
                 <fileSet filtered="true" encoding="UTF-8">
                     <directory>src/main/resources</directory>
-                    <includes>
-                        <include>**/*.xml</include>
-                    </includes>
                 </fileSet>
                 <fileSet filtered="true" encoding="UTF-8">
                     <directory>src/test/resources</directory>

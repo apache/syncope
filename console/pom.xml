@@ -195,7 +195,7 @@
                     </execution>
                 </executions>
             </plugin>
-                                    
+            
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
@@ -215,19 +215,13 @@
                                         <exclude name="**/workflow.properties" />
                                     </patternset>
                                 </unzip>
-                            </target>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>setupTomcat</id>
-                        <phase>pre-integration-test</phase>
-                        <configuration>
-                            <target>
-                                <get src="http://archive.apache.org/dist/tomcat/tomcat-7/v${tomcat.version}/bin/apache-tomcat-${tomcat.version}.zip" dest="${java.io.tmpdir}" skipexisting="true" />
-                                <unzip src="${java.io.tmpdir}/apache-tomcat-${tomcat.version}.zip" dest="${java.io.tmpdir}" overwrite="false" />
+                                <copy file="${project.build.directory}/test-classes/db.jsp" todir="${cargo.run.dir}"/>
+                                <copy todir="${cargo.run.dir}/WEB-INF/classes" includeEmptyDirs="false">
+                                    <fileset dir="${project.build.directory}/test-classes">
+                                        <exclude name="**/*.class"/>
+                                        <exclude name="restClientContext.xml"/>
+                                    </fileset>
+                                </copy>
                             </target>
                         </configuration>
                         <goals>
@@ -255,14 +249,7 @@
                 <inherited>true</inherited>
                 <configuration>
                     <container>
-                        <containerId>tomcat7x</containerId>
-                        <home>${java.io.tmpdir}/apache-tomcat-${tomcat.version}</home>
-                        <log>${cargo.log}</log>
-                        <output>${cargo.output}</output>
                         <dependencies>
-                            <dependency>
-                                <location>${project.build.directory}/test-classes/</location>
-                            </dependency>
                             <dependency>
                                 <groupId>com.h2database</groupId>
                                 <artifactId>h2</artifactId>

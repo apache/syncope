@@ -81,22 +81,6 @@
                         String[] types = {"TABLE", "VIEW"};
                         ResultSet rs = dbm.getTables(null, null, "%", types);
             %>
-            <div style="width:300px;float:left;">
-                <a name="top">&#160;</a>
-                <ul style="margin-top:0px;">
-                    <%
-                                while (rs.next()) {
-                                    out.println("<li><a href=\"#"
-                                            + rs.getString("TABLE_NAME") + "\">"
-                                            + rs.getString("TABLE_NAME")
-                                            + "</a></li>");
-                                }
-                    %>
-                </ul>
-            </div>
-            <%
-                        rs.beforeFirst();
-            %>
             <div style="width:1000px;float:left;">
                 <%
                             while (rs.next()) {

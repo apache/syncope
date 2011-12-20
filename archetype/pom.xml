@@ -77,6 +77,7 @@
 				      <copy file="${basedir}/../core/src/test/resources/workflow.properties" todir="${basedir}/src/main/resources/archetype-resources/core/src/test/resources" overwrite="true" />
 				      <copy file="${basedir}/../core/src/test/resources/content.xml" todir="${basedir}/src/main/resources/archetype-resources/core/src/test/resources" overwrite="true" />
 				      <copy file="${basedir}/../core/src/test/resources/test.csv" todir="${basedir}/src/main/resources/archetype-resources/core/src/test/resources" overwrite="true" />
+				      <copy file="${basedir}/../core/src/test/resources/db.jsp" todir="${basedir}/src/main/resources/archetype-resources/core/src/test/resources" overwrite="true" />
                                       
 				      <copy file="${basedir}/../core/src/main/resources/persistence.properties" todir="${basedir}/src/main/resources/archetype-resources/core/src/main/resources" overwrite="true" />
 				      <copy file="${basedir}/../core/src/main/resources/workflow.properties" todir="${basedir}/src/main/resources/archetype-resources/core/src/main/resources" overwrite="true" />
@@ -84,6 +85,7 @@
 				      <copy file="${basedir}/../core/src/main/resources/logback.xml" todir="${basedir}/src/main/resources/archetype-resources/core/src/main/resources" overwrite="true" />
 				      <copy file="${basedir}/../core/src/main/webapp/WEB-INF/web.xml" todir="${basedir}/src/main/resources/archetype-resources/core/src/main/webapp/WEB-INF" overwrite="true" />
                                       
+				      <copy file="${basedir}/../console/src/main/resources/configuration.properties" todir="${basedir}/src/main/resources/archetype-resources/console/src/main/resources" overwrite="true" />
 				      <copy file="${basedir}/../console/src/main/resources/logback.xml" todir="${basedir}/src/main/resources/archetype-resources/console/src/main/resources" overwrite="true" />
                                     </then>
                                     <else>
@@ -91,6 +93,7 @@
 				      <get src="${SVNRepoURL}/core/src/test/resources/workflow.properties" dest="${basedir}/src/main/resources/archetype-resources/core/src/test/resources/workflow.properties" />
 				      <get src="${SVNRepoURL}/core/src/test/resources/content.xml" dest="${basedir}/src/main/resources/archetype-resources/core/src/test/resources/content.xml" />
 				      <get src="${SVNRepoURL}/core/src/test/resources/test.csv" dest="${basedir}/src/main/resources/archetype-resources/core/src/test/resources/test.csv" />
+				      <get src="${SVNRepoURL}/core/src/test/resources/db.jsp" dest="${basedir}/src/main/resources/archetype-resources/core/src/test/resources/db.jsp" />
                                       
 				      <get src="${SVNRepoURL}/core/src/main/resources/persistence.properties" dest="${basedir}/src/main/resources/archetype-resources/core/src/main/resources/persistence.properties" />
 				      <get src="${SVNRepoURL}/core/src/main/resources/workflow.properties" dest="${basedir}/src/main/resources/archetype-resources/core/src/main/resources/workflow.properties" />
