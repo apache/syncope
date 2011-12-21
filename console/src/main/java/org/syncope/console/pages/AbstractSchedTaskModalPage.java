@@ -97,7 +97,7 @@ public abstract class AbstractSchedTaskModalPage extends TaskModalPage {
             private static final long serialVersionUID = -5843424545478691442L;
 
             @Override
-            protected CharSequence getDefaultChoice(String selected) {
+            protected CharSequence getDefaultChoice(final String selected) {
                 return "<option value=\"\">"
                         + getString("chooseForTemplate")
                         + "</option>";
@@ -230,7 +230,7 @@ public abstract class AbstractSchedTaskModalPage extends TaskModalPage {
         form.add(submit);
     }
 
-    private class DateFormatROModel implements IModel<String> {
+    private static class DateFormatROModel implements IModel<String> {
 
         private static final long serialVersionUID = 6677274580927636121L;
 
@@ -248,7 +248,7 @@ public abstract class AbstractSchedTaskModalPage extends TaskModalPage {
         }
 
         @Override
-        public void setObject(String object) {
+        public void setObject(final String object) {
         }
 
         @Override

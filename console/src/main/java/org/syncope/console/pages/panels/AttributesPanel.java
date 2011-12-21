@@ -31,6 +31,7 @@ import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.syncope.client.SyncopeConstants;
 import org.syncope.client.to.AbstractAttributableTO;
 import org.syncope.client.to.AttributeTO;
 import org.syncope.client.to.RoleTO;
@@ -191,17 +192,31 @@ public class AttributesPanel extends Panel {
                 break;
 
             case Date:
-                if (!schemaTO.getConversionPattern().contains("H")) {
+                final String dataPattern = schemaTO.getConversionPattern() != null
+                        ? schemaTO.getConversionPattern()
+                        : SyncopeConstants.DEFAULT_DATE_PATTERN;
+
+                if (!dataPattern.contains("H")) {
+
                     panel = new DateTextFieldPanel(
-                            "panel", schemaTO.getName(), new Model(), true,
-                            schemaTO.getConversionPattern());
+                            "panel",
+                            schemaTO.getName(),
+                            new Model(),
+                            true,
+                            dataPattern);
+
                     if (required) {
                         panel.addRequiredLabel();
                     }
                 } else {
+
                     panel = new DateTimeFieldPanel(
-                            "panel", schemaTO.getName(), new Model(), true,
-                            schemaTO.getConversionPattern());
+                            "panel",
+                            schemaTO.getName(),
+                            new Model(),
+                            true,
+                            dataPattern);
+
                     if (required) {
                         panel.addRequiredLabel();
                         ((DateTimeFieldPanel) panel).setFormValidator(form);

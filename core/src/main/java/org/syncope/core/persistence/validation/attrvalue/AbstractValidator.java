@@ -21,6 +21,7 @@ import java.util.Date;
 import org.apache.commons.lang.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.syncope.client.SyncopeConstants;
 import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.beans.AbstractAttrValue;
 
@@ -99,11 +100,9 @@ public abstract class AbstractValidator implements Validator, Serializable {
             case Date:
                 try {
                     if (schema.getFormatter() == null) {
-                        attributeValue.setDateValue(DateUtils.parseDate(value,
-                                new String[]{
-                                    "EEE, dd MMM yyyy HH:mm:ss z",
-                                    "yyyy-MM-dd'T'HH:mm:ssz",
-                                    "yyyy-MM-dd HH:mm:ss"}));
+                        attributeValue.setDateValue(DateUtils.parseDate(
+                                value,
+                                SyncopeConstants.DATE_PATTERNS));
                     } else {
                         attributeValue.setDateValue(new Date(
                                 ((DateFormat) schema.getFormatter()).parse(

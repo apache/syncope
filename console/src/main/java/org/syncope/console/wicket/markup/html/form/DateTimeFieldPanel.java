@@ -15,7 +15,6 @@
 package org.syncope.console.wicket.markup.html.form;
 
 import java.io.Serializable;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -34,6 +33,7 @@ import org.apache.wicket.validation.ValidationError;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.model.Model;
 import org.springframework.util.StringUtils;
+import org.syncope.client.SyncopeConstants;
 
 public class DateTimeFieldPanel extends FieldPanel<Date> {
 
@@ -42,6 +42,16 @@ public class DateTimeFieldPanel extends FieldPanel<Date> {
     private final String datePattern;
 
     private Form form = null;
+
+    protected static final ThreadLocal<SimpleDateFormat> DATE_FORMAT =
+            new ThreadLocal<SimpleDateFormat>() {
+
+                @Override
+                protected SimpleDateFormat initialValue() {
+                    return new SimpleDateFormat(
+                            SyncopeConstants.DEFAULT_DATE_PATTERN);
+                }
+            };
 
     public DateTimeFieldPanel(
             final String id,
@@ -190,7 +200,11 @@ public class DateTimeFieldPanel extends FieldPanel<Date> {
 
     @Override
     public FieldPanel setNewModel(final ListItem item, final Class reference) {
-        final DateFormat formatter = new SimpleDateFormat(datePattern);
+        final SimpleDateFormat formatter = DATE_FORMAT.get();
+
+        if (datePattern != null) {
+            formatter.applyPattern(datePattern);
+        }
 
         IModel<Date> model = new Model() {
 
@@ -231,8 +245,7 @@ public class DateTimeFieldPanel extends FieldPanel<Date> {
                                 (String) formatter.format((Date) object));
                     } else if (reference.equals(Date.class)) {
                         // Don't parse anything
-                        item.setModelObject(
-                                (Date) object);
+                        item.setModelObject((Date) object);
                     } else {
                         // consider Long
                         item.setModelObject(((Date) object).getTime());
@@ -249,12 +262,15 @@ public class DateTimeFieldPanel extends FieldPanel<Date> {
 
     @Override
     public FieldPanel setNewModel(final List<Serializable> list) {
+        final SimpleDateFormat formatter = DATE_FORMAT.get();
+
+        if (datePattern != null) {
+            formatter.applyPattern(datePattern);
+        }
+
         setNewModel(new Model() {
 
             private static final long serialVersionUID = 527651414610325237L;
-
-            private final DateFormat formatter =
-                    new SimpleDateFormat(datePattern);
 
             @Override
             public Serializable getObject() {

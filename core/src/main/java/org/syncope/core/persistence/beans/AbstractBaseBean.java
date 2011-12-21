@@ -27,6 +27,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
+import org.syncope.client.SyncopeConstants;
 
 public abstract class AbstractBaseBean implements Serializable {
 
@@ -39,11 +40,10 @@ public abstract class AbstractBaseBean implements Serializable {
     protected static final ThreadLocal<SimpleDateFormat> DATE_FORMAT =
             new ThreadLocal<SimpleDateFormat>() {
 
-                private final static String PATTER = "yyyy-MM-dd'T'HH:mm:ssZ";
-
                 @Override
                 protected SimpleDateFormat initialValue() {
-                    return new SimpleDateFormat(PATTER);
+                    return new SimpleDateFormat(
+                            SyncopeConstants.DEFAULT_DATE_PATTERN);
                 }
             };
 
