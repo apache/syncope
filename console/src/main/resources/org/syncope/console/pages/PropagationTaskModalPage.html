@@ -12,25 +12,6 @@
  limitations under the License.
  under the License.
 -->
-<wicket:head>
-    <style type="text/css">
-        /* WICKET DATATABLE HEADERS */
-        .headers {
-            border: 1px solid #aaaaaa;
-            background: #cccccc url(css/images/ui-bg_highlight-soft_75_cccccc_1x100.png)
-                50% 50% repeat-x;
-        }
-    </style>
-    <script type="text/javascript">
-        jQuery(function() {
-            $("#dialog").dialog({
-                autoOpen: false, height: 500,  width: 700, modal: true,
-                show: "fade",
-                hide: "fade"
-            });
-        });
-    </script>
-</wicket:head>
 <wicket:extend>
     <div id="dialog-form">
         <p class="ui-widget ui-corner-all ui-widget-header"><wicket:message key="title"/></p>
@@ -85,9 +66,5 @@
             </div>
         </form>
     </div>
-    <div id="dialog">
-        <pre wicket:id="dialogContent">
-            [Task execution's message to show]
-        </pre>
-    </div>
+    <div wicket:id="taskExecMessageWin"/>
 </wicket:extend>

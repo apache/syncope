@@ -38,15 +38,11 @@ import org.syncope.client.to.UserTO;
 import org.syncope.console.commons.RoleTreeBuilder;
 import org.syncope.console.pages.MembershipModalPage;
 import org.syncope.console.pages.UserModalPage;
-import org.syncope.console.rest.RoleRestClient;
 import org.syncope.console.wicket.ajax.markup.html.IndicatingDeleteOnConfirmAjaxLink;
 
 public class RolesPanel extends Panel {
 
     private static final long serialVersionUID = -2559791301973107191L;
-
-    @SpringBean
-    private RoleRestClient roleRestClient;
 
     @SpringBean
     private RoleTreeBuilder roleTreeBuilder;
@@ -71,7 +67,6 @@ public class RolesPanel extends Panel {
         membershipWin.setCookieName("create-membership-modal");
         add(membershipWin);
 
-        final List<RoleTO> roles = roleRestClient.getAllRoles();
         BaseTree tree = new LinkTree("treeTable", roleTreeBuilder.build()) {
 
             private static final long serialVersionUID = -5514696922119256101L;
@@ -85,7 +80,8 @@ public class RolesPanel extends Panel {
             protected void onNodeLinkClicked(final Object node,
                     final BaseTree tree, final AjaxRequestTarget target) {
 
-                final RoleTO roleTO = (RoleTO) ((DefaultMutableTreeNode) node).getUserObject();
+                final RoleTO roleTO =
+                        (RoleTO) ((DefaultMutableTreeNode) node).getUserObject();
 
                 membershipWin.setPageCreator(new ModalWindow.PageCreator() {
 
@@ -96,8 +92,10 @@ public class RolesPanel extends Panel {
 
                     @Override
                     public Page createPage() {
-                        
-                        for (MembershipTO memberTO : membershipsView.getList()) {
+
+                        for (MembershipTO memberTO :
+                                membershipsView.getList()) {
+
                             if (memberTO.getRoleId() == roleTO.getId()) {
                                 return new MembershipModalPage(
                                         getPage().getPageReference(),
@@ -199,11 +197,11 @@ public class RolesPanel extends Panel {
 
                     @Override
                     public void onClose(final AjaxRequestTarget target) {
-                        final UserTO userTO =
+                        final UserTO updatedUserTO =
                                 ((UserModalPage) getPage()).getUserTO();
 
                         RolesPanel.this.userTO.setMemberships(
-                                userTO.getMemberships());
+                                updatedUserTO.getMemberships());
                         target.add(container);
                     }
                 });
