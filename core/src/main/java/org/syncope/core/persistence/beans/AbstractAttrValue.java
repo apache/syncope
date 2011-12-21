@@ -107,18 +107,30 @@ public abstract class AbstractAttrValue extends AbstractBaseBean {
                 break;
 
             case Long:
-                result = getAttribute().getSchema().getFormatter().
-                        format(getLongValue());
+                if (getAttribute().getSchema().getFormatter() == null) {
+                    result = getLongValue().toString();
+                } else {
+                    result = getAttribute().getSchema().getFormatter().
+                            format(getLongValue());
+                }
                 break;
 
             case Double:
-                result = getAttribute().getSchema().getFormatter().
-                        format(getDoubleValue());
+                if (getAttribute().getSchema().getFormatter() == null) {
+                    result = getDoubleValue().toString();
+                } else {
+                    result = getAttribute().getSchema().getFormatter().
+                            format(getDoubleValue());
+                }
                 break;
 
             case Date:
-                result = getAttribute().getSchema().getFormatter().
-                        format(getDateValue());
+                if (getAttribute().getSchema().getFormatter() == null) {
+                    result = DATE_FORMAT.get().format(getDateValue());
+                } else {
+                    result = getAttribute().getSchema().getFormatter().
+                            format(getDateValue());
+                }
                 break;
 
             default:
