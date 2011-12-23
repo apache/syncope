@@ -26,7 +26,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.syncope.client.to.SchemaTO;
-import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.core.rest.data.SchemaDataBinder;
 import org.syncope.core.persistence.beans.AbstractSchema;
 import org.syncope.core.persistence.dao.SchemaDAO;
@@ -47,12 +46,10 @@ public class SchemaController extends AbstractController {
     value = "/{kind}/create")
     public SchemaTO create(final HttpServletResponse response,
             @RequestBody final SchemaTO schemaTO,
-            @PathVariable("kind") final String kind)
-            throws SyncopeClientCompositeErrorException {
+            @PathVariable("kind") final String kind) {
 
-        AbstractSchema schema = schemaDataBinder.create(
-                schemaTO, getAttributableUtil(kind).newSchema());
-
+        AbstractSchema schema = getAttributableUtil(kind).newSchema();
+        schemaDataBinder.create(schemaTO, schema);
         schema = schemaDAO.save(schema);
 
         response.setStatus(HttpServletResponse.SC_CREATED);
@@ -72,9 +69,9 @@ public class SchemaController extends AbstractController {
             LOG.error("Could not find schema '" + schemaName + "'");
 
             throw new NotFoundException(schemaName);
-        } else {
-            schemaDAO.delete(schemaName, getAttributableUtil(kind));
         }
+
+        schemaDAO.delete(schemaName, getAttributableUtil(kind));
     }
 
     @RequestMapping(method = RequestMethod.GET,
@@ -116,7 +113,7 @@ public class SchemaController extends AbstractController {
     value = "/{kind}/update")
     public SchemaTO update(@RequestBody final SchemaTO schemaTO,
             @PathVariable("kind") final String kind)
-            throws SyncopeClientCompositeErrorException, NotFoundException {
+            throws NotFoundException {
 
         AttributableUtil attributableUtil = getAttributableUtil(kind);
         AbstractSchema schema = schemaDAO.find(schemaTO.getName(),
@@ -126,7 +123,7 @@ public class SchemaController extends AbstractController {
             throw new NotFoundException("Schema '" + schemaTO.getName() + "'");
         }
 
-        schema = schemaDataBinder.update(schemaTO, schema, attributableUtil);
+        schemaDataBinder.update(schemaTO, schema, attributableUtil);
         schema = schemaDAO.save(schema);
 
         return schemaDataBinder.getSchemaTO(schema, attributableUtil);
