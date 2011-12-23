@@ -63,20 +63,23 @@ public final class AttributableOperations {
                     originalAttrs.get(entry.getKey()).getValues())
                     : Collections.EMPTY_SET;
 
-            // avoid unwanted inputs
-            updatedValues.remove("");
-            if (!entry.getValue().isReadonly()) {
-                attrMod.setValuesToBeAdded(
-                        new ArrayList<String>(updatedValues));
-                if (!attrMod.isEmpty()) {
-                    result.addAttributeToBeRemoved(attrMod.getSchema());
+            if (!updatedValues.equals(originalValues)) {
+                // avoid unwanted inputs
+                updatedValues.remove("");
+                if (!entry.getValue().isReadonly()) {
+                    attrMod.setValuesToBeAdded(
+                            new ArrayList<String>(updatedValues));
+                    if (!attrMod.isEmpty()) {
+                        result.addAttributeToBeRemoved(attrMod.getSchema());
+                    }
                 }
-            }
 
-            attrMod.setValuesToBeRemoved(new ArrayList<String>(originalValues));
+                attrMod.setValuesToBeRemoved(new ArrayList<String>(
+                        originalValues));
 
-            if (!attrMod.isEmpty()) {
-                result.addAttributeToBeUpdated(attrMod);
+                if (!attrMod.isEmpty()) {
+                    result.addAttributeToBeUpdated(attrMod);
+                }
             }
         }
     }
@@ -197,7 +200,7 @@ public final class AttributableOperations {
 
                     if (!attrMod.isEmpty()) {
                         membMod.addAttributeToBeUpdated(attrMod);
-                        result.addAttributeToBeRemoved(attrMod.getSchema());
+                        membMod.addAttributeToBeRemoved(attrMod.getSchema());
                     }
                 }
                 for (AttributeTO attr :
@@ -214,7 +217,7 @@ public final class AttributableOperations {
 
                     if (!attrMod.isEmpty()) {
                         membMod.addVirtualAttributeToBeUpdated(attrMod);
-                        result.addAttributeToBeRemoved(attrMod.getSchema());
+                        membMod.addAttributeToBeRemoved(attrMod.getSchema());
                     }
                 }
                 membMod.setResourcesToBeAdded(entry.getValue().getResources());

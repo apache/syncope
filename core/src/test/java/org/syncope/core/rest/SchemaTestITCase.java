@@ -14,6 +14,8 @@
  */
 package org.syncope.core.rest;
 
+import org.syncope.client.to.MembershipTO;
+import org.syncope.client.util.AttributableOperations;
 import org.syncope.client.to.AttributeTO;
 import org.syncope.client.to.UserTO;
 import org.syncope.types.EntityViolationType;
@@ -24,6 +26,7 @@ import org.syncope.types.SyncopeClientExceptionType;
 import org.syncope.client.validation.SyncopeClientException;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.http.HttpStatus;
+import org.syncope.client.mod.UserMod;
 import org.syncope.client.to.SchemaTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.types.SchemaType;
@@ -186,10 +189,10 @@ public class SchemaTestITCase extends AbstractTest {
 
         UserTO userTO = UserTestITCase.getSampleTO(
                 "issue258@syncope-idm.org");
-        AttributeTO surnameTO = new AttributeTO();
-        surnameTO.setSchema(schemaTO.getName());
-        surnameTO.addValue("1.2");
-        userTO.addAttribute(surnameTO);
+        AttributeTO attrTO = new AttributeTO();
+        attrTO.setSchema(schemaTO.getName());
+        attrTO.addValue("1.2");
+        userTO.addAttribute(attrTO);
 
         userTO = restTemplate.postForObject(BASE_URL + "user/create",
                 userTO, UserTO.class);
@@ -205,5 +208,39 @@ public class SchemaTestITCase extends AbstractTest {
                     SyncopeClientExceptionType.InvalidUSchema);
             assertNotNull(sce);
         }
+    }
+
+    @Test
+    public void issue259() {
+        SchemaTO schemaTO = new SchemaTO();
+        schemaTO.setName("schema_issue259");
+        schemaTO.setUniqueConstraint(true);
+        schemaTO.setType(SchemaType.Long);
+
+        schemaTO = restTemplate.postForObject(BASE_URL
+                + "schema/user/create", schemaTO, SchemaTO.class);
+        assertNotNull(schemaTO);
+
+        UserTO userTO = UserTestITCase.getSampleTO(
+                "issue259@syncope-idm.org");
+        AttributeTO attrTO = new AttributeTO();
+        attrTO.setSchema(schemaTO.getName());
+        attrTO.addValue("1");
+        userTO.addAttribute(attrTO);
+
+        userTO = restTemplate.postForObject(BASE_URL + "user/create",
+                userTO, UserTO.class);
+        assertNotNull(userTO);
+
+        UserTO newUserTO = AttributableOperations.clone(userTO);
+        MembershipTO membership = new MembershipTO();
+        membership.setRoleId(2L);
+        newUserTO.addMembership(membership);
+
+        UserMod userMod = AttributableOperations.diff(newUserTO, userTO);
+
+        userTO = restTemplate.postForObject(BASE_URL + "user/update",
+                userMod, UserTO.class);
+        assertNotNull(userTO);
     }
 }

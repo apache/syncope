@@ -475,8 +475,7 @@ public abstract class AbstractAttributableDataBinder {
                             getAttributesToBeUpdated()) {
 
                         if (schema.getName().equals(mod.getSchema())) {
-                            newValue = mod.getValuesToBeAdded().
-                                    iterator().next();
+                            newValue = mod.getValuesToBeAdded().get(0);
                         }
                     }
 
