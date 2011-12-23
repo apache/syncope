@@ -89,14 +89,28 @@ public class SchemaDataBinder {
 
         List<AbstractAttr> attrs = schemaDAO.getAttributes(
                 schema, attributableUtil.attributeClass());
-        if (!attrs.isEmpty() && schema.getType() != schemaTO.getType()) {
-            SyncopeClientException e = new SyncopeClientException(
-                    SyncopeClientExceptionType.valueOf(
-                    "Invalid" + schema.getClass().getSimpleName()));
-            e.addElement("Cannot change type since " + schema.getName()
-                    + " has attributes");
+        if (!attrs.isEmpty()) {
+            if (schema.getType() != schemaTO.getType()) {
+                SyncopeClientException e = new SyncopeClientException(
+                        SyncopeClientExceptionType.valueOf(
+                        "Invalid" + schema.getClass().getSimpleName()));
+                e.addElement("Cannot change type since " + schema.getName()
+                        + " has attributes");
 
-            scce.addException(e);
+                scce.addException(e);
+            }
+            if (schema.isUniqueConstraint() != schemaTO.isUniqueConstraint()) {
+                SyncopeClientException e = new SyncopeClientException(
+                        SyncopeClientExceptionType.valueOf(
+                        "Invalid" + schema.getClass().getSimpleName()));
+                e.addElement("Cannot alter unique contraint since "
+                        + schema.getName() + " has attributes");
+
+                scce.addException(e);
+            }
+        }
+
+        if (scce.hasExceptions()) {
             throw scce;
         }
 

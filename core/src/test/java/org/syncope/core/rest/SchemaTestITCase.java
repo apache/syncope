@@ -243,4 +243,38 @@ public class SchemaTestITCase extends AbstractTest {
                 userMod, UserTO.class);
         assertNotNull(userTO);
     }
+
+    @Test
+    public void issue260() {
+        SchemaTO schemaTO = new SchemaTO();
+        schemaTO.setName("schema_issue260");
+        schemaTO.setType(SchemaType.Double);
+        schemaTO.setUniqueConstraint(true);
+
+        schemaTO = restTemplate.postForObject(BASE_URL
+                + "schema/user/create", schemaTO, SchemaTO.class);
+        assertNotNull(schemaTO);
+
+        UserTO userTO = UserTestITCase.getSampleTO(
+                "issue260@syncope-idm.org");
+        AttributeTO attrTO = new AttributeTO();
+        attrTO.setSchema(schemaTO.getName());
+        attrTO.addValue("1.2");
+        userTO.addAttribute(attrTO);
+
+        userTO = restTemplate.postForObject(BASE_URL + "user/create",
+                userTO, UserTO.class);
+        assertNotNull(userTO);
+
+        schemaTO.setUniqueConstraint(false);
+        try {
+            restTemplate.postForObject(BASE_URL
+                    + "schema/user/update", schemaTO, SchemaTO.class);
+            fail("This should not be reacheable");
+        } catch (SyncopeClientCompositeErrorException scce) {
+            SyncopeClientException sce = scce.getException(
+                    SyncopeClientExceptionType.InvalidUSchema);
+            assertNotNull(sce);
+        }
+    }
 }
