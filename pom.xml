@@ -92,7 +92,7 @@
 
         <activiti.version>5.8</activiti.version>
 
-        <spring.version>3.0.6.RELEASE</spring.version>
+        <spring.version>3.0.7.RELEASE</spring.version>
         <jackson.version>1.9.3</jackson.version>
         <xstream.version>1.4.2</xstream.version>
         <velocity.version>1.7</velocity.version>
