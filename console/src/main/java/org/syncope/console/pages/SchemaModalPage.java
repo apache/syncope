@@ -205,6 +205,7 @@ public class SchemaModalPage extends AbstractSchemaModalPage {
 
                 if (schemaTO.isMultivalue() && schemaTO.isUniqueConstraint()) {
                     error(getString("multivalueAndUniqueConstr.validation"));
+                    target.add(feedbackPanel);
                     return;
                 }
 

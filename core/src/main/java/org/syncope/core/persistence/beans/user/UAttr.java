@@ -99,7 +99,7 @@ public class UAttr extends AbstractAttr {
     }
 
     @Override
-    public <T extends AbstractSchema> void setSchema(T schema) {
+    public <T extends AbstractSchema> void setSchema(final T schema) {
         this.schema = (USchema) schema;
     }
 

@@ -14,10 +14,13 @@
  */
 package org.syncope.client.to;
 
+import org.apache.commons.lang.StringUtils;
 import org.syncope.client.AbstractBaseBean;
 import org.syncope.types.SchemaType;
 
 public class SchemaTO extends AbstractBaseBean {
+
+    private static final long serialVersionUID = -8133983392476990308L;
 
     private String name;
 
@@ -38,7 +41,7 @@ public class SchemaTO extends AbstractBaseBean {
     private String validatorClass;
 
     public SchemaTO() {
-        mandatoryCondition = "false";
+        type = SchemaType.String;
     }
 
     public String getConversionPattern() {
@@ -50,7 +53,8 @@ public class SchemaTO extends AbstractBaseBean {
     }
 
     public String getMandatoryCondition() {
-        return mandatoryCondition;
+        return StringUtils.isNotBlank(mandatoryCondition)
+                ? mandatoryCondition : "false";
     }
 
     public void setMandatoryCondition(String mandatoryCondition) {
