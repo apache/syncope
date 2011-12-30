@@ -118,6 +118,33 @@
 		  </dependency>
 		</dependencies>
             </plugin>    
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <inherited>true</inherited>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.syncope</groupId>
+                        <artifactId>syncope-build-tools</artifactId>
+                        <version>${project.parent.version}</version>
+                        <classifier>classes</classifier>
+                    </dependency>
+                </dependencies>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <inherited>true</inherited>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.syncope</groupId>
+                        <artifactId>syncope-build-tools</artifactId>
+                        <version>${project.parent.version}</version>
+                        <classifier>classes</classifier>
+                    </dependency>
+                </dependencies>
+            </plugin>
         </plugins>
     </build>
 
