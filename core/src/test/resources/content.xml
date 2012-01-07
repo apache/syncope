@@ -282,12 +282,12 @@
                       propagationPriority="0" propagationPrimary="1" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"
                       accountlink="&apos;uid=&apos; + username + &apos;,ou=people,o=isp&apos;"/>
                       
-    <SyncopeUser_ExternalResource users_id="3" externalResources_name="ws-target-resource-delete" />
-    <SyncopeRole_ExternalResource roles_id="3" externalResources_name="ws-target-resource-list-mappings-1" />
-    <SyncopeUser_ExternalResource users_id="3" externalResources_name="ws-target-resource-2" />
-    <SyncopeRole_ExternalResource roles_id="8" externalResources_name="ws-target-resource-2" />
-    <SyncopeRole_ExternalResource roles_id="3" externalResources_name="ws-target-resource-list-mappings-2" />
-    <SyncopeUser_ExternalResource users_id="3" externalResources_name="ws-target-resource-1" />
+    <SyncopeUser_ExternalResource user_id="3" externalResource_name="ws-target-resource-delete" />
+    <SyncopeRole_ExternalResource role_id="3" externalResource_name="ws-target-resource-list-mappings-1" />
+    <SyncopeUser_ExternalResource user_id="3" externalResource_name="ws-target-resource-2" />
+    <SyncopeRole_ExternalResource role_id="8" externalResource_name="ws-target-resource-2" />
+    <SyncopeRole_ExternalResource role_id="3" externalResource_name="ws-target-resource-list-mappings-2" />
+    <SyncopeUser_ExternalResource user_id="3" externalResource_name="ws-target-resource-1" />
 
     <SchemaMapping id="99" extAttrName="userid"
                    resource_name="ws-target-resource-1"

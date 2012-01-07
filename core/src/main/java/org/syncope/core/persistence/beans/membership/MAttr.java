@@ -17,6 +17,7 @@ package org.syncope.core.persistence.beans.membership;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
@@ -41,6 +42,7 @@ public class MAttr extends AbstractAttr {
     private Membership owner;
 
     @ManyToOne(fetch = FetchType.EAGER)
+    @Column(name = "schema_name")
     private MSchema schema;
 
     @OneToMany(cascade = CascadeType.MERGE, orphanRemoval = true,

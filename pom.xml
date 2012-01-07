@@ -20,7 +20,7 @@
     <description>Syncope</description>
     <groupId>org.syncope</groupId>
     <artifactId>syncope</artifactId>
-    <version>0.8-SNAPSHOT</version>
+    <version>0.8-ASL-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <!-- maven repository on sonatype -->
@@ -98,15 +98,14 @@
         <velocity.version>1.7</velocity.version>
         <quartz.version>1.8.5</quartz.version>
 
-        <hibernate.version>3.6.8.Final</hibernate.version>
-        <hibernate-validator.version>4.2.0.Final</hibernate-validator.version>
+        <openjpa.version>2.2.0-SNAPSHOT</openjpa.version>
         <ehcache.version>2.4.6</ehcache.version>
 
         <wicket.version>1.5.3</wicket.version>
 
         <groovy.version>1.8.4</groovy.version>
 
-        <h2.version>1.3.162</h2.version>
+        <h2.version>1.3.163</h2.version>
 
         <reflections.version>0.9.5</reflections.version>
 
@@ -227,15 +226,11 @@
             </dependency>
 
             <dependency>
-                <groupId>org.hibernate</groupId>
-                <artifactId>hibernate-entitymanager</artifactId>
-                <version>${hibernate.version}</version>
+                <groupId>org.apache.openjpa</groupId>
+                <artifactId>openjpa-all</artifactId>
+                <version>${openjpa.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.hibernate</groupId>
-                <artifactId>hibernate-validator</artifactId>
-                <version>${hibernate-validator.version}</version>
-            </dependency>
+
             <dependency>
                 <groupId>net.sf.ehcache</groupId>
                 <artifactId>ehcache-core</artifactId>
@@ -311,6 +306,12 @@
                 <version>${spring.version}</version>
             </dependency>
             <!-- /Spring -->
+
+            <dependency>
+                <groupId>cglib</groupId>
+                <artifactId>cglib</artifactId>
+                <version>2.2.2</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.codehaus.jackson</groupId>
@@ -501,8 +502,12 @@
         </repository>
 
         <repository>
-            <id>jboss</id>
-            <url>http://repository.jboss.org/nexus/content/groups/public-jboss/</url>
+            <id>apache.snapshots</id>
+            <name>Apache Snapshot Repository</name>
+            <url>http://repository.apache.org/snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
         </repository>
 
         <repository>
@@ -517,6 +522,15 @@
         <pluginRepository>
             <id>main</id>
             <url>http://repo1.maven.org/maven2/</url>
+        </pluginRepository>
+
+        <pluginRepository>
+            <id>apache.snapshots</id>
+            <name>Apache Snapshot Repository</name>
+            <url>http://repository.apache.org/snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
         </pluginRepository>
 
         <pluginRepository>
@@ -554,6 +568,18 @@
                     <version>2.5</version>
                 </plugin>
                 <plugin>
+                    <groupId>org.apache.openjpa</groupId>
+                    <artifactId>openjpa-maven-plugin</artifactId>
+                    <version>${openjpa.version}</version>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.apache.openjpa</groupId>
+                            <artifactId>openjpa</artifactId>
+                            <version>${openjpa.version}</version>
+                        </dependency>
+                    </dependencies>
+                </plugin>
+                <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>2.11</version>
@@ -577,11 +603,6 @@
                             </resource>
                         </webResources>
                     </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>exec-maven-plugin</artifactId>
-                    <version>1.2.1</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
@@ -651,7 +672,6 @@
                     <configuration>
                         <container>
                             <containerId>tomcat7x</containerId>
-                            <home>${java.io.tmpdir}/apache-tomcat-${tomcat.version}</home>
                             <zipUrlInstaller>
                                 <url>http://archive.apache.org/dist/tomcat/tomcat-7/v${tomcat.version}/bin/apache-tomcat-${tomcat.version}.zip</url>
                                 <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>

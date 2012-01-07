@@ -29,7 +29,6 @@ import javax.persistence.Lob;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import org.hibernate.annotations.Type;
 import org.syncope.client.search.NodeCond;
 import org.syncope.core.persistence.validation.entity.NotificationCheck;
 import org.syncope.core.util.XMLSerializer;
@@ -44,16 +43,17 @@ public class Notification extends AbstractBaseBean {
     private Long id;
 
     @ElementCollection(fetch = FetchType.EAGER)
+    @Column(name = "events")
     private List<String> events;
 
     @NotNull
     @Lob
-    @Type(type = "org.hibernate.type.StringClobType")
+    //@Type(type = "org.hibernate.type.StringClobType")
     private String xmlAbout;
 
     @NotNull
     @Lob
-    @Type(type = "org.hibernate.type.StringClobType")
+    //@Type(type = "org.hibernate.type.StringClobType")
     private String xmlRecipients;
 
     @Column(nullable = false)

@@ -19,7 +19,7 @@
     <parent>
         <groupId>org.syncope</groupId>
         <artifactId>syncope</artifactId>
-        <version>0.8-SNAPSHOT</version>
+        <version>0.8-ASL-SNAPSHOT</version>
     </parent>
 
     <name>Syncope client</name>

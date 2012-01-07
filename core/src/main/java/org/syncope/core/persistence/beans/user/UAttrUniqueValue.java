@@ -14,6 +14,7 @@
  */
 package org.syncope.core.persistence.beans.user;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
@@ -34,6 +35,7 @@ public class UAttrUniqueValue extends AbstractAttrUniqueValue {
     private UAttr attribute;
 
     @ManyToOne(optional = false)
+    @Column(name = "schema_name")
     private USchema schema;
 
     @Override

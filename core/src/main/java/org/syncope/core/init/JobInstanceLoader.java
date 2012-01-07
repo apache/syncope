@@ -13,7 +13,8 @@
  */
 package org.syncope.core.init;
 
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
@@ -147,7 +148,7 @@ public class JobInstanceLoader extends AbstractLoader {
     @Transactional(readOnly = true)
     public void load() {
         // 1. jobs for SchedTasks
-        List<SchedTask> tasks = taskDAO.findAll(SchedTask.class);
+        Set<SchedTask> tasks = new HashSet(taskDAO.findAll(SchedTask.class));
         tasks.addAll(taskDAO.findAll(SyncTask.class));
         for (SchedTask task : tasks) {
             try {

@@ -81,8 +81,8 @@ public class ResourceDAOImpl extends AbstractDAOImpl
      * called by SyncJob.
      * 
      * @see org.syncope.core.scheduling.SyncJob
-     * 
-     * @param execution entity to be merged
+     *
+     * @param resource  entity to be merged
      * @return the same entity, updated
      */
     @Override

@@ -21,7 +21,10 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.AbstractTest;
+import org.syncope.core.persistence.beans.NotificationTask;
 import org.syncope.core.persistence.beans.PropagationTask;
+import org.syncope.core.persistence.beans.SchedTask;
+import org.syncope.core.persistence.beans.SyncTask;
 import org.syncope.core.persistence.beans.TaskExec;
 
 @Transactional
@@ -37,6 +40,15 @@ public class TaskExecTest extends AbstractTest {
     public final void findAll() {
         List<TaskExec> list = taskExecDAO.findAll(PropagationTask.class);
         assertEquals(1, list.size());
+
+        list = taskExecDAO.findAll(SchedTask.class);
+        assertEquals(0, list.size());
+
+        list = taskExecDAO.findAll(SyncTask.class);
+        assertEquals(0, list.size());
+
+        list = taskExecDAO.findAll(NotificationTask.class);
+        assertEquals(0, list.size());
     }
 
     @Test

@@ -64,7 +64,7 @@
         <property name="persistenceUnitName" value="syncopePersistenceUnit"/>
         <property name="dataSource" ref="dataSource"/>
         <property name="jpaVendorAdapter">
-            <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+            <bean class="org.springframework.orm.jpa.vendor.OpenJpaVendorAdapter">
                 <property name="showSql" value="false"/>
                 <property name="generateDdl" value="true"/>
                 <property name="databasePlatform" value="${jpa.dialect}"/>
@@ -72,21 +72,11 @@
         </property>
         <property name="jpaPropertyMap">
             <map>
-                <entry key="hibernate.order_inserts" value="true"/>
-                <entry key="hibernate.order_updates" value="true"/>
-                <entry key="hibernate.id.new_generator_mappings" value="true"/>
-                <entry key="hibernate.generate_statistics" value="true"/>
-
-                <!-- Second level cache -->
-                <entry key="hibernate.cache.use_second_level_cache" value="true"/>
-                <entry key="hibernate.cache.use_query_cache" value="true"/>
-                <entry key="hibernate.cache.use_minimal_puts" value="true"/>
-                <entry key="hibernate.cache.region.factory_class"
-                       value="net.sf.ehcache.hibernate.EhCacheRegionFactory"/>
-                <entry key="net.sf.ehcache.configurationResourceName"
-                       value="/ehcache.xml"/>
-                <entry key="hibernate.cache.region_prefix"
-                       value="syncopecache"/>
+                <entry key="openjpa.NontransactionalWrite" value="false"/>
+                <entry key="openjpa.AutoDetach" value="close, commit, nontx-read, rollback"/>
+                
+                <entry key="openjpa.DataCache" value="true(Lru=true)"/>
+                <entry key="openjpa.QueryCache" value="true(Lru=true)"/>
             </map>
         </property>
     </bean>

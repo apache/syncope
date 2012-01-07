@@ -1,0 +1,16 @@
+=console=
+
+* check Selenium
+
+=core=
+
+* working 'mvn clean verify'
+* http://incubator.apache.org/bval/cwiki/index.html
+* postgres-it
+* mysql-it
+* oracle-it
+* redirect OpenJPA plugin log somewhere
+* verify Clob behavior on PostgreSQL (requires external deploy and restart)
+* 2nd level cache
+* statistics?
+* WARNING: javax.persistence.cache.retrieveMode" is not a supported query hint. May be you meant "javax.persistence.lock.timeout"?

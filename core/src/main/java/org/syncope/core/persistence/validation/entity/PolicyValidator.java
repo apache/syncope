@@ -63,7 +63,8 @@ public class PolicyValidator extends AbstractValidator
 
         switch (object.getType()) {
             case GLOBAL_PASSWORD:
-                // just one policy with type PASSWORD
+                
+                // just one GLOBAL_PASSWORD policy
                 final PasswordPolicy passwordPolicy =
                         policyDAO.getGlobalPasswordPolicy();
 

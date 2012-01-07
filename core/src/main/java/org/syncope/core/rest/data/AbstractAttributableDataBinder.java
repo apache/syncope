@@ -44,8 +44,6 @@ import org.syncope.core.persistence.beans.AbstractVirAttr;
 import org.syncope.core.persistence.beans.AbstractVirSchema;
 import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.core.persistence.beans.SchemaMapping;
-import org.syncope.core.persistence.beans.role.SyncopeRole;
-import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.AttrDAO;
 import org.syncope.core.persistence.dao.AttrValueDAO;
 import org.syncope.core.persistence.dao.ConfDAO;
@@ -419,13 +417,6 @@ public abstract class AbstractAttributableDataBinder {
                 propByRes.add(PropagationOperation.DELETE, resource.getName());
 
                 attributable.removeExternalResource(resource);
-
-                if (attributableUtil == AttributableUtil.USER) {
-                    resource.removeUser((SyncopeUser) attributable);
-                }
-                if (attributableUtil == AttributableUtil.ROLE) {
-                    resource.removeRole((SyncopeRole) attributable);
-                }
             }
         }
 
@@ -441,13 +432,6 @@ public abstract class AbstractAttributableDataBinder {
                 propByRes.add(PropagationOperation.CREATE, resource.getName());
 
                 attributable.addExternalResource(resource);
-
-                if (attributableUtil == attributableUtil.USER) {
-                    resource.addUser((SyncopeUser) attributable);
-                }
-                if (attributableUtil == attributableUtil.ROLE) {
-                    resource.addRole((SyncopeRole) attributable);
-                }
             }
         }
 
@@ -808,18 +792,6 @@ public abstract class AbstractAttributableDataBinder {
 
             if (resource != null) {
                 attributable.addExternalResource(resource);
-
-                switch (attributableUtil) {
-                    case USER:
-                        resource.addUser((SyncopeUser) attributable);
-                        break;
-
-                    case ROLE:
-                        resource.addRole((SyncopeRole) attributable);
-                        break;
-
-                    default:
-                }
             }
         }
 

@@ -384,16 +384,9 @@ public class Resources extends BasePage {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
-
                         try {
-
-                            if (!checkDeleteIsForbidden(connectorTO)) {
-                                connectorRestClient.delete(connectorTO.getId());
-                                info(getString("operation_succeded"));
-                            } else {
-                                error(getString("delete_error"));
-                            }
-
+                            connectorRestClient.delete(connectorTO.getId());
+                            info(getString("operation_succeded"));
                         } catch (SyncopeClientCompositeErrorException e) {
                             error(getString("operation_error"));
 
@@ -497,24 +490,6 @@ public class Resources extends BasePage {
 
         paginatorForm.add(rowsChooser);
         add(paginatorForm);
-    }
-
-    /**
-     * Check if the delete action is forbidden.
-     *
-     * @param connectorTO object to check
-     * @return true if the action is forbidden, false otherwise
-     */
-    public boolean checkDeleteIsForbidden(ConnInstanceTO connectorTO) {
-        boolean forbidden = false;
-
-        for (ResourceTO resourceTO : resourceRestClient.getAllResources()) {
-            if (resourceTO.getConnectorId().equals(connectorTO.getId())) {
-                forbidden = true;
-            }
-        }
-
-        return forbidden;
     }
 
     class ResourcesProvider extends SortableDataProvider<ResourceTO> {

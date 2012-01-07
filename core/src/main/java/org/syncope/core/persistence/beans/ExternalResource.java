@@ -33,8 +33,8 @@ import javax.persistence.OneToMany;
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import org.apache.commons.lang.StringUtils;
-import org.hibernate.annotations.Type;
 import org.identityconnectors.framework.common.objects.SyncToken;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
@@ -73,7 +73,8 @@ public class ExternalResource extends AbstractBaseBean {
     /**
      * The resource type is identified by the associated connector.
      */
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.MERGE})
+    @NotNull
     private ConnInstance connector;
 
     /**
@@ -91,11 +92,11 @@ public class ExternalResource extends AbstractBaseBean {
     /**
      * Attribute mappings.
      * 
-     * List type canno be used. Please, take a look at 
+     * List type cannot be used. Please, take a look at 
      * https://hibernate.onjira.com/browse/HHH-1718
      */
-    @OneToMany(cascade = {CascadeType.MERGE, CascadeType.REMOVE},
-    orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "resource")
+    @OneToMany(cascade = {CascadeType.ALL}, orphanRemoval = true,
+    fetch = FetchType.EAGER, mappedBy = "resource")
     @Valid
     private Set<SchemaMapping> mappings;
 
@@ -153,14 +154,14 @@ public class ExternalResource extends AbstractBaseBean {
      * Configuration properties that are overridden from the connector instance.
      */
     @Lob
-    @Type(type = "org.hibernate.type.StringClobType")
+    //@Type(type = "org.hibernate.type.StringClobType")
     private String xmlConfiguration;
 
     /**
      * SyncToken for calling ConnId's sync().
      */
     @Lob
-    @Type(type = "org.hibernate.type.StringClobType")
+    //@Type(type = "org.hibernate.type.StringClobType")
     private String serializedSyncToken;
 
     /**

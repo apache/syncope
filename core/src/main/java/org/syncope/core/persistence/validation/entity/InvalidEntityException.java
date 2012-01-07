@@ -24,6 +24,8 @@ import org.syncope.types.EntityViolationType;
 
 public class InvalidEntityException extends ValidationException {
 
+    private static final long serialVersionUID = 3249297275444409691L;
+
     private String entityClassSimpleName;
 
     private final Map<Class, Set<EntityViolationType>> violations;

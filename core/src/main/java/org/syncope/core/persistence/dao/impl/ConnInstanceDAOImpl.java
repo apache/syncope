@@ -44,25 +44,10 @@ public class ConnInstanceDAOImpl extends AbstractDAOImpl
     }
 
     @Override
-    public List<ExternalResource> findExternalResources(
-            final ConnInstance connector) {
-
-        final Query query = entityManager.createQuery("SELECT e "
-                + "FROM " + ExternalResource.class.getSimpleName() + " e "
-                + "WHERE connector=:connector");
-
-        query.setParameter("connector", connector);
-
-        return query.getResultList();
-    }
-
-    @Override
     public ConnInstance save(final ConnInstance connector) {
         final ConnInstance merged = entityManager.merge(connector);
 
-        final List<ExternalResource> resources = findExternalResources(merged);
-
-        for (ExternalResource resource : resources) {
+        for (ExternalResource resource : merged.getResources()) {
             try {
                 connInstanceLoader.registerConnector(resource);
             } catch (NotFoundException e) {

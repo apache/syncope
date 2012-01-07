@@ -76,9 +76,9 @@ public class ResourceController extends AbstractController {
         if (resourceTO.getName() != null
                 && resourceDAO.find(resourceTO.getName()) != null) {
             SyncopeClientException ex = new SyncopeClientException(
-                    SyncopeClientExceptionType.DuplicateUniqueValue);
+                    SyncopeClientExceptionType.DataIntegrityViolation);
 
-            ex.addElement(resourceTO.getName());
+            ex.addElement("Existing " + resourceTO.getName());
             scce.addException(ex);
 
             throw scce;

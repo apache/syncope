@@ -17,6 +17,7 @@ package org.syncope.core.persistence.beans.role;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
@@ -41,6 +42,7 @@ public class RAttr extends AbstractAttr {
     private SyncopeRole owner;
 
     @ManyToOne(fetch = FetchType.EAGER)
+    @Column(name = "schema_name")
     private RSchema schema;
 
     @OneToMany(cascade = CascadeType.MERGE, orphanRemoval = true,

@@ -68,13 +68,13 @@ WHERE m.syncoperole_id = r.id
     <entry key="user_search_resource">
 CREATE VIEW user_search_resource AS
 
-SELECT st.users_id AS user_id, st.externalResources_name AS resource_name
+SELECT st.user_id AS user_id, st.externalResource_name AS resource_name
 FROM SyncopeUser_ExternalResource st
 
 UNION ALL
 
-SELECT m.syncopeuser_id AS user_id, st.externalResources_name AS resource_name
+SELECT m.syncopeuser_id AS user_id, st.externalResource_name AS resource_name
 FROM Membership m, SyncopeRole r, SyncopeRole_ExternalResource st
-WHERE m.syncoperole_id = r.id AND st.roles_id = r.id
+WHERE m.syncoperole_id = r.id AND st.role_id = r.id
     </entry>
 </properties>

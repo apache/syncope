@@ -71,12 +71,16 @@ public class Membership extends AbstractAttributable {
         attributes = new ArrayList<MAttr>();
         derivedAttributes = new ArrayList<MDerAttr>();
         virtualAttributes = new ArrayList<MVirAttr>();
-        externalResources = Collections.EMPTY_SET;
     }
 
     @Override
     public Long getId() {
         return id;
+    }
+
+    @Override
+    protected Set<ExternalResource> externalResources() {
+        return Collections.EMPTY_SET;
     }
 
     public SyncopeRole getSyncopeRole() {

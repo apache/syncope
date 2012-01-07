@@ -17,6 +17,7 @@ package org.syncope.core.persistence.beans.user;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
@@ -53,6 +54,7 @@ public class UAttr extends AbstractAttr {
      * The schema of this attribute.
      */
     @ManyToOne(fetch = FetchType.EAGER)
+    @Column(name = "schema_name")
     private USchema schema;
 
     /**

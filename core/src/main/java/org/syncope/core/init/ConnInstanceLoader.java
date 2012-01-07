@@ -18,6 +18,7 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 import javassist.NotFoundException;
+import org.apache.commons.lang.SerializationUtils;
 import org.identityconnectors.common.l10n.CurrentLocale;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,7 +78,8 @@ public class ConnInstanceLoader extends AbstractLoader {
             throws NotFoundException {
 
         final ConnInstance connInstanceClone =
-                new ConnInstance(resource.getConnector());
+                (ConnInstance) SerializationUtils.clone(
+                resource.getConnector());
 
         final Set<ConnConfProperty> configuration =
                 new HashSet<ConnConfProperty>();

@@ -14,10 +14,7 @@
  */
 package org.syncope.core.persistence.beans.user;
 
-import java.util.ArrayList;
-import java.util.List;
 import javax.persistence.Entity;
-import javax.persistence.OneToMany;
 import org.syncope.core.persistence.beans.AbstractDerSchema;
 import org.syncope.core.persistence.validation.entity.USchemaCheck;
 
@@ -27,10 +24,4 @@ public class UDerSchema extends AbstractDerSchema {
 
     private static final long serialVersionUID = 6244467775394201229L;
 
-    @OneToMany(mappedBy = "derivedSchema")
-    private List<UDerAttr> derivedAttributes;
-
-    public UDerSchema() {
-        derivedAttributes = new ArrayList<UDerAttr>();
-    }
 }

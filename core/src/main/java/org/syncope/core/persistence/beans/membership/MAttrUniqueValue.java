@@ -14,6 +14,7 @@
  */
 package org.syncope.core.persistence.beans.membership;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
@@ -34,6 +35,7 @@ public class MAttrUniqueValue extends AbstractAttrUniqueValue {
     private MAttr attribute;
 
     @ManyToOne(optional = false)
+    @Column(name = "schema_name")
     private MSchema schema;
 
     @Override

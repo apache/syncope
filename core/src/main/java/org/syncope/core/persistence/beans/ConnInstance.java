@@ -16,7 +16,6 @@ package org.syncope.core.persistence.beans;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -30,7 +29,6 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.OneToMany;
-import org.hibernate.annotations.Type;
 import org.syncope.core.util.XMLSerializer;
 import org.syncope.types.ConnConfProperty;
 import org.syncope.types.ConnectorCapability;
@@ -70,6 +68,7 @@ public class ConnInstance extends AbstractBaseBean {
      */
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
+    @Column(name = "capabilities")
     private Set<ConnectorCapability> capabilities;
 
     /**
@@ -78,46 +77,20 @@ public class ConnInstance extends AbstractBaseBean {
      * contains annotated ConfigurationProperties (@ConfigurationProperty).
      */
     @Lob
-    @Type(type = "org.hibernate.type.StringClobType")
+    //@Type(type = "org.hibernate.type.StringClobType")
     private String xmlConfiguration;
 
     private String displayName;
 
     /**
-     * Provisioning target resources associated to the connector.
-     * The connector can be considered the resource's type.
+     * External resources associated to the connector.
      */
-    @OneToMany(cascade = {CascadeType.REFRESH, CascadeType.MERGE},
-    mappedBy = "connector")
+    @OneToMany(cascade = {CascadeType.ALL}, mappedBy = "connector")
     private List<ExternalResource> resources;
 
     public ConnInstance() {
         super();
-        capabilities = EnumSet.noneOf(ConnectorCapability.class);
-    }
-
-    /**
-     * Copy constructor.
-     * 
-     * @param that
-     */
-    public ConnInstance(final ConnInstance that) {
-        super();
-        this.bundleName = that.bundleName;
-        this.capabilities = that.capabilities.isEmpty()
-                ? EnumSet.noneOf(ConnectorCapability.class)
-                : EnumSet.copyOf(that.capabilities);
-        this.connectorName = that.connectorName;
-        this.displayName = that.displayName;
-        this.id = that.id;
-
-        this.resources = new ArrayList<ExternalResource>();
-        if (that.resources != null) {
-            this.resources.addAll(that.resources);
-        }
-
-        this.version = that.version;
-        this.xmlConfiguration = that.xmlConfiguration;
+        capabilities = new HashSet<ConnectorCapability>();
     }
 
     public String getVersion() {

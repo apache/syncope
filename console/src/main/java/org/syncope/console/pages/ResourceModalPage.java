@@ -869,10 +869,9 @@ public class ResourceModalPage extends BaseModalPage {
 
     public final void updateResourceSchemaNames(final ResourceTO resourceTO) {
         try {
-
             resourceSchemaNames =
                     (resourceTO != null && resourceTO.getConnectorId() != null)
-                    ? connectorRestClient.getSchemaNames(resourceTO)
+                    ? connectorRestClient.getSchemaNames(resourceTO.getName())
                     : Collections.EMPTY_LIST;
 
         } catch (Exception e) {
