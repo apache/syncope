@@ -220,7 +220,7 @@ public class ResourceController extends AbstractController {
 
         List<SchemaMappingTO> roleMappings = new ArrayList<SchemaMappingTO>();
 
-        Set<ExternalResource> resources = role.getExternalResources();
+        Set<ExternalResource> resources = role.getResources();
 
         List<SchemaMappingTO> resourceMappings;
         for (ExternalResource resource : resources) {

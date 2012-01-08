@@ -201,7 +201,7 @@ public class ResourceTest extends AbstractTest {
         assertNotNull("user not found", user);
 
         actual.addUser(user);
-        user.addExternalResource(actual);
+        user.addResource(actual);
 
         resourceDAO.flush();
 
@@ -227,8 +227,8 @@ public class ResourceTest extends AbstractTest {
         // check user
         user = userDAO.find(1L);
         assertNotNull(user);
-        assertNotNull(user.getExternalResources());
-        assertTrue(user.getExternalResources().contains(actual));
+        assertNotNull(user.getResources());
+        assertTrue(user.getResources().contains(actual));
     }
 
     @Test
@@ -276,7 +276,7 @@ public class ResourceTest extends AbstractTest {
         for (Long id : userIds) {
             SyncopeUser actualUser = userDAO.find(id);
             assertNotNull(actualUser);
-            for (ExternalResource res : actualUser.getExternalResources()) {
+            for (ExternalResource res : actualUser.getResources()) {
                 assertFalse(res.getName().equalsIgnoreCase(resource.getName()));
             }
         }

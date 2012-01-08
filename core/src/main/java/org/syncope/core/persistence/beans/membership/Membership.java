@@ -79,7 +79,7 @@ public class Membership extends AbstractAttributable {
     }
 
     @Override
-    protected Set<ExternalResource> externalResources() {
+    protected Set<ExternalResource> resources() {
         return Collections.EMPTY_SET;
     }
 
@@ -175,27 +175,27 @@ public class Membership extends AbstractAttributable {
     }
 
     @Override
-    public boolean addExternalResource(ExternalResource resource) {
+    public boolean addResource(final ExternalResource resource) {
         return false;
     }
 
     @Override
-    public boolean removeExternalResource(ExternalResource resource) {
+    public boolean removeResource(final ExternalResource resource) {
         return false;
     }
 
     @Override
-    public Set<ExternalResource> getExternalResources() {
+    public Set<ExternalResource> getResources() {
         return Collections.EMPTY_SET;
     }
 
     @Override
-    public Set<String> getExternalResourceNames() {
+    public Set<String> getResourceNames() {
         return Collections.EMPTY_SET;
     }
 
     @Override
-    public void setExternalResources(Set<ExternalResource> resources) {
+    public void setResources(final Set<ExternalResource> resources) {
     }
 
     @Override

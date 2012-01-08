@@ -49,9 +49,9 @@
     <entry key="SyncopeRole_Index_33">CREATE INDEX SyncopeRole_Index_33 ON SyncopeRole(parent_id)</entry>
     <entry key="SyncopeRole_Entitlement_Index_34">CREATE INDEX SyncopeRole_Ent_Index_34 ON SyncopeRole_Entitlement(entitlements_name)</entry>
     <entry key="SyncopeRole_Entitlement_Index_35">CREATE INDEX SyncopeRole_Ent_Index_35 ON SyncopeRole_Entitlement(roles_id)</entry>
-    <entry key="SyncopeRole_ExternalResource_Index_36">CREATE INDEX SyncopeRole_Ext_Index_36 ON SyncopeRole_ExternalResource(externalResource_name)</entry>
+    <entry key="SyncopeRole_ExternalResource_Index_36">CREATE INDEX SyncopeRole_Ext_Index_36 ON SyncopeRole_ExternalResource(resource_name)</entry>
     <entry key="SyncopeRole_ExternalResource_Index_37">CREATE INDEX SyncopeRole_Ext_Index_37 ON SyncopeRole_ExternalResource(role_id)</entry>
-    <entry key="SyncopeUser_ExternalResource_Index_38">CREATE INDEX SyncopeUser_Ext_Index_38 ON SyncopeUser_ExternalResource(externalResource_name)</entry>
+    <entry key="SyncopeUser_ExternalResource_Index_38">CREATE INDEX SyncopeUser_Ext_Index_38 ON SyncopeUser_ExternalResource(resource_name)</entry>
     <entry key="SyncopeUser_ExternalResource_Index_39">CREATE INDEX SyncopeUser_Ext_Index_39 ON SyncopeUser_ExternalResource(user_id)</entry>
     <entry key="SyncopeUser_passwordHistory_Index_40">CREATE INDEX SyncopeUser_pas_Index_40 ON SyncopeUser_passwordHistory(SyncopeUser_id)</entry>
     <entry key="Task_Index_41">CREATE INDEX Task_Index_41 ON Task(syncopeUser_id)</entry>

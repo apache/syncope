@@ -123,9 +123,9 @@ public class SyncopeRole extends AbstractAttributable {
     @JoinTable(joinColumns =
     @JoinColumn(name = "role_id"),
     inverseJoinColumns =
-    @JoinColumn(name = "externalResource_name"))
+    @JoinColumn(name = "resource_name"))
     @Valid
-    private Set<ExternalResource> externalResources;
+    private Set<ExternalResource> resources;
 
     public SyncopeRole() {
         super();
@@ -139,7 +139,7 @@ public class SyncopeRole extends AbstractAttributable {
         inheritVirtualAttributes = getBooleanAsInteger(false);
         inheritPasswordPolicy = getBooleanAsInteger(false);
         inheritAccountPolicy = getBooleanAsInteger(false);
-        externalResources = new HashSet<ExternalResource>();
+        resources = new HashSet<ExternalResource>();
     }
 
     @Override
@@ -148,8 +148,8 @@ public class SyncopeRole extends AbstractAttributable {
     }
 
     @Override
-    protected Set<ExternalResource> externalResources() {
-        return externalResources;
+    protected Set<ExternalResource> resources() {
+        return resources;
     }
 
     public String getName() {

@@ -233,7 +233,7 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
                 allAttributes,
                 allDerAttributes,
                 allVirAttributes,
-                role.getExternalResources());
+                role.getResources());
 
         for (Entitlement entitlement : role.getEntitlements()) {
             roleTO.addEntitlement(entitlement.getName());

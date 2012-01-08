@@ -75,7 +75,7 @@ public abstract class AbstractVirAttr extends AbstractBaseBean {
 
         JexlUtil jexlUtil = context.getBean(JexlUtil.class);
 
-        for (ExternalResource resource : attributable.getExternalResources()) {
+        for (ExternalResource resource : attributable.getResources()) {
             LOG.debug("Retrieving attribute mapped on {}", resource);
 
             Set<String> attributeNames = new HashSet<String>();

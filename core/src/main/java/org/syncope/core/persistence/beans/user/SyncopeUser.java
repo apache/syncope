@@ -173,8 +173,8 @@ public class SyncopeUser extends AbstractAttributable {
     @JoinTable(joinColumns =
     @JoinColumn(name = "user_id"),
     inverseJoinColumns =
-    @JoinColumn(name = "externalResource_name"))
-    private Set<ExternalResource> externalResources;
+    @JoinColumn(name = "resource_name"))
+    private Set<ExternalResource> resources;
 
     public SyncopeUser() {
         super();
@@ -186,7 +186,7 @@ public class SyncopeUser extends AbstractAttributable {
         passwordHistory = new ArrayList<String>();
         failedLogins = 0;
         suspended = getBooleanAsInteger(Boolean.FALSE);
-        externalResources = new HashSet<ExternalResource>();
+        resources = new HashSet<ExternalResource>();
     }
 
     @Override
@@ -195,8 +195,8 @@ public class SyncopeUser extends AbstractAttributable {
     }
 
     @Override
-    protected Set<ExternalResource> externalResources() {
-        return externalResources;
+    protected Set<ExternalResource> resources() {
+        return resources;
     }
 
     public boolean addMembership(final Membership membership) {
@@ -259,23 +259,11 @@ public class SyncopeUser extends AbstractAttributable {
     }
 
     @Override
-    public Set<ExternalResource> getExternalResources() {
+    public Set<ExternalResource> getResources() {
         Set<ExternalResource> result = new HashSet<ExternalResource>();
-        result.addAll(super.getExternalResources());
+        result.addAll(super.getResources());
         for (SyncopeRole role : getRoles()) {
-            result.addAll(role.getExternalResources());
-        }
-
-        return result;
-    }
-
-    @Override
-    public Set<String> getExternalResourceNames() {
-        Set<ExternalResource> resources = getExternalResources();
-
-        Set<String> result = new HashSet<String>(resources.size());
-        for (ExternalResource resource : resources) {
-            result.add(resource.getName());
+            result.addAll(role.getResources());
         }
 
         return result;
@@ -293,10 +281,8 @@ public class SyncopeUser extends AbstractAttributable {
         clearPassword = null;
     }
 
-    public void setPassword(
-            final String password,
-            final CipherAlgorithm cipherAlgoritm,
-            final int historySize) {
+    public void setPassword(final String password,
+            final CipherAlgorithm cipherAlgoritm, final int historySize) {
 
         // clear password
         clearPassword = password;

@@ -153,40 +153,35 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
     public abstract void setVirtualAttributes(
             List<? extends AbstractVirAttr> virtualAttributes);
 
-    protected abstract Set<ExternalResource> externalResources();
+    protected abstract Set<ExternalResource> resources();
 
-    public boolean addExternalResource(
-            final ExternalResource externalResource) {
-
-        return externalResources().add(externalResource);
+    public boolean addResource(final ExternalResource resource) {
+        return resources().add(resource);
     }
 
-    public boolean removeExternalResource(
-            final ExternalResource externalResource) {
-
-        return externalResources().remove(externalResource);
+    public boolean removeResource(final ExternalResource resource) {
+        return resources().remove(resource);
     }
 
-    public Set<ExternalResource> getExternalResources() {
-        return externalResources();
+    public Set<ExternalResource> getResources() {
+        return resources();
     }
 
-    public Set<String> getExternalResourceNames() {
-        Set<String> resourceNames =
-                new HashSet<String>(externalResources().size());
-        for (ExternalResource resource : externalResources()) {
-            resourceNames.add(resource.getName());
+    public Set<String> getResourceNames() {
+        Set<ExternalResource> ownResources = getResources();
+
+        Set<String> result = new HashSet<String>(ownResources.size());
+        for (ExternalResource resource : ownResources) {
+            result.add(resource.getName());
         }
 
-        return resourceNames;
+        return result;
     }
 
-    public void setExternalResources(
-            final Set<ExternalResource> externalResources) {
-
-        externalResources().clear();
-        if (externalResources != null) {
-            externalResources().addAll(externalResources);
+    public void setResources(final Set<ExternalResource> resources) {
+        resources().clear();
+        if (resources != null) {
+            resources().addAll(resources);
         }
     }
 }

@@ -59,6 +59,7 @@ import org.syncope.core.scheduling.NotificationJob;
     "classpath:syncopeContext.xml",
     "classpath:restContext.xml",
     "classpath:persistenceContext.xml",
+    "classpath:entityManagerFactoryContext.xml",
     "classpath:schedulingContext.xml",
     "classpath:workflowContext.xml"
 })

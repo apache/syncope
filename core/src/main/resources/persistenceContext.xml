@@ -59,28 +59,6 @@
         <property name="password" value="${jpa.password}"/>
     </bean>
 
-    <bean id="entityManagerFactory"
-          class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
-        <property name="persistenceUnitName" value="syncopePersistenceUnit"/>
-        <property name="dataSource" ref="dataSource"/>
-        <property name="jpaVendorAdapter">
-            <bean class="org.springframework.orm.jpa.vendor.OpenJpaVendorAdapter">
-                <property name="showSql" value="false"/>
-                <property name="generateDdl" value="true"/>
-                <property name="databasePlatform" value="${jpa.dialect}"/>
-            </bean>
-        </property>
-        <property name="jpaPropertyMap">
-            <map>
-                <entry key="openjpa.NontransactionalWrite" value="false"/>
-                <entry key="openjpa.AutoDetach" value="close, commit, nontx-read, rollback"/>
-                
-                <entry key="openjpa.DataCache" value="true(Lru=true)"/>
-                <entry key="openjpa.QueryCache" value="true(Lru=true)"/>
-            </map>
-        </property>
-    </bean>
-
     <bean id="entityManager" class="org.springframework.orm.jpa.support.SharedEntityManagerBean">
         <property name="entityManagerFactory" ref="entityManagerFactory"/>
     </bean>

@@ -80,13 +80,13 @@ public class ExternalResource extends AbstractBaseBean {
     /**
      * Users associated to this resource.
      */
-    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "externalResources")
+    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "resources")
     private Set<SyncopeUser> users;
 
     /**
      * Roles associated to this resource.
      */
-    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "externalResources")
+    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "resources")
     private Set<SyncopeRole> roles;
 
     /**
