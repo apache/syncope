@@ -186,7 +186,6 @@ public class PropagationManager {
         SyncopeUser user = getSyncopeUser(wfResult.getResult().getKey());
         if (vAttrs != null && !vAttrs.isEmpty()) {
             userDataBinder.fillVirtual(user, vAttrs, AttributableUtil.USER);
-            user = userDAO.save(user);
         }
 
         final PropagationByResource propByRes = wfResult.getPropByRes();

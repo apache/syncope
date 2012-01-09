@@ -694,14 +694,14 @@ public abstract class AbstractAttributableDataBinder {
             final List<AttributeTO> vAttrs,
             final AttributableUtil attributableUtil) {
 
-        AbstractVirSchema virtualSchema;
-        AbstractVirAttr virtualAttribute;
         for (AttributeTO attributeTO : vAttrs) {
-            virtualSchema = getVirtualSchema(attributeTO.getSchema(),
+            AbstractVirSchema virtualSchema = getVirtualSchema(
+                    attributeTO.getSchema(),
                     attributableUtil.virtualSchemaClass());
 
             if (virtualSchema != null) {
-                virtualAttribute = attributableUtil.newVirtualAttribute();
+                AbstractVirAttr virtualAttribute =
+                        attributableUtil.newVirtualAttribute();
                 virtualAttribute.setVirtualSchema(virtualSchema);
                 virtualAttribute.setOwner(attributable);
                 virtualAttribute.setValues(attributeTO.getValues());
