@@ -186,7 +186,6 @@ public class PropagationManager {
         SyncopeUser user = getSyncopeUser(wfResult.getResult().getKey());
         if (vAttrs != null && !vAttrs.isEmpty()) {
             userDataBinder.fillVirtual(user, vAttrs, AttributableUtil.USER);
-            user = userDAO.save(user);
         }
 
         final PropagationByResource propByRes = wfResult.getPropByRes();
@@ -276,7 +275,7 @@ public class PropagationManager {
             localPropByRes.merge(wfResult.getPropByRes());
         } else {
             localPropByRes.addAll(PropagationOperation.UPDATE,
-                    user.getExternalResourceNames());
+                    user.getResourceNames());
         }
         if (syncResourceName != null) {
             localPropByRes.get(PropagationOperation.CREATE).
@@ -328,7 +327,7 @@ public class PropagationManager {
 
         final PropagationByResource propByRes = new PropagationByResource();
         propByRes.set(PropagationOperation.DELETE,
-                user.getExternalResourceNames());
+                user.getResourceNames());
         if (syncResourceName != null) {
             propByRes.get(PropagationOperation.DELETE).remove(syncResourceName);
         }

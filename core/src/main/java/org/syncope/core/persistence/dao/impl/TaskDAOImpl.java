@@ -44,8 +44,8 @@ public class TaskDAOImpl extends AbstractDAOImpl
                 new StringBuilder("SELECT e FROM ").append(reference.
                 getSimpleName()).append(" e ");
         if (SchedTask.class.equals(reference)) {
-            queryString.append("WHERE e NOT IN (FROM ").
-                    append(SyncTask.class.getName()).append(") ");
+            queryString.append("WHERE e.id NOT IN (SELECT e.id FROM ").
+                    append(SyncTask.class.getSimpleName()).append(" e) ");
         }
 
         return queryString;
@@ -124,10 +124,9 @@ public class TaskDAOImpl extends AbstractDAOImpl
 
     @Override
     public <T extends Task> Integer count(final Class<T> reference) {
-        Query countQuery =
-                entityManager.createNativeQuery("SELECT COUNT(id) "
-                + "FROM Task WHERE DTYPE=:dtype");
-        countQuery.setParameter("dtype", reference.getSimpleName());
+        Query countQuery = entityManager.createNativeQuery(
+                "SELECT COUNT(id) FROM Task WHERE DTYPE=?1");
+        countQuery.setParameter(1, reference.getSimpleName());
 
         return ((Number) countQuery.getSingleResult()).intValue();
     }

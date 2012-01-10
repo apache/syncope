@@ -401,7 +401,7 @@ public class AuthenticationTestITCase extends AbstractTest {
 
         assertNotNull(userTO);
         assertNotNull(userTO.getFailedLogins());
-        assertEquals(new Integer(3), userTO.getFailedLogins());
+        assertEquals(Integer.valueOf(3), userTO.getFailedLogins());
         assertEquals("suspended", userTO.getStatus());
 
         // check for authentication
@@ -442,6 +442,6 @@ public class AuthenticationTestITCase extends AbstractTest {
                 UserTO.class, userTO.getId());
 
         assertNotNull(userTO);
-        assertEquals(new Integer(0), userTO.getFailedLogins());
+        assertEquals(Integer.valueOf(0), userTO.getFailedLogins());
     }
 }

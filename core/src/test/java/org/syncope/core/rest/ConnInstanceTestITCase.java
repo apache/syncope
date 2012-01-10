@@ -37,7 +37,6 @@ import org.springframework.test.annotation.ExpectedException;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.syncope.client.to.ConnBundleTO;
 import org.syncope.client.to.ConnInstanceTO;
-import org.syncope.client.to.ResourceTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.types.ConnConfPropSchema;
 import org.syncope.types.ConnConfProperty;
@@ -299,41 +298,21 @@ public class ConnInstanceTestITCase extends AbstractTest {
 
     @Test
     public void getSchemaNames() {
-        ResourceTO resourceTO = null;
-
-        resourceTO = restTemplate.getForObject(
-                BASE_URL + "/resource/read/{resourceName}.json",
-                ResourceTO.class, "ws-target-resource-1");
-        assertNotNull(resourceTO);
-
-        List<String> schemaNames = Arrays.asList(restTemplate.postForObject(
-                BASE_URL + "connector/schema/list/all",
-                resourceTO, String[].class));
-
+        List<String> schemaNames = Arrays.asList(restTemplate.getForObject(
+                BASE_URL + "connector/schema/{resourceName}/list?showAll=true",
+                String[].class, "ws-target-resource-1"));
         assertNotNull(schemaNames);
         assertFalse(schemaNames.isEmpty());
 
-        resourceTO = restTemplate.getForObject(
-                BASE_URL + "/resource/read/{resourceName}.json",
-                ResourceTO.class, "resource-testdb");
-        assertNotNull(resourceTO);
-
-        schemaNames = Arrays.asList(restTemplate.postForObject(
-                BASE_URL + "connector/schema/list",
-                resourceTO, String[].class));
-
+        schemaNames = Arrays.asList(restTemplate.getForObject(
+                BASE_URL + "connector/schema/{resourceName}/list?showAll=true",
+                String[].class, "resource-testdb"));
         assertNotNull(schemaNames);
         assertEquals(1, schemaNames.size());
 
-        resourceTO = restTemplate.getForObject(
-                BASE_URL + "/resource/read/{resourceName}.json",
-                ResourceTO.class, "resource-csv");
-        assertNotNull(resourceTO);
-
-        schemaNames = Arrays.asList(restTemplate.postForObject(
-                BASE_URL + "connector/schema/list",
-                resourceTO, String[].class));
-
+        schemaNames = Arrays.asList(restTemplate.getForObject(
+                BASE_URL + "connector/schema/{resourceName}/list?showAll=true",
+                String[].class, "resource-csv"));
         assertNotNull(schemaNames);
         assertFalse(schemaNames.isEmpty());
     }

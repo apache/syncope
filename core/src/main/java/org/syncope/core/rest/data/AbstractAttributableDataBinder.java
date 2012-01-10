@@ -44,8 +44,6 @@ import org.syncope.core.persistence.beans.AbstractVirAttr;
 import org.syncope.core.persistence.beans.AbstractVirSchema;
 import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.core.persistence.beans.SchemaMapping;
-import org.syncope.core.persistence.beans.role.SyncopeRole;
-import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.dao.AttrDAO;
 import org.syncope.core.persistence.dao.AttrValueDAO;
 import org.syncope.core.persistence.dao.ConfDAO;
@@ -273,7 +271,7 @@ public abstract class AbstractAttributableDataBinder {
                 SyncopeClientExceptionType.RequiredValuesMissing);
 
         LOG.debug("Check mandatory constraint among resources {}",
-                attributable.getExternalResources());
+                attributable.getResources());
         // Check if there is some mandatory schema defined for which no value
         // has been provided
         List<AbstractSchema> allSchemas =
@@ -286,7 +284,7 @@ public abstract class AbstractAttributableDataBinder {
                     schema.getMandatoryCondition(),
                     attributable.getAttributes())
                     || evaluateMandatoryCondition(
-                    attributable.getExternalResources(),
+                    attributable.getResources(),
                     attributable.getAttributes(),
                     schema.getName(),
                     attributableUtil))) {
@@ -332,7 +330,7 @@ public abstract class AbstractAttributableDataBinder {
                             && mapping.getIntMappingType()
                             == attributableUtil.virtualIntMappingType()
                             && mapping.getResource() != null
-                            && attributable.getExternalResources().
+                            && attributable.getResources().
                             contains(mapping.getResource())) {
 
                         propByRes.add(PropagationOperation.UPDATE,
@@ -365,7 +363,7 @@ public abstract class AbstractAttributableDataBinder {
                             && mapping.getIntMappingType()
                             == attributableUtil.virtualIntMappingType()
                             && mapping.getResource() != null
-                            && attributable.getExternalResources().
+                            && attributable.getResources().
                             contains(mapping.getResource())) {
 
                         propByRes.add(PropagationOperation.UPDATE,
@@ -418,14 +416,7 @@ public abstract class AbstractAttributableDataBinder {
             if (resource != null) {
                 propByRes.add(PropagationOperation.DELETE, resource.getName());
 
-                attributable.removeExternalResource(resource);
-
-                if (attributableUtil == AttributableUtil.USER) {
-                    resource.removeUser((SyncopeUser) attributable);
-                }
-                if (attributableUtil == AttributableUtil.ROLE) {
-                    resource.removeRole((SyncopeRole) attributable);
-                }
+                attributable.removeResource(resource);
             }
         }
 
@@ -440,14 +431,7 @@ public abstract class AbstractAttributableDataBinder {
             if (resource != null) {
                 propByRes.add(PropagationOperation.CREATE, resource.getName());
 
-                attributable.addExternalResource(resource);
-
-                if (attributableUtil == attributableUtil.USER) {
-                    resource.addUser((SyncopeUser) attributable);
-                }
-                if (attributableUtil == attributableUtil.ROLE) {
-                    resource.addRole((SyncopeRole) attributable);
-                }
+                attributable.addResource(resource);
             }
         }
 
@@ -494,7 +478,7 @@ public abstract class AbstractAttributableDataBinder {
                             && mapping.getIntMappingType()
                             == attributableUtil.intMappingType()
                             && mapping.getResource() != null
-                            && attributable.getExternalResources().
+                            && attributable.getResources().
                             contains(mapping.getResource())) {
 
                         propByRes.add(PropagationOperation.UPDATE,
@@ -530,7 +514,7 @@ public abstract class AbstractAttributableDataBinder {
                             && mapping.getIntMappingType()
                             == attributableUtil.intMappingType()
                             && mapping.getResource() != null
-                            && attributable.getExternalResources().
+                            && attributable.getResources().
                             contains(mapping.getResource())) {
 
                         propByRes.add(PropagationOperation.UPDATE,
@@ -626,7 +610,7 @@ public abstract class AbstractAttributableDataBinder {
                             && mapping.getIntMappingType()
                             == attributableUtil.derivedIntMappingType()
                             && mapping.getResource() != null
-                            && attributable.getExternalResources().
+                            && attributable.getResources().
                             contains(mapping.getResource())) {
 
                         propByRes.add(PropagationOperation.UPDATE,
@@ -663,7 +647,7 @@ public abstract class AbstractAttributableDataBinder {
                             && mapping.getIntMappingType()
                             == attributableUtil.derivedIntMappingType()
                             && mapping.getResource() != null
-                            && attributable.getExternalResources().
+                            && attributable.getResources().
                             contains(mapping.getResource())) {
 
                         propByRes.add(PropagationOperation.UPDATE,
@@ -710,14 +694,14 @@ public abstract class AbstractAttributableDataBinder {
             final List<AttributeTO> vAttrs,
             final AttributableUtil attributableUtil) {
 
-        AbstractVirSchema virtualSchema;
-        AbstractVirAttr virtualAttribute;
         for (AttributeTO attributeTO : vAttrs) {
-            virtualSchema = getVirtualSchema(attributeTO.getSchema(),
+            AbstractVirSchema virtualSchema = getVirtualSchema(
+                    attributeTO.getSchema(),
                     attributableUtil.virtualSchemaClass());
 
             if (virtualSchema != null) {
-                virtualAttribute = attributableUtil.newVirtualAttribute();
+                AbstractVirAttr virtualAttribute =
+                        attributableUtil.newVirtualAttribute();
                 virtualAttribute.setVirtualSchema(virtualSchema);
                 virtualAttribute.setOwner(attributable);
                 virtualAttribute.setValues(attributeTO.getValues());
@@ -807,19 +791,7 @@ public abstract class AbstractAttributableDataBinder {
             resource = getResource(resourceName);
 
             if (resource != null) {
-                attributable.addExternalResource(resource);
-
-                switch (attributableUtil) {
-                    case USER:
-                        resource.addUser((SyncopeUser) attributable);
-                        break;
-
-                    case ROLE:
-                        resource.addRole((SyncopeRole) attributable);
-                        break;
-
-                    default:
-                }
+                attributable.addResource(resource);
             }
         }
 

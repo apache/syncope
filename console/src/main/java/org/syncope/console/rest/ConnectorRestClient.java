@@ -22,7 +22,6 @@ import java.util.Set;
 import org.springframework.stereotype.Component;
 import org.syncope.client.to.ConnBundleTO;
 import org.syncope.client.to.ConnInstanceTO;
-import org.syncope.client.to.ResourceTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.console.SyncopeSession;
 import org.syncope.types.ConnConfProperty;
@@ -47,7 +46,7 @@ public class ConnectorRestClient extends AbstractBaseRestClient {
      * Create new connector.
      * @param schemaTO
      */
-    public void create(ConnInstanceTO connectorTO) {
+    public void create(final ConnInstanceTO connectorTO) {
         filterProperties(connectorTO.getConfiguration());
         restTemplate.postForObject(baseURL
                 + "connector/create.json", connectorTO, ConnInstanceTO.class);
@@ -72,7 +71,7 @@ public class ConnectorRestClient extends AbstractBaseRestClient {
         return connectorTO;
     }
 
-    public void update(ConnInstanceTO connectorTO) {
+    public void update(final ConnInstanceTO connectorTO) {
         filterProperties(connectorTO.getConfiguration());
         restTemplate.postForObject(baseURL + "connector/update.json",
                 connectorTO, ConnInstanceTO.class);
@@ -98,13 +97,13 @@ public class ConnectorRestClient extends AbstractBaseRestClient {
         return bundles;
     }
 
-    public List<String> getSchemaNames(final ResourceTO resourceTO) {
+    public List<String> getSchemaNames(final String resourceName) {
         List<String> schemaNames = null;
 
         try {
-            schemaNames = Arrays.asList(restTemplate.postForObject(
-                    baseURL + "connector/schema/list",
-                    resourceTO, String[].class));
+            schemaNames = Arrays.asList(restTemplate.getForObject(
+                    baseURL + "connector/schema/{resourceName}/list",
+                    String[].class, resourceName));
 
             // re-order schema names list
             Collections.sort(schemaNames);

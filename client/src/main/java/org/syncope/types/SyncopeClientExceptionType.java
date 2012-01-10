@@ -19,9 +19,9 @@ public enum SyncopeClientExceptionType {
     Deadlock(
     "Syncope.Deadlock",
     ""),
-    DuplicateUniqueValue(
-    "Syncope.DuplicateUniqueValue",
-    "Syncope.DuplicateUniqueValue.name"),
+    DataIntegrityViolation(
+    "Syncope.DataIntegrityViolation",
+    "Syncope.DataIntegrityViolation.name"),
     GenericPersistence(
     "Syncope.GenericPersistence",
     "Syncope.GenericPersistence.cause"),
@@ -29,14 +29,17 @@ public enum SyncopeClientExceptionType {
     "Syncope.InvalidConnInstance",
     "Syncope.InvalidConnInstance.message"),
     InvalidPasswordPolicy(
-    "Syncope.InvalidPolicy",
-    "Syncope.InvalidPolicy.reason"),
+    "Syncope.InvalidPasswordPolicy",
+    "Syncope.InvalidPasswordPolicy.reason"),
     InvalidAccountPolicy(
-    "Syncope.InvalidPolicy",
-    "Syncope.InvalidPolicy.reason"),
+    "Syncope.InvalidAccountPolicy",
+    "Syncope.InvalidAccountPolicy.reason"),
     InvalidSyncPolicy(
-    "Syncope.InvalidPolicy",
-    "Syncope.InvalidPolicy.reason"),
+    "Syncope.InvalidSyncPolicy",
+    "Syncope.InvalidSyncPolicy.reason"),
+    InvalidSyncopeRole(
+    "Syncope.InvalidSyncopeRole",
+    "Syncope.InvalidSyncopeRole.reason"),
     InvalidRoles(
     "Syncope.InvalidRoles",
     "Syncope.InvalidRoles.name"),
@@ -112,6 +115,9 @@ public enum SyncopeClientExceptionType {
     RequiredValuesMissing(
     "Syncope.RequiredValuesMissing",
     "Syncope.RequiredValuesMissing.attributeName"),
+    ResourceExist(
+    "Syncope.ResourceExist",
+    "Syncope.ResourceExist.name"),
     Scheduling(
     "Syncope.Scheduling",
     "Syncope.Scheduling.message"),

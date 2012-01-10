@@ -19,11 +19,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
 import javax.persistence.Query;
@@ -101,8 +98,8 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
     public Integer count(final Set<Long> adminRoles,
             final NodeCond searchCondition) {
 
-        Map<Integer, Object> parameters = Collections.synchronizedMap(
-                new HashMap<Integer, Object>());
+        List<Object> parameters = Collections.synchronizedList(
+                new ArrayList<Object>());
 
         // 1. get the query string from the search condition
         StringBuilder queryString = getQuery(searchCondition, parameters);
@@ -168,22 +165,22 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
     public boolean matches(final SyncopeUser user,
             final NodeCond searchCondition) {
 
-        Map<Integer, Object> parameters = Collections.synchronizedMap(
-                new HashMap<Integer, Object>());
+        List<Object> parameters = Collections.synchronizedList(
+                new ArrayList<Object>());
 
         // 1. get the query string from the search condition
         StringBuilder queryString = getQuery(searchCondition, parameters);
 
         // 2. take into account the passed user
         queryString.insert(0, "SELECT u.user_id FROM (");
-        queryString.append(") u WHERE user_id=:matchesUserId");
+        queryString.append(") u WHERE user_id=?").append(
+                setParameter(parameters, user.getId()));
 
         // 3. prepare the search query
         Query query = entityManager.createNativeQuery(queryString.toString());
-
+        
         // 4. populate the search query with parameter values
         fillWithParameters(query, parameters);
-        query.setParameter("matchesUserId", user.getId());
 
         // 5. executes query
         List<SyncopeUser> result = query.getResultList();
@@ -191,33 +188,29 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
         return !result.isEmpty();
     }
 
-    private Integer setParameter(final Map<Integer, Object> parameters,
+    private int setParameter(final List<Object> parameters,
             final Object parameter) {
 
-        Integer key;
+        int key;
         synchronized (parameters) {
-            do {
-                key = random.nextInt(Integer.MAX_VALUE);
-            } while (parameters.containsKey(key));
-
-            parameters.put(key, parameter);
+            parameters.add(parameter);
+            key = parameters.size();
         }
 
         return key;
     }
 
     private void fillWithParameters(final Query query,
-            final Map<Integer, Object> parameters) {
+            final List<Object> parameters) {
 
-        for (Entry<Integer, Object> entry : parameters.entrySet()) {
-            if (entry.getValue() instanceof Date) {
-                query.setParameter("param" + entry.getKey(),
-                        (Date) entry.getValue(), TemporalType.TIMESTAMP);
-            } else if (entry.getValue() instanceof Boolean) {
-                query.setParameter("param" + entry.getKey(),
-                        ((Boolean) entry.getValue()) ? 1 : 0);
+        for (int i = 0; i < parameters.size(); i++) {
+            if (parameters.get(i) instanceof Date) {
+                query.setParameter(i + 1, (Date) parameters.get(i),
+                        TemporalType.TIMESTAMP);
+            } else if (parameters.get(i) instanceof Boolean) {
+                query.setParameter(i + 1, ((Boolean) parameters.get(i)) ? 1 : 0);
             } else {
-                query.setParameter("param" + entry.getKey(), entry.getValue());
+                query.setParameter(i + 1, parameters.get(i));
             }
         }
     }
@@ -226,8 +219,8 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
             final NodeCond nodeCond,
             final int page, final int itemsPerPage) {
 
-        Map<Integer, Object> parameters = Collections.synchronizedMap(
-                new HashMap<Integer, Object>());
+        List<Object> parameters = Collections.synchronizedList(
+                new ArrayList<Object>());
 
         // 1. get the query string from the search condition
         final StringBuilder queryString = getQuery(nodeCond, parameters);
@@ -292,7 +285,7 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
     }
 
     private StringBuilder getQuery(final NodeCond nodeCond,
-            final Map<Integer, Object> parameters) {
+            final List<Object> parameters) {
 
         StringBuilder query = new StringBuilder();
 
@@ -348,7 +341,7 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
     }
 
     private String getQuery(final MembershipCond cond,
-            final boolean not, final Map<Integer, Object> parameters) {
+            final boolean not, final List<Object> parameters) {
 
         StringBuilder query = new StringBuilder(
                 "SELECT DISTINCT user_id FROM user_search WHERE ");
@@ -363,10 +356,10 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
                 append("FROM user_search_membership WHERE ");
 
         if (cond.getRoleId() != null) {
-            query.append("role_id=:param").append(
+            query.append("role_id=?").append(
                     setParameter(parameters, cond.getRoleId()));
         } else if (cond.getRoleName() != null) {
-            query.append("role_name=:param").append(
+            query.append("role_name=?").append(
                     setParameter(parameters, cond.getRoleName()));
         }
 
@@ -376,7 +369,7 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
     }
 
     private String getQuery(final ResourceCond cond,
-            final boolean not, final Map<Integer, Object> parameters) {
+            final boolean not, final List<Object> parameters) {
 
         final StringBuilder query = new StringBuilder(
                 "SELECT DISTINCT user_id FROM user_search WHERE ");
@@ -390,7 +383,7 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
         query.append("SELECT DISTINCT user_id ").
                 append("FROM user_search_resource WHERE ");
 
-        query.append("resource_name=:param").append(
+        query.append("resource_name=?").append(
                 setParameter(parameters, cond.getResourceName()));
 
         query.append(")");
@@ -401,7 +394,7 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
     private void fillAttributeQuery(final StringBuilder query,
             final UAttrValue attrValue, final USchema schema,
             final AttributeCond cond, final boolean not,
-            final Map<Integer, Object> parameters) {
+            final List<Object> parameters) {
 
         String column = (cond instanceof SyncopeUserCond)
                 ? cond.getSchema()
@@ -446,7 +439,7 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
                 } else {
                     query.append("=");
                 }
-                query.append(":param").append(
+                query.append("?").append(
                         setParameter(parameters, attrValue.getValue()));
                 break;
 
@@ -457,7 +450,7 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
                 } else {
                     query.append(">=");
                 }
-                query.append(":param").append(
+                query.append("?").append(
                         setParameter(parameters, attrValue.getValue()));
                 break;
 
@@ -468,7 +461,7 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
                 } else {
                     query.append(">");
                 }
-                query.append(":param").append(
+                query.append("?").append(
                         setParameter(parameters, attrValue.getValue()));
                 break;
 
@@ -479,7 +472,7 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
                 } else {
                     query.append("<=");
                 }
-                query.append(":param").append(
+                query.append("?").append(
                         setParameter(parameters, attrValue.getValue()));
                 break;
 
@@ -490,7 +483,7 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
                 } else {
                     query.append("<");
                 }
-                query.append(":param").append(
+                query.append("?").append(
                         setParameter(parameters, attrValue.getValue()));
                 break;
 
@@ -531,7 +524,7 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
     }
 
     private String getQuery(final AttributeCond cond,
-            final boolean not, final Map<Integer, Object> parameters) {
+            final boolean not, final List<Object> parameters) {
 
         USchema schema = schemaDAO.find(cond.getSchema(), USchema.class);
         if (schema == null) {
@@ -563,7 +556,7 @@ public class UserSearchDAOImpl extends AbstractDAOImpl
     }
 
     private String getQuery(final SyncopeUserCond cond,
-            final boolean not, final Map<Integer, Object> parameters) {
+            final boolean not, final List<Object> parameters) {
 
         Field syncopeUserClassField = null;
         // loop over SyncopeUser class and all superclasses searching for field

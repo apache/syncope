@@ -222,7 +222,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         // after form submission - propagation
         PropagationByResource propByRes = new PropagationByResource();
         propByRes.set(PropagationOperation.CREATE,
-                user.getExternalResourceNames());
+                user.getResourceNames());
         if (waitingForForm(user)) {
             runtimeService.setVariable(processInstance.getProcessInstanceId(),
                     PROP_BY_RESOURCE, propByRes);

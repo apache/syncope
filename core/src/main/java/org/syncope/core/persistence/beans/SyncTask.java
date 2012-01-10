@@ -19,7 +19,6 @@ import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-import org.hibernate.annotations.Type;
 import org.syncope.client.to.UserTO;
 import org.syncope.core.persistence.validation.entity.SyncTaskCheck;
 import org.syncope.core.scheduling.SyncJob;
@@ -38,7 +37,7 @@ public class SyncTask extends SchedTask {
     private ExternalResource resource;
 
     @Lob
-    @Type(type = "org.hibernate.type.StringClobType")
+    //@Type(type = "org.hibernate.type.StringClobType")
     private String userTemplate;
 
     @Basic

@@ -14,28 +14,16 @@
  */
 package org.syncope.core.persistence.beans;
 
-import java.text.SimpleDateFormat;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.persistence.FetchType;
-import javax.persistence.ManyToMany;
-import javax.persistence.MappedSuperclass;
 
-@MappedSuperclass
 public abstract class AbstractAttributable extends AbstractBaseBean {
 
     private static final long serialVersionUID = -4801685541488201119L;
-
-    /**
-     * Provisioning target resources.
-     */
-    @ManyToMany(fetch = FetchType.EAGER)
-    protected Set<ExternalResource> externalResources;
 
     public <T extends AbstractAttr> T getAttribute(final String schemaName) {
         T result = null;
@@ -97,51 +85,7 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
         return result;
     }
 
-    public boolean addExternalResource(
-            final ExternalResource externalResource) {
-
-        if (externalResources == null) {
-            externalResources = new HashSet<ExternalResource>();
-        }
-        return externalResources.add(externalResource);
-    }
-
-    public boolean removeExternalResource(
-            final ExternalResource externalResource) {
-
-        return externalResources == null
-                ? true
-                : externalResources.remove(externalResource);
-    }
-
-    public Set<ExternalResource> getExternalResources() {
-        return externalResources == null
-                ? Collections.EMPTY_SET
-                : externalResources;
-    }
-
-    public Set<String> getExternalResourceNames() {
-        Set<String> resourceNames;
-
-        if (externalResources == null) {
-            resourceNames = Collections.EMPTY_SET;
-        } else {
-            resourceNames = new HashSet<String>(externalResources.size());
-            for (ExternalResource resource : externalResources) {
-                resourceNames.add(resource.getName());
-            }
-        }
-
-        return resourceNames;
-    }
-
-    public void setExternalResources(
-            final Set<ExternalResource> externalResources) {
-
-        this.externalResources = externalResources;
-    }
-
-    protected Map<AbstractSchema, AbstractAttr> getAttributesMap() {
+    protected Map<AbstractSchema, AbstractAttr> getAttrMap() {
         final Map<AbstractSchema, AbstractAttr> map =
                 new HashMap<AbstractSchema, AbstractAttr>();
 
@@ -152,7 +96,7 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
         return map;
     }
 
-    protected Map<AbstractDerSchema, AbstractDerAttr> getDerivedAttributesMap() {
+    protected Map<AbstractDerSchema, AbstractDerAttr> getDerAttrMap() {
         final Map<AbstractDerSchema, AbstractDerAttr> map =
                 new HashMap<AbstractDerSchema, AbstractDerAttr>();
 
@@ -163,7 +107,7 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
         return map;
     }
 
-    protected Map<AbstractVirSchema, AbstractVirAttr> getVirtualAttributesMap() {
+    protected Map<AbstractVirSchema, AbstractVirAttr> getVirAttrMap() {
         final Map<AbstractVirSchema, AbstractVirAttr> map =
                 new HashMap<AbstractVirSchema, AbstractVirAttr>();
 
@@ -209,9 +153,35 @@ public abstract class AbstractAttributable extends AbstractBaseBean {
     public abstract void setVirtualAttributes(
             List<? extends AbstractVirAttr> virtualAttributes);
 
-    public final SimpleDateFormat getDateFormatter() {
-        final SimpleDateFormat dateFormatter = DATE_FORMAT.get();
-        dateFormatter.setLenient(false);
-        return dateFormatter;
+    protected abstract Set<ExternalResource> resources();
+
+    public boolean addResource(final ExternalResource resource) {
+        return resources().add(resource);
+    }
+
+    public boolean removeResource(final ExternalResource resource) {
+        return resources().remove(resource);
+    }
+
+    public Set<ExternalResource> getResources() {
+        return resources();
+    }
+
+    public Set<String> getResourceNames() {
+        Set<ExternalResource> ownResources = getResources();
+
+        Set<String> result = new HashSet<String>(ownResources.size());
+        for (ExternalResource resource : ownResources) {
+            result.add(resource.getName());
+        }
+
+        return result;
+    }
+
+    public void setResources(final Set<ExternalResource> resources) {
+        resources().clear();
+        if (resources != null) {
+            resources().addAll(resources);
+        }
     }
 }

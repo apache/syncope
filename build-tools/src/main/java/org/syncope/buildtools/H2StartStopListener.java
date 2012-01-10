@@ -48,9 +48,8 @@ public class H2StartStopListener implements ServletContextListener {
 
         File workDir = (File) sce.getServletContext().getAttribute(
                 "javax.servlet.context.tempdir");
-        Server h2TestDb;
         try {
-            h2TestDb = new Server();
+            Server h2TestDb = new Server();
             h2TestDb.runTool(
                     "-baseDir", workDir.getAbsolutePath(),
                     "-tcp", "-tcpDaemon",

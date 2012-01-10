@@ -62,7 +62,7 @@ public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
         final PropagationByResource propByRes = new PropagationByResource();
         propByRes.set(PropagationOperation.CREATE,
-                user.getExternalResourceNames());
+                user.getResourceNames());
         return new WorkflowResult<Map.Entry<Long, Boolean>>(
                 new DefaultMapEntry(user.getId(), Boolean.TRUE),
                 propByRes, "create");

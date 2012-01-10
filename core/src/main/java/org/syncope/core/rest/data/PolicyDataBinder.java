@@ -35,110 +35,113 @@ public class PolicyDataBinder {
      * @param policy bean.
      * @return policy TO.
      */
-    public PolicyTO getPolicyTO(final Policy policy) {
+    public <T extends PolicyTO> T getPolicyTO(final Policy policy) {
         final PolicyTO policyTO;
+        switch (policy.getType()) {
+            case GLOBAL_PASSWORD:
+                policyTO = new PasswordPolicyTO(true);
+                ((PasswordPolicyTO) policyTO).setSpecification(
+                        (PasswordPolicySpec) policy.getSpecification());
+                break;
 
-        if (policy != null) {
-            switch (policy.getType()) {
-                case GLOBAL_PASSWORD:
-                    policyTO = new PasswordPolicyTO(true);
-                    ((PasswordPolicyTO) policyTO).setSpecification(
-                            (PasswordPolicySpec) policy.getSpecification());
-                    break;
+            case PASSWORD:
+                policyTO = new PasswordPolicyTO();
+                ((PasswordPolicyTO) policyTO).setSpecification(
+                        (PasswordPolicySpec) policy.getSpecification());
+                break;
 
-                case PASSWORD:
-                    policyTO = new PasswordPolicyTO();
-                    ((PasswordPolicyTO) policyTO).setSpecification(
-                            (PasswordPolicySpec) policy.getSpecification());
-                    break;
+            case GLOBAL_ACCOUNT:
+                policyTO = new AccountPolicyTO(true);
+                ((AccountPolicyTO) policyTO).setSpecification(
+                        (AccountPolicySpec) policy.getSpecification());
+                break;
 
-                case GLOBAL_ACCOUNT:
-                    policyTO = new AccountPolicyTO(true);
-                    ((AccountPolicyTO) policyTO).setSpecification(
-                            (AccountPolicySpec) policy.getSpecification());
-                    break;
+            case ACCOUNT:
+                policyTO = new AccountPolicyTO();
+                ((AccountPolicyTO) policyTO).setSpecification(
+                        (AccountPolicySpec) policy.getSpecification());
+                break;
 
-                case ACCOUNT:
-                    policyTO = new AccountPolicyTO();
-                    ((AccountPolicyTO) policyTO).setSpecification(
-                            (AccountPolicySpec) policy.getSpecification());
-                    break;
+            case GLOBAL_SYNC:
+                policyTO = new SyncPolicyTO(true);
+                ((SyncPolicyTO) policyTO).setSpecification(
+                        (SyncPolicySpec) policy.getSpecification());
+                break;
 
-                case GLOBAL_SYNC:
-                    policyTO = new SyncPolicyTO(true);
-                    ((SyncPolicyTO) policyTO).setSpecification(
-                            (SyncPolicySpec) policy.getSpecification());
-                    break;
+            case SYNC:
+            default:
+                policyTO = new SyncPolicyTO();
+                ((SyncPolicyTO) policyTO).setSpecification(
+                        (SyncPolicySpec) policy.getSpecification());
 
-                case SYNC:
-                default:
-                    policyTO = new SyncPolicyTO();
-                    ((SyncPolicyTO) policyTO).setSpecification(
-                            (SyncPolicySpec) policy.getSpecification());
-
-            }
-
-            policyTO.setId(policy.getId());
-            policyTO.setDescription(policy.getDescription());
-        } else {
-            policyTO = null;
         }
 
-        return policyTO;
+        policyTO.setId(policy.getId());
+        policyTO.setDescription(policy.getDescription());
+
+        return (T) policyTO;
     }
 
-    /**
-     * Get policy bean from policy TO.
-     * @param policyTO TO
-     * @return policy bean
-     */
-    public Policy getPolicy(final PolicyTO policyTO) {
-        final Policy policy;
+    public <T extends Policy> T getPolicy(
+            T policy, final PolicyTO policyTO) {
 
-        if (policyTO != null) {
-            switch (policyTO.getType()) {
-                case GLOBAL_PASSWORD:
-                    policy = new PasswordPolicy(true);
-                    policy.setSpecification(
-                            ((PasswordPolicyTO) policyTO).getSpecification());
-                    break;
-
-                case PASSWORD:
-                    policy = new PasswordPolicy();
-                    policy.setSpecification(
-                            ((PasswordPolicyTO) policyTO).getSpecification());
-                    break;
-
-                case GLOBAL_ACCOUNT:
-                    policy = new AccountPolicy(true);
-                    policy.setSpecification(
-                            ((AccountPolicyTO) policyTO).getSpecification());
-                    break;
-
-                case ACCOUNT:
-                    policy = new AccountPolicy();
-                    policy.setSpecification(
-                            ((AccountPolicyTO) policyTO).getSpecification());
-                    break;
-
-                case GLOBAL_SYNC:
-                    policy = new SyncPolicy(true);
-                    policy.setSpecification(
-                            ((SyncPolicyTO) policyTO).getSpecification());
-                    break;
-
-                case SYNC:
-                default:
-                    policy = new SyncPolicy();
-                    policy.setSpecification(
-                            ((SyncPolicyTO) policyTO).getSpecification());
-            }
-
-            policy.setId(policyTO.getId());
-            policy.setDescription(policyTO.getDescription());
-        } else {
-            policy = null;
+        if (policy != null && policy.getType() != policyTO.getType()) {
+            throw new IllegalArgumentException(
+                    String.format("Cannot update %s from %s",
+                    policy.getType(), policyTO.getType()));
         }
+
+        switch (policyTO.getType()) {
+            case GLOBAL_PASSWORD:
+                if (policy == null) {
+                    policy = (T) new PasswordPolicy(true);
+                }
+                policy.setSpecification(
+                        ((PasswordPolicyTO) policyTO).getSpecification());
+                break;
+
+            case PASSWORD:
+                if (policy == null) {
+                    policy = (T) new PasswordPolicy();
+                }
+                policy.setSpecification(
+                        ((PasswordPolicyTO) policyTO).getSpecification());
+                break;
+
+            case GLOBAL_ACCOUNT:
+                if (policy == null) {
+                    policy = (T) new AccountPolicy(true);
+                }
+                policy.setSpecification(
+                        ((AccountPolicyTO) policyTO).getSpecification());
+                break;
+
+            case ACCOUNT:
+                if (policy == null) {
+                    policy = (T) new AccountPolicy();
+                }
+                policy.setSpecification(
+                        ((AccountPolicyTO) policyTO).getSpecification());
+                break;
+
+            case GLOBAL_SYNC:
+                if (policy == null) {
+                    policy = (T) new SyncPolicy(true);
+                }
+                policy.setSpecification(
+                        ((SyncPolicyTO) policyTO).getSpecification());
+                break;
+
+            case SYNC:
+            default:
+                if (policy == null) {
+                    policy = (T) new SyncPolicy();
+                }
+                policy.setSpecification(
+                        ((SyncPolicyTO) policyTO).getSpecification());
+        }
+
+        policy.setDescription(policyTO.getDescription());
 
         return policy;
     }

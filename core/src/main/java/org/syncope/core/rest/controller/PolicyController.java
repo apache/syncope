@@ -46,7 +46,7 @@ public class PolicyController extends AbstractController {
     private PolicyDAO policyDAO;
 
     @Autowired
-    private PolicyDataBinder policyDataBinder;
+    private PolicyDataBinder binder;
 
     @PreAuthorize("hasRole('POLICY_CREATE')")
     @RequestMapping(method = RequestMethod.POST, value = "/password/create")
@@ -54,10 +54,11 @@ public class PolicyController extends AbstractController {
             final @RequestBody PasswordPolicyTO policyTO)
             throws SyncopeClientCompositeErrorException {
 
-        final PasswordPolicy policy =
-                (PasswordPolicy) policyDataBinder.getPolicy(policyTO);
+        LOG.debug("Creating policy " + policyTO);
 
-        return (PasswordPolicyTO) create(policy, policyTO);
+        final PasswordPolicy policy = binder.getPolicy(null, policyTO);
+
+        return binder.getPolicyTO(policyDAO.save(policy));
     }
 
     @PreAuthorize("hasRole('POLICY_CREATE')")
@@ -66,10 +67,11 @@ public class PolicyController extends AbstractController {
             final @RequestBody AccountPolicyTO policyTO)
             throws SyncopeClientCompositeErrorException {
 
-        final AccountPolicy policy =
-                (AccountPolicy) policyDataBinder.getPolicy(policyTO);
+        LOG.debug("Creating policy " + policyTO);
 
-        return (AccountPolicyTO) create(policy, policyTO);
+        final AccountPolicy policy = binder.getPolicy(null, policyTO);
+
+        return binder.getPolicyTO(policyDAO.save(policy));
     }
 
     @PreAuthorize("hasRole('POLICY_CREATE')")
@@ -78,21 +80,22 @@ public class PolicyController extends AbstractController {
             final @RequestBody SyncPolicyTO policyTO)
             throws SyncopeClientCompositeErrorException {
 
-        final SyncPolicy policy =
-                (SyncPolicy) policyDataBinder.getPolicy(policyTO);
-
-        return (SyncPolicyTO) create(policy, policyTO);
-    }
-
-    private PolicyTO create(final Policy policy, final PolicyTO policyTO)
-            throws SyncopeClientCompositeErrorException {
-
         LOG.debug("Creating policy " + policyTO);
 
-        Policy actual = policyDAO.save(policy);
-        policyTO.setId(actual.getId());
+        final SyncPolicy policy = binder.getPolicy(null, policyTO);
 
-        return policyTO;
+        return binder.getPolicyTO(policyDAO.save(policy));
+    }
+
+    private <T extends PolicyTO, K extends Policy> T update(
+            T policyTO, K policy) {
+
+        LOG.debug("Updating policy " + policyTO);
+
+        binder.getPolicy(policy, policyTO);
+        policy = policyDAO.save(policy);
+
+        return binder.getPolicyTO(policy);
     }
 
     @PreAuthorize("hasRole('POLICY_UPDATE')")
@@ -101,13 +104,13 @@ public class PolicyController extends AbstractController {
             final @RequestBody PasswordPolicyTO policyTO)
             throws NotFoundException {
 
-        LOG.debug("Updating policy " + policyTO);
+        Policy policy = policyDAO.find(policyTO.getId());
+        if (policy == null || !(policy instanceof PasswordPolicy)) {
+            throw new NotFoundException(
+                    "PasswordPolicy with id " + policyTO.getId());
+        }
 
-        final PasswordPolicy policy =
-                (PasswordPolicy) policyDataBinder.getPolicy(policyTO);
-
-        final Policy actual = update(policy);
-        return (PasswordPolicyTO) policyDataBinder.getPolicyTO(actual);
+        return update(policyTO, policy);
     }
 
     @PreAuthorize("hasRole('POLICY_UPDATE')")
@@ -116,13 +119,13 @@ public class PolicyController extends AbstractController {
             final @RequestBody AccountPolicyTO policyTO)
             throws NotFoundException, SyncopeClientCompositeErrorException {
 
-        LOG.debug("Updating policy " + policyTO);
+        Policy policy = policyDAO.find(policyTO.getId());
+        if (policy == null || !(policy instanceof AccountPolicy)) {
+            throw new NotFoundException(
+                    "AccountPolicy with id " + policyTO.getId());
+        }
 
-        final AccountPolicy policy =
-                (AccountPolicy) policyDataBinder.getPolicy(policyTO);
-
-        final Policy actual = update(policy);
-        return (AccountPolicyTO) policyDataBinder.getPolicyTO(actual);
+        return update(policyTO, policy);
     }
 
     @PreAuthorize("hasRole('POLICY_UPDATE')")
@@ -131,25 +134,13 @@ public class PolicyController extends AbstractController {
             final @RequestBody SyncPolicyTO policyTO)
             throws NotFoundException, SyncopeClientCompositeErrorException {
 
-        LOG.debug("Updating policy " + policyTO);
-
-        final SyncPolicy policy =
-                (SyncPolicy) policyDataBinder.getPolicy(policyTO);
-
-        final Policy actual = update(policy);
-        return (SyncPolicyTO) policyDataBinder.getPolicyTO(actual);
-    }
-
-    private Policy update(final Policy policy)
-            throws NotFoundException {
-
-        LOG.debug("Updating policy " + policy.getId());
-
-        if (policy.getId() == null) {
-            throw new NotFoundException("Policy with null id");
+        Policy policy = policyDAO.find(policyTO.getId());
+        if (policy == null || !(policy instanceof SyncPolicy)) {
+            throw new NotFoundException(
+                    "SyncPolicy with id " + policyTO.getId());
         }
 
-        return policyDAO.save(policy);
+        return update(policyTO, policy);
     }
 
     @PreAuthorize("hasRole('POLICY_LIST')")
@@ -163,9 +154,8 @@ public class PolicyController extends AbstractController {
                 policyDAO.find(PolicyType.valueOf(kind.toUpperCase()));
 
         final List<PolicyTO> policyTOs = new ArrayList<PolicyTO>();
-
         for (Policy policy : policies) {
-            policyTOs.add(policyDataBinder.getPolicyTO(policy));
+            policyTOs.add(binder.getPolicyTO(policy));
         }
 
         return policyTOs;
@@ -177,13 +167,14 @@ public class PolicyController extends AbstractController {
             final HttpServletResponse response)
             throws NotFoundException {
 
-        LOG.debug("Reading password policy");
+        LOG.debug("Reading global password policy");
+
         PasswordPolicy policy = policyDAO.getGlobalPasswordPolicy();
         if (policy == null) {
             throw new NotFoundException("No password policy found");
         }
 
-        return (PasswordPolicyTO) policyDataBinder.getPolicyTO(policy);
+        return (PasswordPolicyTO) binder.getPolicyTO(policy);
     }
 
     @PreAuthorize("hasRole('POLICY_READ')")
@@ -192,13 +183,14 @@ public class PolicyController extends AbstractController {
             final HttpServletResponse response)
             throws NotFoundException {
 
-        LOG.debug("Reading account policy");
+        LOG.debug("Reading global account policy");
+
         AccountPolicy policy = policyDAO.getGlobalAccountPolicy();
         if (policy == null) {
             throw new NotFoundException("No account policy found");
         }
 
-        return (AccountPolicyTO) policyDataBinder.getPolicyTO(policy);
+        return (AccountPolicyTO) binder.getPolicyTO(policy);
     }
 
     @PreAuthorize("hasRole('POLICY_READ')")
@@ -207,13 +199,14 @@ public class PolicyController extends AbstractController {
             final HttpServletResponse response)
             throws NotFoundException {
 
-        LOG.debug("Reading sync policy");
+        LOG.debug("Reading global sync policy");
+
         SyncPolicy policy = policyDAO.getGlobalSyncPolicy();
         if (policy == null) {
             throw new NotFoundException("No sync policy found");
         }
 
-        return (SyncPolicyTO) policyDataBinder.getPolicyTO(policy);
+        return (SyncPolicyTO) binder.getPolicyTO(policy);
     }
 
     @PreAuthorize("hasRole('POLICY_READ')")
@@ -223,13 +216,14 @@ public class PolicyController extends AbstractController {
             @PathVariable("id") final Long id)
             throws NotFoundException {
 
-        LOG.debug("Reading policy");
-        Policy policy = policyDAO.find(id);
+        LOG.debug("Reading policy with id {}", id);
 
+        Policy policy = policyDAO.find(id);
         if (policy == null) {
             throw new NotFoundException("Policy " + id + " not found");
         }
-        return policyDataBinder.getPolicyTO(policy);
+
+        return binder.getPolicyTO(policy);
     }
 
     @PreAuthorize("hasRole('POLICY_DELETE')")

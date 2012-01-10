@@ -58,6 +58,12 @@ public abstract class AbstractBaseBean implements Serializable {
 
     private static final long serialVersionUID = -9017214159540857901L;
 
+    public final SimpleDateFormat getDateFormatter() {
+        final SimpleDateFormat dateFormatter = DATE_FORMAT.get();
+        dateFormatter.setLenient(false);
+        return dateFormatter;
+    }
+
     /**
      * @param property the integer representing a boolean value
      * @return the boolean value corresponding to the property param

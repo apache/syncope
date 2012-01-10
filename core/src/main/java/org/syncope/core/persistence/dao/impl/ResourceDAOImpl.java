@@ -81,8 +81,8 @@ public class ResourceDAOImpl extends AbstractDAOImpl
      * called by SyncJob.
      * 
      * @see org.syncope.core.scheduling.SyncJob
-     * 
-     * @param execution entity to be merged
+     *
+     * @param resource  entity to be merged
      * @return the same entity, updated
      */
     @Override
@@ -157,12 +157,12 @@ public class ResourceDAOImpl extends AbstractDAOImpl
         taskDAO.deleteAll(resource, SyncTask.class);
 
         for (SyncopeUser user : resource.getUsers()) {
-            user.removeExternalResource(resource);
+            user.removeResource(resource);
         }
         resource.getUsers().clear();
 
         for (SyncopeRole role : resource.getRoles()) {
-            role.removeExternalResource(resource);
+            role.removeResource(resource);
         }
         resource.getRoles().clear();
 

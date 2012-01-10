@@ -16,11 +16,15 @@ package org.syncope.core.persistence.beans;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.CascadeType;
+import javax.persistence.DiscriminatorColumn;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Inheritance;
 import javax.persistence.OneToMany;
 
 @Entity
+@Inheritance
+@DiscriminatorColumn(name = "DTYPE")
 public class Task extends AbstractBaseBean {
 
     private static final long serialVersionUID = 5837401178128177511L;
