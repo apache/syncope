@@ -126,9 +126,11 @@ public class ResourceTest extends AbstractTest {
 
         ExternalResource resource = resourceDataBinder.create(resourceTO);
         resource = resourceDAO.save(resource);
+
         resourceDAO.flush();
 
         ExternalResource actual = resourceDAO.find("resource-issue42");
+        assertNotNull(actual);
         assertEquals(resource, actual);
 
         userId = schemaDAO.find("userId", USchema.class);
@@ -157,7 +159,6 @@ public class ResourceTest extends AbstractTest {
         assertNotNull("connector not found", connector);
 
         resource.setConnector(connector);
-        connector.addResource(resource);
 
         // specify mappings
         SchemaMapping mapping = null;
@@ -195,6 +196,8 @@ public class ResourceTest extends AbstractTest {
         assertNotNull(actual);
 
         resourceDAO.flush();
+        resourceDAO.detach(actual);
+        resourceDAO.detach(connector);
 
         // assign the new resource to an user
         SyncopeUser user = userDAO.find(1L);
@@ -314,7 +317,7 @@ public class ResourceTest extends AbstractTest {
         assertEquals(origMappings + 1, csv.getMappings().size());
 
         resourceDAO.clear();
-        
+
         int currentMappings = 0;
         List<SchemaMapping> allMappings = resourceDAO.findAllMappings();
         for (SchemaMapping mapping : allMappings) {

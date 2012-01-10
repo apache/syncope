@@ -33,7 +33,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @ContextConfiguration(locations = {
     "classpath:syncopeContext.xml",
     "classpath:persistenceContext.xml",
-    "classpath:entityManagerFactoryContext.xml",
     "classpath:schedulingContext.xml",
     "classpath:workflowContext.xml"
 })

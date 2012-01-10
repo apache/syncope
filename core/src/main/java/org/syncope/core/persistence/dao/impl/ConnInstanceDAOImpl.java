@@ -14,7 +14,9 @@
  */
 package org.syncope.core.persistence.dao.impl;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import javassist.NotFoundException;
 import javax.persistence.Query;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,10 +25,14 @@ import org.syncope.core.init.ConnInstanceLoader;
 import org.syncope.core.persistence.beans.ConnInstance;
 import org.syncope.core.persistence.beans.ExternalResource;
 import org.syncope.core.persistence.dao.ConnInstanceDAO;
+import org.syncope.core.persistence.dao.ResourceDAO;
 
 @Repository
 public class ConnInstanceDAOImpl extends AbstractDAOImpl
         implements ConnInstanceDAO {
+
+    @Autowired
+    private ResourceDAO resourceDAO;
 
     @Autowired
     private ConnInstanceLoader connInstanceLoader;
@@ -60,7 +66,21 @@ public class ConnInstanceDAOImpl extends AbstractDAOImpl
 
     @Override
     public void delete(final Long id) {
-        entityManager.remove(find(id));
+        ConnInstance connInstance = find(id);
+        if (connInstance == null) {
+            return;
+        }
+
+        Set<String> resourceNames =
+                new HashSet<String>(connInstance.getResources().size());
+        for (ExternalResource resource: connInstance.getResources()) {
+            resourceNames.add(resource.getName());
+        }
+        for (String resourceName : resourceNames) {
+            resourceDAO.delete(resourceName);
+        }
+
+        entityManager.remove(connInstance);
 
         connInstanceLoader.unregisterConnector(id.toString());
     }
