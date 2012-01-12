@@ -4,7 +4,6 @@
 
 =core=
 
-* working 'mvn clean verify'
 * postgres-it
 * mysql-it
 * oracle-it

@@ -128,6 +128,15 @@
         </dependency>
 
         <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjrt</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>com.thoughtworks.xstream</groupId>
             <artifactId>xstream</artifactId>
         </dependency>
@@ -159,11 +168,6 @@
         <dependency>
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy-all</artifactId>
-        </dependency>
-            
-        <dependency>
-            <groupId>org.dbunit</groupId>
-            <artifactId>dbunit</artifactId>
         </dependency>
 
         <dependency>
@@ -296,10 +300,10 @@
                     <includes>org/syncope/core/persistence/beans/**/*.class</includes>
                     <connectionDriverName>org.springframework.jdbc.datasource.DriverManagerDataSource</connectionDriverName>
                     <connectionProperties>
-                    driverClassName=org.h2.Driver,
-                    url=jdbc:h2:mem:syncopedb
-                    username=sa,
-                    password=
+                        driverClassName=org.h2.Driver,
+                        url=jdbc:h2:mem:syncopedb
+                        username=sa,
+                        password=
                     </connectionProperties>
                 </configuration>
                 <executions>
