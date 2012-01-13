@@ -4,13 +4,10 @@
 
 =core=
 
-* postgres-it
-* mysql-it
-* oracle-it
-* notification test
 * redirect OpenJPA plugin log somewhere
 * verify Clob behavior on PostgreSQL (requires external deploy and restart)
 * 2nd level cache
 * statistics?
 * WARNING: javax.persistence.cache.retrieveMode" is not a supported query hint. May be you meant "javax.persistence.lock.timeout"?
+* WARN   [pool-2-thread-1] openjpa.Runtime - An error occurred while registering a ClassTransformer with PersistenceUnitInfo: name 'syncopePersistenceUnit', root URL [file:/home/ilgrosso/work/syncope-ASL/core/target/cargo/configurations/tomcat7x/webapps/syncope/WEB-INF/classes/]. The error has been consumed. To see it, set your openjpa.Runtime log level to TRACE. Load-time class transformation will not be available.
 * WARN   [pool-2-thread-1] openjpa.Runtime - An error occurred while registering a ClassTransformer with PersistenceUnitInfo: name 'syncopePersistenceUnit', root URL [file:/home/ilgrosso/work/syncope-ASL/core/target/cargo/configurations/tomcat7x/webapps/syncope/WEB-INF/classes/]. The error has been consumed. To see it, set your openjpa.Runtime log level to TRACE. Load-time class transformation will not be available.

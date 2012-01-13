@@ -21,13 +21,19 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Types;
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import javax.persistence.TemporalType;
 import javax.sql.DataSource;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
@@ -35,11 +41,13 @@ import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
+import org.apache.commons.lang.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Component;
+import org.syncope.client.SyncopeConstants;
 import org.syncope.core.util.multiparent.CycleInMultiParentTreeException;
 import org.syncope.core.util.multiparent.MultiParentNode;
 import org.syncope.core.util.multiparent.MultiParentNodeOp;
@@ -64,6 +72,150 @@ public class ImportExport extends DefaultHandler {
 
     @Autowired
     private DataSource dataSource;
+
+    private String readSchema() {
+        String schema = null;
+
+        InputStream dbPropsStream = null;
+        try {
+            dbPropsStream = getClass().getResourceAsStream(
+                    "/persistence.properties");
+            Properties dbProps = new Properties();
+            dbProps.load(dbPropsStream);
+            schema = dbProps.getProperty("database.schema");
+        } catch (Throwable t) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Could not find persistence.properties", t);
+            } else {
+                LOG.error("Could not find persistence.properties");
+            }
+        } finally {
+            if (dbPropsStream != null) {
+                try {
+                    dbPropsStream.close();
+                } catch (IOException e) {
+                    LOG.error("While trying to read persistence.properties", e);
+                }
+            }
+        }
+
+        return schema;
+    }
+
+    private void setParameters(final String tableName, final Attributes atts,
+            final Query query) {
+
+        Map<String, Integer> colTypes = new HashMap<String, Integer>();
+
+        Connection conn = DataSourceUtils.getConnection(dataSource);
+        ResultSet rs = null;
+        Statement stmt = null;
+        try {
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery("SELECT * FROM " + tableName);
+            for (int i = 0; i < rs.getMetaData().getColumnCount(); i++) {
+                colTypes.put(
+                        rs.getMetaData().getColumnName(i + 1).toUpperCase(),
+                        rs.getMetaData().getColumnType(i + 1));
+            }
+        } catch (SQLException e) {
+            LOG.error("While", e);
+        } finally {
+            if (stmt != null) {
+                try {
+                    stmt.close();
+                } catch (SQLException e) {
+                    LOG.error("While closing statement", e);
+                }
+            }
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    LOG.error("While closing result set", e);
+                }
+            }
+            DataSourceUtils.releaseConnection(conn, dataSource);
+        }
+
+        for (int i = 0; i < atts.getLength(); i++) {
+            Integer colType = colTypes.get(atts.getQName(i).toUpperCase());
+            if (colType == null) {
+                LOG.warn("No column type found for {}",
+                        atts.getQName(i).toUpperCase());
+                colType = Types.VARCHAR;
+            }
+
+            switch (colType) {
+                case Types.NUMERIC:
+                case Types.REAL:
+                case Types.INTEGER:
+                case Types.TINYINT:
+                    try {
+                        query.setParameter(i + 1,
+                                Integer.valueOf(atts.getValue(i)));
+                    } catch (NumberFormatException e) {
+                        LOG.error("Unparsable Integer '{}'", atts.getValue(i));
+                        query.setParameter(i + 1, atts.getValue(i));
+                    }
+                    break;
+
+                case Types.DECIMAL:
+                case Types.BIGINT:
+                    try {
+                        query.setParameter(i + 1,
+                                Long.valueOf(atts.getValue(i)));
+                    } catch (NumberFormatException e) {
+                        LOG.error("Unparsable Long '{}'", atts.getValue(i));
+                        query.setParameter(i + 1, atts.getValue(i));
+                    }
+                    break;
+
+                case Types.DOUBLE:
+                    try {
+                        query.setParameter(i + 1,
+                                Double.valueOf(atts.getValue(i)));
+                    } catch (NumberFormatException e) {
+                        LOG.error("Unparsable Double '{}'", atts.getValue(i));
+                        query.setParameter(i + 1, atts.getValue(i));
+                    }
+                    break;
+
+                case Types.FLOAT:
+                    try {
+                        query.setParameter(i + 1,
+                                Float.valueOf(atts.getValue(i)));
+                    } catch (NumberFormatException e) {
+                        LOG.error("Unparsable Float '{}'", atts.getValue(i));
+                        query.setParameter(i + 1, atts.getValue(i));
+                    }
+                    break;
+
+                case Types.DATE:
+                case Types.TIME:
+                case Types.TIMESTAMP:
+                    try {
+                        query.setParameter(i + 1,
+                                DateUtils.parseDate(atts.getValue(i),
+                                SyncopeConstants.DATE_PATTERNS),
+                                TemporalType.TIMESTAMP);
+                    } catch (ParseException e) {
+                        LOG.error("Unparsable Date '{}'", atts.getValue(i));
+                        query.setParameter(i + 1, atts.getValue(i));
+                    }
+                    break;
+
+                case Types.BIT:
+                case Types.BOOLEAN:
+                    query.setParameter(i + 1, "1".equals(atts.getValue(i))
+                            ? Boolean.TRUE : Boolean.FALSE);
+                    break;
+
+                default:
+                    query.setParameter(i + 1, atts.getValue(i));
+            }
+        }
+    }
 
     @Override
     public void startElement(final String uri, final String localName,
@@ -91,9 +243,7 @@ public class ImportExport extends DefaultHandler {
         queryString.append(") VALUES (").append(values).append(')');
 
         Query query = entityManager.createNativeQuery(queryString.toString());
-        for (int i = 0; i < atts.getLength(); i++) {
-            query.setParameter(i + 1, atts.getValue(i));
-        }
+        setParameters(qName, atts, query);
         query.executeUpdate();
     }
 
@@ -142,7 +292,7 @@ public class ImportExport extends DefaultHandler {
     }
 
     private List<String> sortByForeignKeys(final Connection conn,
-            final String schema, final Set<String> tableNames)
+            final Set<String> tableNames)
             throws SQLException, CycleInMultiParentTreeException {
 
         MultiParentNode<String> root =
@@ -156,11 +306,10 @@ public class ImportExport extends DefaultHandler {
                 root.addChild(node);
             }
 
-            // manca lo schema - per Oracle
             ResultSet rs = null;
             try {
-                rs = conn.getMetaData().
-                        getExportedKeys(conn.getCatalog(), schema, tableName);
+                rs = conn.getMetaData().getExportedKeys(
+                        conn.getCatalog(), readSchema(), tableName);
                 while (rs.next()) {
                     String fkTableName = rs.getString("FKTABLE_NAME");
                     if (!tableName.equals(fkTableName)) {
@@ -196,31 +345,6 @@ public class ImportExport extends DefaultHandler {
             throws SAXException, TransformerConfigurationException,
             CycleInMultiParentTreeException {
 
-        // 0. read persistence.properties (for database schema)
-        InputStream dbPropsStream = null;
-        String dbSchema = null;
-        try {
-            dbPropsStream = getClass().getResourceAsStream(
-                    "/persistence.properties");
-            Properties dbProps = new Properties();
-            dbProps.load(dbPropsStream);
-            dbSchema = dbProps.getProperty("database.schema");
-        } catch (Throwable t) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Could not find persistence.properties", t);
-            } else {
-                LOG.error("Could not find persistence.properties");
-            }
-        } finally {
-            if (dbPropsStream != null) {
-                try {
-                    dbPropsStream.close();
-                } catch (IOException e) {
-                    LOG.error("While trying to read persistence.properties", e);
-                }
-            }
-        }
-
         StreamResult streamResult = new StreamResult(os);
         SAXTransformerFactory transformerFactory =
                 (SAXTransformerFactory) SAXTransformerFactory.newInstance();
@@ -251,7 +375,7 @@ public class ImportExport extends DefaultHandler {
             }
             // then sort tables based on foreign keys and dump
             for (String tableName :
-                    sortByForeignKeys(conn, dbSchema, tableNames)) {
+                    sortByForeignKeys(conn, tableNames)) {
 
                 doExportTable(handler, conn, tableName);
             }
