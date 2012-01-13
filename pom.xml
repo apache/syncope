@@ -72,12 +72,12 @@
         <maven.version>3.0.3</maven.version>
         
         <servlet-api.version>2.5</servlet-api.version>
-        <jsp-api.version>2.1</jsp-api.version>
+        <jsp-api.version>2.2</jsp-api.version>
         <jstl.version>1.2</jstl.version>
         
         <connid.version>1.3.1</connid.version>
         <connid.soap.version>1.1</connid.soap.version>
-        <connid.db.table.version>2.0</connid.db.table.version>
+        <connid.db.table.version>2.1</connid.db.table.version>
         <connid.csvdir.version>0.1</connid.csvdir.version>
         <connid.ldap.version>1.2</connid.ldap.version>
 
@@ -93,6 +93,7 @@
         <activiti.version>5.8</activiti.version>
 
         <spring.version>3.0.7.RELEASE</spring.version>
+        <aspectj.version>1.6.12</aspectj.version>
         <jackson.version>1.9.3</jackson.version>
         <xstream.version>1.4.2</xstream.version>
         <velocity.version>1.7</velocity.version>
@@ -113,9 +114,8 @@
         <logback.version>1.0.0</logback.version>
         <slf4j.version>1.6.4</slf4j.version>
 
-        <junit.version>4.9</junit.version>
+        <junit.version>4.10</junit.version>
         <selenium-java-client-driver.version>1.0.2</selenium-java-client-driver.version>
-        <dbunit.version>2.4.8</dbunit.version>
 
         <apacheds.version>1.5.7</apacheds.version>
 
@@ -243,12 +243,6 @@
             </dependency>
 
             <dependency>
-                <groupId>org.dbunit</groupId>
-                <artifactId>dbunit</artifactId>
-                <version>${dbunit.version}</version>
-            </dependency>
-
-            <dependency>
                 <groupId>org.apache.velocity</groupId>
                 <artifactId>velocity</artifactId>
                 <version>${velocity.version}</version>
@@ -311,6 +305,23 @@
                 <version>${spring.version}</version>
             </dependency>
             <!-- /Spring -->
+
+            <dependency>
+                <groupId>cglib</groupId>
+                <artifactId>cglib</artifactId>
+                <version>2.2.2</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>org.aspectj</groupId>
+                <artifactId>aspectjrt</artifactId>
+                <version>${aspectj.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.aspectj</groupId>
+                <artifactId>aspectjweaver</artifactId>
+                <version>${aspectj.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.codehaus.jackson</groupId>

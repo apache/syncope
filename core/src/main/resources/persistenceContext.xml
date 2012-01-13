@@ -36,8 +36,6 @@
     <aop:aspectj-autoproxy/>
     <bean class="org.syncope.core.monitor.CacheMonitor"/>
 
-    <bean id="dbUnitDataTypeFactory" class="${dbUnitDataTypeFactory}"/>
-
     <bean id="xStream" class="com.thoughtworks.xstream.XStream"/>
 
     <!-- Use JNDI datasource as default but, when not available, revert to

@@ -13,7 +13,7 @@
  */
 package org.syncope.core.init;
 
-import java.io.IOException;
+import org.syncope.core.util.ImportExport;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -21,13 +21,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
 import javax.sql.DataSource;
-import org.dbunit.database.DatabaseConfig;
-import org.dbunit.database.DatabaseConnection;
-import org.dbunit.database.IDatabaseConnection;
-import org.dbunit.dataset.IDataSet;
-import org.dbunit.dataset.datatype.DefaultDataTypeFactory;
-import org.dbunit.dataset.xml.FlatXmlDataSetBuilder;
-import org.dbunit.operation.DatabaseOperation;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,40 +48,15 @@ public class ContentLoader {
     private DataSource dataSource;
 
     @Autowired
-    private DefaultDataTypeFactory dbUnitDataTypeFactory;
+    private ImportExport importExport;
 
-    @Transactional(readOnly = true)
+    @Transactional
     public void load() {
 
         // 0. DB connection, to be used below
         Connection conn = DataSourceUtils.getConnection(dataSource);
 
-        // 1. read persistence.properties
-        InputStream dbPropsStream = null;
-        String dbSchema = null;
-        try {
-            dbPropsStream = getClass().getResourceAsStream(
-                    "/persistence.properties");
-            Properties dbProps = new Properties();
-            dbProps.load(dbPropsStream);
-            dbSchema = dbProps.getProperty("database.schema");
-        } catch (Throwable t) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Could not find persistence.properties", t);
-            } else {
-                LOG.error("Could not find persistence.properties");
-            }
-        } finally {
-            if (dbPropsStream != null) {
-                try {
-                    dbPropsStream.close();
-                } catch (IOException e) {
-                    LOG.error("While trying to read persistence.properties", e);
-                }
-            }
-        }
-
-        // 2. Check wether we are allowed to load default content into the DB
+        // 1. Check wether we are allowed to load default content into the DB
         Statement statement = null;
         ResultSet resultSet = null;
         boolean existingData = false;
@@ -122,7 +92,7 @@ public class ContentLoader {
 
         LOG.info("Empty database found, loading default content");
 
-        // 3. Create views
+        // 2. Create views
         LOG.debug("Creating views");
         try {
             InputStream viewsStream = getClass().getResourceAsStream(
@@ -148,7 +118,7 @@ public class ContentLoader {
             LOG.error("While creating views", t);
         }
 
-        // 4. Create indexes
+        // 3. Create indexes
         LOG.debug("Creating indexes");
         try {
             InputStream indexesStream = getClass().getResourceAsStream(
@@ -171,31 +141,6 @@ public class ContentLoader {
             LOG.debug("Indexes created, go for default content");
         } catch (Throwable t) {
             LOG.error("While creating indexes", t);
-        }
-
-        // 5. Load default content
-        try {
-            IDatabaseConnection dbUnitConn = dbSchema == null
-                    ? new DatabaseConnection(conn)
-                    : new DatabaseConnection(conn, dbSchema);
-
-            DatabaseConfig config = dbUnitConn.getConfig();
-            config.setProperty(DatabaseConfig.PROPERTY_DATATYPE_FACTORY,
-                    dbUnitDataTypeFactory);
-            config.setProperty(
-                    DatabaseConfig.FEATURE_SKIP_ORACLE_RECYCLEBIN_TABLES,
-                    true);
-
-            FlatXmlDataSetBuilder dataSetBuilder = new FlatXmlDataSetBuilder();
-            dataSetBuilder.setColumnSensing(true);
-            IDataSet dataSet = dataSetBuilder.build(getClass().
-                    getResourceAsStream("/content.xml"));
-
-            DatabaseOperation.CLEAN_INSERT.execute(dbUnitConn, dataSet);
-
-            LOG.debug("Default content successfully loaded");
-        } catch (Throwable t) {
-            LOG.error("While loading default content", t);
         } finally {
             DataSourceUtils.releaseConnection(conn, dataSource);
         }
@@ -204,6 +149,17 @@ public class ContentLoader {
             conn.close();
         } catch (SQLException e) {
             LOG.error("While closing SQL connection", e);
+        }
+
+        // 4. Load default content
+        SAXParserFactory factory = SAXParserFactory.newInstance();
+        try {
+            SAXParser parser = factory.newSAXParser();
+            parser.parse(getClass().getResourceAsStream("/content.xml"),
+                    importExport);
+            LOG.debug("Default content successfully loaded");
+        } catch (Throwable t) {
+            LOG.error("While loading default content", t);
         }
     }
 }

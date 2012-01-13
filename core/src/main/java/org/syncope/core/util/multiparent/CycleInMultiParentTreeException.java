@@ -11,17 +11,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.syncope.client;
+package org.syncope.core.util.multiparent;
 
-public class SyncopeConstants {
+public class CycleInMultiParentTreeException extends Exception {
 
-    public final static String[] DATE_PATTERNS = {
-        "yyyy-MM-dd'T'HH:mm:ssZ",
-        "EEE, dd MMM yyyy HH:mm:ss z",
-        "yyyy-MM-dd'T'HH:mm:ssz",
-        "yyyy-MM-dd HH:mm:ss",
-        "yyyy-MM-dd"};
+    private static final long serialVersionUID = -741534138630944574L;
 
-    public static String DEFAULT_DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ssZ";
-
+    public CycleInMultiParentTreeException(final String message) {
+        super(message);
+    }
 }
