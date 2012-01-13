@@ -100,7 +100,7 @@
 
         <hibernate.version>3.6.9.Final</hibernate.version>
         <hibernate-validator.version>4.2.0.Final</hibernate-validator.version>
-        <ehcache.version>2.4.6</ehcache.version>
+        <ehcache.version>2.4.7</ehcache.version>
 
         <wicket.version>1.5.3</wicket.version>
 

@@ -22,9 +22,11 @@ import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import org.hibernate.annotations.Type;
 
 /**
  * An execution (with result) of a Task.
+ *
  * @see PropagationTask
  */
 @Entity
@@ -54,7 +56,7 @@ public class TaskExec extends AbstractBaseBean {
      * Any information to be accompained to this execution's result.
      */
     @Lob
-    //@Type(type = "org.hibernate.type.StringClobType")
+    @Type(type = "org.hibernate.type.StringClobType")
     private String message;
 
     /**

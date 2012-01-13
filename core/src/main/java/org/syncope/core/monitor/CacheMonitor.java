@@ -20,8 +20,8 @@ import javax.persistence.EntityManager;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-//import org.hibernate.Session;
-//import org.hibernate.stat.Statistics;
+import org.hibernate.Session;
+import org.hibernate.stat.Statistics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,8 +57,8 @@ public class CacheMonitor {
     private EntityManager entityManager;
 
     /**
-     * Intercept any DAO method call and use Hibernate's statistics features
-     * to log cache access.
+     * Intercept any DAO method call and use Hibernate's statistics features to
+     * log cache access.
      *
      * @param pjp Aspect's ProceedingJoinPoint
      * @return DAO method's return value
@@ -69,9 +69,9 @@ public class CacheMonitor {
             throws Throwable {
 
         Object result;
-        /*if (!LOG.isDebugEnabled()) {*/
+        if (!LOG.isDebugEnabled()) {
             result = pjp.proceed();
-        /*} else {
+        } else {
             Statistics statistics =
                     ((Session) entityManager.getDelegate()).getSessionFactory().
                     getStatistics();
@@ -99,7 +99,7 @@ public class CacheMonitor {
                         ratio, pjp.getTarget().getClass().getName(),
                         pjp.getSignature().toShortString()));
             }
-        }*/
+        }
 
         return result;
     }

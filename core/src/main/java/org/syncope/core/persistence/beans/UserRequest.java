@@ -21,6 +21,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.validation.constraints.NotNull;
+import org.hibernate.annotations.Type;
 import org.syncope.client.mod.UserMod;
 import org.syncope.client.to.UserTO;
 import org.syncope.core.util.XMLSerializer;
@@ -37,7 +38,7 @@ public class UserRequest extends AbstractBaseBean {
 
     @NotNull
     @Lob
-    //@Type(type = "org.hibernate.type.StringClobType")
+    @Type(type = "org.hibernate.type.StringClobType")
     private String payload;
 
     @NotNull

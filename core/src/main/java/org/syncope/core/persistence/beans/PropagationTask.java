@@ -20,6 +20,7 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
+import org.hibernate.annotations.Type;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.validation.entity.PropagationTaskCheck;
@@ -62,7 +63,7 @@ public class PropagationTask extends Task {
      * Attributes to be propagated.
      */
     @Lob
-    //@Type(type = "org.hibernate.type.StringClobType")
+    @Type(type = "org.hibernate.type.StringClobType")
     private String xmlAttributes;
 
     /**

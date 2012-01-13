@@ -35,6 +35,7 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import org.apache.commons.lang.StringUtils;
+import org.hibernate.annotations.Type;
 import org.identityconnectors.framework.common.objects.SyncToken;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
@@ -91,8 +92,8 @@ public class ExternalResource extends AbstractBaseBean {
 
     /**
      * Attribute mappings.
-     * 
-     * List type cannot be used. Please, take a look at 
+     *
+     * List type cannot be used. Please, take a look at
      * https://hibernate.onjira.com/browse/HHH-1718
      */
     @OneToMany(cascade = {CascadeType.ALL}, orphanRemoval = true,
@@ -101,8 +102,8 @@ public class ExternalResource extends AbstractBaseBean {
     private Set<SchemaMapping> mappings;
 
     /**
-     * A JEXL expression for determining how to link user account id in
-     * Syncope DB to user account id in target resource's DB.
+     * A JEXL expression for determining how to link user account id in Syncope
+     * DB to user account id in target resource's DB.
      */
     private String accountLink;
 
@@ -154,14 +155,14 @@ public class ExternalResource extends AbstractBaseBean {
      * Configuration properties that are overridden from the connector instance.
      */
     @Lob
-    //@Type(type = "org.hibernate.type.StringClobType")
+    @Type(type = "org.hibernate.type.StringClobType")
     private String xmlConfiguration;
 
     /**
      * SyncToken for calling ConnId's sync().
      */
     @Lob
-    //@Type(type = "org.hibernate.type.StringClobType")
+    @Type(type = "org.hibernate.type.StringClobType")
     private String serializedSyncToken;
 
     /**

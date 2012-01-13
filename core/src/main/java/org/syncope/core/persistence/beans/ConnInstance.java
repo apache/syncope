@@ -29,6 +29,7 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.OneToMany;
+import org.hibernate.annotations.Type;
 import org.syncope.core.util.XMLSerializer;
 import org.syncope.types.ConnConfProperty;
 import org.syncope.types.ConnectorCapability;
@@ -48,8 +49,8 @@ public class ConnInstance extends AbstractBaseBean {
     private String connectorName;
 
     /**
-     * ConnectorBundle-Name: Qualified name for the connector bundle.
-     * Within a given deployment, the pair (ConnectorBundle-Name,
+     * ConnectorBundle-Name: Qualified name for the connector bundle. Within a
+     * given deployment, the pair (ConnectorBundle-Name,
      * ConnectorBundle-Version) must be unique.
      */
     @Column(nullable = false)
@@ -57,8 +58,8 @@ public class ConnInstance extends AbstractBaseBean {
 
     /**
      * ConnectorBundle-Version: The version of the bundle. Within a given
-     * deployment, the pair (ConnectorBundle-Name, ConnectorBundle-Version)
-     * must be unique.
+     * deployment, the pair (ConnectorBundle-Name, ConnectorBundle-Version) must
+     * be unique.
      */
     @Column(nullable = false)
     private String version;
@@ -72,12 +73,12 @@ public class ConnInstance extends AbstractBaseBean {
     private Set<ConnectorCapability> capabilities;
 
     /**
-     * The main configuration for the connector instance.
-     * This is directly implemented by the Configuration bean class which
-     * contains annotated ConfigurationProperties (@ConfigurationProperty).
+     * The main configuration for the connector instance. This is directly
+     * implemented by the Configuration bean class which contains annotated
+     * ConfigurationProperties (@ConfigurationProperty).
      */
     @Lob
-    //@Type(type = "org.hibernate.type.StringClobType")
+    @Type(type = "org.hibernate.type.StringClobType")
     private String xmlConfiguration;
 
     private String displayName;
