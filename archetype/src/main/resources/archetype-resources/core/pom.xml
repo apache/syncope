@@ -182,7 +182,7 @@
                         <phase>package</phase>
                         <configuration>
                             <target>
-                                <get src="http://www.apache.org/dist/tomcat/tomcat-7/v${tomcat.version}/bin/apache-tomcat-${tomcat.version}.zip"
+                                <get src="http://archive.apache.org/dist/tomcat/tomcat-7/v${tomcat.version}/bin/apache-tomcat-${tomcat.version}.zip"
                                      dest="${java.io.tmpdir}" skipexisting="true"/>
                                 <unzip src="${java.io.tmpdir}/apache-tomcat-${tomcat.version}.zip"
                                        dest="${java.io.tmpdir}" overwrite="false"/>

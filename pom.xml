@@ -115,7 +115,7 @@
 
         <dbunit.version>2.4.8</dbunit.version>
 
-        <tomcat.version>7.0.22</tomcat.version>
+        <tomcat.version>7.0.23</tomcat.version>
 
         <bundles.directory>/var/tmp/bundles</bundles.directory>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -545,6 +545,11 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-failsafe-plugin</artifactId>
                     <version>2.9</version>
+                    <configuration>
+                        <redirectTestOutputToFile>true</redirectTestOutputToFile>
+                        <encoding>utf-8</encoding>
+                        <runOrder>alphabetical</runOrder>
+                    </configuration>
                     <executions>
                         <execution>
                             <goals>

@@ -42,7 +42,7 @@
         <junit.version>4.8.2</junit.version>
 
         <cargo.version>1.1.2</cargo.version>
-        <tomcat.version>7.0.20</tomcat.version>
+        <tomcat.version>7.0.23</tomcat.version>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>

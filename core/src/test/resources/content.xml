@@ -339,7 +339,7 @@
 
     <SchemaMapping id="115" destAttrName="name"
                    resource_name="ws-target-resource-nopropagation"
-                   sourceAttrName="firstname" sourceMappingType="UserSchema" mandatoryCondition="true"
+                   sourceAttrName="username" sourceMappingType="UserSchema" mandatoryCondition="true"
                    accountid="1" password="0"/>
                    
     <SchemaMapping id="116" destAttrName="id"

@@ -32,7 +32,7 @@ public class SchemaTestITCase extends AbstractTest {
     public void create() {
         SchemaTO schemaTO = new SchemaTO();
         schemaTO.setName("testAttribute");
-        schemaTO.setMandatoryCondition("true");
+        schemaTO.setMandatoryCondition("false");
         schemaTO.setType(SchemaType.String);
 
         SchemaTO newSchemaTO = restTemplate.postForObject(BASE_URL
@@ -46,26 +46,15 @@ public class SchemaTestITCase extends AbstractTest {
 
     @Test
     public void delete() {
-        restTemplate.delete(BASE_URL + "schema/user/delete/firstname.json");
-        SchemaTO username = null;
+        restTemplate.delete(BASE_URL + "schema/user/delete/cool.json");
+        SchemaTO cool = null;
         try {
-            username = restTemplate.getForObject(BASE_URL
-                    + "schema/user/read/firstname.json", SchemaTO.class);
+            cool = restTemplate.getForObject(BASE_URL
+                    + "schema/user/read/cool.json", SchemaTO.class);
         } catch (HttpClientErrorException e) {
             assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
         }
-        assertNull(username);
-
-        restTemplate.delete(BASE_URL
-                + "schema/membership/delete/subscriptionDate.json");
-        SchemaTO subscriptionDate = null;
-        try {
-            subscriptionDate = restTemplate.getForObject(BASE_URL
-                    + "schema/membership/read/firstname.json", SchemaTO.class);
-        } catch (HttpClientErrorException e) {
-            assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
-        }
-        assertNull(subscriptionDate);
+        assertNull(cool);
     }
 
     @Test
