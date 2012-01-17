@@ -129,23 +129,13 @@
     </logger>
 
     <logger name="org.syncope.core.monitor" additivity="false">
-        <level value="DEBUG"/>
+        <level value="INFO"/>
         <appender-ref ref="monitor"/>
     </logger>
 
     <logger name="org.hibernate.cache" additivity="false">
-        <level value="DEBUG"/>
-        <appender-ref ref="monitor"/>
-    </logger>
-
-    <logger name="net.sf.ehcache.hibernate" additivity="false">
         <level value="INFO"/>
         <appender-ref ref="monitor"/>
-    </logger>
-
-    <logger name="net.sf.ehcache" additivity="false">
-        <level value="INFO"/>
-        <appender-ref ref="main"/>
     </logger>
     
     <logger name="org.hibernate.hql.ast" additivity="false">
@@ -188,11 +178,6 @@
     <logger name="org.hibernate.type" additivity="false">
         <level value="OFF"/>
         <appender-ref ref="persistence"/>
-    </logger>
-
-    <logger name="org.dbunit" additivity="false">
-        <level value="INFO"/>
-        <appender-ref ref="test"/>
     </logger>
 
     <logger name="org.apache.commons.httpclient" additivity="false">

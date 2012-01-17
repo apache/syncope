@@ -19,9 +19,7 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.Lob;
-
 import javax.validation.constraints.NotNull;
-import org.hibernate.annotations.Type;
 import org.syncope.core.persistence.validation.entity.PolicyCheck;
 import org.syncope.core.util.XMLSerializer;
 import org.syncope.types.AbstractPolicySpec;
@@ -44,7 +42,6 @@ public abstract class Policy extends AbstractBaseBean {
     protected PolicyType type;
 
     @Lob
-    @Type(type = "org.hibernate.type.StringClobType")
     private String specification;
 
     public Long getId() {

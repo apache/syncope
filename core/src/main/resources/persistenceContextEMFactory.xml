@@ -40,11 +40,8 @@
                 <entry key="hibernate.cache.use_query_cache" value="true"/>
                 <entry key="hibernate.cache.use_minimal_puts" value="true"/>
                 <entry key="hibernate.cache.region.factory_class"
-                       value="net.sf.ehcache.hibernate.EhCacheRegionFactory"/>
-                <entry key="net.sf.ehcache.configurationResourceName"
-                       value="/ehcache.xml"/>
-                <entry key="hibernate.cache.region_prefix"
-                       value="syncopecache"/>
+                       value="org.hibernate.cache.ehcache.EhCacheRegionFactory"/>
+                <entry key="hibernate.cache.region_prefix" value="syncopecache"/>
             </map>
         </property>
     </bean>

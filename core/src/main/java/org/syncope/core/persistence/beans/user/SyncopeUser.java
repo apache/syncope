@@ -54,8 +54,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.RandomStringUtils;
-import org.hibernate.annotations.Type;
-import org.springframework.security.core.codec.Base64;
+import org.springframework.security.crypto.codec.Base64;
 import org.syncope.core.persistence.beans.AbstractAttributable;
 import org.syncope.core.persistence.beans.AbstractAttr;
 import org.syncope.core.persistence.beans.AbstractDerAttr;
@@ -115,7 +114,6 @@ public class SyncopeUser extends AbstractAttributable {
     private String status;
 
     @Lob
-    @Type(type = "org.hibernate.type.StringClobType")
     private String token;
 
     @Temporal(TemporalType.TIMESTAMP)

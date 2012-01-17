@@ -29,7 +29,6 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.OneToMany;
-import org.hibernate.annotations.Type;
 import org.syncope.core.util.XMLSerializer;
 import org.syncope.types.ConnConfProperty;
 import org.syncope.types.ConnectorCapability;
@@ -78,7 +77,6 @@ public class ConnInstance extends AbstractBaseBean {
      * ConfigurationProperties (@ConfigurationProperty).
      */
     @Lob
-    @Type(type = "org.hibernate.type.StringClobType")
     private String xmlConfiguration;
 
     private String displayName;

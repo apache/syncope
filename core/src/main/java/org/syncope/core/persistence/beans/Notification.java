@@ -29,7 +29,6 @@ import javax.persistence.Lob;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import org.hibernate.annotations.Type;
 import org.syncope.client.search.NodeCond;
 import org.syncope.core.persistence.validation.entity.NotificationCheck;
 import org.syncope.core.util.XMLSerializer;
@@ -38,6 +37,8 @@ import org.syncope.types.TraceLevel;
 @NotificationCheck
 @Entity
 public class Notification extends AbstractBaseBean {
+
+    private static final long serialVersionUID = 3112582296912757537L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -49,12 +50,10 @@ public class Notification extends AbstractBaseBean {
 
     @NotNull
     @Lob
-    @Type(type = "org.hibernate.type.StringClobType")
     private String xmlAbout;
 
     @NotNull
     @Lob
-    @Type(type = "org.hibernate.type.StringClobType")
     private String xmlRecipients;
 
     @Column(nullable = false)
