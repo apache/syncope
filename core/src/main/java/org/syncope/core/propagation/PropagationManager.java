@@ -809,6 +809,7 @@ public class PropagationManager {
                             new HashSet<Attribute>(task.getAttributes());
 
                     if (remoteObject != null) {
+
                         // 1. check if rename is really required
                         final Name newName = (Name) AttributeUtil.find(
                                 Name.NAME, attributes);
@@ -816,7 +817,9 @@ public class PropagationManager {
                         LOG.debug("Rename required with value {}", newName);
 
                         if (newName != null
-                                && newName.equals(remoteObject.getName())) {
+                                && newName.equals(remoteObject.getName())
+                                && !remoteObject.getUid().getUidValue().equals(
+                                newName.getNameValue())) {
 
                             LOG.debug("Remote object name unchanged");
                             attributes.remove(newName);
