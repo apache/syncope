@@ -38,6 +38,8 @@ import org.syncope.types.TraceLevel;
 @Entity
 public class Notification extends AbstractBaseBean {
 
+    private static final long serialVersionUID = 3112582296912757537L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -48,12 +50,10 @@ public class Notification extends AbstractBaseBean {
 
     @NotNull
     @Lob
-    //@Type(type = "org.hibernate.type.StringClobType")
     private String xmlAbout;
 
     @NotNull
     @Lob
-    //@Type(type = "org.hibernate.type.StringClobType")
     private String xmlRecipients;
 
     @Column(nullable = false)

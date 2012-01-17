@@ -62,7 +62,6 @@ public class PropagationTask extends Task {
      * Attributes to be propagated.
      */
     @Lob
-    //@Type(type = "org.hibernate.type.StringClobType")
     private String xmlAttributes;
 
     /**

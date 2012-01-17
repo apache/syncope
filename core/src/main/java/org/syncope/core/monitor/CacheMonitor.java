@@ -57,8 +57,8 @@ public class CacheMonitor {
     private EntityManager entityManager;
 
     /**
-     * Intercept any DAO method call and use Hibernate's statistics features
-     * to log cache access.
+     * Intercept any DAO method call and use Hibernate's statistics features to
+     * log cache access.
      *
      * @param pjp Aspect's ProceedingJoinPoint
      * @return DAO method's return value

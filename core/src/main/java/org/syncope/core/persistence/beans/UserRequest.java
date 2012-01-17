@@ -37,7 +37,6 @@ public class UserRequest extends AbstractBaseBean {
 
     @NotNull
     @Lob
-    //@Type(type = "org.hibernate.type.StringClobType")
     private String payload;
 
     @NotNull

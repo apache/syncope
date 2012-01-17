@@ -25,6 +25,7 @@ import javax.persistence.TemporalType;
 
 /**
  * An execution (with result) of a Task.
+ *
  * @see PropagationTask
  */
 @Entity
@@ -54,7 +55,6 @@ public class TaskExec extends AbstractBaseBean {
      * Any information to be accompained to this execution's result.
      */
     @Lob
-    //@Type(type = "org.hibernate.type.StringClobType")
     private String message;
 
     /**

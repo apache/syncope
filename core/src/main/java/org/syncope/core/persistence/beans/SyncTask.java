@@ -37,7 +37,6 @@ public class SyncTask extends SchedTask {
     private ExternalResource resource;
 
     @Lob
-    //@Type(type = "org.hibernate.type.StringClobType")
     private String userTemplate;
 
     @Basic

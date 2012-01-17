@@ -39,11 +39,11 @@ import org.identityconnectors.framework.common.objects.SyncToken;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
 import org.syncope.core.persistence.validation.entity.ExternalResourceCheck;
-import org.syncope.types.ConnConfProperty;
-import org.syncope.types.PropagationMode;
-import org.syncope.types.IntMappingType;
-import org.syncope.types.TraceLevel;
 import org.syncope.core.util.XMLSerializer;
+import org.syncope.types.ConnConfProperty;
+import org.syncope.types.IntMappingType;
+import org.syncope.types.PropagationMode;
+import org.syncope.types.TraceLevel;
 
 /**
  * A resource to which propagation occurs.
@@ -101,8 +101,8 @@ public class ExternalResource extends AbstractBaseBean {
     private Set<SchemaMapping> mappings;
 
     /**
-     * A JEXL expression for determining how to link user account id in
-     * Syncope DB to user account id in target resource's DB.
+     * A JEXL expression for determining how to link user account id in Syncope
+     * DB to user account id in target resource's DB.
      */
     private String accountLink;
 
@@ -154,14 +154,12 @@ public class ExternalResource extends AbstractBaseBean {
      * Configuration properties that are overridden from the connector instance.
      */
     @Lob
-    //@Type(type = "org.hibernate.type.StringClobType")
     private String xmlConfiguration;
 
     /**
      * SyncToken for calling ConnId's sync().
      */
     @Lob
-    //@Type(type = "org.hibernate.type.StringClobType")
     private String serializedSyncToken;
 
     /**

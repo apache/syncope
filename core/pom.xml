@@ -42,17 +42,15 @@
             <artifactId>syncope-client</artifactId>
             <version>${project.version}</version>
         </dependency>
-
+        
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
         </dependency>
-
         <dependency>
             <groupId>javax.servlet.jsp</groupId>
             <artifactId>jsp-api</artifactId>
         </dependency>
-
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>jstl</artifactId>
@@ -65,6 +63,11 @@
         <dependency>
             <groupId>org.apache.geronimo.javamail</groupId>
             <artifactId>geronimo-javamail_1.4_provider</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.javassist</groupId>
+            <artifactId>javassist</artifactId>
         </dependency>
 
         <dependency>
@@ -169,7 +172,7 @@
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy-all</artifactId>
         </dependency>
-
+            
         <dependency>
             <groupId>org.reflections</groupId>
             <artifactId>reflections</artifactId>
@@ -743,7 +746,7 @@
                 <dependency>
                     <groupId>postgresql</groupId>
                     <artifactId>postgresql</artifactId>
-                    <version>9.0-801.jdbc4</version>
+                    <version>9.1-901.jdbc4</version>
                     <scope>test</scope>
                 </dependency>
             </dependencies>
