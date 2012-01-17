@@ -19,7 +19,7 @@
     <parent>
         <groupId>org.syncope</groupId>
         <artifactId>syncope</artifactId>
-        <version>0.7-EA-SNAPSHOT</version>
+        <version>0.7-EA</version>
     </parent>
 
     <name>Syncope core</name>
@@ -656,11 +656,9 @@
                                 <configuration>
                                     <target>
                                         <copy todir="${project.build.directory}/test-classes" overwrite="true">
-                                            <fileset dir="${basedir}/src/test/resources/oracle"/>
+                                            <fileset dir="${basedir}/src/test/resources/oracle" />
                                         </copy>
-                                        <copy tofile="${project.build.directory}/classes/META-INF/orm.xml"
-                                              file="${basedir}/src/main/resources/META-INF/orm.xml.oracle"
-                                              overwrite="true"/>
+                                        <copy tofile="${project.build.directory}/classes/META-INF/orm.xml" file="${basedir}/src/main/resources/META-INF/orm.xml.oracle" overwrite="true" />
                                     </target>
                                 </configuration>
                                 <goals>
@@ -702,7 +700,7 @@
                                 <configuration>
                                     <target>
                                         <copy todir="${project.build.directory}/test-classes" overwrite="true">
-                                            <fileset dir="${basedir}/src/test/resources/postgres"/>
+                                            <fileset dir="${basedir}/src/test/resources/postgres" />
                                         </copy>
                                     </target>
                                 </configuration>
