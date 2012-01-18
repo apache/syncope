@@ -49,6 +49,7 @@ import org.syncope.client.to.PropagationTaskTO;
 import org.syncope.client.to.UserTO;
 import org.syncope.client.to.WorkflowFormPropertyTO;
 import org.syncope.client.to.WorkflowFormTO;
+import org.syncope.client.util.AttributableOperations;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
 import org.syncope.core.persistence.beans.user.SyncopeUser;
@@ -1402,5 +1403,44 @@ public class UserTestITCase extends AbstractTest {
                 userMod, UserTO.class);
         assertNotNull(userTO);
         assertEquals("1issue234@syncope-idm.org", userTO.getUsername());
+    }
+
+    @Test
+    public final void issue270() {
+        // 1. create a new user without virtual attributes
+        UserTO original = getSampleTO("issue270@syncope-idm.org");
+        // be sure to remove all virtual attributes
+        original.setVirtualAttributes(Collections.EMPTY_LIST);
+
+        original = restTemplate.postForObject(
+                BASE_URL + "user/create", original, UserTO.class);
+
+        assertNotNull(original);
+        assertTrue(original.getVirtualAttributes().isEmpty());
+
+        UserTO toBeUpdated = restTemplate.getForObject(
+                BASE_URL + "user/read/{userId}.json",
+                UserTO.class, original.getId());
+
+        AttributeTO virtual = new AttributeTO();
+        virtual.setSchema("virtualdata");
+        virtual.addValue("virtualvalue");
+
+        toBeUpdated.addVirtualAttribute(virtual);
+
+        // 2. try to update by adding a resource, but no password: must fail
+        UserMod userMod = AttributableOperations.diff(toBeUpdated, original);
+
+        assertNotNull(userMod);
+
+        toBeUpdated = restTemplate.postForObject(
+                BASE_URL + "user/update", userMod, UserTO.class);
+
+        assertNotNull(toBeUpdated);
+        assertFalse(toBeUpdated.getVirtualAttributes().isEmpty());
+        assertNotNull(toBeUpdated.getVirtualAttributes().get(0));
+
+        assertEquals(virtual.getSchema(),
+                toBeUpdated.getVirtualAttributes().get(0).getSchema());
     }
 }

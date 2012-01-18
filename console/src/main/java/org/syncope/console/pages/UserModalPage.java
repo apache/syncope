@@ -55,7 +55,6 @@ public class UserModalPage extends BaseModalPage {
         ADMIN,
         SELF,
         TEMPLATE;
-
     }
 
     private static final long serialVersionUID = 5002005009737457667L;
@@ -250,14 +249,12 @@ public class UserModalPage extends BaseModalPage {
                     if (updatedUserTO.getId() == 0) {
                         switch (mode) {
                             case SELF:
-                                requestRestClient.requestCreate(
-                                        updatedUserTO);
+                                requestRestClient.requestCreate(updatedUserTO);
                                 break;
 
                             case ADMIN:
                             default:
-                                userTO = userRestClient.create(
-                                        updatedUserTO);
+                                userTO = userRestClient.create(updatedUserTO);
                                 if (userRequestTO != null) {
                                     requestRestClient.delete(
                                             userRequestTO.getId());
