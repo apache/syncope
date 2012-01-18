@@ -47,16 +47,26 @@ public final class AttributableOperations {
         return (T) SerializationUtils.clone(original);
     }
 
-    private static void populate(final Map<String, AttributeTO> updatedAttrs,
+    private static void populate(
+            final Map<String, AttributeTO> updatedAttrs,
             final Map<String, AttributeTO> originalAttrs,
             final AbstractAttributableMod result) {
+        populate(updatedAttrs, originalAttrs, result, false);
+    }
+
+    private static void populate(
+            final Map<String, AttributeTO> updatedAttrs,
+            final Map<String, AttributeTO> originalAttrs,
+            final AbstractAttributableMod result,
+            final boolean virtuals) {
 
         for (Map.Entry<String, AttributeTO> entry : updatedAttrs.entrySet()) {
-            AttributeMod attrMod = new AttributeMod();
-            attrMod.setSchema(entry.getKey());
+            AttributeMod mod = new AttributeMod();
+            mod.setSchema(entry.getKey());
 
             Set<String> updatedValues = new HashSet<String>(
                     entry.getValue().getValues());
+
             Set<String> originalValues =
                     originalAttrs.containsKey(entry.getKey())
                     ? new HashSet<String>(
@@ -67,18 +77,27 @@ public final class AttributableOperations {
                 // avoid unwanted inputs
                 updatedValues.remove("");
                 if (!entry.getValue().isReadonly()) {
-                    attrMod.setValuesToBeAdded(
-                            new ArrayList<String>(updatedValues));
-                    if (!attrMod.isEmpty()) {
-                        result.addAttributeToBeRemoved(attrMod.getSchema());
+                    mod.setValuesToBeAdded(new ArrayList<String>(updatedValues));
+
+                    if (!mod.isEmpty()) {
+                        if (virtuals) {
+                            result.addVirtualAttributeToBeRemoved(
+                                    mod.getSchema());
+                        } else {
+                            result.addAttributeToBeRemoved(mod.getSchema());
+                        }
                     }
                 }
 
-                attrMod.setValuesToBeRemoved(new ArrayList<String>(
-                        originalValues));
+                mod.setValuesToBeRemoved(
+                        new ArrayList<String>(originalValues));
 
-                if (!attrMod.isEmpty()) {
-                    result.addAttributeToBeUpdated(attrMod);
+                if (!mod.isEmpty()) {
+                    if (virtuals) {
+                        result.addVirtualAttributeToBeUpdated(mod);
+                    } else {
+                        result.addAttributeToBeUpdated(mod);
+                    }
                 }
             }
         }
@@ -128,8 +147,7 @@ public final class AttributableOperations {
         originalAttrNames.removeAll(updatedAttrs.keySet());
         result.setDerivedAttributesToBeRemoved(originalAttrNames);
 
-        Set<String> updatedAttrNames =
-                new HashSet<String>(updatedAttrs.keySet());
+        Set<String> updatedAttrNames = new HashSet<String>(updatedAttrs.keySet());
         updatedAttrNames.removeAll(originalAttrs.keySet());
         result.setDerivedAttributesToBeAdded(updatedAttrNames);
 
@@ -141,7 +159,7 @@ public final class AttributableOperations {
         originalAttrNames.removeAll(updatedAttrs.keySet());
         result.setVirtualAttributesToBeRemoved(originalAttrNames);
 
-        populate(updatedAttrs, originalAttrs, result);
+        populate(updatedAttrs, originalAttrs, result, true);
 
         // 5. resources
         Set<String> updatedRes = new HashSet<String>(updated.getResources());
