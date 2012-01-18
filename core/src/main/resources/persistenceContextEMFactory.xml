@@ -33,8 +33,12 @@
                 <entry key="openjpa.NontransactionalWrite" value="false"/>
                 <entry key="openjpa.AutoDetach" value="close, commit, nontx-read, rollback"/>
                 
-                <entry key="openjpa.DataCache" value="true(Lru=true)"/>
-                <entry key="openjpa.QueryCache" value="true(Lru=true)"/>
+                <entry key="openjpa.DataCacheManager"
+                       value="org.syncope.core.persistence.openjpa.EhCacheDataCacheManager"/>
+                <entry key="openjpa.DataCache"
+                       value="org.syncope.core.persistence.openjpa.EhCacheDataCache"/>
+                <entry key="openjpa.QueryCache"
+                       value="org.syncope.core.persistence.openjpa.EhCacheQueryCache"/>
             </map>
         </property>
     </bean>

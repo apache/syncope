@@ -17,10 +17,11 @@ package org.syncope.core.persistence.dao.impl;
 import java.util.List;
 
 import javassist.NotFoundException;
-
 import javax.persistence.CacheRetrieveMode;
+
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,18 +48,24 @@ public class ResourceDAOImpl extends AbstractDAOImpl
 
     @Override
     public ExternalResource find(final String name) {
-        Query query = entityManager.createQuery("SELECT e "
+        CacheRetrieveMode prevCRM = getCacheRetrieveMode();
+        setCacheRetrieveMode(CacheRetrieveMode.USE);
+
+        TypedQuery<ExternalResource> query =
+                entityManager.createQuery("SELECT e "
                 + "FROM " + ExternalResource.class.getSimpleName() + " e "
-                + "WHERE e.name = :name");
-        query.setHint("javax.persistence.cache.retrieveMode",
-                CacheRetrieveMode.USE);
+                + "WHERE e.name = :name", ExternalResource.class);
         query.setParameter("name", name);
 
+        ExternalResource result = null;
         try {
-            return (ExternalResource) query.getSingleResult();
+            result = query.getSingleResult();
         } catch (NoResultException e) {
-            return null;
         }
+
+        setCacheRetrieveMode(prevCRM);
+
+        return result;
     }
 
     @Override
@@ -77,12 +84,12 @@ public class ResourceDAOImpl extends AbstractDAOImpl
     }
 
     /**
-     * This method has an explicit @Transactional annotation because it is 
+     * This method has an explicit @Transactional annotation because it is
      * called by SyncJob.
-     * 
+     *
      * @see org.syncope.core.scheduling.SyncJob
      *
-     * @param resource  entity to be merged
+     * @param resource entity to be merged
      * @return the same entity, updated
      */
     @Override
@@ -99,12 +106,17 @@ public class ResourceDAOImpl extends AbstractDAOImpl
 
     @Override
     public List<SchemaMapping> findAllMappings() {
+        CacheRetrieveMode prevCRM = getCacheRetrieveMode();
+        setCacheRetrieveMode(CacheRetrieveMode.USE);
+
         Query query = entityManager.createQuery("SELECT e FROM "
                 + SchemaMapping.class.getSimpleName() + " e");
-        query.setHint("javax.persistence.cache.retrieveMode",
-                CacheRetrieveMode.USE);
 
-        return query.getResultList();
+        List<SchemaMapping> result = query.getResultList();
+
+        setCacheRetrieveMode(prevCRM);
+
+        return result;
     }
 
     @Override

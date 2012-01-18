@@ -99,7 +99,7 @@
         <quartz.version>1.8.5</quartz.version>
 
         <openjpa.version>2.2.0-SNAPSHOT</openjpa.version>
-        <ehcache.version>2.4.6</ehcache.version>
+        <ehcache.version>2.4.7</ehcache.version>
 
         <wicket.version>1.5.3</wicket.version>
 

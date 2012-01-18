@@ -40,14 +40,19 @@ public class EntitlementDAOImpl extends AbstractDAOImpl
 
     @Override
     public List<Entitlement> findAll() {
-        Query query = entityManager.createQuery(
-                "SELECT e FROM Entitlement e");
-        query.setHint("javax.persistence.cache.retrieveMode",
-                CacheRetrieveMode.USE);
-        query.setHint("javax.persistence.cache.storeMode",
-                CacheStoreMode.REFRESH);
+        CacheRetrieveMode prevCRM = getCacheRetrieveMode();
+        setCacheRetrieveMode(CacheRetrieveMode.USE);
+        CacheStoreMode prevCSM = getCacheStoreMode();
+        setCacheStoreMode(CacheStoreMode.REFRESH);
 
-        return query.getResultList();
+        Query query = entityManager.createQuery("SELECT e FROM Entitlement e");
+
+        List<Entitlement> result = query.getResultList();
+
+        setCacheRetrieveMode(prevCRM);
+        setCacheStoreMode(prevCSM);
+
+        return result;
     }
 
     @Override

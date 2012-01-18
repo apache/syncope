@@ -49,12 +49,17 @@ public class SchemaDAOImpl extends AbstractDAOImpl
     public <T extends AbstractSchema> List<T> findAll(
             final Class<T> reference) {
 
+        CacheRetrieveMode prevCRM = getCacheRetrieveMode();
+        setCacheRetrieveMode(CacheRetrieveMode.USE);
+
         Query query = entityManager.createQuery(
                 "SELECT e FROM " + reference.getSimpleName() + " e");
-        query.setHint("javax.persistence.cache.retrieveMode",
-                CacheRetrieveMode.USE);
 
-        return query.getResultList();
+        List<T> result = query.getResultList();
+
+        setCacheRetrieveMode(prevCRM);
+
+        return result;
     }
 
     @Override
