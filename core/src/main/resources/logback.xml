@@ -74,18 +74,6 @@
         </encoder>
     </appender>
 
-    <appender name="monitor" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${log.directory}/core-monitor.log</file>
-        <append>true</append>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${log.directory}/core-monitor.log.%d{yyyy-MM-dd}</fileNamePattern>
-            <maxHistory>30</maxHistory>
-        </rollingPolicy>
-        <encoder>
-            <pattern>%d{HH:mm:ss.SSS} %-5level %logger - %msg%n</pattern>
-        </encoder>
-    </appender>
-
     <logger name="org.syncope.client" additivity="false">
         <level value="OFF"/>
         <appender-ref ref="main"/>
@@ -126,21 +114,6 @@
     <logger name="org.syncope.core.test" additivity="false">
         <level value="INFO"/>
         <appender-ref ref="test"/>
-    </logger>
-
-    <logger name="org.syncope.core.monitor" additivity="false">
-        <level value="INFO"/>
-        <appender-ref ref="monitor"/>
-    </logger>
-
-    <logger name="org.hibernate.cache" additivity="false">
-        <level value="INFO"/>
-        <appender-ref ref="monitor"/>
-    </logger>
-    
-    <logger name="org.hibernate.hql.ast" additivity="false">
-        <level value="ERROR"/>
-        <appender-ref ref="monitor"/>
     </logger>
 
     <logger name="org.springframework" additivity="false">
