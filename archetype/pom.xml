@@ -19,14 +19,14 @@
     <parent>
         <groupId>org.syncope</groupId>
         <artifactId>syncope</artifactId>
-        <version>0.7.1-SNAPSHOT</version>
+        <version>0.7.1</version>
     </parent>
 
     <name>Syncope archetype</name>
     <description>Syncope archetype</description>
     <groupId>org.syncope</groupId>
     <artifactId>syncope-archetype</artifactId>
-    <version>0.7.2-SNAPSHOT</version>
+    <version>0.7.2</version>
     <packaging>maven-archetype</packaging>
 
     <properties>
@@ -34,9 +34,9 @@
     </properties>
 
     <scm>
-        <connection>scm:svn:http://syncope.googlecode.com/svn/branches/0_7_X/archetype</connection>
-        <developerConnection>scm:svn:https://syncope.googlecode.com/svn/branches/0_7_X/archetype</developerConnection>
-        <url>http://syncope.googlecode.com/svn/branches/0_7_X/archetype</url>
+        <connection>scm:svn:http://syncope.googlecode.com/svn/tags/syncope-0.7.1/archetype</connection>
+        <developerConnection>scm:svn:https://syncope.googlecode.com/svn/tags/syncope-0.7.1/archetype</developerConnection>
+        <url>http://syncope.googlecode.com/svn/tags/syncope-0.7.1/archetype</url>
     </scm>
 
     <build>
