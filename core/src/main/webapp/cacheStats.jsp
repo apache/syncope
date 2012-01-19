@@ -1,9 +1,8 @@
+<%@page import="org.syncope.core.util.ApplicationContextManager"%>
+<%@page import="org.springframework.context.ConfigurableApplicationContext"%>
 <%@page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
-<jsp:useBean id="sessionFactory"
-             scope="request"
-             type="org.hibernate.SessionFactory"/>
 <%@page import="org.springframework.web.context.support.ContextExposingHttpServletRequest"%>
 <%@page import="javax.persistence.EntityManagerFactory"%>
 <%@page import="org.hibernate.Session"%>
@@ -12,10 +11,6 @@
 <%@page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
 <%@page import="org.springframework.context.ApplicationContext"%>
 <%@page import="java.text.SimpleDateFormat"%>
-<%@page import="org.hibernate.hql.QueryTranslator"%>
-<%@page import="org.hibernate.hql.ast.ASTQueryTranslatorFactory"%>
-<%@page import="org.hibernate.engine.SessionFactoryImplementor"%>
-<%@page import="org.hibernate.hql.QueryTranslatorFactory"%>
 <%@page import="org.hibernate.SessionFactory"%>
 <%@page import="java.util.Date"%>
 <%@page import="java.util.List"%>
@@ -28,6 +23,11 @@
 <%@page import="java.util.Collections"%>
 <%@page import="org.hibernate.stat.QueryStatistics"%>
 <%@page import="java.util.Map"%>
+<%@page import="org.syncope.client.SyncopeConstants"%>
+<%@page import="org.hibernate.hql.spi.QueryTranslator"%>
+<%@page import="org.hibernate.engine.spi.SessionFactoryImplementor"%>
+<%@page import="org.hibernate.hql.internal.ast.ASTQueryTranslatorFactory"%>
+<%@page import="org.hibernate.hql.spi.QueryTranslatorFactory"%>
 <%!
     static Map<String, QueryStatistics> queryStatistics =
             Collections.synchronizedMap(
@@ -54,6 +54,7 @@
             generalStatistics.add(new Long(-1));
         }
     }
+
     static Date lastUpdate;
 
     static Date activation;
@@ -86,31 +87,26 @@
             return null;
         }
     }
+
+    ConfigurableApplicationContext context =
+            ApplicationContextManager.getApplicationContext();
+
+    EntityManager entityManager = context.getBean(
+            EntityManager.class);
+
+    SessionFactory sessionFactory = ((Session) entityManager.getDelegate()).
+            getSessionFactory();
+
     static HqlToSqlTranslator translator = new HqlToSqlTranslator();
 
-    public static class StringUtils {
-
-        public static final String format(final Date date) {
-            if (date == null) {
-                return null;
-            }
-            final SimpleDateFormat sdf = new SimpleDateFormat(
-                    "dd.MM.yy HH:mm:ss");
-            return sdf.format(date);
-        }
-
-        public static final String formatTime(final long millis) {
-            Date date = new Date(millis);
-
-            return format(date);
-        }
-    }
+    SimpleDateFormat sdf = new SimpleDateFormat(
+            SyncopeConstants.DEFAULT_DATE_PATTERN);
 %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>Hibernate statistics</title>
+        <title>Cache statistics</title>
         <style type="text/css">
             .c{
                 text-align: center;
@@ -147,49 +143,48 @@
     <body>
         <p/>
         <%
-                    final Statistics statistics =
-                            sessionFactory.getStatistics();
+            Statistics statistics = sessionFactory.getStatistics();
 
-                    final String action = request.getParameter("do");
-                    final StringBuilder info = new StringBuilder(512);
+            String action = request.getParameter("do");
+            StringBuilder info = new StringBuilder(512);
 
-                    if ("activate".equals(action)
-                            && !statistics.isStatisticsEnabled()) {
+            if ("activate".equals(action)
+                    && !statistics.isStatisticsEnabled()) {
 
-                        statistics.setStatisticsEnabled(true);
-                        activation = new Date();
-                        info.append("Statistics enabled\n");
-                    } else if ("deactivate".equals(action)
-                            && statistics.isStatisticsEnabled()) {
+                statistics.setStatisticsEnabled(true);
+                activation = new Date();
+                info.append("Statistics enabled\n");
+            } else if ("deactivate".equals(action)
+                    && statistics.isStatisticsEnabled()) {
 
-                        statistics.setStatisticsEnabled(false);
-                        deactivation = new Date();
-                        info.append("Statistics disabled\n");
-                    } else if ("clear".equals(action)) {
-                        activation = null;
-                        deactivation = null;
-                        statistics.clear();
-                        generalStatistics.set(0, new Long(0));
-                        generalStatistics.set(1, new Long(0));
+                statistics.setStatisticsEnabled(false);
+                deactivation = new Date();
+                info.append("Statistics disabled\n");
+            } else if ("clear".equals(action)) {
+                activation = null;
+                deactivation = null;
+                statistics.clear();
+                generalStatistics.set(0, new Long(0));
+                generalStatistics.set(1, new Long(0));
 
-                        generalStatistics.set(2, new Long(0));
-                        generalStatistics.set(3, new Long(0));
+                generalStatistics.set(2, new Long(0));
+                generalStatistics.set(3, new Long(0));
 
-                        generalStatistics.set(4, new Long(0));
-                        generalStatistics.set(5, new Long(0));
+                generalStatistics.set(4, new Long(0));
+                generalStatistics.set(5, new Long(0));
 
-                        generalStatistics.set(6, new Long(0));
-                        generalStatistics.set(7, new Long(0));
-                        generalStatistics.set(8, new Long(0));
-                        queryStatistics.clear();
-                        entityStatistics.clear();
-                        collectionStatistics.clear();
-                        secondLevelCacheStatistics.clear();
-                        info.append("Statistics cleared\n");
-                    }
+                generalStatistics.set(6, new Long(0));
+                generalStatistics.set(7, new Long(0));
+                generalStatistics.set(8, new Long(0));
+                queryStatistics.clear();
+                entityStatistics.clear();
+                collectionStatistics.clear();
+                secondLevelCacheStatistics.clear();
+                info.append("Statistics cleared\n");
+            }
 
-                    boolean active = statistics.isStatisticsEnabled();
-                    if (info.length() > 0) {
+            boolean active = statistics.isStatisticsEnabled();
+            if (info.length() > 0) {
         %>
         <p/><div class="success">
             <c:out value="${fn:escapeXml(info)}"/>
@@ -202,99 +197,96 @@
             <%=(active ? "DEACTIVATE" : "ACTIVATE")%></a> |
         <a href="?do=clear">CLEAR</a>
         <%
-                    if (active) {
-                        lastUpdate = new Date();
-                        String[] names;
+            if (active) {
+                lastUpdate = new Date();
+                String[] names;
 
-                        generalStatistics.set(0, statistics.getConnectCount());
-                        generalStatistics.set(1, statistics.getFlushCount());
+                generalStatistics.set(0, statistics.getConnectCount());
+                generalStatistics.set(1, statistics.getFlushCount());
 
-                        generalStatistics.set(2, statistics.
-                                getPrepareStatementCount());
-                        generalStatistics.set(3, statistics.
-                                getCloseStatementCount());
+                generalStatistics.set(2, statistics.getPrepareStatementCount());
+                generalStatistics.set(3, statistics.getCloseStatementCount());
 
-                        generalStatistics.set(4,
-                                statistics.getSessionCloseCount());
-                        generalStatistics.set(5,
-                                statistics.getSessionOpenCount());
+                generalStatistics.set(4,
+                        statistics.getSessionCloseCount());
+                generalStatistics.set(5,
+                        statistics.getSessionOpenCount());
 
-                        generalStatistics.set(6,
-                                statistics.getTransactionCount());
-                        generalStatistics.set(7, statistics.
-                                getSuccessfulTransactionCount());
-                        generalStatistics.set(8, statistics.
-                                getOptimisticFailureCount());
+                generalStatistics.set(6,
+                        statistics.getTransactionCount());
+                generalStatistics.set(7, statistics.
+                        getSuccessfulTransactionCount());
+                generalStatistics.set(8, statistics.getOptimisticFailureCount());
 
-                        queryStatistics.clear();
-                        names = statistics.getQueries();
-                        if (names != null && names.length > 0) {
-                            for (int i = 0;
-                                    i < names.length; i++) {
+                queryStatistics.clear();
+                names = statistics.getQueries();
+                if (names != null && names.length > 0) {
+                    for (int i = 0;
+                            i < names.length; i++) {
 
-                                queryStatistics.put(names[i],
-                                        statistics.getQueryStatistics(
-                                        names[i]));
-                            }
-                        }
-
-                        entityStatistics.clear();
-                        names = statistics.getEntityNames();
-                        if (names != null && names.length > 0) {
-                            for (int i = 0; i
-                                    < names.length; i++) {
-                                entityStatistics.put(names[i],
-                                        statistics.getEntityStatistics(
-                                        names[i]));
-                            }
-                        }
-
-                        collectionStatistics.clear();
-                        names = statistics.getCollectionRoleNames();
-                        if (names != null && names.length > 0) {
-                            for (int i = 0; i
-                                    < names.length; i++) {
-                                collectionStatistics.put(names[i],
-                                        statistics.getCollectionStatistics(
-                                        names[i]));
-                            }
-                        }
-
-                        secondLevelCacheStatistics.clear();
-                        names = statistics.getSecondLevelCacheRegionNames();
-                        if (names != null && names.length > 0) {
-                            for (int i = 0; i
-                                    < names.length; i++) {
-                                secondLevelCacheStatistics.put(names[i],
-                                        statistics.getSecondLevelCacheStatistics(
-                                        names[i]));
-                            }
-                        }
+                        queryStatistics.put(names[i],
+                                statistics.getQueryStatistics(
+                                names[i]));
                     }
+                }
+
+                entityStatistics.clear();
+                names = statistics.getEntityNames();
+                if (names != null && names.length > 0) {
+                    for (int i = 0; i
+                            < names.length; i++) {
+                        entityStatistics.put(names[i],
+                                statistics.getEntityStatistics(
+                                names[i]));
+                    }
+                }
+
+                collectionStatistics.clear();
+                names = statistics.getCollectionRoleNames();
+                if (names != null && names.length > 0) {
+                    for (int i = 0; i
+                            < names.length; i++) {
+                        collectionStatistics.put(names[i],
+                                statistics.getCollectionStatistics(
+                                names[i]));
+                    }
+                }
+
+                secondLevelCacheStatistics.clear();
+                names = statistics.getSecondLevelCacheRegionNames();
+                if (names != null && names.length > 0) {
+                    for (int i = 0; i
+                            < names.length; i++) {
+                        secondLevelCacheStatistics.put(names[i],
+                                statistics.getSecondLevelCacheStatistics(
+                                names[i]));
+                    }
+                }
+            }
 
         %>
         <p/>
-	Last update: <%=(lastUpdate != null
-                                ? StringUtils.format(lastUpdate) : "none")%><br/>
-	Activation: <%=(activation != null
-                                ? StringUtils.format(activation) : "none")%><br/>
-	Deactivation: <%=(deactivation != null
-                                ? StringUtils.format(deactivation) : "none")%><br/>
-	Active duration: <%=(activation != null
-                                ? StringUtils.formatTime((deactivation != null
-                                ? deactivation.getTime()
-                                : new Date().getTime()) - activation.getTime())
-                                : "none")%>
+        Last update: <%=(lastUpdate != null
+                ? sdf.format(lastUpdate) : "none")%><br/>
+        Activation: <%=(activation != null
+                ? sdf.format(activation) : "none")%><br/>
+        Deactivation: <%=(deactivation != null
+                ? sdf.format(deactivation) : "none")%><br/>
+        Active duration: <%=(activation != null
+                ? sdf.format(deactivation != null
+                ? new Date(deactivation.getTime())
+                : new Date(new Date().getTime() - activation.getTime()))
+                : "none")%>
         <p/>
         <%
-                    boolean hasGeneral = false;
-                    for (int i = 0; i < 9; i++) {
-                        if (generalStatistics.get(i).longValue() > -1) {
-                            hasGeneral = true;
-                            break;
-                        }
-                    }
-                    if (hasGeneral) {
+            boolean hasGeneral = false;
+            for (int i = 0; i < 9; i++) {
+                if (generalStatistics.get(i).longValue() > -1) {
+                    hasGeneral = true;
+                    break;
+                }
+            }
+            if (hasGeneral) {
         %>
         <table>
             <tr>
@@ -338,7 +330,7 @@
         <%                    }%>
 
         <%
-                    if (queryStatistics.size() > 0) {
+            if (queryStatistics.size() > 0) {
         %>
         <table width="100%">
             <tr><th colspan="11" class="c bd1 bg2">Query statistics</th></tr>
@@ -356,12 +348,12 @@
                 <th class="c bd1 bg1">Cache put</th>
             </tr>
             <%
-                                    QueryStatistics queryStats;
-                                    boolean odd = true;
-                                    for (String query :
-                                            queryStatistics.keySet()) {
+                QueryStatistics queryStats;
+                boolean odd = true;
+                for (String query :
+                        queryStatistics.keySet()) {
 
-                                        queryStats = queryStatistics.get(query);
+                    queryStats = queryStatistics.get(query);
             %>
             <tr class="<%=(odd ? "odd" : "even")%>">
                 <td class="t"><%=query%></td>
@@ -372,23 +364,23 @@
                 <td class="t"><%=queryStats.getExecutionMinTime()%></td>
                 <td class="t"><%=queryStats.getExecutionAvgTime()%></td>
                 <td class="t">
-                    <%=queryStats.getExecutionAvgTime() * queryStats.
-                                            getExecutionCount()%>
+                    <%=queryStats.getExecutionAvgTime()
+                            * queryStats.getExecutionCount()%>
                 </td>
                 <td class="t"><%=queryStats.getCacheHitCount()%></td>
                 <td class="t"><%=queryStats.getCacheMissCount()%></td>
                 <td class="t"><%=queryStats.getCachePutCount()%></td>
             </tr>
             <%
-                                        odd = !odd;
-                                    }
+                    odd = !odd;
+                }
             %>
         </table>
         <p/>
         <%
-                    }
+            }
 
-                    if (entityStatistics.size() > 0) {
+            if (entityStatistics.size() > 0) {
         %>
         <table width="100%">
             <tr><th colspan="7" class="c bd1 bg2">Entity statistics</th></tr>
@@ -402,13 +394,13 @@
                 <th class="c bd1 bg1">Optimistic failures</th>
             </tr>
             <%
-                                    EntityStatistics entityStats;
-                                    boolean odd = true;
-                                    for (String entity :
-                                            entityStatistics.keySet()) {
+                EntityStatistics entityStats;
+                boolean odd = true;
+                for (String entity :
+                        entityStatistics.keySet()) {
 
-                                        entityStats = entityStatistics.get(
-                                                entity);
+                    entityStats = entityStatistics.get(
+                            entity);
             %>
             <tr class="<%=(odd ? "odd" : "even")%>">
                 <td><%=entity%></td>
@@ -420,15 +412,15 @@
                 <td><%=entityStats.getOptimisticFailureCount()%></td>
             </tr>
             <%
-                                        odd = !odd;
-                                    }
+                    odd = !odd;
+                }
             %>
         </table>
         <p/>
         <%
-                    }
+            }
 
-                    if (collectionStatistics.size() > 0) {
+            if (collectionStatistics.size() > 0) {
         %>
         <table width="100%">
             <tr><th colspan="6" class="c bd1 bg2">Collection statistics</th></tr>
@@ -441,14 +433,13 @@
                 <th class="c bd1 bg1">Remove</th>
             </tr>
             <%
-                                    CollectionStatistics collectionStats;
-                                    boolean odd = true;
+                CollectionStatistics collectionStats;
+                boolean odd = true;
 
-                                    for (String collection :
-                                            collectionStatistics.keySet()) {
+                for (String collection :
+                        collectionStatistics.keySet()) {
 
-                                        collectionStats = collectionStatistics.
-                                                get(collection);
+                    collectionStats = collectionStatistics.get(collection);
             %>
             <tr class="<%=(odd ? "odd" : "even")%>">
                 <td><%=collection%></td>
@@ -459,21 +450,21 @@
                 <td><%=collectionStats.getRemoveCount()%></td>
             </tr>
             <%
-                                        odd = !odd;
-                                    }
+                    odd = !odd;
+                }
             %>
         </table>
         <p/>
         <%
-                    }
+            }
 
-                    if (secondLevelCacheStatistics.size() > 0) {
-                        long totalSizeInMemory = 0;
+            if (secondLevelCacheStatistics.size() > 0) {
+                long totalSizeInMemory = 0;
         %>
         <table width="100%">
             <tr><th colspan="7" class="c bd1 bg2">2nd level cache statistics</th></tr>
             <tr>
-                <th class="c bd1 bg1">Regionname</th>
+                <th class="c bd1 bg1">Region</th>
                 <th class="c bd1 bg1">Puts</th>
                 <th class="c bd1 bg1">Hits</th>
                 <th class="c bd1 bg1">Misses</th>
@@ -482,14 +473,12 @@
                 <th class="c bd1 bg1">Elements on disk</th>
             </tr>
             <%
-                                    SecondLevelCacheStatistics cacheStats;
-                                    boolean odd = true;
-                                    for (String cache :
-                                            secondLevelCacheStatistics.keySet()) {
-                                        cacheStats = secondLevelCacheStatistics.
-                                                get(cache);
-                                        totalSizeInMemory += cacheStats.
-                                                getSizeInMemory();
+                SecondLevelCacheStatistics cacheStats;
+                boolean odd = true;
+                for (String cache :
+                        secondLevelCacheStatistics.keySet()) {
+                    cacheStats = secondLevelCacheStatistics.get(cache);
+                    totalSizeInMemory += cacheStats.getSizeInMemory();
             %>
             <tr class="<%=(odd ? "odd" : "even")%>">
                 <td><%=cache%></td>
@@ -501,8 +490,8 @@
                 <td><%=cacheStats.getElementCountOnDisk()%></td>
             </tr>
             <%
-                                        odd = !odd;
-                                    }
+                    odd = !odd;
+                }
             %>
             <tr>
                 <td colspan="5">&nbsp;</td>
