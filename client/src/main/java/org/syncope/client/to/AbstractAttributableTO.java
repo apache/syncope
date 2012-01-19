@@ -21,15 +21,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.codehaus.jackson.annotate.JsonIgnore;
-import org.syncope.client.AbstractBaseBean;
 
-public abstract class AbstractAttributableTO extends AbstractBaseBean {
+public abstract class AbstractAttributableTO extends ConnObjectTO {
 
     private static final long serialVersionUID = 4083884098736820255L;
 
     private long id;
-
-    private List<AttributeTO> attributes;
 
     private List<AttributeTO> derivedAttributes;
 
@@ -40,7 +37,6 @@ public abstract class AbstractAttributableTO extends AbstractBaseBean {
     protected AbstractAttributableTO() {
         super();
 
-        attributes = new ArrayList<AttributeTO>();
         derivedAttributes = new ArrayList<AttributeTO>();
         virtualAttributes = new ArrayList<AttributeTO>();
         resources = new HashSet<String>();
@@ -52,33 +48,6 @@ public abstract class AbstractAttributableTO extends AbstractBaseBean {
 
     public void setId(final long id) {
         this.id = id;
-    }
-
-    public boolean addAttribute(final AttributeTO attribute) {
-        return attributes.add(attribute);
-    }
-
-    public boolean removeAttribute(final AttributeTO attribute) {
-        return attributes.remove(attribute);
-    }
-
-    public List<AttributeTO> getAttributes() {
-        return attributes;
-    }
-
-    public void setAttributes(final List<AttributeTO> attributes) {
-        this.attributes = attributes;
-    }
-
-    @JsonIgnore
-    public Map<String, AttributeTO> getAttributeMap() {
-        Map<String, AttributeTO> result =
-                new HashMap<String, AttributeTO>(attributes.size());
-        for (AttributeTO attributeTO : attributes) {
-            result.put(attributeTO.getSchema(), attributeTO);
-        }
-
-        return result;
     }
 
     @JsonIgnore

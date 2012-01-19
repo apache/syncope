@@ -34,9 +34,9 @@ import org.syncope.client.to.AbstractAttributableTO;
 import org.syncope.client.to.AttributeTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
 import org.syncope.client.validation.SyncopeClientException;
-import org.syncope.core.persistence.beans.AbstractAttributable;
 import org.syncope.core.persistence.beans.AbstractAttr;
 import org.syncope.core.persistence.beans.AbstractAttrValue;
+import org.syncope.core.persistence.beans.AbstractAttributable;
 import org.syncope.core.persistence.beans.AbstractDerAttr;
 import org.syncope.core.persistence.beans.AbstractDerSchema;
 import org.syncope.core.persistence.beans.AbstractSchema;
@@ -690,7 +690,8 @@ public abstract class AbstractAttributableDataBinder {
         return propByRes;
     }
 
-    public void fillVirtual(final AbstractAttributable attributable,
+    public void fillVirtual(
+            final AbstractAttributable attributable,
             final List<AttributeTO> vAttrs,
             final AttributableUtil attributableUtil) {
 
@@ -710,7 +711,8 @@ public abstract class AbstractAttributableDataBinder {
         }
     }
 
-    protected void fill(final AbstractAttributable attributable,
+    protected void fill(
+            final AbstractAttributable attributable,
             final AbstractAttributableTO attributableTO,
             final AttributableUtil attributableUtil,
             final SyncopeClientCompositeErrorException compositeErrorException)

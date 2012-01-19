@@ -283,29 +283,6 @@ public class UserController {
 
     @PreAuthorize("hasRole('USER_UPDATE')")
     @RequestMapping(method = RequestMethod.POST,
-    value = "/activate")
-    public UserTO activate(@RequestBody final UserTO userTO)
-            throws WorkflowException, NotFoundException,
-            UnauthorizedRoleException, PropagationException {
-
-        WorkflowResult<Long> updated =
-                wfAdapter.activate(userTO.getId(), userTO.getToken());
-
-        List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(
-                updated, Boolean.TRUE);
-        propagationManager.execute(tasks);
-
-        notificationManager.createTasks(updated);
-
-        final UserTO savedTO = dataBinder.getUserTO(updated.getResult());
-
-        LOG.debug("About to return activated user\n{}", savedTO);
-
-        return savedTO;
-    }
-
-    @PreAuthorize("hasRole('USER_UPDATE')")
-    @RequestMapping(method = RequestMethod.POST,
     value = "/update")
     public UserTO update(@RequestBody final UserMod userMod)
             throws NotFoundException, PropagationException,
@@ -332,51 +309,70 @@ public class UserController {
     }
 
     @PreAuthorize("hasRole('USER_UPDATE')")
+    @RequestMapping(method = RequestMethod.POST,
+    value = "/activate")
+    @Transactional(readOnly = true, rollbackFor = {Throwable.class})
+    public UserTO activate(
+            @RequestBody final UserTO userTO,
+            @RequestParam(required = false) final Set<String> resourceNames,
+            @RequestParam(required = false, defaultValue = "true")
+            final Boolean performLocal)
+            throws WorkflowException, NotFoundException,
+            UnauthorizedRoleException, PropagationException {
+
+        LOG.debug("About to activate " + userTO.getId());
+
+
+        SyncopeUser user = userDAO.find(userTO.getId());
+        if (user == null) {
+            throw new NotFoundException("User " + userTO.getId());
+        }
+
+        return setStatus(user, resourceNames, performLocal, true, "activate");
+    }
+
+    @PreAuthorize("hasRole('USER_UPDATE')")
     @RequestMapping(method = RequestMethod.GET,
     value = "/suspend/{userId}")
-    public UserTO suspend(@PathVariable("userId") final Long userId)
+    @Transactional(rollbackFor = {Throwable.class})
+    public UserTO suspend(
+            @PathVariable("userId") final Long userId,
+            @RequestParam(required = false) final Set<String> resourceNames,
+            @RequestParam(required = false, defaultValue = "true")
+            final Boolean performLocal)
             throws NotFoundException, WorkflowException,
             UnauthorizedRoleException, PropagationException {
 
         LOG.debug("About to suspend " + userId);
 
-        WorkflowResult<Long> updated = wfAdapter.suspend(userId);
 
-        List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(
-                updated, Boolean.FALSE);
-        propagationManager.execute(tasks);
+        SyncopeUser user = userDAO.find(userId);
+        if (user == null) {
+            throw new NotFoundException("User " + userId);
+        }
 
-        notificationManager.createTasks(updated);
-
-        final UserTO savedTO = dataBinder.getUserTO(updated.getResult());
-
-        LOG.debug("About to return suspended user\n{}", savedTO);
-
-        return savedTO;
+        return setStatus(user, resourceNames, performLocal, false, "suspend");
     }
 
     @PreAuthorize("hasRole('USER_UPDATE')")
     @RequestMapping(method = RequestMethod.GET,
     value = "/reactivate/{userId}")
-    public UserTO reactivate(final @PathVariable("userId") Long userId)
+    @Transactional(rollbackFor = {Throwable.class})
+    public UserTO reactivate(final @PathVariable("userId") Long userId,
+            @RequestParam(required = false) final Set<String> resourceNames,
+            @RequestParam(required = false, defaultValue = "true")
+            final Boolean performLocal)
             throws NotFoundException, WorkflowException,
             UnauthorizedRoleException, PropagationException {
 
         LOG.debug("About to reactivate " + userId);
 
-        WorkflowResult<Long> updated = wfAdapter.reactivate(userId);
+        SyncopeUser user = userDAO.find(userId);
+        if (user == null) {
+            throw new NotFoundException("User " + userId);
+        }
 
-        List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(
-                updated, Boolean.TRUE);
-        propagationManager.execute(tasks);
-
-        notificationManager.createTasks(updated);
-
-        final UserTO savedTO = dataBinder.getUserTO(updated.getResult());
-
-        LOG.debug("About to return suspended user\n{}", savedTO);
-
-        return savedTO;
+        return setStatus(user, resourceNames, performLocal, true, "reactivate");
     }
 
     @PreAuthorize("hasRole('USER_DELETE')")
@@ -408,7 +404,8 @@ public class UserController {
     @PreAuthorize("hasRole('USER_UPDATE')")
     @RequestMapping(method = RequestMethod.POST,
     value = "/execute/workflow/{taskId}")
-    public UserTO executeWorkflow(@RequestBody final UserTO userTO,
+    public UserTO executeWorkflow(
+            @RequestBody final UserTO userTO,
             @PathVariable("taskId") final String taskId)
             throws WorkflowException, NotFoundException,
             UnauthorizedRoleException, PropagationException {
@@ -417,8 +414,9 @@ public class UserController {
 
         WorkflowResult<Long> updated = wfAdapter.execute(userTO, taskId);
 
-        List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(
-                updated, null);
+        List<PropagationTask> tasks =
+                propagationManager.getUpdateTaskIds(updated, null);
+
         propagationManager.execute(tasks);
 
         notificationManager.createTasks(updated);
@@ -487,6 +485,54 @@ public class UserController {
                 updated.getResult().getKey());
 
         LOG.debug("About to return user after form processing\n{}", savedTO);
+
+        return savedTO;
+    }
+
+    private UserTO setStatus(
+            final SyncopeUser user,
+            final Set<String> resourceNames,
+            final boolean performLocal,
+            final boolean status,
+            final String performedTask)
+            throws NotFoundException, WorkflowException,
+            UnauthorizedRoleException, PropagationException {
+
+        LOG.debug("About to suspend " + user.getId());
+
+        List<PropagationTask> tasks = null;
+        WorkflowResult<Long> updated = null;
+
+        if (performLocal) {
+            // perform local changes
+
+            if ("suspend".equals(performedTask)) {
+                updated = wfAdapter.suspend(user.getId());
+            } else if ("reactivate".equals(performedTask)) {
+                updated = wfAdapter.reactivate(user.getId());
+            } else {
+                updated = wfAdapter.activate(user.getId(), user.getToken());
+            }
+        } else {
+            // do not perform local changes
+            updated = new WorkflowResult<Long>(user.getId(), null, performedTask);
+        }
+
+        // Resources to exclude from propagation.
+        Set<String> resources = new HashSet<String>();
+        if (resourceNames != null) {
+            resources.addAll(user.getResourceNames());
+            resources.removeAll(resourceNames);
+        }
+
+        tasks = propagationManager.getUpdateTaskIds(user, status, resources);
+
+        propagationManager.execute(tasks);
+        notificationManager.createTasks(updated);
+
+        final UserTO savedTO = dataBinder.getUserTO(updated.getResult());
+
+        LOG.debug("About to return suspended user\n{}", savedTO);
 
         return savedTO;
     }
