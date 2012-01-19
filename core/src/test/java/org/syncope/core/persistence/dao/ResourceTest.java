@@ -21,7 +21,6 @@ import java.util.Set;
 import org.connid.bundles.soap.WebServiceConnector;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.ExpectedException;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.persistence.beans.ConnInstance;
 import org.syncope.core.persistence.beans.ExternalResource;
@@ -37,7 +36,7 @@ public class ResourceTest extends AbstractTest {
     private ResourceDAO resourceDAO;
 
     @Test
-    public final void findById() {
+    public void findById() {
         ExternalResource resource =
                 resourceDAO.find("ws-target-resource-1");
 
@@ -73,21 +72,21 @@ public class ResourceTest extends AbstractTest {
     }
 
     @Test
-    public final void findAllByPriority() {
+    public void findAllByPriority() {
         List<ExternalResource> resources = resourceDAO.findAllByPriority();
         assertNotNull(resources);
         assertFalse(resources.isEmpty());
     }
 
     @Test
-    public final void getAccountId() {
+    public void getAccountId() {
         SchemaMapping mapping = resourceDAO.getMappingForAccountId(
                 "ws-target-resource-2");
         assertEquals("fullname", mapping.getIntAttrName());
     }
 
     @Test
-    public final void save() {
+    public void save() {
         ExternalResource resource = new ExternalResource();
         resource.setName("ws-target-resource-basic-save");
         resource.setPropagationPriority(2);
@@ -116,9 +115,8 @@ public class ResourceTest extends AbstractTest {
         assertTrue(actual.isPropagationPrimary());
     }
 
-    @Test
-    @ExpectedException(value = InvalidEntityException.class)
-    public final void saveInvalidMappingIntAttr() {
+    @Test(expected = InvalidEntityException.class)
+    public void saveInvalidMappingIntAttr() {
 
         ExternalResource resource = new ExternalResource();
         resource.setName("ws-target-resource-basic-save-invalid");
@@ -136,9 +134,8 @@ public class ResourceTest extends AbstractTest {
         assertNotNull(actual);
     }
 
-    @Test
-    @ExpectedException(value = InvalidEntityException.class)
-    public final void saveInvalidMappingExtAttr() {
+    @Test(expected = InvalidEntityException.class)
+    public void saveInvalidMappingExtAttr() {
 
         ExternalResource resource = new ExternalResource();
         resource.setName("ws-target-resource-basic-save-invalid");
@@ -165,7 +162,7 @@ public class ResourceTest extends AbstractTest {
     }
 
     @Test
-    public final void delete() {
+    public void delete() {
         ExternalResource resource = resourceDAO.find("ws-target-resource-2");
         assertNotNull(resource);
 

@@ -18,11 +18,13 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.http.HttpResponse;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -46,7 +48,7 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.client.CommonsClientHttpRequestFactory;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 import org.syncope.client.to.UserTO;
 import org.syncope.client.validation.SyncopeClientCompositeErrorException;
@@ -188,10 +190,11 @@ public class Login extends WebPage {
     }
 
     private String[] authenticate(final String userId, final String password) {
-        //1.Set provided credentials to check
-        ((CommonsClientHttpRequestFactory) restTemplate.getRequestFactory()).
-                getHttpClient().getState().setCredentials(
-                AuthScope.ANY,
+        HttpComponentsClientHttpRequestFactory requestFactory =
+                ((HttpComponentsClientHttpRequestFactory) restTemplate.
+                getRequestFactory());
+        ((DefaultHttpClient) requestFactory.getHttpClient()).
+                getCredentialsProvider().setCredentials(AuthScope.ANY,
                 new UsernamePasswordCredentials(userId, password));
 
         //2.Search authorizations for user specified by credentials
@@ -210,9 +213,9 @@ public class Login extends WebPage {
     private String getCoreVersion() {
         String version = "";
         try {
-            HttpMethod get = new GetMethod(baseURL + "../version.jsp");
-            httpClient.executeMethod(get);
-            version = get.getResponseBodyAsString().trim();
+            HttpGet get = new HttpGet(baseURL + "../version.jsp");
+            HttpResponse response = httpClient.execute(get);
+            version = EntityUtils.toString(response.getEntity()).trim();
         } catch (IOException e) {
             LOG.error("While fetching core version", e);
             getSession().error(e.getMessage());

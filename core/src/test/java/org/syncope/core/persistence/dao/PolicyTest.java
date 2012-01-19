@@ -19,7 +19,6 @@ import static org.junit.Assert.*;
 import java.util.List;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.ExpectedException;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.AbstractTest;
 import org.syncope.core.persistence.beans.PasswordPolicy;
@@ -37,40 +36,39 @@ public class PolicyTest extends AbstractTest {
     private PolicyDAO policyDAO;
 
     @Test
-    public final void findAll() {
+    public void findAll() {
         List<Policy> policies = policyDAO.findAll();
         assertNotNull(policies);
         assertFalse(policies.isEmpty());
     }
 
     @Test
-    public final void findById() {
+    public void findById() {
         Policy policy = policyDAO.find(1L);
         assertNotNull("findById did not work", policy);
     }
 
     @Test
-    public final void findByType() {
+    public void findByType() {
         List<? extends Policy> policies = policyDAO.find(PolicyType.SYNC);
         assertNotNull("findById did not work", policies);
         assertFalse(policies.isEmpty());
     }
 
     @Test
-    public final void findGlobalPasswordPolicy() {
+    public void findGlobalPasswordPolicy() {
         PasswordPolicy policy = policyDAO.getGlobalPasswordPolicy();
         assertNotNull("findById did not work", policy);
 
         assertEquals(PolicyType.GLOBAL_PASSWORD, policy.getType());
 
         assertEquals("invalid policy values",
-                8, ((PasswordPolicySpec) policy.getSpecification()).getMinLength());
+                8,
+                ((PasswordPolicySpec) policy.getSpecification()).getMinLength());
     }
 
-    @Test
-    @ExpectedException(value = InvalidEntityException.class)
-    public final void saveInvalidPolicy() {
-
+    @Test(expected = InvalidEntityException.class)
+    public void saveInvalidPolicy() {
         PasswordPolicySpec passwordPolicy = new PasswordPolicySpec();
         passwordPolicy.setMaxLength(8);
         passwordPolicy.setMinLength(6);
@@ -82,9 +80,8 @@ public class PolicyTest extends AbstractTest {
         policyDAO.save(policy);
     }
 
-    @Test
-    @ExpectedException(value = InvalidEntityException.class)
-    public final void saveSecondPasswordPolicy() {
+    @Test(expected = InvalidEntityException.class)
+    public void saveSecondPasswordPolicy() {
         PasswordPolicySpec passwordPolicy = new PasswordPolicySpec();
         passwordPolicy.setMaxLength(8);
         passwordPolicy.setMinLength(6);
@@ -97,7 +94,7 @@ public class PolicyTest extends AbstractTest {
     }
 
     @Test
-    public final void create() {
+    public void create() {
         SyncPolicy policy = new SyncPolicy();
         policy.setSpecification(new SyncPolicySpec());
         policy.setDescription("Sync policy");
@@ -109,7 +106,7 @@ public class PolicyTest extends AbstractTest {
     }
 
     @Test
-    public final void update() {
+    public void update() {
         PasswordPolicySpec specification = new PasswordPolicySpec();
         specification.setMaxLength(8);
         specification.setMinLength(6);
@@ -131,7 +128,7 @@ public class PolicyTest extends AbstractTest {
     }
 
     @Test
-    public final void delete() {
+    public void delete() {
         Policy policy = policyDAO.find(1L);
         assertNotNull("find to delete did not work", policy);
 

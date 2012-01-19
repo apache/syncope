@@ -14,13 +14,13 @@
  */
 package org.syncope.core.rest;
 
-import java.io.IOException;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
@@ -33,7 +33,6 @@ import org.connid.bundles.soap.WebServiceConnector;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.annotation.ExpectedException;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.syncope.client.to.ConnBundleTO;
 import org.syncope.client.to.ConnInstanceTO;
@@ -73,8 +72,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         assertNotNull(bundlesDirectory);
     }
 
-    @Test
-    @ExpectedException(value = SyncopeClientCompositeErrorException.class)
+    @Test(expected = SyncopeClientCompositeErrorException.class)
     public void createWithException() {
         ConnInstanceTO connectorTO = new ConnInstanceTO();
 
@@ -305,7 +303,7 @@ public class ConnInstanceTestITCase extends AbstractTest {
         assertFalse(schemaNames.isEmpty());
 
         schemaNames = Arrays.asList(restTemplate.getForObject(
-                BASE_URL + "connector/schema/{resourceName}/list?showAll=true",
+                BASE_URL + "connector/schema/{resourceName}/list",
                 String[].class, "resource-testdb"));
         assertNotNull(schemaNames);
         assertEquals(1, schemaNames.size());

@@ -13,15 +13,18 @@
  */
 package org.syncope.core.rest;
 
+import java.security.Principal;
 import static org.junit.Assert.*;
 
 import java.util.Arrays;
 import java.util.List;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.Credentials;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.client.CommonsClientHttpRequestFactory;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.syncope.client.mod.UserMod;
 import org.syncope.client.search.AttributeCond;
@@ -37,8 +40,11 @@ public class UserRequestTestITCase extends AbstractTest {
 
     @Test
     public void selfRead() {
-        ((CommonsClientHttpRequestFactory) restTemplate.getRequestFactory()).
-                getHttpClient().getState().setCredentials(AuthScope.ANY,
+        HttpComponentsClientHttpRequestFactory requestFactory =
+                ((HttpComponentsClientHttpRequestFactory) restTemplate.
+                getRequestFactory());
+        ((DefaultHttpClient) requestFactory.getHttpClient()).
+                getCredentialsProvider().setCredentials(AuthScope.ANY,
                 new UsernamePasswordCredentials("user1", "password"));
 
         try {
@@ -85,8 +91,23 @@ public class UserRequestTestITCase extends AbstractTest {
         assertNotNull(configurationTO);
 
         // 4. be anonymous
-        ((CommonsClientHttpRequestFactory) restTemplate.getRequestFactory()).
-                getHttpClient().getState().setCredentials(AuthScope.ANY, null);
+        HttpComponentsClientHttpRequestFactory requestFactory =
+                ((HttpComponentsClientHttpRequestFactory) restTemplate.
+                getRequestFactory());
+        ((DefaultHttpClient) requestFactory.getHttpClient()).
+                getCredentialsProvider().setCredentials(AuthScope.ANY,
+                new Credentials() {
+
+                    @Override
+                    public Principal getUserPrincipal() {
+                        return null;
+                    }
+
+                    @Override
+                    public String getPassword() {
+                        return null;
+                    }
+                });
 
         // 5. now request user create works
         UserRequestTO request = restTemplate.postForObject(
@@ -136,8 +157,11 @@ public class UserRequestTestITCase extends AbstractTest {
         }
 
         // 3. auth as user just created
-        ((CommonsClientHttpRequestFactory) restTemplate.getRequestFactory()).
-                getHttpClient().getState().setCredentials(AuthScope.ANY,
+        HttpComponentsClientHttpRequestFactory requestFactory =
+                ((HttpComponentsClientHttpRequestFactory) restTemplate.
+                getRequestFactory());
+        ((DefaultHttpClient) requestFactory.getHttpClient()).
+                getCredentialsProvider().setCredentials(AuthScope.ANY,
                 new UsernamePasswordCredentials(userTO.getUsername(),
                 initialPassword));
 
@@ -202,8 +226,11 @@ public class UserRequestTestITCase extends AbstractTest {
         }
 
         // 3. auth as user just created
-        ((CommonsClientHttpRequestFactory) restTemplate.getRequestFactory()).
-                getHttpClient().getState().setCredentials(AuthScope.ANY,
+        HttpComponentsClientHttpRequestFactory requestFactory =
+                ((HttpComponentsClientHttpRequestFactory) restTemplate.
+                getRequestFactory());
+        ((DefaultHttpClient) requestFactory.getHttpClient()).
+                getCredentialsProvider().setCredentials(AuthScope.ANY,
                 new UsernamePasswordCredentials(userTO.getUsername(),
                 initialPassword));
 

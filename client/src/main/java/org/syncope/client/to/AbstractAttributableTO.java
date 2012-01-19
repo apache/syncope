@@ -133,9 +133,7 @@ public abstract class AbstractAttributableTO extends AbstractBaseBean {
         return virtualAttributes;
     }
 
-    public void setVirtualAttributes(
-            final List<AttributeTO> virtualAttributes) {
-
+    public void setVirtualAttributes(final List<AttributeTO> virtualAttributes) {
         this.virtualAttributes = virtualAttributes;
     }
 
