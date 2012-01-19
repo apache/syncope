@@ -34,7 +34,6 @@
     <context:component-scan base-package="org.syncope.core.policy"/>
 
     <aop:aspectj-autoproxy/>
-    <bean class="org.syncope.core.monitor.CacheMonitor"/>
 
     <bean id="xStream" class="com.thoughtworks.xstream.XStream"/>
 
