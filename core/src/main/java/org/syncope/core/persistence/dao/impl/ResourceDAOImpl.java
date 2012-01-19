@@ -15,10 +15,7 @@
 package org.syncope.core.persistence.dao.impl;
 
 import java.util.List;
-
 import javassist.NotFoundException;
-import javax.persistence.CacheRetrieveMode;
-
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
@@ -26,8 +23,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.syncope.core.init.ConnInstanceLoader;
-import org.syncope.core.persistence.beans.PropagationTask;
 import org.syncope.core.persistence.beans.ExternalResource;
+import org.syncope.core.persistence.beans.PropagationTask;
 import org.syncope.core.persistence.beans.SchemaMapping;
 import org.syncope.core.persistence.beans.SyncTask;
 import org.syncope.core.persistence.beans.role.SyncopeRole;
@@ -48,9 +45,6 @@ public class ResourceDAOImpl extends AbstractDAOImpl
 
     @Override
     public ExternalResource find(final String name) {
-        CacheRetrieveMode prevCRM = getCacheRetrieveMode();
-        setCacheRetrieveMode(CacheRetrieveMode.USE);
-
         TypedQuery<ExternalResource> query =
                 entityManager.createQuery("SELECT e "
                 + "FROM " + ExternalResource.class.getSimpleName() + " e "
@@ -62,8 +56,6 @@ public class ResourceDAOImpl extends AbstractDAOImpl
             result = query.getSingleResult();
         } catch (NoResultException e) {
         }
-
-        setCacheRetrieveMode(prevCRM);
 
         return result;
     }
@@ -106,17 +98,10 @@ public class ResourceDAOImpl extends AbstractDAOImpl
 
     @Override
     public List<SchemaMapping> findAllMappings() {
-        CacheRetrieveMode prevCRM = getCacheRetrieveMode();
-        setCacheRetrieveMode(CacheRetrieveMode.USE);
-
         Query query = entityManager.createQuery("SELECT e FROM "
                 + SchemaMapping.class.getSimpleName() + " e");
 
-        List<SchemaMapping> result = query.getResultList();
-
-        setCacheRetrieveMode(prevCRM);
-
-        return result;
+        return query.getResultList();
     }
 
     @Override

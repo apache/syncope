@@ -17,7 +17,6 @@ package org.syncope.core.persistence.dao.impl;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import javax.persistence.CacheRetrieveMode;
 import javax.persistence.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -49,17 +48,10 @@ public class SchemaDAOImpl extends AbstractDAOImpl
     public <T extends AbstractSchema> List<T> findAll(
             final Class<T> reference) {
 
-        CacheRetrieveMode prevCRM = getCacheRetrieveMode();
-        setCacheRetrieveMode(CacheRetrieveMode.USE);
-
         Query query = entityManager.createQuery(
                 "SELECT e FROM " + reference.getSimpleName() + " e");
 
-        List<T> result = query.getResultList();
-
-        setCacheRetrieveMode(prevCRM);
-
-        return result;
+        return query.getResultList();
     }
 
     @Override

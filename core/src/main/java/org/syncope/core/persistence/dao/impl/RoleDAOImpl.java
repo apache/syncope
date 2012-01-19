@@ -16,7 +16,6 @@ package org.syncope.core.persistence.dao.impl;
 
 import java.util.Collections;
 import java.util.List;
-import javax.persistence.CacheRetrieveMode;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
@@ -37,9 +36,6 @@ public class RoleDAOImpl extends AbstractDAOImpl implements RoleDAO {
 
     @Override
     public SyncopeRole find(final Long id) {
-        CacheRetrieveMode prevCRM = getCacheRetrieveMode();
-        setCacheRetrieveMode(CacheRetrieveMode.USE);
-
         TypedQuery<SyncopeRole> query = entityManager.createQuery(
                 "SELECT e FROM SyncopeRole e WHERE e.id = :id",
                 SyncopeRole.class);
@@ -51,25 +47,16 @@ public class RoleDAOImpl extends AbstractDAOImpl implements RoleDAO {
         } catch (NoResultException e) {
         }
 
-        setCacheRetrieveMode(prevCRM);
-
         return result;
     }
 
     @Override
     public List<SyncopeRole> find(final String name) {
-        CacheRetrieveMode prevCRM = getCacheRetrieveMode();
-        setCacheRetrieveMode(CacheRetrieveMode.USE);
-
         Query query = entityManager.createQuery(
                 "SELECT e FROM SyncopeRole e WHERE e.name = :name");
         query.setParameter("name", name);
 
-        List<SyncopeRole> result = query.getResultList();
-
-        setCacheRetrieveMode(prevCRM);
-
-        return result;
+        return query.getResultList();
     }
 
     @Override

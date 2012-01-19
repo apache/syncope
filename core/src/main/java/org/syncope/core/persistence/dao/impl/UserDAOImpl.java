@@ -22,7 +22,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
-import javax.persistence.CacheRetrieveMode;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TemporalType;
@@ -67,9 +66,6 @@ public class UserDAOImpl extends AbstractDAOImpl
 
     @Override
     public SyncopeUser find(final Long id) {
-        CacheRetrieveMode prevCRM = getCacheRetrieveMode();
-        setCacheRetrieveMode(CacheRetrieveMode.USE);
-
         TypedQuery<SyncopeUser> query = entityManager.createQuery(
                 "SELECT e FROM " + SyncopeUser.class.getSimpleName() + " e "
                 + "WHERE e.id = :id", SyncopeUser.class);
@@ -81,16 +77,11 @@ public class UserDAOImpl extends AbstractDAOImpl
         } catch (NoResultException e) {
         }
 
-        setCacheRetrieveMode(prevCRM);
-
         return result;
     }
 
     @Override
     public SyncopeUser find(final String username) {
-        CacheRetrieveMode prevCRM = getCacheRetrieveMode();
-        setCacheRetrieveMode(CacheRetrieveMode.USE);
-
         TypedQuery<SyncopeUser> query = entityManager.createQuery(
                 "SELECT e FROM " + SyncopeUser.class.getSimpleName() + " e "
                 + "WHERE e.username = :username", SyncopeUser.class);
@@ -102,26 +93,17 @@ public class UserDAOImpl extends AbstractDAOImpl
         } catch (NoResultException e) {
         }
 
-        setCacheRetrieveMode(prevCRM);
-
         return result;
     }
 
     @Override
     public SyncopeUser findByWorkflowId(final String workflowId) {
-        CacheRetrieveMode prevCRM = getCacheRetrieveMode();
-        setCacheRetrieveMode(CacheRetrieveMode.USE);
-
         TypedQuery<SyncopeUser> query = entityManager.createQuery(
                 "SELECT e FROM " + SyncopeUser.class.getSimpleName() + " e "
                 + "WHERE e.workflowId = :workflowId", SyncopeUser.class);
         query.setParameter("workflowId", workflowId);
 
-        SyncopeUser result = query.getSingleResult();
-
-        setCacheRetrieveMode(prevCRM);
-
-        return result;
+        return query.getSingleResult();
     }
 
     /**
